@@ -1,5 +1,5 @@
-<div class="lp" data-lp-scene="hero">
-<section class="lp-section lp-section--hero" data-lp-scene="hero">
+<div class="lp">
+<section class="lp-section lp-section--hero">
 <div class="lp-copy">
 <div class="hero relative flex flex-col gap-3">
   <a
@@ -23,6 +23,125 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
+</div>
+</div>
+<div class="lp-visual">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;display=swap" />
+<div class="lp-flow" data-lp-edges="api>hub,hub>docs,hub>mcp,hub>sdk,docs>dev-docs,docs>claude-code,mcp>claude,mcp>chatgpt,mcp>gemini,mcp>perplexity,sdk>dev-sdk,sdk>copilot" aria-hidden="true">
+<div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" data-reveal="fade" style="--x: 32; --y: 276; --w: 200; --d: 0">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--openapi" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.285 13.5H2.007l.003.077.009.15.004.063.014.171.004.039a8.813 8.813 0 0 0 .387 1.871c0 .004.002.007.003.011l.058.173.016.044a10.063 10.063 0 0 0 .08.216l.048.124a4.619 4.619 0 0 0 .078.189l.052.117.031.07.066.14.022.046.079.16.012.024c.03.059.061.117.093.175l.004.008.02.036 4.508-2.715.017-.01a3.606 3.606 0 0 1-.33-1.179Z" fill="#93D500"/><path d="m8.582 15.923-.013.013-3.717 3.717.057.053.105.094.055.048.127.107.034.029a8.31 8.31 0 0 0 .324.254l.006.004c.224.168.456.325.695.47l.025.016c.045.027.09.054.137.08l.084.048.08.045c.048.026.096.053.145.078a8.427 8.427 0 0 0 .431.21l.132-.32 1.87-4.54.007-.017a3.62 3.62 0 0 1-.584-.389Z" fill="#4D5A31"/><path d="M8.195 15.553a3.238 3.238 0 0 1-.212-.262 3.65 3.65 0 0 1-.2-.296L3.27 17.713c.069.116.141.228.215.338l.007.012.003.005.007.01v.002l.019.026.001.002c.079.116.16.23.242.342l.006.007.005.007.11.142.015.019c.038.049.077.097.117.145l.028.034a10.29 10.29 0 0 0 .155.181l.094.105.053.058.024.026.07.075.028.03.125.127 3.723-3.723a3.21 3.21 0 0 1-.122-.13Z" fill="#6BA43A"/><path d="M13.13 15.921a3.662 3.662 0 0 1-.124.096l.009.016 2.714 4.506a8.206 8.206 0 0 0 1.134-.886l-3.718-3.717-.015-.015Z" fill="#4D5A31"/><path d="m15.335 20.576-.092-.153-2.534-4.206a3.578 3.578 0 0 1-.316.167 3.6 3.6 0 0 1-2.567.2c-.057-.017-.113-.04-.169-.06-.056-.02-.113-.037-.168-.06L7.62 21.003l-.073.178-.063.152.014.006.016.006.004.002c.044.018.089.033.133.05.056.022.11.044.167.065l.085.032a8.912 8.912 0 0 0 1.88.442l.075.008.142.016.036.003.174.014.06.004.153.01.094.003.122.004a10.28 10.28 0 0 0 .217.003 8.877 8.877 0 0 0 1.495-.126l.154-.028.088-.017.09-.02c.05-.01.1-.02.15-.032l.028-.007a8.885 8.885 0 0 0 2.124-.791l.13-.074.157-.088.107-.06.001-.001.002-.001h.001l.001-.001.002-.001.006-.004.034-.02-.091-.153Zm-6.75-10.21a4.17 4.17 0 0 1 .123-.097l-.009-.015-2.714-4.506c-.126.082-.25.167-.372.256a8.933 8.933 0 0 0-.762.629L8.57 10.35l.015.015Z" fill="#93D500"/><path d="M4.594 6.88c-.043.043-.083.087-.124.13l-.123.128a8.875 8.875 0 0 0-.753.933l-.032.046-.076.112a6.38 6.38 0 0 0-.104.16 8.833 8.833 0 0 0-1.375 4.397l-.005.178-.003.179h5.266c0-.06.005-.119.008-.179s.004-.119.01-.178a3.572 3.572 0 0 1 .794-1.917c.038-.046.08-.09.12-.133.04-.044.077-.09.12-.133L4.594 6.881Zm10.864-1.306c-.007-.005-.014-.01-.021-.013a7.255 7.255 0 0 0-.14-.083l-.082-.047-.082-.046a27.998 27.998 0 0 0-.143-.077l-.023-.012a8.866 8.866 0 0 0-.95-.426l-.024-.01a8.908 8.908 0 0 0-1.987-.498l-.074-.01-.075-.008a6.585 6.585 0 0 0-.143-.016l-.04-.004a14.02 14.02 0 0 0-.17-.014l-.066-.004-.146-.009a3.121 3.121 0 0 0-.078-.003v5.278c.27.028.54.086.8.174l3.884-3.884a8.66 8.66 0 0 0-.44-.288Z" fill="#4D5A31"/><path d="M10.679 4.29c-.06.001-.12.001-.179.003a8.86 8.86 0 0 0-1.113.115l-.024.004-.155.029-.087.016a5.71 5.71 0 0 0-.24.052l-.028.006a8.918 8.918 0 0 0-2.125.792l-.13.074a10.34 10.34 0 0 0-.156.087c-.038.023-.077.043-.115.066h-.002a.099.099 0 0 1-.008.005l-.03.017v.001l.093.153 2.625 4.359a3.846 3.846 0 0 1 .316-.167 3.576 3.576 0 0 1 1.536-.35V4.285c-.06 0-.119.003-.178.004Z" fill="#6BA43A"/><path d="M19.704 12.708a9.926 9.926 0 0 0-.05-.61l-.002-.014-.001-.007a9.571 9.571 0 0 0-.027-.201v-.006a8.88 8.88 0 0 0-.273-1.245l-.002-.008-.059-.19-.008-.025a10.987 10.987 0 0 0-.057-.17l-.016-.046-.054-.147c-.009-.024-.017-.047-.027-.07a4.804 4.804 0 0 0-.086-.216l-.04-.094c-.016-.04-.034-.08-.052-.12l-.03-.068a15.234 15.234 0 0 0-.066-.142l-.021-.043a7.015 7.015 0 0 0-.08-.162l-.012-.022c-.03-.06-.061-.119-.093-.177l-.003-.006a8.906 8.906 0 0 0-.504-.818l-3.886 3.886c.088.26.146.529.174.8h5.278c0-.027-.002-.054-.003-.08Z" fill="#4D5A31"/><path d="M14.45 13.143c0 .06-.006.119-.01.179-.002.06-.003.119-.01.178a3.573 3.573 0 0 1-.793 1.918c-.037.046-.08.088-.12.133-.04.044-.077.09-.12.132l3.723 3.723c.043-.043.082-.086.124-.13l.123-.128c.276-.299.528-.61.754-.935l.027-.039.082-.12.07-.108.034-.052a8.83 8.83 0 0 0 1.377-4.573c.002-.059.003-.118.003-.178H14.45Z" fill="#6BA43A"/><path d="M21.279 2.722a2.467 2.467 0 0 0-3.953 2.84l-5.374 5.373a2.467 2.467 0 1 0 1.114 1.113l5.373-5.373a2.466 2.466 0 0 0 2.84-3.953Z" fill="#424143"/></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Acme Corp</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>openapi.yaml</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node lp-node--hub" data-lp-node="hub" data-reveal="fade" style="--x: 413; --y: 276; --d: 240">
+<div class="lp-hub"><svg class="lp-hub-mark" viewBox="0 0 39 39" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path fill="currentColor" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg></div>
+</div>
+<a class="lp-node" data-lp-node="docs" href="#lp-docs" data-lp-target="docs" data-lp-flip="Built {v}|Docs rebuilt" data-reveal="fade" style="--x: 594; --y: 84; --w: 200; --d: 640">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-blue)"><scalar-icon src="phosphor/regular/book-open"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Docs</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>API reference</span></span></div>
+</div>
+</div>
+</a>
+<a class="lp-node" data-lp-node="mcp" href="#lp-mcp" data-lp-target="mcp" data-lp-flip="Server live|Tools synced" data-reveal="fade" style="--x: 594; --y: 276; --w: 200; --d: 720">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-orange)"><svg class="lp-mark lp-mark--mcp" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.688 2.343a2.588 2.588 0 00-3.61 0l-9.626 9.44a.863.863 0 01-1.203 0 .823.823 0 010-1.18l9.626-9.44a4.313 4.313 0 016.016 0 4.116 4.116 0 011.204 3.54 4.3 4.3 0 013.609 1.18l.05.05a4.115 4.115 0 010 5.9l-8.706 8.537a.274.274 0 000 .393l1.788 1.754a.823.823 0 010 1.18.863.863 0 01-1.203 0l-1.788-1.753a1.92 1.92 0 010-2.754l8.706-8.538a2.47 2.47 0 000-3.54l-.05-.049a2.588 2.588 0 00-3.607-.003l-7.172 7.034-.002.002-.098.097a.863.863 0 01-1.204 0 .823.823 0 010-1.18l7.273-7.133a2.47 2.47 0 00-.003-3.537z"></path><path d="M14.485 4.703a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a4.115 4.115 0 000 5.9 4.314 4.314 0 006.016 0l7.12-6.982a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a2.588 2.588 0 01-3.61 0 2.47 2.47 0 010-3.54l7.12-6.982z"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>MCP</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Agent tools</span></span></div>
+</div>
+</div>
+</a>
+<a class="lp-node" data-lp-node="sdk" href="#lp-sdk" data-lp-target="sdk" data-lp-flip="{v} tagged|8 SDKs built" data-reveal="fade" style="--x: 594; --y: 468; --w: 200; --d: 800">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-purple)"><scalar-icon src="phosphor/regular/package"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>SDKs</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>TypeScript +7</span></span></div>
+</div>
+</div>
+</a>
+<div class="lp-node" data-lp-node="dev-docs" data-lp-parent="docs" data-lp-flip="GET /users|GET /keys|POST /keys" data-reveal="fade" style="--x: 947; --y: 52; --w: 200; --d: 1100">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>API consumer</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude-code" data-lp-parent="docs" data-lp-flip="GET /users/42|PATCH /orders|GET /openapi" data-reveal="fade" style="--x: 947; --y: 116; --w: 200; --d: 1160">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude Code</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude" data-lp-parent="mcp" data-lp-flip="tools/list|list_users|get_order" data-reveal="fade" style="--x: 947; --y: 180; --w: 200; --d: 1220">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="chatgpt" data-lp-parent="mcp" data-lp-flip="tools/call|new_order|get_prompt" data-reveal="fade" style="--x: 947; --y: 244; --w: 200; --d: 1280">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--chatgpt" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>ChatGPT</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="gemini" data-lp-parent="mcp" data-lp-flip="get_orders|get_schema|do_refund" data-reveal="fade" style="--x: 947; --y: 308; --w: 200; --d: 1340">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--gemini" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="#3186FF"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-0-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-1-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-2-_R_0_)"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-0-_R_0_" x1="7" x2="11" y1="15.5" y2="12"><stop stop-color="#08B962"></stop><stop offset="1" stop-color="#08B962" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-1-_R_0_" x1="8" x2="11.5" y1="5.5" y2="11"><stop stop-color="#F94543"></stop><stop offset="1" stop-color="#F94543" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-2-_R_0_" x1="3.5" x2="17.5" y1="13.5" y2="12"><stop stop-color="#FABC12"></stop><stop offset=".46" stop-color="#FABC12" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Gemini</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="perplexity" data-lp-parent="mcp" data-lp-flip="get_items|tools/list|get_order" data-reveal="fade" style="--x: 947; --y: 372; --w: 200; --d: 1400">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--perplexity" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.785 0v7.272H22.5V17.62h-2.935V24l-7.037-6.194v6.145h-1.091v-6.152L4.392 24v-6.465H1.5V7.188h2.884V0l7.053 6.494V.19h1.09v6.49L19.786 0zm-7.257 9.044v7.319l5.946 5.234V14.44l-5.946-5.397zm-1.099-.08l-5.946 5.398v7.235l5.946-5.234V8.965zm8.136 7.58h1.844V8.349H13.46l6.105 5.54v2.655zm-8.982-8.28H2.59v8.195h1.8v-2.576l6.192-5.62zM5.475 2.476v4.71h5.115l-5.115-4.71zm13.219 0l-5.115 4.71h5.115v-4.71z" fill="#22B8CD" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Perplexity</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="dev-sdk" data-lp-parent="sdk" data-lp-flip="npm i acme|bun i acme|gem i acme" data-reveal="fade" style="--x: 947; --y: 436; --w: 200; --d: 1460">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>SDK user</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="copilot" data-lp-parent="sdk" data-lp-flip="users.list()|orders.get(1)|orders.pay()" data-reveal="fade" style="--x: 947; --y: 500; --w: 200; --d: 1520">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--copilot" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.533 1.829A2.528 2.528 0 0015.11 0h-.737a2.531 2.531 0 00-2.484 2.087l-1.263 6.937.314-1.08a2.528 2.528 0 012.424-1.833h4.284l1.797.706 1.731-.706h-.505a2.528 2.528 0 01-2.423-1.829l-.715-2.453z" fill="url(#lobe-icons-copilot-0-_R_0_)" transform="translate(0 1)"></path><path d="M6.726 20.16A2.528 2.528 0 009.152 22h1.566c1.37 0 2.49-1.1 2.525-2.48l.17-6.69-.357 1.228a2.528 2.528 0 01-2.423 1.83h-4.32l-1.54-.842-1.667.843h.497c1.124 0 2.113.75 2.426 1.84l.697 2.432z" fill="url(#lobe-icons-copilot-1-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-2-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-3-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-4-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-5-_R_0_)" transform="translate(0 1)"></path><defs><radialGradient cx="85.44%" cy="100.653%" fx="85.44%" fy="100.653%" gradientTransform="scale(-.8553 -1) rotate(50.927 2.041 -1.946)" id="lobe-icons-copilot-0-_R_0_" r="105.116%"><stop offset="9.6%" stop-color="#00AEFF"></stop><stop offset="77.3%" stop-color="#2253CE"></stop><stop offset="100%" stop-color="#0736C4"></stop></radialGradient><radialGradient cx="18.143%" cy="32.928%" fx="18.143%" fy="32.928%" gradientTransform="scale(.8897 1) rotate(52.069 .193 .352)" id="lobe-icons-copilot-1-_R_0_" r="95.612%"><stop offset="0%" stop-color="#FFB657"></stop><stop offset="63.4%" stop-color="#FF5F3D"></stop><stop offset="92.3%" stop-color="#C02B3C"></stop></radialGradient><radialGradient cx="82.987%" cy="-9.792%" fx="82.987%" fy="-9.792%" gradientTransform="scale(-1 -.9441) rotate(-70.872 .142 1.17)" id="lobe-icons-copilot-4-_R_0_" r="140.622%"><stop offset="6.6%" stop-color="#8C48FF"></stop><stop offset="50%" stop-color="#F2598A"></stop><stop offset="89.6%" stop-color="#FFB152"></stop></radialGradient><linearGradient id="lobe-icons-copilot-2-_R_0_" x1="39.465%" x2="46.884%" y1="12.117%" y2="103.774%"><stop offset="15.6%" stop-color="#0D91E1"></stop><stop offset="48.7%" stop-color="#52B471"></stop><stop offset="65.2%" stop-color="#98BD42"></stop><stop offset="93.7%" stop-color="#FFC800"></stop></linearGradient><linearGradient id="lobe-icons-copilot-3-_R_0_" x1="45.949%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#3DCBFF"></stop><stop offset="24.7%" stop-color="#0588F7" stop-opacity="0"></stop></linearGradient><linearGradient id="lobe-icons-copilot-5-_R_0_" x1="83.507%" x2="83.453%" y1="-6.106%" y2="21.131%"><stop offset="5.8%" stop-color="#F8ADFA"></stop><stop offset="70.8%" stop-color="#A86EDD" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Copilot</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="lp-hero-foot">
   <div class="lp-trusted">
     <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
     <div class="lp-trusted-track">
@@ -58,254 +177,8 @@
     </div>
   </div>
 </div>
-  <dl class="lp-stats">
-    <div class="lp-stat">
-      <dt>1</dt>
-      <dd>OpenAPI document behind your docs, SDKs and MCP server</dd>
-    </div>
-    <div class="lp-stat">
-      <dt>10k+</dt>
-      <dd>API teams building with Scalar</dd>
-    </div>
-  </dl>
-</div>
 </section>
-<div class="lp-visual bg-b-2 rounded-lg">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;display=swap" />
-<svg class="lp-art" viewBox="0 0 540 700" fill="none" aria-hidden="true" shape-rendering="geometricPrecision" xmlns="http://www.w3.org/2000/svg">
-<line class="lp-art-dash" data-reveal="divider" x1="-600" y1="347" x2="1140" y2="347" />
-<g data-reveal="pop" style="--d: 700"><rect class="lp-art-ink" x="9" y="344" width="6" height="6" /></g>
-<g data-reveal="pop" style="--d: 700"><rect class="lp-art-ink" x="525" y="344" width="6" height="6" /></g>
-<g data-reveal="fade" style="--d: 100">
-<rect class="lp-art-panel" x="210.5" y="52.5" width="120" height="24" />
-<rect class="lp-art-ink" x="210.5" y="52.5" width="24" height="24" />
-<path class="lp-art-mask" transform="translate(215.5 57.5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z" />
-<text class="lp-art-chip-text" x="242" y="68.5">openapi.yaml</text>
-</g>
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 250" x1="270" y1="76.5" x2="270" y2="150" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 500" x1="270" y1="150" x2="100" y2="150" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 500" x1="270" y1="150" x2="440" y2="150" />
-<g data-reveal="pop" style="--d: 800"><rect class="lp-art-ring" x="266.3" y="146.3" width="7.4" height="7.4" transform="rotate(45 270 150)" /></g>
-<g data-reveal="pop" style="--d: 1000"><rect class="lp-art-ink" x="97" y="147" width="6" height="6" /></g>
-<g data-reveal="pop" style="--d: 1000"><rect class="lp-art-ink" x="437" y="147" width="6" height="6" /></g>
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="100" y1="150" x2="100" y2="251" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="270" y1="150" x2="270" y2="251" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 1000" x1="440" y1="150" x2="440" y2="251" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2000" x1="100" y1="446" x2="50" y2="600" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2080" x1="100" y1="446" x2="140" y2="636" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2160" x1="100" y1="446" x2="24" y2="556" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2040" x1="270" y1="446" x2="236" y2="590" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2120" x1="270" y1="446" x2="316" y2="646" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2200" x1="270" y1="446" x2="270" y2="662" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2080" x1="440" y1="446" x2="404" y2="600" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2160" x1="440" y1="446" x2="490" y2="630" />
-<line class="lp-art-line" data-reveal="line" pathLength="1" style="--d: 2240" x1="440" y1="446" x2="526" y2="560" />
-<g data-reveal="pop" style="--d: 2760"><circle class="lp-art-dot" cx="24" cy="556" r="2.25" /></g>
-<g data-reveal="pop" style="--d: 2800"><circle class="lp-art-ring" cx="270" cy="662" r="3.5" /></g>
-<g data-reveal="pop" style="--d: 2840"><circle class="lp-art-dot" cx="526" cy="560" r="2.25" /></g>
-</svg>
-<a class="lp-box lp-box--docs" href="#lp-docs" data-lp-target="docs" data-reveal="fade" style="--d: 1500; --bx: 30; --by: 251; --lp-box-spine: #2E9AF0">
-<div class="lp-box-body">
-<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="lpbx-face-docs" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#4CC3FF"/><stop offset="1" stop-color="#2EA3FF"/></linearGradient>
-<linearGradient id="lpbx-sheen-docs" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
-<clipPath id="lpbx-clip-docs"><rect width="152" height="210" rx="1.5"/></clipPath>
-<path id="lpbx-ring-docs" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
-</defs>
-<g clip-path="url(#lpbx-clip-docs)">
-<rect width="152" height="210" fill="url(#lpbx-face-docs)"/>
-<g class="lp-box-tunnel">
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#3E8FFF"/>
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#52CBFF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#4BB7FF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#45A3FF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#3E8FFF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#387BFF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#3167FF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#2A53FF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#243FFF" />
-<use href="#lpbx-ring-docs" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#1D2BFF" />
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#1D2BFF"/>
-</g>
-<rect width="152" height="210" fill="url(#lpbx-sheen-docs)" style="mix-blend-mode: soft-light"/>
-</g>
-</svg>
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
-<div class="lp-win lp-win--pair">
-<div class="lp-browser lp-browser--md">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings.md</span></div>
-<div class="lp-md">
-<span class="lp-md-line lp-md-h"># Delete a meeting&#8217;s archived files</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line"><span class="lp-md-code">`DELETE /past_meetings/&#123;meetingUUID&#125;/archive_files`</span></span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">Delete all of a meeting&#8217;s archived files.</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line lp-md-h">## Path Parameters</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">- <span class="lp-md-code">`meetingUUID`</span> (string, required): The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID.</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line lp-md-h">## Responses</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">- <span class="lp-md-code">`204`</span> Meeting archived file deleted.</span>
-<span class="lp-md-line">- <span class="lp-md-code">`400`</span> Bad Request</span>
-<span class="lp-md-line">- <span class="lp-md-code">`401`</span> Not Found</span>
-<span class="lp-md-line">- <span class="lp-md-code">`429`</span> Too Many Requests</span>
-</div>
-</div>
-<div class="lp-browser lp-browser--site">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings</span></div>
-<div class="lp-site">
-<div class="lp-site-header"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="lp-doc-logo" aria-hidden="true" viewBox="0 1.1 74.19 16.87"><path d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27M74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27zM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0m-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0"/></svg><span class="lp-doc-brand">Developers</span><span class="lp-doc-search"><scalar-icon src="phosphor/regular/magnifying-glass"></scalar-icon></span></div>
-<div class="lp-site-main">
-<div class="lp-doc-title">Delete a meeting&#8217;s archived files</div>
-<div class="lp-doc-request"><div class="lp-doc-request-bar"><span class="lp-doc-method">DELETE</span><span class="lp-doc-path">/past_meetings/&#123;meetingUUID&#125;/archive_files</span></div><div class="lp-doc-request-code"><span class="lp-doc-line"><span class="lp-doc-n">1</span><span><span class="lp-doc-k">curl</span> <span class="lp-doc-url">https://api.zoom.us/v2/past_meetings/4444AAAiAA</span> <span class="lp-doc-f">\</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">2</span><span>&#160;&#160;<span class="lp-doc-f">--request DELETE \</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">3</span><span>&#160;&#160;<span class="lp-doc-f">--header</span> <span class="lp-doc-s">&#39;Authorization: Bearer YOUR_SECRET_TOKEN&#39;</span></span></span></div><div class="lp-doc-request-foot"><span class="lp-doc-test"><scalar-icon src="phosphor/fill/play"></scalar-icon>Test Request</span></div></div>
-<div class="lp-doc-label">Path Parameters</div>
-<div class="lp-doc-param"><span class="lp-doc-code">meetingUUID</span><span class="lp-doc-type">string</span><span class="lp-doc-required">Required</span></div>
-<div class="lp-doc-help">The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID. For example, after a meeting ends, a new UUID is generated for the next meeting instance.</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="lp-box-label"><span class="lp-box-title">Docs</span><span class="lp-box-subtitle">For Agents &amp; Humans</span></div>
-<div class="lp-box-spine" aria-hidden="true">
-<span class="lp-box-volume">Volume 1</span>
-<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
-</div>
-</div>
-</a>
-<a class="lp-box lp-box--sdk" href="#lp-sdk" data-lp-target="sdk" data-reveal="fade" style="--d: 1600; --bx: 200; --by: 251; --lp-box-spine: #9C7CF2">
-<div class="lp-box-body">
-<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="lpbx-face-sdk" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#B79BFF"/><stop offset="1" stop-color="#9C7BFF"/></linearGradient>
-<linearGradient id="lpbx-sheen-sdk" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
-<clipPath id="lpbx-clip-sdk"><rect width="152" height="210" rx="1.5"/></clipPath>
-<path id="lpbx-ring-sdk" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
-</defs>
-<g clip-path="url(#lpbx-clip-sdk)">
-<rect width="152" height="210" fill="url(#lpbx-face-sdk)"/>
-<g class="lp-box-tunnel">
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#9B68F6"/>
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#C2A6FF" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#B591FC" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#A87CF9" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#9B68F6" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#8E53F2" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#813EEF" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#742AEC" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#6715E9" />
-<use href="#lpbx-ring-sdk" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#5A00E6" />
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#5A00E6"/>
-</g>
-<rect width="152" height="210" fill="url(#lpbx-sheen-sdk)" style="mix-blend-mode: soft-light"/>
-</g>
-</svg>
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
-<div class="lp-win lp-win--app lp-win--code">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="lp-win-brand" aria-hidden="true" viewBox="0 0 1236 351"><g fill="currentColor" clip-path="url(#warp-logo-clip-wall)"><path d="M341.87 122.39A175.4 175.4 0 0 0 224.76 7.21c21.37 68.74 71.94 110.54 117.11 115.18"/><path d="m345.73 136.78-.61-2.66C276.82 131.98 208.24 86.83 189.65.61q-7.28-.61-14.72-.62c-12.08 0-23.87 1.22-35.26 3.55 26.94 83.98 123.11 131.57 206.06 133.23z"/><path d="M348.13 149.95c-118.71-.69-218.72-60.46-249.67-132.4a176 176 0 0 0-53.29 40.03c66.49 57.59 183.26 94.65 303.33 95q-.17-1.32-.37-2.63"/><path d="M349.68 165.77c-101.84-.05-244.09-15.45-332.26-67.13a174 174 0 0 0-15.43 49.35c97.11 17.89 226.18 20.16 347.78 20.17zM224.85 342.76a175.4 175.4 0 0 0 116.93-114.88c-45.08 4.68-95.52 46.36-116.93 114.88"/><path d="m345.05 216.13.62-2.66c-82.86 1.68-178.88 49.18-205.93 132.98a176 176 0 0 0 49.96 2.91c18.67-86.02 87.15-131.08 155.35-133.24z"/><path d="m348.09 200.31.37-2.63c-119.98.35-236.66 37.37-303.16 94.88a176 176 0 0 0 53.26 39.93C129.61 260.66 229.52 201 348.1 200.31z"/><path d="M349.77 182.11c-121.58 0-250.62 2.28-347.73 20.16a174 174 0 0 0 15.48 49.3c88.17-51.63 230.33-67.02 332.14-67.07z"/></g><path fill="currentColor" d="M1149.21 278.42c-22.92 0-41.64-7.64-55.78-22.54V351h-55.77V74.82h55.77v18.72c14.14-14.9 32.86-22.54 55.78-22.54 48.89 0 85.94 37.82 85.94 103.9 0 65.7-37.05 103.52-85.94 103.52m-13.76-47.75c25.98 0 42.02-20.62 42.02-55.77 0-35.14-16.04-56.15-42.02-56.15-25.97 0-42.02 21-42.02 56.15s16.05 55.77 42.02 55.77M897.77 274.6V74.82h55.77v28.27C969.2 80.55 991.74 71 1012 71h7.64v56.54H1012c-29.42 0-58.45 12.6-58.45 45.07v102zm-73.46 0v-17.57c-15.28 14.52-36.67 21.4-57.68 21.4-36.67 0-66.85-21.78-66.85-61.5 0-44.7 35.53-60.36 87.48-64.18 27.12-3.44 38.58-7.26 38.58-19.49 0-11.07-10.7-18.71-30.56-18.71-18.72 0-32.47 8.78-34 23.3h-54.24C710.48 92.39 751.35 71 795.66 71c45.84 0 84.42 19.1 84.42 68.76V274.6zm-68.76-61.12c0 15.28 11.46 22.92 27.12 22.92 19.49 0 41.64-11.08 41.64-35.9v-16.81c-10.31 2.67-21.77 4.2-33.23 5.34-21.78 2.68-35.53 9.17-35.53 24.45m-297.1 61.12L400 74.82h58.06l32.09 135.99 37.82-135.99h53.86l36.67 135.99 33.23-135.99h53.86L646.77 274.6h-56.92L552.8 143.96 515.74 274.6z"/><defs><clipPath id="warp-logo-clip-wall"><path fill="#fff" d="M0 0h350v350H0z"/></clipPath></defs></svg><span class="lp-win-repo">warp-sdk-typescript</span></span></div>
-<div class="lp-win-tabs"><span class="is-active">TypeScript</span><span>Python</span><span>Go</span><span>CLI</span></div>
-<div class="lp-win-code">
-<span class="lp-win-line"><span class="lp-win-k">import</span> Warp <span class="lp-win-k">from</span> <span class="lp-win-s">'warp-hr'</span></span>
-<span class="lp-win-line"></span>
-<span class="lp-win-line"><span class="lp-win-k">const</span> client = <span class="lp-win-k">new</span> Warp({</span>
-<span class="lp-win-line">&#160;&#160;apiKey: process.env.WARP_API_KEY,</span>
-<span class="lp-win-line">})</span>
-<span class="lp-win-line"></span>
-<span class="lp-win-line"><span class="lp-win-k">const</span> plans = <span class="lp-win-k">await</span> client.benefits.healthPlans.list({</span>
-<span class="lp-win-line">&#160;&#160;statuses: [<span class="lp-win-s">'active'</span>],</span>
-<span class="lp-win-line">})</span>
-<span class="lp-win-line"></span>
-<span class="lp-win-line"><span class="lp-win-k">const</span> requests = <span class="lp-win-k">await</span> client.timeOff.listRequests()</span>
-<span class="lp-win-line"><span class="lp-win-k">const</span> payroll = <span class="lp-win-k">await</span> client.payroll.get(<span class="lp-win-s">'pay_1234'</span>)</span>
-</div>
-</div>
-</div>
-<div class="lp-box-label"><span class="lp-box-title">SDKs</span><span class="lp-box-subtitle">For Every Language</span></div>
-<div class="lp-box-spine" aria-hidden="true">
-<span class="lp-box-volume">Volume 2</span>
-<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
-</div>
-</div>
-</a>
-<a class="lp-box lp-box--mcp" href="#lp-mcp" data-lp-target="mcp" data-reveal="fade" style="--d: 1700; --bx: 370; --by: 251; --lp-box-spine: #EF9609">
-<div class="lp-box-body">
-<svg class="lp-box-front" viewBox="0 0 152 210" preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<defs>
-<linearGradient id="lpbx-face-mcp" x1="76" y1="0" x2="76" y2="210" gradientUnits="userSpaceOnUse"><stop stop-color="#F5AF00"/><stop offset="1" stop-color="#FB9500"/></linearGradient>
-<linearGradient id="lpbx-sheen-mcp" x1="0" y1="0" x2="152" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="rgb(128,127,128)"/><stop offset="0.2077" stop-color="rgb(128,180,128)"/><stop offset="0.4863" stop-color="rgb(128,137,128)"/><stop offset="0.6175" stop-color="rgb(128,128,128)"/><stop offset="1" stop-color="rgb(128,110,128)"/></linearGradient>
-<clipPath id="lpbx-clip-mcp"><rect width="152" height="210" rx="1.5"/></clipPath>
-<path id="lpbx-ring-mcp" fill-rule="evenodd" d="M-32.5 -32.5H32.5V32.5H-32.5ZM-20.47 -20.47H20.47V20.47H-20.47Z"/>
-</defs>
-<g clip-path="url(#lpbx-clip-mcp)">
-<rect width="152" height="210" fill="url(#lpbx-face-mcp)"/>
-<g class="lp-box-tunnel">
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(2.7)" fill="#FF7800"/>
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--8" transform="translate(72.3 150) scale(9.49045)" fill="#FFA500" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--7" transform="translate(72.3 150) scale(6.16263)" fill="#FF9600" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--6" transform="translate(72.3 150) scale(4.00171)" fill="#FF8700" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--5" transform="translate(72.3 150) scale(2.59851)" fill="#FF7800" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--4" transform="translate(72.3 150) scale(1.68735)" fill="#FF6A00" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--3" transform="translate(72.3 150) scale(1.09568)" fill="#FF5B00" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--2" transform="translate(72.3 150) scale(.71148)" fill="#FF4C00" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--1" transform="translate(72.3 150) scale(.462)" fill="#FF3D00" />
-<use href="#lpbx-ring-mcp" class="lp-box-ring lp-box-ring--0" transform="translate(72.3 150) scale(.3)" fill="#FF2E00" />
-<path d="M-32.5 -32.5H32.5V32.5H-32.5Z" transform="translate(72.3 150) scale(.44)" fill="#FF2E00"/>
-</g>
-<rect width="152" height="210" fill="url(#lpbx-sheen-mcp)" style="mix-blend-mode: soft-light"/>
-</g>
-</svg>
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
-<div class="lp-win lp-win--app lp-chat">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">Missing planet images<scalar-icon src="phosphor/regular/caret-down"></scalar-icon></span></div>
-<div class="lp-chat-messages">
-<div class="lp-chat-turn">
-<div class="lp-chat-prompt">Which planets in the Galaxy API are still missing an image?</div>
-<div class="lp-chat-response">
-<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 3s"><span class="lp-chat-think-sizer">Thought for 3s</span><span class="lp-chat-think-text" data-text="Thought for 3s">Thought for 3s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
-<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
-<div class="lp-chat-line">Kepler-22b is the only planet without an image. The other eleven all have one.</div>
-</div>
-</div>
-<div class="lp-chat-turn">
-<div class="lp-chat-prompt">Upload the Kepler-22b render to it</div>
-<div class="lp-chat-response">
-<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 2s"><span class="lp-chat-think-sizer">Thought for 2s</span><span class="lp-chat-think-text" data-text="Thought for 2s">Thought for 2s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Checked the response</span></div></div></div></div>
-<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
-<div class="lp-chat-line">Done. The API returned 201 Created, so Kepler-22b has its render now.</div>
-<div class="lp-chat-line">Want me to add the TRAPPIST-1e one next?</div>
-</div>
-</div>
-</div>
-<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Opus 5 <span>High</span></span></div></div>
-</div>
-</div>
-<div class="lp-box-label"><span class="lp-box-title">MCP</span><span class="lp-box-subtitle">For Agents &amp; Chat Apps</span></div>
-<div class="lp-box-spine" aria-hidden="true">
-<span class="lp-box-volume">Volume 3</span>
-<svg class="lp-box-mark" viewBox="0 0 54.2 55"><path d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg>
-</div>
-</div>
-</a>
-<div class="lp-node" data-reveal="fade" style="--d: 2600; --nx: 50; --ny: 600"><scalar-icon src="phosphor/regular/globe"></scalar-icon></div>
-<div class="lp-node" data-reveal="fade" style="--d: 2680; --nx: 140; --ny: 636"><scalar-icon src="phosphor/regular/browser"></scalar-icon></div>
-<div class="lp-node" data-reveal="fade" style="--d: 2640; --nx: 236; --ny: 590"><scalar-icon src="phosphor/regular/package"></scalar-icon></div>
-<div class="lp-node" data-reveal="fade" style="--d: 2720; --nx: 316; --ny: 646"><scalar-icon src="phosphor/regular/terminal"></scalar-icon></div>
-<div class="lp-node" data-reveal="fade" style="--d: 2680; --nx: 404; --ny: 600"><scalar-icon src="phosphor/regular/chat-circle-dots"></scalar-icon></div>
-<div class="lp-node" data-reveal="fade" style="--d: 2760; --nx: 490; --ny: 630"><scalar-icon src="phosphor/regular/robot"></scalar-icon></div>
-<svg class="lp-grain" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-<filter id="lp-speckle" x="0" y="0" width="100%" height="100%" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="2" seed="11" stitchTiles="stitch" result="t"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.8 0 0 0 0.4" result="dk"/><feColorMatrix in="t" type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0.9 0 0 -0.45" result="lt"/><feMerge><feMergeNode in="dk"/><feMergeNode in="lt"/></feMerge></filter>
-<rect width="100%" height="100%" filter="url(#lp-speckle)" opacity="0.2"/>
-</svg>
-</div>
-<section class="lp-section" id="lp-docs" data-lp-scene="docs">
+<section class="lp-section" id="lp-docs">
 <div class="lp-copy">
   <span class="lp-kicker text-blue">Docs</span>
   <scalar-heading level="2" slug="scalar-docs" class="c">
@@ -336,61 +209,28 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">Create Docs</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">Learn more &rarr;</a>
   </div>
-  <dl class="lp-stats">
-    <div class="lp-stat">
-      <dt>50M+</dt>
-      <dd>API reference page views served every month</dd>
-    </div>
-    <div class="lp-stat">
-      <dt>2 min</dt>
-      <dd>From OpenAPI document to published docs</dd>
-    </div>
-  </dl>
+  <div class="lp-logos" role="img" aria-label="Used by Clerk, Tailscale, Thomson Reuters">
+    <scalar-icon class="lp-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon>
+    <scalar-icon class="lp-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon>
+    <scalar-icon class="lp-logo lp-logo--tr" src="../assets/remote/logo-tr.svg"></scalar-icon>
+  </div>
 </div>
-  <div class="lp-section-figure lp-card lp-card--docs" aria-hidden="true">
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
-<div class="lp-win lp-win--pair">
-<div class="lp-browser lp-browser--md">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings.md</span></div>
-<div class="lp-md">
-<span class="lp-md-line lp-md-h"># Delete a meeting&#8217;s archived files</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line"><span class="lp-md-code">`DELETE /past_meetings/&#123;meetingUUID&#125;/archive_files`</span></span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">Delete all of a meeting&#8217;s archived files.</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line lp-md-h">## Path Parameters</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">- <span class="lp-md-code">`meetingUUID`</span> (string, required): The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID.</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line lp-md-h">## Responses</span>
-<span class="lp-md-line">&#160;</span>
-<span class="lp-md-line">- <span class="lp-md-code">`204`</span> Meeting archived file deleted.</span>
-<span class="lp-md-line">- <span class="lp-md-code">`400`</span> Bad Request</span>
-<span class="lp-md-line">- <span class="lp-md-code">`401`</span> Not Found</span>
-<span class="lp-md-line">- <span class="lp-md-code">`429`</span> Too Many Requests</span>
+  <div class="lp-card lp-card--docs" aria-hidden="true">
+<div class="lp-card-screen">
+<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
+<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
+<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
+<div class="lp-win lp-win--shot"><img class="light-image" src="/api-docs-static-zoom.svg" alt="" loading="lazy" /><img class="dark-image" src="/api-docs-static-zoom-dark.svg" alt="" loading="lazy" /></div>
 </div>
-</div>
-<div class="lp-browser lp-browser--site">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings</span></div>
-<div class="lp-site">
-<div class="lp-site-header"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="lp-doc-logo" aria-hidden="true" viewBox="0 1.1 74.19 16.87"><path d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27M74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27zM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0m-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0"/></svg><span class="lp-doc-brand">Developers</span><span class="lp-doc-search"><scalar-icon src="phosphor/regular/magnifying-glass"></scalar-icon></span></div>
-<div class="lp-site-main">
-<div class="lp-doc-title">Delete a meeting&#8217;s archived files</div>
-<div class="lp-doc-request"><div class="lp-doc-request-bar"><span class="lp-doc-method">DELETE</span><span class="lp-doc-path">/past_meetings/&#123;meetingUUID&#125;/archive_files</span></div><div class="lp-doc-request-code"><span class="lp-doc-line"><span class="lp-doc-n">1</span><span><span class="lp-doc-k">curl</span> <span class="lp-doc-url">https://api.zoom.us/v2/past_meetings/4444AAAiAA</span> <span class="lp-doc-f">\</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">2</span><span>&#160;&#160;<span class="lp-doc-f">--request DELETE \</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">3</span><span>&#160;&#160;<span class="lp-doc-f">--header</span> <span class="lp-doc-s">&#39;Authorization: Bearer YOUR_SECRET_TOKEN&#39;</span></span></span></div><div class="lp-doc-request-foot"><span class="lp-doc-test"><scalar-icon src="phosphor/fill/play"></scalar-icon>Test Request</span></div></div>
-<div class="lp-doc-label">Path Parameters</div>
-<div class="lp-doc-param"><span class="lp-doc-code">meetingUUID</span><span class="lp-doc-type">string</span><span class="lp-doc-required">Required</span></div>
-<div class="lp-doc-help">The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID. For example, after a meeting ends, a new UUID is generated for the next meeting instance.</div>
+<div class="lp-flow-row">
+<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Developers</span>
+<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">Agents</span>
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="lp-box-label"><span class="lp-box-title">Docs</span></div>
   </div>
 </section>
-<section class="lp-section" id="lp-sdk" data-lp-scene="sdk">
+<section class="lp-section" id="lp-sdk">
 <div class="lp-copy">
   <span class="lp-kicker text-purple">SDK Generation</span>
   <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
@@ -421,20 +261,17 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">Generate SDK</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">Learn more &rarr;</a>
   </div>
-  <dl class="lp-stats">
-    <div class="lp-stat">
-      <dt>6</dt>
-      <dd>Languages generated from one OpenAPI document</dd>
-    </div>
-    <div class="lp-stat">
-      <dt>1 commit</dt>
-      <dd>Ships an update to every SDK at once</dd>
-    </div>
-  </dl>
+  <div class="lp-logos" role="img" aria-label="Used by Profound, Lithic, Warp">
+    <scalar-icon class="lp-logo" src="../assets/logos/profound.svg"></scalar-icon>
+    <scalar-icon class="lp-logo lp-logo--lithic" src="../assets/remote/logo-lithic.svg"></scalar-icon>
+    <scalar-icon class="lp-logo" src="../assets/logos/warp.svg"></scalar-icon>
+  </div>
 </div>
-  <div class="lp-section-figure lp-card lp-card--sdk" aria-hidden="true">
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
+  <div class="lp-card lp-card--sdk" aria-hidden="true">
+<div class="lp-card-screen">
+<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
+<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
+<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
 <div class="lp-win lp-win--app lp-win--code">
 <div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="lp-win-brand" aria-hidden="true" viewBox="0 0 1236 351"><g fill="currentColor" clip-path="url(#warp-logo-clip-wall)"><path d="M341.87 122.39A175.4 175.4 0 0 0 224.76 7.21c21.37 68.74 71.94 110.54 117.11 115.18"/><path d="m345.73 136.78-.61-2.66C276.82 131.98 208.24 86.83 189.65.61q-7.28-.61-14.72-.62c-12.08 0-23.87 1.22-35.26 3.55 26.94 83.98 123.11 131.57 206.06 133.23z"/><path d="M348.13 149.95c-118.71-.69-218.72-60.46-249.67-132.4a176 176 0 0 0-53.29 40.03c66.49 57.59 183.26 94.65 303.33 95q-.17-1.32-.37-2.63"/><path d="M349.68 165.77c-101.84-.05-244.09-15.45-332.26-67.13a174 174 0 0 0-15.43 49.35c97.11 17.89 226.18 20.16 347.78 20.17zM224.85 342.76a175.4 175.4 0 0 0 116.93-114.88c-45.08 4.68-95.52 46.36-116.93 114.88"/><path d="m345.05 216.13.62-2.66c-82.86 1.68-178.88 49.18-205.93 132.98a176 176 0 0 0 49.96 2.91c18.67-86.02 87.15-131.08 155.35-133.24z"/><path d="m348.09 200.31.37-2.63c-119.98.35-236.66 37.37-303.16 94.88a176 176 0 0 0 53.26 39.93C129.61 260.66 229.52 201 348.1 200.31z"/><path d="M349.77 182.11c-121.58 0-250.62 2.28-347.73 20.16a174 174 0 0 0 15.48 49.3c88.17-51.63 230.33-67.02 332.14-67.07z"/></g><path fill="currentColor" d="M1149.21 278.42c-22.92 0-41.64-7.64-55.78-22.54V351h-55.77V74.82h55.77v18.72c14.14-14.9 32.86-22.54 55.78-22.54 48.89 0 85.94 37.82 85.94 103.9 0 65.7-37.05 103.52-85.94 103.52m-13.76-47.75c25.98 0 42.02-20.62 42.02-55.77 0-35.14-16.04-56.15-42.02-56.15-25.97 0-42.02 21-42.02 56.15s16.05 55.77 42.02 55.77M897.77 274.6V74.82h55.77v28.27C969.2 80.55 991.74 71 1012 71h7.64v56.54H1012c-29.42 0-58.45 12.6-58.45 45.07v102zm-73.46 0v-17.57c-15.28 14.52-36.67 21.4-57.68 21.4-36.67 0-66.85-21.78-66.85-61.5 0-44.7 35.53-60.36 87.48-64.18 27.12-3.44 38.58-7.26 38.58-19.49 0-11.07-10.7-18.71-30.56-18.71-18.72 0-32.47 8.78-34 23.3h-54.24C710.48 92.39 751.35 71 795.66 71c45.84 0 84.42 19.1 84.42 68.76V274.6zm-68.76-61.12c0 15.28 11.46 22.92 27.12 22.92 19.49 0 41.64-11.08 41.64-35.9v-16.81c-10.31 2.67-21.77 4.2-33.23 5.34-21.78 2.68-35.53 9.17-35.53 24.45m-297.1 61.12L400 74.82h58.06l32.09 135.99 37.82-135.99h53.86l36.67 135.99 33.23-135.99h53.86L646.77 274.6h-56.92L552.8 143.96 515.74 274.6z"/><defs><clipPath id="warp-logo-clip-wall"><path fill="#fff" d="M0 0h350v350H0z"/></clipPath></defs></svg><span class="lp-win-repo">warp-sdk-typescript</span></span></div>
 <div class="lp-win-tabs"><span class="is-active">TypeScript</span><span>Python</span><span>Go</span><span>CLI</span></div>
@@ -454,10 +291,15 @@
 </div>
 </div>
 </div>
-<div class="lp-box-label"><span class="lp-box-title">SDKs</span></div>
+<div class="lp-flow-row">
+<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Developers</span>
+<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">Agents</span>
+</div>
+</div>
+</div>
   </div>
 </section>
-<section class="lp-section" id="lp-mcp" data-lp-scene="mcp">
+<section class="lp-section" id="lp-mcp">
 <div class="lp-copy">
   <span class="lp-kicker text-orange">MCP &amp; Agent</span>
   <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
@@ -488,20 +330,17 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">Get Started</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">Learn more &rarr;</a>
   </div>
-  <dl class="lp-stats">
-    <div class="lp-stat">
-      <dt>0.2%</dt>
-      <dd>Of the context window, however many APIs you connect</dd>
-    </div>
-    <div class="lp-stat">
-      <dt>10+</dt>
-      <dd>Chat apps and agents connect over MCP</dd>
-    </div>
-  </dl>
+  <div class="lp-logos" role="img" aria-label="Used by Whatnot, Airwallex, Warp">
+    <scalar-icon class="lp-logo" src="../assets/remote/logo-whatnot.svg"></scalar-icon>
+    <scalar-icon class="lp-logo" src="../assets/logos/airwallex.svg"></scalar-icon>
+    <scalar-icon class="lp-logo" src="../assets/logos/warp.svg"></scalar-icon>
+  </div>
 </div>
-  <div class="lp-section-figure lp-card lp-card--mcp" aria-hidden="true">
-<div class="lp-box-grain" aria-hidden="true"></div>
-<div class="lp-box-screen" aria-hidden="true">
+  <div class="lp-card lp-card--mcp" aria-hidden="true">
+<div class="lp-card-screen">
+<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2,hub>end3">
+<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
+<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
 <div class="lp-win lp-win--app lp-chat">
 <div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">Missing planet images<scalar-icon src="phosphor/regular/caret-down"></scalar-icon></span></div>
 <div class="lp-chat-messages">
@@ -509,7 +348,7 @@
 <div class="lp-chat-prompt">Which planets in the Galaxy API are still missing an image?</div>
 <div class="lp-chat-response">
 <div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 3s"><span class="lp-chat-think-sizer">Thought for 3s</span><span class="lp-chat-think-text" data-text="Thought for 3s">Thought for 3s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
 <span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
 <div class="lp-chat-line">Kepler-22b is the only planet without an image. The other eleven all have one.</div>
 </div>
@@ -518,7 +357,7 @@
 <div class="lp-chat-prompt">Upload the Kepler-22b render to it</div>
 <div class="lp-chat-response">
 <div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 2s"><span class="lp-chat-think-sizer">Thought for 2s</span><span class="lp-chat-think-text" data-text="Thought for 2s">Thought for 2s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Checked the response</span></div></div></div></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Checked the response</span></div></div></div></div>
 <span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
 <div class="lp-chat-line">Done. The API returned 201 Created, so Kepler-22b has its render now.</div>
 <div class="lp-chat-line">Want me to add the TRAPPIST-1e one next?</div>
@@ -528,7 +367,14 @@
 <div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Opus 5 <span>High</span></span></div></div>
 </div>
 </div>
-<div class="lp-box-label"><span class="lp-box-title">MCP</span></div>
+<div class="lp-flow-row">
+<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Claude</span>
+<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">ChatGPT</span>
+<span class="lp-flow-label" data-lp-node="end2" data-lp-parent="hub" data-reveal="fade" style="--d: 760">Gemini</span>
+<span class="lp-flow-label" data-lp-node="end3" data-lp-parent="hub" data-reveal="fade" style="--d: 840">Perplexity</span>
+</div>
+</div>
+</div>
   </div>
 </section>
 </div>
@@ -725,17 +571,17 @@
   }
 
   /* --------------------------------------------------------------------
-     Landing scroller
-     Copy scrolls down the left column in viewport-tall sections; the
-     panel on the right is sticky and follows the section in the middle
-     of the viewport (data-lp-scene on .lp, set by landing.js): the hero
-     scene first, then one product card at a time with the others folded
-     into bands above and below it.
+     Landing sections
+     The hero is a block: the copy, then the drawing the full width of the
+     content column, then the logos and numbers. Each product section is a
+     viewport-tall two-column grid: copy on the left, and on the right a
+     card as tall as the section with the product's screen in it.
      -------------------------------------------------------------------- */
   .lp {
+    --lp-bg-1-5: color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2));
     --lp-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --lp-move: 720ms;
-    /* up to 76px past the content column on the right, so the panel lines
+    /* up to 76px past the content column on the right, so the cards line
        up with the old product images; shrinks when the viewport cannot
        fit it */
     --lp-overhang: max(
@@ -743,30 +589,39 @@
       min(76px, (100dvw - var(--scalar-sidebar-width, 0px) - 100%) / 2 - 32px)
     );
     position: relative;
-    display: grid;
-    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
-    grid-template-rows: repeat(4, auto);
-    column-gap: 56px;
-    align-items: start;
     width: calc(100% + var(--lp-overhang));
   }
-  /* Copy starts at the top of the block rather than centring. The 88px
-     matches where the other pages put their heading: on the previous home
-     page and on pricing the h1 sits 98px below the header, on the product
-     pages 94px. */
+  /* Copy starts 88px below the top of the block, where the other pages put
+     their heading: on the previous home page and on pricing the h1 sits
+     98px below the header, on the product pages 94px. The card has 48px. */
   .lp-section {
-    grid-column: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    column-gap: 56px;
+    align-items: center;
+    min-height: calc(100dvh - var(--scalar-header-height, 48px));
+    padding: 48px 0;
+    min-width: 0;
+  }
+  .lp-section--hero {
+    display: block;
+    min-height: 0;
+    padding: 88px 0 48px;
+  }
+  .lp-section--hero .lp-copy {
+    /* the docs page hero (.small-test-marc): 680 wide, lines balanced */
+    max-width: 680px;
+    text-wrap: balance;
+  }
+  .lp-hero-foot {
     display: flex;
     flex-direction: column;
-    min-height: calc(100dvh - var(--scalar-header-height, 48px));
-    padding: 88px 0 48px;
-    min-width: 0;
+    margin-top: 12px;
   }
   .lp-copy {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    flex: 1;
     gap: 12px;
     min-width: 0;
   }
@@ -868,91 +723,48 @@
     gap: 12px 24px;
     margin-top: 12px;
   }
+  .lp-actions .t-editor__button {
+    margin: 0;
+  }
   .lp-action {
     display: inline-block;
     width: fit-content;
     font-weight: var(--scalar-semibold);
   }
-  /* Stat rows: a hairline above each, the figure in a fixed column on
-     the left and its label beside it. The auto margin pushes them to the
-     bottom of the section, so they close each viewport-tall block. */
-  .lp-stats {
+  /* the customers using the product, as quiet wordmarks under the buttons */
+  .lp-logos {
     display: flex;
-    flex-direction: column;
-    gap: 24px;
-    margin: auto 0 0;
-    padding: 28px 0 0;
-  }
-  .lp-stat {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding-top: 12px;
-    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-  .lp-stat dt {
-    flex: none;
-    width: 150px;
-    margin: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    margin-top: 32px;
     color: var(--scalar-color-1);
-    font-size: 32px;
-    font-weight: var(--scalar-semibold);
-    letter-spacing: -0.01em;
-    line-height: 36px;
   }
-  .lp-stat dd {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-    padding-top: 2px;
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-font-size-4);
-    font-weight: var(--scalar-semibold);
-    line-height: 1.5;
+  .lp-logo {
+    display: block;
+    width: auto;
+    height: 16px;
   }
-  /* Single column: each product's card, the open card from the stack,
-     sits under its section's copy with the same window inside. The card
-     is a size container of its own, so the window lays out as it does in
-     the panel; --lp-s and --lp-share pin it to the open state. The cover
-     is the box's gradient with the kit's sheen blended over it. */
-  .lp-section-figure {
-    display: none;
+  .lp-logo--tr {
+    height: 20px;
   }
+  .lp-logo--lithic {
+    height: 12px;
+  }
+  /* The product card: the section's right column, top to bottom, with the
+     product's flow on it. An inline-size container, so the window inside
+     measures itself against the card's width. */
   .lp-card {
-    --lp-s: 1;
-    --lp-r: 0;
-    --lp-share: 1;
-    --lp-u: 1;
     position: relative;
-    aspect-ratio: 7 / 6;
-    min-height: 480px;
-    max-height: 720px;
+    grid-column: 2;
+    align-self: stretch;
+    min-width: 0;
     overflow: hidden;
     border-radius: var(--scalar-radius-lg);
-    container: lp-card / size;
-    background-image:
-      linear-gradient(
-        90deg,
-        rgb(128, 127, 128) 0%,
-        rgb(128, 180, 128) 20.77%,
-        rgb(128, 137, 128) 48.63%,
-        rgb(128, 128, 128) 61.75%,
-        rgb(128, 110, 128) 100%
-      ),
-      linear-gradient(var(--lp-face-top), var(--lp-face-bottom));
-    background-blend-mode: soft-light, normal;
-  }
-  .lp-card--docs {
-    --lp-face-top: #4cc3ff;
-    --lp-face-bottom: #2ea3ff;
-  }
-  .lp-card--sdk {
-    --lp-face-top: #b79bff;
-    --lp-face-bottom: #9c7bff;
-  }
-  .lp-card--mcp {
-    --lp-face-top: #f5af00;
-    --lp-face-bottom: #fb9500;
+    container: lp-card / inline-size;
+    background: var(--lp-bg-1-5);
+    /* the labels' ink */
+    --lp-ink: var(--scalar-color-1);
   }
   /* on a phone-wide card the windows draw in a little */
   @container lp-card (max-width: 420px) {
@@ -973,174 +785,261 @@
     }
   }
 
-  /* The scroll state, as numbers CSS transitions carry between scenes:
-     --lp-s is how far the hero row has become the stack of cards, and
-     --lp-pd / --lp-ps are how much of the open card Docs and SDKs hold
-     (MCP takes whatever is left). Every position below is derived from
-     these, so a seam is the same number on both of its sides and the
-     stack can never open a gap, however fast the scenes change; and the
-     boxes turn flat on the same clock as they move. */
-  @property --lp-s {
-    syntax: "<number>";
-    inherits: true;
-    initial-value: 0;
-  }
-  @property --lp-pd {
-    syntax: "<number>";
-    inherits: true;
-    initial-value: 1;
-  }
-  @property --lp-ps {
-    syntax: "<number>";
-    inherits: true;
-    initial-value: 0;
-  }
-  @property --lp-h {
-    syntax: "<number>";
-    inherits: true;
-    initial-value: 0;
-  }
   /* Hero scene ----------------------------------------------------------
-     The panel is the stage. Drawing, boxes and nodes share a 540x700
-     scene fitted inside it (one scene unit is --lp-u), in the vocabulary
-     of the business.x.com product pages: the OpenAPI document comes in
-     at the top and flows down a bus into the three products on the
-     dashed divider, and each product flows on into the things it makes.
-     The products are software boxes (the products page starter kit's
-     cover, one per product colour): CSS cuboids turned in 3D so their
-     spines show. In the product scenes the drawing fades and the boxes
-     re-lay out as a stack of cards: the active product fills the panel,
-     the others fold into bands. A speckle layer covers the whole panel. */
+     The panel under the hero copy shows the flow, after the capability
+     pages on lightspark.com: Acme's OpenAPI document comes in at the
+     left, reaches the Scalar hub, fans out into the three products, and
+     each product fans out again into the people and agents that use it.
+     Everything is laid out on a 1180x552 scene, one scene unit being
+     --lp-u, so the whole thing fits the panel on one screen. The chips
+     are HTML (em-sized from that unit); landing.js draws the connectors
+     from where they land and sends packets along them. */
   .lp-visual {
-    --lp-u: min((100cqw - 48px) / 540, (100cqh - 48px) / 700);
-    --lp-ox: calc((100cqw - 540 * var(--lp-u)) / 2);
-    --lp-oy: calc((100cqh - 700 * var(--lp-u)) / 2);
-    --lp-band: 56px;
-    --lp-s: 0;
-    --lp-pd: 1;
-    --lp-ps: 0;
-    --lp-r: calc(1 - var(--lp-s));
-    /* what the open card gets on top of a band */
-    --lp-open: calc(100cqh - 3 * var(--lp-band));
-    grid-column: 2;
-    grid-row: 1 / -1;
-    position: sticky;
-    top: calc(var(--scalar-header-height, 48px) + 88px);
-    height: calc(100dvh - var(--scalar-header-height, 48px) - 136px);
-    margin-top: 88px;
-    min-width: 0;
-    overflow: hidden;
+    /* never under 0.66px a unit: a narrow column scrolls the scene
+       sideways instead of shrinking it past reading size */
+    --lp-u: max(min(100cqw / 1180, 100cqh / 552), 0.66px);
+    --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+    --lp-oy: calc((100cqh - 552 * var(--lp-u)) / 2);
+    --lp-hub-bg: var(--scalar-background-1);
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1180 / 552;
+    min-height: 400px;
+    /* never past the first screen, but never too small to read */
+    max-height: max(400px, calc(100dvh - 412px));
+    margin-top: 24px;
+    overflow: auto hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border-radius: var(--scalar-radius-lg);
+    background: var(--lp-bg-1-5);
     container-type: size;
-    transition-property: --lp-s, --lp-pd, --lp-ps;
-    transition-duration: var(--lp-move);
-    transition-timing-function: var(--lp-ease);
   }
-  .lp-art {
+  .lp-visual::-webkit-scrollbar {
+    display: none;
+  }
+  .dark-mode .lp-visual {
+    --lp-hub-bg: var(--scalar-background-2);
+  }
+  .lp-flow {
+    /* which way the connectors run, for landing.js */
+    --lp-flow-dir: row;
     position: absolute;
     left: var(--lp-ox);
     top: var(--lp-oy);
-    width: calc(540 * var(--lp-u));
-    height: calc(700 * var(--lp-u));
-    display: block;
+    width: calc(1180 * var(--lp-u));
+    height: calc(552 * var(--lp-u));
+    font-size: var(--lp-u);
+  }
+  .lp-flow-lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     overflow: visible;
-    color: var(--scalar-color-1);
-    font-family: inherit;
-    opacity: var(--lp-r);
   }
-  .lp-art .lp-art-line,
-  .lp-art .lp-art-dash {
+  /* the connectors are hairlines, like the borders elsewhere */
+  .lp-flow-line {
     fill: none;
-    stroke: currentColor;
-    stroke-width: 1;
+    stroke: var(--scalar-border-color);
+    stroke-width: var(--scalar-border-width);
+    vector-effect: non-scaling-stroke;
   }
-  .lp-art .lp-art-dash {
-    stroke-dasharray: 6 6;
+  .lp-packet {
+    fill: var(--scalar-color-1);
   }
-  .lp-art .lp-art-panel,
-  .lp-art .lp-art-ring {
-    fill: var(--scalar-background-2);
-    stroke: currentColor;
-    stroke-width: 1;
-  }
-  .lp-art .lp-art-dot,
-  .lp-art .lp-art-ink {
-    fill: currentColor;
-  }
-  .lp-art .lp-art-mask {
-    fill: var(--scalar-background-2);
-  }
-  .lp-art text {
-    fill: currentColor;
-  }
-  .lp-art .lp-art-chip-text {
-    font-family: var(--scalar-font-code);
-    font-size: 11px;
-    font-weight: var(--scalar-semibold);
-  }
-  /* the things downstream: hollow circles with a line icon, in the
-     drawing's own stroke */
+  /* each node sits at --x/--y in scene units, by its left edge, centred
+     on the line, as wide as its column (--w); the hub by its centre */
   .lp-node {
     position: absolute;
-    left: calc(var(--lp-ox) + var(--nx) * var(--lp-u));
-    top: calc(var(--lp-oy) + var(--ny) * var(--lp-u));
-    width: calc(28 * var(--lp-u));
-    aspect-ratio: 1;
+    left: calc(var(--x) * var(--lp-u));
+    top: calc(var(--y) * var(--lp-u));
+    width: calc(var(--w) * var(--lp-u));
+    transform: translateY(-50%);
+    z-index: 1;
+    color: inherit;
+    text-decoration: none;
+  }
+  .lp-node--hub {
     transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+  a.lp-node {
+    --font-visited: none;
+    cursor: pointer;
+  }
+  a.lp-node:hover,
+  a.lp-node:focus-visible {
+    text-decoration: none;
+  }
+  a.lp-node:focus-visible {
+    outline: 2px solid var(--scalar-color-accent);
+    outline-offset: 4px;
+    border-radius: var(--scalar-radius-lg);
+  }
+  .lp-hub {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    border: 1px solid var(--scalar-color-1);
-    background: var(--scalar-background-2);
+    width: 56em;
+    height: 56em;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 14em;
+    background: var(--lp-hub-bg);
     color: var(--scalar-color-1);
-    /* faded through filter rather than opacity: the load reveal's
-       fill-mode keeps opacity at 1 */
-    filter: opacity(var(--lp-r));
   }
-  .lp-node svg {
-    width: 54%;
-    height: 54%;
+  .lp-hub-mark {
+    width: 26em;
+    height: 26em;
   }
-  /* One-shot reveal on load: the divider opens from the middle, then each
-     line draws along the flow and its marker, node or box lands at the
-     end, top to bottom. Delays are per element (--d, in ms). Without
-     motion preference everything is simply there. */
+  /* The chip: a 36 tile, then the name and a detail under it, with no
+     box of its own: the connectors run from the end of the text to the
+     next tile. Sizes are em so the chip scales with the scene. */
+  .lp-chip {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    gap: 0.667em;
+    padding: 0.667em 1.333em 0.667em 0.667em;
+    font-family: var(--scalar-font);
+    font-size: 15em;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--scalar-color-1);
+  }
+  .lp-chip-icon {
+    display: flex;
+    flex-shrink: 0;
+    width: 2.4em;
+    height: 2.4em;
+  }
+  /* the tile is just the mark, no backing, every brand drawn in the ink
+     colour (the product glyphs in their section's colour below) */
+  .lp-chip-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--scalar-color-1);
+  }
+  .lp-mark {
+    width: 72%;
+    height: 72%;
+  }
+  .lp-mark,
+  .lp-mark * {
+    fill: currentColor;
+  }
+  /* the OpenAPI ring carries padding in its artwork, so it gets more room */
+  .lp-mark--openapi {
+    width: 86%;
+    height: 86%;
+  }
+  /* the product glyphs are drawn in their section's colour */
+  .lp-chip-tile--product {
+    color: var(--lp-face);
+  }
+  .lp-chip-tile--product .lp-mark {
+    width: 72%;
+    height: 72%;
+  }
+  .lp-chip-tile svg.t-editor__icon {
+    width: 80%;
+    height: 80%;
+  }
+  .lp-chip-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125em;
+    min-width: 0;
+  }
+  .lp-chip-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    font-weight: var(--scalar-bold);
+    color: var(--scalar-color-1);
+  }
+  .lp-chip-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    color: var(--scalar-color-2);
+  }
+  /* When a packet lands, the subtitle flips over to say what arrived
+     (in mono), holds, and flips back.
+     Both faces share one grid cell, so the chip keeps its width. */
+  .lp-chip-sub {
+    display: grid;
+    perspective: 240px;
+    /* regular whatever the chip is (the product chips are links) */
+    font-weight: var(--scalar-regular);
+  }
+  .lp-chip-sub-face {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    backface-visibility: hidden;
+  }
+  .lp-chip-sub-face--alt {
+    font-family: var(--scalar-font-code);
+    font-size: 0.867em;
+  }
+  .lp-chip-sub.is-in .lp-chip-sub-face--main,
+  .lp-chip-sub.is-out .lp-chip-sub-face--alt {
+    animation: lp-flip-out 240ms ease-in both;
+  }
+  .lp-chip-sub.is-in .lp-chip-sub-face--alt,
+  .lp-chip-sub.is-out .lp-chip-sub-face--main {
+    animation: lp-flip-in 320ms 200ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  }
+  .lp-chip-sub.is-in .lp-chip-sub-face--alt,
+  .lp-chip-sub.is-out .lp-chip-sub-face--main {
+    opacity: 0;
+  }
+  @keyframes lp-flip-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-45%) rotateX(75deg);
+    }
+  }
+  @keyframes lp-flip-in {
+    from {
+      opacity: 0;
+      transform: translateY(45%) rotateX(-75deg);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* One-shot reveal on load: the connectors draw out from the left and
+     each chip fades in where its line arrives. Delays are per element
+     (--d, in ms). Without motion preference everything is simply there. */
   @media (prefers-reduced-motion: no-preference) {
-    .lp-visual [data-reveal] {
+    .lp-flow [data-reveal] {
       animation-delay: calc(var(--d, 0) * 1ms);
       animation-fill-mode: forwards;
       animation-timing-function: var(--lp-ease);
     }
-    .lp-visual [data-reveal="divider"] {
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: scaleX(0);
-      animation-name: lp-art-open;
-      animation-duration: 900ms;
-    }
-    .lp-visual [data-reveal="line"] {
+    .lp-flow [data-reveal="line"] {
       stroke-dasharray: 1;
       stroke-dashoffset: 1;
       animation-name: lp-art-draw;
       animation-duration: 700ms;
     }
-    .lp-visual [data-reveal="pop"] {
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: scale(0);
-      animation-name: lp-art-pop;
-      animation-duration: 400ms;
-    }
-    .lp-visual [data-reveal="fade"] {
+    .lp-flow [data-reveal="fade"] {
       opacity: 0;
       animation-name: lp-art-fade;
       animation-duration: 500ms;
       animation-timing-function: ease-out;
-    }
-  }
-  @keyframes lp-art-open {
-    to {
-      transform: scaleX(1);
     }
   }
   @keyframes lp-art-draw {
@@ -1148,134 +1047,120 @@
       stroke-dashoffset: 0;
     }
   }
-  @keyframes lp-art-pop {
-    to {
-      transform: scale(1);
-    }
-  }
   @keyframes lp-art-fade {
     to {
       opacity: 1;
     }
   }
-  /* The boxes. In the hero scene each sits in the drawing at --bx/--by
-     (scene units); in the product scenes they are a stack of full-width
-     cards, each one starting where the one above ends (--lp-st is the
-     slot's top, --lp-sh its height). --lp-s blends the two. */
-  .lp-box {
-    --lp-h: 0;
-    position: absolute;
-    display: block;
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
-    left: calc(var(--lp-r) * (var(--lp-ox) + var(--bx) * var(--lp-u)));
-    top: calc(
-      var(--lp-r) * (var(--lp-oy) + var(--by) * var(--lp-u)) + var(--lp-s) *
-        var(--lp-st)
-    );
-    width: calc(var(--lp-r) * 140 * var(--lp-u) + var(--lp-s) * 100cqw);
-    height: calc(var(--lp-r) * 193.4 * var(--lp-u) + var(--lp-s) * var(--lp-sh));
-    perspective: 900px;
-    transition: --lp-h var(--lp-move) var(--lp-ease);
-  }
-  .lp-box:hover {
-    text-decoration: none;
-  }
-  .lp-box:focus-visible {
-    outline: 2px solid var(--scalar-color-accent);
-    outline-offset: 3px;
-  }
-  .lp-box--docs {
-    --lp-share: var(--lp-pd);
-    --lp-st: 0px;
-    --lp-sh: calc(var(--lp-band) + var(--lp-open) * var(--lp-pd));
-  }
-  .lp-box--sdk {
-    --lp-share: var(--lp-ps);
-    --lp-st: calc(var(--lp-band) + var(--lp-open) * var(--lp-pd));
-    --lp-sh: calc(var(--lp-band) + var(--lp-open) * var(--lp-ps));
-  }
-  .lp-box--mcp {
-    --lp-share: calc(1 - var(--lp-pd) - var(--lp-ps));
-    --lp-st: calc(
-      2 * var(--lp-band) + var(--lp-open) * (var(--lp-pd) + var(--lp-ps))
-    );
-    --lp-sh: calc(100cqh - var(--lp-st));
-  }
-  /* turned in 3D in the hero (less so, and lifted, while hovered), flat
-     once stacked */
-  .lp-box-body {
+  /* The product's screen, centred in the card: a window up to 470 wide and
+     560 tall, at least 24px from the card's sides. The code window is as
+     tall as its code. */
+  .lp-card-screen {
     position: relative;
-    width: 100%;
-    height: 100%;
-    transform-style: preserve-3d;
-    transform: rotateY(calc((24deg - 14deg * var(--lp-h)) * var(--lp-r)))
-      translateY(calc(-6px * var(--lp-h) * var(--lp-r)))
-      translateZ(calc(10px * var(--lp-h) * var(--lp-r)));
-  }
-  .lp[data-lp-scene="hero"] .lp-box:hover {
-    --lp-h: 1;
-    z-index: 5;
-  }
-  .lp-box-front {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-  }
-  /* grain as a tiled noise image in screen pixels, so it stays fine
-     whether the cover is a small box or fills the panel. Dark and light
-     speckles are carried in the alpha channel (the kit's speckle recipe)
-     rather than a blend mode: a blended child would flatten the box's 3D. */
-  .lp-box-grain {
-    position: absolute;
-    inset: 0;
+    display: grid;
+    place-items: center;
+    min-height: 100%;
     pointer-events: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='7' stitchTiles='stitch' result='t'/><feColorMatrix in='t' type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -0.8 0 0 0 0.4' result='dk'/><feColorMatrix in='t' type='matrix' values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0.9 0 0 -0.45' result='lt'/><feMerge><feMergeNode in='dk'/><feMergeNode in='lt'/></feMerge></filter><rect width='160' height='160' filter='url(%23g)'/></svg>");
-    background-size: 160px 160px;
-    opacity: 0.45;
   }
-  /* The product inside the open card: a window that peeks in from the
-     card's top-left and runs off its right and bottom edges. It rises and
-     fades in with that card's share of the open space (--lp-share), so a
-     card folding into a band takes its window with it. */
-  .lp-box-screen {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    border-radius: 1cqw;
-    opacity: calc(var(--lp-s) * var(--lp-share));
-    pointer-events: none;
+  /* The flow in a card, after the global-accounts page on lightspark.com:
+     labels with hairlines bundling into the window, stood on end here.
+     openapi.json above, the window, then what the product reaches, in a
+     column; landing.js draws the lines between where those actually are. */
+  .lp-flow--card {
+    --lp-flow-dir: column;
+    position: relative;
+    left: auto;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 72px;
+    width: 100%;
+    height: auto;
+    padding: 36px 24px;
+    font-size: 16px;
+  }
+  .lp-flow--card .lp-flow-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 36px;
+    max-width: 100%;
+  }
+  .lp-flow-label {
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: var(--scalar-semibold);
+    color: var(--lp-ink);
+    white-space: nowrap;
+  }
+  .lp-flow--card .lp-node--win {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  /* the hairline ends in a dot at the label */
+  .lp-flow-dot {
+    fill: var(--lp-ink);
   }
   .lp-win {
-    position: absolute;
-    left: 24px;
-    top: 68px;
-    width: 140cqw;
-    height: calc(100% - 44px);
-    transform: translateY(calc((1 - var(--lp-share)) * 24px));
+    position: relative;
+    width: min(470px, 100cqw - 48px);
+    height: 380px;
     overflow: hidden;
-    border-radius: 8px;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 12px;
     background: var(--scalar-background-1);
     color: var(--scalar-color-1);
+    box-shadow:
+      0 0 0 1px rgba(38, 38, 38, 0.08),
+      0 2px 8px -4px rgba(0, 0, 0, 0.2);
   }
-  /* The Docs screen is two browser windows in the frame the other
-     screens use, with the Warp window's bar: in front, almost the full
-     size of the other windows, the page as people see it; behind it,
-     offset so its bar and first heading show, the same page as Markdown
-     for agents. */
-  .lp-win--pair {
-    --lp-chat-side: calc((100cqw - min(470px, 100cqw - 48px)) / 2);
-    left: var(--lp-chat-side);
-    width: min(470px, 100cqw - 48px);
-    height: calc(100% - 68px - var(--lp-chat-side));
+  .lp-win--code {
+    height: auto;
+  }
+  /* the Zoom docs shot, large, pinned to the top left of its frame and
+     fading out over the last fifth of the frame's right and bottom
+     edges; the frame is what the lines meet */
+  .lp-win--shot {
+    width: 100%;
+    height: 420px;
     overflow: visible;
-    border: 0;
+    border-radius: 0;
     background: none;
+    box-shadow: none;
+    -webkit-mask-image:
+      linear-gradient(to right, #000 82%, transparent 100%),
+      linear-gradient(to bottom, #000 83%, transparent 100%);
+    mask-image:
+      linear-gradient(to right, #000 82%, transparent 100%),
+      linear-gradient(to bottom, #000 83%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  .lp-win--shot img {
+    position: absolute;
+    /* a few px in from the frame's edge, or the mask cuts the window's
+       own border and rounded corner off along the top and left */
+    top: 4px;
+    left: 4px;
+    display: block;
+    width: max(220%, 900px);
+    max-width: none;
+    height: auto;
+    /* no frame of our own: the drawing has its own 1px window border */
+  }
+  /* The Docs screen is two browser windows in that frame, with the Warp
+     window's bar: in front, almost the full size of the frame, the page
+     as people see it; behind it, offset so its bar and first heading
+     show, the same page as Markdown for agents. */
+  .lp-win--pair {
+    overflow: visible;
+    background: none;
+    box-shadow: none;
     font-size: 13px;
     line-height: 1.5;
   }
@@ -1566,21 +1451,9 @@
     width: 9px;
     height: 9px;
   }
-  /* The SDK and MCP windows are app windows of their own, centred in the
-     card rather than bleeding off it, as far from the bottom as from the
-     sides, with the same 32px title bar. */
   .lp-win--app {
-    --lp-chat-side: calc((100cqw - min(470px, 100cqw - 48px)) / 2);
     display: flex;
     flex-direction: column;
-    left: var(--lp-chat-side);
-    width: min(470px, 100cqw - 48px);
-    height: calc(100% - 68px - var(--lp-chat-side));
-    border: 0;
-    border-radius: 12px;
-    box-shadow:
-      0 0 0 1px rgba(38, 38, 38, 0.08),
-      0 2px 8px -4px rgba(0, 0, 0, 0.2);
     font-size: 14px;
     line-height: 20px;
   }
@@ -2059,287 +1932,14 @@
       background-position: 0 0;
     }
   }
-  /* the tunnel belongs to the small box; the full-size card is just the
-     gradient and the grain */
-  .lp-box-tunnel {
-    opacity: var(--lp-r);
-  }
-  .lp-box-label {
-    position: absolute;
-    left: calc(var(--lp-r) * 8% + var(--lp-s) * 24px);
-    top: calc(var(--lp-r) * 9% + var(--lp-s) * 15px);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    color: rgba(0, 0, 0, 0.7);
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .lp-box-title {
-    font-size: clamp(16px, 28 * var(--lp-u), 26px);
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .lp-box-subtitle {
-    font-size: clamp(8px, 11 * var(--lp-u), 11px);
-    line-height: 1.2;
-    opacity: var(--lp-r);
-  }
-  /* depth is a share of the cover width, 32 of 152 on the kit */
-  .lp-box-spine {
-    --lp-box-depth: 21%;
-    position: absolute;
-    top: 0;
-    left: calc(-1 * var(--lp-box-depth));
-    width: var(--lp-box-depth);
-    height: 100%;
-    transform-origin: right center;
-    transform: rotateY(-90deg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10% 0 7%;
-    background: var(--lp-box-spine);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.12);
-  }
-  /* once the boxes are cards the spines go: edge-on, the perspective
-     would still show a sliver of them. They hide the moment the open
-     transition ends and come straight back for the turn home. */
-  .lp:not([data-lp-scene="hero"]) .lp-box-spine {
-    visibility: hidden;
-    transition: visibility 0s linear var(--lp-move);
-  }
-  .lp-box-volume {
-    writing-mode: vertical-rl;
-    font-size: clamp(6px, 1.5cqw, 9px);
-    color: rgba(0, 0, 0, 0.7);
-    white-space: nowrap;
-  }
-  .lp-box-mark {
-    width: 40%;
-    height: auto;
-    fill: rgba(0, 0, 0, 0.5);
-  }
-  /* the kit's square-tunnel zoom: nine rings on one keyframe track,
-     staggered so the pattern is periodic. It waits, parked at its first
-     frame, until that box is hovered. */
-  .lp-box-ring {
-    transform-box: view-box;
-    transform-origin: 0 0;
-    animation: 12.6s linear infinite;
-    animation-play-state: paused;
-  }
-  .lp-box:hover .lp-box-ring {
-    animation-play-state: running;
-  }
-  .lp-box--docs .lp-box-ring {
-    animation-name: lp-box-zoom-docs;
-  }
-  .lp-box--sdk .lp-box-ring {
-    animation-name: lp-box-zoom-sdk;
-  }
-  .lp-box--mcp .lp-box-ring {
-    animation-name: lp-box-zoom-mcp;
-  }
-  .lp-box-ring--1 {
-    animation-delay: -1.4s;
-  }
-  .lp-box-ring--2 {
-    animation-delay: -2.8s;
-  }
-  .lp-box-ring--3 {
-    animation-delay: -4.2s;
-  }
-  .lp-box-ring--4 {
-    animation-delay: -5.6s;
-  }
-  .lp-box-ring--5 {
-    animation-delay: -7s;
-  }
-  .lp-box-ring--6 {
-    animation-delay: -8.4s;
-  }
-  .lp-box-ring--7 {
-    animation-delay: -9.8s;
-  }
-  .lp-box-ring--8 {
-    animation-delay: -11.2s;
-  }
-  @keyframes lp-box-zoom-docs {
-    0.0000% {
-      transform: translate(72.3px, 150px) scale(.3);
-      fill: #1d2bff;
-    }
-    11.1111% {
-      transform: translate(72.3px, 150px) scale(.462);
-      fill: #243fff;
-    }
-    22.2222% {
-      transform: translate(72.3px, 150px) scale(.71148);
-      fill: #2a53ff;
-    }
-    33.3333% {
-      transform: translate(72.3px, 150px) scale(1.09568);
-      fill: #3167ff;
-    }
-    44.4444% {
-      transform: translate(72.3px, 150px) scale(1.68735);
-      fill: #387bff;
-    }
-    55.5556% {
-      transform: translate(72.3px, 150px) scale(2.59851);
-      fill: #3e8fff;
-    }
-    66.6667% {
-      transform: translate(72.3px, 150px) scale(4.00171);
-      fill: #45a3ff;
-    }
-    77.7778% {
-      transform: translate(72.3px, 150px) scale(6.16263);
-      fill: #4bb7ff;
-    }
-    88.8889% {
-      transform: translate(72.3px, 150px) scale(9.49045);
-      fill: #52cbff;
-    }
-    100% {
-      transform: translate(72.3px, 150px) scale(14.6153);
-      fill: #52cbff;
-    }
-  }
-  @keyframes lp-box-zoom-sdk {
-    0.0000% {
-      transform: translate(72.3px, 150px) scale(.3);
-      fill: #5a00e6;
-    }
-    11.1111% {
-      transform: translate(72.3px, 150px) scale(.462);
-      fill: #6715e9;
-    }
-    22.2222% {
-      transform: translate(72.3px, 150px) scale(.71148);
-      fill: #742aec;
-    }
-    33.3333% {
-      transform: translate(72.3px, 150px) scale(1.09568);
-      fill: #813eef;
-    }
-    44.4444% {
-      transform: translate(72.3px, 150px) scale(1.68735);
-      fill: #8e53f2;
-    }
-    55.5556% {
-      transform: translate(72.3px, 150px) scale(2.59851);
-      fill: #9b68f6;
-    }
-    66.6667% {
-      transform: translate(72.3px, 150px) scale(4.00171);
-      fill: #a87cf9;
-    }
-    77.7778% {
-      transform: translate(72.3px, 150px) scale(6.16263);
-      fill: #b591fc;
-    }
-    88.8889% {
-      transform: translate(72.3px, 150px) scale(9.49045);
-      fill: #c2a6ff;
-    }
-    100% {
-      transform: translate(72.3px, 150px) scale(14.6153);
-      fill: #c2a6ff;
-    }
-  }
-  @keyframes lp-box-zoom-mcp {
-    0.0000% {
-      transform: translate(72.3px, 150px) scale(.3);
-      fill: #ff2e00;
-    }
-    11.1111% {
-      transform: translate(72.3px, 150px) scale(.462);
-      fill: #ff3d00;
-    }
-    22.2222% {
-      transform: translate(72.3px, 150px) scale(.71148);
-      fill: #ff4c00;
-    }
-    33.3333% {
-      transform: translate(72.3px, 150px) scale(1.09568);
-      fill: #ff5b00;
-    }
-    44.4444% {
-      transform: translate(72.3px, 150px) scale(1.68735);
-      fill: #ff6a00;
-    }
-    55.5556% {
-      transform: translate(72.3px, 150px) scale(2.59851);
-      fill: #ff7800;
-    }
-    66.6667% {
-      transform: translate(72.3px, 150px) scale(4.00171);
-      fill: #ff8700;
-    }
-    77.7778% {
-      transform: translate(72.3px, 150px) scale(6.16263);
-      fill: #ff9600;
-    }
-    88.8889% {
-      transform: translate(72.3px, 150px) scale(9.49045);
-      fill: #ffa500;
-    }
-    100% {
-      transform: translate(72.3px, 150px) scale(14.6153);
-      fill: #ffa500;
-    }
-  }
-  .lp-grain {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
-  /* Product scenes: the drawing goes, the boxes become a stack of cards.
-     The active product fills the panel, the others fold into bands of
-     --lp-band at the top (already seen) or bottom (still to come). */
-  .lp[data-lp-scene="docs"] .lp-visual {
-    --lp-s: 1;
-    --lp-pd: 1;
-    --lp-ps: 0;
-  }
-  .lp[data-lp-scene="docs"] .lp-box--docs {
-    z-index: 2;
-    cursor: default;
-  }
-  .lp[data-lp-scene="sdk"] .lp-visual {
-    --lp-s: 1;
-    --lp-pd: 0;
-    --lp-ps: 1;
-  }
-  .lp[data-lp-scene="sdk"] .lp-box--sdk {
-    z-index: 2;
-    cursor: default;
-  }
-  .lp[data-lp-scene="mcp"] .lp-visual {
-    --lp-s: 1;
-    --lp-pd: 0;
-    --lp-ps: 0;
-  }
-  .lp[data-lp-scene="mcp"] .lp-box--mcp {
-    z-index: 2;
-    cursor: default;
-  }
 
   @media (prefers-reduced-motion: reduce) {
-    .lp-box-ring {
-      animation: none;
-    }
-    .lp-visual,
-    .lp-box,
-    .lp-box-spine {
+    .lp-chip,
+    .lp-chip.is-bounce,
+    .lp-hub.is-bounce,
+    .lp-chip-sub-face {
       transition: none;
+      animation: none;
     }
     .lp-chat-working svg,
     .lp-chat-spark svg {
@@ -2504,7 +2104,7 @@
   /* With the sidebar still open the content column gets narrow, so the
      copy gives up some width to keep the stage legible */
   @media screen and (max-width: 1320px) {
-    .lp {
+    .lp-section {
       grid-template-columns: minmax(0, 11fr) minmax(0, 13fr);
       column-gap: 40px;
     }
@@ -2521,28 +2121,42 @@
   }
   @media screen and (max-width: 1100px) {
     .lp {
-      display: block;
       width: 100%;
     }
     .lp-section {
+      display: block;
       min-height: 0;
       padding: 40px 0;
     }
     .lp-section--hero {
       padding-top: 88px;
-      padding-bottom: 0;
     }
-    /* The scene sits under the hero copy here, the product cards under
-       theirs. The panel stays the drawing's containing block. */
+    .lp-section--hero .lp-copy,
+    .lp-hero-foot {
+      max-width: none;
+    }
+    /* the flow keeps a readable size under the hero copy and scrolls
+       sideways when the column is narrower than it (swipe to explore) */
     .lp-visual {
-      position: relative;
-      top: auto;
-      height: auto;
+      --lp-u: max(100cqw / 1180, 0.74px);
+      --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+      --lp-oy: 0px;
+      aspect-ratio: auto;
+      height: calc(552 * var(--lp-u));
+      min-height: 0;
+      max-height: none;
       margin-top: 40px;
-      aspect-ratio: 540 / 700;
+      container-type: inline-size;
     }
-    .lp-section-figure {
-      display: block;
+    .lp-flow {
+      position: relative;
+      top: 0;
+      margin-left: var(--lp-ox);
+    }
+    /* an explicit width, or the minimum height would set the width
+       through the aspect ratio */
+    .lp-card {
+      width: 100%;
       margin-top: 24px;
     }
     .lp-trusted-item {
@@ -2581,13 +2195,117 @@
       visibility: visible;
     }
   }
+  /* On phones the hero flow runs top to bottom: a tree of tiles with their
+     names under them, three columns for the products with the things
+     they reach stacked under each; landing.js draws the lines from where
+     the tiles land, so nothing scrolls sideways. */
+  @media screen and (max-width: 840px) {
+    .lp-visual {
+      --lp-u: 1px;
+      aspect-ratio: auto;
+      height: auto;
+      min-height: 0;
+      max-height: none;
+      padding: 28px 12px;
+      overflow: hidden;
+      container-type: normal;
+    }
+    .lp-visual .lp-flow {
+      --lp-flow-dir: column;
+      position: relative;
+      left: auto;
+      top: auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px 8px;
+      justify-items: center;
+      align-items: start;
+      width: 100%;
+      height: auto;
+      margin: 0;
+      font-size: 1px;
+    }
+    .lp-visual .lp-node {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: auto;
+      transform: none;
+    }
+    .lp-visual [data-lp-node="api"],
+    .lp-visual [data-lp-node="hub"] {
+      grid-column: 1 / -1;
+    }
+    .lp-visual [data-lp-node="docs"] {
+      grid-area: 3 / 1;
+    }
+    .lp-visual [data-lp-node="mcp"] {
+      grid-area: 3 / 2;
+    }
+    .lp-visual [data-lp-node="sdk"] {
+      grid-area: 3 / 3;
+    }
+    .lp-visual [data-lp-node="dev-docs"] {
+      grid-area: 4 / 1;
+    }
+    .lp-visual [data-lp-node="claude-code"] {
+      grid-area: 5 / 1;
+    }
+    .lp-visual [data-lp-node="claude"] {
+      grid-area: 4 / 2;
+    }
+    .lp-visual [data-lp-node="chatgpt"] {
+      grid-area: 5 / 2;
+    }
+    .lp-visual [data-lp-node="gemini"] {
+      grid-area: 6 / 2;
+    }
+    .lp-visual [data-lp-node="perplexity"] {
+      grid-area: 7 / 2;
+    }
+    .lp-visual [data-lp-node="dev-sdk"] {
+      grid-area: 4 / 3;
+    }
+    .lp-visual [data-lp-node="copilot"] {
+      grid-area: 5 / 3;
+    }
+    /* a tile with its name under it, no card around it */
+    .lp-visual .lp-chip {
+      flex-direction: column;
+      gap: 6px;
+      width: auto;
+      max-width: 100%;
+      padding: 0;
+      overflow: visible;
+      text-align: center;
+      white-space: normal;
+    }
+    .lp-visual .lp-chip-icon {
+      width: 40px;
+      height: 40px;
+    }
+    .lp-visual .lp-chip-label {
+      display: block;
+      font-size: 11px;
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+    .lp-visual .lp-chip-sub {
+      display: none;
+    }
+    .lp-visual .lp-hub {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+    }
+    .lp-visual .lp-hub-mark {
+      width: 20px;
+      height: 20px;
+    }
+  }
   @media screen and (max-width: 560px) {
     .lp-features {
       grid-template-columns: 1fr;
-    }
-    /* narrower figure column so the labels keep to two lines on phones */
-    .lp-stat dt {
-      width: 120px;
     }
   }
 </style>
