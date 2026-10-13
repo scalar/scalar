@@ -269,4 +269,40 @@ describe('use-document-watcher', () => {
     await vi.advanceTimersByTimeAsync(initialTimeout * 2)
     expect(rebase).toHaveBeenCalledTimes(1)
   })
+
+  it('does not schedule another poll when a poll finishes after unmount', async () => {
+    vi.useFakeTimers()
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: createDocument('My API'),
+    })
+    const document = store.workspace.documents['default'] as OpenApiDocument | undefined
+    assert(document)
+    document['x-scalar-original-source-url'] = 'https://example.com/openapi.json'
+    document['x-scalar-watch-mode'] = true
+    type RebaseResult = Awaited<ReturnType<WorkspaceStore['rebaseDocument']>>
+    let resolveRebase: ((result: RebaseResult) => void) | undefined
+    const rebase = vi.spyOn(store, 'rebaseDocument').mockImplementation(
+      () =>
+        new Promise<RebaseResult>((resolve) => {
+          resolveRebase = resolve
+        }),
+    )
+    const initialTimeout = 200
+    mountWatcher({ documentName: ref('default'), store, initialTimeout })
+    await vi.advanceTimersByTimeAsync(initialTimeout)
+    expect(rebase).toHaveBeenCalledTimes(1)
+
+    assert(wrapper)
+    wrapper.unmount()
+    wrapper = undefined
+    assert(resolveRebase)
+    resolveRebase({ ok: false, type: 'NO_CHANGES_DETECTED', message: 'No changes' })
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(vi.getTimerCount()).toBe(0)
+    await vi.advanceTimersByTimeAsync(initialTimeout * 2)
+    expect(rebase).toHaveBeenCalledTimes(1)
+  })
 })
