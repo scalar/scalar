@@ -1,0 +1,8 @@
+/* Standalone pages own their document; shared component styles must not reset host pages. */
+@layer scalar-base {
+  body {
+    margin: 0;
+    line-height: inherit;
+    background-color: var(--scalar-background-1);
+  }
+}

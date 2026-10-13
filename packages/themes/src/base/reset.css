@@ -4,9 +4,9 @@
   @see https://github.com/tailwindlabs/tailwindcss/blob/3.3/src/css/preflight.css
 */
 
-/* Reset <body> in a layer  */
+/* Only reset pages that explicitly opt into Scalar styling. */
 @layer scalar-base {
-  body {
+  body.scalar-app {
     margin: 0;
     line-height: inherit;
   }
