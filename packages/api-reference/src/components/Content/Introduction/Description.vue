@@ -103,6 +103,11 @@ const transformHeading = (node: Record<string, any>) => {
 </template>
 
 <style scoped>
+/* Clear the download widget's hover expansion when the description opens with an alert */
+.introduction-description :deep(.markdown-alert:first-child) {
+  margin-top: 48px;
+}
+
 .introduction-description-heading {
   scroll-margin-top: 64px;
 }

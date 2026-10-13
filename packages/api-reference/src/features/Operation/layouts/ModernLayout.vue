@@ -86,7 +86,7 @@ const handleDiscriminatorChange = (type: string) => {
         class="font-code text-green flex w-fit items-center justify-center gap-1">
         <ScalarIconWebhooksLogo weight="bold" />Webhook
       </Badge>
-      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
+      <div>
         <SectionHeader>
           <Anchor :id="id">
             <SectionHeaderTag

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "description": "## Using AI?\n\nDefiLlama offers two ways to use our data with AI:\n\n| Resource | For | Description |\n|---|---|---|\n| <a href='/llms.txt'><b>llms.txt</b></a> | AI assistants (ChatGPT, Claude, Cursor, etc.) | Paste this link into your AI assistant for LLM-optimized docs |\n| <a href='https://defillama.com/mcp'><b>MCP Server</b></a> | AI agents | Connect your agent directly to DefiLlama data — 23 tools, requires an API plan |\n\n**Quick start (MCP)** — paste this into your AI agent:\n```\nRead https://raw.githubusercontent.com/DefiLlama/defillama-skills/refs/heads/master/defillama-setup/SKILL.md and follow the instructions to connect to DefiLlama MCP\n```\n\n---\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n\n## SDK\n\n**JavaScript** — `npm install @defillama/api` — [GitHub](https://github.com/DefiLlama/api-sdk)\n\n**Python** — `pip install defillama-sdk` — [GitHub](https://github.com/DefiLlama/python-sdk)\n\nQuick start (JavaScript):\n```ts\nimport { DefiLlama } from '@defillama/api'\n\nconst client = new DefiLlama()\nconst protocols = await client.tvl.getProtocols()\n```\n\nQuick start (Python):\n```py\nfrom defillama_sdk import DefiLlama\n\nclient = DefiLlama()\nprotocols = client.tvl.getProtocols()\n```",
+    "description": "> [!WARNING]\n> The free yield endpoints `/pools` and `/chart/{pool}` shut down on **November 13, 2026**. The same data remains available on the [API plan](https://defillama.com/subscription) at `/yields/v1/pools` and `/yields/v1/chart/{pool}`.\n\n## Using AI?\n\nDefiLlama offers two ways to use our data with AI:\n\n| Resource | For | Description |\n|---|---|---|\n| <a href='/llms.txt'><b>llms.txt</b></a> | AI assistants (ChatGPT, Claude, Cursor, etc.) | Paste this link into your AI assistant for LLM-optimized docs |\n| <a href='https://defillama.com/mcp'><b>MCP Server</b></a> | AI agents | Connect your agent directly to DefiLlama data — 23 tools, requires an API plan |\n\n**Quick start (MCP)** — paste this into your AI agent:\n```\nRead https://raw.githubusercontent.com/DefiLlama/defillama-skills/refs/heads/master/defillama-setup/SKILL.md and follow the instructions to connect to DefiLlama MCP\n```\n\n---\n\nNeed higher rate limits or priority support? We offer a premium plan for 300$/mo. To get it, go to https://defillama.com/subscription\n\n## SDK\n\n**JavaScript** — `npm install @defillama/api` — [GitHub](https://github.com/DefiLlama/api-sdk)\n\n**Python** — `pip install defillama-sdk` — [GitHub](https://github.com/DefiLlama/python-sdk)\n\nQuick start (JavaScript):\n```ts\nimport { DefiLlama } from '@defillama/api'\n\nconst client = new DefiLlama()\nconst protocols = await client.tvl.getProtocols()\n```\n\nQuick start (Python):\n```py\nfrom defillama_sdk import DefiLlama\n\nclient = DefiLlama()\nprotocols = client.tvl.getProtocols()\n```",
     "version": "1.0.0-oas3",
     "title": "DefiLlama API",
     "x-scalar-sdk-installation": [
@@ -1585,6 +1585,8 @@
       "get": {
         "tags": ["yields"],
         "summary": "Retrieve the latest data for all pools, including enriched information such as predictions",
+        "deprecated": true,
+        "description": "**This endpoint shuts down on November 13, 2026.** The same data remains available at `/yields/v1/pools` on the [API plan](https://defillama.com/subscription).",
         "servers": [
           {
             "url": "https://yields.llama.fi"
@@ -1765,6 +1767,8 @@
       "get": {
         "tags": ["yields"],
         "summary": "Get historical APY and TVL of a pool",
+        "deprecated": true,
+        "description": "**This endpoint shuts down on November 13, 2026.** The same data remains available at `/yields/v1/chart/{pool}` on the [API plan](https://defillama.com/subscription).",
         "servers": [
           {
             "url": "https://yields.llama.fi"
