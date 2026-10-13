@@ -114,13 +114,21 @@ const render = (
   let maskIndex = 0
   let maskClass: string | null = null
 
+  // Flushes move forward through the source, and the masked ranges are
+  // sorted and disjoint, so a cursor keeps each flush from rescanning them all.
+  let textIndex = 0
+
   /** Escaped text of `[from, to)`, with masked ranges wrapped. */
   const text = (from: number, to: number): string => {
+    while (textIndex < masked.length && masked[textIndex]!.end <= from) {
+      textIndex++
+    }
     let out = ''
     let cursor = from
-    for (const range of masked) {
-      if (range.end <= from || range.start >= to) {
-        continue
+    for (let i = textIndex; i < masked.length; i++) {
+      const range = masked[i]!
+      if (range.start >= to) {
+        break
       }
       out +=
         escapeHtml(code.slice(cursor, range.start)) +

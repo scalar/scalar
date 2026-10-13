@@ -593,6 +593,22 @@ describe('embed', () => {
     ])
   })
 
+  it('hands back to the root when the embedding state was entered with `set` from the root', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const switching: Grammar = {
+      name: 'switching',
+      states: {
+        root: { rules: [{ match: '(?=<x>)', set: 'open' }] },
+        open: { rules: [{ match: '<x>', scope: 'tag', set: 'body' }] },
+        body: host.states.body!,
+      },
+    }
+    const code = '<x>let a</x> 2'
+    const tokens = tokenizeToArray(code, compile(switching))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    expect(tokens.find((t) => t.text === 'let')?.scope).toBe('keyword')
+  })
+
   it('keeps an unterminated construct in the body from swallowing the end', () => {
     registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
     const tokens = tokenizeToArray('<x>"open</x> 2', compile(host))

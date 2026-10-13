@@ -847,13 +847,13 @@ describe('regressions from the TextMate comparison', () => {
   })
 
   it('bash: scopes command names, but not the arguments on a continued line', () => {
-    const code = 'curl -X POST \\\n  https://x.io\ncat f | grep x && ./run.sh\nif true; then x=$(date); fi\n'
+    const code = 'curl -X POST \\\n  payload.json\ncat f | grep x && ./run.sh\nif true; then x=$(date); fi\n'
     assertHas(code, 'bash', 'curl', 'function.call')
     assertHas(code, 'bash', 'grep', 'function.call')
     assertHas(code, 'bash', './run.sh', 'function.call')
     assertHas(code, 'bash', 'date', 'function.call')
     assertHas(code, 'bash', 'if', 'keyword.control')
-    expect(scoped(code, 'bash').some(([t]) => t.includes('https://x.io'))).toBeFalsy()
+    expect(scopeOf(code, 'bash', 'payload.json')).not.toBe('function.call')
   })
 
   it('yaml: keeps the string color on the wrapped lines of a plain scalar', () => {

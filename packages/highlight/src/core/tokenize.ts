@@ -23,8 +23,15 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
   while (pos < len) {
     if (top.embed !== null) {
       pos = embedded(code, pos, top, emit)
-      stack.length -= 1
-      memory.length -= 1
+      // An embedding state pops itself. A rule that `set` into it from the
+      // only state on the stack leaves nothing below, so the root takes over.
+      if (stack.length > 1) {
+        stack.length -= 1
+        memory.length -= 1
+      } else {
+        stack[0] = grammar.root
+        memory[0] = ''
+      }
       top = stack[stack.length - 1]!
       continue
     }
