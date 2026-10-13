@@ -144,7 +144,12 @@ schema expansion still tracks ancestors and stops at a depth of ten. Output may 
 list spacing and normalized Markdown escaping compared with earlier versions.
 
 For OpenAPI 3.2 descriptions, tag headings use `summary` when present and otherwise
-use `name`. Tag selectors and operation tag metadata continue to use `name`.
+use `name`. Nested tags appear parent-first with breadcrumb headings such as
+`### Accounts › Billing › Invoices`. Every tag uses the same heading level, including
+deeply nested tags. Parent relationships use tag names, while breadcrumb labels use
+summaries when available. Missing parents and circular relationships fall back to flat
+headings. Tag selectors and operation tag metadata continue to use `name`; selecting
+one tag still exports only that tag and its directly tagged operations.
 
 The package only generates Markdown. To produce HTML, pass the Markdown output to a
 Markdown renderer in your application.
