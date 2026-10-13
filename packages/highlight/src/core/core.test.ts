@@ -455,6 +455,15 @@ describe('line terminators', () => {
     expect(scopeAt('"a\nb', 'b')).toBe(null)
   })
 
+  it('rewrites a pattern in linear time, even one full of `[`', () => {
+    // A class holding 50k `[`: a tokenizing regex retried at every `[` would
+    // be quadratic here.
+    const match = `[${'['.repeat(50_000)}]`
+    const start = performance.now()
+    compile({ name: 'brackets', states: { root: { rules: [{ match, scope: 'punctuation' }] } } })
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
   it('lets `.` match U+2028 but not the carriage return of a CRLF', () => {
     const grammar = compile({ name: 'dot', states: { root: { rules: [{ match: '#.*', scope: 'comment' }] } } })
     expect(tokenizeToArray('# a\u2028b\r\nc', grammar).map((t) => [t.text, t.scope])).toEqual([

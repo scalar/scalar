@@ -55,9 +55,6 @@ const patternSource = (match: string | RegExp): string => {
   return typeof match === 'string' ? match : match.source
 }
 
-/** An escape, a character class, or a bare `.` or `$`. */
-const TERMINATOR_TOKENS = /\\[\s\S]|\[(?:\\[\s\S]|[^\]\\])*\]|[.$]/g
-
 /**
  * Makes a pattern end lines at `\n` (or `\r\n`) only.
  *
@@ -80,12 +77,30 @@ const TERMINATOR_TOKENS = /\\[\s\S]|\[(?:\\[\s\S]|[^\]\\])*\]|[.$]/g
  * only a bare `.` or `$` is rewritten.
  */
 const normalizeLineTerminators = (src: string): string => {
-  return src.replace(TERMINATOR_TOKENS, (token) => {
-    if (token === '.') {
-      return '[^\\r\\n]'
+  // A single left-to-right scan rather than a tokenizing regex: a pattern for
+  // "a character class" retried at every `[` of an unclosed run is O(n²).
+  let out = ''
+  let inClass = false
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i]!
+    if (c === '\\') {
+      out += c + (src[i + 1] ?? '')
+      i++
+    } else if (inClass) {
+      inClass = c !== ']'
+      out += c
+    } else if (c === '[') {
+      inClass = true
+      out += c
+    } else if (c === '.') {
+      out += '[^\\r\\n]'
+    } else if (c === '$') {
+      out += '(?=\\r?\\n|(?![\\s\\S]))'
+    } else {
+      out += c
     }
-    return token === '$' ? '(?=\\r?\\n|(?![\\s\\S]))' : token
-  })
+  }
+  return out
 }
 
 /** Escapes text so it can be spliced into a pattern and match literally. */
