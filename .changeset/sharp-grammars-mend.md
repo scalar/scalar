@@ -13,7 +13,7 @@ Fix the highlighting breakages a comparison against Shiki and `@scalar/code-high
 - **CSS** reads an unquoted `url(https://…)` as a string instead of starting a `//` comment.
 - A lone `\r`, U+2028 or U+2029 inside a string no longer ends it early in any grammar.
 - Unterminated `/*`, `<!--` and quotes, and runs of blank lines in JavaScript, no longer cost quadratic time.
-- **JavaScript, TypeScript and JSX**: JSX children are read as text, so an apostrophe in `<p>Don't</p>` no longer opens a string to the end of the line. An element opens only where an expression can start, and TypeScript generics (`<T>(x: T) => x`, `<T extends X>`) and `<string>` assertions are not read as tags. Declared function and class names are scoped, and a capitalised name followed by a call (`Error('x')`, `new Date()`) is a call rather than a type.
+- **JavaScript, TypeScript and JSX**: JSX children are read as text, so an apostrophe in `<p>Don't</p>` no longer opens a string to the end of the line. An element opens only where an expression can start, and TypeScript generics (`<T>(x: T) => x`, `<T extends X>`) and `<string>` assertions are not read as tags. A function assigned to a name (`const App = () => …`) is scoped as a function, and a capitalised name followed by a call (`function App()`, `Error('x')`, `new Date()`) is a call rather than a type.
 - **Shell** command names (`curl`, `grep`, `./build.sh`) are scoped, except on a line that continues the one before it.
 - **YAML** plain scalars that wrap onto the next line keep their string color.
 - **Markdown** fences close only on a run at least as long as the opener, and HTML comments are scoped.

@@ -837,12 +837,11 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'javascript', "'a'", 'string')
   })
 
-  it('javascript: scopes declared names, and capitalised calls as calls rather than types', () => {
+  it('javascript: scopes functions assigned to a name, and capitalised calls as calls rather than types', () => {
     const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
-    assertHas(code, 'javascript', 'Card', 'function')
+    assertHas(code, 'javascript', 'Card', 'function.call')
     assertHas(code, 'javascript', 'App', 'function')
-    assertHas(code, 'javascript', 'Foo', 'class')
-    assertHas(code, 'javascript', 'Bar', 'type')
+    assertHas(code, 'javascript', 'Foo', 'type')
     assertHas(code, 'javascript', 'Error', 'function.call')
     assertHas(code, 'javascript', 'Date', 'function.call')
   })

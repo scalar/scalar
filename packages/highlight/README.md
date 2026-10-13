@@ -88,7 +88,7 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 | …lazy loader, initial chunk | 4.68 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.13 KB · `json` 0.29 KB · `markdown` 0.49 KB · `html` 0.52 KB · `nginx` 0.54 KB · `http` 0.63 KB · `css` 0.64 KB · `ini` 0.70 KB · `graphql` 0.72 KB · `go` 0.80 KB · `yaml` 0.82 KB · `rust` 0.85 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `bash` 0.96 KB · `sql` 0.99 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.33 KB · `julia` 1.37 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `javascript` 1.63 KB · `fsharp` 1.69 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.74 KB · `php` 1.79 KB · `perl` 1.86 KB.
+Per language, on top of the core: `diff` 0.13 KB · `json` 0.29 KB · `markdown` 0.49 KB · `html` 0.52 KB · `nginx` 0.54 KB · `http` 0.63 KB · `css` 0.64 KB · `ini` 0.70 KB · `graphql` 0.72 KB · `go` 0.80 KB · `yaml` 0.82 KB · `rust` 0.85 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `bash` 0.96 KB · `sql` 0.99 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.33 KB · `julia` 1.37 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `javascript` 1.60 KB · `fsharp` 1.69 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.74 KB · `php` 1.79 KB · `perl` 1.86 KB.
 
 Reproduce with `pnpm size`.
 
@@ -291,7 +291,7 @@ For the same three languages `ScalarCodeBlock` shows most often:
 | | gzipped |
 | --- | ---: |
 | `@scalar/code-highlight` | 127.58 KB |
-| `@scalar/highlight/compat` | 6.76 KB |
+| `@scalar/highlight/compat` | 6.72 KB |
 
 ## Trade-offs
 

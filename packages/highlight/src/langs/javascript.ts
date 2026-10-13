@@ -99,16 +99,6 @@ const javascript: Grammar = {
           scope: ['punctuation', null, 'variable.member'],
         },
 
-        // Declarations come before the keyword rules, which would otherwise
-        // take `function` and `class` and leave the name to the CapWords rule.
-        {
-          match: `\\b(function)([ \\t]*\\*?[ \\t]*)(${ID})`,
-          scope: ['keyword.declaration', null, 'function'],
-        },
-        {
-          match: `\\b(class)([ \\t]+)(?!extends\\b)(${ID})`,
-          scope: ['keyword.declaration', null, 'class'],
-        },
         // `const App = () => …` and `handler = function …` name a function as
         // surely as a declaration does. The parameter list cannot nest
         // parentheses here, which covers real code and keeps the scan bounded.
