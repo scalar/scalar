@@ -220,7 +220,7 @@ paths:
     )
 
     try {
-      const document = await loadDocument(documentPath)
+      const document = await loadDocument(documentPath, { basePath: directory })
       const references = findReferences(document)
       const target = getReferenceTarget(references[0])
 
@@ -278,7 +278,7 @@ paths:
     const port = typeof address === 'object' && address ? address.port : 0
 
     try {
-      const document = await loadDocument(`http://127.0.0.1:${port}/openapi.yaml`)
+      const document = await loadDocument(`http://127.0.0.1:${port}/openapi.yaml`, { allowPrivateNetworks: true })
       const references = findReferences(document)
       const target = getReferenceTarget(references[0])
 

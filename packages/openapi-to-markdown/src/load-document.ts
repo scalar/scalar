@@ -206,12 +206,24 @@ const attachRefValues = (
   return hasExternalReferences
 }
 
+/** Permissions for loading an API description and its external references. */
+export type DocumentLoadOptions = {
+  /** Allow private-network requests only for trusted input. Defaults to false. */
+  allowPrivateNetworks?: boolean
+  /** Approved directory for local files and references. File access is disabled when omitted. */
+  basePath?: string
+}
+
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
+  options: DocumentLoadOptions = {},
 ): Promise<OpenApiDocument> => {
   let raw: unknown
   let origin: string | undefined
+  const { fetchUrls, readFiles } = await import('@scalar/json-magic/bundle/plugins/node')
+  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
+  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
 
   // Reference links are attached below, so never mutate the caller's document.
   if (typeof input !== 'string') {
@@ -225,16 +237,23 @@ export const loadDocument = async (
     if (isObject(normalized)) {
       raw = normalized
     } else if (/^https?:\/\//i.test(input)) {
-      const response = await fetch(input)
-      if (!response.ok) {
-        throw new Error(`Failed to load OpenAPI document (HTTP ${response.status})`)
+      const result = await urlLoader.exec(input)
+      if (!result.ok) {
+        throw new Error('Failed to load OpenAPI document')
       }
-      raw = normalize(await response.text())
+      raw = result.data
       origin = input
     } else {
-      const [{ resolve }, { readFile }] = await Promise.all([import('node:path'), import('node:fs/promises')])
+      if (!fileLoader) {
+        throw new Error('Local file access requires an explicit basePath')
+      }
+      const { resolve } = await import('node:path')
       origin = resolve(input)
-      raw = normalize(await readFile(origin, 'utf8'))
+      const result = await fileLoader.exec(origin)
+      if (!result.ok) {
+        throw new Error('Failed to load OpenAPI document')
+      }
+      raw = result.data
     }
   }
   if (!isObject(raw)) {
@@ -253,13 +272,7 @@ export const loadDocument = async (
   // Resolve external targets only when the initial local-reference pass finds them.
   if (hasExternalReferences) {
     const errors: string[] = []
-    const plugins =
-      typeof process === 'undefined'
-        ? [(await import('@scalar/json-magic/bundle/plugins/browser')).fetchUrls()]
-        : [
-            (await import('@scalar/json-magic/bundle/plugins/node')).fetchUrls(),
-            (await import('@scalar/json-magic/bundle/plugins/node')).readFiles(),
-          ]
+    const plugins = fileLoader ? [urlLoader, fileLoader] : [urlLoader]
     document = await bundle(upgraded, {
       plugins,
       origin,

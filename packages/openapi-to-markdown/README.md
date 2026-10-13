@@ -68,6 +68,27 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 })
 ```
 
+### Document loading permissions
+
+URL inputs and external references block private, loopback, and link-local addresses by default.
+Protected requests also reject redirects. File access is disabled unless you provide an approved
+`basePath`; paths and symlinks outside that directory are rejected.
+
+```ts
+const markdown = await createMarkdownFromOpenApi('./descriptions/openapi.yaml', {
+  documentLoading: { basePath: './descriptions' },
+})
+
+const renderer = await createOpenApiMarkdownRenderer('./descriptions/openapi.yaml', {
+  basePath: './descriptions',
+})
+```
+
+For trusted local development inputs, set `allowPrivateNetworks: true` in the same loading options.
+This also permits redirects. Keep these permissions under application control, rather than taking
+them from uploaded API descriptions or request parameters. An approved directory applies to all
+files loaded during that call, including references in remote documents.
+
 ### Render multiple pages
 
 Create a reusable renderer when exporting several pages from the same API description.
