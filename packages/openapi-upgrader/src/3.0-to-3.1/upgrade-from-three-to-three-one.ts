@@ -4,6 +4,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
+import { collapseAnnotationOnlyAllOf, collectReferencedPointers } from './collapse-annotation-only-all-of'
+
 // Segments whose value is a map of *named* subschemas. Keys inside these maps are
 // arbitrary names (property names, definition names), never schema keywords.
 const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
@@ -30,6 +32,17 @@ function isNamedSchemaMap(path: string[] | undefined): boolean {
   return NAMED_SCHEMA_MAP_SEGMENTS.has(last)
 }
 
+/**
+ * Determine if `path[index]` is the `default` entry of a Responses Object.
+ *
+ * That `default` is a response, not the `default` keyword, so everything under it (its schemas
+ * included) still has to be upgraded. A schema property literally called `responses` does not
+ * count: there `default` is the keyword again.
+ */
+function isDefaultResponse(path: string[], index: number): boolean {
+  return path[index] === 'default' && path[index - 1] === 'responses' && !isNamedSchemaMap(path.slice(0, index - 1))
+}
+
 // Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make
 // sense for schema keywords, so nothing nested under these may be rewritten.
 const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
@@ -49,7 +62,7 @@ function isInsideDataValue(path: string[] | undefined): boolean {
   for (const [index, segment] of path.entries()) {
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
-    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index))) {
+    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
       return true
     }
 
@@ -115,18 +128,29 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
   content.openapi = '3.1.1'
 
+  // Read before anything is rewritten: the `allOf` collapse must leave every node a `$ref` reaches alone.
+  const referencedPointers = collectReferencedPointers(content)
+
   // Single traversal that handles all transformations
-  content = traverse(content, applyChangesToDocument)
+  content = traverse(content, (schema, path) => applyChangesToDocument(schema, path, referencedPointers))
 
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
+const applyChangesToDocument = (
+  originalSchema: UnknownObject,
+  path: string[] | undefined,
+  referencedPointers: ReadonlySet<string>,
+) => {
   // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
   // schema, so none of the schema transforms below apply and running them would corrupt the data.
   if (isInsideDataValue(path)) {
-    return schema
+    return originalSchema
   }
+
+  // 0b. Drop `allOf` members that only carry annotations, the 3.0 workaround for documenting a
+  // `$ref`. Runs before the nullable handling so `nullable` next to such a wrapper sees one member.
+  const schema = collapseAnnotationOnlyAllOf(originalSchema, path ?? [], referencedPointers)
 
   // 1. Handle nullable types
   if (schema.type !== undefined && schema.nullable === true) {
