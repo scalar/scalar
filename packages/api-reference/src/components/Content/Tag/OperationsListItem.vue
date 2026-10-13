@@ -31,6 +31,14 @@ const scrollHandler = async (givenOperation: TransformedOperation) => {
 const title = computed(
   () => transformedOperation?.name || transformedOperation?.path,
 )
+
+const deprecated = computed(() =>
+  isOperationDeprecated(
+    transformedOperation.information as OpenAPIV3_1.OperationObject<{
+      'x-scalar-stability': XScalarStability
+    }>,
+  ),
+)
 </script>
 
 <template>
@@ -55,16 +63,13 @@ const title = computed(
           v-if="transformedOperation.isWebhook"
           class="size-3.5" />
       </HttpMethod>
-      <span
-        class="endpoint-path"
-        :class="{
-          deprecated: isOperationDeprecated(
-            transformedOperation.information as OpenAPIV3_1.OperationObject<{
-              'x-scalar-stability': XScalarStability
-            }>,
-          ),
-        }">
-        {{ transformedOperation.path }}
+      <span class="endpoint-path">
+        <span :class="{ deprecated }">{{ transformedOperation.path }}</span>
+        <span
+          v-if="deprecated"
+          class="deprecated-indicator">
+          Deprecated
+        </span>
         <span
           v-if="transformedOperation.information?.['x-api-plan-only'] === true"
           class="pro-indicator">
@@ -128,6 +133,17 @@ const title = computed(
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-bold);
   background: color-mix(in srgb, var(--scalar-color-orange), transparent 90%);
+  padding: 1px 4px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.deprecated-indicator {
+  margin-left: 8px;
+  color: var(--scalar-color-red);
+  font-size: var(--scalar-micro);
+  font-weight: var(--scalar-bold);
+  background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
   padding: 1px 4px;
   border-radius: 6px;
   display: inline-block;
