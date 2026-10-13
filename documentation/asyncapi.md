@@ -132,6 +132,12 @@ Rendering works in both the `modern` and `classic` layouts.
   size="full">
 </scalar-image>
 
+## Protocol bindings
+
+Binding details appear on channels, operations, and expanded messages, and beneath the selected server in the introduction. Each binding shows its protocol key and all supplied fields, including `bindingVersion` when declared. Expand nested fields to inspect their JSON.
+
+Referenced bindings and bindings inherited from operation or message traits are supported. Unfamiliar fields remain visible; unavailable references retain their `$ref` pointer. Binding versions describe the binding format and are separate from the server's protocol version.
+
 ## Search
 
 Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. Channel, operation, and message results display the actual channel address, or **Address: Unknown** when it is missing or null. Channel identifiers remain searchable independently of the address. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.

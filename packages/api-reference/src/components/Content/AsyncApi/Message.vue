@@ -25,6 +25,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import AsyncApiTags from './AsyncApiTags.vue'
+import Bindings from './Bindings.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
@@ -296,7 +297,8 @@ const { level: headingLevel } = useDocumentOutline(
             contentType ||
             correlationId ||
             headersSchema ||
-            payloadSchema
+            payloadSchema ||
+            resolvedMessage?.bindings
           "
           class="message-details min-w-0">
           <div
@@ -309,6 +311,10 @@ const { level: headingLevel } = useDocumentOutline(
             class="message-description"
             :value="description"
             withImages />
+
+          <Bindings
+            :bindings="resolvedMessage?.bindings"
+            class="mt-3" />
 
           <div
             v-if="correlationId"

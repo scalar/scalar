@@ -32,6 +32,8 @@ import { computed, useId } from 'vue'
 
 import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
 import { getAsyncApiTags } from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
+import Bindings from '@/components/Content/AsyncApi/Bindings.vue'
+import { getBindingEntries } from '@/components/Content/AsyncApi/helpers/get-binding-entries'
 import { useLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
@@ -83,7 +85,8 @@ const hasServerDetails = computed(() =>
     getAsyncApiTags(selectedServer?.server.tags).length ||
     serverSummary.value ||
     serverProtocolVersion.value ||
-    selectedServer?.description,
+    selectedServer?.description ||
+    getBindingEntries(selectedServer?.server.bindings).length,
   ),
 )
 
@@ -142,5 +145,8 @@ const updateServerVariable = (key: string, value: string) => {
     <ScalarMarkdown
       v-if="selectedServer?.description"
       :value="selectedServer.description" />
+    <Bindings
+      :bindings="selectedServer?.server.bindings"
+      class="my-2" />
   </div>
 </template>

@@ -39,6 +39,31 @@ describe('AsyncApiServerSelector', () => {
     }),
   ]
 
+  it('shows binding-only server details and updates them with the selection', async () => {
+    const first = createEntry({
+      name: 'first',
+      url: 'kafka://first',
+      server: {
+        host: 'first',
+        protocol: 'kafka',
+        bindings: { kafka: { schemaRegistryUrl: 'https://registry.example.com', bindingVersion: '0.5.0' } },
+      },
+    })
+    const second = createEntry({
+      name: 'second',
+      url: 'mqtt://second',
+      server: { host: 'second', protocol: 'mqtt', bindings: { mqtt: { clientId: 'consumer-1' } } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [first, second], selectedServer: first, eventBus },
+    })
+    expect(wrapper.text()).toContain('https://registry.example.com')
+    expect(wrapper.text()).toContain('0.5.0')
+    await wrapper.setProps({ selectedServer: second })
+    expect(wrapper.text()).toContain('consumer-1')
+    expect(wrapper.text()).not.toContain('https://registry.example.com')
+  })
+
   it('renders the server label', () => {
     const wrapper = mount(AsyncApiServerSelector, {
       props: { servers: mockServers, selectedServer: mockServers[0]!, eventBus },
