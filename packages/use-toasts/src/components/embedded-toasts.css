@@ -1,0 +1,53 @@
+.scalar-embedded-toasts {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(356px, calc(100vw - 48px));
+  pointer-events: none;
+  font-family: var(--scalar-font);
+}
+.scalar-embedded-toast {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px;
+  background: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+  border-radius: var(--scalar-radius-lg);
+  font-size: var(--scalar-font-size-3);
+  font-weight: var(--scalar-font-medium);
+  box-shadow: var(--scalar-shadow-2);
+  overflow-wrap: anywhere;
+  pointer-events: auto;
+}
+.scalar-embedded-toast[data-level="error"] .scalar-embedded-toast-title {
+  color: var(--scalar-color-red);
+}
+.scalar-embedded-toast[data-level="warn"] .scalar-embedded-toast-title {
+  color: var(--scalar-color-orange);
+}
+.scalar-embedded-toast-description {
+  margin-top: 4px;
+  font-weight: var(--scalar-font-normal);
+  line-height: 1.4;
+}
+.scalar-embedded-toast button {
+  flex-shrink: 0;
+  align-self: flex-start;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+  border: none;
+  border-radius: var(--scalar-radius);
+  font: inherit;
+  line-height: 1;
+  padding: 4px;
+}
+.scalar-embedded-toast button:focus-visible {
+  outline: 2px solid var(--scalar-color-accent);
+  outline-offset: 2px;
+}

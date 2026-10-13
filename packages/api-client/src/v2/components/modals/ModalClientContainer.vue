@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { addScalarClassesToHeadless } from '@scalar/components/helpers'
-import type { ModalState } from '@scalar/components/modal'
+import { ScalarNativeDialog, type ModalState } from '@scalar/components/modal'
 import { ScalarTeleportRoot } from '@scalar/components/teleport'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
-import { nextTick, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 import { useLocalization } from '@/v2/features/localization'
 
@@ -17,6 +17,9 @@ const emit = defineEmits<{
 const { translate } = useLocalization()
 
 const client = ref<HTMLElement | null>(null)
+const root = useDocumentRoot()
+const isEmbedded =
+  typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot
 
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
@@ -35,16 +38,19 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
       undefined,
   })
 
-// ensure scalar classes exist on headless-ui root
-onBeforeMount(() => addScalarClassesToHeadless())
-
 // manage the focus trap and emit lifecycle events
 watch(
   () => props.modalState.open,
   async (open) => {
     if (open) {
       await nextTick()
-      activateFocusTrap()
+      if (isEmbedded) {
+        client.value
+          ?.querySelector<HTMLElement>('[data-modal-initial-focus]')
+          ?.focus()
+      } else {
+        activateFocusTrap()
+      }
       emit('open')
     } else {
       deactivateFocusTrap()
@@ -61,17 +67,25 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="scalar scalar-app z-overlay relative">
+  <component
+    :is="isEmbedded ? ScalarNativeDialog : 'div'"
+    :aria-label="
+      isEmbedded ? translate('apiClient.modalClientContainer.label') : undefined
+    "
+    class="scalar scalar-app z-overlay relative"
+    :open="isEmbedded ? modalState.open : undefined"
+    :unmount="isEmbedded ? false : undefined"
+    @close="modalState.hide()">
     <div
       class="scalar-container"
       :class="{ 'scalar-client--open': modalState.open }">
       <div
         ref="client"
         :aria-label="translate('apiClient.modalClientContainer.label')"
-        aria-modal="true"
+        :aria-modal="isEmbedded ? undefined : true"
         v-bind="$attrs"
         class="scalar-app-layout scalar-client"
-        role="dialog"
+        :role="isEmbedded ? undefined : 'dialog'"
         tabindex="-1">
         <ScalarTeleportRoot>
           <slot />
@@ -83,7 +97,7 @@ onBeforeUnmount(() => {
         class="scalar-app-exit"
         @click="modalState.hide()" />
     </div>
-  </div>
+  </component>
 </template>
 
 <style scoped>

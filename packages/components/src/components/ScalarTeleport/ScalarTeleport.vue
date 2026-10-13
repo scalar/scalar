@@ -15,11 +15,12 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type { TeleportProps } from 'vue'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
+import { type TeleportProps, computed, onMounted, ref, unref } from 'vue'
 
 import { useTeleport } from './useTeleport'
 
-defineProps<{
+const props = defineProps<{
   /**
    * Override the default teleport target
    */
@@ -44,12 +45,35 @@ defineSlots<{
 defineOptions({ inheritAttrs: false })
 
 const root = useTeleport()
+const documentRoot = useDocumentRoot()
+const mounted = ref(false)
+onMounted(() => {
+  mounted.value = true
+})
+
+/** Vue resolves selector targets against document; pass actual nodes inside shadow roots. */
+const target = computed(() => {
+  const value = props.to || unref<string | HTMLElement | null>(root)
+  if (
+    typeof ShadowRoot !== 'undefined' &&
+    documentRoot instanceof ShadowRoot &&
+    typeof value === 'string'
+  ) {
+    return value === 'body'
+      ? documentRoot
+      : mounted.value
+        ? documentRoot.querySelector(value)
+        : null
+  }
+  return value
+})
 </script>
 <template>
   <Teleport
+    v-if="disabled || target"
     :defer="!immediate"
     :disabled="disabled"
-    :to="to || root">
+    :to="target">
     <div
       class="scalar-app"
       style="display: contents"

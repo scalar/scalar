@@ -1,68 +1,104 @@
-/**
- * @vitest-environment jsdom
- */
-import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
-import { toast } from 'vue-sonner'
+/** @vitest-environment jsdom */
+import { flushPromises, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { defineComponent, h, nextTick } from 'vue'
 
-import { useToasts } from '../hooks/useToasts'
+import { provideToasts, useToasts } from '../hooks/useToasts'
 import ScalarToasts from './ScalarToasts.vue'
 
-vi.mock(import('../hooks/useToasts'), () => ({
-  initializeToasts: vi.fn(),
-  useToasts: vi.fn(() => ({
-    initializeToasts: vi.fn(),
-    toast: vi.fn(),
-  })),
-}))
-
-vi.mock(import('vue-sonner'), async (importOriginal) => ({
-  ...(await importOriginal()),
-  toast: vi.fn() as unknown as typeof toast,
-}))
+const mountEmbedded = () => {
+  let notify = useToasts().toast
+  const Consumer = defineComponent({
+    setup() {
+      notify = useToasts().toast
+      return () => h(ScalarToasts)
+    },
+  })
+  const Provider = defineComponent({
+    setup() {
+      provideToasts()
+      return () => h(Consumer)
+    },
+  })
+  const wrapper = mount(Provider)
+  return { wrapper, notify }
+}
 
 describe('ScalarToasts', () => {
-  it('should not render Toaster before mount', () => {
-    const wrapper = mount(ScalarToasts)
-    expect(wrapper.find('.scalar-toaster').exists()).toBe(false)
-  })
+  afterEach(() => vi.useRealTimers())
 
-  it('should render Toaster after mount', async () => {
-    const wrapper = mount(ScalarToasts)
+  it('keeps embedded notifications out of sibling and default renderers', async () => {
+    const first = mountEmbedded()
+    const second = mountEmbedded()
+    const defaultToast = vi.fn()
+    const unregister = useToasts().initializeToasts(defaultToast)
+
+    first.notify('First notification', 'error', { description: 'Details' })
+    second.notify('Second notification', 'warn')
     await nextTick()
-    expect(wrapper.find('.scalar-toaster').exists()).toBe(true)
+
+    expect(first.wrapper.find('[role="alert"]').text()).toContain('First notification')
+    expect(first.wrapper.find('[role="alert"]').text()).toContain('Details')
+    expect(first.wrapper.text().includes('Second notification')).toBe(false)
+    expect(second.wrapper.find('[role="status"]').text()).toContain('Second notification')
+    expect(second.wrapper.text().includes('First notification')).toBe(false)
+    expect(defaultToast).not.toHaveBeenCalled()
+
+    await first.wrapper.get('button').trigger('click')
+    expect(first.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(second.wrapper.find('[role="status"]').text()).toContain('Second notification')
+    first.wrapper.unmount()
+    second.wrapper.unmount()
+    unregister()
   })
 
-  it('should initialize toasts with correct parameters', () => {
-    const mockInitializeToasts = vi.fn()
-    vi.mocked(useToasts).mockImplementation(() => ({
-      initializeToasts: mockInitializeToasts,
-      toast: vi.fn(),
-    }))
+  it('pauses expiry while hovered or focused and releases timers on unmount', async () => {
+    vi.useFakeTimers()
+    const { wrapper, notify } = mountEmbedded()
+    notify('Read this', 'info', { timeout: 1000 })
+    await nextTick()
+    await vi.advanceTimersByTimeAsync(400)
+    await wrapper.get('[role="status"]').trigger('pointerenter')
+    await wrapper.get('button').trigger('focusin')
+    await vi.advanceTimersByTimeAsync(2000)
+    await wrapper.get('[role="status"]').trigger('pointerleave')
+    await vi.advanceTimersByTimeAsync(2000)
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    await wrapper.get('button').trigger('focusout')
+    await vi.advanceTimersByTimeAsync(599)
+    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    await vi.advanceTimersByTimeAsync(1)
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
 
-    mount(ScalarToasts)
+    notify('Pending')
+    await nextTick()
+    expect(vi.getTimerCount()).toBe(1)
+    wrapper.unmount()
+    expect(vi.getTimerCount()).toBe(0)
+    notify('After unmount')
+    expect(vi.getTimerCount()).toBe(0)
+  })
 
-    expect(mockInitializeToasts).toHaveBeenCalledTimes(1)
+  it('keeps persistent notifications until dismissed', async () => {
+    vi.useFakeTimers()
+    const { wrapper, notify } = mountEmbedded()
+    notify('Persistent', 'info', { timeout: Number.POSITIVE_INFINITY })
+    await nextTick()
+    expect(vi.getTimerCount()).toBe(0)
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.find('[role="status"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
 
-    // Get the callback function passed to initializeToasts
-    const toastCallback = mockInitializeToasts?.mock.calls?.[0]?.[0]
-
-    // Test default parameters
-    toastCallback('Test message')
-    expect(vi.mocked(toast)).toHaveBeenCalledWith('Test message', {
-      duration: 3000,
-      description: undefined,
+  it('loads the existing renderer for ordinary integrations', async () => {
+    const wrapper = mount(ScalarToasts)
+    await vi.waitFor(async () => {
+      await flushPromises()
+      expect(wrapper.find('.scalar-toaster').exists()).toBe(true)
     })
-
-    // Test with custom parameters
-    toastCallback('Error message', 'error', {
-      timeout: 5000,
-      description: 'Details',
-    })
-    expect(vi.mocked(toast)).toHaveBeenCalledWith('Error message', {
-      duration: 5000,
-      description: 'Details',
-    })
+    useToasts().toast('Ordinary notification')
+    await nextTick()
+    await vi.waitFor(() => expect(wrapper.text().includes('Ordinary notification')).toBe(true))
+    wrapper.unmount()
   })
 })

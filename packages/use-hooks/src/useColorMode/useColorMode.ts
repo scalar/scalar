@@ -1,8 +1,13 @@
 import { type DarkLightMode, applyColorMode, getSystemColorMode } from '@scalar/helpers/theme/color-mode'
 import { literal, union, validate } from '@scalar/validation'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, onMounted, onUnmounted, ref, toValue, watch } from 'vue'
 
-const colorMode = ref<ColorMode>('dark')
+import { useDocumentRoot } from '../useDocumentRoot'
+
+const sharedColorMode = ref<ColorMode>('dark')
+
+// Separate client apps inside the same custom element share its preference, without retaining removed roots.
+const embeddedColorModes = new WeakMap<ShadowRoot, Ref<ColorMode>>()
 
 /**
  * Reactive snapshot of the system preference, shared across every `useColorMode` instance.
@@ -31,10 +36,17 @@ export function useColorMode(
     /** The initial color mode to use */
     initialColorMode?: ColorMode
     /** Override the color mode */
-    overrideColorMode?: ColorMode
+    overrideColorMode?: MaybeRefOrGetter<ColorMode | undefined>
   } = {},
 ) {
   const { initialColorMode = 'system', overrideColorMode } = opts
+  const root = useDocumentRoot()
+  const shadowRoot = typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot ? root : undefined
+  const existingColorMode = shadowRoot ? embeddedColorModes.get(shadowRoot) : undefined
+  const colorMode = shadowRoot ? (existingColorMode ?? ref<ColorMode>(initialColorMode)) : sharedColorMode
+  if (shadowRoot && !existingColorMode) {
+    embeddedColorModes.set(shadowRoot, colorMode)
+  }
 
   /** Toggles the color mode between light and dark. */
   function toggleColorMode() {
@@ -42,7 +54,7 @@ export function useColorMode(
     colorMode.value = darkLightMode.value === 'dark' ? 'light' : 'dark'
 
     // Store in local storage
-    if (typeof window === 'undefined') {
+    if (shadowRoot || typeof window === 'undefined') {
       return
     }
     window?.localStorage?.setItem('colorMode', colorMode.value)
@@ -51,7 +63,7 @@ export function useColorMode(
   /** Sets the color mode to the specified value. */
   function setColorMode(value: ColorMode) {
     colorMode.value = value
-    if (typeof window === 'undefined') {
+    if (shadowRoot || typeof window === 'undefined') {
       return
     }
     window?.localStorage?.setItem('colorMode', colorMode.value)
@@ -64,7 +76,10 @@ export function useColorMode(
 
   /** Writable computed ref for dark/light mode with system preference applied */
   const darkLightMode = computed<DarkLightMode>({
-    get: () => (colorMode.value === 'system' ? systemPreference.value : colorMode.value),
+    get: () => {
+      const mode = (shadowRoot ? toValue(overrideColorMode) : undefined) ?? colorMode.value
+      return mode === 'system' ? systemPreference.value : mode
+    },
     set: setColorMode,
   })
 
@@ -76,13 +91,14 @@ export function useColorMode(
 
   /** Applies the appropriate color mode class to the body. */
   function applyBodyColorMode(): void {
-    if (typeof document === 'undefined' || typeof window === 'undefined') {
+    if (shadowRoot || typeof document === 'undefined' || typeof window === 'undefined') {
       return
     }
 
     // Read from the deferred `systemPreference` ref (not `getSystemModePreference()` directly) so
     // the body class agrees with `darkLightMode`/the toggle before `onMounted` resolves the real value.
-    const classMode = overrideColorMode ?? (colorMode.value === 'system' ? systemPreference.value : colorMode.value)
+    const classMode =
+      toValue(overrideColorMode) ?? (colorMode.value === 'system' ? systemPreference.value : colorMode.value)
 
     // An `overrideColorMode` of `system` reaches here unresolved, and has always rendered as light.
     applyColorMode(classMode === 'dark' ? 'dark' : 'light')
@@ -91,14 +107,20 @@ export function useColorMode(
   // Priority: overrideColorMode -> localStorage -> initialColorMode
   // Without `window` (SSR/SSG), there is no storage — treat preference as `system` so we do not
   // fall through to `initialColorMode` and diverge from client hydration (see useColorMode tests).
-  const storedValue = typeof window === 'undefined' ? 'system' : window?.localStorage?.getItem('colorMode')
+  const storedValue = shadowRoot
+    ? null
+    : typeof window === 'undefined'
+      ? 'system'
+      : window?.localStorage?.getItem('colorMode')
   const savedColorMode = validate(colorModeSchema, storedValue) ? (storedValue as ColorMode) : null
 
-  colorMode.value = overrideColorMode ?? savedColorMode ?? initialColorMode
+  if (!existingColorMode) {
+    colorMode.value = (shadowRoot ? undefined : toValue(overrideColorMode)) ?? savedColorMode ?? initialColorMode
+  }
 
   // Watch for color mode or system preference changes and update the body class. Watching
   // `systemPreference` means resolving it in `onMounted` (or an OS theme change) re-applies the class.
-  watch([colorMode, systemPreference], applyBodyColorMode, { immediate: true })
+  watch([colorMode, systemPreference, () => toValue(overrideColorMode)], applyBodyColorMode, { immediate: true })
 
   const handleChange = () => {
     systemPreference.value = getSystemModePreference()

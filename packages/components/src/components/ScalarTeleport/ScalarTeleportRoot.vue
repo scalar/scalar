@@ -16,6 +16,9 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
+import { useTemplateRef } from 'vue'
+
 import { useProvideTeleport } from './useTeleport'
 
 const props = defineProps<{
@@ -32,11 +35,19 @@ defineSlots<{
 
 defineOptions({ inheritAttrs: false })
 
-const id = useProvideTeleport(props.id)
+const root = useDocumentRoot()
+const target = useTemplateRef<HTMLElement>('target')
+const id = useProvideTeleport(
+  props.id,
+  typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot
+    ? target
+    : undefined,
+)
 </script>
 <template>
   <slot />
   <div
     :id="id"
+    ref="target"
     class="scalar-teleport-root contents" />
 </template>

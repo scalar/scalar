@@ -20,11 +20,11 @@ import {
   ScalarColorModeToggleButton,
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
-import { addScalarClassesToHeadless } from '@scalar/components/helpers'
 import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { useProvideTeleport } from '@scalar/components/teleport'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -45,6 +45,7 @@ import {
 } from '@scalar/types/api-reference'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { coerce } from '@scalar/validation'
 import { getAsyncApiServers } from '@scalar/workspace-store/channel-example'
@@ -139,6 +140,7 @@ import { resolveIntersectingEntry } from '@/helpers/resolve-intersecting-entry'
 import { safeDeepClone } from '@/helpers/safe-deep-clone'
 import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
+import { useBrowserHistory } from '@/hooks/use-browser-history'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
@@ -163,6 +165,14 @@ defineSlots<{
 
 const { copyToClipboard } = useClipboard()
 
+/** Resolve overlay targets within this reference, including when it lives in a shadow root. */
+const embeddingRoot = useDocumentRoot()
+const isShadowRoot =
+  typeof ShadowRoot !== 'undefined' && embeddingRoot instanceof ShadowRoot
+const overlayRoot = useTemplateRef<HTMLElement>('overlayRoot')
+if (isShadowRoot) {
+  useProvideTeleport(undefined, overlayRoot)
+}
 /**
  * Used to inject the environment into built packages
  *
@@ -575,7 +585,7 @@ const { toggleColorMode, isDarkMode } = useColorMode({
     false: 'light' as const,
     undefined: 'system' as const,
   }[String(mergedConfig.value.darkMode)],
-  overrideColorMode: mergedConfig.value.forceDarkModeState,
+  overrideColorMode: () => mergedConfig.value.forceDarkModeState,
 })
 
 /**
@@ -1703,22 +1713,16 @@ eventBus.on('copy-url:nav-item', ({ id }) => {
 // ---------------------------------------------------------------------------
 // History and scroll restoration
 
-onBeforeMount(() => {
-  window.history.scrollRestoration = 'manual'
-  // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late
-  addScalarClassesToHeadless()
-
-  // When we detect a back button press we scroll to the new id
-  window.addEventListener('popstate', () => {
-    const id = getIdFromUrl(
-      window.location.href,
-      basePath.value,
-      isMultiDocument.value ? undefined : activeSlug.value,
-    )
-    if (id) {
-      scrollToLazyElement(id)
-    }
-  })
+// When the user navigates back, scroll within this reference's own DOM root.
+useBrowserHistory(() => {
+  const id = getIdFromUrl(
+    window.location.href,
+    basePath.value,
+    isMultiDocument.value ? undefined : activeSlug.value,
+  )
+  if (id) {
+    scrollToLazyElement(id)
+  }
 })
 
 // ---------------------------------------------------------------------------
@@ -1813,7 +1817,7 @@ const sidebarCta = computed((): SidebarCta => {
 
 <template>
   <!-- SingleApiReference -->
-  <div>
+  <div :class="isDarkMode ? 'dark-mode' : 'light-mode'">
     <!-- Inject any custom CSS directly into a style tag -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
@@ -2114,6 +2118,10 @@ const sidebarCta = computed((): SidebarCta => {
       </div>
     </div>
     <ScalarToasts />
+    <div
+      v-if="isShadowRoot"
+      ref="overlayRoot"
+      class="contents" />
   </div>
 </template>
 
@@ -2126,7 +2134,8 @@ const sidebarCta = computed((): SidebarCta => {
   }
 }
 /** Used to check if css is loaded */
-:root {
+:root,
+:host {
   --scalar-loaded-api-reference: true;
 }
 

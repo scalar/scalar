@@ -77,7 +77,7 @@ export {
   ScalarMenuWorkspacePicker,
 } from './components/ScalarMenu'
 export type { ModalState } from './components/ScalarModal'
-export { ScalarModal, useModal } from './components/ScalarModal'
+export { ScalarModal, ScalarNativeDialog, useModal } from './components/ScalarModal'
 export type { ScalarPopoverSlots } from './components/ScalarPopover'
 export { ScalarPopover } from './components/ScalarPopover'
 export { ScalarSavePrompt } from './components/ScalarSavePrompt'
