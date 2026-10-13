@@ -466,6 +466,8 @@ export type ApiReferenceTranslations = {
     examples: string
     default: string
     schema: string
+    variants: string
+    discriminatorValue: string
     noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string

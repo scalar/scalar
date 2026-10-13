@@ -1,5 +1,7 @@
 export const zhCn = {
   schema: {
+    variants: '变体',
+    discriminatorValue: '鉴别器值',
     noAllowedValues: '没有值满足此枚举约束。',
     example: '示例',
     examples: '示例',

@@ -513,7 +513,7 @@ const toggle = (): void => {
           :compact
           :compositionPath="compositionPath"
           :depth="depth"
-          :discriminator
+          :discriminator="discriminator ?? resolvedSchema?.discriminator"
           :eventBus="eventBus"
           :expansion="expansion"
           :hideHeading

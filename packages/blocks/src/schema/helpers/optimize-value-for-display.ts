@@ -1,6 +1,7 @@
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { type DiscriminatorSchema, schemaDiscriminator } from '../discriminator-metadata'
 import { compositions } from './schema-composition'
 
 /** Display normalization tracks null branches without changing the stored OpenAPI schema. */
@@ -62,6 +63,12 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
  */
 export function optimizeValueForDisplay(value: DisplaySchema | undefined): DisplaySchema | undefined {
   if (!value || typeof value !== 'object') {
+    return value
+  }
+
+  // Inferred AsyncAPI variants already carry complete concrete schemas. Flattening
+  // them would lose variant labels and merge the base identity into descendants.
+  if ((value as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels) {
     return value
   }
 

@@ -37,6 +37,10 @@ import {
 
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
+import {
+  schemaDiscriminator,
+  type DiscriminatorMetadata,
+} from './discriminator-metadata'
 import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
 import {
   getCompositionsToRender,
@@ -494,6 +498,8 @@ const objectChildProps = computed(() =>
         compositionPath: currentCompositionPath.value,
         cycleKey: props.cycleKey,
         schema: objectSchemaForChildren.value,
+        discriminator:
+          optimizedValue.value?.discriminator ?? props.discriminator,
       }
     : null,
 )
@@ -542,6 +548,14 @@ const treeChildProps = computed(() => {
  */
 const rendersArrayBranch = computed(
   (): boolean => !objectChildProps.value && !!arrayChildProps.value,
+)
+
+/** A named property receives the selected variant's display value, never a fabricated const. */
+const discriminatorValue = computed((): string | undefined =>
+  props.name === props.discriminator?.propertyName
+    ? (props.discriminator as DiscriminatorMetadata)?.[schemaDiscriminator]
+        ?.value
+    : undefined,
 )
 
 /** Check if discriminator matches current property */
@@ -1000,6 +1014,7 @@ const onBeforeMatch = (): void => {
         { 'cursor-pointer': isTreeRow },
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!',
       ]"
+      :discriminatorValue="discriminatorValue"
       :enum="hasEnum"
       :eventBus="eventBus"
       :hideModelNames

@@ -20,7 +20,7 @@ import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
 import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
-import { getAsyncApiModelSchema } from '@/helpers/get-async-api-model-schema'
+import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 
 import Channel from './Channel.vue'
 
@@ -87,7 +87,9 @@ const componentSchemas = computed(() =>
 )
 
 /** Resolve a schema by name into the shape the shared Model component expects. */
-const getModelSchema = (name: string) => getAsyncApiModelSchema(document, name)
+const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
+const getModelSchema = (name: string) =>
+  adaptSchema.value(componentSchemas.value?.[name], name)
 </script>
 
 <template>

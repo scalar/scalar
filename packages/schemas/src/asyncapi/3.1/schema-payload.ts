@@ -19,9 +19,8 @@ export const asyncApiMultiFormatSchemaObject = object(
   { typeName: 'AsyncApiMultiFormatSchemaObject' },
 )
 
-// AsyncAPI's default schema format is JSON Schema, the same dialect OpenAPI 3.1 uses, so we reuse the
-// OpenAPI Schema Object here instead of an opaque `unknown`. A schema may also be a boolean per JSON Schema.
-const asyncApiSchemaJsonShape = union([literal(true), literal(false), createSchema(true)], {
+// Share the recursive JSON Schema fields while retaining AsyncAPI's property-name discriminator.
+const asyncApiSchemaJsonShape = union([literal(true), literal(false), createSchema(true, string())], {
   typeName: 'AsyncApiSchemaJsonShape',
 })
 

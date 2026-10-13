@@ -1,3 +1,4 @@
+export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-metadata'
 export { default as LinkButton } from './LinkButton.vue'
 export { schemaTranslations } from './localization/translations'
 export {

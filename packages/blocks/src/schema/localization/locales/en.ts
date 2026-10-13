@@ -12,6 +12,8 @@ export const en = {
     forName: 'for {name}',
     showSchemaDetails: 'Show Schema Details',
     oneOf: 'One of',
+    variants: 'Variants',
+    discriminatorValue: 'Discriminator value',
     anyOf: 'Any of',
     allOf: 'All of',
     not: 'Not',

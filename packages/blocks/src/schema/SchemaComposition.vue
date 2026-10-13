@@ -13,6 +13,11 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, ref, watch } from 'vue'
 
+import {
+  schemaDiscriminator,
+  type DiscriminatorMetadata,
+  type DiscriminatorSchema,
+} from './discriminator-metadata'
 import { getDiscriminatorValues } from './helpers/get-discriminator-values'
 import { getSchemaType } from './helpers/get-schema-type'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
@@ -106,7 +111,10 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
     const values = getDiscriminatorValues(resolved.$ref, mapping)
     return {
       id: String(index),
-      label: values.length ? `${values.join(', ')} · ${label}` : label,
+      label:
+        (props.schema as DiscriminatorSchema)[schemaDiscriminator]
+          ?.variantLabels?.[index] ??
+        (values.length ? `${values.join(', ')} · ${label}` : label),
     }
   }),
 )
@@ -162,12 +170,22 @@ watch(
 )
 
 const compositionLabel = (type: CompositionKeyword): string =>
-  translate(`schema.${type}`)
+  (props.schema as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels
+    ? translate('schema.variants')
+    : translate(`schema.${type}`)
 
 /** Inside the currently selected composition */
 const selectedComposition = computed(
   () => composition.value[Number(selectedOption.value?.id ?? '0')]?.value,
 )
+
+/** AsyncAPI variants carry their own effective value; OpenAPI keeps its existing inference context. */
+const selectedDiscriminator = computed((): DiscriminatorObject | undefined => {
+  const own = selectedComposition.value?.discriminator
+  return (own as DiscriminatorMetadata)?.[schemaDiscriminator]
+    ? own
+    : props.discriminator
+})
 
 /**
  * The request body card renders the merged `allOf` description on its outer card
@@ -246,7 +264,7 @@ if (
           :compact="compact"
           :compositionPath="compositionPath"
           :depth="depth"
-          :discriminator="discriminator"
+          :discriminator="schema.discriminator ?? discriminator"
           :eventBus="eventBus"
           :expansion="expansion"
           :hideDescription="isRequestBodyRootComposition"
@@ -355,7 +373,7 @@ if (
         :compositionPath="compositionPath"
         :cycleKey="selectedCompositionCycleKey"
         :depth="depth + 1"
-        :discriminator="discriminator"
+        :discriminator="selectedDiscriminator"
         :eventBus="eventBus"
         :expansion="expansion"
         :hideHeading="hideHeading"

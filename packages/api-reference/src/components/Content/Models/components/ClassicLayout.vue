@@ -68,6 +68,7 @@ const { level: headingLevel } = useDocumentOutline('model')
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
         :key="property"
         :breadcrumb="[id]"
+        :discriminator="schema.discriminator"
         :eventBus="eventBus"
         :expansion="expansion"
         :hideModelNames="options.hideModels"
