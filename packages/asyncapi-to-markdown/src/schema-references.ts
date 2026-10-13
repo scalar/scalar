@@ -35,9 +35,9 @@ export const createSchemaRegistry = (
     options: AsyncApiRenderOptions,
     whole: boolean,
   ) => {
-    reference: (input: unknown, depth: number) => RootContent[] | undefined
-    root: (input: unknown, render: () => RootContent[]) => RootContent[]
-    model: (input: unknown, render: () => RootContent[]) => RootContent[]
+    reference: (input: unknown, depth: number, mediaType?: string) => RootContent[] | undefined
+    root: (input: unknown, render: () => RootContent[], mediaType?: string) => RootContent[]
+    model: (input: unknown, render: () => RootContent[], mediaType?: string) => RootContent[]
     appendix: (render: (input: unknown) => RootContent[]) => RootContent[]
   }
 } => {
@@ -75,7 +75,7 @@ export const createSchemaRegistry = (
       const queued = new Set<unknown>()
       const shown = new Set<unknown>()
       const id = (entry: { name: string; ref: string }): string => anchors.get('model', entry.ref, entry.name)
-      const model = (input: unknown, render: () => RootContent[]): RootContent[] => {
+      const model = (input: unknown, render: () => RootContent[], mediaType = 'application/json'): RootContent[] => {
         const identity = getRaw(resolve(input))
         const entry = lookup(input)
         if (!entry) {
@@ -85,14 +85,14 @@ export const createSchemaRegistry = (
           return [
             paragraph(link(`#${id(entry)}`, entry.name)),
             ...describe(object(input).description),
-            ...renderAuthoredSchemaExamples(input),
+            ...renderAuthoredSchemaExamples(input, mediaType),
           ]
         }
         shown.add(identity)
         return [anchor(id(entry)), ...render()]
       }
       return {
-        reference: (input, depth) => {
+        reference: (input, depth, mediaType = 'application/json') => {
           const identity = getRaw(resolve(input))
           const entry = lookup(input)
           if (!entry || (!whole && depth === 0)) {
@@ -114,18 +114,18 @@ export const createSchemaRegistry = (
             return [
               paragraph(destination?.url ? destination : text(name)),
               ...describe(object(input).description),
-              ...renderAuthoredSchemaExamples(input),
+              ...renderAuthoredSchemaExamples(input, mediaType),
             ]
           }
           queued.add(identity)
           return [
             paragraph(link(`#${id(entry)}`, entry.name)),
             ...describe(object(input).description),
-            ...renderAuthoredSchemaExamples(input),
+            ...renderAuthoredSchemaExamples(input, mediaType),
           ]
         },
         model,
-        root: (input, render) => (whole ? render() : model(input, render)),
+        root: (input, render, mediaType) => (whole ? render() : model(input, render, mediaType)),
         appendix: (render) => {
           const blocks: RootContent[] = []
           if (options.schemaReferences) {

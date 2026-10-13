@@ -55,8 +55,10 @@ export const createContentRenderer = (
 ): ContentRenderer => {
   const examples = createExampleRenderer()
   const renderSchema = createSchemaRenderer(references.reference, view, linked)
-  const schema = (input: unknown, expand = false): RootContent[] =>
-    expand ? renderSchema(input, true) : references.root(input, () => renderSchema(input))
+  const schema = (input: unknown, expand = false, mediaType = 'application/json'): RootContent[] =>
+    expand
+      ? renderSchema(input, true, mediaType)
+      : references.root(input, () => renderSchema(input, false, mediaType), mediaType)
   const anchors = createDocumentAnchors()
   const shownMessages = new Map<unknown, string>()
   const shownServers = new Map<unknown, string>()
@@ -198,6 +200,8 @@ export const createContentRenderer = (
             key === 'payload' && typeof msg.schemaFormat === 'string'
               ? { schemaFormat: msg.schemaFormat, schema: msg[key] }
               : msg[key],
+            false,
+            key === 'payload' ? contentType : 'application/json',
           ),
         )
       }

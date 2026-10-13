@@ -36,7 +36,9 @@ export const createSchemaView = (): ((input: Record<string, unknown>) => Record<
     if (
       Array.isArray(schema.allOf) &&
       schema.allOf.length === 1 &&
-      keys.every((key) => ['allOf', 'title', 'description'].includes(key))
+      keys.every((key) =>
+        ['allOf', 'title', 'description', 'default', 'deprecated', 'readOnly', 'writeOnly'].includes(key),
+      )
     ) {
       const branch = object(schema.allOf[0])
       if (Object.keys(branch).length) {
@@ -50,7 +52,12 @@ export const createSchemaView = (): ((input: Record<string, unknown>) => Record<
     }
     for (const keyword of ['anyOf', 'oneOf'] as const) {
       const branches = schema[keyword]
-      if (Array.isArray(branches) && keys.every((key) => [keyword, 'title', 'description'].includes(key))) {
+      if (
+        Array.isArray(branches) &&
+        keys.every((key) =>
+          [keyword, 'title', 'description', 'default', 'deprecated', 'readOnly', 'writeOnly'].includes(key),
+        )
+      ) {
         const types = branches.map((branch) => object(branch))
         const nullBranch = types.find(
           (branch) =>

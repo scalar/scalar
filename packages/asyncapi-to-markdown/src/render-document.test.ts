@@ -354,4 +354,23 @@ describe('render-document', () => {
     const unlinked = await createMarkdownFromAsyncApi(input, { model: 'Event', schemaReferences: { mode: 'linked' } })
     expect(unlinked).toContain('Important **details**.')
   })
+  it('includes declared tag documentation in complete exports', async () => {
+    const result = await createMarkdownFromAsyncApi({
+      ...shared,
+      info: {
+        ...shared.info,
+        tags: [
+          {
+            name: 'Events',
+            description: 'Important **event guidance**.',
+            externalDocs: { url: 'https://example.com/events', description: 'Event guide' },
+          },
+        ],
+      },
+    })
+    expect(result).toContain('## Tags')
+    expect(result).toContain('### Events')
+    expect(result).toContain('Important **event guidance**.')
+    expect(result).toContain('[Event guide](https://example.com/events)')
+  })
 })

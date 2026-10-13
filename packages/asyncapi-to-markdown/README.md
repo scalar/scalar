@@ -51,7 +51,7 @@ application's perspective; legacy publish/subscribe operations are migrated acco
 
 Message and operation traits are merged before rendering. Authored examples are preserved.
 Missing examples are generated from JSON schemas and labelled by context (**Generated headers example** or
-**Generated payload example**). XML payloads use XML examples, while headers use JSON. Repeated generated
+**Generated payload example**). XML payloads use XML examples, including examples authored on their schemas, while headers use JSON. Repeated generated
 examples link to their first occurrence within the same media type and context. JSON Schema and AsyncAPI schemas include properties,
 required markers, constraints, composition, discriminator fields and mappings, and recursive-reference notices.
 Property types and annotations share one line, followed by their Markdown descriptions. Other schema
@@ -62,7 +62,8 @@ same sanitization as the OpenAPI converter; images are excluded.
 ## Navigation and shared models
 
 Complete exports include a contents index with explicit anchors. Shared structured
-models render once and their usages link to that definition. Repeated servers and
+models render once and their usages link to that definition. Declared tags retain descriptions
+and external documentation links in complete exports. Repeated servers and
 security schemes also link to their first occurrence. Primitive schemas remain inline.
 Schema display normalization and description parsing are cached per prepared renderer.
 

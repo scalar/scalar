@@ -1,6 +1,9 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, inlineCode, item, list, paragraph, strong, text } from '@scalar/openapi-to-markdown/markdown'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Code, ListItem, PhrasingContent, RootContent } from 'mdast'
 
 import { object, resolve, string } from './document'
@@ -39,13 +42,19 @@ const annotations = [
 
 /** Render AsyncAPI / Draft 7 schemas without coercing them through OpenAPI's schema dialect. */
 export const createSchemaRenderer = (
-  reference: (input: unknown, depth: number) => RootContent[] | undefined = () => undefined,
+  reference: (input: unknown, depth: number, mediaType?: string) => RootContent[] | undefined = () => undefined,
   view = createSchemaView(),
   preserveReferences = false,
-): ((input: unknown, expand?: boolean) => RootContent[]) => {
+): ((input: unknown, expand?: boolean, mediaType?: string) => RootContent[]) => {
   const state = { remaining: 5000 }
-  const render = (input: unknown, ancestors: Set<unknown>, depth: number, expand = false): RootContent[] => {
-    const linked = expand ? undefined : reference(input, depth)
+  const render = (
+    input: unknown,
+    ancestors: Set<unknown>,
+    depth: number,
+    expand = false,
+    mediaType = 'application/json',
+  ): RootContent[] => {
+    const linked = expand ? undefined : reference(input, depth, mediaType)
     if (linked) {
       return linked
     }
@@ -66,7 +75,7 @@ export const createSchemaRenderer = (
     if ('schema' in schema) {
       const format = string(schema.schemaFormat)
       if (isJsonSchemaFormat(format)) {
-        return render(schema.schema, ancestors, depth, expand)
+        return render(schema.schema, ancestors, depth, expand, mediaType)
       }
       return [
         paragraph(strong(text('Schema format:')), text(' '), inlineCode(format ?? '')),
@@ -174,17 +183,17 @@ export const createSchemaRenderer = (
         )
       }
     }
-    blocks.push(...renderAuthoredSchemaExamples(schema))
+    blocks.push(...renderAuthoredSchemaExamples(schema, mediaType))
     return blocks.length ? blocks : [paragraph(text('Any value is allowed.'))]
   }
-  return (input, expand = false) => {
+  return (input, expand = false, mediaType = 'application/json') => {
     state.remaining = 5000
-    return render(input, new Set(), 0, expand)
+    return render(input, new Set(), 0, expand, mediaType)
   }
 }
 
 /** Authored examples remain at every usage, including when the schema itself becomes a link. */
-export const renderAuthoredSchemaExamples = (input: unknown): RootContent[] => {
+export const renderAuthoredSchemaExamples = (input: unknown, mediaType = 'application/json'): RootContent[] => {
   const resolved = object(input)
   const schema = 'schema' in resolved && isJsonSchemaFormat(resolved.schemaFormat) ? object(resolved.schema) : resolved
   const examples = Array.isArray(schema.examples)
@@ -192,5 +201,20 @@ export const renderAuthoredSchemaExamples = (input: unknown): RootContent[] => {
     : schema.example === undefined
       ? []
       : [schema.example]
-  return examples.flatMap((example) => [paragraph(strong(text('Example:'))), code(example)])
+  return examples.flatMap((example) => {
+    const label = paragraph(strong(text('Example:')))
+    if (!isXmlMediaType(mediaType)) {
+      return [label, code(example)]
+    }
+    if (typeof example === 'string') {
+      return [label, code(example, 'xml')]
+    }
+    const result = getXmlBodyExample(schema as SchemaObject, { value: example })
+    return [
+      label,
+      ...(result.xml !== undefined
+        ? [code(result.xml, 'xml')]
+        : [paragraph(text('Unable to generate an XML example.'))]),
+    ]
+  })
 }

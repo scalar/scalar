@@ -108,6 +108,18 @@ export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkd
           model(selection.name, selection.value, 1)
         }
       } else if (selection === undefined) {
+        const tags = object(document.info).tags
+        if (Array.isArray(tags) && tags.length) {
+          blocks.push(heading(2, text('Tags')))
+          for (const tag of tags) {
+            const value = object(tag)
+            blocks.push(heading(3, text(string(value.name) ?? 'Tag')), ...describe(value.description))
+            const external = object(value.externalDocs)
+            if (typeof external.url === 'string') {
+              blocks.push(paragraph(link(external.url, string(external.description) || 'External documentation')))
+            }
+          }
+        }
         for (const [name, value] of Object.entries(object(document.channels))) {
           channel(name, value, 2)
         }

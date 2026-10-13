@@ -87,4 +87,69 @@ describe('render-examples', () => {
     const example = /```json\n([\s\S]*?)\n```/.exec(result)
     expect(JSON.parse(example![1]!)).toStrictEqual({ choice: 'a', constant: 'fixed' })
   })
+  it.each(['default', 'deprecated', 'readOnly', 'writeOnly'] as const)(
+    'keeps primitive aliases inline with a %s annotation',
+    async (annotation) => {
+      const result = await createMarkdownFromAsyncApi(
+        {
+          ...input,
+          components: {
+            schemas: {
+              Alias: {
+                allOf: [{ type: 'string', enum: ['hello'] }],
+                [annotation]: annotation === 'default' ? 'hello' : true,
+              },
+              Event: { type: 'object', properties: { value: { $ref: '#/components/schemas/Alias' } } },
+            },
+          },
+        },
+        { model: 'Event', schemaReferences: { mode: 'linked', resolveUrl: ({ name }) => `/models/${name}` } },
+      )
+      expect(result).toContain('**`value`**: `string`')
+      expect(result).not.toContain('[Alias](')
+      const example = /```json\n([\s\S]*?)\n```/.exec(result)
+      // The shared generator omits deprecated properties in both converters.
+      expect(JSON.parse(example![1]!)).toStrictEqual(annotation === 'deprecated' ? {} : { value: 'hello' })
+      expect(result).toContain(`${annotation}:`)
+    },
+  )
+
+  it.each([false, true])('renders every schema-authored XML example with linked mode %s', async (linked) => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...input,
+        defaultContentType: 'application/xml',
+        channels: {
+          events: {
+            address: 'events',
+            messages: {
+              first: { $ref: '#/components/messages/Event' },
+              second: { $ref: '#/components/messages/Event' },
+            },
+          },
+        },
+        components: {
+          messages: {
+            Event: {
+              headers: { type: 'object', examples: [{ token: 'header' }] },
+              payload: { $ref: '#/components/schemas/Data' },
+            },
+          },
+          schemas: {
+            Data: {
+              type: 'object',
+              properties: { id: { type: 'string' } },
+              examples: [{ id: 'first' }, { id: 'second' }],
+            },
+          },
+        },
+      },
+      { channel: 'events', ...(linked ? { schemaReferences: { mode: 'linked' as const } } : {}) },
+    )
+    expect(result.split('<id>first</id>').length - 1).toBe(2)
+    expect(result.split('<id>second</id>').length - 1).toBe(2)
+    expect(result.split('```xml').length - 1).toBe(4)
+    expect(result).toContain('"token": "header"')
+    expect(result).not.toContain('"id": "first"')
+  })
 })
