@@ -4,6 +4,7 @@ import { describe, inlineCode, item, list, paragraph, strong, text } from '@scal
 import type { Code, ListItem, RootContent } from 'mdast'
 
 import { object, resolve, string } from './document'
+import { isJsonSchemaFormat } from './schema-format'
 import { createSchemaView } from './schema-view'
 
 /** Serialize authored data without adding workspace reference metadata or interpreting literal $ref keys. */
@@ -57,14 +58,11 @@ export const createSchemaRenderer = (
     const schema = view(object(resolved))
     if ('schema' in schema) {
       const format = string(schema.schemaFormat)
-      if (
-        !format ||
-        /^application\/(?:vnd\.aai\.asyncapi(?:\+json|\+yaml)?|schema\+(?:json|yaml))(?:;|$)/.test(format)
-      ) {
+      if (isJsonSchemaFormat(format)) {
         return render(schema.schema, ancestors, depth, expand)
       }
       return [
-        paragraph(strong(text('Schema format:')), text(' '), inlineCode(format)),
+        paragraph(strong(text('Schema format:')), text(' '), inlineCode(format ?? '')),
         code(schema.schema, typeof schema.schema === 'string' ? 'text' : 'json'),
       ]
     }
@@ -156,18 +154,23 @@ export const createSchemaRenderer = (
         )
       }
     }
-    const examples = Array.isArray(schema.examples)
-      ? schema.examples
-      : schema.example === undefined
-        ? []
-        : [schema.example]
-    for (const example of examples) {
-      blocks.push(paragraph(strong(text('Example:'))), code(example))
-    }
+    blocks.push(...renderAuthoredSchemaExamples(schema))
     return blocks.length ? blocks : [paragraph(text('Any value is allowed.'))]
   }
   return (input, expand = false) => {
     state.remaining = 5000
     return render(input, new Set(), 0, expand)
   }
+}
+
+/** Authored examples remain at every usage, including when the schema itself becomes a link. */
+export const renderAuthoredSchemaExamples = (input: unknown): RootContent[] => {
+  const resolved = object(input)
+  const schema = 'schema' in resolved && isJsonSchemaFormat(resolved.schemaFormat) ? object(resolved.schema) : resolved
+  const examples = Array.isArray(schema.examples)
+    ? schema.examples
+    : schema.example === undefined
+      ? []
+      : [schema.example]
+  return examples.flatMap((example) => [paragraph(strong(text('Example:'))), code(example)])
 }

@@ -1,3 +1,4 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { resolveTraits } from '@scalar/workspace-store/helpers/resolve-traits'
 
@@ -30,10 +31,11 @@ const getManifest = (document: Record<string, unknown>): Manifest => {
     pages.push({ label: `Channel: ${name}`, options: { channel: name } })
     collectTags(value)
     for (const [message, msg] of Object.entries(object(object(value).messages))) {
-      const escape = (value: string): string => value.replaceAll('~', '~0').replaceAll('/', '~1')
       pages.push({
         label: `Message: ${name} / ${message}`,
-        options: { message: { pointer: `#/channels/${escape(name)}/messages/${escape(message)}` } },
+        options: {
+          message: { pointer: `#/channels/${escapeJsonPointer(name)}/messages/${escapeJsonPointer(message)}` },
+        },
       })
       collectTags(msg)
     }

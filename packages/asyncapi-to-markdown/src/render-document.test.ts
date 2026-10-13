@@ -159,4 +159,48 @@ describe('render-document', () => {
     expect(results[0]).toBe(expected)
     expect(results[2]).toBe(expected)
   })
+  it('preserves every authored schema example at repeated linked payload usages', async () => {
+    const input = {
+      asyncapi: '3.1.0',
+      info: { title: 'Examples', version: '1' },
+      channels: {
+        events: {
+          messages: {
+            first: { payload: { $ref: '#/components/schemas/Child' } },
+            second: { payload: { $ref: '#/components/schemas/Child' } },
+          },
+        },
+      },
+      components: { schemas: { Child: { type: 'object', examples: [{ id: 'AUTHORED' }, { id: 'SECOND' }] } } },
+    }
+    for (const options of [
+      { channel: 'events' },
+      { channel: 'events', schemaReferences: { mode: 'linked' } },
+    ] as const) {
+      const result = await createMarkdownFromAsyncApi(input, options)
+      expect(result.split('"id": "AUTHORED"').length - 1).toBe(2)
+      expect(result.split('"id": "SECOND"').length - 1).toBe(2)
+      expect(result).not.toContain('Generated example')
+    }
+  })
+
+  it('links structured enum and const references even when primitive inlining is enabled', async () => {
+    for (const child of [{ type: 'object', enum: [{ id: 'A' }] }, { enum: [['A']] }, { const: { id: 'A' } }]) {
+      const result = await createMarkdownFromAsyncApi(
+        {
+          asyncapi: '3.1.0',
+          info: { title: 'Structured values', version: '1' },
+          components: {
+            schemas: {
+              Parent: { type: 'object', properties: { child: { $ref: '#/components/schemas/Child' } } },
+              Child: child,
+            },
+          },
+        },
+        { model: 'Parent', schemaReferences: { mode: 'linked', resolveUrl: ({ name }) => `/models/${name}` } },
+      )
+      expect(result).toContain('[Child](/models/Child)')
+      expect(result).not.toContain('"A"')
+    }
+  })
 })

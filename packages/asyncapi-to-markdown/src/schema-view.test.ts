@@ -20,4 +20,24 @@ describe('schema-view', () => {
     const constrained = { allOf: [{ type: 'string' }], minLength: 2 }
     expect(view(constrained)).toBe(constrained)
   })
+  it('normalizes constrained nullable strings, objects, arrays and enums without dropping constraints', () => {
+    const view = createSchemaView()
+    for (const branch of [
+      { type: 'string', format: 'date-time', minLength: 1 },
+      { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
+      { type: 'array', items: { type: 'string' }, minItems: 1 },
+    ]) {
+      expect(view({ anyOf: [branch, { type: 'null' }] })).toStrictEqual({ ...branch, type: [branch.type, 'null'] })
+    }
+    expect(view({ oneOf: [{ type: 'string', enum: ['A'] }, { type: 'null' }] })).toStrictEqual({
+      type: ['string', 'null'],
+      enum: ['A', null],
+    })
+    const conditional = { anyOf: [{ type: 'string', not: { const: null } }, { type: 'null' }] }
+    expect(view(conditional)).toBe(conditional)
+  })
+  it('retains nullable compositions with intersecting const and enum constraints', () => {
+    const schema = { anyOf: [{ type: 'string', const: 'A', enum: ['A', 'B'] }, { type: 'null' }] }
+    expect(createSchemaView()(schema)).toBe(schema)
+  })
 })

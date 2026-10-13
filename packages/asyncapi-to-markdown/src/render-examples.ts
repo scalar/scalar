@@ -7,6 +7,8 @@ import type { RootContent } from 'mdast'
 
 import { object, resolve } from './document'
 import { code } from './render-schema'
+import { isJsonSchemaFormat } from './schema-format'
+import { isPrimitiveSchema } from './schema-view'
 
 /** Bound the generator before expanding a shared or recursive schema graph. */
 const size = (input: unknown): number => {
@@ -56,18 +58,7 @@ const stubLinkedSchemas = (input: unknown, depth = 0): unknown => {
     return {}
   }
   const schema = object(input)
-  if (
-    depth > 0 &&
-    isObject(input) &&
-    typeof input.$ref === 'string' &&
-    (schema.type === 'object' ||
-      schema.type === 'array' ||
-      schema.properties ||
-      schema.items ||
-      schema.allOf ||
-      schema.anyOf ||
-      schema.oneOf)
-  ) {
+  if (depth > 0 && isObject(input) && typeof input.$ref === 'string' && !isPrimitiveSchema(schema)) {
     return {}
   }
   return Object.fromEntries(
@@ -124,10 +115,7 @@ export const createExampleRenderer = (): ((
     const schema = object(input)
     if ('schema' in schema) {
       // Other schema languages need their own example generators.
-      if (
-        typeof schema.schemaFormat === 'string' &&
-        !/^application\/(?:schema\+(?:json|yaml)|vnd\.aai\.asyncapi(?:\+json|\+yaml)?)(?:;|$)/.test(schema.schemaFormat)
-      ) {
+      if (!isJsonSchemaFormat(schema.schemaFormat)) {
         return []
       }
       input = schema.schema

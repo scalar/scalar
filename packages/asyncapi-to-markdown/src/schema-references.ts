@@ -1,9 +1,12 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { anchor, createDocumentAnchors, heading, link, paragraph, text } from '@scalar/openapi-to-markdown/markdown'
 import type { RootContent } from 'mdast'
 
 import { object, own, resolve } from './document'
-import { createSchemaView } from './schema-view'
+import { renderAuthoredSchemaExamples } from './render-schema'
+import { createSchemaView, isPrimitiveSchema } from './schema-view'
 import type { AsyncApiRenderOptions } from './types'
 
 /** Index canonical model identities once, including aliases that resolve to the same schema. */
@@ -28,7 +31,7 @@ export const createSchemaRegistry = (
       models.set(identity, {
         name,
         value,
-        ref: `#/components/schemas/${name.replaceAll('~', '~0').replaceAll('/', '~1')}`,
+        ref: `#/components/schemas/${escapeJsonPointer(name)}`,
       })
     }
   }
@@ -43,7 +46,7 @@ export const createSchemaRegistry = (
         }
         if (input && typeof input === 'object' && '$ref' in input && typeof input.$ref === 'string') {
           const ref = input.$ref
-          const name = ref.split('/').at(-1)!.replaceAll('~1', '/').replaceAll('~0', '~') || ref
+          const name = unescapeJsonPointerSegment(ref.split('/').at(-1)!) || ref
           const entry = { name, ref, value: input }
           entries.set(identity, entry)
           return entry
@@ -61,7 +64,7 @@ export const createSchemaRegistry = (
           return render()
         }
         if (shown.has(identity)) {
-          return [paragraph(link(`#${id(entry)}`, entry.name))]
+          return [paragraph(link(`#${id(entry)}`, entry.name)), ...renderAuthoredSchemaExamples(input)]
         }
         shown.add(identity)
         return [anchor(id(entry)), ...render()]
@@ -74,25 +77,16 @@ export const createSchemaRegistry = (
             return undefined
           }
           const schema = view(object(entry.value))
-          const types = Array.isArray(schema.type) ? schema.type : [schema.type]
-          const primitive =
-            (types.every((type) => typeof type === 'string' && !['object', 'array'].includes(type)) ||
-              schema.const !== undefined ||
-              Array.isArray(schema.enum)) &&
-            !schema.properties &&
-            !schema.items &&
-            !schema.allOf &&
-            !schema.anyOf &&
-            !schema.oneOf
+          const primitive = isPrimitiveSchema(schema)
           if (primitive && options.schemaReferences?.inlinePrimitives !== false) {
             return undefined
           }
           if (options.schemaReferences) {
             const url = options.schemaReferences.resolveUrl?.({ ref: entry.ref, name: entry.name })
-            return [paragraph(url ? link(url, entry.name) : text(entry.name))]
+            return [paragraph(url ? link(url, entry.name) : text(entry.name)), ...renderAuthoredSchemaExamples(input)]
           }
           queued.add(identity)
-          return [paragraph(link(`#${id(entry)}`, entry.name))]
+          return [paragraph(link(`#${id(entry)}`, entry.name)), ...renderAuthoredSchemaExamples(input)]
         },
         model,
         root: (input, render) => (whole ? render() : model(input, render)),
