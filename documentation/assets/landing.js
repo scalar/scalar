@@ -1074,6 +1074,34 @@ const initLandingFlow = debounce(() => {
   console.log(`Initialized ${flows.length} landing flows`)
 })
 
+/* Code windows: the language tabs swap the sample underneath and the
+   repo name in the title bar. */
+const initLandingWinTabs = debounce(() => {
+  const wins = [...document.querySelectorAll('.lp-win--code')].filter((win) => win.dataset.lpTabsBound !== 'true')
+  if (!wins.length) {
+    return
+  }
+
+  wins.forEach((win) => {
+    win.dataset.lpTabsBound = 'true'
+    const tabs = [...win.querySelectorAll('.lp-win-tabs [data-lp-tab]')]
+    const repo = win.querySelector('.lp-win-repo')
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((other) => other.classList.toggle('is-active', other === tab))
+        win.querySelectorAll('[data-lp-code]').forEach((code) => {
+          code.classList.toggle('is-active', code.dataset.lpCode === tab.dataset.lpTab)
+        })
+        if (repo && tab.dataset.lpRepo) {
+          repo.textContent = tab.dataset.lpRepo
+        }
+      })
+    })
+  })
+
+  console.log(`Initialized ${wins.length} landing code windows`)
+})
+
 /* Docs windows: in each pair, the last window hovered stays in front */
 const initLandingDocsWindows = debounce(() => {
   const pairs = [...document.querySelectorAll('.lp-win--pair')].filter(
@@ -1105,6 +1133,7 @@ initHeroCards()
 initLandingBoxLinks()
 initLandingChat()
 initLandingFlow()
+initLandingWinTabs()
 initLandingDocsWindows()
 
 const observer = new MutationObserver((records) => {
@@ -1121,6 +1150,7 @@ const observer = new MutationObserver((records) => {
   initLandingBoxLinks()
   initLandingChat()
   initLandingFlow()
+  initLandingWinTabs()
   initLandingDocsWindows()
 })
 
