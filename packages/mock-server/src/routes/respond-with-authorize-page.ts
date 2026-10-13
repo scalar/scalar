@@ -33,7 +33,7 @@ function parseScopeParam(scopeQuery: string | undefined): string[] {
 /**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
-export function respondWithAuthorizePage(c: Context, title = '') {
+export function respondWithAuthorizePage(c: Context, title = '', authorizationCode = EXAMPLE_AUTHORIZATION_CODE) {
   const redirectUri = c.req.query('redirect_uri')
   const responseType = c.req.query('response_type')
   const scope = c.req.query('scope')
@@ -70,7 +70,7 @@ export function respondWithAuthorizePage(c: Context, title = '') {
 
       redirectUrl.hash = fragmentParams.toString()
     } else {
-      redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
+      redirectUrl.searchParams.set('code', authorizationCode)
 
       if (state) {
         redirectUrl.searchParams.set('state', state)

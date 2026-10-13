@@ -36,29 +36,33 @@ describe('set-up-authentication-routes', () => {
         expect(discovery.authorization_endpoint).toBe('https://mock.example.com/oauth/authorize')
         expect(discovery.token_endpoint).toBe('https://mock.example.com/oauth/token')
         const authorization = await app.request(
-          `${discovery.authorization_endpoint}?response_type=code&redirect_uri=http://localhost:5173/callback&scope=openid`,
+          `${discovery.authorization_endpoint}?client_id=client&response_type=code&redirect_uri=http://localhost:5173/callback&scope=openid`,
         )
         expect(authorization.status).toBe(200)
-        expect(await authorization.text()).toContain('?code=super-secret-token')
-        for (const grant of ['authorization_code', 'refresh_token']) {
-          const token = await app.request(discovery.token_endpoint, {
-            method: 'POST',
-            body: new URLSearchParams({
-              grant_type: grant,
-              code: 'super-secret-token',
-              refresh_token: 'example-refresh-token',
-              scope: 'openid',
-            }),
-          })
-          expect(token.status).toBe(200)
-          expect(await token.json()).toStrictEqual({
-            access_token: 'super-secret-access-token',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            refresh_token: 'example-refresh-token',
-            scope: 'openid',
-          })
-        }
+        const code = (await authorization.text()).match(/code=(oidc-code-[\w-]+)/)?.[1]
+        expect(code).toBeTypeOf('string')
+        const token = await app.request(discovery.token_endpoint, {
+          method: 'POST',
+          body: new URLSearchParams({
+            grant_type: 'authorization_code',
+            code: code ?? '',
+            client_id: 'client',
+            redirect_uri: 'http://localhost:5173/callback',
+          }),
+        })
+        expect(token.status).toBe(200)
+        const tokens = await token.json()
+        expect(tokens.id_token.split('.').length).toBe(3)
+        const refreshed = await app.request(discovery.token_endpoint, {
+          method: 'POST',
+          body: new URLSearchParams({
+            grant_type: 'refresh_token',
+            refresh_token: tokens.refresh_token,
+            client_id: 'client',
+          }),
+        })
+        expect(refreshed.status).toBe(200)
+        expect((await refreshed.json()).id_token.split('.').length).toBe(3)
       } finally {
         asyncServer?.websocket.server.close()
       }
