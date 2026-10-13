@@ -46,11 +46,16 @@ const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawa
 /**
  * TypeScript angle brackets that look like an element with no attributes: a
  * generic arrow function `<T>(x: T) => x`, a constrained one `<T extends X>`,
- * and the old-style assertion `<string>value`. Reading any of them as an
+ * and the old-style assertion `<HTMLElement>el`. Reading any of them as an
  * opening tag would turn the rest of the file into JSX text.
+ *
+ * An assertion is followed by an expression on the same line, and so is an
+ * element's text, so the line decides: an element without attributes opens
+ * only when its line ends after the `>` or holds another tag. An element whose
+ * text runs on to a later closing tag reads as code instead, which costs that
+ * one element and never the rest of the file.
  */
-const NOT_TS = '(?!(?:string|number|boolean|any|unknown|never|object|symbol|bigint|void)>)'
-const NOT_TS_AFTER = '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)'
+const NOT_TS_AFTER = '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)(?!>(?![ \\t]*$)(?![^\\n]{0,512}<[/A-Za-z>]))'
 
 /** A JSX tag name: a component, a member expression, or a lowercase element. */
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
@@ -249,7 +254,7 @@ const javascript: Grammar = {
         // the `<` so the rule still starts with a literal character, which
         // keeps the engine's first-character scan.
         {
-          match: `(<)(?<=${BEFORE_JSX}\\s*<)${NOT_TS}(${TAG})(?=[\\s/>])${NOT_TS_AFTER}`,
+          match: `(<)(?<=${BEFORE_JSX}\\s*<)(${TAG})(?=[\\s/>])${NOT_TS_AFTER}`,
           scope: ['punctuation.bracket', 'tag'],
           push: 'jsx-open-tag',
         },

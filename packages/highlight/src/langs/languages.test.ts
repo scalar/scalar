@@ -837,6 +837,21 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'javascript', "'a'", 'string')
   })
 
+  it('does not read an assertion to a non-builtin type as an element', () => {
+    const code =
+      'const el = <HTMLElement>document.getElementById("x")\nconst n: number = 1\nfunction f() { return "it\'s" }\n'
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
+    assertHas(code, 'javascript', 'getElementById', 'function.method')
+    assertHas(code, 'javascript', '"it\'s"', 'string')
+  })
+
+  it('still reads an element without attributes as JSX when its line closes it or ends', () => {
+    const code = "const b = <Button>Don't save</Button>\nreturn (\n  <div>\n    <p>It's {x}</p>\n  </div>\n)\n"
+    expect(scopeOf(code, 'javascript', "Don't save")).toBeNull()
+    expect(scopeOf(code, 'javascript', "It's ")).toBeNull()
+    assertHas(code, 'javascript', 'div', 'tag')
+  })
+
   it('javascript: scopes functions assigned to a name, and capitalised calls as calls rather than types', () => {
     const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
     assertHas(code, 'javascript', 'Card', 'function.call')
