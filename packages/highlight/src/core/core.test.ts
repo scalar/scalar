@@ -506,6 +506,25 @@ describe('remember', () => {
     expect(tokens.filter((t) => t.scope === 'keyword').map((t) => t.text)).toEqual(['<<A', 'A', '<<B', 'B'])
   })
 
+  it('scopes a capture rule that does not use the memory, in a state that does', () => {
+    const grammar = compile({
+      name: 'heredoc-captures',
+      states: {
+        root: { rules: [{ match: '<<(\\w+)', scope: 'keyword', push: 'body', remember: 1 }] },
+        body: {
+          default: 'string',
+          rules: [
+            { match: '^{{remembered}}$', scope: 'keyword', pop: true },
+            { match: '(\\$)(\\w+)', scope: ['punctuation', 'variable'] },
+          ],
+        },
+      },
+    })
+    const tokens = tokenizeToArray('<<EOF\nhi $name\nEOF', grammar)
+    expect(tokens.find((t) => t.text === 'name')?.scope).toBe('variable')
+    expect(tokens.find((t) => t.text === 'EOF' && t.start > 0)?.scope).toBe('keyword')
+  })
+
   it('splices the text in literally', () => {
     const quotes: Grammar = {
       name: 'quotes',

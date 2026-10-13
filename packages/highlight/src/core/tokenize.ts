@@ -59,7 +59,9 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
     const end = start + m[0].length
     if (end > start) {
       if (rule.captures !== null) {
-        emitCaptures(code, start, rule, dyn === null ? rule.own! : dyn.own[index]!, top, emit)
+        // Only rules that use the remembered text are rebuilt per value; the
+        // rest of a dynamic state's capture rules keep their own pattern.
+        emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
       } else {
         emit(rule.scope ?? top.default, start, end)
       }
