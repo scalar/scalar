@@ -1,5 +1,29 @@
 # @scalar/workspace-store
 
+## 0.68.3
+
+### Patch Changes
+
+- [#10554](https://github.com/scalar/scalar/pull/10554): Render AsyncAPI boolean schemas with explanations in message payloads, headers, and reusable models.
+- [#10551](https://github.com/scalar/scalar/pull/10551): Show **Reset to default** on authentication fields only when the field has a default that differs from its current value (the document or configured value, or the current page URL for the OAuth2 redirect URL). A cleared OAuth2 access token keeps the action so you can get back to the Authorize form. The show password toggle only appears once a field has a value, and an emptied field goes back to masked.
+- [#10527](https://github.com/scalar/scalar/pull/10527): Document every visible AsyncAPI channel message in a channel catalog while preserving operation-specific message subsets, links, and server/protocol filtering.
+- [#10565](https://github.com/scalar/scalar/pull/10565): Inherit AsyncAPI operation metadata and replies from traits using recursive merge rules, and use inherited titles in navigation.
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+- [#10544](https://github.com/scalar/scalar/pull/10544): Match cookie paths with the RFC 6265 path-match algorithm so a cookie restricted to `/api` is not sent with requests to `/apiv2`.
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+- [#10555](https://github.com/scalar/scalar/pull/10555): Keep expanded query parameter checkboxes independent and preserve disabled field values while excluding them from requests.
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10524](https://github.com/scalar/scalar/pull/10524): Keep optional enum parameters disabled until explicitly enabled when no default or example is declared. Prefer declared schema examples over enum suggestions.
+- [#10562](https://github.com/scalar/scalar/pull/10562): Resolve escaped channel and message identifiers in AsyncAPI navigation.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10566](https://github.com/scalar/scalar/pull/10566): Render inline AsyncAPI security schemes and scopes, keeping server authentication separate from operation security.
+- [#10528](https://github.com/scalar/scalar/pull/10528): Render AsyncAPI channels and their messages when no operations reference them, including server and protocol filtering.
+- [#10561](https://github.com/scalar/scalar/pull/10561): Clarify AsyncAPI operation and message sections, align message card spacing, and keep schema controls inside lighter expanded cards.
+
+  Show channel messages only when they are not used by an operation, and keep the sidebar in sync.
+
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+
 ## 0.68.2
 
 ### Patch Changes

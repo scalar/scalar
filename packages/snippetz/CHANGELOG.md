@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.10.8
+
+### Patch Changes
+
+- [#10559](https://github.com/scalar/scalar/pull/10559): Clean up Biome warnings in package code and tests. Handle rejected debounced callbacks and await streaming writes.
+
 ## 0.10.7
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/openapi-types
 
+## 0.9.8
+
+### Patch Changes
+
+- [#10529](https://github.com/scalar/scalar/pull/10529): Align import and export ordering with the Biome checks.
+- [#10520](https://github.com/scalar/scalar/pull/10520): Sort imports and exports to satisfy the Biome checks.
+- [#10526](https://github.com/scalar/scalar/pull/10526): Align import and export ordering with the repository CI checks.
+
 ## 0.9.7
 
 ### Patch Changes

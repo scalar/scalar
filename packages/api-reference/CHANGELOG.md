@@ -1,5 +1,38 @@
 # @scalar/api-reference
 
+## 1.74.0
+
+### Minor Changes
+
+- [#10536](https://github.com/scalar/scalar/pull/10536): feat(api-reference): show an "Explore Scalar" call to action in the sidebar footer on localhost instead of the "Generate MCP" fan-out. The button expands on hover or focus into a card with the Scalar stickers and opens a dialog (morphing into it where the View Transitions API is available) with "Sign up for Scalar" and "Book a demo" actions. Public hosts, configured MCP servers and `mcp.disabled` keep their current footer. Adds `exploreScalar` translations to `ApiReferenceTranslations` and a `startViewTransition` helper to `@scalar/helpers/dom`.
+- [#10567](https://github.com/scalar/scalar/pull/10567): Search AsyncAPI channels, operations, messages, channel parameters, and nested payload and header fields.
+- [#10570](https://github.com/scalar/scalar/pull/10570): Make modern sidebar tag groups and nested parent tags collapsible by default, using the same controls as ordinary tags. Reveal ancestor tags when scrolling to a different operation.
+
+### Patch Changes
+
+- [#10554](https://github.com/scalar/scalar/pull/10554): Render AsyncAPI boolean schemas with explanations in message payloads, headers, and reusable models.
+- [#10570](https://github.com/scalar/scalar/pull/10570): Keep AsyncAPI messages searchable when their rendered anchors belong to operations, while deduplicating messages referenced by multiple operations.
+- [#10527](https://github.com/scalar/scalar/pull/10527): Document every visible AsyncAPI channel message in a channel catalog while preserving operation-specific message subsets, links, and server/protocol filtering.
+- [#10565](https://github.com/scalar/scalar/pull/10565): Inherit AsyncAPI operation metadata and replies from traits using recursive merge rules, and use inherited titles in navigation.
+- [#10545](https://github.com/scalar/scalar/pull/10545): Convert flow-style YAML documents to valid JSON when downloading in JSON format.
+- [#10509](https://github.com/scalar/scalar/pull/10509): Remove a redundant assignment in SDK installation tab keyboard navigation.
+- [#10529](https://github.com/scalar/scalar/pull/10529): Display AsyncAPI server titles, summaries, and protocol versions while preserving server map keys for selection.
+- [#10550](https://github.com/scalar/scalar/pull/10550): Display AsyncAPI message correlation ID descriptions and runtime expressions, with links to identifiable header and payload fields.
+- [#10513](https://github.com/scalar/scalar/pull/10513): Document browser-loaded plugins with NestJS and add a custom extension example.
+- [#10534](https://github.com/scalar/scalar/pull/10534): feat(api-reference): add Generate SDK buttons to the developer tools, client libraries and request examples that open the Explore Scalar dialog when running locally and the document does not list its own SDKs
+- [#10506](https://github.com/scalar/scalar/pull/10506): Organize imports consistently with the checks enforced in CI.
+- [#10558](https://github.com/scalar/scalar/pull/10558): Fix AsyncAPI example cards to use the full available width, keep only the code block copy button, and pad and align the example name and summary.
+- [#10525](https://github.com/scalar/scalar/pull/10525): Display the AsyncAPI application identifier in the introduction when present.
+- [#10566](https://github.com/scalar/scalar/pull/10566): Render inline AsyncAPI security schemes and scopes, keeping server authentication separate from operation security.
+- [#10573](https://github.com/scalar/scalar/pull/10573): Hide the empty Operations card for parent tags that only contain nested tags. Tags with their own operations or webhooks still show their endpoint list.
+- [#10528](https://github.com/scalar/scalar/pull/10528): Render AsyncAPI channels and their messages when no operations reference them, including server and protocol filtering.
+- [#10561](https://github.com/scalar/scalar/pull/10561): Clarify AsyncAPI operation and message sections, align message card spacing, and keep schema controls inside lighter expanded cards.
+
+  Show channel messages only when they are not used by an operation, and keep the sidebar in sync.
+
+- [#10511](https://github.com/scalar/scalar/pull/10511): Expose an actions slot on Tag to add custom header controls in modern and classic layouts.
+- [#10508](https://github.com/scalar/scalar/pull/10508): Add built-in Traditional Chinese (Taiwan) translations for `zh-TW`, including case and underscore variants, across API Reference, API Client, and schema blocks.
+
 ## 1.73.1
 
 ### Patch Changes

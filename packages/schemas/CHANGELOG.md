@@ -1,5 +1,12 @@
 # @scalar/schemas
 
+## 0.13.2
+
+### Patch Changes
+
+- [#10554](https://github.com/scalar/scalar/pull/10554): Render AsyncAPI boolean schemas with explanations in message payloads, headers, and reusable models.
+- [#10565](https://github.com/scalar/scalar/pull/10565): Inherit AsyncAPI operation metadata and replies from traits using recursive merge rules, and use inherited titles in navigation.
+
 ## 0.13.1
 
 ## 0.13.0

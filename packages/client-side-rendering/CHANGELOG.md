@@ -1,5 +1,11 @@
 # @scalar/client-side-rendering
 
+## 0.4.11
+
+### Patch Changes
+
+- [#10505](https://github.com/scalar/scalar/pull/10505): Apply formatting and lint compatibility changes for Biome 2.5.15.
+
 ## 0.4.10
 
 ## 0.4.9
