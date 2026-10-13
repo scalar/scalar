@@ -14,6 +14,9 @@ import type { Grammar } from '../core/types'
  *   is the cheapest reliable way to tell `a / b` from `/ab+/g`.
  * - Template literals nest properly: `` `${ {a: `x`} }` `` keeps its states
  *   straight because interpolations track brace depth.
+ * - JSX children are text, not code. Once an opening tag closes, everything up
+ *   to the matching closing tag is read as text with `{…}` expressions, so the
+ *   apostrophe in `<p>Don't</p>` cannot open a string.
  */
 
 /**
@@ -32,6 +35,25 @@ const ID = '[A-Za-z_$\\u0080-\\uFFFF][\\w$\\u0080-\\uFFFF]{0,128}'
 /** Contexts after which a `/` begins a regex literal rather than division. */
 const BEFORE_REGEX =
   '(?:[=(,:;\\[!&|?{}+\\-*%^~<>]|=>|\\breturn|\\bcase|\\btypeof|\\bin|\\bof|\\bnew|\\bdo|\\byield|\\bawait|\\belse)'
+
+/**
+ * Contexts after which a `<` can open a JSX element: wherever an expression
+ * can start. Everything else — an identifier, `)` or `]` — makes `<` a
+ * comparison or a type argument list.
+ */
+const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawait)'
+
+/**
+ * TypeScript angle brackets that look like an element with no attributes: a
+ * generic arrow function `<T>(x: T) => x`, a constrained one `<T extends X>`,
+ * and the old-style assertion `<string>value`. Reading any of them as an
+ * opening tag would turn the rest of the file into JSX text.
+ */
+const NOT_TS = '(?!(?:string|number|boolean|any|unknown|never|object|symbol|bigint|void)>)'
+const NOT_TS_AFTER = '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)'
+
+/** A JSX tag name: a component, a member expression, or a lowercase element. */
+const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
 /** Body of a regex literal: no unescaped `/`, character classes may hold one. */
 const REGEX = '/(?![/*])(?:[^/\\\\\\n\\[]|\\\\.|\\[(?:[^\\]\\\\\\n]|\\\\.)*\\])+/[dgimsuvy]*'
@@ -77,6 +99,24 @@ const javascript: Grammar = {
           scope: ['punctuation', null, 'variable.member'],
         },
 
+        // Declarations come before the keyword rules, which would otherwise
+        // take `function` and `class` and leave the name to the CapWords rule.
+        {
+          match: `\\b(function)([ \\t]*\\*?[ \\t]*)(${ID})`,
+          scope: ['keyword.declaration', null, 'function'],
+        },
+        {
+          match: `\\b(class)([ \\t]+)(?!extends\\b)(${ID})`,
+          scope: ['keyword.declaration', null, 'class'],
+        },
+        // `const App = () => …` and `handler = function …` name a function as
+        // surely as a declaration does. The parameter list cannot nest
+        // parentheses here, which covers real code and keeps the scan bounded.
+        {
+          match: `\\b${ID}(?=[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>))`,
+          scope: 'function',
+        },
+
         {
           match:
             '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
@@ -114,6 +154,9 @@ const javascript: Grammar = {
         },
 
         { match: '\\b[A-Z][A-Z0-9_]+\\b(?![\\w$])', scope: 'constant' },
+        // A capitalised name followed by a call is still a call — `Error('x')`,
+        // `new Date()`, a React component invoked directly — not a type.
+        { match: '\\b[A-Z][\\w$]{0,128}(?=[ \\t]*\\()', scope: 'function.call' },
         { match: '\\b[A-Z][A-Za-z0-9_$]*\\b', scope: 'type' },
 
         // `key:` in an object literal, and the name half of a TS annotation.
@@ -211,36 +254,53 @@ const javascript: Grammar = {
     // ---- JSX ---------------------------------------------------------------
     jsx: {
       rules: [
-        // Two guards, because `<` is the most overloaded character in the
-        // language. The trailing lookahead rules out `a < b` — a comparison
-        // has a space or a non-tag character where a tag has `>`, `/` or an
-        // attribute. The lookbehind rules out type arguments: `Handler<E
-        // extends Event>` and `Array<string>` both satisfy the lookahead, and
-        // what separates them from JSX is that a tag never follows an
-        // identifier, `)` or `]` directly.
+        // `<` is the most overloaded character in the language, so an element
+        // opens only where an expression can start. The lookbehind sits after
+        // the `<` so the rule still starts with a literal character, which
+        // keeps the engine's first-character scan.
         {
-          match: '(?<![\\w$)\\]])(<)(/?)([A-Z][\\w.]*|[a-z][\\w-]*(?:\\.[\\w-]+)*)(?=[\\s/>])',
-          scope: ['punctuation.bracket', 'punctuation', 'tag'],
-          push: 'jsx-tag',
+          match: `(<)(?<=${BEFORE_JSX}\\s*<)${NOT_TS}(${TAG})(?=[\\s/>])${NOT_TS_AFTER}`,
+          scope: ['punctuation.bracket', 'tag'],
+          push: 'jsx-open-tag',
         },
         {
-          match: '(<)(>)',
-          scope: ['punctuation.bracket', 'punctuation.bracket'],
+          match: `<(?<=${BEFORE_JSX}\\s*<)>`,
+          scope: 'punctuation.bracket',
+          push: 'jsx-children',
         },
+        // A closing tag with no opener, as in a snippet cut out of a larger file.
         {
-          match: '(</)(>)',
-          scope: ['punctuation.bracket', 'punctuation.bracket'],
+          match: `(</)(${TAG})?([ \\t]*)(>)`,
+          scope: ['punctuation.bracket', 'tag', null, 'punctuation.bracket'],
         },
       ],
     },
-    'jsx-tag': {
+    'jsx-open-tag': {
       rules: [
-        { match: '/?>', scope: 'punctuation.bracket', pop: true },
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        { match: '>', scope: 'punctuation.bracket', set: 'jsx-children' },
         { match: '\\{', scope: 'interpolation', push: 'jsx-expression' },
-        { match: `(${ID}(?:-${ID})*)(?=\\s*=)`, scope: 'tag.attribute' },
-        { match: `\\b${ID}(?:-${ID})*`, scope: 'tag.attribute' },
+        { match: `\\b${ID}(?:[-:]${ID})*`, scope: 'tag.attribute' },
         { match: '=', scope: 'operator' },
         { include: 'strings' },
+      ],
+    },
+    /** Between an opening tag and its closing tag: text, elements and `{…}`. */
+    'jsx-children': {
+      rules: [
+        {
+          match: `(</)(${TAG})?([ \\t]*)(>)`,
+          scope: ['punctuation.bracket', 'tag', null, 'punctuation.bracket'],
+          pop: true,
+        },
+        {
+          match: `(<)(${TAG})(?=[\\s/>])`,
+          scope: ['punctuation.bracket', 'tag'],
+          push: 'jsx-open-tag',
+        },
+        { match: '<>', scope: 'punctuation.bracket', push: 'jsx-children' },
+        { match: '\\{', scope: 'interpolation', push: 'jsx-expression' },
+        { match: '&(?:#\\d{1,8}|#x[0-9a-fA-F]{1,8}|[A-Za-z][A-Za-z0-9]{1,32});', scope: 'string.escape' },
       ],
     },
     'jsx-expression': {

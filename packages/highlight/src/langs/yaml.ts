@@ -90,6 +90,16 @@ const yaml: Grammar = {
           push: 'value',
         },
 
+        // A plain scalar may wrap: an indented line that is not a key, a list
+        // item or a comment continues the value above it. OpenAPI descriptions
+        // wrap like this all the time, and without the rule every line after
+        // the first lost its string color. The first character leaves out
+        // everything that starts other syntax on a line of its own.
+        {
+          match: `^([ \\t]+)(?!${KEY}[ \\t]*:(?:[ \\t]|$)|[-?:][ \\t]|-$)([^\\s#\\[\\]{}"'&*!|>%@\`][^\\s]*(?:[ \\t]+[^\\s#][^\\s]*)*)`,
+          scope: [null, 'string'],
+        },
+
         // `key:` — quoted or bare, optionally after a list dash.
         {
           match: `(${KEY})([ \\t]*)(:)(?=[ \\t]|$)`,

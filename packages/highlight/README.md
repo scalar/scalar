@@ -43,7 +43,7 @@ highlight(source, 'rust');
 ```
 
 Every entry in the loader is a static `import()`, so bundlers split each language into its
-own chunk. The initial chunk with the loader and no languages is 4.6 KB.
+own chunk. The initial chunk with the loader and no languages is 4.7 KB.
 
 ### Entry points
 
@@ -83,12 +83,12 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 
 | Bundle | Gzipped |
 | --- | ---: |
-| `@scalar/highlight` core | 3.07 KB |
-| …+ Python | 5.00 KB |
-| …lazy loader, initial chunk | 4.63 KB |
+| `@scalar/highlight` core | 3.11 KB |
+| …+ Python | 5.05 KB |
+| …lazy loader, initial chunk | 4.68 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.13 KB · `json` 0.28 KB · `markdown` 0.49 KB · `html` 0.52 KB · `nginx` 0.54 KB · `http` 0.62 KB · `css` 0.64 KB · `ini` 0.69 KB · `graphql` 0.72 KB · `yaml` 0.77 KB · `go` 0.80 KB · `rust` 0.84 KB · `bash` 0.85 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `sql` 0.99 KB · `java` 1.14 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.30 KB · `clojure` 1.31 KB · `kotlin` 1.32 KB · `scala` 1.36 KB · `julia` 1.36 KB · `powershell` 1.37 KB · `elixir` 1.37 KB · `javascript` 1.39 KB · `haskell` 1.40 KB · `matlab` 1.42 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.53 KB · `fsharp` 1.68 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.74 KB · `php` 1.78 KB · `perl` 1.86 KB.
+Per language, on top of the core: `diff` 0.13 KB · `json` 0.29 KB · `markdown` 0.49 KB · `html` 0.52 KB · `nginx` 0.54 KB · `http` 0.63 KB · `css` 0.64 KB · `ini` 0.70 KB · `graphql` 0.72 KB · `go` 0.80 KB · `yaml` 0.82 KB · `rust` 0.85 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `bash` 0.96 KB · `sql` 0.99 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.33 KB · `julia` 1.37 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `javascript` 1.63 KB · `fsharp` 1.69 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.74 KB · `php` 1.79 KB · `perl` 1.86 KB.
 
 Reproduce with `pnpm size`.
 
@@ -277,7 +277,7 @@ today. Because the comparison runs against the workspace package rather than a c
 a change on either side shows up here.
 
 Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
-quantifies it: across the whole 42-sample corpus 68.7% of visible characters keep the colour
+quantifies it: across the whole 42-sample corpus 68.6% of visible characters keep the colour
 `code.css` gives them, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
 rather than string, docstrings as comments rather than strings, punctuation given its own
@@ -291,7 +291,7 @@ For the same three languages `ScalarCodeBlock` shows most often:
 | | gzipped |
 | --- | ---: |
 | `@scalar/code-highlight` | 127.58 KB |
-| `@scalar/highlight/compat` | 6.36 KB |
+| `@scalar/highlight/compat` | 6.76 KB |
 
 ## Trade-offs
 

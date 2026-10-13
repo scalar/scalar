@@ -10,6 +10,14 @@ import type { Grammar } from '../core/types'
  */
 const VAR = '\\$(?:[A-Za-z_]\\w*|[0-9!@#?*$-])'
 
+/**
+ * Where a command name can stand: at the start of a line that does not
+ * continue the one before it, after a prompt, after a pipe, list operator or
+ * subshell opener, and after the keywords and wrappers that run a command.
+ */
+const BEFORE_COMMAND =
+  '(?:^(?<!\\\\\\r?\\n)(?:[ \\t]*\\$(?=[ \\t]))?|[|&;(`{]|\\$\\(|\\b(?:then|do|else|elif|sudo|time|exec|xargs|nohup|env)\\b|!)'
+
 const bash: Grammar = {
   name: 'bash',
   aliases: ['sh', 'shell', 'zsh', 'console'],
@@ -61,6 +69,16 @@ const bash: Grammar = {
           match:
             '\\b(?:echo|printf|read|cd|pwd|source|eval|exec|test|trap|set|shift|wait|kill|jobs|getopts|command|type|hash|umask|ulimit)\\b',
           scope: 'function.builtin',
+        },
+
+        // The command itself: `curl`, `./build.sh`, `/usr/bin/env`. Keywords
+        // and builtins start at the same position and come first, so they keep
+        // their own scopes. The lookbehind sits after the first character so
+        // the rule still starts with a literal class, which keeps the engine's
+        // first-character scan.
+        {
+          match: `[A-Za-z_./~](?<=${BEFORE_COMMAND}[ \\t]*[A-Za-z_./~])[\\w./~+-]{0,128}(?=[ \\t]|$|[;|&)\`])`,
+          scope: 'function.call',
         },
 
         {

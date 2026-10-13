@@ -814,4 +814,52 @@ describe('regressions from the TextMate comparison', () => {
   it('ocaml: does not close a comment on `*)` inside a string inside it', () => {
     assertHas('(* a "*)" b *) let x = 1\n', 'ocaml', 'let', 'keyword.declaration')
   })
+
+  it('javascript: reads JSX children as text, so an apostrophe does not open a string', () => {
+    const code = "const el = <p>Don't {name} stop</p>\nconst x = 'y'\n"
+    expect(scopeOf(code, 'javascript', "Don't ")).toBeNull()
+    assertHas(code, 'javascript', '{', 'interpolation')
+    assertHas(code, 'javascript', "'y'", 'string')
+  })
+
+  it('javascript: tracks nested elements, fragments and self-closing tags in JSX children', () => {
+    const code = "const App = () => (\n  <>\n    <Item a={1} />\n    <b>it's</b>\n  </>\n)\nconst s = 'z'\n"
+    assertHas(code, 'javascript', 'Item', 'tag')
+    expect(scopeOf(code, 'javascript', "it's")).toBeNull()
+    assertHas(code, 'javascript', '</>', 'punctuation.bracket')
+    assertHas(code, 'javascript', "'z'", 'string')
+  })
+
+  it('javascript: does not read TypeScript generics or assertions as JSX', () => {
+    const code =
+      "const id = <T>(x: T) => x\nconst n = <string>value\nconst f = <T extends object>(o: T) => o\nconst s = 'a'\n"
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
+    assertHas(code, 'javascript', "'a'", 'string')
+  })
+
+  it('javascript: scopes declared names, and capitalised calls as calls rather than types', () => {
+    const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
+    assertHas(code, 'javascript', 'Card', 'function')
+    assertHas(code, 'javascript', 'App', 'function')
+    assertHas(code, 'javascript', 'Foo', 'class')
+    assertHas(code, 'javascript', 'Bar', 'type')
+    assertHas(code, 'javascript', 'Error', 'function.call')
+    assertHas(code, 'javascript', 'Date', 'function.call')
+  })
+
+  it('bash: scopes command names, but not the arguments on a continued line', () => {
+    const code = 'curl -X POST \\\n  https://x.io\ncat f | grep x && ./run.sh\nif true; then x=$(date); fi\n'
+    assertHas(code, 'bash', 'curl', 'function.call')
+    assertHas(code, 'bash', 'grep', 'function.call')
+    assertHas(code, 'bash', './run.sh', 'function.call')
+    assertHas(code, 'bash', 'date', 'function.call')
+    assertHas(code, 'bash', 'if', 'keyword.control')
+    expect(scoped(code, 'bash').some(([t]) => t.includes('https://x.io'))).toBeFalsy()
+  })
+
+  it('yaml: keeps the string color on the wrapped lines of a plain scalar', () => {
+    const code = 'info:\n  description: one\n    two\n  title: t\n'
+    assertHas(code, 'yaml', 'two', 'string')
+    assertHas(code, 'yaml', 'title', 'property')
+  })
 })
