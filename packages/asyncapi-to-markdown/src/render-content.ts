@@ -1,3 +1,4 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import {
   anchor,
@@ -13,6 +14,8 @@ import {
   text,
 } from '@scalar/openapi-to-markdown/markdown'
 import { resolveTraits } from '@scalar/workspace-store/helpers/resolve-traits'
+import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Heading, RootContent } from 'mdast'
 
 import { getBindingSchemas } from './binding-schemas'
@@ -48,12 +51,14 @@ export const createContentRenderer = (
   view: (input: Record<string, unknown>) => Record<string, unknown>,
   linked: boolean,
   selectedModel: boolean,
+  selectedTag?: string,
 ): ContentRenderer => {
   const examples = createExampleRenderer()
-  const renderSchema = createSchemaRenderer(references.reference, view)
+  const renderSchema = createSchemaRenderer(references.reference, view, linked)
   const schema = (input: unknown, expand = false): RootContent[] =>
     expand ? renderSchema(input, true) : references.root(input, () => renderSchema(input))
   const anchors = createDocumentAnchors()
+  const shownMessages = new Map<unknown, string>()
   const shownServers = new Map<unknown, string>()
   const shownSecurity = new Map<unknown, string>()
   const blocks: RootContent[] = []
@@ -63,8 +68,9 @@ export const createContentRenderer = (
     }
     blocks.push(...describe(value.description))
     const tags = Array.isArray(value.tags) ? value.tags.map((tag) => string(object(tag).name)).filter(Boolean) : []
-    if (tags.length) {
-      blocks.push(paragraph(strong(text('Tags:')), text(' '), text(tags.join(', '))))
+    const visibleTags = selectedTag ? tags.filter((tag) => tag === selectedTag) : tags
+    if (visibleTags.length) {
+      blocks.push(paragraph(strong(text('Tags:')), text(' '), text(visibleTags.join(', '))))
     }
     const external = object(value.externalDocs)
     if (typeof external.url === 'string') {
@@ -163,7 +169,19 @@ export const createContentRenderer = (
       ? channel.servers.map((server, index) => [string(object(server).title) || `Server ${index + 1}`, server])
       : entries(document.servers)
   const message = (name: string, value: unknown, depth: Heading['depth']): void => {
+    const identity = getRaw(object(value))
+    if (selectedTag) {
+      const previous = shownMessages.get(identity)
+      if (previous) {
+        blocks.push(paragraph(link(`#${previous}`, title(withTraits(value), name))))
+        return
+      }
+      const id = anchors.get('message', String(shownMessages.size + 1), name)
+      shownMessages.set(identity, id)
+      blocks.push(anchor(id))
+    }
     const msg = withTraits(value)
+    const contentType = string(msg.contentType ?? document.defaultContentType) ?? 'application/json'
     blocks.push(heading(depth, text(title(msg, name))))
     metadata(msg)
     fields({ ...msg, contentType: msg.contentType ?? document.defaultContentType }, ['name', 'contentType'])
@@ -192,7 +210,19 @@ export const createContentRenderer = (
         // Message examples contain authored headers and payload, not generated values.
         for (const key of ['headers', 'payload'] as const) {
           if (authored[key] !== undefined) {
-            blocks.push(paragraph(strong(text(`${key}:`))), code(authored[key]))
+            const xml = key === 'payload' && isXmlMediaType(contentType)
+            const result =
+              xml && typeof authored[key] !== 'string'
+                ? getXmlBodyExample(object(msg.payload) as SchemaObject, { value: authored[key] })
+                : undefined
+            blocks.push(paragraph(strong(text(`${key}:`))))
+            blocks.push(
+              xml
+                ? typeof authored[key] === 'string' || result?.xml !== undefined
+                  ? code(result?.xml ?? authored[key], 'xml')
+                  : paragraph(text('Unable to generate an XML example.'))
+                : code(authored[key]),
+            )
           }
         }
       }
@@ -206,6 +236,9 @@ export const createContentRenderer = (
                 ? { schemaFormat: msg.schemaFormat, schema: msg[key] }
                 : msg[key],
               linked,
+              false,
+              key === 'payload' ? contentType : 'application/json',
+              key,
             ),
           )
         }
@@ -300,7 +333,9 @@ export const createContentRenderer = (
       ...references.model(value, () => [
         heading(depth, text(title(object(value), name))),
         ...schema(value, true),
-        ...(object(value).type === 'object' ? examples(value, linked && !selectedModel, linked && selectedModel) : []),
+        ...(view(object(value)).type === 'object' || view(object(value)).properties !== undefined
+          ? examples(value, linked && !selectedModel, linked && selectedModel)
+          : []),
       ]),
     )
   }

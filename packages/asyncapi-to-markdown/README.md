@@ -50,8 +50,9 @@ operations, component messages and schemas. Send/receive direction is from the d
 application's perspective; legacy publish/subscribe operations are migrated accordingly.
 
 Message and operation traits are merged before rendering. Authored examples are preserved.
-Missing examples are generated from JSON schemas and labelled **Generated example**;
-repeated generated examples link to their first occurrence. JSON Schema and AsyncAPI schemas include properties,
+Missing examples are generated from JSON schemas and labelled by context (**Generated headers example** or
+**Generated payload example**). XML payloads use XML examples, while headers use JSON. Repeated generated
+examples link to their first occurrence within the same media type and context. JSON Schema and AsyncAPI schemas include properties,
 required markers, constraints, composition and recursive-reference notices. Other schema
 formats, such as Avro and Protobuf, appear as labelled source blocks. Protocol bindings
 are preserved as JSON. Descriptions preserve Markdown, tables and code blocks using the
@@ -67,7 +68,8 @@ Schema display normalization and description parsing are cached per prepared ren
 Tag pages match exact tag names on channels, operations (including traits), and messages.
 A channel tag includes the channel's operations and messages. An operation tag includes
 that operation's context. Tags declared in `info.tags` retain descriptions and external links,
-even when unused. Unknown tags reject the render.
+even when unused. Tag pages retain the API introduction, display only the selected tag, and link to
+messages already rendered on the page. Unknown or duplicate tag declarations reject the render.
 
 For documentation sites that publish model pages separately:
 
@@ -87,7 +89,9 @@ links. Returning `undefined` or omitting the callback keeps the model name as pl
 Set `inlinePrimitives: false` to link primitive, enum and const references too.
 Linked pages omit the transitive appendix and generated message examples. Selected model
 pages still generate a local example with linked structured dependencies left as stubs.
-Authored examples remain available in linked mode.
+Authored examples remain available in linked mode. URL callbacks receive the original reference and
+its model name, preserving aliases. Empty or unsafe URLs render an unlinked name. Composition
+branches retain their model links.
 
 ## Browser
 

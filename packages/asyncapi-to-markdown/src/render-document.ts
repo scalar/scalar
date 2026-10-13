@@ -40,6 +40,7 @@ export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkd
         view,
         options.schemaReferences?.mode === 'linked',
         typeof selection === 'object' && selection.kind === 'model',
+        typeof selection === 'object' && selection.kind === 'tag' ? selection.name : undefined,
       )
       if (selection === 'introduction' || selection === undefined) {
         introduction()
@@ -52,8 +53,13 @@ export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkd
             return Array.isArray(merged.tags) && merged.tags.some((tag) => object(tag).name === selection.name)
           }
           const infoTags = object(document.info).tags
-          const tag = Array.isArray(infoTags) ? infoTags.find((tag) => object(tag).name === selection.name) : undefined
-          blocks.push(heading(1, text(selection.name)), ...describe(object(tag).description))
+          const tags = Array.isArray(infoTags) ? infoTags.filter((tag) => object(tag).name === selection.name) : []
+          if (tags.length > 1) {
+            throw new Error(`Multiple tags found for "${selection.name}"`)
+          }
+          const tag = tags[0]
+          introduction()
+          blocks.push(heading(2, text(selection.name)), ...describe(object(tag).description))
           const external = object(object(tag).externalDocs)
           if (typeof external.url === 'string') {
             blocks.push(paragraph(link(external.url, string(external.description) || 'External documentation')))

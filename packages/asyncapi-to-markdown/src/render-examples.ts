@@ -1,7 +1,8 @@
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { anchor, createDocumentAnchors, link, paragraph, strong, text } from '@scalar/openapi-to-markdown/markdown'
-import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
+import { getExampleFromSchema, getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { RootContent } from 'mdast'
 
@@ -108,10 +109,13 @@ export const createExampleRenderer = (): ((
   input: unknown,
   linked?: boolean,
   stubReferences?: boolean,
+  mediaType?: string,
+  context?: string,
 ) => RootContent[]) => {
   const anchors = createDocumentAnchors()
-  const generated = new Map<unknown, { id: string; nodes: RootContent[] }>()
-  return (input, linked = false, stubReferences = false) => {
+  const generated = new Map<unknown, Map<string, { id: string; nodes: RootContent[] }>>()
+  let exampleCount = 0
+  return (input, linked = false, stubReferences = false, mediaType = 'application/json', context = '') => {
     const schema = object(input)
     if ('schema' in schema) {
       // Other schema languages need their own example generators.
@@ -128,9 +132,11 @@ export const createExampleRenderer = (): ((
       return []
     }
     const identity = getRaw(resolve(input))
-    const previous = generated.get(identity)
+    const scope = JSON.stringify([mediaType, context, stubReferences])
+    const label = context ? `Generated ${context} example` : 'Generated example'
+    const previous = generated.get(identity)?.get(scope)
     if (previous) {
-      return previous.nodes.length ? [paragraph(link(`#${previous.id}`, 'Generated example'))] : []
+      return previous.nodes.length ? [paragraph(link(`#${previous.id}`, label))] : []
     }
     const exampleSchema = stubReferences ? stubLinkedSchemas(value) : value
     if (size(exampleSchema) > 10000) {
@@ -139,10 +145,24 @@ export const createExampleRenderer = (): ((
     // The shared generator consumes JSON Schema keywords; AsyncAPI direction does not
     // imply OpenAPI request/response readOnly or writeOnly filtering.
     const example = getExampleFromSchema(exampleSchema as SchemaObject)
-    const id = anchors.get('example', String(generated.size + 1))
+    const id = anchors.get('example', String(++exampleCount))
+    const xml = isXmlMediaType(mediaType)
+    const xmlExample = xml ? getXmlBodyExample(exampleSchema as SchemaObject, { value: example }) : undefined
     const nodes =
-      example === undefined ? [] : [anchor(id), paragraph(strong(text('Generated example:'))), code(example)]
-    generated.set(identity, { id, nodes })
+      example === undefined
+        ? []
+        : [
+            anchor(id),
+            paragraph(strong(text(`${label}:`))),
+            ...(xml
+              ? xmlExample?.xml !== undefined
+                ? [code(xmlExample.xml, 'xml')]
+                : [paragraph(text('Unable to generate an XML example.'))]
+              : [code(example)]),
+          ]
+    const scopes = generated.get(identity) ?? new Map<string, { id: string; nodes: RootContent[] }>()
+    scopes.set(scope, { id, nodes })
+    generated.set(identity, scopes)
     return nodes
   }
 }

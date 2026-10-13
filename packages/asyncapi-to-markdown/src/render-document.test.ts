@@ -127,7 +127,7 @@ describe('render-document', () => {
   it('labels generated examples and links repeated generation', async () => {
     const result = await createMarkdownFromAsyncApi(shared)
     expect(result.split('**Generated example:**').length - 1).toBe(2)
-    expect(result).toContain('[Generated example](#scalar-example-1)')
+    expect(result).toContain('[Generated payload example](#scalar-example-1)')
   })
 
   it('preserves authored message examples instead of generating replacements', async () => {
@@ -202,5 +202,134 @@ describe('render-document', () => {
       expect(result).toContain('[Child](/models/Child)')
       expect(result).not.toContain('"A"')
     }
+  })
+  it('preserves alias references supplied to URL callbacks', async () => {
+    const calls: { ref: string; name: string }[] = []
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...shared,
+        components: {
+          schemas: {
+            Child: { type: 'object', properties: { id: { type: 'string' } } },
+            Alias: { $ref: '#/components/schemas/Child' },
+            Parent: { type: 'object', properties: { child: { $ref: '#/components/schemas/Alias' } } },
+          },
+        },
+      },
+      {
+        model: 'Parent',
+        schemaReferences: {
+          mode: 'linked',
+          resolveUrl: (reference) => {
+            calls.push(reference)
+            return `/models/${reference.name}`
+          },
+        },
+      },
+    )
+    expect(calls).toStrictEqual([{ ref: '#/components/schemas/Alias', name: 'Alias' }])
+    expect(result).toContain('[Alias](/models/Alias)')
+  })
+
+  it('renders unsafe model destinations as plain names', async () => {
+    const result = await createMarkdownFromAsyncApi(shared, {
+      model: 'Event',
+      schemaReferences: { mode: 'linked', resolveUrl: () => 'javascript:alert(1)' },
+    })
+    expect(result).toContain('Details')
+    expect(result).not.toContain('[Details](')
+    expect(result).not.toContain('javascript:')
+  })
+
+  it('preserves composition links and generates examples for wrapped objects', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...shared,
+        components: {
+          ...shared.components,
+          schemas: {
+            ...shared.components.schemas,
+            Wrapped: { allOf: [{ $ref: '#/components/schemas/Details' }] },
+          },
+        },
+      },
+      { model: 'Wrapped', schemaReferences: { mode: 'linked', resolveUrl: ({ name }) => `/models/${name}` } },
+    )
+    expect(result).toContain('[Details](/models/Details)')
+    expect(result).toContain('**Generated example:**')
+  })
+
+  it('keeps the introduction and renders a shared tagged message once', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...shared,
+        info: { ...shared.info, description: 'API introduction', tags: [{ name: 'Events' }] },
+        operations: { first: { ...shared.operations.first, tags: [{ name: 'Events' }, { name: 'Other' }] } },
+        components: {
+          ...shared.components,
+          messages: {
+            Event: {
+              ...shared.components.messages.Event,
+              description: 'Unique message description',
+              tags: [{ name: 'Events' }],
+            },
+          },
+        },
+      },
+      { tag: 'Events' },
+    )
+    expect(result).toContain('# Shared events')
+    expect(result).toContain('API introduction')
+    expect(result).toContain('**Tags:** Events')
+    expect(result).not.toContain('Other')
+    expect(result.split('Unique message description').length - 1).toBe(1)
+  })
+
+  it('rejects ambiguous tag declarations', async () => {
+    await expect(
+      createMarkdownFromAsyncApi(
+        { ...shared, info: { ...shared.info, tags: [{ name: 'Events' }, { name: 'Events' }] } },
+        { tag: 'Events' },
+      ),
+    ).rejects.toThrow('Multiple tags found for "Events"')
+  })
+
+  it('keeps generated XML payloads separate from JSON headers and payloads', async () => {
+    const result = await createMarkdownFromAsyncApi({
+      ...shared,
+      channels: {},
+      operations: {},
+      components: {
+        schemas: { Data: { type: 'object', properties: { id: { type: 'string', default: 'event-1' } } } },
+        messages: {
+          Xml: {
+            contentType: 'application/xml',
+            headers: { $ref: '#/components/schemas/Data' },
+            payload: { $ref: '#/components/schemas/Data' },
+          },
+          Json: { contentType: 'application/json', payload: { $ref: '#/components/schemas/Data' } },
+        },
+      },
+    })
+    expect(result).toContain('**Generated headers example:**')
+    expect(result.split('**Generated payload example:**').length - 1).toBe(2)
+    expect(result).toContain('```xml')
+    expect(result).toContain('<id>event-1</id>')
+    expect(result).toContain('"id": "event-1"')
+  })
+
+  it('preserves serialized authored XML payloads', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...shared,
+        components: {
+          messages: {
+            Xml: { contentType: 'application/xml', examples: [{ payload: '<event><id>authored</id></event>' }] },
+          },
+        },
+      },
+      { message: 'Xml' },
+    )
+    expect(result).toContain('```xml\n<event><id>authored</id></event>\n```')
   })
 })

@@ -41,6 +41,7 @@ const annotations = [
 export const createSchemaRenderer = (
   reference: (input: unknown, depth: number) => RootContent[] | undefined = () => undefined,
   view = createSchemaView(),
+  preserveReferences = false,
 ): ((input: unknown, expand?: boolean) => RootContent[]) => {
   const state = { remaining: 5000 }
   const render = (input: unknown, ancestors: Set<unknown>, depth: number, expand = false): RootContent[] => {
@@ -55,7 +56,13 @@ export const createSchemaRenderer = (
     if (!isObject(resolved)) {
       return [code(resolved)]
     }
-    const schema = view(object(resolved))
+    const raw = object(resolved)
+    const hasReferenceBranch = ['allOf', 'anyOf', 'oneOf'].some(
+      (keyword) =>
+        Array.isArray(raw[keyword]) &&
+        raw[keyword].some((branch) => isObject(branch) && typeof branch.$ref === 'string'),
+    )
+    const schema = preserveReferences && hasReferenceBranch ? raw : view(raw)
     if ('schema' in schema) {
       const format = string(schema.schemaFormat)
       if (isJsonSchemaFormat(format)) {

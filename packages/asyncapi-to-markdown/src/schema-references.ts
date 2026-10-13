@@ -9,6 +9,16 @@ import { renderAuthoredSchemaExamples } from './render-schema'
 import { createSchemaView, isPrimitiveSchema } from './schema-view'
 import type { AsyncApiRenderOptions } from './types'
 
+/** Decode only a complete component name, preserving other reference paths. */
+const referenceName = (ref: string): string => {
+  try {
+    const match = /^#\/components\/schemas\/([^/]+)$/.exec(decodeURIComponent(ref))
+    return match ? unescapeJsonPointerSegment(match[1]!) : ref
+  } catch {
+    return ref
+  }
+}
+
 /** Index canonical model identities once, including aliases that resolve to the same schema. */
 export const createSchemaRegistry = (
   document: Record<string, unknown>,
@@ -82,8 +92,14 @@ export const createSchemaRegistry = (
             return undefined
           }
           if (options.schemaReferences) {
-            const url = options.schemaReferences.resolveUrl?.({ ref: entry.ref, name: entry.name })
-            return [paragraph(url ? link(url, entry.name) : text(entry.name)), ...renderAuthoredSchemaExamples(input)]
+            const ref =
+              input && typeof input === 'object' && '$ref' in input && typeof input.$ref === 'string'
+                ? input.$ref
+                : entry.ref
+            const name = referenceName(ref)
+            const url = options.schemaReferences.resolveUrl?.({ ref, name })
+            const destination = url ? link(url, name) : undefined
+            return [paragraph(destination?.url ? destination : text(name)), ...renderAuthoredSchemaExamples(input)]
           }
           queued.add(identity)
           return [paragraph(link(`#${id(entry)}`, entry.name)), ...renderAuthoredSchemaExamples(input)]
