@@ -8,6 +8,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
+import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
 import {
   Section,
   SectionColumn,
@@ -93,6 +94,9 @@ const { level: headingLevel } = useDocumentOutline('document')
               {{ applicationIdentifier }}
             </dd>
           </dl>
+          <AsyncApiTags
+            v-if="documentType === 'asyncapi' && 'tags' in info"
+            :tags="info.tags" />
           <SectionColumns>
             <SectionColumn>
               <slot name="download-link" />

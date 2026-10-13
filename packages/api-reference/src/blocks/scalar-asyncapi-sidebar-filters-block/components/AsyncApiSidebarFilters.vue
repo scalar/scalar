@@ -5,24 +5,32 @@ import {
   getAsyncApiProtocols,
   getAsyncApiServerOptions,
 } from '@scalar/workspace-store/channel-example'
+import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { computed, type Component } from 'vue'
 
+import { getAsyncApiTagOptions } from '../helpers/get-async-api-tag-options'
 import SidebarFilter from './SidebarFilter.vue'
 
 /**
  * AsyncApiSidebarFilters
  *
  * The "Filters" sidebar section shown for AsyncAPI documents. Bundling the
- * native sidebar title and picker pair here keeps the two sidebar layouts
+ * native sidebar title and pickers here keeps the modern and classic layouts
  * (modern and classic) from each repeating the option-building logic.
  *
  * Each picker hides itself when there is nothing to choose from, and the whole
- * section hides when neither picker has a real choice — so passing an OpenAPI
+ * section hides when no picker has a real choice — so passing an OpenAPI
  * document (or `null`) renders nothing.
  */
-const { document, is = 'li' } = defineProps<{
+const {
+  document,
+  entries = [],
+  is = 'li',
+} = defineProps<{
   /** The active document, or `null` for OpenAPI documents (renders nothing). */
   document: AsyncApiDocument | null
+  /** Unfiltered navigation entries, excluding hidden content. */
+  entries?: TraversedEntry[]
   /** Render element for the sidebar section wrapper. */
   is?: Component | string
 }>()
@@ -32,6 +40,12 @@ const protocol = defineModel<string>('protocol', { default: '' })
 
 /** Selected server name; empty string clears the filter. */
 const server = defineModel<string>('server', { default: '' })
+const tag = defineModel<string>('tag', { default: '' })
+const tagOptions = computed(() =>
+  document ? getAsyncApiTagOptions(document, entries) : [],
+)
+// A single tag can still distinguish tagged content from untagged content.
+const showTag = computed(() => tagOptions.value.length > 1)
 
 /** Protocol picker options, including the leading "All protocols" entry. */
 const protocolOptions = computed(() =>
@@ -51,10 +65,15 @@ const showServer = computed(() => serverOptions.value.length > 2)
 <template>
   <ScalarSidebarSection
     :is
-    v-if="showProtocol || showServer"
+    v-if="showProtocol || showServer || showTag"
     class="asyncapi-sidebar-filters">
     Filters
     <template #items>
+      <SidebarFilter
+        v-if="showTag"
+        v-model="tag"
+        label="Tag"
+        :options="tagOptions" />
       <SidebarFilter
         v-if="showProtocol"
         v-model="protocol"

@@ -26,6 +26,7 @@ import {
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import ChannelMessages from './ChannelMessages.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
@@ -158,6 +159,7 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :value="description"
         withImages />
     </template>
+    <AsyncApiTags :tags="resolvedChannel?.tags" />
     <ParameterList
       v-if="parameters.length"
       :eventBus="eventBus"
@@ -221,6 +223,7 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         </Anchor>
       </SectionHeader>
       <SectionContent>
+        <AsyncApiTags :tags="resolvedChannel?.tags" />
         <AsyncApiLabels
           class="channel-labels"
           :protocols="labels.protocols"

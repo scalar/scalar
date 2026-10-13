@@ -146,6 +146,19 @@ Generation supports native JSON Schema payloads and JSON Schema or AsyncAPI Sche
 
 The server selector shows each server title alongside its connection URL, falling back to the server map key when no title is provided. The selected server also shows its summary, protocol version, and description when provided. Selection and variable updates continue to use the server map key.
 
+## Tags
+
+Tags appear on the application introduction, selected server, channels, operations, and messages. Expand a tag with a description or external documentation to read its details. Referenced tags and tags inherited from operation or message traits are supported. Explicit tag arrays replace inherited arrays, including an empty array.
+
+The **Tag** picker appears in the modern sidebar or above the content in classic layout. It lists tags from the application, servers, and visible channels, operations, and messages. Selecting a tag narrows navigation while keeping channel grouping:
+
+- Application tags match the whole document.
+- Server tags match content reachable through a server carrying that tag.
+- Channel and operation tags retain their matching section and its children.
+- Message tags retain matching messages with their operation and channel as context.
+
+Tag filtering combines with the protocol and server filters. A server-tag match must satisfy both selections. Choosing **All tags** clears the tag filter. Filters reset when switching documents, and selecting a search result hidden by a filter clears the filters to reveal it. Tag names are matched exactly, and identical names across scopes share a filter option.
+
 ## Filtering by protocol and server
 
 When a document defines more than one protocol or server, **filter pickers** appear at the top of the sidebar, stacked beneath the document picker and working just like it:

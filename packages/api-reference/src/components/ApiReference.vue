@@ -283,7 +283,7 @@ const documentOptionList = computed(() =>
 )
 
 /**
- * AsyncAPI sidebar filters (protocol + server).
+ * AsyncAPI sidebar filters (protocol, server, and tag).
  *
  * These mirror the document picker: stacked dropdowns at the top of the sidebar
  * that narrow the visible operations. State resets whenever the active document
@@ -291,6 +291,7 @@ const documentOptionList = computed(() =>
  */
 const selectedProtocol = ref<string>('')
 const selectedServer = ref<string>('')
+const selectedTag = ref<string>('')
 
 /** The active document, narrowed to AsyncAPI (or `null` for OpenAPI documents). */
 const activeAsyncApiDocument = computed(() => {
@@ -302,6 +303,7 @@ const activeAsyncApiDocument = computed(() => {
 watch(activeSlug, () => {
   selectedProtocol.value = ''
   selectedServer.value = ''
+  selectedTag.value = ''
 })
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
@@ -731,6 +733,14 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
   })
 }
 
+/** Unfiltered entries keep tag options available while a filter is active. */
+const unfilteredSidebarItems = computed<TraversedEntry[]>(
+  () =>
+    sidebarState.items.value.find(
+      (item): item is TraversedTag => item.id === activeSlug.value,
+    )?.children ?? [],
+)
+
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
   const config = mergedConfig.value
@@ -739,17 +749,15 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
     return []
   }
 
-  const rawDocItems =
-    sidebarState.items.value.find(
-      (item): item is TraversedTag => item.id === activeSlug.value,
-    )?.children ?? []
+  const rawDocItems = unfilteredSidebarItems.value
 
-  // Apply the AsyncAPI protocol/server filters to the sidebar tree. This is a no-op
+  // Apply the AsyncAPI protocol/server/tag filters to the sidebar tree. This is a no-op
   // for OpenAPI documents and when no filter is selected.
   const docItems = activeAsyncApiDocument.value
     ? filterAsyncApiNavigation(rawDocItems, activeAsyncApiDocument.value, {
         protocol: selectedProtocol.value,
         server: selectedServer.value,
+        tag: selectedTag.value,
       })
     : rawDocItems
 
@@ -1572,6 +1580,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     if (!containsTarget(sidebarItems.value)) {
       selectedProtocol.value = ''
       selectedServer.value = ''
+      selectedTag.value = ''
       await nextTick()
     }
   }
@@ -1922,11 +1931,13 @@ const sidebarCta = computed((): SidebarCta => {
                 v-bind="slotProps" />
             </template>
             <template #before>
-              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
+              <!-- AsyncAPI filters appear when there are options to select -->
               <AsyncApiSidebarFilters
                 v-model:protocol="selectedProtocol"
                 v-model:server="selectedServer"
-                :document="activeAsyncApiDocument" />
+                v-model:tag="selectedTag"
+                :document="activeAsyncApiDocument"
+                :entries="unfilteredSidebarItems" />
               <ScalarSidebarSection
                 v-if="activeAsyncApiDocument"
                 class="asyncapi-sidebar-document-section">
@@ -2073,6 +2084,19 @@ const sidebarCta = computed((): SidebarCta => {
                   @click="() => toggleColorMode()" />
               </template>
             </ClassicHeader>
+            <div
+              v-if="mergedConfig.layout === 'classic' && activeAsyncApiDocument"
+              class="mx-auto w-full max-w-[var(--refs-content-max-width)] px-6 pb-4">
+              <div class="max-w-64">
+                <AsyncApiSidebarFilters
+                  is="div"
+                  v-model:protocol="selectedProtocol"
+                  v-model:server="selectedServer"
+                  v-model:tag="selectedTag"
+                  :document="activeAsyncApiDocument"
+                  :entries="unfilteredSidebarItems" />
+              </div>
+            </div>
             <slot
               name="content-start"
               v-bind="slotProps" />
