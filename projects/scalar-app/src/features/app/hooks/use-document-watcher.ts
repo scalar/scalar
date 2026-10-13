@@ -141,19 +141,11 @@ export const useDocumentWatcher = ({
   const timeoutManager = createTimeoutManager(initialTimeout)
 
   /**
-   * Set on unmount. A poll that is still in flight at that point must not schedule
-   * another one, otherwise the watcher keeps polling after its component is gone.
-   */
-  let isUnmounted = false
-
-  /**
    * Handles a successful poll result (with or without changes).
    */
   const handleSuccess = (): void => {
     timeoutManager.reset()
-    if (!isUnmounted) {
-      timerManager.schedule(poll, timeoutManager.get())
-    }
+    timerManager.schedule(poll, timeoutManager.get())
   }
 
   /**
@@ -161,9 +153,7 @@ export const useDocumentWatcher = ({
    */
   const handleFailure = (): void => {
     timeoutManager.backoff()
-    if (!isUnmounted) {
-      timerManager.schedule(poll, timeoutManager.get())
-    }
+    timerManager.schedule(poll, timeoutManager.get())
   }
 
   /**
@@ -238,7 +228,6 @@ export const useDocumentWatcher = ({
 
   // Cleanup timer on component unmount
   onBeforeUnmount(() => {
-    isUnmounted = true
     timerManager.clear()
   })
 }
