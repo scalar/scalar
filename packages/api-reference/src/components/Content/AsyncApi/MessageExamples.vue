@@ -80,7 +80,15 @@ watch(
 const selected = computed(() =>
   availableExamples.value.find(({ key }) => key === selectedKey.value),
 )
-const blocks = computed(() => {
+/** Each section has its own format and accessible clipboard action. */
+type MessageExampleBlock = NonNullable<
+  ReturnType<typeof getMessageExampleContent>
+> & {
+  label: string
+  copyLabel: string
+}
+
+const blocks = computed<MessageExampleBlock[]>(() => {
   const example = selected.value?.example
   if (!example) return []
   return [
@@ -89,7 +97,11 @@ const blocks = computed(() => {
       label: 'Payload',
       value: getMessageExampleContent(example.payload, contentType),
     },
-  ].flatMap(({ label, value }) => (value ? [{ label, ...value }] : []))
+  ].flatMap(({ label, value }) =>
+    value
+      ? [{ label, copyLabel: `Copy ${label.toLowerCase()}`, ...value }]
+      : [],
+  )
 })
 const pickerExamples = computed(() =>
   Object.fromEntries(
@@ -132,7 +144,7 @@ const showFooter = computed(
       <ScalarCodeBlock
         v-else
         class="bg-b-2"
-        :copyLabel="`Copy ${block.label.toLowerCase()}`"
+        :copyLabel="block.copyLabel"
         :label="block.label"
         :lang="block.lang"
         :prettyPrintedContent="block.content" />

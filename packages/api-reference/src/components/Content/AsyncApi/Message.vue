@@ -78,7 +78,7 @@ const resolvedMessage = computed(() =>
   resolveAsyncApiMessage(document, message.channelName, message.messageName),
 )
 
-const contentType = computed(
+const contentType = computed<string | undefined>(
   () => resolvedMessage.value?.contentType ?? document.defaultContentType,
 )
 
