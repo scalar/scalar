@@ -647,6 +647,7 @@ describe('ScalarComboboxOptions', () => {
 
       expect(wrapper.findAll('li[role="presentation"][aria-hidden="true"]')).toHaveLength(3)
       expect(wrapper.text()).not.toContain('No branches found')
+      expect(wrapper.findComponent(ScalarLoading).exists()).toBe(false)
 
       await loader.clear({ duration: 0 })
 

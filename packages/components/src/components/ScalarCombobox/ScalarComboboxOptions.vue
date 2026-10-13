@@ -69,7 +69,7 @@ const {
    *
    * Shows a spinner at the end of the search input while active, or an X when the state is
    * invalidated (e.g. a failed request). While loading with no options yet, the list shows
-   * placeholder rows instead of the "no results" message.
+   * placeholder rows instead of the "no results" message and the spinner.
    */
   loader?: LoadingState
   /** Whether the combobox is in multiselect mode, defaults to false */
@@ -176,9 +176,14 @@ const showSkeleton = computed<boolean>(
   () => isLoading.value && !filtered.value.length,
 )
 
+/** Show the loader in the search input, unless the skeleton already says it is loading */
+const showLoader = computed<boolean>(
+  () => Boolean(loader?.isActive) && !showSkeleton.value,
+)
+
 /** Whether there is anything to show at the end of the search input */
 const showSearchEnd = computed<boolean>(() =>
-  Boolean(slots['search-end'] || loader?.isActive),
+  Boolean(slots['search-end'] || showLoader.value),
 )
 
 /** Whether the listbox has anything to show */
@@ -311,7 +316,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         :loader
         name="search-end">
         <ScalarLoading
-          v-if="loader?.isActive"
+          v-if="showLoader"
           :loader
           size="md" />
       </slot>
