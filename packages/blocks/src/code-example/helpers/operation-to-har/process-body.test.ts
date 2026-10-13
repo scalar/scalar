@@ -1,12 +1,38 @@
 import { snippetz } from '@scalar/snippetz'
 import { getExampleFromBody } from '@scalar/workspace-store/request-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { EncodingObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  EncodingObjectSchema,
+  type SchemaObject,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['name'],
+      properties: { name: { type: 'string', example: 'Earth' } },
+    }
+    schema.properties!.planets = {
+      type: 'array',
+      minItems: 1,
+      items: { $ref: '#/components/schemas/Planet', '$ref-value': schema },
+    }
+    const input = rootReference ? { $ref: '#/components/schemas/Planet', '$ref-value': schema } : schema
+    expect(
+      processBody({
+        contentType: 'application/json',
+        requestBody: { content: { 'application/json': { schema: input } } },
+      }),
+    ).toStrictEqual({
+      mimeType: 'application/json',
+      text: JSON.stringify({ name: 'Earth', planets: [{ name: 'Earth' }] }),
+    })
+  })
   it.each([
     { array: false, encodingType: undefined, expectedType: 'image/png' },
     { array: true, encodingType: undefined, expectedType: 'image/png' },

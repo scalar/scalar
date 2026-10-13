@@ -2,12 +2,55 @@ import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import {
   type RequestBodyObject,
   RequestBodyObjectSchema,
+  type SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['name'],
+      properties: { name: { type: 'string', example: 'Earth' } },
+    }
+    schema.properties!.planets = {
+      type: 'array',
+      minItems: 1,
+      items: { $ref: '#/components/schemas/Planet', '$ref-value': schema },
+    }
+    const input = rootReference ? { $ref: '#/components/schemas/Planet', '$ref-value': schema } : schema
+    const requestBody = { content: { 'application/json': { schema: input } } }
+    expect(getSchemaExampleFromBody(requestBody, 'application/json')).toStrictEqual({
+      name: 'Earth',
+      planets: [{ name: 'Earth' }],
+    })
+    expect(getExampleFromBody(requestBody, 'application/json', 'default')).toStrictEqual({
+      value: { name: 'Earth', planets: [{ name: 'Earth' }] },
+    })
+  })
+
+  it('omits optional object cycles without generating null and preserves repeated references', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { name: { type: 'string', example: 'Earth' } },
+    }
+    schema.properties!.parent = schema
+    expect(getSchemaExampleFromBody({ content: { 'application/json': { schema } } }, 'application/json')).toStrictEqual(
+      { name: 'Earth' },
+    )
+
+    const target: SchemaObject = { type: 'object', properties: { name: { type: 'string', example: 'Earth' } } }
+    const shared = { $ref: '#/components/schemas/Planet', '$ref-value': target }
+    const siblings: SchemaObject = { type: 'object', properties: { first: shared, second: shared } }
+    expect(
+      getSchemaExampleFromBody({ content: { 'application/json': { schema: siblings } } }, 'application/json'),
+    ).toStrictEqual({
+      first: { name: 'Earth' },
+      second: { name: 'Earth' },
+    })
+  })
   it('retains structured stream data and supplies its framed wire representation', () => {
     const dataValue = [{ id: 1 }, { id: 2 }]
     const body = { content: { 'application/jsonl': { examples: { selected: { dataValue } } } } }

@@ -7,8 +7,9 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { getExampleValue } from '@/helpers/get-example-value'
-import { getResolvedRefDeep } from '@/helpers/get-resolved-ref-deep'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { serializeStreamExample } from '@/helpers/serialize-stream-example'
+import { snapshotSchema } from '@/helpers/snapshot-schema'
 import { getExample } from '@/request-example/builder/helpers/get-example'
 import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
 import { getXmlBodyExample } from '@/request-example/xml/get-xml-body-example'
@@ -19,8 +20,8 @@ import { getXmlBodyExample } from '@/request-example/xml/get-xml-body-example'
  * This is the schema-generation half of {@link getExampleFromBody}. It is exposed on its own so
  * callers that need to regenerate a body for a freshly selected composition branch (rather than the
  * edited example that would otherwise shadow it) produce the exact same value the initial example
- * does. Data generation deep-resolves nested `$ref` members. XML retains reference sites so node
- * naming and version-specific wrappers survive serialization.
+ * does. Keep reference sites intact so the generator can detect cycles without losing the schema
+ * at the recursion point. XML also needs them for node naming and version-specific wrappers.
  *
  * Returns `undefined` when there is no schema for the content type.
  */
@@ -44,14 +45,12 @@ export const getSchemaExampleFromBody = (
       schemaPath: ['requestBody'],
     }).xml
   }
-  if (!schema) {
+  if (!schema || getResolvedRef(schema) === undefined) {
     return undefined
   }
 
-  const resolvedSchema = getResolvedRefDeep(schema) as SchemaObject
-
   const value = getExampleFromSchema(
-    resolvedSchema,
+    snapshotSchema(schema) as SchemaObject,
     {
       mode: 'write',
       compositionSelection: requestBodyCompositionSelection,
