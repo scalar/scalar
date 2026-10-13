@@ -89,10 +89,7 @@ if errors.As(err, &apiErr) {
 }
 ```
 
-Two Go-specific options are worth knowing about:
-
-- **`goModulePathOverride`** sets the module path written to `go.mod` and every import. By default it is derived from the repository (`acme/acme-go` becomes `github.com/acme/acme-go`). Set it for a vanity import path such as `go.acme.com/api`.
-- **`pointerServices`** switches to a pointer-shaped surface: `NewClient` returns `*Client` and service fields are `*XService`. The default is value-shaped.
+One Go-specific option is worth knowing about: **`goModulePathOverride`** sets the module path written to `go.mod` and every import. By default it is derived from the repository (`acme/acme-go` becomes `github.com/acme/acme-go`). Set it for a vanity import path such as `go.acme.com/api`.
 
 See the [Go configuration](/products/sdk-generator/configuration/go) reference for the rest.
 
