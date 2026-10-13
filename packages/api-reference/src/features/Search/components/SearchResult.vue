@@ -57,6 +57,9 @@ const isAsyncApiEntry = computed(
     result.item.type === 'asyncapi-operation' ||
     result.item.type === 'asyncapi-message',
 )
+const displayAddress = computed(
+  (): string => result.item.path ?? translate('asyncapi.unknownAddress'),
+)
 const showDescriptionMetadata = computed(
   (): boolean =>
     result.item.type !== 'webhook' &&
@@ -113,9 +116,7 @@ const showDescriptionMetadata = computed(
         </template>
         <template v-if="isAsyncApiEntry">
           <span>{{ translate('asyncapi.address') }}:{{ ' ' }}</span>
-          <span class="whitespace-pre-wrap">{{
-            result.item.path ?? translate('asyncapi.unknownAddress')
-          }}</span>
+          <span class="whitespace-pre-wrap">{{ displayAddress }}</span>
         </template>
         <template v-else>
           <span class="sr-only">{{ translate('common.path') }}:&nbsp;</span>

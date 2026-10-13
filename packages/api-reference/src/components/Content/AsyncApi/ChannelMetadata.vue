@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import { useLocalization } from '@/features/localization'
 
 const { address, summary } = defineProps<{
@@ -6,6 +8,11 @@ const { address, summary } = defineProps<{
   summary?: string
 }>()
 const { translate } = useLocalization()
+
+const displayAddress = computed(
+  (): string => address ?? translate('asyncapi.unknownAddress'),
+)
+const hasSummary = computed((): boolean => Boolean(summary?.trim()))
 </script>
 
 <template>
@@ -14,11 +21,11 @@ const { translate } = useLocalization()
       <dt>{{ translate('asyncapi.address') }}:</dt>
       <dd
         class="text-c-1 font-code min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">
-        {{ address ?? translate('asyncapi.unknownAddress') }}
+        {{ displayAddress }}
       </dd>
     </dl>
     <p
-      v-if="summary?.trim()"
+      v-if="hasSummary"
       class="text-c-1 mt-3 [overflow-wrap:anywhere]">
       {{ summary }}
     </p>
