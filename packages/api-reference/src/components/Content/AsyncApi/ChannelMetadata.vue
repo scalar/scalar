@@ -13,14 +13,19 @@ const displayAddress = computed(
   (): string => address ?? translate('asyncapi.unknownAddress'),
 )
 const hasSummary = computed((): boolean => Boolean(summary?.trim()))
+const descriptionSpacingClass = computed((): string =>
+  hasSummary.value ? 'mb-2' : 'mb-4',
+)
 </script>
 
 <template>
-  <div class="mb-4 min-w-0 text-left">
+  <div
+    class="min-w-0 text-left"
+    :class="descriptionSpacingClass">
     <dl class="text-c-2 flex flex-wrap items-baseline gap-x-2 leading-[1.625]">
       <dt>{{ translate('asyncapi.address') }}:</dt>
       <dd
-        class="text-c-1 font-code min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">
+        class="font-code min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">
         {{ displayAddress }}
       </dd>
     </dl>
