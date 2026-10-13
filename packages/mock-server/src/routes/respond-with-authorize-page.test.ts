@@ -72,4 +72,52 @@ describe('respond-with-authorize-page', () => {
     const html = await response.text()
     expect(html).not.toContain('Requested Scopes')
   })
+  it.each([
+    'javascript:alert(1)',
+    'JaVaScRiPt:alert(1)',
+    'java\tscript:alert(1)',
+    'data:text/html,test',
+    'file:///tmp/callback',
+    'custom://callback',
+  ])('rejects unsafe callback %s', async (redirectUri) => {
+    const server = await createMockServer({ document })
+    const response = await server.request(`/oauth/authorize?${new URLSearchParams({ redirect_uri: redirectUri })}`)
+
+    expect(response.status).toBe(400)
+    expect(await response.text()).toContain('Invalid redirect_uri protocol')
+  })
+
+  it.each(['code', 'token'])('preserves safe callbacks and state for the %s flow', async (responseType) => {
+    const server = await createMockServer({ document })
+    const response = await server.request(
+      `/oauth/authorize?${new URLSearchParams({
+        redirect_uri: 'http://localhost:3000/callback?existing=1&copy=2',
+        response_type: responseType,
+        state: 'state&with="quotes"',
+      })}`,
+    )
+
+    expect(response.status).toBe(200)
+    const html = await response.text()
+    const links = [...html.matchAll(/href="([^"]+)"[^>]+aria-label="(Cancel authorization|Authorize application)"/g)]
+    expect(links.length).toBe(2)
+    for (const [, href, label] of links) {
+      const url = new URL(href!.replaceAll('&amp;', '&'))
+      expect(url.origin).toBe('http://localhost:3000')
+      expect(url.searchParams.get('existing')).toBe('1')
+      expect(url.searchParams.get('copy')).toBe('2')
+      const parameters = responseType === 'token' ? new URLSearchParams(url.hash.slice(1)) : url.searchParams
+      expect(parameters.get('state')).toBe('state&with="quotes"')
+      expect(
+        parameters.get(label === 'Cancel authorization' ? 'error' : responseType === 'token' ? 'access_token' : 'code'),
+      ).toBe(
+        label === 'Cancel authorization'
+          ? 'access_denied'
+          : responseType === 'token'
+            ? 'super-secret-access-token'
+            : 'super-secret-token',
+      )
+    }
+    expect(html).toContain('existing=1&amp;copy=2')
+  })
 })
