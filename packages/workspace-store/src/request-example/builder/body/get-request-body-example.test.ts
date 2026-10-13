@@ -31,6 +31,31 @@ describe('get-request-body-example', () => {
     })
   })
 
+  it.each(['direct', 'reference', 'oneOf', 'anyOf'] as const)(
+    'omits recursive arrays whose items cannot be generated: %s',
+    (variant) => {
+      const planet: SchemaObject = {
+        type: 'object',
+        required: ['name'],
+        properties: { name: { type: 'string', example: 'Earth' } },
+      }
+      const items = {
+        direct: planet,
+        reference: planet,
+        oneOf: { type: 'object', oneOf: [planet] },
+        anyOf: { type: 'object', anyOf: [planet] },
+      } satisfies Record<typeof variant, SchemaObject>
+      const planets: SchemaObject = { type: 'array', minItems: 1, items: items[variant] }
+      planet.properties!.planets =
+        variant !== 'direct' ? { $ref: '#/components/schemas/Planets', '$ref-value': planets } : planets
+      const requestBody = { content: { 'application/json': { schema: planets } } }
+      expect(getSchemaExampleFromBody(requestBody, 'application/json')).toStrictEqual([{ name: 'Earth' }])
+      expect(getExampleFromBody(requestBody, 'application/json', 'default')).toStrictEqual({
+        value: [{ name: 'Earth' }],
+      })
+    },
+  )
+
   it('omits optional object cycles without generating null and preserves repeated references', () => {
     const schema: SchemaObject = {
       type: 'object',
