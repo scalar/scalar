@@ -4,8 +4,6 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from '@/helpers/traverse'
 
-import { collapseAnnotationOnlyAllOf, collectReferencedPointers } from './collapse-annotation-only-all-of'
-
 // Segments whose value is a map of *named* subschemas. Keys inside these maps are
 // arbitrary names (property names, definition names), never schema keywords.
 const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
@@ -128,29 +126,18 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
 
   content.openapi = '3.1.1'
 
-  // Read before anything is rewritten: the `allOf` collapse must leave every node a `$ref` reaches alone.
-  const referencedPointers = collectReferencedPointers(content)
-
   // Single traversal that handles all transformations
-  content = traverse(content, (schema, path) => applyChangesToDocument(schema, path, referencedPointers))
+  content = traverse(content, applyChangesToDocument)
 
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (
-  originalSchema: UnknownObject,
-  path: string[] | undefined,
-  referencedPointers: ReadonlySet<string>,
-) => {
+const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
   // schema, so none of the schema transforms below apply and running them would corrupt the data.
   if (isInsideDataValue(path)) {
-    return originalSchema
+    return schema
   }
-
-  // 0b. Drop `allOf` members that only carry annotations, the 3.0 workaround for documenting a
-  // `$ref`. Runs before the nullable handling so `nullable` next to such a wrapper sees one member.
-  const schema = collapseAnnotationOnlyAllOf(originalSchema, path ?? [], referencedPointers)
 
   // 1. Handle nullable types
   if (schema.type !== undefined && schema.nullable === true) {

@@ -1365,240 +1365,38 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
   })
-  describe('annotation-only allOf members', () => {
-    /** Upgrades a 3.0 document holding the given component schemas and returns them. */
-    const upgradeSchemas = (
-      schemas: Record<string, unknown>,
-      paths: Record<string, unknown> = {},
-    ): OpenAPIV3_1.Document =>
-      upgradeFromThreeToThreeOne({
-        openapi: '3.0.3',
-        info: { title: 'Annotated references', version: '1.0.0' },
-        paths,
-        components: { schemas },
-      })
-
-    it('replaces a wrapper that only documents a reference by the documented reference', () => {
-      const result = upgradeSchemas({
-        Model: {
-          type: 'object',
-          properties: {
-            subscription: {
-              allOf: [
-                { $ref: '#/components/schemas/Subscription' },
-                { description: 'The subscription', example: { id: 1 } },
-              ],
-            },
-          },
-        },
-      })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({
-        type: 'object',
-        properties: {
-          subscription: {
-            $ref: '#/components/schemas/Subscription',
-            description: 'The subscription',
-            examples: [{ id: 1 }],
-          },
-        },
-      })
-    })
-
-    it('collapses a documented wrapper in a response schema', () => {
-      const result = upgradeSchemas(
-        {},
-        {
-          '/subscriptions': {
-            get: {
-              responses: {
-                '200': {
-                  description: 'OK',
-                  content: {
-                    'application/json': {
-                      schema: { allOf: [{ $ref: '#/components/schemas/Subscription' }, { example: { id: 1 } }] },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      )
-
-      expect(result.paths?.['/subscriptions']?.get?.responses?.['200']).toStrictEqual({
-        description: 'OK',
-        content: {
-          'application/json': { schema: { $ref: '#/components/schemas/Subscription', examples: [{ id: 1 }] } },
-        },
-      })
-    })
-
+  describe('default responses', () => {
     it('upgrades the schemas of a default response', () => {
-      const result = upgradeSchemas(
-        {
-          Model: {
-            properties: {
-              // A property called `responses` keeps its `default` keyword as data.
-              responses: { type: 'object', default: { nullable: true } },
-            },
-          },
-        },
-        {
-          '/subscriptions': {
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.3',
+        info: { title: 'Default responses', version: '1.0.0' },
+        paths: {
+          '/pets': {
             get: {
               responses: {
                 default: {
                   description: 'Error',
-                  content: {
-                    'application/json': {
-                      schema: {
-                        type: 'string',
-                        nullable: true,
-                        allOf: [{ $ref: '#/components/schemas/Error' }, { example: 'oops' }],
-                      },
-                    },
-                  },
+                  content: { 'application/json': { schema: { type: 'string', nullable: true, example: 'oops' } } },
                 },
               },
             },
           },
         },
-      )
-
-      expect(result.paths?.['/subscriptions']?.get?.responses?.default).toStrictEqual({
-        description: 'Error',
-        content: {
-          'application/json': {
-            schema: { type: ['string', 'null'], allOf: [{ $ref: '#/components/schemas/Error' }], examples: ['oops'] },
+        components: {
+          schemas: {
+            // A property called `responses` keeps its `default` keyword as data.
+            Model: { properties: { responses: { type: 'object', default: { nullable: true } } } },
           },
         },
+      })
+
+      expect(result.paths?.['/pets']?.get?.responses?.default).toStrictEqual({
+        description: 'Error',
+        content: { 'application/json': { schema: { type: ['string', 'null'], examples: ['oops'] } } },
       })
       expect(result.components?.schemas?.Model).toStrictEqual({
         properties: { responses: { type: 'object', default: { nullable: true } } },
       })
-    })
-
-    it('keeps the wrapper when an annotation changes how the site behaves', () => {
-      const result = upgradeSchemas({
-        Model: {
-          properties: {
-            status: { allOf: [{ $ref: '#/components/schemas/Status' }, { readOnly: true, description: 'Set by us' }] },
-          },
-        },
-      })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({
-        properties: {
-          status: { allOf: [{ $ref: '#/components/schemas/Status' }], readOnly: true, description: 'Set by us' },
-        },
-      })
-    })
-
-    it('keeps the remaining member of an inline composition and its annotations', () => {
-      const union = { oneOf: [{ $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }] }
-      const result = upgradeSchemas({
-        Model: { properties: { either: { allOf: [union, { title: 'Either' }] } } },
-      })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({
-        properties: { either: { allOf: [union], title: 'Either' } },
-      })
-    })
-
-    it('reads a nullable documented wrapper as the reference or null', () => {
-      const result = upgradeSchemas({
-        Model: {
-          properties: {
-            owner: {
-              nullable: true,
-              allOf: [{ $ref: '#/components/schemas/User' }, { description: 'The owner' }],
-            },
-          },
-        },
-      })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({
-        properties: {
-          owner: { description: 'The owner', anyOf: [{ $ref: '#/components/schemas/User' }, { type: 'null' }] },
-        },
-      })
-    })
-
-    it.each([
-      ['a member with constraints', { required: ['id'], description: 'Narrowed' }],
-      ['a member with an extension', { 'x-internal': true }],
-      ['a second object member', { type: 'object', properties: { b: { type: 'string' } } }],
-    ])('leaves %s composed', (_label, member) => {
-      const site = { allOf: [{ $ref: '#/components/schemas/Base' }, member] }
-      const result = upgradeSchemas({ Model: { properties: { site: structuredClone(site) } } })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({ properties: { site } })
-    })
-
-    it('leaves an annotation member that precedes a constraining one in place', () => {
-      const site = {
-        allOf: [{ description: 'Lead' }, { $ref: '#/components/schemas/A' }, { $ref: '#/components/schemas/B' }],
-      }
-      const result = upgradeSchemas({ Model: { properties: { site: structuredClone(site) } } })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({ properties: { site } })
-    })
-
-    it("keeps a named component's own wrapper so it stays a subtype of its base", () => {
-      const result = upgradeSchemas({
-        Renewal: { allOf: [{ $ref: '#/components/schemas/Subscription' }, { description: 'A renewal' }] },
-      })
-
-      expect(result.components?.schemas?.Renewal).toStrictEqual({
-        allOf: [{ $ref: '#/components/schemas/Subscription' }],
-        description: 'A renewal',
-      })
-    })
-
-    it('keeps a wrapper and member that another reference points through', () => {
-      const result = upgradeSchemas({
-        Order: {
-          properties: {
-            buyer: { allOf: [{ $ref: '#/components/schemas/Customer' }, { description: 'Who pays' }] },
-          },
-        },
-        Invoice: {
-          properties: {
-            buyer: { $ref: '#/components/schemas/Order/properties/buyer/allOf/0' },
-            buyerDocs: { $ref: '#/components/schemas/Order/properties/buyer/allOf/1' },
-          },
-        },
-      })
-
-      expect(result.components?.schemas?.Order).toStrictEqual({
-        properties: {
-          buyer: { allOf: [{ $ref: '#/components/schemas/Customer' }, { description: 'Who pays' }] },
-        },
-      })
-    })
-
-    it('collapses through a wrapper nested in another one', () => {
-      const result = upgradeSchemas({
-        Model: {
-          properties: {
-            site: {
-              allOf: [{ allOf: [{ $ref: '#/components/schemas/X' }, { description: 'Inner' }] }, { title: 'Outer' }],
-            },
-          },
-        },
-      })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({
-        properties: { site: { $ref: '#/components/schemas/X', description: 'Inner', title: 'Outer' } },
-      })
-    })
-
-    it('does not rewrite an example value that looks like a schema', () => {
-      const example = { allOf: [{ $ref: '#/x' }, { description: 'data' }] }
-      const result = upgradeSchemas({ Model: { type: 'object', example: structuredClone(example) } })
-
-      expect(result.components?.schemas?.Model).toStrictEqual({ type: 'object', examples: [example] })
     })
   })
 })
