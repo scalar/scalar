@@ -17,7 +17,8 @@ const hasSummary = computed((): boolean => Boolean(summary?.trim()))
 
 <template>
   <div class="mb-3 min-w-0 text-left">
-    <dl class="text-c-2 flex flex-wrap gap-x-2 text-sm">
+    <dl
+      class="text-c-2 flex flex-wrap items-baseline gap-x-2 text-base leading-6">
       <dt>{{ translate('asyncapi.address') }}:</dt>
       <dd
         class="text-c-1 font-code min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">
