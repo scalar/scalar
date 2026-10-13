@@ -20,18 +20,32 @@ const bash: Grammar = {
         { match: '(?:^|[ \\t])#[^\\n]*', scope: 'comment' },
 
         { include: 'expansion' },
+        // An escaped character outside quotes is literal. It has to come
+        // before the quote rules: `'it'\\''s'` is how a single quote is written
+        // inside a single-quoted string — close, escaped quote, reopen — and
+        // reading that `\\'` as the start of a string inverts the rest of the
+        // line. snippetz writes it for every curl body with an apostrophe.
+        // A backslash before a newline is a line continuation, left unscoped.
+        { match: '\\\\[^\\r\\n]', scope: 'string.escape' },
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
         { match: "\\$'", scope: 'string', push: 'string-ansi' },
         { match: '`', scope: 'string', push: 'backtick' },
 
         // Heredocs: the body is scoped as a string up to a line holding only
-        // the terminator. The terminator name is not tracked (that needs a
-        // backreference), so an inner line equal to another terminator ends it.
+        // the remembered terminator. A quoted marker (`<<'EOF'`) turns
+        // expansion off, so `$HOME` in its body is text.
         {
-          match: '(<<-?)(\\s*)([\'"]?)([A-Za-z_]\\w*)([\'"]?)',
+          match: '(<<-?)([ \\t]*)([\'"])([A-Za-z_]\\w*)([\'"])',
           scope: ['operator', null, 'string', 'string.special', 'string'],
+          push: 'heredoc-literal',
+          remember: 4,
+        },
+        {
+          match: '(<<-?)([ \\t]*)([A-Za-z_]\\w*)',
+          scope: ['operator', null, 'string.special'],
           push: 'heredoc',
+          remember: 3,
         },
 
         {
@@ -97,7 +111,7 @@ const bash: Grammar = {
     'string-double': {
       default: 'string',
       rules: [
-        { match: '\\\\[\\\\$`"\\n]', scope: 'string.escape' },
+        { match: '\\\\(?:[\\\\$`"\\n]|\\r\\n)', scope: 'string.escape' },
         { include: 'expansion' },
         { match: '`', scope: 'string', push: 'backtick' },
         { match: '"', scope: 'string', pop: true },
@@ -122,14 +136,16 @@ const bash: Grammar = {
     },
     heredoc: {
       default: 'string',
-      rules: [
-        {
-          match: '^[ \\t]*[A-Za-z_]\\w*[ \\t]*$',
-          scope: 'string.special',
-          pop: true,
-        },
-        { include: 'expansion' },
-      ],
+      rules: [{ include: 'heredoc-end' }, { include: 'expansion' }],
+    },
+    'heredoc-literal': {
+      default: 'string',
+      rules: [{ include: 'heredoc-end' }],
+    },
+    'heredoc-end': {
+      // `<<-` lets the terminator be indented with tabs; allowing any indent
+      // costs nothing and also covers bodies pasted with spaces.
+      rules: [{ match: '^[ \\t]*{{remembered}}[ \\t]*$', scope: 'string.special', pop: true }],
     },
   },
 }

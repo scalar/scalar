@@ -44,8 +44,10 @@ const javascript: Grammar = {
 
     expression: {
       rules: [
-        { match: '/\\*\\*(?![/*])[\\s\\S]*?\\*/', scope: 'comment.doc' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and fails
+        // once per opener, which is O(n²) on a run of unterminated `/*`.
+        { match: '/\\*\\*(?![/*])', scope: 'comment.doc', push: 'doc-comment' },
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
         { match: '//[^\\n]*', scope: 'comment' },
         { match: '^#!.*', scope: 'comment' },
 
@@ -57,7 +59,9 @@ const javascript: Grammar = {
           match: `(${BEFORE_REGEX})(\\s*)(${REGEX})`,
           scope: ['operator', null, 'regexp'],
         },
-        { match: `^(\\s*)(${REGEX})`, scope: [null, 'regexp'] },
+        // Blanks only: `\s*` would run across every blank line below, and
+        // retrying that at each line start is O(n²) on a run of blank lines.
+        { match: `^([ \\t]*)(${REGEX})`, scope: [null, 'regexp'] },
 
         { include: 'numbers' },
         { include: 'jsx' },
@@ -245,6 +249,14 @@ const javascript: Grammar = {
         { match: '\\{', scope: 'punctuation.bracket', push: 'brace' },
         { include: 'expression' },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
+    },
+    'doc-comment': {
+      default: 'comment.doc',
+      rules: [{ match: '\\*/', scope: 'comment.doc', pop: true }],
     },
   },
 }

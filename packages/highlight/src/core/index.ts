@@ -28,3 +28,4 @@ export type {
   StateRule,
   Token,
 } from './types'
+export { REMEMBERED } from './types'

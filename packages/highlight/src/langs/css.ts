@@ -74,6 +74,14 @@ const css: Grammar = {
           rest: 'function.builtin',
         },
         { match: '--[\\w-]+', scope: 'variable' },
+        // An unquoted `url(…)` is a string up to the `)`. Without its own state
+        // the `//` in `url(https://…)` reads as an SCSS line comment and takes
+        // the rest of the declaration with it.
+        {
+          match: '\\b(url)(\\()(?=[ \\t]*[^\\s"\'])',
+          scope: ['function.builtin', 'punctuation'],
+          push: 'url',
+        },
         { match: `\\b(${IDENT})(?=\\()`, scope: 'function.call' },
         {
           match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
@@ -85,17 +93,53 @@ const css: Grammar = {
       ],
     },
 
-    comments: {
+    url: {
+      default: 'string',
       rules: [
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
-        { match: '//[^\\n]*', scope: 'comment' },
+        { match: '\\\\.', scope: 'string.escape' },
+        { match: '\\)', scope: 'punctuation', pop: true },
+        { match: '(?=[;}\\n])', pop: true },
       ],
     },
 
+    comments: {
+      rules: [
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and
+        // fails once per opener, which is O(n²) on unterminated `/*` runs.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
+        // SCSS and Less line comments. Not after a `:`, which is a URL scheme.
+        { match: '(?<!:)//[^\\n]*', scope: 'comment' },
+      ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
+    },
+
+    // States rather than one pattern per literal: a pattern that alternates
+    // escapes with other characters rescans to the end of the line for every
+    // unterminated quote, which is O(n²) on a line of `\"`.
     strings: {
       rules: [
-        { match: '"(?:[^"\\\\\\n]|\\\\.)*"', scope: 'string' },
-        { match: "'(?:[^'\\\\\\n]|\\\\.)*'", scope: 'string' },
+        { match: '"', scope: 'string', push: 'string-double' },
+        { match: "'", scope: 'string', push: 'string-single' },
+      ],
+    },
+    'string-double': {
+      default: 'string',
+      rules: [
+        // A backslash before a line break continues the string; `\\r\\n` is one.
+        { match: '\\\\(?:\\r\\n|[\\s\\S])', scope: 'string' },
+        { match: '"', scope: 'string', pop: true },
+        { match: '$', pop: true },
+      ],
+    },
+    'string-single': {
+      default: 'string',
+      rules: [
+        { match: '\\\\(?:\\r\\n|[\\s\\S])', scope: 'string' },
+        { match: "'", scope: 'string', pop: true },
+        { match: '$', pop: true },
       ],
     },
   },

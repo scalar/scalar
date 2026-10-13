@@ -220,12 +220,18 @@ const csharp: Grammar = {
     // rather than as part of it. Longest opener first: `"""` before `"`.
     strings: {
       rules: [
+        // A raw literal opens with three or more quotes and closes with the
+        // same number, so it can hold a shorter run: `""""` wraps text that
+        // contains `"""`. The opening run is remembered for the close.
         {
-          match: '(\\$)(""")',
+          // The lookbehind keeps the `$` run from being retried at each of its
+          // characters, which is O(n²) on a long line of `$`.
+          match: '(\\$(?<!\\$\\$)\\$*)("{3,})',
           scope: ['string.special', 'string'],
           push: 'raw-interpolated',
+          remember: 2,
         },
-        { match: '"""', scope: 'string', push: 'raw' },
+        { match: '("{3,})', scope: 'string', push: 'raw', remember: 1 },
         {
           match: '(\\$@|@\\$)(")',
           scope: ['string.special', 'string'],
@@ -293,15 +299,15 @@ const csharp: Grammar = {
       ],
     },
 
-    // Raw literals have no escapes at all: the closing `"""` is the only thing
+    // Raw literals have no escapes at all: the closing run of quotes is the only thing
     // that ends them, which is what lets them hold quotes verbatim.
     raw: {
       default: 'string',
-      rules: [{ match: '"""', scope: 'string', pop: true }],
+      rules: [{ match: '{{remembered}}', scope: 'string', pop: true }],
     },
     'raw-interpolated': {
       default: 'string',
-      rules: [{ include: 'holes' }, { match: '"""', scope: 'string', pop: true }],
+      rules: [{ include: 'holes' }, { match: '{{remembered}}', scope: 'string', pop: true }],
     },
 
     /** The `{…}` holes shared by every interpolated flavour. */

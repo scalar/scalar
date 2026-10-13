@@ -75,6 +75,7 @@ describe('every bundled language', () => {
       'java',
       'javascript',
       'json',
+      'julia',
       'kotlin',
       'lua',
       'makefile',
@@ -698,5 +699,119 @@ describe('other languages', () => {
 
   it('go: scopes a raw string literal', () => {
     assertHas('s := `raw "quoted"`\n', 'go', '`raw "quoted"`', 'string')
+  })
+})
+
+/**
+ * Inputs that broke against a TextMate (Shiki) reference and today's
+ * highlight.js pipeline, most of them taken from what snippetz generates.
+ */
+describe('regressions from the TextMate comparison', () => {
+  it('php: reads a snippet without `<?php` as code', () => {
+    // snippetz emits Guzzle and Laravel samples without the opening tag.
+    const code = "$client = new GuzzleHttp\\Client();\n$response = $client->request('GET', 'https://x.io');\n"
+    assertHas(code, 'php', '$client', 'variable')
+    assertHas(code, 'php', "'GET'", 'string')
+  })
+
+  it('php: still reads input that opens with markup as a template', () => {
+    assertHas('<p><?= $name ?></p>\n', 'php', 'p', 'tag')
+    assertHas('<p><?= $name ?></p>\n', 'php', '$name', 'variable')
+  })
+
+  it('php: leaves code for markup at `?>` when the snippet opened as code', () => {
+    assertHas('echo 1; ?>\n<b>bold</b>\n', 'php', 'b', 'tag')
+  })
+
+  it('php: closes a heredoc only on its own marker', () => {
+    const code = '<?php\n$sql = <<<SQL\nSELECT 1\nOTHER\nSQL;\necho $sql;\n'
+    assertHas(code, 'php', '\nSELECT 1\nOTHER\n', 'string')
+    assertHas(code, 'php', 'echo', 'keyword')
+  })
+
+  it("bash: treats `\\'` outside quotes as an escape, so `'\\''` keeps the string", () => {
+    const code = `curl -d '{"a":"it'\\''s ok"}' https://x.io\n`
+    assertHas(code, 'bash', "\\'", 'string.escape')
+    assertHas(code, 'bash', `'s ok"}'`, 'string')
+  })
+
+  it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
+    assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
+    // The body merges with the closing quote of the marker into one run.
+    assertHas("cat <<'EOF'\n$HOME\nEOF\n", 'bash', "'\n$HOME\n", 'string')
+  })
+
+  it('yaml: keeps prose with a colon inside a block scalar', () => {
+    const code = 'description: |\n  Returns users.\n  Note: results are paginated.\nsummary: List\n'
+    assertHas(code, 'yaml', '\n  Returns users.\n  Note: results are paginated.\n', 'string')
+    assertHas(code, 'yaml', 'summary', 'property')
+  })
+
+  it('yaml: ends a list item block scalar at its key column', () => {
+    const code = '- run: |\n    echo a: b\n  name: x\n'
+    assertHas(code, 'yaml', '\n    echo a: b\n', 'string')
+    assertHas(code, 'yaml', 'name', 'property')
+  })
+
+  it('yaml: reads a dedented comment after a block scalar as a comment', () => {
+    assertHas('info:\n  description: |\n    Hello\n  # a comment\n  title: x\n', 'yaml', '# a comment', 'comment')
+  })
+
+  it('yaml: keeps `#` and commas inside a plain scalar', () => {
+    assertHas('url: https://x.dev/docs#auth\n', 'yaml', 'https://x.dev/docs#auth', 'string')
+    assertHas('description: Hello, world  # greet\n', 'yaml', 'Hello, world', 'string')
+    assertHas('description: Hello, world  # greet\n', 'yaml', '# greet', 'comment')
+  })
+
+  it('yaml: delimits a flow mapping with commas and brackets', () => {
+    const code = 'example: {name: "x", tags: [a, b], n: 3}\n'
+    assertHas(code, 'yaml', 'name', 'property')
+    assertHas(code, 'yaml', '"x"', 'string')
+    assertHas(code, 'yaml', '3', 'number')
+  })
+
+  it('csharp: closes a raw string only on the run of quotes that opened it', () => {
+    const code = 'var s = """"\nhas """ inside\n"""";\nint n = 1;\n'
+    assertHas(code, 'csharp', '""""\nhas """ inside\n""""', 'string')
+    assertHas(code, 'csharp', 'int', 'type.builtin')
+  })
+
+  it('java: keeps a string open across a lone carriage return or U+2028', () => {
+    assertHas('x("a\rb"); y();\n', 'java', '"a\rb"', 'string')
+    assertHas('x("a b"); y();\n', 'java', '"a b"', 'string')
+  })
+
+  it('css: reads an unquoted url as a string rather than a `//` comment', () => {
+    const code = '.a { background: url(https://x.io/a.png); color: red; }\n'
+    assertHas(code, 'css', 'https://x.io/a.png', 'string')
+    assertHas(code, 'css', 'color', 'property')
+  })
+
+  it('html: highlights script and style bodies with their own grammars', () => {
+    const code = '<style>.a { color: red; }</style>\n<script>const x = "</div>"; // c\n</script>\n'
+    assertHas(code, 'html', 'color', 'property')
+    assertHas(code, 'html', 'const', 'keyword.declaration')
+    assertHas(code, 'html', '// c', 'comment')
+    assertHas(code, 'html', 'script', 'tag')
+  })
+
+  it('html: scopes the XML declaration as metadata and unquoted attribute values as strings', () => {
+    assertHas('<?xml version="1.0"?>\n<a/>\n', 'xml', '<?xml version="1.0"?>', 'decorator')
+    assertHas('<input type=text disabled>\n', 'html', 'text', 'string')
+  })
+
+  it('rust: nests block comments and closes raw strings on their own hashes', () => {
+    assertHas('/* a /* b */ c */ fn f() {}\n', 'rust', 'fn', 'keyword.declaration')
+    assertHas('let s = r##"a "# b"##; let t = 1;\n', 'rust', '"a "# b"##', 'string')
+  })
+
+  it('markdown: closes a fence only with a run as long, and scopes HTML comments', () => {
+    const code = '````md\n```js\nx\n```\n````\n\n<!-- note -->\n'
+    assertHas(code, 'markdown', '\n```js\nx\n```\n', 'string')
+    assertHas(code, 'markdown', '<!-- note -->', 'comment')
+  })
+
+  it('ocaml: does not close a comment on `*)` inside a string inside it', () => {
+    assertHas('(* a "*)" b *) let x = 1\n', 'ocaml', 'let', 'keyword.declaration')
   })
 })

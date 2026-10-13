@@ -20,6 +20,7 @@ import ini from './langs/ini'
 import java from './langs/java'
 import javascript from './langs/javascript'
 import json from './langs/json'
+import julia from './langs/julia'
 import kotlin from './langs/kotlin'
 import lua from './langs/lua'
 import makefile from './langs/makefile'
@@ -69,6 +70,7 @@ export const languages: Grammar[] = [
   java,
   javascript,
   json,
+  julia,
   kotlin,
   lua,
   makefile,

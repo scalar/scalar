@@ -10,9 +10,11 @@ import type { Grammar } from '../core/types'
  *
  * Things worth knowing about:
  *
- * - Heredocs and nowdocs cannot match their own terminator (that needs a
- *   backreference, which the compiler rejects), so any identifier alone on a
- *   line closes them. See the `heredoc-end` note.
+ * - A snippet that does not open with markup is code. Code samples and
+ *   docs routinely leave out `<?php`, and reading them as HTML would render
+ *   the whole sample unscoped.
+ * - Heredocs and nowdocs remember their marker, so only the matching marker
+ *   closes them.
  * - `#` starts a comment but `#[` starts an attribute, so the attribute rule
  *   runs first and lets the argument list tokenize as ordinary PHP.
  * - A line comment stops at `?>`, because PHP itself leaves code mode there.
@@ -38,7 +40,17 @@ const php: Grammar = {
     // highlighted with the HTML grammar — cross-language embedding is not a
     // thing the engine does yet — so this covers tags, attributes and comments
     // and stops there.
+    // Picks the starting mode and is never seen again: input that opens with
+    // markup is a template, anything else is code without its `<?php`. Both
+    // rules are zero-width, so the first token is tokenized by the mode chosen.
     root: {
+      rules: [
+        { match: '(?=\\s*<(?!<<))', set: 'markup' },
+        { match: '(?=[\\s\\S])', set: 'code' },
+      ],
+    },
+
+    markup: {
       ignoreCase: true,
       rules: [
         { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
@@ -85,6 +97,10 @@ const php: Grammar = {
     // ---- code --------------------------------------------------------------
     php: {
       rules: [{ match: '\\?>', scope: 'tag', pop: true }, { include: 'expression' }],
+    },
+    /** Code the input opened with. There is no markup below it to pop back to. */
+    code: {
+      rules: [{ match: '\\?>', scope: 'tag', set: 'markup' }, { include: 'expression' }],
     },
 
     expression: {
@@ -237,11 +253,12 @@ const php: Grammar = {
       rules: [
         // Nowdoc before heredoc: they differ only by the quotes on the marker,
         // and only the heredoc interpolates.
-        { match: `<<<[ \\t]*'${ID}'`, scope: 'string.special', push: 'nowdoc' },
+        { match: `<<<[ \\t]*'(${ID})'`, scope: 'string.special', push: 'nowdoc', remember: 1 },
         {
-          match: `<<<[ \\t]*"?${ID}"?`,
+          match: `<<<[ \\t]*"?(${ID})"?`,
           scope: 'string.special',
           push: 'heredoc',
+          remember: 1,
         },
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
@@ -305,21 +322,16 @@ const php: Grammar = {
     },
 
     /**
-     * The closing marker of a heredoc or a nowdoc.
-     *
-     * It cannot be matched against the opening one — that is a backreference,
-     * and group numbers shift when rules merge — so any identifier alone on a
-     * line, optionally trailed by the punctuation a heredoc can end with
-     * (`;`, `,`, `)`, `]`), closes the body. A body line that is a single bare
-     * word therefore ends it early. That is rare in the SQL, HTML and shell
-     * text heredocs actually carry, and the alternative is not closing at all.
+     * The closing marker of a heredoc or a nowdoc: the remembered opening
+     * marker, alone on its line apart from the punctuation a heredoc can end
+     * with (`;`, `,`, `)`, `]`). PHP 7.3 lets it be indented with the body.
      */
     'heredoc-end': {
       rules: [
         // The indent stays string-coloured, so only the marker itself stands
-        // out — PHP 7.3 lets the closing marker be indented with the body.
+        // out.
         {
-          match: '^([ \\t]*)([A-Za-z_]\\w*)(?=[ \\t]*[;,)\\]]*[ \\t]*$)',
+          match: '^([ \\t]*)({{remembered}})(?![\\w\\u0080-\\uFFFF])',
           scope: [null, 'string.special'],
           pop: true,
         },

@@ -34,6 +34,52 @@ const openTag = (cls: string): string => {
 }
 
 /**
+ * Credentials shorter than this are not masked — too likely to appear inside
+ * unrelated tokens, and a two-character secret is not a secret.
+ */
+const MIN_CREDENTIAL_LENGTH = 3
+
+type Masked = { start: number; end: number }
+
+/**
+ * Where the credentials sit in the source, as non-overlapping ranges in order.
+ *
+ * Masking works on these source ranges rather than on the finished HTML. A
+ * search over the HTML misses a secret the tokenizer split into several spans
+ * (`sk_live.abc123` is a name, a `.` and a member), and it also matches inside
+ * the markup itself — a credential that happens to read `span` or `class`
+ * used to corrupt the output.
+ */
+const findCredentials = (code: string, credentials: string | string[] | undefined): Masked[] => {
+  const list = (typeof credentials === 'string' ? [credentials] : (credentials ?? [])).filter(
+    // A line break would split the masked range across line elements.
+    (credential) => credential.length >= MIN_CREDENTIAL_LENGTH && !credential.includes('\n'),
+  )
+  const found: Masked[] = []
+  for (const credential of list) {
+    let at = code.indexOf(credential)
+    while (at !== -1) {
+      found.push({ start: at, end: at + credential.length })
+      at = code.indexOf(credential, at + credential.length)
+    }
+  }
+  // Earliest first, and the longer of two that start together.
+  found.sort((a, b) => a.start - b.start || b.end - a.end)
+  const merged: Masked[] = []
+  for (const range of found) {
+    const last = merged[merged.length - 1]
+    if (last && range.start < last.end) {
+      continue
+    }
+    merged.push(range)
+  }
+  return merged
+}
+
+const MASK_OPEN = '<span class="credential"><span class="credential-value">'
+const MASK_CLOSE = '</span></span>'
+
+/**
  * Renders `code` to highlight.js-shaped markup, optionally split into lines.
  *
  * One tokenizer pass over the whole string, with line breaks handled as they
@@ -45,11 +91,16 @@ const openTag = (cls: string): string => {
  * vocabulary is finer than highlight.js's, so `keyword.declaration` followed
  * by `keyword` has to collapse into one `hljs-keyword` span rather than the
  * two neighbours lowlight would never have emitted.
+ *
+ * A masked credential takes the class of its first character for its whole
+ * length, so it always lands inside a single span, the way a credential inside
+ * a string literal did with lowlight.
  */
 const render = (
   code: string,
   grammar: CompiledGrammar | undefined,
   lineMode: boolean,
+  masked: Masked[],
 ): { html: string; count: number } => {
   const lines: string[] = []
   let line = ''
@@ -59,10 +110,32 @@ const render = (
   let start = 0
   let end = 0
 
+  // The next masked range, and the class its first character was given.
+  let maskIndex = 0
+  let maskClass: string | null = null
+
+  /** Escaped text of `[from, to)`, with masked ranges wrapped. */
+  const text = (from: number, to: number): string => {
+    let out = ''
+    let cursor = from
+    for (const range of masked) {
+      if (range.end <= from || range.start >= to) {
+        continue
+      }
+      out +=
+        escapeHtml(code.slice(cursor, range.start)) +
+        MASK_OPEN +
+        escapeHtml(code.slice(range.start, range.end)) +
+        MASK_CLOSE
+      cursor = range.end
+    }
+    return out + escapeHtml(code.slice(cursor, to))
+  }
+
   const flush = () => {
     if (end > start) {
-      const text = escapeHtml(code.slice(start, end))
-      line += cls === null ? text : `${openTag(cls)}${text}</span>`
+      const body = masked.length ? text(start, end) : escapeHtml(code.slice(start, end))
+      line += cls === null ? body : `${openTag(cls)}${body}</span>`
     }
     start = end
   }
@@ -73,8 +146,7 @@ const render = (
     line = ''
   }
 
-  const emit = (scope: string | null, s: number, e: number) => {
-    const next = scope === null ? null : hljsClass(scope)
+  const place = (next: string | null, s: number, e: number) => {
     let at = s
 
     while (at < e) {
@@ -104,6 +176,33 @@ const render = (
     }
   }
 
+  const emit = (scope: string | null, s: number, e: number) => {
+    const next = scope === null ? null : hljsClass(scope)
+    // Split the range where it enters or leaves a masked range; the inside
+    // parts take the class the masked range started with.
+    let at = s
+    while (at < e) {
+      while (maskIndex < masked.length && masked[maskIndex]!.end <= at) {
+        maskIndex++
+      }
+      const range = masked[maskIndex]
+      if (range === undefined || range.start >= e) {
+        place(next, at, e)
+        return
+      }
+      if (at < range.start) {
+        place(next, at, range.start)
+        at = range.start
+      }
+      if (at === range.start) {
+        maskClass = next
+      }
+      const stop = range.end < e ? range.end : e
+      place(maskClass, at, stop)
+      at = stop
+    }
+  }
+
   if (grammar) {
     tokenize(code, grammar, emit)
   } else {
@@ -122,36 +221,6 @@ const render = (
     html += `<span class="line">${content}\n</span>`
   }
   return { html, count: lines.length }
-}
-
-/**
- * Credentials shorter than this are not masked — too likely to appear inside
- * unrelated tokens, and a two-character secret is not a secret.
- */
-const MIN_CREDENTIAL_LENGTH = 3
-
-/**
- * Replaces credential substrings in the finished HTML.
- *
- * Post-processing the serialized string, rather than the token stream, is what
- * `@scalar/code-highlight` does. It is kept here deliberately: a credential
- * that straddles a token boundary masks or fails to mask exactly as it does
- * today, so a swap cannot change what is visible on screen.
- */
-const applyCredentialMask = (html: string, credentials: string | string[] | undefined): string => {
-  const list = (typeof credentials === 'string' ? [credentials] : (credentials ?? [])).filter(
-    (credential) => credential.length >= MIN_CREDENTIAL_LENGTH,
-  )
-
-  if (!list.length) {
-    return html
-  }
-
-  return list.reduce(
-    (acc, credential) =>
-      acc.split(credential).join(`<span class="credential"><span class="credential-value">${credential}</span></span>`),
-    html,
-  )
 }
 
 /**
@@ -178,11 +247,9 @@ export const syntaxHighlight = (codeString: string, options: SyntaxHighlightOpti
   const grammar = grammarFor(name)
 
   const lineMode = options.lineNumbers === true
-  const { html, count } = render(codeString, grammar, lineMode)
+  const masked = findCredentials(codeString, options.maskCredentials)
+  const { html, count } = render(codeString, grammar, lineMode, masked)
   const style = lineMode ? ` style="--line-count: ${count}; --line-digits: ${count.toString().length};"` : ''
 
-  return applyCredentialMask(
-    `<pre><code class="hljs language-${escapeAttribute(name)}"${style}>${html}</code></pre>`,
-    options.maskCredentials,
-  )
+  return `<pre><code class="hljs language-${escapeAttribute(name)}"${style}>${html}</code></pre>`
 }
