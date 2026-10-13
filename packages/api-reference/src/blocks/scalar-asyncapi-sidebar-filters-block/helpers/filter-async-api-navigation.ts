@@ -141,10 +141,6 @@ export const filterAsyncApiNavigation = (
   }
 
   const matches = (tags: AsyncApiTags): boolean => getAsyncApiTags(tags).some((tag) => tag.name === filter.tag)
-  // Application tags describe the entire document. They do not change ownership of child tags.
-  if (matches(document.info?.tags)) {
-    return reachableEntries
-  }
   const taggedServers = new Set(
     Object.entries(document.servers ?? {}).flatMap(([name, node]) => {
       const server = getResolvedRef(node)

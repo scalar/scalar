@@ -5,11 +5,20 @@ import { describe, expect, it } from 'vitest'
 import { getAsyncApiTagOptions } from './get-async-api-tag-options'
 
 describe('get-async-api-tag-options', () => {
-  it('indexes visible owners and inherited tags without duplicating names', () => {
+  it('offers no tag filter options for application-only tags', () => {
+    const document = {
+      asyncapi: '3.1.0',
+      'x-scalar-original-document-hash': 'application-tags',
+      info: { title: 'Events', version: '1', tags: [{ name: 'Application' }] },
+    } satisfies AsyncApiDocument
+    expect(getAsyncApiTagOptions(document, [])).toStrictEqual([{ id: '', label: 'All tags' }])
+  })
+
+  it('indexes visible owners and inherited tags without application-only tags or duplicate names', () => {
     const document = {
       asyncapi: '3.1.0',
       'x-scalar-original-document-hash': 'tag-options',
-      info: { title: 'Events', version: '1', tags: [{ name: 'Application' }] },
+      info: { title: 'Events', version: '1', tags: [{ name: 'Application' }, { name: 'Events' }] },
       servers: { production: { host: 'example.com', protocol: 'wss', tags: [{ name: 'Production' }] } },
       channels: {
         events: {
@@ -50,7 +59,6 @@ describe('get-async-api-tag-options', () => {
     ] satisfies TraversedEntry[]
     expect(getAsyncApiTagOptions(document, entries)).toStrictEqual([
       { id: '', label: 'All tags' },
-      { id: 'Application', label: 'Application' },
       { id: 'Audit', label: 'Audit' },
       { id: 'Events', label: 'Events' },
       { id: 'Production', label: 'Production' },

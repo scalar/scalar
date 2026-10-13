@@ -9,7 +9,8 @@ export const getAsyncApiTagOptions = (
   document: AsyncApiDocument,
   entries: TraversedEntry[],
 ): { id: string; label: string }[] => {
-  const names = new Set(getAsyncApiTags(document.info?.tags).map((tag) => tag.name))
+  // Application tags describe the API, not the content readers can narrow down.
+  const names = new Set<string>()
   for (const server of Object.values(document.servers ?? {})) {
     for (const tag of getAsyncApiTags(getResolvedRef(server)?.tags)) {
       names.add(tag.name)

@@ -283,10 +283,27 @@ describe('filterAsyncApiNavigation', () => {
     ])
   })
 
-  it.each(['Application', 'Production'])('keeps the taggedDocument content for a matching %s tag', (tag) => {
+  it('keeps content reachable through a matching server tag', () => {
+    const tag = 'Production'
     expect(tagIds(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag }))).toStrictEqual(
       tagIds(taggedEntries),
     )
+  })
+
+  it('does not match application-only tags', () => {
+    expect(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Application' })).toStrictEqual([])
+  })
+
+  it.each([
+    ['Channel', ['events', 'publish', 'invoice', 'audit']],
+    ['Operation', ['events', 'publish', 'invoice', 'audit']],
+    ['Audit', ['events', 'publish', 'audit']],
+  ])('narrows a matching %s tag even when the application shares its name', (tag, expected) => {
+    const document = {
+      ...taggedDocument,
+      info: { ...taggedDocument.info, tags: [{ name: tag }] },
+    } satisfies AsyncApiDocument
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, document, { tag }))).toStrictEqual(expected)
   })
 
   it('filters empty channels by their own tags', () => {

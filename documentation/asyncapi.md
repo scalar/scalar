@@ -150,9 +150,8 @@ The server selector shows each server title alongside its connection URL, fallin
 
 Tags appear on the application introduction, selected server, channels, operations, and messages. Expand a tag with a description or external documentation to read its details. Referenced tags and tags inherited from operation or message traits are supported. Explicit tag arrays replace inherited arrays, including an empty array.
 
-The **Tag** picker appears in the modern sidebar or above the content in classic layout. It lists tags from the application, servers, and visible channels, operations, and messages. Selecting a tag narrows navigation while keeping channel grouping:
+The **Tag** picker appears in the modern sidebar or above the content in classic layout. It lists tags from servers and visible channels, operations, and messages. Application tags appear in the introduction but do not add filter options or match content, even when they share a name with a channel, operation, or message tag. Selecting a tag narrows navigation while keeping channel grouping:
 
-- Application tags match the whole document.
 - Server tags match content reachable through a server carrying that tag.
 - Channel and operation tags retain their matching section and its children.
 - Message tags retain matching messages with their operation and channel as context.
