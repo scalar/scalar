@@ -347,9 +347,47 @@
     </div>
   </dl>
 </div>
-  <div class="lp-section-figure">
-    <img alt="Scalar Docs rendering the Zoom API reference" class="light-image" src="/api-docs-static-zoom.svg" loading="lazy" />
-    <img alt="Scalar Docs rendering the Zoom API reference" class="dark-image" src="/api-docs-static-zoom-dark.svg" loading="lazy" />
+  <div class="lp-section-figure lp-card lp-card--docs" aria-hidden="true">
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--pair">
+<div class="lp-browser lp-browser--md">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings.md</span></div>
+<div class="lp-md">
+<span class="lp-md-line lp-md-h"># Delete a meeting&#8217;s archived files</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line"><span class="lp-md-code">`DELETE /past_meetings/&#123;meetingUUID&#125;/archive_files`</span></span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">Delete all of a meeting&#8217;s archived files.</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line lp-md-h">## Path Parameters</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">- <span class="lp-md-code">`meetingUUID`</span> (string, required): The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID.</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line lp-md-h">## Responses</span>
+<span class="lp-md-line">&#160;</span>
+<span class="lp-md-line">- <span class="lp-md-code">`204`</span> Meeting archived file deleted.</span>
+<span class="lp-md-line">- <span class="lp-md-code">`400`</span> Bad Request</span>
+<span class="lp-md-line">- <span class="lp-md-code">`401`</span> Not Found</span>
+<span class="lp-md-line">- <span class="lp-md-code">`429`</span> Too Many Requests</span>
+</div>
+</div>
+<div class="lp-browser lp-browser--site">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title lp-app-title--file">meetings</span></div>
+<div class="lp-site">
+<div class="lp-site-header"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="lp-doc-logo" aria-hidden="true" viewBox="0 1.1 74.19 16.87"><path d="M15.56 17.72H2.29c-.93 0-1.76-.55-2.11-1.41a2.29 2.29 0 0 1 .5-2.5l9.18-9.19H3.28A3.27 3.27 0 0 1 0 1.34h12.23a2.29 2.29 0 0 1 1.62 3.92l-9.18 9.19h7.61a3.28 3.28 0 0 1 3.28 3.27M74.19 7.5a6.4 6.4 0 0 0-6.39-6.4c-1.88 0-3.58.83-4.75 2.13A6.37 6.37 0 0 0 58.3 1.1a6.4 6.4 0 0 0-6.38 6.39v10.23a3.27 3.27 0 0 0 3.27-3.27V7.49a3.12 3.12 0 0 1 3.11-3.11 3.12 3.12 0 0 1 3.12 3.1v6.97a3.28 3.28 0 0 0 3.27 3.27V7.5a3.12 3.12 0 0 1 3.11-3.12 3.12 3.12 0 0 1 3.12 3.12v6.96a3.28 3.28 0 0 0 3.27 3.27zM50.28 9.53a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.28 0a5.16 5.16 0 1 0-10.31 0 5.16 5.16 0 0 0 10.31 0m-14.9 0a8.43 8.43 0 1 1-16.87 0 8.43 8.43 0 0 1 16.87 0m-3.27 0a5.16 5.16 0 1 0-10.32 0 5.16 5.16 0 0 0 10.32 0"/></svg><span class="lp-doc-brand">Developers</span><span class="lp-doc-search"><scalar-icon src="phosphor/regular/magnifying-glass"></scalar-icon></span></div>
+<div class="lp-site-main">
+<div class="lp-doc-title">Delete a meeting&#8217;s archived files</div>
+<div class="lp-doc-request"><div class="lp-doc-request-bar"><span class="lp-doc-method">DELETE</span><span class="lp-doc-path">/past_meetings/&#123;meetingUUID&#125;/archive_files</span></div><div class="lp-doc-request-code"><span class="lp-doc-line"><span class="lp-doc-n">1</span><span><span class="lp-doc-k">curl</span> <span class="lp-doc-url">https://api.zoom.us/v2/past_meetings/4444AAAiAA</span> <span class="lp-doc-f">\</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">2</span><span>&#160;&#160;<span class="lp-doc-f">--request DELETE \</span></span></span><span class="lp-doc-line"><span class="lp-doc-n">3</span><span>&#160;&#160;<span class="lp-doc-f">--header</span> <span class="lp-doc-s">&#39;Authorization: Bearer YOUR_SECRET_TOKEN&#39;</span></span></span></div><div class="lp-doc-request-foot"><span class="lp-doc-test"><scalar-icon src="phosphor/fill/play"></scalar-icon>Test Request</span></div></div>
+<div class="lp-doc-label">Path Parameters</div>
+<div class="lp-doc-param"><span class="lp-doc-code">meetingUUID</span><span class="lp-doc-type">string</span><span class="lp-doc-required">Required</span></div>
+<div class="lp-doc-help">The meeting&#8217;s universally unique identifier (UUID). Each meeting instance generates a UUID. For example, after a meeting ends, a new UUID is generated for the next meeting instance.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="lp-box-label"><span class="lp-box-title">Docs</span></div>
   </div>
 </section>
 <section class="lp-section" id="lp-sdk" data-lp-scene="sdk">
@@ -394,9 +432,29 @@
     </div>
   </dl>
 </div>
-  <div class="lp-section-figure">
-    <img alt="A generated SDK next to the API client" class="light-image" src="/sdks-static.svg" loading="lazy" />
-    <img alt="A generated SDK next to the API client" class="dark-image" src="/sdks-static-dark.svg" loading="lazy" />
+  <div class="lp-section-figure lp-card lp-card--sdk" aria-hidden="true">
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--app lp-win--code">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="lp-win-brand" aria-hidden="true" viewBox="0 0 1236 351"><g fill="currentColor" clip-path="url(#warp-logo-clip-wall)"><path d="M341.87 122.39A175.4 175.4 0 0 0 224.76 7.21c21.37 68.74 71.94 110.54 117.11 115.18"/><path d="m345.73 136.78-.61-2.66C276.82 131.98 208.24 86.83 189.65.61q-7.28-.61-14.72-.62c-12.08 0-23.87 1.22-35.26 3.55 26.94 83.98 123.11 131.57 206.06 133.23z"/><path d="M348.13 149.95c-118.71-.69-218.72-60.46-249.67-132.4a176 176 0 0 0-53.29 40.03c66.49 57.59 183.26 94.65 303.33 95q-.17-1.32-.37-2.63"/><path d="M349.68 165.77c-101.84-.05-244.09-15.45-332.26-67.13a174 174 0 0 0-15.43 49.35c97.11 17.89 226.18 20.16 347.78 20.17zM224.85 342.76a175.4 175.4 0 0 0 116.93-114.88c-45.08 4.68-95.52 46.36-116.93 114.88"/><path d="m345.05 216.13.62-2.66c-82.86 1.68-178.88 49.18-205.93 132.98a176 176 0 0 0 49.96 2.91c18.67-86.02 87.15-131.08 155.35-133.24z"/><path d="m348.09 200.31.37-2.63c-119.98.35-236.66 37.37-303.16 94.88a176 176 0 0 0 53.26 39.93C129.61 260.66 229.52 201 348.1 200.31z"/><path d="M349.77 182.11c-121.58 0-250.62 2.28-347.73 20.16a174 174 0 0 0 15.48 49.3c88.17-51.63 230.33-67.02 332.14-67.07z"/></g><path fill="currentColor" d="M1149.21 278.42c-22.92 0-41.64-7.64-55.78-22.54V351h-55.77V74.82h55.77v18.72c14.14-14.9 32.86-22.54 55.78-22.54 48.89 0 85.94 37.82 85.94 103.9 0 65.7-37.05 103.52-85.94 103.52m-13.76-47.75c25.98 0 42.02-20.62 42.02-55.77 0-35.14-16.04-56.15-42.02-56.15-25.97 0-42.02 21-42.02 56.15s16.05 55.77 42.02 55.77M897.77 274.6V74.82h55.77v28.27C969.2 80.55 991.74 71 1012 71h7.64v56.54H1012c-29.42 0-58.45 12.6-58.45 45.07v102zm-73.46 0v-17.57c-15.28 14.52-36.67 21.4-57.68 21.4-36.67 0-66.85-21.78-66.85-61.5 0-44.7 35.53-60.36 87.48-64.18 27.12-3.44 38.58-7.26 38.58-19.49 0-11.07-10.7-18.71-30.56-18.71-18.72 0-32.47 8.78-34 23.3h-54.24C710.48 92.39 751.35 71 795.66 71c45.84 0 84.42 19.1 84.42 68.76V274.6zm-68.76-61.12c0 15.28 11.46 22.92 27.12 22.92 19.49 0 41.64-11.08 41.64-35.9v-16.81c-10.31 2.67-21.77 4.2-33.23 5.34-21.78 2.68-35.53 9.17-35.53 24.45m-297.1 61.12L400 74.82h58.06l32.09 135.99 37.82-135.99h53.86l36.67 135.99 33.23-135.99h53.86L646.77 274.6h-56.92L552.8 143.96 515.74 274.6z"/><defs><clipPath id="warp-logo-clip-wall"><path fill="#fff" d="M0 0h350v350H0z"/></clipPath></defs></svg><span class="lp-win-repo">warp-sdk-typescript</span></span></div>
+<div class="lp-win-tabs"><span class="is-active">TypeScript</span><span>Python</span><span>Go</span><span>CLI</span></div>
+<div class="lp-win-code">
+<span class="lp-win-line"><span class="lp-win-k">import</span> Warp <span class="lp-win-k">from</span> <span class="lp-win-s">'warp-hr'</span></span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> client = <span class="lp-win-k">new</span> Warp({</span>
+<span class="lp-win-line">&#160;&#160;apiKey: process.env.WARP_API_KEY,</span>
+<span class="lp-win-line">})</span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> plans = <span class="lp-win-k">await</span> client.benefits.healthPlans.list({</span>
+<span class="lp-win-line">&#160;&#160;statuses: [<span class="lp-win-s">'active'</span>],</span>
+<span class="lp-win-line">})</span>
+<span class="lp-win-line"></span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> requests = <span class="lp-win-k">await</span> client.timeOff.listRequests()</span>
+<span class="lp-win-line"><span class="lp-win-k">const</span> payroll = <span class="lp-win-k">await</span> client.payroll.get(<span class="lp-win-s">'pay_1234'</span>)</span>
+</div>
+</div>
+</div>
+<div class="lp-box-label"><span class="lp-box-title">SDKs</span></div>
   </div>
 </section>
 <section class="lp-section" id="lp-mcp" data-lp-scene="mcp">
@@ -441,9 +499,36 @@
     </div>
   </dl>
 </div>
-  <div class="lp-section-figure">
-    <img alt="Claude connected to a Scalar MCP server" class="light-image" src="/agent-static.svg" loading="lazy" />
-    <img alt="Claude connected to a Scalar MCP server" class="dark-image" src="/agent-static-dark.svg" loading="lazy" />
+  <div class="lp-section-figure lp-card lp-card--mcp" aria-hidden="true">
+<div class="lp-box-grain" aria-hidden="true"></div>
+<div class="lp-box-screen" aria-hidden="true">
+<div class="lp-win lp-win--app lp-chat">
+<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">Missing planet images<scalar-icon src="phosphor/regular/caret-down"></scalar-icon></span></div>
+<div class="lp-chat-messages">
+<div class="lp-chat-turn">
+<div class="lp-chat-prompt">Which planets in the Galaxy API are still missing an image?</div>
+<div class="lp-chat-response">
+<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 3s"><span class="lp-chat-think-sizer">Thought for 3s</span><span class="lp-chat-think-text" data-text="Thought for 3s">Thought for 3s</span></span></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
+<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
+<div class="lp-chat-line">Kepler-22b is the only planet without an image. The other eleven all have one.</div>
+</div>
+</div>
+<div class="lp-chat-turn">
+<div class="lp-chat-prompt">Upload the Kepler-22b render to it</div>
+<div class="lp-chat-response">
+<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 2s"><span class="lp-chat-think-sizer">Thought for 2s</span><span class="lp-chat-think-text" data-text="Thought for 2s">Thought for 2s</span></span></div>
+<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.2593)" d="M4.02597e-06 36.685V21.349C-0.000526443 20.2383 0.262632 19.1433 0.767834 18.1541C1.27304 17.1649 2.00585 16.3097 2.906 15.659L22.648 1.409C23.9159 0.493342 25.44 0.000346267 27.004 0L27.066 0C28.689 0 30.259 0.508 31.567 1.452L51.251 15.659C52.1512 16.3097 52.8841 17.1648 53.3893 18.154C53.8945 19.1432 54.1576 20.2382 54.157 21.349V33.651C54.1576 34.7617 53.8943 35.8567 53.3889 36.8457C52.8835 37.8348 52.1504 38.6897 51.25 39.34L31.527 53.562C30.2318 54.4966 28.6752 54.9997 27.078 55C25.4755 55.0001 23.9135 54.4963 22.613 53.56C20.032 51.701 15.881 48.705 15.881 48.705V29.777C15.881 29.528 16.161 29.384 16.363 29.529L26.901 37.134C27.007 37.211 27.15 37.211 27.256 37.134L40.261 27.748C40.3002 27.7196 40.3322 27.6824 40.3542 27.6393C40.3763 27.5961 40.3877 27.5484 40.3877 27.5C40.3877 27.4516 40.3763 27.4039 40.3542 27.3607C40.3322 27.3176 40.3002 27.2804 40.261 27.252L27.256 17.866C27.2043 17.8287 27.1422 17.8086 27.0785 17.8086C27.0148 17.8086 26.9527 17.8287 26.901 17.866L0.482004 36.933C0.436506 36.9659 0.382798 36.9855 0.326831 36.9897C0.270864 36.9939 0.214823 36.9826 0.164915 36.9569C0.115008 36.9312 0.0731844 36.8922 0.044077 36.8442C0.0149696 36.7962 -0.000284776 36.7411 4.02597e-06 36.685Z"/></svg><span>Checked the response</span></div></div></div></div>
+<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
+<div class="lp-chat-line">Done. The API returned 201 Created, so Kepler-22b has its render now.</div>
+<div class="lp-chat-line">Want me to add the TRAPPIST-1e one next?</div>
+</div>
+</div>
+</div>
+<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Opus 5 <span>High</span></span></div></div>
+</div>
+</div>
+<div class="lp-box-label"><span class="lp-box-title">MCP</span></div>
   </div>
 </section>
 </div>
@@ -825,17 +910,67 @@
     font-weight: var(--scalar-semibold);
     line-height: 1.5;
   }
-  /* per-section stills, only for the single-column layout */
+  /* Single column: each product's card, the open card from the stack,
+     sits under its section's copy with the same window inside. The card
+     is a size container of its own, so the window lays out as it does in
+     the panel; --lp-s and --lp-share pin it to the open state. The cover
+     is the box's gradient with the kit's sheen blended over it. */
   .lp-section-figure {
     display: none;
-    border-radius: var(--scalar-radius-lg);
-    overflow: hidden;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
   }
-  .lp-section-figure img {
-    display: block;
-    width: 100%;
-    height: auto;
+  .lp-card {
+    --lp-s: 1;
+    --lp-r: 0;
+    --lp-share: 1;
+    --lp-u: 1;
+    position: relative;
+    aspect-ratio: 7 / 6;
+    min-height: 480px;
+    max-height: 720px;
+    overflow: hidden;
+    border-radius: var(--scalar-radius-lg);
+    container: lp-card / size;
+    background-image:
+      linear-gradient(
+        90deg,
+        rgb(128, 127, 128) 0%,
+        rgb(128, 180, 128) 20.77%,
+        rgb(128, 137, 128) 48.63%,
+        rgb(128, 128, 128) 61.75%,
+        rgb(128, 110, 128) 100%
+      ),
+      linear-gradient(var(--lp-face-top), var(--lp-face-bottom));
+    background-blend-mode: soft-light, normal;
+  }
+  .lp-card--docs {
+    --lp-face-top: #4cc3ff;
+    --lp-face-bottom: #2ea3ff;
+  }
+  .lp-card--sdk {
+    --lp-face-top: #b79bff;
+    --lp-face-bottom: #9c7bff;
+  }
+  .lp-card--mcp {
+    --lp-face-top: #f5af00;
+    --lp-face-bottom: #fb9500;
+  }
+  /* on a phone-wide card the windows draw in a little */
+  @container lp-card (max-width: 420px) {
+    .lp-win-code {
+      font-size: 11px;
+    }
+    .lp-win-line::before {
+      width: 36px;
+      padding-right: 12px;
+    }
+    .lp-browser {
+      width: calc(100% - 20px);
+      height: calc(100% - 52px);
+    }
+    .lp-browser--site {
+      left: 20px;
+      top: 52px;
+    }
   }
 
   /* The scroll state, as numbers CSS transitions carry between scenes:
@@ -2397,9 +2532,11 @@
       padding-top: 88px;
       padding-bottom: 0;
     }
-    /* The scene sits under the hero copy here, the stills under theirs */
+    /* The scene sits under the hero copy here, the product cards under
+       theirs. The panel stays the drawing's containing block. */
     .lp-visual {
-      position: static;
+      position: relative;
+      top: auto;
       height: auto;
       margin-top: 40px;
       aspect-ratio: 540 / 700;

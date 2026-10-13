@@ -538,30 +538,18 @@ const initLandingBoxLinks = debounce(() => {
   console.log(`Initialized ${boxes.length} landing box links`)
 })
 
-/* MCP card chat: plays the conversation (prompt, thinking, tool steps,
-   reply, then the next prompt typed and sent) every time the MCP card
-   becomes the scene, after the chat mockup on equals.com. Without the
-   script, or with reduced motion, the finished conversation shows. */
-const initLandingChat = debounce(() => {
-  const root = document.querySelector('.lp[data-lp-scene]')
-  const chat = root ? root.querySelector('.lp-chat') : null
-  if (!root || !chat || chat.dataset.lpChatBound === 'true') {
-    return
-  }
-
-  chat.dataset.lpChatBound = 'true'
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    return
-  }
-
+/* MCP chat: plays the conversation (prompt, thinking, tool steps, reply,
+   then the next prompt typed and sent), after the chat mockup on
+   equals.com. Without the script, or with reduced motion, the finished
+   conversation shows. */
+const createLandingChatPlayer = (chat) => {
   const messages = chat.querySelector('.lp-chat-messages')
   const composer = chat.querySelector('.lp-chat-composer')
   const placeholder = chat.querySelector('.lp-chat-placeholder')
   const send = chat.querySelector('.lp-chat-send')
   const turns = [...chat.querySelectorAll('.lp-chat-turn')]
   if (!messages || !composer || !placeholder || !turns.length) {
-    return
+    return null
   }
 
   const idleText = placeholder.textContent
@@ -777,44 +765,96 @@ const initLandingChat = debounce(() => {
     later(() => step(0), 450)
   }
 
-  let current = root.dataset.lpScene
-  const sync = () => {
-    const scene = root.dataset.lpScene
-    if (scene === current) {
-      return
-    }
-    current = scene
-    if (scene === 'mcp') {
-      play()
-    } else {
-      clearTimers()
-    }
-  }
-  new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-lp-scene'] })
-  if (current === 'mcp') {
-    play()
-  }
+  return { play, stop: clearTimers }
+}
 
-  console.log('Initialized landing chat')
-})
-
-/* Docs card windows: the last one hovered stays in front */
-const initLandingDocsWindows = debounce(() => {
-  const root = document.querySelector('.lp[data-lp-scene]')
-  const windows = root ? [...root.querySelectorAll('.lp-browser')] : []
-  if (!windows.length || root.dataset.lpDocsWindowsBound === 'true') {
+/* The chat in the panel plays every time the MCP card becomes the scene;
+   the one under the MCP section's copy (single column) every time it
+   scrolls into view. */
+const initLandingChat = debounce(() => {
+  const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
+  if (!chats.length) {
     return
   }
 
-  root.dataset.lpDocsWindowsBound = 'true'
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-  windows.forEach((win) => {
-    win.addEventListener('mouseenter', () => {
-      windows.forEach((other) => other.classList.toggle('is-front', other === win))
+  chats.forEach((chat) => {
+    chat.dataset.lpChatBound = 'true'
+    if (reduceMotion) {
+      return
+    }
+
+    const player = createLandingChatPlayer(chat)
+    if (!player) {
+      return
+    }
+
+    const root = chat.closest('.lp[data-lp-scene]')
+    if (root && chat.closest('.lp-visual')) {
+      let current = root.dataset.lpScene
+      const sync = () => {
+        const scene = root.dataset.lpScene
+        if (scene === current) {
+          return
+        }
+        current = scene
+        if (scene === 'mcp') {
+          player.play()
+        } else {
+          player.stop()
+        }
+      }
+      new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-lp-scene'] })
+      if (current === 'mcp') {
+        player.play()
+      }
+      return
+    }
+
+    let visible = false
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting === visible) {
+            return
+          }
+          visible = entry.isIntersecting
+          if (visible) {
+            player.play()
+          } else {
+            player.stop()
+          }
+        })
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(chat)
+  })
+
+  console.log(`Initialized ${chats.length} landing chats`)
+})
+
+/* Docs windows: in each pair, the last window hovered stays in front */
+const initLandingDocsWindows = debounce(() => {
+  const pairs = [...document.querySelectorAll('.lp-win--pair')].filter(
+    (pair) => pair.dataset.lpDocsWindowsBound !== 'true',
+  )
+  if (!pairs.length) {
+    return
+  }
+
+  pairs.forEach((pair) => {
+    pair.dataset.lpDocsWindowsBound = 'true'
+    const windows = [...pair.querySelectorAll('.lp-browser')]
+    windows.forEach((win) => {
+      win.addEventListener('mouseenter', () => {
+        windows.forEach((other) => other.classList.toggle('is-front', other === win))
+      })
     })
   })
 
-  console.log(`Initialized ${windows.length} landing docs windows`)
+  console.log(`Initialized ${pairs.length} landing docs window pairs`)
 })
 
 initDraggableElements()
