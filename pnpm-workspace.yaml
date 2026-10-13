@@ -13,7 +13,7 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 3.0.33
+    '@ai-sdk/vue': 3.0.214
     '@astrojs/starlight': 0.42.2
     '@fastify/basic-auth': ^6.3.0
     '@fastify/http-proxy': ^11.6.0
@@ -56,7 +56,7 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
-    ai: 6.0.33
+    ai: 6.0.214
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
