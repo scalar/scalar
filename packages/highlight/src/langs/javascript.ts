@@ -51,11 +51,14 @@ const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawa
  *
  * An assertion is followed by an expression on the same line, and so is an
  * element's text, so the line decides: an element without attributes opens
- * only when its line ends after the `>` or holds another tag. An element whose
- * text runs on to a later closing tag reads as code instead, which costs that
- * one element and never the rest of the file.
+ * only when its line ends after the `>` or holds another tag. A closing tag
+ * counts, and so does a `<` that does not follow a name, which keeps the type
+ * arguments in `get<Store>()` out. An element whose text runs on to a later
+ * closing tag reads as code instead, which costs that one element and never
+ * the rest of the file.
  */
-const NOT_TS_AFTER = '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)(?!>(?![ \\t]*$)(?![^\\n]{0,512}<[/A-Za-z>]))'
+const NOT_TS_AFTER =
+  '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)(?!>(?![ \\t]*$)(?![^\\n]{0,512}(?:<\\/|(?<![\\w$)\\]])<[A-Za-z>])))'
 
 /** A JSX tag name: a component, a member expression, or a lowercase element. */
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'

@@ -839,7 +839,7 @@ describe('regressions from the TextMate comparison', () => {
 
   it('does not read an assertion to a non-builtin type as an element', () => {
     const code =
-      'const el = <HTMLElement>document.getElementById("x")\nconst n: number = 1\nfunction f() { return "it\'s" }\n'
+      'const el = <HTMLElement>document.getElementById("x")\nconst s = <Store>container.get<Store>(KEY)\nconst n: number = 1\nfunction f() { return "it\'s" }\n'
     expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
     assertHas(code, 'javascript', 'getElementById', 'function.method')
     assertHas(code, 'javascript', '"it\'s"', 'string')
