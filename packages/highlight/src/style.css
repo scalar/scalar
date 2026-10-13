@@ -258,6 +258,7 @@
 }
 
 .shl-code .shl-fb,
+.shl-code .shl-sy,
 .shl-code .shl-o {
   color: var(--scalar-hl-builtin);
 }
