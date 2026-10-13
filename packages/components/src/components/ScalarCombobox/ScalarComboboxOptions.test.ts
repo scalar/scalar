@@ -669,6 +669,49 @@ describe('ScalarComboboxOptions', () => {
       expect(input.attributes('aria-activedescendant')).toContain('-a')
     })
 
+    it('does not clear the selection on Enter when the selected option is not in the results', async () => {
+      const onUpdate = vi.fn()
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: {
+          options: singleOptions,
+          modelValue: [{ id: 'past-first-page', label: 'Not loaded' }],
+          filterFn: (_query: string, options: Option[]) => options,
+          'onUpdate:modelValue': onUpdate,
+        },
+      })
+
+      const input = wrapper.find('input')
+      expect(input.attributes('aria-activedescendant')).toContain('-1')
+
+      await input.trigger('keydown', { key: 'Enter' })
+
+      expect(onUpdate).toHaveBeenCalledWith([singleOptions[0]])
+      expect(onUpdate).not.toHaveBeenCalledWith([undefined])
+    })
+
+    it('makes the top hit of new results active after the query changes', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: {
+          options: [
+            { id: 'main', label: 'main' },
+            { id: 'master', label: 'master' },
+          ],
+          filterFn: (_query: string, options: Option[]) => options,
+        },
+      })
+
+      const input = wrapper.find('input')
+      await input.setValue('mas')
+      await wrapper.setProps({
+        options: [
+          { id: 'master-x', label: 'master-x' },
+          { id: 'main', label: 'main' },
+        ],
+      })
+
+      expect(input.attributes('aria-activedescendant')).toContain('-master-x')
+    })
+
     it('renders custom content at the end of the search input', () => {
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: singleOptions },

@@ -116,7 +116,30 @@ const groups = computed<G[]>(
 
 /** The search query, exposed so callers can search the options themselves */
 const query = defineModel<string>('query', { default: '' })
-const activeRef = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
+/** The filtered list of options */
+const filtered = computed<O[]>(() =>
+  filterFn(query.value, options.value, groups.value),
+)
+
+/** The list of filtered options with the "Add a new option" option */
+const withAdd = computed<Option[]>(() =>
+  slots.add ? [...filtered.value, addOption] : filtered.value,
+)
+
+/**
+ * The selected option when it is in the list, otherwise the top option.
+ *
+ * With async search the selected option is often not in the loaded results (e.g. a branch
+ * past the first page), and pointing at a row that does not exist would let Enter select nothing.
+ */
+const getInitialActive = (): Option | undefined => {
+  const selected = model.value[0]
+  return selected && withAdd.value.some((option) => option.id === selected.id)
+    ? selected
+    : withAdd.value[0]
+}
+
+const activeRef = ref<Option | undefined>(getInitialActive())
 
 // Clear the query on open and close
 onMounted(() => {
@@ -124,7 +147,7 @@ onMounted(() => {
   query.value = ''
 
   // Set the active option to the selected option or the first option
-  activeRef.value = model.value?.[0] ?? options.value[0]
+  activeRef.value = getInitialActive()
 
   // Scroll to the selected option
   const selected = model.value[0]
@@ -142,36 +165,40 @@ onMounted(() => {
   }
 })
 
+/**
+ * Whether the query changed since the options last updated. Async results arrive after the
+ * query changes, so the top hit of the new results should become active even when the
+ * previously active option is still somewhere in the list.
+ */
+let queryChanged = false
+
 // Set the top option as active when searching
 watch(
   () => query.value,
-  () => (activeRef.value = withAdd.value[0]),
-)
-
-/** The filtered list of options */
-const filtered = computed<O[]>(() =>
-  filterFn(query.value, options.value, groups.value),
-)
-
-/** The list of filtered options with the "Add a new option" option */
-const withAdd = computed<Option[]>(() =>
-  slots.add ? [...filtered.value, addOption] : filtered.value,
+  () => {
+    activeRef.value = withAdd.value[0]
+    queryChanged = true
+  },
 )
 
 /**
- * Async options arrive after the query has changed, so the active option can point at
- * a row that no longer exists. Move it back to the top when that happens.
+ * Async options arrive after the query has changed, so the active option can point at a row
+ * that no longer exists or is no longer the top hit. Move it back to the top when that happens.
  */
 watch(withAdd, (list) => {
-  if (!list.some((option) => option.id === activeRef.value?.id)) {
+  if (
+    queryChanged ||
+    !list.some((option) => option.id === activeRef.value?.id)
+  ) {
     activeRef.value = list[0]
   }
+  queryChanged = false
 })
 
 /** Whether the options are still loading */
 const isLoading = computed<boolean>(() => Boolean(loader?.isLoading))
 
-/** Show placeholder rows while the first batch of options loads */
+/** Show placeholder rows while loading with nothing to show yet */
 const showSkeleton = computed<boolean>(
   () => isLoading.value && !filtered.value.length,
 )
@@ -206,22 +233,20 @@ function toggleSelected(option: Option | undefined) {
     return
   }
 
-  if (multiselect) {
-    // Remove from selection list
-    if (model.value.some((o) => o.id === option.id)) {
-      model.value = model.value.filter((o) => o.id !== option.id)
-    }
-    // Add to selection list
-    else {
-      model.value = [
-        ...model.value,
-        options.value.find((o) => o.id === option.id)!,
-      ]
-    }
-  } else {
-    // Set selection for single select mode
-    model.value = [options.value.find((o) => o.id === option.id)!]
+  // Remove from selection list in multiselect mode
+  if (multiselect && model.value.some((o) => o.id === option.id)) {
+    model.value = model.value.filter((o) => o.id !== option.id)
+    return
   }
+
+  // The active option can be stale while async options load, so never select a missing one
+  const match = options.value.find((o) => o.id === option.id)
+  if (!match) {
+    return
+  }
+
+  // Add to the selection in multiselect mode, replace it in single select mode
+  model.value = multiselect ? [...model.value, match] : [match]
 }
 
 function moveActive(dir: 1 | -1) {
