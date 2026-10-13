@@ -1791,7 +1791,7 @@ importers:
         version: link:../workspace-store
       remark-gfm:
         specifier: catalog:*
-        version: 4.0.1(supports-color@10.0.0)
+        version: 4.0.1
       remark-stringify:
         specifier: catalog:*
         version: 11.0.0
