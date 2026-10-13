@@ -12,3 +12,5 @@ Preserve discriminators and linked schema descriptions, generate examples from p
 Include full-export tag documentation, preserve XML schema examples, and normalize annotated primitive aliases.
 
 Infer enum and const type labels and honor primitive-link settings in generated model examples.
+
+Preserve AsyncAPI application and schema metadata, explain security alternatives, and render reply and unknown-address semantics accurately.

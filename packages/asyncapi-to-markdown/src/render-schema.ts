@@ -1,7 +1,7 @@
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { describe, inlineCode, item, list, paragraph, strong, text } from '@scalar/openapi-to-markdown/markdown'
+import { describe, inlineCode, item, link, list, paragraph, strong, text } from '@scalar/openapi-to-markdown/markdown'
 import { getXmlBodyExample } from '@scalar/workspace-store/request-example'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Code, ListItem, PhrasingContent, RootContent } from 'mdast'
@@ -18,6 +18,11 @@ export const code = (value: unknown, lang = 'json'): Code => ({
 })
 
 const annotations = [
+  'title',
+  '$id',
+  '$schema',
+  'contentEncoding',
+  'contentMediaType',
   'format',
   'enum',
   'const',
@@ -121,7 +126,10 @@ export const createSchemaRenderer = (
         )
       }
     }
-    const blocks: RootContent[] = [...(summary.length ? [paragraph(...summary)] : []), ...describe(schema.description)]
+    const blocks: RootContent[] = [
+      ...(summary.length ? [paragraph(...summary)] : []),
+      ...renderSchemaDocumentation(schema),
+    ]
     const discriminator = schema.discriminator
     const propertyName = typeof discriminator === 'string' ? discriminator : string(object(discriminator).propertyName)
     if (propertyName) {
@@ -235,4 +243,16 @@ export const renderAuthoredSchemaExamples = (input: unknown, mediaType = 'applic
         : [paragraph(text('Unable to generate an XML example.'))]),
     ]
   })
+}
+
+/** Preserve schema documentation at both expanded definitions and linked usages. */
+export const renderSchemaDocumentation = (input: unknown): RootContent[] => {
+  const schema = object(input)
+  const external = object(schema.externalDocs)
+  return [
+    ...describe(schema.description),
+    ...(typeof external.url === 'string'
+      ? [paragraph(link(external.url, string(external.description) || 'External documentation'))]
+      : []),
+  ]
 }

@@ -43,9 +43,10 @@ channel messages as well as component messages. Invalid or missing selections re
 that call; the renderer remains usable afterward.
 
 Operation pages include the channel address, parameters, relevant servers, security,
-selected messages, and reply details. Channel pages include their operations and all
+selected messages, and reply details. Unknown channel addresses are labelled explicitly. Reply messages
+are rendered only when declared; request messages are not inferred as replies. Channel pages include their operations and all
 channel messages. Selected pages expand each shared schema once and include transitive schema dependencies.
-Introduction pages contain API metadata and servers. Complete exports include channels,
+Introduction pages contain API metadata, the application identifier, default content type, and servers. Complete exports include channels,
 operations, component messages and schemas. Send/receive direction is from the described
 application's perspective; legacy publish/subscribe operations are migrated accordingly.
 
@@ -54,7 +55,8 @@ Missing examples are generated from JSON schemas and labelled by context (**Gene
 **Generated payload example**). XML payloads use XML examples, including examples authored on their schemas, while headers use JSON. Repeated generated
 examples link to their first occurrence within the same media type and context. JSON Schema and AsyncAPI schemas include properties,
 required markers, constraints, composition, discriminator fields and mappings, and recursive-reference notices.
-Property types and annotations share one line, followed by their Markdown descriptions. Other schema
+Property types and annotations share one line, followed by their Markdown descriptions and external
+documentation links. Content encoding and media-type annotations are preserved. Other schema
 formats, such as Avro and Protobuf, appear as labelled source blocks. Protocol bindings
 are preserved as JSON. Descriptions preserve Markdown, tables and code blocks using the
 same sanitization as the OpenAPI converter; images are excluded.
@@ -64,7 +66,8 @@ same sanitization as the OpenAPI converter; images are excluded.
 Complete exports include a contents index with explicit anchors. Shared structured
 models render once and their usages link to that definition. Declared tags retain descriptions
 and external documentation links in complete exports. Repeated servers and
-security schemes also link to their first occurrence. Primitive schemas remain inline.
+security schemes also link to their first occurrence. Security alternatives are labelled explicitly;
+operation security applies in addition to applicable server security. Primitive schemas remain inline.
 Schema display normalization and description parsing are cached per prepared renderer.
 
 Tag pages match exact tag names on channels, operations (including traits), and messages.
@@ -130,3 +133,14 @@ open that model page. It runs conversion in a worker to keep the UI responsive.
 
 Run `pnpm --filter @scalar/asyncapi-to-markdown benchmark` for repeatable preparation,
 cold/warm rendering, output size, and RSS measurements. See [the benchmark method](./benchmarks/README.md).
+
+## Specification coverage
+
+Rendering follows the [AsyncAPI 3.1 specification](https://www.asyncapi.com/docs/reference/specification/v3.1.0).
+The converter covers application metadata, servers and variables, channel parameters, operation and
+message traits, request/reply details, security schemes and OAuth flows, tags, external documentation,
+and JSON Schema Draft 7 constraints. All mandatory JSON/YAML schema-format identifiers work for
+both headers and payloads. Protocol bindings and other schema languages remain available as source
+blocks. Referenced reusable objects render at their usage sites; unused component schemas and
+messages are also included in complete exports. Custom extension semantics and validation remain
+outside the converter's scope.

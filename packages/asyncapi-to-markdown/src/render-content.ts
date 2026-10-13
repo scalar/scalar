@@ -65,7 +65,7 @@ export const createContentRenderer = (
   const shownServers = new Map<unknown, string>()
   const shownSecurity = new Map<unknown, string>()
   const blocks: RootContent[] = []
-  const metadata = (value: Record<string, unknown>): void => {
+  const metadata = (value: Record<string, unknown>, includeTagDocumentation = true): void => {
     if (value.summary && value.summary !== value.title) {
       blocks.push(...describe(value.summary))
     }
@@ -74,6 +74,21 @@ export const createContentRenderer = (
     const visibleTags = selectedTag ? tags.filter((tag) => tag === selectedTag) : tags
     if (visibleTags.length) {
       blocks.push(paragraph(strong(text('Tags:')), text(' '), text(visibleTags.join(', '))))
+    }
+    if (includeTagDocumentation && Array.isArray(value.tags)) {
+      for (const entry of value.tags) {
+        const tag = object(entry)
+        if (selectedTag && tag.name !== selectedTag) {
+          continue
+        }
+        const external = object(tag.externalDocs)
+        if (tag.description || typeof external.url === 'string') {
+          blocks.push(paragraph(strong(text(`Tag: ${string(tag.name) ?? ''}`))), ...describe(tag.description))
+          if (typeof external.url === 'string') {
+            blocks.push(paragraph(link(external.url, string(external.description) || 'External documentation')))
+          }
+        }
+      }
     }
     const external = object(value.externalDocs)
     if (typeof external.url === 'string') {
@@ -115,11 +130,17 @@ export const createContentRenderer = (
       }
     }
   }
-  const security = (value: unknown, depth: Heading['depth']): void => {
+  const security = (value: unknown, depth: Heading['depth'], operationSecurity = false): void => {
     if (!Array.isArray(value) || !value.length) {
       return
     }
-    blocks.push(heading(depth, text('Authentication')), paragraph(text('Supported security schemes:')))
+    blocks.push(
+      heading(depth, text('Authentication')),
+      paragraph(text('Satisfy one of the following security schemes.')),
+    )
+    if (operationSecurity) {
+      blocks.push(paragraph(text('Applicable server security must also be satisfied.')))
+    }
     for (const entry of value) {
       const scheme = object(entry)
       const identity = getRaw(scheme)
@@ -252,7 +273,11 @@ export const createContentRenderer = (
     bindings(msg.bindings, deeper(depth))
   }
   const channelContext = (channel: Record<string, unknown>, depth: Heading['depth']): void => {
-    fields(channel, ['address'])
+    if (channel.address === undefined || channel.address === null) {
+      blocks.push(paragraph(strong(text('Address:')), text(' Unknown.')))
+    } else {
+      fields(channel, ['address'])
+    }
     metadata(channel)
     for (const [name, parameter] of entries(channel.parameters)) {
       blocks.push(heading(depth, text(`Parameter: ${name}`)))
@@ -276,14 +301,14 @@ export const createContentRenderer = (
       blocks.push(heading(deeper(depth), text('Channel')))
       channelContext(channel, deeper(deeper(depth)))
     }
-    security(op.security, deeper(depth))
+    security(op.security, deeper(depth), true)
     bindings(op.bindings, deeper(depth))
     for (const [messageName, msg] of messages(op, channel)) {
       message(messageName, msg, deeper(depth))
     }
     if (op.reply) {
       const reply = object(op.reply)
-      const replyChannel = reply.channel === undefined ? channel : object(reply.channel)
+      const replyChannel = object(reply.channel)
       blocks.push(heading(deeper(depth), text('Reply')))
       if (reply.channel !== undefined) {
         channelContext(replyChannel, deeper(deeper(depth)))
@@ -291,7 +316,7 @@ export const createContentRenderer = (
       const address = object(reply.address)
       fields(address, ['location'])
       metadata(address)
-      for (const [messageName, msg] of messages(reply, replyChannel)) {
+      for (const [messageName, msg] of messages(reply, {})) {
         message(messageName, msg, deeper(deeper(depth)))
       }
     }
@@ -323,7 +348,8 @@ export const createContentRenderer = (
       'version',
       'asyncapi',
     ])
-    metadata(info)
+    fields(document, ['id', 'defaultContentType'])
+    metadata(info, false)
     fields(info, ['termsOfService'])
     for (const name of ['contact', 'license'] as const) {
       if (info[name]) {

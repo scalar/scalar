@@ -1,19 +1,11 @@
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import {
-  anchor,
-  createDocumentAnchors,
-  describe,
-  heading,
-  link,
-  paragraph,
-  text,
-} from '@scalar/openapi-to-markdown/markdown'
+import { anchor, createDocumentAnchors, heading, link, paragraph, text } from '@scalar/openapi-to-markdown/markdown'
 import type { RootContent } from 'mdast'
 
 import { object, own, resolve } from './document'
-import { renderAuthoredSchemaExamples } from './render-schema'
+import { renderAuthoredSchemaExamples, renderSchemaDocumentation } from './render-schema'
 import { createSchemaView, isPrimitiveSchema } from './schema-view'
 import type { AsyncApiRenderOptions } from './types'
 
@@ -84,7 +76,7 @@ export const createSchemaRegistry = (
         if (shown.has(identity)) {
           return [
             paragraph(link(`#${id(entry)}`, entry.name)),
-            ...describe(object(input).description),
+            ...renderSchemaDocumentation(input),
             ...renderAuthoredSchemaExamples(input, mediaType),
           ]
         }
@@ -113,14 +105,14 @@ export const createSchemaRegistry = (
             const destination = url ? link(url, name) : undefined
             return [
               paragraph(destination?.url ? destination : text(name)),
-              ...describe(object(input).description),
+              ...renderSchemaDocumentation(input),
               ...renderAuthoredSchemaExamples(input, mediaType),
             ]
           }
           queued.add(identity)
           return [
             paragraph(link(`#${id(entry)}`, entry.name)),
-            ...describe(object(input).description),
+            ...renderSchemaDocumentation(input),
             ...renderAuthoredSchemaExamples(input, mediaType),
           ]
         },
