@@ -68,8 +68,8 @@ describe('logAuthenticationInstructions', () => {
       },
       {
         name: 'an unknown HTTP scheme',
-        scheme: { type: 'http', scheme: 'digest' },
-        expected: ['❌ Unknown Security Scheme:', { type: 'http', scheme: 'digest' }],
+        scheme: { type: 'http', scheme: 'unknown' },
+        expected: ['❌ Unknown Security Scheme:', { type: 'http', scheme: 'unknown' }],
       },
     ])('reports $name', ({ scheme, expected }) => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
@@ -87,8 +87,8 @@ describe('logAuthenticationInstructions', () => {
       },
       {
         name: 'an unknown scheme type',
-        scheme: { type: 'mutualTLS' },
-        expected: 'Unsupported security scheme type: mutualTLS',
+        scheme: { type: 'unknown' },
+        expected: 'Unsupported security scheme type: unknown',
       },
     ])('reports $name', ({ scheme, expected }) => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)

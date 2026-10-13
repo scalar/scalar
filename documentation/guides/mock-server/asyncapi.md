@@ -80,6 +80,30 @@ Channel addresses with path parameters (for example `rooms/{roomId}`) become rou
 
 > The SSE transport emits one message per `receive` operation and then closes the stream, rather than streaming continuously. Reconnect (or let your SSE client reconnect) to get another batch.
 
+## Authentication
+
+WebSocket handshakes and SSE requests enforce the selected transport's server security. Each security array contains alternatives: one supported scheme must pass. Operation security adds a separate requirement, including security inherited from operation traits.
+
+The built-in transports only emit messages for authorized operations. A WebSocket connection can receive public events without permission to publish; attempting a protected send closes that connection with code `1008`. Missing connection credentials return `401` before the WebSocket upgrade or SSE stream opens.
+
+Supported schemes:
+
+| Scheme | Mock behavior |
+| --- | --- |
+| HTTP Basic | Accepts any well-formed username/password credential. Scheme names are case-insensitive. |
+| HTTP Bearer, OAuth2, OpenID Connect | Requires a non-empty bearer token on the channel request. Token contents and scopes are not validated for channel access. |
+| `httpApiKey` | Requires the named header, query parameter, or cookie. |
+| HTTP Digest | Issues an MD5 challenge with `qop=auth` and checks the response shape, nonce, and request URI. It does not verify a password or track nonce counts. |
+| `X509` | Requires a client certificate verified by the Node HTTPS adapter. |
+
+OAuth2 schemes register authorization, token, and refresh routes. OpenID Connect schemes register discovery, authorization, and token routes.
+
+Broker schemes (`userPassword`, broker `apiKey`, `plain`, SCRAM, GSSAPI, and encryption schemes) cannot authenticate WebSocket/SSE requests. The server prints a warning and treats those alternatives as unsatisfied. It does not invent HTTP headers for broker credentials. An alternative supported scheme can still authorize the connection.
+
+For certificate authentication, run the returned app behind a Node HTTPS server with `requestCert: true` and a trusted `ca`. Certificate headers forwarded by a proxy are not trusted. See [mutual TLS](getting-started.md#mutual-tls).
+
+The core checks the exact channel route for custom transports and requires access to every operation there. Custom negotiation URLs or other additional routes remain the transport implementation's responsibility.
+
 ## Document detection
 
 The Docker mock server and CLI automatically detect AsyncAPI documents (by their top-level `asyncapi` field) and start the AsyncAPI mock instead of the REST mock — no extra flag is required.
