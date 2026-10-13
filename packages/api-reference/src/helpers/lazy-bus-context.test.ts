@@ -6,7 +6,6 @@ import { provideLazyBus, useLazyBusContext } from './lazy-bus'
 
 const mountContext = (isolated = true) => {
   let bus = useLazyBusContext()
-  let ownerBus = bus
   const Consumer = defineComponent({
     setup() {
       bus = useLazyBusContext()
@@ -16,15 +15,12 @@ const mountContext = (isolated = true) => {
   })
   const Provider = defineComponent({
     setup() {
-      if (isolated) ownerBus = provideLazyBus()
+      if (isolated) provideLazyBus()
       return () => h(Consumer)
     },
   })
   return {
     wrapper: mount(Provider),
-    get ownerBus() {
-      return ownerBus
-    },
     get bus() {
       return bus
     },
@@ -41,10 +37,7 @@ describe('lazy-bus-context', () => {
     const first = mountContext()
     const second = mountContext()
     const ordinary = mountContext(false)
-    expect(first.ownerBus).toBe(first.bus)
-    expect(second.ownerBus).toBe(second.bus)
-    expect(first.ownerBus).not.toBe(second.ownerBus)
-    first.ownerBus.requestLazyRender('shared-operation', true)
+    first.bus.requestLazyRender('shared-operation', true)
     first.bus.setLazyPlaceholderHeight('shared-operation', 123)
     first.bus.scrollTargetId.value = 'shared-operation.body.name'
     await nextTick()

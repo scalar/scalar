@@ -507,11 +507,10 @@ const defaultBus = createLazyBus()
 const lazyBusKey: InjectionKey<LazyBus> = Symbol('scalar-lazy-bus')
 
 /** Provide isolated rendering and navigation state for this embedded reference. */
-export const provideLazyBus = (): LazyBus => {
+export const provideLazyBus = (): void => {
   const bus = createLazyBus()
   provide(lazyBusKey, bus)
   onScopeDispose(bus.dispose)
-  return bus
 }
 
 /** Capture the owning navigation context during component setup. */
