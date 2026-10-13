@@ -152,4 +152,27 @@ describe('render-examples', () => {
     expect(result).toContain('"token": "header"')
     expect(result).not.toContain('"id": "first"')
   })
+  it('stubs primitive and structured references when primitive inlining is disabled', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...input,
+        components: {
+          schemas: {
+            Alias: { type: 'string', enum: ['ok'] },
+            Child: { type: 'object', properties: { id: { type: 'string' } } },
+            Event: {
+              type: 'object',
+              properties: {
+                value: { $ref: '#/components/schemas/Alias' },
+                child: { $ref: '#/components/schemas/Child' },
+              },
+            },
+          },
+        },
+      },
+      { model: 'Event', schemaReferences: { mode: 'linked', inlinePrimitives: false } },
+    )
+    const example = /```json\n([\s\S]*?)\n```/.exec(result)
+    expect(JSON.parse(example![1]!)).toStrictEqual({ value: {}, child: {} })
+  })
 })

@@ -52,8 +52,9 @@ export const createContentRenderer = (
   linked: boolean,
   selectedModel: boolean,
   selectedTag?: string,
+  inlinePrimitives = true,
 ): ContentRenderer => {
-  const examples = createExampleRenderer()
+  const examples = createExampleRenderer(inlinePrimitives)
   const renderSchema = createSchemaRenderer(references.reference, view, linked)
   const schema = (input: unknown, expand = false, mediaType = 'application/json'): RootContent[] =>
     expand

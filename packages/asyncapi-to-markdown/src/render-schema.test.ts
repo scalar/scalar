@@ -117,4 +117,17 @@ describe('render-schema', () => {
     })
     expect(result).toContain('- **`id`**: `string`, format: `uuid`, minLength: `2`\n\n  Identifier **description**.')
   })
+  it('infers compact types for enum and const properties', async () => {
+    const result = await model({
+      type: 'object',
+      properties: {
+        choice: { enum: ['a', 'b'] },
+        mixed: { enum: [null, 1, 1.5, false] },
+        fixed: { const: 'x' },
+      },
+    })
+    expect(result).toContain('**`choice`**: `string`, enum: `["a","b"]`')
+    expect(result).toContain('**`mixed`**: `null | integer | number | boolean`')
+    expect(result).toContain('**`fixed`**: `string`, const: `x`')
+  })
 })

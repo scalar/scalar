@@ -10,3 +10,5 @@ Include shared model links, contents navigation, tag pages, generated examples, 
 Preserve discriminators and linked schema descriptions, generate examples from primitive aliases, and compact property annotations.
 
 Include full-export tag documentation, preserve XML schema examples, and normalize annotated primitive aliases.
+
+Infer enum and const type labels and honor primitive-link settings in generated model examples.

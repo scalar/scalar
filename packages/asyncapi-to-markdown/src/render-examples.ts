@@ -54,13 +54,18 @@ const size = (input: unknown): number => {
 }
 
 /** Keep linked model examples local, preserving primitive references and authored data. */
-const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView()): unknown => {
+const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView(), inlinePrimitives = true): unknown => {
   if (depth >= 10) {
     return {}
   }
   const schema = object(input)
-  if (depth > 0 && isObject(input) && typeof input.$ref === 'string' && !isPrimitiveSchema(view(schema))) {
-    return {}
+  if (
+    depth > 0 &&
+    isObject(input) &&
+    typeof input.$ref === 'string' &&
+    (!inlinePrimitives || !isPrimitiveSchema(view(schema)))
+  ) {
+    return { type: 'object', properties: {} }
   }
   return Object.fromEntries(
     Object.entries(schema).map(([key, value]) => {
@@ -70,7 +75,7 @@ const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView())
           Object.fromEntries(
             Object.entries(object(value)).map(([name, child]) => [
               name,
-              Array.isArray(child) ? child : stubLinkedSchemas(child, depth + 1, view),
+              Array.isArray(child) ? child : stubLinkedSchemas(child, depth + 1, view, inlinePrimitives),
             ]),
           ),
         ]
@@ -95,8 +100,8 @@ const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView())
           typeof value === 'boolean'
             ? value
             : Array.isArray(value)
-              ? value.map((child) => stubLinkedSchemas(child, depth + 1, view))
-              : stubLinkedSchemas(value, depth + 1, view),
+              ? value.map((child) => stubLinkedSchemas(child, depth + 1, view, inlinePrimitives))
+              : stubLinkedSchemas(value, depth + 1, view, inlinePrimitives),
         ]
       }
       return [key, value]
@@ -105,7 +110,9 @@ const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView())
 }
 
 /** Authored values stay local; generated examples are cached and linked within a page. */
-export const createExampleRenderer = (): ((
+export const createExampleRenderer = (
+  inlinePrimitives = true,
+): ((
   input: unknown,
   linked?: boolean,
   stubReferences?: boolean,
@@ -138,7 +145,7 @@ export const createExampleRenderer = (): ((
     if (previous) {
       return previous.nodes.length ? [paragraph(link(`#${previous.id}`, label))] : []
     }
-    const exampleSchema = stubReferences ? stubLinkedSchemas(value) : value
+    const exampleSchema = stubReferences ? stubLinkedSchemas(value, 0, createSchemaView(), inlinePrimitives) : value
     if (size(exampleSchema) > 10000) {
       return [paragraph(text('Generated example omitted because it is too large.'))]
     }

@@ -41,6 +41,7 @@ export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkd
         options.schemaReferences?.mode === 'linked',
         typeof selection === 'object' && selection.kind === 'model',
         typeof selection === 'object' && selection.kind === 'tag' ? selection.name : undefined,
+        options.schemaReferences?.inlinePrimitives !== false,
       )
       if (selection === 'introduction' || selection === undefined) {
         introduction()

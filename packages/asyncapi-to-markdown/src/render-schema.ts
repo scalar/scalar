@@ -40,6 +40,16 @@ const annotations = [
   'maxProperties',
 ] as const
 
+/** Infer the JSON type of an enum or constant without changing its constraints. */
+const literalType = (value: unknown): string =>
+  value === null
+    ? 'null'
+    : Array.isArray(value)
+      ? 'array'
+      : typeof value === 'number' && Number.isInteger(value)
+        ? 'integer'
+        : typeof value
+
 /** Render AsyncAPI / Draft 7 schemas without coercing them through OpenAPI's schema dialect. */
 export const createSchemaRenderer = (
   reference: (input: unknown, depth: number, mediaType?: string) => RootContent[] | undefined = () => undefined,
@@ -91,9 +101,17 @@ export const createSchemaRenderer = (
       return [paragraph(text('Schema expansion limit reached.'))]
     }
     const next = new Set(ancestors).add(identity)
-    const type = Array.isArray(schema.type)
-      ? schema.type.join(' | ')
-      : (string(schema.type) ?? (schema.properties ? 'object' : schema.items !== undefined ? 'array' : undefined))
+    const inferred =
+      schema.const !== undefined
+        ? literalType(schema.const)
+        : Array.isArray(schema.enum) && schema.enum.length
+          ? [...new Set(schema.enum.map(literalType))].join(' | ')
+          : schema.properties || isObject(schema.additionalProperties)
+            ? 'object'
+            : schema.items !== undefined
+              ? 'array'
+              : undefined
+    const type = Array.isArray(schema.type) ? schema.type.join(' | ') : (string(schema.type) ?? inferred)
     const summary: PhrasingContent[] = type ? [inlineCode(type)] : []
     for (const name of annotations) {
       if (schema[name] !== undefined) {
