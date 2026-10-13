@@ -1,5 +1,8 @@
 # C# (NuGet)
 
+> [!NOTE]
+> The C# target is experimental.
+
 The C# target publishes to [NuGet](https://www.nuget.org/). The package id is the target's `packageName` reduced to a PascalCase .NET identifier: `acme-api` and `Acme.Api` both publish as `AcmeApi`. See the [C# configuration](../configuration/csharp.md#publish) for options.
 
 Authenticate the release with **OIDC trusted publishing** (recommended) or a **NuGet API key**.
@@ -19,7 +22,7 @@ Authenticate the release with **OIDC trusted publishing** (recommended) or a **N
 
 ## Trusted publishing (OIDC)
 
-Recommended. The release workflow uses the `NuGet/login` action to mint a short-lived API key from the workflow's identity token, so no long-lived key is stored. NuGet's OIDC login still needs your profile name as one secret.
+Recommended. The release workflow uses the `NuGet/login` action to exchange the workflow's identity token for a short-lived API key, so no long-lived key is stored. NuGet's OIDC login still needs your profile name as one secret.
 
 <scalar-steps>
   <scalar-step id="nuget-oidc-policy" title="Add a trusted publishing policy on NuGet">
@@ -41,7 +44,7 @@ A new policy is sometimes only provisionally active for 7 days (nuget.org says t
 
   <scalar-step id="nuget-oidc-user" title="Add your NuGet username as a secret">
 
-Add a repository secret named **`NUGET_USER`** set to your nuget.org profile name (not your email). See [Adding repository secrets](github.md#adding-repository-secrets). This is the only secret OIDC needs; the API key itself is minted at publish time.
+Add a repository secret named **`NUGET_USER`** set to your nuget.org profile name (not your email). See [Adding repository secrets](github.md#adding-repository-secrets). This is the only secret OIDC needs; the API key itself is issued at publish time.
 
   </scalar-step>
 

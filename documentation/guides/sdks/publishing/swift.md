@@ -1,5 +1,8 @@
 # Swift
 
+> [!NOTE]
+> The Swift target is experimental.
+
 Swift packages are distributed through the Swift Package Manager, which resolves them straight from a Git tag. There is no central registry to upload to. See the [Swift configuration](../configuration/swift.md#publish) for options.
 
 The Swift target needs **no registry account, no token, and no secrets** (`authMethod` is unused), and gets no `publish` job or `sdk-release.yml`. The `vX.Y.Z` Git tag and GitHub Release cut when you merge the release pull request are the published version.

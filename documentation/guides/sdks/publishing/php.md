@@ -1,5 +1,8 @@
 # PHP (Packagist)
 
+> [!NOTE]
+> The PHP target is experimental.
+
 The PHP target publishes to [Packagist](https://packagist.org/), the Composer registry. The package name is the target's `composerPackageName` (for example `acme/api`). See the [PHP configuration](../configuration/php.md#publish) for options.
 
 Packagist serves packages straight from a Git tag, so there is **no upload step and no secret to add**. You connect the repository to Packagist once, and from then on the `vX.Y.Z` tag and GitHub Release that the release workflow cuts when the release pull request merges are the published version. `authMethod` is unused.
@@ -28,7 +31,7 @@ On [packagist.org](https://packagist.org/packages/submit), submit your [linked r
 
   <scalar-step id="packagist-hook" title="Enable auto-updates">
 
-Let Packagist install its GitHub hook, or enable the [GitHub integration](https://packagist.org/profile/) on your Packagist account, so every new tag is picked up automatically.
+Let Packagist install its GitHub hook, or enable the [GitHub integration](https://packagist.org/profile/) on your Packagist account, so every new tag is picked up automatically. Without it, Packagist still updates on its own schedule, just less promptly: it crawls a package with no hook about once a week.
 
   </scalar-step>
 </scalar-steps>

@@ -1,7 +1,7 @@
 <!--
 Generated from scalar-sdk.config.schema.json. Do not edit by hand.
 
-Published at https://scalar.com/docs/guides/sdks/configuration, which is where the links to
+Published at https://scalar.com/products/sdk-generator/configuration/overview, which is where the links to
 pages outside this reference resolve.
 -->
 # Configuration
@@ -20,7 +20,7 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 {
   "$schema": "https://registry.scalar.com/@scalar/schemas/sdk-config",
   "organization": {
-    "name": "Acme API"
+    "name": "Acme"
   },
   "environments": {
     "production": "https://api.acme.com"
@@ -60,23 +60,23 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 | --- | --- |
 | [`organization`](#organization)* | Identity of the organization publishing the SDKs. Its `name` also names the SDK and its generated client. |
 | [`resources`](#resources)* | Resource tree that drives the generated client and resource shape. |
-| [`targets`](#targets)* | Per-language packaging, publishing, and emitter options keyed by target id. |
+| [`targets`](#targets)* | Per-language packaging, publishing, and generation options, keyed by target id. |
 | [`environments`](#environments)* | Named base URLs the generated client can switch between. |
-| `environmentOrder`* | Insertion order of environments; the first entry is the SDK default. |
+| `environmentOrder`* | Order the generated client lists environments in; the first entry is the default. |
 | `readme` | Generated README content: its heading, whether it credits the generator, and the example requests its sections render. |
-| `customCasings` | SDK symbol casing overrides, including configured initialisms. A key may span several words when written with separators (`three_ds`, not `threeDS`), which matches that word sequence wherever it appears in a generated name; a multi-word key needs at least one explicit `pascal`/`camel` spelling, since `initialism` applies to a single word; whichever form it declares spells both PascalCase and camelCase output. PascalCase and camelCase output honor a multi-word key, snake_case output already spells the key itself. |
+| `customCasings` | SDK symbol casing overrides, including initialisms. A key may span several words when written with separators (`three_ds`, not `threeDS`), and then matches that word sequence anywhere in a generated name. A multi-word key needs an explicit `pascal` or `camel` spelling, since `initialism` applies to a single word; whichever one it declares spells both PascalCase and camelCase names. snake_case names already spell the key as written. |
 | [`clientSettings`](#clientsettings) | SDK-wide client constructor settings for auth, retries, timeouts, and headers. |
 | [`pagination`](#pagination) | Named pagination schemes referenced by method-level pagination settings. |
 | [`querySettings`](#querysettings) | Query string serialization preferences shared by generated request builders. |
 | [`multipartSettings`](#multipartsettings) | Multipart/form-data serialization preferences shared by generated request builders. |
-| `settings` | Cross-target generator behavior that is not tied to a single emitter. |
+| `settings` | Generator behavior shared by every target. |
 | [`openapi`](#openapi) | OpenAPI-adjacent config such as code samples and auth overrides. |
-| `grpc` | How proto services are lowered into SDK surface: which protos are compiled, the wire protocol generated clients speak, per-service placement and naming, and RPCs to drop. `services`, `ignoredMethods` and `protocol` are read; `target` is for the proto loader. Under `transcode`, an RPC carrying no `google.api.http` annotation — or one the annotation cannot be honored for — falls back to a Connect call and is reported. |
+| `grpc` | How proto services become SDK methods: which protos are compiled, the wire protocol generated clients speak, per-service placement and naming, and RPCs to drop. Under `transcode`, an RPC with no usable `google.api.http` annotation falls back to a Connect call and is reported. |
 | `errors` | Error response interpretation settings used by generated runtimes. |
-| `ignoredEndpoints` | Endpoints to drop from generation entirely, even when a resource places them. Equivalent to `skip: true` on the placed method. Written as `"<verb> <path>"` for HTTP operations and `"grpc <package>.<Service>/<Method>"` for RPCs lowered from a proto. |
+| `ignoredEndpoints` | Endpoints to drop from generation entirely, even when a resource places them. Equivalent to `skip: true` on the placed method. Written as `"<verb> <path>"` for HTTP operations and `"grpc <package>.<Service>/<Method>"` for RPCs generated from a proto. |
 | `streaming` | Global streaming behavior and event handling hints. |
 | `models` | Models not tied to a resource, keyed by component name. Used to carry settings (e.g. skipProperties) for component schemas that no resource lists. |
-| [`diagnostics`](#diagnostics) | Diagnostics gating, per-rule severity overrides, and suppressions. |
+| [`diagnostics`](#diagnostics) | When diagnostics fail the build, per-rule severity overrides, and suppressions. |
 
 ### organization
 
@@ -96,7 +96,7 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 | `name`* | Organization or company publishing the SDKs. Used as the author of generated packages and as the name the SDK and its client are derived from. |
 | `docs` | URL of the API documentation site, linked from generated package metadata. |
 | `contact` | Email address for SDK feedback, questions, and support requests, surfaced in generated package metadata. |
-| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. Every target emits one, and each routes reports against the generated SDK itself to Scalar instead, configured or not. |
+| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. Every target generates one, and each sends reports about the generated SDK code itself to Scalar instead, whether or not this is set. |
 | `logo` | Logo shown at the top of the page the generated CLI serves when a browser sign-in finishes: an `https` URL, or a `data:image/...` URI to keep the page from fetching anything. The page follows the viewer's light or dark mode, so use a logo that reads on both a white and a near-black background. Omit it and the page shows no logo, since generated SDKs carry no branding but the publisher's own. |
 
 ### resources
@@ -212,6 +212,8 @@ Client options can send values in headers, query parameters, body parameters, or
 
 ### pagination
 
+Define reusable pagination schemes in `pagination`, then bind them to methods with `paginated`. See [Pagination](pagination.md) for the full field vocabulary, one worked example per strategy, and the helpers each target generates.
+
 ```json
 {
   "pagination": [
@@ -246,7 +248,25 @@ Client options can send values in headers, query parameters, body parameters, or
 }
 ```
 
-Schemes defined here are referenced from a method through its `paginated` setting; a scheme nothing references is reported as unused rather than silently ignored.
+Bind a scheme to a method with `paginated`, which takes a scheme name, or `false` to keep the method unpaginated:
+
+```json
+{
+  "resources": {
+    "users": {
+      "methods": {
+        "list": {
+          "kind": "http",
+          "endpoint": "get /users",
+          "paginated": "cursor"
+        }
+      }
+    }
+  }
+}
+```
+
+A scheme nothing references is reported as unused rather than silently ignored.
 
 Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `fakePage`, `offset`, and `pageNumber`.
 
@@ -329,7 +349,7 @@ Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `fakePage`, `o
 }
 ```
 
-These sit next to the source API document rather than in it: they override its security for the generated SDKs, transform it before compilation, and control the code samples and tags written to the augmented OpenAPI the generator emits, without editing the document you maintain.
+These sit next to the source API document rather than in it: they override its security for the generated SDKs, transform it before generation, and control the code samples and tags written to the augmented OpenAPI document the generator writes, without editing the document you maintain.
 
 `securitySchemeSettings` adds what an OpenAPI security scheme has no field for, keyed by scheme id. Unlike `securitySchemes`, an entry does not replace the scheme. For an OAuth 2.0 or OpenID Connect scheme, `resource` (RFC 8707 resource indicators) and `audience` name the API a token is requested for, so an authorization server that fronts several APIs issues one this API accepts. Each generated client that requests tokens sends them: the Rust SDK's client-credentials exchange, and every request the CLI's `login` makes, the refresh included. A key naming no OAuth 2.0 or OpenID Connect scheme does nothing, and generation reports it as `Config/UnusedSecuritySchemeSettings`.
 
@@ -351,7 +371,7 @@ Every build analyzes your OpenAPI document and this configuration together and r
 
 | Property | Default | Description |
 | --- | --- | --- |
-| [`failOn`](#failon) | `"error"` | Lowest severity that fails the build (default `error`); `off` disables severity gating. |
+| [`failOn`](#failon) | `"error"` | Lowest severity that fails the build; `off` means no severity fails it. |
 | [`maxWarnings`](#maxwarnings) |  | Maximum allowed warnings before the build fails. |
 | [`maxErrors`](#maxerrors) |  | Maximum allowed errors before the build fails. |
 | `rules` |  | Per-rule severity override keyed by rule id (e.g. `Endpoint/NotConfigured`); `off` disables the rule. |

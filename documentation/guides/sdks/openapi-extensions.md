@@ -91,9 +91,9 @@ paths:
 | `x-scalar-name` | Schema | Names a generated type or an inline schema promoted to a type. |
 | `x-scalar-model` | Component schema | Marks a schema as a surfaced model and can provide its resource-qualified model name. |
 | `x-scalar-property-name` | Property schema | Uses this spelling for the generated property. |
-| `x-scalar-ignore` | Component schema | Keeps the component from becoming a generated model. To omit a property, use `x-fern-ignore` or `x-stainless-skip`. |
-| `x-scalar-unknown` | Schema | Lowers the schema to the target's unknown/untyped value. |
-| `x-scalar-override-schema` | Schema | Replaces the schema used for SDK type lowering. |
+| `x-scalar-ignore` | Component schema | Keeps the component from becoming a generated model. It is not read on a property; see [Omitting a property or parameter](#omitting-a-property-or-parameter). |
+| `x-scalar-unknown` | Schema | Generates the schema as the target's unknown/untyped value. |
+| `x-scalar-override-schema` | Schema | Replaces the schema the SDK's types are generated from. |
 | `x-scalar-empty-object` | Schema | Treats a property-less object as a deliberate named empty type, rather than an untyped map. |
 | `x-scalar-nominal` | Enum schema | Keeps a named enum type instead of collapsing it to a structural union where the target supports that distinction. |
 | `x-scalar-variant-name` | Inline union arm | Names an inline `oneOf` or `anyOf` variant. |
@@ -102,6 +102,34 @@ paths:
 | `x-scalar-example` | Schema | Gives generated SDK samples a preferred value. It takes precedence over a synthesized placeholder. |
 
 `x-scalar-override-schema` takes a Schema Object as its value. This is useful when the published description must retain a broader wire shape while the SDK intentionally exposes a safer or more specific type.
+
+### Omitting a property or parameter
+
+`x-scalar-ignore` is read on operations and component schemas only. To leave a single property or parameter out of the generated SDK, list it by wire name in your [SDK configuration](configuration.md):
+
+- **A property of a component schema**: add a top-level `models` entry for that schema with `skipProperties`.
+- **A parameter**: add it to `skipParams` on the method that takes it. A path parameter is part of the URL and is never dropped.
+
+```json
+{
+  "models": {
+    "User": {
+      "type": "model",
+      "openapiUri": "#/components/schemas/User",
+      "skipProperties": ["legacy_id"]
+    }
+  },
+  "resources": {
+    "users": {
+      "methods": {
+        "list": { "kind": "http", "endpoint": "get /users", "skipParams": ["debug"] }
+      }
+    }
+  }
+}
+```
+
+A document imported from another generator can carry that generator's omit markers instead, and they are honored too: see the `x-fern-ignore` and `x-stainless-skip` rows under [Imported vendor extensions](#imported-vendor-extensions).
 
 ### Enums
 
@@ -129,6 +157,8 @@ The code-sample pipeline also recognizes `x-codeSamples`, `x-code-samples`, and 
 
 The generator also reads these extensions written for other SDK generators. They are useful when importing an existing Fern, Speakeasy, or Stainless project; new documents should generally use the native Scalar extension or configuration field named in the table.
 
+When a build has no SDK configuration and the document carries `x-fern-*` extensions on its root, a server, or an operation, the document is imported as a Fern project: the starter configuration is derived as it would be for any document, with the Fern extensions mapped on top, and no pagination is inferred from the document's shape (see [Pagination](pagination.md#starter-configuration-inference)). Once a configuration exists, it decides.
+
 ### Fern
 
 | Extension | Supported placement | Scalar behavior |
@@ -142,7 +172,7 @@ The generator also reads these extensions written for other SDK generators. They
 | `x-fern-retries` | Operation | Retry count; Fern's `max-attempts` is converted to Scalar retries. |
 | `x-fern-audiences` | Operations, schemas, properties, and servers | Filters the imported SDK to the audiences selected by the Fern generator configuration. |
 | `x-fern-global-headers` | Document root | Default headers or client constructor options. |
-| `x-fern-global-parameters` | Document root | Client constructor options and their request locations. Header parameters are sent end to end; other locations are retained as configuration but are not yet emitted by every target. |
+| `x-fern-global-parameters` | Document root | Client constructor options and their request locations. Header parameters are sent end to end; other locations are retained as configuration but are not yet sent by every target. |
 | `x-fern-idempotency-headers` | Document root | Client idempotency-header setting; the first declared header wins. |
 | `x-fern-idempotent` | Operation | Compared against Scalar's client-wide idempotency setting, which applies to every non-`GET` request; a warning is reported when only some mutating operations are marked. |
 | `x-fern-base-path` | Document root | Appended to imported environment URLs. |
@@ -156,7 +186,7 @@ The generator also reads these extensions written for other SDK generators. They
 | `x-fern-type-name` | Schema | Generated type name. |
 | `x-fern-property-name` | Property schema | Generated property name. |
 | `x-fern-parameter-name` | Parameter Object | Generated parameter name. |
-| `x-fern-enum` | Enum schema | Per-member name, description, and deprecation. Its per-target `casing` field is not mapped. |
+| `x-fern-enum` | Enum schema | Per-member name, description, and deprecation. Member names are honored by the Go, Rust, and Swift targets, like `x-scalar-enum-names`; other targets derive member names from the wire value. Its per-target `casing` field is not mapped. |
 | `x-fern-default` | Parameter Object | The default value sent when the SDK caller omits the parameter. |
 | `x-fern-bearer`, `x-fern-header`, `x-fern-basic` | Security scheme | The credential's client option name and environment variable. A `prefix` on `x-fern-bearer` or `x-fern-header` is reported and not mapped. |
 | `x-fern-examples` | Any | Not used for generated SDK samples; its shape differs from Scalar's code-sample extensions. |
@@ -166,7 +196,7 @@ The generator also reads these extensions written for other SDK generators. They
 | Extension | Supported placement | Scalar behavior |
 | --- | --- | --- |
 | `x-speakeasy-name-override` | Operation, including a global parameter | Operation method name or global client-option name. The root regex-rule form is deliberately not evaluated. |
-| `x-speakeasy-globals` | Document root | Hoists listed parameters to client constructor options. Header globals are emitted; query, path, and body locations are retained as configuration but are not yet sent by every target. |
+| `x-speakeasy-globals` | Document root | Hoists listed parameters to client constructor options. Header globals are generated; query, path, and body locations are retained as configuration but are not yet sent by every target. |
 | `x-speakeasy-pagination` | Operation | Declares a pagination scheme and binds the operation to it. |
 | `x-speakeasy-retries` | Document root | Imports SDK-wide retry settings. |
 

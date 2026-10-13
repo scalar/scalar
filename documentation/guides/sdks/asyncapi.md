@@ -33,7 +33,7 @@ A few consequences worth knowing:
 - **A document where no channel speaks a supported protocol fails to load**, rather than quietly producing an SDK with no methods. The error names the protocols it found.
 - **Mixed documents still generate.** A document with a `wss` channel and a `kafka` channel produces a client for the first and a warning for the second.
 - **When a channel's servers disagree, the first supported protocol in declaration order wins.** A channel served over `wss` and `kafka` becomes a WebSocket method in either order, and one served over `https` and `wss` takes whichever is declared first. `AsyncApi/AmbiguousProtocol` names what was dropped. Order the `servers` map — or scope the channel with `channel.servers` — to control which transport survives.
-- **A channel records only the servers matching its transport.** The generated TypeScript client still dials a WebSocket channel from the client's selected base URL, so don't select an environment built from a broker server such as a Kafka host.
+- **A channel records only the servers matching its transport.** The connection itself is still opened from the client's selected base URL, not from the channel's servers. That holds for every target with a WebSocket runtime (TypeScript, Python, Rust, and the CLI); Python also accepts a separate `websocket_base_url` client option for the socket. So do not select an environment built from a broker server such as a Kafka host. Other targets open no connection at all; see [Target support](#target-support).
 
 ## Send and receive
 
@@ -63,8 +63,8 @@ If your document is authored from the client's side instead, opt out per method:
 
 Each direction of a channel is collapsed into a single type:
 
-- **One message** in a direction lowers to that message's payload schema.
-- **Several messages** lower to a union of their payloads. Where each branch carries a `const` or single-value `enum` (a `type` field, typically), the union is discriminated, so narrowing an incoming event by that field works in every target that has the concept.
+- **One message** in a direction becomes that message's payload schema.
+- **Several messages** become a union of their payloads. Where each branch carries a `const` or single-value `enum` (a `type` field, typically), the union is discriminated, so narrowing an incoming event by that field works in every target that has the concept.
 - **Payloads are deduplicated.** Two messages that share a schema — `chat.created` and `chat.updated` both carrying `ChatEvent` — contribute one branch, not two.
 - **A message with no payload contributes nothing.** An empty ping frame is legal and stays legal; it just does not widen the union to an untyped value and erase its siblings' types.
 - A payload that is a `$ref` into `components.schemas` reuses the shared model rather than minting a duplicate type.
@@ -73,7 +73,7 @@ Operations narrow which messages belong to a method. A message reference on an o
 
 ### Schema formats
 
-AsyncAPI lets a payload, message headers, or a `components.schemas` entry declare its dialect with `schemaFormat`, either inline or wrapped in a Multi Format Schema Object. JSON Schema is what the generator lowers, in every spelling of it:
+AsyncAPI lets a payload, message headers, or a `components.schemas` entry declare its dialect with `schemaFormat`, either inline or wrapped in a Multi Format Schema Object. JSON Schema is what the generator reads, in every spelling of it:
 
 - An absent `schemaFormat` (the default)
 - `application/vnd.aai.asyncapi`, plus its `+json` and `+yaml` forms
@@ -109,14 +109,14 @@ What feeds that method:
 
 - **The channel address** is the endpoint, and every `{braced}` segment becomes a required path parameter. `channel.parameters` supplies each one's description, default, and allowed values — an AsyncAPI parameter is always a string substituted into the address, with an optional enum.
 - **The `ws` binding** describes the handshake. Its `query` and `headers` object schemas become ordinary query parameters and headers on the connect call, with the schema's `required` list deciding which are mandatory. A binding on an operation refines the channel's, key by key.
-- **Reconnection, send queueing, and raw frame access** come from the generated WebSocket runtime, the same one used for WebSocket operations declared in an OpenAPI document. In TypeScript (and the CLI), iterating a connection yields lifecycle items (`connecting`, `open`, `closing`, `close`, `reconnecting`, `reconnected`, `raw`, `error`) alongside `{ type: 'message', message }` for each event received; Python and Rust yield the received events directly. The TypeScript and Python runtimes queue sends and can reconnect once you supply a reconnect handler; the Rust runtime connects, sends, and receives typed events without reconnection.
+- **Reconnection, send queueing, and raw frame access depend on the target.** TypeScript (and the CLI) and Python queue sends and can reconnect once you supply a reconnect handler; Rust connects, sends, and receives typed events, with no reconnection. In TypeScript and the CLI, iterating a connection also yields lifecycle items (`connecting`, `open`, `closing`, `close`, `reconnecting`, `reconnected`, `raw`, `error`) alongside `{ type: 'message', message }` for each event received; Python and Rust yield the received events directly. This is the same WebSocket runtime used for WebSocket operations declared in an OpenAPI document.
 - The handshake is always a `GET`, because that is what a WebSocket upgrade is. A `ws` binding asking for another method is reported.
 
 ### Target support
 
-WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, and the generated **CLI**. Other targets emit the event types but nothing that opens a connection, which is why generated starter configs gate every connect method to those four targets with `only`.
+WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, and the generated **CLI**. Other targets generate the event types but nothing that opens a connection, which is why generated starter configs limit every connect method to those four targets with `only`.
 
-If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you leave ungated also reports `Unsupported/WebSocketMethod` for that target.
+If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you do not limit with `only` or `skip` also reports `Unsupported/WebSocketMethod` for that target.
 
 ## HTTP channels
 
@@ -175,11 +175,11 @@ A single `https` base URL serves both transports: HTTP methods use it as-is, and
 
 ### Authentication
 
-AsyncAPI has no root-level `security`. Each server declares its own alternatives instead, and the specification is explicit that only one alternative needs to be satisfied — so the SDK's authentication is the union of every dialable server's `security`, with each alternative becoming one requirement.
+AsyncAPI has no root-level `security`. Each server declares its own alternatives instead, and the specification is explicit that only one alternative needs to be satisfied — so the SDK's authentication is the union of the `security` of every server the SDK can connect to (one whose `protocol` is `ws`, `wss`, `http`, or `https`), with each alternative becoming one requirement. A broker server's `security` adds no credential.
 
-A credential is generated as **required** only when it is the sole alternative on every server that declares a `protocol` and a `host`. That includes broker servers the SDK cannot dial, so a broker server without `security` makes every credential optional. Anything else is optional, so a client can be constructed with the one credential you actually hold.
+Whether a credential is **required** is decided over a wider set of servers: every server that declares a `protocol` and a `host`, which is every server that becomes an environment. A credential is required only when it is the sole alternative on each of them. That set includes broker servers the SDK cannot connect to, so a broker server without `security` makes every credential optional. Anything else is optional, so a client can be constructed with the one credential you actually hold.
 
-Four scheme families lower into credentials:
+Four scheme families become credentials:
 
 | AsyncAPI scheme | Generated credential |
 | --------------- | -------------------- |
@@ -251,7 +251,7 @@ The resource is named after the channel's `title`, falling back to the first seg
 | `operations` | Operation ids folded into this method. Omit to bind every operation targeting the channel. |
 | `perspective` | `provider` (default) or `client`. Whose point of view the document's `action` values are written from. |
 
-Everything else about the method is ordinary config. Rename it by changing its key under `methods` (or pin the exact identifier with `publicIdentifier`), gate it per target with `only`/`skip`, give it `defaultRequestOptions`, or point an HTTP channel at a `paginated` scheme — all of it works exactly as it does for an operation from an OpenAPI document.
+Everything else about the method is ordinary config. Rename it by changing its key under `methods` (or pin the exact identifier with `publicIdentifier`), limit it to some targets with `only`/`skip`, give it `defaultRequestOptions`, or point an HTTP channel at a `paginated` scheme — all of it works exactly as it does for an operation from an OpenAPI document.
 
 Narrowing a method to a subset of its channel's operations is the one AsyncAPI-specific knob you are likely to reach for:
 
@@ -277,7 +277,7 @@ Every AsyncAPI-specific rule, gradable and suppressible through the [`diagnostic
 | `Unsupported/AsyncApiSecurityScheme` | `info` | A security scheme family has no HTTP-shaped credential to generate. |
 | `Unsupported/AsyncApiContentType` | `warn` | An HTTP channel's messages state a media type no runtime decodes. |
 | `Unsupported/AsyncApiFeature` | `info` | The channel declares something not modelled yet. The specific gap rides in `data.feature`. |
-| `Unsupported/WebSocketMethod` | `warn` | A connect method is generated for a target with no WebSocket runtime. |
+| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. |
 | `AsyncApi/AmbiguousProtocol` | `warn` | A channel's servers disagree on protocol; names which one won. |
 | `AsyncApi/ChannelNotConfigured` | `warn` | The document declares a channel no configured method binds. |
 | `AsyncApi/NoMethodsGenerated` | `warn` | A target ends up with models and a client but no methods. |
@@ -292,21 +292,21 @@ Parts of the specification that are read and reported rather than generated. Mos
 
 **Not modelled yet**
 
-- **Request/reply** (`operation.reply`). The operation lowers as a plain send; the reply channel contributes no response or event type.
+- **Request/reply** (`operation.reply`). The operation is generated as a plain send; the reply channel contributes no response or event type.
 - **Message and operation traits.** Traits are not merged into the method or the event types.
 - **Per-message headers.** They describe one frame on the wire rather than the call that opens the connection, so they do not become parameters.
 - **Correlation ids.**
-- **HTTP bindings.** A channel served over HTTP states its query parameters and status codes in `bindings.http`; none of it is lowered onto the method. The verb in particular cannot be honored, because the method is keyed by the verb its config declares.
+- **HTTP bindings.** A channel served over HTTP states its query parameters and status codes in `bindings.http`; none of it is applied to the method. The verb in particular cannot be honored, because the method is keyed by the verb its config declares.
 - **Form media types.** `multipart/form-data` and `application/x-www-form-urlencoded` need per-field encoding a message payload has nowhere to carry, so the body is sent as JSON.
 - **Channels no operation targets.** AsyncAPI 3 moved direction onto operations, so a channel whose `messages` no operation references generates a method carrying none of them.
 
 **Known gaps in the generated starter config**
 
-The starter config a first run writes has two rough edges for HTTP channels, both fixable by hand and both reported:
+The starter config a first run writes treats every channel as a WebSocket channel, HTTP channels included: each gets a `connect` method with `"kind": "websocket"`. That leaves three rough edges for HTTP channels, all fixable by hand. Only the first is reported:
 
 - Every channel is written with `"verb": "get"`. A channel whose SDK-sent messages carry payloads needs a body-carrying verb — change it to `post` — or those payloads are dropped, which is what `AsyncApi/UnsendablePayload` reports.
-- Every channel is gated with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove the gate on those channels and change their `kind` to `http` to generate them everywhere.
-- Every channel's method is keyed `connect`, HTTP channels included. Rename the key (for example to `stream`) for a more natural method name.
+- Every channel is limited with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove `only` on those channels and change their `kind` to `http` to generate them everywhere. Nothing reports this.
+- Every channel's method is keyed `connect`. Rename the key (for example to `stream`) for a more natural method name. Nothing reports this either.
 
 **Not produced**
 

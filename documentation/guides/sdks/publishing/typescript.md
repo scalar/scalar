@@ -64,7 +64,7 @@ Switch the target to token auth, then merge the release pull request:
 
 ## Trusted publishing (OIDC)
 
-npm mints a short-lived, package-scoped credential at publish time from the workflow's GitHub Actions identity, so no secret is stored.
+npm issues a short-lived, package-scoped credential at publish time from the workflow's GitHub Actions identity, so no secret is stored.
 
 <scalar-steps>
   <scalar-step id="npm-oidc-add" title="Add a trusted publisher on npm">
@@ -107,4 +107,4 @@ See [`access`](../configuration/typescript.md#access) and [`tag`](../configurati
 ## Notes
 
 - The publish step is idempotent: if the version is already on npm, it is skipped, so re-merges and re-runs never fail.
-- With `publish.npm.releaseEnvironment` set, the publish job runs in that GitHub environment, so its protection rules gate the release and its secrets override repository secrets of the same name.
+- With `publish.npm.releaseEnvironment` set, the publish job runs in that GitHub environment, so its protection rules must pass before the release publishes, and its secrets override repository secrets of the same name.

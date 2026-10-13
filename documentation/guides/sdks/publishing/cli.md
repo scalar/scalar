@@ -77,7 +77,7 @@ Create a **public** repository named `homebrew-<tap>` (for example `acme/homebre
 
 - With the `homebrew-` prefix, users install with `brew install <owner>/<tap>/<formula>`. Any other name still works, but users have to run `brew tap <owner>/<repo> https://github.com/<owner>/<repo>` first, and the generated README says so.
 - It has to be public: `brew install` fetches the formula anonymously.
-- Its owner does not have to match the SDK repository's owner. A tap shared by several CLIs usually doesn't.
+- Its owner does not have to match the SDK repository's owner. A tap shared by several CLIs usually does not.
 
   </scalar-step>
 

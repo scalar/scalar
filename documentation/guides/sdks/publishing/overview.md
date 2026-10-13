@@ -89,7 +89,7 @@ You can enable publishing two ways. Both set the same thing.
   size="full">
 </scalar-image>
 
-The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
+The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, PHP, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
 
@@ -118,7 +118,7 @@ To ship an exact version instead, **edit the release pull request title**:
 release: 1.0.0
 ```
 
-The `Release PR version` check goes red while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The git-native equivalent is an empty commit on `scalar-next` with a `Release-As: 1.0.0` footer.
+The `Release PR version` check goes red while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The release pull request title is the one place to set the version: there is no version override in the dashboard or in the SDK configuration.
 
 Every release gets a `vX.Y.Z` tag, a GitHub Release, and an entry in the repository's `CHANGELOG.md`, so your release history lives in your repo next to the code. The generated `VERSIONING.md` documents all of this for your maintainers.
 
@@ -131,6 +131,8 @@ permissions:
   contents: write
   pull-requests: write
 ```
+
+`pull-requests: write` is only used to update the labels on the release pull request that was just merged. None of the workflows opens a pull request: the Scalar GitHub app opens the release pull request and keeps it current.
 
 Its `publish` job then narrows that down to the publishing floor:
 

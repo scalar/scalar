@@ -1,7 +1,7 @@
 <!--
 Generated from scalar-sdk.config.schema.json. Do not edit by hand.
 
-Published at https://scalar.com/docs/guides/sdks/configuration, which is where the links to
+Published at https://scalar.com/products/sdk-generator/configuration/kotlin, which is where the links to
 pages outside this reference resolve.
 -->
 # Kotlin
@@ -46,13 +46,13 @@ Per-target GitHub destinations for pushing generated output.
 
 **Type:** `object`
 
-Primary published-output repository for this target. Configuring it is what gives the target generated GitHub Actions at all: it turns on the CI workflow, the release-please configuration, and the versioning policy. The release workflow that uploads at release time is added on top of those only when `publish` enables a registry that needs one — a tag-served ecosystem publishes from the platform-created tag alone. A target with no production destination is still generated, but emits no workflows, which is what local and preview generation wants.
+Primary repository this target's generated output is published to. Setting it turns on the generated GitHub Actions: the CI workflow, the release-please configuration, and the versioning policy. A release workflow is added too when `publish` enables a registry that needs one; a registry served from git tags publishes from the release tag alone. Without a production destination the target is still generated, but with no workflows.
 
 | Property | Description |
 | --- | --- |
 | `repo`* | GitHub repository in `owner/name` form that generated output for this target is pushed to. An `owner/name#branch` suffix is tolerated and supplies the default branch when `branch` does not, but prefer setting `branch` on its own: not every target strips the suffix back off when it writes the repository URL into published package metadata. |
-| `branch` | Default branch of the destination repository, and the base that release PRs are opened against. Generated output itself is always pushed to the fixed `scalar-generated` branch, which the platform merges with custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release PR is raised from the integration branch against the branch named here, so merging it is the promotion. The branch is resolved by trying this value, then a `#branch` suffix on `repo`, then `main`, skipping any candidate that is not a safe git ref — the name is interpolated into generated workflow YAML, so an unsafe one is passed over rather than emitted, and an unsafe value here does not mask a usable suffix. |
-| `integrationBranch` | The branch where generated output is combined with custom code; defaults to `scalar-next`. Commit customizations here: the platform merges each regeneration from `scalar-generated` into it, raises release PRs from it, and the emitted release workflow syncs each released version back to it. An empty string means the default. Names are case-sensitive, like git. A value is rejected rather than replaced by the default when it is not a safe git ref (it must start with a letter or digit, use only letters, digits, `.`, `_`, `/` and `-`, and be a name git accepts: no `..`, no empty or `.`-leading path component, no `.lock` component suffix, no trailing `.`, and not `HEAD`), when it equals the default branch, `scalar-generated` or `scalar-merge-conflict`, when it and one of those or `scalar-next` are `/`-separated path prefixes of each other (`scalar-next/v2`), when it starts with `scalar-generated--`, `scalar-merge-conflict--`, `scalar-heal--` or `release-please--`, or when it contains `--components--`: the name is interpolated into generated workflow YAML, and those names are reserved for branches the platform and release-please manage. |
+| `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
+| `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
 
 ## publish
 
@@ -72,39 +72,15 @@ There is no OIDC path, so `authMethod` is ignored and every release reads four r
 
 **Type:** `string`
 
-Maven artifact ID the JVM SDK publishes under, e.g. `acme-java`. Defaults to `<sdk slug>-java` / `<sdk slug>-kotlin`, so it is only needed when the published coordinate does not follow that spelling — regenerating such an SDK without it silently renames the artifact its consumers depend on. It also names the emitted Gradle modules (`<artifactId>-core`, `<artifactId>-client-okhttp`) and the directories they live in, so it is restricted to alphanumeric runs joined by single `.`, `_`, or `-` separators: that rejects path separators, `..`, whitespace, and shell metacharacters outright rather than letting a value reach a directory name, a Kotlin string literal, and a `repo1.maven.org` URL path in the generated release workflow. The enumerated names are rejected for a different reason: the umbrella module's directory is named the artifact ID exactly, and each of these is a name the generated project already claims at its own root. Most are files or directories it writes, so the two would land on one path; `build` and `local.properties` are instead entries in the project's own `.gitignore`, so a module named after either would never be committed.
+Maven artifact ID the JVM SDK publishes under, e.g. `acme-java`. Defaults to `<sdk slug>-java` or `<sdk slug>-kotlin`, so set it only when the published coordinate is spelled differently: regenerating such an SDK without it renames the artifact its users depend on. It also names the generated Gradle modules (`<artifactId>-core`, `<artifactId>-client-okhttp`) and their directories, so it must be alphanumeric runs joined by single `.`, `_`, or `-` separators. It cannot be a name the generated project already uses at its root: `LICENSE`, `README.md`, `SECURITY.md`, `SKILL.md`, `VERSIONING.md`, `api.md`, `build`, `build.gradle.kts`, `buildSrc`, `gradle`, `gradle.properties`, `gradlew`, `gradlew.bat`, `local.properties`, `release-please-config.json`, `scalar-sdk.manifest.json`, `settings.gradle.kts`, or `tests`.
 
 **Constraints:** `pattern: ^[A-Za-z0-9]+([._-][A-Za-z0-9]+)*$`
-
-#### authMethod
-
-**Type:** `"oidc" | "access-token"`
-
-Registry authentication mechanism. Ignored for Maven Central: the JVM emitter renders one set of release steps either way, and they always authenticate with the `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, and `MAVEN_GPG_PASSPHRASE` repository secrets, each falling back to `SONATYPE_USERNAME`, `SONATYPE_PASSWORD`, `GPG_SIGNING_KEY` and `GPG_SIGNING_PASSWORD` respectively when it is unset. See `publish.maven` for the setup.
 
 #### releaseEnvironment
 
 **Type:** `string`
 
-Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's environment protection rules gate the release, and this registry's secrets can come from that environment — one there overrides a repository secret of the same name.
-
-#### sonatypePlatform
-
-**Type:** `"portal" | "ossrh" | string`
-
-Maven Central/Sonatype platform variant an imported config named: `portal` for the Central Portal, `ossrh` for the retired OSSRH staging API. Declared on `maven` alone: a `sonatypePlatform` on any other registry is reported as an unknown publish option rather than silently accepted. The generated JVM release always publishes through the Central Portal, since OSSRH's June 2025 retirement leaves that the only path that publishes anything, so the value records where the SDK came from and does not change what is emitted.
-
-#### homepage
-
-**Type:** `string`
-
-Registry or package homepage metadata.
-
-#### description
-
-**Type:** `string`
-
-Registry or package description metadata.
+Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's environment protection rules apply to the release, and this registry's secrets can come from that environment — one there overrides a repository secret of the same name.
 
 ## prereleaseType
 
@@ -120,7 +96,7 @@ Omit it to release on the stable line. A release train promoting to a convention
 
 **Type:** `object`
 
-Java/Kotlin emitter options, read by both JVM targets from their own block. All of them are honored — `elideConst`, `backCompat.flatModelPackages`, `backCompat.unnamespacedImplicitResponses`, and `backCompat.refNameNestedModels` — so setting any one changes generated output. Each moves files or renames public classes, which is a source-breaking change for an SDK that already has consumers.
+Kotlin generation options. Each one changes generated class names, class shapes, or file layout, so changing one on an SDK that already has users is a breaking change.
 
 ### backCompat
 
@@ -132,7 +108,7 @@ Legacy model layout and naming behaviors, all off by default. Turn one on only t
 
 **Type:** `boolean`
 
-Emit every model into one flat `models` package instead of a package per resource, and name each operation-derived class — params, page, async page, page response, and the response an operation implies, unless `unnamespacedImplicitResponses` exempts that last one — after its full chain of resource ancestors rather than its leaf resource: `models/ProjectTaskCommentCreateParams` where the default writes `models/projects/tasks/comments/CommentCreateParams`. The flat package and the chain-prefixed names are one option because they cannot be separated: flattening on its own drops the leaf-named params of sibling resources into a single package, where the sibling that loses the race is renamed to an arbitrary deduplicated spelling. A model named after a component schema keeps its name and only moves up a package, an operation on a resource with `useNamespaceInTypeNames` disabled is named from that resource alone with its ancestors dropped from the prefix, and services are unaffected and stay nested. Off by default.
+Generate every model into one flat `models` package instead of a package per resource, and name each operation's params, page, async page, page response, and implied response class after its full chain of resources: `models/ProjectTaskCommentCreateParams` instead of `models/projects/tasks/comments/CommentCreateParams`. `unnamespacedImplicitResponses` exempts implied responses from the prefix. Models named after a component schema keep their names, operations on a resource with `useNamespaceInTypeNames` disabled drop the ancestor prefix, and services stay nested. Off by default.
 
 **Default:** `false`
 
@@ -156,7 +132,7 @@ Name the response model an operation implies — one with no component schema of
 
 **Type:** `boolean`
 
-Elide a required constant-valued property, so the generated class pins the value instead of exposing the property. True by default: such a property renders as a pinned raw JSON value with no typed getter, no generated enum, and no typed builder setter — only the raw accessor and a single raw setter documented as the escape hatch for sending a value the document does not describe — and it is not checked on `build()`. A closed union variant whose discriminator is its only property, and which nothing else declares a class for, collapses to raw JSON instead of a class of its own. Set it to false to render the property as an ordinary typed field — typed getter, required builder slot, and a required-field check on `build()` — and to give such a union variant a real class, which is the shape a JVM SDK published before constants were elided exposes. A **string** constant is then typed by a generated single-member enum wrapper, matching how a one-value `enum` is already rendered; a numeric or boolean one keeps its plain scalar type rather than becoming a single-member wrapper, so the field reads the same as with the setting on. A constant that is the whole of a response body keeps its scalar type too. A constant property that is `readOnly` or nullable is not elided under either setting, since the caller must still be able to omit or null it; a discriminated union's tag is pinned on the union's own terms and is not subject to that carve-out.
+Leave required constant-valued properties out of the typed API and pin their values instead. True by default: such a property has no typed getter, enum, or builder setter, only a raw accessor and a raw setter for sending a value the API description does not describe, and `build()` does not check it. A closed union variant whose only property is its discriminator becomes raw JSON instead of a class. Set it to false to generate the property as an ordinary typed field (typed getter, required builder slot, checked on `build()`) and to give such a variant its own class. A string constant is then typed as a single-member enum; numeric and boolean constants keep their scalar types. A `readOnly` or nullable constant is never elided.
 
 **Default:** `true`
 
@@ -170,14 +146,14 @@ When true, the target is not generated.
 
 **Type:** `string`
 
-Heading of this target's generated README, overriding the SDK-wide `readme.title`. Free-form prose, so it carries no pattern and a renderer has to emit it as escaped text rather than as markdown.
+Heading of this target's generated README, overriding the SDK-wide `readme.title`. Plain text: markdown in it is shown as written, not rendered.
 
 ## promotion
 
 **Type:** `"automatic" | "manual"`
 
-When a successful build's generated output reaches this target's production destination. `automatic`, the default, pushes every build, which opens a release pull request. `manual` holds each build at the staging playground until it is promoted explicitly, so reaching production is a deliberate act rather than a consequence of building.
+When a successful build's generated output reaches this target's production destination. `automatic`, the default, pushes every build, which opens a release pull request. `manual` holds each build at the staging playground until you promote it.
 
-This governs when the push happens, never what is generated: a `manual` target still emits the GitHub Actions, release-please configuration and versioning policy that `destinations.production` turns on, so a promoted build behaves exactly like an automatic one. A target declaring no production destination pushes nowhere either way, and is unaffected.
+This changes when the push happens, never what is generated: a `manual` target still gets the GitHub Actions, release-please configuration, and versioning policy that `destinations.production` turns on. A target with no production destination is never pushed, whatever this is set to.
 
 **Default:** `"automatic"`

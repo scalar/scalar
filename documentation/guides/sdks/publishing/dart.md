@@ -1,5 +1,8 @@
 # Dart (pub.dev)
 
+> [!NOTE]
+> The Dart target is experimental.
+
 The Dart target publishes to [pub.dev](https://pub.dev/). The package name is the target's `packageName`. See the [Dart configuration](../configuration/dart.md#publish) for options.
 
 > [!WARNING]

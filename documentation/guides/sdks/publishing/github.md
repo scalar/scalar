@@ -34,7 +34,7 @@ Click **Connect repository**. From now on, every successful build pushes the gen
 
 ## How syncing works
 
-Builds never commit straight to your default branch. The repository follows a three-branch flow that Scalar manages together with the generated workflows, all of which run on the default `GITHUB_TOKEN` — no extra token to provision (a CLI's Homebrew tap is the one exception: it needs `HOMEBREW_TAP_TOKEN`).
+Builds never commit straight to your default branch. The repository follows a three-branch flow that Scalar manages together with the generated workflows, all of which run on the default `GITHUB_TOKEN`. The only extra GitHub token you may need is `HOMEBREW_TAP_TOKEN`, for a CLI that updates a Homebrew tap in another repository. Registry and signing credentials are separate repository secrets, not GitHub tokens: see [Adding repository secrets](#adding-repository-secrets).
 
 <scalar-image
   src="/sdks/github-linked.png"
@@ -112,9 +112,9 @@ You can edit generated files in your repository on `scalar-next`. Scalar perform
 ## Repository prerequisites
 
 - Branch protection on `scalar-next` and the default branch must allow the Scalar app and the `github-actions` bot to push, or be left unprotected. The default branch only ever advances by merging a release pull request, and `scalar-next` receives each released state back from the release workflow.
-- No Actions settings changes are required: the generated workflows declare their own permissions and never create pull requests.
+- No Actions settings changes are required. The generated workflows declare their own permissions, and none of them opens a pull request, so *Allow GitHub Actions to create and approve pull requests* can stay off. `release-please.yml` asks for `pull-requests: write` only to update the labels on the release pull request it has just released; the release pull request itself is opened by the Scalar app.
 
-## Configuration equivalent
+## Repository configuration
 
 Linking from the dashboard sets the target's `destinations` in your SDK configuration. You can also set it directly:
 
@@ -141,7 +141,7 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 
 ## Adding repository secrets
 
-[OIDC trusted publishing](overview.md#authentication) needs no secrets, except NuGet's `NUGET_USER`. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
+[OIDC trusted publishing](overview.md#authentication) needs no secrets, with two exceptions: NuGet's OIDC login reads your profile name from `NUGET_USER`, and npm and crates.io only accept a trusted publisher for a package that already exists, so their first release uses a token secret. Token-based publishing, and Maven Central's GPG signing, store credentials as secrets on the SDK repository. The generated workflows read them by exact name, so the name has to match.
 
 <scalar-steps>
   <scalar-step id="secret-open" title="Open the repository's Actions secrets">

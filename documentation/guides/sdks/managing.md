@@ -37,7 +37,7 @@ Click **Build**, or **Save and Build** after editing the configuration. Scalar g
 
 Each target shows a live status: **pending** while it generates, **generated** on success, or **failed**. Open the logs to see the output or the error for a target.
 
-Every build analyzes your OpenAPI document and configuration before it generates anything, and the [diagnostics](diagnostics.md) report is part of that output. A build that trips your diagnostics gate fails without writing files.
+Every build analyzes your API description and configuration before it generates anything, and the [diagnostics](diagnostics.md) report is part of that output. A build that fails your diagnostics settings fails without writing files.
 
   </scalar-step>
 
@@ -55,14 +55,14 @@ A target set to [promote manually](publishing/github.md#promotion) stops short o
 
 ## Versions
 
-SDK versions are explicit, so you control exactly what is built and released.
+The dashboard keeps a version history of the SDK as it is built and served from the Scalar registry.
 
 - **Create a new version**: draft a new version at a specific semver, targeting a specific API version. The draft does not affect the live SDK until it is built and activated.
 - **Version history**: browse every version, draft or built, with per-target status.
 - **Active version**: set which version is live in the registry. Consumers and code samples resolve against the active version.
 - **Discard a draft**: delete an unbuilt draft without generating it.
 
-The SDK version here controls what the dashboard builds and serves from the registry. The version that ships to a *package* registry is computed separately, by release-please from the commit history of your SDK repository — or set exactly by editing the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
+The SDK version here controls what the dashboard builds and serves from the Scalar registry. It does not set the version a *package* registry receives. That version is computed by release-please from the commit history of your SDK repository, and the way to set it exactly is to edit the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
 
 ## Downloading an SDK
 

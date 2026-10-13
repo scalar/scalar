@@ -1,5 +1,8 @@
 # Rust (crates.io)
 
+> [!NOTE]
+> The Rust target is experimental.
+
 The Rust target publishes to [crates.io](https://crates.io/). The crate name is the target's `packageName`. See the [Rust configuration](../configuration/rust.md) for options.
 
 Releases authenticate with **OIDC trusted publishing** by default. crates.io can only register a trusted publisher on a crate that already exists and is owned by you, so a brand-new crate publishes its first version with a **crates.io API token**, then switches to OIDC.
@@ -21,7 +24,7 @@ Either way, the publishing account needs a verified email address in its [accoun
 
 ## First release
 
-Skip this section if the crate is already on crates.io. Follow [Publishing with a crates.io token](#publishing-with-a-cratesio-token) below for the first version, then come back and set up trusted publishing.
+Skip this section if the crate is already on crates.io. Follow [Publishing with a crates.io token](#publishing-with-a-crates.io-token) below for the first version, then come back and set up trusted publishing.
 
 ## Trusted publishing (OIDC)
 

@@ -2,9 +2,7 @@
 
 A paginated method returns a page instead of a raw response. The page carries the items, remembers the request that produced them, and knows how to ask for the next one — so iterating it walks the whole collection, and no caller has to reimplement your paging rules.
 
-Pagination is declared, not guessed. An `offset` parameter is not always a pager and a `next` field is not always a cursor, so the generator does not infer paging from parameter names: you state the scheme once, and every target generates its own idiomatic helper from it.
-
-The one exception is the starter configuration derived for a document with no configuration and no pagination markers of its own (`x-scalar-pagination` anywhere, `x-fern-pagination` or `x-speakeasy-pagination` on an operation, or an `x-stainless-pagination-property` paging purpose on a request parameter). There, a `GET` operation whose shape is unmistakably opaque-cursor paging gets a `cursor` scheme written for it: an optional string `cursor`, `page_token` or `pageToken` query parameter and no `offset`, `page`, `after` or `before` beside it, answered by a JSON object with exactly one array property and exactly one string `next_cursor`, `nextCursor`, `next_page_token` or `nextPageToken` property (nullable counts). An integer `limit`, `page_size` or `pageSize` parameter becomes the page size. The scheme lands in the starter configuration like any other, so you can rename it, edit it, or set `paginated: false` on a method it should not cover. Nothing is inferred when the starter is derived for a run that includes the Dart or C++ target; a starter configuration written by an earlier run is your configuration from then on and applies to every target as written. A document carrying `x-fern-*` extensions is imported as a Fern project, which infers nothing.
+Pagination is declared, not guessed. An `offset` parameter is not always a pager and a `next` field is not always a cursor, so a build never decides from parameter or field names that a method pages: you state the scheme once, and every target generates its own idiomatic helper from it. The one place the generator suggests a scheme is the starter configuration it writes for a document that has none; see [Starter configuration inference](#starter-configuration-inference).
 
 ## Start here
 
@@ -116,7 +114,7 @@ next, err := page.GetNextPage()
 
 ## Declaring a scheme
 
-A scheme can live in either place, and the shape is identical in both. Document-declared schemes are read when the configuration is derived from the document; once you supply a configuration, its `pagination` and `paginated` values are authoritative.
+A scheme can live in either place, and the shape is identical in both. Document-declared schemes are read when the configuration is derived from the document. Once you supply a configuration, its `pagination` array is the full list of schemes, and a method's `paginated` value decides whether and how it pages. The one thing still read from the document on every build is the `x-stainless-pagination-property` marker on a request parameter, and only for a method that leaves `paginated` unset: the marker then picks one of your configured schemes, never adds one. See [Binding a method](#binding-a-method).
 
 **In the SDK configuration.** `pagination` holds an array of complete named schemes, and methods select one by name. This is the better home when the same scheme covers several operations, several documents, or several targets.
 
@@ -153,7 +151,33 @@ A method opts in through `paginated`:
 | Omitted | Falls back to the document's pagination markers (`x-stainless-pagination-property` on request-parameter schemas). If a marker names a type and exactly one configured scheme has that type, the method adopts it. More than one match is ambiguous, so the method stays unpaginated and reports `Pagination/AmbiguousMarker`. |
 | `true` | Resolves to no scheme: the method is not paginated, and document markers are not consulted. Only a Stainless import gives it meaning, matching the method against the configured schemes. |
 
-Configuration always wins over the document: a named scheme or an explicit `false` is never overridden by a marker.
+Configuration always wins over the document: a named scheme or an explicit `false` is never overridden by a marker, and a marker can only select a scheme your configuration already defines.
+
+## Starter configuration inference
+
+When a build has no configuration, the generator writes a starter configuration for the document. If the document states no pagination of its own, the starter looks for one common shape, opaque-cursor paging, and writes a `cursor` scheme for each operation that matches it.
+
+The document states pagination of its own when it carries any of these, and then nothing is inferred:
+
+- `x-scalar-pagination`, anywhere in the document
+- `x-fern-pagination` or `x-speakeasy-pagination` on an operation
+- an `x-stainless-pagination-property` marker on a request parameter
+
+An operation gets a scheme only when all of these hold:
+
+- It is a `GET`.
+- It has exactly one optional, string-typed query parameter named `cursor`, `page_token`, or `pageToken`.
+- It has no query parameter of another paging style beside it: `offset`, `page`, `page_number`, `pageNumber`, `after`, `before`, `starting_after`, or `ending_before`.
+- Its JSON success response is an object with exactly one array property, which becomes the items, and exactly one string property named `next_cursor`, `nextCursor`, `next_page_token`, or `nextPageToken`, which becomes the next cursor. A nullable string counts.
+
+An integer `limit`, `page_size`, or `pageSize` query parameter, when there is exactly one, becomes the page size.
+
+The scheme lands in the starter configuration like any other, so you can rename it, edit it, or set `paginated: false` on a method it should not cover. Once written, the starter configuration is yours and applies to every target as written.
+
+Nothing is inferred when:
+
+- **The run includes the Dart or C++ target.** Pages in those targets cannot fetch the next page yet (Dart's page does not decode its items, and C++'s carries no next-page request), so an inferred scheme would turn a working typed call into a weaker one there.
+- **The document is imported as a Fern project.** A document with `x-fern-*` extensions on its root, a server, or an operation, and no configuration, is read as a Fern project, and its own `x-fern-pagination` markers decide what pages. See [OpenAPI Extensions](openapi-extensions.md#imported-vendor-extensions).
 
 ## Scheme reference
 
@@ -351,11 +375,11 @@ Your generated README also picks up a `## Pagination` section walking a real pag
 
 ## Where fields are read from
 
-Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests, and C++ and Dart surface it as page metadata, but only Swift's page advances from a header cursor, so on every other target a scheme whose only cursor lives in one stops after the first page. `bodyLink` is followed as a next-page URL by Rust, Swift, and Ruby; Java and Kotlin apply its query string to the same operation.
+Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests, and C++ and Dart surface it as page metadata. Only Swift's page advances from a `header` cursor; no target, Swift included, follows a `linkHeader` field. A scheme whose only cursor is in a `header` field therefore stops after the first page on every target but Swift, and one whose only cursor is in a `linkHeader` field stops after the first page everywhere. `bodyLink` is followed as a next-page URL by Rust, Swift, and Ruby; Java and Kotlin apply its query string to the same operation.
 
 `itemCursor` is read by every target except Dart and C++; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, and Kotlin. On the other targets a scheme relying on either stops after the first page, so prefer a top-level cursor field where your API offers one.
 
-If your API pages by a `Link` header and you need it followed, tell us — it is a gap we are tracking, not a design decision.
+If your API pages by a `Link` header and you need it followed on any target, tell us — it is a gap we are tracking, not a design decision.
 
 ## Diagnostics
 
@@ -367,7 +391,7 @@ Three rules watch pagination, and all three report against a specific method or 
 | `Pagination/AmbiguousMarker` | `warn` | The document's markers matched more than one configured scheme of the same type. The compiler refuses to guess, so the method stays unpaginated. Set `paginated` explicitly. |
 | `Pagination/UnusedScheme` | `warn` | A configured scheme is bound to no method — usually the remains of a renamed or removed `paginated` reference. |
 
-See [Diagnostics](diagnostics.md) for how findings are graded, gated, and suppressed.
+See [Diagnostics](diagnostics.md) for how findings are graded, suppressed, and used to fail a build.
 
 ## Related
 

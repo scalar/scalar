@@ -43,4 +43,4 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
 - **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](publishing/private-registries.md).
 - **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](publishing/overview.md).
 - **Custom code is per repository.** Each target keeps its own customizations in its own repository.
-- **Allow merge commits on the integration branch.** Each regeneration and each resolved conflict lands on `scalar-next` (or your `integrationBranch`) as a merge commit, so don't enable *Require linear history* on it.
+- **Allow merge commits on the integration branch.** Each regeneration and each resolved conflict lands on `scalar-next` (or your `integrationBranch`) as a merge commit, so do not enable *Require linear history* on it.

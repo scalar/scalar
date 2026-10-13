@@ -1,12 +1,12 @@
 # Diagnostics
 
-Every build analyzes your OpenAPI document and your SDK configuration together, before a single file is generated, and reports everything the generator had to skip, guess, or degrade. Each finding is graded, and you decide which grades fail the build.
+Every build analyzes your API description (an OpenAPI or AsyncAPI document) and your SDK configuration together, and reports everything the generator had to skip, guess, or degrade. Each finding is graded, and you decide which grades fail the build.
 
-A successful build tells you the SDK compiled. It does not tell you the SDK is complete. Generation is forgiving by design: an operation no resource places is simply absent, a schema with no properties lowers to an untyped value, a pagination scheme nothing references is dead configuration. Each of those produces a perfectly valid SDK that is quietly missing something you meant to ship, and diagnostics are how you find out.
+A successful build tells you the SDK compiled. It does not tell you the SDK is complete. Generation is forgiving by design: an operation no resource places is simply absent, a schema with no properties becomes an untyped value, a pagination scheme nothing references is dead configuration. Each of those produces a perfectly valid SDK that is quietly missing something you meant to ship, and diagnostics are how you find out.
 
 ## How it works
 
-Diagnostics run as part of every build, after the document and configuration are loaded and compiled, and before any target is emitted.
+Diagnostics run as part of every build. Almost every check runs after the document and configuration are loaded and compiled, and before any target is generated. One check, `Target/InvalidGeneratedCode`, runs after a target is generated and before its files are written; see [After generation](#after-generation).
 
 <scalar-steps>
   <scalar-step id="diagnostics-load" title="Load">
@@ -17,7 +17,7 @@ The document is parsed and its references are resolved, and the configuration is
 
   <scalar-step id="diagnostics-compile" title="Compile">
 
-The document and configuration are lowered into the intermediate representation every language target is generated from. As it compiles, the pipeline records what it could not carry across: an endpoint that no longer exists, a pagination scheme it could not resolve, a schema pointer it had to leave untyped.
+The document and configuration are compiled into the language-neutral model every language target is generated from. As it compiles, the pipeline records what it could not carry across: an endpoint that no longer exists, a pagination scheme it could not resolve, a schema pointer it had to leave untyped.
 
   </scalar-step>
 
@@ -27,16 +27,14 @@ Rules read the document, the configuration, and the compiled result together, an
 
   </scalar-step>
 
-  <scalar-step id="diagnostics-gate" title="Gate">
+  <scalar-step id="diagnostics-gate" title="Decide">
 
-The findings are graded, suppressions are applied, and the result is checked against your gate. A build that fails the gate fails before anything is written, so a failing build never publishes a half-correct SDK.
-
-One check runs after a target is emitted instead: a target whose generated code fails the compile checks it runs reports `Target/InvalidGeneratedCode` and is held back, while the other targets are still written. Today only the Go target runs one, and it catches a generated sample that assigns a struct field a type its declaration does not have.
+The findings are graded, suppressions are applied, and the result is checked against the failure thresholds in your [`diagnostics`](#severity-and-failing-the-build) settings. A build that fails these checks fails before any target is generated or written, so it never publishes a half-correct SDK.
 
   </scalar-step>
 </scalar-steps>
 
-The full report is part of the build output, whether the build passed the gate or failed it, so it is there in the build logs to read either way.
+The full report is part of the build output, whether the build passed or failed, so it is there in the build logs to read either way.
 
 Two properties are worth knowing about, because they decide how much a finding can be trusted:
 
@@ -44,6 +42,16 @@ Two properties are worth knowing about, because they decide how much a finding c
 - **Rules and generation share one implementation.** Where a rule has to work something out for itself — the name a model would be generated under, whether a response media type can be decoded, which resource a schema belongs to — it calls the same helpers generation calls. A finding cannot drift away from what the generator actually does, because there is only one answer for both of them to read.
 
 A rule that crashes never takes your build down with it. The engine isolates each rule, skips the one that failed, and records it as `Internal/RuleCrash`.
+
+### After generation
+
+`Target/InvalidGeneratedCode` is the generator checking its own output. After a target is generated, and before its files are written, the generator runs any compile check that target has. Today only the Go target has one: it catches a generated sample that assigns a struct field a type its declaration does not have.
+
+A finding is graded and suppressed like any other, and it applies to one target only:
+
+- At its default `error` grade, that target fails. Its files are not written, so it does not ship from this build, and the build is reported as failed. Every other target is still generated and written as usual.
+- The finding means the generator produced code that does not compile. No edit to your configuration or your API description is the fix: contact Scalar support with the API description that triggers it.
+- Suppressing the finding, or grading it below your [`failOn`](#severity-and-failing-the-build) level, lets the target through, and the code that does not compile is written and shipped. Do that only to unblock a release while the generator is fixed, scoped to the one target with a `{ "target": "go", "reason": "…" }` entry.
 
 ## Anatomy of a finding
 
@@ -64,17 +72,17 @@ Rendered, one finding reads like this:
 [WARN] Config/StaleEndpoint  Config:63  Configured endpoint "get /v1/cards/{card_token}" has no matching operation in the document; the method is skipped.
 ```
 
-## Severity and the build gate
+## Severity and failing the build
 
-There are three severities, and the defaults follow a single rule: **only conditions that stop generation outright are graded `error`.** Everything else — every condition that used to pass silently — starts at `warn` or `info`, so the analysis never turns a healthy build red on its own. The one exception is `Target/InvalidGeneratedCode`: a target whose generated code fails its compile check is held back, even though builds like it passed before the check existed. Five rules default to `error`: `Config/ParseError`, `Config/InvalidIntegrationBranch`, `Document/ReferenceError`, `Pagination/UnknownScheme`, and `Target/InvalidGeneratedCode`.
+There are three severities. Five rules default to `error`: `Config/ParseError`, `Config/InvalidIntegrationBranch`, `Document/ReferenceError`, `Pagination/UnknownScheme`, and `Target/InvalidGeneratedCode`. The first four report input the generator cannot carry out as written: a configuration that does not parse, an integration branch it cannot use, a reference it cannot resolve, a pagination scheme that does not exist. `Target/InvalidGeneratedCode` is `error` for a different reason: the SDK it reports already fails to compile, so shipping it is never a passing outcome. Everything else, including every condition that used to pass silently, starts at `warn` or `info`, so the analysis never turns a healthy build red on its own.
 
 | Severity | What it means |
 | -------- | ------------- |
-| `error` | Generation could not do what the input asked for. Fails the build under the default gate. |
+| `error` | Generation could not do what the input asked for, or produced code that does not compile. Fails the build under the default `failOn`. |
 | `warn` | The SDK generated, but something was dropped, renamed, or degraded. |
 | `info` | An observation worth acting on that costs nothing today, such as a schema that would be clearer as a declared model. |
 
-The gate itself lives in the [`diagnostics`](configuration.md#diagnostics) block of your SDK configuration:
+Which severities fail the build is set in the [`diagnostics`](configuration.md#diagnostics) block of your SDK configuration:
 
 ```json
 {
@@ -91,9 +99,9 @@ The gate itself lives in the [`diagnostics`](configuration.md#diagnostics) block
 
 - `failOn` is the lowest severity that fails the build, and defaults to `error`. Set it to `warn` to hold the build to a stricter standard, or to `off` to report without ever failing.
 - `maxWarnings` and `maxErrors` are checked independently of `failOn`, so you can let warnings through while capping how many of them accumulate. Exceeding either one fails the build.
-- `rules` re-grades a rule by code. `off` disables it entirely, so it neither reports nor counts toward the gate.
+- `rules` re-grades a rule by code. `off` disables it entirely, so it neither reports nor counts toward failing the build.
 
-Overrides and suppressions are applied before the gate is evaluated, so a rule you graded down or a finding you suppressed cannot fail a build.
+Overrides and suppressions are applied before these thresholds are checked, so a rule you graded down or a finding you suppressed cannot fail a build.
 
 ## Provenance: whose file holds the fix
 
@@ -102,7 +110,7 @@ Each rule declares which document a finding is a critique of, which is what sepa
 | Provenance | Meaning |
 | ---------- | ------- |
 | `config` | The remedy is an edit to your SDK configuration: place the endpoint, declare the model, bind the security scheme. |
-| `document` | The remedy is an edit to your OpenAPI document: a one-member enum, an undecodable response media type, undeclared root security. |
+| `document` | The remedy is an edit to your API description: a one-member enum, an undecodable response media type, undeclared root security. |
 | `internal` | The generator reporting on itself (`Internal/RuleCrash`, `Target/InvalidGeneratedCode`), which critiques neither of your files. |
 
 The configuration Scalar generates for you is meant to report **no** `config` findings on its first build: the configuration generator applies the same rules the analyzer checks. Findings with `document` provenance legitimately survive a first build, because no configuration can invent what the description does not say.
@@ -130,7 +138,7 @@ Sometimes a finding is correct and the situation is still intentional — an end
 - A string matches the finding's suppression key, exactly or with `*` as a wildcard.
 - An entry list mixes `location` matches (the same key grammar) with `target` matches, and each entry can carry a `reason` that stays with the suppression.
 
-Suppressing is not the same as disabling. A suppressed finding is still produced and still recorded — it just does not count toward the gate — whereas `"rules": { "...": "off" }` stops the rule from running at all.
+Suppressing is not the same as disabling. A suppressed finding is still produced and still recorded — it just does not count toward failing the build — whereas `"rules": { "...": "off" }` stops the rule from running at all.
 
 Every rule's suppression key is listed alongside it below.
 
@@ -152,6 +160,8 @@ Every rule's suppression key is listed alongside it below.
 | `Config/UnknownPublishOption` | `warn` | A registry entry under `publish` carries a key the configuration schema does not declare. | `targets.<target>.publish.<registry>.<key>` |
 | `Config/UnresolvableDestinationRepo` | `warn` | A destination repository is not a GitHub `owner/repo`, so the GitHub-only fields in generated package metadata are left out. | `targets.<target>.destinations.production.repo` |
 | `Config/OidcIssuerMismatch` | `warn` | The CLI's configured OAuth issuer rules out an OpenID Connect scheme's browser sign-in, so that sign-in is left out. | The security scheme name |
+| `Config/UnusedSecuritySchemeSettings` | `warn` | An `openapi.securitySchemeSettings` key names no OAuth 2.0 or OpenID Connect security scheme in the API description, usually a misspelled scheme id or a scheme the API dropped. Its `resource` and `audience` settings reach no generated client, so clients still sign in but get a token for whichever API the authorization server picks by default. Rename the key to the scheme id, or remove the entry. | The `securitySchemeSettings` key |
+| `Config/UnusedRevocationUrl` | `warn` | The CLI's `credentialStore.oauth.revocationUrl`, resolved against every configured environment and server, is not on the origin (scheme, host and port) of any OAuth token endpoint the CLI signs in with. The CLI only revokes at an endpoint on the same origin as the one that issued the token, so `logout` never uses this URL and only deletes the local copy. Not reported when the answer depends on the running CLI, such as with an OpenID Connect scheme. Set an absolute URL on the token endpoint's origin, or remove it. | `targets.cli.credentialStore.oauth.revocationUrl` |
 | `Environment/InvalidURL` | `warn` | An `environments` value is not an absolute URL. Generated clients use environments as base URLs, so a relative value produces an SDK that cannot send a request without a manual override. | The environment name |
 
 ### Document and references
@@ -169,7 +179,7 @@ Every rule's suppression key is listed alongside it below.
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
 | `Schema/RecursiveMustBeModel` | `warn` | A schema takes part in a `$ref` cycle but is not declared as a model. Cutting the cycle renders the back-reference opaquely, so a declared model is the only way users get a real type at the recursion point. | The component name |
-| `Schema/ObjectHasNoProperties` | `info` | An object schema declares no `properties` and no other source of shape, so it lowers to an untyped value everywhere. | The schema pointer |
+| `Schema/ObjectHasNoProperties` | `info` | An object schema declares no `properties` and no other source of shape, so it becomes an untyped value everywhere. | The schema pointer |
 | `Schema/EnumHasOneMember` | `info` | An enum declares exactly one member — usually a constant, or a member list that lost entries somewhere upstream. | The schema pointer |
 | `Schema/UnknownType` | `info` | A schema states a `type` the generator does not recognize, and the value falls back to a string. An absent `type` is exempt. | The schema name |
 | `Schema/DeprecatedWithoutMessage` | `info` | A schema is marked `deprecated` with no description, so SDK users see a deprecation with no hint about the replacement. | The schema pointer |
@@ -204,9 +214,9 @@ The generated README is code that has to compile, so its configured examples are
 
 | Rule | Default | Fires when | Suppression key |
 | ---- | ------- | ---------- | --------------- |
-| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target generates without it. | The endpoint |
-| `Unsupported/WebhookSignatureAlgorithm` | `warn` | Webhooks are signed with an algorithm a target cannot verify (C++ verifies `hmac-sha1`, `hmac-sha256` and `hmac-sha512`, but not `ed25519` or `rsa-sha256`), so that SDK has no signature verifier for them and you must check signatures yourself. | The algorithm, such as `ed25519` |
-| `Target/InvalidGeneratedCode` | `error` | A target's generated code fails its compile check after emit, so that target is held back while the others are written. Only Go runs one today: a generated sample assigning a struct field a type its declaration does not have. | The declaration that fails, such as `CreateParams.Owner` |
+| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. | The endpoint |
+| `Unsupported/WebhookSignatureAlgorithm` | `warn` | Webhooks are signed with an algorithm the C++ target cannot verify. C++ verifies `hmac-sha1`, `hmac-sha256` and `hmac-sha512`, but not `ed25519` or `rsa-sha256`, so its SDK has no signature verifier for them and you must check signatures yourself. Only C++ is checked. The TypeScript, Python, Go, Java, Kotlin, Ruby and CLI targets verify deliveries with the Standard Webhooks library, which checks HMAC-SHA256 signatures (the default `signatureAlgorithm`) whatever algorithm is configured, and this rule does not report them. | The algorithm, such as `ed25519` |
+| `Target/InvalidGeneratedCode` | `error` | A target's generated code fails the compile check that runs after it is generated, so that target fails and its files are not written, while every other target is. Only Go has a check today: a generated sample assigning a struct field a type its declaration does not have. This is a generator bug: contact Scalar support. Suppressing it ships code that does not compile. See [After generation](#after-generation). | The declaration that fails, such as `CreateParams.Owner` |
 | `Internal/RuleCrash` | `warn` | A diagnostics rule itself failed and was skipped for this build. Your SDK still generates; the finding tells you one check did not run. | The crashing rule's code |
 
 ### gRPC
