@@ -11,12 +11,7 @@
 import { useIntersectionObserver } from '@vueuse/core'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import {
-  getLazyPlaceholderHeight,
-  requestLazyRender,
-  setLazyPlaceholderHeight,
-  useLazyBus,
-} from '@/helpers/lazy-bus'
+import { useLazyBusContext } from '@/helpers/lazy-bus'
 
 const { id, expanded = false } = defineProps<{
   /** Identifier for this lazy section; used for scroll-to and bus registration. */
@@ -24,6 +19,13 @@ const { id, expanded = false } = defineProps<{
   /** When true, render the slot so child Lazy placeholders mount (e.g. for navigation). */
   expanded?: boolean
 }>()
+
+const {
+  getLazyPlaceholderHeight,
+  requestLazyRender,
+  setLazyPlaceholderHeight,
+  useLazyBus,
+} = useLazyBusContext()
 
 /** Fixed height for all placeholders so we do not measure or jump. */
 const PLACEHOLDER_HEIGHT_PX = 760

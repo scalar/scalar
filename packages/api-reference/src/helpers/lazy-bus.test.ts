@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
 
@@ -7,6 +8,37 @@ import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
 // ---------------------------------------------------------------------------
 
 describe('lazy-bus', () => {
+  it('scrolls to an anchor in the supplied shadow root instead of a duplicate document id', async () => {
+    const host = document.createElement('div')
+    const root = host.attachShadow({ mode: 'open' })
+    const target = document.createElement('section')
+    const outside = document.createElement('section')
+    target.id = outside.id = 'shadow-navigation-target'
+    target.tabIndex = -1
+    const scroll = vi.fn()
+    const outsideScroll = vi.fn()
+    target.scrollIntoView = scroll
+    outside.scrollIntoView = outsideScroll
+    root.append(target)
+    document.body.append(host, outside)
+
+    try {
+      scrollToLazy(
+        target.id,
+        () => {},
+        (id) => ({ id }),
+        root,
+      )
+      await nextTick()
+      expect(scroll).toHaveBeenCalled()
+      expect(outsideScroll).not.toHaveBeenCalled()
+      expect(root.activeElement).toBe(target)
+    } finally {
+      host.remove()
+      outside.remove()
+    }
+  })
+
   /**
    * A navigation tree holding one operation, so `getEntryById` answers for the
    * operation id and nothing else — the shape every anchor below has to reach.

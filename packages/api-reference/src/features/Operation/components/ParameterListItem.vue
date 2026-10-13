@@ -29,7 +29,7 @@ import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
+import { useLazyBusContext } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -73,6 +73,8 @@ defineSlots<{
   /** Additional metadata displayed alongside the schema details. */
   default?: () => unknown
 }>()
+
+const { isOnScrollTargetPath } = useLazyBusContext()
 
 const { translate } = useLocalization()
 

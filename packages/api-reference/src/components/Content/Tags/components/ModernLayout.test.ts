@@ -1,7 +1,7 @@
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
 import ModernLayout from './ModernLayout.vue'
@@ -30,8 +30,8 @@ const mockProps = {
   eventBus: null,
 }
 
-beforeEach(() => {
-  vi.mock('@/helpers/lazy-bus', () => ({
+vi.mock('@/helpers/lazy-bus', () => ({
+  useLazyBusContext: () => ({
     getLazyPlaceholderHeight: () => undefined,
     requestLazyRender: vi.fn(),
     setLazyPlaceholderHeight: vi.fn(),
@@ -39,8 +39,8 @@ beforeEach(() => {
     useLazyBus: () => ({
       isReady: computed(() => true),
     }),
-  }))
-})
+  }),
+}))
 
 afterEach(() => {
   vi.clearAllMocks()

@@ -2,7 +2,7 @@ import { Schema as BlockSchema, SchemaProperty as BlockSchemaProperty } from '@s
 import { type VNode, defineComponent, h } from 'vue'
 
 import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
-import { scrollTargetId } from '@/helpers/lazy-bus'
+import { useLazyBusContext } from '@/helpers/lazy-bus'
 
 /** Schema with the historical API Reference navigation and extension defaults. */
 export const Schema = defineComponent({
@@ -10,6 +10,7 @@ export const Schema = defineComponent({
   extends: BlockSchema,
   inheritAttrs: false,
   setup: (props, { attrs, slots }): (() => VNode) => {
+    const { scrollTargetId } = useLazyBusContext()
     return () =>
       h(
         BlockSchema,
@@ -30,6 +31,7 @@ export const SchemaProperty = defineComponent({
   extends: BlockSchemaProperty,
   inheritAttrs: false,
   setup: (props, { attrs, slots }): (() => VNode) => {
+    const { scrollTargetId } = useLazyBusContext()
     return () =>
       h(
         BlockSchemaProperty,
