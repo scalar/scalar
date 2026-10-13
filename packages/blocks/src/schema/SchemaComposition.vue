@@ -108,13 +108,22 @@ const listboxOptions = computed((): ScalarListboxOption[] =>
       (getModelNameWithArray(resolved)?.label ?? getSchemaType(resolved)) ||
       translate('schema.schema')
     const mapping = (props.schema.discriminator ?? props.discriminator)?.mapping
-    const values = getDiscriminatorValues(resolved.$ref, mapping)
+    const mappedValues = getDiscriminatorValues(resolved.$ref, mapping)
+    // Multiple inherited schemas can share a value that a mapping can only store once.
+    const inheritedValue = (resolved.discriminator as DiscriminatorMetadata)?.[
+      schemaDiscriminator
+    ]?.value
+    const values = mappedValues.length
+      ? mappedValues
+      : inheritedValue === undefined
+        ? []
+        : [inheritedValue]
     return {
       id: String(index),
       label:
-        (props.schema as DiscriminatorSchema)[schemaDiscriminator]
-          ?.variantLabels?.[index] ??
-        (values.length ? `${values.join(', ')} · ${label}` : label),
+        values.length && values.join(', ') !== label
+          ? `${values.join(', ')} · ${label}`
+          : label,
     }
   }),
 )
@@ -170,7 +179,7 @@ watch(
 )
 
 const compositionLabel = (type: CompositionKeyword): string =>
-  (props.schema as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels
+  (props.schema as DiscriminatorSchema)[schemaDiscriminator]?.inheritedVariants
     ? translate('schema.variants')
     : translate(`schema.${type}`)
 

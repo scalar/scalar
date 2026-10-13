@@ -1,4 +1,8 @@
-import { type DiscriminatorSchema, schemaDiscriminator } from '@scalar/blocks/schema'
+import {
+  type DiscriminatorSchema,
+  inferDiscriminatorMappingComposition,
+  schemaDiscriminator,
+} from '@scalar/blocks/schema'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
@@ -150,22 +154,38 @@ export const createAsyncApiSchemaAdapter = (
       Object.assign(result.discriminator ?? {}, { [schemaDiscriminator]: { value } })
     }
 
-    if (propertyName && !suppressSelector && typeof source.discriminator === 'string') {
+    if (
+      propertyName &&
+      !suppressSelector &&
+      typeof source.discriminator === 'string' &&
+      !source.oneOf &&
+      !source.anyOf
+    ) {
       const variants = named.filter((entry) => inherits(entry.schema, source))
       if (variants.length > 1) {
-        const labels = variants.map((entry) => {
-          const value = propertyValue(entry.schema, propertyName) ?? entry.name
-          return value === entry.name ? entry.name : `${value} · ${entry.name}`
-        })
-        // This oneOf exists only in the renderer view; label it Variants, not a validation union.
-        const view: DiscriminatorSchema = {
-          type: 'object',
-          title: typeof source.title === 'string' ? source.title : schemaName,
-          description: typeof source.description === 'string' ? source.description : undefined,
-          discriminator: { propertyName },
-          oneOf: variants.map((entry) => adapt(entry.schema, entry.name, true)!),
-          [schemaDiscriminator]: { variantLabels: labels },
-        }
+        const schemas = Object.fromEntries(
+          variants.map((entry) => [entry.name, adapt(entry.schema, entry.name, true)!]),
+        )
+        const mapping = Object.fromEntries(
+          variants.map((entry) => [
+            propertyValue(entry.schema, propertyName) ?? entry.name,
+            `#/components/schemas/${escapeJsonPointer(entry.name)}`,
+          ]),
+        )
+        // Normalize AsyncAPI inheritance to the same mapping consumed by OpenAPI.
+        // The shared helper resolves the concrete views, avoiding recursive selectors.
+        const view = inferDiscriminatorMappingComposition(
+          {
+            type: 'object',
+            title: typeof source.title === 'string' ? source.title : schemaName,
+            description: typeof source.description === 'string' ? source.description : undefined,
+            discriminator: { propertyName, mapping },
+            [schemaDiscriminator]: { inheritedVariants: true },
+          } as DiscriminatorSchema,
+          { components: { schemas } },
+          // Preserve component order and variants sharing a discriminator value.
+          variants.map((entry) => `#/components/schemas/${escapeJsonPointer(entry.name)}`),
+        )!
         Object.keys(result).forEach((key) => Reflect.deleteProperty(result, key))
         Object.assign(result, view)
       }

@@ -44,7 +44,7 @@ describe('create-async-api-schema-adapter', () => {
     await store.addDocument({ name: 'pets', document: createDocument() })
     const document = store.workspace.documents.pets as AsyncApiDocument
     const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(Object.keys(result.discriminator?.mapping ?? {})).toStrictEqual(['Pet', 'Cat', 'StickBug', 'Kitten'])
     const wrapper = mount(Schema, {
       props: { schema: result, eventBus: null, noncollapsible: true, options: { expandAllSchemaProperties: true } },
     })
@@ -65,14 +65,14 @@ describe('create-async-api-schema-adapter', () => {
     const result = adapt({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
     const value = (schema: DiscriminatorSchema | undefined): string | undefined =>
       (schema?.discriminator as { [schemaDiscriminator]?: { value: string } })?.[schemaDiscriminator]?.value
-    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual([
+    expect(Object.keys(result.discriminator?.mapping ?? {})).toStrictEqual([
       'Pet',
       'Cat',
-      'StickBug · StickInsect',
+      'StickBug',
       'Kitten',
       'Alias',
     ])
-    expect(result.oneOf?.map((variant) => value(variant as DiscriminatorSchema))).toStrictEqual([
+    expect(result.oneOf?.map((variant) => value(getResolvedRef(variant) as DiscriminatorSchema))).toStrictEqual([
       'Pet',
       'Cat',
       'StickBug',
@@ -81,6 +81,74 @@ describe('create-async-api-schema-adapter', () => {
     ])
     expect(value(adapt({ $ref: '#/components/schemas/Alias' }))).toBe('Alias')
     expect(value(adapt({ $ref: '#/components/schemas/Cat' }))).toBe('Cat')
+  })
+
+  it('keeps all descendants when their explicit discriminator values overlap', async () => {
+    const document = createDocument()
+    document.components = {
+      schemas: {
+        ...getResolvedRef(document.components)?.schemas,
+        LeafInsect: { allOf: [{ $ref: '#/components/schemas/StickInsect' }] },
+      },
+    }
+    const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' })
+    expect(result?.oneOf?.map((variant) => ('$ref' in variant ? variant.$ref : undefined))).toStrictEqual([
+      '#/components/schemas/Pet',
+      '#/components/schemas/Cat',
+      '#/components/schemas/StickInsect',
+      '#/components/schemas/Kitten',
+      '#/components/schemas/LeafInsect',
+    ])
+    const wrapper = mount(Schema, {
+      attachTo: globalThis.document.body,
+      props: { schema: result, eventBus: null, options: { expandAllSchemaProperties: true }, noncollapsible: true },
+    })
+    await wrapper
+      .findAll('button')
+      .find((button) => button.text().includes('Variants'))!
+      .trigger('click')
+    await flushPromises()
+    expect(
+      Array.from(globalThis.document.querySelectorAll('[role="option"]')).map((option) => option.textContent?.trim()),
+    ).toStrictEqual(['Pet', 'Cat · Friendly cat', 'StickBug · StickInsect', 'Kitten', 'StickBug · LeafInsect'])
+    wrapper.unmount()
+  })
+
+  it('preserves an explicit composition alongside a native discriminator', () => {
+    const schema = { type: 'object', discriminator: 'kind', oneOf: [{ type: 'string' }, { type: 'number' }] }
+    const result = createAsyncApiSchemaAdapter(createDocument())(schema)
+    expect(result?.oneOf).toStrictEqual([{ type: 'string' }, { type: 'number' }])
+  })
+
+  it('resolves inherited component names containing JSON Pointer escapes', () => {
+    const document = createDocument()
+    document.components = {
+      schemas: {
+        ...getResolvedRef(document.components)?.schemas,
+        'Cat/Kitten~': { allOf: [{ $ref: '#/components/schemas/Pet' }] },
+      },
+    }
+    const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' })
+    const variant = getResolvedRef(result?.oneOf?.at(-1)) as DiscriminatorSchema | undefined
+    expect(variant?.discriminator?.propertyName).toBe('petType')
+    expect(result?.discriminator?.mapping?.['Cat/Kitten~']).toBe('#/components/schemas/Cat~1Kitten~0')
+  })
+
+  it('keeps the base first when overridden values look like integer keys', () => {
+    const document = createDocument()
+    document.components = {
+      schemas: {
+        Pet: getResolvedRef(document.components)?.schemas?.Pet!,
+        Cat: { allOf: [{ $ref: '#/components/schemas/Pet' }], properties: { petType: { const: '2' } } },
+        Dog: { allOf: [{ $ref: '#/components/schemas/Pet' }], properties: { petType: { const: '1' } } },
+      },
+    }
+    const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' })
+    expect(result?.oneOf?.map((variant) => ('$ref' in variant ? variant.$ref : undefined))).toStrictEqual([
+      '#/components/schemas/Pet',
+      '#/components/schemas/Cat',
+      '#/components/schemas/Dog',
+    ])
   })
 
   it('leaves foreign schema-format discriminators untouched', () => {
@@ -104,12 +172,12 @@ describe('create-async-api-schema-adapter', () => {
         },
       }
       const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-      expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual([
+      expect(Object.keys(result.discriminator?.mapping ?? {})).toStrictEqual([
         'Pet',
         'Cat',
-        'StickBug · StickInsect',
+        'StickBug',
         'Kitten',
-        'LeafBug · LeafInsect',
+        'LeafBug',
       ])
     },
   )
@@ -119,9 +187,11 @@ describe('create-async-api-schema-adapter', () => {
     const original = structuredClone(document)
     const adapt = createAsyncApiSchemaAdapter(document)
     const result = adapt({ $ref: '#/components/schemas/Pet' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(Object.keys(result.discriminator?.mapping ?? {})).toStrictEqual(['Pet', 'Cat', 'StickBug', 'Kitten'])
     expect(
-      result.oneOf?.map((variant) => (variant as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels),
+      result.oneOf?.map(
+        (variant) => (getResolvedRef(variant) as DiscriminatorSchema)[schemaDiscriminator]?.inheritedVariants,
+      ),
     ).toStrictEqual([undefined, undefined, undefined, undefined])
     expect(document).toStrictEqual(original)
   })
@@ -146,7 +216,7 @@ describe('create-async-api-schema-adapter', () => {
     })
     const pet =
       result && 'properties' in result ? (getResolvedRef(result.properties?.pet) as DiscriminatorSchema) : undefined
-    expect(pet?.[schemaDiscriminator]?.variantLabels).toStrictEqual(['Pet', 'Cat', 'StickBug · StickInsect', 'Kitten'])
+    expect(Object.keys(pet?.discriminator?.mapping ?? {})).toStrictEqual(['Pet', 'Cat', 'StickBug', 'Kitten'])
   })
 
   it('does not invent an implicit name for an anonymous schema', () => {
@@ -171,13 +241,13 @@ describe('create-async-api-schema-adapter', () => {
       },
     }
     const result = createAsyncApiSchemaAdapter(document)({ $ref: '#/components/schemas/A' }) as DiscriminatorSchema
-    expect(result[schemaDiscriminator]?.variantLabels).toStrictEqual(['A', 'B'])
+    expect(Object.keys(result.discriminator?.mapping ?? {})).toStrictEqual(['A', 'B'])
   })
 
   it('renders a selector and discriminator value using the shared schema component', async () => {
     const result = createAsyncApiSchemaAdapter(createDocument())({ $ref: '#/components/schemas/Pet' })
     const wrapper = mount(Schema, {
-      attachTo: document.body,
+      attachTo: globalThis.document.body,
       props: { schema: result, eventBus: null, options: { expandAllSchemaProperties: true }, noncollapsible: true },
     })
     expect(wrapper.text()).toContain('Variants')
@@ -188,7 +258,7 @@ describe('create-async-api-schema-adapter', () => {
     const options = Array.from(document.querySelectorAll('[role="option"]'))
     expect(options.map((option) => option.textContent?.trim())).toStrictEqual([
       'Pet',
-      'Cat',
+      'Cat · Friendly cat',
       'StickBug · StickInsect',
       'Kitten',
     ])

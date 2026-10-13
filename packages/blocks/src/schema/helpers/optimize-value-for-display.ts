@@ -67,8 +67,8 @@ export function optimizeValueForDisplay(value: DisplaySchema | undefined): Displ
   }
 
   // Inferred AsyncAPI variants already carry complete concrete schemas. Flattening
-  // them would lose variant labels and merge the base identity into descendants.
-  if ((value as DiscriminatorSchema)[schemaDiscriminator]?.variantLabels) {
+  // them would lose reference identities and merge the base identity into descendants.
+  if ((value as DiscriminatorSchema)[schemaDiscriminator]?.inheritedVariants) {
     return value
   }
 

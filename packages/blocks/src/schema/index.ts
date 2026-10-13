@@ -1,4 +1,5 @@
 export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-metadata'
+export { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 export { default as LinkButton } from './LinkButton.vue'
 export { schemaTranslations } from './localization/translations'
 export {

@@ -7,7 +7,7 @@ export const schemaDiscriminator = Symbol('schema-discriminator')
 export type DiscriminatorMetadata = {
   [schemaDiscriminator]?: {
     value?: string
-    variantLabels?: string[]
+    inheritedVariants?: boolean
   }
 }
 
