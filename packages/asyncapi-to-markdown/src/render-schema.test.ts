@@ -25,7 +25,7 @@ describe('render-schema', () => {
       additionalProperties: false,
     })
     expect(result).toBe(
-      '<a id="scalar-model-example"></a>\n\n# Example\n\n`object`\n\n- **`count`**: `integer` (required)\n  - **minimum:** `0`\n  - **maximum:** `10`\n- **`label`**: `string | null`\n  - **enum:** `["ok",null]`\n\n**additionalProperties:**\n\nNo value is allowed.\n\n<a id="scalar-example-1"></a>\n\n**Generated example:**\n\n```json\n{\n  "count": 0,\n  "label": "ok"\n}\n```\n',
+      '<a id="scalar-model-example"></a>\n\n# Example\n\n`object`\n\n- **`count`**: `integer`, minimum: `0`, maximum: `10` (required)\n- **`label`**: `string | null`, enum: `["ok",null]`\n\n**additionalProperties:**\n\nNo value is allowed.\n\n<a id="scalar-example-1"></a>\n\n**Generated example:**\n\n```json\n{\n  "count": 0,\n  "label": "ok"\n}\n```\n',
     )
   })
 
@@ -97,5 +97,24 @@ describe('render-schema', () => {
     expect(await model({ required: ['id'] })).toBe(
       '<a id="scalar-model-example"></a>\n\n# Example\n\n**Required properties:** `id`\n',
     )
+  })
+  it('renders discriminator fields and variant mappings', async () => {
+    const result = await model({
+      oneOf: [{ type: 'object', properties: { kind: { const: 'cat' } } }],
+      discriminator: { propertyName: 'kind', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+    expect(result).toContain('**Discriminator:** `kind`')
+    expect(result).toContain('`cat`: `#/components/schemas/Cat`')
+    expect(await model({ type: 'object', discriminator: 'kind' })).toContain('**Discriminator:** `kind`')
+  })
+
+  it('keeps property annotations on one line before Markdown descriptions', async () => {
+    const result = await model({
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid', minLength: 2, description: 'Identifier **description**.' },
+      },
+    })
+    expect(result).toContain('- **`id`**: `string`, format: `uuid`, minLength: `2`\n\n  Identifier **description**.')
   })
 })

@@ -1,7 +1,15 @@
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import { anchor, createDocumentAnchors, heading, link, paragraph, text } from '@scalar/openapi-to-markdown/markdown'
+import {
+  anchor,
+  createDocumentAnchors,
+  describe,
+  heading,
+  link,
+  paragraph,
+  text,
+} from '@scalar/openapi-to-markdown/markdown'
 import type { RootContent } from 'mdast'
 
 import { object, own, resolve } from './document'
@@ -74,7 +82,11 @@ export const createSchemaRegistry = (
           return render()
         }
         if (shown.has(identity)) {
-          return [paragraph(link(`#${id(entry)}`, entry.name)), ...renderAuthoredSchemaExamples(input)]
+          return [
+            paragraph(link(`#${id(entry)}`, entry.name)),
+            ...describe(object(input).description),
+            ...renderAuthoredSchemaExamples(input),
+          ]
         }
         shown.add(identity)
         return [anchor(id(entry)), ...render()]
@@ -99,10 +111,18 @@ export const createSchemaRegistry = (
             const name = referenceName(ref)
             const url = options.schemaReferences.resolveUrl?.({ ref, name })
             const destination = url ? link(url, name) : undefined
-            return [paragraph(destination?.url ? destination : text(name)), ...renderAuthoredSchemaExamples(input)]
+            return [
+              paragraph(destination?.url ? destination : text(name)),
+              ...describe(object(input).description),
+              ...renderAuthoredSchemaExamples(input),
+            ]
           }
           queued.add(identity)
-          return [paragraph(link(`#${id(entry)}`, entry.name)), ...renderAuthoredSchemaExamples(input)]
+          return [
+            paragraph(link(`#${id(entry)}`, entry.name)),
+            ...describe(object(input).description),
+            ...renderAuthoredSchemaExamples(input),
+          ]
         },
         model,
         root: (input, render) => (whole ? render() : model(input, render)),

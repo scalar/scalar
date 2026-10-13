@@ -9,7 +9,7 @@ import type { RootContent } from 'mdast'
 import { object, resolve } from './document'
 import { code } from './render-schema'
 import { isJsonSchemaFormat } from './schema-format'
-import { isPrimitiveSchema } from './schema-view'
+import { createSchemaView, isPrimitiveSchema } from './schema-view'
 
 /** Bound the generator before expanding a shared or recursive schema graph. */
 const size = (input: unknown): number => {
@@ -54,12 +54,12 @@ const size = (input: unknown): number => {
 }
 
 /** Keep linked model examples local, preserving primitive references and authored data. */
-const stubLinkedSchemas = (input: unknown, depth = 0): unknown => {
+const stubLinkedSchemas = (input: unknown, depth = 0, view = createSchemaView()): unknown => {
   if (depth >= 10) {
     return {}
   }
   const schema = object(input)
-  if (depth > 0 && isObject(input) && typeof input.$ref === 'string' && !isPrimitiveSchema(schema)) {
+  if (depth > 0 && isObject(input) && typeof input.$ref === 'string' && !isPrimitiveSchema(view(schema))) {
     return {}
   }
   return Object.fromEntries(
@@ -70,7 +70,7 @@ const stubLinkedSchemas = (input: unknown, depth = 0): unknown => {
           Object.fromEntries(
             Object.entries(object(value)).map(([name, child]) => [
               name,
-              Array.isArray(child) ? child : stubLinkedSchemas(child, depth + 1),
+              Array.isArray(child) ? child : stubLinkedSchemas(child, depth + 1, view),
             ]),
           ),
         ]
@@ -95,8 +95,8 @@ const stubLinkedSchemas = (input: unknown, depth = 0): unknown => {
           typeof value === 'boolean'
             ? value
             : Array.isArray(value)
-              ? value.map((child) => stubLinkedSchemas(child, depth + 1))
-              : stubLinkedSchemas(value, depth + 1),
+              ? value.map((child) => stubLinkedSchemas(child, depth + 1, view))
+              : stubLinkedSchemas(value, depth + 1, view),
         ]
       }
       return [key, value]

@@ -332,4 +332,26 @@ describe('render-document', () => {
     )
     expect(result).toContain('```xml\n<event><id>authored</id></event>\n```')
   })
+  it('retains descriptions beside linked schema references', async () => {
+    const input = {
+      ...shared,
+      components: {
+        ...shared.components,
+        schemas: {
+          ...shared.components.schemas,
+          Details: { ...shared.components.schemas.Details, description: 'Important **details**.' },
+        },
+      },
+    }
+    const result = await createMarkdownFromAsyncApi(input, {
+      model: 'Event',
+      schemaReferences: {
+        mode: 'linked',
+        resolveUrl: ({ name }) => `/models/${name}`,
+      },
+    })
+    expect(result).toContain('- **`details`**: [Details](/models/Details)\n\n  Important **details**.')
+    const unlinked = await createMarkdownFromAsyncApi(input, { model: 'Event', schemaReferences: { mode: 'linked' } })
+    expect(unlinked).toContain('Important **details**.')
+  })
 })

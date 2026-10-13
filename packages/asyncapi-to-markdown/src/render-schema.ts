@@ -1,7 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { describe, inlineCode, item, list, paragraph, strong, text } from '@scalar/openapi-to-markdown/markdown'
-import type { Code, ListItem, RootContent } from 'mdast'
+import type { Code, ListItem, PhrasingContent, RootContent } from 'mdast'
 
 import { object, resolve, string } from './document'
 import { isJsonSchemaFormat } from './schema-format'
@@ -85,14 +85,28 @@ export const createSchemaRenderer = (
     const type = Array.isArray(schema.type)
       ? schema.type.join(' | ')
       : (string(schema.type) ?? (schema.properties ? 'object' : schema.items !== undefined ? 'array' : undefined))
-    const blocks: RootContent[] = [...(type ? [paragraph(inlineCode(type))] : []), ...describe(schema.description)]
-    const details = annotations.flatMap((name) =>
-      schema[name] === undefined
-        ? []
-        : [item(paragraph(strong(text(`${name}:`)), text(' '), inlineCode(JSON.stringify(getRaw(schema[name])))))],
-    )
-    if (details.length) {
-      blocks.push(list(details))
+    const summary: PhrasingContent[] = type ? [inlineCode(type)] : []
+    for (const name of annotations) {
+      if (schema[name] !== undefined) {
+        summary.push(
+          text(`${summary.length ? ', ' : ''}${name}: `),
+          inlineCode(typeof schema[name] === 'string' ? schema[name] : JSON.stringify(getRaw(schema[name]))),
+        )
+      }
+    }
+    const blocks: RootContent[] = [...(summary.length ? [paragraph(...summary)] : []), ...describe(schema.description)]
+    const discriminator = schema.discriminator
+    const propertyName = typeof discriminator === 'string' ? discriminator : string(object(discriminator).propertyName)
+    if (propertyName) {
+      blocks.push(paragraph(strong(text('Discriminator:')), text(' '), inlineCode(propertyName)))
+      const mappings = Object.entries(object(object(discriminator).mapping))
+      if (mappings.length) {
+        blocks.push(
+          list(
+            mappings.map(([name, target]) => item(paragraph(inlineCode(name), text(': '), inlineCode(String(target))))),
+          ),
+        )
+      }
     }
     const required = new Set(Array.isArray(schema.required) ? schema.required : [])
     const unlistedRequired = [...required].filter(
@@ -104,8 +118,7 @@ export const createSchemaRenderer = (
     const properties = Object.entries(object(schema.properties)).map(([name, property]): ListItem => {
       const children = render(property, next, depth + 1)
       const first = children[0]
-      const compact =
-        first?.type === 'paragraph' && first.children.length === 1 && first.children[0]?.type === 'inlineCode'
+      const compact = first?.type === 'paragraph' && ['inlineCode', 'link'].includes(first.children[0]?.type ?? '')
       return item(
         paragraph(
           strong(inlineCode(name)),

@@ -64,4 +64,27 @@ describe('render-examples', () => {
     expect(result).toContain('Schema format:')
     expect(result).not.toContain('Generated example')
   })
+  it('generates allowed values for primitive aliases wrapped in compositions', async () => {
+    const result = await createMarkdownFromAsyncApi(
+      {
+        ...input,
+        components: {
+          schemas: {
+            Choice: { allOf: [{ type: 'string', enum: ['a', 'b'] }] },
+            Constant: { allOf: [{ const: 'fixed' }] },
+            Event: {
+              type: 'object',
+              properties: {
+                choice: { $ref: '#/components/schemas/Choice' },
+                constant: { $ref: '#/components/schemas/Constant' },
+              },
+            },
+          },
+        },
+      },
+      { model: 'Event', schemaReferences: { mode: 'linked' } },
+    )
+    const example = /```json\n([\s\S]*?)\n```/.exec(result)
+    expect(JSON.parse(example![1]!)).toStrictEqual({ choice: 'a', constant: 'fixed' })
+  })
 })

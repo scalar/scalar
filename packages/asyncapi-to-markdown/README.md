@@ -53,7 +53,8 @@ Message and operation traits are merged before rendering. Authored examples are 
 Missing examples are generated from JSON schemas and labelled by context (**Generated headers example** or
 **Generated payload example**). XML payloads use XML examples, while headers use JSON. Repeated generated
 examples link to their first occurrence within the same media type and context. JSON Schema and AsyncAPI schemas include properties,
-required markers, constraints, composition and recursive-reference notices. Other schema
+required markers, constraints, composition, discriminator fields and mappings, and recursive-reference notices.
+Property types and annotations share one line, followed by their Markdown descriptions. Other schema
 formats, such as Avro and Protobuf, appear as labelled source blocks. Protocol bindings
 are preserved as JSON. Descriptions preserve Markdown, tables and code blocks using the
 same sanitization as the OpenAPI converter; images are excluded.
@@ -91,7 +92,8 @@ Linked pages omit the transitive appendix and generated message examples. Select
 pages still generate a local example with linked structured dependencies left as stubs.
 Authored examples remain available in linked mode. URL callbacks receive the original reference and
 its model name, preserving aliases. Empty or unsafe URLs render an unlinked name. Composition
-branches retain their model links.
+branches retain their model links. Linked schema usages retain their descriptions, and primitive aliases
+remain available when generating model examples.
 
 ## Browser
 
