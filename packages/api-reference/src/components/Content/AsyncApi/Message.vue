@@ -9,7 +9,10 @@ import type {
   AsyncApiDocument,
   AsyncApiMessageObject,
 } from '@scalar/types/asyncapi/3.1'
-import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import {
+  createWorkspaceEventBus,
+  type WorkspaceEventBus,
+} from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
@@ -48,12 +51,15 @@ const {
   options,
   expandedItems = {},
   parent = 'operation',
+  inline = false,
   scrollTargetId = '',
   expansion,
 } = defineProps<
   {
     /** Direct channel messages sit beneath the channel catalog heading. */
     parent?: 'channel' | 'operation'
+    /** Render another occurrence without duplicating navigation anchors or sidebar state. */
+    inline?: boolean
     message: TraversedAsyncApiMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
@@ -64,10 +70,28 @@ const {
 >()
 
 const headerId = useId()
+const instanceId = useId()
+const renderedId = computed(() => (inline ? `reply-${instanceId}` : message.id))
 const section = useTemplateRef<HTMLElement>('section')
 
-useIntersection(section, () =>
-  eventBus?.emit('intersecting:nav-item', { id: message.id }),
+/** Copy links from inline schemas must resolve to their canonical, navigable occurrence. */
+const schemaEventBus = computed(() => {
+  if (!inline || !eventBus) return eventBus
+  const bus = createWorkspaceEventBus()
+  bus.on('copy-url:nav-item', ({ id }) => {
+    eventBus.emit('copy-url:nav-item', {
+      id: message.id + id.slice(renderedId.value.length),
+    })
+  })
+  bus.on('scroll-to:model-by-name', (payload) =>
+    eventBus.emit('scroll-to:model-by-name', payload),
+  )
+  return bus
+})
+
+useIntersection(
+  section,
+  () => !inline && eventBus?.emit('intersecting:nav-item', { id: message.id }),
 )
 
 /**
@@ -147,7 +171,7 @@ const correlationTarget = computed<ReturnType<typeof getCorrelationIdTarget>>(
 const correlationBreadcrumb = computed<string[] | undefined>(() =>
   correlationTarget.value
     ? [
-        message.id,
+        renderedId.value,
         correlationTarget.value.section,
         ...correlationTarget.value.path,
       ]
@@ -173,7 +197,7 @@ const onCorrelationLink = (event: MouseEvent): void => {
     return
   }
   event.preventDefault()
-  if (eventBus) {
+  if (eventBus && !inline) {
     eventBus.emit('scroll-to:nav-item', { id })
     return
   }
@@ -198,12 +222,12 @@ const schemaOptions = computed<SchemaOptions>(() => ({
  * immediately, and seeded/synced from the shared sidebar expansion map so
  * expanding the message in the sidebar (or deep-linking to it) opens it here too.
  */
-const isExpanded = ref(expandedItems[message.id] ?? false)
+const isExpanded = ref(inline ? false : (expandedItems[message.id] ?? false))
 
 watch(
   () => expandedItems[message.id],
   (value) => {
-    if (value !== undefined) {
+    if (!inline && value !== undefined) {
       isExpanded.value = value
     }
   },
@@ -212,7 +236,9 @@ watch(
 /** Toggling the accordion updates local state and keeps the sidebar in sync. */
 const onToggle = (open: boolean) => {
   isExpanded.value = open
-  eventBus?.emit('toggle:nav-item', { id: message.id, open })
+  if (!inline) {
+    eventBus?.emit('toggle:nav-item', { id: message.id, open })
+  }
 }
 
 // Computed lazily when the expanded accordion renders its examples, then cached until the message changes.
@@ -229,7 +255,7 @@ const { level: headingLevel } = useDocumentOutline(
 
 <template>
   <div
-    :id="message.id"
+    :id="renderedId"
     ref="section"
     class="message">
     <SectionAccordion
@@ -287,15 +313,15 @@ const { level: headingLevel } = useDocumentOutline(
 
           <div
             v-if="headersSchema"
-            :id="`${message.id}.headers`"
+            :id="`${renderedId}.headers`"
             class="message-schema"
             tabindex="-1">
             <div class="message-schema-title">Headers</div>
             <Schema
-              :breadcrumb="[message.id, 'headers']"
+              :breadcrumb="[renderedId, 'headers']"
               class="ps-8"
               compact
-              :eventBus="eventBus"
+              :eventBus="schemaEventBus"
               :expansion="expansion"
               name="Headers"
               noncollapsible
@@ -307,15 +333,15 @@ const { level: headingLevel } = useDocumentOutline(
 
           <div
             v-if="payloadSchema"
-            :id="`${message.id}.payload`"
+            :id="`${renderedId}.payload`"
             class="message-schema"
             tabindex="-1">
             <div class="message-schema-title">Payload</div>
             <Schema
-              :breadcrumb="[message.id, 'payload']"
+              :breadcrumb="[renderedId, 'payload']"
               class="ps-8"
               compact
-              :eventBus="eventBus"
+              :eventBus="schemaEventBus"
               :expansion="expansion"
               name="Payload"
               noncollapsible

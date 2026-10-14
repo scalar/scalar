@@ -119,7 +119,7 @@ Channels remain visible when no operation references them. Their messages appear
 
 An operation lists only its supported messages. Omitting its `messages` property includes every channel message; setting `messages: []` includes none. The channel catalog does not change these operation subsets.
 
-Request/reply operations show a **Reply** section with the reply channel, its static address or a dynamic address expression, and the declared reply messages. Channel and message links open their existing documentation, including message schemas. Dynamic expressions describe where the address comes from at runtime; they are displayed without evaluation. Referenced reply objects and reply addresses are supported.
+Request/reply operations show a **Replies** section with the reply channel, its static address or a dynamic address expression, and the declared reply messages. Reply messages use expandable accordions to show their schemas beside the operation. Channel links and message copy links lead to their existing documentation. Dynamic expressions describe where the address comes from at runtime; they are displayed without evaluation. Referenced reply objects and reply addresses are supported.
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 

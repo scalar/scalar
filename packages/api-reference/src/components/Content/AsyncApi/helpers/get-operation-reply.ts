@@ -4,7 +4,11 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type { XInternal } from '@scalar/workspace-store/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-ignore'
-import type { TraversedDocument, TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import type {
+  TraversedAsyncApiMessage,
+  TraversedDocument,
+  TraversedEntry,
+} from '@scalar/workspace-store/schemas/navigation'
 
 import { pickHeading } from './pick-heading'
 import { resolveAsyncApiChannel, resolveAsyncApiMessage } from './resolve-async-api-nodes'
@@ -18,7 +22,7 @@ export type OperationReply = {
   address?: string
   dynamicAddress: boolean
   description?: string
-  messages: ReplyLink[]
+  messages: (ReplyLink & { entry?: TraversedAsyncApiMessage })[]
 }
 
 const findEntry = (
@@ -37,7 +41,7 @@ const findEntry = (
   return undefined
 }
 
-/** Resolve reply metadata without creating duplicate message/schema sections or new anchors. */
+/** Resolve reply metadata and canonical navigation targets, respecting hidden content. */
 export const getOperationReply = (
   document: AsyncApiDocument,
   operation: AsyncApiOperationObject | undefined,
@@ -69,7 +73,7 @@ export const getOperationReply = (
   ) {
     return undefined
   }
-  const messages = (reply.messages ?? []).flatMap((reference): ReplyLink[] => {
+  const messages = (reply.messages ?? []).flatMap((reference): OperationReply['messages'] => {
     const name = channelName ? getNameFromRef(reference.$ref, ['channels', channelName, 'messages']) : undefined
     const message =
       name && channelName
@@ -92,7 +96,13 @@ export const getOperationReply = (
     if (navigation && channelEntry && name && channel?.messages?.[name] && !entry) {
       return []
     }
-    return [{ title: pickHeading(message?.title, message?.name, name ?? reference.$ref), id: entry?.id }]
+    return [
+      {
+        title: pickHeading(message?.title, message?.name, name ?? reference.$ref),
+        id: entry?.id,
+        entry: entry?.type === 'asyncapi-message' ? entry : undefined,
+      },
+    ]
   })
 
   return {

@@ -1,18 +1,26 @@
 <script setup lang="ts">
+import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { SectionHeaderTag } from '@/components/Section'
 import type { HeadingLevel } from '@/features/document-outline'
 import { useNavigationHref } from '@/hooks/use-navigation-href'
 
+import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import type { OperationReply } from './helpers/get-operation-reply'
+import Message from './Message.vue'
 
-const { reply, eventBus, level } = defineProps<{
-  reply: OperationReply
-  eventBus: WorkspaceEventBus | null
-  level: HeadingLevel
-}>()
+const { reply, eventBus, level, document, options } = defineProps<
+  {
+    document: AsyncApiDocument
+    options?: Partial<AsyncApiSchemaRenderOptions>
+    reply: OperationReply
+    eventBus: WorkspaceEventBus | null
+    level: HeadingLevel
+  } & SchemaRenderingProps
+>()
 
 const href = useNavigationHref()
 
@@ -36,18 +44,18 @@ const navigate = (event: MouseEvent, id: string): void => {
 <template>
   <div class="mt-6 min-w-0">
     <SectionHeaderTag
-      class="text-c-1 mb-3 block! text-lg leading-[1.45] font-medium"
+      class="text-c-1 mb-3 block! text-base leading-[1.45] font-medium"
       :level="level"
       rule>
-      Reply
+      Replies
     </SectionHeaderTag>
-    <dl class="grid gap-3">
+    <dl class="grid gap-3 text-sm">
       <div v-if="reply.channel">
         <dt class="text-c-2 text-sm">Channel</dt>
         <dd class="mt-1 break-words">
           <a
             v-if="reply.channel.id"
-            class="text-c-accent rounded underline underline-offset-2 focus-visible:outline"
+            class="text-c-2 hover:text-c-1 rounded underline focus-visible:outline"
             :href="href(reply.channel.id)"
             @click="navigate($event, reply.channel.id)">
             {{ reply.channel.title }}
@@ -67,26 +75,35 @@ const navigate = (event: MouseEvent, id: string): void => {
             :value="reply.description" />
         </dd>
       </div>
-      <div v-if="reply.messages.length">
-        <dt class="text-c-2 text-sm">Reply messages</dt>
-        <dd class="mt-1">
-          <ul class="flex list-none flex-col gap-2">
-            <li
-              v-for="(message, index) in reply.messages"
-              :key="index"
-              class="break-words">
-              <a
-                v-if="message.id"
-                class="text-c-accent rounded underline underline-offset-2 focus-visible:outline"
-                :href="href(message.id)"
-                @click="navigate($event, message.id)">
-                {{ message.title }}
-              </a>
-              <span v-else>{{ message.title }}</span>
-            </li>
-          </ul>
-        </dd>
-      </div>
     </dl>
+    <div
+      v-if="reply.messages.length"
+      class="mt-3 grid gap-3">
+      <template
+        v-for="(message, index) in reply.messages"
+        :key="index">
+        <Message
+          v-if="message.entry"
+          :document="document"
+          :eventBus="eventBus"
+          :expansion="expansion"
+          inline
+          :message="message.entry"
+          :options="options"
+          :specificationExtension="specificationExtension" />
+        <a
+          v-else-if="message.id"
+          class="text-c-2 hover:text-c-1 text-sm underline"
+          :href="href(message.id)"
+          @click="navigate($event, message.id)"
+          >{{ message.title }}</a
+        >
+        <span
+          v-else
+          class="text-sm"
+          >{{ message.title }}</span
+        >
+      </template>
+    </div>
   </div>
 </template>

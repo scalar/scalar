@@ -41,12 +41,21 @@ const readReply = (document: AsyncApiDocument): ReturnType<typeof getOperationRe
 
 describe('get-operation-reply', () => {
   it('links the declared reply subset to channel-only message schemas', () => {
-    expect(readReply(createDocument())).toStrictEqual({
+    expect(readReply(createDocument())).toMatchObject({
       channel: { title: 'Reply channel', id: 'test/channel/replies' },
       address: 'replies',
       dynamicAddress: false,
       description: undefined,
       messages: [{ title: 'Result', id: 'test/channel/replies/message/result' }],
+    })
+  })
+
+  it('retains the canonical entry for rendering reply message accordions', () => {
+    expect(readReply(createDocument())?.messages[0]?.entry).toMatchObject({
+      type: 'asyncapi-message',
+      id: 'test/channel/replies/message/result',
+      channelName: 'replies',
+      messageName: 'result',
     })
   })
 
@@ -57,7 +66,7 @@ describe('get-operation-reply', () => {
       response: { action: 'receive', channel: { $ref: '#/channels/replies' } },
     }
     document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
-    expect(readReply(document)?.messages).toStrictEqual([
+    expect(readReply(document)?.messages).toMatchObject([
       { title: 'Result', id: 'test/channel/replies/operation/response/message/result' },
     ])
   })
@@ -91,7 +100,7 @@ describe('get-operation-reply', () => {
     if (!isAsyncApiDocument(document)) {
       throw new Error('Expected AsyncAPI document')
     }
-    expect(readReply(document)).toStrictEqual({
+    expect(readReply(document)).toMatchObject({
       channel: { title: 'Reply channel', id: 'test/channel/replies' },
       address: '$message.header#/replyTo',
       dynamicAddress: true,
@@ -102,14 +111,14 @@ describe('get-operation-reply', () => {
 
   it('does not infer reply messages when the list is absent or empty', () => {
     for (const messages of [undefined, []]) {
-      expect(readReply(createDocument({ channel: { $ref: '#/channels/replies' }, messages }))?.messages).toStrictEqual(
+      expect(readReply(createDocument({ channel: { $ref: '#/channels/replies' }, messages }))?.messages).toMatchObject(
         [],
       )
     }
   })
 
   it('renders address-only replies without requiring a channel', () => {
-    expect(readReply(createDocument({ address: { location: '$message.payload#/inbox' } }))).toStrictEqual({
+    expect(readReply(createDocument({ address: { location: '$message.payload#/inbox' } }))).toMatchObject({
       channel: undefined,
       address: '$message.payload#/inbox',
       dynamicAddress: true,
@@ -126,7 +135,7 @@ describe('get-operation-reply', () => {
           messages: [{ $ref: '#/channels/missing/messages/result' }],
         }),
       ),
-    ).toStrictEqual({
+    ).toMatchObject({
       channel: { title: 'missing', id: undefined },
       address: undefined,
       dynamicAddress: false,
@@ -143,7 +152,7 @@ describe('get-operation-reply', () => {
       ...document.channels,
       replies: { messages: { result: { title: 'Hidden', ...{ 'x-scalar-ignore': true } } } },
     }
-    expect(readReply(document)?.messages).toStrictEqual([])
+    expect(readReply(document)?.messages).toMatchObject([])
   })
 
   it('omits a reply channel whose operations are all hidden', () => {
@@ -177,8 +186,8 @@ describe('get-operation-reply', () => {
       },
     }
     document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
-    expect(readReply(document)?.channel).toStrictEqual({ title: 'Reply channel', id: 'test/channel/replies' })
-    expect(readReply(document)?.messages).toStrictEqual([])
+    expect(readReply(document)?.channel).toMatchObject({ title: 'Reply channel', id: 'test/channel/replies' })
+    expect(readReply(document)?.messages).toMatchObject([])
   })
 
   it('decodes escaped channel and message names when choosing the rendered target', () => {
@@ -191,7 +200,7 @@ describe('get-operation-reply', () => {
       'replies/v1': { messages: { 'result~v1': { title: 'Escaped result' } } },
     }
     document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
-    expect(readReply(document)?.messages).toStrictEqual([
+    expect(readReply(document)?.messages).toMatchObject([
       { title: 'Escaped result', id: 'test/channel/repliesv1/message/resultv1' },
     ])
   })

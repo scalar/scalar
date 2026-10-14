@@ -138,7 +138,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <SectionHeaderTag
       v-if="messages.length"
-      class="text-c-1 mt-6 mb-3 block! text-lg leading-[1.45] font-medium"
+      class="text-c-1 mt-6 mb-3 block! text-base leading-[1.45] font-medium"
       :level="messagesHeadingLevel"
       rule>
       Messages
@@ -156,9 +156,13 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :specificationExtension="specificationExtension" />
     <OperationReply
       v-if="reply"
+      :document="document"
       :eventBus="eventBus"
+      :expansion="expansion"
       :level="messagesHeadingLevel"
-      :reply="reply" />
+      :options="options"
+      :reply="reply"
+      :specificationExtension="specificationExtension" />
   </div>
 </template>
 
