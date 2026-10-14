@@ -261,7 +261,9 @@ const exampleResult = computed(() => {
           : undefined,
         openapiVersion,
         onDiagnostic: (diagnostic) => {
-          if (diagnostic.severity === 'error' && !error) error = diagnostic
+          if (diagnostic.severity === 'error' && !error) {
+            error = diagnostic
+          }
         },
       })
   return { content, error }

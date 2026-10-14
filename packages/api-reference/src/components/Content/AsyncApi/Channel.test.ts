@@ -375,7 +375,7 @@ describe('Channel', () => {
       } satisfies AsyncApiDocument
       const navigation = traverseAsyncApiDocument('catalog', document)
       const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
-      if (!channel || channel.type !== 'asyncapi-channel') {
+      if (channel?.type !== 'asyncapi-channel') {
         throw new Error('Expected the catalog channel')
       }
       const messageId = 'catalog/channel/events/message/eventb'

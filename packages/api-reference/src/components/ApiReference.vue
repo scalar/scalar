@@ -1198,6 +1198,7 @@ const changeSelectedDocument = async (
   // Now that the navigation is available, canonicalize a legacy webhook deep link:
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite
   // the URL and the scroll target to the current slug before we scroll to it.
+  let scrollTargetId = elementId
   if (elementId && typeof window !== 'undefined') {
     const canonical = redirectUrl(
       window.location.href,
@@ -1212,7 +1213,7 @@ const changeSelectedDocument = async (
     )
     if (canonical) {
       window.history.replaceState({}, '', canonical.toString())
-      elementId =
+      scrollTargetId =
         getIdFromUrl(
           canonical.href,
           config.pathRouting?.basePath ?? inferredHashBasePath.value,
@@ -1233,8 +1234,8 @@ const changeSelectedDocument = async (
   })()
 
   // When loading to a specified element we need to freeze and scroll
-  if (elementId && elementId !== slug) {
-    scrollToLazyElement(elementId)
+  if (scrollTargetId && scrollTargetId !== slug) {
+    scrollToLazyElement(scrollTargetId)
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
@@ -1245,7 +1246,9 @@ const changeSelectedDocument = async (
   }
 
   // Reflect the freshly selected document in the browser tab title
-  updatePageTitle(elementId && elementId !== slug ? elementId : slug)
+  updatePageTitle(
+    scrollTargetId && scrollTargetId !== slug ? scrollTargetId : slug,
+  )
 }
 
 /**

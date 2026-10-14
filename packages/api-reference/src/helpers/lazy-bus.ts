@@ -157,8 +157,7 @@ const runLazyBus = () => {
   if (window.requestIdleCallback) {
     window.requestIdleCallback(processQueue, { timeout: 1500 })
   } else {
-    // biome-ignore lint/nursery/noFloatingPromises: Expected floating promise
-    nextTick(processQueue)
+    void nextTick(processQueue)
   }
 }
 
@@ -472,7 +471,9 @@ const tryScroll = (
   } else {
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
       const fallback = document.getElementById(fallbackId)
-      if (fallback) scrollToElement(fallback)
+      if (fallback) {
+        scrollToElement(fallback)
+      }
     }
     clearScrollTarget(id)
     onComplete()

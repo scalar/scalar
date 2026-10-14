@@ -83,7 +83,7 @@ const stubMatchMedia = ({ hover = true, reducedMotion = false }: { hover?: boole
     'matchMedia',
     vi.fn((query: string) => ({
       media: query,
-      matches: query.includes('hover') ? hover : query.includes('prefers-reduced-motion') ? reducedMotion : false,
+      matches: query.includes('hover') ? hover : query.includes('prefers-reduced-motion') && reducedMotion,
     })),
   )
 }
