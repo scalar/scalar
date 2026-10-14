@@ -1086,4 +1086,12 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'markdown', '# After', 'heading')
     assertHas('See <https://x.com> now\n', 'markdown', '<https://x.com>', 'link')
   })
+
+  it('http: highlights an XML body and still finds the next message', () => {
+    const code =
+      'POST /soap HTTP/1.1\nContent-Type: application/xml\n\n<user id="1"><name>Ada</name></user>\n\n###\nGET /x HTTP/1.1\n'
+    assertHas(code, 'http', 'user', 'tag')
+    assertHas(code, 'http', 'id', 'tag.attribute')
+    assertHas(code, 'http', 'GET', 'keyword.control')
+  })
 })
