@@ -786,11 +786,12 @@ export const bundleDocument = async (
       references.register(document, retrievalUri, [config.externalDocumentsKey, key])
     }
   }
-  for (const [uri, pending] of cache) {
+  for (const [uri, pending] of [...cache]) {
     const result = await pending
     if (result.ok) {
       const retrievalUri = resolveReferencePath(defaultOrigin, uri)
       const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
+      if (diagnostics) cache.set(relativeUri, pending)
       const key = await generate(relativeUri)
       traversal.register(result.data, retrievalUri)
       references.register(result.data, retrievalUri, [config.externalDocumentsKey, key])
@@ -825,6 +826,8 @@ export const bundleDocument = async (
       }
     }
   }
+
+  const pendingAnchors: (() => Promise<void>)[] = []
 
   const bundler = async (
     root: unknown,
@@ -958,6 +961,7 @@ export const bundleDocument = async (
             location.context,
             parsePath(`/${localRef}`).slice(local.documentPath.length),
           )
+          references.refresh(local.document)
         }
         if (isPartialBundling || (diagnostics && config.traversal === 'document')) {
           const segments = parsePath(`/${localRef}`)
@@ -1019,9 +1023,17 @@ export const bundleDocument = async (
 
       const [prefix, path = ''] = ref.split('#', 2)
       if (diagnostics && !prefix) {
-        report('missing-target')
-        await executeHooks('onResolveError', root)
-        await executeHooks('onAfterNodeProcess', root, context)
+        // A later fragment may expose an anchor in a document already loaded in memory.
+        pendingAnchors.push(async () => {
+          const target = references.resolve(ref, nodeOrigin)
+          if (target?.value !== undefined) {
+            if (!target.preserveReference) root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
+          } else {
+            report('missing-target')
+            await executeHooks('onResolveError', root)
+          }
+          await executeHooks('onAfterNodeProcess', root, context)
+        })
         return
       }
 
@@ -1088,54 +1100,72 @@ export const bundleDocument = async (
           )
         }
 
-        const target = !isChunk && diagnostics ? references.resolve(ref, nodeOrigin) : undefined
-        if (diagnostics && !isChunk && target?.value === undefined) {
-          setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
-          report('missing-target')
-          await executeHooks('onResolveError', root)
+        // Validate chunk targets separately so their internal references keep the referring origin.
+        const targetReferences = isChunk && diagnostics ? documentReferences(config.externalDocumentsKey) : references
+        if (isChunk && diagnostics) {
+          targetReferences.register(result.data, resolvedPath, [config.externalDocumentsKey, compressedPath])
+        }
+        const finishResolution = async (): Promise<void> => {
+          const target = diagnostics ? targetReferences.resolve(ref, nodeOrigin) : undefined
+          if (diagnostics && target?.value === undefined) {
+            setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
+            report('missing-target')
+            await executeHooks('onResolveError', root)
+            await executeHooks('onAfterNodeProcess', root, context)
+            return
+          }
+          const bundledReference = target
+            ? `#/${target.path}`
+            : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+          if (config.treeShake === true) {
+            // Store only the subtree that is actually used
+            // This optimizes the bundle size by only including the parts of the external document
+            // that are referenced, rather than the entire document
+            copyReferences(
+              documentRoot,
+              { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
+              bundledReference.substring(1),
+              config.externalDocumentsKey,
+              compressedPath,
+              false,
+              new Set(),
+              references.identity(result.data)?.metadata,
+            )
+          }
+          if ((!config.treeShake || diagnostics) && !seen) {
+            // Store the external document in the main document's x-ext key
+            // When tree shaking is disabled, we include the entire external document
+            // This preserves all content and is faster since we don't need to analyze and copy
+            // specific parts. This approach is ideal when storing the result in memory
+            // as it avoids the overhead of tree shaking operations
+            const metadata = references.identity(result.data)?.metadata
+            setPath(
+              documentRoot,
+              `/${config.externalDocumentsKey}/${compressedPath}`,
+              isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
+            )
+          }
+
+          // Update the $ref to point to the embedded document in x-ext
+          // This is necessary because we need to maintain the correct path context
+          // for the embedded document while preserving its internal structure
+          root.$ref = referenceToRoot(bundledReference, nodeOrigin)
+
+          await executeHooks('onResolveSuccess', root)
+
           await executeHooks('onAfterNodeProcess', root, context)
           return
         }
-        const bundledReference = target
-          ? `#/${target.path}`
-          : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
-        if (config.treeShake === true) {
-          // Store only the subtree that is actually used
-          // This optimizes the bundle size by only including the parts of the external document
-          // that are referenced, rather than the entire document
-          copyReferences(
-            documentRoot,
-            { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
-            bundledReference.substring(1),
-            config.externalDocumentsKey,
-            compressedPath,
-            false,
-            new Set(),
-            references.identity(result.data)?.metadata,
-          )
+        if (
+          diagnostics &&
+          path &&
+          !path.startsWith('/') &&
+          targetReferences.resolve(ref, nodeOrigin)?.value === undefined
+        ) {
+          pendingAnchors.push(finishResolution)
+        } else {
+          await finishResolution()
         }
-        if ((!config.treeShake || diagnostics) && !seen) {
-          // Store the external document in the main document's x-ext key
-          // When tree shaking is disabled, we include the entire external document
-          // This preserves all content and is faster since we don't need to analyze and copy
-          // specific parts. This approach is ideal when storing the result in memory
-          // as it avoids the overhead of tree shaking operations
-          const metadata = references.identity(result.data)?.metadata
-          setPath(
-            documentRoot,
-            `/${config.externalDocumentsKey}/${compressedPath}`,
-            isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
-          )
-        }
-
-        // Update the $ref to point to the embedded document in x-ext
-        // This is necessary because we need to maintain the correct path context
-        // for the embedded document while preserving its internal structure
-        root.$ref = referenceToRoot(bundledReference, nodeOrigin)
-
-        await executeHooks('onResolveSuccess', root)
-
-        await executeHooks('onAfterNodeProcess', root, context)
         return
       }
 
@@ -1172,6 +1202,7 @@ export const bundleDocument = async (
   }
 
   await bundler(rawSpecification)
+  for (const resolveAnchor of pendingAnchors) await resolveAnchor()
 
   if (diagnostics && config.treeShake && diagnostics.length === 0) {
     if (storedDocuments === undefined) delete documentRoot[config.externalDocumentsKey]

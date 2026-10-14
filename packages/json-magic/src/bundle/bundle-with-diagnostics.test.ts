@@ -36,6 +36,7 @@ describe('bundle-with-diagnostics', () => {
       origin: '/root.json',
       plugins: [loader.plugin],
       treeShake: true,
+      compress: (value) => (value.includes('missing') ? 'missing' : 'external'),
     })
     expect(result.diagnostics).toStrictEqual([
       { kind: 'missing-target', reference: '#/absent', source: '/root.json', pointer: '#/local/$ref' },
@@ -47,7 +48,12 @@ describe('bundle-with-diagnostics', () => {
         pointer: '#/fragment/$ref',
       },
     ])
-    expect(result.document).toStrictEqual(input)
+    expect(result.document).toStrictEqual({
+      local: { $ref: '#/absent' },
+      external: { $ref: './missing.json' },
+      fragment: { $ref: './external.json#/absent' },
+      'x-ext': { external: { existing: { type: 'string' } } },
+    })
     expect(result.document['fragment'].$ref).toBe('./external.json#/absent')
     expect(result.complete).toBe(false)
     expect(result.pruning).toBe('skipped')
@@ -501,5 +507,87 @@ describe('bundle-with-diagnostics', () => {
       treeShake: true,
     })
     expect(restored.diagnostics).toStrictEqual([])
+  })
+  it('ignores Paths and Responses extensions but resolves named component entries', async () => {
+    const loader = sources({})
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        paths: {
+          'x-data': { $ref: '/literal' },
+          '/test': { get: { responses: { 'x-data': { $ref: '/literal' } } } },
+        },
+        components: {
+          responses: { 'x-response': { $ref: '#/missing-response' } },
+          pathItems: { 'x-path': { $ref: '#/missing-path' } },
+        },
+      },
+      { plugins: [loader.plugin], traversal: 'document', treeShake: false },
+    )
+    expect(loader.calls).toStrictEqual([])
+    expect(result.diagnostics.map(({ reference }) => reference)).toStrictEqual(['#/missing-response', '#/missing-path'])
+  })
+
+  it('accumulates fragment schema identities across cached bundling runs', async () => {
+    const external = { A: { $anchor: 'a', properties: { child: { $ref: '#b' } } }, B: { $anchor: 'b' } }
+    const loader = sources({ '/ext.json': external })
+    const cache = new Map<string, Promise<ResolveResult>>()
+    for (const treeShake of [false, true]) {
+      const resolvedDocuments: string[] = []
+      const result = await bundleWithDiagnostics(
+        {
+          openapi: '3.1.0',
+          components: {
+            schemas: {
+              A: { $ref: '/ext.json#/A' },
+              ForwardAnchorB: { $ref: '/ext.json#b' },
+              B: { $ref: '/ext.json#/B' },
+              AnchorA: { $ref: '/ext.json#a' },
+              AnchorB: { $ref: '/ext.json#b' },
+            },
+          },
+        },
+        {
+          plugins: [loader.plugin],
+          cache,
+          traversal: 'document',
+          treeShake,
+          compress: () => 'external',
+          hooks: {
+            resolveDocument: (_document, uri) => {
+              resolvedDocuments.push(uri)
+              return undefined
+            },
+          },
+        },
+      )
+      expect(resolvedDocuments.filter((uri) => uri === '/ext.json')).toStrictEqual(['/ext.json'])
+      expect(result.diagnostics).toStrictEqual([])
+      expect(result.document['components'].schemas.AnchorA.$ref).toBe('#/x-ext/external/A')
+      expect(result.document['components'].schemas.AnchorB.$ref).toBe('#/x-ext/external/B')
+      expect(result.document['components'].schemas.ForwardAnchorB.$ref).toBe('#/x-ext/external/B')
+      expect(result.document['x-ext'].external).toStrictEqual({
+        A: { $anchor: 'a', properties: { child: { $ref: '#b' } } },
+        B: { $anchor: 'b' },
+      })
+    }
+    expect(loader.calls).toStrictEqual(['/ext.json'])
+  })
+
+  it('retains missing global chunk fragments and skips pruning', async () => {
+    const loader = sources({ '/ext.json': { present: {} } })
+    const result = await bundleWithDiagnostics(
+      { $ref: '/ext.json#/missing', $global: true },
+      {
+        plugins: [loader.plugin],
+        treeShake: true,
+        compress: () => 'external',
+      },
+    )
+    expect(result.document['$ref']).toBe('/ext.json#/missing')
+    expect(result.diagnostics).toMatchObject([{ kind: 'missing-target', reference: '/ext.json#/missing' }])
+    expect(result.complete).toBe(false)
+    expect(result.pruning).toBe('skipped')
+    expect(result.document['x-ext'].external).toStrictEqual({ present: {} })
   })
 })

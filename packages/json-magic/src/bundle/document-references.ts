@@ -32,6 +32,7 @@ type Resource = {
 type DocumentReferences = {
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
+  refresh: (document: unknown) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
   resolve: (
@@ -58,6 +59,8 @@ export const documentReferences = (
   const origins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
+  const registrations = new Map<unknown, { base: string; path: string[] }>()
+
   const register = (document: unknown, retrievalUri: string, path: string[] = []): void => {
     const identity = resolveDocument?.(document, retrievalUri)
     const base = identity === undefined ? retrievalUri : resolveReferencePath(retrievalUri, identity.baseUri)
@@ -71,6 +74,12 @@ export const documentReferences = (
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }
+    registrations.set(document, { base, path })
+    index(document, base, path)
+  }
+
+  // Refresh newly exposed fragments without replaying the document identity hook.
+  const index = (document: unknown, base: string, path: string[]): void => {
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
@@ -120,6 +129,10 @@ export const documentReferences = (
   return {
     identity: (document) => identities.get(document),
     register,
+    refresh: (document) => {
+      const registration = registrations.get(document)
+      if (registration) index(document, registration.base, registration.path)
+    },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
     resolve: (ref, base) => {

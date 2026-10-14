@@ -16,6 +16,7 @@ export const documentTraversal = (
   register: (document: unknown, source: string, context?: ReferenceContext, targetPath?: readonly string[]) => void
   location: (node: object) => SourceLocation | undefined
 } => {
+  const exposures = new WeakMap<object, Map<string, { path: readonly string[]; context: ReferenceContext }>>()
   const locations = new WeakMap<object, SourceLocation>()
   const register = (
     document: unknown,
@@ -23,6 +24,10 @@ export const documentTraversal = (
     context?: ReferenceContext,
     targetPath: readonly string[] = [],
   ): void => {
+    if (document === null || typeof document !== 'object') return
+    const targets = exposures.get(document) ?? new Map<string, { path: readonly string[]; context: ReferenceContext }>()
+    exposures.set(document, targets)
+    if (context !== undefined) targets.set(JSON.stringify(targetPath), { path: targetPath, context })
     const visited = new WeakSet<object>()
     const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     const targetContext = context ?? (api ? 'object' : 'schema')
@@ -31,11 +36,7 @@ export const documentTraversal = (
     const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
       if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
-      const current = !aware
-        ? 'generic'
-        : path.length === targetPath.length && path.every((key, i) => key === targetPath[i])
-          ? targetContext
-          : inherited
+      const current = !aware ? 'generic' : (targets.get(JSON.stringify(path))?.context ?? inherited)
       const currentSiblings =
         isObject(value) && typeof value.$schema === 'string'
           ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
@@ -52,8 +53,10 @@ export const documentTraversal = (
             ? current
             : childReferenceContext(current, key, isSwagger)
         const childPath = [...path, key]
-        const leadsToTarget =
-          childPath.length < targetPath.length && childPath.every((segment, i) => segment === targetPath[i])
+        const leadsToTarget = [...targets.values()].some(
+          ({ path: target }) =>
+            childPath.length < target.length && childPath.every((segment, i) => segment === target[i]),
+        )
         visit(child, childPath, next === 'data' && leadsToTarget ? 'data-container' : next, currentSiblings)
       }
     }

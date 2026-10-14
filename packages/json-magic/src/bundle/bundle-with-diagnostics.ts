@@ -26,6 +26,10 @@ export const bundleWithDiagnostics = async (
 ): Promise<BundleResult> => {
   const diagnostics: ReferenceDiagnostic[] = []
   const sources = config.cache ?? new Map<string, Promise<ResolveResult>>()
+  const prepareSource = async (pending: Promise<ResolveResult>): Promise<ResolveResult> => {
+    const result = await pending.catch((): ResolveResult => ({ ok: false }))
+    return result.ok ? { ...result, data: structuredClone(result.data) } : result
+  }
   const wrapLoader = (plugin: LoaderPlugin): LoaderPlugin => ({
     ...plugin,
     exec: async (uri): Promise<ResolveResult> => {
@@ -37,8 +41,7 @@ export const bundleWithDiagnostics = async (
             .catch((): ResolveResult => ({ ok: false })),
         )
       }
-      const result = await sources.get(uri)!.catch((): ResolveResult => ({ ok: false }))
-      return result.ok ? { ...result, data: structuredClone(result.data) } : result
+      return await prepareSource(sources.get(uri)!)
     },
   })
   const document = await bundleDocument(
@@ -48,14 +51,7 @@ export const bundleWithDiagnostics = async (
       cache: new Map(
         [...sources]
           .filter(([uri]) => uri !== input && uri !== config.origin)
-          .map(([uri, pending]) => [
-            uri,
-            pending
-              .catch((): ResolveResult => ({ ok: false }))
-              .then(
-                (result): ResolveResult => (result.ok ? { ...result, data: structuredClone(result.data) } : result),
-              ),
-          ]),
+          .map(([uri, pending]) => [uri, prepareSource(pending)]),
       ),
       plugins: config.plugins.map((plugin) => (plugin.type === 'loader' ? wrapLoader(plugin) : plugin)),
     },
