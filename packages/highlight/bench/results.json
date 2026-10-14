@@ -2,8 +2,8 @@
   "sizes": {
     "core only (tokenize + render)": 3216,
     "core + python": 5194,
-    "compat + json/javascript/bash": 7028,
-    "core + lazy loader (initial chunk)": 4821,
+    "compat + json/javascript/bash": 7082,
+    "core + lazy loader (initial chunk)": 4819,
     "style.css (minified)": 1289
   },
   "languageSizes": {
@@ -25,7 +25,7 @@
     "http": 639,
     "ini": 711,
     "java": 1173,
-    "javascript": 1695,
+    "javascript": 1750,
     "json": 294,
     "julia": 1399,
     "kotlin": 1359,
@@ -52,7 +52,7 @@
   "comparisonSizes": {
     "@scalar/code-highlight syntaxHighlight": 130644
   },
-  "measuredAt": "2026-10-14T17:32:33.651Z",
+  "measuredAt": "2026-10-14T19:46:35.770Z",
   "node": "v22.22.0",
   "throughput": {
     "python": 5526597.002212084,

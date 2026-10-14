@@ -63,6 +63,13 @@ const NOT_TS_AFTER =
 /** A JSX tag name: a component, a member expression, or a lowercase element. */
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
+/**
+ * What follows a name that is assigned a function: `= () =>`, `= async x =>`,
+ * `= function`. The parameter list cannot nest parentheses, which covers real
+ * code and keeps the scan bounded.
+ */
+const ASSIGNS_FUNCTION = `[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>)`
+
 /** Body of a regex literal: no unescaped `/`, character classes may hold one. */
 const REGEX = '/(?![/*])(?:[^/\\\\\\n\\[]|\\\\.|\\[(?:[^\\]\\\\\\n]|\\\\.)*\\])+/[dgimsuvy]*'
 
@@ -114,22 +121,22 @@ const javascript: Grammar = {
           scope: ['punctuation', null, 'variable.member'],
         },
 
-        // `const App = () => …` and `handler = function …` name a function as
-        // surely as a declaration does. The parameter list cannot nest
-        // parentheses here, which covers real code and keeps the scan bounded.
-        {
-          match: `\\b${ID}(?=[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>))`,
-          scope: 'function',
-        },
+        // `handler = function …` and `this.run = () => …` name a function as
+        // surely as a declaration does.
+        { match: `\\b${ID}(?=${ASSIGNS_FUNCTION})`, scope: 'function' },
 
         {
           match:
             '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
           scope: 'keyword.control',
         },
+        // The declared name is scoped by a state of its own rather than by a
+        // rule here: a rule that has to look back at `const` runs at every
+        // identifier in the file, while the state only runs after the keyword.
+        { match: '\\b(?:const|let|var)\\b', scope: 'keyword.declaration', push: 'declared-name' },
         {
           match:
-            '\\b(?:function|class|const|let|var|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get|set|type)\\b',
+            '\\b(?:function|class|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get|set|type)\\b',
           scope: 'keyword.declaration',
         },
         {
@@ -178,6 +185,19 @@ const javascript: Grammar = {
         },
         { match: '[()\\[\\]{}]', scope: 'punctuation.bracket' },
         { match: '[,;:]', scope: 'punctuation.delimiter' },
+      ],
+    },
+
+    /**
+     * Right after `const`, `let` or `var`: the one name it declares. A
+     * destructuring pattern or anything else ends the state without a scope.
+     */
+    'declared-name': {
+      rules: [
+        { match: '\\benum\\b', scope: 'keyword.declaration', pop: true },
+        { match: `${ID}(?=${ASSIGNS_FUNCTION})`, scope: 'function', pop: true },
+        { match: ID, scope: 'variable', pop: true },
+        { match: '(?=\\S)', pop: true },
       ],
     },
 

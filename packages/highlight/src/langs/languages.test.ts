@@ -945,6 +945,20 @@ describe('regressions from the TextMate comparison', () => {
     expect(scoped(code, 'javascript').filter(([, s]) => s === 'regexp')).toHaveLength(2)
   })
 
+  it('javascript: scopes the name a const, let or var declares', () => {
+    const code =
+      'const total = items.length\nlet x = 1, y\nconst App = () => null\nconst { a } = obj\nfor (const k of keys) {}\nexport const enum Color { Red }\nconst n: number = 1\n'
+    assertHas(code, 'javascript', 'total', 'variable')
+    assertHas(code, 'javascript', 'x', 'variable')
+    assertHas(code, 'javascript', 'k', 'variable')
+    assertHas(code, 'javascript', 'n', 'variable')
+    // An arrow function keeps the function scope, and patterns stay plain.
+    assertHas(code, 'javascript', 'App', 'function')
+    expect(scoped(code, 'javascript').some(([t, s]) => t === 'a' && s === 'variable')).toBeFalsy()
+    assertHas(code, 'javascript', 'enum', 'keyword.declaration')
+    assertHas(code, 'javascript', 'const', 'keyword.declaration')
+  })
+
   it('bash: scopes unquoted arguments as strings, after the command, keywords and flags', () => {
     const code = 'docker compose up -d /tmp/x\nif true; then echo hi; fi\nx=1 ls ~/bin\n'
     assertHas(code, 'bash', 'docker', 'function.call')
