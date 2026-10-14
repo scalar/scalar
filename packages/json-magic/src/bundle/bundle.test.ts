@@ -83,17 +83,17 @@ describe('bundle', () => {
         },
       })
       const root = result as (typeof documents)[typeof rootUrl]
-      expect(calls).toEqual([rootUrl, childUrl, nestedUrl, 'https://example.test/api/local.json'])
+      expect(calls).toStrictEqual([rootUrl, childUrl, nestedUrl, 'https://example.test/api/local.json'])
       expect(root.loaded.$ref).toBe(`${childUrl}#/$defs/value`)
       expect(root.http.$ref).toBe('http://never.test/schema#value')
       expect(root.https.$ref).toBe('https://never.test/schema#/value')
       expect(root.internal.$ref).toBe('#/child')
-      expect(decisions.find(([ref]) => ref === './nested.json')).toEqual([
+      expect(decisions.find(([ref]) => ref === './nested.json')).toStrictEqual([
         './nested.json',
         'https://example.test/api/schemas/child.json',
       ])
-      expect([...cache.keys()]).toEqual(['child.json', 'schemas/nested.json', 'local.json'])
-      expect(result['x-ext-urls']).toEqual({
+      expect([...cache.keys()]).toStrictEqual(['child.json', 'schemas/nested.json', 'local.json'])
+      expect(result['x-ext-urls']).toStrictEqual({
         'child.json': 'child.json',
         'schemas%2Fnested.json': 'schemas/nested.json',
         'local.json': 'local.json',
@@ -142,12 +142,12 @@ describe('bundle', () => {
       preserveReference: (ref) => /^https?:\/\//.test(ref),
       hooks: { onResolveStart, onResolveSuccess, onResolveError },
     })
-    expect(result).toEqual({ ...before, 'x-ext-urls': {} })
+    expect(result).toStrictEqual({ ...before, 'x-ext-urls': {} })
     expect(fetch).toHaveBeenCalledTimes(0)
     expect(onResolveStart).toHaveBeenCalledTimes(0)
     expect(onResolveSuccess).toHaveBeenCalledTimes(0)
     expect(onResolveError).toHaveBeenCalledTimes(0)
-    expect([...cache.keys()]).toEqual(['https://example.test/cached'])
+    expect([...cache.keys()]).toStrictEqual(['https://example.test/cached'])
   })
 
   it.each([true, false])(
@@ -182,8 +182,8 @@ describe('bundle', () => {
           },
         },
       })
-      expect(reads).toEqual(['/local.json', '/missing.json', 'https://broken.test/schema'])
-      expect(errors).toEqual(['./missing.json', 'https://broken.test/schema'])
+      expect(reads).toStrictEqual(['/local.json', '/missing.json', 'https://broken.test/schema'])
+      expect(errors).toStrictEqual(['./missing.json', 'https://broken.test/schema'])
       expect(input.keep.$ref).toBe('https://keep.test/schema')
     },
   )
@@ -226,7 +226,7 @@ describe('bundle', () => {
     const exported = JSON.parse(JSON.stringify(result))
     const copied = exported['x-ext'].child
     expect(copied.$id).toBe('https://example.test/api/schemas/child.json')
-    expect(Object.keys(copied.$defs)).toEqual(['nested'])
+    expect(Object.keys(copied.$defs)).toStrictEqual(['nested'])
     const index = documentReferences('x-ext')
     index.register(copied, 'https://download.test/bundle.json')
     const nested = copied.$defs.nested

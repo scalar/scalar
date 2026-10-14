@@ -142,6 +142,14 @@ existing bundling behavior. Predicates preserving relative references are
 responsible for ensuring those references remain meaningful at the output base;
 use the absolute HTTP(S) predicate above for portable external references.
 
+Known limitation: an embedded schema with its own `$id` cannot reliably reference
+another bundled resource through the outer document when that outer document has
+no declared identity. For example, a fragment-only `#/x-ext/...` reference inside
+that schema resolves against the schema, not the outer bundle. Supplying a
+format-appropriate root identity through `resolveDocument` avoids this case.
+Preserving selected references does not currently fix anonymous-root cross-scope
+bundling; `$id` normalization alone does not make that output portable.
+
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
 Document formats can supply a `resolveDocument` lifecycle hook returning `{ baseUri, metadata }`. The bundler resolves relative references against that base URI and retains the supplied root metadata when tree shaking. The hook also applies to cached and previously bundled documents. Without a hook, the retrieval URI remains the document base. JSON Schema `$id` values resolve against their enclosing base.
