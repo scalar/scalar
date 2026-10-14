@@ -944,4 +944,15 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'javascript', 'gql', 'function.call')
     expect(scoped(code, 'javascript').filter(([, s]) => s === 'regexp')).toHaveLength(2)
   })
+
+  it('bash: scopes unquoted arguments as strings, after the command, keywords and flags', () => {
+    const code = 'docker compose up -d /tmp/x\nif true; then echo hi; fi\nx=1 ls ~/bin\n'
+    assertHas(code, 'bash', 'docker', 'function.call')
+    assertHas(code, 'bash', 'compose', 'string')
+    assertHas(code, 'bash', '/tmp/x', 'string')
+    assertHas(code, 'bash', '-d', 'constant')
+    assertHas(code, 'bash', 'then', 'keyword.control')
+    assertHas(code, 'bash', 'echo', 'function.builtin')
+    assertHas(code, 'bash', 'x', 'variable')
+  })
 })

@@ -91,6 +91,10 @@ const bash: Grammar = {
         { match: '(?:^|\\s)(--?[A-Za-z][\\w-]*)', scope: ['constant'] },
 
         { match: '\\b\\d+\\b', scope: 'number' },
+        // An unquoted argument is a string to the shell, and themes colour it
+        // like one. Command names, keywords and flags start at the same place
+        // and come first.
+        { match: '[^\\s$\'"`\\\\|&;()<>{}\\[\\]#=-][^\\s$\'"`\\\\|&;()<>{}]{0,256}', scope: 'string' },
         // `/` is left out: at the top level it is almost always a path
         // separator, and coloring every path segment boundary is noise.
         { match: '&&|\\|\\||[|&;]|[<>]{1,2}|[-+*%!=]=?|=~', scope: 'operator' },
