@@ -1105,4 +1105,14 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'php', 'color', 'property')
     assertHas(code, 'php', 'style', 'tag')
   })
+
+  it('css: scopes the condition of @media and @supports', () => {
+    const code = '@media screen and (max-width: 600px) { a { color: red } }\n@supports (display: grid) { b { c: d } }\n'
+    assertHas(code, 'css', 'and', 'keyword')
+    assertHas(code, 'css', 'max-width', 'property')
+    assertHas(code, 'css', '600', 'number')
+    assertHas(code, 'css', 'screen', 'constant')
+    assertHas(code, 'css', 'display', 'property')
+    assertHas(code, 'css', 'color', 'property')
+  })
 })
