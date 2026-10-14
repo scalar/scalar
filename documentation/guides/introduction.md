@@ -744,11 +744,12 @@
   .lp-features {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2px 16px;
+    gap: 8px 16px;
     margin-top: 8px;
   }
   .lp-features b {
-    min-height: 24px;
+    min-height: 28px;
+    gap: 6px;
     font-size: var(--scalar-font-size-3);
   }
   .lp-actions {
