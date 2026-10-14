@@ -21,6 +21,7 @@ import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
+import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -39,6 +40,7 @@ import {
   resolveAsyncApiMessage,
 } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
+import SchemaSource from './SchemaSource.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -147,18 +149,12 @@ const protocolLabels = computed(() => {
 
 const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
 
-/** Payload schema, unwrapped from `$ref`s and Multi Format Schema wrappers. */
+/** Preserve format metadata so source-only schemas remain visible. */
 const payloadSchema = computed(() =>
-  resolvedMessage.value
-    ? adaptSchema.value(resolvedMessage.value.payload)
-    : undefined,
+  resolveAsyncApiSchema(resolvedMessage.value?.payload),
 )
-
-/** Header schema, unwrapped the same way as the payload. */
 const headersSchema = computed(() =>
-  resolvedMessage.value
-    ? adaptSchema.value(resolvedMessage.value.headers)
-    : undefined,
+  resolveAsyncApiSchema(resolvedMessage.value?.headers),
 )
 
 /** Binding-only messages still need a details column beside their examples. */
@@ -350,6 +346,7 @@ const { level: headingLevel } = useDocumentOutline(
             tabindex="-1">
             <div class="message-schema-title">Headers</div>
             <Schema
+              v-if="headersSchema.kind === 'schema'"
               :breadcrumb="[renderedId, 'headers']"
               class="ps-8"
               compact
@@ -358,9 +355,15 @@ const { level: headingLevel } = useDocumentOutline(
               name="Headers"
               noncollapsible
               :options="schemaOptions"
-              :schema="headersSchema"
+              :schema="
+                adaptSchema(resolvedMessage?.headers) ?? headersSchema.schema
+              "
               :scrollTargetId="activeScrollTarget"
               :specificationExtension="specificationExtension" />
+            <SchemaSource
+              v-else
+              :format="headersSchema.format"
+              :value="headersSchema.value" />
           </div>
 
           <div
@@ -370,6 +373,7 @@ const { level: headingLevel } = useDocumentOutline(
             tabindex="-1">
             <div class="message-schema-title">Payload</div>
             <Schema
+              v-if="payloadSchema.kind === 'schema'"
               :breadcrumb="[renderedId, 'payload']"
               class="ps-8"
               compact
@@ -378,9 +382,15 @@ const { level: headingLevel } = useDocumentOutline(
               name="Payload"
               noncollapsible
               :options="schemaOptions"
-              :schema="payloadSchema"
+              :schema="
+                adaptSchema(resolvedMessage?.payload) ?? payloadSchema.schema
+              "
               :scrollTargetId="activeScrollTarget"
               :specificationExtension="specificationExtension" />
+            <SchemaSource
+              v-else
+              :format="payloadSchema.format"
+              :value="payloadSchema.value" />
           </div>
         </div>
         <MessageExamples
