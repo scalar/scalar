@@ -1,6 +1,7 @@
 import { dynamicRegExps } from './compile'
 import { getLanguage } from './registry'
 import type { CompiledGrammar, CompiledRule, CompiledState, Emit, Token } from './types'
+import { REMEMBERED } from './types'
 
 /**
  * Runs the state machine over `code`, calling `emit` for every range.
@@ -22,7 +23,7 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 
   while (pos < len) {
     if (top.embed !== null) {
-      pos = embedded(code, pos, top, emit)
+      pos = embedded(code, pos, top, memory[memory.length - 1]!, emit)
       // An embedding state pops itself. A rule that `set` into it from the
       // only state on the stack leaves nothing below, so the root takes over.
       if (stack.length > 1) {
@@ -128,7 +129,7 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
  * embedded grammar starts in its root state and cannot read past the body —
  * an unterminated string in a `<script>` cannot swallow the `</script>`.
  */
-const embedded = (code: string, pos: number, state: CompiledState, emit: Emit): number => {
+const embedded = (code: string, pos: number, state: CompiledState, remembered: string, emit: Emit): number => {
   const until = state.embed!.until
   until.lastIndex = pos
   const found = until.exec(code)
@@ -136,7 +137,10 @@ const embedded = (code: string, pos: number, state: CompiledState, emit: Emit): 
   if (stop === pos) {
     return pos
   }
-  const grammar = getLanguage(state.embed!.language)
+  // `{{remembered}}` takes the language from the text the entering rule
+  // remembered, which is how a Markdown fence names its language at runtime.
+  const language = state.embed!.language
+  const grammar = getLanguage(language === REMEMBERED ? remembered : language)
   if (grammar === undefined) {
     emit(state.default, pos, stop)
   } else {

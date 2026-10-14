@@ -3,9 +3,10 @@ import type { Grammar } from '../core/types'
 /**
  * Markdown.
  *
- * Prose is left alone; only the marks are styled. Fenced code blocks become a
- * literal state so their contents are never mistaken for Markdown syntax —
- * highlighting the fence body with its own language is a follow-up.
+ * Prose is left alone; only the marks are styled. A fenced code block that
+ * names a registered language is highlighted with that language; any other
+ * fence becomes a literal state, so its contents are never mistaken for
+ * Markdown syntax.
  */
 const markdown: Grammar = {
   name: 'markdown',
@@ -13,6 +14,15 @@ const markdown: Grammar = {
   states: {
     root: {
       rules: [
+        // A three-character fence that names a language hands its body to that
+        // language. Longer fences keep the literal form below, so a ```` block
+        // that shows ``` inside still closes only on its own run.
+        {
+          match: '^([ \\t]*)(```(?!`)|~~~(?!~))([ \\t]*)([A-Za-z][\\w+#.-]*)([^\\n]*)$',
+          scope: [null, 'punctuation', null, 'type', 'type'],
+          push: 'fence-code',
+          remember: 4,
+        },
         // The fence remembers its run, so only a run of the same character at
         // least as long closes it: a ```` block can show ``` inside.
         {
@@ -81,6 +91,20 @@ const markdown: Grammar = {
           pop: true,
         },
       ],
+    },
+    /** Between a language fence and its closing fence. */
+    'fence-code': {
+      default: 'string',
+      rules: [
+        // CommonMark lets a closing fence be longer than the opener.
+        { match: '^[ \\t]*(?:`{3,}|~{3,})[ \\t]*$', scope: 'punctuation', pop: true },
+        { match: '^', push: 'fence-body' },
+      ],
+    },
+    'fence-body': {
+      default: 'string',
+      embed: { language: '{{remembered}}', until: '^[ \\t]*(?:`{3,}|~{3,})[ \\t]*$' },
+      rules: [],
     },
     'html-comment': {
       default: 'comment',

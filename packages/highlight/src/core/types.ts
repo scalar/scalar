@@ -92,6 +92,10 @@ export type State = {
    * The language is looked up in the registry when the state is entered, so
    * embedding costs nothing until that language is registered. Without it,
    * the body is emitted with this state's `default` scope.
+   *
+   * `language` can be `REMEMBERED` (`{{remembered}}`) to use the text the rule
+   * that entered the state remembered: a Markdown fence remembers its info
+   * string and embeds whatever language it names.
    */
   embed?: { language: string; until: string }
   rules: StateRule[]

@@ -824,6 +824,27 @@ describe('regressions from the TextMate comparison', () => {
     assertHas('let s = r##"a "# b"##; let t = 1;\n', 'rust', '"a "# b"##', 'string')
   })
 
+  it('markdown: highlights a fence body with the language it names', () => {
+    const code = '# Title\n\n```ts\nconst a = 1 // one\n```\n\ntext after\n'
+    assertHas(code, 'markdown', 'const', 'keyword.declaration')
+    assertHas(code, 'markdown', '1', 'number')
+    assertHas(code, 'markdown', '// one', 'comment')
+    expect(scopeOf(code, 'markdown', '\n\ntext after\n')).toBeNull()
+  })
+
+  it('markdown: resolves fence aliases, closes on a longer fence, and keeps unknown languages literal', () => {
+    assertHas('~~~sh\ncurl -X GET\n~~~~\nafter\n', 'markdown', 'curl', 'function.call')
+    assertHas('```notalanguage\nconst a = 1\n```\n', 'markdown', '\nconst a = 1\n', 'string')
+    // An unterminated fence highlights to the end and loses no text.
+    const open = '```json\n{"a": 1'
+    expect(
+      runs(open, 'markdown')
+        .map(([t]) => t)
+        .join(''),
+    ).toBe(open)
+    assertHas(open, 'markdown', '"a"', 'property')
+  })
+
   it('markdown: closes a fence only with a run as long, and scopes HTML comments', () => {
     const code = '````md\n```js\nx\n```\n````\n\n<!-- note -->\n'
     assertHas(code, 'markdown', '\n```js\nx\n```\n', 'string')
