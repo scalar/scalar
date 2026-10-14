@@ -56,7 +56,9 @@ describe('upgrade-from-three-one-to-three-two', () => {
     expect(input).toStrictEqual(original)
   })
 
-  it('reports when discriminator analysis exhausts its work budget', () => {
+  // Exhausting the budget takes over 100,000 real evaluations, which is about a second on its own and
+  // more than the default 5 second timeout on a busy CI shard.
+  it('reports when discriminator analysis exhausts its work budget', { timeout: 30_000 }, () => {
     const input = withSchemas({
       Pet: {
         discriminator: { propertyName: 'kind' },
