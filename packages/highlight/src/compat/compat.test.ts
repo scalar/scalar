@@ -430,6 +430,21 @@ describe('compat surface', () => {
     expect(html.match(/credential-value/g)?.length).toBe(2)
   })
 
+  it.each(['\n', '\r\n'])('masks multiline credentials with %j line endings', (newline) => {
+    const credential = `abc${newline}${newline}def`
+    const code = `const token = ${credential};`
+    for (const lang of ['plaintext', 'javascript']) {
+      for (const lineNumbers of [false, true]) {
+        const html = syntaxHighlight(code, { lang, lineNumbers, maskCredentials: credential })
+        const masked = [...html.matchAll(/<span class="credential-value">([\s\S]*?)<\/span>/g)].map((match) => match[1])
+        expect(masked).toEqual(
+          lineNumbers ? (newline === '\n' ? ['abc', 'def'] : ['abc\r', '\r', 'def']) : [credential],
+        )
+        expect(textFromHtml(html)).toBe(lineNumbers ? `${code}\n` : code)
+      }
+    }
+  })
+
   it('accepts a single credential string as well as an array', () => {
     const one = syntaxHighlight('token abcdef', {
       lang: 'plaintext',

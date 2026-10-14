@@ -46,7 +46,7 @@ const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawa
 /**
  * TypeScript angle brackets that look like an element with no attributes: a
  * generic arrow function `<T>(x: T) => x`, a constrained one `<T extends X>`,
- * and the old-style assertion `<HTMLElement>el`. Reading any of them as an
+ * a defaulted one `<T = unknown>`, and the old-style assertion `<HTMLElement>el`. Reading any of them as an
  * opening tag would turn the rest of the file into JSX text.
  *
  * An assertion is followed by an expression on the same line, and so is an
@@ -58,7 +58,7 @@ const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawa
  * the rest of the file.
  */
 const NOT_TS_AFTER =
-  '(?!>[ \\t]*\\()(?![ \\t]+extends\\b)(?!>(?![ \\t]*$)(?![^\\n]{0,512}(?:<\\/|(?<![\\w$)\\]])<[A-Za-z>])))'
+  '(?!>[ \\t]*\\()(?!\\s+(?:extends\\b|=))(?!>(?![ \\t]*$)(?![^\\n]{0,512}(?:<\\/|(?<![\\w$)\\]])<[A-Za-z>])))'
 
 /** A JSX tag name: a component, a member expression, or a lowercase element. */
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'

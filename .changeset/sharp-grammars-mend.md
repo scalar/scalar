@@ -20,3 +20,5 @@ Fix the highlighting breakages a comparison against Shiki and `@scalar/code-high
 - `@scalar/highlight/compat` masks credentials on the token stream: a secret the tokenizer splits (`sk_live.abc123` unquoted) is masked, one containing `&` or `<` is masked, and a credential that reads like markup (`span`, `class`) no longer corrupts the HTML.
 
 Grammars gain two features. `remember` lets a rule that enters a state remember a capture group, which that state matches again with `REMEMBERED` (`{{remembered}}`) — the cross-state stand-in for a backreference. `embed` hands a state's body to another registered language until a closing pattern.
+
+Preserve multiline credential masking, including when line numbers are enabled. Keep defaulted TypeScript generics in code mode, and only embed JavaScript or CSS for complete `script` and `style` tag names so custom elements retain HTML highlighting.

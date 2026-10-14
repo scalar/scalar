@@ -795,6 +795,25 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'html', 'script', 'tag')
   })
 
+  it.each(['style-guide', 'script-widget', 'style.guide', 'script:widget'])('html: keeps %s in markup mode', (tag) => {
+    const code = `<${tag}><button>Click</button></${tag}>`
+    expect(scoped(code, 'html').filter(([, scope]) => scope === 'tag')).toEqual([
+      [tag, 'tag'],
+      ['button', 'tag'],
+      ['button', 'tag'],
+      [tag, 'tag'],
+    ])
+  })
+
+  it('html: does not end embedded bodies at a longer closing tag name', () => {
+    const code =
+      '<SCRIPT>const x = "</script-widget>"; const y = 42;</SCRIPT>\n<STYLE>.a { content: "</style-guide>"; color: red; }</STYLE>'
+    assertHas(code, 'html', '"</script-widget>"', 'string')
+    assertHas(code, 'html', '42', 'number')
+    assertHas(code, 'html', '"</style-guide>"', 'string')
+    assertHas(code, 'html', 'color', 'property')
+  })
+
   it('html: scopes the XML declaration as metadata and unquoted attribute values as strings', () => {
     assertHas('<?xml version="1.0"?>\n<a/>\n', 'xml', '<?xml version="1.0"?>', 'decorator')
     assertHas('<input type=text disabled>\n', 'html', 'text', 'string')
@@ -836,6 +855,16 @@ describe('regressions from the TextMate comparison', () => {
     expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
     assertHas(code, 'javascript', "'a'", 'string')
   })
+
+  it.each(['<T = unknown>', '<T=unknown>', '<T\n = unknown>', '<T extends object = {}>'])(
+    'javascript: keeps defaulted generic %s in code mode',
+    (parameters) => {
+      const code = `const identity = ${parameters}(value: T) => value;\nexport const answer = 42;\n`
+      expect(scoped(code, 'javascript').filter(([, scope]) => scope === 'tag')).toEqual([])
+      assertHas(code, 'javascript', 'export', 'keyword.import')
+      assertHas(code, 'javascript', '42', 'number')
+    },
+  )
 
   it('does not read an assertion to a non-builtin type as an element', () => {
     const code =

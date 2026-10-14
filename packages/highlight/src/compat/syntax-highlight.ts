@@ -52,8 +52,7 @@ type Masked = { start: number; end: number }
  */
 const findCredentials = (code: string, credentials: string | string[] | undefined): Masked[] => {
   const list = (typeof credentials === 'string' ? [credentials] : (credentials ?? [])).filter(
-    // A line break would split the masked range across line elements.
-    (credential) => credential.length >= MIN_CREDENTIAL_LENGTH && !credential.includes('\n'),
+    (credential) => credential.length >= MIN_CREDENTIAL_LENGTH,
   )
   const found: Masked[] = []
   for (const credential of list) {
@@ -130,12 +129,11 @@ const render = (
       if (range.start >= to) {
         break
       }
-      out +=
-        escapeHtml(code.slice(cursor, range.start)) +
-        MASK_OPEN +
-        escapeHtml(code.slice(range.start, range.end)) +
-        MASK_CLOSE
-      cursor = range.end
+      // A multiline credential is wrapped separately inside each line element.
+      const start = Math.max(from, range.start)
+      const end = Math.min(to, range.end)
+      out += escapeHtml(code.slice(cursor, start)) + MASK_OPEN + escapeHtml(code.slice(start, end)) + MASK_CLOSE
+      cursor = end
     }
     return out + escapeHtml(code.slice(cursor, to))
   }

@@ -33,8 +33,8 @@ const html: Grammar = {
         // metadata about the document, not commentary on it.
         { match: '<\\?', scope: 'decorator', push: 'processing-instruction' },
 
-        { match: '(<)(script)\\b', scope: ['punctuation.bracket', 'tag'], push: 'script-tag' },
-        { match: '(<)(style)\\b', scope: ['punctuation.bracket', 'tag'], push: 'style-tag' },
+        { match: '(<)(script)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'script-tag' },
+        { match: '(<)(style)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'style-tag' },
         {
           match: '(</?)([A-Za-z_][\\w:.-]*)',
           scope: ['punctuation.bracket', 'tag'],
@@ -82,12 +82,12 @@ const html: Grammar = {
     },
     'script-body': {
       ignoreCase: true,
-      embed: { language: 'javascript', until: '</script\\b' },
+      embed: { language: 'javascript', until: '</script(?=[\\s/>])' },
       rules: [],
     },
     'style-body': {
       ignoreCase: true,
-      embed: { language: 'css', until: '</style\\b' },
+      embed: { language: 'css', until: '</style(?=[\\s/>])' },
       rules: [],
     },
 
