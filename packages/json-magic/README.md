@@ -32,17 +32,17 @@ npm add @scalar/json-magic
 
 There is no root export. Every module is imported from its own entry point, so you only pay for what you use.
 
-| Entry point                                 | Exports                                                                                                                                                                               |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@scalar/json-magic/bundle`                 | `bundle`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
-| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml`                                                                                                                                                 |
-| `@scalar/json-magic/bundle/plugins/node`    | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles`                                                                                                                                    |
-| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory`                                                                                                                       |
-| `@scalar/json-magic/dereference`            | `dereference`                                                                                                                                                                         |
-| `@scalar/json-magic/join`                   | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types                                                                                  |
-| `@scalar/json-magic/diff`                   | `diff`, `merge`, `apply`, the `Difference` type                                                                                                                                       |
-| `@scalar/json-magic/magic-proxy`            | `createMagicProxy`, `getRaw`                                                                                                                                                          |
-| `@scalar/json-magic/helpers/*`              | Small standalone helpers, see [Helpers](#helpers)                                                                                                                                     |
+| Entry point | Exports |
+| --- | --- |
+| `@scalar/json-magic/bundle` | `bundle`, `bundleWithDiagnostics`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
+| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml` |
+| `@scalar/json-magic/bundle/plugins/node` | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles` |
+| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
+| `@scalar/json-magic/dereference` | `dereference` |
+| `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
+| `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
+| `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
+| `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
 
 ## Which module do I need?
 
@@ -189,6 +189,86 @@ console.log(result)
 ```
 
 When the input is an object it is modified in place, and the same object is returned. When the input is a string it is resolved with the given plugins first.
+
+### Bundling with reference diagnostics
+
+`bundleWithDiagnostics` returns `{ document, diagnostics, complete, pruning }`. It uses the same loaders, lifecycle hooks, URI registry, compression, and URL map options as `bundle`. Existing `bundle` calls retain their return value and generic traversal behavior.
+
+```ts
+import { bundleWithDiagnostics } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+
+const result = await bundleWithDiagnostics('/api/openapi.yaml', {
+  plugins: [readFiles(), fetchUrls({ limit: 5 })],
+  traversal: 'document',
+  treeShake: true,
+  urlMap: true,
+})
+
+for (const diagnostic of result.diagnostics) {
+  console.error(diagnostic.source, diagnostic.pointer, diagnostic.kind, diagnostic.reference)
+}
+
+// The caller chooses whether to serialize an incomplete document.
+if (result.complete || allowIncompleteOutput) {
+  writeDocument(result.document)
+}
+```
+
+Each diagnostic contains:
+
+- `kind`: `unresolved-document` for loading/parsing failures (including missing loaders), or `missing-target` for a missing pointer/anchor in a loaded document.
+- `reference`: the authored reference, captured before lifecycle processing or bundler rewriting.
+- `source`: the source URI/path, including for external documents. Object inputs use `origin`, or `/` when none is provided.
+- `pointer`: the escaped JSON pointer to the authored `$ref` field, such as `#/components/schemas/Pet/properties/name/$ref`.
+
+Recoverable reference failures leave their references intact and return `complete: false`. A missing external fragment does not become a dangling pointer into `x-ext`. Unreadable or unparseable roots and unexpected bundling or lifecycle-hook failures reject the promise; they do not return an incomplete result. Custom loaders may return `{ ok: false }` or reject to report a loading failure. Loading and parsing share one diagnostic kind because existing loaders do not distinguish them.
+
+Pruning runs after reference resolution, without refetching or replaying lifecycle hooks. `pruning` is `disabled` when `treeShake` is false, `applied` after successful resolution, or `skipped` when diagnostics make reachability uncertain. A skipped prune retains unpruned external documents. Diagnostics cover visited source content, including unused parts of loaded documents, before pruning. Existing `depth` and partial-root options still limit traversal.
+
+The diagnostics API keeps cached loader data unmodified, cloning it into each bundling run. A supplied cache can be reused across calls and can contain preloaded resources and identities. New cache entries use resolved source URIs; relative preloaded keys remain supported by the bundler's registry. Object inputs are still modified in place. Cache values must be structured-cloneable JSON/YAML data.
+
+Set `preserveReference: (reference, { origin }) => boolean` to intentionally leave selected references untouched. Preserved references are not failures, produce no diagnostics, and are not fetched. `complete` means no resolution failures were found in the visited content; it does not promise that intentionally preserved or depth-limited references are embedded.
+
+### Document-aware traversal
+
+`traversal: 'document'` is an explicit opt-in on either bundling API. It recognizes OpenAPI and AsyncAPI roots; other roots are treated as JSON Schema fragments. The default, `generic`, keeps treating arbitrary `$ref` properties as references.
+
+Document mode leaves instance data untouched in examples, defaults, enum/const values, Example Object values, and extensions. Actual references to Example Objects, callbacks, schemas, and AsyncAPI messages/traits remain active. Message and message-trait examples are literal data. Schema property names are interpreted as names, even when they are `examples`, `default`, or start with `x-`. External fragments inherit the context of their referring object.
+
+Applicable schema and Path Item siblings are traversed internally. OpenAPI 2.0/3.0 Reference Object siblings and explicitly declared older JSON Schema draft siblings remain ignored. Siblings are preserved separately, not merged; this API does not decide conflicts between Path Item fields. Recursive schemas and reference-only cycles are allowed when their targets exist. `$id`, `$anchor`, custom `resolveDocument` identities, escaped pointers, and `$global` chunk context use the existing registry.
+
+This is reference resolution, not OpenAPI or AsyncAPI validation. It does not validate required fields, target object types, unknown schema vocabularies, or schema dialect conformance. It does not add document metadata, output policy, or CLI flags.
+
+### Replacing a CLI reference checker
+
+Before, a CLI had to inspect sources, temporarily mask literal `$ref` values, supply cached loaders, and recursively invoke the bundler from sibling hooks:
+
+```ts
+const inspected = await inspectReferences(input, loaders)
+const document = await bundle(inspected.document, {
+  plugins: [inspected.loader],
+  treeShake: prune && inspected.diagnostics.length === 0,
+  hooks: recursiveSiblingHooks,
+})
+inspected.restore(document)
+```
+
+After, the library performs those steps in one operation:
+
+```ts
+const { document, diagnostics, complete, pruning } = await bundleWithDiagnostics(input, {
+  plugins: loaders,
+  traversal: 'document',
+  treeShake: prune,
+  urlMap,
+})
+// The CLI retains its own failure reporting, force flag, and filesystem output policy.
+if (!complete && !force) throw new Error(formatDiagnostics(diagnostics))
+await writeOutput(document)
+```
+
+No separate checker, Symbol masking, or recursive sibling hooks are needed. Hooks that implement unrelated features and custom document identity can remain.
 
 ### Loaders
 
