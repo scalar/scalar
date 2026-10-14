@@ -126,7 +126,7 @@ export function createSearchIndex(
   options?: CreateSearchIndexOptions,
 ): FuseData[] {
   const index: FuseData[] = []
-  const extractFields = createSearchFieldExtractor()
+  const extractFields = createSearchFieldExtractor(isOpenApiDocument(document) && /^3\.[12]\./.test(document.openapi))
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
 
@@ -245,7 +245,9 @@ function addEntryToIndex(
   if (entry.type === 'model') {
     const schema = getModelSchema(document, entry.name)
     const schemaDescription = schema?.description ?? ''
-    const { names: propertyNames, descriptions: propertyDescriptions } = extractFields.schema(schema)
+    const { names: propertyNames, descriptions: propertyDescriptions } = extractFields.schema(
+      openApiDocument?.components?.schemas?.[entry.name] ?? schema,
+    )
 
     index.push({
       type: 'model',

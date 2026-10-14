@@ -27,6 +27,7 @@ type SchemaSearchText = { names: string[]; descriptions: string[] }
  */
 const extractSchemaSearchText = (
   schemas: Iterable<SchemaReferenceType<SchemaObject> | undefined>,
+  includeRefSiblings = false,
 ): SchemaSearchText => {
   const names = new Set<string>()
   const descriptions = new Set<string>()
@@ -54,7 +55,7 @@ const extractSchemaSearchText = (
     if (depth > 64 || !isSchemaObject(schema)) {
       return
     }
-    if (property && !('$ref' in schema)) {
+    if (property && (includeRefSiblings || !('$ref' in schema))) {
       add(descriptions, schema.description)
     }
     const previousDepth = visited.get(schema)
@@ -69,7 +70,10 @@ const extractSchemaSearchText = (
       if ('$ref-value' in schema) {
         visit(schema['$ref-value'], depth + 1, property)
       }
-      return
+      // OpenAPI 3.0 references ignore siblings; 3.1+ schema keywords apply alongside $ref.
+      if (!includeRefSiblings) {
+        return
+      }
     }
     for (const variants of [schema.oneOf, schema.anyOf, schema.allOf]) {
       for (const variant of variants ?? []) {
@@ -133,8 +137,8 @@ function* bodySchemas(
 }
 
 /** Collects request and response fields together under a single operation budget. */
-const extractOperationSchemaSearchText = (operation: OperationObject): SchemaSearchText =>
-  extractSchemaSearchText(bodySchemas(operation, true))
+const extractOperationSchemaSearchText = (operation: OperationObject, includeRefSiblings: boolean): SchemaSearchText =>
+  extractSchemaSearchText(bodySchemas(operation, true), includeRefSiblings)
 
 const pushUnique = (target: string[], value: string | undefined): void => {
   if (value && !target.includes(value)) {
@@ -203,8 +207,10 @@ type SchemaSearchFields = {
  * Creates extraction caches for one synchronous index build. Discarding them after the build
  * ensures edits to existing schema objects are visible the next time search is indexed.
  */
-export const createSearchFieldExtractor = (): {
-  schema: (schema: SchemaObject | undefined) => SchemaSearchFields
+export const createSearchFieldExtractor = (
+  includeRefSiblings = false,
+): {
+  schema: (schema: SchemaReferenceType<SchemaObject> | undefined) => SchemaSearchFields
   body: (operation: OperationObject) => SchemaSearchFields
   operation: (operation: OperationObject) => SchemaSearchFields
 } => {
@@ -212,7 +218,7 @@ export const createSearchFieldExtractor = (): {
   const bodies = new WeakMap<object, SchemaSearchFields>()
   const operations = new WeakMap<OperationObject, SchemaSearchFields>()
 
-  const schema = (value: SchemaObject | undefined): SchemaSearchFields => {
+  const schema = (value: SchemaReferenceType<SchemaObject> | undefined): SchemaSearchFields => {
     // Callers outside the workspace store can pass schemas that have not been normalized.
     if (!isSchemaObject(value)) {
       return { names: [], descriptions: [] }
@@ -221,7 +227,7 @@ export const createSearchFieldExtractor = (): {
     if (cached) {
       return cached
     }
-    const fields = extractSchemaSearchText([value])
+    const fields = extractSchemaSearchText([value], includeRefSiblings)
     schemas.set(value, fields)
     return fields
   }
@@ -233,7 +239,7 @@ export const createSearchFieldExtractor = (): {
       if (cached) {
         return cached
       }
-      const fields = extractOperationSchemaSearchText(operation)
+      const fields = extractOperationSchemaSearchText(operation, includeRefSiblings)
       operations.set(operation, fields)
       return fields
     },
@@ -243,7 +249,7 @@ export const createSearchFieldExtractor = (): {
       if (cached) {
         return cached
       }
-      const fields = extractSchemaSearchText(bodySchemas(operation, false))
+      const fields = extractSchemaSearchText(bodySchemas(operation, false), includeRefSiblings)
       if (requestBody) {
         bodies.set(requestBody, fields)
       }

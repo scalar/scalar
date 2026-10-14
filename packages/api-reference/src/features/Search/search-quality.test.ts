@@ -107,6 +107,40 @@ describe('search-quality', () => {
     }
   })
 
+  it.each(['3.0.4', '3.1.2', '3.2.1'])('respects schema reference siblings in OpenAPI %s', (openapi) => {
+    const target: SchemaObject = { type: 'object', properties: { inheritedField: { type: 'string' } } }
+    const schema = {
+      type: 'object',
+      $ref: '#/components/schemas/Base',
+      '$ref-value': target,
+      allOf: [{ type: 'object', properties: { composedSibling: { type: 'string' } } }],
+      properties: {
+        localSibling: {
+          $ref: '#/components/schemas/String',
+          '$ref-value': { type: 'string' },
+          description: 'Saffron dispatch annotation',
+        },
+      },
+    } satisfies SchemaObject & { $ref: string; '$ref-value': SchemaObject }
+    const document: Partial<OpenApiDocument> = {
+      openapi,
+      paths: { '/output': { get: { responses: { '200': response(schema) } } } },
+      components: { schemas: { Receipt: schema } },
+    }
+    expect(
+      search('inheritedField', document)
+        .map(({ item }) => item.type)
+        .sort(),
+    ).toEqual(['model', 'operation'])
+    for (const query of ['localSibling', 'composedSibling', 'Saffron dispatch annotation']) {
+      expect(
+        search(query, document)
+          .map(({ item }) => item.type)
+          .sort(),
+      ).toEqual(openapi === '3.0.4' ? [] : ['model', 'operation'])
+    }
+  })
+
   it('indexes every response code and media type, including resolved responses', () => {
     const document: Partial<OpenApiDocument> = {
       paths: {
