@@ -1020,4 +1020,29 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'X', 'variable')
     expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
   })
+
+  it('javascript: reads a keyword followed by a colon as an object key', () => {
+    const code =
+      "const schema = { type: 'object', from: a, default: 1 }\ntype A = { type?: string }\nswitch (x) {\n  case 1: return 2\n  default: return 3\n}\nexport default { responses: { default: { description: 'x' } } }\n"
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'type')
+        .map(([, s]) => s),
+    ).toEqual(['property', 'keyword.declaration', 'property'])
+    assertHas(code, 'javascript', 'from', 'property')
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'default')
+        .map(([, s]) => s),
+    ).toEqual(['property', 'keyword.control', 'keyword.control', 'property'])
+  })
+
+  it('javascript: reads method names that are also keywords, and private fields', () => {
+    const code = 'class L { #n = 0; static of(x) { return this.#n } get(k) {} get size() {} }\nfor (const a of b) {}\n'
+    assertHas(code, 'javascript', 'of', 'function.call')
+    assertHas(code, 'javascript', 'of', 'keyword.operator')
+    assertHas(code, 'javascript', 'get', 'function.call')
+    assertHas(code, 'javascript', 'get', 'keyword.declaration')
+    assertHas(code, 'javascript', '#n', 'variable.member')
+  })
 })
