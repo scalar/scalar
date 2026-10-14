@@ -969,4 +969,14 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'echo', 'function.builtin')
     assertHas(code, 'bash', 'x', 'variable')
   })
+
+  it('bash: scopes the name a declaration sets rather than reading it as an argument', () => {
+    const code = 'export API_KEY=$(cat key.txt)\nlocal -r name="x"\nreadonly X\n'
+    assertHas(code, 'bash', 'API_KEY', 'variable')
+    assertHas(code, 'bash', 'cat', 'function.call')
+    assertHas(code, 'bash', '-r', 'constant')
+    assertHas(code, 'bash', 'name', 'variable')
+    assertHas(code, 'bash', 'X', 'variable')
+    expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
+  })
 })

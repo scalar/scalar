@@ -60,10 +60,14 @@ const bash: Grammar = {
           match: '\\b(?:if|then|else|elif|fi|for|while|until|do|done|case|esac|select|break|continue|return|exit)\\b',
           scope: 'keyword.control',
         },
+        // The name a declaration sets gets a state of its own, so the argument
+        // rule below cannot read `API_KEY=…` in `export API_KEY=…` as a string.
         {
-          match: '\\b(?:function|local|declare|typeset|readonly|export|alias|unset)\\b',
+          match: '\\b(?:local|declare|typeset|readonly|export)\\b',
           scope: 'keyword.declaration',
+          push: 'declared-name',
         },
+        { match: '\\b(?:function|alias|unset)\\b', scope: 'keyword.declaration' },
         { match: '\\b(?:in|then)\\b', scope: 'keyword.operator' },
         {
           match:
@@ -99,6 +103,15 @@ const bash: Grammar = {
         // separator, and coloring every path segment boundary is noise.
         { match: '&&|\\|\\||[|&;]|[<>]{1,2}|[-+*%!=]=?|=~', scope: 'operator' },
         { match: '[()\\[\\]{}]', scope: 'punctuation.bracket' },
+      ],
+    },
+
+    /** After `export`, `local` and the like: flags, then the one name it sets. */
+    'declared-name': {
+      rules: [
+        { match: '(?:^|\\s)(--?[A-Za-z][\\w-]*)', scope: ['constant'] },
+        { match: '[A-Za-z_]\\w*', scope: 'variable', pop: true },
+        { match: '(?=[^ \\t])', pop: true },
       ],
     },
 
