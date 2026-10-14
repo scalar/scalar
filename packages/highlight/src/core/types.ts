@@ -40,7 +40,34 @@ export type Rule = {
   set?: string
   /** Pop `n` states (`true` means 1). */
   pop?: number | true
+
+  /**
+   * Remember the text of this capture group (1-based, within this rule's
+   * pattern) for the state that `push` or `set` enters.
+   *
+   * That state's rules can then match it again by writing `REMEMBERED`
+   * (`{{remembered}}`) in a pattern. It is the stand-in for a backreference
+   * across rules: a heredoc remembers its terminator, a raw string the run of
+   * quotes that opened it, a YAML block scalar the indentation of its key.
+   *
+   * A state entered without `remember` inherits the value of the state that
+   * pushed it, so helper states nested inside keep seeing it.
+   */
+  remember?: number
+
+  /**
+   * `'text'` (the default) remembers the group verbatim. `'indent'` remembers
+   * a run of spaces as wide as the group, which is what an indentation-based
+   * end rule wants: `- key: |` remembers the column of `key`, not `- `.
+   */
+  rememberAs?: 'text' | 'indent'
 }
+
+/**
+ * The placeholder a pattern uses to match the remembered text again. The text
+ * is inserted escaped, so it matches literally.
+ */
+export const REMEMBERED = '{{remembered}}'
 
 /** Splices another state's rules in at this position, keeping priority order. */
 export type Include = {
@@ -54,6 +81,19 @@ export type State = {
   default?: ScopeName
   /** Compile this state's patterns case-insensitively. */
   ignoreCase?: boolean
+  /**
+   * Highlight the body of this state with another registered language.
+   *
+   * When the state is entered, the text up to the first match of `until` (or
+   * the end of the input) is tokenized with `language`, then the state pops.
+   * `until` is not consumed, so the state below sees it: a `<script>` body
+   * ends where `</script>` starts, and the HTML grammar scopes the tag.
+   *
+   * The language is looked up in the registry when the state is entered, so
+   * embedding costs nothing until that language is registered. Without it,
+   * the body is emitted with this state's `default` scope.
+   */
+  embed?: { language: string; until: string }
   rules: StateRule[]
 }
 
@@ -97,6 +137,9 @@ export type CompiledRule = {
   push: string | null
   set: string | null
   pop: number
+  /** Capture group to remember, as an offset from `group`; `0` for none. */
+  remember: number
+  rememberIndent: boolean
 }
 
 export type CompiledState = {
@@ -104,6 +147,18 @@ export type CompiledState = {
   re: RegExp
   rules: CompiledRule[]
   default: ScopeName | null
+  /**
+   * Set when a rule uses `REMEMBERED`: the merged regex then depends on the
+   * remembered text and is built per value, from these sources.
+   */
+  dynamic: {
+    source: string
+    flags: string
+    /** Per-rule sticky sources for capture offsets, `null` where unused. */
+    own: (string | null)[]
+    cache: Map<string, { re: RegExp; own: (RegExp | null)[] }>
+  } | null
+  embed: { language: string; until: RegExp } | null
 }
 
 export type CompiledGrammar = {

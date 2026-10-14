@@ -2,11 +2,11 @@
 
 Scalar's code highlighter.
 
-- **Small.** 2.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
+- **Small.** 3.1 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
-Forty languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
+Forty-one languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
 
 ```bash
 npm install @scalar/highlight
@@ -43,7 +43,7 @@ highlight(source, 'rust');
 ```
 
 Every entry in the loader is a static `import()`, so bundlers split each language into its
-own chunk. The initial chunk with the loader and no languages is 3.9 KB.
+own chunk. The initial chunk with the loader and no languages is 4.7 KB.
 
 ### Entry points
 
@@ -83,12 +83,12 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 
 | Bundle | Gzipped |
 | --- | ---: |
-| `@scalar/highlight` core | 2.32 KB |
-| …+ Python | 4.33 KB |
-| …lazy loader, initial chunk | 3.93 KB |
+| `@scalar/highlight` core | 3.11 KB |
+| …+ Python | 5.05 KB |
+| …lazy loader, initial chunk | 4.68 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.14 KB · `json` 0.28 KB · `html` 0.32 KB · `markdown` 0.46 KB · `yaml` 0.52 KB · `css` 0.53 KB · `nginx` 0.54 KB · `http` 0.64 KB · `ini` 0.71 KB · `graphql` 0.73 KB · `go` 0.79 KB · `bash` 0.80 KB · `rust` 0.83 KB · `makefile` 0.90 KB · `dockerfile` 0.95 KB · `sql` 0.97 KB · `java` 1.15 KB · `dart` 1.18 KB · `lua` 1.20 KB · `r` 1.28 KB · `swift` 1.30 KB · `c` 1.32 KB · `clojure` 1.32 KB · `kotlin` 1.33 KB · `javascript` 1.36 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `ocaml` 1.41 KB · `matlab` 1.44 KB · `objectivec` 1.44 KB · `csharp` 1.50 KB · `mojo` 1.55 KB · `fsharp` 1.69 KB · `python` 1.70 KB · `ruby` 1.71 KB · `php` 1.75 KB · `cpp` 1.76 KB · `perl` 1.86 KB.
+Per language, on top of the core: `diff` 0.13 KB · `json` 0.29 KB · `markdown` 0.49 KB · `html` 0.52 KB · `nginx` 0.54 KB · `http` 0.63 KB · `css` 0.64 KB · `ini` 0.70 KB · `graphql` 0.72 KB · `go` 0.80 KB · `yaml` 0.82 KB · `rust` 0.85 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `bash` 0.96 KB · `sql` 0.99 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.33 KB · `julia` 1.37 KB · `scala` 1.37 KB · `elixir` 1.38 KB · `powershell` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `javascript` 1.60 KB · `fsharp` 1.69 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.74 KB · `php` 1.79 KB · `perl` 1.86 KB.
 
 Reproduce with `pnpm size`.
 
@@ -199,6 +199,28 @@ state names, circular includes, backreferences (group numbers shift when rules m
 scope arrays longer than the pattern's capture count — all at compile time, not mid-tokenize
 on a rare branch.
 
+What a backreference would do, `remember` does across states: a rule that enters a state
+can remember one of its capture groups, and that state's patterns match it again with
+`{{remembered}}`. A heredoc closes only on its own marker, a raw string only on the run of
+quotes that opened it, a YAML block scalar at the first line indented no further than its key:
+
+```ts
+{ match: '<<(\\w+)', scope: 'string.special', push: 'heredoc', remember: 1 },
+// …
+heredoc: {
+  default: 'string',
+  rules: [{ match: '^{{remembered}}$', scope: 'string.special', pop: true }],
+},
+```
+
+A state can also hand its body to another language: `embed: { language: 'javascript',
+until: '</script' }` tokenizes everything up to `</script` with the JavaScript grammar, if
+it is registered, and leaves the closing tag to the state below. The HTML grammar does this
+for `<script>` and `<style>` without importing either grammar.
+
+Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
+`\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.
+
 The test suite asserts, for every language and every sample, that emitted tokens
 reconstruct the source exactly, that scopes come from the shared vocabulary, and that
 tokenizing every truncated prefix terminates and stays consistent — which is what an editor
@@ -255,7 +277,7 @@ today. Because the comparison runs against the workspace package rather than a c
 a change on either side shows up here.
 
 Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
-quantifies it: across the whole 41-sample corpus 68.5% of visible characters keep the colour
+quantifies it: across the whole 42-sample corpus 68.6% of visible characters keep the colour
 `code.css` gives them, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
 rather than string, docstrings as comments rather than strings, punctuation given its own
@@ -268,8 +290,8 @@ For the same three languages `ScalarCodeBlock` shows most often:
 
 | | gzipped |
 | --- | ---: |
-| `@scalar/code-highlight` | 127.34 KB |
-| `@scalar/highlight/compat` | 5.36 KB |
+| `@scalar/code-highlight` | 127.58 KB |
+| `@scalar/highlight/compat` | 6.72 KB |
 
 ## Trade-offs
 
@@ -287,9 +309,10 @@ spacing (`f(x=1)` versus `x = 1`); a triple-quoted string at the start of a line
 as a docstring; `CapWords` reads as a type and `SCREAMING_CASE` as a constant. These are
 right on ordinary code and wrong on code written to defeat them.
 
-**No cross-language embedding yet.** `<script>` bodies in HTML and fenced code blocks in
-Markdown are scoped as plain text rather than highlighted with their own grammar. The engine
-has the state machinery for it; the registry hook is not written.
+**Embedding is static.** `<script>` and `<style>` bodies in HTML (and so in XML, SVG and Vue)
+are highlighted with the JavaScript and CSS grammars when those are registered. A fenced code
+block in Markdown names its language at runtime, which a state cannot express yet, so fence
+bodies are scoped as plain strings.
 
 **No automatic language detection.** Pass a language name. Detection means shipping every
 grammar, which is the thing this library exists to avoid.

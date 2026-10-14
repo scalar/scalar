@@ -75,6 +75,7 @@ describe('every bundled language', () => {
       'java',
       'javascript',
       'json',
+      'julia',
       'kotlin',
       'lua',
       'makefile',
@@ -698,5 +699,210 @@ describe('other languages', () => {
 
   it('go: scopes a raw string literal', () => {
     assertHas('s := `raw "quoted"`\n', 'go', '`raw "quoted"`', 'string')
+  })
+})
+
+/**
+ * Inputs that broke against a TextMate (Shiki) reference and today's
+ * highlight.js pipeline, most of them taken from what snippetz generates.
+ */
+describe('regressions from the TextMate comparison', () => {
+  it('php: reads a snippet without `<?php` as code', () => {
+    // snippetz emits Guzzle and Laravel samples without the opening tag.
+    const code = "$client = new GuzzleHttp\\Client();\n$response = $client->request('GET', 'https://x.io');\n"
+    assertHas(code, 'php', '$client', 'variable')
+    assertHas(code, 'php', "'GET'", 'string')
+  })
+
+  it('php: still reads input that opens with markup as a template', () => {
+    assertHas('<p><?= $name ?></p>\n', 'php', 'p', 'tag')
+    assertHas('<p><?= $name ?></p>\n', 'php', '$name', 'variable')
+  })
+
+  it('php: leaves code for markup at `?>` when the snippet opened as code', () => {
+    assertHas('echo 1; ?>\n<b>bold</b>\n', 'php', 'b', 'tag')
+  })
+
+  it('php: closes a heredoc only on its own marker', () => {
+    const code = '<?php\n$sql = <<<SQL\nSELECT 1\nOTHER\nSQL;\necho $sql;\n'
+    assertHas(code, 'php', '\nSELECT 1\nOTHER\n', 'string')
+    assertHas(code, 'php', 'echo', 'keyword')
+  })
+
+  it("bash: treats `\\'` outside quotes as an escape, so `'\\''` keeps the string", () => {
+    const code = `curl -d '{"a":"it'\\''s ok"}' https://x.io\n`
+    assertHas(code, 'bash', "\\'", 'string.escape')
+    assertHas(code, 'bash', `'s ok"}'`, 'string')
+  })
+
+  it('bash: closes a heredoc only on its terminator, and does not expand a quoted one', () => {
+    assertHas('cat <<EOF\nEND\n$HOME\nEOF\necho done\n', 'bash', 'echo', 'function.builtin')
+    // The body merges with the closing quote of the marker into one run.
+    assertHas("cat <<'EOF'\n$HOME\nEOF\n", 'bash', "'\n$HOME\n", 'string')
+  })
+
+  it('yaml: keeps prose with a colon inside a block scalar', () => {
+    const code = 'description: |\n  Returns users.\n  Note: results are paginated.\nsummary: List\n'
+    assertHas(code, 'yaml', '\n  Returns users.\n  Note: results are paginated.\n', 'string')
+    assertHas(code, 'yaml', 'summary', 'property')
+  })
+
+  it('yaml: ends a list item block scalar at its key column', () => {
+    const code = '- run: |\n    echo a: b\n  name: x\n'
+    assertHas(code, 'yaml', '\n    echo a: b\n', 'string')
+    assertHas(code, 'yaml', 'name', 'property')
+  })
+
+  it('yaml: reads a dedented comment after a block scalar as a comment', () => {
+    assertHas('info:\n  description: |\n    Hello\n  # a comment\n  title: x\n', 'yaml', '# a comment', 'comment')
+  })
+
+  it('yaml: keeps `#` and commas inside a plain scalar', () => {
+    assertHas('url: https://x.dev/docs#auth\n', 'yaml', 'https://x.dev/docs#auth', 'string')
+    assertHas('description: Hello, world  # greet\n', 'yaml', 'Hello, world', 'string')
+    assertHas('description: Hello, world  # greet\n', 'yaml', '# greet', 'comment')
+  })
+
+  it('yaml: delimits a flow mapping with commas and brackets', () => {
+    const code = 'example: {name: "x", tags: [a, b], n: 3}\n'
+    assertHas(code, 'yaml', 'name', 'property')
+    assertHas(code, 'yaml', '"x"', 'string')
+    assertHas(code, 'yaml', '3', 'number')
+  })
+
+  it('csharp: closes a raw string only on the run of quotes that opened it', () => {
+    const code = 'var s = """"\nhas """ inside\n"""";\nint n = 1;\n'
+    assertHas(code, 'csharp', '""""\nhas """ inside\n""""', 'string')
+    assertHas(code, 'csharp', 'int', 'type.builtin')
+  })
+
+  it('java: keeps a string open across a lone carriage return or U+2028', () => {
+    assertHas('x("a\rb"); y();\n', 'java', '"a\rb"', 'string')
+    assertHas('x("a b"); y();\n', 'java', '"a b"', 'string')
+  })
+
+  it('css: reads an unquoted url as a string rather than a `//` comment', () => {
+    const code = '.a { background: url(https://x.io/a.png); color: red; }\n'
+    assertHas(code, 'css', 'https://x.io/a.png', 'string')
+    assertHas(code, 'css', 'color', 'property')
+  })
+
+  it('html: highlights script and style bodies with their own grammars', () => {
+    const code = '<style>.a { color: red; }</style>\n<script>const x = "</div>"; // c\n</script>\n'
+    assertHas(code, 'html', 'color', 'property')
+    assertHas(code, 'html', 'const', 'keyword.declaration')
+    assertHas(code, 'html', '// c', 'comment')
+    assertHas(code, 'html', 'script', 'tag')
+  })
+
+  it.each(['style-guide', 'script-widget', 'style.guide', 'script:widget'])('html: keeps %s in markup mode', (tag) => {
+    const code = `<${tag}><button>Click</button></${tag}>`
+    expect(scoped(code, 'html').filter(([, scope]) => scope === 'tag')).toEqual([
+      [tag, 'tag'],
+      ['button', 'tag'],
+      ['button', 'tag'],
+      [tag, 'tag'],
+    ])
+  })
+
+  it('html: does not end embedded bodies at a longer closing tag name', () => {
+    const code =
+      '<SCRIPT>const x = "</script-widget>"; const y = 42;</SCRIPT>\n<STYLE>.a { content: "</style-guide>"; color: red; }</STYLE>'
+    assertHas(code, 'html', '"</script-widget>"', 'string')
+    assertHas(code, 'html', '42', 'number')
+    assertHas(code, 'html', '"</style-guide>"', 'string')
+    assertHas(code, 'html', 'color', 'property')
+  })
+
+  it('html: scopes the XML declaration as metadata and unquoted attribute values as strings', () => {
+    assertHas('<?xml version="1.0"?>\n<a/>\n', 'xml', '<?xml version="1.0"?>', 'decorator')
+    assertHas('<input type=text disabled>\n', 'html', 'text', 'string')
+  })
+
+  it('rust: nests block comments and closes raw strings on their own hashes', () => {
+    assertHas('/* a /* b */ c */ fn f() {}\n', 'rust', 'fn', 'keyword.declaration')
+    assertHas('let s = r##"a "# b"##; let t = 1;\n', 'rust', '"a "# b"##', 'string')
+  })
+
+  it('markdown: closes a fence only with a run as long, and scopes HTML comments', () => {
+    const code = '````md\n```js\nx\n```\n````\n\n<!-- note -->\n'
+    assertHas(code, 'markdown', '\n```js\nx\n```\n', 'string')
+    assertHas(code, 'markdown', '<!-- note -->', 'comment')
+  })
+
+  it('ocaml: does not close a comment on `*)` inside a string inside it', () => {
+    assertHas('(* a "*)" b *) let x = 1\n', 'ocaml', 'let', 'keyword.declaration')
+  })
+
+  it('javascript: reads JSX children as text, so an apostrophe does not open a string', () => {
+    const code = "const el = <p>Don't {name} stop</p>\nconst x = 'y'\n"
+    expect(scopeOf(code, 'javascript', "Don't ")).toBeNull()
+    assertHas(code, 'javascript', '{', 'interpolation')
+    assertHas(code, 'javascript', "'y'", 'string')
+  })
+
+  it('javascript: tracks nested elements, fragments and self-closing tags in JSX children', () => {
+    const code = "const App = () => (\n  <>\n    <Item a={1} />\n    <b>it's</b>\n  </>\n)\nconst s = 'z'\n"
+    assertHas(code, 'javascript', 'Item', 'tag')
+    expect(scopeOf(code, 'javascript', "it's")).toBeNull()
+    assertHas(code, 'javascript', '</>', 'punctuation.bracket')
+    assertHas(code, 'javascript', "'z'", 'string')
+  })
+
+  it('javascript: does not read TypeScript generics or assertions as JSX', () => {
+    const code =
+      "const id = <T>(x: T) => x\nconst n = <string>value\nconst f = <T extends object>(o: T) => o\nconst s = 'a'\n"
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
+    assertHas(code, 'javascript', "'a'", 'string')
+  })
+
+  it.each(['<T = unknown>', '<T=unknown>', '<T\n = unknown>', '<T extends object = {}>'])(
+    'javascript: keeps defaulted generic %s in code mode',
+    (parameters) => {
+      const code = `const identity = ${parameters}(value: T) => value;\nexport const answer = 42;\n`
+      expect(scoped(code, 'javascript').filter(([, scope]) => scope === 'tag')).toEqual([])
+      assertHas(code, 'javascript', 'export', 'keyword.import')
+      assertHas(code, 'javascript', '42', 'number')
+    },
+  )
+
+  it('does not read an assertion to a non-builtin type as an element', () => {
+    const code =
+      'const el = <HTMLElement>document.getElementById("x")\nconst s = <Store>container.get<Store>(KEY)\nconst n: number = 1\nfunction f() { return "it\'s" }\n'
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'tag')).toBeFalsy()
+    assertHas(code, 'javascript', 'getElementById', 'function.method')
+    assertHas(code, 'javascript', '"it\'s"', 'string')
+  })
+
+  it('still reads an element without attributes as JSX when its line closes it or ends', () => {
+    const code = "const b = <Button>Don't save</Button>\nreturn (\n  <div>\n    <p>It's {x}</p>\n  </div>\n)\n"
+    expect(scopeOf(code, 'javascript', "Don't save")).toBeNull()
+    expect(scopeOf(code, 'javascript', "It's ")).toBeNull()
+    assertHas(code, 'javascript', 'div', 'tag')
+  })
+
+  it('javascript: scopes functions assigned to a name, and capitalised calls as calls rather than types', () => {
+    const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
+    assertHas(code, 'javascript', 'Card', 'function.call')
+    assertHas(code, 'javascript', 'App', 'function')
+    assertHas(code, 'javascript', 'Foo', 'type')
+    assertHas(code, 'javascript', 'Error', 'function.call')
+    assertHas(code, 'javascript', 'Date', 'function.call')
+  })
+
+  it('bash: scopes command names, but not the arguments on a continued line', () => {
+    const code = 'curl -X POST \\\n  payload.json\ncat f | grep x && ./run.sh\nif true; then x=$(date); fi\n'
+    assertHas(code, 'bash', 'curl', 'function.call')
+    assertHas(code, 'bash', 'grep', 'function.call')
+    assertHas(code, 'bash', './run.sh', 'function.call')
+    assertHas(code, 'bash', 'date', 'function.call')
+    assertHas(code, 'bash', 'if', 'keyword.control')
+    expect(scopeOf(code, 'bash', 'payload.json')).not.toBe('function.call')
+  })
+
+  it('yaml: keeps the string color on the wrapped lines of a plain scalar', () => {
+    const code = 'info:\n  description: one\n    two\n  title: t\n'
+    assertHas(code, 'yaml', 'two', 'string')
+    assertHas(code, 'yaml', 'title', 'property')
   })
 })

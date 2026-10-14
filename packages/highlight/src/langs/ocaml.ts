@@ -176,13 +176,14 @@ const ocaml: Grammar = {
     },
 
     // Comments nest, so the opener pushes another copy of this state and only
-    // the matching `*)` pops. A `"*)"` inside a string inside a comment ends the
-    // comment early — OCaml lexes strings in comments, we do not.
+    // the matching `*)` pops. OCaml lexes string literals inside comments, so a
+    // `"*)"` there does not close the comment; the string stays comment-coloured.
     comment: {
       default: 'comment',
       rules: [
         { match: '\\(\\*', push: 'comment' },
         { match: '\\*\\)', pop: true },
+        { match: '"', push: 'comment-string' },
       ],
     },
     'comment-doc': {
@@ -190,16 +191,24 @@ const ocaml: Grammar = {
       rules: [
         { match: '\\(\\*', push: 'comment-doc' },
         { match: '\\*\\)', pop: true },
+        { match: '"', push: 'comment-string' },
+      ],
+    },
+    /** A string literal inside a comment. Still a comment to the reader. */
+    'comment-string': {
+      default: 'comment',
+      rules: [
+        { match: '\\\\[\\s\\S]', scope: 'comment' },
+        { match: '"', scope: 'comment', pop: true },
       ],
     },
 
     // ---- strings, chars and numbers ------------------------------------------
     strings: {
       rules: [
-        // `{id|raw|id}`. Matching the identifier on both ends needs a
-        // backreference, so any closing delimiter is accepted: a body
-        // containing `|other}` ends the literal early.
-        { match: '\\{[a-z_]*\\|', scope: 'string', push: 'quoted-string' },
+        // `{id|raw|id}`. The identifier is remembered, so only `|id}` closes
+        // the literal and a body can hold `|other}`.
+        { match: '\\{([a-z_]*)\\|', scope: 'string', push: 'quoted-string', remember: 1 },
         { match: '"', scope: 'string', push: 'string' },
         // A char literal closes; a type variable does not. The lookbehind is
         // what keeps the trailing quote of `acc'` from opening one.
@@ -219,7 +228,7 @@ const ocaml: Grammar = {
     // Deliberately no escape rule: a quoted string literal is raw.
     'quoted-string': {
       default: 'string',
-      rules: [{ match: '\\|[a-z_]*\\}', scope: 'string', pop: true }],
+      rules: [{ match: '\\|{{remembered}}\\}', scope: 'string', pop: true }],
     },
 
     numbers: {

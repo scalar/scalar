@@ -13,14 +13,19 @@ const markdown: Grammar = {
   states: {
     root: {
       rules: [
+        // The fence remembers its run, so only a run of the same character at
+        // least as long closes it: a ```` block can show ``` inside.
         {
           match: '^([ \\t]*)(```+|~~~+)([^\\n]*)$',
           scope: [null, 'punctuation', 'type'],
           push: 'fence',
+          remember: 2,
         },
+        { match: '<!--', scope: 'comment', push: 'html-comment' },
 
         { match: '^#{1,6}[ \\t][^\\n]*', scope: 'heading' },
-        { match: '^[^\\n]+\\n(?:={2,}|-{2,})[ \\t]*$', scope: 'heading' },
+        // `[^\\r\\n]`, so the `\\r` of a blank CRLF line does not count as text.
+        { match: '^[^\\r\\n]+\\r?\\n(?:={2,}|-{2,})[ \\t]*$', scope: 'heading' },
         {
           match: '^[ \\t]*(?:\\*[ \\t]*){3,}$|^[ \\t]*(?:-[ \\t]*){3,}$|^[ \\t]*(?:_[ \\t]*){3,}$',
           scope: 'punctuation',
@@ -62,18 +67,24 @@ const markdown: Grammar = {
         { match: '^([ \\t]*)(\\|)', scope: [null, 'punctuation'] },
         { match: '\\|', scope: 'punctuation' },
 
-        { match: '</?[A-Za-z][\\w:-]*(?:\\s[^>\\n]*)?/?>', scope: 'tag' },
+        // The attribute run stops at `<` too, so a line of unclosed `<a ` costs
+        // O(n) per tag rather than a scan to the end of the line each.
+        { match: '</?[A-Za-z][\\w:-]*(?:[ \\t][^<>\\n]*)?/?>', scope: 'tag' },
       ],
     },
     fence: {
       default: 'string',
       rules: [
         {
-          match: '^[ \\t]*(?:```+|~~~+)[ \\t]*$',
+          match: '^[ \\t]*{{remembered}}[`~]*[ \\t]*$',
           scope: 'punctuation',
           pop: true,
         },
       ],
+    },
+    'html-comment': {
+      default: 'comment',
+      rules: [{ match: '-->', scope: 'comment', pop: true }],
     },
   },
 }

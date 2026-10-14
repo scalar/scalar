@@ -363,10 +363,9 @@ describe('compat surface', () => {
   })
 
   it('reports exactly which standard languages have no grammar', () => {
-    // Julia is a standard language in `@scalar/code-highlight` but has no
-    // hand-written grammar in this zero-dependency package yet, so it renders
-    // as plain escaped text alongside plaintext.
-    expect(unsupportedLanguages).toEqual(['julia', 'plaintext'])
+    // `plaintext` is the one name with nothing to highlight; it renders as
+    // escaped text, exactly as the lowlight pipeline renders it.
+    expect(unsupportedLanguages).toEqual(['plaintext'])
   })
 
   it('never throws on an unknown language, unlike resolveGrammar', () => {
@@ -394,6 +393,56 @@ describe('compat surface', () => {
       maskCredentials: 'ab',
     })
     expect(html).not.toContain('credential')
+  })
+
+  it('masks a credential the tokenizer splits across tokens', () => {
+    // `sk_live.abc123` unquoted is a name, a `.` and a member: three spans.
+    // Searching the finished HTML for it missed it and left it on screen.
+    const html = syntaxHighlight('api_key = sk_live.abc123\nclient = Client(api_key)', {
+      lang: 'python',
+      maskCredentials: 'sk_live.abc123',
+    })
+    expect(html).toContain('<span class="credential"><span class="credential-value">sk_live.abc123</span></span>')
+  })
+
+  it('never masks inside the markup itself', () => {
+    // A credential that reads like markup used to be replaced inside tag names
+    // and class attributes, corrupting the output.
+    for (const credential of ['span', 'class', 'hljs']) {
+      const code = `const x = "${credential}" // ${credential}`
+      const html = syntaxHighlight(code, { lang: 'javascript', maskCredentials: credential })
+      expect(textFromHtml(html), credential).toBe(code)
+      expect(html.match(/credential-value/g)?.length, credential).toBe(2)
+    }
+  })
+
+  it('masks a credential containing characters HTML escapes', () => {
+    const html = syntaxHighlight('token = "a&b<c"', { lang: 'python', maskCredentials: 'a&b<c' })
+    expect(html).toContain('<span class="credential"><span class="credential-value">a&amp;b&lt;c</span></span>')
+  })
+
+  it('masks every line a credential appears on in line mode', () => {
+    const html = syntaxHighlight('a = "secret"\nb = "secret"', {
+      lang: 'python',
+      lineNumbers: true,
+      maskCredentials: 'secret',
+    })
+    expect(html.match(/credential-value/g)?.length).toBe(2)
+  })
+
+  it.each(['\n', '\r\n'])('masks multiline credentials with %j line endings', (newline) => {
+    const credential = `abc${newline}${newline}def`
+    const code = `const token = ${credential};`
+    for (const lang of ['plaintext', 'javascript']) {
+      for (const lineNumbers of [false, true]) {
+        const html = syntaxHighlight(code, { lang, lineNumbers, maskCredentials: credential })
+        const masked = [...html.matchAll(/<span class="credential-value">([\s\S]*?)<\/span>/g)].map((match) => match[1])
+        expect(masked).toEqual(
+          lineNumbers ? (newline === '\n' ? ['abc', 'def'] : ['abc\r', '\r', 'def']) : [credential],
+        )
+        expect(textFromHtml(html)).toBe(lineNumbers ? `${code}\n` : code)
+      }
+    }
   })
 
   it('accepts a single credential string as well as an array', () => {

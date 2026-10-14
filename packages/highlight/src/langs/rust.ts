@@ -14,18 +14,16 @@ const rust: Grammar = {
       rules: [
         { match: '//[/!][^\\n]*', scope: 'comment.doc' },
         { match: '//[^\\n]*', scope: 'comment' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // Block comments nest in Rust, so the state pushes itself.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
 
-        // Raw strings, longest hash run first. Beyond two hashes is vanishingly
-        // rare and would need a backreference to match exactly.
+        // Raw strings close with a quote and as many hashes as opened them,
+        // which the state remembers. No escapes inside.
         {
-          match: '(b?r##)("[\\s\\S]*?"##)',
-          scope: ['string.special', 'string'],
-        },
-        { match: '(b?r#)("[\\s\\S]*?"#)', scope: ['string.special', 'string'] },
-        {
-          match: '(b?r)("(?:[^"\\\\]|\\\\.)*")',
-          scope: ['string.special', 'string'],
+          match: '(b?r)(#*)(")',
+          scope: ['string.special', 'string.special', 'string'],
+          push: 'raw-string',
+          remember: 2,
         },
         {
           match: '(b?)(")',
@@ -122,6 +120,17 @@ const rust: Grammar = {
         { match: '\\{[^{}\\n]*\\}', scope: 'string.special' },
         { match: '"', scope: 'string', pop: true },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
+        { match: '\\*/', scope: 'comment', pop: true },
+      ],
+    },
+    'raw-string': {
+      default: 'string',
+      rules: [{ match: '"{{remembered}}', scope: 'string', pop: true }],
     },
   },
 }

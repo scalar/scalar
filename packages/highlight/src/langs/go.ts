@@ -8,7 +8,9 @@ const go: Grammar = {
     root: {
       rules: [
         { match: '//[^\\n]*', scope: 'comment' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and fails
+        // once per opener, which is O(n²) on a run of unterminated `/*`.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
 
         { match: '`[^`]*`', scope: 'string' },
         { match: '"', scope: 'string', push: 'string' },
@@ -95,6 +97,10 @@ const go: Grammar = {
         { match: '"', scope: 'string', pop: true },
         { match: '$', pop: true },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
     },
   },
 }
