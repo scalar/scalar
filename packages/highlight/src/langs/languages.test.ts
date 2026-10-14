@@ -926,4 +926,14 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'yaml', 'two', 'string')
     assertHas(code, 'yaml', 'title', 'property')
   })
+
+  it('sql: scopes T-SQL and PL/SQL keywords and types', () => {
+    const code = "DECLARE @n INT;\nPRINT 'x';\nEXEC dbo.run;\nv VARCHAR2(10);\nGO\n"
+    for (const word of ['DECLARE', 'PRINT', 'EXEC', 'GO']) {
+      assertHas(code, 'sql', word, 'keyword.control')
+    }
+    assertHas(code, 'sql', 'VARCHAR2', 'type.builtin')
+    // Common column names stay plain.
+    expect(scopeOf('SELECT level, top FROM t\n', 'sql', 'level')).toBeUndefined()
+  })
 })
