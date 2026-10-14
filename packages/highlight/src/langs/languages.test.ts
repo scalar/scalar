@@ -936,4 +936,12 @@ describe('regressions from the TextMate comparison', () => {
     // Common column names stay plain.
     expect(scopeOf('SELECT level, top FROM t\n', 'sql', 'level')).toBeUndefined()
   })
+
+  it('javascript: reads a regex after a control condition, and colours a tagged template tag', () => {
+    const code = 'if (ok) /^a+$/.test(s)\nwhile (x) /b/g.exec(t)\nconst q = gql`query`\nconst r = a / b / c\n'
+    assertHas(code, 'javascript', '/^a+$/', 'regexp')
+    assertHas(code, 'javascript', '/b/g', 'regexp')
+    assertHas(code, 'javascript', 'gql', 'function.call')
+    expect(scoped(code, 'javascript').filter(([, s]) => s === 'regexp')).toHaveLength(2)
+  })
 })

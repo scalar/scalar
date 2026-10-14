@@ -89,6 +89,13 @@ const javascript: Grammar = {
           match: `(${BEFORE_REGEX})(\\s*)(${REGEX})`,
           scope: ['operator', null, 'regexp'],
         },
+        // `if (ok) /re/.test(s)`: a `)` that closes a control condition starts
+        // an expression. The lookbehind sits after the `/` so the rule still
+        // starts with a literal character.
+        {
+          match: `/(?<=\\b(?:if|while|for)[ \\t]*\\([^()\\n]{0,256}\\)[ \\t]*/)${REGEX.slice(1)}`,
+          scope: 'regexp',
+        },
         // Blanks only: `\s*` would run across every blank line below, and
         // retrying that at each line start is O(n²) on a run of blank lines.
         { match: `^([ \\t]*)(${REGEX})`, scope: [null, 'regexp'] },
@@ -161,7 +168,7 @@ const javascript: Grammar = {
         // Requiring no space before the colon keeps `cond ? a : b` out.
         { match: `\\b${ID}(?=\\??:)`, scope: 'property' },
         { match: `\\b${ID}(?=\\s*=>)`, scope: 'variable.parameter' },
-        { match: `\\b${ID}(?=[ \\t]*[(<])`, scope: 'function.call' },
+        { match: `\\b${ID}(?=[ \\t]*[(<]|\`)`, scope: 'function.call' },
 
         {
           // Bare `=` goes last so `=>`, `==`, `===` and the compound forms all
