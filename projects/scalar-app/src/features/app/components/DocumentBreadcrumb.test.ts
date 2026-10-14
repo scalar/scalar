@@ -124,11 +124,12 @@ const createFakeApp = ({
         teamUid?: string
         teamSlug?: string
       }) => {
-        const found = workspaceUid
-          ? workspaceList.find((w) => w.id === workspaceUid)
-          : targetTeamUid
-            ? workspaceList.find((w) => w.teamUid === targetTeamUid)
-            : undefined
+        const found = workspaceList.find((workspace) => {
+          if (workspaceUid) {
+            return workspace.id === workspaceUid
+          }
+          return Boolean(targetTeamUid) && workspace.teamUid === targetTeamUid
+        })
         if (found) {
           mockEventBus.emit('ui:navigate', {
             page: 'workspace',

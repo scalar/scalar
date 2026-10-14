@@ -1,4 +1,5 @@
 <script lang="ts">
+/* eslint-disable vue/one-component-per-file -- Tooltip apps mount the imported PillTooltipHost; they do not define another component. */
 /**
  * CodeInputLite
  *

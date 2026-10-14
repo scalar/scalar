@@ -36,12 +36,8 @@ export const getPostmanMergeKeys = (item: unknown) => {
   const request = item.request
   const method = extractRequestMethod(request).toLowerCase()
 
-  const requestUrl =
-    typeof request === 'string'
-      ? request
-      : typeof (request as { url?: unknown }).url === 'string'
-        ? (request as { url: string }).url
-        : ((request as { url?: { raw?: string } }).url?.raw ?? '')
+  const url = typeof request === 'string' ? request : (request as { url?: string | { raw?: string } }).url
+  const requestUrl = typeof url === 'string' ? url : (url?.raw ?? '')
 
   const path = extractPathFromUrl(requestUrl)
   const normalizedPath = normalizePath(path)

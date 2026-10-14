@@ -437,9 +437,8 @@ describe('compat surface', () => {
       for (const lineNumbers of [false, true]) {
         const html = syntaxHighlight(code, { lang, lineNumbers, maskCredentials: credential })
         const masked = [...html.matchAll(/<span class="credential-value">([\s\S]*?)<\/span>/g)].map((match) => match[1])
-        expect(masked).toEqual(
-          lineNumbers ? (newline === '\n' ? ['abc', 'def'] : ['abc\r', '\r', 'def']) : [credential],
-        )
+        const maskedLines = newline === '\n' ? ['abc', 'def'] : ['abc\r', '\r', 'def']
+        expect(masked).toEqual(lineNumbers ? maskedLines : [credential])
         expect(textFromHtml(html)).toBe(lineNumbers ? `${code}\n` : code)
       }
     }

@@ -758,7 +758,7 @@ onBeforeUnmount(() => {
         @execute="handleExecute"
         @navigate:settings="handleNavigateSettings"
         @select:history:item="handleSelectHistoryItem"
-        @update:webhook-url="(value) => (webhookUrl = value)" />
+        @update:webhookUrl="(value: string) => (webhookUrl = value)" />
     </div>
 
     <ViewLayout class="border-t">

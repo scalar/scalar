@@ -17,14 +17,14 @@ const emit = defineEmits<{
     </strong>
     <div class="approveContainer">
       <button
-        type="button"
         class="actionButton rejectButton"
+        type="button"
         @click="emit('reject')">
         Reject
       </button>
       <button
-        type="button"
         class="actionButton approveButton"
+        type="button"
         @click="emit('approve')">
         Approve
       </button>

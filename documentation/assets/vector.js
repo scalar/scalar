@@ -5,33 +5,31 @@ function initVector() {
       return
     }
 
-    var vector = { q: [] }
+    const vector = { q: [] }
 
-    var methods = ['load', 'identify', 'on']
+    const methods = ['load', 'identify', 'on']
 
-    var createQueuedMethod = function (method) {
-      return function () {
-        var args = Array.prototype.slice.call(arguments)
+    const createQueuedMethod =
+      (method) =>
+      (...args) => {
         vector.q.push([method, args])
       }
-    }
 
-    for (var index = 0; index < methods.length; index++) {
-      var method = methods[index]
+    for (const method of methods) {
       vector[method] = createQueuedMethod(method)
     }
 
     window.vector = vector
 
     if (!vector.loaded) {
-      var firstScript = document.getElementsByTagName('script')[0]
-      var script = document.createElement('script')
+      const firstScript = document.getElementsByTagName('script')[0]
+      const script = document.createElement('script')
 
       script.type = 'text/javascript'
       script.async = true
       script.src = 'https://cdn.vector.co/pixel.js'
 
-      if (firstScript && firstScript.parentNode) {
+      if (firstScript?.parentNode) {
         firstScript.parentNode.insertBefore(script, firstScript)
       } else {
         document.head.appendChild(script)

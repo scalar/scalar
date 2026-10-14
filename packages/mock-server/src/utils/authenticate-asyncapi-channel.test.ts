@@ -213,9 +213,13 @@ describe('authenticate-asyncapi-channel', () => {
     const server = serve({ fetch: app.fetch, hostname: '127.0.0.1', port: 0, websocket })
     const clients: WebSocket[] = []
     try {
-      if (!server.listening) await once(server, 'listening')
+      if (!server.listening) {
+        await once(server, 'listening')
+      }
       const address = server.address()
-      if (!address || typeof address === 'string') throw new Error('Expected TCP address')
+      if (!address || typeof address === 'string') {
+        throw new Error('Expected TCP address')
+      }
       const rejected = new WebSocket(`ws://127.0.0.1:${address.port}/events`)
       clients.push(rejected)
       const status = await new Promise<number>((resolve, reject) => {

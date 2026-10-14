@@ -1164,7 +1164,7 @@ export const createAppState = async ({
       example: payload.exampleKey,
     })
 
-    if (!entry || entry.type !== 'example') {
+    if (entry?.type !== 'example') {
       // Sidebar entry for this example doesn't exist, so rebuild sidebar for consistency.
       rebuildSidebar(documentName)
       if (currentRoute.value) {

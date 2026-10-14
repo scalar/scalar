@@ -62,10 +62,12 @@ try {
   exposeInRenderer('ipc', {
     addEventListener: (event, callback) => ipcRenderer.on(event, (_, params) => callback(params)),
   })
-  exposeInRenderer(
-    'os',
-    platform === 'darwin' ? 'mac' : platform === 'win32' ? 'windows' : platform === 'linux' ? 'linux' : 'unknown',
-  )
+  const operatingSystems: Partial<Record<NodeJS.Platform, Window['os']>> = {
+    darwin: 'mac',
+    win32: 'windows',
+    linux: 'linux',
+  }
+  exposeInRenderer('os', operatingSystems[platform] ?? 'unknown')
 } catch (error) {
   console.error(error)
 }
