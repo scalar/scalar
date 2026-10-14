@@ -89,7 +89,7 @@ describe('OperationReply', () => {
       },
       global: { provide: { [NAVIGATION_HREF]: (id: string): string => `/reference/${id}` } },
     })
-    expect(wrapper.text()).toContain('Dynamic reply address')
+    expect(wrapper.text()).toContain('Dynamic address')
     expect(wrapper.text()).toContain('$message.header#/replyTo')
     expect(wrapper.text()).toContain('Sender inbox')
     const links = wrapper.findAll('a')
@@ -122,8 +122,8 @@ describe('OperationReply', () => {
         },
       },
     })
-    expect(wrapper.text()).toContain('Reply address')
-    expect(wrapper.text()).not.toContain('Dynamic reply address')
+    expect(wrapper.text()).toContain('Address')
+    expect(wrapper.text()).not.toContain('Dynamic address')
     expect(wrapper.text()).toContain('replies/topic')
     expect(wrapper.findAll('a').map((link) => link.text())).toStrictEqual([])
   })

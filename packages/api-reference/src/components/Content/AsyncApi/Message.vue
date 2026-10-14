@@ -259,7 +259,12 @@ const { level: headingLevel } = useDocumentOutline(
     ref="section"
     class="message">
     <SectionAccordion
-      class="message-accordion [&_.section-accordion-content-card]:bg-b-1 border [&_.section-accordion-content-card]:rounded-b-lg [&_.section-accordion-content-card]:p-4 [&_.section-accordion-header]:px-4 [&_.section-accordion-header]:py-3"
+      class="message-accordion [&_.section-accordion-content-card]:bg-b-1 [&_.section-accordion-content-card]:p-4 [&_.section-accordion-header]:px-4 [&_.section-accordion-header]:py-3"
+      :class="
+        inline
+          ? 'rounded-none! bg-transparent!'
+          : 'border [&_.section-accordion-content-card]:rounded-b-lg'
+      "
       :modelValue="isExpanded"
       @update:modelValue="onToggle">
       <template #title>

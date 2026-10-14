@@ -108,7 +108,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   <div
     :id="operation.id"
     ref="section"
-    class="operation"
+    class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:border-t [&+.operation]:pt-10"
     :class="`operation--${operation.action}`">
     <div class="operation-header">
       <span
@@ -137,10 +137,9 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       withImages />
 
     <SectionHeaderTag
-      v-if="messages.length"
-      class="text-c-1 mt-6 mb-3 block! text-base leading-[1.45] font-medium"
-      :level="messagesHeadingLevel"
-      rule>
+      v-if="messages.length || reply"
+      class="text-c-1 mt-6 mb-2 block! text-base leading-[1.45] font-medium"
+      :level="messagesHeadingLevel">
       Messages
     </SectionHeaderTag>
     <Message
@@ -154,6 +153,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :options="options"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
+    <p
+      v-if="reply && !messages.length"
+      class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
+      No messages listed for this operation.
+    </p>
     <OperationReply
       v-if="reply"
       :document="document"
@@ -168,7 +172,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
 <style scoped>
 .operation {
-  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
 }
 
@@ -226,6 +229,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 }
 /* Space the first message accordion away from the operation header/description. */
 .operation > :deep(.message) {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 </style>
