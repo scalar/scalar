@@ -146,6 +146,41 @@ describe('get-operation-reply', () => {
     expect(readReply(document)?.messages).toStrictEqual([])
   })
 
+  it('omits a reply channel whose operations are all hidden', () => {
+    const document = createDocument()
+    document.operations = {
+      ...document.operations,
+      response: {
+        action: 'receive',
+        channel: { $ref: '#/channels/replies' },
+        ...{ 'x-internal': true },
+      },
+    }
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+    expect(readReply(document)).toBeUndefined()
+  })
+
+  it('omits reply messages exclusively owned by a hidden operation on a visible channel', () => {
+    const document = createDocument()
+    document.operations = {
+      ...document.operations,
+      hidden: {
+        action: 'receive',
+        channel: { $ref: '#/channels/replies' },
+        messages: [{ $ref: '#/channels/replies/messages/result' }],
+        ...{ 'x-scalar-ignore': true },
+      },
+      visible: {
+        action: 'receive',
+        channel: { $ref: '#/channels/replies' },
+        messages: [{ $ref: '#/channels/replies/messages/other' }],
+      },
+    }
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+    expect(readReply(document)?.channel).toStrictEqual({ title: 'Reply channel', id: 'test/channel/replies' })
+    expect(readReply(document)?.messages).toStrictEqual([])
+  })
+
   it('decodes escaped channel and message names when choosing the rendered target', () => {
     const document = createDocument({
       channel: { $ref: '#/channels/replies~1v1' },

@@ -63,7 +63,10 @@ export const getOperationReply = (
     : undefined
 
   // Hidden channels must not leak their addresses or messages through another operation.
-  if (channel && isHidden(channel as XInternal & XScalarIgnore)) {
+  if (
+    (channel && isHidden(channel as XInternal & XScalarIgnore)) ||
+    (navigation && channelName && document.channels?.[channelName] && !channelEntry)
+  ) {
     return undefined
   }
   const messages = (reply.messages ?? []).flatMap((reference): ReplyLink[] => {
@@ -85,6 +88,10 @@ export const getOperationReply = (
               candidate.messageName === name,
           )
         : undefined
+    // Navigation also suppresses messages exclusively owned by hidden operations.
+    if (navigation && channelEntry && name && channel?.messages?.[name] && !entry) {
+      return []
+    }
     return [{ title: pickHeading(message?.title, message?.name, name ?? reference.$ref), id: entry?.id }]
   })
 
