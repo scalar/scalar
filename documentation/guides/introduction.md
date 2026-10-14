@@ -749,8 +749,11 @@
   }
   .lp-features b {
     min-height: 28px;
-    gap: 6px;
     font-size: var(--scalar-font-size-3);
+  }
+  /* outranks the theme's .scalar-app .gap-3 */
+  .lp-features b.icon-text {
+    gap: 6px;
   }
   .lp-actions {
     display: flex;
