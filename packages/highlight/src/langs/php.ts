@@ -36,10 +36,11 @@ const php: Grammar = {
   aliases: ['php3', 'php4', 'php5', 'php8'],
   states: {
     // ---- inline markup -----------------------------------------------------
-    // Outside `<?php … ?>` a PHP file is HTML. It is scoped rather than
-    // highlighted with the HTML grammar — cross-language embedding is not a
-    // thing the engine does yet — so this covers tags, attributes and comments
-    // and stops there.
+    // Outside `<?php … ?>` a PHP file is HTML. It is scoped here rather than
+    // handed to the HTML grammar, because a PHP region can open anywhere in
+    // it — inside a tag, inside an attribute value — and an embedded grammar
+    // cut off there would lose its place. Only `<script>` and `<style>` bodies,
+    // where nothing else in the markup applies, are handed to their languages.
     // Picks the starting mode and is never seen again: input that opens with
     // markup is a template, anything else is code without its `<?php`. Both
     // rules are zero-width, so the first token is tokenized by the mode chosen.
@@ -55,12 +56,61 @@ const php: Grammar = {
       rules: [
         { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
         { match: '<!--', scope: 'comment', push: 'html-comment' },
+        { match: '(<)(script)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'script-tag' },
+        { match: '(<)(style)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'style-tag' },
         {
           match: `(</?)(${TAG})`,
           scope: ['punctuation.bracket', 'tag'],
           push: 'html-tag',
         },
       ],
+    },
+
+    // `<script>` and `<style>` bodies are JavaScript and CSS, when those are
+    // registered. A PHP region inside one is still PHP: the body is handed
+    // over in pieces, each ending at `<?php` or at the closing tag, and the
+    // piece after a `?>` starts the embedded language over.
+    'script-tag': {
+      ignoreCase: true,
+      rules: [
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        { match: '>', scope: 'punctuation.bracket', set: 'script-body' },
+        { include: 'html-tag' },
+      ],
+    },
+    'script-body': {
+      ignoreCase: true,
+      rules: [
+        { match: '(?=</script[\\s/>])', pop: true },
+        { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
+        { match: '(?=[\\s\\S])', push: 'script-code' },
+      ],
+    },
+    'script-code': {
+      ignoreCase: true,
+      embed: { language: 'javascript', until: '</script(?=[\\s/>])|<\\?(?:php\\b|=)' },
+      rules: [],
+    },
+    'style-tag': {
+      ignoreCase: true,
+      rules: [
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        { match: '>', scope: 'punctuation.bracket', set: 'style-body' },
+        { include: 'html-tag' },
+      ],
+    },
+    'style-body': {
+      ignoreCase: true,
+      rules: [
+        { match: '(?=</style[\\s/>])', pop: true },
+        { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
+        { match: '(?=[\\s\\S])', push: 'style-code' },
+      ],
+    },
+    'style-code': {
+      ignoreCase: true,
+      embed: { language: 'css', until: '</style(?=[\\s/>])|<\\?(?:php\\b|=)' },
+      rules: [],
     },
 
     /** Markup and PHP block comments. Neither form nests. */

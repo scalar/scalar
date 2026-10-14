@@ -1094,4 +1094,15 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'http', 'id', 'tag.attribute')
     assertHas(code, 'http', 'GET', 'keyword.control')
   })
+
+  it('php: highlights script and style bodies in a template, around PHP regions', () => {
+    const code =
+      '<p>x</p>\n<script>\n  const total = <?= count($items) ?>;\n  const ok = true\n</script>\n<style>.a { color: red }</style>\n'
+    assertHas(code, 'php', 'total', 'variable')
+    assertHas(code, 'php', 'count', 'function.builtin')
+    // The script resumes after the PHP region.
+    assertHas(code, 'php', 'ok', 'variable')
+    assertHas(code, 'php', 'color', 'property')
+    assertHas(code, 'php', 'style', 'tag')
+  })
 })
