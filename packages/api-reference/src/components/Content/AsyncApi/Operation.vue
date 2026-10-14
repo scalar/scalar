@@ -108,7 +108,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   <div
     :id="operation.id"
     ref="section"
-    class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:border-t [&+.operation]:pt-10"
+    class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:pt-10"
     :class="`operation--${operation.action}`">
     <div class="operation-header">
       <span
