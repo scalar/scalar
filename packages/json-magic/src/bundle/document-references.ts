@@ -49,6 +49,7 @@ type DocumentReferences = {
 export const documentReferences = (
   externalDocumentsKey: string,
   resolveDocument?: DocumentResolver,
+  canonicalizeIds = false,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
@@ -81,6 +82,11 @@ export const documentReferences = (
       const identifier = id ?? inheritedIdentifier
       const current = id === undefined ? origin : resolveReferencePath(origin, id)
       origins.set(value, current)
+      // Relative identifiers would acquire a different identity after serialization elsewhere.
+      // Use the indexed base before mutation so nested identifiers are resolved exactly once.
+      if (canonicalizeIds && id !== undefined && isObject(value)) {
+        value.$id = current
+      }
       const anchor = isObject(value) && typeof value.$anchor === 'string' ? value.$anchor : undefined
       if (id !== undefined || anchor !== undefined) {
         const schemaResource = {

@@ -333,6 +333,14 @@ type Config = {
   plugins: Plugin[]
 
   /**
+   * Return true to retain an authored $ref without resolving, loading, or rewriting it.
+   * Receives the effective source base, including enclosing $id values. Sibling fields
+   * are still traversed. Root loading is unaffected; resolution hooks are not called
+   * for preserved edges. With this option, $id values are made absolute for relocation.
+   */
+  preserveReference?: (ref: string, context: { origin: string }) => boolean
+
+  /**
    * Optional root object that serves as the base document when bundling a subpart.
    * This allows resolving references relative to the root document's location,
    * ensuring proper path resolution for nested references.
@@ -600,18 +608,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     return '/'
   }
 
-  const references = documentReferences(config.externalDocumentsKey, (document, retrievalUri) => {
-    for (const resolver of [
-      config.hooks?.resolveDocument,
-      ...lifecyclePlugin.map((plugin) => plugin.resolveDocument),
-    ]) {
-      const identity = resolver?.(document, retrievalUri)
-      if (identity !== undefined) {
-        return identity
+  const references = documentReferences(
+    config.externalDocumentsKey,
+    (document, retrievalUri) => {
+      for (const resolver of [
+        config.hooks?.resolveDocument,
+        ...lifecyclePlugin.map((plugin) => plugin.resolveDocument),
+      ]) {
+        const identity = resolver?.(document, retrievalUri)
+        if (identity !== undefined) {
+          return identity
+        }
       }
-    }
-    return undefined
-  })
+      return undefined
+    },
+    config.preserveReference !== undefined,
+  )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
   const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
@@ -723,7 +735,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
-    if (hasRef(root)) {
+    if (hasRef(root) && !config.preserveReference?.(root.$ref, { origin: nodeOrigin })) {
       const ref = root['$ref']
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
@@ -936,6 +948,17 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   }
 
   await bundler(rawSpecification)
+
+  // Cache indexing reserves keys before we know which edges will be preserved.
+  // Do not expose reservations for resources that were never included in the output.
+  if (config.preserveReference) {
+    const documents = documentRoot[config.externalDocumentsKey]
+    for (const key of Object.keys(documentRoot[config.externalDocumentsMappingsKey])) {
+      if (!isObject(documents) || !Object.hasOwn(documents, key)) {
+        delete documentRoot[config.externalDocumentsMappingsKey][key]
+      }
+    }
+  }
 
   // Keep urlMappings when doing partial bundling to track hash values and handle collisions
   // For full bundling without urlMap config, remove the mappings to clean up the output
