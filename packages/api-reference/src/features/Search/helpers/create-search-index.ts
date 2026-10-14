@@ -198,7 +198,7 @@ function addEntryToIndex(
 
     const parameters = extractParameterNames(operationWithPathParams.parameters ?? [])
     const parameterDescriptions = extractParameterDescriptions(operationWithPathParams.parameters ?? [])
-    const { names: body, descriptions: bodyDescriptions } = extractFields.body(operationWithPathParams)
+    const { names: body, descriptions: bodyDescriptions } = extractFields.operation(operation)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
@@ -224,6 +224,7 @@ function addEntryToIndex(
   if (entry.type === 'webhook') {
     const webhook = getResolvedRef(getPathItemOperation(openApiDocument?.webhooks?.[entry.name], entry.method)) ?? {}
     const webhookDescription = webhook.description || ''
+    const { names, descriptions } = extractFields.operation(webhook)
 
     index.push({
       id: entry.id,
@@ -231,8 +232,8 @@ function addEntryToIndex(
       title: entry.title,
       description: 'Webhook',
       method: entry.method,
-      body: '',
-      bodyDescriptions: webhookDescription ? [webhookDescription] : [],
+      body: names.length ? names : '',
+      bodyDescriptions: webhookDescription ? [webhookDescription, ...descriptions] : descriptions,
       operationId: webhook.operationId,
       entry,
     })

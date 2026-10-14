@@ -1,6 +1,5 @@
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type {
-  MediaTypeObject,
   OpenApiDocument,
   OperationObject,
   ParameterObject,
@@ -8,86 +7,139 @@ import type {
   SchemaObject,
   SchemaReferenceType,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
-const isSchemaObject = (value: unknown): value is SchemaObject => typeof value === 'object' && value !== null
+const isSchemaObject = (value: unknown): value is SchemaObject =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/** Names and prose stay separate so exact field matches retain their higher search weight. */
+type SchemaSearchText = { names: string[]; descriptions: string[] }
 
 /**
- * Resolves a schema reference from workspace-store to a SchemaObject.
- * Returns undefined when a reference exists but has not been resolved yet.
+ * Extracts only property names and descriptions, never examples or schema metadata.
+ *
+ * Limits apply across all roots of one entry: 64 schema edges deep, 10,000 visits,
+ * and 100,000 characters (at most 2,048 per string). These bounds keep recursive,
+ * very wide, and unusually verbose schemas from monopolizing search construction.
+ * Traversal order follows the document; fields beyond these limits are omitted.
+ * Identity tracking is local to each extraction so shared schemas remain searchable
+ * on every owning operation. A shallower revisit is allowed to avoid losing fields
+ * when a shared schema first appears near the depth limit.
  */
-function resolveSchemaRef(ref: SchemaReferenceType<SchemaObject>): SchemaObject | undefined {
-  if (typeof ref === 'object' && ref !== null && '$ref' in ref) {
-    return isSchemaObject(ref['$ref-value']) ? ref['$ref-value'] : undefined
+const extractSchemaSearchText = (
+  schemas: Iterable<SchemaReferenceType<SchemaObject> | undefined>,
+): SchemaSearchText => {
+  const names = new Set<string>()
+  const descriptions = new Set<string>()
+  const visited = new Map<SchemaObject, number>()
+  let visits = 0
+  let characters = 0
+
+  const exhausted = (): boolean => visits >= 10_000 || characters >= 100_000
+  const add = (target: Set<string>, value: string | undefined): void => {
+    if (typeof value !== 'string' || !value || exhausted()) {
+      return
+    }
+    const text = value.slice(0, Math.min(2_048, 100_000 - characters))
+    if (!target.has(text)) {
+      target.add(text)
+      characters += text.length
+    }
   }
 
-  return ref
+  const visit = (schema: unknown, depth: number, property = false): void => {
+    if (exhausted()) {
+      return
+    }
+    visits++
+    if (depth > 64 || !isSchemaObject(schema)) {
+      return
+    }
+    if (property && !('$ref' in schema)) {
+      add(descriptions, schema.description)
+    }
+    const previousDepth = visited.get(schema)
+    if (previousDepth !== undefined && previousDepth <= depth) {
+      return
+    }
+    visited.set(schema, depth)
+
+    // Follow store-resolved links one hop at a time so reference chains share the budget.
+    // Unresolved references contribute their property name but do not trigger I/O.
+    if ('$ref' in schema) {
+      if ('$ref-value' in schema) {
+        visit(schema['$ref-value'], depth + 1, property)
+      }
+      return
+    }
+    for (const variants of [schema.oneOf, schema.anyOf, schema.allOf]) {
+      for (const variant of variants ?? []) {
+        if (exhausted()) {
+          return
+        }
+        visit(variant, depth + 1)
+      }
+    }
+    if ('properties' in schema && schema.properties) {
+      for (const key in schema.properties) {
+        if (exhausted()) {
+          return
+        }
+        if (Object.hasOwn(schema.properties, key)) {
+          add(names, key)
+          visit(schema.properties[key], depth + 1, true)
+        }
+      }
+    }
+    if ('items' in schema && schema.items) {
+      visit(schema.items, depth + 1)
+    }
+  }
+
+  for (const schema of schemas) {
+    if (exhausted()) {
+      break
+    }
+    visit(schema, 0)
+  }
+  return { names: [...names], descriptions: [...descriptions] }
 }
 
-function pushUnique(target: string[], value: string | undefined): void {
-  if (!value) {
-    return
+/** Yields media schemas lazily so extraction can stop at its per-entry budget. */
+function* bodySchemas(
+  operation: OperationObject,
+  includeResponses: boolean,
+): Generator<SchemaReferenceType<SchemaObject> | undefined> {
+  const content = getResolvedRef(operation.requestBody)?.content
+  for (const key in content) {
+    if (Object.hasOwn(content, key)) {
+      yield getResolvedRef(content[key])?.schema
+    }
   }
-  if (!target.includes(value)) {
+  if (includeResponses) {
+    for (const code in operation.responses) {
+      if (!Object.hasOwn(operation.responses, code)) {
+        continue
+      }
+      const responseContent = getResolvedRef(operation.responses[code])?.content
+      // Count empty responses against the traversal budget too.
+      yield undefined
+      for (const mediaType in responseContent) {
+        if (Object.hasOwn(responseContent, mediaType)) {
+          yield getResolvedRef(responseContent[mediaType])?.schema
+        }
+      }
+    }
+  }
+}
+
+/** Collects request and response fields together under a single operation budget. */
+const extractOperationSchemaSearchText = (operation: OperationObject): SchemaSearchText =>
+  extractSchemaSearchText(bodySchemas(operation, true))
+
+const pushUnique = (target: string[], value: string | undefined): void => {
+  if (value && !target.includes(value)) {
     target.push(value)
   }
-}
-
-type CollectOptions = {
-  visit: (key: string, schema: SchemaObject | undefined) => void
-  visited: Set<SchemaObject>
-  maxPropertyDepth: number
-}
-
-/**
- * Recursively visits every property of a schema, descending transparently through composition
- * keywords (`oneOf`, `anyOf`, `allOf`) and one level into nested object properties.
- *
- * Composition is treated as transparent — a `oneOf` of two object variants is *the same level* as a
- * single object, just expressed as multiple shapes. Property nesting is capped to keep the index
- * focused on shallow, commonly-searched fields. A visited-set keyed by resolved-schema identity
- * guards against recursive (`Tree → Tree`) schemas.
- */
-function collectSchemaProperties(schema: SchemaObject | undefined, options: CollectOptions, propertyDepth = 0): void {
-  if (!schema || options.visited.has(schema)) {
-    return
-  }
-  options.visited.add(schema)
-
-  const variants = [...(schema.oneOf ?? []), ...(schema.anyOf ?? []), ...(schema.allOf ?? [])]
-  variants.forEach((variantRef) => {
-    collectSchemaProperties(resolveSchemaRef(variantRef), options, propertyDepth)
-  })
-
-  if (isObjectSchema(schema) && schema.properties) {
-    Object.entries(schema.properties).forEach(([key, propRef]) => {
-      const property = resolveSchemaRef(propRef)
-      options.visit(key, property)
-      if (propertyDepth + 1 < options.maxPropertyDepth) {
-        collectSchemaProperties(property, options, propertyDepth + 1)
-      }
-    })
-  }
-}
-
-/**
- * Walks the request body schemas of an operation and yields each property schema with its key.
- */
-function forEachRequestBodyProperty(
-  operation: OperationObject,
-  visit: (key: string, schema: SchemaObject | undefined) => void,
-): void {
-  const content = getResolvedRef(operation?.requestBody)?.content
-  if (!content) {
-    return
-  }
-
-  const visited = new Set<SchemaObject>()
-  Object.values(content).forEach((media) => {
-    const resolvedMedia: MediaTypeObject | undefined = getResolvedRef(media)
-    const schema = getResolvedRef(resolvedMedia?.schema)
-    collectSchemaProperties(schema, { visit, visited, maxPropertyDepth: 2 })
-  })
 }
 
 /**
@@ -125,77 +177,21 @@ export function extractParameterDescriptions(parameters: ReferenceType<Parameter
   return descriptions
 }
 
-/**
- * Extracts the names of properties from the request body schema(s) of an operation.
- *
- * Walks every media type and includes both top-level and one level of nested property names so
- * common fields like `email` or `username` surface in search regardless of how the body is shaped.
- *
- * Retained as an independent reference for parity tests of the combined search field extractor.
- */
-export function extractBodyFieldNames(operation: OperationObject): string[] {
-  const names: string[] = []
+/** Extracts request-body property names, including nested objects, arrays, and compositions. */
+export const extractBodyFieldNames = (operation: OperationObject): string[] =>
+  extractSchemaSearchText(bodySchemas(operation, false)).names
 
-  forEachRequestBodyProperty(operation, (key) => {
-    pushUnique(names, key)
-  })
+/** Extracts request-body property descriptions separately from field names. */
+export const extractBodyDescriptions = (operation: OperationObject): string[] =>
+  extractSchemaSearchText(bodySchemas(operation, false)).descriptions
 
-  return names
-}
+/** Extracts schema property names using the shared bounded traversal. */
+export const extractSchemaFieldNames = (schema: SchemaObject | undefined): string[] =>
+  extractSchemaSearchText([schema]).names
 
-/**
- * Extracts the descriptions of properties from the request body schema(s) of an operation.
- *
- * Retained as an independent reference for parity tests of the combined search field extractor.
- */
-export function extractBodyDescriptions(operation: OperationObject): string[] {
-  const descriptions: string[] = []
-
-  forEachRequestBodyProperty(operation, (_key, schema) => {
-    if (schema && 'description' in schema && typeof schema.description === 'string') {
-      pushUnique(descriptions, schema.description)
-    }
-  })
-
-  return descriptions
-}
-
-/**
- * Extracts the property names of a schema for the search index.
- *
- * Same depth and composition behavior as `extractBodyFieldNames` — descends transparently through
- * `oneOf`/`anyOf`/`allOf`, walks one level into nested object properties, dedupes.
- *
- * Retained as an independent reference for parity tests of the combined search field extractor.
- */
-export function extractSchemaFieldNames(schema: SchemaObject | undefined): string[] {
-  const names: string[] = []
-  collectSchemaProperties(schema, {
-    visit: (key) => pushUnique(names, key),
-    visited: new Set<SchemaObject>(),
-    maxPropertyDepth: 2,
-  })
-  return names
-}
-
-/**
- * Extracts the property descriptions of a schema for the search index.
- *
- * Retained as an independent reference for parity tests of the combined search field extractor.
- */
-export function extractSchemaDescriptions(schema: SchemaObject | undefined): string[] {
-  const descriptions: string[] = []
-  collectSchemaProperties(schema, {
-    visit: (_key, propertySchema) => {
-      if (propertySchema && 'description' in propertySchema && typeof propertySchema.description === 'string') {
-        pushUnique(descriptions, propertySchema.description)
-      }
-    },
-    visited: new Set<SchemaObject>(),
-    maxPropertyDepth: 2,
-  })
-  return descriptions
-}
+/** Extracts schema property descriptions using the shared bounded traversal. */
+export const extractSchemaDescriptions = (schema: SchemaObject | undefined): string[] =>
+  extractSchemaSearchText([schema]).descriptions
 
 /** Search fields collected together without changing their independent ordering. */
 type SchemaSearchFields = {
@@ -210,25 +206,11 @@ type SchemaSearchFields = {
 export const createSearchFieldExtractor = (): {
   schema: (schema: SchemaObject | undefined) => SchemaSearchFields
   body: (operation: OperationObject) => SchemaSearchFields
+  operation: (operation: OperationObject) => SchemaSearchFields
 } => {
   const schemas = new WeakMap<SchemaObject, SchemaSearchFields>()
   const bodies = new WeakMap<object, SchemaSearchFields>()
-
-  const collect = (
-    walk: (visit: (key: string, schema: SchemaObject | undefined) => void) => void,
-  ): SchemaSearchFields => {
-    const names = new Set<string>()
-    const descriptions = new Set<string>()
-    walk((key, property) => {
-      if (key) {
-        names.add(key)
-      }
-      if (property && 'description' in property && typeof property.description === 'string' && property.description) {
-        descriptions.add(property.description)
-      }
-    })
-    return { names: [...names], descriptions: [...descriptions] }
-  }
+  const operations = new WeakMap<OperationObject, SchemaSearchFields>()
 
   const schema = (value: SchemaObject | undefined): SchemaSearchFields => {
     // Callers outside the workspace store can pass schemas that have not been normalized.
@@ -239,28 +221,29 @@ export const createSearchFieldExtractor = (): {
     if (cached) {
       return cached
     }
-    const fields = collect((visit) =>
-      collectSchemaProperties(value, { visit, visited: new Set<SchemaObject>(), maxPropertyDepth: 2 }),
-    )
+    const fields = extractSchemaSearchText([value])
     schemas.set(value, fields)
     return fields
   }
 
   return {
     schema,
+    operation: (operation) => {
+      const cached = operations.get(operation)
+      if (cached) {
+        return cached
+      }
+      const fields = extractOperationSchemaSearchText(operation)
+      operations.set(operation, fields)
+      return fields
+    },
     body: (operation) => {
       const requestBody = getResolvedRef(operation.requestBody)
       const cached = requestBody && bodies.get(requestBody)
       if (cached) {
         return cached
       }
-      const media = Object.values(requestBody?.content ?? {})
-      // A single root has the same visitation context as a model. Multiple media types share
-      // their visited set, so extracting them independently could change depth-limited results.
-      const fields =
-        media.length === 1
-          ? schema(getResolvedRef(getResolvedRef(media[0])?.schema))
-          : collect((visit) => forEachRequestBodyProperty(operation, visit))
+      const fields = extractSchemaSearchText(bodySchemas(operation, false))
       if (requestBody) {
         bodies.set(requestBody, fields)
       }
