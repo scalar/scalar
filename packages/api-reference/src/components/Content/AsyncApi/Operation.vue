@@ -22,9 +22,11 @@ import { useIntersection } from '@/hooks/use-intersection'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
+import { getOperationReply } from './helpers/get-operation-reply'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
+import OperationReply from './OperationReply.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
 type OperationOptions = AsyncApiSchemaRenderOptions
@@ -94,6 +96,10 @@ const messages = computed(() =>
   ),
 )
 
+const reply = computed(() =>
+  getOperationReply(document, resolvedOperation.value),
+)
+
 const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
 const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
@@ -148,6 +154,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :options="options"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
+    <OperationReply
+      v-if="reply"
+      :eventBus="eventBus"
+      :level="messagesHeadingLevel"
+      :reply="reply" />
   </div>
 </template>
 
