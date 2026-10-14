@@ -452,6 +452,30 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
+    it.each(['oneOf', 'anyOf'])('keeps a default annotation when migrating a nullable-only %s arm', (keyword) => {
+      expect(upgradeValue({ [keyword]: [{ nullable: true, default: null }, { type: 'string' }] })).toStrictEqual({
+        [keyword]: [{ type: 'null', default: null }, { type: 'string' }],
+      })
+    })
+
+    it.each(['oneOf', 'anyOf'])('preserves extension payloads when migrating a nullable-only %s arm', (keyword) => {
+      expect(
+        upgradeValue({
+          [keyword]: [{ nullable: true, 'x-meta': { [keyword]: [{ nullable: true }] } }, { type: 'string' }],
+        }),
+      ).toStrictEqual({
+        [keyword]: [{ type: 'null', 'x-meta': { [keyword]: [{ nullable: true }] } }, { type: 'string' }],
+      })
+    })
+
+    it('migrates nullable-only arms inside schema properties with extension-like names', () => {
+      expect(
+        upgradeValue({ properties: { 'x-value': { oneOf: [{ nullable: true }, { type: 'string' }] } } }),
+      ).toStrictEqual({
+        properties: { 'x-value': { oneOf: [{ type: 'null' }, { type: 'string' }] } },
+      })
+    })
+
     it('migrates a nullable-only arm inside an `allOf` member', () => {
       expect(
         upgradeValue({ allOf: [{ oneOf: [{ nullable: true }, { $ref: '#/components/schemas/Pet' }] }, {}] }),

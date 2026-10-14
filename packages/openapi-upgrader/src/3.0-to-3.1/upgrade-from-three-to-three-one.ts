@@ -80,6 +80,7 @@ const ANNOTATION_KEYWORDS = new Set([
   'title',
   'description',
   'deprecated',
+  'default',
   'example',
   'examples',
   'externalDocs',
@@ -90,11 +91,20 @@ const ANNOTATION_KEYWORDS = new Set([
 /**
  * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
  *
- * Only array elements get a numeric segment from the traversal, and a named member (a property
- * called `oneOf`) never holds an array, so `oneOf/0` is always an arm.
+ * Extension payloads can contain objects that look like union arms too. Only interpret unions
+ * in schema context, keeping extension values opaque and allowing schema names prefixed by `x-`.
  */
 function isUnionArm(path: string[] | undefined): boolean {
-  if (!path || path.length < 2) {
+  if (!path || path.length < 2 || !isSchemaPath(path.slice(0, -2))) {
+    return false
+  }
+
+  const isInsideSchemaExtension = path.some((segment, index) => {
+    const parent = path.slice(0, index)
+    return segment.startsWith('x-') && isSchemaPath(parent) && !isNamedSchemaMap(parent)
+  })
+
+  if (isInsideSchemaExtension) {
     return false
   }
 
