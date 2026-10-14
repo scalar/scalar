@@ -1,13 +1,8 @@
 import type { Grammar, State } from '../core/types'
 
-/**
- * Markdown.
- *
- * Prose is left alone; only the marks are styled. A fenced code block that
- * names a registered language is highlighted with that language; any other
- * fence becomes a literal state, so its contents are never mistaken for
- * Markdown syntax.
- */
+/** HTML blocks that end at their closing tag rather than at a blank line. */
+const RAW_TAGS = 'script|pre|style|textarea'
+
 /**
  * The states between a language fence and its closing fence: `<name>-code`
  * scopes the closing fence and `<name>-body` hands the body to the language.
@@ -32,6 +27,19 @@ const codeFence = (name: string, close: string): Record<string, State> => {
   }
 }
 
+/**
+ * Markdown.
+ *
+ * Prose is left alone; only the marks are styled. Three kinds of block belong
+ * to other languages and are handed to them when they are registered:
+ *
+ * - a fenced code block that names its language
+ * - YAML front matter
+ * - HTML that starts a line, and `<script>`, `<pre>` and `<style>` blocks
+ *
+ * Any other fence becomes a literal state, so its contents are never mistaken
+ * for Markdown syntax.
+ */
 const markdown: Grammar = {
   name: 'markdown',
   aliases: ['md', 'mdx'],
@@ -64,6 +72,26 @@ const markdown: Grammar = {
           remember: 2,
         },
         { match: '<!--', scope: 'comment', push: 'html-comment' },
+
+        // Front matter: a `---` block at the very start, and only when it is
+        // closed. An unclosed `---` on the first line is a thematic break, and
+        // reading it as YAML would take the whole document with it. The
+        // lookahead to the closing line runs once, at position 0.
+        {
+          match: '(?<![\\s\\S])---(?=[ \\t]*\\r?\\n[\\s\\S]*?^(?:---|\\.\\.\\.)[ \\t]*$)',
+          scope: 'punctuation',
+          push: 'front-matter',
+        },
+
+        // HTML at the start of a line goes to the HTML grammar. `<script>`,
+        // `<pre>`, `<style>` and `<textarea>` run to the line that closes them,
+        // as in CommonMark. Any other tag gets its line at most: CommonMark would
+        // run the block to the next blank line, but MDX and most docs
+        // renderers read Markdown inside components, and holding the lines
+        // after `<Steps>` as HTML would strip their fences and emphasis.
+        // Inline tags inside a paragraph keep the rule below.
+        { match: `^(?=[ \\t]*<(?:${RAW_TAGS})(?:[\\s>]|$))`, push: 'html-raw' },
+        { match: '^(?=[ \\t]*<\\/?[A-Za-z][\\w-]*(?:[\\s/>]|$))', push: 'html-line' },
 
         { match: '^#{1,6}[ \\t][^\\n]*', scope: 'heading' },
         // `[^\\r\\n]`, so the `\\r` of a blank CRLF line does not count as text.
@@ -126,6 +154,34 @@ const markdown: Grammar = {
     },
     ...codeFence('backtick', '`{3,}'),
     ...codeFence('tilde', '~{3,}'),
+    'front-matter': {
+      rules: [
+        { match: '^(?:---|\\.\\.\\.)[ \\t]*$', scope: 'punctuation', pop: true },
+        { match: '^', push: 'front-matter-body' },
+      ],
+    },
+    'front-matter-body': {
+      embed: { language: 'yaml', until: '^(?:---|\\.\\.\\.)[ \\t]*$' },
+      rules: [],
+    },
+    // Without the HTML grammar registered, HTML renders unscoped, the way a
+    // fence in an unregistered language falls back to a plain string.
+    'html-raw': {
+      embed: {
+        language: 'html',
+        // The line break that ends the line holding the closing tag. The
+        // lookahead goes first so the lookbehind only runs at line ends.
+        until: `(?=\\n|(?![\\s\\S]))(?<=<\\/(?:${RAW_TAGS})[ \\t]*>[^\\n]*)`,
+      },
+      rules: [],
+    },
+    // To the end of the line, or to the first `>` followed by text rather than
+    // by another tag: in `<span>x</span> **y**` only the opening tag is HTML,
+    // and the rest of the line stays Markdown for the inline rules.
+    'html-line': {
+      embed: { language: 'html', until: '$|(?<=>)(?![ \\t]*(?:<|$))' },
+      rules: [],
+    },
     'html-comment': {
       default: 'comment',
       rules: [{ match: '-->', scope: 'comment', pop: true }],

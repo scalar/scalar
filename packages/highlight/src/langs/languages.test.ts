@@ -1045,4 +1045,45 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'javascript', 'get', 'keyword.declaration')
     assertHas(code, 'javascript', '#n', 'variable.member')
   })
+
+  it('markdown: highlights closed front matter as YAML', () => {
+    const code = '---\ntitle: Hi\ndraft: false\n---\n\n# Hello\n'
+    assertHas(code, 'markdown', 'title', 'property')
+    assertHas(code, 'markdown', 'false', 'boolean')
+    // The last line of the block is not a setext heading.
+    assertHas(code, 'markdown', '# Hello', 'heading')
+    expect(scoped(code, 'markdown').filter(([, s]) => s === 'heading')).toHaveLength(1)
+  })
+
+  it('markdown: leaves an unclosed or later `---` alone', () => {
+    const unclosed = '---\n\nSome text *here*\n'
+    assertHas(unclosed, 'markdown', '---', 'punctuation')
+    assertHas(unclosed, 'markdown', '*here*', 'emphasis')
+    // Not at the start, so a line followed by `---` is a heading again.
+    assertHas('Intro\n\n---\ntitle: x\n---\n', 'markdown', 'title: x\n---', 'heading')
+  })
+
+  it('markdown: highlights HTML that starts a line, and keeps Markdown around it', () => {
+    const code =
+      '<div align="center">\n  <img src="logo.png" />\n</div>\n\n<Steps>\nUse `api.md` here\n\n```js\nconst a = 1\n```\n</Steps>\n\n<b>Note</b> read **this**\n'
+    assertHas(code, 'markdown', 'align', 'tag.attribute')
+    assertHas(code, 'markdown', '"logo.png"', 'string')
+    assertHas(code, 'markdown', 'Steps', 'tag')
+    // The lines inside a component stay Markdown, fences included.
+    assertHas(code, 'markdown', '`api.md`', 'string')
+    assertHas(code, 'markdown', 'const', 'keyword.declaration')
+    // Only the tag is HTML when text follows it on the line.
+    assertHas(code, 'markdown', '**this**', 'strong')
+  })
+
+  it('markdown: runs a script block to its closing tag, blank lines included', () => {
+    const code = '<script>\nconst a = 1\n\nconst b = 2\n</script>\n# After\n'
+    expect(
+      scoped(code, 'markdown')
+        .filter(([t]) => t === 'const')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.declaration', 'keyword.declaration'])
+    assertHas(code, 'markdown', '# After', 'heading')
+    assertHas('See <https://x.com> now\n', 'markdown', '<https://x.com>', 'link')
+  })
 })
