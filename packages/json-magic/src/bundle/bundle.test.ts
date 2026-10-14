@@ -235,6 +235,33 @@ describe('bundle', () => {
     expect(nested.external.$ref).toBe('https://keep.test/schema#value')
   })
 
+  it.each(['mappings', '__proto__'])(
+    'does not mutate inherited URL mappings through %s',
+    async (externalDocumentsMappingsKey) => {
+      const inheritedMappings = { stale: 'https://example.test/unused.json' }
+      const prototype =
+        externalDocumentsMappingsKey === '__proto__'
+          ? inheritedMappings
+          : { [externalDocumentsMappingsKey]: inheritedMappings }
+      const input = Object.assign(Object.create(prototype), {
+        remote: { $ref: 'https://example.test/preserved.json' },
+      })
+
+      await bundle(input, {
+        plugins: [],
+        treeShake: true,
+        urlMap: true,
+        externalDocumentsMappingsKey,
+        preserveReference: (): boolean => true,
+      })
+
+      expect(inheritedMappings).toStrictEqual({ stale: 'https://example.test/unused.json' })
+      expect(Object.getPrototypeOf(input)).toBe(prototype)
+      expect(Object.getOwnPropertyDescriptor(input, externalDocumentsMappingsKey)?.value).toStrictEqual({})
+      expect(input.remote.$ref).toBe('https://example.test/preserved.json')
+    },
+  )
+
   it.each([undefined, 'https://example.com/api.json'])(
     'preserves references across embedded schema scopes without root identity (origin: %s)',
     async (origin) => {

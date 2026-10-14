@@ -953,11 +953,19 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // Do not expose reservations for resources that were never included in the output.
   if (config.preserveReference) {
     const documents = documentRoot[config.externalDocumentsKey]
-    for (const key of Object.keys(documentRoot[config.externalDocumentsMappingsKey])) {
-      if (!isObject(documents) || !Object.hasOwn(documents, key)) {
-        delete documentRoot[config.externalDocumentsMappingsKey][key]
-      }
-    }
+    // The configurable mapping key can resolve to an inherited object. Build an
+    // owned replacement instead of deleting properties on that borrowed object.
+    const mappings = Object.fromEntries(
+      Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(
+        ([key]) => isObject(documents) && Object.hasOwn(documents, key),
+      ),
+    )
+    Object.defineProperty(documentRoot, config.externalDocumentsMappingsKey, {
+      value: mappings,
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
   }
 
   // Keep urlMappings when doing partial bundling to track hash values and handle collisions
