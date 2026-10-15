@@ -449,12 +449,692 @@ const initHeroCards = debounce(() => {
   if (bound) console.log(`Initialized ${bound} hero cards`)
 })
 
+/* Landing boxes: a click on a product box in the hero drawing scrolls to
+   that product's section. */
+const initLandingBoxLinks = debounce(() => {
+  const boxes = [...document.querySelectorAll('[data-lp-target]')].filter((box) => box.dataset.lpBoxBound !== 'true')
+  if (!boxes.length) {
+    return
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  boxes.forEach((box) => {
+    box.dataset.lpBoxBound = 'true'
+    box.addEventListener('click', (event) => {
+      const section = document.getElementById(`lp-${box.dataset.lpTarget}`)
+      if (!section) {
+        return
+      }
+
+      event.preventDefault()
+
+      const header = Number.parseFloat(getComputedStyle(section).getPropertyValue('--scalar-header-height')) || 48
+      const top = section.getBoundingClientRect().top + window.scrollY - header
+      window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' })
+    })
+  })
+
+  console.log(`Initialized ${boxes.length} landing section links`)
+})
+
+/* MCP chat: plays the conversation (prompt, thinking, tool steps, reply,
+   then the next prompt typed and sent), after the chat mockup on
+   equals.com. Without the script, or with reduced motion, the finished
+   conversation shows. */
+const createLandingChatPlayer = (chat) => {
+  const messages = chat.querySelector('.lp-chat-messages')
+  const composer = chat.querySelector('.lp-chat-composer')
+  const placeholder = chat.querySelector('.lp-chat-placeholder')
+  const send = chat.querySelector('.lp-chat-send')
+  const turns = [...chat.querySelectorAll('.lp-chat-turn')]
+  if (!messages || !composer || !placeholder || !turns.length) {
+    return null
+  }
+
+  const idleText = placeholder.textContent
+  const timers = new Set()
+  const later = (fn, ms) => {
+    const id = window.setTimeout(() => {
+      timers.delete(id)
+      fn()
+    }, ms)
+    timers.add(id)
+  }
+  const clearTimers = () => {
+    timers.forEach((id) => {
+      window.clearTimeout(id)
+      window.clearInterval(id)
+    })
+    timers.clear()
+  }
+
+  // keeps the newest line in view
+  const reveal = (el) => {
+    const over = el.getBoundingClientRect().bottom - messages.getBoundingClientRect().bottom + 20
+    if (over > 0) {
+      messages.scrollTop += over
+    }
+  }
+
+  // the old text lifts and blurs out while the new one rises in
+  const swap = (think, text, delay = 25) => {
+    const old = think.querySelector('.lp-chat-think-text')
+    old.classList.add('is-exit')
+    const next = document.createElement('span')
+    next.className = 'lp-chat-think-text is-enter-start'
+    next.textContent = text
+    next.setAttribute('data-text', text)
+    think.appendChild(next)
+    later(() => {
+      void next.offsetWidth
+      next.classList.remove('is-enter-start')
+    }, delay)
+    later(() => old.remove(), 150 + delay)
+  }
+
+  // a thinking or tool line starts: running text, shimmer on
+  const start = (line) => {
+    const think = line.querySelector('.lp-chat-think')
+    const text = think.querySelector('.lp-chat-think-text')
+    line.classList.remove('is-done')
+    text.textContent = think.dataset.running
+    text.setAttribute('data-text', think.dataset.running)
+    think.classList.add('is-running')
+    return think
+  }
+
+  // ...and settles: shimmer off, done text in
+  const settle = (line, delay) => {
+    const think = line.querySelector('.lp-chat-think')
+    think.classList.remove('is-running')
+    line.classList.add('is-settling')
+    later(() => line.classList.add('is-done'), 150)
+    swap(think, think.dataset.done, delay)
+  }
+
+  // every step does its thing and returns how long to wait for the next
+  const steps = []
+  turns.forEach((turn, index) => {
+    const prompt = turn.querySelector('.lp-chat-prompt')
+    const thinking = turn.querySelector('.lp-chat-thinking')
+    const tool = turn.querySelector('.lp-chat-tool')
+    const toolSteps = [...turn.querySelectorAll('.lp-chat-step')]
+    const lines = [...turn.querySelectorAll('.lp-chat-line')]
+    const spark = turn.querySelector('.lp-chat-spark')
+
+    if (index > 0) {
+      const text = prompt.textContent.trim()
+      steps.push(() => {
+        placeholder.classList.add('is-typing')
+        composer.classList.add('is-composing')
+        placeholder.textContent = ''
+        let typed = 0
+        const id = window.setInterval(() => {
+          typed += 1
+          placeholder.textContent = text.slice(0, typed)
+          if (typed >= text.length) {
+            window.clearInterval(id)
+            timers.delete(id)
+          }
+        }, 22)
+        timers.add(id)
+        return 700 + 22 * text.length + 250
+      })
+      steps.push(() => {
+        send.classList.add('is-pressed')
+        later(() => {
+          placeholder.classList.remove('is-typing')
+          composer.classList.remove('is-composing')
+          placeholder.textContent = idleText
+          send.classList.remove('is-pressed')
+        }, 130)
+        return 130
+      })
+    }
+
+    steps.push(() => {
+      if (index > 0) {
+        const previous = turns[index - 1].querySelector('.lp-chat-spark')
+        if (previous) {
+          previous.classList.add('is-out')
+        }
+      }
+      prompt.classList.add('is-in')
+      reveal(prompt)
+      return 300
+    })
+
+    if (thinking) {
+      steps.push(() => {
+        start(thinking)
+        thinking.classList.add('is-in')
+        reveal(thinking)
+        return 650
+      })
+    }
+
+    if (tool) {
+      let toolThink = null
+      steps.push(() => {
+        toolThink = start(tool)
+        tool.classList.add('is-open', 'is-in')
+        reveal(tool)
+        return 650
+      })
+      toolSteps.forEach((step) => {
+        steps.push(() => {
+          step.classList.add('is-in')
+          reveal(step)
+          return 450
+        })
+      })
+      steps.push(() => {
+        toolThink.classList.remove('is-running')
+        swap(toolThink, toolThink.dataset.done)
+        tool.classList.remove('is-open')
+        later(() => tool.classList.add('is-done'), 175)
+        if (thinking) {
+          later(() => settle(thinking, 150), 250)
+        }
+        return 870
+      })
+    } else if (thinking) {
+      steps.push(() => {
+        settle(thinking, 150)
+        return 400
+      })
+    }
+
+    if (spark) {
+      steps.push(() => {
+        spark.classList.add('is-in', 'is-working')
+        reveal(spark)
+        return 200
+      })
+    }
+
+    lines.forEach((line) => {
+      steps.push(() => {
+        line.classList.add('is-laid-out')
+        void line.offsetWidth
+        line.classList.add('is-in')
+        reveal(line)
+        return 300
+      })
+    })
+
+    if (spark) {
+      steps.push(() => {
+        spark.classList.remove('is-working')
+        return 0
+      })
+    }
+  })
+
+  const step = (index) => {
+    if (index >= steps.length) {
+      return
+    }
+    const wait = steps[index]()
+    later(() => step(index + 1), wait)
+  }
+
+  // back to the finished conversation, with nothing shown yet
+  const reset = () => {
+    clearTimers()
+    chat.querySelectorAll('[class*="is-"]').forEach((el) => {
+      ;[...el.classList].filter((name) => name.startsWith('is-')).forEach((name) => el.classList.remove(name))
+    })
+    chat.querySelectorAll('.lp-chat-thinking, .lp-chat-tool').forEach((line) => line.classList.add('is-done'))
+    chat.querySelectorAll('.lp-chat-think').forEach((think) => {
+      const texts = [...think.querySelectorAll('.lp-chat-think-text')]
+      texts.slice(0, -1).forEach((text) => text.remove())
+      const text = texts[texts.length - 1]
+      text.className = 'lp-chat-think-text'
+      text.textContent = think.dataset.done
+      text.setAttribute('data-text', think.dataset.done)
+    })
+    placeholder.textContent = idleText
+    messages.scrollTop = 0
+  }
+
+  const play = () => {
+    reset()
+    chat.classList.add('is-armed')
+    later(() => step(0), 450)
+  }
+
+  return { play, stop: clearTimers }
+}
+
+/* Each chat plays every time it scrolls into view. */
+const initLandingChat = debounce(() => {
+  const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
+  if (!chats.length) {
+    return
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  chats.forEach((chat) => {
+    chat.dataset.lpChatBound = 'true'
+    if (reduceMotion) {
+      return
+    }
+
+    const player = createLandingChatPlayer(chat)
+    if (!player) {
+      return
+    }
+
+    let visible = false
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting === visible) {
+            return
+          }
+          visible = entry.isIntersecting
+          if (visible) {
+            player.play()
+          } else {
+            player.stop()
+          }
+        })
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(chat)
+  })
+
+  console.log(`Initialized ${chats.length} landing chats`)
+})
+
+/* Hero flow: packets travel the connectors from Acme's API to the Scalar
+   hub, out to the products and on to the people and agents that use
+   them. Whatever a packet lands on pulses and its subtitle flips over
+   to say what arrived, then flips back (after the motion on
+   lightspark.com's capability pages). One round every few seconds while
+   the panel is in view; nothing moves under reduced motion. */
+/* A flow lists its edges (data-lp-edges="api>hub,hub>maya") and gets
+   them drawn here from where the nodes land, so the lines hold whatever
+   the layout does. Side by side (the hero on wide screens) a line runs
+   from the end of a chip's text to the next chip's tile, level with the
+   middle of each; stacked (the cards, the hero on phones) it runs from
+   the bottom middle of one node to the top middle of the next. The chips
+   have no box of their own, so the lines stop short of the words. */
+const LINE_GAP = 8
+const drawLandingFlowEdges = (flow) => {
+  const keys = (flow.dataset.lpEdges || '').split(',').filter(Boolean)
+  if (!keys.length) {
+    return
+  }
+  let svg = flow.querySelector(':scope > .lp-flow-lines--drawn')
+  if (!svg) {
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('class', 'lp-flow-lines lp-flow-lines--drawn')
+    svg.setAttribute('fill', 'none')
+    flow.prepend(svg)
+  }
+  if (!svg.getClientRects().length) {
+    return
+  }
+  // the hairlines in the cards end in a dot at each label
+  const withDots = flow.classList.contains('lp-flow--card')
+  const box = flow.getBoundingClientRect()
+  svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`)
+  // where a chip's words end: the wider of its name and its subtitle
+  const textEnd = (node) => {
+    const spans = node.querySelectorAll('.lp-chip-label > span, .lp-chip-sub-face--main > span')
+    return spans.length ? Math.max(...[...spans].map((span) => span.getBoundingClientRect().right)) : null
+  }
+  const f = (n) => n.toFixed(1)
+  const sideways = getComputedStyle(flow).getPropertyValue('--lp-flow-dir').trim() === 'row'
+  keys.forEach((key) => {
+    const [from, to] = key.split('>').map((name) => flow.querySelector(`[data-lp-node="${name}"]`))
+    if (!from || !to) {
+      return
+    }
+    const a = from.getBoundingClientRect()
+    const b = to.getBoundingClientRect()
+    let x0
+    let y0
+    let x1
+    let y1
+    let d
+    if (sideways) {
+      const tile = to.querySelector('.lp-chip-icon')
+      x0 = (textEnd(from) ?? a.right) - box.left + LINE_GAP
+      y0 = a.top + a.height / 2 - box.top
+      x1 = (tile ? tile.getBoundingClientRect().left : b.left) - box.left - LINE_GAP
+      y1 = b.top + b.height / 2 - box.top
+      const mid = (x0 + x1) / 2
+      d =
+        Math.abs(y1 - y0) < 0.5
+          ? `M ${f(x0)} ${f(y0)} L ${f(x1)} ${f(y1)}`
+          : `M ${f(x0)} ${f(y0)} C ${f(mid)} ${f(y0)}, ${f(mid)} ${f(y1)}, ${f(x1)} ${f(y1)}`
+    } else {
+      x0 = a.left + a.width / 2 - box.left
+      y0 = a.bottom - box.top + 6
+      x1 = b.left + b.width / 2 - box.left
+      y1 = b.top - box.top - 6
+      const mid = (y0 + y1) / 2
+      d = `M ${f(x0)} ${f(y0)} C ${f(x0)} ${f(mid)}, ${f(x1)} ${f(mid)}, ${f(x1)} ${f(y1)}`
+    }
+    let path = svg.querySelector(`[data-lp-edge="${key}"]`)
+    if (!path) {
+      path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      path.setAttribute('class', 'lp-flow-line')
+      path.dataset.lpEdge = key
+      path.dataset.reveal = 'line'
+      path.setAttribute('pathLength', '1')
+      // a line draws once what it leaves has faded in
+      path.style.setProperty('--d', String((Number.parseFloat(from.style.getPropertyValue('--d')) || 0) + 200))
+      svg.appendChild(path)
+    }
+    path.setAttribute('d', d)
+    if (!withDots) {
+      return
+    }
+    let dot = svg.querySelector(`[data-lp-dot="${key}"]`)
+    if (!dot) {
+      dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+      dot.setAttribute('class', 'lp-flow-dot')
+      dot.setAttribute('r', '2.5')
+      dot.dataset.lpDot = key
+      svg.appendChild(dot)
+    }
+    // the dot sits at whichever end is a label, not the window
+    const atLabel = from.dataset.lpNode === 'hub' ? [x1, y1] : [x0, y0]
+    dot.setAttribute('cx', f(atLabel[0]))
+    dot.setAttribute('cy', f(atLabel[1]))
+  })
+}
+
+const createLandingFlowPlayer = (flow) => {
+  const layers = [...flow.querySelectorAll(':scope > .lp-flow-lines')]
+  const layer = () => layers.find((svg) => svg.getClientRects().length) || layers[0]
+  const nodes = new Map()
+  flow.querySelectorAll('[data-lp-node]').forEach((node) => nodes.set(node.dataset.lpNode, node))
+  const products = [...nodes.values()].filter((node) => node.dataset.lpTarget).map((node) => node.dataset.lpNode)
+  const leaves = (product) =>
+    [...nodes.values()].filter((node) => node.dataset.lpParent === product).map((node) => node.dataset.lpNode)
+  if (!layers.length || !nodes.has('api') || !nodes.has('hub')) {
+    return null
+  }
+
+  const SPEED = 640 // scene units per second
+  const PERIOD = 3600
+  const SVG_NS = 'http://www.w3.org/2000/svg'
+  const timers = new Set()
+  const packets = new Set()
+  let frame = 0
+  let running = false
+
+  const after = (ms, fn) => {
+    const id = setTimeout(() => {
+      timers.delete(id)
+      fn()
+    }, ms)
+    timers.add(id)
+  }
+
+  const bounce = (key) => {
+    const target = nodes.get(key)?.querySelector('.lp-chip, .lp-hub')
+    if (!target) {
+      return
+    }
+    target.classList.remove('is-bounce')
+    void target.offsetWidth
+    target.classList.add('is-bounce')
+  }
+
+  const FLIP_HOLD = 1700
+  let version = 0
+
+  /* the subtitle flips to the text (one of the chip's data-lp-flip
+     options, {v} being this round's version), holds, and flips back */
+  const flip = (key) => {
+    const node = nodes.get(key)
+    const sub = node?.querySelector('.lp-chip-sub')
+    const texts = (node?.dataset.lpFlip || '').split('|').filter(Boolean)
+    if (!sub || !texts.length) {
+      return
+    }
+    sub.querySelectorAll('.lp-chip-sub-face--alt').forEach((face) => face.remove())
+    sub.classList.remove('is-in', 'is-out')
+    const face = document.createElement('span')
+    face.className = 'lp-chip-sub-face lp-chip-sub-face--alt'
+    face.textContent = texts[Math.floor(Math.random() * texts.length)].replace('{v}', `v2.4.${version}`)
+    sub.appendChild(face)
+    void sub.offsetWidth
+    sub.classList.add('is-in')
+    after(FLIP_HOLD, () => {
+      sub.classList.remove('is-in')
+      sub.classList.add('is-out')
+      after(560, () => {
+        face.remove()
+        sub.classList.remove('is-out')
+      })
+    })
+  }
+
+  const tick = () => {
+    const now = performance.now()
+    packets.forEach((packet) => {
+      const t = Math.min(1, (now - packet.start) / packet.duration)
+      const point = packet.edge.path.getPointAtLength(t * packet.length)
+      packet.el.setAttribute('cx', point.x)
+      packet.el.setAttribute('cy', point.y)
+      packet.el.style.opacity = Math.min(1, (now - packet.start) / 90)
+      if (t >= 1) {
+        packets.delete(packet)
+        packet.el.remove()
+        packet.onArrive()
+      }
+    })
+    frame = packets.size ? requestAnimationFrame(tick) : 0
+  }
+
+  const send = (edgeKey, onArrive) => {
+    const svg = layer()
+    const path = svg?.querySelector(`[data-lp-edge="${edgeKey}"]`)
+    if (!path) {
+      return
+    }
+    const el = document.createElementNS(SVG_NS, 'circle')
+    el.setAttribute('class', 'lp-packet')
+    el.setAttribute('r', '4.5')
+    el.style.opacity = '0'
+    svg.appendChild(el)
+    const length = path.getTotalLength()
+    packets.add({ el, edge: { path }, length, start: performance.now(), duration: (length / SPEED) * 1000, onArrive })
+    if (!frame) {
+      frame = requestAnimationFrame(tick)
+    }
+  }
+
+  const pick = (list, count) => {
+    const pool = [...list]
+    const out = []
+    while (pool.length && out.length < count) {
+      out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0])
+    }
+    return out
+  }
+
+  /* from a node, on to one or two of the things under it */
+  const fanOut = (from) => {
+    const ends = leaves(from)
+    pick(ends, ends.length > 2 ? 2 : 1).forEach((leaf, j) => {
+      after(j * 110, () => {
+        send(`${from}>${leaf}`, () => {
+          bounce(leaf)
+          flip(leaf)
+        })
+      })
+    })
+  }
+
+  const round = () => {
+    version = (version % 9) + 1
+    bounce('api')
+    flip('api')
+    send('api>hub', () => {
+      bounce('hub')
+      if (!products.length) {
+        fanOut('hub')
+        return
+      }
+      products.forEach((product, i) => {
+        after(i * 90, () => {
+          send(`hub>${product}`, () => {
+            bounce(product)
+            flip(product)
+            fanOut(product)
+          })
+        })
+      })
+    })
+    after(PERIOD, round)
+  }
+
+  const play = () => {
+    if (running) {
+      return
+    }
+    running = true
+    after(400, round)
+  }
+
+  const stop = () => {
+    running = false
+    timers.forEach((id) => clearTimeout(id))
+    timers.clear()
+    if (frame) {
+      cancelAnimationFrame(frame)
+      frame = 0
+    }
+    packets.forEach((packet) => packet.el.remove())
+    packets.clear()
+    flow.querySelectorAll('.lp-chip-sub-face--alt').forEach((el) => el.remove())
+    flow.querySelectorAll('.lp-chip-sub').forEach((el) => el.classList.remove('is-in', 'is-out'))
+  }
+
+  return { play, stop }
+}
+
+const initLandingFlow = debounce(() => {
+  const flows = [...document.querySelectorAll('.lp-flow')].filter((flow) => flow.dataset.lpFlowBound !== 'true')
+  if (!flows.length) {
+    return
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  flows.forEach((flow) => {
+    flow.dataset.lpFlowBound = 'true'
+    if (flow.dataset.lpEdges) {
+      drawLandingFlowEdges(flow)
+      const observer = new ResizeObserver(() => drawLandingFlowEdges(flow))
+      observer.observe(flow)
+      flow.querySelectorAll('[data-lp-node], .lp-chip-body').forEach((el) => observer.observe(el))
+      document.fonts?.ready.then(() => drawLandingFlowEdges(flow))
+    }
+    if (reduceMotion) {
+      return
+    }
+
+    const player = createLandingFlowPlayer(flow)
+    if (!player) {
+      return
+    }
+
+    let visible = false
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting === visible) {
+            return
+          }
+          visible = entry.isIntersecting
+          if (visible) {
+            player.play()
+          } else {
+            player.stop()
+          }
+        })
+      },
+      { threshold: 0.4 },
+    )
+    observer.observe(flow)
+  })
+
+  console.log(`Initialized ${flows.length} landing flows`)
+})
+
+/* Code windows: the language tabs swap the sample underneath and the
+   repo name in the title bar. */
+const initLandingWinTabs = debounce(() => {
+  const wins = [...document.querySelectorAll('.lp-win--code')].filter((win) => win.dataset.lpTabsBound !== 'true')
+  if (!wins.length) {
+    return
+  }
+
+  wins.forEach((win) => {
+    win.dataset.lpTabsBound = 'true'
+    const tabs = [...win.querySelectorAll('.lp-win-tabs [data-lp-tab]')]
+    const repo = win.querySelector('.lp-win-repo')
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((other) => other.classList.toggle('is-active', other === tab))
+        win.querySelectorAll('[data-lp-code]').forEach((code) => {
+          code.classList.toggle('is-active', code.dataset.lpCode === tab.dataset.lpTab)
+        })
+        if (repo && tab.dataset.lpRepo) {
+          repo.textContent = tab.dataset.lpRepo
+        }
+      })
+    })
+  })
+
+  console.log(`Initialized ${wins.length} landing code windows`)
+})
+
+/* Docs windows: in each pair, the last window hovered stays in front */
+const initLandingDocsWindows = debounce(() => {
+  const pairs = [...document.querySelectorAll('.lp-win--pair')].filter(
+    (pair) => pair.dataset.lpDocsWindowsBound !== 'true',
+  )
+  if (!pairs.length) {
+    return
+  }
+
+  pairs.forEach((pair) => {
+    pair.dataset.lpDocsWindowsBound = 'true'
+    const windows = [...pair.querySelectorAll('.lp-browser')]
+    windows.forEach((win) => {
+      win.addEventListener('mouseenter', () => {
+        windows.forEach((other) => other.classList.toggle('is-front', other === win))
+      })
+    })
+  })
+
+  console.log(`Initialized ${pairs.length} landing docs window pairs`)
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
 initHeroSdkTabs()
 initHeroScenes()
 initHeroCards()
+initLandingBoxLinks()
+initLandingChat()
+initLandingFlow()
+initLandingWinTabs()
+initLandingDocsWindows()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -467,6 +1147,11 @@ const observer = new MutationObserver((records) => {
   initHeroSdkTabs()
   initHeroScenes()
   initHeroCards()
+  initLandingBoxLinks()
+  initLandingChat()
+  initLandingFlow()
+  initLandingWinTabs()
+  initLandingDocsWindows()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

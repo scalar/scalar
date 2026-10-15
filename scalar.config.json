@@ -1573,7 +1573,7 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false
             }
