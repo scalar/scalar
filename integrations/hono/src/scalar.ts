@@ -95,24 +95,24 @@ const scalarMiddleware = <E extends Env>(configOrResolver: Configuration<E>): Mi
 }
 
 /**
- * An OpenAPI document.
+ * An OpenAPI or AsyncAPI document.
  *
  * Typed loosely as an object on purpose, so it accepts both plain document objects and the typed
  * return values of generators like Zod OpenAPI Hono's `getOpenAPI31Document()`, whose interfaces do
  * not carry an index signature.
  */
-type OpenApiDocument = object
+type ApiDocument = object
 
 /**
  * The configuration for `Scalar.serve`.
  *
- * On top of the universal API Reference configuration, this takes the OpenAPI `document` to render
+ * On top of the universal API Reference configuration, this takes the API `document` to render
  * and expose. Because `Scalar.serve` sources the document itself, `content` and `url` are managed for
  * you and are not accepted here.
  */
 export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfiguration>, 'content' | 'url'> & {
   /**
-   * The OpenAPI document to render and serve.
+   * The OpenAPI or AsyncAPI document to render and serve.
    *
    * Pass the document directly, or a function that returns it. The function receives the Hono
    * `Context`, so it can read `c.env` or `c.req` and build the document per request. This is also how
@@ -125,9 +125,11 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
    * }))
    * ```
    */
-  document: OpenApiDocument | ((c: Context<E>) => OpenApiDocument | Promise<OpenApiDocument>)
+  document: ApiDocument | ((c: Context<E>) => ApiDocument | Promise<ApiDocument>)
   /**
-   * Path, relative to the mount point, where the OpenAPI document is served as JSON.
+   * Path, relative to the mount point, where the API document is served as JSON.
+   *
+   * Use `/asyncapi.json` for an AsyncAPI document. The default stays `/openapi.json` for either format.
    *
    * @default '/openapi.json'
    */
@@ -135,11 +137,13 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
 }
 
 /**
- * Serve the API Reference and its OpenAPI document together as a mountable Hono app.
+ * Serve the API Reference and its OpenAPI or AsyncAPI document together as a mountable Hono app.
  *
  * Unlike the `Scalar` middleware — which only renders the reference and expects the document to live
  * somewhere else — this exposes both from a single call, so you do not have to wire up a separate
  * document route and keep its `url` in sync.
+ *
+ * This serves an existing document or calls your factory; it does not generate a document from routes.
  *
  * Mount it with `app.route(...)`:
  *
@@ -148,7 +152,7 @@ export type ServeConfiguration<E extends Env> = Omit<Partial<ApiReferenceConfigu
  * import { Scalar } from '@scalar/hono-api-reference'
  *
  * // Serves the reference at `/scalar` and the document at `/scalar/openapi.json`
- * app.route('/scalar', Scalar.serve({ document: myOpenApiDocument }))
+ * app.route('/scalar', Scalar.serve({ document: myApiDocument }))
  * ```
  */
 const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => {
@@ -156,10 +160,10 @@ const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => 
 
   const app = new Hono<E>()
 
-  const resolveDocument = (c: Context<E>): OpenApiDocument | Promise<OpenApiDocument> =>
+  const resolveDocument = (c: Context<E>): ApiDocument | Promise<ApiDocument> =>
     typeof document === 'function' ? document(c) : document
 
-  // Expose the OpenAPI document as JSON, so a single call powers both the reference and its source.
+  // Expose the API document as JSON, so a single call powers both the reference and its source.
   app.get(documentPath, async (c) => c.json(await resolveDocument(c)))
 
   // Render the reference, pointing it at the document we expose above.
@@ -184,6 +188,6 @@ const scalarServe = <E extends Env>(options: ServeConfiguration<E>): Hono<E> => 
  * Render the Scalar API Reference in a Hono app.
  *
  * Use `Scalar(...)` as a middleware to render the reference on a route, or `Scalar.serve(...)` to
- * serve the reference and its OpenAPI document together from a single mount.
+ * serve the reference and its OpenAPI or AsyncAPI document together from a single mount.
  */
 export const Scalar = Object.assign(scalarMiddleware, { serve: scalarServe })
