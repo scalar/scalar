@@ -125,7 +125,10 @@ const css: Grammar = {
           scope: ['number', 'unit'],
         },
         { match: `\\$${IDENT}`, scope: 'variable' },
-        { match: '\\b[a-zA-Z-]+\\b', scope: 'constant' },
+        // A whole identifier, underscores included, so the feature rule above
+        // is not retried — and failed for want of a colon — at every position
+        // of a long name, which is O(n) each.
+        { match: IDENT, scope: 'constant' },
         { match: '[(),/<>=]', scope: 'punctuation' },
       ],
     },

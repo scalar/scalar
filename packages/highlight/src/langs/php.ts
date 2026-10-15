@@ -31,6 +31,12 @@ const NAME = `\\\\?${ID}(?:\\\\${ID})*`
 /** An HTML tag or attribute name, for the inline-markup mode. */
 const TAG = '[A-Za-z_][\\w:.-]*'
 
+/**
+ * A PHP region inside markup, up to its `?>` or the end of the input. Used as
+ * the hole in an embedded `<script>` or `<style>` body.
+ */
+const PHP_REGION = '<\\?(?:php\\b|=)[\\s\\S]*?(?:\\?>|(?![\\s\\S]))'
+
 const php: Grammar = {
   name: 'php',
   aliases: ['php3', 'php4', 'php5', 'php8'],
@@ -67,9 +73,9 @@ const php: Grammar = {
     },
 
     // `<script>` and `<style>` bodies are JavaScript and CSS, when those are
-    // registered. A PHP region inside one is still PHP: the body is handed
-    // over in pieces, each ending at `<?php` or at the closing tag, and the
-    // piece after a `?>` starts the embedded language over.
+    // registered. A PHP region inside one is a hole: the embedded language
+    // reads straight across it, so `"<?= $name ?>"` stays inside its string,
+    // and the region itself is tokenized as PHP.
     'script-tag': {
       ignoreCase: true,
       rules: [
@@ -80,15 +86,7 @@ const php: Grammar = {
     },
     'script-body': {
       ignoreCase: true,
-      rules: [
-        { match: '(?=</script[\\s/>])', pop: true },
-        { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
-        { match: '(?=[\\s\\S])', push: 'script-code' },
-      ],
-    },
-    'script-code': {
-      ignoreCase: true,
-      embed: { language: 'javascript', until: '</script(?=[\\s/>])|<\\?(?:php\\b|=)' },
+      embed: { language: 'javascript', until: '</script(?=[\\s/>])', holes: PHP_REGION },
       rules: [],
     },
     'style-tag': {
@@ -101,15 +99,7 @@ const php: Grammar = {
     },
     'style-body': {
       ignoreCase: true,
-      rules: [
-        { match: '(?=</style[\\s/>])', pop: true },
-        { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
-        { match: '(?=[\\s\\S])', push: 'style-code' },
-      ],
-    },
-    'style-code': {
-      ignoreCase: true,
-      embed: { language: 'css', until: '</style(?=[\\s/>])|<\\?(?:php\\b|=)' },
+      embed: { language: 'css', until: '</style(?=[\\s/>])', holes: PHP_REGION },
       rules: [],
     },
 

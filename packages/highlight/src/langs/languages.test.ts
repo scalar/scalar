@@ -986,41 +986,6 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'x', 'variable')
   })
 
-  it('markdown: closes a fence only on a run of its own character', () => {
-    const code = '```js\nconst a = 1\n~~~\nconst b = 2\n```\n# After\n'
-    expect(scoped(code, 'markdown').filter(([t]) => t === 'const')).toHaveLength(2)
-    assertHas(code, 'markdown', '# After', 'heading')
-    // A backtick run inside a tilde fence is body text, not a closing fence.
-    const tilde = '~~~py\na = 1\n```\nb = 2\n~~~~\n# After\n'
-    expect(scoped(tilde, 'markdown').some(([t, s]) => t === '```' && s === 'punctuation')).toBeFalsy()
-    assertHas(tilde, 'markdown', '2', 'number')
-    assertHas(tilde, 'markdown', '# After', 'heading')
-  })
-
-  it('markdown: does not overflow the stack on fences nested thousands deep', () => {
-    const code = '```md\n'.repeat(3000)
-    expect(
-      tokenize(code, 'markdown')
-        .map((t) => t.text)
-        .join(''),
-    ).toBe(code)
-  })
-
-  it('javascript: does not read a member named if, while or for as a control statement', () => {
-    const code = 'obj.if(ok) / a / b\nx.while(y) / c / d\nz?.for(w) / e / f\n'
-    expect(scoped(code, 'javascript').some(([, s]) => s === 'regexp')).toBeFalsy()
-  })
-
-  it('bash: scopes the name a declaration sets rather than reading it as an argument', () => {
-    const code = 'export API_KEY=$(cat key.txt)\nlocal -r name="x"\nreadonly X\n'
-    assertHas(code, 'bash', 'API_KEY', 'variable')
-    assertHas(code, 'bash', 'cat', 'function.call')
-    assertHas(code, 'bash', '-r', 'constant')
-    assertHas(code, 'bash', 'name', 'variable')
-    assertHas(code, 'bash', 'X', 'variable')
-    expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
-  })
-
   it('javascript: reads a keyword followed by a colon as an object key', () => {
     const code =
       "const schema = { type: 'object', from: a, default: 1 }\ntype A = { type?: string }\nswitch (x) {\n  case 1: return 2\n  default: return 3\n}\nexport default { responses: { default: { description: 'x' } } }\n"
@@ -1114,5 +1079,76 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'css', 'screen', 'constant')
     assertHas(code, 'css', 'display', 'property')
     assertHas(code, 'css', 'color', 'property')
+  })
+
+  it('css: stays linear on a long identifier in an at-rule condition', () => {
+    // The feature rule scanned the name and failed for want of a colon at every
+    // position, because nothing consumed underscores: 400ms at 16k characters.
+    const code = `@media ${'_'.repeat(64_000)} {}`
+    tokenize(code, 'css') // compile the grammar outside the measurement
+
+    const start = performance.now()
+    const tokens = tokenize(code, 'css')
+    const elapsed = performance.now() - start
+
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    expect(elapsed, `a ${64_000}-character condition took ${elapsed.toFixed(0)}ms`).toBeLessThan(1000)
+  })
+
+  it('markdown: closes a raw HTML block on a closing tag in any case', () => {
+    const code = '<script>\nconst a = 1\n</SCRIPT>\n# Heading\n**bold**\n<PRE>\nx\n</pre>\n*em*\n'
+    assertHas(code, 'markdown', '# Heading', 'heading')
+    assertHas(code, 'markdown', '**bold**', 'strong')
+    assertHas(code, 'markdown', '*em*', 'emphasis')
+  })
+
+  it('markdown: does not end an HTML line at a > inside a quoted value', () => {
+    const code = '<div title="a>b" data-id="x"> **bold**\n'
+    assertHas(code, 'markdown', '"a>b"', 'string')
+    assertHas(code, 'markdown', 'data-id', 'tag.attribute')
+    assertHas(code, 'markdown', '**bold**', 'strong')
+  })
+
+  it('php: keeps the script state across a PHP region inside a string', () => {
+    const code = '<p></p><script>const name = "<?= $name ?>"; const ok = true;</script>\n'
+    assertHas(code, 'php', '$name', 'variable')
+    assertHas(code, 'php', 'ok', 'variable')
+    assertHas(code, 'php', 'true', 'boolean')
+    expect(scoped(code, 'php').some(([t, s]) => t.includes('const ok') && s === 'string')).toBeFalsy()
+  })
+
+  it('markdown: closes a fence only on a run of its own character', () => {
+    const code = '```js\nconst a = 1\n~~~\nconst b = 2\n```\n# After\n'
+    expect(scoped(code, 'markdown').filter(([t]) => t === 'const')).toHaveLength(2)
+    assertHas(code, 'markdown', '# After', 'heading')
+    // A backtick run inside a tilde fence is body text, not a closing fence.
+    const tilde = '~~~py\na = 1\n```\nb = 2\n~~~~\n# After\n'
+    expect(scoped(tilde, 'markdown').some(([t, s]) => t === '```' && s === 'punctuation')).toBeFalsy()
+    assertHas(tilde, 'markdown', '2', 'number')
+    assertHas(tilde, 'markdown', '# After', 'heading')
+  })
+
+  it('markdown: does not overflow the stack on fences nested thousands deep', () => {
+    const code = '```md\n'.repeat(3000)
+    expect(
+      tokenize(code, 'markdown')
+        .map((t) => t.text)
+        .join(''),
+    ).toBe(code)
+  })
+
+  it('javascript: does not read a member named if, while or for as a control statement', () => {
+    const code = 'obj.if(ok) / a / b\nx.while(y) / c / d\nz?.for(w) / e / f\n'
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'regexp')).toBeFalsy()
+  })
+
+  it('bash: scopes the name a declaration sets rather than reading it as an argument', () => {
+    const code = 'export API_KEY=$(cat key.txt)\nlocal -r name="x"\nreadonly X\n'
+    assertHas(code, 'bash', 'API_KEY', 'variable')
+    assertHas(code, 'bash', 'cat', 'function.call')
+    assertHas(code, 'bash', '-r', 'constant')
+    assertHas(code, 'bash', 'name', 'variable')
+    assertHas(code, 'bash', 'X', 'variable')
+    expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
   })
 })

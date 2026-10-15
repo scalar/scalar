@@ -23,7 +23,7 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 
   while (pos < len) {
     if (top.embed !== null) {
-      pos = embedded(code, pos, top, memory[memory.length - 1]!, emit)
+      pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
       // An embedding state pops itself. A rule that `set` into it from the
       // only state on the stack leaves nothing below, so the root takes over.
       if (stack.length > 1) {
@@ -141,7 +141,14 @@ let depth = 0
  * embedded grammar starts in its root state and cannot read past the body —
  * an unterminated string in a `<script>` cannot swallow the `</script>`.
  */
-const embedded = (code: string, pos: number, state: CompiledState, remembered: string, emit: Emit): number => {
+const embedded = (
+  code: string,
+  pos: number,
+  state: CompiledState,
+  remembered: string,
+  host: CompiledGrammar,
+  emit: Emit,
+): number => {
   const until = state.embed!.until
   until.lastIndex = pos
   const found = until.exec(code)
@@ -158,12 +165,58 @@ const embedded = (code: string, pos: number, state: CompiledState, remembered: s
   } else {
     depth += 1
     try {
-      tokenize(code.slice(pos, stop), grammar, (scope, from, to) => emit(scope, from + pos, to + pos))
+      withHoles(code.slice(pos, stop), pos, grammar, state.embed!.holes, host, emit)
     } finally {
       depth -= 1
     }
   }
   return stop
+}
+
+/**
+ * Tokenizes an embedded body, around any `holes` that belong to the host
+ * grammar.
+ *
+ * The embedded grammar reads the body with every hole character except line
+ * breaks replaced by `_`, an identifier character in the languages that get
+ * embedded, so a hole reads as a name and the embedded state runs on across
+ * it. Its tokens are then emitted around the holes, and each hole is
+ * tokenized with the host grammar in its place.
+ */
+const withHoles = (
+  body: string,
+  offset: number,
+  grammar: CompiledGrammar,
+  holes: RegExp | null,
+  host: CompiledGrammar,
+  emit: Emit,
+): void => {
+  // Flat [start, end, start, end, …] offsets into `body`.
+  const ranges: number[] = []
+  const masked =
+    holes === null
+      ? body
+      : body.replace(holes, (hole: string, at: number) => {
+          ranges.push(at, at + hole.length)
+          return hole.replace(/[^\r\n]/g, '_')
+        })
+  let next = 0
+  // Everything before `done` has been emitted, by one grammar or the other.
+  let done = 0
+  tokenize(masked, grammar, (scope, from, to) => {
+    for (let at = Math.max(from, done); at < to; at = done) {
+      const start = ranges[next] ?? to
+      if (start <= at) {
+        const end = ranges[next + 1]!
+        tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+        next += 2
+        done = end
+      } else {
+        done = Math.min(to, start)
+        emit(scope, at + offset, done + offset)
+      }
+    }
+  })
 }
 
 /**

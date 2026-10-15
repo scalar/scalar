@@ -96,8 +96,15 @@ export type State = {
    * `language` can be `REMEMBERED` (`{{remembered}}`) to use the text the rule
    * that entered the state remembered: a Markdown fence remembers its info
    * string and embeds whatever language it names.
+   *
+   * `holes` marks regions inside the body that belong to this grammar rather
+   * than the embedded one, such as `<?= $x ?>` inside a PHP template's
+   * `<script>`. The embedded language reads the body with each hole masked,
+   * so its state carries across (a hole inside a JavaScript string leaves the
+   * rest of the string a string), and each hole is tokenized with this
+   * grammar from its root.
    */
-  embed?: { language: string; until: string }
+  embed?: { language: string; until: string; holes?: string }
   rules: StateRule[]
 }
 
@@ -162,7 +169,7 @@ export type CompiledState = {
     own: (string | null)[]
     cache: Map<string, { re: RegExp; own: (RegExp | null)[] }>
   } | null
-  embed: { language: string; until: RegExp } | null
+  embed: { language: string; until: RegExp; holes: RegExp | null } | null
 }
 
 export type CompiledGrammar = {

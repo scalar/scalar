@@ -216,6 +216,7 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
       ? {
           language: state.embed.language,
           until: new RegExp(normalizeLineTerminators(state.embed.until), `gm${caseFlag}`),
+          holes: state.embed.holes ? new RegExp(normalizeLineTerminators(state.embed.holes), `gm${caseFlag}`) : null,
         }
       : null,
   }

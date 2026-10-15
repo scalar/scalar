@@ -626,6 +626,33 @@ describe('embed', () => {
     expect(unknown.find((t) => t.text === 'let a 1')?.scope).toBe('comment')
   })
 
+  it('reads across holes the host grammar tokenizes, keeping the embedded state', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const holey: Grammar = {
+      name: 'holey',
+      states: {
+        root: {
+          rules: [
+            { match: '<x>', scope: 'tag', push: 'body' },
+            { match: '</x>', scope: 'tag' },
+            { match: '\\{\\{|\\}\\}', scope: 'punctuation' },
+          ],
+        },
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '\\{\\{[^}]*\\}\\}' }, rules: [] },
+      },
+    }
+    const code = '<x>let a "b{{ c }}d" 1</x>'
+    const tokens = tokenizeToArray(code, compile(holey))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    // The hole is the host's, and the string around it is still one string.
+    expect(tokens.filter((t) => t.text === '{{' || t.text === '}}').map((t) => t.scope)).toEqual([
+      'punctuation',
+      'punctuation',
+    ])
+    expect(tokens.find((t) => t.text === 'd')?.scope).toBe('string')
+    expect(tokens.find((t) => t.text === '1')?.scope).toBe('number')
+  })
+
   it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
     const nested: Grammar = {
       name: 'nested',
