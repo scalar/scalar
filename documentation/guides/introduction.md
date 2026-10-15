@@ -14,9 +14,8 @@
     </span>
   </a>
   <scalar-heading level="1" slug="introduction" class="text-balance">
-    API interfaces built for developers and agents
+    Make APIs agents will love with best in class Docs, SDKs &amp; MCP Servers
   </scalar-heading>
-  <p class="lp-hero-sub text-c-2">Docs, SDKs and MCP servers, always in sync.</p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
@@ -171,29 +170,8 @@
 <div class="lp-copy">
   <span class="lp-kicker text-blue">Docs</span>
   <scalar-heading level="2" slug="scalar-docs" class="c">
-    The modern documentation platform for your API and everything else
+    The modern documentation platform for your API and everything else, in sync with your Git repo
   </scalar-heading>
-  <p>
-    Write documentation with Markdown and MDX, generate API references from OpenAPI and AsyncAPI, and keep everything up to date with two-way Git sync.
-  </p>
-  <div class="lp-features text-blue">
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/brackets-angle"></scalar-icon>
-      Markdown and MDX
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-      OpenAPI + AsyncAPI
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/arrows-clockwise"></scalar-icon>
-      Two-way Git sync
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
-      Custom HTML/CSS/JS
-    </b>
-  </div>
   <div class="lp-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">Create Docs</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">Learn more &rarr;</a>
@@ -222,29 +200,8 @@
 <div class="lp-copy">
   <span class="lp-kicker text-purple">SDK Generation</span>
   <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
-    One commit to update all your SDKs
+    Type-safe SDKs in six languages, generated from your OpenAPI document and updated in one commit
   </scalar-heading>
-  <p>
-    Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python, Go, PHP, Java and Ruby, with more languages coming soon.
-  </p>
-  <div class="lp-features text-purple">
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon>
-      OpenAPI-first
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/brackets-square"></scalar-icon>
-      Custom code
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/code"></scalar-icon>
-      Code samples
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/cloud-check"></scalar-icon>
-      Syncs with Docs
-    </b>
-  </div>
   <div class="lp-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">Generate SDK</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">Learn more &rarr;</a>
@@ -332,29 +289,8 @@
 <div class="lp-copy">
   <span class="lp-kicker text-orange">MCP &amp; Agent</span>
   <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
-    Turn your OpenAPI documents into an MCP server
+    A hosted MCP server so any agent can call your API securely, without eating its context window
   </scalar-heading>
-  <p>
-    Upload your OpenAPI documents and expose them as a hosted MCP server: just-in-time tool calls, secure delegated auth, and only 0.2% of your context window no matter how many APIs you connect. Works with every chat app that speaks MCP.
-  </p>
-  <div class="lp-features text-orange">
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/grid-four"></scalar-icon>
-      Just-in-time tool calls
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/shield-check"></scalar-icon>
-      Secure delegated auth
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/users-three"></scalar-icon>
-      Scoped access
-    </b>
-    <b class="flex items-center icon-text gap-3 font-medium">
-      <scalar-icon src="phosphor/bold/infinity"></scalar-icon>
-      Public and internal APIs
-    </b>
-  </div>
   <div class="lp-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">Get Started</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">Learn more &rarr;</a>
@@ -656,18 +592,6 @@
   .lp-copy > p {
     margin: 0;
   }
-  /* the hero's second line: the heading's size and weight, quieter, and
-     tight under it (the stack's 12px gap cancelled) so the two read as
-     one heading */
-  .lp .lp-hero-sub {
-    margin: -12px 0 0;
-    font-size: var(--scalar-font-size-1);
-    /* the heading is the bold token (600) */
-    font-weight: var(--scalar-bold);
-    line-height: 1.33;
-    color: var(--scalar-color-2);
-    text-wrap: balance;
-  }
   .lp-kicker {
     display: inline-flex;
     align-items: center;
@@ -780,6 +704,8 @@
   .lp-copy blockquote.lp-quote {
     max-width: 440px;
     margin: 32px 0 0;
+    font-size: var(--scalar-font-size-3);
+    line-height: 1.5;
     text-wrap: pretty;
   }
   .lp-quote-words {
@@ -792,7 +718,7 @@
     align-items: flex-start;
     gap: 6px;
     margin-top: 12px;
-    font-size: var(--scalar-font-size-4);
+    font-size: var(--scalar-font-size-3);
     color: var(--scalar-color-2);
   }
   .lp-quote-logo {
