@@ -56,8 +56,8 @@ type AssetsBinding = { ASSETS: { fetch: (request: Request) => Promise<Response> 
 /**
  * Mount the Scalar API reference UI at the root path.
  *
- * No `baseServerURL` is set: the mock endpoints and the reference UI share the
- * Worker origin, so Scalar resolves the document URL against the current origin.
+ * Production loads the published Galaxy document from the registry. Previews
+ * use the local mock server document so branch changes can be reviewed together.
  */
 export const configureApiReference = (app: Hono): void => {
   // Serve the branch-built ESM entry point and chunks that the build step copied into
@@ -72,7 +72,7 @@ export const configureApiReference = (app: Hono): void => {
       sources: [
         {
           title: 'Scalar Galaxy',
-          url: '/openapi.yaml',
+          url: isProductionBuild ? 'https://registry.scalar.com/@scalar/apis/galaxy?format=json' : '/openapi.yaml',
         },
         {
           title: 'Scalar Galaxy Events (AsyncAPI)',
