@@ -16,9 +16,7 @@
   <scalar-heading level="1" slug="introduction" class="text-balance">
     API interfaces built for developers and agents
   </scalar-heading>
-  <p>
-    Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.
-  </p>
+  <p class="lp-hero-sub text-c-2">Docs, SDKs and MCP servers, always in sync.</p>
   <div class="flex gap-2">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
@@ -200,16 +198,15 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Create documentation with Scalar">Create Docs</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/docs" aria-label="Learn more about Scalar Docs">Learn more &rarr;</a>
   </div>
-  <div class="lp-logos" role="img" aria-label="Used by Clerk, Tailscale, Thomson Reuters">
-    <scalar-icon class="lp-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon>
-    <scalar-icon class="lp-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon>
-    <scalar-icon class="lp-logo lp-logo--tr" src="../assets/remote/logo-tr.svg"></scalar-icon>
-  </div>
+  <blockquote class="lp-quote">
+    <span class="lp-quote-words">“Scalar's flexibility—particularly its strong support for OpenAPI standards—positioned us to move faster and innovate with greater confidence.”</span>
+    <span class="lp-quote-by"><scalar-icon class="lp-quote-logo" src="../assets/remote/logo-partech.svg" aria-label="PAR Technology"></scalar-icon><span>Josh Schoonmaker, SVP of Product</span></span>
+  </blockquote>
 </div>
   <div class="lp-card lp-card--docs" aria-hidden="true">
 <div class="lp-card-screen">
 <div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
-<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">API + .md/.mdx</span></div>
+<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">API + Markdown</span></div>
 <div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
 <div class="lp-win lp-win--shot"><img class="light-image" src="/api-docs-static-zoom.svg" alt="" loading="lazy" /><img class="dark-image" src="/api-docs-static-zoom-dark.svg" alt="" loading="lazy" /></div>
 </div>
@@ -252,11 +249,10 @@
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" aria-label="Generate an SDK with Scalar">Generate SDK</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/sdk-generator" aria-label="Learn more about Scalar SDK Generation">Learn more &rarr;</a>
   </div>
-  <div class="lp-logos" role="img" aria-label="Used by Profound, Lithic, Warp">
-    <scalar-icon class="lp-logo" src="../assets/logos/profound.svg"></scalar-icon>
-    <scalar-icon class="lp-logo lp-logo--lithic" src="../assets/remote/logo-lithic.svg"></scalar-icon>
-    <scalar-icon class="lp-logo" src="../assets/logos/warp.svg"></scalar-icon>
-  </div>
+  <blockquote class="lp-quote">
+    <span class="lp-quote-words">“The best part has been how little I think about SDKs. A few clicks set up every language to parity with what we had, with no breaking changes — which was huge for us.”</span>
+    <span class="lp-quote-by"><scalar-icon class="lp-quote-logo" src="../assets/logos/warp.svg" aria-label="Warp"></scalar-icon><span>Adam Rankin, CTO</span></span>
+  </blockquote>
 </div>
   <div class="lp-card lp-card--sdk" aria-hidden="true">
 <div class="lp-card-screen">
@@ -362,11 +358,6 @@
   <div class="lp-actions">
     <a class="t-editor__button" href="https://dashboard.scalar.com/register" target="_blank" rel="noopener noreferrer" aria-label="Get started with Scalar MCP and Agent">Get Started</a>
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">Learn more &rarr;</a>
-  </div>
-  <div class="lp-logos" role="img" aria-label="Used by Whatnot, Airwallex, Warp">
-    <scalar-icon class="lp-logo" src="../assets/remote/logo-whatnot.svg"></scalar-icon>
-    <scalar-icon class="lp-logo" src="../assets/logos/airwallex.svg"></scalar-icon>
-    <scalar-icon class="lp-logo" src="../assets/logos/warp.svg"></scalar-icon>
   </div>
 </div>
   <div class="lp-card lp-card--mcp" aria-hidden="true">
@@ -665,6 +656,18 @@
   .lp-copy > p {
     margin: 0;
   }
+  /* the hero's second line: the heading's size and weight, quieter, and
+     tight under it (the stack's 12px gap cancelled) so the two read as
+     one heading */
+  .lp .lp-hero-sub {
+    margin: -12px 0 0;
+    font-size: var(--scalar-font-size-1);
+    /* the heading is the bold token (600) */
+    font-weight: var(--scalar-bold);
+    line-height: 1.33;
+    color: var(--scalar-color-2);
+    text-wrap: balance;
+  }
   .lp-kicker {
     display: inline-flex;
     align-items: center;
@@ -770,25 +773,33 @@
     width: fit-content;
     font-weight: var(--scalar-semibold);
   }
-  /* the customers using the product, as quiet wordmarks under the buttons */
-  .lp-logos {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px 24px;
-    margin-top: 32px;
-    color: var(--scalar-color-1);
+  /* a customer on the product, under the buttons: the theme's blockquote
+     (the renderer adds its class, so the selectors outrank it) holding
+     their words, then their wordmark and who said it, all inside the
+     left rule */
+  .lp-copy blockquote.lp-quote {
+    max-width: 440px;
+    margin: 32px 0 0;
+    text-wrap: pretty;
   }
-  .lp-logo {
+  .lp-quote-words {
+    display: block;
+  }
+  /* outranks the theme's blockquote.t-editor__quote > * { margin-top: 0 } */
+  .lp-copy .lp-quote .lp-quote-by {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: var(--scalar-font-size-4);
+    color: var(--scalar-color-2);
+  }
+  .lp-quote-logo {
     display: block;
     width: auto;
-    height: 16px;
-  }
-  .lp-logo--tr {
-    height: 20px;
-  }
-  .lp-logo--lithic {
-    height: 12px;
+    height: 14px;
+    color: var(--scalar-color-1);
   }
   /* The product card: the section's right column, top to bottom, with the
      product's flow on it. An inline-size container, so the window inside
@@ -801,7 +812,6 @@
     overflow: hidden;
     border-radius: var(--scalar-radius-lg);
     container: lp-card / inline-size;
-    background: var(--lp-bg-1-5);
     /* the labels' ink */
     --lp-ink: var(--scalar-color-1);
   }
@@ -839,12 +849,17 @@
     --lp-u: max(min(100cqw / 1180, 100cqh / 552), 0.66px);
     --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
     --lp-oy: calc((100cqh - 552 * var(--lp-u)) / 2);
+    /* room above and below the scene (the scene's box, which the
+       container units measure, is the content box inside it) */
+    --lp-pad: 60px;
     position: relative;
+    box-sizing: content-box;
     width: 100%;
+    padding: var(--lp-pad) 0;
     aspect-ratio: 1180 / 552;
     min-height: 400px;
     /* never past the first screen, but never too small to read */
-    max-height: max(400px, calc(100dvh - 412px));
+    max-height: max(400px, calc(100dvh - 412px - 2 * var(--lp-pad)));
     margin-top: 24px;
     overflow: auto hidden;
     overscroll-behavior-x: contain;
@@ -861,7 +876,8 @@
     --lp-flow-dir: row;
     position: absolute;
     left: var(--lp-ox);
-    top: var(--lp-oy);
+    /* absolute children measure from the padding edge */
+    top: calc(var(--lp-pad) + var(--lp-oy));
     width: calc(1180 * var(--lp-u));
     height: calc(552 * var(--lp-u));
     font-size: var(--lp-u);
@@ -2248,6 +2264,7 @@
   @media screen and (max-width: 840px) {
     .lp-visual {
       --lp-u: 1px;
+      box-sizing: border-box;
       aspect-ratio: auto;
       height: auto;
       min-height: 0;
