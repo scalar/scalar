@@ -1193,4 +1193,27 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'X', 'variable')
     expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
   })
+
+  it('rust: reads .await as a keyword, self as the receiver and r#type as a name', () => {
+    const code = 'pub async fn get(&self) -> Self {\n  let r#type = 1;\n  client.get(url).send().await?\n}\n'
+    assertHas(code, 'rust', 'await', 'keyword.control')
+    assertHas(code, 'rust', 'self', 'variable.builtin')
+    assertHas(code, 'rust', 'Self', 'type')
+    expect(scoped(code, 'rust').some(([t]) => t === 'type')).toBeFalsy()
+  })
+
+  it('python: reads a case with its body on the same line as a keyword', () => {
+    const code = 'match r.status_code:\n    case 200: return r.json()\n    case _: raise X\ncase = 1\n'
+    expect(
+      scoped(code, 'python')
+        .filter(([t]) => t === 'case')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.control', 'keyword.control'])
+  })
+
+  it('typescript: names a generic arrow function', () => {
+    const code = 'const id = <T,>(x: T) => x\nconst f = <T extends string>(x: T): T => x\n'
+    assertHas(code, 'typescript', 'id', 'function')
+    assertHas(code, 'typescript', 'f', 'function')
+  })
 })

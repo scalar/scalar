@@ -58,7 +58,12 @@ const rust: Grammar = {
             '\\b(?:fn|let|const|static|struct|enum|trait|impl|type|mod|union|async|move|dyn|pub|crate|unsafe|extern|ref|mut|where)\\b',
           scope: 'keyword.declaration',
         },
-        { match: '\\b(?:use|as|super|self|Self)\\b', scope: 'keyword.import' },
+        // `r#type` is an identifier spelled like a keyword; claiming it here,
+        // where it starts, keeps the keyword rules from matching its tail.
+        { match: 'r#[A-Za-z_]\\w*' },
+        { match: '\\b(?:use|as|super)\\b', scope: 'keyword.import' },
+        { match: '\\bself\\b', scope: 'variable.builtin' },
+        { match: '\\bSelf\\b', scope: 'type' },
         { match: '\\b(?:in|box)\\b', scope: 'keyword.operator' },
         { match: '\\b(?:true|false)\\b', scope: 'boolean' },
         { match: '\\b(?:None|Some|Ok|Err)\\b', scope: 'constant.builtin' },
@@ -76,6 +81,8 @@ const rust: Grammar = {
           match: '\\b([A-Za-z_]\\w*)(!)',
           scope: ['function.builtin', 'function.builtin'],
         },
+        // `.await` is a keyword in field position, not a member.
+        { match: '(\\.)(await)\\b', scope: ['punctuation', 'keyword.control'] },
         {
           match: '(\\.)([A-Za-z_]\\w*)(?=\\s*\\()',
           scope: ['punctuation', 'function.method'],
