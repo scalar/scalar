@@ -1,5 +1,6 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { replaceEnvVariables, replacePathVariables } from '@scalar/helpers/regex/replace-variables'
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { shouldUseProxy } from '@scalar/helpers/url/redirect-to-proxy'
@@ -201,6 +202,9 @@ export const authorizeOauth2 = async (
     const authorizationUrl = makeUrlAbsolute(authUrl, getActiveServerBase(activeServer, environmentVariables))
 
     const url = new URL(authorizationUrl)
+    if (!isAllowedOAuthUrl(url)) {
+      return [new Error('Authorization URL must use HTTPS or HTTP for local development URLs'), null]
+    }
 
     /** Special PKCE state */
     let pkce: PKCEState | null = null

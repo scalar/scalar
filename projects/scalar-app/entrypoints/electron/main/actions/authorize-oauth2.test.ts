@@ -75,6 +75,41 @@ describe('authorize-oauth2', () => {
     vi.clearAllMocks()
   })
 
+  it.each([
+    'file:///tmp/authorization',
+    'smb://example.invalid/share',
+    'javascript:void(0)//',
+    'java\tscript:void(0)//',
+    'data:text/html,inert',
+    'custom-protocol://authorize',
+    'http://auth.example.com/authorize',
+  ])('rejects %s before opening a callback server or the browser', async (authorizationUrl) => {
+    const createServer = vi.spyOn(http, 'createServer')
+    try {
+      expect(await authorizeOauth2({ authorizationUrl })).toStrictEqual({
+        error: 'Authorization URL must use HTTPS or HTTP for local development URLs',
+      })
+      expect(openExternalMock).not.toHaveBeenCalled()
+      expect(createServer).not.toHaveBeenCalled()
+    } finally {
+      createServer.mockRestore()
+    }
+  })
+
+  it.each(['http://localhost:3000/authorize', 'http://127.0.0.1:3000/authorize'])(
+    'allows local provider %s',
+    async (authorizationUrl) => {
+      const resultPromise = authorizeOauth2({ authorizationUrl })
+      await waitForBrowserToOpen()
+      const { port, redirectUri } = parseOpenedRedirectUri()
+      const expectedUrl = new URL(authorizationUrl)
+      expectedUrl.searchParams.set('redirect_uri', redirectUri)
+      expect(openExternalMock).toHaveBeenCalledExactlyOnceWith(expectedUrl.href, { activate: true })
+      await sendRequest({ path: '/callback?error=access_denied', port })
+      expect(await resultPromise).toStrictEqual({ callbackUrl: `${redirectUri}?error=access_denied`, redirectUri })
+    },
+  )
+
   it('opens the system browser with an appended loopback redirect_uri', async () => {
     const resultPromise = authorizeOauth2({ authorizationUrl: baseAuthorizationUrl })
     await waitForBrowserToOpen()

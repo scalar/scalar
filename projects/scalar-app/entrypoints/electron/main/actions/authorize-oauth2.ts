@@ -1,5 +1,6 @@
 import http from 'node:http'
 
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { shell } from 'electron/common'
 import { BrowserWindow } from 'electron/main'
 import { getPort } from 'get-port-please'
@@ -115,9 +116,13 @@ export const authorizeOauth2 = async ({ authorizationUrl }: AuthorizeOAuth2Param
   let redirectUri: string
 
   try {
+    authUrl = new URL(authorizationUrl)
+    // Enforce the policy at the IPC boundary even if the renderer bypasses its own check.
+    if (!isAllowedOAuthUrl(authUrl)) {
+      return { error: 'Authorization URL must use HTTPS or HTTP for local development URLs' }
+    }
     port = await getPort({ host: CALLBACK_HOST })
     redirectUri = `http://${CALLBACK_HOST}:${port}${CALLBACK_PATH}`
-    authUrl = new URL(authorizationUrl)
     authUrl.searchParams.set('redirect_uri', redirectUri)
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Failed to prepare the OAuth2 redirect' }
