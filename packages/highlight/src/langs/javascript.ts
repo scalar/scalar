@@ -72,10 +72,10 @@ const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
 /**
  * What follows a name that is assigned a function: `= () =>`, `= async x =>`,
- * `= function`. The parameter list cannot nest parentheses, which covers real
- * code and keeps the scan bounded.
+ * `= function`, and the generic `= <T,>(x: T) =>`. The parameter list cannot
+ * nest parentheses, which covers real code and keeps the scan bounded.
  */
-const ASSIGNS_FUNCTION = `[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>)`
+const ASSIGNS_FUNCTION = `[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|(?:<[^<>()=]{0,128}>[ \\t]*)?\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>)`
 
 /** Body of a regex literal: no unescaped `/`, character classes may hold one. */
 const REGEX = '/(?![/*])(?:[^/\\\\\\n\\[]|\\\\.|\\[(?:[^\\]\\\\\\n]|\\\\.)*\\])+/[dgimsuvy]*'
