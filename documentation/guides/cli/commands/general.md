@@ -2,19 +2,19 @@
 
 # General
 
-Commands for the CLI itself: help, upgrades, shell completion, and agent context. Generated from `@scalar/cli` 2.10.0.
+Commands for the CLI itself: help, upgrades, shell completion, and agent context. Generated from `@scalar/cli` 2.11.0.
 
 | Command | Description |
 | --- | --- |
-| [`scalar readme`](#readme) | Open documentation for the CLI |
-| [`scalar readme generate`](#readme-generate) | Self generate documentation for the cli |
-| [`scalar upgrade`](#upgrade) | Upgrade current version of your cli |
+| [`scalar readme`](#readme) | Open CLI documentation in your browser |
+| [`scalar readme generate`](#readme-generate) | Generate the CLI README from the command tree |
+| [`scalar upgrade`](#upgrade) | Upgrade the Scalar CLI to the latest version |
 | [`scalar context`](#context) | Print every command, argument, and option as JSON for AI agents |
 | [`scalar completion`](#completion) | Generate shell completion definitions |
 
 ## readme
 
-Open documentation for the CLI.
+Open CLI documentation in your browser.
 
 ```bash
 scalar readme [options] [command]
@@ -22,7 +22,7 @@ scalar readme [options] [command]
 
 ## readme generate
 
-Self generate documentation for the cli.
+Generate the CLI README from the command tree.
 
 ```bash
 scalar readme generate [options]
@@ -36,7 +36,7 @@ scalar readme generate [options]
 
 ## upgrade
 
-Upgrade current version of your cli.
+Upgrade the Scalar CLI to the latest version.
 
 ```bash
 scalar upgrade [options]

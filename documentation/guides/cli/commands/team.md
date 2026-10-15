@@ -2,17 +2,17 @@
 
 # scalar team
 
-Manage user teams. Generated from `@scalar/cli` 2.10.0.
+List and switch between your Scalar teams. Generated from `@scalar/cli` 2.11.0.
 
 | Command | Description |
 | --- | --- |
-| [`scalar team list`](#list) | List all teams current user is part of |
-| [`scalar team get`](#get) | Get the current team and its namespaces |
-| [`scalar team set`](#set) | Set current active team for the user |
+| [`scalar team list`](#list) | List your Scalar teams |
+| [`scalar team get`](#get) | Show the current team and its namespaces |
+| [`scalar team set`](#set) | Select the current team |
 
 ## list
 
-List all teams current user is part of.
+List your Scalar teams.
 
 ```bash
 scalar team list [options]
@@ -26,7 +26,7 @@ scalar team list [options]
 
 ## get
 
-Get the current team and its namespaces.
+Show the current team and its namespaces.
 
 ```bash
 scalar team get [options]
@@ -40,7 +40,7 @@ scalar team get [options]
 
 ## set
 
-Set current active team for the user.
+Select the current team.
 
 ```bash
 scalar team set [options]
@@ -50,4 +50,4 @@ scalar team set [options]
 
 | Option | Description |
 | --- | --- |
-| `--team <team>` | Team uid. |
+| `--team <team>` | Team ID. |

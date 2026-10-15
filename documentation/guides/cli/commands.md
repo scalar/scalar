@@ -2,87 +2,87 @@
 
 # Commands
 
-Every command in `@scalar/cli` 2.10.0. Run `scalar <command> --help` for the same details in your terminal, or `scalar context` to get the whole tree as JSON for an AI agent.
+Every command in `@scalar/cli` 2.11.0. Run `scalar <command> --help` for the same details in your terminal, or `scalar context` to get the whole tree as JSON for an AI agent.
 
 ## [scalar document](commands/document.md)
 
-Manage local openapi file.
+Work with OpenAPI and AsyncAPI descriptions.
 
-- [`scalar document bundle`](commands/document.md#bundle): Bundle an OpenAPI document by resolving all references and external dependencies
-- [`scalar document split`](commands/document.md#split): Split OpenAPI or AsyncAPI documents into small chunks
-- [`scalar document join`](commands/document.md#join): Merge multiple OpenAPI or AsyncAPI documents into a single unified document
-- [`scalar document format`](commands/document.md#format): Format an OpenAPI or AsyncAPI file
-- [`scalar document convert`](commands/document.md#convert): Convert a Postman collection to an OpenAPI document
-- [`scalar document markdown`](commands/document.md#markdown): Generate Markdown from an OpenAPI file
-- [`scalar document mock`](commands/document.md#mock): Mock an OpenAPI API or AsyncAPI WebSocket and SSE channels
-- [`scalar document serve`](commands/document.md#serve): Serve an API Reference from an OpenAPI or AsyncAPI file
-- [`scalar document share`](commands/document.md#share): Share an OpenAPI or AsyncAPI file
-- [`scalar document validate`](commands/document.md#validate): Validate an OpenAPI or AsyncAPI file
-- [`scalar document void`](commands/document.md#void): Boot a server to mirror HTTP requests
-- [`scalar document lint`](commands/document.md#lint): Lint your OpenAPI or AsyncAPI file using spectral rules
-- [`scalar document upgrade`](commands/document.md#upgrade): Upgrade an OpenAPI or AsyncAPI document to version 3.1
+- [`scalar document bundle`](commands/document.md#bundle): Bundle external references into a single API description
+- [`scalar document split`](commands/document.md#split): Split an OpenAPI or AsyncAPI description into referenced JSON files
+- [`scalar document join`](commands/document.md#join): Join API descriptions of the same format into one description
+- [`scalar document format`](commands/document.md#format): Format an OpenAPI or AsyncAPI description
+- [`scalar document convert`](commands/document.md#convert): Convert a Postman collection to an OpenAPI description
+- [`scalar document markdown`](commands/document.md#markdown): Generate Markdown documentation from an OpenAPI description
+- [`scalar document mock`](commands/document.md#mock): Run a Mock Server for OpenAPI operations or AsyncAPI WebSocket and SSE channels
+- [`scalar document serve`](commands/document.md#serve): Serve API Reference documentation from an OpenAPI or AsyncAPI description
+- [`scalar document share`](commands/document.md#share): Publish an OpenAPI or AsyncAPI description to a public sandbox
+- [`scalar document validate`](commands/document.md#validate): Validate an OpenAPI or AsyncAPI description
+- [`scalar document void`](commands/document.md#void): Mirror HTTP requests with a local server
+- [`scalar document lint`](commands/document.md#lint): Lint an OpenAPI or AsyncAPI description with Spectral rules
+- [`scalar document upgrade`](commands/document.md#upgrade): Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version
 
 ## [scalar project](commands/project.md)
 
-Manage scalar project.
+Manage Scalar Docs projects.
 
 - [`scalar project list`](commands/project.md#list): List projects and their slugs for the current team
-- [`scalar project get`](commands/project.md#get): Get project details for the current team
-- [`scalar project init`](commands/project.md#init): Create a new Scalar Docs project
-- [`scalar project check-config`](commands/project.md#check-config): Check a Scalar Configuration file
-- [`scalar project create`](commands/project.md#create): Create a new project that is not linked to a github project
-- [`scalar project preview`](commands/project.md#preview): Preview scalar guides
-- [`scalar project publish`](commands/project.md#publish): Publish new build for a github sync project that is not linked
+- [`scalar project get`](commands/project.md#get): Show project details for the current team
+- [`scalar project init`](commands/project.md#init): Initialize a local Scalar Docs project
+- [`scalar project check-config`](commands/project.md#check-config): Validate a Scalar configuration file
+- [`scalar project create`](commands/project.md#create): Create a Scalar project without a linked GitHub repository
+- [`scalar project preview`](commands/project.md#preview): Preview a Scalar Docs project locally
+- [`scalar project publish`](commands/project.md#publish): Publish a new build of a Scalar project
 - [`scalar project rollback`](commands/project.md#rollback): Roll the live deployment back to a previously deployed build
-- [`scalar project deployments list`](commands/project.md#deployments-list): List the production deployment history for a project
-- [`scalar project upgrade`](commands/project.md#upgrade): Upgrade scalar project
+- [`scalar project deployments list`](commands/project.md#deployments-list): List production deployments for a project
+- [`scalar project upgrade`](commands/project.md#upgrade): Upgrade a Scalar Docs configuration
 
 ## [scalar registry](commands/registry.md)
 
-Manage your scalar registry.
+Manage API descriptions in the Scalar Registry.
 
-- [`scalar registry publish`](commands/registry.md#publish): Publish an OpenAPI document to the Scalar registry
-- [`scalar registry update`](commands/registry.md#update): Update document metadata on scalar registry
-- [`scalar registry delete`](commands/registry.md#delete): Delete a document from scalar registry
-- [`scalar registry list`](commands/registry.md#list): List all registry APIs for a team namespace
-- [`scalar registry get`](commands/registry.md#get): Get a document version from scalar registry
+- [`scalar registry publish`](commands/registry.md#publish): Publish an OpenAPI description to the Scalar Registry
+- [`scalar registry update`](commands/registry.md#update): Update API description metadata in the Scalar Registry
+- [`scalar registry delete`](commands/registry.md#delete): Delete an API description from the Scalar Registry
+- [`scalar registry list`](commands/registry.md#list): List Scalar Registry API descriptions in a team namespace
+- [`scalar registry get`](commands/registry.md#get): Download an API description version from the Scalar Registry
 
 ## [scalar auth](commands/auth.md)
 
-Manage authorization on scalar platform.
+Log in to Scalar and manage your session.
 
-- [`scalar auth login`](commands/auth.md#login): Login to scalar
-- [`scalar auth whoami`](commands/auth.md#whoami): Display the current user
-- [`scalar auth logout`](commands/auth.md#logout): Logout from scalar
+- [`scalar auth login`](commands/auth.md#login): Log in to Scalar
+- [`scalar auth whoami`](commands/auth.md#whoami): Show the logged-in user and current team
+- [`scalar auth logout`](commands/auth.md#logout): Log out of Scalar
 
 ## [scalar team](commands/team.md)
 
-Manage user teams.
+List and switch between your Scalar teams.
 
-- [`scalar team list`](commands/team.md#list): List all teams current user is part of
-- [`scalar team get`](commands/team.md#get): Get the current team and its namespaces
-- [`scalar team set`](commands/team.md#set): Set current active team for the user
+- [`scalar team list`](commands/team.md#list): List your Scalar teams
+- [`scalar team get`](commands/team.md#get): Show the current team and its namespaces
+- [`scalar team set`](commands/team.md#set): Select the current team
 
 ## [scalar schema](commands/schema.md)
 
-Manage your Scalar schemas.
+Manage shared schemas in the Scalar Registry.
 
-- [`scalar schema delete`](commands/schema.md#delete): Delete a schema
-- [`scalar schema update`](commands/schema.md#update): Update schema metadata
-- [`scalar schema list`](commands/schema.md#list): List all schemas for a team namespace
-- [`scalar schema get`](commands/schema.md#get): Get a schema document version from the Scalar registry
-- [`scalar schema publish`](commands/schema.md#publish): Publish a shared schema to the Scalar registry
+- [`scalar schema delete`](commands/schema.md#delete): Delete a shared schema
+- [`scalar schema update`](commands/schema.md#update): Update shared schema metadata
+- [`scalar schema list`](commands/schema.md#list): List shared schemas in a team namespace
+- [`scalar schema get`](commands/schema.md#get): Download a shared schema version from the Scalar Registry
+- [`scalar schema publish`](commands/schema.md#publish): Publish a shared schema to the Scalar Registry
 
 ## [scalar sdk](commands/sdk.md)
 
-Manage your Scalar SDKs (Enterprise Only).
+Manage Scalar SDKs (Enterprise only).
 
-- [`scalar sdk list`](commands/sdk.md#list): List all SDKs for a team namespace
+- [`scalar sdk list`](commands/sdk.md#list): List SDKs in a team namespace
 - [`scalar sdk get`](commands/sdk.md#get): Inspect SDK metadata, API source, versions, and build status
-- [`scalar sdk create`](commands/sdk.md#create): Create a new SDK. The SDK is created in the namespace of the API it is built from
+- [`scalar sdk create`](commands/sdk.md#create): Create an SDK in the namespace of its source API
 - [`scalar sdk update`](commands/sdk.md#update): Update SDK metadata
 - [`scalar sdk delete`](commands/sdk.md#delete): Delete an SDK
-- [`scalar sdk build`](commands/sdk.md#build): Build an SDK
+- [`scalar sdk build`](commands/sdk.md#build): Start an SDK build
 
 ## [scalar access-group](commands/access-group.md)
 
@@ -100,8 +100,8 @@ Manage access groups and allowed email domains for the current team.
 
 Commands for the CLI itself: help, upgrades, shell completion, and agent context.
 
-- [`scalar readme`](commands/general.md#readme): Open documentation for the CLI
-- [`scalar readme generate`](commands/general.md#readme-generate): Self generate documentation for the cli
-- [`scalar upgrade`](commands/general.md#upgrade): Upgrade current version of your cli
+- [`scalar readme`](commands/general.md#readme): Open CLI documentation in your browser
+- [`scalar readme generate`](commands/general.md#readme-generate): Generate the CLI README from the command tree
+- [`scalar upgrade`](commands/general.md#upgrade): Upgrade the Scalar CLI to the latest version
 - [`scalar context`](commands/general.md#context): Print every command, argument, and option as JSON for AI agents
 - [`scalar completion`](commands/general.md#completion): Generate shell completion definitions

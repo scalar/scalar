@@ -2,19 +2,19 @@
 
 # scalar schema
 
-Manage your Scalar schemas. Generated from `@scalar/cli` 2.10.0.
+Manage shared schemas in the Scalar Registry. Generated from `@scalar/cli` 2.11.0.
 
 | Command | Description |
 | --- | --- |
-| [`scalar schema delete`](#delete) | Delete a schema |
-| [`scalar schema update`](#update) | Update schema metadata |
-| [`scalar schema list`](#list) | List all schemas for a team namespace |
-| [`scalar schema get`](#get) | Get a schema document version from the Scalar registry |
-| [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar registry |
+| [`scalar schema delete`](#delete) | Delete a shared schema |
+| [`scalar schema update`](#update) | Update shared schema metadata |
+| [`scalar schema list`](#list) | List shared schemas in a team namespace |
+| [`scalar schema get`](#get) | Download a shared schema version from the Scalar Registry |
+| [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar Registry |
 
 ## delete
 
-Delete a schema.
+Delete a shared schema.
 
 ```bash
 scalar schema delete [options]
@@ -29,7 +29,7 @@ scalar schema delete [options]
 
 ## update
 
-Update schema metadata.
+Update shared schema metadata.
 
 ```bash
 scalar schema update [options]
@@ -41,13 +41,13 @@ scalar schema update [options]
 | --- | --- |
 | `-s, --slug <slug>` | Schema slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
-| `--title <title>` | Title. |
-| `--description <description>` | Description. |
-| `--isPrivate <isPrivate>` | Privacy (true/false or public/private). One of `true`, `false`, `public`, `private`. |
+| `--title <title>` | Schema title. |
+| `--description <description>` | Schema description. |
+| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
 
 ## list
 
-List all schemas for a team namespace.
+List shared schemas in a team namespace.
 
 ```bash
 scalar schema list [options]
@@ -62,7 +62,7 @@ scalar schema list [options]
 
 ## get
 
-Get a schema document version from the Scalar registry.
+Download a shared schema version from the Scalar Registry.
 
 ```bash
 scalar schema get [options] [namespace] [slug]
@@ -80,12 +80,12 @@ scalar schema get [options] [namespace] [slug]
 | Option | Description | Default |
 | --- | --- | --- |
 | `--version <version>` | Schema version (defaults to latest). |  |
-| `--format <format>` | Output format (json or yaml). One of `json`, `yaml`. | `json` |
+| `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
 | `-o, --output <file>` | Output file (defaults to stdout). |  |
 
 ## publish
 
-Publish a shared schema to the Scalar registry.
+Publish a shared schema to the Scalar Registry.
 
 ```bash
 scalar schema publish [options] [file]
@@ -95,19 +95,19 @@ scalar schema publish [options] [file]
 
 | Argument | Description |
 | --- | --- |
-| `file` | OpenAPI file to upload. |
+| `file` | Shared schema file path or URL to upload. |
 
 **Options**
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `--slug <slug>` | Slug identifier for the registry entry. Defaults to title. |  |
+| `--slug <slug>` | Shared schema slug. |  |
 | `--title <title>` | Schema title. |  |
 | `--namespace <namespace>` | Scalar team namespace. |  |
-| `--version <version>` | API version (e.g. 0.1.0). |  |
-| `--private` | Make API private. | `false` |
-| `--force` | Force override an existing version. | `false` |
+| `--version <version>` | Schema version (for example, 0.1.0). |  |
+| `--private` | Make the shared schema private. | `false` |
+| `--force` | Overwrite an existing version. | `false` |
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URLs to fetch when bundling the document. |  |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
