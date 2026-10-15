@@ -1222,6 +1222,8 @@ Whether the sidebar should be shown.
 
 Whether and when to show the developer tools. By default only shows on `localhost` (and other domains used for development).
 
+The **Configure** panel lets you preview parameter and nested schema expansion, model-name visibility, required-property ordering, and alphabetical or document-order schema properties. Copy the generated configuration to keep your choices in your integration.
+
 **Default:** `'localhost'`
 
 To disable the toolbar set:
