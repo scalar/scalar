@@ -8,6 +8,18 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.36.6 (2026-10-15)
+
+### Expanded C++ and Dart SDKs, refined authentication and pagination
+
+This release brings substantial progress to the experimental C++ and Dart targets, with generated clients, models and runtime components now available. C# SDKs receive refinements to union naming, credential handling and code samples, while TypeScript SDKs gain server variable options and bigint support for 64-bit integers.
+
+- C++ SDKs now generate a complete client over libcurl with typed models, paginated operations and credential support.
+- Dart SDKs now ship a client, models, resources, pagination, webhook helpers and formatted code samples.
+- C# union arms that extend a component now take descriptive names such as `ThingNodeWithType` instead of positional ones.
+- TypeScript SDKs accept client options for server variables, so a tenant in the host is set with `new Client({ site: 'acme' })` instead of a hand-built `baseURL`.
+- Webhook helpers configured with `webhookKeyOpt: false` no longer emit signature verification when no verifying helper shares their events.
+
 ## 0.36.5 (2026-10-09)
 
 ### OAuth token revocation, resource indicators, and query parameter fixes
