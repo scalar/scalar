@@ -4,6 +4,28 @@ This middleware provides an easy way to render a beautiful API reference based o
 
 ![Screenshot of the Hono integration](../assets/screenshots/hono.png)
 
+## Set up with a coding agent
+
+Copy this prompt into your coding agent to add Scalar to an existing Hono app.
+
+<scalar-prompt title="Set up Scalar for Hono">
+
+```text
+Add Scalar API Reference to this Hono app using @scalar/hono-api-reference.
+
+Read https://scalar.com/products/api-references/integrations/hono for the integration guide before making changes.
+
+1. Inspect the app entrypoint, runtime, package manager, routes, and existing OpenAPI setup.
+2. Install @scalar/hono-api-reference using the project’s package manager.
+3. Reuse the existing OpenAPI document or generation library. If none exists, add @hono/zod-openapi or hono-openapi, choosing the option that fits the app’s existing validation and routing. Describe actual routes and schemas; do not invent endpoints or responses.
+4. Serve the OpenAPI document at /openapi.json (or reuse its existing URL). Import { Scalar } from '@scalar/hono-api-reference' and register app.get('/scalar', Scalar({ url: '/openapi.json' })), adjusting the URL to match the document route and any base path. Register the documentation routes before catch-all handlers.
+5. Preserve the app’s runtime, existing routes, middleware, and authentication requirements. Do not replace the server entrypoint or expose protected documentation publicly.
+6. Run the relevant project checks and start the app with its existing development command. Verify that the document URL returns OpenAPI JSON and /scalar renders the reference with the app’s endpoints.
+7. Summarize the changed files, checks performed, and local documentation URL.
+```
+
+</scalar-prompt>
+
 ## Installation
 
 ```bash
