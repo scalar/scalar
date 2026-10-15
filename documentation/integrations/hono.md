@@ -4,7 +4,7 @@ This middleware provides an easy way to render a beautiful API reference based o
 
 ![Screenshot of the Hono integration](../assets/screenshots/hono.png)
 
-## Set up with a coding agent
+## Setup Prompt
 
 Copy this prompt into your coding agent to add Scalar to an existing Hono app.
 
