@@ -121,6 +121,18 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 }
 
 /**
+ * How deep embeds may nest before a body falls back to its state's default
+ * scope. Real code nests two or three deep — Markdown, then HTML, then
+ * JavaScript — but a Markdown fence can embed Markdown, and a run of
+ * ` ```md ` lines would otherwise recurse once per line until the stack runs
+ * out.
+ */
+const MAX_EMBED_DEPTH = 8
+
+/** How many embedded bodies are being tokenized right now, one inside another. */
+let depth = 0
+
+/**
  * Tokenizes the body of an embedding state with its language and returns the
  * position after it.
  *
@@ -141,10 +153,15 @@ const embedded = (code: string, pos: number, state: CompiledState, remembered: s
   // remembered, which is how a Markdown fence names its language at runtime.
   const language = state.embed!.language
   const grammar = getLanguage(language === REMEMBERED ? remembered : language)
-  if (grammar === undefined) {
+  if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
     emit(state.default, pos, stop)
   } else {
-    tokenize(code.slice(pos, stop), grammar, (scope, from, to) => emit(scope, from + pos, to + pos))
+    depth += 1
+    try {
+      tokenize(code.slice(pos, stop), grammar, (scope, from, to) => emit(scope, from + pos, to + pos))
+    } finally {
+      depth -= 1
+    }
   }
   return stop
 }

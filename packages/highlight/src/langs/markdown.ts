@@ -1,4 +1,4 @@
-import type { Grammar } from '../core/types'
+import type { Grammar, State } from '../core/types'
 
 /**
  * Markdown.
@@ -8,6 +8,30 @@ import type { Grammar } from '../core/types'
  * fence becomes a literal state, so its contents are never mistaken for
  * Markdown syntax.
  */
+/**
+ * The states between a language fence and its closing fence: `<name>-code`
+ * scopes the closing fence and `<name>-body` hands the body to the language.
+ * `close` is a run of the opening character, which CommonMark lets be longer
+ * than the opener.
+ */
+const codeFence = (name: string, close: string): Record<string, State> => {
+  const closing = `^[ \\t]*${close}[ \\t]*$`
+  return {
+    [`${name}-code`]: {
+      default: 'string',
+      rules: [
+        { match: closing, scope: 'punctuation', pop: true },
+        { match: '^', push: `${name}-body` },
+      ],
+    },
+    [`${name}-body`]: {
+      default: 'string',
+      embed: { language: '{{remembered}}', until: closing },
+      rules: [],
+    },
+  }
+}
+
 const markdown: Grammar = {
   name: 'markdown',
   aliases: ['md', 'mdx'],
@@ -17,10 +41,18 @@ const markdown: Grammar = {
         // A three-character fence that names a language hands its body to that
         // language. Longer fences keep the literal form below, so a ```` block
         // that shows ``` inside still closes only on its own run.
+        // The two fence characters get a state each, because only a run of the
+        // character that opened the block closes it.
         {
-          match: '^([ \\t]*)(```(?!`)|~~~(?!~))([ \\t]*)([A-Za-z][\\w+#.-]*)([^\\n]*)$',
+          match: '^([ \\t]*)(```(?!`))([ \\t]*)([A-Za-z][\\w+#.-]*)([^\\n]*)$',
           scope: [null, 'punctuation', null, 'type', 'type'],
-          push: 'fence-code',
+          push: 'backtick-code',
+          remember: 4,
+        },
+        {
+          match: '^([ \\t]*)(~~~(?!~))([ \\t]*)([A-Za-z][\\w+#.-]*)([^\\n]*)$',
+          scope: [null, 'punctuation', null, 'type', 'type'],
+          push: 'tilde-code',
           remember: 4,
         },
         // The fence remembers its run, so only a run of the same character at
@@ -92,20 +124,8 @@ const markdown: Grammar = {
         },
       ],
     },
-    /** Between a language fence and its closing fence. */
-    'fence-code': {
-      default: 'string',
-      rules: [
-        // CommonMark lets a closing fence be longer than the opener.
-        { match: '^[ \\t]*(?:`{3,}|~{3,})[ \\t]*$', scope: 'punctuation', pop: true },
-        { match: '^', push: 'fence-body' },
-      ],
-    },
-    'fence-body': {
-      default: 'string',
-      embed: { language: '{{remembered}}', until: '^[ \\t]*(?:`{3,}|~{3,})[ \\t]*$' },
-      rules: [],
-    },
+    ...codeFence('backtick', '`{3,}'),
+    ...codeFence('tilde', '~{3,}'),
     'html-comment': {
       default: 'comment',
       rules: [{ match: '-->', scope: 'comment', pop: true }],

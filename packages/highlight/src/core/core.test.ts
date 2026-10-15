@@ -626,6 +626,23 @@ describe('embed', () => {
     expect(unknown.find((t) => t.text === 'let a 1')?.scope).toBe('comment')
   })
 
+  it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
+    const nested: Grammar = {
+      name: 'nested',
+      states: {
+        root: { rules: [{ match: '<', scope: 'tag', push: 'body' }] },
+        body: { default: 'comment', embed: { language: 'nested', until: '>' }, rules: [] },
+      },
+    }
+    registerLanguage(nested)
+    const code = '<'.repeat(20) + 'x'
+    const tokens = tokenizeToArray(code, compile(nested))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    // Eight levels in, the rest is the body's default scope rather than more tags.
+    expect(tokens.filter((t) => t.scope === 'tag')).toHaveLength(9)
+    expect(tokens.at(-1)?.scope).toBe('comment')
+  })
+
   it('keeps an unterminated construct in the body from swallowing the end', () => {
     registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
     const tokens = tokenizeToArray('<x>"open</x> 2', compile(host))

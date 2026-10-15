@@ -100,7 +100,7 @@ const javascript: Grammar = {
         // an expression. The lookbehind sits after the `/` so the rule still
         // starts with a literal character.
         {
-          match: `/(?<=\\b(?:if|while|for)[ \\t]*\\([^()\\n]{0,256}\\)[ \\t]*/)${REGEX.slice(1)}`,
+          match: `/(?<=(?<![\\w$.])(?:if|while|for)[ \\t]*\\([^()\\n]{0,256}\\)[ \\t]*/)${REGEX.slice(1)}`,
           scope: 'regexp',
         },
         // Blanks only: `\s*` would run across every blank line below, and
