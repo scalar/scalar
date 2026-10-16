@@ -31,8 +31,8 @@ import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/
 import { computed, useId } from 'vue'
 
 import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
-import { getAsyncApiTags } from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
 import Bindings from '@/components/Content/AsyncApi/Bindings.vue'
+import { getAsyncApiTags } from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
 import { getBindingEntries } from '@/components/Content/AsyncApi/helpers/get-binding-entries'
 import { useLocalization } from '@/features/localization'
 
