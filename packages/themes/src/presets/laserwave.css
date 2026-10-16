@@ -89,7 +89,8 @@
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.48);
 }
 /* Radius */
-:root {
+:root,
+:host {
   --scalar-radius: 2px;
   --scalar-radius-lg: 3px;
   --scalar-radius-xl: 4px;
