@@ -78,6 +78,10 @@ const resolvedMessage = computed(() =>
   resolveAsyncApiMessage(document, message.channelName, message.messageName),
 )
 
+const contentType = computed<string | undefined>(
+  () => resolvedMessage.value?.contentType ?? document.defaultContentType,
+)
+
 /** Heading prefers the human-friendly title, falling back to the message map key. */
 const headingText = computed(() =>
   pickHeading(resolvedMessage.value?.title, message.title, message.messageName),
@@ -255,8 +259,19 @@ const { level: headingLevel } = useDocumentOutline(
 
       <div class="message-layout">
         <div
-          v-if="description || correlationId || headersSchema || payloadSchema"
+          v-if="
+            description ||
+            contentType ||
+            correlationId ||
+            headersSchema ||
+            payloadSchema
+          "
           class="message-details min-w-0">
+          <div
+            v-if="contentType"
+            class="text-c-2 text-sm">
+            Content type: <code class="break-all">{{ contentType }}</code>
+          </div>
           <ScalarMarkdown
             v-if="description"
             class="message-description"
@@ -327,6 +342,7 @@ const { level: headingLevel } = useDocumentOutline(
         </div>
         <MessageExamples
           class="message-examples"
+          :contentType="contentType"
           :examples="resolvedMessage?.examples"
           :generatedPayload="isExpanded ? generatedPayload : undefined" />
       </div>

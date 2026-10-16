@@ -138,6 +138,8 @@ Select a result to navigate to its content. Selecting a message opens its accord
 
 ## Payload examples
 
+Messages display their `contentType`, falling back to the document’s `defaultContentType` when omitted. Payload examples use JSON, XML, or YAML highlighting for those media types and plain text otherwise. Authored non-JSON strings keep their original formatting. Examples with both headers and payload show separate blocks with independent copy buttons. Structured non-JSON values are labeled as structure only, not encoded messages. When neither content type is declared, examples keep the existing JSON formatting.
+
 Message-level `examples` appear in a code panel with a copy button and a picker when there is more than one example. Examples inherited from message traits are supported too.
 
 When no message example contains a payload, Scalar generates a representative payload from its JSON Schema automatically. Schema examples, defaults, and enum values are used by the shared example generator. The panel labels this fallback **Generated example**. Header-only examples remain available separately.

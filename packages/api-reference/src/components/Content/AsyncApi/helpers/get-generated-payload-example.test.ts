@@ -114,9 +114,7 @@ describe('get-generated-payload-example', () => {
       throw new Error('Expected an ingested AsyncAPI document')
     }
     const result = generate(getResolvedRef(document.channels?.events)?.messages?.event ?? {})
-    expect(getMessageExampleContent({ payload: result })).toBe(
-      JSON.stringify({ name: 'event-name', data: value }, null, 2),
-    )
+    expect(getMessageExampleContent(result)?.content).toBe(JSON.stringify({ name: 'event-name', data: value }, null, 2))
   })
 
   it.each(['const', 'example', 'default', 'examples', 'enum'])(
@@ -149,7 +147,7 @@ describe('get-generated-payload-example', () => {
       const message = getResolvedRef(document.channels?.events)?.messages?.event
       const result = generate(message ?? {})
       expect(JSON.stringify(result)).toBe(JSON.stringify(value))
-      expect(getMessageExampleContent({ payload: result })).toBe(JSON.stringify(value, null, 2))
+      expect(getMessageExampleContent(result)?.content).toBe(JSON.stringify(value, null, 2))
     },
   )
 
