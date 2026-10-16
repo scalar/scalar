@@ -34,7 +34,11 @@ export const createAsyncApiSchemaAdapter = (
     const value = resolveInput(input)
     if (!isObject(value) || typeof value.schemaFormat !== 'string') return false
     const mediaType = value.schemaFormat.split(';')[0]?.trim().toLowerCase()
-    return mediaType !== 'application/vnd.aai.asyncapi+json' && mediaType !== 'application/vnd.aai.asyncapi+yaml'
+    return ![
+      'application/vnd.aai.asyncapi',
+      'application/vnd.aai.asyncapi+json',
+      'application/vnd.aai.asyncapi+yaml',
+    ].includes(mediaType ?? '')
   }
   const named = entries.flatMap(([name, input]) => {
     const schema = unwrap(input)
@@ -89,7 +93,8 @@ export const createAsyncApiSchemaAdapter = (
   // A concrete variant and a selectable base need different views of the same source object.
   const selectable = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
   const concrete = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
-  const adapt = (input: unknown, name?: string, suppressSelector = false): SchemaObject | undefined => {
+  const jsonSchemaViews = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
+  const adapt = (input: unknown, name?: string, suppressSelector = false, native = true): SchemaObject | undefined => {
     const source = unwrap(input)
     if (typeof source === 'boolean') return getBooleanSchema(source)
     if (!isObject(source)) return undefined
@@ -102,7 +107,9 @@ export const createAsyncApiSchemaAdapter = (
       )
         return source as SchemaObject
     }
-    const cache = suppressSelector ? concrete : selectable
+    const wrapper = resolveInput(input)
+    const nativeSchema = isObject(wrapper) && 'schemaFormat' in wrapper ? !isForeignSchema(input) : native
+    const cache = nativeSchema ? (suppressSelector ? concrete : selectable) : jsonSchemaViews
     const referenceName =
       isObject(input) && typeof input.$ref === 'string'
         ? entries.find(([entryName]) => `#/components/schemas/${escapeJsonPointer(entryName)}` === input.$ref)?.[0]
@@ -121,13 +128,13 @@ export const createAsyncApiSchemaAdapter = (
     }
     views.set(schemaName, result)
     cache.set(unpackProxyShallow(source), views)
-    const propertyName = discriminatorName(source)
-    if (typeof source.discriminator === 'string') delete result.discriminator
+    const propertyName = nativeSchema ? discriminatorName(source) : undefined
+    if (nativeSchema && typeof source.discriminator === 'string') delete result.discriminator
     if (propertyName) result.discriminator = { propertyName }
 
     // Preserve reference identities for model links and the renderer's cycle guards.
     const child = (value: unknown, inherited = false): unknown => {
-      const schema = adapt(value, undefined, inherited)
+      const schema = adapt(value, undefined, inherited, nativeSchema)
       return isObject(value) && typeof value.$ref === 'string' ? { $ref: value.$ref, '$ref-value': schema } : schema
     }
 
