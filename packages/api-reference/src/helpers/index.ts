@@ -6,6 +6,7 @@ export {
   blockIntersection,
   firstLazyLoadComplete,
   intersectionEnabled,
+  scrollTargetId,
   scrollToLazy,
 } from './lazy-bus'
 export { loadAuthFromStorage, loadClientFromStorage } from './load-from-perssistance'
