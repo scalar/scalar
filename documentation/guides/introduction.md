@@ -1084,12 +1084,11 @@
     width: min(470px, 100cqw - 48px);
     height: 380px;
     overflow: hidden;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: 12px;
     background: var(--scalar-background-1);
     color: var(--scalar-color-1);
-    box-shadow:
-      0 0 0 1px rgba(38, 38, 38, 0.08),
-      0 2px 8px -4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.2);
   }
   .lp-win--code {
     height: auto;
@@ -1101,6 +1100,7 @@
     width: 100%;
     height: 420px;
     overflow: visible;
+    border: none;
     border-radius: 0;
     background: none;
     box-shadow: none;
