@@ -2142,13 +2142,6 @@ const sidebarCta = computed((): SidebarCta => {
 </template>
 
 <style>
-/* Add base styles to the body. Removed browser default margins for a better experience. */
-@layer scalar-base {
-  body {
-    margin: 0;
-    background-color: var(--scalar-background-1);
-  }
-}
 /** Used to check if css is loaded */
 :root {
   --scalar-loaded-api-reference: true;

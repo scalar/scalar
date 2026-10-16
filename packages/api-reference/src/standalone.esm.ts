@@ -1,4 +1,5 @@
 import '@/style.css'
+import '@/styles/standalone.css'
 
 import { createApiReference, findDataAttributes, getConfigurationFromDataAttributes } from '@/standalone/lib/html-api'
 import { registerGlobals } from '@/standalone/lib/register-globals'
