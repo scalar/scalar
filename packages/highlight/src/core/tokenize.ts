@@ -79,7 +79,11 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
     // the state that entered it unless the rule remembers something new.
     let remembered = memory[memory.length - 1]!
     if (rule.remember > 0) {
-      const text = m[rule.group + rule.remember] ?? ''
+      // The merged regex captures only which rule won, so the group comes from
+      // the rule's own pattern, re-run where the merged one matched.
+      const own = dyn?.own[index] ?? rule.own!
+      own.lastIndex = start
+      const text = own.exec(code)?.[rule.remember] ?? ''
       remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
     }
 

@@ -193,6 +193,46 @@ describe('tokenize', () => {
         .join(''),
     ).toBe('ab')
   })
+
+  it('captures only the rule wrapper in the merged regex', () => {
+    // Past 63 groups V8 allocates on every match, so each rule's own groups
+    // are made non-capturing there and read back from its sticky pattern.
+    const many = compile({
+      name: 'many',
+      states: {
+        root: {
+          rules: [
+            ...Array.from({ length: 80 }, (_, i) => ({
+              match: `(w${i})(x)`,
+              scope: ['keyword', null] as [string, null],
+            })),
+            { match: '(?<sign>[-+])([0-9]+)', scope: ['operator', 'number'] },
+            { match: '(\\[)(\\w+)(\\[)', scope: 'string', push: 'body', remember: 2 },
+          ],
+        },
+        body: {
+          default: 'string',
+          rules: [{ match: `\\]${REMEMBERED}\\]`, scope: 'string', pop: true }],
+        },
+      },
+    })
+    expect(new RegExp(`${many.root.re.source}|`).exec('')!.length - 1).toBe(82)
+    const code = 'w79x -12 [eq[a]b]eq] w3x'
+    expect(tokenizeToArray(code, many).map((t) => [t.text, t.scope])).toEqual([
+      ['w79', 'keyword'],
+      ['x', null],
+      [' ', null],
+      ['-', 'operator'],
+      ['12', 'number'],
+      [' ', null],
+      ['[eq[', 'string'],
+      ['a]b', 'string'],
+      [']eq]', 'string'],
+      [' ', null],
+      ['w3', 'keyword'],
+      ['x', null],
+    ])
+  })
 })
 
 describe('escapeHtml', () => {
