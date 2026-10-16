@@ -282,6 +282,7 @@ provideDocumentOutline('document')
     <InfoBlock
       :id="infoSectionId"
       :applicationIdentifier="asyncApiDocument?.id"
+      :asyncApiDocument
       :documentDownloadType="options.documentDownloadType"
       :documentExtensions
       :documentType
