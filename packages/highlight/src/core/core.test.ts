@@ -7,6 +7,7 @@ import { escapeHtml, highlight, highlightBlock } from './render'
 import { scopeClass } from './scopes'
 import { tokenizeToArray } from './tokenize'
 import type { Grammar } from './types'
+import { REMEMBERED } from './types'
 
 const tiny: Grammar = {
   name: 'tiny',
@@ -607,6 +608,39 @@ describe('embed', () => {
     const tokens = tokenizeToArray(code, compile(switching))
     expect(tokens.map((t) => t.text).join('')).toBe(code)
     expect(tokens.find((t) => t.text === 'let')?.scope).toBe('keyword')
+  })
+
+  it('embeds the language the entering rule remembered', () => {
+    registerLanguage({ ...tiny, name: 'tiny-named', aliases: [] })
+    const named: Grammar = {
+      name: 'named',
+      states: {
+        root: { rules: [{ match: '<(\\w+(?:-\\w+)*)>', scope: 'tag', push: 'body', remember: 1 }] },
+        body: { default: 'comment', embed: { language: REMEMBERED, until: '</' }, rules: [] },
+      },
+    }
+    const known = tokenizeToArray('<tiny-named>let a 1</', compile(named))
+    expect(known.find((t) => t.text === 'let')?.scope).toBe('keyword')
+    // A name nothing is registered under falls back to the state's default.
+    const unknown = tokenizeToArray('<nothing-here>let a 1</', compile(named))
+    expect(unknown.find((t) => t.text === 'let a 1')?.scope).toBe('comment')
+  })
+
+  it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
+    const nested: Grammar = {
+      name: 'nested',
+      states: {
+        root: { rules: [{ match: '<', scope: 'tag', push: 'body' }] },
+        body: { default: 'comment', embed: { language: 'nested', until: '>' }, rules: [] },
+      },
+    }
+    registerLanguage(nested)
+    const code = '<'.repeat(20) + 'x'
+    const tokens = tokenizeToArray(code, compile(nested))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    // Eight levels in, the rest is the body's default scope rather than more tags.
+    expect(tokens.filter((t) => t.scope === 'tag')).toHaveLength(9)
+    expect(tokens.at(-1)?.scope).toBe('comment')
   })
 
   it('keeps an unterminated construct in the body from swallowing the end', () => {

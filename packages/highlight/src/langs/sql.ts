@@ -24,7 +24,7 @@ const sql: Grammar = {
 
         {
           match:
-            '\\b(?:select|from|where|group|by|order|having|limit|offset|join|inner|left|right|full|outer|cross|lateral|on|using|union|intersect|except|with|recursive|case|when|then|else|end|distinct|returning|fetch|next|rows?|only)\\b',
+            '\\b(?:select|from|where|group|by|order|having|limit|offset|join|inner|left|right|full|outer|cross|lateral|on|using|union|intersect|except|with|recursive|case|when|then|else|end|distinct|returning|fetch|next|rows?|only|declare|print|go|exec|execute|return|returns|while|loop|for|call|connect|prior|merge|matched|raise|exception|elsif|immediate)\\b',
           scope: 'keyword.control',
         },
         {
@@ -40,7 +40,7 @@ const sql: Grammar = {
         { match: '\\b(?:true|false)\\b', scope: 'boolean' },
         {
           match:
-            '\\b(?:int|integer|bigint|smallint|serial|bigserial|decimal|numeric|real|double|precision|float|money|char|varchar|text|bytea|timestamp|timestamptz|date|time|interval|boolean|bool|uuid|json|jsonb|array|enum|blob)\\b',
+            '\\b(?:int|integer|bigint|smallint|serial|bigserial|decimal|numeric|real|double|precision|float|money|char|varchar|text|bytea|timestamp|timestamptz|date|time|interval|boolean|bool|uuid|json|jsonb|array|enum|blob|varchar2|nvarchar2?|nchar|number|binary|varbinary|tinyint|datetime2?|bit|clob|nclob|character|dec|xml)\\b',
           scope: 'type.builtin',
         },
         {

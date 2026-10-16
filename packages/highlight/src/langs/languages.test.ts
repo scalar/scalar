@@ -824,6 +824,27 @@ describe('regressions from the TextMate comparison', () => {
     assertHas('let s = r##"a "# b"##; let t = 1;\n', 'rust', '"a "# b"##', 'string')
   })
 
+  it('markdown: highlights a fence body with the language it names', () => {
+    const code = '# Title\n\n```ts\nconst a = 1 // one\n```\n\ntext after\n'
+    assertHas(code, 'markdown', 'const', 'keyword.declaration')
+    assertHas(code, 'markdown', '1', 'number')
+    assertHas(code, 'markdown', '// one', 'comment')
+    expect(scopeOf(code, 'markdown', '\n\ntext after\n')).toBeNull()
+  })
+
+  it('markdown: resolves fence aliases, closes on a longer fence, and keeps unknown languages literal', () => {
+    assertHas('~~~sh\ncurl -X GET\n~~~~\nafter\n', 'markdown', 'curl', 'function.call')
+    assertHas('```notalanguage\nconst a = 1\n```\n', 'markdown', '\nconst a = 1\n', 'string')
+    // An unterminated fence highlights to the end and loses no text.
+    const open = '```json\n{"a": 1'
+    expect(
+      runs(open, 'markdown')
+        .map(([t]) => t)
+        .join(''),
+    ).toBe(open)
+    assertHas(open, 'markdown', '"a"', 'property')
+  })
+
   it('markdown: closes a fence only with a run as long, and scopes HTML comments', () => {
     const code = '````md\n```js\nx\n```\n````\n\n<!-- note -->\n'
     assertHas(code, 'markdown', '\n```js\nx\n```\n', 'string')
@@ -904,5 +925,99 @@ describe('regressions from the TextMate comparison', () => {
     const code = 'info:\n  description: one\n    two\n  title: t\n'
     assertHas(code, 'yaml', 'two', 'string')
     assertHas(code, 'yaml', 'title', 'property')
+  })
+
+  it('sql: scopes T-SQL and PL/SQL keywords and types', () => {
+    const code = "DECLARE @n INT;\nPRINT 'x';\nEXEC dbo.run;\nv VARCHAR2(10);\nGO\n"
+    for (const word of ['DECLARE', 'PRINT', 'EXEC', 'GO']) {
+      assertHas(code, 'sql', word, 'keyword.control')
+    }
+    assertHas(code, 'sql', 'VARCHAR2', 'type.builtin')
+    // Common column names stay plain.
+    expect(scopeOf('SELECT level, top FROM t\n', 'sql', 'level')).toBeUndefined()
+  })
+
+  it('javascript: reads a regex after a control condition, and colours a tagged template tag', () => {
+    const code = 'if (ok) /^a+$/.test(s)\nwhile (x) /b/g.exec(t)\nconst q = gql`query`\nconst r = a / b / c\n'
+    assertHas(code, 'javascript', '/^a+$/', 'regexp')
+    assertHas(code, 'javascript', '/b/g', 'regexp')
+    assertHas(code, 'javascript', 'gql', 'function.call')
+    expect(scoped(code, 'javascript').filter(([, s]) => s === 'regexp')).toHaveLength(2)
+  })
+
+  it.each(['\n', '\r\n', ' '])(
+    'typescript: does not read the next statement as a const assertion name: %j',
+    (space) => {
+      const code = `const config = {} as${space}const\nexport const x = 1\nconst data = [] as const\nfunction run() {}`
+      expect(scopeOf(code, 'typescript', 'export')).toBe('keyword.import')
+      expect(scopeOf(code, 'typescript', 'function')).toBe('keyword.declaration')
+      expect(scopeOf(code, 'typescript', 'config')).toBe('variable')
+      expect(scopeOf(code, 'typescript', 'x')).toBe('variable')
+      expect(
+        tokenize(code, 'typescript')
+          .map(({ text }) => text)
+          .join(''),
+      ).toBe(code)
+    },
+  )
+
+  it('javascript: scopes the name a const, let or var declares', () => {
+    const code =
+      'const total = items.length\nlet x = 1, y\nconst App = () => null\nconst { a } = obj\nfor (const k of keys) {}\nexport const enum Color { Red }\nconst n: number = 1\n'
+    assertHas(code, 'javascript', 'total', 'variable')
+    assertHas(code, 'javascript', 'x', 'variable')
+    assertHas(code, 'javascript', 'k', 'variable')
+    assertHas(code, 'javascript', 'n', 'variable')
+    // An arrow function keeps the function scope, and patterns stay plain.
+    assertHas(code, 'javascript', 'App', 'function')
+    expect(scoped(code, 'javascript').some(([t, s]) => t === 'a' && s === 'variable')).toBeFalsy()
+    assertHas(code, 'javascript', 'enum', 'keyword.declaration')
+    assertHas(code, 'javascript', 'const', 'keyword.declaration')
+  })
+
+  it('bash: scopes unquoted arguments as strings, after the command, keywords and flags', () => {
+    const code = 'docker compose up -d /tmp/x\nif true; then echo hi; fi\nx=1 ls ~/bin\n'
+    assertHas(code, 'bash', 'docker', 'function.call')
+    assertHas(code, 'bash', 'compose', 'string')
+    assertHas(code, 'bash', '/tmp/x', 'string')
+    assertHas(code, 'bash', '-d', 'constant')
+    assertHas(code, 'bash', 'then', 'keyword.control')
+    assertHas(code, 'bash', 'echo', 'function.builtin')
+    assertHas(code, 'bash', 'x', 'variable')
+  })
+
+  it('markdown: closes a fence only on a run of its own character', () => {
+    const code = '```js\nconst a = 1\n~~~\nconst b = 2\n```\n# After\n'
+    expect(scoped(code, 'markdown').filter(([t]) => t === 'const')).toHaveLength(2)
+    assertHas(code, 'markdown', '# After', 'heading')
+    // A backtick run inside a tilde fence is body text, not a closing fence.
+    const tilde = '~~~py\na = 1\n```\nb = 2\n~~~~\n# After\n'
+    expect(scoped(tilde, 'markdown').some(([t, s]) => t === '```' && s === 'punctuation')).toBeFalsy()
+    assertHas(tilde, 'markdown', '2', 'number')
+    assertHas(tilde, 'markdown', '# After', 'heading')
+  })
+
+  it('markdown: does not overflow the stack on fences nested thousands deep', () => {
+    const code = '```md\n'.repeat(3000)
+    expect(
+      tokenize(code, 'markdown')
+        .map((t) => t.text)
+        .join(''),
+    ).toBe(code)
+  })
+
+  it('javascript: does not read a member named if, while or for as a control statement', () => {
+    const code = 'obj.if(ok) / a / b\nx.while(y) / c / d\nz?.for(w) / e / f\n'
+    expect(scoped(code, 'javascript').some(([, s]) => s === 'regexp')).toBeFalsy()
+  })
+
+  it('bash: scopes the name a declaration sets rather than reading it as an argument', () => {
+    const code = 'export API_KEY=$(cat key.txt)\nlocal -r name="x"\nreadonly X\n'
+    assertHas(code, 'bash', 'API_KEY', 'variable')
+    assertHas(code, 'bash', 'cat', 'function.call')
+    assertHas(code, 'bash', '-r', 'constant')
+    assertHas(code, 'bash', 'name', 'variable')
+    assertHas(code, 'bash', 'X', 'variable')
+    expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
   })
 })
