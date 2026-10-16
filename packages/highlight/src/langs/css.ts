@@ -22,6 +22,9 @@ const css: Grammar = {
         { include: 'strings' },
 
         { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
+        // An SCSS `$name:` or Less `@name:` definition takes a value, not a
+        // selector, so `red` in `$brand: red` is a color rather than a tag.
+        { include: 'variable-definition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         { match: `\\$${IDENT}`, scope: 'variable' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
@@ -46,6 +49,7 @@ const css: Grammar = {
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
         { match: ';', scope: 'punctuation.delimiter' },
         { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
+        { include: 'variable-definition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         {
           match: `(${IDENT})(\\s*)(:)`,
@@ -73,12 +77,16 @@ const css: Grammar = {
           match: '#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b',
           scope: 'number',
         },
+        // A custom property reads the same where it is used as where it is
+        // defined, so `var(--brand)` and `--brand: …` share the property color.
         {
           match: 'var\\(\\s*(--[\\w-]+)',
-          scope: ['variable'],
+          scope: ['property'],
           rest: 'function.builtin',
         },
-        { match: '--[\\w-]+', scope: 'variable' },
+        { match: '--[\\w-]+', scope: 'property' },
+        // SCSS `$brand` and Less `@brand` used in a value.
+        { match: `[$@]${IDENT}`, scope: 'variable' },
         // An unquoted `url(…)` is a string up to the `)`. Without its own state
         // the `//` in `url(https://…)` reads as an SCSS line comment and takes
         // the rest of the declaration with it.
@@ -112,6 +120,22 @@ const css: Grammar = {
         // of a long name, which is O(n) each.
         { match: IDENT, scope: 'constant' },
         { match: '[(),/<>=]', scope: 'punctuation' },
+      ],
+    },
+
+    'variable-definition': {
+      rules: [
+        {
+          match: `(\\$${IDENT})(\\s*)(:)`,
+          scope: ['variable', null, 'punctuation.delimiter'],
+          push: 'value',
+        },
+        // No space before the colon for Less, so `@page :first` stays an at-rule.
+        {
+          match: `(@${IDENT})(:)`,
+          scope: ['variable', 'punctuation.delimiter'],
+          push: 'value',
+        },
       ],
     },
 

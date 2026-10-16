@@ -904,7 +904,7 @@ describe('regressions from the TextMate comparison', () => {
 
   it('javascript: scopes functions assigned to a name, and capitalised calls as calls rather than types', () => {
     const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
-    assertHas(code, 'javascript', 'Card', 'function.call')
+    assertHas(code, 'javascript', 'Card', 'function')
     assertHas(code, 'javascript', 'App', 'function')
     assertHas(code, 'javascript', 'Foo', 'type')
     assertHas(code, 'javascript', 'Error', 'function.call')
@@ -1215,5 +1215,161 @@ describe('regressions from the TextMate comparison', () => {
     const code = 'const id = <T,>(x: T) => x\nconst f = <T extends string>(x: T): T => x\n'
     assertHas(code, 'typescript', 'id', 'function')
     assertHas(code, 'typescript', 'f', 'function')
+  })
+
+  it('css: gives a custom property the same scope where it is used as where it is defined', () => {
+    const code = '.a { --brand: #0af; color: var(--brand, red); margin: --gap; }\n'
+    expect(
+      scoped(code, 'css')
+        .filter(([t]) => t.startsWith('--'))
+        .map(([, s]) => s),
+    ).toEqual(['property', 'property', 'property'])
+  })
+
+  it('scss: reads a variable definition as a value and a variable reference whole', () => {
+    const code = '$brand: red;\n.a { $gap: 2px; color: $brand; margin: $gap; }\n'
+    assertHas(code, 'scss', '$brand', 'variable')
+    assertHas(code, 'scss', '$gap', 'variable')
+    assertHas(code, 'scss', 'red', 'constant')
+    expect(scoped(code, 'scss').some(([, s]) => s === 'tag')).toBeFalsy()
+    expect(scoped(code, 'scss').filter(([t]) => t === '$brand')).toHaveLength(2)
+  })
+
+  it('less: reads @name: as a variable but keeps @media and @page :first at-rules', () => {
+    const code = '@brand: red;\n.a { color: @brand; }\n@media screen { }\n@page :first { margin: 0 }\n'
+    expect(scoped(code, 'less').filter(([t]) => t === '@brand')).toEqual([
+      ['@brand', 'variable'],
+      ['@brand', 'variable'],
+    ])
+    assertHas(code, 'less', '@media', 'keyword')
+    assertHas(code, 'less', '@page', 'keyword')
+  })
+
+  it('swift: reads regex literals but leaves division alone', () => {
+    const code = 'let a = #/\\d+/#\nlet b = ##/x/#y/##\nlet c = /[a-z]+/\nif s.contains(/x+/) {}\nlet d = n / 2 / 3\n'
+    assertHas(code, 'swift', '#/\\d+/#', 'regexp')
+    assertHas(code, 'swift', '##/x/#y/##', 'regexp')
+    assertHas(code, 'swift', '/[a-z]+/', 'regexp')
+    assertHas(code, 'swift', '/x+/', 'regexp')
+    expect(scoped('let d = n / 2 / 3\n', 'swift').some(([, s]) => s === 'regexp')).toBeFalsy()
+  })
+
+  it('swift: reads the newer modifiers', () => {
+    const code = 'nonisolated func f(x: consuming Foo, y: borrowing Bar) {}\n'
+    assertHas(code, 'swift', 'nonisolated', 'keyword.declaration')
+    assertHas(code, 'swift', 'consuming', 'keyword.declaration')
+    assertHas(code, 'swift', 'borrowing', 'keyword.declaration')
+  })
+
+  it('diff: reads context and normal diffs', () => {
+    const code =
+      '*** a.txt\n--- b.txt\n***************\n*** 1,2 ****\n--- 1,3 ----\nIndex: f\n=====\n2c2\n< old\n---\n> new\n'
+    assertHas(code, 'diff', '*** a.txt', 'heading')
+    assertHas(code, 'diff', '***************', 'keyword')
+    assertHas(code, 'diff', '*** 1,2 ****', 'keyword')
+    assertHas(code, 'diff', '--- 1,3 ----', 'keyword')
+    assertHas(code, 'diff', 'Index: f', 'comment')
+    assertHas(code, 'diff', '=====', 'comment')
+    assertHas(code, 'diff', '2c2', 'keyword')
+    assertHas(code, 'diff', '< old', 'diff.minus')
+    assertHas(code, 'diff', '> new', 'diff.plus')
+  })
+
+  it('ruby: reads a method called without parentheses as a call', () => {
+    const code = 'puts list.length\nlist.map { |v| v.to_s }.join\nuser&.name\np total\np = 1\n'
+    assertHas(code, 'ruby', 'length', 'function.method')
+    assertHas(code, 'ruby', 'to_s', 'function.method')
+    assertHas(code, 'ruby', 'join', 'function.method')
+    assertHas(code, 'ruby', 'name', 'function.method')
+    expect(
+      scoped(code, 'ruby')
+        .filter(([t]) => t === 'p')
+        .map(([, s]) => s),
+    ).toEqual(['function.builtin'])
+  })
+
+  it('go: reads a package-qualified type where a type goes, and a value elsewhere', () => {
+    const code =
+      'func h(w http.ResponseWriter, r *http.Request) http.Handler {\n\treturn http.StatusOK\n}\nvar c = &http.Client{}\nd := 2*time.Second\nfunc TestX(t *testing.T) {}\n'
+    for (const type of ['ResponseWriter', 'Request', 'Handler', 'Client', 'T']) {
+      assertHas(code, 'go', type, 'type')
+    }
+    assertHas(code, 'go', 'StatusOK', 'variable.member')
+    assertHas(code, 'go', 'Second', 'variable.member')
+  })
+
+  it('nginx: reads the values nginx defines and the name of an upstream', () => {
+    const code =
+      'error_log logs/error.log warn;\nevents { use epoll; }\nrewrite ^/a /b permanent;\nupstream docs_backend {\n  server a:1;\n}\n'
+    assertHas(code, 'nginx', 'warn', 'constant.builtin')
+    assertHas(code, 'nginx', 'epoll', 'constant.builtin')
+    assertHas(code, 'nginx', 'permanent', 'keyword')
+    assertHas(code, 'nginx', 'docs_backend', 'type')
+    expect(scoped(code, 'nginx').some(([t]) => t === 'error')).toBeFalsy()
+  })
+
+  it('haskell: reads the names in an import list', () => {
+    const code =
+      'import Data.List (unfoldr, intercalate)\nimport Control.Applicative ((<|>), Alternative(..))\nimport Data.Text\n  ( pack\n  , Text\n  )\nmain = print 1\n'
+    assertHas(code, 'haskell', 'unfoldr', 'function')
+    assertHas(code, 'haskell', 'intercalate', 'function')
+    assertHas(code, 'haskell', '<|>', 'operator')
+    assertHas(code, 'haskell', 'Alternative', 'type')
+    assertHas(code, 'haskell', 'pack', 'function')
+    assertHas(code, 'haskell', 'Text', 'type')
+    assertHas(code, 'haskell', 'main', 'function')
+  })
+
+  it('kotlin: reads package and import paths, and the newer modifiers', () => {
+    const code =
+      'package com.example.shop\nimport java.util.*\ntailrec fun f() {}\nvalue class A(val x: Int)\nval value = 1\n'
+    assertHas(code, 'kotlin', 'com.example.shop', 'namespace')
+    assertHas(code, 'kotlin', 'java.util.*', 'namespace')
+    assertHas(code, 'kotlin', 'tailrec', 'keyword.declaration')
+    expect(
+      scoped(code, 'kotlin')
+        .filter(([t]) => t === 'value')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.declaration', 'variable'])
+  })
+
+  it('cpp: reads a call with explicit template arguments as a call', () => {
+    const code = 'auto a = std::any_cast<int>(x);\nauto b = std::get<std::vector<int>>(t);\nstd::vector<int> v(3);\n'
+    assertHas(code, 'cpp', 'any_cast', 'function.call')
+    assertHas(code, 'cpp', 'get', 'function.call')
+    expect(scopeOf(code, 'cpp', 'vector')).not.toBe('function.call')
+  })
+
+  it('javascript: reads import attributes', () => {
+    const code = "import data from './x.json' with { type: 'json' }\nconst o = { with: 1 }\n"
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'with')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.import', 'property'])
+  })
+
+  it('typescript: reads the names in a parameter list as parameters', () => {
+    const code = [
+      'function f(a, b: string, { c, d: e }) {}',
+      'const g = async <T,>({ x }: Props<T>, ...rest: T[]): Promise<void> => {}',
+      'function* gen(m: Map<K, V> = new Map(), n = [1, 2]) {}',
+      'list.map((item) => item)',
+      'foo(a, b => c)',
+      'class P { constructor(private readonly svc: Service) {} }',
+      '',
+    ].join('\n')
+    for (const name of ['a', 'b', 'c', 'e', 'x', 'rest', 'm', 'n', 'item']) {
+      assertHas(code, 'typescript', name, 'variable.parameter')
+    }
+    assertHas(code, 'typescript', 'f', 'function')
+    assertHas(code, 'typescript', 'd', 'property')
+    assertHas(code, 'typescript', 'K', 'type')
+    assertHas(code, 'typescript', 'V', 'type')
+    assertHas(code, 'typescript', 'private', 'keyword.declaration')
+    // A call's arguments are not parameters, even next to an arrow function.
+    expect(
+      scoped('foo(a, b => c)\n', 'typescript').some(([t, s]) => t === 'a' && s === 'variable.parameter'),
+    ).toBeFalsy()
   })
 })

@@ -55,6 +55,22 @@ const go: Grammar = {
           scope: 'type.builtin',
         },
 
+        // A package-qualified type, `http.Request`, where a type goes: after a
+        // name (`w http.ResponseWriter`, `var c http.Client`), a pointer star
+        // that is not a multiplication (`*http.Request`, but not
+        // `2*time.Second`), a closing `]` or `)` (`[]http.Header`,
+        // `func() http.Handler`), a type assertion's `.(`, or in front of a
+        // composite literal's `{`. A keyword in front makes it a value instead:
+        // `return http.StatusOK`, `case http.MethodGet:`.
+        //
+        // The context is checked last, looking back from the end of the match,
+        // so the rule fails on the `.` test at nearly every identifier before
+        // it ever looks behind.
+        {
+          match:
+            '\\b([a-z]\\w*)(\\.)([A-Z]\\w*)\\b(?![ \\t]*\\()(?:(?=\\{)|(?<=(?:(?<![\\w)\\]])\\*|\\]|\\.\\(|\\)[ \\t]+|\\b(?!(?:return|case|go|defer|if|else|for|range|switch|select|goto|break|continue)\\b)[A-Za-z_]\\w*[ \\t]+)[a-z]\\w*\\.[A-Z]\\w*))',
+          scope: [null, 'punctuation', 'type'],
+        },
         {
           match: '(\\.)([A-Za-z_]\\w*)(?=\\s*\\()',
           scope: ['punctuation', 'function.method'],
