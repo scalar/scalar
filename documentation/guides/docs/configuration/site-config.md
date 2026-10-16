@@ -246,6 +246,7 @@ The `layout` property controls global layout options that apply to all pages unl
       "pageActions": true,
       "pageNav": true,
       "lastUpdated": false,
+      "feedback": false,
       "search": {
         "enabled": true,
         "position": "header"
@@ -265,6 +266,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
 | `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
 | `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
+| `feedback`    | `boolean` | `false`  | Whether to ask readers if each page was helpful, between the last updated date and the previous and next links. See [Page feedback](#page-feedback) |
 | `search`      | `object`  | —        | Search bar configuration                       |
 
 ### Last updated date
@@ -272,6 +274,14 @@ The `layout` property controls global layout options that apply to all pages unl
 Scalar records the date for you, so there is no field to set it by hand. Each time you publish, Scalar compares every page's content with the previous publish, and the date moves forward only for pages whose content changed. Your first publish dates every page to that day.
 
 Previews do not have a publish history, so they show the current date.
+
+### Page feedback
+
+Page feedback is off unless you turn it on, because it puts a question at the foot of every page it covers. Readers answer with a thumbs up or down, then can pick a reason from a short list.
+
+Set `feedback` here to ask on every page, or on a single page with its own [layout options](navigation.md#layout-options). A page's own value wins in either direction, so you can turn it on site-wide and off for one page, or the other way around.
+
+Votes appear in the editor under **Settings → Analytics**, in a **Page feedback** panel that shows once `feedback` is on for any page. The widget never appears in a preview, or while [analytics is turned off](../privacy.md#turn-off-analytics) for the project, since there is nowhere to record the vote.
 
 ### Search Configuration
 
