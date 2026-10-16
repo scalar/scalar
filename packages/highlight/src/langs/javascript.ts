@@ -72,10 +72,10 @@ const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
 /**
  * What follows a name that is assigned a function: `= () =>`, `= async x =>`,
- * `= function`. The parameter list cannot nest parentheses, which covers real
- * code and keeps the scan bounded.
+ * `= function`, and the generic `= <T,>(x: T) =>`. The parameter list cannot
+ * nest parentheses, which covers real code and keeps the scan bounded.
  */
-const ASSIGNS_FUNCTION = `[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>)`
+const ASSIGNS_FUNCTION = `[ \\t]*=[ \\t]*(?:async[ \\t]*)?(?:function\\b|(?:<[^<>()=]{0,128}>[ \\t]*)?\\([^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>|${ID}[ \\t]*=>)`
 
 /** Body of a regex literal: no unescaped `/`, character classes may hold one. */
 const REGEX = '/(?![/*])(?:[^/\\\\\\n\\[]|\\\\.|\\[(?:[^\\]\\\\\\n]|\\\\.)*\\])+/[dgimsuvy]*'
@@ -161,6 +161,21 @@ const javascript: Grammar = {
         // rule here: a rule that has to look back at `const` runs at every
         // identifier in the file, while the state only runs after the keyword.
         { match: '\\b(?:const|let|var)\\b', scope: 'keyword.declaration', push: 'declared-name' },
+        // A parameter list reads its names as parameters: after `function` and
+        // its optional name, or before the `=>` of an arrow function. The arrow
+        // lookahead cannot see past nested parentheses, so a list holding a
+        // call in a default value or a function type keeps reading as plain
+        // code, which is what every list did before.
+        {
+          match: `(\\bfunction\\b)([ \\t]*\\*?[ \\t]*)(?:(${ID})([ \\t]*))?(\\()`,
+          scope: ['keyword.declaration', null, 'function', null, 'punctuation.bracket'],
+          push: 'params',
+        },
+        {
+          match: '\\((?=[^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>)',
+          scope: 'punctuation.bracket',
+          push: 'params',
+        },
         {
           match: `\\b(?:function|class|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get(?!\\()|set(?!\\()|type(?!\\())\\b${NOT_KEY}`,
           scope: 'keyword.declaration',
@@ -169,6 +184,8 @@ const javascript: Grammar = {
           match: `\\b(?:import|export|from(?!\\()|require)\\b${NOT_KEY}`,
           scope: 'keyword.import',
         },
+        // Import attributes: `import data from './x.json' with { type: 'json' }`.
+        { match: '\\bwith(?=[ \\t]*\\{)', scope: 'keyword.import' },
         {
           match: `\\b(?:typeof|instanceof|in|of(?!\\()|new|delete(?!\\()|void|satisfies|keyof|infer|asserts|as)\\b${NOT_KEY}`,
           scope: 'keyword.operator',
@@ -224,6 +241,98 @@ const javascript: Grammar = {
         { match: `${ID}(?=${ASSIGNS_FUNCTION})`, scope: 'function', pop: true },
         { match: ID, scope: 'variable', pop: true },
         { match: '(?=\\S)', pop: true },
+      ],
+    },
+
+    // ---- parameter lists -----------------------------------------------------
+    /** After the `(` of a parameter list, up to the `)` that closes it. */
+    params: {
+      rules: [{ match: '\\)', scope: 'punctuation.bracket', pop: true }, { include: 'param-pattern' }],
+    },
+    /**
+     * What a parameter can be: a name, a destructuring pattern, a rest
+     * element, and after it a TypeScript annotation or a default value.
+     */
+    'param-pattern': {
+      rules: [
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
+        { match: '//[^\\n]*', scope: 'comment' },
+        { match: ':', scope: 'punctuation.delimiter', push: 'param-type' },
+        { match: '=(?!>)', scope: 'operator', push: 'param-default' },
+        { match: '\\{', scope: 'punctuation.bracket', push: 'param-object' },
+        { match: '\\[', scope: 'punctuation.bracket', push: 'param-object' },
+        { match: '\\.{3}|\\?', scope: 'operator' },
+        { match: '\\bthis\\b', scope: 'variable.builtin' },
+        // A constructor's parameter properties: `constructor(private x: X)`.
+        {
+          match: '\\b(?:public|private|protected|readonly|override)\\b(?=[ \\t]+[\\w$\\[{])',
+          scope: 'keyword.declaration',
+        },
+        { match: `@${ID}`, scope: 'decorator' },
+        { match: ID, scope: 'variable.parameter' },
+        { match: ',', scope: 'punctuation.delimiter' },
+      ],
+    },
+    /**
+     * `{ a, b: renamed, c = 1, ...rest }` and `[first, , last]`: the key before
+     * a `:` is not bound. One state serves both, since an array pattern has no
+     * keys for the rename rule to find.
+     */
+    'param-object': {
+      rules: [
+        { match: '[}\\]]', scope: 'punctuation.bracket', pop: true },
+        {
+          match: `(${ID})([ \\t]*)(:)`,
+          scope: ['property', null, 'punctuation.delimiter'],
+        },
+        { include: 'param-pattern' },
+      ],
+    },
+    /**
+     * A parameter's type, up to the `,`, `)` or `=` that ends it. Brackets
+     * nest so the commas in `Map<K, V>` and `{ a: A, b: B }` stay inside.
+     */
+    'param-type': {
+      rules: [
+        { match: '(?=[,)}\\]]|=(?!>))', pop: true },
+        { match: '<', scope: 'punctuation.bracket', push: 'type-angle' },
+        { include: 'nesting' },
+        { include: 'expression' },
+      ],
+    },
+    'type-angle': {
+      rules: [
+        { match: '=>', scope: 'operator' },
+        { match: '>', scope: 'punctuation.bracket', pop: true },
+        { match: '<', scope: 'punctuation.bracket', push: 'type-angle' },
+        { include: 'nesting' },
+        { include: 'expression' },
+      ],
+    },
+    /** A default value, up to the `,` or closing bracket that ends it. */
+    'param-default': {
+      rules: [{ match: '(?=[,)}\\]])', pop: true }, { include: 'nesting' }, { include: 'expression' }],
+    },
+    /** Bracket depth, so a comma inside a nested call or literal stays nested. */
+    nesting: {
+      rules: [
+        { match: '\\(', scope: 'punctuation.bracket', push: 'paren' },
+        { match: '\\{', scope: 'punctuation.bracket', push: 'brace' },
+        { match: '\\[', scope: 'punctuation.bracket', push: 'bracket' },
+      ],
+    },
+    paren: {
+      rules: [
+        { match: '\\)', scope: 'punctuation.bracket', pop: true },
+        { include: 'nesting' },
+        { include: 'expression' },
+      ],
+    },
+    bracket: {
+      rules: [
+        { match: '\\]', scope: 'punctuation.bracket', pop: true },
+        { include: 'nesting' },
+        { include: 'expression' },
       ],
     },
 

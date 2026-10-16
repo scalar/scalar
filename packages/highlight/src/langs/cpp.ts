@@ -290,6 +290,14 @@ const cpp: Grammar = {
         // Before the constant and type rules, so a SCREAMING_CASE macro used as
         // `CLAMP(x, 0, 9)` reads as the call it expands to.
         { match: `\\b${ID}(?=[ \\t]*\\()`, scope: 'function.call' },
+        // A call with explicit template arguments: `any_cast<int>(x)`,
+        // `get<std::vector<int>>(t)`. One level of nesting covers real code and
+        // keeps the scan bounded; `std::vector<int> v(3)` has a name between
+        // the `>` and the `(`, so it stays a declaration.
+        {
+          match: `\\b${ID}(?=<[^<>;(){}\\n]{0,80}(?:<[^<>;(){}\\n]{0,80}>[^<>;(){}\\n]{0,40})?>[ \\t]*\\()`,
+          scope: 'function.call',
+        },
 
         // SCREAMING_CASE is a macro or an enumerator; `_t` and CapWords are the
         // two ways a C++ codebase spells a type.

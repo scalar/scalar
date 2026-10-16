@@ -135,7 +135,8 @@ export type CompiledRule = {
   captures: (ScopeName | null)[] | null
   /**
    * This rule alone, sticky and with `hasIndices`, used to locate its capture
-   * groups after the merged regex has already picked it.
+   * groups — and to read the one it remembers — after the merged regex has
+   * already picked it. The merged regex does not capture them at all.
    *
    * Asking the merged regex for indices would make every match in the state
    * pay to have offsets computed for every group of every rule; re-running one
@@ -148,7 +149,7 @@ export type CompiledRule = {
   push: string | null
   set: string | null
   pop: number
-  /** Capture group to remember, as an offset from `group`; `0` for none. */
+  /** Capture group of `own` to remember, 1-based; `0` for none. */
   remember: number
   rememberIndent: boolean
 }

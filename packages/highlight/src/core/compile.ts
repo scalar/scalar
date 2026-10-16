@@ -10,7 +10,8 @@ import { REMEMBERED } from './types'
  * is skipped inside the regex engine rather than by a JS loop.
  *
  * Each rule is wrapped in its own group so that, after a match, we can tell
- * which alternative won by finding the first defined wrapper group.
+ * which alternative won by finding the first defined wrapper group. That
+ * wrapper is the only group that captures; see `uncapture`.
  */
 
 const BACKREF = /\\(?:[1-9]|k<)/
@@ -49,6 +50,45 @@ const countGroups = (src: string): number => {
     }
   }
   return count
+}
+
+/**
+ * Turns every capture group in a pattern into a non-capturing one.
+ *
+ * Only the wrapper group around each rule has to capture in the merged regex,
+ * to say which rule won. A rule's own groups are read back from its sticky
+ * `own` pattern, so in the merged regex they would only cost: V8 keeps the
+ * match offsets of up to 63 groups in a preallocated buffer and allocates a
+ * fresh one on every `exec` past that, which is a fifth of the throughput of
+ * a large state such as JavaScript's.
+ */
+const uncapture = (src: string): string => {
+  let out = ''
+  let inClass = false
+  for (let i = 0; i < src.length; i++) {
+    const c = src[i]!
+    if (c === '\\') {
+      out += c + (src[i + 1] ?? '')
+      i++
+    } else if (inClass) {
+      inClass = c !== ']'
+      out += c
+    } else if (c === '[') {
+      inClass = true
+      out += c
+    } else if (c !== '(') {
+      out += c
+    } else if (src[i + 1] !== '?') {
+      out += '(?:'
+    } else if (src[i + 2] === '<' && src[i + 3] !== '=' && src[i + 3] !== '!' && src.includes('>', i)) {
+      // `(?<name>` — drop the name along with the capture.
+      i = src.indexOf('>', i)
+      out += '(?:'
+    } else {
+      out += c
+    }
+  }
+  return out
 }
 
 const patternSource = (match: string | RegExp): string => {
@@ -183,7 +223,7 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
       captures,
       // Sticky, so it can be re-run at the position the merged regex chose.
       // A pattern that depends on the remembered text is built per value.
-      own: captures && !usesMemory ? new RegExp(src, `ymd${caseFlag}`) : null,
+      own: (captures || rule.remember) && !usesMemory ? new RegExp(src, `ymd${caseFlag}`) : null,
       rest: rule.rest ?? null,
       group,
       push: rule.push ?? null,
@@ -192,9 +232,9 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
       remember: rule.remember ?? 0,
       rememberIndent: rule.rememberAs === 'indent',
     })
-    ownSources.push(captures && usesMemory ? src : null)
-    sources.push(`(${src})`)
-    group += 1 + inner
+    ownSources.push((captures || rule.remember) && usesMemory ? src : null)
+    sources.push(`(${uncapture(src)})`)
+    group += 1
   }
 
   // `m` so grammars can anchor to lines. Deliberately no `d`: offsets are

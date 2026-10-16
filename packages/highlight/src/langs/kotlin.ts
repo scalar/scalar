@@ -97,8 +97,15 @@ const kotlin: Grammar = {
         },
         {
           match:
-            '\\b(?:fun|val|var|class|interface|object|typealias|const(?:ructor)?|init|companion|enum|data|sealed|annotation|inner|open|override|abstract|final|private|protected|public|internal|lateinit|(?:no|cross)?inline|reified|vararg|suspend|operator|infix|actual|expect|by|where|get|set|out)\\b',
+            '\\b(?:fun|val|var|class|interface|object|typealias|const(?:ructor)?|init|companion|enum|data|sealed|annotation|inner|open|override|abstract|final|private|protected|public|internal|lateinit|(?:no|cross)?inline|reified|vararg|suspend|operator|infix|actual|expect|by|where|get|set|out|tailrec|external)\\b',
           scope: 'keyword.declaration',
+        },
+        // `value` is a modifier only in front of `class`; anywhere else it is
+        // one of the most common names there is.
+        { match: '\\bvalue(?=\\s+class\\b)', scope: 'keyword.declaration' },
+        {
+          match: '\\b(package|import)(\\s+)([A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*(?:\\.\\*)?)',
+          scope: ['keyword.import', null, 'namespace'],
         },
         { match: '\\b(?:package|import)\\b', scope: 'keyword.import' },
         // `as?` cannot use a trailing `\b`: the boundary after `?` needs a word

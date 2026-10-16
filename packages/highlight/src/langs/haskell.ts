@@ -108,6 +108,7 @@ const haskell: Grammar = {
         {
           match: `${START}(import)([ \\t]+)(?:(qualified)([ \\t]+))?(${MODULE})`,
           scope: ['keyword.import', null, 'keyword', null, 'namespace'],
+          push: 'import-tail',
         },
         // `as` is a keyword only in an import, and `as` is a common name for a
         // list elsewhere — requiring a module name after it is what keeps
@@ -324,6 +325,38 @@ const haskell: Grammar = {
     },
 
     /** A module export list: types and names, ending at the header's `where`. */
+    /**
+     * What follows the module name of an import: `qualified`, `as M`, `hiding`
+     * and the list of names. Ends at the first line break not followed by
+     * indentation, so a list laid out over several indented lines stays inside.
+     */
+    'import-tail': {
+      rules: [
+        { match: '(?=\\n(?![ \\t]))', pop: true },
+        { include: 'comments' },
+        {
+          match: `${START}(as)([ \\t]+)(${MODULE})`,
+          scope: ['keyword', null, 'namespace'],
+        },
+        { match: `${START}(?:hiding|qualified)${END}`, scope: 'keyword' },
+        { match: '\\(', scope: 'punctuation.bracket', push: 'import-names' },
+      ],
+    },
+    /** `(unfoldr, Map, Maybe(..), (<|>))`: functions, types and operators. */
+    'import-names': {
+      rules: [
+        { match: '\\)', scope: 'punctuation.bracket', pop: true },
+        { match: '\\(', scope: 'punctuation.bracket', push: 'import-names' },
+        { include: 'comments' },
+        { match: `${START}(?:type|pattern)${END}`, scope: 'keyword' },
+        { match: UID, scope: 'type' },
+        { match: LID, scope: 'function' },
+        { match: ',', scope: 'punctuation.delimiter' },
+        { match: '\\.\\.', scope: 'punctuation' },
+        { match: `[${SYM}]+`, scope: 'operator' },
+      ],
+    },
+
     exports: {
       rules: [
         {
