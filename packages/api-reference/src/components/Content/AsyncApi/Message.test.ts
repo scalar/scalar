@@ -412,6 +412,49 @@ describe('Message', () => {
     expect(wrapper.get('pre').text()).toBe('{\n  "id": "event-123"\n}')
   })
 
+  it.each([
+    { title: 'User signed up', name: 'UserSignup' },
+    { summary: 'User signed up', name: 'UserSignup' },
+    { title: 'User signed up', traits: [{ name: 'UserSignup' }] },
+    {
+      title: 'User signed up',
+      traits: [{ $ref: '#/components/messageTraits/signup', '$ref-value': { name: 'UserSignup' } }],
+    },
+    { title: 'User signed up', name: 'UserSignup', traits: [{ name: 'InheritedName' }] },
+  ])('preserves the authored name alongside the heading: %j', async (message) => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ ...message, description: 'Emitted on signup.' }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('User signed up')
+    expect(wrapper.text()).toContain('Name: UserSignup')
+    expect(wrapper.text()).not.toContain('Name: userSignedUp')
+    expect(wrapper.text()).not.toContain('InheritedName')
+    expect(wrapper.text()).not.toContain('Emitted on signup.')
+
+    await wrapper.get('button[aria-expanded]').trigger('click')
+
+    expect(wrapper.text()).toContain('Name: UserSignup')
+    expect(wrapper.text()).toContain('Emitted on signup.')
+  })
+
+  it.each([undefined, '', '   '])('omits name metadata when the authored name is %j', (name) => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage({ title: 'userSignedUp' }),
+        document: createDocument({ name }),
+        eventBus: null,
+      },
+    })
+
+    expect(wrapper.text()).toContain('userSignedUp')
+    expect(wrapper.text()).not.toContain('Name:')
+  })
+
   it('renders the message title in the collapsed header', () => {
     const wrapper = mount(Message, {
       props: {
