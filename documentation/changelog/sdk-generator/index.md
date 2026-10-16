@@ -8,6 +8,30 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.36.7 (2026-10-16)
+
+### Operations can now route to their own server URLs
+
+This release adds support for operations that declare their own server URLs in the OpenAPI document. Generated SDKs now send these operations to their declared hosts instead of the client base URL, while preserving environment selection and proxy support. The C++ target gets async clients, streaming, webhooks, and code samples.
+
+- Operations with their own `servers` configuration now route to those hosts across all targets (TypeScript, C#, Go, Java, Kotlin, PHP, Python, Ruby, Rust, Swift), letting SDKs work with APIs that host different endpoints on different domains.
+- C++ SDKs now generate an async client with methods that return futures or accept callbacks, alongside streaming support for Server-Sent Events and JSON Lines responses.
+- C++ SDKs verify and decode webhook deliveries with Standard Webhooks signature schemes, plus ship code samples, a smoke harness, and build much faster on large APIs.
+- Enum members renamed through `x-stainless-renameMap` or `x-fern-enum` now use those names in C#, Java, Kotlin, PHP and Ruby instead of deriving names from wire values.
+- Generated documentation improvements include operation-specific API reference sections, better deprecation messages from `x-stainless-deprecation-message`, and repository links in package READMEs.
+
+## 0.36.6 (2026-10-15)
+
+### Expanded C++ and Dart SDKs, refined authentication and pagination
+
+This release brings substantial progress to the experimental C++ and Dart targets, with generated clients, models and runtime components now available. C# SDKs receive refinements to union naming, credential handling and code samples, while TypeScript SDKs gain server variable options and bigint support for 64-bit integers.
+
+- C++ SDKs now generate a complete client over libcurl with typed models, paginated operations and credential support.
+- Dart SDKs now ship a client, models, resources, pagination, webhook helpers and formatted code samples.
+- C# union arms that extend a component now take descriptive names such as `ThingNodeWithType` instead of positional ones.
+- TypeScript SDKs accept client options for server variables, so a tenant in the host is set with `new Client({ site: 'acme' })` instead of a hand-built `baseURL`.
+- Webhook helpers configured with `webhookKeyOpt: false` no longer emit signature verification when no verifying helper shares their events.
+
 ## 0.36.5 (2026-10-09)
 
 ### OAuth token revocation, resource indicators, and query parameter fixes

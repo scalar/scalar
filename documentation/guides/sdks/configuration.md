@@ -94,9 +94,9 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 | Property | Description |
 | --- | --- |
 | `name`* | Organization or company publishing the SDKs. Used as the author of generated packages and as the name the SDK and its client are derived from. |
-| `docs` | URL of the API documentation site, linked from generated package metadata. |
-| `contact` | Email address for SDK feedback, questions, and support requests, surfaced in generated package metadata. |
-| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. Every target generates one, and each sends reports about the generated SDK code itself to Scalar instead, whether or not this is set. |
+| `docs` | URL of the API documentation site, linked from generated package metadata and from the generated README. |
+| `contact` | Email address for SDK feedback, questions, and support requests, surfaced in generated package metadata. Also where the generated security policy sends API vulnerability reports when `securityContact` is unset. |
+| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. When unset, the policy names `contact` instead. Every target generates one, and each sends reports about the generated SDK code itself to Scalar instead, whether or not this is set. |
 | `logo` | Logo shown at the top of the page the generated CLI serves when a browser sign-in finishes: an `https` URL, or a `data:image/...` URI to keep the page from fetching anything. The page follows the viewer's light or dark mode, so use a logo that reads on both a white and a near-black background. Omit it and the page shows no logo, since generated SDKs carry no branding but the publisher's own. |
 
 ### resources
