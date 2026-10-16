@@ -31,15 +31,23 @@ const NAME = `\\\\?${ID}(?:\\\\${ID})*`
 /** An HTML tag or attribute name, for the inline-markup mode. */
 const TAG = '[A-Za-z_][\\w:.-]*'
 
+/**
+ * PHP strings and comments own their delimiters: a quoted `?>` cannot end
+ * the region, and a quoted `</script>` cannot end its surrounding embed.
+ * Each alternative consumes a distinct prefix so unclosed regions stay linear.
+ */
+const PHP_REGION = String.raw`<\?(?:php\b|=)(?:"(?:\\[\s\S]|[^"\\])*(?:"|(?![\s\S]))|'(?:\\[\s\S]|[^'\\])*(?:'|(?![\s\S]))|/\*[^*]*(?:\*(?!/)[^*]*)*(?:\*/|(?![\s\S]))|(?:\/\/|#(?!\[))(?:(?!\?>)[^\n])*|[^"'/?#]|/(?![/*])|\?(?!>)|#(?=\[))*(?:\?>|(?![\s\S]))`
+
 const php: Grammar = {
   name: 'php',
   aliases: ['php3', 'php4', 'php5', 'php8'],
   states: {
     // ---- inline markup -----------------------------------------------------
-    // Outside `<?php … ?>` a PHP file is HTML. It is scoped rather than
-    // highlighted with the HTML grammar — cross-language embedding is not a
-    // thing the engine does yet — so this covers tags, attributes and comments
-    // and stops there.
+    // Outside `<?php … ?>` a PHP file is HTML. It is scoped here rather than
+    // handed to the HTML grammar, because a PHP region can open anywhere in
+    // it — inside a tag, inside an attribute value — and an embedded grammar
+    // cut off there would lose its place. Only `<script>` and `<style>` bodies,
+    // where nothing else in the markup applies, are handed to their languages.
     // Picks the starting mode and is never seen again: input that opens with
     // markup is a template, anything else is code without its `<?php`. Both
     // rules are zero-width, so the first token is tokenized by the mode chosen.
@@ -55,12 +63,45 @@ const php: Grammar = {
       rules: [
         { match: '<\\?(?:php\\b|=)', scope: 'tag', push: 'php' },
         { match: '<!--', scope: 'comment', push: 'html-comment' },
+        { match: '(<)(script)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'script-tag' },
+        { match: '(<)(style)(?=[\\s/>])', scope: ['punctuation.bracket', 'tag'], push: 'style-tag' },
         {
           match: `(</?)(${TAG})`,
           scope: ['punctuation.bracket', 'tag'],
           push: 'html-tag',
         },
       ],
+    },
+
+    // `<script>` and `<style>` bodies are JavaScript and CSS, when those are
+    // registered. A PHP region inside one is a hole: the embedded language
+    // reads straight across it, so `"<?= $name ?>"` stays inside its string,
+    // and the region itself is tokenized as PHP.
+    'script-tag': {
+      ignoreCase: true,
+      rules: [
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        { match: '>', scope: 'punctuation.bracket', set: 'script-body' },
+        { include: 'html-tag' },
+      ],
+    },
+    'script-body': {
+      ignoreCase: true,
+      embed: { language: 'javascript', until: '</script(?=[\\s/>])', holes: PHP_REGION },
+      rules: [],
+    },
+    'style-tag': {
+      ignoreCase: true,
+      rules: [
+        { match: '/>', scope: 'punctuation.bracket', pop: true },
+        { match: '>', scope: 'punctuation.bracket', set: 'style-body' },
+        { include: 'html-tag' },
+      ],
+    },
+    'style-body': {
+      ignoreCase: true,
+      embed: { language: 'css', until: '</style(?=[\\s/>])', holes: PHP_REGION },
+      rules: [],
     },
 
     /** Markup and PHP block comments. Neither form nests. */

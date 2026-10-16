@@ -9,6 +9,9 @@ import type { Grammar } from '../core/types'
  */
 const IDENT = '-{0,2}[A-Za-z_\\u0080-\\uFFFF][\\w-\\u0080-\\uFFFF]*'
 
+/** At-rules followed by a condition rather than by a selector or a name. */
+const AT_CONDITION = '@(?:media|supports|container|import)\\b'
+
 const css: Grammar = {
   name: 'css',
   aliases: ['scss', 'less'],
@@ -18,6 +21,7 @@ const css: Grammar = {
         { include: 'comments' },
         { include: 'strings' },
 
+        { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         { match: `\\$${IDENT}`, scope: 'variable' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
@@ -41,6 +45,7 @@ const css: Grammar = {
         // A nested rule (SCSS, or a media query body) gets its own scope.
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
         { match: ';', scope: 'punctuation.delimiter' },
+        { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         {
           match: `(${IDENT})(\\s*)(:)`,
@@ -77,6 +82,41 @@ const css: Grammar = {
         // An unquoted `url(…)` is a string up to the `)`. Without its own state
         // the `//` in `url(https://…)` reads as an SCSS line comment and takes
         // the rest of the declaration with it.
+        { include: 'value-tokens' },
+        { match: '\\b[a-zA-Z-]+\\b', scope: 'constant' },
+        { match: '[(),/]', scope: 'punctuation' },
+        { match: ';', scope: 'punctuation.delimiter', pop: true },
+      ],
+    },
+
+    /**
+     * The condition of `@media`, `@supports`, `@container` or `@import`, up to
+     * the `{` or `;` that ends it: `screen and (min-width: 600px)`. Media
+     * features read as properties and their values as values, and the words
+     * between them as keywords.
+     */
+    condition: {
+      rules: [
+        { match: '(?=[{;}])', pop: true },
+        { include: 'comments' },
+        { include: 'strings' },
+        { match: '\\b(?:and|or|not|only)\\b', scope: 'keyword' },
+        {
+          match: `(${IDENT})(\\s*)(:)`,
+          scope: ['property', null, 'punctuation.delimiter'],
+        },
+        { include: 'value-tokens' },
+        { match: `\\$${IDENT}`, scope: 'variable' },
+        // A whole identifier, underscores included, so the feature rule above
+        // is not retried — and failed for want of a colon — at every position
+        // of a long name, which is O(n) each.
+        { match: IDENT, scope: 'constant' },
+        { match: '[(),/<>=]', scope: 'punctuation' },
+      ],
+    },
+
+    'value-tokens': {
+      rules: [
         {
           match: '\\b(url)(\\()(?=[ \\t]*[^\\s"\'])',
           scope: ['function.builtin', 'punctuation'],
@@ -87,9 +127,6 @@ const css: Grammar = {
           match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
           scope: ['number', 'unit'],
         },
-        { match: '\\b[a-zA-Z-]+\\b', scope: 'constant' },
-        { match: '[(),/]', scope: 'punctuation' },
-        { match: ';', scope: 'punctuation.delimiter', pop: true },
       ],
     },
 

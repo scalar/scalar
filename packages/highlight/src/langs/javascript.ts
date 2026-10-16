@@ -60,6 +60,13 @@ const BEFORE_JSX = '(?:^|[=(,?:{\\[;!&|]|=>|\\breturn|\\byield|\\bdefault|\\bawa
 const NOT_TS_AFTER =
   '(?!>[ \\t]*\\()(?!\\s+(?:extends\\b|=))(?!>(?![ \\t]*$)(?![^\\n]{0,512}(?:<\\/|(?<![\\w$)\\]])<[A-Za-z>])))'
 
+/**
+ * Ends a keyword rule: the word is not followed by the `:` of an object key or
+ * a type member. Checked only after a keyword has matched, so it costs nothing
+ * on ordinary identifiers.
+ */
+const NOT_KEY = '(?!\\??:)'
+
 /** A JSX tag name: a component, a member expression, or a lowercase element. */
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
@@ -113,21 +120,38 @@ const javascript: Grammar = {
         { match: `(@)(${ID}(?:\\.${ID})*)`, scope: ['decorator', 'decorator'] },
 
         {
-          match: `(\\.)([ \\t]*)(${ID})(?=[ \\t]*\\()`,
+          match: `(\\.)([ \\t]*)(#?${ID})(?=[ \\t]*\\()`,
           scope: ['punctuation', null, 'function.method'],
         },
         {
-          match: `(\\?\\.|\\.)([ \\t]*)(${ID})`,
+          match: `(\\?\\.|\\.)([ \\t]*)(#?${ID})`,
           scope: ['punctuation', null, 'variable.member'],
         },
+        // A private field or method where it is declared, or `#x in obj`.
+        { match: `#${ID}`, scope: 'variable.member' },
 
         // `handler = function …` and `this.run = () => …` name a function as
         // surely as a declaration does.
         { match: `\\b${ID}(?=${ASSIGNS_FUNCTION})`, scope: 'function' },
 
+        // A keyword followed by `:` is an object key or a property in a type —
+        // `{ type: 'object' }`, `{ from: start, to: end }` — so each keyword
+        // rule ends with `NOT_KEY` and the word falls through to the property
+        // rule. `default:` needs telling apart: in a `switch` it is followed by
+        // a statement or nothing, as an object key by a value. A braced block
+        // after it reads as a key, since `responses: { default: { … } }` is the
+        // commoner of the two in API code.
+        //
+        // The contextual keywords that are also common method names (`get`,
+        // `set`, `of`, `delete`, `from`, `type`) stay keywords only when no `(`
+        // follows directly, so `static of(x)` and `cache.get(key)` read as calls.
         {
           match:
-            '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
+            '\\bdefault\\b(?=[ \\t]*:[ \\t]*(?:$|\\/[/*]|\\b(?:return|break|continue|throw|case)\\b))|\\bdefault\\b(?!\\??:)',
+          scope: 'keyword.control',
+        },
+        {
+          match: `\\b(?:if|else|for|while|do|switch|case|break|continue|return|throw|try|catch|finally|await|yield)\\b${NOT_KEY}`,
           scope: 'keyword.control',
         },
         // A TypeScript assertion ends an expression; it does not declare the
@@ -138,16 +162,15 @@ const javascript: Grammar = {
         // identifier in the file, while the state only runs after the keyword.
         { match: '\\b(?:const|let|var)\\b', scope: 'keyword.declaration', push: 'declared-name' },
         {
-          match:
-            '\\b(?:function|class|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get|set|type)\\b',
+          match: `\\b(?:function|class|interface|enum|namespace|module|declare|abstract|implements|extends|constructor|static|readonly|override|public|private|protected|async|get(?!\\()|set(?!\\()|type(?!\\())\\b${NOT_KEY}`,
           scope: 'keyword.declaration',
         },
         {
-          match: '\\b(?:import|export|from|require)\\b',
+          match: `\\b(?:import|export|from(?!\\()|require)\\b${NOT_KEY}`,
           scope: 'keyword.import',
         },
         {
-          match: '\\b(?:typeof|instanceof|in|of|new|delete|void|satisfies|keyof|infer|asserts|as)\\b',
+          match: `\\b(?:typeof|instanceof|in|of(?!\\()|new|delete(?!\\()|void|satisfies|keyof|infer|asserts|as)\\b${NOT_KEY}`,
           scope: 'keyword.operator',
         },
         { match: '\\b(?:true|false)\\b', scope: 'boolean' },
@@ -160,11 +183,11 @@ const javascript: Grammar = {
           scope: 'variable.builtin',
         },
         {
-          match: '\\b(?:console|window|document|process|module|exports)\\b',
+          match: `\\b(?:console|window|document|process|module|exports)\\b${NOT_KEY}`,
           scope: 'variable.builtin',
         },
         {
-          match: '\\b(?:string|number|boolean|symbol|bigint|object|unknown|never|any|void|readonly)\\b(?=[^\\w$]|$)',
+          match: `\\b(?:string|number|boolean|symbol|bigint|object|unknown|never|any|void|readonly)\\b(?=[^\\w$]|$)${NOT_KEY}`,
           scope: 'type.builtin',
         },
 

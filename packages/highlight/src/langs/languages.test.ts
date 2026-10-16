@@ -986,6 +986,179 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'x', 'variable')
   })
 
+  it('javascript: reads a keyword followed by a colon as an object key', () => {
+    const code =
+      "const schema = { type: 'object', from: a, default: 1 }\ntype A = { type?: string }\nswitch (x) {\n  case 1: return 2\n  default: return 3\n}\nexport default { responses: { default: { description: 'x' } } }\n"
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'type')
+        .map(([, s]) => s),
+    ).toEqual(['property', 'keyword.declaration', 'property'])
+    assertHas(code, 'javascript', 'from', 'property')
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'default')
+        .map(([, s]) => s),
+    ).toEqual(['property', 'keyword.control', 'keyword.control', 'property'])
+  })
+
+  it('javascript: reads method names that are also keywords, and private fields', () => {
+    const code = 'class L { #n = 0; static of(x) { return this.#n } get(k) {} get size() {} }\nfor (const a of b) {}\n'
+    assertHas(code, 'javascript', 'of', 'function.call')
+    assertHas(code, 'javascript', 'of', 'keyword.operator')
+    assertHas(code, 'javascript', 'get', 'function.call')
+    assertHas(code, 'javascript', 'get', 'keyword.declaration')
+    assertHas(code, 'javascript', '#n', 'variable.member')
+  })
+
+  it('markdown: highlights closed front matter as YAML', () => {
+    const code = '---\ntitle: Hi\ndraft: false\n---\n\n# Hello\n'
+    assertHas(code, 'markdown', 'title', 'property')
+    assertHas(code, 'markdown', 'false', 'boolean')
+    // The last line of the block is not a setext heading.
+    assertHas(code, 'markdown', '# Hello', 'heading')
+    expect(scoped(code, 'markdown').filter(([, s]) => s === 'heading')).toHaveLength(1)
+  })
+
+  it('markdown: leaves an unclosed or later `---` alone', () => {
+    const unclosed = '---\n\nSome text *here*\n'
+    assertHas(unclosed, 'markdown', '---', 'punctuation')
+    assertHas(unclosed, 'markdown', '*here*', 'emphasis')
+    // Not at the start, so a line followed by `---` is a heading again.
+    assertHas('Intro\n\n---\ntitle: x\n---\n', 'markdown', 'title: x\n---', 'heading')
+  })
+
+  it('markdown: highlights HTML that starts a line, and keeps Markdown around it', () => {
+    const code =
+      '<div align="center">\n  <img src="logo.png" />\n</div>\n\n<Steps>\nUse `api.md` here\n\n```js\nconst a = 1\n```\n</Steps>\n\n<b>Note</b> read **this**\n'
+    assertHas(code, 'markdown', 'align', 'tag.attribute')
+    assertHas(code, 'markdown', '"logo.png"', 'string')
+    assertHas(code, 'markdown', 'Steps', 'tag')
+    // The lines inside a component stay Markdown, fences included.
+    assertHas(code, 'markdown', '`api.md`', 'string')
+    assertHas(code, 'markdown', 'const', 'keyword.declaration')
+    // Only the tag is HTML when text follows it on the line.
+    assertHas(code, 'markdown', '**this**', 'strong')
+  })
+
+  it('markdown: runs a script block to its closing tag, blank lines included', () => {
+    const code = '<script>\nconst a = 1\n\nconst b = 2\n</script>\n# After\n'
+    expect(
+      scoped(code, 'markdown')
+        .filter(([t]) => t === 'const')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.declaration', 'keyword.declaration'])
+    assertHas(code, 'markdown', '# After', 'heading')
+    assertHas('See <https://x.com> now\n', 'markdown', '<https://x.com>', 'link')
+  })
+
+  it('http: highlights an XML body and still finds the next message', () => {
+    const code =
+      'POST /soap HTTP/1.1\nContent-Type: application/xml\n\n<user id="1"><name>Ada</name></user>\n\n###\nGET /x HTTP/1.1\n'
+    assertHas(code, 'http', 'user', 'tag')
+    assertHas(code, 'http', 'id', 'tag.attribute')
+    assertHas(code, 'http', 'GET', 'keyword.control')
+  })
+
+  it('php: highlights script and style bodies in a template, around PHP regions', () => {
+    const code =
+      '<p>x</p>\n<script>\n  const total = <?= count($items) ?>;\n  const ok = true\n</script>\n<style>.a { color: red }</style>\n'
+    assertHas(code, 'php', 'total', 'variable')
+    assertHas(code, 'php', 'count', 'function.builtin')
+    // The script resumes after the PHP region.
+    assertHas(code, 'php', 'ok', 'variable')
+    assertHas(code, 'php', 'color', 'property')
+    assertHas(code, 'php', 'style', 'tag')
+  })
+
+  it('css: scopes the condition of @media and @supports', () => {
+    const code = '@media screen and (max-width: 600px) { a { color: red } }\n@supports (display: grid) { b { c: d } }\n'
+    assertHas(code, 'css', 'and', 'keyword')
+    assertHas(code, 'css', 'max-width', 'property')
+    assertHas(code, 'css', '600', 'number')
+    assertHas(code, 'css', 'screen', 'constant')
+    assertHas(code, 'css', 'display', 'property')
+    assertHas(code, 'css', 'color', 'property')
+  })
+
+  it('css: stays linear on a long identifier in an at-rule condition', () => {
+    // The feature rule scanned the name and failed for want of a colon at every
+    // position, because nothing consumed underscores: 400ms at 16k characters.
+    const code = `@media ${'_'.repeat(64_000)} {}`
+    tokenize(code, 'css') // compile the grammar outside the measurement
+
+    const start = performance.now()
+    const tokens = tokenize(code, 'css')
+    const elapsed = performance.now() - start
+
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    expect(elapsed, `a ${64_000}-character condition took ${elapsed.toFixed(0)}ms`).toBeLessThan(1000)
+  })
+
+  it('markdown: closes a raw HTML block on a closing tag in any case', () => {
+    const code = '<script>\nconst a = 1\n</SCRIPT>\n# Heading\n**bold**\n<PRE>\nx\n</pre>\n*em*\n'
+    assertHas(code, 'markdown', '# Heading', 'heading')
+    assertHas(code, 'markdown', '**bold**', 'strong')
+    assertHas(code, 'markdown', '*em*', 'emphasis')
+  })
+
+  it('markdown: does not end an HTML line at a > inside a quoted value', () => {
+    const code = '<div title="a>b" data-id="x"> **bold**\n'
+    assertHas(code, 'markdown', '"a>b"', 'string')
+    assertHas(code, 'markdown', 'data-id', 'tag.attribute')
+    assertHas(code, 'markdown', '**bold**', 'strong')
+  })
+
+  it.each([
+    '"?>"',
+    "'?>'",
+    String.raw`"escaped \" ?>"`,
+    '"</script>"',
+    "'</script>'",
+    '/* ?> </script> */ "value"',
+    '// </script>\n"value"',
+  ])('php: keeps quoted delimiters and comments inside a script hole: %s', (value) => {
+    const code = `<script>const a = <?= ${value} . $name ?>; const ok = true;</script>`
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '$name')).toBe('variable')
+    expect(scopeOf(code, 'php', 'ok')).toBe('variable')
+    expect(scopeOf(code, 'php', 'true')).toBe('boolean')
+  })
+
+  it('php: ignores a closing style tag inside a PHP string', () => {
+    const code = '<style>.a { content: <?= "</style>" . $name ?>; color: red }</style>'
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '$name')).toBe('variable')
+    expect(scopeOf(code, 'php', 'color')).toBe('property')
+    expect(scopeOf(code, 'php', 'red')).toBe('constant')
+  })
+
+  it('php: preserves an unclosed quoted hole through the end of input', () => {
+    const code = '<script>const a = <?= "?> </script> still PHP'
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '"?> </script> still PHP')).toBe('string')
+  })
+
+  it('php: keeps the script state across a PHP region inside a string', () => {
+    const code = '<p></p><script>const name = "<?= $name ?>"; const ok = true;</script>\n'
+    assertHas(code, 'php', '$name', 'variable')
+    assertHas(code, 'php', 'ok', 'variable')
+    assertHas(code, 'php', 'true', 'boolean')
+    expect(scoped(code, 'php').some(([t, s]) => t.includes('const ok') && s === 'string')).toBeFalsy()
+  })
+
   it('markdown: closes a fence only on a run of its own character', () => {
     const code = '```js\nconst a = 1\n~~~\nconst b = 2\n```\n# After\n'
     expect(scoped(code, 'markdown').filter(([t]) => t === 'const')).toHaveLength(2)

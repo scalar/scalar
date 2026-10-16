@@ -215,7 +215,15 @@ const compileState = (grammar: Grammar, name: string): CompiledState => {
     embed: state.embed
       ? {
           language: state.embed.language,
-          until: new RegExp(normalizeLineTerminators(state.embed.until), `gm${caseFlag}`),
+          // Scan holes and the end marker together so a marker inside a hole
+          // cannot close the embedded body. Group 1 identifies a hole.
+          boundary: new RegExp(
+            normalizeLineTerminators(
+              state.embed.holes ? `(${state.embed.holes})|(?:${state.embed.until})` : state.embed.until,
+            ),
+            `gm${caseFlag}`,
+          ),
+          holes: state.embed.holes ? new RegExp(normalizeLineTerminators(state.embed.holes), `gm${caseFlag}`) : null,
         }
       : null,
   }

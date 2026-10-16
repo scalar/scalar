@@ -2,7 +2,7 @@
 
 Scalar's code highlighter.
 
-- **Small.** 3.2 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
+- **Small.** 3.3 KB core, ~1.7 KB for Python, gzipped. Nothing you do not import.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
@@ -43,7 +43,7 @@ highlight(source, 'rust');
 ```
 
 Every entry in the loader is a static `import()`, so bundlers split each language into its
-own chunk. The initial chunk with the loader and no languages is 4.7 KB.
+own chunk. The initial chunk with the loader and no languages is 4.9 KB.
 
 ### Entry points
 
@@ -83,12 +83,12 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 
 | Bundle | Gzipped |
 | --- | ---: |
-| `@scalar/highlight` core | 3.17 KB |
-| …+ Python | 5.10 KB |
-| …lazy loader, initial chunk | 4.74 KB |
+| `@scalar/highlight` core | 3.32 KB |
+| …+ Python | 5.25 KB |
+| …lazy loader, initial chunk | 4.88 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.13 KB · `json` 0.29 KB · `html` 0.53 KB · `nginx` 0.54 KB · `http` 0.62 KB · `markdown` 0.63 KB · `css` 0.64 KB · `ini` 0.69 KB · `graphql` 0.72 KB · `go` 0.80 KB · `yaml` 0.81 KB · `rust` 0.84 KB · `makefile` 0.90 KB · `dockerfile` 0.94 KB · `bash` 1.03 KB · `sql` 1.10 KB · `java` 1.14 KB · `dart` 1.17 KB · `lua` 1.18 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.32 KB · `julia` 1.36 KB · `scala` 1.36 KB · `powershell` 1.37 KB · `elixir` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.42 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.53 KB · `fsharp` 1.68 KB · `python` 1.69 KB · `ruby` 1.70 KB · `javascript` 1.71 KB · `cpp` 1.74 KB · `php` 1.78 KB · `perl` 1.86 KB.
+Per language, on top of the core: `diff` 0.14 KB · `json` 0.29 KB · `html` 0.53 KB · `nginx` 0.54 KB · `http` 0.67 KB · `ini` 0.70 KB · `graphql` 0.72 KB · `css` 0.73 KB · `go` 0.80 KB · `yaml` 0.82 KB · `rust` 0.85 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.94 KB · `bash` 1.03 KB · `sql` 1.10 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `swift` 1.29 KB · `c` 1.31 KB · `clojure` 1.31 KB · `kotlin` 1.33 KB · `julia` 1.36 KB · `scala` 1.36 KB · `powershell` 1.37 KB · `elixir` 1.38 KB · `haskell` 1.41 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `ocaml` 1.44 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.69 KB · `ruby` 1.70 KB · `cpp` 1.75 KB · `javascript` 1.78 KB · `perl` 1.86 KB · `php` 1.91 KB.
 
 Reproduce with `pnpm size`.
 
@@ -218,7 +218,11 @@ until: '</script' }` tokenizes everything up to `</script` with the JavaScript g
 it is registered, and leaves the closing tag to the state below. The HTML grammar does this
 for `<script>` and `<style>` without importing either grammar. `language` can also be
 `REMEMBERED`, which embeds whatever language the entering rule remembered: that is how a
-Markdown fence such as ` ```ts ` highlights its body as TypeScript.
+Markdown fence such as ` ```ts ` highlights its body as TypeScript. `holes` marks regions of
+the body that belong to the host grammar instead: the embedded language reads across them
+as if each were a name, so its state carries over, and the host grammar tokenizes each hole.
+A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"` one string.
+Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.
@@ -293,7 +297,7 @@ For the same three languages `ScalarCodeBlock` shows most often:
 | | gzipped |
 | --- | ---: |
 | `@scalar/code-highlight` | 127.58 KB |
-| `@scalar/highlight/compat` | 6.96 KB |
+| `@scalar/highlight/compat` | 7.18 KB |
 
 ## Trade-offs
 
@@ -311,11 +315,20 @@ spacing (`f(x=1)` versus `x = 1`); a triple-quoted string at the start of a line
 as a docstring; `CapWords` reads as a type and `SCREAMING_CASE` as a constant. These are
 right on ordinary code and wrong on code written to defeat them.
 
-**Embedding needs the embedded language registered.** `<script>` and `<style>` bodies in
-HTML (and so in XML, SVG and Vue) are highlighted with the JavaScript and CSS grammars, and a
-Markdown fence with the language it names, when those are registered; otherwise the body is a
-plain string. A fence of four or more backticks stays a plain string either way, so a block
-that shows ` ``` ` inside it keeps closing on its own run.
+**Embedding needs the embedded language registered.** Some grammars hand part of their input
+to another grammar, when that one is registered:
+
+- `<script>` and `<style>` bodies in HTML (and so in XML, SVG and Vue) and in PHP templates go
+  to JavaScript and CSS.
+- A Markdown fence goes to the language it names, front matter to YAML, and HTML at the start
+  of a line to HTML.
+- An HTTP body that starts with `<` goes to HTML.
+
+When the grammar is not registered, the body is a plain string or unscoped text. A fence of four
+or more backticks stays a plain string either way, so a block that shows ` ``` ` inside it
+keeps closing on its own run. HTML in Markdown takes its line, or a `<script>`, `<pre>` or
+`<style>` block to its closing tag, rather than running to the next blank line as CommonMark
+says: MDX and most docs renderers read Markdown inside components.
 
 **No automatic language detection.** Pass a language name. Detection means shipping every
 grammar, which is the thing this library exists to avoid.
