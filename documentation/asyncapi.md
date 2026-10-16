@@ -111,9 +111,11 @@ The reference renders the AsyncAPI document grouped by channel. For each channel
 - The channel title (or address), summary, and description. A separate **Address** row preserves the actual address when a title is present. Missing or null addresses display **Unknown**; the channel identifier is only a heading fallback.
 - **Server** and **protocol** labels for the channel: the servers it's available on (from `document.servers`, restricted to `channel.servers` when declared) and their protocols (for example `wss`, `kafka`).
 - The channel address **parameters**.
-- Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
+- Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, summary, and description.
 - A **Channel messages** catalog containing every visible message defined on the channel, including messages that no operation lists. Channels with messages render even when they have no operations.
-- Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its description and its **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
+- Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its summary, description, and **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
+
+Operation and message headings prefer the title, then the summary, then the existing name or identifier fallback. A summary used as the heading is not repeated in the body. Metadata inherited through traits follows the same rules.
 
 Channels remain visible when no operation references them. Their messages appear directly beneath the channel, with the same schemas, examples, and navigation links as operation messages. Channels without messages remain visible too. Channels whose operations are all hidden with `x-internal` or `x-scalar-ignore` remain hidden.
 

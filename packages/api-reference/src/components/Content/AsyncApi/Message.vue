@@ -100,15 +100,18 @@ const contentType = computed<string | undefined>(
   () => resolvedMessage.value?.contentType ?? document.defaultContentType,
 )
 
-/** Heading prefers the human-friendly title, falling back to the message map key. */
+/** Heading prefers title, then summary, then the navigation label or message map key. */
 const headingText = computed(() =>
-  pickHeading(resolvedMessage.value?.title, message.title, message.messageName),
+  pickHeading(resolvedMessage.value?.title, resolvedMessage.value?.summary, message.title, message.messageName),
 )
 
-const description = computed(
-  () =>
-    resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
-)
+/** A summary used as the heading must not repeat in the body. */
+const summary = computed((): string => {
+  const value = resolvedMessage.value?.summary?.trim() ?? ''
+  return value === headingText.value ? '' : value
+})
+
+const description = computed((): string => resolvedMessage.value?.description ?? '')
 
 const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
 
@@ -240,6 +243,7 @@ const { level: headingLevel } = useDocumentOutline(
         <div class="message-layout">
           <div
             v-if="
+              summary ||
               description ||
               resolvedMessage?.bindings ||
               resolvedMessage?.externalDocs ||
@@ -249,6 +253,7 @@ const { level: headingLevel } = useDocumentOutline(
               contentType
             "
             class="message-schemas min-w-0 space-y-4">
+            <p v-if="summary" class="text-c-1 [overflow-wrap:anywhere]">{{ summary }}</p>
             <ScalarMarkdown
               v-if="description"
               class="message-description"
