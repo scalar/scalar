@@ -1826,7 +1826,7 @@
     gap: 10px;
     height: 40px;
     padding: 0 12px 0 14px;
-    border: 1px solid var(--scalar-border-color);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: 14px;
   }
   .lp-chat-placeholder {
