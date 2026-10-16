@@ -44,6 +44,17 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'AsyncAPI Bindings',
+    slug: 'asyncapi-bindings',
+    url: 'examples/asyncapi-bindings.yaml',
+  },
+  {
+    title: 'AsyncAPI Bindings (Classic Layout)',
+    slug: 'asyncapi-bindings-classic',
+    url: 'examples/asyncapi-bindings.yaml',
+    layout: 'classic',
+  },
+  {
     title: 'AsyncAPI Sidebar Filters',
     slug: 'asyncapi-sidebar-filters',
     url: 'examples/asyncapi-filters.yaml',

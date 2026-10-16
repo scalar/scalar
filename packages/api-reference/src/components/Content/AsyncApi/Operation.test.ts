@@ -39,6 +39,22 @@ afterEach(() => {
 })
 
 describe('Operation', () => {
+  it('renders inherited operation bindings without messages', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        eventBus: null,
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          traits: [{ bindings: { kafka: { bindingVersion: '0.5.0' } } }],
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('0.5.0')
+  })
+
   it('keeps Messages before Replies when the operation has no listed messages', () => {
     const wrapper = mount(Operation, {
       props: {

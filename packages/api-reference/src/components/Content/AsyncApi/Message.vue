@@ -25,6 +25,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
 import AsyncApiTags from './AsyncApiTags.vue'
+import Bindings from './Bindings.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
@@ -160,6 +161,18 @@ const headersSchema = computed(() =>
     : undefined,
 )
 
+/** Binding-only messages still need a details column beside their examples. */
+const hasMessageDetails = computed(() =>
+  Boolean(
+    description.value ||
+    contentType.value ||
+    correlationId.value ||
+    headersSchema.value ||
+    payloadSchema.value ||
+    resolvedMessage.value?.bindings,
+  ),
+)
+
 const correlationId = computed<
   Exclude<AsyncApiMessageObject['correlationId'], { $ref: string }>
 >(() => getResolvedRef(resolvedMessage.value?.correlationId))
@@ -291,13 +304,7 @@ const { level: headingLevel } = useDocumentOutline(
 
       <div class="message-layout">
         <div
-          v-if="
-            description ||
-            contentType ||
-            correlationId ||
-            headersSchema ||
-            payloadSchema
-          "
+          v-if="hasMessageDetails"
           class="message-details min-w-0">
           <div
             v-if="contentType"
@@ -309,6 +316,10 @@ const { level: headingLevel } = useDocumentOutline(
             class="message-description"
             :value="description"
             withImages />
+
+          <Bindings
+            :bindings="resolvedMessage?.bindings"
+            class="mt-3" />
 
           <div
             v-if="correlationId"

@@ -40,6 +40,24 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it('renders bindings on a message with no prose or schemas, including trait fields', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          traits: [{ bindings: { kafka: { bindingVersion: '0.5.0', schemaIdLocation: 'payload' } } }],
+          bindings: { kafka: { bindingVersion: '0.4.0' } },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('0.4.0')
+    expect(wrapper.text()).toContain('schemaIdLocation')
+    expect(wrapper.text()).not.toContain('0.5.0')
+  })
+
   it.each([
     [{ contentType: 'application/xml' }, 'application/xml'],
     [{ traits: [{ contentType: 'text/plain' }] }, 'text/plain'],

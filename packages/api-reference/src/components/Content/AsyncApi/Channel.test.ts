@@ -44,6 +44,27 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('renders referenced channel bindings in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        document: createDocumentWithChannel({
+          address: 'orders',
+          bindings: {
+            $ref: '#/components/channelBindings/common',
+            '$ref-value': { kafka: { topic: 'orders', partitions: 3 } },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('partitions')
+    expect(wrapper.text()).toContain('3')
+  })
+
   it.each(['modern', 'classic'] as const)('shows title, actual address, summary and description in %s', (layout) => {
     const wrapper = mount(Channel, {
       props: {
