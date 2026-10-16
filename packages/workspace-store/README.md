@@ -19,6 +19,26 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 
 Server side data store which enables document chunking to reduce initial loading time specially when working with large openapi documents
 
+### Document loading permissions
+
+Server document URLs and external references block private, loopback, and link-local addresses
+by default. Protected requests also reject redirects. File access requires an explicit
+`documentLoading.basePath`, which confines both direct reads and external references, including
+symlinks, to an approved directory. These permissions apply to initial documents and `addDocument`.
+
+```ts
+const store = await createServerWorkspaceStore({
+  mode: 'ssr',
+  baseUrl: '/docs',
+  documents: [{ name: 'api', path: './descriptions/openapi.yaml' }],
+  documentLoading: { basePath: './descriptions' },
+})
+```
+
+For trusted local development inputs, `documentLoading.allowPrivateNetworks: true` permits private
+network URLs and redirects. Configure these permissions in the application, never from untrusted
+request parameters. The approved directory also applies to references in remote documents.
+
 #### Usage
 
 Create a new store in SSR mode

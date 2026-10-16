@@ -257,15 +257,27 @@ describe('use-document-watcher', () => {
       message: 'No changes',
     })
     const initialTimeout = 200
+    const schedule = vi.spyOn(globalThis, 'setTimeout')
+    const clear = vi.spyOn(globalThis, 'clearTimeout')
     mountWatcher({ documentName: ref('default'), store, initialTimeout })
+    const poll = schedule.mock.calls[0]?.[0]
+    assert(poll)
     await vi.advanceTimersByTimeAsync(initialTimeout)
     expect(rebase).toHaveBeenCalledTimes(1)
-    expect(vi.getTimerCount()).toBe(1)
+
+    // HTTP infrastructure may own other timers; verify the watcher's timer by its callback.
+    const pollingTimers = schedule.mock.calls.flatMap((call, index) =>
+      call[0] === poll ? [schedule.mock.results[index]?.value] : [],
+    )
+    expect(pollingTimers.length).toBe(2)
+    const pendingPoll = pollingTimers[1]
+    assert(pendingPoll)
+    clear.mockClear()
 
     assert(wrapper)
     wrapper.unmount()
     wrapper = undefined
-    expect(vi.getTimerCount()).toBe(0)
+    expect(clear).toHaveBeenCalledExactlyOnceWith(pendingPoll)
     await vi.advanceTimersByTimeAsync(initialTimeout * 2)
     expect(rebase).toHaveBeenCalledTimes(1)
   })
