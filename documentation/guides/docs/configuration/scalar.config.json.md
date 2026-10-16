@@ -137,7 +137,7 @@ Configure your site's domain, appearance, and custom assets:
 | `head`           | `object`            | Custom scripts, styles, meta tags, and links                                                                                |
 | `routing`        | `object`            | URL redirects configuration                                                                                                 |
 | `colorScheme`    | `object`            | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                                |
-| `layout`         | `object`            | Global layout options including search configuration. See [Site](site-config.md#layout)                                     |
+| `layout`         | `object`            | Global layout options, including search and the light/dark toggle. See [Site](site-config.md#layout)                                   |
 | `agent`          | `object`            | Ask AI button settings. See [Ask AI](ask-ai.md)                                                                             |
 | `footer`         | `object`            | Custom HTML footer. See [Site](site-config.md#footer)                                                                       |
 | `rss`            | `object` or `array` | RSS feeds for changelog-style pages. See [Site](site-config.md#rss)                                                         |

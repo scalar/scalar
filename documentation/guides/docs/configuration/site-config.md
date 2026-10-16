@@ -96,7 +96,7 @@ The `theme` property sets a platform-defined theme for your documentation site.
 
 ## Color Scheme
 
-The `colorScheme` property controls the light/dark mode appearance and toggle behavior for your documentation site.
+The `colorScheme` property sets the light/dark mode your site loads in. To move or hide the toggle, see [Where the Toggle Appears](#where-the-toggle-appears).
 
 ```json
 // scalar.config.json
@@ -105,8 +105,7 @@ The `colorScheme` property controls the light/dark mode appearance and toggle be
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "system",
-      "showToggle": true
+      "default": "system"
     }
   }
 }
@@ -117,7 +116,26 @@ The `colorScheme` property controls the light/dark mode appearance and toggle be
 | Property     | Type                             | Default    | Description                                |
 | ------------ | -------------------------------- | ---------- | ------------------------------------------ |
 | `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load          |
-| `showToggle` | `boolean`                        | `true`     | Whether to show the color scheme toggle    |
+| `showToggle` | `boolean`                        | `true`     | **Deprecated.** Use [`layout.colorSchemeToggle`](#where-the-toggle-appears). `false` still hides the toggle everywhere |
+
+### Where the Toggle Appears
+
+Set `layout.colorSchemeToggle` to `"sidebar"` (the default), `"header"`, `"tabs"`, or `false` to hide it. The sidebar shows a switch; the header and tabs show a sun/moon icon.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "colorSchemeToggle": "header"
+    }
+  }
+}
+```
+
+If a page does not have that surface, the toggle falls back to the sidebar, then the header, then the tabs, and does not render if the page has none of them. On mobile, pages without a sidebar show it in the header. You can override the location per page in its [layout options](navigation.md#layout-options).
 
 ### Examples
 
@@ -132,8 +150,10 @@ Force your documentation to always display in light mode without a toggle:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "light",
-      "showToggle": false
+      "default": "light"
+    },
+    "layout": {
+      "colorSchemeToggle": false
     }
   }
 }
@@ -150,8 +170,10 @@ Force your documentation to always display in dark mode without a toggle:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "dark",
-      "showToggle": false
+      "default": "dark"
+    },
+    "layout": {
+      "colorSchemeToggle": false
     }
   }
 }
@@ -168,8 +190,7 @@ Respect the user's system preference while allowing them to override it:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "system",
-      "showToggle": true
+      "default": "system"
     }
   }
 }
@@ -266,6 +287,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
 | `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
 | `search`      | `object`  | —        | Search bar configuration                       |
+| `colorSchemeToggle` | `"sidebar" \| "header" \| "tabs" \| false` | `"sidebar"` | Where to show the light/dark toggle. See [Where the Toggle Appears](#where-the-toggle-appears) |
 
 ### Last updated date
 
