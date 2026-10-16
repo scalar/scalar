@@ -81,15 +81,12 @@ const views = computed(() =>
       :panelId
       :panelRendered="open"
       @toggle="toggle" />
-    <button
+    <span
       :id="labelId"
-      :aria-controls="open ? panelId : undefined"
-      :aria-expanded="open"
       class="text-c-2 cursor-pointer text-left"
-      type="button"
       @click="toggle">
       {{ label }}
-    </button>
+    </span>
     <SchemaRailPanel
       v-if="open"
       :id="panelId"

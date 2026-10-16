@@ -29,7 +29,9 @@ describe('SchemaConstraints', () => {
     const wrapper = render(schema, false)
     expect(wrapper.text()).toContain('Conditional constraints')
     expect(wrapper.text()).not.toContain('company')
-    const toggle = wrapper.findAll('button').find((button) => button.text() === 'Conditional constraints')!
+    const constraint = wrapper.getComponent(SchemaConstraint)
+    expect(constraint.findAll('button')).toHaveLength(1)
+    const toggle = constraint.get('button')
     await toggle.trigger('click')
     expect(toggle.attributes('aria-expanded')).toBe('true')
     expect(wrapper.text()).toContain('If this schema matches')
