@@ -154,6 +154,108 @@ describe('AsyncApiServerSelector', () => {
     })
   })
 
+  it('shows authored examples without changing variable values or enum choices', async () => {
+    const server = createEntry({
+      name: 'production',
+      url: 'mqtt://prod.example.com',
+      server: {
+        host: '{environment}.example.com',
+        protocol: 'mqtt',
+        variables: {
+          environment: {
+            default: 'prod',
+            enum: ['prod', 'staging'],
+            description: 'Environment',
+            examples: ['staging'],
+          },
+          tenant: { default: 'demo', examples: ['<tenant>', '', 'two words'] },
+        },
+      },
+    })
+    const wrapper = mount(AsyncApiServerSelector, { props: { servers: [server], selectedServer: server, eventBus } })
+
+    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual([
+      '"staging"',
+      '"<tenant>"',
+      '""',
+      '"two words"',
+    ])
+    expect(wrapper.find('tenant').exists()).toBe(false)
+    expect(wrapper.get('input').element.value).toBe('demo')
+    expect(wrapper.findComponent({ name: 'ServerVariablesForm' }).props('variables').environment).toStrictEqual({
+      default: 'prod',
+      enum: ['prod', 'staging'],
+      description: 'Environment',
+      examples: ['staging'],
+    })
+    const emit = vi.spyOn(eventBus, 'emit')
+    await wrapper.get('input').setValue('custom')
+    expect(emit).toHaveBeenCalledWith('asyncapi-server:update:variables', {
+      name: 'production',
+      key: 'tenant',
+      value: 'custom',
+    })
+    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual([
+      '"staging"',
+      '"<tenant>"',
+      '""',
+      '"two words"',
+    ])
+    emit.mockRestore()
+  })
+
+  it('follows chained references for examples and replaces hints when the server changes', async () => {
+    const target = { examples: ['authored'] }
+    const alias = { $ref: '#/target', '$ref-value': target, examples: ['ignored alias'] }
+    const first = createEntry({
+      name: 'first',
+      url: 'mqtt://first',
+      server: {
+        host: 'first',
+        protocol: 'mqtt',
+        variables: {
+          tenant: {
+            $ref: '#/alias',
+            '$ref-value': alias,
+            examples: ['ignored sibling'],
+          },
+          missing: { $ref: '#/missing' },
+        },
+      },
+    })
+    const second = createEntry({
+      name: 'second',
+      url: 'mqtt://second',
+      server: {
+        host: 'second',
+        protocol: 'mqtt',
+        variables: { tenant: { default: 'other', examples: ['replacement'] } },
+      },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [first, second], selectedServer: first, eventBus },
+    })
+    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual(['"authored"'])
+    expect(wrapper.get('input').element.value).toBe('')
+    await wrapper.setProps({ selectedServer: second })
+    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual(['"replacement"'])
+    expect(wrapper.get('input').element.value).toBe('other')
+    await wrapper.setProps({ selectedServer: null })
+    expect(wrapper.findAll('code')).toStrictEqual([])
+    expect(wrapper.findAll('input')).toStrictEqual([])
+  })
+
+  it('does not show hints for absent or empty examples', () => {
+    const server = createEntry({
+      name: 'production',
+      url: 'mqtt://prod',
+      server: { host: 'prod', protocol: 'mqtt', variables: { tenant: { default: 'demo' }, region: { examples: [] } } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, { props: { servers: [server], selectedServer: server, eventBus } })
+    expect(wrapper.findAll('code')).toStrictEqual([])
+    expect(wrapper.findAll('[aria-describedby]')).toStrictEqual([])
+  })
+
   it('emits the selected server name when a server is chosen', async () => {
     const emit = vi.spyOn(eventBus, 'emit')
     const wrapper = mount(AsyncApiServerSelector, {
