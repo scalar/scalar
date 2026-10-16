@@ -34,6 +34,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -68,6 +69,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -106,6 +108,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -149,6 +152,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -194,6 +198,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -244,6 +249,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -295,6 +301,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -340,6 +347,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -373,6 +381,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -406,6 +415,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -432,6 +442,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       mount(RenderPlugins, {
@@ -470,6 +481,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -501,6 +513,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -531,6 +544,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
@@ -562,6 +576,7 @@ describe('RenderPlugins', () => {
         getApiClientPlugins: vi.fn().mockReturnValue([]),
         getSidebarEntries: vi.fn().mockReturnValue([]),
         getAuthState: vi.fn().mockReturnValue(mockAuthState),
+        getMarkdownRenderHooks: vi.fn().mockReturnValue([]),
       })
 
       const wrapper = mount(RenderPlugins, {
