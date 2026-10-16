@@ -1,8 +1,11 @@
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
+
+import CopyAsyncApiMarkdownButton from '@/components/Content/AsyncApi/CopyAsyncApiMarkdownButton.vue'
 
 import Tag from './Tag.vue'
 
@@ -233,5 +236,52 @@ describe('Tag', () => {
       expect(wrapper.find('[data-testid="slot-content"]').exists()).toBe(true)
       expect(wrapper.find('[data-testid="slot-content"]').text()).toBe('Modern slot content')
     })
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'uses the tag name for AsyncAPI actions and supports overrides in %s',
+    (layout) => {
+      const asyncApiDocument = {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1', tags: [{ name: 'orders' }] },
+      } as AsyncApiDocument
+      const props = {
+        tag: { ...mockTag, name: 'orders', title: 'Order events' },
+        layout,
+        moreThanOneTag: true,
+        isCollapsed: true,
+        eventBus: null,
+        asyncApiDocument,
+      }
+      const wrapper = mount(Tag, { props })
+      expect(wrapper.getComponent(CopyAsyncApiMarkdownButton).props('selection')).toEqual({ tag: 'orders' })
+      expect(wrapper.text()).toContain('Copy as Markdown')
+      wrapper.unmount()
+      const custom = mount(Tag, { props, slots: { actions: '<button>Custom action</button>' } })
+      expect(custom.text()).toContain('Custom action')
+      expect(custom.text()).not.toContain('Copy as Markdown')
+      custom.unmount()
+      const hidden = mount(Tag, { props, slots: { actions: () => [] } })
+      expect(hidden.text()).not.toContain('Copy as Markdown')
+      hidden.unmount()
+      const group = mount(Tag, { props: { ...props, tag: { ...props.tag, isGroup: true } } })
+      expect(group.text()).not.toContain('Copy as Markdown')
+      group.unmount()
+    },
+  )
+  it('keeps a real AsyncAPI tag named default visible', () => {
+    const wrapper = mount(Tag, {
+      props: {
+        tag: { ...mockTag, name: 'default', title: 'default', description: '' },
+        layout: 'modern',
+        moreThanOneTag: false,
+        isCollapsed: false,
+        eventBus: null,
+        asyncApiDocument: { asyncapi: '3.1.0', info: { title: 'Events', version: '1' } } as AsyncApiDocument,
+      },
+    })
+    expect(wrapper.text()).toContain('default')
+    expect(wrapper.text()).toContain('Copy as Markdown')
+    wrapper.unmount()
   })
 })

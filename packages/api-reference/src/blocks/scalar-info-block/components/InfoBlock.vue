@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { AsyncApiInfoObject } from '@scalar/types/asyncapi/3.1'
+import type {
+  AsyncApiDocument,
+  AsyncApiInfoObject,
+} from '@scalar/types/asyncapi/3.1'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
@@ -11,6 +14,7 @@ import type {
 import { computed } from 'vue'
 
 import DownloadLink from '@/blocks/scalar-info-block/components/DownloadLink.vue'
+import CopyAsyncApiMarkdownButton from '@/components/Content/AsyncApi/CopyAsyncApiMarkdownButton.vue'
 
 import IntroductionCard from './IntroductionCard.vue'
 import IntroductionLayout from './IntroductionLayout.vue'
@@ -25,6 +29,8 @@ const {
   info,
   externalDocs,
 } = defineProps<{
+  /** Resolved AsyncAPI document enables copying the introduction as Markdown. */
+  asyncApiDocument?: AsyncApiDocument
   /** Optional unique identifier for the info block. */
   id?: string
   /** AsyncAPI application identifier, separate from the introduction navigation anchor. */
@@ -51,6 +57,12 @@ const {
   documentUrl?: string
   /** The kind of document being rendered. Drives download button labels. */
   documentType?: 'openapi' | 'asyncapi'
+}>()
+
+defineSlots<{
+  selectors?: () => unknown
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
 }>()
 
 /** AsyncAPI 3.x carries external documentation on info and allows references. */
@@ -90,6 +102,17 @@ const introCardsSlot = computed(() =>
       <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />
       </IntroductionCard>
+    </template>
+    <template
+      v-if="$slots.actions || asyncApiDocument"
+      #actions>
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
+      <CopyAsyncApiMarkdownButton
+        v-else-if="asyncApiDocument"
+        :document="asyncApiDocument"
+        :selection="{ introduction: true }" />
     </template>
     <template #download-link>
       <DownloadLink

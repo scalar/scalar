@@ -55,6 +55,26 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 </html>
 ```
 
+## AsyncAPI Markdown actions
+
+AsyncAPI channels, operations, tags, and introduction include a **Copy as Markdown** button in both layouts. Copies contain the selected section and its relevant context, using `@scalar/asyncapi-to-markdown`. Tag copies use the original tag name, even when the displayed heading is different. Synthetic tag groups do not have a default copy action.
+
+When embedding Vue sections, use the `actions` slot to replace the default button, or supply an empty slot to hide it:
+
+```vue
+<AsyncApiChannel v-bind="channelProps">
+  <template #actions>
+    <button @click="copyPage">Copy page</button>
+  </template>
+</AsyncApiChannel>
+
+<AsyncApiOperation v-bind="operationProps">
+  <template #actions />
+</AsyncApiOperation>
+```
+
+`AsyncApiChannel` and `AsyncApiOperation` are exported from `@scalar/api-reference/components` and receive the resolved AsyncAPI `document`. For embedded tags and introduction, pass that document as `asyncApiDocument` to `Tag` (from `@scalar/api-reference/components`) or `InfoBlock` (from `@scalar/api-reference/blocks`). Both expose the same `actions` slot. These are section component slots, not configuration options on the full API reference.
+
 ## Documentation
 
 [Read the documentation here](https://scalar.com/products/api-references/integrations/html-js)

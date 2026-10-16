@@ -15,7 +15,10 @@ const {
   moreThanOneTag,
   isCollapsed,
   nested = false,
+  showDefaultTagHeader = false,
 } = defineProps<{
+  /** AsyncAPI has real tags named default, rather than a synthetic untagged section. */
+  showDefaultTagHeader?: boolean
   tag: TraversedTag
   moreThanOneTag: boolean
   isCollapsed: boolean
@@ -28,7 +31,11 @@ const { translate } = useLocalization()
 const headerId = useId()
 
 const moreThanOneDefaultTag = computed(
-  () => moreThanOneTag || tag?.title !== 'default' || tag?.description !== '',
+  () =>
+    showDefaultTagHeader ||
+    moreThanOneTag ||
+    tag?.title !== 'default' ||
+    tag?.description !== '',
 )
 
 const hasChildren = computed(() => (tag?.children?.length ?? 0) > 0)
