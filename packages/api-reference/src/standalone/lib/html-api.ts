@@ -281,11 +281,14 @@ export const createApiReference: CreateApiReference = (
   }
 
   // If we have an optional config, then we must mount the element immediately (not sure why type is not narrowing)
-  const mountElement = optionalConfiguration
-    ? typeof elementOrSelectorOrConfig === 'string'
+  const mountElement = (() => {
+    if (!optionalConfiguration) {
+      return null
+    }
+    return typeof elementOrSelectorOrConfig === 'string'
       ? document.querySelector(elementOrSelectorOrConfig)
       : (elementOrSelectorOrConfig as Element)
-    : null
+  })()
 
   // Detect server-rendered content and use createSSRApp for hydration
   const shouldHydrate = !!optionalConfiguration && !!mountElement && mountElement.children.length > 0
@@ -307,7 +310,7 @@ export const createApiReference: CreateApiReference = (
         // Plugins referenced by URL must be resolved before the app mounts — plugin registration
         // happens once at first render and is not reactive, so a plugin that arrives later would
         // never be picked up.
-        loadPluginsFromUrls(props.configuration).then(() => {
+        void loadPluginsFromUrls(props.configuration).then(() => {
           // Skip mounting when the instance was destroyed while the plugins were loading.
           if (!abortController.signal.aborted) {
             mount()

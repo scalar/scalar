@@ -1047,6 +1047,7 @@ describe('validate-request', () => {
         Root: {
           type: 'object',
           if: { $ref: '#/components/schemas/Cond' },
+          // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then as a conditional keyword, not a Promise method.
           then: { required: ['extra'] },
         },
         Cond: {

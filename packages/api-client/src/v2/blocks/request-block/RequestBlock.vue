@@ -155,12 +155,16 @@ const getHiddenValuePaths = (parameter: {
 
 /** Multi-field objects remain available in the picker; single-field objects retain ordinary deletion. */
 const hideExpandedRowPath = (row: TableRow): void => {
-  if (!row.originalParameter || !row.sourceParameterValuePath) return
+  if (!row.originalParameter || !row.sourceParameterValuePath) {
+    return
+  }
   const siblings =
     sections.value.query?.filter(
       (entry) => entry.originalParameter === row.originalParameter,
     ) ?? []
-  if (siblings.length > 1) return
+  if (siblings.length > 1) {
+    return
+  }
   const key = getExpandedParameterKey(row.originalParameter)
   deletedExpandedParameterPaths.value = {
     ...deletedExpandedParameterPaths.value,

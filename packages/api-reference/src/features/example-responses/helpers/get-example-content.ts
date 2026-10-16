@@ -46,11 +46,13 @@ export const getExampleContent = (
     const selected = getExampleValue(getResolvedRefDeep(example))
     if (isStreamingContentType(contentType) && selected?.source !== 'serialized') {
       const value = selected?.value
-      return value === undefined
-        ? ''
-        : typeof value === 'string'
-          ? value
-          : (serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2))
+      if (value === undefined) {
+        return ''
+      }
+      if (typeof value === 'string') {
+        return value
+      }
+      return serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2)
     }
     const explicitText = getExplicitExampleText(selected, contentType, 2)
     if (explicitText !== undefined) {

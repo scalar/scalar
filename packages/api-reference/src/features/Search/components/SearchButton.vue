@@ -23,6 +23,8 @@ const {
 } = defineProps<{
   forceIcon?: boolean
   searchHotKey?: string
+  // Retain this public prop for compatibility; navigation already filters hidden models.
+  // eslint-disable-next-line vue/no-unused-properties
   hideModels?: boolean
   modelsSectionLabel?: ModelsSectionLabel
   document?: OpenApiDocument | AsyncApiDocument

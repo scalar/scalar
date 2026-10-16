@@ -12,8 +12,8 @@ defineProps<{
   <li class="property-enum-row flex flex-col gap-0.5 border-t px-3 py-2">
     <span class="property-enum-row-label font-code text-c-1 text-sm">
       <ScalarWrappingText
-        :text="label"
-        preset="property" />
+        preset="property"
+        :text="label" />
     </span>
     <span
       v-if="description"

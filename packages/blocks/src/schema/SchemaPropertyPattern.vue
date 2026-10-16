@@ -48,9 +48,9 @@ onKeyStroke('Escape', () => {
     </LinkButton>
     <div class="property-pattern-popup">
       <button
+        :aria-label="`${translate('schema.copyPattern')}: ${pattern}`"
         class="property-pattern-value group"
         type="button"
-        :aria-label="`${translate('schema.copyPattern')}: ${pattern}`"
         @click="copyToClipboard(pattern)">
         <code>{{ pattern }}</code>
         <ScalarIcon

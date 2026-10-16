@@ -27,11 +27,15 @@ const now = (): number => Math.floor(Date.now() / 1000)
 /** Expiring, bounded state keeps this development provider safe to leave running. */
 const remember = (store: Map<string, Authorization>, key: string, value: Authorization): void => {
   for (const [existing, authorization] of store) {
-    if (authorization.expiresAt <= now()) store.delete(existing)
+    if (authorization.expiresAt <= now()) {
+      store.delete(existing)
+    }
   }
   if (store.size >= 1000) {
     const oldest = store.keys().next().value
-    if (oldest) store.delete(oldest)
+    if (oldest) {
+      store.delete(oldest)
+    }
   }
   store.set(key, value)
 }
@@ -43,7 +47,9 @@ export const setUpOpenIdConnect = (
   title: string,
   allowOAuthFallback = false,
 ): void => {
-  if (discoveryUrls.length === 0) return
+  if (discoveryUrls.length === 0) {
+    return
+  }
   // Workers forbid random number generation until a request handler runs.
   let keyId: string | undefined
   const getKeyId = (): string => (keyId ??= crypto.randomUUID())
@@ -91,14 +97,18 @@ export const setUpOpenIdConnect = (
 
   app.get('/oauth/authorize', (c, next) => {
     const scope = c.req.query('scope') ?? ''
-    if (!scope.split(/\s+/).includes('openid')) return next()
+    if (!scope.split(/\s+/).includes('openid')) {
+      return next()
+    }
     const clientId = c.req.query('client_id')
     const redirectUri = c.req.query('redirect_uri')
     if (!clientId || !redirectUri || c.req.query('response_type') !== 'code') {
       return tokenError(c, 'invalid_request', 'OpenID Connect requires client_id, redirect_uri, and response_type=code')
     }
     try {
-      if (!['http:', 'https:'].includes(new URL(redirectUri).protocol)) throw new Error('Invalid redirect')
+      if (!['http:', 'https:'].includes(new URL(redirectUri).protocol)) {
+        throw new Error('Invalid redirect')
+      }
     } catch {
       return tokenError(c, 'invalid_request', 'redirect_uri must be an HTTP or HTTPS URL')
     }
@@ -134,8 +144,9 @@ export const setUpOpenIdConnect = (
       !code.startsWith('oidc-code-') &&
       !refresh.startsWith('oidc-refresh-') &&
       !scope?.split(/\s+/).includes('openid')
-    )
+    ) {
       return next()
+    }
     const grant = parameter('grant_type')
     if (grant !== 'authorization_code' && grant !== 'refresh_token') {
       return tokenError(c, 'unsupported_grant_type', 'OpenID Connect supports authorization_code and refresh_token')
@@ -152,8 +163,9 @@ export const setUpOpenIdConnect = (
       return tokenError(c, 'invalid_grant', 'Invalid or expired authorization for this client')
     }
     if (grant === 'authorization_code') {
-      if (parameter('redirect_uri') !== session.redirectUri)
+      if (parameter('redirect_uri') !== session.redirectUri) {
         return tokenError(c, 'invalid_grant', 'redirect_uri does not match')
+      }
       if (session.codeChallenge) {
         const verifier = parameter('code_verifier') ?? ''
         const challenge = encode(
@@ -169,7 +181,9 @@ export const setUpOpenIdConnect = (
       return tokenError(c, 'invalid_scope', 'Requested scope exceeds the authorization')
     }
     // PKCE hashing yields; another exchange may consume this code while it runs.
-    if (source.get(credential) !== session) return tokenError(c, 'invalid_grant', 'Authorization has already been used')
+    if (source.get(credential) !== session) {
+      return tokenError(c, 'invalid_grant', 'Authorization has already been used')
+    }
     source.delete(credential)
     const issuedAt = now()
     const header = encodeJson({ alg: 'RS256', typ: 'JWT', kid: getKeyId() })

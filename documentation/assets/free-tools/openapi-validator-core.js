@@ -179,7 +179,7 @@ export const lintDocument = (document) => {
  * @returns {Promise<{ status: 'empty' | 'parse-error' | 'invalid' | 'valid', format?: string, version?: string, errors: object[], warnings: object[] }>}
  */
 export const validateText = async (text, { parser, YAML }) => {
-  if (!text || !text.trim()) {
+  if (!text?.trim()) {
     return { status: 'empty', errors: [], warnings: [] }
   }
 

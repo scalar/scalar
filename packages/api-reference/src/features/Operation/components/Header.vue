@@ -61,8 +61,8 @@ const schema = computed(() => {
     :breadcrumb="breadcrumb"
     :description="header.description"
     :eventBus="eventBus"
-    :extensionSource="header"
     :expansion="expansion"
+    :extensionSource="header"
     :name="name"
     :options="{
       orderRequiredPropertiesFirst: orderRequiredPropertiesFirst,

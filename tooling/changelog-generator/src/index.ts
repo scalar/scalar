@@ -39,6 +39,17 @@ const changelogFunctions: ChangelogFunctions = {
       : prFromSummary
 
     // Create a GitHub info object with PR link
+    const summaryInfo = prNumber
+      ? {
+          user: null,
+          pull: prNumber,
+          links: {
+            commit: changeset.commit ? `https://github.com/${repo}/commit/${changeset.commit}` : '',
+            pull: `https://github.com/${repo}/pull/${prNumber}`,
+            user: null,
+          },
+        }
+      : null
     const githubInfoWithPR = githubInfo
       ? {
           ...githubInfo,
@@ -48,17 +59,7 @@ const changelogFunctions: ChangelogFunctions = {
             pull: prNumber ? `https://github.com/${repo}/pull/${prNumber}` : githubInfo.links.pull,
           },
         }
-      : prNumber
-        ? {
-            user: null,
-            pull: prNumber,
-            links: {
-              commit: changeset.commit ? `https://github.com/${repo}/commit/${changeset.commit}` : '',
-              pull: `https://github.com/${repo}/pull/${prNumber}`,
-              user: null,
-            },
-          }
-        : null
+      : summaryInfo
 
     return formatReleaseLine(changeset, githubInfoWithPR)
   },

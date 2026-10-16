@@ -10,11 +10,11 @@ defineProps<{
   isSidebarOpen: boolean
   showSidebar: boolean
 }>()
-const { translate } = useLocalization()
-
 const emit = defineEmits<{
   (e: 'toggleSidebar'): void
 }>()
+
+const { translate } = useLocalization()
 
 defineSlots<{
   actions?(): never

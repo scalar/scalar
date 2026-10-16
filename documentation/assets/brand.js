@@ -10,7 +10,7 @@ const initBrandColorSwatches = () => {
       try {
         await navigator.clipboard.writeText(value)
         return true
-      } catch (error) {
+      } catch {
         // Fall through to legacy path
       }
     }
@@ -26,7 +26,7 @@ const initBrandColorSwatches = () => {
       document.execCommand('copy')
       document.body.removeChild(textarea)
       return true
-    } catch (error) {
+    } catch {
       document.body.removeChild(textarea)
       return false
     }

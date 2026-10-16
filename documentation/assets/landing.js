@@ -12,7 +12,9 @@ function debounce(func, timeout = 300) {
 /* Draggable Elements */
 const initDraggableElements = debounce(() => {
   const draggables = document.querySelectorAll('.draggable')
-  if (!draggables.length) return
+  if (!draggables.length) {
+    return
+  }
 
   let isDragging = !1,
     currentDraggable = null,
@@ -88,7 +90,9 @@ document.addEventListener(
   'mouseover',
   (event) => {
     const item = event.target.closest?.('.footer-animation .fa i')
-    if (!item) return
+    if (!item) {
+      return
+    }
 
     setFooterAnimationActive(item)
   },
@@ -97,10 +101,14 @@ document.addEventListener(
 
 const initFooterAnimation = debounce(() => {
   const items = document.querySelectorAll('.footer-animation .fa i')
-  if (!items.length) return
+  if (!items.length) {
+    return
+  }
 
   items.forEach((item) => {
-    if (item.dataset.footerAnimationBound === 'true') return
+    if (item.dataset.footerAnimationBound === 'true') {
+      return
+    }
 
     item.dataset.footerAnimationBound = 'true'
     item.addEventListener('mouseenter', () => {
@@ -122,7 +130,9 @@ const initGallery = debounce(() => {
 
   let observerPaused = false
 
-  if (!buttons.length || !slides.length || !gallery) return
+  if (!buttons.length || !slides.length || !gallery) {
+    return
+  }
 
   buttons.forEach((button) => {
     button.addEventListener('click', function () {
@@ -132,7 +142,9 @@ const initGallery = debounce(() => {
       buttons.forEach((button) => button.classList.remove('active'))
       this.classList.add('active')
 
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' })
+      }
     })
   })
 
@@ -178,16 +190,22 @@ const initGallery = debounce(() => {
 /* Hero SDK language tabs (per glass card, so every scene's card works) */
 const initHeroSdkTabs = debounce(() => {
   const cards = document.querySelectorAll('.hero-glass')
-  if (!cards.length) return
+  if (!cards.length) {
+    return
+  }
 
   let bound = 0
   cards.forEach((card) => {
     const buttons = card.querySelectorAll('.hero-glass-tabs button[data-sdk-lang]')
     const panels = card.querySelectorAll('.hero-glass-codewrap[data-sdk-lang]')
-    if (!buttons.length || !panels.length) return
+    if (!buttons.length || !panels.length) {
+      return
+    }
 
     buttons.forEach((button) => {
-      if (button.dataset.sdkTabsBound === 'true') return
+      if (button.dataset.sdkTabsBound === 'true') {
+        return
+      }
 
       button.dataset.sdkTabsBound = 'true'
       button.addEventListener('click', () => {
@@ -195,7 +213,9 @@ const initHeroSdkTabs = debounce(() => {
 
         const current = card.querySelector('.hero-glass-codewrap:not(.is-hidden)')
         const target = [...panels].find((panel) => panel.dataset.sdkLang === button.dataset.sdkLang)
-        if (!target || target === current) return
+        if (!target || target === current) {
+          return
+        }
 
         // The code area is a fixed-height scroller now: no height animation,
         // just land the new language scrolled to the top
@@ -206,7 +226,9 @@ const initHeroSdkTabs = debounce(() => {
     })
   })
 
-  if (bound) console.log(`Initialized ${bound} SDK tab elements`)
+  if (bound) {
+    console.log(`Initialized ${bound} SDK tab elements`)
+  }
 })
 
 /* Hero scene switcher (Profound SDK / Zoom API). Inactive scene panels are
@@ -214,16 +236,22 @@ const initHeroSdkTabs = debounce(() => {
 const initHeroScenes = debounce(() => {
   const strip = document.querySelector('.hero-tabs')
   const visual = document.querySelector('.hero-visual')
-  if (!strip || !visual) return
+  if (!strip || !visual) {
+    return
+  }
 
   const buttons = strip.querySelectorAll('button[data-hero-scene]')
   const panels = [...visual.querySelectorAll('[data-hero-scene-panel]')]
-  if (!buttons.length || !panels.length) return
+  if (!buttons.length || !panels.length) {
+    return
+  }
 
   const registry = (window.__heroScenePanels = window.__heroScenePanels || new Map())
 
   panels.forEach((panel) => {
-    if (panel.dataset.heroSceneAnchored === 'true') return
+    if (panel.dataset.heroSceneAnchored === 'true') {
+      return
+    }
 
     panel.dataset.heroSceneAnchored = 'true'
     panel.classList.remove('scene-hidden')
@@ -243,7 +271,9 @@ const initHeroScenes = debounce(() => {
 
       alive.forEach(({ panel, anchor }) => {
         if (key === scene) {
-          if (!panel.isConnected) anchor.after(panel)
+          if (!panel.isConnected) {
+            anchor.after(panel)
+          }
         } else if (panel.isConnected) {
           panel.remove()
         }
@@ -252,7 +282,9 @@ const initHeroScenes = debounce(() => {
   }
 
   buttons.forEach((button) => {
-    if (button.dataset.heroScenesBound === 'true') return
+    if (button.dataset.heroScenesBound === 'true') {
+      return
+    }
 
     button.dataset.heroScenesBound = 'true'
     button.addEventListener('click', () => {
@@ -274,10 +306,14 @@ const initHeroScenes = debounce(() => {
    compositor, which is what keeps this at 60fps despite the heavy SVG. */
 const initHeroCards = debounce(() => {
   const grid = document.querySelector('.hero-grid')
-  if (!grid) return
+  if (!grid) {
+    return
+  }
 
   const cells = grid.querySelectorAll('.hero-cell')
-  if (!cells.length) return
+  if (!cells.length) {
+    return
+  }
 
   let overlay = document.querySelector('.hero-modal')
   if (!overlay) {
@@ -301,7 +337,9 @@ const initHeroCards = debounce(() => {
     const transition = document.startViewTransition(update)
     // an aborted transition rejects ready/updateCallbackDone as well as
     // finished; leaving those unhandled logs InvalidStateError noise
-    const hush = () => {}
+    const hush = () => {
+      // Aborted view transitions are expected when navigation interrupts an animation.
+    }
     transition.ready.catch(hush)
     transition.updateCallbackDone.catch(hush)
     return transition.finished.catch(hush)
@@ -319,7 +357,9 @@ const initHeroCards = debounce(() => {
   const settle = (promise) => {
     busy = true
     return Promise.resolve(promise)
-      .catch(() => {})
+      .catch(() => {
+        // Always release the animation lock, including when a transition is interrupted.
+      })
       .finally(() => {
         busy = false
       })
@@ -328,13 +368,17 @@ const initHeroCards = debounce(() => {
   /* Scale the opened card with zoom rather than transform: zoom re-lays the
      card out at the larger size, so the vector art and code stay crisp. */
   const fit = (cell) => {
-    if (!natural) return
+    if (!natural) {
+      return
+    }
     const factor = Math.min((window.innerWidth * 0.92) / natural.w, (window.innerHeight * 0.86) / natural.h, 2.6)
     cell.style.zoom = Math.max(1, factor)
   }
 
   const openCard = (cell) => {
-    if (open || busy) return
+    if (open || busy) {
+      return
+    }
 
     const rect = cell.getBoundingClientRect()
     natural = { w: rect.width, h: rect.height }
@@ -347,7 +391,7 @@ const initHeroCards = debounce(() => {
     cell.style.viewTransitionName = 'hero-card'
     open = cell
 
-    settle(
+    void settle(
       animate(() => {
         stage.appendChild(cell)
         overlay.hidden = false
@@ -359,7 +403,9 @@ const initHeroCards = debounce(() => {
       }),
     ).then(() => {
       const close = overlay.querySelector('.hero-modal-close')
-      if (close && open) close.focus({ preventScroll: true })
+      if (close && open) {
+        close.focus({ preventScroll: true })
+      }
     })
   }
 
@@ -368,23 +414,30 @@ const initHeroCards = debounce(() => {
      re-render, and appending to a detached node makes the card disappear. */
   const restore = (cell) => {
     const liveGrid = document.querySelector('.hero-grid') || grid
-    if (anchor && anchor.isConnected) {
+    if (anchor?.isConnected) {
       anchor.replaceWith(cell)
     } else if (liveGrid) {
       const at = liveGrid.children[cellIndex]
-      if (at) liveGrid.insertBefore(cell, at)
-      else liveGrid.appendChild(cell)
+      if (at) {
+        liveGrid.insertBefore(cell, at)
+      } else {
+        liveGrid.appendChild(cell)
+      }
     }
   }
 
   const closeCard = () => {
     // recover if a previous run desynced: the stage still holds a card
-    if (!open) open = stage.querySelector('.hero-cell')
-    if (!open || busy) return
+    if (!open) {
+      open = stage.querySelector('.hero-cell')
+    }
+    if (!open || busy) {
+      return
+    }
     const cell = open
     open = null
 
-    settle(
+    void settle(
       animate(() => {
         cell.style.zoom = ''
         cell.style.width = ''
@@ -414,30 +467,42 @@ const initHeroCards = debounce(() => {
       }
     })
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') closeCard()
+      if (event.key === 'Escape') {
+        closeCard()
+      }
     })
     window.addEventListener('resize', () => {
-      if (open) fit(open)
+      if (open) {
+        fit(open)
+      }
     })
   }
 
   let bound = 0
   cells.forEach((cell) => {
-    if (cell.dataset.heroCardBound === 'true') return
+    if (cell.dataset.heroCardBound === 'true') {
+      return
+    }
     cell.dataset.heroCardBound = 'true'
     cell.setAttribute('role', 'button')
     cell.setAttribute('tabindex', '0')
 
     cell.addEventListener('click', (event) => {
       // an opened card is just content; its language tabs keep working
-      if (cell.dataset.heroCellOpen === 'true') return
+      if (cell.dataset.heroCellOpen === 'true') {
+        return
+      }
       // and in the grid, a language tab is a tab, not a card click
-      if (event.target.closest('.hero-glass-tabs')) return
+      if (event.target.closest('.hero-glass-tabs')) {
+        return
+      }
       openCard(cell)
     })
 
     cell.addEventListener('keydown', (event) => {
-      if (cell.dataset.heroCellOpen === 'true') return
+      if (cell.dataset.heroCellOpen === 'true') {
+        return
+      }
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         openCard(cell)
@@ -446,7 +511,9 @@ const initHeroCards = debounce(() => {
     bound += 1
   })
 
-  if (bound) console.log(`Initialized ${bound} hero cards`)
+  if (bound) {
+    console.log(`Initialized ${bound} hero cards`)
+  }
 })
 
 /* Landing boxes: a click on a product box in the hero drawing scrolls to

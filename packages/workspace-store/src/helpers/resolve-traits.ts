@@ -7,6 +7,23 @@ type MergeContext = 'object' | 'map' | 'data' | 'reference'
 const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
 const dataFields = new Set(['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue'])
 
+/** Select how the next trait field treats schema references and literal data. */
+const getChildContext = (context: MergeContext, key: string): MergeContext => {
+  if (context === 'data') {
+    return 'data'
+  }
+  if (context === 'map') {
+    return 'object'
+  }
+  if (key === 'channel') {
+    return 'reference'
+  }
+  if (dataFields.has(key) || key.startsWith('x-')) {
+    return 'data'
+  }
+  return schemaMaps.has(key) ? 'map' : 'object'
+}
+
 /**
  * Apply JSON Merge Patch to resolved trait fields. Unlike mergeObjects, null removes a key.
  * Resolve schema references before merging so a message can extend referenced trait headers.
@@ -41,18 +58,7 @@ const mergeTraitFields = (
       delete result[key]
     } else if (value !== undefined) {
       // Schema names and example data can contain literal $ref keys without being references.
-      const childContext: MergeContext =
-        context === 'data'
-          ? 'data'
-          : context === 'map'
-            ? 'object'
-            : key === 'channel'
-              ? 'reference'
-              : dataFields.has(key) || key.startsWith('x-')
-                ? 'data'
-                : schemaMaps.has(key)
-                  ? 'map'
-                  : 'object'
+      const childContext = getChildContext(context, key)
       // Define an own property even for schema properties named __proto__.
       Object.defineProperty(result, key, {
         value: mergeTraitFields(Object.hasOwn(result, key) ? result[key] : undefined, value, childContext, ancestors),

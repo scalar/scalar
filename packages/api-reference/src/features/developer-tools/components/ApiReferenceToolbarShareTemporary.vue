@@ -23,7 +23,7 @@ const { translate } = useLocalization()
 const tempDocUrl = defineModel<string>('url')
 
 async function generateTemporaryLink() {
-  if (loader.isLoading || !workspace || !!tempDocUrl.value) {
+  if (loader.isLoading || !workspace || tempDocUrl.value) {
     return
   }
 

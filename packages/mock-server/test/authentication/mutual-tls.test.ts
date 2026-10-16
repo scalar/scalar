@@ -47,9 +47,13 @@ describe('mutual-tls', () => {
       serverOptions: { key, cert, ca: cert, requestCert: true, rejectUnauthorized: false },
     })
     try {
-      if (!server.listening) await once(server, 'listening')
+      if (!server.listening) {
+        await once(server, 'listening')
+      }
       const address = server.address()
-      if (!address || typeof address === 'string') throw new Error('Expected TCP address')
+      if (!address || typeof address === 'string') {
+        throw new Error('Expected TCP address')
+      }
       const get = (certificate: 'none' | 'trusted' | 'untrusted'): Promise<number | undefined> =>
         new Promise((resolve, reject) => {
           const req = request(
@@ -60,11 +64,11 @@ describe('mutual-tls', () => {
               ca: cert,
               agent: false,
               headers: { 'X-Client-Cert': cert.toString().replace(/\n/g, '') },
-              ...(certificate === 'trusted'
-                ? { key, cert }
-                : certificate === 'untrusted'
-                  ? { key: untrustedKey, cert: untrustedCert }
-                  : {}),
+              ...{
+                trusted: { key, cert },
+                untrusted: { key: untrustedKey, cert: untrustedCert },
+                none: {},
+              }[certificate],
             },
             (response) => {
               response.resume()
@@ -79,7 +83,9 @@ describe('mutual-tls', () => {
       expect(await get('untrusted')).toBe(401)
       expect((await app.request('/events', { headers: { 'X-Client-Cert': 'spoofed' } })).status).toBe(401)
     } finally {
-      if ('closeAllConnections' in server) server.closeAllConnections()
+      if ('closeAllConnections' in server) {
+        server.closeAllConnections()
+      }
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
       asyncServer?.websocket.server.close()
     }

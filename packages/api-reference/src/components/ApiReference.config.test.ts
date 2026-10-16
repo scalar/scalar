@@ -640,7 +640,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
 
     // searchHotKey: f
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(false)
-    wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
+    await wrapper.trigger('keydown', { key: 'f', ctrlKey: true })
     expect(wrapper.findComponent({ name: 'SearchModal' }).props().modalState.open).toBe(true)
   })
 
@@ -798,7 +798,7 @@ describe('ApiReference custom fetch forwarding', () => {
   it('migrates the deprecated configuration.fetch to customFetch', async () => {
     const customFetch = vi.fn() as unknown as typeof fetch
     const spy = vi.spyOn(apiClientModalModule, 'createApiClientModal')
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const wrapper = mountComponent({
       props: {

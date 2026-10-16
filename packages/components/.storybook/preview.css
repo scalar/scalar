@@ -47,16 +47,44 @@ body.sb-show-main,
   border-color: var(--scalar-border-color);
 }
 
-#storybook-docs code,
-#storybook-docs .sbdocs-wrapper code {
+#storybook-docs code {
   background: var(--scalar-background-2);
   color: var(--scalar-color-1);
+}
+
+#storybook-docs pre {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
 }
 
 #storybook-docs p code,
 #storybook-docs li code,
 #storybook-docs td code,
-#storybook-docs th code,
+#storybook-docs th code {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+  border-width: var(--scalar-border-width);
+}
+
+#storybook-docs pre code {
+  background: transparent;
+  color: var(--scalar-color-1);
+}
+
+#storybook-docs .sbdocs-wrapper code {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+}
+
+#storybook-docs .sbdocs-wrapper pre {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-border-color);
+}
+
 #storybook-docs .sbdocs-wrapper p code,
 #storybook-docs .sbdocs-wrapper li code {
   background: var(--scalar-background-2);
@@ -66,18 +94,15 @@ body.sb-show-main,
   border-width: var(--scalar-border-width);
 }
 
-#storybook-docs pre,
-#storybook-docs .sbdocs-wrapper pre,
+#storybook-docs .sbdocs-wrapper pre code {
+  background: transparent;
+  color: var(--scalar-color-1);
+}
+
 #storybook-docs .sbdocs-wrapper .docblock-source {
   background: var(--scalar-background-2);
   color: var(--scalar-color-1);
   border-color: var(--scalar-border-color);
-}
-
-#storybook-docs pre code,
-#storybook-docs .sbdocs-wrapper pre code {
-  background: transparent;
-  color: var(--scalar-color-1);
 }
 
 /* Override syntax highlighting colors if present */
@@ -95,17 +120,23 @@ body.sb-show-main,
   border-color: var(--scalar-border-color);
 }
 
+#storybook-docs tbody svg,
+#storybook-docs tbody svg *,
+#storybook-docs .docblock-argstable svg,
+#storybook-docs .docblock-argstable svg * {
+  background: var(--scalar-background-3);
+  color: var(--scalar-color-2);
+  fill: var(--scalar-color-2);
+  stroke: var(--scalar-color-2);
+}
+
 #storybook-docs tr[title] > * {
   background: var(--scalar-background-3) !important;
   color: var(--scalar-color-2);
 }
 
-#storybook-docs tbody svg,
 #storybook-docs tr[title] svg,
-#storybook-docs tr[title] svg *,
-#storybook-docs tbody svg *,
-#storybook-docs .docblock-argstable svg,
-#storybook-docs .docblock-argstable svg * {
+#storybook-docs tr[title] svg * {
   background: var(--scalar-background-3);
   color: var(--scalar-color-2);
   fill: var(--scalar-color-2);

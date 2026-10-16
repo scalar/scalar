@@ -36,7 +36,9 @@ const authorize = async (app: Hono, extra: Record<string, string> = {}): Promise
   const html = await response.text()
   expect(html).toContain('state=state')
   const code = html.match(/code=(oidc-code-[\w-]+)/)?.[1]
-  if (!code) throw new Error('Missing authorization code')
+  if (!code) {
+    throw new Error('Missing authorization code')
+  }
   return code
 }
 const exchange = (app: Hono, parameters: Record<string, string>): Promise<Response> =>

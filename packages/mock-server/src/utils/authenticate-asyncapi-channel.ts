@@ -47,12 +47,17 @@ export const warnUnsupportedAsyncApiSecurity = (channel: ResolvedChannel): void 
   ]
   const unsupported = new Set(
     schemes.flatMap((scheme) => {
-      if (!scheme) return ['unresolved security reference']
-      if (scheme.type === 'http')
+      if (!scheme) {
+        return ['unresolved security reference']
+      }
+      if (scheme.type === 'http') {
         return ['basic', 'bearer', 'digest'].includes(scheme.scheme?.toLowerCase() ?? '')
           ? []
           : [`http/${scheme.scheme}`]
-      if (['httpApiKey', 'oauth2', 'openIdConnect', 'X509'].includes(scheme.type)) return []
+      }
+      if (['httpApiKey', 'oauth2', 'openIdConnect', 'X509'].includes(scheme.type)) {
+        return []
+      }
       return [scheme.type]
     }),
   )

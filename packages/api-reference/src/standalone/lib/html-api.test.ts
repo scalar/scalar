@@ -121,7 +121,7 @@ describe('createApiReference', () => {
     element!.innerHTML = serverRenderedHtml
 
     consoleWarnSpy.mockClear()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
     createApiReference(element!, config)
 

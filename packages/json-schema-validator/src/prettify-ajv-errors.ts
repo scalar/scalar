@@ -167,6 +167,7 @@ function formatFormatError(error: AjvError, document: unknown): PrettyError {
 const uriReferenceMessage = (document: unknown, path: string): string => {
   const refValue = extractRefValue(document, path)
 
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Control characters are intentionally matched to validate or sanitize input.
   if (refValue && /[^\x00-\x7F]/.test(refValue)) {
     return `$ref "${refValue}" contains non-ASCII characters. Percent-encode them using UTF-8 (RFC 3986).`
   }

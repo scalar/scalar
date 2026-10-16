@@ -33,7 +33,10 @@ export const unwrapAsyncApiSchema = (value: unknown): SchemaObject | undefined =
   // Multi Format Schema Objects carry the real schema under `schema`; unwrap to that payload.
   const schema = isObject(resolved) && 'schemaFormat' in resolved ? getResolvedRef(resolved.schema) : resolved
 
-  return typeof schema === 'boolean' ? getBooleanSchema(schema) : isSchemaObject(schema) ? schema : undefined
+  if (typeof schema === 'boolean') {
+    return getBooleanSchema(schema)
+  }
+  return isSchemaObject(schema) ? schema : undefined
 }
 
 /** Resolves an AsyncAPI message `payload` into the `SchemaObject` the shared Schema component expects. */

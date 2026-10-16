@@ -81,6 +81,7 @@
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
   --scalar-button-1-color: #fff;
 }
+/* biome-ignore lint/style/noDescendingSpecificity: Nested light-mode scopes override this palette by specificity; retain the cascade for elements with both mode classes. */
 .dark-mode {
   --scalar-color-green: #00b648;
   --scalar-color-red: #dd2f2c;
