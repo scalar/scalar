@@ -222,21 +222,21 @@ describe('InfoBlock', () => {
     },
   )
 
-  it.each(['modern', 'classic'] as const)('supports AsyncAPI introduction actions in %s', async (layout) => {
-    const store = createWorkspaceStore()
-    await store.addDocument({ name: 'events', document: { asyncapi: '3.1.0', info: mockInfo } })
-    const document = store.workspace.documents.events
-    if (!document || !('asyncapi' in document)) {
-      throw new Error('Expected AsyncAPI document')
-    }
-    const props = { info: mockInfo, asyncApiDocument: document, layout, eventBus, headingSlugGenerator: () => '' }
-    expect(mount(InfoBlock, { props }).text()).toContain('Copy as Markdown')
-    const custom = mount(InfoBlock, { props, slots: { actions: '<button>Custom action</button>' } })
-    expect(custom.text()).toContain('Custom action')
-    expect(custom.text()).not.toContain('Copy as Markdown')
-    expect(mount(InfoBlock, { props, slots: { actions: () => [] } }).text()).not.toContain('Copy as Markdown')
-    expect(mount(InfoBlock, { props: { ...props, asyncApiDocument: undefined } }).text()).not.toContain(
-      'Copy as Markdown',
-    )
-  })
+  it.each(['modern', 'classic'] as const)(
+    'supports custom introduction actions without a default button in %s',
+    (layout) => {
+      const props = {
+        info: mockInfo,
+        documentType: 'asyncapi' as const,
+        layout,
+        eventBus,
+        headingSlugGenerator: () => '',
+      }
+      expect(mount(InfoBlock, { props }).text()).not.toContain('Copy as Markdown')
+      const custom = mount(InfoBlock, { props, slots: { actions: '<button>Custom action</button>' } })
+      expect(custom.text()).toContain('Custom action')
+      expect(custom.text()).not.toContain('Copy as Markdown')
+      expect(mount(InfoBlock, { props, slots: { actions: () => [] } }).text()).not.toContain('Copy as Markdown')
+    },
+  )
 })

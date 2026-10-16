@@ -157,7 +157,9 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           </Badge>
         </span>
       </Anchor>
-      <slot v-if="$slots.actions" name="actions" />
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
       <CopyAsyncApiMarkdownButton
         v-else
         :document

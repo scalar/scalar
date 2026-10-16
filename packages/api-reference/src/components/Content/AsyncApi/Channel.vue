@@ -185,7 +185,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
         withImages />
     </template>
     <template #actions>
-      <slot v-if="$slots.actions" name="actions" />
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
       <CopyAsyncApiMarkdownButton
         v-else
         :document
