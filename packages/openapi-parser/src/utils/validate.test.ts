@@ -4,6 +4,29 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('preserves literal references in OpenAPI 2 response examples', async () => {
+    const specification = {
+      swagger: '2.0',
+      info: { title: 'Examples', version: '1' },
+      paths: {
+        '/': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: { 'application/json': { $ref: 'literal.json' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = await validate(specification, { throwOnError: true })
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
   it.each([true, false])('preserves a boolean schema for a property named $ref: %s', async ($ref) => {
     const specification = {
       openapi: '3.1.0',

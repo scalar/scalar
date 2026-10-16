@@ -2,6 +2,8 @@
 export type ReferenceContext =
   | 'object'
   | 'schema'
+  | 'response'
+  | 'responseMap'
   | 'example'
   | 'objectMap'
   | 'schemaMap'
@@ -30,7 +32,6 @@ const schemaValues = new Set([
 const objectMaps = new Set([
   'paths',
   'webhooks',
-  'responses',
   'content',
   'mediaTypes',
   'headers',
@@ -55,6 +56,9 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
   if (context === 'callback') {
     return 'object'
   }
+  if (context === 'responseMap') {
+    return 'response'
+  }
   if (context === 'schemaMap') {
     return 'schema'
   }
@@ -68,13 +72,17 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
     return 'literal'
   }
   if (key === 'examples') {
-    return context === 'schema' || Array.isArray(value) ? 'literal' : 'exampleMap'
+    // OpenAPI 2 response examples map media types directly to instance data.
+    return context === 'schema' || context === 'response' || Array.isArray(value) ? 'literal' : 'exampleMap'
   }
   if (schemaMaps.has(key) || schemaArrays.has(key) || key === 'schemas') {
     return 'schemaMap'
   }
   if (schemaValues.has(key)) {
     return Array.isArray(value) ? 'schemaMap' : 'schema'
+  }
+  if (key === 'responses') {
+    return 'responseMap'
   }
   if (key === 'callbacks') {
     return 'callbackMap'
@@ -87,4 +95,8 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
 
 /** Only objects in reference positions may interpret their own $ref field as a URI. */
 export const canResolveReference = (context: ReferenceContext): boolean =>
-  context === 'object' || context === 'schema' || context === 'example' || context === 'callback'
+  context === 'object' ||
+  context === 'schema' ||
+  context === 'example' ||
+  context === 'callback' ||
+  context === 'response'

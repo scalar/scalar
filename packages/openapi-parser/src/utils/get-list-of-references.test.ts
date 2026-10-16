@@ -3,6 +3,26 @@ import { describe, expect, it } from 'vitest'
 import { getListOfReferences } from './get-list-of-references'
 
 describe('get-list-of-references', () => {
+  it('preserves literal references in OpenAPI 2 response examples', () => {
+    const specification = {
+      swagger: '2.0',
+      info: { title: 'Examples', version: '1' },
+      paths: {
+        '/': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: { 'application/json': { $ref: 'literal.json' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    expect(getListOfReferences(specification)).toStrictEqual([])
+  })
+
   it('collects real references while skipping literal values and map names', () => {
     const literal = { $ref: 'literal.json' }
     expect(
