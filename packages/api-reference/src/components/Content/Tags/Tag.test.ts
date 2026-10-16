@@ -5,8 +5,6 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { h } from 'vue'
 
-import CopyAsyncApiMarkdownButton from '@/components/Content/AsyncApi/CopyAsyncApiMarkdownButton.vue'
-
 import Tag from './Tag.vue'
 
 describe('Tag', () => {
@@ -239,12 +237,13 @@ describe('Tag', () => {
   })
 
   it.each(['modern', 'classic'] as const)(
-    'uses the tag name for AsyncAPI actions and supports overrides in %s',
+    'renders AsyncAPI tags without default copy actions and supports custom actions in %s',
     (layout) => {
       const asyncApiDocument = {
         asyncapi: '3.1.0',
+        'x-scalar-original-document-hash': '',
         info: { title: 'Events', version: '1', tags: [{ name: 'orders' }] },
-      } as AsyncApiDocument
+      } satisfies AsyncApiDocument
       const props = {
         tag: { ...mockTag, name: 'orders', title: 'Order events' },
         layout,
@@ -254,8 +253,7 @@ describe('Tag', () => {
         asyncApiDocument,
       }
       const wrapper = mount(Tag, { props })
-      expect(wrapper.getComponent(CopyAsyncApiMarkdownButton).props('selection')).toEqual({ tag: 'orders' })
-      expect(wrapper.text()).toContain('Copy as Markdown')
+      expect(wrapper.text()).not.toContain('Copy as Markdown')
       wrapper.unmount()
       const custom = mount(Tag, { props, slots: { actions: '<button>Custom action</button>' } })
       expect(custom.text()).toContain('Custom action')
@@ -277,11 +275,15 @@ describe('Tag', () => {
         moreThanOneTag: false,
         isCollapsed: false,
         eventBus: null,
-        asyncApiDocument: { asyncapi: '3.1.0', info: { title: 'Events', version: '1' } } as AsyncApiDocument,
+        asyncApiDocument: {
+          asyncapi: '3.1.0',
+          'x-scalar-original-document-hash': '',
+          info: { title: 'Events', version: '1' },
+        } satisfies AsyncApiDocument,
       },
     })
     expect(wrapper.text()).toContain('default')
-    expect(wrapper.text()).toContain('Copy as Markdown')
+    expect(wrapper.text()).not.toContain('Copy as Markdown')
     wrapper.unmount()
   })
 })
