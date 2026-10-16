@@ -1,6 +1,11 @@
 # Scalar Blocks
 
-🚧 WIP 🚧
+Embed individual pieces of API documentation in your own application.
+
+- [Getting Started](https://scalar.com/products/api-references/blocks/getting-started)
+- [Code Example](https://scalar.com/products/api-references/blocks/code-example): request snippets with a JavaScript mounting helper or Vue component.
+- [Schema](https://scalar.com/products/api-references/blocks/schema): schema properties and compositions for Vue.
+- [Specification Extensions](https://scalar.com/products/api-references/blocks/specification-extensions): selected extension values for Vue.
 
 ---
 
@@ -17,33 +22,7 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 
 ## Usage
 
-```ts
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { createCodeExample } from '@scalar/blocks/code-example'
-import '@scalar/blocks/style.css'
-
-// Load OpenAPI documents
-const store = createWorkspaceStore()
-
-await store.addDocument({
-  name: 'default',
-  url: '/openapi.json'
-})
-
-// Mount a block
-createCodeExample('#block', {
-  // Data Source
-  store,
-  // Operation
-  path: '/hello',
-  method: 'post',
-  // Configuration
-  selectedClient: 'node/undici',
-  selectedServer: {
-    url: 'https://api.example.com',
-  },
-})
-```
+See [Getting Started](https://scalar.com/products/api-references/blocks/getting-started) for installation, styles, and a complete runnable example.
 
 ## Schema tree
 
@@ -64,7 +43,12 @@ const expansion = useSchemaExpansion(scrollTargetId)
 
 <template>
   <div class="scalar-app">
-    <Schema :schema="schema" :eventBus="null" :options="{ hideModels: true }" :scrollTargetId="scrollTargetId" :expansion="expansion" />
+    <Schema
+      :schema="schema"
+      :eventBus="null"
+      :options="{ hideModels: true }"
+      :scrollTargetId="scrollTargetId"
+      :expansion="expansion" />
   </div>
 </template>
 ```
