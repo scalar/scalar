@@ -55,13 +55,43 @@ describe('adaptAsyncApiParameters', () => {
 
     const [parameter] = adaptAsyncApiParameters(parameters)
     expect(parameter).not.toHaveProperty('description')
+    expect(parameter).not.toHaveProperty('location')
+  })
+
+  it('preserves the location alongside existing parameter details', () => {
+    expect(
+      adaptAsyncApiParameters({
+        userId: {
+          description: 'The user id',
+          location: '$message.payload#/user/id',
+          enum: ['alice', 'bob'],
+          default: 'alice',
+          examples: ['bob'],
+        },
+      }),
+    ).toStrictEqual([
+      {
+        name: 'userId',
+        in: 'path',
+        required: true,
+        description: 'The user id',
+        location: '$message.payload#/user/id',
+        schema: { type: 'string', enum: ['alice', 'bob'], default: 'alice', examples: ['bob'] },
+      },
+    ])
+  })
+
+  it('keeps unresolved reference parameters visible without a location', () => {
+    expect(adaptAsyncApiParameters({ userId: { $ref: '#/components/parameters/missing' } })).toStrictEqual([
+      { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+    ])
   })
 
   it('resolves $ref parameters', () => {
     const parameters = {
       userId: {
         $ref: '#/components/parameters/userId',
-        '$ref-value': { description: 'Resolved user id' },
+        '$ref-value': { description: 'Resolved user id', location: '$message.header#/userId' },
       },
     } as unknown as AsyncApiChannelObject['parameters']
 
@@ -71,6 +101,7 @@ describe('adaptAsyncApiParameters', () => {
         in: 'path',
         required: true,
         description: 'Resolved user id',
+        location: '$message.header#/userId',
         schema: { type: 'string' },
       },
     ])

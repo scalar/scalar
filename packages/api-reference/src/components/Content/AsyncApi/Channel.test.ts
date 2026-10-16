@@ -4,6 +4,8 @@ import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/n
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import ParameterListItem from '@/features/Operation/components/ParameterListItem.vue'
+
 import Channel from './Channel.vue'
 import Message from './Message.vue'
 
@@ -178,6 +180,53 @@ describe('Channel', () => {
     expect(wrapper.text()).toContain('Parameters')
     expect(wrapper.text()).toContain('userId')
     expect(wrapper.text()).toContain('The unique user identifier')
+  })
+
+  it.each(['modern', 'classic'] as const)('renders parameter locations as literal code in the %s layout', (layout) => {
+    const payloadLocation = '$message.payload#/user/<id>`'
+    const headerLocation = '$message.header#/tenant'
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({ channelAddress: 'users/{userId}/{tenant}/{region}/{missing}' }),
+        document: createDocumentWithChannel({
+          address: 'users/{userId}/{tenant}/{region}/{missing}',
+          parameters: {
+            userId: {
+              description: 'The unique user identifier',
+              location: payloadLocation,
+              enum: ['alice', 'bob'],
+              default: 'alice',
+              examples: ['bob'],
+            },
+            tenant: {
+              $ref: '#/components/parameters/tenant',
+              '$ref-value': { location: headerLocation },
+            },
+            region: { description: 'No location supplied' },
+            missing: { $ref: '#/components/parameters/missing' },
+          },
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    const rows = wrapper.findAllComponents(ParameterListItem)
+    const locations = rows.map((row) =>
+      row
+        .findAll('code')
+        .map((code) => code.text())
+        .filter((text) => text.startsWith('$message.')),
+    )
+    expect(locations).toStrictEqual([[payloadLocation], [headerLocation], [], []])
+    expect(rows.map((row) => row.text().includes('Location:'))).toStrictEqual([true, true, false, false])
+    expect(rows[0]?.text()).toContain('The unique user identifier')
+    expect(rows[0]?.text()).toContain('required')
+    expect(rows[0]?.text()).toContain('alice')
+    expect(rows[0]?.text()).toContain('bob')
+    expect(wrapper.find('id').exists()).toBe(false)
+    expect(rows[3]?.text()).toContain('missing')
   })
 
   it('does not render a parameters section when the channel has none', () => {

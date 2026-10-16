@@ -69,6 +69,11 @@ const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
 }>()
 
+defineSlots<{
+  /** Additional metadata displayed alongside the schema details. */
+  default?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 /** Compact parameter rows also hide scalar details, unlike response rows. */
@@ -408,12 +413,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
           is="div"
           :breadcrumb="schemaBreadcrumb"
           compact
-          :extensionSource="'in' in parameter ? parameter : undefined"
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
           :eventBus="eventBus"
           :expansion="expansion"
+          :extensionSource="'in' in parameter ? parameter : undefined"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
           :name="collapsableItems && !isStaticTreeItem ? '' : name"
@@ -450,6 +455,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 
+        <slot />
+
         <!-- Headers: the body reads first, directly under the status row, and
              Headers follows — opening Headers then appends its list at the
              end instead of pushing the body's description away from the
@@ -468,8 +475,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
           :schemaKeyboardNav="options.schemaKeyboardNav"
-          :showExtensions="options.showExtensions"
           :scrollTargetId="scrollTargetId"
+          :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
       <div
