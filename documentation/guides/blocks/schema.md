@@ -34,7 +34,9 @@ const schema = coerceValue(SchemaObjectSchema, {
 </script>
 
 <template>
-  <div class="scalar-app light-mode">
+  <div
+    class="scalar-app light-mode"
+    style="padding: 24px">
     <ScalarTeleportRoot>
       <Schema
         name="User"
@@ -45,6 +47,8 @@ const schema = coerceValue(SchemaObjectSchema, {
   </div>
 </template>
 ```
+
+Leave space around the schema for its expand/collapse controls, which extend into the left gutter. The wrapper above uses 24 pixels of padding.
 
 `eventBus` and `options` are required props. Use `null` when your host does not handle navigation events. `hideModels: true` keeps model names as text when there is no models section to navigate to.
 
