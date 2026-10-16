@@ -30,26 +30,26 @@ npm add @scalar/json-magic
 
 There is no root export. Every module is imported from its own entry point, so you only pay for what you use.
 
-| Entry point | Exports |
-| --- | --- |
-| `@scalar/json-magic/bundle` | `bundle`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
-| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml` |
-| `@scalar/json-magic/bundle/plugins/node` | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles` |
-| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory` |
-| `@scalar/json-magic/dereference` | `dereference` |
-| `@scalar/json-magic/join` | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types |
-| `@scalar/json-magic/diff` | `diff`, `merge`, `apply`, the `Difference` type |
-| `@scalar/json-magic/magic-proxy` | `createMagicProxy`, `getRaw` |
-| `@scalar/json-magic/helpers/*` | Small standalone helpers, see [Helpers](#helpers) |
+| Entry point                                 | Exports                                                                                                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@scalar/json-magic/bundle`                 | `bundle`, `isLocalRef`, `prefixInternalRef`, `prefixInternalRefRecursive`, `resolveAndCopyReferences`, plus the `Plugin`, `LoaderPlugin`, `LifecyclePlugin` and `ResolveResult` types |
+| `@scalar/json-magic/bundle/plugins/browser` | `fetchUrls`, `parseJson`, `parseYaml`                                                                                                                                                 |
+| `@scalar/json-magic/bundle/plugins/node`    | `fetchUrls`, `parseJson`, `parseYaml`, `readFiles`                                                                                                                                    |
+| `@scalar/json-magic/bundle/value-generator` | `getHash`, `generateUniqueValue`, `uniqueValueGeneratorFactory`                                                                                                                       |
+| `@scalar/json-magic/dereference`            | `dereference`                                                                                                                                                                         |
+| `@scalar/json-magic/join`                   | `join`, plus the `JoinOptions`, `JoinStrategy`, `JoinContext`, `JoinConflict` and `JoinResult` types                                                                                  |
+| `@scalar/json-magic/diff`                   | `diff`, `merge`, `apply`, the `Difference` type                                                                                                                                       |
+| `@scalar/json-magic/magic-proxy`            | `createMagicProxy`, `getRaw`                                                                                                                                                          |
+| `@scalar/json-magic/helpers/*`              | Small standalone helpers, see [Helpers](#helpers)                                                                                                                                     |
 
 ## Which module do I need?
 
-| I want to … | Use |
-| --- | --- |
-| Pull external `$ref` documents into a single self-contained document | [`bundle`](#bundle) |
-| Read through `$ref` pointers without rewriting the document | [`magic-proxy`](#magic-proxy) |
-| Resolve every `$ref`, internal and external, in one call | [`dereference`](#dereference) |
-| Compare two documents and merge concurrent edits | [`diff`](#diff) |
+| I want to …                                                          | Use                           |
+| -------------------------------------------------------------------- | ----------------------------- |
+| Pull external `$ref` documents into a single self-contained document | [`bundle`](#bundle)           |
+| Read through `$ref` pointers without rewriting the document          | [`magic-proxy`](#magic-proxy) |
+| Resolve every `$ref`, internal and external, in one call             | [`dereference`](#dereference) |
+| Compare two documents and merge concurrent edits                     | [`diff`](#diff)               |
 
 ## join
 
@@ -60,8 +60,16 @@ import { join } from '@scalar/json-magic/join'
 
 const result = join(
   [
-    { title: 'First', catalog: { apple: { price: 2 } }, labels: [{ name: 'fruit' }] },
-    { title: 'Second', catalog: { pear: { price: 3 } }, labels: [{ name: 'fruit' }] },
+    {
+      title: 'First',
+      catalog: { apple: { price: 2 } },
+      labels: [{ name: 'fruit' }],
+    },
+    {
+      title: 'Second',
+      catalog: { pear: { price: 3 } },
+      labels: [{ name: 'fruit' }],
+    },
   ],
   {
     strategy: ({ path }) => {
@@ -85,13 +93,13 @@ if (result.ok) {
 
 The optional `strategy` callback receives `{ path, current, incoming }` for each visited field. Paths are arrays of literal keys, so a key containing `/` remains one segment. The root always merges; returning `replace` or `conflict` for an object treats that object as a whole and does not visit its children.
 
-| Strategy | Behavior |
-| --- | --- |
-| `merge` (default) | Recursively merge objects; replace other values using the later input. |
-| `merge-by-index` | Recursively merge objects and arrays, combining array entries at matching indexes and retaining trailing entries. |
-| `skip` | Ignore this incoming field, leaving any existing value unchanged. |
-| `replace` | Replace the entire value, including objects. |
-| `conflict` | Report a duplicate key, even if both values are equal or the earlier value is null. |
+| Strategy               | Behavior                                                                                                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `merge` (default)      | Recursively merge objects; replace other values using the later input.                                                                                                                                    |
+| `merge-by-index`       | Recursively merge objects and arrays, combining array entries at matching indexes and retaining trailing entries.                                                                                         |
+| `skip`                 | Ignore this incoming field, leaving any existing value unchanged.                                                                                                                                         |
+| `replace`              | Replace the entire value, including objects.                                                                                                                                                              |
+| `conflict`             | Report a duplicate key, even if both values are equal or the earlier value is null.                                                                                                                       |
 | `{ uniqueBy: 'name' }` | Combine arrays, retaining the first item for each identity property value. Items without that property remain distinct. Use scalar identity values. Non-array incoming values replace the existing value. |
 
 An empty input list returns `{ ok: true, document: {} }`. Conflicts return `{ ok: false, conflicts }` without a partial document. Inputs must be acyclic JSON objects.
@@ -99,6 +107,48 @@ An empty input list returns `{ ok: true, document: {} }`. Conflicts return `{ ok
 For OpenAPI, use `join` from `@scalar/openapi-parser`, which supplies OpenAPI rules, version upgrades, and optional component prefixes. Other formats can supply their own rules; this module does not include an AsyncAPI adapter.
 
 ## bundle
+
+### Preserve selected references
+
+Pass the synchronous `preserveReference(ref, { origin })` option to leave selected
+`$ref` edges authored as-is. `ref` includes the original fragment; `origin` is the
+effective source URI, including enclosing `$id` values and any `resolveDocument`
+identity. Returning `true` bypasses target lookup, loading, cache insertion, and
+reference rewriting, even for already indexed or cached targets. Sibling fields
+are still traversed. The callback is not used for loading the input root.
+
+```ts
+import { bundle } from '@scalar/json-magic/bundle'
+import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+
+const result = await bundle('https://example.test/api/root.json', {
+  plugins: [fetchUrls(), readFiles()],
+  treeShake: true,
+  preserveReference: (ref) => /^https?:\/\//i.test(ref),
+})
+```
+
+This loads the URL root and bundles local files, internal references, and relative
+references such as `./child.json` inside remote documents. Only authored absolute
+HTTP(S) references are preserved by this predicate; keep the HTTP loader enabled.
+Preservation emits no resolution start, success, or error hooks. Real failures on
+other edges retain normal error reporting. Node-processing hooks still run.
+
+When this option is present, indexed `$id` values are resolved against their
+original effective bases so serialization at another location retains schema
+identity and anchor scope. Like normal bundling, this can mutate input and cached
+objects. URL maps include only bundled resources. Omit the option to retain the
+existing bundling behavior. Predicates preserving relative references are
+responsible for ensuring those references remain meaningful at the output base;
+use the absolute HTTP(S) predicate above for portable external references.
+
+Known limitation: an embedded schema with its own `$id` cannot reliably reference
+another bundled resource through the outer document when that outer document has
+no declared identity. For example, a fragment-only `#/x-ext/...` reference inside
+that schema resolves against the schema, not the outer bundle. Supplying a
+format-appropriate root identity through `resolveDocument` avoids this case.
+Preserving selected references does not currently fix anonymous-root cross-scope
+bundling; `$id` normalization alone does not make that output portable.
 
 `bundle` walks a JSON object, resolves every external `$ref` (URLs, local files, or anything a custom loader plugin can handle) and embeds the result into the document itself. The original `$ref` values are rewritten to point at the embedded copies, so the output is a single self-contained document.
 
@@ -142,10 +192,10 @@ When the input is an object it is modified in place, and the same object is retu
 
 A loader plugin teaches the bundler how to read one kind of reference. Import loaders from `@scalar/json-magic/bundle/plugins/browser` in the browser, or from `@scalar/json-magic/bundle/plugins/node` in Node.js. The Node entry point is a superset: it adds `readFiles`, which needs filesystem access.
 
-| Loader | Handles | Available in |
-| --- | --- | --- |
-| `fetchUrls` | `http://` and `https://` references | browser, node |
-| `readFiles` | Local file paths | node |
+| Loader      | Handles                               | Available in  |
+| ----------- | ------------------------------------- | ------------- |
+| `fetchUrls` | `http://` and `https://` references   | browser, node |
+| `readFiles` | Local file paths                      | node          |
 | `parseJson` | A raw JSON string passed as the input | browser, node |
 | `parseYaml` | A raw YAML string passed as the input | browser, node |
 
@@ -381,20 +431,20 @@ await bundle(document, {
 
 ### Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `plugins` | `Plugin[]` | — | Loader and lifecycle plugins used during bundling. Required. |
-| `treeShake` | `boolean` | — | Only keep the parts of external documents that are actually referenced. Required. |
-| `depth` | `number` | unlimited | How deeply nested `$ref` pointers are followed. See the note below. |
-| `root` | `UnknownObject` | the input | Base document to write external documents into, used for partial bundling. |
-| `origin` | `string` | the input | Base path used to resolve relative references. |
-| `cache` | `Map<string, Promise<ResolveResult>>` | new map | Cache of in-flight resolutions, reused across `bundle` calls to avoid refetching. |
-| `visitedNodes` | `Set<unknown>` | new set | Nodes that have already been bundled, used to avoid re-bundling during partial bundles. |
-| `urlMap` | `boolean` | `false` | Keep the mapping of generated keys to their original URLs in the output. |
-| `externalDocumentsKey` | `string` | `'x-ext'` | Key that holds the bundled external documents. |
-| `externalDocumentsMappingsKey` | `string` | `'x-ext-urls'` | Key that holds the mapping between generated keys and original URLs. |
-| `compress` | `(value: string) => string \| Promise<string>` | hash | Function used to shorten URLs and file paths into document keys. |
-| `hooks` | `object` | — | Lifecycle hooks, see [Hooks](#hooks). |
+| Option                         | Type                                           | Default        | Description                                                                             |
+| ------------------------------ | ---------------------------------------------- | -------------- | --------------------------------------------------------------------------------------- |
+| `plugins`                      | `Plugin[]`                                     | —              | Loader and lifecycle plugins used during bundling. Required.                            |
+| `treeShake`                    | `boolean`                                      | —              | Only keep the parts of external documents that are actually referenced. Required.       |
+| `depth`                        | `number`                                       | unlimited      | How deeply nested `$ref` pointers are followed. See the note below.                     |
+| `root`                         | `UnknownObject`                                | the input      | Base document to write external documents into, used for partial bundling.              |
+| `origin`                       | `string`                                       | the input      | Base path used to resolve relative references.                                          |
+| `cache`                        | `Map<string, Promise<ResolveResult>>`          | new map        | Cache of in-flight resolutions, reused across `bundle` calls to avoid refetching.       |
+| `visitedNodes`                 | `Set<unknown>`                                 | new set        | Nodes that have already been bundled, used to avoid re-bundling during partial bundles. |
+| `urlMap`                       | `boolean`                                      | `false`        | Keep the mapping of generated keys to their original URLs in the output.                |
+| `externalDocumentsKey`         | `string`                                       | `'x-ext'`      | Key that holds the bundled external documents.                                          |
+| `externalDocumentsMappingsKey` | `string`                                       | `'x-ext-urls'` | Key that holds the mapping between generated keys and original URLs.                    |
+| `compress`                     | `(value: string) => string \| Promise<string>` | hash           | Function used to shorten URLs and file paths into document keys.                        |
+| `hooks`                        | `object`                                       | —              | Lifecycle hooks, see [Hooks](#hooks).                                                   |
 
 #### depth
 
@@ -448,13 +498,13 @@ await bundle(input, {
 
 Hooks let you observe and extend the bundling process, which is handy for progress reporting and error tracking.
 
-| Hook | Called when |
-| --- | --- |
-| `onResolveStart` | The bundler starts resolving a `$ref` |
-| `onResolveSuccess` | A `$ref` was resolved successfully |
-| `onResolveError` | A `$ref` could not be resolved |
+| Hook                  | Called when                              |
+| --------------------- | ---------------------------------------- |
+| `onResolveStart`      | The bundler starts resolving a `$ref`    |
+| `onResolveSuccess`    | A `$ref` was resolved successfully       |
+| `onResolveError`      | A `$ref` could not be resolved           |
 | `onBeforeNodeProcess` | Before a node is processed, may be async |
-| `onAfterNodeProcess` | After a node is processed, may be async |
+| `onAfterNodeProcess`  | After a node is processed, may be async  |
 
 ```ts
 import { bundle } from '@scalar/json-magic/bundle'
@@ -501,10 +551,10 @@ It works in two modes:
 
 ### Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `sync` | `boolean` | `false` | Resolve internal references only, without returning a Promise. |
-| `plugins` | `Plugin[]` | `[fetchUrls()]` | Loaders used to resolve external references in async mode. |
+| Option    | Type       | Default         | Description                                                    |
+| --------- | ---------- | --------------- | -------------------------------------------------------------- |
+| `sync`    | `boolean`  | `false`         | Resolve internal references only, without returning a Promise. |
+| `plugins` | `Plugin[]` | `[fetchUrls()]` | Loaders used to resolve external references in async mode.     |
 
 The result is an object with a `success` property. On success it carries the dereferenced `data`, and on failure it carries an `errors` array describing the references that could not be resolved.
 
@@ -539,8 +589,8 @@ if (result.success) {
 To resolve references from somewhere other than HTTP, pass your own loaders:
 
 ```ts
-import { dereference } from '@scalar/json-magic/dereference'
 import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
+import { dereference } from '@scalar/json-magic/dereference'
 
 const result = await dereference(document, {
   plugins: [readFiles(), fetchUrls()],
@@ -551,11 +601,11 @@ const result = await dereference(document, {
 
 Compare two JSON objects, merge changes made in parallel, and surface the conflicts that need to be resolved manually.
 
-| Function | Description |
-| --- | --- |
+| Function              | Description                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------- |
 | `diff(base, updated)` | Returns the list of `add`, `update` and `delete` changes that turn `base` into `updated` |
-| `merge(diffA, diffB)` | Combines two changesets made against the same base into `{ diffs, conflicts }` |
-| `apply(base, diffs)` | Applies a changeset to a document and returns it |
+| `merge(diffA, diffB)` | Combines two changesets made against the same base into `{ diffs, conflicts }`           |
+| `apply(base, diffs)`  | Applies a changeset to a document and returns it                                         |
 
 These three functions work on the documents themselves, not on copies of them. `apply` mutates the document it is given, `merge` merges one changeset into the entries of the other, and the changes a diff carries are live references into the documents that were compared. That means an applied document keeps sharing subtrees with the document it was diffed against, and a merge writes into the document behind its second changeset. Deep clone the documents before diffing them whenever you need the originals to stay untouched — cloning only the document you apply to is not enough.
 
@@ -595,7 +645,10 @@ const objectV2 = {
 }
 
 // Merge the changes of both versions with the same parent object
-const { diffs, conflicts } = merge(diff(baseObject, objectV1), diff(baseObject, objectV2))
+const { diffs, conflicts } = merge(
+  diff(baseObject, objectV1),
+  diff(baseObject, objectV2),
+)
 
 // Apply changes from v1 and v2 to the parent object to get the final object
 const finalDocument = apply(baseObject, diffs)
@@ -656,7 +709,10 @@ Deeply nested values are proxied too, so `$ref-value` works at any depth. Writes
 Properties prefixed with `__scalar_` are treated as internal: they read as `undefined`, they are left out of `Object.keys`, and `in` checks return `false`. Pass `{ showInternal: true }` to expose them.
 
 ```ts
-const proxy = createMagicProxy({ __scalar_meta: 'hidden' }, { showInternal: true })
+const proxy = createMagicProxy(
+  { __scalar_meta: 'hidden' },
+  { showInternal: true },
+)
 
 // 'hidden'
 console.log(proxy.__scalar_meta)
@@ -666,27 +722,26 @@ console.log(proxy.__scalar_meta)
 
 Standalone helpers, each with its own entry point.
 
-| Helper | Description |
-| --- | --- |
-| `@scalar/json-magic/helpers/escape-json-pointer` | Escape `~` and `/` in a JSON pointer segment |
-| `@scalar/json-magic/helpers/unescape-json-pointer` | Reverse of `escapeJsonPointer` |
-| `@scalar/json-magic/helpers/get-segments-from-path` | Split a JSON pointer into unescaped segments |
-| `@scalar/json-magic/helpers/get-value-by-path` | Read the value at a list of path segments |
-| `@scalar/json-magic/helpers/set-value-at-path` | Write a value at a JSON pointer, creating missing nodes |
-| `@scalar/json-magic/helpers/is-file-path` | Check whether a string looks like a file path |
-| `@scalar/json-magic/helpers/is-http-url` | Check whether a string is an HTTP or HTTPS URL |
-| `@scalar/json-magic/helpers/is-json-object` | Check whether a string is a JSON object |
-| `@scalar/json-magic/helpers/is-yaml` | Check whether a string is valid YAML |
-| `@scalar/json-magic/helpers/normalize` | Parse a JSON or YAML string into an object |
+| Helper                                              | Description                                             |
+| --------------------------------------------------- | ------------------------------------------------------- |
+| `@scalar/json-magic/helpers/escape-json-pointer`    | Escape `~` and `/` in a JSON pointer segment            |
+| `@scalar/json-magic/helpers/unescape-json-pointer`  | Reverse of `escapeJsonPointer`                          |
+| `@scalar/json-magic/helpers/get-segments-from-path` | Split a JSON pointer into unescaped segments            |
+| `@scalar/json-magic/helpers/get-value-by-path`      | Read the value at a list of path segments               |
+| `@scalar/json-magic/helpers/set-value-at-path`      | Write a value at a JSON pointer, creating missing nodes |
+| `@scalar/json-magic/helpers/is-file-path`           | Check whether a string looks like a file path           |
+| `@scalar/json-magic/helpers/is-http-url`            | Check whether a string is an HTTP or HTTPS URL          |
+| `@scalar/json-magic/helpers/is-json-object`         | Check whether a string is a JSON object                 |
+| `@scalar/json-magic/helpers/is-yaml`                | Check whether a string is valid YAML                    |
+| `@scalar/json-magic/helpers/normalize`              | Parse a JSON or YAML string into an object              |
 
 ```ts
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
 
-const { value } = getValueByPath({ components: { schemas: { User: { type: 'object' } } } }, [
-  'components',
-  'schemas',
-  'User',
-])
+const { value } = getValueByPath(
+  { components: { schemas: { User: { type: 'object' } } } },
+  ['components', 'schemas', 'User'],
+)
 ```
 
 ## Community
