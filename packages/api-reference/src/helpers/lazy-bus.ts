@@ -279,13 +279,14 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
+  root: Document | ShadowRoot = document,
 ) => {
   const item = getEntryById(id)
 
   // Even a rendered destination can move while sections above it finish rendering.
   cancelActiveScroll?.()
   const stopTime = Date.now() + SCROLL_RETRY_MS
-  const hold = freeze(id, blockIntersection())
+  const hold = freeze(id, blockIntersection(), root)
   addLazyCompleteCallback(hold.renderComplete)
   const { rawId } = resolveNavigationId(id, getEntryById)
 
@@ -328,7 +329,7 @@ export const scrollToLazy = (
   addParents(rawId)
 
   void nextTick(() => {
-    tryScroll(id, stopTime, hold, rawId)
+    tryScroll(id, stopTime, hold, root, rawId)
   })
 }
 
@@ -383,7 +384,9 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): number => {
   const target = element.getBoundingClientRect()
   const targetX = target.left + target.width / 2
-  const headers = Array.from(element.ownerDocument.querySelectorAll<HTMLElement>('[data-scalar-scroll-header]'))
+  const headers = Array.from(
+    (element.getRootNode() as Document | ShadowRoot).querySelectorAll<HTMLElement>('[data-scalar-scroll-header]'),
+  )
     .flatMap((candidate) => {
       if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
         return []
@@ -467,11 +470,17 @@ const scrollInContainers = (element: HTMLElement, containers: HTMLElement[]): vo
  * @param id - The id of the element to scroll to
  * @param stopTime - The time to stop retrying in unix milliseconds
  */
-const tryScroll = (id: string, stopTime: number, hold: ReturnType<typeof freeze>, fallbackId?: string): void => {
+const tryScroll = (
+  id: string,
+  stopTime: number,
+  hold: ReturnType<typeof freeze>,
+  root: Document | ShadowRoot,
+  fallbackId?: string,
+): void => {
   if (!hold.isActive()) {
     return
   }
-  const element = document.getElementById(id)
+  const element = root.getElementById(id)
   if (element) {
     hold.scroll(element)
     if (element instanceof HTMLElement && scrollTargetId.value === id) {
@@ -479,10 +488,10 @@ const tryScroll = (id: string, stopTime: number, hold: ReturnType<typeof freeze>
     }
     clearScrollTarget(id)
   } else if (Date.now() < stopTime) {
-    requestAnimationFrame(() => tryScroll(id, stopTime, hold, fallbackId))
+    requestAnimationFrame(() => tryScroll(id, stopTime, hold, root, fallbackId))
   } else {
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
-      const fallback = document.getElementById(fallbackId)
+      const fallback = root.getElementById(fallbackId)
       if (fallback) {
         scrollToElement(fallback)
       }
@@ -495,6 +504,7 @@ const tryScroll = (id: string, stopTime: number, hold: ReturnType<typeof freeze>
 const freeze = (
   id: string,
   unblock: UnblockFn,
+  root: Document | ShadowRoot,
 ): {
   renderComplete: () => void
   cancel: () => void
@@ -575,7 +585,7 @@ const freeze = (
     if (containers.every((container, index) => container.scrollTop === expectedScrollTops[index])) {
       return
     }
-    const element = document.getElementById(id)
+    const element = root.getElementById(id)
     if (element) {
       // Replacing a lazy placeholder or native anchoring during a layout change
       // must not be mistaken for a scrollbar drag, which has no pointer event.
@@ -599,7 +609,7 @@ const freeze = (
     if (stopped) {
       return
     }
-    const element = document.getElementById(id)
+    const element = root.getElementById(id)
     if (element) {
       updateContainers(element)
       // Include every scrollport so browser anchoring does not hide layout changes,
