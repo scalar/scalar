@@ -83,6 +83,8 @@ const navigate = (event: MouseEvent): void => {
 <style scoped>
 .endpoint {
   display: flex;
+  align-items: center;
+  min-height: 24px;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
