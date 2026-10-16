@@ -39,6 +39,21 @@ const createDocument = (): AsyncApiDocument => ({
 })
 
 describe('create-async-api-schema-adapter', () => {
+  it('adapts dependency schemas without changing property-list dependencies or source data', () => {
+    const source = {
+      type: 'object',
+      dependencies: {
+        card: ['address'],
+        account: { type: 'object', discriminator: 'kind', properties: { kind: { type: 'string' } } },
+      },
+    }
+    const before = structuredClone(source)
+    const result = createAsyncApiSchemaAdapter(createDocument())(source)
+    expect(Reflect.get(result!, 'dependencies').card).toStrictEqual(['address'])
+    expect(Reflect.get(result!, 'dependencies').account.discriminator).toStrictEqual({ propertyName: 'kind' })
+    expect(source).toStrictEqual(before)
+  })
+
   it('preserves discriminator semantics through workspace ingestion and proxy resolution', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document: createDocument() })

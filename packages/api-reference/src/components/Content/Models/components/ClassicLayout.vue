@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import {
+  Schema,
+  schemaDialect,
   SchemaHeading,
   SchemaProperty,
   type SchemaRenderingProps,
@@ -60,9 +62,20 @@ const { level: headingLevel } = useDocumentOutline('model')
         </SectionHeaderTag>
       </Anchor>
     </template>
+    <!-- Draft-07 constraints belong to the model as well as its properties. -->
+    <Schema
+      v-if="schemaDialect in schema"
+      :breadcrumb="[id]"
+      :eventBus
+      :expansion
+      noncollapsible
+      :options="{ ...options, document }"
+      :schema
+      :scrollTargetId
+      :specificationExtension />
     <!-- Schema -->
     <div
-      v-if="'properties' in schema"
+      v-else-if="'properties' in schema"
       class="properties">
       <SchemaProperty
         v-for="[property, value] in Object.entries(schema.properties ?? {})"
