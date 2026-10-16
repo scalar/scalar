@@ -35,12 +35,13 @@ useCardHeading(id)
   <ScalarCardSection
     v-bind="
       cx(
-        'scalar-card-header leading-[22px] font-medium py-[6.75px] px-3 shrink-0',
+        'scalar-card-header flex-wrap gap-y-1 leading-[22px] font-medium py-[6.75px] px-3 shrink-0',
       )
     ">
+    <!-- Sized to its content so the actions only drop to their own row when the title does not fit beside them -->
     <div
       :id="id"
-      class="scalar-card-header-title min-w-0 flex-1 truncate">
+      class="scalar-card-header-title min-w-0 flex-auto">
       <slot />
     </div>
     <div

@@ -1,4 +1,5 @@
 import { ScalarTeleportRoot } from '@scalar/components/teleport'
+import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -194,7 +195,8 @@ export const createCodeExample = (el: HTMLElement | string, options: CreateCodeE
 
   // Render the operation path in the header by default. The reference renders
   // this via the `#header` slot too, so the standalone block matches its look.
-  const renderHeader = () => h('span', { class: 'font-code text-c-2 min-w-0 truncate' }, options.path)
+  const renderHeader = () =>
+    h('span', { class: 'font-code text-c-2 min-w-0' }, h(ScalarWrappingText, { text: options.path }))
 
   // Wrap the block in its own teleport root so floating UI (the client picker
   // popover) renders inside the themed `.scalar-app` wrapper instead of escaping
