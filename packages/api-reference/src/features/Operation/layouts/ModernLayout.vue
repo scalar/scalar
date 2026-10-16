@@ -196,7 +196,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
         </div>
 
         <!-- Operation actions -->
-        <div class="operation-auth mb-1.5 flex min-h-8 flex-wrap items-center gap-3">
+        <div
+          class="operation-auth mb-1.5 flex min-h-8 flex-wrap items-center gap-3">
           <SecurityRequirementBadge :requiredSecurity />
           <slot
             v-if="$slots.actions"
