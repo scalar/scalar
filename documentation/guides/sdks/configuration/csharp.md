@@ -100,6 +100,36 @@ Omit it to release on the stable line. A release train promoting to a convention
 
 **Constraints:** `pattern: ^[A-Za-z][0-9A-Za-z-]*$`
 
+## options
+
+**Type:** `object`
+
+C# generation options.
+
+### strongName
+
+**Type:** `object`
+
+Signs the generated assembly with a strong-name key, so the package can be referenced from a strong-named assembly. Consumers on .NET Framework, or building with warnings as errors, cannot load or reference an unsigned assembly from a signed one. Turning signing on or off changes the assembly's identity, so a consumer bound to the old identity has to rebuild: decide it before the first release. The key is yours, and the generator never creates or writes one: commit the `.snk` file to the destination repository yourself. Without the key file the SDK still builds, unsigned, but packing it for release fails; see the C# publishing guide.
+
+#### keyFile
+
+**Type:** `string`
+
+**Required**
+
+Path of the strong-name key file (`.snk`), relative to the root of the destination repository, for example `Open.snk` or `keys/Sdk.snk`. Directories are separated by `/`, and each segment must start with a letter, digit, `_` or `-` and contain only letters, digits, `.`, `_` and `-`, so the path cannot be absolute, contain `.` or `..`, or pass through a hidden directory.
+
+**Constraints:** `pattern: ^([A-Za-z0-9_-][A-Za-z0-9._-]*/)*[A-Za-z0-9_-][A-Za-z0-9._-]*\.snk$`
+
+#### publicKey
+
+**Type:** `string`
+
+Full public key of `keyFile` in hexadecimal on one line, without spaces: the hex `sn -tp` prints for the key's public half, joined onto one line (not the 16-digit public key token). When set, the generated test project is declared a friend assembly with this key (`InternalsVisibleTo`). When unset, the library declares no friend assembly at all, because a signed assembly can only name a friend by its public key; the generated tests only use the public API, so they still build and run.
+
+**Constraints:** `pattern: ^([0-9A-Fa-f]{2}){96,}$`
+
 ## skip
 
 **Type:** `boolean`

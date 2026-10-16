@@ -141,6 +141,14 @@ How `format: date-time` values are typed. `string` (the default) types them as I
 
 **Default:** `"string"`
 
+### int64Type
+
+**Type:** `"number" | "bigint"`
+
+How `integer` values declared `format: int64` (or the unregistered `format: uint64`) are typed. 'number' (the default) declares them as a JavaScript `number` and parses responses with the platform JSON parser, which is what every generated TypeScript SDK does today: a value past 2^53 - 1, such as `9007199254740993`, silently arrives rounded to the nearest representable `number`. 'bigint' declares them as a JavaScript `bigint` and keeps them exact: response bodies are parsed without loss, and every int64 value on a path the response remap reaches is handed back as a `bigint` built from the digits the server sent. An inline int64 request input accepts `bigint | number`, and the runtime writes a `bigint` as a plain JSON number in a request body (where `JSON.stringify` alone would throw) and as its decimal digits in a query string, a path segment, a header or a `multipart/form-data` part. Where the response remap cannot run — streaming, paginated, websocket, gRPC/Connect and unwrapped responses — and under a union or intersection arm, whose taken arm the schema cannot decide, an inline int64 stays a `number` so the type never promises a `bigint` the runtime does not deliver. The gaps `dateTimeType: 'Date'` documents carry over unchanged, because a shared model is declared once under the SDK-wide setting rather than per use site: a model reached only through a union or intersection arm, through one of those non-remapping methods or through a webhook payload `unwrap` parses declares `bigint` over fields that hold the parsed `number`, and a request that references a model takes that model's plain `bigint`, not `bigint | number`, for its int64 fields. A proto `int64` is unaffected and stays the `string` proto3-JSON writes it as. There is no 'string' value: a request would then need a per-field rule to tell an int64 string from any other string and write it as a JSON number, where a `bigint` is told apart by its `typeof`.
+
+**Default:** `"number"`
+
 ### backCompat
 
 **Type:** `object`
