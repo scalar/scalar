@@ -425,6 +425,10 @@ export type ApiReferenceTranslations = {
   asyncapi: {
     /** Label for the root AsyncAPI application identifier. */
     applicationIdentifier: string
+    /** Label for the actual channel address, distinct from its identifier. */
+    address: string
+    /** Displayed when a channel address is absent or null. */
+    unknownAddress: string
     servers: string
     protocols: string
   }

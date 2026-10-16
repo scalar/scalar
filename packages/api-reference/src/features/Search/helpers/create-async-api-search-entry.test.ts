@@ -56,6 +56,28 @@ const search = (document: AsyncApiDocument, term: string): string[] => {
 }
 
 describe('create-async-api-search-entry', () => {
+  it.each([undefined, null, '', 'accounts.{tenantId}'])(
+    'indexes only the actual address (%s) for all AsyncAPI results',
+    (address) => {
+      const document = createDocument()
+      const channel = getResolvedRef(document.channels?.accountEvents)
+      if (!channel) {
+        throw new Error('Expected the account channel')
+      }
+      channel.address = address
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('events', document)
+      const entries = createSearchIndex(document).filter((entry) => entry.type.startsWith('asyncapi-'))
+      expect(entries.map(({ type, path }) => [type, path])).toStrictEqual([
+        ['asyncapi-channel', address ?? undefined],
+        ['asyncapi-operation', address ?? undefined],
+        ['asyncapi-message', address ?? undefined],
+        ['asyncapi-operation', address ?? undefined],
+      ])
+      expect(search(document, 'accountEvents')).toStrictEqual(['Account events'])
+      expect(search(document, 'Lifecycle notifications')[0]).toBe('Account events')
+    },
+  )
+
   it('finds channels, parameters, operations, messages and inherited descriptions', () => {
     const document = createDocument()
     for (const [term, title] of [

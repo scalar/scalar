@@ -72,7 +72,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       title: entry.title,
       entry,
       identifiers: [entry.channelName],
-      path: channel?.address ?? entry.channelAddress,
+      path: channel?.address ?? undefined,
       description: [channel?.summary, channel?.description].filter(Boolean).join('\n'),
       parameters: Object.keys(channel?.parameters ?? {}),
       parameterDescriptions: Object.values(channel?.parameters ?? {}).flatMap((parameter) => {
@@ -90,7 +90,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       entry,
       identifiers: [entry.operationName],
       action: entry.action,
-      path: entry.channelAddress,
+      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
       description: [operation?.summary, operation?.description].filter(Boolean).join('\n'),
     }
   }
@@ -103,7 +103,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       title: pickHeading(message?.title, entry.title, entry.messageName),
       entry,
       identifiers: message?.name ? [entry.messageName, message.name] : [entry.messageName],
-      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? entry.channelName,
+      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
       description: message?.description ?? message?.summary ?? '',
       body: fields.names,
       bodyDescriptions: [...new Set([...(message?.summary ? [message.summary] : []), ...fields.descriptions])],

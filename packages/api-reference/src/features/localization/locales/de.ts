@@ -56,6 +56,8 @@ export const de = {
     termsOfService: 'Nutzungsbedingungen',
   },
   asyncapi: {
+    address: 'Adresse',
+    unknownAddress: 'Unbekannt',
     applicationIdentifier: 'Anwendungskennung',
     servers: 'Server',
     protocols: 'Protokolle',

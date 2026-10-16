@@ -108,7 +108,7 @@ Behind the scenes the document is converted to the latest 3.x version (for examp
 
 The reference renders the AsyncAPI document grouped by channel. For each channel you'll see:
 
-- The channel title (or address) and description.
+- The channel title (or address), summary, and description. A separate **Address** row preserves the actual address when a title is present. Missing or null addresses display **Unknown**; the channel identifier is only a heading fallback.
 - **Server** and **protocol** labels for the channel: the servers it's available on (from `document.servers`, restricted to `channel.servers` when declared) and their protocols (for example `wss`, `kafka`).
 - The channel address **parameters**.
 - Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
@@ -132,7 +132,7 @@ Rendering works in both the `modern` and `classic` layouts.
 
 ## Search
 
-Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
+Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. Channel, operation, and message results display the actual channel address, or **Address: Unknown** when it is missing or null. Channel identifiers remain searchable independently of the address. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
 
 Select a result to navigate to its content. Selecting a message opens its accordion. Search shows each message once per channel, opening its channel-catalog entry. Search covers the full document; selecting a result hidden by a protocol or server filter clears those filters to reveal its content.
 

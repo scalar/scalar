@@ -56,6 +56,8 @@ export const ru = {
     termsOfService: 'Условия использования',
   },
   asyncapi: {
+    address: 'Адрес',
+    unknownAddress: 'Неизвестен',
     applicationIdentifier: 'Идентификатор приложения',
     servers: 'Серверы',
     protocols: 'Протоколы',
