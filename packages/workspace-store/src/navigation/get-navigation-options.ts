@@ -125,7 +125,7 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default webhook id generation logic --------
     if (props.type === 'webhook') {
-      if (!props.name) {
+      if (!props.name && props.method === undefined) {
         return `${documentId}/webhooks`
       }
 

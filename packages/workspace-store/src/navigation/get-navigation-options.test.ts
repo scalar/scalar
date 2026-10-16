@@ -442,6 +442,20 @@ describe('get-navigation-options', () => {
     expect(generateWebhookSlug).not.toHaveBeenCalled()
   })
 
+  it('keeps empty-name webhook operations distinct from their section and each other', () => {
+    const { generateId } = getNavigationOptions('API')
+    expect(
+      [undefined, 'get', 'post'].map((method) => generateId({ type: 'webhook', parentId: 'api', name: '', method })),
+    ).toStrictEqual(['api/webhooks', 'api/webhook/GET/', 'api/webhook/POST/'])
+  })
+
+  it('passes empty-name webhook operations to a custom webhook slug generator', () => {
+    const generateWebhookSlug = vi.fn(({ name, method }) => `${method}-${name}`)
+    const { generateId } = getNavigationOptions('API', { generateWebhookSlug })
+    expect(generateId({ type: 'webhook', parentId: 'api', name: '', method: 'post' })).toBe('api/webhook/POST-')
+    expect(generateWebhookSlug).toHaveBeenCalledExactlyOnceWith({ name: '', method: 'POST' })
+  })
+
   it('returns undefined for operationsSorter when not configured', () => {
     const options = getNavigationOptions('API')
     expect(options.operationsSorter).toBeUndefined()
