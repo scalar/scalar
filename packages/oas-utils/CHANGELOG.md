@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.20.13
+
+### Patch Changes
+
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.20.12
 
 ### Patch Changes

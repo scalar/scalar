@@ -1,5 +1,48 @@
 # @scalar/highlight
 
+## 0.4.0
+
+### Minor Changes
+
+- [#10621](https://github.com/scalar/scalar/pull/10621): Close more of the highlighting gap with TextMate grammars, without slowing anything outside Markdown.
+  - **Markdown** fenced code blocks are highlighted with the language they name (` ```ts `, `~~~sh`, any registered language or alias). Fences that name no registered language, and fences of four or more backticks, stay plain strings.
+  - `embed.language` can be `REMEMBERED`, which embeds whatever language the rule that entered the state remembered. Markdown fences use it.
+  - **SQL** scopes common T-SQL and PL/SQL keywords and types (`DECLARE`, `PRINT`, `GO`, `EXEC`, `RETURN`, `VARCHAR2`, `NUMBER`, …).
+  - **JavaScript and TypeScript** scope the name a `const`, `let` or `var` declares, read a regex after a control condition (`if (ok) /re/.test(s)`), and colour a tagged template's tag (`` gql`…` ``) as a call.
+  - **Shell** scopes unquoted arguments as strings, as TextMate grammars do.
+
+  TypeScript const assertions keep the following statement highlighted as code instead of consuming its keyword as a declared name.
+
+- [#10622](https://github.com/scalar/scalar/pull/10622): feat: highlight more embedded languages and keyword-named keys
+  - Markdown: front matter is highlighted as YAML, and HTML that starts a line as HTML. A `<script>`, `<pre>` or `<style>` block runs to its closing tag. The last line of front matter is no longer read as a heading.
+  - HTTP: a body that starts with `<` is highlighted as XML/HTML.
+  - PHP: `<script>` and `<style>` bodies in templates are highlighted as JavaScript and CSS, and a `<?= ?>` region inside them keeps the surrounding JavaScript or CSS state, so `"<?= $name ?>"` stays one string.
+  - Engine: an `embed` can declare `holes`, regions of the body the host grammar tokenizes while the embedded language reads across them.
+  - CSS: the condition of `@media`, `@supports`, `@container` and `@import` gets keywords, features, numbers and values.
+  - JavaScript/TypeScript: a keyword used as an object key (`{ type: 'object' }`, `{ default: 1 }`) reads as a property, `static of()` and `get(key)` read as method names, and `#private` fields are scoped.
+
+  Preserve source text when hole patterns contain capture groups, and keep PHP strings and comments from prematurely closing script or style bodies.
+
+- [#10612](https://github.com/scalar/scalar/pull/10612): Fix the highlighting breakages a comparison against Shiki and `@scalar/code-highlight` found, and add Julia.
+  - **PHP** snippets without `<?php` (every Guzzle, Laravel and curl sample snippetz generates) are read as code instead of rendering as plain text. Heredocs close only on their own marker.
+  - **Julia** has a grammar, so `julia/http` code samples are highlighted.
+  - **Shell**: `'\''`, the way snippetz writes an apostrophe inside a single-quoted curl body, no longer flips strings and code for the rest of the sample. Heredocs close only on their terminator, and a quoted marker (`<<'EOF'`) turns expansion off.
+  - **YAML** block scalars end where their indentation does, so prose such as `Note: …` inside a `description: |` stays a string. `#` starts a comment only after whitespace, commas stay inside plain scalars, and flow collections (`{a: 1, b: [x, y]}`) get their own state.
+  - **HTML, XML, SVG and Vue** highlight `<script>` and `<style>` bodies with the JavaScript and CSS grammars when those are registered. `<?xml …?>` is scoped as metadata instead of a comment, and unquoted attribute values as strings.
+  - **C#** raw strings close only on the run of quotes that opened them, so `""""…""""` can hold `"""`. **Rust** raw strings close on their own `#` run, and block comments nest. **R** raw strings and **OCaml** quoted strings close on their own delimiter, and OCaml no longer ends a comment at `"*)"`.
+  - **CSS** reads an unquoted `url(https://…)` as a string instead of starting a `//` comment.
+  - A lone `\r`, U+2028 or U+2029 inside a string no longer ends it early in any grammar.
+  - Unterminated `/*`, `<!--` and quotes, and runs of blank lines in JavaScript, no longer cost quadratic time.
+  - **JavaScript, TypeScript and JSX**: JSX children are read as text, so an apostrophe in `<p>Don't</p>` no longer opens a string to the end of the line. An element opens only where an expression can start, and TypeScript generics (`<T>(x: T) => x`, `<T extends X>`) and `<string>` assertions are not read as tags. A function assigned to a name (`const App = () => …`) is scoped as a function, and a capitalised name followed by a call (`function App()`, `Error('x')`, `new Date()`) is a call rather than a type.
+  - **Shell** command names (`curl`, `grep`, `./build.sh`) are scoped, except on a line that continues the one before it.
+  - **YAML** plain scalars that wrap onto the next line keep their string color.
+  - **Markdown** fences close only on a run at least as long as the opener, and HTML comments are scoped.
+  - `@scalar/highlight/compat` masks credentials on the token stream: a secret the tokenizer splits (`sk_live.abc123` unquoted) is masked, one containing `&` or `<` is masked, and a credential that reads like markup (`span`, `class`) no longer corrupts the HTML.
+
+  Grammars gain two features. `remember` lets a rule that enters a state remember a capture group, which that state matches again with `REMEMBERED` (`{{remembered}}`) — the cross-state stand-in for a backreference. `embed` hands a state's body to another registered language until a closing pattern.
+
+  Preserve multiline credential masking, including when line numbers are enabled. Keep defaulted TypeScript generics in code mode, and only embed JavaScript or CSS for complete `script` and `style` tag names so custom elements retain HTML highlighting.
+
 ## 0.3.1
 
 ### Patch Changes

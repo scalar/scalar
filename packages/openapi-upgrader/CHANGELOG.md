@@ -1,5 +1,14 @@
 # @scalar/openapi-upgrader
 
+## 0.4.5
+
+### Patch Changes
+
+- [#10613](https://github.com/scalar/scalar/pull/10613): The 3.0 to 3.1 upgrade no longer skips the `default` entry of a Responses Object, which it mistook for the `default` keyword, so schemas in a default response are upgraded too.
+- [#10613](https://github.com/scalar/scalar/pull/10613): Upgrade a `oneOf`/`anyOf` arm that only says `nullable: true` (optionally with annotations, including `default`) to `{ type: 'null' }`, so `oneOf: [{ nullable: true }, { $ref: X }]` becomes "X or null" in OpenAPI 3.1 instead of an arm that accepts any value.
+
+  Preserve nested extension payloads when upgrading nullable-only union arms.
+
 ## 0.4.4
 
 ### Patch Changes

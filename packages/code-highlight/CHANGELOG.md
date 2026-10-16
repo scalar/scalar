@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.4.10
+
+### Patch Changes
+
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.4.9
 
 ### Patch Changes

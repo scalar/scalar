@@ -1,5 +1,11 @@
 # @scalar/json-magic
 
+## 0.16.0
+
+### Minor Changes
+
+- [#10618](https://github.com/scalar/scalar/pull/10618): Add an opt-in `preserveReference` predicate to bundling, retaining selected authored references without loading their targets while preserving schema identities on relocation.
+
 ## 0.15.7
 
 ### Patch Changes

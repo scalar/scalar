@@ -1,5 +1,7 @@
 # @scalar/core
 
+## 0.5.44
+
 ## 0.5.43
 
 ### Patch Changes
