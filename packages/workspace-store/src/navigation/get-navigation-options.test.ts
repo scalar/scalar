@@ -420,6 +420,42 @@ describe('get-navigation-options', () => {
     expect(id).toBe('api/webhook/undefined/event')
   })
 
+  it('generates the untagged webhooks section id without a method or name', () => {
+    const options = getNavigationOptions('API')
+    const id = options.generateId({
+      type: 'webhook',
+      parentId: 'api',
+      name: '',
+    })
+    expect(id).toBe('api/webhooks')
+  })
+
+  it('does not pass the untagged webhooks section to a custom webhook slug generator', () => {
+    const generateWebhookSlug = vi.fn(() => 'custom')
+    const options = getNavigationOptions('API', { generateWebhookSlug })
+    const id = options.generateId({
+      type: 'webhook',
+      parentId: 'api',
+      name: '',
+    })
+    expect(id).toBe('api/webhooks')
+    expect(generateWebhookSlug).not.toHaveBeenCalled()
+  })
+
+  it('keeps empty-name webhook operations distinct from their section and each other', () => {
+    const { generateId } = getNavigationOptions('API')
+    expect(
+      [undefined, 'get', 'post'].map((method) => generateId({ type: 'webhook', parentId: 'api', name: '', method })),
+    ).toStrictEqual(['api/webhooks', 'api/webhook/GET/', 'api/webhook/POST/'])
+  })
+
+  it('passes empty-name webhook operations to a custom webhook slug generator', () => {
+    const generateWebhookSlug = vi.fn(({ name, method }) => `${method}-${name}`)
+    const { generateId } = getNavigationOptions('API', { generateWebhookSlug })
+    expect(generateId({ type: 'webhook', parentId: 'api', name: '', method: 'post' })).toBe('api/webhook/POST-')
+    expect(generateWebhookSlug).toHaveBeenCalledExactlyOnceWith({ name: '', method: 'POST' })
+  })
+
   it('returns undefined for operationsSorter when not configured', () => {
     const options = getNavigationOptions('API')
     expect(options.operationsSorter).toBeUndefined()
