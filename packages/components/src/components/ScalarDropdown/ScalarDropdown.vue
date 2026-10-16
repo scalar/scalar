@@ -55,7 +55,8 @@ const menuId = useId()
 async function handleTargetClick() {
   open.value = !open.value
   await nextTick()
-  if (open.value) menuRef.value?.focus()
+  // Floating UI has not positioned the menu yet, so let focus land without scrolling to it
+  if (open.value) menuRef.value?.focus({ preventScroll: true })
 }
 
 /** Handle keydown events on the target */
@@ -71,8 +72,8 @@ async function handleTargetKeydown(event: KeyboardEvent) {
   // Move the active item if the key is an arrow key or space or enter
   await nextTick()
 
-  // Focus the menu
-  menuRef.value?.focus()
+  // Focus the menu, without scrolling to it before Floating UI has positioned it
+  menuRef.value?.focus({ preventScroll: true })
 
   // Move the active item if the key is an arrow key or space or enter
   if (['ArrowDown', ' ', 'Enter'].includes(event.key)) moveActive(1)
