@@ -113,6 +113,9 @@ const headingText = computed(() =>
   pickHeading(resolvedMessage.value?.title, message.title, message.messageName),
 )
 
+/** Only authored names, including inherited traits, belong in message metadata. */
+const messageName = computed(() => resolvedMessage.value?.name?.trim())
+
 const description = computed(
   () =>
     resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
@@ -296,6 +299,11 @@ const { level: headingLevel } = useDocumentOutline(
               :level="headingLevel">
               {{ headingText }}
             </SectionHeaderTag>
+            <span
+              v-if="messageName"
+              class="text-c-2 min-w-0 text-sm font-normal break-all">
+              Name: <code>{{ messageName }}</code>
+            </span>
             <AsyncApiLabels :protocols="protocolLabels" />
           </span>
         </Anchor>
