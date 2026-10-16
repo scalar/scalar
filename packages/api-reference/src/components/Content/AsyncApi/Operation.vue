@@ -19,6 +19,7 @@ import SecurityRequirementBadge from '@/features/Operation/components/SecurityRe
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
@@ -142,6 +143,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     <Bindings
       :bindings="resolvedOperation?.bindings"
       class="mt-4" />
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
 
     <SectionHeaderTag
       v-if="messages.length || reply"

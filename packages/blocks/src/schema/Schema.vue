@@ -9,6 +9,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, inject, provide, toRef, useId } from 'vue'
 
+import ExternalDocs from '../shared/ExternalDocs.vue'
 import ScreenReader from '../shared/ScreenReader.vue'
 import {
   resolveDynamicSchema,
@@ -425,6 +426,10 @@ const toggle = (): void => {
       },
     ]"
     @keydown="onTreeKeydown">
+    <ExternalDocs
+      v-if="isTypeObject(resolvedSchema)"
+      class="my-2"
+      :value="resolvedSchema.externalDocs" />
     <!-- Schema description -->
     <!-- Without a card box the level-0 divider (and its negative-margin tuck)
          would be a stray line, so the whole treatment is switched off -->

@@ -64,6 +64,36 @@ describe('AsyncApiServerSelector', () => {
     expect(wrapper.text()).not.toContain('https://registry.example.com')
   })
 
+  it('updates documentation when the selected server changes', async () => {
+    const servers = ['production', 'staging'].map((name) =>
+      createEntry({
+        name,
+        url: `mqtt://${name}.example.com`,
+        server: {
+          host: `${name}.example.com`,
+          protocol: 'mqtt',
+          protocolVersion: '5.0',
+          summary: `${name} event stream`,
+          externalDocs: { url: `https://example.com/${name}`, description: `**${name}** guide` },
+          tags: [{ name: 'Broker', externalDocs: { url: `https://example.com/${name}-tag` } }],
+        },
+      }),
+    )
+    const wrapper = mount(AsyncApiServerSelector, { props: { servers, selectedServer: servers[0]!, eventBus } })
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
+      'https://example.com/production-tag',
+      'https://example.com/production',
+    ])
+    await wrapper.setProps({ selectedServer: servers[1]! })
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
+      'https://example.com/staging-tag',
+      'https://example.com/staging',
+    ])
+    expect(wrapper.get('a[href="https://example.com/staging"]').text()).toBe('**staging** guide')
+    expect(wrapper.text()).toContain('staging event stream')
+    expect(wrapper.text()).toContain('MQTT 5.0')
+  })
+
   it('renders the server label', () => {
     const wrapper = mount(AsyncApiServerSelector, {
       props: { servers: mockServers, selectedServer: mockServers[0]!, eventBus },

@@ -30,6 +30,7 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
+import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumentation.vue'
 import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
 import Bindings from '@/components/Content/AsyncApi/Bindings.vue'
 import { getAsyncApiTags } from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
@@ -86,7 +87,9 @@ const hasServerDetails = computed(() =>
     serverSummary.value ||
     serverProtocolVersion.value ||
     selectedServer?.description ||
-    getBindingEntries(selectedServer?.server.bindings).length,
+    getBindingEntries(selectedServer?.server.bindings).length ||
+    selectedServer?.server.externalDocs ||
+    selectedServer?.server.tags?.length,
   ),
 )
 
@@ -148,5 +151,7 @@ const updateServerVariable = (key: string, value: string) => {
     <Bindings
       :bindings="selectedServer?.server.bindings"
       class="my-2" />
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: selectedServer?.server.externalDocs }" />
   </div>
 </template>
