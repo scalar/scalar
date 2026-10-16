@@ -42,6 +42,7 @@ catalogs:
     '@tanstack/vue-query': 5.100.5
     '@types/express': 5.0.3
     '@types/jsdom': 28.0.1
+    '@types/mdast': ^4.0.4
     '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
@@ -62,6 +63,9 @@ catalogs:
     ajv-formats: ^3.0.1
     ansis: 4.1.0
     astro: 7.2.10
+    remark-gfm: ^4.0.1
+    remark-stringify: ^11.0.0
+    unified: ^11.0.5
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0

@@ -1,0 +1,140 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
+import { anchor, createDocumentAnchors, heading, link, paragraph, text } from '@scalar/openapi-to-markdown/markdown'
+import type { RootContent } from 'mdast'
+
+import { object, own, resolve } from './document'
+import { renderAuthoredSchemaExamples, renderSchemaDocumentation } from './render-schema'
+import { createSchemaView, isPrimitiveSchema } from './schema-view'
+import type { AsyncApiRenderOptions } from './types'
+
+/** Decode only a complete component name, preserving other reference paths. */
+const referenceName = (ref: string): string => {
+  try {
+    const match = /^#\/components\/schemas\/([^/]+)$/.exec(decodeURIComponent(ref))
+    return match ? unescapeJsonPointerSegment(match[1]!) : ref
+  } catch {
+    return ref
+  }
+}
+
+/** Index canonical model identities once, including aliases that resolve to the same schema. */
+export const createSchemaRegistry = (
+  document: Record<string, unknown>,
+): {
+  forPage: (
+    options: AsyncApiRenderOptions,
+    whole: boolean,
+  ) => {
+    reference: (input: unknown, depth: number, mediaType?: string) => RootContent[] | undefined
+    root: (input: unknown, render: () => RootContent[], mediaType?: string) => RootContent[]
+    model: (input: unknown, render: () => RootContent[], mediaType?: string) => RootContent[]
+    appendix: (render: (input: unknown) => RootContent[]) => RootContent[]
+  }
+} => {
+  const view = createSchemaView()
+  const models = new Map<unknown, { name: string; ref: string; value: unknown }>()
+  for (const [name, value] of Object.entries(object(own(document.components, 'schemas')))) {
+    const identity = getRaw(resolve(value))
+    if (!models.has(identity)) {
+      models.set(identity, {
+        name,
+        value,
+        ref: `#/components/schemas/${escapeJsonPointer(name)}`,
+      })
+    }
+  }
+  return {
+    forPage: (options, whole) => {
+      const entries = new Map(models)
+      const lookup = (input: unknown): { name: string; ref: string; value: unknown } | undefined => {
+        const identity = getRaw(resolve(input))
+        const previous = entries.get(identity)
+        if (previous) {
+          return previous
+        }
+        if (input && typeof input === 'object' && '$ref' in input && typeof input.$ref === 'string') {
+          const ref = input.$ref
+          const name = unescapeJsonPointerSegment(ref.split('/').at(-1)!) || ref
+          const entry = { name, ref, value: input }
+          entries.set(identity, entry)
+          return entry
+        }
+        return undefined
+      }
+      const anchors = createDocumentAnchors()
+      const queued = new Set<unknown>()
+      const shown = new Set<unknown>()
+      const id = (entry: { name: string; ref: string }): string => anchors.get('model', entry.ref, entry.name)
+      const model = (input: unknown, render: () => RootContent[], mediaType = 'application/json'): RootContent[] => {
+        const identity = getRaw(resolve(input))
+        const entry = lookup(input)
+        if (!entry) {
+          return render()
+        }
+        if (shown.has(identity)) {
+          return [
+            paragraph(link(`#${id(entry)}`, entry.name)),
+            ...renderSchemaDocumentation(input),
+            ...renderAuthoredSchemaExamples(input, mediaType),
+          ]
+        }
+        shown.add(identity)
+        return [anchor(id(entry)), ...render()]
+      }
+      return {
+        reference: (input, depth, mediaType = 'application/json') => {
+          const identity = getRaw(resolve(input))
+          const entry = lookup(input)
+          if (!entry || (!whole && depth === 0)) {
+            return undefined
+          }
+          const schema = view(object(entry.value))
+          const primitive = isPrimitiveSchema(schema)
+          if (primitive && options.schemaReferences?.inlinePrimitives !== false) {
+            return undefined
+          }
+          if (options.schemaReferences) {
+            const ref =
+              input && typeof input === 'object' && '$ref' in input && typeof input.$ref === 'string'
+                ? input.$ref
+                : entry.ref
+            const name = referenceName(ref)
+            const url = options.schemaReferences.resolveUrl?.({ ref, name })
+            const destination = url ? link(url, name) : undefined
+            return [
+              paragraph(destination?.url ? destination : text(name)),
+              ...renderSchemaDocumentation(input),
+              ...renderAuthoredSchemaExamples(input, mediaType),
+            ]
+          }
+          queued.add(identity)
+          return [
+            paragraph(link(`#${id(entry)}`, entry.name)),
+            ...renderSchemaDocumentation(input),
+            ...renderAuthoredSchemaExamples(input, mediaType),
+          ]
+        },
+        model,
+        root: (input, render, mediaType) => (whole ? render() : model(input, render, mediaType)),
+        appendix: (render) => {
+          const blocks: RootContent[] = []
+          if (options.schemaReferences) {
+            return blocks
+          }
+          // Set iteration includes dependencies discovered while rendering earlier models.
+          for (const identity of queued) {
+            const entry = entries.get(identity)!
+            if (!shown.has(identity)) {
+              blocks.push(
+                ...model(entry.value, () => [heading(2, text(`Schema: ${entry.name}`)), ...render(entry.value)]),
+              )
+            }
+          }
+          return blocks
+        },
+      }
+    },
+  }
+}

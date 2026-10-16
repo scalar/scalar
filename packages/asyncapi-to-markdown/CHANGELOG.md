@@ -1,0 +1,1 @@
+# @scalar/asyncapi-to-markdown
