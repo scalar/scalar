@@ -63,6 +63,68 @@ const entries: TraversedEntry[] = [
 
 const channelIds = (result: TraversedEntry[]) => result.map((entry) => entry.id)
 
+const taggedDocument = {
+  'x-scalar-original-document-hash': 'tag-fixture',
+  asyncapi: '3.1.0',
+  info: { title: 'Commerce', version: '1', tags: [{ name: 'Application' }] },
+  servers: {
+    production: { host: 'prod.example.com', protocol: 'wss', tags: [{ name: 'Production' }] },
+    development: { host: 'dev.example.com', protocol: 'mqtt', tags: [{ name: 'Development' }] },
+  },
+  channels: {
+    events: {
+      address: 'events',
+      tags: [{ name: 'Channel' }],
+      messages: {
+        invoice: { tags: [{ name: 'Billing' }] },
+        audit: { traits: [{ tags: [{ $ref: '#/components/tags/audit', '$ref-value': { name: 'Audit' } }] }] },
+        hidden: { tags: [{ name: 'Hidden' }] },
+      },
+    },
+    empty: { address: 'empty', tags: [{ name: 'Empty' }] },
+  },
+  operations: {
+    publish: { action: 'send', channel: { $ref: '#/channels/events' }, traits: [{ tags: [{ name: 'Operation' }] }] },
+    hidden: { action: 'receive', channel: { $ref: '#/channels/events' }, tags: [{ name: 'Hidden' }] },
+  },
+} satisfies AsyncApiDocument
+
+const taggedEntries = [
+  {
+    type: 'asyncapi-channel',
+    id: 'events',
+    title: 'Events',
+    channelName: 'events',
+    channelAddress: 'events',
+    children: [
+      {
+        type: 'asyncapi-operation',
+        id: 'publish',
+        title: 'Publish',
+        operationName: 'publish',
+        action: 'send',
+        channelName: 'events',
+        channelAddress: 'events',
+        children: [
+          { type: 'asyncapi-message', id: 'invoice', title: 'Invoice', channelName: 'events', messageName: 'invoice' },
+          { type: 'asyncapi-message', id: 'audit', title: 'Audit', channelName: 'events', messageName: 'audit' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'asyncapi-channel',
+    id: 'empty',
+    title: 'Empty',
+    channelName: 'empty',
+    channelAddress: 'empty',
+    children: [],
+  },
+] satisfies TraversedEntry[]
+
+const tagIds = (tree: TraversedEntry[]): string[] =>
+  tree.flatMap((entry) => [entry.id, ...('children' in entry ? tagIds(entry.children ?? []) : [])])
+
 describe('filterAsyncApiNavigation', () => {
   it.each<{ children: TraversedEntry[] }>([
     { children: [] },
@@ -201,5 +263,99 @@ describe('filterAsyncApiNavigation', () => {
     } satisfies TraversedEntry
     expect(filterAsyncApiNavigation([tag], unpinned, { protocol: 'mqtt', server: 'mqtt' })).toStrictEqual([tag])
     expect(filterAsyncApiNavigation([tag], document, { protocol: 'mqtt' })).toStrictEqual([])
+  })
+
+  it('keeps the operation and channel around a matching inherited message tag', () => {
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Audit' }))).toStrictEqual([
+      'events',
+      'publish',
+      'audit',
+    ])
+    expect(tagIds(taggedEntries)).toStrictEqual(['events', 'publish', 'invoice', 'audit', 'empty'])
+  })
+
+  it.each(['Operation', 'Channel'])('keeps a matching %s and all its messages', (tag) => {
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag }))).toStrictEqual([
+      'events',
+      'publish',
+      'invoice',
+      'audit',
+    ])
+  })
+
+  it('keeps content reachable through a matching server tag', () => {
+    const tag = 'Production'
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag }))).toStrictEqual(
+      tagIds(taggedEntries),
+    )
+  })
+
+  it('does not match application-only tags', () => {
+    expect(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Application' })).toStrictEqual([])
+  })
+
+  it.each([
+    ['Channel', ['events', 'publish', 'invoice', 'audit']],
+    ['Operation', ['events', 'publish', 'invoice', 'audit']],
+    ['Audit', ['events', 'publish', 'audit']],
+  ])('narrows a matching %s tag even when the application shares its name', (tag, expected) => {
+    const document = {
+      ...taggedDocument,
+      info: { ...taggedDocument.info, tags: [{ name: tag }] },
+    } satisfies AsyncApiDocument
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, document, { tag }))).toStrictEqual(expected)
+  })
+
+  it('filters empty channels by their own tags', () => {
+    expect(tagIds(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Empty' }))).toStrictEqual(['empty'])
+  })
+
+  it('combines server tags with the selected server and protocol', () => {
+    expect(
+      filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Production', server: 'development' }),
+    ).toStrictEqual([])
+    expect(
+      filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Production', protocol: 'mqtt' }),
+    ).toStrictEqual([])
+    expect(
+      tagIds(
+        filterAsyncApiNavigation(taggedEntries, taggedDocument, {
+          tag: 'Production',
+          server: 'production',
+          protocol: 'wss',
+        }),
+      ),
+    ).toStrictEqual(tagIds(taggedEntries))
+  })
+
+  it('does not match tags on servers outside a channel’s reachability', () => {
+    const restricted = {
+      ...taggedDocument,
+      channels: { events: { ...taggedDocument.channels.events, servers: [{ $ref: '#/servers/development' }] } },
+    } satisfies AsyncApiDocument
+    expect(tagIds(filterAsyncApiNavigation([taggedEntries[0]!], restricted, { tag: 'Production' }))).toStrictEqual([])
+  })
+
+  it('uses explicit operation tags instead of inherited tags', () => {
+    const overridden = {
+      ...taggedDocument,
+      operations: { publish: { ...taggedDocument.operations.publish, tags: [] } },
+    } satisfies AsyncApiDocument
+    expect(filterAsyncApiNavigation(taggedEntries, overridden, { tag: 'Operation' })).toStrictEqual([])
+  })
+
+  it('filters messages directly under a channel', () => {
+    const catalog = [
+      { ...taggedEntries[0]!, children: taggedEntries[0]!.children[0]!.children },
+    ] satisfies TraversedEntry[]
+    expect(tagIds(filterAsyncApiNavigation(catalog, taggedDocument, { tag: 'Audit' }))).toStrictEqual([
+      'events',
+      'audit',
+    ])
+  })
+
+  it('preserves the original tree when cleared and removes unmatched channels', () => {
+    expect(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: '' })).toBe(taggedEntries)
+    expect(filterAsyncApiNavigation(taggedEntries, taggedDocument, { tag: 'Unknown' })).toStrictEqual([])
   })
 })

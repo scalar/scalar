@@ -30,6 +30,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
+import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
+import { getAsyncApiTags } from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
 import { useLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
@@ -78,6 +80,7 @@ const serverProtocolVersion = computed(() => {
 
 const hasServerDetails = computed(() =>
   Boolean(
+    getAsyncApiTags(selectedServer?.server.tags).length ||
     serverSummary.value ||
     serverProtocolVersion.value ||
     selectedServer?.description,
@@ -129,6 +132,7 @@ const updateServerVariable = (key: string, value: string) => {
   <div
     v-if="hasServerDetails"
     class="text-c-3 flex flex-col gap-1.5 rounded-b-xl border-x border-b px-3 py-1.5">
+    <AsyncApiTags :tags="selectedServer?.server.tags" />
     <p
       v-if="serverProtocolVersion"
       class="text-c-2 text-sm">

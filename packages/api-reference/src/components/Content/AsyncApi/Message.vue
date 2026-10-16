@@ -24,6 +24,7 @@ import {
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
+import AsyncApiTags from './AsyncApiTags.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
@@ -236,6 +237,7 @@ const { level: headingLevel } = useDocumentOutline(
     :id="message.id"
     ref="section"
     class="message">
+    <AsyncApiTags :tags="resolvedMessage?.tags" />
     <SectionAccordion
       class="message-accordion [&_.section-accordion-content-card]:bg-b-1 border [&_.section-accordion-content-card]:rounded-b-lg [&_.section-accordion-content-card]:p-4 [&_.section-accordion-header]:px-4 [&_.section-accordion-header]:py-3"
       :modelValue="isExpanded"

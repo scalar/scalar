@@ -19,6 +19,7 @@ import SecurityRequirementBadge from '@/features/Operation/components/SecurityRe
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiTags from './AsyncApiTags.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -124,6 +125,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       <SecurityRequirementBadge :requiredSecurity />
     </div>
 
+    <AsyncApiTags :tags="resolvedOperation?.tags" />
     <ScalarMarkdown
       v-if="description"
       class="operation-description"
