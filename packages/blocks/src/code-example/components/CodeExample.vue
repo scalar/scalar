@@ -495,7 +495,8 @@ const id = useId()
     ref="elem"
     class="request-card dark-mode">
     <!-- Header: long paths wrap instead of hiding their end behind an ellipsis -->
-    <ScalarCardHeader class="pr-2.5 [&_.scalar-card-header-title]:whitespace-normal">
+    <ScalarCardHeader
+      class="pr-2.5 [&_.scalar-card-header-title]:whitespace-normal">
       <span class="sr-only">Request Example for</span>
       <HttpMethod
         as="span"
