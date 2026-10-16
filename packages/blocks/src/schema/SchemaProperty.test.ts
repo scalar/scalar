@@ -1,4 +1,5 @@
 import { ScalarListbox } from '@scalar/components/listbox'
+import { createLocalization } from '@scalar/localization'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -36,6 +37,30 @@ describe('SchemaProperty', () => {
     const target = mountProperty('id')
     expect(target.get('[id="message.payload.metadata.id"]').text()).toBe('id')
     expect(mountProperty('other').findComponent(WithBreadcrumb).exists()).toBe(false)
+  })
+
+  it('translates the description of a built-in format into the host locale', () => {
+    const host = createLocalization<Record<string, never>, never>({
+      localeTranslations: { en: {} },
+      defaultLocale: 'en',
+      rtlLocales: new Set(),
+    })
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          host.provideLocalization({ locale: 'ru' })
+          return () =>
+            h(SchemaProperty, {
+              schema: coerceValue(SchemaObjectSchema, { type: 'integer', format: 'int32' }),
+              options: {},
+              eventBus: null,
+            })
+        },
+      }),
+    )
+
+    expect(wrapper.text()).toContain('Знаковые 32-битные целые числа (обычный целочисленный тип).')
+    expect(wrapper.text()).not.toContain('Signed 32-bit integers')
   })
 
   it.each([

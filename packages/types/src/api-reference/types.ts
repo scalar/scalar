@@ -514,6 +514,14 @@ export type ApiReferenceTranslations = {
     unique: string
     values: string
     writeOnly: string
+    typeInteger: string
+    formatInt32: string
+    formatInt64: string
+    formatDate: string
+    formatDateTime: string
+    formatPassword: string
+    formatBase64: string
+    formatBinary: string
   }
   download: {
     openapi: string

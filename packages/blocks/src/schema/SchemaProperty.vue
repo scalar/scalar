@@ -47,7 +47,7 @@ import {
   inferDiscriminatorMappingComposition,
 } from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
-import { getPropertyDescription } from './helpers/get-property-description'
+import { getPropertyDescriptionKey } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
@@ -333,9 +333,10 @@ const shouldRenderArrayOfObjects = computed(() => {
 const enumValues = computed(() => getEnumValues(optimizedValue.value))
 
 /** Generate property description from type/format */
-const propertyDescription = computed(() =>
-  getPropertyDescription(optimizedValue.value),
-)
+const propertyDescription = computed(() => {
+  const key = getPropertyDescriptionKey(optimizedValue.value)
+  return key ? translate(key) : null
+})
 
 /** Determine if description should be displayed */
 const displayDescription = computed(() =>
