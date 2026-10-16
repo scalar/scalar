@@ -1,6 +1,7 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { OAuthFlowDeviceAuthorizationSecret } from '@scalar/workspace-store/request-example'
@@ -8,7 +9,6 @@ import type { ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/o
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 
-import { isAllowedOAuthUrl } from './is-allowed-oauth-url'
 import { type OAuth2Tokens, getActiveServerBase } from './oauth'
 import { oauthClientAuthorization } from './oauth-client-authorization'
 
