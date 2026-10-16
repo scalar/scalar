@@ -141,6 +141,7 @@ import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
+import { NAVIGATION_HREF } from '@/hooks/use-navigation-href'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 
@@ -378,6 +379,10 @@ const inferredHashBasePath = ref<string>()
 /** Explicit routing always takes precedence over automatic host-prefix detection. */
 const basePath = computed(
   () => mergedConfig.value.pathRouting?.basePath ?? inferredHashBasePath.value,
+)
+
+provide(NAVIGATION_HREF, (id: string): string =>
+  makeHrefFromId(id, basePath.value, isMultiDocument.value),
 )
 
 /**

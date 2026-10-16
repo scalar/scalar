@@ -39,6 +39,34 @@ afterEach(() => {
 })
 
 describe('Operation', () => {
+  it('keeps Messages before Replies when the operation has no listed messages', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({
+          action: 'receive',
+          channel: { $ref: '#/channels/userSignedUp' },
+          reply: { channel: { $ref: '#/channels/userSignedUp' } },
+        }),
+        eventBus: null,
+      },
+    })
+    expect(wrapper.text()).toContain('No messages listed for this operation.')
+    const headings = wrapper.findAll('h1, h2, h3, h4, h5, h6').map((heading) => heading.text())
+    expect(headings).toStrictEqual(['On user signed up', 'Messages', 'Replies'])
+  })
+
+  it('does not add a reply empty state to operations without replies', () => {
+    const wrapper = mount(Operation, {
+      props: {
+        operation: createOperation(),
+        document: createDocument({ action: 'receive', channel: { $ref: '#/channels/userSignedUp' } }),
+        eventBus: null,
+      },
+    })
+    expect(wrapper.text()).not.toContain('No messages listed for this operation.')
+  })
+
   it('renders the operation title and the action badge', () => {
     const wrapper = mount(Operation, {
       attachTo: document.body,
