@@ -68,6 +68,12 @@ toTest.forEach((source) => {
     // but we ensure the DOM is ready by waiting for visibility above
     expect(await sections.count()).toBeGreaterThan(0)
 
+    // Select the same section as the baseline before resetting scroll positions.
+    // Scrolling alone can leave a nested heading selected after expanding groups.
+    const introduction = nav.getByRole('link', { name: 'Introduction', exact: true })
+    await introduction.click()
+    await expect(introduction).toHaveAttribute('aria-current', 'page')
+
     // Move the mouse and scroll to the top for consistent screenshots
     await page.mouse.move(0, 0)
     await page.evaluate(() => {
