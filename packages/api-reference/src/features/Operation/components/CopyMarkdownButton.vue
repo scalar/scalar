@@ -10,7 +10,7 @@ const { document, path, method, isWebhook } =
   >()
 
 /** Capture the selection so pending copies cannot show success on a different page. */
-const getMarkdown = computed(() => {
+const getMarkdown = computed<() => Promise<string>>(() => {
   const source = document
   const selection = isWebhook
     ? { webhook: { name: path, method } }

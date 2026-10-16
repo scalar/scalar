@@ -14,7 +14,7 @@ const { document, selection } = defineProps<{
     | { introduction: true }
 }>()
 
-const getMarkdown = computed(() => {
+const getMarkdown = computed<() => Promise<string>>(() => {
   const source = document
   const page = selection
   return async (): Promise<string> => {
