@@ -1,8 +1,8 @@
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
-import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
@@ -32,6 +32,7 @@ type Resource = {
 type DocumentReferences = {
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
+  refresh: (document: unknown) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
   resolve: (
@@ -49,11 +50,15 @@ type DocumentReferences = {
 export const documentReferences = (
   externalDocumentsKey: string,
   resolveDocument?: DocumentResolver,
+  shouldVisit: (node: object) => boolean = () => true,
+  hasSchemaIdentity: (node: object) => boolean = () => true,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
   const origins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
+
+  const registrations = new Map<unknown, { base: string; path: string[] }>()
 
   const register = (document: unknown, retrievalUri: string, path: string[] = []): void => {
     const identity = resolveDocument?.(document, retrievalUri)
@@ -68,20 +73,27 @@ export const documentReferences = (
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }
+    registrations.set(document, { base, path })
+    index(document, base, path)
+  }
+
+  // Refresh newly exposed fragments without replaying the document identity hook.
+  const index = (document: unknown, base: string, path: string[]): void => {
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
 
     const visit = (value: unknown, origin: string, location: string[], inheritedIdentifier = ''): void => {
-      if (value === null || typeof value !== 'object' || visited.has(value)) {
+      if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
       }
       visited.add(value)
-      const id = getId(value)
+      const id = hasSchemaIdentity(value) ? getId(value) : undefined
       const identifier = id ?? inheritedIdentifier
       const current = id === undefined ? origin : resolveReferencePath(origin, id)
       origins.set(value, current)
-      const anchor = isObject(value) && typeof value.$anchor === 'string' ? value.$anchor : undefined
+      const anchor =
+        hasSchemaIdentity(value) && isObject(value) && typeof value.$anchor === 'string' ? value.$anchor : undefined
       if (id !== undefined || anchor !== undefined) {
         const schemaResource = {
           value,
@@ -111,17 +123,39 @@ export const documentReferences = (
   return {
     identity: (document) => identities.get(document),
     register,
+    refresh: (document) => {
+      const registration = registrations.get(document)
+      if (registration) index(document, registration.base, registration.path)
+    },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
     resolve: (ref, base) => {
-      const [prefix, fragment = ''] = ref.split('#', 2)
+      const [prefix, authoredFragment = ''] = ref.split('#', 2)
+      const fragment = (() => {
+        try {
+          return decodeURIComponent(authoredFragment)
+        } catch {
+          // Retain generic JSON-pointer compatibility with literal percent characters.
+          return authoredFragment
+        }
+      })()
       const uri = prefix ? resolveReferencePath(base, prefix) : base
-      const pointer = fragment.startsWith('/') ? getSegmentsFromPath(fragment) : []
+      const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const bundled =
         (!prefix || resources.get(uri)?.path.length === 0) && pointer[0] === externalDocumentsKey
           ? bundledResources.get(pointer[1])
           : undefined
-      const resource = bundled ?? resources.get(fragment && !fragment.startsWith('/') ? `${uri}#${fragment}` : uri)
+      const documentResource = resources.get(uri)
+      const declaredOrigin =
+        documentResource?.value !== null && typeof documentResource?.value === 'object'
+          ? origins.get(documentResource.value)
+          : undefined
+      const resource =
+        bundled ??
+        (fragment && !fragment.startsWith('/')
+          ? (resources.get(`${uri}#${fragment}`) ??
+            (declaredOrigin ? resources.get(`${declaredOrigin}#${fragment}`) : undefined))
+          : documentResource)
       if (!resource) {
         return undefined
       }
