@@ -38,6 +38,7 @@ const swift: Grammar = {
       rules: [
         { include: 'comments' },
         { include: 'strings' },
+        { include: 'regex' },
 
         // `@escaping`, `@MainActor`, `@available(iOS 15, *)`. The argument list
         // is deliberately left as ordinary code so `iOS 15` still reads as one.
@@ -82,7 +83,7 @@ const swift: Grammar = {
         },
         {
           match:
-            '\\b(?:func|var|let|class|struct|enum|protocol|extension|actor|init|deinit|subscript|typealias|associatedtype|operator|precedencegroup|static|final|lazy|weak|unowned|mutating|nonmutating|override|open|public|internal|fileprivate|private|package|required|convenience|indirect|inout|dynamic|async|throws|rethrows|some|any|get|set|willSet|didSet)\\b',
+            '\\b(?:func|var|let|class|struct|enum|protocol|extension|actor|init|deinit|subscript|typealias|associatedtype|operator|precedencegroup|static|final|lazy|weak|unowned|mutating|nonmutating|override|open|public|internal|fileprivate|private|package|required|convenience|indirect|inout|dynamic|async|throws|rethrows|some|any|get|set|willSet|didSet|nonisolated|isolated|distributed|borrowing|consuming|sending|macro)\\b',
           scope: 'keyword.declaration',
         },
         { match: '\\b(?:is|as|in)\\b', scope: 'keyword.operator' },
@@ -195,6 +196,30 @@ const swift: Grammar = {
         },
         { match: '"""', scope: 'string', push: 'multiline' },
         { match: '"', scope: 'string', push: 'string' },
+      ],
+    },
+
+    // ---- regex literals ------------------------------------------------------
+    regex: {
+      rules: [
+        // `#/…/#` can span lines and holds a bare `/`; only the `/` followed by
+        // as many `#` as opened it closes the literal.
+        { match: '(#+)/', scope: 'regexp', push: 'regex-extended', remember: 1 },
+        // A bare `/…/` is a regex only where an expression starts, and never
+        // with a space just inside either slash, which is how Swift itself
+        // tells it apart from division. The lookbehind sits after the `/` so the
+        // rule still starts with a literal character.
+        {
+          match: '/(?<=(?:[=(,:\\[!&|?{]|\\breturn|\\bcase)[ \\t]*/)(?![\\s/*])(?:[^/\\\\\\n]|\\\\.)+(?<!\\s)/',
+          scope: 'regexp',
+        },
+      ],
+    },
+    'regex-extended': {
+      default: 'regexp',
+      rules: [
+        { match: '\\\\.', scope: 'regexp' },
+        { match: '/{{remembered}}', scope: 'regexp', pop: true },
       ],
     },
 

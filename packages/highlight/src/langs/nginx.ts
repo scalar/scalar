@@ -91,7 +91,12 @@ const nginx: Grammar = {
           push: 'regex',
         },
 
-        { match: `${STATEMENT}(${NAME})${OPENS_BLOCK}`, scope: ['keyword'] },
+        // A context, with the name of a named one: the name is what
+        // `proxy_pass http://name` and `map … $name` refer back to.
+        {
+          match: `${STATEMENT}(?:(upstream|map)([ \\t]+)([$\\w.-]+)|(${NAME}))${OPENS_BLOCK}`,
+          scope: ['keyword', null, 'type', 'keyword'],
+        },
         { match: `${STATEMENT}(${NAME})`, scope: ['property'] },
 
         // Quotes get a state because nginx allows a value to run across lines
@@ -109,6 +114,17 @@ const nginx: Grammar = {
         { match: '\\B-!?[fdex]\\b', scope: 'keyword.operator' },
 
         { match: '\\b(?:on|off)\\b', scope: 'boolean' },
+        // The few argument values nginx defines itself — log levels, event
+        // methods, the default log format — and the flags that end a rewrite.
+        // Bounded on both sides by anything that can continue a path, so the
+        // `error` of `logs/error.log` stays part of the path. One rule for
+        // both, since every alternative costs on files this regular, and the
+        // check on what comes before runs last, once a word has matched.
+        {
+          match:
+            '\\b(?:(debug|info|notice|warn|error|crit|alert|emerg|main|combined|epoll|kqueue|eventport|devpoll)(?![\\w/.-])|(last|break|redirect|permanent)(?=[ \\t]*;))(?<![/.$-][a-z]*)',
+          scope: ['constant.builtin', 'keyword'],
+        },
 
         // Paths and URLs are most of what a config actually says, so they are
         // worth a colour. The scheme is capped rather than open-ended: an
