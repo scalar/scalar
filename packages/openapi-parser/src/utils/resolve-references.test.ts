@@ -17,6 +17,89 @@ import { resolveReferences } from './resolve-references'
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
+  it('resolves OpenAPI 2 response definitions named like extensions', () => {
+    const specification = {
+      swagger: '2.0',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      responses: { 'x-response': { $ref: '#/responses/Target' }, Target: { description: 'OK' } },
+    }
+    expect(resolveReferences(specification)).toStrictEqual({
+      valid: true,
+      errors: [],
+      schema: {
+        ...specification,
+        responses: {
+          'x-response': { description: 'OK' },
+          Target: { description: 'OK' },
+        },
+      },
+    })
+  })
+
+  it('preserves Paths and Responses extensions while resolving component names beginning with x-', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'Extensions', version: '1' },
+      paths: {
+        'x-meta': { $ref: 'literal-path.json' },
+        '/': { get: { responses: { '200': { description: 'OK' }, 'x-meta': { $ref: 'literal-response.json' } } } },
+      },
+      components: {
+        responses: { 'x-response': { $ref: '#/components/responses/Target' }, Target: { description: 'OK' } },
+        schemas: { 'x-schema': { type: 'string' } },
+      },
+    }
+    expect(resolveReferences(specification)).toStrictEqual({
+      valid: true,
+      errors: [],
+      schema: {
+        ...specification,
+        components: {
+          ...specification.components,
+          responses: { 'x-response': { description: 'OK' }, Target: { description: 'OK' } },
+        },
+      },
+    })
+  })
+
+  it('preserves dependentRequired property names while resolving properties named dependentRequired', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'Dependencies', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Thing: {
+            type: 'object',
+            properties: {
+              $ref: { type: 'string' },
+              other: { type: 'string' },
+              dependentRequired: { $ref: '#/components/schemas/Target' },
+            },
+            dependentRequired: { $ref: ['other'] },
+          },
+          Target: { type: 'string' },
+        },
+      },
+    }
+    const result = resolveReferences(specification)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        schemas: {
+          Target: { type: 'string' },
+          Thing: {
+            type: 'object',
+            properties: { $ref: { type: 'string' }, other: { type: 'string' }, dependentRequired: { type: 'string' } },
+            dependentRequired: { $ref: ['other'] },
+          },
+        },
+      },
+    })
+  })
+
   it('resolves schema references inside custom operations named example', () => {
     const target = { type: 'string' }
     const operation = {

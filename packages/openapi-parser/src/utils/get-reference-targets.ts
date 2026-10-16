@@ -12,7 +12,7 @@ type ExternalReferenceTarget = ReferenceTarget & { filename: string }
 /** Collect dependencies from selected fragments, following local aliases in the same context. */
 export const getReferenceTargets = (
   specification: unknown,
-  targets: ReferenceTarget[] = [{ fragment: '', context: 'object' }],
+  targets: ReferenceTarget[] = [{ fragment: '', context: 'document' }],
 ): ExternalReferenceTarget[] => {
   const references: ExternalReferenceTarget[] = []
   const localTargets: ReferenceTarget[] = []

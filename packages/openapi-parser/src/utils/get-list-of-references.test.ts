@@ -3,6 +3,43 @@ import { describe, expect, it } from 'vitest'
 import { getListOfReferences } from './get-list-of-references'
 
 describe('get-list-of-references', () => {
+  it('collects OpenAPI 2 response definitions named like extensions', () => {
+    expect(
+      getListOfReferences({
+        swagger: '2.0',
+        responses: {
+          'x-response': { $ref: 'response.json' },
+        },
+      }),
+    ).toStrictEqual(['response.json'])
+  })
+
+  it('ignores Paths and Responses extension data while collecting x-prefixed component references', () => {
+    expect(
+      getListOfReferences({
+        openapi: '3.1.0',
+        paths: {
+          'x-meta': { $ref: 'literal-path.json' },
+          '/': {
+            get: { responses: { '200': { $ref: 'response.json' }, 'x-meta': { $ref: 'literal-response.json' } } },
+          },
+        },
+        components: {
+          responses: { 'x-response': { $ref: 'component-response.json' } },
+          schemas: {
+            Thing: {
+              properties: {
+                'x-property': { $ref: 'property.json' },
+                dependentRequired: { $ref: 'dependency-schema.json' },
+              },
+              dependentRequired: { $ref: ['other'] },
+            },
+          },
+        },
+      }),
+    ).toStrictEqual(['response.json', 'component-response.json', 'property.json', 'dependency-schema.json'])
+  })
+
   it('collects custom-operation dependencies but not scope descriptions, mappings, or literal Link and extension data', () => {
     const literal = { $ref: 'literal.json' }
     expect(

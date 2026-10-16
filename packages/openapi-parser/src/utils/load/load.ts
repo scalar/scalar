@@ -111,7 +111,7 @@ const loadDocument = async (
 
   // A file may be reached later through another fragment or another object type.
   const visitedTargets = cached?.targets ?? new Set<string>()
-  const pendingTargets = (targets ?? [{ fragment: '', context: 'object' as const }]).filter((target) => {
+  const pendingTargets = (targets ?? [{ fragment: '', context: 'document' as const }]).filter((target) => {
     const key = JSON.stringify(target)
     if (visitedTargets.has(key)) {
       return false

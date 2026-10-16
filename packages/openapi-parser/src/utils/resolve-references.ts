@@ -72,7 +72,7 @@ export function resolveReferences(
   }
 
   // Recursively resolve all references
-  dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
+  dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options, 'document')
 
   // Remove duplicates (according to message) from errors
   const uniqueErrors = errors.filter(

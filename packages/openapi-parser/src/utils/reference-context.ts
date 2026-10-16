@@ -4,6 +4,10 @@ export type ReferenceContext =
   | 'linkMap'
   | 'discriminator'
   | 'object'
+  | 'document'
+  | 'components'
+  | 'paths'
+  | 'namedResponseMap'
   | 'schema'
   | 'response'
   | 'responseMap'
@@ -33,7 +37,6 @@ const schemaValues = new Set([
   'contentSchema',
 ])
 const objectMaps = new Set([
-  'paths',
   'additionalOperations',
   'webhooks',
   'content',
@@ -46,7 +49,7 @@ const objectMaps = new Set([
   'securitySchemes',
   'pathItems',
 ])
-const literalValues = new Set(['example', 'default', 'enum', 'const'])
+const literalValues = new Set(['example', 'default', 'enum', 'const', 'dependentRequired'])
 
 /** A map's names are data, even when a name happens to be an OpenAPI keyword. */
 export const getChildReferenceContext = (context: ReferenceContext, key: string, value: unknown): ReferenceContext => {
@@ -59,7 +62,11 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
   if (context === 'callback') {
     return 'object'
   }
-  if (context === 'responseMap') {
+  if (context === 'responseMap' || context === 'paths') {
+    // These objects allow extensions, unlike maps of arbitrary component names.
+    return key.startsWith('x-') ? 'literal' : context === 'paths' ? 'object' : 'response'
+  }
+  if (context === 'namedResponseMap') {
     return 'response'
   }
   if (context === 'schemaMap') {
@@ -101,8 +108,14 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
   if (schemaValues.has(key)) {
     return Array.isArray(value) ? 'schemaMap' : 'schema'
   }
+  if (key === 'components') {
+    return 'components'
+  }
+  if (key === 'paths') {
+    return 'paths'
+  }
   if (key === 'responses') {
-    return 'responseMap'
+    return context === 'components' || context === 'document' ? 'namedResponseMap' : 'responseMap'
   }
   if (key === 'callbacks') {
     return 'callbackMap'
@@ -115,6 +128,7 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
 
 /** Only objects in reference positions may interpret their own $ref field as a URI. */
 export const canResolveReference = (context: ReferenceContext): boolean =>
+  context === 'document' ||
   context === 'link' ||
   context === 'object' ||
   context === 'schema' ||
