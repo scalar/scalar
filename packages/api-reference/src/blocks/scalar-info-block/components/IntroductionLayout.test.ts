@@ -14,6 +14,19 @@ const mockProps = {
 }
 
 describe('IntroductionLayout', () => {
+  it('omits AsyncAPI tags from the introduction', () => {
+    const wrapper = mount(IntroductionLayout, {
+      props: {
+        ...mockProps,
+        documentType: 'asyncapi',
+        info: { title: 'Order Events', version: '1.0.0', tags: [{ name: 'Orders' }] },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Order Events')
+    expect(wrapper.text()).not.toContain('Orders')
+  })
+
   it('renders the given information', () => {
     const example: OpenApiDocument = {
       openapi: '3.1.1',

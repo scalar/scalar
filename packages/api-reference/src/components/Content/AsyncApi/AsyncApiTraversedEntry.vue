@@ -126,6 +126,7 @@ const resolvedEntries = computed(() =>
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :moreThanOneTag="entries.filter(isTag).length > 1"
+      :nested="options.layout === 'classic' && level !== 0"
       :tag="entry">
       <template v-if="entry.children?.length">
         <AsyncApiTraversedEntry
