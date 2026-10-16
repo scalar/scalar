@@ -3051,6 +3051,18 @@
                         "description": "Render standalone code examples for any operation with the Scalar code example block.",
                         "filepath": "documentation/guides/blocks/code-example.md",
                         "type": "page"
+                      },
+                      "schema": {
+                        "title": "Schema",
+                        "description": "Render schema properties, constraints, and compositions in your Vue application.",
+                        "filepath": "documentation/guides/blocks/schema.md",
+                        "type": "page"
+                      },
+                      "specification-extensions": {
+                        "title": "Specification Extensions",
+                        "description": "Display selected extension values, including nested objects and arrays.",
+                        "filepath": "documentation/guides/blocks/specification-extensions.md",
+                        "type": "page"
                       }
                     }
                   },
