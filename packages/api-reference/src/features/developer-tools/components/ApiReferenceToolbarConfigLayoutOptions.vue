@@ -10,6 +10,10 @@ import { computed } from 'vue'
 import { useLocalization } from '@/features/localization'
 
 type LayoutOptions = {
+  expandAllParameters?: boolean
+  expandAllSchemaProperties?: boolean
+  hideModelNames?: boolean
+  orderRequiredPropertiesFirst?: boolean
   showSidebar?: boolean
   defaultOpenFirstTag?: boolean
   defaultOpenAllTags?: boolean
@@ -32,22 +36,12 @@ const model = defineModel<LayoutOptions>({
 })
 const { translate } = useLocalization()
 
-function getValue(key: keyof LayoutOptions, defaultValue: boolean = false) {
-  return model.value[key] ?? configuration?.[key] ?? defaultValue
-}
+const getValue = (key: keyof LayoutOptions, defaultValue = false): boolean =>
+  model.value[key] ?? configuration?.[key] ?? defaultValue
 
-function setValue(
-  key: keyof LayoutOptions,
-  value: boolean,
-  defaultValue: boolean = false,
-) {
-  if (value !== defaultValue) {
-    model.value = { ...model.value, [key]: value }
-  } else {
-    model.value = Object.fromEntries(
-      Object.entries(model.value).filter(([k]) => key !== k),
-    )
-  }
+const setValue = (key: keyof LayoutOptions, value: boolean): void => {
+  // Explicit selections must override supplied configuration, including library defaults.
+  model.value = { ...model.value, [key]: value }
 }
 
 const modelsSectionLabel = computed(
@@ -66,12 +60,12 @@ const hideModelsLabel = computed(() =>
   <ScalarFormInputGroup>
     <ScalarToggleInput
       :modelValue="getValue('showSidebar', true)"
-      @update:modelValue="(v) => setValue('showSidebar', !!v, true)">
+      @update:modelValue="(v) => setValue('showSidebar', !!v)">
       {{ translate('developerTools.showSidebar') }}
     </ScalarToggleInput>
     <ScalarToggleInput
       :modelValue="getValue('defaultOpenFirstTag', true)"
-      @update:modelValue="(v) => setValue('defaultOpenFirstTag', !!v, true)">
+      @update:modelValue="(v) => setValue('defaultOpenFirstTag', !!v)">
       {{ translate('developerTools.defaultOpenFirstTag') }}
     </ScalarToggleInput>
     <ScalarToggleInput
@@ -83,6 +77,16 @@ const hideModelsLabel = computed(() =>
       :modelValue="getValue('expandAllModelSections')"
       @update:modelValue="(v) => setValue('expandAllModelSections', !!v)">
       {{ expandAllModelsLabel }}
+    </ScalarToggleInput>
+    <ScalarToggleInput
+      :modelValue="getValue('expandAllParameters', true)"
+      @update:modelValue="(v) => setValue('expandAllParameters', !!v)">
+      {{ translate('developerTools.expandAllParameters') }}
+    </ScalarToggleInput>
+    <ScalarToggleInput
+      :modelValue="getValue('expandAllSchemaProperties')"
+      @update:modelValue="(v) => setValue('expandAllSchemaProperties', !!v)">
+      {{ translate('developerTools.expandAllSchemaProperties') }}
     </ScalarToggleInput>
     <ScalarToggleInput
       :modelValue="getValue('expandAllResponses')"
@@ -105,6 +109,11 @@ const hideModelsLabel = computed(() =>
       {{ hideModelsLabel }}
     </ScalarToggleInput>
     <ScalarToggleInput
+      :modelValue="getValue('hideModelNames')"
+      @update:modelValue="(v) => setValue('hideModelNames', !!v)">
+      {{ translate('developerTools.hideModelNames') }}
+    </ScalarToggleInput>
+    <ScalarToggleInput
       :modelValue="getValue('hideSearch')"
       @update:modelValue="(v) => setValue('hideSearch', !!v)">
       {{ translate('developerTools.hideSearch') }}
@@ -118,6 +127,11 @@ const hideModelsLabel = computed(() =>
       :modelValue="getValue('hideTestRequestButton')"
       @update:modelValue="(v) => setValue('hideTestRequestButton', !!v)">
       {{ translate('developerTools.hideTestRequestButton') }}
+    </ScalarToggleInput>
+    <ScalarToggleInput
+      :modelValue="getValue('orderRequiredPropertiesFirst', true)"
+      @update:modelValue="(v) => setValue('orderRequiredPropertiesFirst', !!v)">
+      {{ translate('developerTools.orderRequiredPropertiesFirst') }}
     </ScalarToggleInput>
   </ScalarFormInputGroup>
 </template>

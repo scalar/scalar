@@ -566,6 +566,13 @@ export type ApiReferenceTranslations = {
     defaultOpenFirstTag: string
     defaultOpenAllTags: string
     expandAll: string
+    expandAllParameters: string
+    expandAllSchemaProperties: string
+    hideModelNames: string
+    orderRequiredPropertiesFirst: string
+    orderSchemaPropertiesBy: string
+    alphabeticalOrder: string
+    documentOrder: string
     expandAllResponses: string
     hideClientButton: string
     hideDarkModeToggle: string
