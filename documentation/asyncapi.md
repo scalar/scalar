@@ -123,6 +123,8 @@ Request/reply operations show a **Replies** section with the reply channel, its 
 
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
 
+Multi Format Schema Objects use `schemaFormat` to choose how to display their schema. JSON Schema, AsyncAPI Schema, and OpenAPI Schema formats use the structured schema renderer. Avro, Protobuf, and other formats appear as copyable source with their declared format, in message payloads, headers, and reusable models. Structured source such as Avro is formatted as JSON; text such as Protobuf keeps its original whitespace. Source-only formats do not provide generated examples or field-level search and correlation links.
+
 Rendering works in both the `modern` and `classic` layouts.
 
 <scalar-image

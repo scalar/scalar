@@ -34,21 +34,6 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
     return undefined
   }
 
-  if (isObject(payload) && 'schemaFormat' in payload) {
-    // Avro and other formats can also be objects, but the shared generator only understands JSON Schema.
-    const mediaType = String(payload.schemaFormat).split(';')[0]?.trim().toLowerCase()
-    if (
-      ![
-        'application/schema+json',
-        'application/schema+yaml',
-        'application/vnd.aai.asyncapi+json',
-        'application/vnd.aai.asyncapi+yaml',
-      ].includes(mediaType ?? '')
-    ) {
-      return undefined
-    }
-  }
-
   const schema = getAsyncApiMessagePayloadSchema(message)
   if (!schema || hasFalseAllOfMember(schema)) {
     return undefined

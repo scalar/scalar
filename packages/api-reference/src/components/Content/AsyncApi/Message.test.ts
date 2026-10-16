@@ -40,6 +40,42 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {
+    const schema = 'message User { string id = 1; }'
+    const format = 'application/vnd.google.protobuf;version=3'
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          [field]: { $ref: '#/components/schemas/User', '$ref-value': { schemaFormat: format, schema } },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain(format)
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+    expect(wrapper.find(`[id="${MESSAGE_ID}.${field}"]`).exists()).toBe(true)
+  })
+
+  it('switches a payload from source rendering back to JSON Schema', async () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({ payload: { schemaFormat: 'application/x-custom', schema: 'source text' } }),
+      },
+    })
+    expect(wrapper.text()).toContain('source text')
+    await wrapper.setProps({
+      document: createDocument({ payload: { type: 'object', properties: { userId: { type: 'string' } } } }),
+    })
+    expect(wrapper.text()).toContain('userId')
+    expect(wrapper.text()).not.toContain('source text')
+  })
+
   it('renders bindings on a message with no prose or schemas, including trait fields', () => {
     const wrapper = mount(Message, {
       props: {

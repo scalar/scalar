@@ -23,19 +23,7 @@ export const getCorrelationIdTarget = (
   }
   const section = match[1] === 'header' ? 'headers' : 'payload'
   const source = getResolvedRef(message[section])
-  if (isObject(source) && 'schemaFormat' in source) {
-    const mediaType = String(source.schemaFormat).split(';')[0]?.trim().toLowerCase()
-    if (
-      ![
-        'application/schema+json',
-        'application/schema+yaml',
-        'application/vnd.aai.asyncapi+json',
-        'application/vnd.aai.asyncapi+yaml',
-      ].includes(mediaType ?? '')
-    ) {
-      return undefined
-    }
-  }
+
   const schema = unwrapAsyncApiSchema(source)
   if (!schema) {
     return undefined

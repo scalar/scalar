@@ -1,4 +1,6 @@
+import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -13,6 +15,33 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('AsyncApiTraversedEntry', () => {
+  it.each(['classic', 'modern'] as const)('renders source models and keeps their anchors in %s layout', (layout) => {
+    const schema = 'message User { string id = 1; }'
+    const wrapper = mount(AsyncApiTraversedEntry, {
+      props: {
+        entries: [{ type: 'model', id: 'model-user', ref: '#/components/schemas/User', name: 'User', title: 'User' }],
+        document: {
+          ...document,
+          components: { schemas: { User: { schemaFormat: 'application/vnd.google.protobuf;version=3', schema } } },
+        },
+        expandedItems: { 'model-user': true },
+        options: {
+          layout,
+          hideModels: false,
+          expandAllSchemaProperties: false,
+          schemaKeyboardNav: false,
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: true,
+        },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    expect(wrapper.text()).toContain('User')
+    expect(wrapper.text()).toContain('application/vnd.google.protobuf;version=3')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    expect(wrapper.find('[id="model-user"]').exists()).toBe(true)
+  })
+
   /**
    * Tag groups are rendered through the flatten branch in modern layout, so they
    * must not count toward the sibling-tag total. If they did, a lone regular tag

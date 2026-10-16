@@ -10,6 +10,7 @@ import {
   resolveAsyncApiOperation,
 } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
+import { isAsyncApiJsonSchemaFormat } from '@/helpers/resolve-async-api-schema'
 
 /** Collect schema fields without treating examples, defaults, or other literal data as schemas. */
 const extractSchemaFields = (roots: unknown[]): { names: string[]; descriptions: string[] } => {
@@ -27,16 +28,7 @@ const extractSchemaFields = (roots: unknown[]): { names: string[]; descriptions:
       pending.push(getResolvedRef(value))
     }
     if ('schemaFormat' in value) {
-      const format = String(value.schemaFormat).split(';')[0]?.trim().toLowerCase()
-      if (
-        [
-          'application/schema+json',
-          'application/schema+yaml',
-          'application/vnd.aai.asyncapi',
-          'application/vnd.aai.asyncapi+json',
-          'application/vnd.aai.asyncapi+yaml',
-        ].includes(format ?? '')
-      ) {
+      if (isAsyncApiJsonSchemaFormat(value.schemaFormat)) {
         pending.push(value.schema)
       }
       continue
