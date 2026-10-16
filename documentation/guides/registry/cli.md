@@ -1,16 +1,16 @@
 # CLI
-This guide will help you interact with our registry with our CLI, programmatically. If you want to also work with the registry with our dashboard you can.
+Use the Scalar CLI to publish and manage API documents in the Scalar Registry. You can also manage them in the Scalar dashboard.
 
 Before running any of the commands below, make sure you are [authenticated](../cli/authentication.md) with the Scalar CLI using your [API key](../cli/authentication.md#login-with-an-api-key).
 
 ## Publishing API Documents
-To add an API document to the registry, use the `publish` command:
+To add an API document to the Scalar Registry, use the `publish` command:
 
 ```bash
 scalar registry publish ./openapi.yaml --namespace your-team --slug your-api
 ```
 
-`publish` accepts OpenAPI and [AsyncAPI](../../asyncapi.md) documents alike. The format is detected when the document reaches the registry, so the command is the same either way:
+`publish` accepts OpenAPI and [AsyncAPI](../../asyncapi.md) documents alike. The format is detected when the document reaches the Scalar Registry, so the command is the same either way:
 
 ```bash
 scalar registry publish ./asyncapi.yaml --namespace your-team --slug your-events-api
@@ -56,7 +56,7 @@ scalar registry update your-team your-api --title "New Title" --description "New
 ```
 
 ### Delete Documents
-Remove a document from the registry:
+Remove a document from the Scalar Registry:
 
 ```bash
 scalar registry delete your-team your-api
@@ -75,16 +75,19 @@ You can also lint your document using Spectral rules:
 scalar document lint ./openapi.yaml
 ```
 
-And use Rules from the Registry:
+Use rules from the Scalar Registry:
 
 ```bash
 scalar document lint ./openapi.yaml --rule https://registry.scalar.com/@your-team/rules/your-rule
 ```
 
 > [!NOTE]
-> `scalar document lint` also supports [AsyncAPI](../../asyncapi.md). It detects the document type and runs Spectral's `spectral:asyncapi` ruleset instead of `spectral:oas`, so linting an AsyncAPI document reports issues that actually apply to it. `scalar document validate` remains OpenAPI-only — pointed at an AsyncAPI document it stops with a clear message and suggests `lint` instead. Publishing an AsyncAPI document to the registry works as normal.
->
-> Need AsyncAPI support for `validate` too? Tell us on [GitHub](https://github.com/scalar/scalar/issues/new) or email [support@scalar.com](mailto:support@scalar.com).
+> `scalar document validate` and `scalar document lint` both support [AsyncAPI](../../asyncapi.md) documents. Validation detects the document type and checks it against the corresponding OpenAPI or AsyncAPI specification. By default, linting applies Spectral's `spectral:asyncapi` ruleset to AsyncAPI documents and `spectral:oas` to OpenAPI documents.
+
+```bash
+scalar document validate ./asyncapi.yaml
+scalar document lint ./asyncapi.yaml
+```
 
 ## Team Management
 If you're part of multiple teams, you can manage which team is active:

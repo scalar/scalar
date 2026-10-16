@@ -88,8 +88,8 @@ npx @scalar/cli document mock openapi.yaml --watch
 | [`document lint`](commands/document.md#lint)         | Apply Spectral rules to your API description.                         |
 | [`document serve`](commands/document.md#serve)       | Preview an interactive API Reference.                                 |
 | [`document mock`](commands/document.md#mock)         | Run a mock API server.                                                |
-| [`document split`](commands/document.md#split)       | Break an API description into smaller files.                          |
-| [`document join`](commands/document.md#join)         | Merge multiple API descriptions into one.                             |
+| [`document split`](commands/document.md#split)       | Split an API document into referenced JSON files.                          |
+| [`document join`](commands/document.md#join)         | Join API documents of the same format into one document.                             |
 | [`document format`](commands/document.md#format)     | Format an OpenAPI file.                                               |
 | [`document convert`](commands/document.md#convert)   | Convert a Postman collection to an OpenAPI description.               |
 | [`document markdown`](commands/document.md#markdown) | Generate Markdown from an API description.                            |
