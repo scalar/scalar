@@ -780,6 +780,9 @@ const handleArraySchema = (
           dynamicScope: childScope,
         },
       )
+      if (ex === undefined) {
+        return undefined
+      }
       return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
     }
   }
@@ -796,6 +799,10 @@ const handleArraySchema = (
       seen: itemsSeen,
       dynamicScope: childScope,
     })
+    // Propagate an omitted recursive item so optional arrays do not serialize it as null.
+    if (ex === undefined) {
+      return undefined
+    }
     return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
   }
 

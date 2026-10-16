@@ -1,8 +1,8 @@
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import {
   buildRequestBody,
@@ -321,9 +321,8 @@ export const processBody = ({
   const mediaType = requestBody.content[_contentType]
   const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
   if (typeof contentSchema !== 'undefined') {
-    const resolvedContentSchema = getResolvedRefDeep(contentSchema) as SchemaObject
     const extractedExample = getExampleFromSchema(
-      resolvedContentSchema,
+      snapshotSchema(contentSchema),
       {
         compositionSelection: requestBodyCompositionSelection,
         mode: 'write',
@@ -343,7 +342,7 @@ export const processBody = ({
             encoding,
             undefined,
             _contentType === 'multipart/form-data',
-            resolvedContentSchema,
+            contentSchema,
           ),
         }
       }

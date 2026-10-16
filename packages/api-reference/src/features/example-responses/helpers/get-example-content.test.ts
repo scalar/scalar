@@ -1,10 +1,26 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
 
 import { getExampleContent } from './get-example-content'
 
 describe('get-example-content', () => {
+  it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
+    const schema: SchemaObject = {
+      type: 'object',
+      required: ['name'],
+      properties: { name: { type: 'string', example: 'Earth' } },
+    }
+    schema.properties!.planets = {
+      type: 'array',
+      minItems: 1,
+      items: { $ref: '#/components/schemas/Planet', '$ref-value': schema },
+    }
+    const input = rootReference ? { $ref: '#/components/schemas/Planet', '$ref-value': schema } : schema
+    expect(getExampleContent({ schema: input }, undefined)).toBe(
+      JSON.stringify({ name: 'Earth', planets: [{ name: 'Earth' }] }, null, 2),
+    )
+  })
   it('applies response composition selection to XML serialization', () => {
     const response = {
       schema: coerceValue(SchemaObjectSchema, {
