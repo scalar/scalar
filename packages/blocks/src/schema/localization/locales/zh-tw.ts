@@ -1,6 +1,8 @@
 /** Built-in schema translations for zh-TW. */
 export const zhTw = {
   schema: {
+    variants: '變體',
+    discriminatorValue: '鑑別器值',
     noAllowedValues: '沒有值滿足此列舉限制。',
     example: '範例',
     examples: '範例',

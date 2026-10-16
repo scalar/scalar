@@ -1,5 +1,7 @@
 export const ar = {
   schema: {
+    variants: 'المتغيرات',
+    discriminatorValue: 'قيمة المميز',
     noAllowedValues: 'لا توجد قيم تستوفي قيد التعداد هذا.',
     example: 'مثال',
     examples: 'أمثلة',

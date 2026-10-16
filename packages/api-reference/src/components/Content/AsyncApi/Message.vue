@@ -17,10 +17,7 @@ import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
-import {
-  getAsyncApiMessageHeadersSchema,
-  getAsyncApiMessagePayloadSchema,
-} from '@/helpers/get-async-api-message-payload-schema'
+import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -123,17 +120,19 @@ const protocolLabels = computed(() => {
   return [...new Set([...protocols, ...messageBindingProtocols.value])]
 })
 
+const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
+
 /** Payload schema, unwrapped from `$ref`s and Multi Format Schema wrappers. */
 const payloadSchema = computed(() =>
   resolvedMessage.value
-    ? getAsyncApiMessagePayloadSchema(resolvedMessage.value)
+    ? adaptSchema.value(resolvedMessage.value.payload)
     : undefined,
 )
 
 /** Header schema, unwrapped the same way as the payload. */
 const headersSchema = computed(() =>
   resolvedMessage.value
-    ? getAsyncApiMessageHeadersSchema(resolvedMessage.value)
+    ? adaptSchema.value(resolvedMessage.value.headers)
     : undefined,
 )
 

@@ -1,5 +1,7 @@
 export const fr = {
   schema: {
+    variants: 'Variantes',
+    discriminatorValue: 'Valeur du discriminateur',
     noAllowedValues: 'Aucune valeur ne satisfait cette contrainte enum.',
     example: 'Exemple',
     examples: 'Exemples',

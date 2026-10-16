@@ -1,5 +1,7 @@
 export const ru = {
   schema: {
+    variants: 'Варианты',
+    discriminatorValue: 'Значение дискриминатора',
     noAllowedValues: 'Ни одно значение не удовлетворяет этому ограничению enum.',
     example: 'Пример',
     examples: 'Примеры',
