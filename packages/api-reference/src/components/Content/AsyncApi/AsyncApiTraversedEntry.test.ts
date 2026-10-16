@@ -131,6 +131,8 @@ describe('AsyncApiTraversedEntry', () => {
         .filter((url) => url?.startsWith('https://example.com/'))
       expect(urls.sort()).toStrictEqual([
         'https://example.com/channel',
+        // Tag documentation is available in the navigation section and the channel tag details.
+        'https://example.com/channel-tag',
         'https://example.com/channel-tag',
         // Messages owned by an operation are rendered once, with their documentation.
         'https://example.com/message',

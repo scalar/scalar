@@ -319,7 +319,8 @@ const { level: headingLevel } = useDocumentOutline(
           <Bindings
             :bindings="resolvedMessage?.bindings"
             class="mt-3" />
-          <AsyncApiDocumentation :owner="resolvedMessage" />
+          <AsyncApiDocumentation
+            :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
 
           <div
             v-if="correlationId"

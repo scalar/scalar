@@ -81,15 +81,15 @@ describe('AsyncApiServerSelector', () => {
     )
     const wrapper = mount(AsyncApiServerSelector, { props: { servers, selectedServer: servers[0]!, eventBus } })
     expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
-      'https://example.com/production',
       'https://example.com/production-tag',
+      'https://example.com/production',
     ])
     await wrapper.setProps({ selectedServer: servers[1]! })
     expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
-      'https://example.com/staging',
       'https://example.com/staging-tag',
+      'https://example.com/staging',
     ])
-    expect(wrapper.get('a').text()).toBe('**staging** guide')
+    expect(wrapper.get('a[href="https://example.com/staging"]').text()).toBe('**staging** guide')
     expect(wrapper.text()).toContain('staging event stream')
     expect(wrapper.text()).toContain('MQTT 5.0')
   })
