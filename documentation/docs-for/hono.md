@@ -1,6 +1,6 @@
 # Hono API documentation
 
-Add an interactive Scalar API reference to any Hono app, on any runtime, with one middleware.
+Add an interactive Scalar API reference to any Hono app, on any runtime, with one middleware. The same integration renders OpenAPI and [AsyncAPI](../asyncapi.md) documents. See the [AsyncAPI example in the Hono guide](../integrations/hono.md#asyncapi-and-websocket-apps) for WebSocket apps.
 
 Hono does not generate OpenAPI on its own. Most teams add [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) (`@hono/zod-openapi`) or [hono-openapi](https://github.com/rhinobase/hono-openapi) to describe routes and produce the document. `@scalar/hono-api-reference` renders that document as a reference with a built-in request client, search and code samples. Because it only returns HTML, it runs wherever Hono runs: Cloudflare Workers, Bun, Deno and Node.js.
 
