@@ -149,9 +149,16 @@ const embedded = (
   host: CompiledGrammar,
   emit: Emit,
 ): number => {
-  const until = state.embed!.until
-  until.lastIndex = pos
-  const found = until.exec(code)
+  const boundary = state.embed!.boundary
+  boundary.lastIndex = pos
+  let found = boundary.exec(code)
+  while (state.embed!.holes !== null && found?.[1] !== undefined) {
+    // An empty hole must not prevent the scanner from making progress.
+    if (found[0].length === 0) {
+      boundary.lastIndex += code.codePointAt(boundary.lastIndex)! > 0xffff ? 2 : 1
+    }
+    found = boundary.exec(code)
+  }
   const stop = found === null ? code.length : found.index
   if (stop === pos) {
     return pos
@@ -193,13 +200,22 @@ const withHoles = (
 ): void => {
   // Flat [start, end, start, end, …] offsets into `body`.
   const ranges: number[] = []
-  const masked =
-    holes === null
-      ? body
-      : body.replace(holes, (hole: string, at: number) => {
-          ranges.push(at, at + hole.length)
-          return hole.replace(/[^\r\n]/g, '_')
-        })
+  const pieces: string[] = []
+  let cursor = 0
+  if (holes !== null) {
+    holes.lastIndex = 0
+    for (const match of body.matchAll(holes)) {
+      const start = match.index
+      const end = start + match[0].length
+      if (start === end) {
+        continue
+      }
+      ranges.push(start, end)
+      pieces.push(body.slice(cursor, start), match[0].replace(/[^\r\n]/g, '_'))
+      cursor = end
+    }
+  }
+  const masked = ranges.length === 0 ? body : pieces.join('') + body.slice(cursor)
   let next = 0
   // Everything before `done` has been emitted, by one grammar or the other.
   let done = 0

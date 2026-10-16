@@ -82,16 +82,7 @@ const css: Grammar = {
         // An unquoted `url(…)` is a string up to the `)`. Without its own state
         // the `//` in `url(https://…)` reads as an SCSS line comment and takes
         // the rest of the declaration with it.
-        {
-          match: '\\b(url)(\\()(?=[ \\t]*[^\\s"\'])',
-          scope: ['function.builtin', 'punctuation'],
-          push: 'url',
-        },
-        { match: `\\b(${IDENT})(?=\\()`, scope: 'function.call' },
-        {
-          match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
-          scope: ['number', 'unit'],
-        },
+        { include: 'value-tokens' },
         { match: '\\b[a-zA-Z-]+\\b', scope: 'constant' },
         { match: '[(),/]', scope: 'punctuation' },
         { match: ';', scope: 'punctuation.delimiter', pop: true },
@@ -114,6 +105,18 @@ const css: Grammar = {
           match: `(${IDENT})(\\s*)(:)`,
           scope: ['property', null, 'punctuation.delimiter'],
         },
+        { include: 'value-tokens' },
+        { match: `\\$${IDENT}`, scope: 'variable' },
+        // A whole identifier, underscores included, so the feature rule above
+        // is not retried — and failed for want of a colon — at every position
+        // of a long name, which is O(n) each.
+        { match: IDENT, scope: 'constant' },
+        { match: '[(),/<>=]', scope: 'punctuation' },
+      ],
+    },
+
+    'value-tokens': {
+      rules: [
         {
           match: '\\b(url)(\\()(?=[ \\t]*[^\\s"\'])',
           scope: ['function.builtin', 'punctuation'],
@@ -124,12 +127,6 @@ const css: Grammar = {
           match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
           scope: ['number', 'unit'],
         },
-        { match: `\\$${IDENT}`, scope: 'variable' },
-        // A whole identifier, underscores included, so the feature rule above
-        // is not retried — and failed for want of a colon — at every position
-        // of a long name, which is O(n) each.
-        { match: IDENT, scope: 'constant' },
-        { match: '[(),/<>=]', scope: 'punctuation' },
       ],
     },
 

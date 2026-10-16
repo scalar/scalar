@@ -10,3 +10,5 @@ feat: highlight more embedded languages and keyword-named keys
 - Engine: an `embed` can declare `holes`, regions of the body the host grammar tokenizes while the embedded language reads across them.
 - CSS: the condition of `@media`, `@supports`, `@container` and `@import` gets keywords, features, numbers and values.
 - JavaScript/TypeScript: a keyword used as an object key (`{ type: 'object' }`, `{ default: 1 }`) reads as a property, `static of()` and `get(key)` read as method names, and `#private` fields are scoped.
+
+Preserve source text when hole patterns contain capture groups, and keep PHP strings and comments from prematurely closing script or style bodies.

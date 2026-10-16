@@ -1109,6 +1109,48 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'markdown', '**bold**', 'strong')
   })
 
+  it.each([
+    '"?>"',
+    "'?>'",
+    String.raw`"escaped \" ?>"`,
+    '"</script>"',
+    "'</script>'",
+    '/* ?> </script> */ "value"',
+    '// </script>\n"value"',
+  ])('php: keeps quoted delimiters and comments inside a script hole: %s', (value) => {
+    const code = `<script>const a = <?= ${value} . $name ?>; const ok = true;</script>`
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '$name')).toBe('variable')
+    expect(scopeOf(code, 'php', 'ok')).toBe('variable')
+    expect(scopeOf(code, 'php', 'true')).toBe('boolean')
+  })
+
+  it('php: ignores a closing style tag inside a PHP string', () => {
+    const code = '<style>.a { content: <?= "</style>" . $name ?>; color: red }</style>'
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '$name')).toBe('variable')
+    expect(scopeOf(code, 'php', 'color')).toBe('property')
+    expect(scopeOf(code, 'php', 'red')).toBe('constant')
+  })
+
+  it('php: preserves an unclosed quoted hole through the end of input', () => {
+    const code = '<script>const a = <?= "?> </script> still PHP'
+    expect(
+      tokenize(code, 'php')
+        .map(({ text }) => text)
+        .join(''),
+    ).toBe(code)
+    expect(scopeOf(code, 'php', '"?> </script> still PHP')).toBe('string')
+  })
+
   it('php: keeps the script state across a PHP region inside a string', () => {
     const code = '<p></p><script>const name = "<?= $name ?>"; const ok = true;</script>\n'
     assertHas(code, 'php', '$name', 'variable')

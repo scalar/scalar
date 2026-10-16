@@ -222,6 +222,7 @@ Markdown fence such as ` ```ts ` highlights its body as TypeScript. `holes` mark
 the body that belong to the host grammar instead: the embedded language reads across them
 as if each were a name, so its state carries over, and the host grammar tokenizes each hole.
 A PHP template's `<script>` uses it for `<?= $x ?>`, which keeps `"<?= $name ?>"` one string.
+Hole patterns may contain capture groups. An end marker inside a hole does not close the embedded body.
 
 Lines end at `\n` (or `\r\n`) and nowhere else: the compiler rewrites `$` and `.` so a lone
 `\r` or a U+2028 inside a string literal cannot end it early, as JavaScript's `m` flag would.

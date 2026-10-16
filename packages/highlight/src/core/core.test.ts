@@ -653,6 +653,70 @@ describe('embed', () => {
     expect(tokens.find((t) => t.text === '1')?.scope).toBe('number')
   })
 
+  it.each(['\\{\\{[^}]*\\}\\}', '(\\{\\{)([^}]*)(\\}\\})', '(?<open>\\{\\{)[^}]*\\}\\}'])(
+    'preserves every range when a hole pattern has captures: %s',
+    (holes) => {
+      registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+      const grammar: Grammar = {
+        ...host,
+        states: {
+          ...host.states,
+          body: { embed: { language: 'tiny-embedded', until: '</x>', holes }, rules: [] },
+        },
+      }
+      const code = '<x>1{{ first }}2{{ second }}3</x>'
+      const tokens = tokenizeToArray(code, compile(grammar))
+      expect(tokens.map(({ text, scope }) => [text, scope])).toEqual([
+        ['<x>', 'tag'],
+        ['1', 'number'],
+        ['{{ first }}', null],
+        ['2', 'number'],
+        ['{{ second }}', null],
+        ['3', 'number'],
+        ['</x>', 'tag'],
+      ])
+      expect(tokens.map(({ text }) => text).join('')).toBe(code)
+      expect(tokens.every(({ start, end, text }) => code.slice(start, end) === text)).toBe(true)
+    },
+  )
+
+  it('ignores end markers inside a host hole', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const grammar: Grammar = {
+      ...host,
+      states: {
+        ...host.states,
+        root: { rules: [{ match: '\\{\\{[^}]*\\}\\}', scope: 'comment' }, ...host.states.root!.rules] },
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '\\{\\{[^}]*\\}\\}' }, rules: [] },
+      },
+    }
+    const code = '<x>1{{ </x> }}2</x>'
+    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+      ['<x>', 'tag'],
+      ['1', 'number'],
+      ['{{ </x> }}', 'comment'],
+      ['2', 'number'],
+      ['</x>', 'tag'],
+    ])
+  })
+
+  it('ignores empty holes without losing source text', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const grammar: Grammar = {
+      ...host,
+      states: {
+        ...host.states,
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)' }, rules: [] },
+      },
+    }
+    const code = '<x>1</x>'
+    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+      ['<x>', 'tag'],
+      ['1', 'number'],
+      ['</x>', 'tag'],
+    ])
+  })
+
   it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
     const nested: Grammar = {
       name: 'nested',

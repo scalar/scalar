@@ -32,10 +32,11 @@ const NAME = `\\\\?${ID}(?:\\\\${ID})*`
 const TAG = '[A-Za-z_][\\w:.-]*'
 
 /**
- * A PHP region inside markup, up to its `?>` or the end of the input. Used as
- * the hole in an embedded `<script>` or `<style>` body.
+ * PHP strings and comments own their delimiters: a quoted `?>` cannot end
+ * the region, and a quoted `</script>` cannot end its surrounding embed.
+ * Each alternative consumes a distinct prefix so unclosed regions stay linear.
  */
-const PHP_REGION = '<\\?(?:php\\b|=)[\\s\\S]*?(?:\\?>|(?![\\s\\S]))'
+const PHP_REGION = String.raw`<\?(?:php\b|=)(?:"(?:\\[\s\S]|[^"\\])*(?:"|(?![\s\S]))|'(?:\\[\s\S]|[^'\\])*(?:'|(?![\s\S]))|/\*[^*]*(?:\*(?!/)[^*]*)*(?:\*/|(?![\s\S]))|(?:\/\/|#(?!\[))(?:(?!\?>)[^\n])*|[^"'/?#]|/(?![/*])|\?(?!>)|#(?=\[))*(?:\?>|(?![\s\S]))`
 
 const php: Grammar = {
   name: 'php',
