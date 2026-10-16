@@ -102,7 +102,12 @@ const contentType = computed<string | undefined>(
 
 /** Heading prefers title, then summary, then the navigation label or message map key. */
 const headingText = computed(() =>
-  pickHeading(resolvedMessage.value?.title, resolvedMessage.value?.summary, message.title, message.messageName),
+  pickHeading(
+    resolvedMessage.value?.title,
+    resolvedMessage.value?.summary,
+    message.title,
+    message.messageName,
+  ),
 )
 
 /** A summary used as the heading must not repeat in the body. */
@@ -111,7 +116,9 @@ const summary = computed((): string => {
   return value === headingText.value ? '' : value
 })
 
-const description = computed((): string => resolvedMessage.value?.description ?? '')
+const description = computed(
+  (): string => resolvedMessage.value?.description ?? '',
+)
 
 const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
 
@@ -253,7 +260,11 @@ const { level: headingLevel } = useDocumentOutline(
               contentType
             "
             class="message-schemas min-w-0 space-y-4">
-            <p v-if="summary" class="text-c-1 [overflow-wrap:anywhere]">{{ summary }}</p>
+            <p
+              v-if="summary"
+              class="text-c-1 [overflow-wrap:anywhere]">
+              {{ summary }}
+            </p>
             <ScalarMarkdown
               v-if="description"
               class="message-description"

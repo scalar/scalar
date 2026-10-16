@@ -118,7 +118,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     :aria-labelledby="headerId"
     class="operation"
     :class="`operation--${operation.action}`">
-    <div class="operation-header">
+    <div class="operation-header mb-3">
       <Anchor
         class="mr-6"
         @copyAnchorUrl="
@@ -156,7 +156,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <p
       v-if="summary"
-      class="text-c-1 mt-1 mb-2 [overflow-wrap:anywhere]">
+      class="text-c-1 mb-2 [overflow-wrap:anywhere]">
       {{ summary }}
     </p>
     <ScalarMarkdown
