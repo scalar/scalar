@@ -1,29 +1,28 @@
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { AnyObject } from '@scalar/types/utils'
 
-import { traverse } from './traverse'
+import { type ReferenceContext, canResolveReference, getChildReferenceContext } from './reference-context'
 
-/**
- * Walks through the specification and returns all references as an array.
- *
- * Warning: Doesn't return internal references.
- */
-export function getListOfReferences(specification: AnyObject) {
-  const references: string[] = []
+/** Collect external reference filenames without interpreting instance data as references. */
+export const getListOfReferences = (specification: AnyObject): string[] => {
+  const references = new Set<string>()
+  const visited = new WeakSet<object>()
 
-  // Make sure we're dealing with an object
-  if (!specification || typeof specification !== 'object') {
-    return references
-  }
+  const visit = (value: unknown, context: ReferenceContext): void => {
+    if (context === 'literal' || !isObjectLike(value) || visited.has(value)) {
+      return
+    }
+    visited.add(value)
 
-  // Traverse the specification and collect all references
-  traverse(specification, (value: any) => {
-    if (value.$ref && typeof value.$ref === 'string' && !value.$ref.startsWith('#')) {
-      references.push(value.$ref.split('#')[0])
+    if (canResolveReference(context) && typeof value.$ref === 'string' && value.$ref && !value.$ref.startsWith('#')) {
+      references.add(value.$ref.split('#')[0])
     }
 
-    return value
-  })
+    for (const [key, child] of Object.entries(value)) {
+      visit(child, getChildReferenceContext(context, key, child))
+    }
+  }
 
-  // Remove duplicates
-  return [...new Set(references)]
+  visit(specification, 'object')
+  return [...references]
 }

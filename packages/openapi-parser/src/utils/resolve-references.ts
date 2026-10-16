@@ -7,6 +7,7 @@ import type { ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } fro
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
 import { makeFilesystem } from './make-filesystem'
+import { type ReferenceContext, canResolveReference, getChildReferenceContext } from './reference-context'
 
 // TODO: Add support for all pointer words
 // export const pointerWords = new Set([
@@ -99,8 +100,9 @@ function dereference(
   errors: ErrorObject[],
 
   options?: ResolveReferencesOptions,
+  context: ReferenceContext = 'object',
 ): void {
-  if (schema === null || resolvedSchemas.has(schema)) {
+  if (context === 'literal' || schema === null || resolvedSchemas.has(schema)) {
     return
   }
   resolvedSchemas.add(schema)
@@ -125,8 +127,7 @@ function dereference(
    */
   const processedRefs = new Set<string>()
 
-  // A properties map can contain a schema named $ref rather than a reference URI.
-  while (schema.$ref !== undefined && !isObject(schema.$ref)) {
+  while (canResolveReference(context) && schema.$ref !== undefined) {
     const selfReferenceDetected = processedRefs.has(schema.$ref)
 
     if (selfReferenceDetected) {
@@ -166,9 +167,17 @@ function dereference(
   }
 
   // Iterate over the whole object
-  for (const value of Object.values(schema)) {
+  for (const [key, value] of Object.entries(schema)) {
     if (typeof value === 'object' && value !== null) {
-      dereference(value, filesystem, entrypoint, resolvedSchemas, errors, options)
+      dereference(
+        value,
+        filesystem,
+        entrypoint,
+        resolvedSchemas,
+        errors,
+        options,
+        getChildReferenceContext(context, key, value),
+      )
     }
   }
 }

@@ -4,6 +4,32 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it.each([true, false])('preserves a boolean schema for a property named $ref: %s', async ($ref) => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'SCIM', version: '1' },
+      paths: {},
+      components: { schemas: { Member: { type: 'object', properties: { $ref } } } },
+    }
+    const result = await validate(specification, { throwOnError: true })
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
+  it('reports an object-valued reference in a schema', async () => {
+    const result = await validate({
+      openapi: '3.1.0',
+      info: { title: 'Broken', version: '1' },
+      paths: {},
+      components: { schemas: { Broken: { $ref: { type: 'string' } } } },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      { code: 'INVALID_REFERENCE', message: "Can't resolve reference: [object Object]" },
+    ])
+  })
+
   it.each(['3.0.4', '3.1.0', '3.2.1'])('validates a schema property named $ref in OpenAPI %s', async (openapi) => {
     const specification = {
       openapi,
