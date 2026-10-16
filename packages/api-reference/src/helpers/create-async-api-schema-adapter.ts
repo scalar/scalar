@@ -1,6 +1,7 @@
 import {
   type DiscriminatorSchema,
   inferDiscriminatorMappingComposition,
+  schemaDialect,
   schemaDiscriminator,
 } from '@scalar/blocks/schema'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
@@ -93,7 +94,14 @@ export const createAsyncApiSchemaAdapter = (
     if (typeof source === 'boolean') return getBooleanSchema(source)
     if (!isObject(source)) return undefined
     // Other schema formats have their own discriminator semantics.
-    if (isForeignSchema(input)) return source as SchemaObject
+    if (isForeignSchema(input)) {
+      const wrapper = resolveInput(input)
+      if (
+        !isObject(wrapper) ||
+        !/^application\/schema\+(json|yaml);version=draft-07$/i.test(String(wrapper.schemaFormat))
+      )
+        return source as SchemaObject
+    }
     const cache = suppressSelector ? concrete : selectable
     const referenceName =
       isObject(input) && typeof input.$ref === 'string'
@@ -108,6 +116,9 @@ export const createAsyncApiSchemaAdapter = (
     if (cached) return cached
     // AsyncAPI and OpenAPI share schema fields; the discriminator is normalized below.
     const result = { ...source } as DiscriminatorSchema
+    if (['if', 'then', 'else', 'contains', 'dependencies', 'allOf', 'oneOf', 'anyOf'].some((key) => key in source)) {
+      Object.assign(result, { [schemaDialect]: 'draft-07' })
+    }
     views.set(schemaName, result)
     cache.set(unpackProxyShallow(source), views)
     const propertyName = discriminatorName(source)
@@ -140,6 +151,16 @@ export const createAsyncApiSchemaAdapter = (
       'contentSchema',
     ] as const) {
       if (source[key] !== undefined) Object.assign(result, { [key]: child(source[key]) })
+    }
+    if (isObject(source.dependencies)) {
+      Object.assign(result, {
+        dependencies: Object.fromEntries(
+          Object.entries(source.dependencies).map(([name, value]) => [
+            name,
+            Array.isArray(value) ? value : child(value),
+          ]),
+        ),
+      })
     }
     for (const key of ['allOf', 'oneOf', 'anyOf', 'prefixItems'] as const) {
       const members = source[key]

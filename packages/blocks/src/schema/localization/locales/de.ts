@@ -1,5 +1,14 @@
 export const de = {
   schema: {
+    conditionalConstraints: 'Bedingte Einschränkungen',
+    constraintIf: 'Wenn dieses Schema zutrifft',
+    constraintThen: 'Dann anwenden',
+    constraintElse: 'Andernfalls anwenden',
+    containsConstraint: 'Enthält mindestens ein passendes Element',
+    dependencyConstraint: 'Wenn {name} vorhanden ist',
+    requiredProperties: 'Erforderliche Eigenschaften: {names}',
+    noAdditionalConstraint: 'Keine zusätzliche Einschränkung.',
+
     variants: 'Varianten',
     discriminatorValue: 'Diskriminatorwert',
     noAllowedValues: 'Keine Werte erfüllen diese Enum-Bedingung.',
