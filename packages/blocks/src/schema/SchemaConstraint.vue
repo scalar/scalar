@@ -74,7 +74,7 @@ const views = computed(() =>
 <template>
   <div class="relative py-1.5 text-sm">
     <SchemaGutterToggle
-      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-4 -translate-y-1/2"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-4.5 -translate-y-1/2"
       :fallbackLabel="label"
       :nameId="labelId"
       :open
@@ -83,14 +83,14 @@ const views = computed(() =>
       @toggle="toggle" />
     <span
       :id="labelId"
-      class="text-c-2 cursor-pointer text-left"
+      class="text-c-2 block min-h-6 cursor-pointer text-left leading-6"
       @click="toggle">
       {{ label }}
     </span>
     <SchemaRailPanel
       v-if="open"
       :id="panelId"
-      class="mt-1.5"
+      class="-ms-[var(--schema-gutter,16px)] ps-[calc(var(--schema-gutter,16px)*2)]!"
       closeOnRail
       :depth="depth + 1"
       @close="toggle">
