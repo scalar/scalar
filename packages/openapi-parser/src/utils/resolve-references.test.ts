@@ -17,6 +17,76 @@ import { resolveReferences } from './resolve-references'
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
+  it('resolves schema references inside custom operations named example', () => {
+    const target = { type: 'string' }
+    const operation = {
+      requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Target' } } } },
+      responses: { '200': { description: 'OK' } },
+    }
+    const specification = {
+      openapi: '3.2.1',
+      paths: { '/': { additionalOperations: { example: operation } } },
+      components: { schemas: { Target: target } },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      paths: {
+        '/': {
+          additionalOperations: {
+            example: {
+              ...operation,
+              requestBody: { content: { 'application/json': { schema: target } } },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('preserves OAuth scopes, discriminator mappings, Link values, and extensions', () => {
+    const literal = { $ref: '#/components/schemas/Target' }
+    const target = { type: 'object' }
+    const mapping = { $ref: '#/components/schemas/Target' }
+    const specification = {
+      openapi: '3.1.0',
+      'x-data': { ...literal },
+      components: {
+        schemas: {
+          Target: target,
+          Choice: { oneOf: [literal], discriminator: { propertyName: 'kind', mapping } },
+          NamedProperty: { properties: { 'x-data': literal } },
+        },
+        links: { Next: { operationId: 'next', requestBody: { ...literal }, parameters: { filter: { ...literal } } } },
+        securitySchemes: {
+          OAuth: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { $ref: 'Read reference resources' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        ...specification.components,
+        schemas: {
+          ...specification.components.schemas,
+          Choice: { oneOf: [target], discriminator: { propertyName: 'kind', mapping } },
+          NamedProperty: { properties: { 'x-data': target } },
+        },
+      },
+    })
+  })
+
   it('resolves callback references when the callback name is example', () => {
     const specification = {
       openapi: '3.1.0',

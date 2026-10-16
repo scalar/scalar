@@ -107,10 +107,13 @@ function dereference(
   }
   resolvedSchemas.add(schema)
 
-  function resolveExternal(externalFile: FilesystemEntry) {
-    dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
-
-    return externalFile
+  // A fragment inherits the reference site's context, not its storage container's keys.
+  const resolveExternal = (externalFile: FilesystemEntry, fragment: string): AnyObject | undefined => {
+    const target = resolveUri(`#${fragment}`, options, externalFile, filesystem, resolveExternal, errors)
+    if (isObjectLike(target)) {
+      dereference(target, filesystem, externalFile, resolvedSchemas, errors, options, context)
+    }
+    return target
   }
 
   /**
@@ -197,7 +200,7 @@ function resolveUri(
   filesystem: Filesystem,
 
   // a function to resolve references in external file
-  resolve: (file: FilesystemEntry) => FilesystemEntry,
+  resolve: (file: FilesystemEntry, fragment: string) => AnyObject | undefined,
 
   errors: ErrorObject[],
 ): AnyObject | undefined {
@@ -239,14 +242,7 @@ function resolveUri(
 
       return undefined
     }
-    // $ref: 'other-file.yaml'
-    if (path === undefined) {
-      return externalReference.specification
-    }
-
-    // $ref: 'other-file.yaml#/foo/bar'
-    // resolve refs first before accessing properties directly
-    return resolveUri(`#${path}`, options, resolve(externalReference), filesystem, resolve, errors)
+    return resolve(externalReference, path ?? '')
   }
 
   // Try to find the URI

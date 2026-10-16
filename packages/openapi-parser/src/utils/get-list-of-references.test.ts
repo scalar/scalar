@@ -3,6 +3,32 @@ import { describe, expect, it } from 'vitest'
 import { getListOfReferences } from './get-list-of-references'
 
 describe('get-list-of-references', () => {
+  it('collects custom-operation dependencies but not scope descriptions, mappings, or literal Link and extension data', () => {
+    const literal = { $ref: 'literal.json' }
+    expect(
+      getListOfReferences({
+        openapi: '3.2.1',
+        'x-data': literal,
+        paths: { '/': { additionalOperations: { example: { requestBody: { $ref: 'body.json' } } } } },
+        components: {
+          schemas: { Demo: { discriminator: { propertyName: 'kind', mapping: { $ref: 'schema.json' } } } },
+          links: { Next: { operationId: 'next', requestBody: literal, parameters: { filter: literal } } },
+          securitySchemes: {
+            OAuth: {
+              type: 'oauth2',
+              flows: {
+                implicit: {
+                  authorizationUrl: 'https://example.com/auth',
+                  scopes: { $ref: 'Read reference resources' },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toStrictEqual(['body.json'])
+  })
+
   it('preserves literal references in OpenAPI 2 response examples', () => {
     const specification = {
       swagger: '2.0',

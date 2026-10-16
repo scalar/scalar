@@ -1,5 +1,8 @@
 /** Distinguishes reference-bearing objects from name maps and opaque instance data. */
 export type ReferenceContext =
+  | 'link'
+  | 'linkMap'
+  | 'discriminator'
   | 'object'
   | 'schema'
   | 'response'
@@ -31,11 +34,11 @@ const schemaValues = new Set([
 ])
 const objectMaps = new Set([
   'paths',
+  'additionalOperations',
   'webhooks',
   'content',
   'mediaTypes',
   'headers',
-  'links',
   'encoding',
   'variables',
   'parameters',
@@ -65,8 +68,25 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
   if (context === 'objectMap') {
     return 'object'
   }
+  if (context === 'linkMap') {
+    return 'link'
+  }
   if (context === 'exampleMap') {
     return 'example'
+  }
+  if (
+    key.startsWith('x-') ||
+    key === 'scopes' ||
+    (context === 'discriminator' && key === 'mapping') ||
+    (context === 'link' && (key === 'requestBody' || key === 'parameters'))
+  ) {
+    return 'literal'
+  }
+  if (key === 'links') {
+    return 'linkMap'
+  }
+  if (key === 'discriminator') {
+    return 'discriminator'
   }
   if (literalValues.has(key) || (context === 'example' && (key === 'value' || key === 'dataValue'))) {
     return 'literal'
@@ -95,6 +115,7 @@ export const getChildReferenceContext = (context: ReferenceContext, key: string,
 
 /** Only objects in reference positions may interpret their own $ref field as a URI. */
 export const canResolveReference = (context: ReferenceContext): boolean =>
+  context === 'link' ||
   context === 'object' ||
   context === 'schema' ||
   context === 'example' ||

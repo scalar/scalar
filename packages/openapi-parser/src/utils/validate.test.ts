@@ -4,6 +4,27 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('reports missing external references inside a custom operation named example', async () => {
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'Custom operation', version: '1' },
+      paths: {
+        '/': {
+          additionalOperations: {
+            example: {
+              requestBody: { $ref: 'missing.json' },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      { code: 'EXTERNAL_REFERENCE_NOT_FOUND', message: "Can't resolve external reference: missing.json" },
+    ])
+  })
+
   it('preserves literal references in OpenAPI 2 response examples', async () => {
     const specification = {
       swagger: '2.0',
