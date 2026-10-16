@@ -4,6 +4,28 @@ This middleware provides an easy way to render a beautiful API reference based o
 
 ![Screenshot of the Hono integration](../assets/screenshots/hono.png)
 
+## Setup Prompt
+
+Copy this prompt into your coding agent to add Scalar to an existing Hono app with OpenAPI, AsyncAPI, or both.
+
+<scalar-prompt title="Set up Scalar for Hono">
+
+```text
+Add Scalar API Reference to this Hono app using @scalar/hono-api-reference.
+
+Read https://scalar.com/products/api-references/integrations/hono for the integration guide and https://scalar.com/products/api-references/asyncapi for AsyncAPI support before making changes.
+
+1. Inspect the app entrypoint, runtime, package manager, HTTP routes, event-driven channels, and existing API descriptions. Use OpenAPI for HTTP request/response APIs and AsyncAPI for event-driven APIs, or both when appropriate.
+2. Install @scalar/hono-api-reference using the project’s package manager.
+3. Reuse existing API descriptions and generation tools. For HTTP routes without an OpenAPI description, add @hono/zod-openapi or hono-openapi to fit the app’s existing validation and routing. For event-driven APIs without an AsyncAPI description, create an AsyncAPI 3.x document from the actual servers, channels, operations, messages, and payload schemas. These OpenAPI generation libraries do not generate AsyncAPI. Do not invent endpoints, responses, channels, or messages; ask about behavior that cannot be determined from the app.
+4. Serve each description as JSON or YAML at an appropriate URL, such as /openapi.json or /asyncapi.json, or reuse its existing URL. Import { Scalar } from '@scalar/hono-api-reference' and register app.get('/scalar', Scalar({ url: '/asyncapi.json' })) for an AsyncAPI document, or use the OpenAPI document URL instead. If both are present, use Scalar({ sources: [{ title: 'HTTP API', url: '/openapi.json' }, { title: 'Events', url: '/asyncapi.json' }] }). Adjust URLs for the actual document routes and base path. Register the documentation routes before catch-all handlers.
+5. Preserve the app’s runtime, existing routes, event handlers, middleware, and authentication requirements. Do not replace the server entrypoint or expose protected documentation publicly.
+6. Run the relevant project checks and validate each description with tooling for its format and declared version. Start the app with its existing development command. Verify that each document URL returns the expected description and /scalar renders its endpoints or channels and messages. If both formats are configured, verify that both are available in the document selector.
+7. Summarize the changed files, checks performed, and local documentation URL.
+```
+
+</scalar-prompt>
+
 ## Installation
 
 ```bash
