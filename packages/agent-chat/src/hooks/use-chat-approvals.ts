@@ -1,5 +1,5 @@
 import type { ToolUIPart, UIMessagePart } from 'ai'
-import { computed } from 'vue'
+import { type ComputedRef, computed } from 'vue'
 
 import { executeRequestTool } from '@/client-tools/execute-request'
 import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
@@ -20,7 +20,11 @@ export function requestPartRequiresApproval(part: UIMessagePart<any, Tools>): pa
   )
 }
 
-export function useRequestApprovals() {
+/** Exposes pending request approvals without leaking SDK implementation types. */
+export function useRequestApprovals(): {
+  approvalRequiredParts: ComputedRef<RequestToolPart[]>
+  respondToRequestApprovals: (approved: boolean) => Promise<void>
+} {
   const state = useState()
 
   const approvalRequiredParts = computed(() => {
