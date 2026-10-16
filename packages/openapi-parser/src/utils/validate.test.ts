@@ -4,6 +4,101 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('reports missing external references inside a custom operation named example', async () => {
+    const result = await validate({
+      openapi: '3.2.1',
+      info: { title: 'Custom operation', version: '1' },
+      paths: {
+        '/': {
+          additionalOperations: {
+            example: {
+              requestBody: { $ref: 'missing.json' },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      { code: 'EXTERNAL_REFERENCE_NOT_FOUND', message: "Can't resolve external reference: missing.json" },
+    ])
+  })
+
+  it('preserves literal references in OpenAPI 2 response examples', async () => {
+    const specification = {
+      swagger: '2.0',
+      info: { title: 'Examples', version: '1' },
+      paths: {
+        '/': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                examples: { 'application/json': { $ref: 'literal.json' } },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = await validate(specification, { throwOnError: true })
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
+  it.each([true, false])('preserves a boolean schema for a property named $ref: %s', async ($ref) => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'SCIM', version: '1' },
+      paths: {},
+      components: { schemas: { Member: { type: 'object', properties: { $ref } } } },
+    }
+    const result = await validate(specification, { throwOnError: true })
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
+  it('reports an object-valued reference in a schema', async () => {
+    const result = await validate({
+      openapi: '3.1.0',
+      info: { title: 'Broken', version: '1' },
+      paths: {},
+      components: { schemas: { Broken: { $ref: { type: 'string' } } } },
+    })
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([
+      { code: 'INVALID_REFERENCE', message: "Can't resolve reference: [object Object]" },
+    ])
+  })
+
+  it.each(['3.0.4', '3.1.0', '3.2.1'])('validates a schema property named $ref in OpenAPI %s', async (openapi) => {
+    const specification = {
+      openapi,
+      info: { title: 'SCIM', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { type: 'string', format: 'uri' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = await validate(specification)
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
   it('reports referenced OpenAPI 3.2 cookie declarations after resolution', async () => {
     const result = await validate({
       openapi: '3.2.1',
