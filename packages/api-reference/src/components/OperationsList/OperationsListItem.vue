@@ -12,8 +12,9 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import { isPlainClick, useNavigationHref } from '@/hooks/use-navigation-href'
 
-const { operation } = defineProps<{
+const { operation, eventBus } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
@@ -32,6 +33,16 @@ const isWebhook = (
 ): _operation is TraversedWebhook => _operation.type === 'webhook'
 
 const { level: headingLevel } = useDocumentOutline('operation')
+
+const href = useNavigationHref()
+
+const navigate = (event: MouseEvent): void => {
+  if (!eventBus || !isPlainClick(event)) {
+    return
+  }
+  event.preventDefault()
+  eventBus.emit('scroll-to:nav-item', { id: operation.id })
+}
 </script>
 
 <template>
@@ -47,9 +58,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
     </SectionHeaderTag>
     <a
       class="endpoint"
-      @click.prevent="
-        () => eventBus?.emit('scroll-to:nav-item', { id: operation.id })
-      ">
+      :href="href(operation.id)"
+      @click="navigate">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"
         :method="operation.method">

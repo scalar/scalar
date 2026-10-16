@@ -6,7 +6,7 @@ import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { SectionHeaderTag } from '@/components/Section'
 import type { HeadingLevel } from '@/features/document-outline'
-import { useNavigationHref } from '@/hooks/use-navigation-href'
+import { isPlainClick, useNavigationHref } from '@/hooks/use-navigation-href'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import type { OperationReply } from './helpers/get-operation-reply'
@@ -26,14 +26,7 @@ const href = useNavigationHref()
 
 /** Preserve native modified-click navigation while ordinary clicks reveal lazy content. */
 const navigate = (event: MouseEvent, id: string): void => {
-  if (
-    !eventBus ||
-    event.button !== 0 ||
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey
-  ) {
+  if (!eventBus || !isPlainClick(event)) {
     return
   }
   event.preventDefault()
