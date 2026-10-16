@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import { SectionHeaderTag } from '@/components/Section'
 import type { HeadingLevel } from '@/features/document-outline'
-import { isPlainClick, useNavigationHref } from '@/hooks/use-navigation-href'
+import { useNavigationHref } from '@/hooks/use-navigation-href'
 
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import type { OperationReply } from './helpers/get-operation-reply'
@@ -26,7 +27,7 @@ const href = useNavigationHref()
 
 /** Preserve native modified-click navigation while ordinary clicks reveal lazy content. */
 const navigate = (event: MouseEvent, id: string): void => {
-  if (!eventBus || !isPlainClick(event)) {
+  if (!eventBus || !isPlainLeftClick(event)) {
     return
   }
   event.preventDefault()

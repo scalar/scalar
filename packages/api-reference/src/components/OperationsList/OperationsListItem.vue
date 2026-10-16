@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -12,7 +13,7 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
-import { isPlainClick, useNavigationHref } from '@/hooks/use-navigation-href'
+import { useNavigationHref } from '@/hooks/use-navigation-href'
 
 const { operation, eventBus } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
@@ -37,7 +38,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 const href = useNavigationHref()
 
 const navigate = (event: MouseEvent): void => {
-  if (!eventBus || !isPlainClick(event)) {
+  if (!eventBus || !isPlainLeftClick(event)) {
     return
   }
   event.preventDefault()

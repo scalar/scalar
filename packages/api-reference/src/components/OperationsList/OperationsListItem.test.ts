@@ -209,55 +209,53 @@ describe('OperationsListItem', () => {
     })
   })
 
-  describe('keyboard and link access', () => {
-    it('links to the operation section anchor by default', () => {
-      const operation = createMockOperation({ id: 'tag/users/GET/api/users' })
+  it('links to the operation section anchor by default', () => {
+    const operation = createMockOperation({ id: 'tag/users/GET/api/users' })
 
-      const wrapper = mount(OperationsListItem, {
-        props: { operation, eventBus: null },
-      })
-
-      expect(wrapper.find('a.endpoint').attributes('href')).toBe('#tag%2Fusers%2FGET%2Fapi%2Fusers')
+    const wrapper = mount(OperationsListItem, {
+      props: { operation, eventBus: null },
     })
 
-    it('links to the operation through the reference router', () => {
-      const operation = createMockOperation()
+    expect(wrapper.find('a.endpoint').attributes('href')).toBe('#tag%2Fusers%2FGET%2Fapi%2Fusers')
+  })
 
-      const wrapper = mount(OperationsListItem, {
-        props: { operation, eventBus: null },
-        global: { provide: { [NAVIGATION_HREF]: (id: string): string => `/reference/${id}` } },
-      })
+  it('links to the operation through the reference router', () => {
+    const operation = createMockOperation()
 
-      expect(wrapper.find('a.endpoint').attributes('href')).toBe('/reference/test-operation-1')
+    const wrapper = mount(OperationsListItem, {
+      props: { operation, eventBus: null },
+      global: { provide: { [NAVIGATION_HREF]: (id: string): string => `/reference/${id}` } },
     })
 
-    it('keeps modified clicks as native navigation', async () => {
-      const operation = createMockOperation()
-      const eventBus = createWorkspaceEventBus()
-      const testHandler = vi.fn()
-      eventBus.on('scroll-to:nav-item', testHandler)
+    expect(wrapper.find('a.endpoint').attributes('href')).toBe('/reference/test-operation-1')
+  })
 
-      const wrapper = mount(OperationsListItem, {
-        props: { operation, eventBus },
-        attachTo: document.body,
-      })
+  it('keeps modified clicks as native navigation', async () => {
+    const operation = createMockOperation()
+    const eventBus = createWorkspaceEventBus()
+    const testHandler = vi.fn()
+    eventBus.on('scroll-to:nav-item', testHandler)
 
-      let preventedByLink: boolean | undefined
-      // Read the outcome after the link handler, then stop jsdom from navigating
-      const readOutcome = (event: Event): void => {
-        preventedByLink = event.defaultPrevented
-        event.preventDefault()
-      }
-      window.addEventListener('click', readOutcome)
-      wrapper
-        .find('a.endpoint')
-        .element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }))
-      window.removeEventListener('click', readOutcome)
-      await nextTick()
-
-      expect(preventedByLink).toBe(false)
-      expect(testHandler).not.toHaveBeenCalled()
+    const wrapper = mount(OperationsListItem, {
+      props: { operation, eventBus },
+      attachTo: document.body,
     })
+
+    let preventedByLink: boolean | undefined
+    // Read the outcome after the link handler, then stop jsdom from navigating
+    const readOutcome = (event: Event): void => {
+      preventedByLink = event.defaultPrevented
+      event.preventDefault()
+    }
+    window.addEventListener('click', readOutcome)
+    wrapper
+      .find('a.endpoint')
+      .element.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ctrlKey: true }))
+    window.removeEventListener('click', readOutcome)
+    await nextTick()
+
+    expect(preventedByLink).toBe(false)
+    expect(testHandler).not.toHaveBeenCalled()
   })
 
   describe('HTTP methods', () => {
