@@ -7,14 +7,20 @@ import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 describe('AsyncApiDocumentation', () => {
   it('renders owner documentation and documentation from referenced tags', () => {
     const owner: Pick<AsyncApiInfoObject, 'externalDocs' | 'tags'> = {
-      externalDocs: { url: 'https://example.com/owner', description: '**Owner** guide' },
+      externalDocs: {
+        $ref: '#/components/externalDocs/owner',
+        ...{ url: 'https://example.com/ignored-owner' },
+        '$ref-value': { url: 'https://example.com/owner', description: '**Owner** guide' },
+      },
       tags: [
         {
           $ref: '#/components/tags/stream',
+          ...{ externalDocs: { url: 'https://example.com/ignored-tag' } },
           '$ref-value': {
             name: 'Streams',
             externalDocs: {
               $ref: '#/components/externalDocs/tag',
+              ...{ url: 'https://example.com/ignored-docs' },
               '$ref-value': {
                 url: 'https://example.com/tag',
                 description: '*Tag* guide',
@@ -36,7 +42,7 @@ describe('AsyncApiDocumentation', () => {
     const wrapper = mount(AsyncApiDocumentation, {
       props: {
         owner: {
-          externalDocs: { $ref: '#/missing' },
+          externalDocs: { $ref: '#/missing', ...{ url: 'https://example.com/ignored' } },
           tags: [{ $ref: '#/missing-tag' }, { name: 'Empty' }],
         },
       },

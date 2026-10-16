@@ -199,11 +199,13 @@ const toTagObject = (tag: AsyncApiTagEntry): TagObject[] => {
     return []
   }
   const externalDocs = getResolvedAsyncApiRef(resolved.externalDocs)
-  return [{
-    name: resolved.name,
-    ...(resolved.description !== undefined ? { description: resolved.description } : {}),
-    ...(externalDocs ? { externalDocs } : {}),
-  }]
+  return [
+    {
+      name: resolved.name,
+      ...(resolved.description !== undefined ? { description: resolved.description } : {}),
+      ...(externalDocs ? { externalDocs } : {}),
+    },
+  ]
 }
 
 /**
@@ -629,11 +631,10 @@ export const traverseAsyncApiDocument = (
   const untaggedChannels: TraversedAsyncApiChannel[] = []
 
   // Info-level tags own their metadata and links, rather than contributing introduction links.
-  for (const tagRef of document.info.tags ?? []) {
-    if (!getResolvedAsyncApiRef(tagRef)?.name) {
+  for (const tag of (document.info.tags ?? []).flatMap(toTagObject)) {
+    if (!tag.name) {
       continue
     }
-    const tag = toTagObject(tagRef)
     const entry = getTag({ tagsMap, name: tag.name, documentId, generateId })
     entry.tag = tag
   }

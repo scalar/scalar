@@ -247,7 +247,17 @@ describe('traverseAsyncApiDocument', () => {
     const document: AsyncApiDocument = {
       asyncapi: '3.1.0',
       'x-scalar-original-document-hash': 'tag-docs',
-      info: { title: 'Events', version: '1.0.0', tags: [{ name: 'Overview', externalDocs }] },
+      info: {
+        title: 'Events',
+        version: '1.0.0',
+        tags: [
+          {
+            $ref: '#/components/tags/overview',
+            ...{ name: 'Ignored' },
+            '$ref-value': { name: 'Overview', externalDocs },
+          },
+        ],
+      },
       channels: {
         overview: { address: 'overview', tags: [{ name: 'Overview' }] },
         orders: {
@@ -255,9 +265,14 @@ describe('traverseAsyncApiDocument', () => {
           tags: [
             {
               $ref: '#/components/tags/orders',
+              ...{ name: 'Ignored', externalDocs: { url: 'https://example.com/ignored' } },
               '$ref-value': {
                 name: 'Orders',
-                externalDocs: { $ref: '#/components/externalDocs/orders', '$ref-value': externalDocs },
+                externalDocs: {
+                  $ref: '#/components/externalDocs/orders',
+                  ...{ url: 'https://example.com/ignored' },
+                  '$ref-value': externalDocs,
+                },
               },
             },
           ],
