@@ -56,7 +56,10 @@ const serverVariables = computed(() => {
 
   return Object.fromEntries(
     Object.entries(variables).flatMap(
-      ([name, variable]): [string, ServerVariableObject][] => {
+      ([name, variable]): [
+        string,
+        ServerVariableObject & { examples?: string[] },
+      ][] => {
         const resolved = getResolvedAsyncApiRef(variable)
         if (!resolved) return []
         return [
@@ -66,6 +69,9 @@ const serverVariables = computed(() => {
               default: resolved.default ?? '',
               enum: resolved.enum,
               description: resolved.description,
+              ...(resolved.examples?.length
+                ? { examples: resolved.examples }
+                : {}),
             },
           ],
         ]
@@ -73,6 +79,13 @@ const serverVariables = computed(() => {
     ),
   )
 })
+
+/** Only provide hints for authored examples; examples never replace defaults. */
+const variableExamples = computed(() =>
+  Object.entries(serverVariables.value ?? {}).filter(
+    ([, variable]) => variable.examples?.length,
+  ),
+)
 
 const serverSummary = computed(() => selectedServer?.server.summary?.trim())
 
@@ -133,7 +146,24 @@ const updateServerVariable = (key: string, value: string) => {
   <ServerVariablesForm
     layout="reference"
     :variables="serverVariables"
-    @update:variable="updateServerVariable" />
+    @update:variable="updateServerVariable">
+    <template
+      v-for="[name, variable] in variableExamples"
+      :key="name"
+      #[`hint-${name}`]>
+      <span>{{ translate('schema.examples') }}:</span>
+      <ul class="mt-1 flex flex-wrap gap-x-2 gap-y-1">
+        <li
+          v-for="(example, index) in variable.examples"
+          :key="index"
+          class="max-w-full min-w-0">
+          <code class="font-code wrap-anywhere whitespace-pre-wrap">{{
+            JSON.stringify(example)
+          }}</code>
+        </li>
+      </ul>
+    </template>
+  </ServerVariablesForm>
 
   <div
     v-if="hasServerDetails"
