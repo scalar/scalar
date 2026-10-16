@@ -151,7 +151,7 @@ export const filterAsyncApiNavigation = (
   const matches = (tags: AsyncApiTags): boolean => getAsyncApiTags(tags).some((tag) => tag.name === filter.tag)
   const taggedServers = new Set(
     Object.entries(document.servers ?? {}).flatMap(([name, node]) => {
-      const server = getResolvedRef(node)
+      const server = getResolvedAsyncApiRef(node)
       return matches(server?.tags) &&
         selectionMatches(new Set([name]), filter.server) &&
         selectionMatches(new Set([context.serverProtocols.get(name) ?? '']), filter.protocol)
