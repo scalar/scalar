@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.19.2
+
+### Patch Changes
+
+- [#10608](https://github.com/scalar/scalar/pull/10608): Keep shared component styles from overriding host page body backgrounds and margins, including hosts using CSS layers. Keep full-page body styling in the standalone bundles.
+- [#10610](https://github.com/scalar/scalar/pull/10610): Apply base theme tokens and preset defaults inside shadow roots.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.19.1
 
 ### Patch Changes

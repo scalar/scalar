@@ -1,5 +1,21 @@
 # @scalar/components
 
+## 0.32.0
+
+### Minor Changes
+
+- [#10552](https://github.com/scalar/scalar/pull/10552): Search combobox options asynchronously: bind the search text with `v-model:query`, skip client-side filtering with a `filterFn` that returns the options as given, show a spinner or error mark in the search field with `loader`, and add content to the end of the search field with the `search-end` slot.
+- [#10213](https://github.com/scalar/scalar/pull/10213): Add per-reference Markdown rendering hooks and an explicitly loaded Mermaid plugin with interactive diagrams, keyboard panning, and zoom controls.
+
+  Provide Markdown hooks before mounting the embedded client modal so its initial render receives the configured hooks. The Mermaid viewer uses customizable Scalar theme styles and an intentional light drawing surface.
+
+  Isolate Markdown plugin cleanup failures so other plugins still release their resources when content changes or unmounts.
+
+### Patch Changes
+
+- [#10636](https://github.com/scalar/scalar/pull/10636): Make the discrete sidebar group toggle button 24px so it meets the WCAG 2.5.8 minimum target size.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.31.1
 
 ### Patch Changes

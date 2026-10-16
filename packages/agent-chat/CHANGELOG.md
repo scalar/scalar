@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.12.44
+
+### Patch Changes
+
+- [#10594](https://github.com/scalar/scalar/pull/10594): Update AI SDK dependencies to address GHSA-866g-f22w-33x8 in response body handling.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.12.43
 
 ### Patch Changes

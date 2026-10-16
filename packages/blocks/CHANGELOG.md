@@ -1,5 +1,18 @@
 # @scalar/blocks
 
+## 0.5.3
+
+### Patch Changes
+
+- [#10597](https://github.com/scalar/scalar/pull/10597): Render AsyncAPI string discriminators with inherited schema variants and effective discriminator values.
+- [#10530](https://github.com/scalar/scalar/pull/10530): Render AsyncAPI external documentation on servers, channels, operations, messages, tags, and schemas, with referenced objects and descriptions, using the existing OpenAPI link presentation.
+
+  Keep AsyncAPI messages searchable when navigation renders them beneath operations.
+
+- [#10599](https://github.com/scalar/scalar/pull/10599): Preserve recursive schemas when generating request bodies, code samples, and response examples instead of replacing recursion points with null or empty arrays.
+- [#10640](https://github.com/scalar/scalar/pull/10640): Translate the built-in descriptions of integer and string formats (`int32`, `date-time`, `binary` and others) into the configured locale.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 0.5.2
 
 ### Patch Changes

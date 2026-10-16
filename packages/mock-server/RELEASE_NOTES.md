@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.18.0 (2026-10-16)
+
+### OpenID Connect provider and transport security enforcement
+
+This release adds a development OpenID Connect authorization server with signed ID tokens and enforces security requirements for AsyncAPI WebSocket and Server-Sent Events connections.
+
+- Added a development OpenID Connect provider with signed ID tokens, JWKS endpoints, PKCE support, and token refresh rotation for testing identity flows.
+- AsyncAPI WebSocket and SSE connections now enforce server and operation security requirements before opening channels.
+- HTTP authentication accepts case-insensitive Basic and Bearer schemes, validates Digest credentials, and recognizes verified mutual TLS certificates.
+- OAuth callback URLs are validated to reject non-HTTP schemes and prevent executable links on authorization pages.
+- AsyncAPI mock servers register OAuth and OpenID Connect endpoints declared in security schemes and return discovery metadata on the mock origin.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0180)
+
 ## 0.17.6 (2026-10-12)
 
 ### Polish and bug fixes shipped

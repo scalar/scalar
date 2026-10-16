@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.1.41
+
+### Patch Changes
+
+- [#10626](https://github.com/scalar/scalar/pull/10626): Restrict OAuth authorization and desktop external links to HTTPS or HTTP for local development URLs before opening them.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 1.1.40
 
 ### Patch Changes

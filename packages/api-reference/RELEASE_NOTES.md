@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.75.0 (2026-10-16)
+
+### AsyncAPI rendering improvements and Mermaid diagram support
+
+This release enhances AsyncAPI documentation with comprehensive rendering of replies, bindings, tags, and non-JSON schemas. A new opt-in Mermaid plugin brings interactive diagrams to Markdown content throughout the reference.
+
+- Render AsyncAPI operation replies with expandable message schemas, channel links, and dynamic address expressions
+- Add opt-in Mermaid plugin for interactive diagrams with zoom controls and keyboard panning
+- Display AsyncAPI bindings for servers, channels, operations, and messages with version details and nested values
+- Show AsyncAPI tags with filtering that preserves channel grouping and navigation anchors
+- Search response schema fields and nested objects with cycle-safe traversal, ranking field names above prose
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1750)
+
 ## 1.74.0 (2026-10-12)
 
 ### AsyncAPI documentation improvements and SDK generation tools

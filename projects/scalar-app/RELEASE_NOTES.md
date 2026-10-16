@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.41 (2026-10-16)
+
+### Security improvements and polish
+
+This release focuses on security hardening for OAuth flows and external links, along with improvements to API key configuration handling and better compatibility with host page styles.
+
+- OAuth authorization URLs are now validated to prevent non-web protocols from being opened in browser popups or desktop handlers
+- Desktop external links are restricted to HTTPS or HTTP for local development URLs before opening
+- API key names can now be cleared when authentication configuration supplies a default name, and edits are preserved for export
+- Component styles no longer override host page body backgrounds and margins, including hosts using CSS layers
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1141)
+
 ## 1.1.40 (2026-10-12)
 
 ### Traditional Chinese localization and authentication polish

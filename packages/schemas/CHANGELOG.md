@@ -1,5 +1,19 @@
 # @scalar/schemas
 
+## 0.14.0
+
+### Minor Changes
+
+- [#10213](https://github.com/scalar/scalar/pull/10213): Add per-reference Markdown rendering hooks and an explicitly loaded Mermaid plugin with interactive diagrams, keyboard panning, and zoom controls.
+
+  Provide Markdown hooks before mounting the embedded client modal so its initial render receives the configured hooks. The Mermaid viewer uses customizable Scalar theme styles and an intentional light drawing surface.
+
+  Isolate Markdown plugin cleanup failures so other plugins still release their resources when content changes or unmounts.
+
+### Patch Changes
+
+- [#10597](https://github.com/scalar/scalar/pull/10597): Render AsyncAPI string discriminators with inherited schema variants and effective discriminator values.
+
 ## 0.13.2
 
 ### Patch Changes

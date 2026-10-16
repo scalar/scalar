@@ -1,5 +1,22 @@
 # @scalar/types
 
+## 0.24.0
+
+### Minor Changes
+
+- [#10213](https://github.com/scalar/scalar/pull/10213): Add per-reference Markdown rendering hooks and an explicitly loaded Mermaid plugin with interactive diagrams, keyboard panning, and zoom controls.
+
+  Provide Markdown hooks before mounting the embedded client modal so its initial render receives the configured hooks. The Mermaid viewer uses customizable Scalar theme styles and an intentional light drawing surface.
+
+  Isolate Markdown plugin cleanup failures so other plugins still release their resources when content changes or unmounts.
+
+### Patch Changes
+
+- [#10597](https://github.com/scalar/scalar/pull/10597): Render AsyncAPI string discriminators with inherited schema variants and effective discriminator values.
+- [#10628](https://github.com/scalar/scalar/pull/10628): Add developer-tools controls for parameter and schema expansion, model names, required properties, and schema property ordering. Preserve explicit toggle overrides of supplied configuration.
+- [#10640](https://github.com/scalar/scalar/pull/10640): Translate the built-in descriptions of integer and string formats (`int32`, `date-time`, `binary` and others) into the configured locale.
+- [#10595](https://github.com/scalar/scalar/pull/10595): Display AsyncAPI channel summaries and addresses separately, and label missing or null addresses as unknown in channel content and search results.
+
 ## 0.23.2
 
 ### Patch Changes
