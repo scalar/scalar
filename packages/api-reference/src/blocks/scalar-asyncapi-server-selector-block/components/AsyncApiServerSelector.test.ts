@@ -185,13 +185,17 @@ describe('AsyncApiServerSelector', () => {
     ])
     expect(wrapper.find('tenant').exists()).toBe(false)
     expect(wrapper.get('input').element.value).toBe('demo')
-    expect(wrapper.findComponent({ name: 'ServerVariablesForm' }).props('variables').environment).toStrictEqual({
-      default: 'prod',
-      enum: ['prod', 'staging'],
-      description: 'Environment',
-      examples: ['staging'],
-    })
+    const enumButton = wrapper.get('button[aria-describedby]')
+    expect(enumButton.text()).toBe('Selected: prod')
+    await enumButton.trigger('click')
+    expect(wrapper.findAll('[role="option"]').map((option) => option.text())).toStrictEqual(['prod', 'staging'])
     const emit = vi.spyOn(eventBus, 'emit')
+    await wrapper.findAll('[role="option"]')[1]!.trigger('click')
+    expect(emit).toHaveBeenCalledWith('asyncapi-server:update:variables', {
+      name: 'production',
+      key: 'environment',
+      value: 'staging',
+    })
     await wrapper.get('input').setValue('custom')
     expect(emit).toHaveBeenCalledWith('asyncapi-server:update:variables', {
       name: 'production',

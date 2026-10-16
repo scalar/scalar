@@ -188,10 +188,6 @@ Each picker is only shown when there is more than one option to choose from.
   size="full">
 </scalar-image>
 
-## Server variable examples
-
-The selected server shows authored variable examples as read-only hints beneath each field, including examples from referenced variables. Examples do not change the selected value or restrict what you can enter; defaults and enum choices keep their existing behavior.
-
 ## Authentication
 
 Document-wide authentication is rendered the same way as OpenAPI. When the document defines component security schemes or inline server security, an **Authentication** selector appears in the introduction, listing every scheme so you can fill in credentials.
