@@ -698,4 +698,49 @@ describe('resolveReferences', () => {
     const { schema } = resolveReferences(filesystem)
     expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
+
+  it('treats a property named $ref as a property, not a reference', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {},
+      paths: {},
+      components: {
+        schemas: {
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { type: 'string', format: 'uri' },
+            },
+          },
+        },
+      },
+    }
+
+    const { valid, errors, schema } = resolveReferences(specification)
+    const { properties } = (schema as AnyObject).components.schemas.GroupMember
+
+    expect(errors).toStrictEqual([])
+    expect(valid).toBe(true)
+    expect(properties.$ref).toStrictEqual({ type: 'string', format: 'uri' })
+  })
+
+  it('returns an error when a reference is not a string', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {},
+      paths: {},
+      components: {
+        schemas: {
+          Broken: { $ref: 123 },
+        },
+      },
+    }
+
+    const { valid, errors } = resolveReferences(specification)
+
+    expect(errors[0].message).toBe("Can't resolve reference: 123")
+    expect(errors.length).toBe(1)
+    expect(valid).toBe(false)
+  })
 })

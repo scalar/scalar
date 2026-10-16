@@ -125,7 +125,7 @@ function dereference(
    */
   const processedRefs = new Set<string>()
 
-  while (schema.$ref !== undefined) {
+  while (schema.$ref !== undefined && !isObject(schema.$ref)) {
     const selfReferenceDetected = processedRefs.has(schema.$ref)
 
     if (selfReferenceDetected) {
