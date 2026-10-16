@@ -25,7 +25,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "pnpm build:default && pnpm build:styles && pnpm build:standalone && pnpm build:standalone:esm && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:styles && pnpm build:standalone && pnpm build:standalone:esm && pnpm build:component && vue-tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build:component": "vite build -c vite.component.config.ts",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "build:standalone:esm": "vite build -c vite.standalone.esm.config.ts",
@@ -34,6 +35,7 @@
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "dev:storybook": "storybook dev -p 6006 --ci",
+    "playground:component": "vite preview -c vite.component.config.ts --outDir . --port 3173 --strictPort",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "preview": "vite preview",
     "preview:storybook": "vite preview --outDir storybook-static -c test/vite.config.ts 1>&2",
@@ -98,7 +100,8 @@
     },
     "./style.css": "./dist/style.css",
     "./tailwind.config.css": "./dist/styles/tailwind.config.css",
-    "./vue-styles.css": "./dist/vue-styles.css"
+    "./vue-styles.css": "./dist/vue-styles.css",
+    "./component.js": "./dist/webComponent/component.js"
   },
   "files": [
     "dist",
