@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useId } from 'vue'
+import { useId, type VNode } from 'vue'
 
 import ServerVariablesSelect from '@/components/Server/ServerVariablesSelect.vue'
 import ServerVariablesTextbox from '@/components/Server/ServerVariablesTextbox.vue'
@@ -25,6 +25,11 @@ const emit = defineEmits<{
   (e: 'update:variable', name: string, value: string): void
 }>()
 
+/** Optional read-only context for individual variables, kept separate from their editable values. */
+const slots = defineSlots<{
+  [name: `hint-${string}`]: () => VNode[]
+}>()
+
 const id = useId()
 
 function setVariable(name: string, value: string) {
@@ -41,31 +46,44 @@ const getVariable = (name: string) => {
       v-for="name in Object.keys(variables)"
       :key="name">
       <div
-        class="group/label flex h-8 w-full"
+        class="group/label w-full"
         :class="
-          layout === 'reference' &&
-          'items-center border-x border-b last:rounded-b-lg'
+          layout === 'reference' && 'border-x border-b last:rounded-b-lg'
         ">
-        <label
-          class="flex items-center py-2 pl-3 group-has-[input]/label:mr-0 after:content-[':']"
-          :for="`${id}-${name}`">
-          {{ name }}
-        </label>
-        <template v-if="variables?.[name]?.enum?.length">
-          <ServerVariablesSelect
-            :id="`${id}-${name}`"
-            :controls="controls"
-            :enum="variables[name]?.enum?.map((v) => `${v}`) ?? []"
-            :value="getVariable(name)"
-            @change="(s) => setVariable(name, s)" />
-        </template>
-        <template v-else>
-          <ServerVariablesTextbox
-            :id="`${id}-${name}`"
-            :controls="controls"
-            :value="getVariable(name)"
-            @change="(s) => setVariable(name, s)" />
-        </template>
+        <div class="flex h-8 w-full items-center">
+          <label
+            class="flex items-center py-2 pl-3 group-has-[input]/label:mr-0 after:content-[':']"
+            :for="`${id}-${name}`">
+            {{ name }}
+          </label>
+          <template v-if="variables?.[name]?.enum?.length">
+            <ServerVariablesSelect
+              :id="`${id}-${name}`"
+              :controls="controls"
+              :describedBy="
+                slots[`hint-${name}`] ? `${id}-${name}-hint` : undefined
+              "
+              :enum="variables[name]?.enum?.map((v) => `${v}`) ?? []"
+              :value="getVariable(name)"
+              @change="(s) => setVariable(name, s)" />
+          </template>
+          <template v-else>
+            <ServerVariablesTextbox
+              :id="`${id}-${name}`"
+              :aria-describedby="
+                slots[`hint-${name}`] ? `${id}-${name}-hint` : undefined
+              "
+              :controls="controls"
+              :value="getVariable(name)"
+              @change="(s) => setVariable(name, s)" />
+          </template>
+        </div>
+        <div
+          v-if="slots[`hint-${name}`]"
+          :id="`${id}-${name}-hint`"
+          class="text-c-2 px-3 pb-2 text-sm">
+          <slot :name="`hint-${name}`" />
+        </div>
       </div>
     </template>
   </template>
