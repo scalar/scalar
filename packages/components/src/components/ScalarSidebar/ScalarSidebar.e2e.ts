@@ -5,6 +5,8 @@ import { setColorMode, themes } from '@test/shared'
 /** Non-text contrast minimum for a focus indicator under WCAG 1.4.11. */
 const MINIMUM_FOCUS_RING_CONTRAST = 3
 
+const MINIMUM_TARGET_SIZE = 24
+
 /**
  * Reads the focus ring color of an item and the background it sits on.
  *
@@ -67,6 +69,17 @@ test.describe('ScalarSidebar', () => {
 
     await page.getByRole('button', { name: 'Level 2 Group', exact: true }).click()
     await snapshot('3-selected')
+  })
+
+  test.describe('Discrete group toggle', () => {
+    test.use({ component: 'ScalarSidebar', story: 'Discrete Groups' })
+
+    test('Minimum target size', async ({ page }) => {
+      const box = await page.getByRole('button', { name: 'Open Level 1 Group' }).boundingBox()
+
+      expect(box?.width).toBeGreaterThanOrEqual(MINIMUM_TARGET_SIZE)
+      expect(box?.height).toBeGreaterThanOrEqual(MINIMUM_TARGET_SIZE)
+    })
   })
 
   test('Loading Groups', async ({ page, snapshot }) => {

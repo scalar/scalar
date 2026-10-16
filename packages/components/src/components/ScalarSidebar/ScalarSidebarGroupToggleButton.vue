@@ -51,9 +51,9 @@ defineSlots<{
 const variants = cva({
   base: [
     // Position the button over the end of the group label
-    'absolute top-[1lh] right-1.25 -translate-y-1/2',
+    'absolute top-[1lh] right-1 -translate-y-1/2',
     // Sizing and color
-    'rounded p-0.75 text-sidebar-c-2',
+    'rounded p-1 text-sidebar-c-2',
   ],
   variants: {
     selected: {
