@@ -4,6 +4,31 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it.each(['3.0.4', '3.1.0', '3.2.1'])('validates a schema property named $ref in OpenAPI %s', async (openapi) => {
+    const specification = {
+      openapi,
+      info: { title: 'SCIM', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { type: 'string', format: 'uri' },
+            },
+          },
+        },
+      },
+    }
+
+    const result = await validate(specification)
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
   it('reports referenced OpenAPI 3.2 cookie declarations after resolution', async () => {
     const result = await validate({
       openapi: '3.2.1',

@@ -17,6 +17,60 @@ import { resolveReferences } from './resolve-references'
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
+  it('preserves a property named $ref and resolves references within its schema', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'SCIM', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { $ref: '#/components/schemas/Uri' },
+            },
+          },
+          Uri: { type: 'string', format: 'uri' },
+        },
+      },
+    }
+
+    const result = resolveReferences(specification, { throwOnError: true })
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        schemas: {
+          ...specification.components.schemas,
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { type: 'string', format: 'uri' },
+            },
+          },
+        },
+      },
+    })
+    expect(specification.components.schemas.GroupMember.properties.$ref).toStrictEqual({
+      $ref: '#/components/schemas/Uri',
+    })
+  })
+
+  it.each([123, true, false, null])('rejects a non-string reference value %s', ($ref) => {
+    const specification = { openapi: '3.1.0', components: { schemas: { Broken: { $ref } } } }
+    const result = resolveReferences(specification)
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([{ code: 'INVALID_REFERENCE', message: `Can't resolve reference: ${$ref}` }])
+    expect(() => resolveReferences(specification, { throwOnError: true })).toThrowError(
+      `Can't resolve reference: ${$ref}`,
+    )
+  })
+
   it('resolves a media type reference', () => {
     const specification: OpenApiDocumentV3_2 = {
       openapi: '3.2.0',

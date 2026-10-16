@@ -125,7 +125,8 @@ function dereference(
    */
   const processedRefs = new Set<string>()
 
-  while (schema.$ref !== undefined) {
+  // A properties map can contain a schema named $ref rather than a reference URI.
+  while (schema.$ref !== undefined && !isObject(schema.$ref)) {
     const selfReferenceDetected = processedRefs.has(schema.$ref)
 
     if (selfReferenceDetected) {
