@@ -51,7 +51,7 @@ describe('openapi', () => {
 
     const fields = createSearchFieldExtractor().schema(schema)
     expect(fields).toStrictEqual({
-      names: ['shared', 'alternate', 'nested', 'child', 'duplicate', 'unresolved'],
+      names: ['shared', 'alternate', 'nested', 'child', 'tooDeep', 'duplicate', 'unresolved'],
       descriptions: ['Shared field', 'Alternate field', 'Nested object', 'Child field'],
     })
     expect(fields).toStrictEqual({
@@ -78,7 +78,10 @@ describe('openapi', () => {
     const extract = createSearchFieldExtractor()
     // Priming a root cache must not change the depth at which the second media type is visited.
     expect(extract.schema(shared).names).toStrictEqual(['child', 'deeper'])
-    expect(extract.body(operation)).toStrictEqual({ names: ['nested', 'child'], descriptions: ['Child field'] })
+    expect(extract.body(operation)).toStrictEqual({
+      names: ['nested', 'child', 'deeper'],
+      descriptions: ['Child field'],
+    })
     expect(extract.body(operation)).toStrictEqual({
       names: extractBodyFieldNames(operation),
       descriptions: extractBodyDescriptions(operation),
