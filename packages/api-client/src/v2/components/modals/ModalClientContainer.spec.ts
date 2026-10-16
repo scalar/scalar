@@ -33,12 +33,12 @@ function createModalState(open = false): ModalState {
   }
 }
 
-describe('ModalClient.vue', () => {
+describe('ModalClientContainer', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('calls addScalarClassesToHeadless on mount', () => {
+  it('keeps Scalar styling on its own container', () => {
     const wrapper = mount(ModalClientContainer, {
       props: {
         modalState: createModalState(),
@@ -46,6 +46,24 @@ describe('ModalClient.vue', () => {
     })
 
     expect(wrapper.find('.scalar-app').exists()).toBe(true)
+  })
+
+  it('leaves the host Headless UI portal untouched', async ({ onTestFinished }) => {
+    const portal = document.createElement('div')
+    portal.id = 'headlessui-portal-root'
+    portal.innerHTML = '<div data-headlessui-portal><button>Host dropdown</button></div>'
+    document.body.append(portal)
+    const wrapper = mount(ModalClientContainer, {
+      props: { modalState: createModalState() },
+    })
+    onTestFinished(() => {
+      wrapper.unmount()
+      portal.remove()
+    })
+
+    await nextTick()
+    expect(portal.classList.contains('scalar-app')).toBe(false)
+    expect(portal.querySelector('button')?.closest('.scalar-app')).toBeNull()
   })
 
   it('process slot with ScalarTeleportRoot', () => {

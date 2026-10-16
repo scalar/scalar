@@ -1,5 +1,6 @@
 import { type ModalState, useModal } from '@scalar/components/modal'
 import { type ClientPlugin, subscribePluginEvents } from '@scalar/oas-utils/helpers'
+import { DOCUMENT_ROOT_SYMBOL } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -149,11 +150,13 @@ export const createApiClientModal = ({
   })
 
   // Update the active proxy when the proxyUrl changes
-  watch(
+  const stopProxyWatch = watch(
     () => toValue(optionsRef).proxyUrl,
     (newProxyUrl) => workspaceStore.update('x-scalar-active-proxy', newProxyUrl),
     { immediate: true },
   )
+
+  app.onUnmount(stopProxyWatch)
 
   // Use a unique id prefix to prevent collisions with other Vue apps on the page.
   // The suffix keeps the prefix unique even when several client apps mount together.
@@ -168,6 +171,10 @@ export const createApiClientModal = ({
         'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
       return
+    }
+    const root = mountingEl.getRootNode()
+    if (root instanceof ShadowRoot) {
+      app.provide(DOCUMENT_ROOT_SYMBOL, root)
     }
     app.mount(mountingEl)
   }

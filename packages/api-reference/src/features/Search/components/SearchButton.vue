@@ -9,6 +9,7 @@ import {
   type ModelsSectionLabel,
 } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -29,8 +30,12 @@ const {
   eventBus: WorkspaceEventBus
 }>()
 
-const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
+const button = ref<
+  | InstanceType<typeof ScalarSidebarSearchButton>
+  | InstanceType<typeof ScalarIconButton>
+>()
 const modalState = useModal()
+const root = useDocumentRoot()
 const { translate } = useLocalization()
 
 /**
@@ -46,7 +51,18 @@ onMounted(() => {
   isMac.value = isMacOS()
 })
 
-const handleHotKey = (e: KeyboardEvent) => {
+const handleHotKey = (e: KeyboardEvent): void => {
+  const eventRoot = e
+    .composedPath()
+    .find((target) => target instanceof ShadowRoot)
+  // A composed keyboard event reaches every reference on the page. Only its
+  // owning embed may handle it; ordinary integrations retain page shortcuts.
+  if (
+    e.defaultPrevented ||
+    (root instanceof ShadowRoot ? eventRoot !== root : eventRoot !== undefined)
+  ) {
+    return
+  }
   if ((isMacOS() ? e.metaKey : e.ctrlKey) && e.key === searchHotKey) {
     e.preventDefault()
     e.stopPropagation()
@@ -83,6 +99,7 @@ function handleClick() {
 <template>
   <ScalarIconButton
     v-if="forceIcon"
+    ref="button"
     :icon="ScalarIconMagnifyingGlass"
     :label="translate('search.label')"
     @click="handleClick" />

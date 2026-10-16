@@ -2,14 +2,16 @@
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIconX } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { VariantProps } from 'cva'
-import { reactive } from 'vue'
+import { reactive, ref, useId } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
+import ScalarNativeDialog from './ScalarNativeDialog.vue'
 
 type ModalVariants = VariantProps<typeof modal>
 
-const { size = 'md' } = defineProps<{
+const { size = 'md', state } = defineProps<{
   state: ReturnType<typeof useModal>
   title?: string
   bodyClass?: string
@@ -21,6 +23,17 @@ const { size = 'md' } = defineProps<{
 const emit = defineEmits<{
   (event: 'close'): void
 }>()
+
+const closeModal = (): void => {
+  state.hide()
+  emit('close')
+}
+
+const root = useDocumentRoot()
+const isEmbedded =
+  typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot
+const titleId = useId()
+const backdropPointerDown = ref(false)
 
 const modal = cva({
   base: [
@@ -92,14 +105,12 @@ export function useModal() {
 }
 </script>
 <template>
-  <Dialog
+  <component
+    :is="isEmbedded ? ScalarNativeDialog : Dialog"
+    :aria-labelledby="isEmbedded && title ? titleId : undefined"
+    class="scalar-app"
     :open="state.open"
-    @close="
-      () => {
-        state.hide()
-        emit('close')
-      }
-    ">
+    @close="closeModal">
     <div
       :class="
         cx(
@@ -109,15 +120,22 @@ export function useModal() {
           'bg-backdrop opacity-0 dark:bg-backdrop-dark',
           size === 'full' && 'flex',
         )
+      "
+      @click.self="isEmbedded && backdropPointerDown && closeModal()"
+      @pointerdown="
+        backdropPointerDown = $event.target === $event.currentTarget
       ">
-      <DialogPanel
+      <component
+        :is="isEmbedded ? 'div' : DialogPanel"
         :class="modal({ size, variant })"
         :style="{ maxWidth }">
-        <DialogTitle
+        <component
+          :is="isEmbedded ? 'h2' : DialogTitle"
           v-if="title"
+          :id="isEmbedded ? titleId : undefined"
           class="scalar-modal-header m-0 -mb-1 rounded-lg pt-3 px-3 text-left text-sm font-medium text-c-1">
           {{ title }}
-        </DialogTitle>
+        </component>
         <div
           v-if="size === 'full'"
           :class="bodyClass">
@@ -128,7 +146,7 @@ export function useModal() {
           :class="cx(body({ size, variant }), bodyClass)">
           <slot />
         </div>
-      </DialogPanel>
+      </component>
       <div
         v-if="size === 'full'"
         class="close-button z-10 fixed right-2 top-2">
@@ -139,7 +157,7 @@ export function useModal() {
           @click="state.hide()" />
       </div>
     </div>
-  </Dialog>
+  </component>
 </template>
 <style scoped>
 @reference '../../style.css';

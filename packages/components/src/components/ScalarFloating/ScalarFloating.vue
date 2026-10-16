@@ -62,7 +62,10 @@ const targetRef = computed<HTMLElement | undefined>(() => {
   if (typeof window !== 'undefined' && wrapperRef.value) {
     // If target is a string (id), try to find it in the document
     if (typeof target === 'string') {
-      const t = document.getElementById(target)
+      const root = wrapperRef.value.getRootNode()
+      const t = (
+        root instanceof ShadowRoot ? root : wrapperRef.value.ownerDocument
+      ).getElementById(target)
       if (t) {
         return t
       }

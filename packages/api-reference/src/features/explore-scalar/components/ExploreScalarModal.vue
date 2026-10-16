@@ -10,8 +10,9 @@ import {
   ScalarIconX,
 } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useId, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import { useRegisterLink } from '@/hooks/use-register-link'
@@ -34,6 +35,10 @@ const { externalUrls, url, workspace, state } = defineProps<{
 }>()
 
 const { translate } = useLocalization()
+const root = useDocumentRoot()
+const isEmbedded =
+  typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot
+const titleId = useId()
 
 const { loader, href, open } = useRegisterLink({
   externalUrls: () => externalUrls,
@@ -175,6 +180,7 @@ const showOverview = (): void => {
 
 <template>
   <ScalarModal
+    :aria-labelledby="isEmbedded ? titleId : undefined"
     bodyClass="!p-0 overflow-y-auto"
     class="explore-scalar-modal"
     :class="{
@@ -205,11 +211,13 @@ const showOverview = (): void => {
         </div>
 
         <div class="px-8 pt-2 text-center">
-          <DialogTitle
+          <component
+            :is="isEmbedded ? 'h2' : DialogTitle"
+            :id="isEmbedded ? titleId : undefined"
             as="h2"
             class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
             {{ translate('exploreScalar.title') }}
-          </DialogTitle>
+          </component>
         </div>
 
         <hr class="border-border mx-8 mt-5 border-0 border-t" />
@@ -334,11 +342,13 @@ const showOverview = (): void => {
           <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
         </button>
         <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
-        <DialogTitle
+        <component
+          :is="isEmbedded ? 'h2' : DialogTitle"
+          :id="isEmbedded ? titleId : undefined"
           as="h2"
           class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
-        </DialogTitle>
+        </component>
         <!-- Cal.com mounts its booking iframe in here -->
         <div
           ref="calEl"

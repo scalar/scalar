@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, onMounted } from 'vue'
+import { createApp, nextTick, onMounted, ref } from 'vue'
 
+import { DOCUMENT_ROOT_SYMBOL } from '../useDocumentRoot'
 import { useColorMode } from './useColorMode'
 
 // Mock only onMounted, keep real nextTick
@@ -35,6 +36,64 @@ describe('useColorMode', () => {
     // `systemPreference` is shared module state, so reset it to a fresh `'light'` baseline before
     // each test. A throwaway hook resolves it via the immediate (mocked) `onMounted` above.
     useColorMode()
+  })
+
+  it('isolates embedded preferences from other roots, the host, and local storage', async () => {
+    const host = useColorMode({ initialColorMode: 'light' })
+    host.setColorMode('light')
+    const firstRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    const secondRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    const firstApp = createApp({})
+    firstApp.provide(DOCUMENT_ROOT_SYMBOL, firstRoot)
+    const secondApp = createApp({})
+    secondApp.provide(DOCUMENT_ROOT_SYMBOL, secondRoot)
+
+    const first = firstApp.runWithContext(() => useColorMode({ initialColorMode: 'dark' }))
+    const second = secondApp.runWithContext(() => useColorMode({ initialColorMode: 'light' }))
+    await nextTick()
+
+    expect(first.darkLightMode.value).toBe('dark')
+    expect(second.darkLightMode.value).toBe('light')
+    expect(host.darkLightMode.value).toBe('light')
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+
+    second.toggleColorMode()
+    first.toggleColorMode()
+    await nextTick()
+    expect(first.darkLightMode.value).toBe('light')
+    expect(second.darkLightMode.value).toBe('dark')
+    expect(host.darkLightMode.value).toBe('light')
+    expect(document.body.classList.contains('dark-mode')).toBe(false)
+    expect(localStorage.getItem('colorMode')).toBe('light')
+  })
+
+  it('shares a preference with a separately mounted client in the same shadow root', () => {
+    const root = document.createElement('div').attachShadow({ mode: 'open' })
+    const referenceApp = createApp({})
+    referenceApp.provide(DOCUMENT_ROOT_SYMBOL, root)
+    const clientApp = createApp({})
+    clientApp.provide(DOCUMENT_ROOT_SYMBOL, root)
+    const reference = referenceApp.runWithContext(() => useColorMode({ initialColorMode: 'light' }))
+    reference.setColorMode('dark')
+    const client = clientApp.runWithContext(() => useColorMode({ initialColorMode: 'light' }))
+    expect(client.darkLightMode.value).toBe('dark')
+    client.setColorMode('light')
+    expect(reference.darkLightMode.value).toBe('light')
+  })
+
+  it('reacts to forced embedded theme updates without modifying the host', async () => {
+    const app = createApp({})
+    app.provide(DOCUMENT_ROOT_SYMBOL, document.createElement('div').attachShadow({ mode: 'open' }))
+    const override = ref<'dark' | 'light' | undefined>('dark')
+    const mode = app.runWithContext(() => useColorMode({ initialColorMode: 'light', overrideColorMode: override }))
+    mode.setColorMode('light')
+    expect(mode.darkLightMode.value).toBe('dark')
+    override.value = 'light'
+    expect(mode.darkLightMode.value).toBe('light')
+    override.value = undefined
+    expect(mode.darkLightMode.value).toBe('light')
+    await nextTick()
+    expect(document.body.classList.contains('dark-mode')).toBe(false)
   })
 
   it('defaults to system mode preference', () => {

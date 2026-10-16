@@ -1,5 +1,6 @@
+import { DOCUMENT_ROOT_SYMBOL } from '@scalar/use-hooks/useDocumentRoot'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { createApp, effectScope, nextTick, ref } from 'vue'
 
 import { ELEMENT_ID } from './constants'
 import { cleanupTooltipElement, useTooltip } from './useTooltip'
@@ -23,6 +24,71 @@ describe('useTooltip', () => {
 
     // Restore the real timers
     vi.useRealTimers()
+  })
+
+  it('isolates shadow-root tooltips and removes the portal after its last user unmounts', async () => {
+    const firstRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    const secondRoot = document.createElement('div').attachShadow({ mode: 'open' })
+    const firstTarget = document.createElement('button')
+    const secondTarget = document.createElement('button')
+    firstRoot.append(firstTarget)
+    secondRoot.append(secondTarget)
+    const firstApp = createApp({})
+    firstApp.provide(DOCUMENT_ROOT_SYMBOL, firstRoot)
+    const secondApp = createApp({})
+    secondApp.provide(DOCUMENT_ROOT_SYMBOL, secondRoot)
+    const firstScope = effectScope()
+    const secondScope = effectScope()
+    firstApp.runWithContext(() =>
+      firstScope.run(() => useTooltip({ content: 'First', targetRef: firstTarget, delay: 0 })),
+    )
+    secondApp.runWithContext(() =>
+      secondScope.run(() => useTooltip({ content: 'Second', targetRef: secondTarget, delay: 0 })),
+    )
+
+    firstTarget.dispatchEvent(new MouseEvent('mouseenter'))
+    secondTarget.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    expect(firstRoot.getElementById(ELEMENT_ID)?.textContent).toBe('First')
+    expect(secondRoot.getElementById(ELEMENT_ID)?.textContent).toBe('Second')
+    expect(document.getElementById(ELEMENT_ID)).toBeNull()
+
+    firstScope.stop()
+    expect(firstRoot.getElementById(ELEMENT_ID)).toBeNull()
+    expect(firstTarget.hasAttribute('aria-describedby')).toBe(false)
+    expect(secondRoot.getElementById(ELEMENT_ID)?.textContent).toBe('Second')
+    secondScope.stop()
+    expect(secondRoot.getElementById(ELEMENT_ID)).toBeNull()
+  })
+
+  it('keeps a sibling tooltip delay when another target unmounts', async () => {
+    const first = effectScope()
+    const second = effectScope()
+    const secondTarget = document.createElement('button')
+    first.run(() => useTooltip({ content: 'First', targetRef: targetElement, delay: 100 }))
+    second.run(() => useTooltip({ content: 'Second', targetRef: secondTarget, delay: 100 }))
+    secondTarget.dispatchEvent(new MouseEvent('mouseenter'))
+    first.stop()
+    await vi.advanceTimersByTimeAsync(100)
+    expect(document.getElementById(ELEMENT_ID)?.textContent).toBe('Second')
+    second.stop()
+  })
+
+  it('continues to dismiss on Escape after another key and removes its listener when hidden', async () => {
+    const scope = effectScope()
+    scope.run(() => useTooltip({ content: 'Tooltip', targetRef: targetElement, delay: 0 }))
+    targetElement.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true }))
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(document.getElementById(ELEMENT_ID)?.style.display).toBe('none')
+    const listener = vi.fn()
+    document.body.addEventListener('keydown', listener)
+    targetElement.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    expect(listener).toHaveBeenCalledTimes(1)
+    document.body.removeEventListener('keydown', listener)
+    scope.stop()
   })
 
   it('should initialize tooltip element on first use', () => {

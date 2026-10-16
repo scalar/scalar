@@ -23,7 +23,11 @@ const {
 const { translate } = useLocalization()
 
 /** Route via ID and optionally with example name */
-const handleClick = () => {
+const handleClick = (event: MouseEvent): void => {
+  // WebKit does not focus buttons on click; dialogs need a focused opener to restore.
+  if (event.currentTarget instanceof HTMLElement) {
+    event.currentTarget.focus()
+  }
   // Include exampleName in payload if provided
   const payload = {
     id,

@@ -38,7 +38,8 @@ export default {}
 import type { ScalarListboxOption } from '@scalar/components/listbox'
 import type { ModalState } from '@scalar/components/modal'
 import type { ClientPlugin } from '@scalar/oas-utils/helpers'
-import { ScalarToasts } from '@scalar/use-toasts'
+import { useDocumentRoot } from '@scalar/use-hooks/useDocumentRoot'
+import { provideToasts, ScalarToasts } from '@scalar/use-toasts'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getActiveEnvironment } from '@scalar/workspace-store/request-example'
@@ -106,7 +107,15 @@ const cleanUp = () => {
   eventBus.emit('operation:cancel:request')
 }
 
+const root = useDocumentRoot()
+if (typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot) {
+  provideToasts()
+}
 const isLocked = useScrollLock(() => {
+  // Native dialogs coordinate scroll locks for embedded and nested modals.
+  if (typeof ShadowRoot !== 'undefined' && root instanceof ShadowRoot) {
+    return null
+  }
   if (typeof window !== 'undefined') {
     return window.document.body
   }
@@ -125,7 +134,7 @@ watch(
   },
 )
 
-// Ensure we add our scalar wrapper class to the headless ui root
+// Cancel in-flight requests when the owning reference is removed.
 onBeforeUnmount(() => cleanUp())
 
 /** Default sidebar width in pixels. */
