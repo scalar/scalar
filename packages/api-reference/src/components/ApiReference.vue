@@ -1489,6 +1489,8 @@ watch(agent.showAgent, (open) => {
 
 // Reference controls must keep working before the modal installs its own event handlers.
 const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  getConfiguredSecuritySchemes: () =>
+    mergedConfig.value.authentication?.securitySchemes,
   eventBus,
   store: ref(clientStore),
   hooks: {},

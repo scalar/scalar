@@ -234,6 +234,7 @@ const handleApiKeySecretsUpdate = (
     name,
   })
 
+/** Name edits may update the document or a configured override; tokens remain secrets. */
 const handleApiKeySecuritySchemeUpdate = (
   payload: Omit<Partial<ApiKeyObject>, 'type'>,
   name: string,
