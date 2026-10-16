@@ -125,6 +125,10 @@ export const getNavigationOptions = (documentName: string, options?: NavigationO
 
     // -------- Default webhook id generation logic --------
     if (props.type === 'webhook') {
+      if (!props.name) {
+        return `${documentId}/webhooks`
+      }
+
       const prefixTag = props.parentTag
         ? `${generateId({
             type: 'tag',
