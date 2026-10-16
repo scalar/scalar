@@ -2,20 +2,20 @@
   {
     "version": "0.18.0",
     "date": "2026-10-16",
-    "title": "OpenID Connect provider and transport security enforcement",
+    "title": "OpenID Connect provider and AsyncAPI security enforcement",
     "content": [
       {
         "type": "paragraph",
-        "text": "This release adds a development OpenID Connect authorization server with signed ID tokens and enforces security requirements for AsyncAPI WebSocket and Server-Sent Events connections."
+        "text": "This release adds a development OpenID Connect provider with signed ID tokens and JWKS discovery, enforces security on AsyncAPI WebSocket and SSE connections, and enables OAuth token endpoints for AsyncAPI mocks."
       },
       {
         "type": "list",
         "items": [
-          "Added a development OpenID Connect provider with signed ID tokens, JWKS endpoints, PKCE support, and token refresh rotation for testing identity flows.",
-          "AsyncAPI WebSocket and SSE connections now enforce server and operation security requirements before opening channels.",
-          "HTTP authentication accepts case-insensitive Basic and Bearer schemes, validates Digest credentials, and recognizes verified mutual TLS certificates.",
-          "OAuth callback URLs are validated to reject non-HTTP schemes and prevent executable links on authorization pages.",
-          "AsyncAPI mock servers register OAuth and OpenID Connect endpoints declared in security schemes and return discovery metadata on the mock origin."
+          "AsyncAPI mocks now enforce security schemes on WebSocket and Server-Sent Events connections, rejecting unauthorized channel access.",
+          "A new development OpenID Connect provider issues signed ID tokens with JWKS, PKCE support, token expiry, and refresh rotation.",
+          "AsyncAPI mocks now support OAuth authorization, token, and refresh endpoints declared in security schemes.",
+          "HTTP authentication accepts case-insensitive Basic and Bearer schemes, and supports Digest credential checks and mutual TLS.",
+          "OAuth callback URLs are validated to prevent non-HTTP schemes from rendering on authorization pages."
         ],
         "ordered": false
       },
