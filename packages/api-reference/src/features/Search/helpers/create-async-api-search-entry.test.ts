@@ -126,6 +126,43 @@ describe('create-async-api-search-entry', () => {
     expect(messages.map(({ identifiers }) => identifiers)).toStrictEqual([['accountCreated', 'account.created.v1']])
   })
 
+  it.each([undefined, [], [{ $ref: '#/channels/accountEvents/messages/accountCreated' }]])(
+    'indexes operation and channel-only messages for selection %j',
+    (messages) => {
+      const document = createDocument()
+      document.operations = {
+        publishAccount: { action: 'send', channel: { $ref: '#/channels/accountEvents' }, messages },
+      }
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('events', document)
+      expect(search(document, 'account.created.v1')).toStrictEqual(['Account created'])
+    },
+  )
+
+  it('uses a visible operation anchor when another operation is hidden', () => {
+    const document = createDocument()
+    document.operations = {
+      hidden: { action: 'send', channel: { $ref: '#/channels/accountEvents' }, ...{ 'x-internal': true } },
+      visible: { action: 'receive', channel: { $ref: '#/channels/accountEvents' } },
+    }
+    const navigation = traverseAsyncApiDocument('events', document)
+    document['x-scalar-navigation'] = navigation
+    const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+    const operation =
+      channel?.type === 'asyncapi-channel'
+        ? channel.children?.find((entry) => entry.type === 'asyncapi-operation')
+        : undefined
+    const message = operation?.children?.find((entry) => entry.type === 'asyncapi-message')
+    if (!message) {
+      throw new Error('Expected visible operation message')
+    }
+    expect(
+      createSearchIndex(document)
+        .filter((entry) => entry.type === 'asyncapi-message')
+        .map(({ id }) => id),
+    ).toStrictEqual([message.id])
+    expect(search(document, 'account.created.v1')).toStrictEqual(['Account created'])
+  })
+
   it('indexes nested array and composed fields, references, and trait headers without indexing literal data', () => {
     const document = createDocument({
       traits: [
