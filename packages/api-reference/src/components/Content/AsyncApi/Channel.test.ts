@@ -44,6 +44,24 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('omits redundant channel tags in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        document: createDocumentWithChannel({
+          address: 'orders',
+          tags: [{ name: 'Orders', description: 'Follow the order lifecycle.' }],
+        }),
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Orders')
+    expect(wrapper.text()).not.toContain('Follow the order lifecycle.')
+  })
+
   it.each(['modern', 'classic'] as const)('renders referenced channel bindings in %s', (layout) => {
     const wrapper = mount(Channel, {
       props: {

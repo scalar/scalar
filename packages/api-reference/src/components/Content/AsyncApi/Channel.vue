@@ -27,7 +27,6 @@ import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
-import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
 import ChannelMessages from './ChannelMessages.vue'
 import ChannelMetadata from './ChannelMetadata.vue'
@@ -137,6 +136,7 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     v-if="layout === 'classic'"
     :aria-label="headingText"
     class="channel-section"
+    :class="{ 'channel-section-nested': level !== 0 }"
     :modelValue="!isCollapsed"
     @update:modelValue="
       (value) =>
@@ -165,7 +165,6 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :value="description"
         withImages />
     </template>
-    <AsyncApiTags :tags="resolvedChannel?.tags" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
       class="mt-4" />
@@ -245,7 +244,6 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         </Anchor>
       </SectionHeader>
       <SectionContent>
-        <AsyncApiTags :tags="resolvedChannel?.tags" />
         <AsyncApiLabels
           class="channel-labels"
           :protocols="labels.protocols"
@@ -317,6 +315,9 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 <style scoped>
 .channel-section {
   margin-bottom: 48px;
+}
+.channel-section.channel-section-nested {
+  padding-inline: 0;
 }
 .channel-labels {
   margin-bottom: 8px;
