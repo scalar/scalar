@@ -112,6 +112,18 @@ describe('buildWsQueryParams', () => {
     expect(params.toString()).toBe('includeHistory=false')
   })
 
+  it('uses target values and ignores siblings in query property references', () => {
+    const target = { type: 'string' as const, default: 'production' }
+    const alias = { $ref: '#/components/schemas/target', '$ref-value': target, default: 'wrong-alias' }
+    const property = { $ref: '#/components/schemas/alias', '$ref-value': alias, default: 'wrong' }
+    const missing = { $ref: '#/components/schemas/missing', default: 'ignored' }
+    const params = buildWsQueryParams({
+      query: { type: 'object', properties: { environment: property, missing } },
+    })
+
+    expect(params.toString()).toBe('environment=production')
+  })
+
   it('lets explicit query parameters override schema defaults', () => {
     const params = buildWsQueryParams(mergeWsBindings(galaxyPlanetEventsChannel, null), {
       includeHistory: 'true',

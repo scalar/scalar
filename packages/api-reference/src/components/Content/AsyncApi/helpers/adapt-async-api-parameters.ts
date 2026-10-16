@@ -1,5 +1,5 @@
 import type { AsyncApiChannelObject, AsyncApiParameterObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type { ParameterObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 /** Preserve AsyncAPI metadata without adding it to the OpenAPI parameter schema. */
@@ -24,7 +24,7 @@ export const adaptAsyncApiParameters = (
 
   return Object.entries(parameters).map(([name, value]) => {
     // Fall back to an empty object so an unresolved `$ref` still renders the parameter name.
-    const parameter = getResolvedRef(value) ?? {}
+    const parameter = getResolvedAsyncApiRef(value) ?? {}
 
     const schema: SchemaObject = { type: 'string' }
     if (parameter.enum) {

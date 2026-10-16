@@ -5,22 +5,21 @@ import type {
   AsyncApiOperationObject,
 } from '@scalar/types/asyncapi/3.1'
 import { resolveOperationWithTraits } from '@scalar/workspace-store/channel-example'
-import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 
 import { resolveMessageTraits } from './resolve-message-traits'
 
 /**
  * Resolve a channel from the document by its `document.channels` key.
  *
- * Siblings are merged so keys declared alongside a `$ref` are kept rather than dropped, matching
- * how the rest of the OpenAPI/AsyncAPI rendering resolves references.
+ * AsyncAPI Reference Object siblings are ignored, including at intermediate hops.
  */
 export const resolveAsyncApiChannel = (
   document: AsyncApiDocument,
   channelName: string,
 ): AsyncApiChannelObject | undefined => {
   const node = document.channels?.[channelName]
-  return node ? getResolvedRef(node, mergeSiblingReferences) : undefined
+  return node ? getResolvedAsyncApiRef(node) : undefined
 }
 
 /**
@@ -34,7 +33,8 @@ export const resolveAsyncApiMessage = (
 ): AsyncApiMessageObject | undefined => {
   const channel = resolveAsyncApiChannel(document, channelName)
   const node = channel?.messages?.[messageName]
-  return node ? resolveMessageTraits(getResolvedRef(node, mergeSiblingReferences)) : undefined
+  const message = getResolvedAsyncApiRef(node)
+  return message ? resolveMessageTraits(message) : undefined
 }
 
 /**
@@ -51,11 +51,15 @@ export const resolveAsyncApiOperation = (
   if (!node) {
     return undefined
   }
-  const operation = resolveOperationWithTraits(getResolvedRef(node, mergeSiblingReferences))
+  const resolved = getResolvedAsyncApiRef(node)
+  if (!resolved) {
+    return undefined
+  }
+  const operation = resolveOperationWithTraits(resolved)
   // The workspace resolver handles connection fields; rendering and search also need trait prose.
   const metadata = operation.traits?.reduce<Pick<AsyncApiOperationObject, 'title' | 'summary' | 'description'>>(
     (inherited, traitNode) => {
-      const trait = getResolvedRef(traitNode)
+      const trait = getResolvedAsyncApiRef(traitNode)
       return {
         ...inherited,
         ...(trait && Object.hasOwn(trait, 'title') ? { title: trait.title } : {}),

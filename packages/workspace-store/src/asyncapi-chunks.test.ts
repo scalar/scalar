@@ -6,6 +6,7 @@ import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
@@ -35,6 +36,49 @@ const fixture = () => ({
 })
 
 describe('asyncapi-chunks', () => {
+  it('ignores sibling overrides through SSR chunks and direct client loading', async () => {
+    const input = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      channels: { events: { $ref: '#/components/channels/Alias', title: 'Wrong title', 'x-internal': true } },
+      components: {
+        channels: {
+          Alias: { $ref: '#/components/channels/Events', title: 'Wrong alias' },
+          Events: { title: 'Target events', address: 'events' },
+        },
+      },
+    }
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.com',
+      documents: [{ name: 'events', document: input }],
+    })
+    const client = createWorkspaceStore({
+      fetch: async (url) =>
+        new Response(JSON.stringify(await server.get(String(url))), {
+          headers: { 'Content-Type': 'application/json' },
+        }),
+    })
+    await client.addDocument({ name: 'events', document: server.getWorkspace().documents.events! })
+    client.update('x-scalar-active-document', 'events')
+    await client.resolve(['x-scalar-navigation'])
+    await client.resolve(['channels', 'events'])
+    const chunked = client.workspace.activeDocument
+    assert(isAsyncApiDocument(chunked))
+    expect(getResolvedAsyncApiRef(chunked.channels?.events)?.title).toBe('Target events')
+    const chunkedNavigation: TraversedDocument | undefined = chunked['x-scalar-navigation']
+    expect(chunkedNavigation?.children?.map((entry) => entry.title)).toStrictEqual(['Introduction', 'Target events'])
+
+    const direct = createWorkspaceStore()
+    await direct.addDocument({ name: 'events', document: input })
+    const loaded = direct.workspace.documents.events
+    assert(isAsyncApiDocument(loaded))
+    expect(getResolvedAsyncApiRef(loaded.channels?.events)?.title).toBe('Target events')
+    const loadedNavigation: TraversedDocument | undefined = loaded['x-scalar-navigation']
+    expect(loadedNavigation?.children?.map((entry) => entry.title)).toStrictEqual(['Introduction', 'Target events'])
+    expect(input.channels.events.title).toBe('Wrong title')
+  })
+
   it('loads channel-only navigation and referenced message payloads without fetching operations', async () => {
     const server = await createServerWorkspaceStore({
       mode: 'ssr',

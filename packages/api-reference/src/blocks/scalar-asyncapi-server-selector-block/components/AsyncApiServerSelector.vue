@@ -26,7 +26,7 @@ import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
@@ -56,7 +56,7 @@ const serverVariables = computed(() => {
   return Object.fromEntries(
     Object.entries(variables).flatMap(
       ([name, variable]): [string, ServerVariableObject][] => {
-        const resolved = getResolvedRef(variable)
+        const resolved = getResolvedAsyncApiRef(variable)
         if (!resolved) return []
         return [
           [

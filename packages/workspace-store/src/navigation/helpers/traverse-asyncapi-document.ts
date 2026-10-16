@@ -4,7 +4,7 @@ import type { AsyncApiChannelObject, AsyncApiDocument, AsyncApiOperationObject }
 
 import { resolveOperationWithTraits } from '@/channel-example/resolve-operation-with-traits'
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
-import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { type NavigationOptions, getNavigationOptions } from '@/navigation/get-navigation-options'
@@ -137,10 +137,8 @@ const resolveOperationChannel = (
     return undefined
   }
 
-  return {
-    channelName,
-    channel: getResolvedRef(channelEntry, mergeSiblingReferences),
-  }
+  const channel = getResolvedAsyncApiRef(channelEntry)
+  return channel ? { channelName, channel } : undefined
 }
 
 /**
@@ -194,12 +192,9 @@ const resolveOperationMessageNames = (
  * Normalizes an AsyncAPI tag (inline object or `$ref`) into the OpenAPI-style `TagObject`
  * used by the shared tag navigation helpers.
  */
-const toTagObject = (tag: AsyncApiTagEntry): TagObject => {
-  const resolved = getResolvedRef(tag, mergeSiblingReferences)
-  return {
-    name: resolved.name,
-    description: resolved.description,
-  }
+const toTagObject = (tag: AsyncApiTagEntry): TagObject[] => {
+  const resolved = getResolvedAsyncApiRef(tag)
+  return resolved ? [{ name: resolved.name, description: resolved.description }] : []
 }
 
 /**
@@ -258,8 +253,8 @@ const createMessageEntries = ({
       return []
     }
 
-    const message = getResolvedRef(messageNode, mergeSiblingReferences)
-    if (isHidden(message as Hideable)) {
+    const message = getResolvedAsyncApiRef(messageNode)
+    if (!message || isHidden(message as Hideable)) {
       return []
     }
 
@@ -531,7 +526,7 @@ const getOrCreateChannelBucket = (
     channelName,
     channel,
     channelAddress: getChannelAddress(channelName, channel),
-    channelTags: channel.tags?.map(toTagObject) ?? [],
+    channelTags: channel.tags?.flatMap(toTagObject) ?? [],
     operations: [],
   }
 
@@ -554,8 +549,8 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
       continue
     }
 
-    const channel = getResolvedRef(channelNode, mergeSiblingReferences)
-    if (isHidden(channel as Hideable)) {
+    const channel = getResolvedAsyncApiRef(channelNode)
+    if (!channel || isHidden(channel as Hideable)) {
       continue
     }
 
@@ -567,7 +562,11 @@ const collectChannelBuckets = (document: AsyncApiDocument): Map<string, ChannelB
       continue
     }
 
-    const operation = resolveOperationWithTraits(getResolvedRef(operationNode, mergeSiblingReferences))
+    const resolvedOperation = getResolvedAsyncApiRef(operationNode)
+    if (!resolvedOperation) {
+      continue
+    }
+    const operation = resolveOperationWithTraits(resolvedOperation)
     const resolved = resolveOperationChannel(document, operation)
     if (!resolved) {
       continue
@@ -673,10 +672,22 @@ export const traverseAsyncApiDocument = (
   // typed against the OpenAPI document. We hand it the resolved `components` (so a `$ref`-only
   // wrapper still exposes its schemas) wrapped in a minimal document; the cast bridges the single
   // overlapping field, since AsyncAPI and OpenAPI documents are otherwise distinct types.
-  const components = document.components ? getResolvedRef(document.components, mergeSiblingReferences) : undefined
+  const components = document.components ? getResolvedAsyncApiRef(document.components) : undefined
   const untaggedModels =
     !hideModels && components?.schemas
-      ? traverseSchemas({ documentId, document: { components } as unknown as OpenApiDocument, generateId, tagsMap })
+      ? traverseSchemas({
+          documentId,
+          document: {
+            components: {
+              ...components,
+              schemas: Object.fromEntries(
+                Object.entries(components.schemas).map(([name, schema]) => [name, getResolvedAsyncApiRef(schema)]),
+              ),
+            },
+          } as unknown as OpenApiDocument,
+          generateId,
+          tagsMap,
+        })
       : []
 
   // Surface the Introduction entry plus any headings extracted from `info.description`

@@ -78,6 +78,26 @@ describe('create-async-api-search-entry', () => {
     },
   )
 
+  it('indexes the schema target without sibling descriptions or properties', () => {
+    const document = createDocument({
+      payload: {
+        $ref: '#/components/schemas/Target',
+        '$ref-value': { type: 'object', description: 'Target description', properties: { actual: { type: 'string' } } },
+        description: 'Ignored description',
+        properties: { ignored: { type: 'string' } },
+      },
+    } as unknown as AsyncApiMessageObject)
+    const entry = createAsyncApiSearchEntry(document, {
+      type: 'asyncapi-message',
+      id: 'message',
+      title: 'Account created',
+      channelName: 'accountEvents',
+      messageName: 'accountCreated',
+    })
+    expect(entry?.body).toStrictEqual(['actual'])
+    expect(entry?.bodyDescriptions).toStrictEqual(['Signup notification', 'Target description'])
+  })
+
   it('finds channels, parameters, operations, messages and inherited descriptions', () => {
     const document = createDocument()
     for (const [term, title] of [
@@ -111,18 +131,24 @@ describe('create-async-api-search-entry', () => {
     expect(search(document, 'accountCreated')).toStrictEqual(['Invoice issued'])
   })
 
-  it('uses the first rendered message anchor when two operations reference the message', () => {
+  it('uses the first rendered operation message anchor when two operations share a message', () => {
     const document = createDocument()
     const channel = traverseAsyncApiDocument('events', document).children?.find(
       (entry) => entry.type === 'asyncapi-channel',
     )
-    const operation = channel?.type === 'asyncapi-channel' ? channel.children?.[0] : undefined
-    const message = operation?.type === 'asyncapi-operation' ? operation.children?.[0] : undefined
-    if (message?.type !== 'asyncapi-message') {
-      throw new Error('Expected a rendered operation message')
-    }
+    const operations =
+      channel?.type === 'asyncapi-channel'
+        ? channel.children?.filter((entry) => entry.type === 'asyncapi-operation')
+        : undefined
+    const firstMessage = operations?.[0]?.children?.find((entry) => entry.type === 'asyncapi-message')
+    const secondMessage = operations?.[1]?.children?.find((entry) => entry.type === 'asyncapi-message')
+
+    expect(firstMessage).toBeDefined()
+    expect(secondMessage).toBeDefined()
+    expect(firstMessage?.id).not.toBe(secondMessage?.id)
+
     const messages = createSearchIndex(document).filter((entry) => entry.type === 'asyncapi-message')
-    expect(messages.map(({ id }) => id)).toStrictEqual([message.id])
+    expect(messages.map(({ id }) => id)).toStrictEqual([firstMessage?.id])
     expect(messages.map(({ identifiers }) => identifiers)).toStrictEqual([['accountCreated', 'account.created.v1']])
   })
 

@@ -3,10 +3,7 @@ import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import {
-  getResolvedRef,
-  mergeSiblingReferences,
-} from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type {
   TraversedAsyncApiChannel,
   TraversedEntry,
@@ -80,11 +77,11 @@ const isModel = (entry: TraversedEntry): entry is TraversedSchema =>
 
 /**
  * Reusable schemas live under `components.schemas`, the same place OpenAPI keeps them.
- * Resolve the wrapper once (merging `$ref` siblings) so the template can gate the Models section.
+ * Resolve the wrapper once (ignoring `$ref` siblings) so the template can gate the Models section.
  */
 const componentSchemas = computed(() =>
   document.components
-    ? getResolvedRef(document.components, mergeSiblingReferences).schemas
+    ? getResolvedAsyncApiRef(document.components)?.schemas
     : undefined,
 )
 

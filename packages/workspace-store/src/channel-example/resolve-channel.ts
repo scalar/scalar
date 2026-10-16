@@ -1,6 +1,6 @@
 import type { AsyncApiChannelObject, AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 
 export type ResolvedChannel = {
   channelName: string
@@ -17,7 +17,7 @@ export const resolveChannel = (document: AsyncApiDocument, channelName: string):
     return undefined
   }
 
-  const channel = getResolvedRef(channelNode)
+  const channel = getResolvedAsyncApiRef(channelNode)
   if (!channel) {
     return undefined
   }
