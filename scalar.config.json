@@ -9023,5 +9023,16 @@
         }
       }
     }
-  }
+  },
+  "agentSkills": [
+    {
+      "filepath": ".agents/skills/scalar-docs/SKILL.md"
+    },
+    {
+      "filepath": ".agents/skills/scalar-mock-server/SKILL.md"
+    },
+    {
+      "filepath": ".agents/skills/scalar-api-reference/SKILL.md"
+    }
+  ]
 }
