@@ -130,6 +130,9 @@ const javascript: Grammar = {
             '\\b(?:if|else|for|while|do|switch|case|default|break|continue|return|throw|try|catch|finally|await|yield)\\b',
           scope: 'keyword.control',
         },
+        // A TypeScript assertion ends an expression; it does not declare the
+        // next name, even when that name begins a new line without a semicolon.
+        { match: '\\bconst\\b(?<=\\bas\\s+const)', scope: 'keyword.declaration' },
         // The declared name is scoped by a state of its own rather than by a
         // rule here: a rule that has to look back at `const` runs at every
         // identifier in the file, while the state only runs after the keyword.

@@ -945,6 +945,22 @@ describe('regressions from the TextMate comparison', () => {
     expect(scoped(code, 'javascript').filter(([, s]) => s === 'regexp')).toHaveLength(2)
   })
 
+  it.each(['\n', '\r\n', ' '])(
+    'typescript: does not read the next statement as a const assertion name: %j',
+    (space) => {
+      const code = `const config = {} as${space}const\nexport const x = 1\nconst data = [] as const\nfunction run() {}`
+      expect(scopeOf(code, 'typescript', 'export')).toBe('keyword.import')
+      expect(scopeOf(code, 'typescript', 'function')).toBe('keyword.declaration')
+      expect(scopeOf(code, 'typescript', 'config')).toBe('variable')
+      expect(scopeOf(code, 'typescript', 'x')).toBe('variable')
+      expect(
+        tokenize(code, 'typescript')
+          .map(({ text }) => text)
+          .join(''),
+      ).toBe(code)
+    },
+  )
+
   it('javascript: scopes the name a const, let or var declares', () => {
     const code =
       'const total = items.length\nlet x = 1, y\nconst App = () => null\nconst { a } = obj\nfor (const k of keys) {}\nexport const enum Color { Red }\nconst n: number = 1\n'

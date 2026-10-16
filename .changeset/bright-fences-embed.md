@@ -9,3 +9,5 @@ Close more of the highlighting gap with TextMate grammars, without slowing anyth
 - **SQL** scopes common T-SQL and PL/SQL keywords and types (`DECLARE`, `PRINT`, `GO`, `EXEC`, `RETURN`, `VARCHAR2`, `NUMBER`, …).
 - **JavaScript and TypeScript** scope the name a `const`, `let` or `var` declares, read a regex after a control condition (`if (ok) /re/.test(s)`), and colour a tagged template's tag (`` gql`…` ``) as a call.
 - **Shell** scopes unquoted arguments as strings, as TextMate grammars do.
+
+TypeScript const assertions keep the following statement highlighted as code instead of consuming its keyword as a declared name.
