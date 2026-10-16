@@ -71,6 +71,7 @@ const resolvedOperation = computed(() =>
 const headingText = computed(() =>
   pickHeading(
     resolvedOperation.value?.title,
+    resolvedOperation.value?.summary,
     operation.title,
     operation.operationName,
   ),
@@ -84,11 +85,14 @@ const requiredSecurity = computed<RequiredSecurity>(() =>
   ),
 )
 
+/** A summary used as the heading must not repeat in the body. */
+const summary = computed((): string => {
+  const value = resolvedOperation.value?.summary?.trim() ?? ''
+  return value === headingText.value ? '' : value
+})
+
 const description = computed(
-  () =>
-    resolvedOperation.value?.description ||
-    resolvedOperation.value?.summary ||
-    '',
+  (): string => resolvedOperation.value?.description ?? '',
 )
 
 /** Only the message children of this operation. */
@@ -113,7 +117,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     ref="section"
     class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:pt-10"
     :class="`operation--${operation.action}`">
-    <div class="operation-header">
+    <div class="operation-header mb-3">
       <span
         class="operation-action"
         :class="`operation-action--${operation.action}`">
@@ -134,6 +138,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     </div>
 
     <AsyncApiTags :tags="resolvedOperation?.tags" />
+    <p
+      v-if="summary"
+      class="text-c-1 mb-2 [overflow-wrap:anywhere]">
+      {{ summary }}
+    </p>
     <ScalarMarkdown
       v-if="description"
       class="operation-description"

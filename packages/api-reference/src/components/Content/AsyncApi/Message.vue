@@ -108,14 +108,24 @@ const contentType = computed<string | undefined>(
   () => resolvedMessage.value?.contentType ?? document.defaultContentType,
 )
 
-/** Heading prefers the human-friendly title, falling back to the message map key. */
+/** Heading prefers title, then summary, then the navigation label or message map key. */
 const headingText = computed(() =>
-  pickHeading(resolvedMessage.value?.title, message.title, message.messageName),
+  pickHeading(
+    resolvedMessage.value?.title,
+    resolvedMessage.value?.summary,
+    message.title,
+    message.messageName,
+  ),
 )
 
+/** A summary used as the heading must not repeat in the body. */
+const summary = computed((): string => {
+  const value = resolvedMessage.value?.summary?.trim() ?? ''
+  return value === headingText.value ? '' : value
+})
+
 const description = computed(
-  () =>
-    resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
+  (): string => resolvedMessage.value?.description ?? '',
 )
 
 /**
@@ -161,6 +171,7 @@ const headersSchema = computed(() =>
 /** Binding-only messages still need a details column beside their examples. */
 const hasMessageDetails = computed(() =>
   Boolean(
+    summary.value ||
     description.value ||
     contentType.value ||
     correlationId.value ||
@@ -310,6 +321,11 @@ const { level: headingLevel } = useDocumentOutline(
             class="text-c-2 text-sm">
             Content type: <code class="break-all">{{ contentType }}</code>
           </div>
+          <p
+            v-if="summary"
+            class="text-c-1 mb-2 [overflow-wrap:anywhere]">
+            {{ summary }}
+          </p>
           <ScalarMarkdown
             v-if="description"
             class="message-description"
