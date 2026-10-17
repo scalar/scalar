@@ -2,7 +2,7 @@
 
 # scalar auth
 
-Log in to Scalar and manage your session. Generated from `@scalar/cli` 2.11.0.
+Log in to Scalar and manage your session. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |

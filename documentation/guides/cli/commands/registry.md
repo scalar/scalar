@@ -2,7 +2,7 @@
 
 # scalar registry
 
-Manage API descriptions in the Scalar Registry. Generated from `@scalar/cli` 2.11.0.
+Manage API descriptions in the Scalar Registry. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |

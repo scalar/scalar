@@ -2,7 +2,7 @@
 
 # scalar project
 
-Manage Scalar Docs projects. Generated from `@scalar/cli` 2.11.0.
+Manage Scalar Docs projects. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |

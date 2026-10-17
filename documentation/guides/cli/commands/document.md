@@ -2,7 +2,7 @@
 
 # scalar document
 
-Work with OpenAPI and AsyncAPI descriptions. Generated from `@scalar/cli` 2.11.0.
+Work with OpenAPI and AsyncAPI descriptions. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |
@@ -38,7 +38,7 @@ scalar document bundle [options] [file|url]
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
+| `-o, --output <file>` | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
 | `--treeShake` | Remove unused components from the bundled output. |
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. |
