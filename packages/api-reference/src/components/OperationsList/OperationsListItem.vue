@@ -72,6 +72,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
 <style scoped>
 .endpoint {
   display: flex;
+  align-items: center;
+  min-height: 24px;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;

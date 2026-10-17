@@ -65,7 +65,32 @@ const collapsedPreviewContent = {
   },
 }
 
+const taggedContent = {
+  openapi: '3.1.1',
+  info: { title: 'Tagged operations', version: '1.0.0' },
+  tags: [{ name: 'planets', description: 'Everything about planets' }],
+  paths: {
+    '/planets': {
+      get: { tags: ['planets'], summary: 'List planets', responses: { '200': { description: 'OK' } } },
+      post: { tags: ['planets'], summary: 'Create a planet', responses: { '201': { description: 'Created' } } },
+    },
+  },
+}
+
 test.describe('reference controls', () => {
+  test('keeps operations list endpoint links at least 24px', async ({ page }) => {
+    const example = await serveExample({ content: taggedContent })
+    await page.goto(example)
+
+    const endpoints = page.locator('.endpoints a.endpoint')
+    await expect(endpoints).toHaveCount(2)
+    for (const endpoint of await endpoints.all()) {
+      const box = await endpoint.boundingBox()
+      expect(box).not.toBeNull()
+      expect(box!.height).toBeGreaterThanOrEqual(24)
+    }
+  })
+
   for (const width of [1440, 320]) {
     test(`keeps schema controls at least 24px at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
