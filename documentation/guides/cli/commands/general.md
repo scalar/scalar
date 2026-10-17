@@ -2,7 +2,7 @@
 
 # General
 
-Commands for the CLI itself: help, upgrades, shell completion, and agent context. Generated from `@scalar/cli` 2.11.0.
+Commands for the CLI itself: help, upgrades, shell completion, and agent context. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |
