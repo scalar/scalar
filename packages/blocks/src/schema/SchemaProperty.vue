@@ -52,6 +52,7 @@ import { getPropertyDescriptionKey } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { hasSchemaConstraints } from './helpers/has-schema-constraints'
 import { isTypeObject } from './helpers/is-type-object'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
@@ -67,6 +68,7 @@ import { useLocalization } from './localization'
 import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaConstraints from './SchemaConstraints.vue'
 import SchemaEnums from './SchemaEnums.vue'
 import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
@@ -1219,6 +1221,23 @@ const onBeforeMatch = (): void => {
         :scrollTargetId="scrollTargetId"
         :specificationExtension="specificationExtension" />
     </div>
+
+    <SchemaConstraints
+      v-if="
+        !isCyclicProperty &&
+        !objectChildProps &&
+        !optimizedValue?.allOf &&
+        hasSchemaConstraints(optimizedValue)
+      "
+      :breadcrumb="childBreadcrumb"
+      :depth
+      :eventBus
+      :expansion
+      :level
+      :options
+      :schema="optimizedValue!"
+      :scrollTargetId
+      :specificationExtension />
 
     <!-- Compositions -->
     <!-- This row's own breadcrumb, so sibling compositions do not collide on

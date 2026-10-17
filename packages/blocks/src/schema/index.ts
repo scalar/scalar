@@ -1,3 +1,4 @@
+export { schemaDialect } from './constraint-metadata'
 export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-metadata'
 export { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 export { default as LinkButton } from './LinkButton.vue'

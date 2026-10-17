@@ -1,5 +1,14 @@
 export const ar = {
   schema: {
+    conditionalConstraints: 'قيود شرطية',
+    constraintIf: 'إذا طابق هذا المخطط',
+    constraintThen: 'عندئذ طبّق',
+    constraintElse: 'وإلا طبّق',
+    containsConstraint: 'يحتوي على عنصر مطابق واحد على الأقل',
+    dependencyConstraint: 'عند وجود {name}',
+    requiredProperties: 'الخصائص المطلوبة: {names}',
+    noAdditionalConstraint: 'لا توجد قيود إضافية.',
+
     variants: 'المتغيرات',
     discriminatorValue: 'قيمة المميز',
     noAllowedValues: 'لا توجد قيم تستوفي قيد التعداد هذا.',

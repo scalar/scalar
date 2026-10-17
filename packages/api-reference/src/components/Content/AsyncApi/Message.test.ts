@@ -1,7 +1,9 @@
 import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
@@ -40,6 +42,49 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 const expanded = { [MESSAGE_ID]: true }
 
 describe('Message', () => {
+  it.each(['payload', 'headers'])('preserves Draft-07 constraints through loading and rendering %s', async (field) => {
+    const store = createWorkspaceStore()
+    const constraint = {
+      type: 'object',
+      properties: {
+        kind: { type: 'string' },
+        tags: { type: 'array', items: { type: 'string' }, contains: { const: 'priority' } },
+      },
+      allOf: [{ if: { properties: { kind: { const: 'business' } } }, then: { required: ['company'] } }],
+      dependencies: { card: ['billingAddress'], account: { $ref: '#/components/schemas/Account' } },
+    }
+    await store.addDocument({
+      name: 'events',
+      document: {
+        ...createDocument({ [field]: constraint }),
+        components: {
+          schemas: {
+            Account: { type: 'object', required: ['accountId'], properties: { accountId: { type: 'string' } } },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.events
+    if (!isAsyncApiDocument(document)) throw new Error('Expected an AsyncAPI document')
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document,
+        eventBus: createWorkspaceEventBus(),
+        expandedItems: expanded,
+        options: { expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain('Conditional constraints')
+    expect(wrapper.text()).toContain('business')
+    expect(wrapper.text()).toContain('Required properties: company')
+    expect(wrapper.text()).toContain('Contains at least one matching item')
+    expect(wrapper.text()).toContain('priority')
+    expect(wrapper.text()).toContain('When card is present')
+    expect(wrapper.text()).toContain('Required properties: billingAddress')
+    expect(wrapper.text()).toContain('Required properties: accountId')
+  })
+
   it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {
     const schema = 'message User { string id = 1; }'
     const format = 'application/vnd.google.protobuf;version=3'
