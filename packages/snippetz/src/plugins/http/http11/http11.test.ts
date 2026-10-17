@@ -226,6 +226,22 @@ Content-Type: application/json\r
     )
   })
 
+  it('keeps a non-default port in the Host header', () => {
+    const result = httpHttp11.generate({
+      url: 'http://localhost:8080/api',
+    })
+
+    expect(result).toBe('GET /api HTTP/1.1\r\n' + 'Host: localhost:8080\r\n' + '\r\n')
+  })
+
+  it('omits the default port from the Host header', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com:443/api',
+    })
+
+    expect(result).toBe('GET /api HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n')
+  })
+
   it('handles invalid URL', () => {
     const result = httpHttp11.generate({
       url: '/foo',
