@@ -218,19 +218,12 @@ const handleResetSecret = (field: AuthSecretField): void => {
 
 /**
  * Reset needs a default to restore, otherwise it would only clear the field like the clear
- * action does. A cleared access token is the exception: the token view stays open while it is
- * cleared, and Reset is the only way back to the Authorize form.
+ * action does.
  */
 const canReset = (
   field: AuthSecretField,
   value: string | undefined,
 ): boolean => {
-  if (
-    field === 'x-scalar-secret-token' &&
-    isSecretFieldCleared(flow.value, field)
-  ) {
-    return true
-  }
   // Without a stored default, resetting the redirect URI re-runs the browser prefill below,
   // unless the desktop loopback capture computes it at authorize time instead.
   const fallback =
@@ -458,11 +451,7 @@ const handleSecretLocationUpdate = (value: string): void => {
 
 <template>
   <!-- Access Token Display: Shows when user is already authorized -->
-  <template
-    v-if="
-      Boolean(flow['x-scalar-secret-token']) ||
-      isSecretFieldCleared(flow, 'x-scalar-secret-token')
-    ">
+  <template v-if="flow['x-scalar-secret-token']">
     <DataTableRow>
       <RequestAuthDataTableInput
         :canReset="
