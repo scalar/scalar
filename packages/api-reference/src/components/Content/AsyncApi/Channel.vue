@@ -31,6 +31,7 @@ import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
 import ChannelMessages from './ChannelMessages.vue'
 import ChannelMetadata from './ChannelMetadata.vue'
+import CopyAsyncApiMarkdownButton from './CopyAsyncApiMarkdownButton.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -73,6 +74,11 @@ const {
     level?: number
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
 
 const headerId = useId()
 
@@ -165,6 +171,15 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :value="description"
         withImages />
     </template>
+    <template #actions>
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
+      <CopyAsyncApiMarkdownButton
+        v-else
+        :document
+        :selection="{ channel: channel.channelName }" />
+    </template>
     <AsyncApiTags :tags="resolvedChannel?.tags" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
@@ -243,6 +258,17 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
             {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
+        <template #links>
+          <div class="flex flex-wrap items-start justify-end gap-3">
+            <slot
+              v-if="$slots.actions"
+              name="actions" />
+            <CopyAsyncApiMarkdownButton
+              v-else
+              :document
+              :selection="{ channel: channel.channelName }" />
+          </div>
+        </template>
       </SectionHeader>
       <SectionContent>
         <AsyncApiTags :tags="resolvedChannel?.tags" />

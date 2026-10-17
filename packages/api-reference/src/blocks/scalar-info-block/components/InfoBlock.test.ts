@@ -217,4 +217,22 @@ describe('InfoBlock', () => {
       }
     },
   )
+
+  it.each(['modern', 'classic'] as const)(
+    'supports custom introduction actions without a default button in %s',
+    (layout) => {
+      const props = {
+        info: mockInfo,
+        documentType: 'asyncapi' as const,
+        layout,
+        eventBus,
+        headingSlugGenerator: () => '',
+      }
+      expect(mount(InfoBlock, { props }).text()).not.toContain('Copy as Markdown')
+      const custom = mount(InfoBlock, { props, slots: { actions: '<button>Custom action</button>' } })
+      expect(custom.text()).toContain('Custom action')
+      expect(custom.text()).not.toContain('Copy as Markdown')
+      expect(mount(InfoBlock, { props, slots: { actions: () => [] } }).text()).not.toContain('Copy as Markdown')
+    },
+  )
 })

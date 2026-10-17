@@ -53,6 +53,12 @@ const {
   documentType?: 'openapi' | 'asyncapi'
 }>()
 
+defineSlots<{
+  selectors?: () => unknown
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
+
 /** AsyncAPI 3.x carries external documentation on info and allows references. */
 const resolvedExternalDocs = computed<ExternalDocumentationObject | undefined>(
   () =>
@@ -90,6 +96,11 @@ const introCardsSlot = computed(() =>
       <IntroductionCard :row="layout === 'classic'">
         <slot name="selectors" />
       </IntroductionCard>
+    </template>
+    <template
+      v-if="$slots.actions"
+      #actions>
+      <slot name="actions" />
     </template>
     <template #download-link>
       <DownloadLink

@@ -22,6 +22,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
+import CopyAsyncApiMarkdownButton from './CopyAsyncApiMarkdownButton.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -50,6 +51,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -113,7 +119,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     ref="section"
     class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:pt-10"
     :class="`operation--${operation.action}`">
-    <div class="operation-header">
+    <div class="operation-header flex-wrap">
       <span
         class="operation-action"
         :class="`operation-action--${operation.action}`">
@@ -131,6 +137,13 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         </SectionHeaderTag>
       </Anchor>
       <SecurityRequirementBadge :requiredSecurity />
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
+      <CopyAsyncApiMarkdownButton
+        v-else
+        :document
+        :selection="{ operation: operation.operationName }" />
     </div>
 
     <AsyncApiTags :tags="resolvedOperation?.tags" />
