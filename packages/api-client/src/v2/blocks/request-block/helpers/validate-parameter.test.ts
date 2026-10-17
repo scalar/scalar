@@ -35,6 +35,8 @@ describe('validateParameter', () => {
 
   it.each([
     [{ schema: { type: 'string', format: 'date' }, value: 'some random value' }],
+    [{ schema: { type: 'string', format: 'date-time' }, value: '2025-05-15' }],
+    [{ schema: { type: 'string', format: 'time' }, value: 'some random value' }],
     [{ schema: { type: 'string', format: 'email' }, value: 'some random value' }],
     [{ schema: { type: 'string', format: 'uri' }, value: 'some random value' }],
   ])('validates different string formats', ({ schema, value }) => {
@@ -47,6 +49,8 @@ describe('validateParameter', () => {
 
   it.each([
     [{ schema: { type: 'string', format: 'date' }, value: '2025-05-15' }],
+    [{ schema: { type: 'string', format: 'date-time' }, value: '2024-03-20T13:45:30Z' }],
+    [{ schema: { type: 'string', format: 'time' }, value: '13:45:30' }],
     [{ schema: { type: 'string', format: 'email' }, value: 'someone@gmail.com' }],
     [{ schema: { type: 'string', format: 'uri' }, value: 'http://example.co' }],
   ])('validates different string formats to true', ({ schema, value }) => {
