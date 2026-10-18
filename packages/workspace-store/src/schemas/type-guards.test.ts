@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { isPluginDocument } from './plugin-document'
 import { getDocumentType, isAsyncApiDocument, isOpenApiDocument } from './type-guards'
 import type { WorkspaceDocument } from './workspace'
 
@@ -52,6 +53,22 @@ describe('type-guards', () => {
       expect(getDocumentType({ info: { title: 'No version' } })).toBeUndefined()
       expect(getDocumentType(undefined)).toBeUndefined()
       expect(getDocumentType(null)).toBeUndefined()
+    })
+  })
+
+  describe('plugin documents', () => {
+    it('are not OpenAPI or AsyncAPI documents, even when they carry those fields', () => {
+      const document = { openapi: '3.1.0', asyncapi: '3.0.0', 'x-scalar-document-type': 'custom', info: {} }
+
+      expect(isPluginDocument(document)).toBe(true)
+      expect(isOpenApiDocument(document)).toBe(false)
+      expect(isAsyncApiDocument(document)).toBe(false)
+    })
+
+    it('are only documents tagged with a document type', () => {
+      expect(isPluginDocument(openApiDocument)).toBe(false)
+      expect(isPluginDocument(asyncApiDocument)).toBe(false)
+      expect(isPluginDocument(undefined)).toBe(false)
     })
   })
 

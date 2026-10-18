@@ -34,7 +34,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
+import { createNavigation, traverseAsyncApiDocument, traversePluginDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
   externalValueResolver,
@@ -51,6 +51,12 @@ import {
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { TraversedDocument } from '@/schemas/navigation'
+import {
+  type DocumentTypeDefinition,
+  PLUGIN_DOCUMENT_TYPE_KEY,
+  type PluginDocument,
+  findDocumentType,
+} from '@/schemas/plugin-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.2/openapi'
 import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
@@ -216,6 +222,11 @@ type WorkspaceProps = {
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
   fileLoader?: LoaderPlugin
+  /**
+   * Document formats the store does not support natively. Each one is checked, in order, before the
+   * built-in OpenAPI and AsyncAPI pipelines.
+   */
+  documentTypes?: readonly DocumentTypeDefinition[]
   /**
    * Whether writes to the workspace are observable. Defaults to `true`.
    *
@@ -1087,6 +1098,55 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This is useful for non browser environments
     if (workspaceProps?.fileLoader) {
       loaders.push(workspaceProps.fileLoader)
+    }
+
+    // Registered document types come first, so a format they claim never reaches the OpenAPI
+    // upgrade and coercion below (which would turn it into a broken OpenAPI document).
+    const documentType = findDocumentType(workspaceProps?.documentTypes, clonedRawInputDocument)
+    if (documentType) {
+      const ingestedDocument = await withMeasurementAsync(
+        'ingest',
+        async () =>
+          (await documentType.ingest?.(deepClone(clonedRawInputDocument), { documentName: name })) ??
+          clonedRawInputDocument,
+      )
+
+      const pluginDocument = createMagicProxy({
+        ...ingestedDocument,
+        info: isObject(ingestedDocument.info) ? ingestedDocument.info : {},
+        ...meta,
+        [PLUGIN_DOCUMENT_TYPE_KEY]: documentType.type,
+        'x-scalar-original-document-hash': input.documentHash,
+        'x-scalar-original-source-url': input.documentSource,
+      }) as PluginDocument
+
+      if (documentType.bundle && pluginDocument[extensions.document.navigation] === undefined) {
+        await withMeasurementAsync(
+          'bundle',
+          async () =>
+            await bundle(getRaw(pluginDocument), {
+              treeShake: false,
+              plugins: loaders,
+              urlMap: true,
+              origin: input.documentSource,
+            }),
+        )
+      }
+
+      if (pluginDocument[extensions.document.navigation] === undefined) {
+        pluginDocument[extensions.document.navigation] = traversePluginDocument(
+          name,
+          pluginDocument,
+          documentType,
+          navigationOptions,
+        )
+      }
+
+      const pluginOverrides = unpackProxyObject(overrides[name])
+      workspace.documents[name] = needsOverridesProxy(pluginOverrides)
+        ? createOverridesProxy(pluginDocument, { overrides: pluginOverrides })
+        : pluginDocument
+      return
     }
 
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.

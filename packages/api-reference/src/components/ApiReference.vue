@@ -71,6 +71,7 @@ import type {
   TraversedEntry,
   TraversedTag,
 } from '@scalar/workspace-store/schemas/navigation'
+import { isPluginDocument } from '@scalar/workspace-store/schemas/plugin-document'
 import {
   isAsyncApiDocument,
   isOpenApiDocument,
@@ -620,10 +621,12 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 /**
  * The active document passed to the search modal. Both OpenAPI and AsyncAPI
  * documents are surfaced so the search index can include their navigation content.
+ * Documents of a registered document type are not indexed yet.
  */
-const activeSearchableDocument = computed(
-  () => workspaceStore.workspace.activeDocument,
-)
+const activeSearchableDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isPluginDocument(document) ? undefined : document
+})
 
 /**
  * Sidebar entries contributed by plugin views (content.start / content.end).
