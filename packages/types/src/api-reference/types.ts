@@ -3,7 +3,7 @@ import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
 import type { ApiClientTranslations } from './api-client-translations'
-import type { PluginAuthState } from './api-reference-plugin'
+import type { PluginAuthState, PluginNavigationEntry } from './api-reference-plugin'
 
 /** Some common properties used in all security schemes */
 type SecuirtySchemeCommon = {
@@ -219,6 +219,47 @@ export type ViewComponent = {
   }
 }
 
+/**
+ * A document format that API Reference does not support natively (it supports OpenAPI and AsyncAPI).
+ *
+ * The plugin detects documents of its format, optionally normalizes them, builds their sidebar entries,
+ * and renders the whole document. Everything else (loading, the document selector, routing, the sidebar
+ * and scroll tracking) is handled by API Reference.
+ */
+export type PluginDocumentType = {
+  /** Stable identifier, stored on every claimed document as `x-scalar-document-type`. */
+  type: string
+  /** Human-readable name of the format, e.g. `Arazzo`. */
+  label: string
+  /** Whether this type handles the raw (parsed) document. Checked before OpenAPI and AsyncAPI. */
+  detect: (document: Record<string, unknown>) => boolean
+  /** Optional hook to upgrade, validate or normalize the document before it is stored. */
+  ingest?: (
+    document: Record<string, unknown>,
+    context: { documentName: string },
+  ) => Record<string, unknown> | Promise<Record<string, unknown>>
+  /** Resolve `$ref`s with the configured fetch before storing the document. Defaults to `false`. */
+  bundle?: boolean
+  /** Build the sidebar entries for the document. */
+  traverse: (context: {
+    documentName: string
+    documentId: string
+    document: Record<string, unknown>
+  }) => PluginNavigationEntry[]
+  /**
+   * Renders the document in place of the built-in content.
+   *
+   * The component receives `document`, `documentName`, `documents` (every document in the workspace,
+   * read-only), `navigation` (its sidebar entries), `eventBus` and `options`. Each rendered entry should
+   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it.
+   */
+  content: {
+    component: unknown
+    renderer?: unknown
+    props?: Record<string, any>
+  }
+}
+
 export type LifecycleHooks = {
   onInit?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
   onConfigChange?: ({ config, auth }: { config: Partial<BaseConfiguration>; auth: PluginAuthState }) => void
@@ -232,6 +273,8 @@ export type ApiReferencePlugin = () => {
     'content.start'?: ViewComponent[]
     'content.end'?: ViewComponent[]
   }
+  /** Document formats this plugin teaches API Reference to load and render. */
+  documentTypes?: PluginDocumentType[]
   hooks?: LifecycleHooks
   apiClientPlugins?: any[]
   /** Enhance sanitized Markdown after it renders in the browser. */

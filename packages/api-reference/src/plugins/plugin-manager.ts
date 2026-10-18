@@ -3,6 +3,7 @@ import type { ClientPlugin } from '@scalar/oas-utils/helpers'
 import type {
   ApiReferencePlugin as OriginalApiReferencePlugin,
   PluginAuthState,
+  PluginDocumentType,
   SpecificationExtension,
   ViewComponent,
 } from '@scalar/types/api-reference'
@@ -119,6 +120,25 @@ export const createPluginManager = ({ plugins = [], auth }: CreatePluginManagerP
       }
 
       return components
+    },
+
+    /**
+     * Get all document types contributed by registered plugins, in registration order.
+     */
+    getDocumentTypes: (): PluginDocumentType[] =>
+      Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.documentTypes ?? []),
+
+    /**
+     * Get the document type with the given identifier (the `x-scalar-document-type` of a document).
+     */
+    getDocumentType: (type: string): PluginDocumentType | undefined => {
+      for (const plugin of registeredPlugins.values()) {
+        const documentType = plugin.documentTypes?.find((candidate) => candidate.type === type)
+        if (documentType) {
+          return documentType
+        }
+      }
+      return undefined
     },
 
     /**
