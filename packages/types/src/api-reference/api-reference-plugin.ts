@@ -51,6 +51,67 @@ const viewComponentSchema = z.object({
     .optional(),
 })
 
+/** A sidebar entry contributed by a plugin document type. */
+export type PluginNavigationEntry = {
+  /** Unique across the workspace: prefix it with the `documentId` passed to `traverse`. */
+  id: string
+  title: string
+  /** Free-form discriminator owned by the document type, e.g. `workflow` or `step`. */
+  kind?: string
+  children?: PluginNavigationEntry[]
+}
+
+/**
+ * A document format that API Reference does not support natively (it supports OpenAPI and AsyncAPI).
+ *
+ * The plugin detects documents of its format, optionally normalizes them, builds their sidebar entries,
+ * and renders the whole document. Everything else (loading, the document selector, routing, the sidebar
+ * and scroll tracking) is handled by API Reference.
+ */
+const documentTypeSchema = z.object({
+  /** Stable identifier, stored on every claimed document as `x-scalar-document-type`. */
+  type: z.string(),
+  /** Human-readable name of the format, e.g. `Arazzo`. */
+  label: z.string(),
+  /** Whether this type handles the raw (parsed) document. Checked before OpenAPI and AsyncAPI. */
+  detect: z.custom<(document: Record<string, unknown>) => boolean>(),
+  /** Optional hook to upgrade, validate or normalize the document before it is stored. */
+  ingest: z
+    .custom<
+      (
+        document: Record<string, unknown>,
+        context: { documentName: string },
+      ) => Record<string, unknown> | Promise<Record<string, unknown>>
+    >()
+    .optional(),
+  /** Resolve `$ref`s with the configured fetch before storing the document. Defaults to `false`. */
+  bundle: z.boolean().optional(),
+  /** Build the sidebar entries for the document. */
+  traverse:
+    z.custom<
+      (context: {
+        documentName: string
+        documentId: string
+        document: Record<string, unknown>
+      }) => PluginNavigationEntry[]
+    >(),
+  /**
+   * Renders the document in place of the built-in content.
+   *
+   * The component receives `document`, `documentName`, `documents` (every document in the workspace,
+   * read-only), `navigation` (its sidebar entries), `eventBus` and `options`. Each rendered entry should
+   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it.
+   */
+  content: z.object({
+    /** Vue component that renders the document */
+    component: z.unknown(),
+    /** Custom renderer to render the component (e.g., a renderer that mounts its own app) */
+    renderer: z.unknown().optional(),
+    /** Additional props to pass to the component */
+    props: z.record(z.string(), z.any()).optional(),
+  }),
+})
+
 const viewsSchema = z.object({
   /**
    * Renders before the Introduction/Info section
@@ -142,6 +203,10 @@ export const apiReferencePluginSchema = z.function({
      * Components to render at specific views in the API Reference
      */
     views: viewsSchema.optional(),
+    /**
+     * Document formats this plugin teaches API Reference to load and render
+     */
+    documentTypes: z.array(documentTypeSchema).optional(),
     /** Browser-only enhancements for every Markdown rendering, including summaries and the client modal. */
     markdown: z.custom<MarkdownRenderHook>().optional(),
     /**

@@ -261,6 +261,37 @@ describe('plugin-manager', () => {
     })
   })
 
+  describe('document types', () => {
+    const documentType = (type: string) => ({
+      type,
+      label: type,
+      detect: () => true,
+      traverse: () => [],
+      content: { component: {} },
+    })
+
+    it('returns no document types when no plugin contributes one', () => {
+      const manager = createPluginManager({ plugins: [() => ({ name: 'empty', extensions: [] })] })
+
+      expect(manager.getDocumentTypes()).toStrictEqual([])
+      expect(manager.getDocumentType('arazzo')).toBeUndefined()
+    })
+
+    it('collects document types from all plugins in registration order', () => {
+      const arazzo = documentType('arazzo')
+      const overlay = documentType('overlay')
+      const manager = createPluginManager({
+        plugins: [
+          () => ({ name: 'arazzo', extensions: [], documentTypes: [arazzo] }),
+          () => ({ name: 'overlay', extensions: [], documentTypes: [overlay] }),
+        ],
+      })
+
+      expect(manager.getDocumentTypes()).toStrictEqual([arazzo, overlay])
+      expect(manager.getDocumentType('overlay')).toBe(overlay)
+    })
+  })
+
   describe('getSidebarEntries', () => {
     it('returns empty array when no plugins have sidebar config', () => {
       const mockPlugin: ApiReferencePlugin = () => ({
