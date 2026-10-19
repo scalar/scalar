@@ -6,7 +6,7 @@ import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import { Hono } from 'hono'
 
-import { asyncApiDocument, getAsyncApiDocument } from './asyncapi-document'
+import { asyncApiDocument } from './asyncapi-document'
 import { upgradeWebSocket } from './upgrade-websocket'
 
 /**
@@ -19,10 +19,7 @@ export const createApp = async (): Promise<Hono> => {
   const events = await createMockServer({ document: asyncApiDocument, upgradeWebSocket })
 
   // Register sockets before the REST app so its CORS middleware cannot modify upgrade responses.
-  for (const version of asyncApiDocument.servers.production.variables.version.enum) {
-    app.route(`/ws/${version}`, events)
-  }
-  app.get('/asyncapi.json', (c) => c.json(getAsyncApiDocument(c.req.url)))
+  app.route('/', events)
 
   const rest = await createMockServer({
     document: galaxyDocument,

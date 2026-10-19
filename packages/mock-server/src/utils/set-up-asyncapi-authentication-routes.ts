@@ -3,26 +3,14 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { Hono } from 'hono'
 
+import { getAsyncApiSecuritySchemes } from './get-asyncapi-security-schemes'
 import { setUpAuthenticationRoutes } from './set-up-authentication-routes'
 
 /** Adapt AsyncAPI OAuth and OpenID Connect schemes to the shared mock authorization and token handlers. */
 export const setUpAsyncApiAuthenticationRoutes = (app: Hono, document: AsyncApiDocument): void => {
-  const components = getResolvedRef(document.components)
-  // AsyncAPI also permits inline schemes on servers, operations, and operation traits.
-  const schemes = [
-    ...Object.values(components?.securitySchemes ?? {}),
-    ...Object.values(document.servers ?? {}).flatMap((server) => getResolvedRef(server)?.security ?? []),
-    ...Object.values(document.operations ?? {}).flatMap((rawOperation) => {
-      const operation = getResolvedRef(rawOperation)
-      return [
-        ...(operation?.security ?? []),
-        ...(operation?.traits ?? []).flatMap((trait) => getResolvedRef(trait)?.security ?? []),
-      ]
-    }),
-  ]
   const securitySchemes: Record<string, OpenAPIV3_1.OAuth2SecurityScheme | OpenAPIV3_1.OpenIdSecurityScheme> = {}
 
-  for (const [index, rawScheme] of schemes.entries()) {
+  for (const [index, rawScheme] of getAsyncApiSecuritySchemes(document).entries()) {
     const scheme = getResolvedRef(rawScheme)
     if (scheme?.type === 'openIdConnect') {
       securitySchemes[index] = { type: 'openIdConnect', openIdConnectUrl: scheme.openIdConnectUrl }

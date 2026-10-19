@@ -36,17 +36,13 @@ describe('galaxy-scalar-com', () => {
     it('creates the mock server with the bundled document', async () => {
       vi.mocked(createMockServer).mockResolvedValue(new Hono())
 
-      const app = await createApp()
+      await createApp()
 
       expect(createMockServer).toHaveBeenCalledWith({
         document: { openapi: '3.1.0' },
         onRequest: expect.any(Function),
       })
       expect(createMockServer).toHaveBeenCalledWith({ document: asyncApiDocument, upgradeWebSocket })
-      const response = await app.request('https://preview.example/asyncapi.json')
-      expect(response.status).toBe(200)
-      const document = await response.json()
-      expect(document.servers.production.host).toBe('preview.example')
     })
 
     it('logs requests in the onRequest callback', async () => {

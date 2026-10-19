@@ -55,8 +55,18 @@ describe('_worker', () => {
     expect(rest.status).toBe(200)
     const openapi = await state.worker!.fetch('/openapi.json')
     expect(openapi.status).toBe(200)
-    const events = await state.worker!.fetch('/asyncapi.json')
+    const events = await fetch(`http://127.0.0.1:${state.worker!.port}/asyncapi.json`)
     expect(events.status).toBe(200)
-    expect(await events.json()).toHaveProperty('asyncapi', '3.0.0')
+    const document = (await events.json()) as {
+      asyncapi: string
+      servers: { production: { host: string } }
+      components: { securitySchemes: { oauth2: { flows: { authorizationCode: { tokenUrl: string } } } } }
+    }
+    expect(document.asyncapi).toBe('3.0.0')
+    expect(document.servers.production.host).toBe(`127.0.0.1:${state.worker!.port}`)
+    expect(document.components.securitySchemes.oauth2.flows.authorizationCode.tokenUrl).toBe(
+      `http://127.0.0.1:${state.worker!.port}/oauth/token`,
+    )
+    expect((await state.worker!.fetch('/asyncapi.yaml')).status).toBe(200)
   })
 })

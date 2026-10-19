@@ -146,3 +146,9 @@ Mount WebSocket routes before middleware that modifies response headers, such as
 ## Migrating from the AsyncAPI-specific factory
 
 Replace `createAsyncApiMockServer` with `createMockServer`, pass `upgradeWebSocket` for WebSocket channels, and use the returned Hono app directly. On Node.js, create the `WebSocketServer` in the host application as shown above. The AsyncAPI-specific factory and its result/options types are no longer exported.
+
+## Server paths and API descriptions
+
+The mock server prefixes channel addresses with each server's `pathname`. It registers every enum value for variables in that pathname, including combinations of multiple variables. Without an enum it uses the variable's default; variables without either remain dynamic. Channel parameters remain dynamic, and host variables and payload enums do not create extra routes. For example, `/ws/{version}` with `enum: [v1, v2]` serves both `/ws/v1/planets/{id}/events` and `/ws/v2/planets/{id}/events`.
+
+AsyncAPI apps serve `/asyncapi.json` and `/asyncapi.yaml` automatically, alongside the mock channels. WebSocket and HTTP server hosts and mock OAuth/OpenID Connect URLs in these documents use the incoming request's origin, so local development and deployment previews connect to their own mock. Other broker protocols retain their original hosts. The input document is not mutated. Mount the app at `/` to use the paths declared by its servers.

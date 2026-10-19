@@ -12,6 +12,52 @@ const processAsyncApiDocument = async (
 }
 
 describe('resolveChannels', () => {
+  it('expands server enums and defaults while keeping channel parameters dynamic', async () => {
+    const document = await processAsyncApiDocument({
+      asyncapi: '3.0.0',
+      info: { title: 'Paths', version: '1' },
+      servers: {
+        production: {
+          host: '{region}.example.com',
+          protocol: 'ws',
+          pathname: '/{stage}/{version}/{version}',
+          variables: {
+            stage: { default: 'api' },
+            version: { enum: ['v1', 'v2', 'v1'], default: 'v1' },
+            region: { enum: ['eu', 'us'] },
+          },
+        },
+      },
+      channels: { events: { address: '/planets/{id}/events', servers: [], messages: {} } },
+    })
+    expect(resolveChannels(document).map(({ route }) => route)).toEqual([
+      '/api/v1/v1/planets/:id/events',
+      '/api/v2/v2/planets/:id/events',
+    ])
+  })
+
+  it('keeps authentication alternatives scoped to their server pathname', async () => {
+    const document = await processAsyncApiDocument({
+      asyncapi: '3.0.0',
+      info: { title: 'Paths', version: '1' },
+      servers: {
+        private: {
+          host: 'example.com',
+          protocol: 'ws',
+          pathname: '/private',
+          security: [{ type: 'httpApiKey', in: 'query', name: 'key' }],
+        },
+        public: { host: 'localhost', protocol: 'ws', pathname: '/public' },
+      },
+      channels: { events: { address: 'events', messages: {} } },
+    })
+    const channels = resolveChannels(document)
+    expect(channels[0]?.security).toEqual([
+      { protocol: 'ws', schemes: [{ type: 'httpApiKey', in: 'query', name: 'key' }] },
+    ])
+    expect(channels[1]?.security).toBeUndefined()
+  })
+
   it('derives route, protocols, operations and messages from a document', async () => {
     const document = await processAsyncApiDocument({
       asyncapi: '3.1.0',
