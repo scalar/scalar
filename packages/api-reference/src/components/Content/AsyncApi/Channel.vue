@@ -3,7 +3,9 @@ import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedAsyncApiChannel,
   TraversedAsyncApiOperation,
@@ -50,6 +52,8 @@ const {
   channel,
   document,
   clientDocument,
+  authStore,
+  securitySchemes,
   layout,
   isCollapsed,
   eventBus,
@@ -62,6 +66,8 @@ const {
     document: AsyncApiDocument
     /** Live document containing server selection and variable edits. */
     clientDocument?: AsyncApiDocument
+    authStore?: AuthStore
+    securitySchemes?: MergedSecuritySchemes
     layout: 'classic' | 'modern'
     isCollapsed: boolean
     eventBus: WorkspaceEventBus | null
@@ -231,6 +237,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
     <Operation
       v-for="operation in operations"
       :key="operation.id"
+      :authStore="authStore"
       :clientDocument="clientDocument"
       :document="document"
       :eventBus="eventBus"
@@ -239,6 +246,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :operation="operation"
       :options="options"
       :scrollTargetId="scrollTargetId"
+      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
     <ChannelMessages
       :channel="channel"
@@ -344,6 +352,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <Operation
           v-for="operation in operations"
           :key="operation.id"
+          :authStore="authStore"
           :clientDocument="clientDocument"
           :document="document"
           :eventBus="eventBus"
@@ -352,6 +361,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :operation="operation"
           :options="options"
           :scrollTargetId="scrollTargetId"
+          :securitySchemes="securitySchemes"
           :specificationExtension="specificationExtension" />
         <ChannelMessages
           :channel="channel"

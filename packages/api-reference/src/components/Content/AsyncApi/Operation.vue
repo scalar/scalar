@@ -4,7 +4,9 @@ import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
@@ -41,6 +43,8 @@ const {
   operation,
   document,
   clientDocument,
+  authStore,
+  securitySchemes,
   eventBus,
   options,
   expandedItems = {},
@@ -50,6 +54,8 @@ const {
     document: AsyncApiDocument
     /** Live document containing server selection and variable edits. */
     clientDocument?: AsyncApiDocument
+    authStore?: AuthStore
+    securitySchemes?: MergedSecuritySchemes
     eventBus: WorkspaceEventBus | null
     options?: Partial<OperationOptions>
     /** Map of navigation item id to expanded state, shared with the sidebar. */
@@ -202,9 +208,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     </div>
 
     <AsyncApiCodeExample
+      :authStore="authStore"
       class="operation-example"
       :document="clientDocument ?? document"
-      :operationName="operation.operationName" />
+      :operationName="operation.operationName"
+      :securitySchemes="securitySchemes" />
 
     <div class="operation-details">
       <SectionHeaderTag

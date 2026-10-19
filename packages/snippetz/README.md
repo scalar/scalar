@@ -70,8 +70,11 @@ follow the application running the generated code.
 
 Payloads must be JSON-serializable. JSON media types serialize the payload once;
 other media types send strings as-is. Missing payloads and unsupported non-JSON
-payloads produce a placeholder. Authentication, message headers, and reply
-correlation require application-specific setup.
+payloads produce a placeholder. Optional `query` and `cookies` arrays accept
+`{ name, value }` entries. Query values replace matching URL parameters. Cookies
+generate a `document.cookie` setup step, which must run on the server's HTTP(S)
+origin and cannot set cross-domain or HttpOnly cookies. Header authentication,
+message headers, and reply correlation require application-specific setup.
 
 The generator accepts resolved connection and payload values, so it can be used
 without an AsyncAPI document.

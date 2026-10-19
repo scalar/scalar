@@ -393,6 +393,7 @@ provideDocumentOutline('document')
     <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
     <AsyncApiTraversedEntry
       v-else-if="items.length && asyncApiDocument"
+      :authStore="authStore"
       :clientDocument="asyncApiClientDocument"
       :document="asyncApiDocument"
       :entries="items"
@@ -401,6 +402,7 @@ provideDocumentOutline('document')
       :expansion="expansion"
       :options
       :scrollTargetId="scrollTargetId"
+      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
 
     <!-- Render plugins at content.end view -->

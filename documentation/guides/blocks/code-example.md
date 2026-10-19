@@ -168,8 +168,15 @@ an authored message payload. Missing payloads produce an explicit placeholder.
 Generated examples follow the described application's direction: `send` sends after
 connecting, and `receive` listens for incoming data. JSON payloads are serialized;
 text payloads are sent as strings. Other encodings need application-specific code.
-Message headers, authentication, and reply correlation require application-specific
-setup. No connection is opened by the block.
+Selected server authentication is applied for query and cookie API keys. Query
+credentials are encoded into the connection URL. Cookie credentials generate a
+`document.cookie` setup step that must run on the server's corresponding HTTP(S)
+origin; it cannot set cross-domain or HttpOnly cookies. Existing browser cookies
+are sent according to browser cookie rules.
+
+Header-based API keys, bearer, Basic, and OAuth authentication are not added to
+browser WebSocket examples. Message-level authentication and reply correlation
+still require application-specific setup. No connection is opened by the block.
 
 Use `selectedServer` to select a server by name. By default, the block follows the
 document's selected server when available, falling back to the first eligible WebSocket

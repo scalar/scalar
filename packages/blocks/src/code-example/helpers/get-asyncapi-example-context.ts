@@ -22,6 +22,7 @@ type AsyncApiCodeSample = { lang: string; label?: string; source: string }
 
 type AsyncApiExampleContext = {
   operation: AsyncApiOperationObject
+  channelName: string | undefined
   channel: AsyncApiChannelObject | undefined
   messages: ChannelMessageEntry[]
   samples: AsyncApiCodeSample[]
@@ -76,5 +77,5 @@ export const getAsyncApiExampleContext = (
   const servers = channel ? getAsyncApiServers(document, { channel, operation, pathParameters: parameters?.path }) : []
   const serverName = selectedServer ?? document['x-scalar-selected-server']
   const server = servers.find(({ name }) => name === serverName) ?? servers[0]
-  return { operation, channel, messages: resolvedMessages, samples, server }
+  return { operation, channelName: resolved?.channelName, channel, messages: resolvedMessages, samples, server }
 }

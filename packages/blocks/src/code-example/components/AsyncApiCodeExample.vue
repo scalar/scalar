@@ -17,21 +17,34 @@ import type {
   AsyncApiDocument,
   AsyncApiMessageObject,
 } from '@scalar/types/asyncapi/3.1'
+import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import type {
+  MergedSecuritySchemes,
+  SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import { computed, ref, watch } from 'vue'
 
 import { formatLanguage } from '../helpers/format-language'
 import { getAsyncApiExampleContext } from '../helpers/get-asyncapi-example-context'
+import { getAsyncApiExampleSecurity } from '../helpers/get-asyncapi-example-security'
+import { getSecrets } from '../helpers/get-secrets'
+import { processSecuritySchemes } from '../helpers/operation-to-har/process-security-schemes'
 import ExamplePicker from './ExamplePicker.vue'
 
-const { document, operationName, selectedServer } = defineProps<{
-  /** A workspace-resolved AsyncAPI 3.x document. */
-  document: AsyncApiDocument
-  /** Key in document.operations. */
-  operationName: string
-  /** Optional server name, restricted to the operation channel servers. */
-  selectedServer?: string
-}>()
+const { document, operationName, selectedServer, authStore, securitySchemes } =
+  defineProps<{
+    /** A workspace-resolved AsyncAPI 3.x document. */
+    document: AsyncApiDocument
+    /** Key in document.operations. */
+    operationName: string
+    /** Optional server name, restricted to the operation channel servers. */
+    selectedServer?: string
+    /** Selected credentials shared with the auth controls. */
+    authStore?: AuthStore
+    /** Schemes merged with reference configuration overrides. */
+    securitySchemes?: MergedSecuritySchemes
+  }>()
 
 type PickerOptions = Record<string, { summary: string }>
 type MessageExample = Exclude<
@@ -155,11 +168,30 @@ watch(
   { immediate: true },
 )
 
+const selectedSecurity = computed<SecuritySchemeObjectSecret[]>(() =>
+  getAsyncApiExampleSecurity(
+    document,
+    context.value,
+    authStore,
+    securitySchemes,
+  ),
+)
+const credentialValues = computed<string[]>(() =>
+  getSecrets(selectedSecurity.value).flatMap((secret) => [
+    secret,
+    encodeURIComponent(secret),
+    new URLSearchParams({ value: secret }).toString().slice(6),
+  ]),
+)
+
 const content = computed<string | undefined>(() => {
   if (sample.value?.source !== undefined) return sample.value.source
   const current = context.value
   if (!current?.server?.connectionUrl || !sample.value) return undefined
+  const auth = processSecuritySchemes(selectedSecurity.value)
   return generateMessageSnippet({
+    query: auth.queryString,
+    cookies: auth.cookies,
     protocol: 'websocket',
     language: 'javascript',
     url: current.server.connectionUrl,
@@ -217,6 +249,9 @@ const content = computed<string | undefined>(() => {
           v-if="content !== undefined"
           class="bg-b-2 h-full"
           :content="content"
+          :hideCredentials="
+            selectedSample === 'js/websocket' ? credentialValues : []
+          "
           :lang="sample?.lang"
           lineNumbers />
         <p

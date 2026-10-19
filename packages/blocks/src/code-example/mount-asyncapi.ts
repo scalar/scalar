@@ -38,6 +38,7 @@ export const createAsyncApiCodeExample = (
             isAsyncApiDocument(activeDocument)
               ? h(AsyncApiCodeExample, {
                   document: activeDocument,
+                  authStore: options.store.auth,
                   operationName: options.operationName,
                   selectedServer: options.selectedServer,
                 })

@@ -91,4 +91,49 @@ socket.addEventListener("message", (event) => {
     })
     expect(code).toContain('const payload = "YOUR_MESSAGE"')
   })
+  it('encodes query credentials and replaces existing values without losing other parameters', () => {
+    const urls: string[] = []
+    class WebSocket {
+      constructor(url: string) {
+        urls.push(url)
+      }
+      addEventListener(): void {}
+    }
+    runInNewContext(
+      generateWebSocketSnippet({
+        url: 'wss://example.com/events?keep=1&key=old&key=duplicate',
+        action: 'receive',
+        query: [{ name: 'key', value: 'a&b +"' }],
+      }),
+      { WebSocket },
+    )
+    const url = new URL(urls[0] ?? '')
+    expect(url.searchParams.getAll('key')).toEqual(['a&b +"'])
+    expect(url.searchParams.get('keep')).toBe('1')
+  })
+
+  it('sets encoded cookie credentials before connecting without executing authored values', () => {
+    const writes: string[] = []
+    const browserDocument = {
+      set cookie(value: string) {
+        writes.push(value)
+      },
+    }
+    class WebSocket {
+      constructor() {
+        expect(writes).toEqual(['session=a%3B%20%22%20%2B; path=/'])
+      }
+      addEventListener(): void {}
+    }
+    const code = generateWebSocketSnippet({
+      url: 'wss://example.com/events',
+      action: 'receive',
+      cookies: [{ name: 'session', value: 'a; " +' }],
+    })
+    runInNewContext(code, { WebSocket, document: browserDocument })
+    expect(code).toContain(
+      "// Run on the request origin; document.cookie writes cookies for the current page's domain.",
+    )
+    expect(code).not.toContain('path=/";')
+  })
 })

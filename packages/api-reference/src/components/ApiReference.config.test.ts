@@ -1,5 +1,6 @@
 import * as apiClientModalModule from '@scalar/api-client/modal'
 import { AsyncApiCodeExample, type ClientOptionGroup } from '@scalar/blocks/code-example'
+import { ScalarCodeBlock } from '@scalar/components/code-block'
 import type { TraversedEntry, TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -1034,6 +1035,87 @@ describe('ApiReference AsyncAPI onServerChange', () => {
     await flushPromises()
     expect(codeExample.text()).toContain('wss://staging.example.com/events')
 
+    wrapper.unmount()
+  })
+
+  it('updates WebSocket snippets with selected browser-supported auth and masks encoded credentials', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          content: {
+            asyncapi: '3.1.0',
+            info: { title: 'Auth events', version: '1' },
+            servers: {
+              production: {
+                host: 'example.com',
+                protocol: 'wss',
+                security: [
+                  { $ref: '#/components/securitySchemes/query' },
+                  { $ref: '#/components/securitySchemes/cookie' },
+                  { $ref: '#/components/securitySchemes/header' },
+                ],
+              },
+            },
+            channels: { events: { address: '/events' } },
+            operations: { listen: { action: 'receive', channel: { $ref: '#/channels/events' } } },
+            components: {
+              securitySchemes: {
+                query: { type: 'httpApiKey', in: 'query', name: 'key' },
+                cookie: { type: 'httpApiKey', in: 'cookie', name: 'session' },
+                header: { type: 'httpApiKey', in: 'header', name: 'X-Key' },
+              },
+            },
+          },
+        },
+      },
+    })
+    await flushPromises()
+    const example = wrapper.findComponent(AsyncApiCodeExample)
+    const block = example.findComponent(ScalarCodeBlock)
+    const bus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+    bus.emit('auth:update:selected-security-schemes', {
+      meta: { type: 'document' },
+      selectedRequirements: [{ query: [] }],
+      newSchemes: [],
+    })
+    bus.emit('auth:update:security-scheme', {
+      name: 'query',
+      payload: { type: 'apiKey', 'x-scalar-secret-token': 'test & token' },
+    })
+    await flushPromises()
+    expect(block.props('content')).toContain('wss://example.com/events?key=test+%26+token')
+    expect(block.props('hideCredentials')).toContain('test+%26+token')
+    bus.emit('auth:update:security-scheme', {
+      name: 'query',
+      payload: { type: 'apiKey', 'x-scalar-secret-token': 'replacement' },
+    })
+    await flushPromises()
+    expect(block.props('content')).toContain('?key=replacement')
+    bus.emit('auth:update:selected-security-schemes', {
+      meta: { type: 'document' },
+      selectedRequirements: [{ cookie: [] }],
+      newSchemes: [],
+    })
+    bus.emit('auth:update:security-scheme', {
+      name: 'cookie',
+      payload: { type: 'apiKey', 'x-scalar-secret-token': 'cookie value' },
+    })
+    await flushPromises()
+    expect(block.props('content')).toContain('document.cookie = "session=cookie%20value; path=/"')
+    expect(block.props('content')).not.toContain('?key=')
+    bus.emit('auth:update:selected-security-schemes', {
+      meta: { type: 'document' },
+      selectedRequirements: [{ header: [] }],
+      newSchemes: [],
+    })
+    bus.emit('auth:update:security-scheme', {
+      name: 'header',
+      payload: { type: 'apiKey', 'x-scalar-secret-token': 'header-value' },
+    })
+    await flushPromises()
+    expect(block.props('content')).not.toContain('header-value')
+    expect(block.props('content')).not.toContain('document.cookie')
+    expect(block.props('content')).toContain('new WebSocket("wss://example.com/events")')
     wrapper.unmount()
   })
 

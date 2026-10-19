@@ -1,3 +1,5 @@
+import { prepareBrowserRequest } from '../libs/browser-request'
+
 /** Input to the browser WebSocket generator. Directions follow the described application. */
 export type WebSocketSnippetInput = {
   /** WebSocket connection URL, including any path and query parameters. */
@@ -8,6 +10,10 @@ export type WebSocketSnippetInput = {
   payload?: unknown
   /** Payload media type defaults to application/json. */
   contentType?: string
+  /** Query values to apply to the connection URL, replacing matching keys. */
+  query?: { name: string; value: string }[]
+  /** Cookies to set on the current page domain before connecting. */
+  cookies?: { name: string; value: string }[]
 }
 
 /** Generate JavaScript without evaluating or interpolating authored values as code. */
@@ -16,8 +22,18 @@ export const generateWebSocketSnippet = ({
   action,
   payload,
   contentType = 'application/json',
+  query = [],
+  cookies = [],
 }: WebSocketSnippetInput): string => {
-  const lines = [`const socket = new WebSocket(${JSON.stringify(url)})`, '']
+  const connectionUrl = query.length ? new URL(url) : undefined
+  for (const { name, value } of query) connectionUrl?.searchParams.set(name, value)
+  const { setup } = prepareBrowserRequest({ cookies })
+  const lines = [
+    ...setup.map((line) => line.replace(/;$/, '')),
+    ...(setup.length ? [''] : []),
+    `const socket = new WebSocket(${JSON.stringify(connectionUrl?.toString() ?? url)})`,
+    '',
+  ]
   const json = contentType.split(';')[0]?.trim().toLowerCase()
   const isJson = json === 'application/json' || json?.endsWith('+json')
   const value = JSON.stringify(payload, null, 2)
