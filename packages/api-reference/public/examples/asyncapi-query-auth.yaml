@@ -1,0 +1,49 @@
+asyncapi: 3.1.0
+info:
+  title: WebSocket Query Authentication
+  version: 1.0.0
+  description: >-
+    Enter a query API key in Authentication, then inspect the generated JavaScript
+    example. Change the key or switch servers to see the connection URL update.
+    These example.com servers are for demonstrating code generation only.
+servers:
+  production:
+    host: events.example.com
+    protocol: wss
+    title: Production
+    security:
+      - $ref: '#/components/securitySchemes/queryApiKey'
+  staging:
+    host: staging.events.example.com
+    protocol: wss
+    title: Staging
+    security:
+      - $ref: '#/components/securitySchemes/queryApiKey'
+channels:
+  events:
+    address: /events
+    messages:
+      updated:
+        title: Updated
+        payload:
+          type: object
+          properties:
+            message:
+              type: string
+        examples:
+          - name: Greeting
+            payload:
+              message: Hello from the server
+operations:
+  receiveEvents:
+    action: receive
+    title: Receive events
+    channel:
+      $ref: '#/channels/events'
+components:
+  securitySchemes:
+    queryApiKey:
+      type: httpApiKey
+      in: query
+      name: api_key
+      description: Try a sample key such as demo-key to see it added to the WebSocket URL.
