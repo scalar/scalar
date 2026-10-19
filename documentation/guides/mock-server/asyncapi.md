@@ -132,3 +132,9 @@ const { app, websocket } = await createAsyncApiMockServer({
 ```
 
 Because `register()` receives both the Hono `app` and the `upgradeWebSocket` helper, protocols that negotiate over HTTP before upgrading to a socket (such as SignalR) fit without any core changes.
+
+## Other runtimes
+
+`createAsyncApiMockApp({ document, upgradeWebSocket })` returns the Hono application without creating a Node.js WebSocket server. Supply a Hono-compatible `UpgradeWebSocket` adapter for the host runtime. The adapter must call `onOpen` after accepting the connection so subscriptions receive their initial sample. The standard Hono Cloudflare adapter does not emit that callback; Galaxy's Pages worker uses an adapter that does.
+
+Mount WebSocket routes before middleware that modifies response headers, such as an enclosing REST application's CORS middleware. The AsyncAPI mock applies CORS only to ordinary HTTP requests.

@@ -1,27 +1,38 @@
 // The OpenAPI document is bundled at build time as a JSON import. Reading it
 // from the filesystem is not possible inside the Cloudflare Pages worker.
 import galaxyDocument from '@scalar/galaxy/3.1.json'
-// The AsyncAPI companion document is bundled the same way and rendered as an
-// extra source so the event-driven side of the Galaxy is documented too.
-import galaxyAsyncApiDocument from '@scalar/galaxy/asyncapi/3.0.json'
 import { PETSTORE_URL_2_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { Scalar } from '@scalar/hono-api-reference'
-import { createMockServer } from '@scalar/mock-server'
-import type { Hono } from 'hono'
+import { createAsyncApiMockApp, createMockServer } from '@scalar/mock-server'
+import { Hono } from 'hono'
+
+import { asyncApiDocument, getAsyncApiDocument } from './asyncapi-document'
+import { upgradeWebSocket } from './upgrade-websocket'
 
 /**
  * Create and configure the mock server application.
  *
- * Creating the mock server is the only async step: it dereferences the document
- * and runs its `x-seed` extensions.
+ * Both API descriptions are processed once at startup; the REST mock also runs its seeds.
  */
-export const createApp = async (): Promise<Hono> =>
-  createMockServer({
+export const createApp = async (): Promise<Hono> => {
+  const app = new Hono()
+  const events = await createAsyncApiMockApp({ document: asyncApiDocument, upgradeWebSocket })
+
+  // Register sockets before the REST app so its CORS middleware cannot modify upgrade responses.
+  for (const version of asyncApiDocument.servers.production.variables.version.enum) {
+    app.route(`/ws/${version}`, events)
+  }
+  app.get('/asyncapi.json', (c) => c.json(getAsyncApiDocument(c.req.url)))
+
+  const rest = await createMockServer({
     document: galaxyDocument,
     onRequest: ({ context }) => {
       console.log(`${context.req.method} ${context.req.url}`)
     },
   })
+  app.route('/', rest)
+  return app
+}
 
 /**
  * Path the branch-built `@scalar/api-reference` bundle is served from.
@@ -76,7 +87,7 @@ export const configureApiReference = (app: Hono): void => {
         },
         {
           title: 'Scalar Galaxy Events (AsyncAPI)',
-          content: galaxyAsyncApiDocument,
+          url: '/asyncapi.json',
         },
         {
           title: 'Petstore (OpenAPI 3.1)',

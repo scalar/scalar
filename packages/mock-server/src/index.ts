@@ -1,6 +1,10 @@
 export {
-  type AsyncApiMockServer,
+  type AsyncApiMockAppOptions,
   type AsyncApiMockServerOptions,
+  createAsyncApiMockApp,
+} from './create-asyncapi-mock-app'
+export {
+  type AsyncApiMockServer,
   createAsyncApiMockServer,
 } from './create-asyncapi-mock-server'
 export { createMockServer } from './create-mock-server'

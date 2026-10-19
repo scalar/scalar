@@ -74,7 +74,7 @@ export type TransportContext = {
   /** The Hono app. HTTP-based transports (SSE, SignalR negotiate) register routes here. */
   app: Hono
   /**
-   * Hono's WebSocket upgrade helper, bound to the Node adapter. Upgrade-based transports
+   * Hono's WebSocket upgrade helper, bound to the host runtime. Upgrade-based transports
    * (WebSocket, SignalR) register sockets via `app.get(route, upgradeWebSocket(...))`.
    */
   upgradeWebSocket: UpgradeWebSocket
