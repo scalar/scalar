@@ -75,12 +75,12 @@ describe('generate-websocket-snippet', () => {
     expect(code).toBe(`const socket = new WebSocket("wss://example.com")
 
 socket.addEventListener("message", (event) => {
+  console.log(event.data)
+
   // Example incoming payload:
   // {
   //   "event": "updated"
   // }
-
-  console.log(event.data)
 })`)
   })
 

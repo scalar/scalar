@@ -32,17 +32,17 @@ export const generateWebSocketSnippet = ({
     const encode = isJson && payload !== undefined ? 'JSON.stringify(payload)' : 'payload'
     lines.push('', 'socket.addEventListener("open", () => {', `  socket.send(${encode})`, '})')
   } else {
-    lines.push('socket.addEventListener("message", (event) => {')
+    lines.push('socket.addEventListener("message", (event) => {', '  console.log(event.data)')
     if (payload !== undefined) {
       lines.push(
+        '',
         '  // Example incoming payload:',
         ...String(value)
           .split('\n')
           .map((line) => `  // ${line}`),
-        '',
       )
     }
-    lines.push('  console.log(event.data)', '})')
+    lines.push('})')
   }
   return lines.join('\n')
 }
