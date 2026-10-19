@@ -2,7 +2,7 @@
 
 # Commands
 
-Every command in `@scalar/cli` 2.11.0. Run `scalar <command> --help` for the same details in your terminal, or `scalar context` to get the whole tree as JSON for an AI agent.
+Every command in `@scalar/cli` 2.12.1. Run `scalar <command> --help` for the same details in your terminal, or `scalar context` to get the whole tree as JSON for an AI agent.
 
 ## [scalar document](commands/document.md)
 

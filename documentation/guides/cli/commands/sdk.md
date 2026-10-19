@@ -2,7 +2,7 @@
 
 # scalar sdk
 
-Manage Scalar SDKs (Enterprise only). Generated from `@scalar/cli` 2.11.0.
+Manage Scalar SDKs (Enterprise only). Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |

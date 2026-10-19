@@ -2,7 +2,7 @@
 
 # scalar access-group
 
-Manage access groups and allowed email domains for the current team. Generated from `@scalar/cli` 2.11.0.
+Manage access groups and allowed email domains for the current team. Generated from `@scalar/cli` 2.12.1.
 
 | Command | Description |
 | --- | --- |
