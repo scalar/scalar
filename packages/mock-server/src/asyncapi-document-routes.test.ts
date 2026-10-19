@@ -37,18 +37,18 @@ describe('AsyncAPI document routes', () => {
     const response = await app.request('https://preview.example/asyncapi.json')
     expect(response.status).toBe(200)
     const json = await response.json()
-    expect(json.servers.production).toEqual({ ...document.servers.production, host: 'preview.example' })
-    expect(json.servers.broker).toEqual(document.servers.broker)
+    expect(json.servers.production).toStrictEqual({ ...document.servers.production, host: 'preview.example' })
+    expect(json.servers.broker).toStrictEqual(document.servers.broker)
     expect(json.components.securitySchemes.oauth.flows.authorizationCode.tokenUrl).toBe(
       'https://preview.example/oauth/token',
     )
     const yaml = await app.request('https://preview.example/asyncapi.yaml')
     expect(yaml.headers.get('content-type')).toContain('application/yaml')
-    expect(parse(await yaml.text())).toEqual(json)
+    expect(parse(await yaml.text())).toStrictEqual(json)
     const local = await (await app.request('http://localhost:8788/asyncapi.json')).json()
     expect(local.servers.production.host).toBe('localhost:8788')
     expect(local.servers.production.protocol).toBe('ws')
-    expect(document).toEqual(original)
+    expect(document).toStrictEqual(original)
   })
 
   it('rebases referenced servers and security schemes without changing references', async () => {
@@ -77,7 +77,7 @@ describe('AsyncAPI document routes', () => {
       },
     })
     const json = await (await app.request('https://preview.example/asyncapi.json')).json()
-    expect(json.servers.production).toEqual({ $ref: '#/components/servers/production' })
+    expect(json.servers.production).toStrictEqual({ $ref: '#/components/servers/production' })
     expect(json.components.servers.production.host).toBe('preview.example')
     expect(json.components.securitySchemes.oauth.flows.implicit.authorizationUrl).toBe(
       'https://preview.example/oauth/authorize',

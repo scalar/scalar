@@ -14,9 +14,11 @@ describe('resolveServerPathnames', () => {
           version: { enum: ['v1', 'v2'] },
         },
       }),
-    ).toEqual(['/eu/v1', '/eu/v2', '/us/v1', '/us/v2'])
+    ).toStrictEqual(['/eu/v1', '/eu/v2', '/us/v1', '/us/v2'])
   })
   it('keeps unconstrained variables dynamic', () => {
-    expect(resolveServerPathnames({ host: 'localhost', protocol: 'ws', pathname: '/{tenant}' })).toEqual(['/{tenant}'])
+    expect(resolveServerPathnames({ host: 'localhost', protocol: 'ws', pathname: '/{tenant}' })).toStrictEqual([
+      '/{tenant}',
+    ])
   })
 })

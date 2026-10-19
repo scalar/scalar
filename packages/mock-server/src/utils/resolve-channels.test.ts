@@ -30,7 +30,7 @@ describe('resolveChannels', () => {
       },
       channels: { events: { address: '/planets/{id}/events', servers: [], messages: {} } },
     })
-    expect(resolveChannels(document).map(({ route }) => route)).toEqual([
+    expect(resolveChannels(document).map(({ route }) => route)).toStrictEqual([
       '/api/v1/v1/planets/:id/events',
       '/api/v2/v2/planets/:id/events',
     ])
@@ -52,7 +52,7 @@ describe('resolveChannels', () => {
       channels: { events: { address: 'events', messages: {} } },
     })
     const channels = resolveChannels(document)
-    expect(channels[0]?.security).toEqual([
+    expect(channels[0]?.security).toStrictEqual([
       { protocol: 'ws', schemes: [{ type: 'httpApiKey', in: 'query', name: 'key' }] },
     ])
     expect(channels[1]?.security).toBeUndefined()
