@@ -586,7 +586,7 @@
 <td class="pricing-table-column enterprise-price">Custom</td>
 </tr>
             <tr class="pricing-table-row">
-<th class="pricing-table-column" scope="row">Tokens</th>
+<th class="pricing-table-column" scope="row">Tokens (reference model)</th>
 <td class="pricing-table-column free-price">50,000 / credit</td>
 <td class="pricing-table-column pro-price">50,000 / credit</td>
 <td class="pricing-table-column business-price">50,000 / credit</td>

@@ -79,7 +79,7 @@ Configure authorization separately from tool exposure. Callers can bring API cre
 
 ## Billing
 
-Hosted MCP tool calls consume your team's Agent credits, including calls through a docs MCP endpoint. The in-docs Ask AI widget consumes chat-message credits. See [Agent pricing](pricing.md) for conversions, included allowances, and monthly overage billing.
+Successful API MCP tool calls consume the server owner's Agent credits. Documentation search and read tools do not incur MCP tool-call charges. The in-docs Ask AI widget consumes chat-message credits. See [Agent pricing](pricing.md) for conversions, included allowances, and monthly overage billing.
 
 ## Rate Limiting and Abuse Protection
 

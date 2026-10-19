@@ -13,7 +13,7 @@ Add one spec or many—paste a URL or upload directly. Scalar parses, indexes, a
 
   <scalar-step id="agent-step-configure" title="Configure">
 
-Create [installations](./mcp.md), set access, and preconfigure auth (OAuth, API keys, bearer tokens). Agents use your Scalar credentials; your upstream API secrets stay on our execution layer.
+Configure your [MCP server](./mcp.md) and its environments, choose who can connect, and set upstream authentication. Use stored credentials or let callers bring their own; see [Authentication](./authentication/index.md).
 
   </scalar-step>
 
@@ -79,7 +79,7 @@ Read more: [API Authentication](./mcp.md#api-authentication) on the MCP page.
 
 ## Next steps
 
-- Create and manage [MCP installations](./mcp.md)
+- Create and manage [MCP servers and environments](./mcp.md)
 - Connect from your runtime with the [Agent SDK](./sdk.md)
 - Try the hosted chat at [agent.scalar.com](https://agent.scalar.com)
 
