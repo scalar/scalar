@@ -1,11 +1,18 @@
 /** Input to the browser WebSocket generator. Directions follow the described application. */
-type WebSocketSnippetInput = {
+export type WebSocketSnippetInput = {
+  /** WebSocket connection URL, including any path and query parameters. */
   url: string
+  /** Direction from the perspective of the application running the generated code. */
   action: 'send' | 'receive'
+  /** JSON-serializable example payload. Non-JSON content types support strings only. */
   payload?: unknown
+  /** Payload media type; defaults to application/json. */
   contentType?: string
+  /** Include a reminder to configure authentication before connecting. */
   hasSecurity?: boolean
+  /** Include a reminder to encode application-level message headers. */
   hasHeaders?: boolean
+  /** Include a reminder to configure reply routing and correlation. */
   hasReply?: boolean
 }
 

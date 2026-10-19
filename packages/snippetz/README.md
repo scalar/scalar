@@ -44,6 +44,35 @@ const snippet = snippetz().print('node', 'undici', {
 // )
 ```
 
+## WebSocket examples
+
+Generate browser JavaScript through the dedicated WebSocket entry point:
+
+```ts
+import { generateWebSocketSnippet, type WebSocketSnippetInput } from '@scalar/snippetz/websocket'
+
+const input: WebSocketSnippetInput = {
+  url: 'wss://events.example.com/updates',
+  action: 'send',
+  payload: { name: 'Ada' },
+  contentType: 'application/json',
+}
+
+const snippet = generateWebSocketSnippet(input)
+```
+
+`send` waits for the connection to open before sending the payload. `receive`
+listens for messages and includes the example payload in a comment. Directions
+follow the application running the generated code.
+
+Payloads must be JSON-serializable. JSON media types serialize the payload once;
+other media types send strings as-is. Missing payloads and unsupported non-JSON
+payloads produce a placeholder. The optional `hasSecurity`, `hasHeaders`, and
+`hasReply` flags add setup reminders for application-specific behavior.
+
+The generator accepts resolved connection and payload values, so it can be used
+without an AsyncAPI document.
+
 ## API
 
 ### Get all plugins

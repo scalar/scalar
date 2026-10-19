@@ -240,6 +240,11 @@
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
+    },
+    "./websocket": {
+      "types": "./dist/websocket/index.d.ts",
+      "import": "./dist/websocket/index.js",
+      "default": "./dist/websocket/index.js"
     }
   },
   "files": [

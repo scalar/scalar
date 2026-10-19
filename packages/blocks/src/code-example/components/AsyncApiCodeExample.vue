@@ -12,6 +12,7 @@ import {
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIconCaretDown } from '@scalar/icons'
+import { generateWebSocketSnippet } from '@scalar/snippetz/websocket'
 import type {
   AsyncApiDocument,
   AsyncApiMessageObject,
@@ -20,7 +21,6 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import { computed, ref, watch } from 'vue'
 
 import { formatLanguage } from '../helpers/format-language'
-import { generateWebSocketSnippet } from '../helpers/generate-websocket-snippet'
 import { getAsyncApiExampleContext } from '../helpers/get-asyncapi-example-context'
 import ExamplePicker from './ExamplePicker.vue'
 
