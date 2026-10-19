@@ -17,29 +17,22 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
-import { Anchor } from '@/components/Anchor'
-import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
-import AsyncApiLabels from './AsyncApiLabels.vue'
-import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
 import {
   resolveSchemaRenderOptions,
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
-import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
 import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
-import {
-  resolveAsyncApiChannel,
-  resolveAsyncApiMessage,
-} from './helpers/resolve-async-api-nodes'
+import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
 import SchemaSource from './SchemaSource.vue'
 
@@ -71,7 +64,6 @@ const {
   } & SchemaRenderingProps
 >()
 
-const headerId = useId()
 const instanceId = useId()
 const renderedId = computed(() => (inline ? `reply-${instanceId}` : message.id))
 const section = useTemplateRef<HTMLElement>('section')
@@ -118,36 +110,6 @@ const description = computed(
     resolvedMessage.value?.description || resolvedMessage.value?.summary || '',
 )
 
-/**
- * Protocol keys declared directly on the message's protocol-specific `bindings`
- * (for example `ws`, `kafka`). The bindings object may be a `$ref`, so it is resolved
- * before reading the keys. Keys are lowercased to match the server protocols (which the
- * helper normalizes), so the union below de-duplicates case-insensitively.
- */
-const messageBindingProtocols = computed(() => {
-  const bindings = resolvedMessage.value?.bindings
-  if (!bindings) {
-    return []
-  }
-  const resolved = getResolvedAsyncApiRef(bindings)
-  return Object.entries(resolved ?? {})
-    .filter(([, value]) => value != null)
-    .map(([protocol]) => protocol.toLowerCase())
-})
-
-/**
- * Protocol labels for the message. A message is carried over whatever protocols its
- * channel's servers speak, so we start from the channel's server protocols and union in
- * any extra protocols the message declares its own bindings for. Without this a
- * multi-protocol message would only surface the single protocol it happens to declare a
- * binding for (or none at all).
- */
-const protocolLabels = computed(() => {
-  const channel = resolveAsyncApiChannel(document, message.channelName)
-  const { protocols } = getChannelServerLabels(document, channel)
-  return [...new Set([...protocols, ...messageBindingProtocols.value])]
-})
-
 const adaptSchema = computed(() => createAsyncApiSchemaAdapter(document))
 
 /** Preserve format metadata so source-only schemas remain visible. */
@@ -156,20 +118,6 @@ const payloadSchema = computed(() =>
 )
 const headersSchema = computed(() =>
   resolveAsyncApiSchema(resolvedMessage.value?.headers),
-)
-
-/** Binding-only messages still need a details column beside their examples. */
-const hasMessageDetails = computed(() =>
-  Boolean(
-    description.value ||
-    contentType.value ||
-    correlationId.value ||
-    headersSchema.value ||
-    payloadSchema.value ||
-    resolvedMessage.value?.bindings ||
-    resolvedMessage.value?.externalDocs ||
-    resolvedMessage.value?.tags?.length,
-  ),
 )
 
 const correlationId = computed<
@@ -271,140 +219,141 @@ const { level: headingLevel } = useDocumentOutline(
 
 <template>
   <div
-    :id="renderedId"
     ref="section"
     class="message">
-    <AsyncApiTags :tags="resolvedMessage?.tags" />
-    <SectionAccordion
-      class="message-accordion [&_.section-accordion-content-card]:bg-b-1 [&_.section-accordion-content-card]:p-4 [&_.section-accordion-header]:px-4 [&_.section-accordion-header]:py-3"
-      :class="
-        inline
-          ? 'rounded-none! bg-transparent!'
-          : 'border [&_.section-accordion-content-card]:rounded-b-lg'
-      "
+    <CompactSection
+      :id="renderedId"
+      :label="headingText"
       :modelValue="isExpanded"
+      @copyAnchorUrl="
+        () => eventBus?.emit('copy-url:nav-item', { id: message.id })
+      "
       @update:modelValue="onToggle">
-      <template #title>
-        <Anchor
-          @copyAnchorUrl="
-            () => eventBus?.emit('copy-url:nav-item', { id: message.id })
-          ">
-          <span class="message-heading">
-            <SectionHeaderTag
-              :id="headerId"
-              class="message-title"
-              :level="headingLevel">
-              {{ headingText }}
-            </SectionHeaderTag>
-            <AsyncApiLabels :protocols="protocolLabels" />
-          </span>
-        </Anchor>
+      <template #heading>
+        <SectionHeaderTag
+          class="message-title break-words"
+          :level="headingLevel">
+          {{ headingText }}
+        </SectionHeaderTag>
       </template>
-
-      <div class="message-layout">
-        <div
-          v-if="hasMessageDetails"
-          class="message-details min-w-0">
+      <div class="space-y-4 pt-2 pb-4">
+        <div class="message-layout">
           <div
-            v-if="contentType"
-            class="text-c-2 text-sm">
-            Content type: <code class="break-all">{{ contentType }}</code>
-          </div>
-          <ScalarMarkdown
-            v-if="description"
-            class="message-description"
-            :value="description"
-            withImages />
-
-          <Bindings
-            :bindings="resolvedMessage?.bindings"
-            class="mt-3" />
-          <AsyncApiDocumentation
-            :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
-
-          <div
-            v-if="correlationId"
-            class="message-schema">
-            <div class="message-schema-title">Correlation ID</div>
+            v-if="
+              description ||
+              resolvedMessage?.bindings ||
+              resolvedMessage?.externalDocs ||
+              correlationId ||
+              headersSchema ||
+              payloadSchema ||
+              contentType
+            "
+            class="message-schemas min-w-0 space-y-4">
             <ScalarMarkdown
-              v-if="correlationId.description"
-              :value="correlationId.description"
+              v-if="description"
+              class="message-description"
+              :value="description"
               withImages />
-            <a
-              v-if="correlationHref"
-              class="text-c-accent mt-2 block w-fit max-w-full rounded underline underline-offset-2 focus-visible:outline"
-              :href="correlationHref"
-              @click="onCorrelationLink">
-              <code class="break-all">{{ correlationId.location }}</code>
-            </a>
-            <code
-              v-else-if="correlationId.location"
-              class="mt-2 block break-all"
-              >{{ correlationId.location }}</code
-            >
-          </div>
 
-          <div
-            v-if="headersSchema"
-            :id="`${renderedId}.headers`"
-            class="message-schema"
-            tabindex="-1">
-            <div class="message-schema-title">Headers</div>
-            <Schema
-              v-if="headersSchema.kind === 'schema'"
-              :breadcrumb="[renderedId, 'headers']"
-              class="ps-8"
-              compact
-              :eventBus="schemaEventBus"
-              :expansion="expansion"
-              name="Headers"
-              noncollapsible
-              :options="schemaOptions"
-              :schema="
-                adaptSchema(resolvedMessage?.headers) ?? headersSchema.schema
-              "
-              :scrollTargetId="activeScrollTarget"
-              :specificationExtension="specificationExtension" />
-            <SchemaSource
-              v-else
-              :format="headersSchema.format"
-              :value="headersSchema.value" />
-          </div>
+            <Bindings
+              :bindings="resolvedMessage?.bindings"
+              class="mt-3"
+              :options="options"
+              scope="message" />
+            <AsyncApiDocumentation
+              :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
 
-          <div
-            v-if="payloadSchema"
-            :id="`${renderedId}.payload`"
-            class="message-schema"
-            tabindex="-1">
-            <div class="message-schema-title">Payload</div>
-            <Schema
-              v-if="payloadSchema.kind === 'schema'"
-              :breadcrumb="[renderedId, 'payload']"
-              class="ps-8"
-              compact
-              :eventBus="schemaEventBus"
-              :expansion="expansion"
-              name="Payload"
-              noncollapsible
-              :options="schemaOptions"
-              :schema="
-                adaptSchema(resolvedMessage?.payload) ?? payloadSchema.schema
-              "
-              :scrollTargetId="activeScrollTarget"
-              :specificationExtension="specificationExtension" />
-            <SchemaSource
-              v-else
-              :format="payloadSchema.format"
-              :value="payloadSchema.value" />
+            <div
+              v-if="correlationId"
+              class="message-schema">
+              <div class="message-schema-title">Correlation ID</div>
+              <ScalarMarkdown
+                v-if="correlationId.description"
+                :value="correlationId.description"
+                withImages />
+              <a
+                v-if="correlationHref"
+                class="text-c-2 hover:text-c-1 mt-2 block w-fit max-w-full rounded text-sm underline focus-visible:outline"
+                :href="correlationHref"
+                @click="onCorrelationLink">
+                <code class="break-all">{{ correlationId.location }}</code>
+              </a>
+              <code
+                v-else-if="correlationId.location"
+                class="text-c-2 mt-2 block text-sm break-all"
+                >{{ correlationId.location }}</code
+              >
+            </div>
+
+            <div
+              v-if="headersSchema"
+              :id="`${renderedId}.headers`"
+              class="message-schema"
+              tabindex="-1">
+              <div class="message-schema-title">Headers</div>
+              <Schema
+                v-if="headersSchema.kind === 'schema'"
+                :breadcrumb="[renderedId, 'headers']"
+                compact
+                :eventBus="schemaEventBus"
+                :expansion="expansion"
+                name="Headers"
+                noncollapsible
+                :options="schemaOptions"
+                :schema="
+                  adaptSchema(resolvedMessage?.headers) ?? headersSchema.schema
+                "
+                :scrollTargetId="activeScrollTarget"
+                :specificationExtension="specificationExtension" />
+              <SchemaSource
+                v-else
+                :format="headersSchema.format"
+                :value="headersSchema.value" />
+            </div>
+
+            <div
+              v-if="payloadSchema || contentType"
+              :id="`${renderedId}.payload`"
+              class="message-payload min-w-0"
+              tabindex="-1">
+              <div
+                class="message-schema-title flex flex-wrap items-baseline justify-between gap-2">
+                <span v-if="payloadSchema">Payload</span>
+                <span v-else>Content type</span>
+                <span
+                  v-if="contentType"
+                  class="text-c-2 text-sm font-normal break-all"
+                  >{{ contentType }}</span
+                >
+              </div>
+              <Schema
+                v-if="payloadSchema?.kind === 'schema'"
+                :breadcrumb="[renderedId, 'payload']"
+                compact
+                :eventBus="schemaEventBus"
+                :expansion="expansion"
+                name="Payload"
+                noncollapsible
+                :options="schemaOptions"
+                :schema="
+                  adaptSchema(resolvedMessage?.payload) ?? payloadSchema.schema
+                "
+                :scrollTargetId="activeScrollTarget"
+                :specificationExtension="specificationExtension" />
+              <SchemaSource
+                v-else-if="payloadSchema"
+                :format="payloadSchema.format"
+                :value="payloadSchema.value" />
+            </div>
           </div>
+          <MessageExamples
+            class="message-examples"
+            :contentType="contentType"
+            :examples="resolvedMessage?.examples"
+            :generatedPayload="isExpanded ? generatedPayload : undefined" />
         </div>
-        <MessageExamples
-          class="message-examples"
-          :contentType="contentType"
-          :examples="resolvedMessage?.examples"
-          :generatedPayload="isExpanded ? generatedPayload : undefined" />
       </div>
-    </SectionAccordion>
+    </CompactSection>
   </div>
 </template>
 
@@ -413,20 +362,9 @@ const { level: headingLevel } = useDocumentOutline(
   scroll-margin-top: var(--refs-viewport-offset);
 }
 .message-title {
-  font-size: var(--scalar-heading-4);
+  font-size: var(--scalar-heading-3);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
-}
-/*
- * Lay the heading and protocol labels out on one wrapping row. The labels live inside the
- * Anchor slot so the copy-anchor "#" button (absolutely positioned just past the end of the
- * slot content on hover) trails after the last pill instead of overlapping the first one.
- */
-.message-heading {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
 }
 .message-description {
   padding-bottom: 4px;
@@ -439,7 +377,7 @@ const { level: headingLevel } = useDocumentOutline(
   margin-top: 0;
 }
 .message-schema-title {
-  font-size: var(--scalar-font-size-2);
+  font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
   padding-bottom: 8px;
@@ -452,11 +390,11 @@ const { level: headingLevel } = useDocumentOutline(
 }
 /* Keep examples beside the schema when the reference has room, including embedded layouts. */
 @container references-container (min-width: 900px) {
-  .message-layout:has(> .message-details):has(> .message-examples) {
+  .message-layout:has(> .message-schemas):has(> .message-examples) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: start;
-    gap: 24px;
+    gap: 48px;
   }
 }
 </style>

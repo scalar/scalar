@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -20,7 +21,6 @@ import type { RequiredSecurity } from '@/features/Operation/helpers/get-required
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
-import AsyncApiTags from './AsyncApiTags.vue'
 import Bindings from './Bindings.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
@@ -108,32 +108,48 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
-  <div
+  <section
     :id="operation.id"
     ref="section"
-    class="operation mt-6 [&_.message-title]:text-base! [&+.operation]:mt-10 [&+.operation]:pt-10"
+    :aria-labelledby="headerId"
+    class="operation"
     :class="`operation--${operation.action}`">
     <div class="operation-header">
-      <span
-        class="operation-action"
-        :class="`operation-action--${operation.action}`">
-        {{ operation.action }}
-      </span>
       <Anchor
+        class="mr-6"
         @copyAnchorUrl="
           () => eventBus?.emit('copy-url:nav-item', { id: operation.id })
         ">
-        <SectionHeaderTag
-          :id="headerId"
-          class="operation-title"
-          :level="headingLevel">
-          {{ headingText }}
-        </SectionHeaderTag>
+        <span
+          class="inline-flex max-w-full flex-wrap items-center gap-2 align-middle">
+          <SectionHeaderTag
+            :id="headerId"
+            class="operation-title"
+            :level="headingLevel">
+            {{ headingText }}
+          </SectionHeaderTag>
+          <span
+            class="operation-action"
+            :class="`operation-action--${operation.action}`">
+            <component
+              :is="
+                operation.action === 'send'
+                  ? ScalarIconArrowUpRight
+                  : ScalarIconArrowDownLeft
+              "
+              aria-hidden="true"
+              class="size-3" />
+            {{ operation.action === 'send' ? 'Send' : 'Receive' }}
+          </span>
+        </span>
       </Anchor>
-      <SecurityRequirementBadge :requiredSecurity />
+      <div
+        v-if="requiredSecurity.state !== 'none'"
+        class="operation-auth ms-auto flex shrink-0 items-center">
+        <SecurityRequirementBadge :requiredSecurity />
+      </div>
     </div>
 
-    <AsyncApiTags :tags="resolvedOperation?.tags" />
     <ScalarMarkdown
       v-if="description"
       class="operation-description"
@@ -142,7 +158,9 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <Bindings
       :bindings="resolvedOperation?.bindings"
-      class="mt-4" />
+      class="mt-4"
+      :options="options"
+      scope="operation" />
     <AsyncApiDocumentation
       :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
 
@@ -177,34 +195,39 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :options="options"
       :reply="reply"
       :specificationExtension="specificationExtension" />
-  </div>
+  </section>
 </template>
 
 <style scoped>
 .operation {
   scroll-margin-top: var(--refs-viewport-offset);
+  margin-top: 90px;
+  padding-top: 90px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 .operation-title {
-  font-size: var(--scalar-heading-3);
-  font-weight: var(--scalar-semibold);
+  font-size: var(--font-size, var(--scalar-heading-1));
+  font-weight: var(--font-weight, var(--scalar-bold));
+  line-height: 1.45;
   color: var(--scalar-color-1);
 }
 
-/* Filled, color-coded pill carries the primary send/receive signal. */
+/* Direction remains readable through both its label and icon. */
 .operation-action {
-  text-transform: uppercase;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-micro);
   font-weight: var(--scalar-semibold);
-  letter-spacing: 0.05em;
   border-radius: 12px;
   padding: 2px 8px;
   display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
   align-items: center;
 }
 /*
@@ -235,10 +258,27 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
 .operation-description {
   text-align: left;
-  margin-top: 4px;
+  margin-top: 12px;
 }
-/* Space the first message accordion away from the operation header/description. */
-.operation > :deep(.message) {
-  margin-top: 8px;
+.references-classic .operation {
+  margin-top: 48px;
+  padding-top: 48px;
+}
+@container references-container (max-width: 900px) {
+  .operation-auth {
+    order: -1;
+    width: 100%;
+    margin-left: 0;
+  }
+  .operation {
+    margin-top: 48px;
+    padding-top: 48px;
+  }
+}
+/* Match the message columns, including their 48px gutter. */
+@container references-container (min-width: 900px) {
+  .operation-description {
+    width: calc((100% - 48px) / 2);
+  }
 }
 </style>

@@ -33,9 +33,12 @@
       ],
       "bindings": {
         "mqtt": {
-          "clientId": {
-            "type": "string",
-            "description": "Unique device or service identifier."
+          "clientId": "fleet-gateway-berlin-01",
+          "sessionExpiryInterval": {
+            "type": "integer",
+            "minimum": 30,
+            "maximum": 3600,
+            "description": "How long to retain a disconnected device session, in seconds."
           },
           "keepAlive": 60,
           "cleanSession": false,

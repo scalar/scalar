@@ -13,6 +13,8 @@
       src="src/standalone.ts"
       type="module"></script>
     <script type="module">
+      import galaxyAsyncApi from '../galaxy/src/documents/asyncapi/3.0.yaml?raw'
+
       const params = new URLSearchParams(location.search)
       Scalar.createApiReference('#app', {
         layout: params.get('layout') === 'classic' ? 'classic' : 'modern',
@@ -31,6 +33,11 @@
             title: 'Team Chat · WebSockets',
             slug: 'chat',
             url: '/examples/asyncapi-design-chat.json',
+          },
+          {
+            title: 'Scalar Galaxy Events',
+            slug: 'galaxy',
+            content: galaxyAsyncApi,
           },
         ],
         defaultOpenAllTags: true,

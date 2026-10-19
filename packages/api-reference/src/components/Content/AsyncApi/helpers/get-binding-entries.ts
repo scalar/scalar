@@ -3,10 +3,12 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { unpackProxyShallow } from '@scalar/workspace-store/helpers/unpack-proxy'
 
+import { type BindingScope, getBindingSchema } from './get-binding-schema'
+
 /** A protocol binding rendered without a protocol-specific field allowlist. */
 type BindingEntry = {
   name: string
-  fields: { name: string; content: string; nested: boolean }[]
+  fields: { name: string; content: string; nested: boolean; schema?: ReturnType<typeof getBindingSchema> }[]
 }
 
 const dataFields = new Set(['example', 'examples', 'default', 'enum', 'const'])
@@ -43,12 +45,11 @@ const snapshotBinding = (
     if (internalKeys.has(key) && (context !== 'data' || !Object.hasOwn(raw, key))) {
       continue
     }
+    const objectContext = context !== 'map' && schemaMaps.has(key) ? 'map' : 'object'
     const childContext =
       context === 'data' || (context !== 'map' && (dataFields.has(key) || key.startsWith('x-')))
         ? 'data'
-        : context !== 'map' && schemaMaps.has(key)
-          ? 'map'
-          : 'object'
+        : objectContext
     Object.defineProperty(result, key, {
       value: snapshotBinding(Reflect.get(value, key), childContext, seen),
       enumerable: true,
@@ -60,7 +61,7 @@ const snapshotBinding = (
 }
 
 /** Resolve binding maps and retain unfamiliar fields, values, and unresolved pointers. */
-export const getBindingEntries = (bindings: unknown): BindingEntry[] => {
+export const getBindingEntries = (bindings: unknown, scope?: BindingScope): BindingEntry[] => {
   const resolved = snapshotBinding(bindings)
   if (!isObject(resolved)) {
     return []
@@ -68,14 +69,18 @@ export const getBindingEntries = (bindings: unknown): BindingEntry[] => {
   const entries = typeof resolved.$ref === 'string' ? [['Reference', resolved] as const] : Object.entries(resolved)
   return entries
     .filter(([, value]) => value !== undefined)
-    .map(([name, value]) => ({
-      name,
+    .map(([protocol, value]) => ({
+      name: protocol,
       fields: (isObject(value) ? Object.entries(value) : [['Value', value] as const])
         .filter(([, field]) => field !== undefined)
-        .map(([name, field]) => ({
-          name,
-          content: typeof field === 'object' && field !== null ? prettyPrintJson(field) : JSON.stringify(field),
-          nested: typeof field === 'object' && field !== null,
-        })),
+        .map(([name, field]) => {
+          const schema = getBindingSchema(protocol, scope, name, field)
+          return {
+            name,
+            ...(schema ? { schema } : {}),
+            content: typeof field === 'object' && field !== null ? prettyPrintJson(field) : JSON.stringify(field),
+            nested: typeof field === 'object' && field !== null,
+          }
+        }),
     }))
 }

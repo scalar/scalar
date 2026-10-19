@@ -94,13 +94,13 @@ describe('Channel', () => {
           description: 'Read **every** signup.',
         }),
         layout,
-        isCollapsed: true,
+        isCollapsed: false,
         eventBus: null,
       },
     })
     expect(wrapper.get('h1').text()).toBe('User signups')
-    expect(wrapper.get('dt').text()).toBe('Address:')
-    expect(wrapper.get('dd').text()).toBe('users.{tenantId}.signedup')
+    expect(wrapper.get('dt').text()).toBe('Address')
+    expect(wrapper.get('dd code').text()).toBe('users.{tenantId}.signedup')
     expect(wrapper.text()).toContain('Account lifecycle notifications')
     expect(wrapper.get('strong').text()).toBe('every')
     wrapper.unmount()
@@ -112,13 +112,13 @@ describe('Channel', () => {
         channel: createChannel({ channelAddress: 'userSignedUp' }),
         document: createDocumentWithChannel({ summary: 'Account lifecycle notifications' }),
         layout,
-        isCollapsed: true,
+        isCollapsed: false,
         eventBus: null,
       },
     })
     for (const address of [undefined, null, '', '  events  ']) {
       await wrapper.setProps({ document: createDocumentWithChannel({ address }) })
-      expect(wrapper.get('dd').element.textContent).toBe(address ?? 'Unknown')
+      expect(wrapper.get('dd code').element.textContent).toBe(address ?? 'Unknown')
       expect(wrapper.get('h1').text()).toBe('userSignedUp')
     }
     wrapper.unmount()
@@ -138,7 +138,7 @@ describe('Channel', () => {
       },
     })
     expect(wrapper.get('h1').text()).toBe('Signup events')
-    expect(wrapper.get('dd').text()).toBe('signup.events')
+    expect(wrapper.get('dd code').text()).toBe('signup.events')
     expect(wrapper.text()).toContain('New accounts')
     wrapper.unmount()
   })
@@ -543,11 +543,12 @@ describe('Channel', () => {
       ])
       expect(wrapper.text()).toContain('Other Channel Messages')
       expect(wrapper.text()).not.toContain('Channel-only details')
+      await wrapper.setProps({ expandedItems: { [messageId]: false } })
+      expect(wrapper.text()).not.toContain('Channel-only details')
       await wrapper.setProps({ expandedItems: { [messageId]: true } })
       expect(wrapper.text()).toContain('Channel-only details')
       expect(wrapper.findAll('h1,h2,h3,h4,h5,h6').map((heading) => heading.text())).toStrictEqual([
         '/events',
-        'Operations',
         'Listen',
         'Messages',
         'Event A',

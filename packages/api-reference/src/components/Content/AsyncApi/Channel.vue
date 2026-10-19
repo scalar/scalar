@@ -19,10 +19,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import {
-  useDocumentOutline,
-  type HeadingLevel,
-} from '@/features/document-outline'
+import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -128,7 +125,6 @@ const operations = computed(() =>
 )
 
 const { level: headingLevel } = useDocumentOutline('channel')
-const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
@@ -157,21 +153,29 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         class="channel-labels"
         :protocols="labels.protocols"
         :servers="labels.servers" />
-      <ChannelMetadata
-        :address="resolvedChannel?.address"
-        :summary="resolvedChannel?.summary" />
+      <p
+        v-if="resolvedChannel?.summary?.trim()"
+        class="text-c-1 mt-4 mb-2 text-left">
+        {{ resolvedChannel.summary }}
+      </p>
       <ScalarMarkdown
         class="channel-description"
         :value="description"
         withImages />
     </template>
+    <ChannelMetadata
+      :address="resolvedChannel?.address"
+      class="mt-4" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
-      class="mt-4" />
+      class="mt-4"
+      :options="options"
+      scope="channel" />
     <AsyncApiDocumentation
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
+      class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
       :eventBus="eventBus"
       :expansion="expansion"
       :options="parameterListOptions"
@@ -191,13 +195,6 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         </div>
       </template>
     </ParameterList>
-    <SectionHeaderTag
-      v-if="operations.length"
-      class="text-c-1 mt-8 mb-3 block! text-lg leading-[1.45] font-medium"
-      :level="operationsHeadingLevel"
-      rule>
-      Operations
-    </SectionHeaderTag>
     <Operation
       v-for="operation in operations"
       :key="operation.id"
@@ -248,19 +245,27 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           class="channel-labels"
           :protocols="labels.protocols"
           :servers="labels.servers" />
-        <ChannelMetadata
-          :address="resolvedChannel?.address"
-          :summary="resolvedChannel?.summary" />
+        <p
+          v-if="resolvedChannel?.summary?.trim()"
+          class="text-c-1 mt-4 mb-2 text-left">
+          {{ resolvedChannel.summary }}
+        </p>
         <ScalarMarkdown
           :value="description"
           withImages />
+        <ChannelMetadata
+          :address="resolvedChannel?.address"
+          class="mt-4" />
         <Bindings
           :bindings="resolvedChannel?.bindings"
-          class="mt-4" />
+          class="mt-4"
+          :options="options"
+          scope="channel" />
         <AsyncApiDocumentation
           :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
         <ParameterList
           v-if="parameters.length"
+          class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
           :eventBus="eventBus"
           :expansion="expansion"
           :options="parameterListOptions"
@@ -280,13 +285,6 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
             </div>
           </template>
         </ParameterList>
-        <SectionHeaderTag
-          v-if="operations.length"
-          class="text-c-1 mt-8 mb-3 block! text-lg leading-[1.45] font-medium"
-          :level="operationsHeadingLevel"
-          rule>
-          Operations
-        </SectionHeaderTag>
         <Operation
           v-for="operation in operations"
           :key="operation.id"
