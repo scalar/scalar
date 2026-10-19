@@ -500,6 +500,11 @@ Add a `## Visual` section:
 <video src="/opt/cursor/artifacts/demo_feature.mp4" controls></video>
 ```
 
+## AsyncAPI Rendering
+
+- When working on AsyncAPI features, check how similar features are rendered for OpenAPI first.
+- Reuse existing OpenAPI rendering components and logic where possible. When reuse is not practical, match the styling of the existing OpenAPI UI to keep the experience consistent.
+
 ## OpenAPI Specification
 
 Before making any OpenAPI-related code changes, always read the [OpenAPI Specification 3.2.1](https://raw.githubusercontent.com/OAI/OpenAPI-Specification/refs/heads/main/versions/3.2.1.md) first. Use its relevant requirements to guide implementation and tests, rather than relying on memory or existing code alone. When changing behavior for an earlier OpenAPI version, also consult that version's specification for differences.
