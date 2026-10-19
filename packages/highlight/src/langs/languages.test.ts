@@ -1409,4 +1409,63 @@ describe('regressions from the TextMate comparison', () => {
     const code = 'case = {"x": 1}\ncase = lambda x: x\n'
     expect(scoped(code, 'python').filter(([text]) => text === 'case')).toEqual([])
   })
+  it.each(['', '  '])('haskell: ends imports before declarations indented by %j', (indent) => {
+    for (const tail of ['', ' (sort)', '\n    (sort)', ' qualified as L hiding (sort)', ' -- trailing comment']) {
+      const code = `module Main where\n${indent}import Data.List${tail}\n${indent}main = print 123\n${indent}other = True\n`
+      expect(scopeOf(code, 'haskell', 'print')).toBe('function.builtin')
+      expect(scopeOf(code, 'haskell', '123')).toBe('number')
+      expect(scopeOf(code, 'haskell', 'True')).toBe('boolean')
+    }
+    expect(scopeOf('module Main where { import Data.List; main = print 123 }', 'haskell', '123')).toBe('number')
+  })
+
+  it.each(['[/a,b[)]/]', '(/a,b[)]/)', 'wrap([(/a,b[)]/)])'])(
+    'typescript: keeps nested regex default %s intact',
+    (value) => {
+      const code = `function f(x = ${value}, next = 2) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'regexp')).toEqual([['/a,b[)]/', 'regexp']])
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['foo<T, U>()', 'foo<Map<K, V>, U>()', 'wrap(foo<T, U>())'])(
+    'typescript: keeps generic default %s intact',
+    (value) => {
+      const code = `function f(x = ${value}, next = 2) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'U')).toBe('type')
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it('typescript: keeps comparisons and division as default expressions', () => {
+    const code = 'function f(x = a < b, next = c > (d), ratio = [a / b]) {}'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+      ['ratio', 'variable.parameter'],
+    ])
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'regexp')).toEqual([])
+  })
+
+  it.each(['javascript', 'typescript'])('%s: distinguishes computed and numeric keys from bindings', (lang) => {
+    const code =
+      'function f({[key]: value, 1: first, [keys[index]]: { nested }}, [item, {name: renamed}]) { return value }'
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['value', 'variable.parameter'],
+      ['first', 'variable.parameter'],
+      ['nested', 'variable.parameter'],
+      ['item', 'variable.parameter'],
+      ['renamed', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, '1')).toBe('number')
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+  })
 })

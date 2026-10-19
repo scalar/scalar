@@ -261,7 +261,7 @@ const javascript: Grammar = {
         // Leave the operator for expression rules that need it to recognize a regex.
         { match: '(?==(?!>))', push: 'param-default' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'param-object' },
-        { match: '\\[', scope: 'punctuation.bracket', push: 'param-object' },
+        { match: '\\[', scope: 'punctuation.bracket', push: 'param-array' },
         { match: '\\.{3}|\\?', scope: 'operator' },
         { match: '\\bthis\\b', scope: 'variable.builtin' },
         // A constructor's parameter properties: `constructor(private x: X)`.
@@ -275,13 +275,16 @@ const javascript: Grammar = {
       ],
     },
     /**
-     * `{ a, b: renamed, c = 1, ...rest }` and `[first, , last]`: the key before
-     * a `:` is not bound. One state serves both, since an array pattern has no
-     * keys for the rename rule to find.
+     * `{ a, b: renamed, c = 1, ...rest }`: keys are not bindings. A computed
+     * key uses expression rules, unlike the bindings inside an array pattern.
      */
     'param-object': {
       rules: [
-        { match: '[}\\]]', scope: 'punctuation.bracket', pop: true },
+        { match: '\\}', scope: 'punctuation.bracket', pop: true },
+        { match: '\\[', scope: 'punctuation.bracket', push: 'bracket' },
+        // Inside an object pattern a colon renames a key, never annotates a type.
+        { match: ':', scope: 'punctuation.delimiter' },
+        { include: 'numbers' },
         // Quoted keys rename a binding; their colon does not introduce a type.
         {
           match: `("(?:[^"\\\\\\r\\n]|\\\\.)*"|'(?:[^'\\\\\\r\\n]|\\\\.)*')([ \\t]*)(:)`,
@@ -293,6 +296,10 @@ const javascript: Grammar = {
         },
         { include: 'param-pattern' },
       ],
+    },
+    /** Array destructuring binds its elements, including nested patterns. */
+    'param-array': {
+      rules: [{ match: '\\]', scope: 'punctuation.bracket', pop: true }, { include: 'param-pattern' }],
     },
     /**
      * A parameter's type, up to the `,`, `)` or `=` that ends it. Brackets
@@ -322,6 +329,12 @@ const javascript: Grammar = {
     /** Bracket depth, so a comma inside a nested call or literal stays nested. */
     nesting: {
       rules: [
+        // Consume the regex with its opener, then track the bracket around it.
+        { match: `(\\()(\\s*)(${REGEX})`, scope: ['punctuation.bracket', null, 'regexp'], push: 'paren' },
+        { match: `(\\[)(\\s*)(${REGEX})`, scope: ['punctuation.bracket', null, 'regexp'], push: 'bracket' },
+        // Generic calls nest commas too. Require a following call and stop at an
+        // assignment so `a < b, next = c > (d)` remains two parameter defaults.
+        { match: '<(?=(?:[^;=\\n]|=>){1,512}>[ \\t]*\\()', scope: 'punctuation.bracket', push: 'type-angle' },
         { match: '\\(', scope: 'punctuation.bracket', push: 'paren' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'brace' },
         { match: '\\[', scope: 'punctuation.bracket', push: 'bracket' },

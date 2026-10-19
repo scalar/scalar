@@ -324,22 +324,22 @@ const haskell: Grammar = {
       ],
     },
 
-    /** A module export list: types and names, ending at the header's `where`. */
     /**
      * What follows the module name of an import: `qualified`, `as M`, `hiding`
-     * and the list of names. Ends at the first line break not followed by
-     * indentation, so a list laid out over several indented lines stays inside.
+     * and the list of names. Only import syntax keeps this state open, so the
+     * next declaration can start at any indentation, including on the same line.
      */
     'import-tail': {
       rules: [
-        { match: '(?=\\n(?![ \\t]))', pop: true },
+        { match: '\\s+' },
         { include: 'comments' },
         {
           match: `${START}(as)([ \\t]+)(${MODULE})`,
           scope: ['keyword', null, 'namespace'],
         },
         { match: `${START}(?:hiding|qualified)${END}`, scope: 'keyword' },
-        { match: '\\(', scope: 'punctuation.bracket', push: 'import-names' },
+        { match: '\\(', scope: 'punctuation.bracket', set: 'import-names' },
+        { match: '(?=\\S)', pop: true },
       ],
     },
     /** `(unfoldr, Map, Maybe(..), (<|>))`: functions, types and operators. */
@@ -357,6 +357,7 @@ const haskell: Grammar = {
       ],
     },
 
+    /** A module export list: types and names, ending at the header's `where`. */
     exports: {
       rules: [
         {
