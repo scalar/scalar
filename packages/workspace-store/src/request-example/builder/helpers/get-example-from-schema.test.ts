@@ -1181,6 +1181,31 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('keeps binary strings inside JSON content while preserving multipart files', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        upload: { type: 'string', format: 'binary', example: '@upload.bin' },
+        metadata: {
+          type: 'string',
+          contentMediaType: 'application/json',
+          contentSchema: {
+            type: 'object',
+            properties: {
+              image: { type: 'string', format: 'binary' },
+              blob: { type: 'string', format: 'binary', example: '@payload.bin' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { binaryAsFile: true, mode: 'write' })).toStrictEqual({
+      upload: new File([], 'upload.bin', { lastModified: 0 }),
+      metadata: '{"image":"@filename","blob":"@payload.bin"}',
+    })
+  })
+
   it('keeps JSON property names inside legacy XML examples', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

@@ -1336,10 +1336,10 @@ const generateExampleFromSchema = (
   if (hasUnencodedJsonContent(_schema)) {
     const contentSchema = resolve.schema(_schema.contentSchema)
     if (contentSchema) {
-      // JSON content keeps JSON property names even when the enclosing value uses legacy XML mapping.
+      // JSON content preserves strings and property names regardless of the enclosing wire format.
       const content = getExampleFromSchema(
         contentSchema,
-        { ...options, xml: false },
+        { ...options, xml: false, binaryAsFile: false },
         {
           level: level + 1,
           // The decoded value inherits the field requirement, not the string wrapper as a parent.
