@@ -171,7 +171,7 @@ describe('renderIndex', () => {
   })
 })
 
-describe('generateCliDocs', () => {
+describe('generate-cli-docs', () => {
   it('ignores version-only changes but preserves command-description changes', async () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-cli-docs-'))
     const contextPath = path.join(directory, 'context.json')
