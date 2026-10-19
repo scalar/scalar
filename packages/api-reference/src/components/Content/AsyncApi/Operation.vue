@@ -156,17 +156,20 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :value="description"
       withImages />
 
-    <Bindings
-      :bindings="resolvedOperation?.bindings"
-      class="mt-4"
-      :options="options"
-      scope="operation" />
-    <AsyncApiDocumentation
-      :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+    <div
+      v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+      class="mt-12 space-y-4">
+      <Bindings
+        :bindings="resolvedOperation?.bindings"
+        :options="options"
+        scope="operation" />
+      <AsyncApiDocumentation
+        :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+    </div>
 
     <SectionHeaderTag
       v-if="messages.length || reply"
-      class="text-c-1 mt-6 mb-2 block! text-base leading-[1.45] font-medium"
+      class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
       :level="messagesHeadingLevel">
       Messages
     </SectionHeaderTag>
@@ -188,6 +191,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     </p>
     <OperationReply
       v-if="reply"
+      class="mt-12"
       :document="document"
       :eventBus="eventBus"
       :expansion="expansion"

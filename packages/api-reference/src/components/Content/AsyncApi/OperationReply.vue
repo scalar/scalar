@@ -37,7 +37,7 @@ const navigate = (event: MouseEvent, id: string): void => {
 </script>
 
 <template>
-  <div class="mt-5 min-w-0">
+  <div class="min-w-0">
     <SectionHeaderTag
       class="text-c-1 mb-3 block! border-b pb-2 text-base leading-[1.45] font-medium"
       :level="level">
