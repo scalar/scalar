@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { getRaw } from '@/magic-proxy/proxy'
+import { getDynamicAnchorCacheKey, getRaw } from '@/magic-proxy/proxy'
 import type { UnknownObject } from '@/types'
 
 /**
@@ -95,14 +95,12 @@ const dereferenceSiblingRef = (node: UnknownObject): UnknownObject => {
   return { ...value, ...rest }
 }
 
-let anchorCaches = new WeakMap<Unwrap, WeakMap<object, Map<string, UnknownObject>>>()
-
-/** Clear cached resource views after a document is edited through a magic proxy. */
-export const clearDynamicAnchorCaches = (): void => {
-  // Both raw and store-unwrapped views can depend on an edited descendant. Dropping the weak cache
-  // avoids retaining or walking those views merely to track every ancestor dependency.
-  anchorCaches = new WeakMap()
+type AnchorCollection = {
+  anchors: Map<string, UnknownObject>
+  revisions: Map<{ revision: number }, number>
 }
+
+const anchorCaches = new WeakMap<object, WeakMap<Unwrap, WeakMap<object, AnchorCollection>>>()
 
 /**
  * Collect the `$dynamicAnchor` declarations of a single schema resource, keyed by anchor name.
@@ -120,27 +118,48 @@ export const clearDynamicAnchorCaches = (): void => {
  *   raw-object identity. Defaults to the magic-proxy `getRaw`; workspace-store passes a fuller unpacker.
  * @see https://github.com/scalar/scalar/issues/9414
  */
-export const collectDynamicAnchors = (resource: UnknownObject, unwrap: Unwrap = getRaw): Map<string, UnknownObject> => {
+export const collectDynamicAnchors = (
+  resource: UnknownObject,
+  unwrap: Unwrap = getRaw,
+  cacheKey = getDynamicAnchorCacheKey(resource),
+): Map<string, UnknownObject> => {
   // Callers can expose different resolved values for the same raw resource. Keep
   // both the traversal mode and the resource view isolated to avoid leaking a
   // scoped proxy or a dereferenced sibling into another caller's resolution.
-  let anchorCache = anchorCaches.get(unwrap)
+  const cacheOwner = cacheKey ?? resource
+  let caches = anchorCaches.get(cacheOwner)
+  if (!caches) {
+    caches = new WeakMap()
+    anchorCaches.set(cacheOwner, caches)
+  }
+  let anchorCache = caches.get(unwrap)
   if (!anchorCache) {
     anchorCache = new WeakMap()
-    anchorCaches.set(unwrap, anchorCache)
+    caches.set(unwrap, anchorCache)
   }
   const cacheTarget = resource
   const cached = anchorCache.get(cacheTarget)
-  if (cached) {
-    return cached
+  if (cached && [...cached.revisions].every(([state, revision]) => state.revision === revision)) {
+    return cached.anchors
   }
 
   const anchors = new Map<string, UnknownObject>()
+  const revisions = new Map<{ revision: number }, number>()
+  if (cacheKey) {
+    revisions.set(cacheKey, cacheKey.revision)
+  }
   const seen = new WeakSet<object>()
 
   const visit = (node: unknown, isRoot: boolean): void => {
     if (!node || typeof node !== 'object') {
       return
+    }
+
+    // Plain merged schemas can still contain proxy children from the example builder.
+    // Track their document revisions too, without invalidating unrelated documents.
+    const state = getDynamicAnchorCacheKey(node)
+    if (state) {
+      revisions.set(state, state.revision)
     }
 
     // Guard against cycles in the inline schema graph using stable raw-object identity.
@@ -188,7 +207,7 @@ export const collectDynamicAnchors = (resource: UnknownObject, unwrap: Unwrap = 
 
   visit(resource, true)
 
-  anchorCache.set(cacheTarget, anchors)
+  anchorCache.set(cacheTarget, { anchors, revisions })
   return anchors
 }
 
@@ -223,6 +242,7 @@ export const resolveDynamicRef = (
   dynamicRef: string,
   scope: DynamicScope,
   unwrap: Unwrap = getRaw,
+  cacheKey?: { revision: number },
 ): UnknownObject | undefined => {
   // Only plain-name fragments (`#itemType`) are supported; a non-fragment URI is not a dynamic anchor.
   const name = dynamicRef.startsWith('#') ? dynamicRef.slice(1) : undefined
@@ -237,12 +257,12 @@ export const resolveDynamicRef = (
     resourceStart--
   }
   const holdingResource = scope.slice(resourceStart)
-  if (!holdingResource.some((resource) => collectDynamicAnchors(resource, unwrap).has(name))) {
+  if (!holdingResource.some((resource) => collectDynamicAnchors(resource, unwrap, cacheKey).has(name))) {
     return undefined
   }
 
   for (const resource of scope) {
-    const match = collectDynamicAnchors(resource, unwrap).get(name)
+    const match = collectDynamicAnchors(resource, unwrap, cacheKey).get(name)
     if (match) {
       return match
     }

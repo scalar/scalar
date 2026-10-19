@@ -19,3 +19,5 @@ XML serialization also resolves resource-level dynamic references against their 
 Invalidate dynamic anchor and reference caches when schemas are edited through the magic proxy, including anchor additions, replacements, and deletions inside previously scanned resources.
 
 Refresh the inherited dynamic scope of saved child proxies when anchors are added or removed after their first read.
+
+Keep cached dynamic anchors in unrelated documents when another document is edited, including cached example-builder views.
