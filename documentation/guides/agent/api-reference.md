@@ -117,3 +117,9 @@ Scalar.createApiReference('#app', {
   ],
 })
 ```
+
+### OpenAPI and AsyncAPI context
+
+The embedded chat supports frontend context and result display for both OpenAPI and AsyncAPI descriptions. Contextual Ask AI controls identify the selected operation, channel, or message. Switching sources starts a new conversation; closing and reopening the drawer preserves the current conversation.
+
+AsyncAPI uploads and answers require backend support. The frontend keeps the existing chat endpoints and tool names. Live AsyncAPI messaging and authentication are not available in the embedded chat; OpenAPI HTTP request execution is unchanged.

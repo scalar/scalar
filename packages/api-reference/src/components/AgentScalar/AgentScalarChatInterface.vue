@@ -5,7 +5,7 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import type { Ref } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 
 const {
   agentScalarConfiguration,
@@ -18,13 +18,39 @@ const {
   workspaceStore: WorkspaceStore
   prefilledMessage?: Ref<string>
 }>()
+/** A source change must not reuse the previous document's conversation or agent key. */
+const documentJson = computed(
+  () => workspaceStore.exportActiveDocument('json') ?? '',
+)
+const sessionKey = computed(() =>
+  JSON.stringify([
+    workspaceStore.workspace['x-scalar-active-document'],
+    documentJson.value,
+    agentScalarConfiguration?.key,
+  ]),
+)
+const session = { prefilledMessage: ref(prefilledMessage?.value ?? '') }
+watch(
+  () => prefilledMessage?.value,
+  (message) => {
+    session.prefilledMessage.value = message ?? ''
+  },
+)
+watch(
+  sessionKey,
+  () => {
+    session.prefilledMessage.value = ''
+  },
+  { flush: 'sync' },
+)
 </script>
 
 <template>
   <Chat
+    :key="sessionKey"
     :baseUrl="externalUrls.apiBaseUrl"
     :dashboardUrl="externalUrls.dashboardUrl"
-    :getActiveDocumentJson="() => workspaceStore.exportActiveDocument('json')!"
+    :getActiveDocumentJson="() => documentJson"
     :getAgentKey="
       agentScalarConfiguration?.key
         ? () => agentScalarConfiguration?.key ?? ''
@@ -33,7 +59,7 @@ const {
     :hideAddApi="agentScalarConfiguration?.hideAddApi"
     :mode="agentScalarConfiguration?.key ? 'full' : 'preview'"
     :platformProxyUrl="externalUrls.proxyUrl"
-    :prefilledMessage="prefilledMessage"
+    :prefilledMessage="session.prefilledMessage"
     :registryDocuments="[]"
     :registryUrl="externalUrls.registryUrl" />
 </template>

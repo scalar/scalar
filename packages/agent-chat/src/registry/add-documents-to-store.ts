@@ -2,6 +2,7 @@ import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { openApiDocument } from '@scalar/workspace-store/plugins/bundler'
 import { n } from 'neverpanic'
@@ -64,7 +65,7 @@ export const loadDocument = n.safeFn(
       })
     }
 
-    const document: OpenAPIV3_1.Document = await bundle(url.toString(), {
+    const document: OpenAPIV3_1.Document | AsyncApiDocument = await bundle(url.toString(), {
       plugins: [
         openApiDocument(),
         fetchUrls({

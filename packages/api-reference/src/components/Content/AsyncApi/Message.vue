@@ -19,6 +19,7 @@ import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionAccordion, SectionHeaderTag } from '@/components/Section'
+import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
@@ -301,6 +302,10 @@ const { level: headingLevel } = useDocumentOutline(
         </Anchor>
       </template>
 
+      <div class="relative my-2 h-6 w-fit">
+        <AskAgentButton
+          :context="`${document.info.title}: AsyncAPI message ${message.messageName}, channel ${message.channelName}`" />
+      </div>
       <div class="message-layout">
         <div
           v-if="hasMessageDetails"

@@ -19,6 +19,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import {
   useDocumentOutline,
   type HeadingLevel,
@@ -165,6 +166,10 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :value="description"
         withImages />
     </template>
+    <div class="relative my-2 h-6 w-fit">
+      <AskAgentButton
+        :context="`${document.info.title}: AsyncAPI channel ${channel.channelName}`" />
+    </div>
     <AsyncApiTags :tags="resolvedChannel?.tags" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
@@ -244,6 +249,10 @@ const operationsHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
+      <div class="relative my-2 h-6 w-fit">
+        <AskAgentButton
+          :context="`${document.info.title}: AsyncAPI channel ${channel.channelName}`" />
+      </div>
       <SectionContent>
         <AsyncApiTags :tags="resolvedChannel?.tags" />
         <AsyncApiLabels
