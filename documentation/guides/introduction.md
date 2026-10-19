@@ -381,44 +381,6 @@
 <!-- lp-vs:end -->
 </div>
 
-<div class="founder-quote border rounded-lg p-12 relative">
-  <scalar-icon src="../assets/remote/scalar-logomark.svg"></scalar-icon>
-  <br />
-  <br />
-  <p>Marc from Scalar here,</p>
-  <br />
-  <p>
-    There's no better feeling than building and being enabled by the software you are integrating with.
-  </p>
-  <br />
-  <p>
-    We've all experienced friction with out-of-date docs, no client SDKs in your favorite language, and no one to talk to about your struggles on-boarding.
-  </p>
-  <br />
-  <p>
-    But we've also experienced those magical APIs that just work with everything you need right there. This drives our simple three tenants at Scalar: Accessibility, Open-Source, and API First. Making on-boarding easier and  magical enables people to build, and being API first means your business can scale for the future (LLMs).
-  </p>
-  <br />
-  <p>
-    Why Open-Source? If done right, it’s transparent, builds industry standards (OpenAPI), accelerates innovation, and fosters collaboration. We love Open-Source and keep it core to our values.
-  </p>
-  <br />
-  <p>
-    We are fans of “show don't tell here” at Scalar: so try our Docs (this page), our SDKs for our API that includes our API Client, Agent to chat with APIs, and our GitHub for all our open-source products. As always, we love your feedback so drop us a line in our discord, email, or book a call with me to see how we can help.
-  </p>
-  <br />
-  <scalar-icon src="../assets/remote/cdn-5b543dced5.svg"></scalar-icon>
-  <br />
-  <div>
-    <b>Marc Laventure</b>
-    <br />
-    <span>CEO, Scalar</span>
-  </div>
-  <div class="draggable sticker-9">
-    <scalar-icon src="../assets/remote/cdn-cfcd592576.svg"></scalar-icon>
-  </div>
-</div>
-
 <div class="cta flex flex-col gap-3 small-test">
   <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">What are you waiting for?</scalar-heading>
   <p>
@@ -2028,13 +1990,7 @@
     }
   }
 
-  /* Founder quote and the closing grid ---------------------------------- */
-  .founder-quote {
-    padding: 80px 160px 260px 160px;
-  }
-  .founder-quote.founder-quote {
-    margin-top: 120px;
-  }
+  /* The closing grid ------------------------------------------------------ */
   .expander {
     display: grid;
     grid-template-rows: 0fr;
@@ -2732,15 +2688,6 @@
     }
   }
   @media screen and (max-width: 1000px) {
-    .sticker-9 {
-      transform: scale(0.8);
-      bottom: 70px;
-      right: 30px;
-    }
-    .founder-quote {
-      padding: 40px 40px 60px 40px;
-      margin-inline: -10px;
-    }
     .expander-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
