@@ -18,12 +18,14 @@ import Model from '@/components/Content/Models/Model.vue'
 import ModelTag from '@/components/Content/Models/ModelTag.vue'
 import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 
 import Channel from './Channel.vue'
 import SourceModel from './SourceModel.vue'
 
 const {
+  specificationExtension = SpecificationExtension,
   entries,
   document,
   expandedItems,
