@@ -313,7 +313,7 @@
         "src/index.ts",
         "src/clients/index.ts",
         "src/plugins/*/*/index.ts",
-        "src/websocket/index.ts",
+        "src/messages/index.ts",
         "src/utils/index.ts"
       ]
     },

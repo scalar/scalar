@@ -12,7 +12,7 @@ import {
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { generateWebSocketSnippet } from '@scalar/snippetz/websocket'
+import { generateMessageSnippet } from '@scalar/snippetz/messages'
 import type {
   AsyncApiDocument,
   AsyncApiMessageObject,
@@ -159,7 +159,9 @@ const content = computed<string | undefined>(() => {
   if (sample.value?.source !== undefined) return sample.value.source
   const current = context.value
   if (!current?.server?.connectionUrl || !sample.value) return undefined
-  return generateWebSocketSnippet({
+  return generateMessageSnippet({
+    protocol: 'websocket',
+    language: 'javascript',
     url: current.server.connectionUrl,
     action: current.operation.action,
     payload: example.value?.payload,

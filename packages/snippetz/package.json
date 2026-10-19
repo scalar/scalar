@@ -241,10 +241,10 @@
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
     },
-    "./websocket": {
-      "types": "./dist/websocket/index.d.ts",
-      "import": "./dist/websocket/index.js",
-      "default": "./dist/websocket/index.js"
+    "./messages": {
+      "types": "./dist/messages/index.d.ts",
+      "import": "./dist/messages/index.js",
+      "default": "./dist/messages/index.js"
     }
   },
   "files": [

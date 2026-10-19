@@ -44,21 +44,24 @@ const snippet = snippetz().print('node', 'undici', {
 // )
 ```
 
-## WebSocket examples
+## Message examples
 
-Generate browser JavaScript through the dedicated WebSocket entry point:
+Generate messaging examples through the dedicated messages entry point. Currently,
+WebSocket with browser JavaScript is supported:
 
 ```ts
-import { generateWebSocketSnippet, type WebSocketSnippetInput } from '@scalar/snippetz/websocket'
+import { generateMessageSnippet, type MessageSnippetInput } from '@scalar/snippetz/messages'
 
-const input: WebSocketSnippetInput = {
+const input: MessageSnippetInput = {
+  protocol: 'websocket',
+  language: 'javascript',
   url: 'wss://events.example.com/updates',
   action: 'send',
   payload: { name: 'Ada' },
   contentType: 'application/json',
 }
 
-const snippet = generateWebSocketSnippet(input)
+const snippet = generateMessageSnippet(input)
 ```
 
 `send` waits for the connection to open before sending the payload. `receive`
