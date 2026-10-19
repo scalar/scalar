@@ -7,9 +7,17 @@ import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { describe, expect, it } from 'vitest'
 
-import { processOpenApiDocument } from './process-openapi-document'
+import { type ProcessedDocument, processDocument } from './process-document'
 
-describe('process-openapi-document', () => {
+const processOpenApiDocument = async (
+  ...args: Parameters<typeof processDocument>
+): Promise<Extract<ProcessedDocument, { type: 'openapi' }>['document']> => {
+  const result = await processDocument(...args)
+  if (result.type !== 'openapi') throw new Error('Expected OpenAPI')
+  return result.document
+}
+
+describe('process-document', () => {
   it('retains incompatible 3.1 XML descriptions without partial migrations', async () => {
     const document = {
       openapi: '3.1.2',

@@ -1,5 +1,5 @@
 import { Scalar } from '@scalar/hono-api-reference'
-import { createAsyncApiMockApp, createMockServer } from '@scalar/mock-server'
+import { createMockServer } from '@scalar/mock-server'
 import { type Context, Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -23,7 +23,7 @@ describe('galaxy-scalar-com', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.mocked(createAsyncApiMockApp).mockResolvedValue(new Hono())
+    vi.mocked(createMockServer).mockResolvedValue(new Hono())
 
     vi.spyOn(console, 'log').mockImplementation(vi.fn())
 
@@ -42,7 +42,7 @@ describe('galaxy-scalar-com', () => {
         document: { openapi: '3.1.0' },
         onRequest: expect.any(Function),
       })
-      expect(createAsyncApiMockApp).toHaveBeenCalledExactlyOnceWith({ document: asyncApiDocument, upgradeWebSocket })
+      expect(createMockServer).toHaveBeenCalledWith({ document: asyncApiDocument, upgradeWebSocket })
       const response = await app.request('https://preview.example/asyncapi.json')
       expect(response.status).toBe(200)
       const document = await response.json()
@@ -55,7 +55,7 @@ describe('galaxy-scalar-com', () => {
       await createApp()
 
       // Grab the onRequest callback that was handed to createMockServer.
-      const onRequestCallback = vi.mocked(createMockServer).mock.calls[0]?.[0]?.onRequest
+      const onRequestCallback = vi.mocked(createMockServer).mock.calls[1]?.[0]?.onRequest
 
       const mockContext = {
         req: {

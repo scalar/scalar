@@ -92,7 +92,7 @@ export type TransportContext = {
 /**
  * A pluggable transport that knows how to serve a class of AsyncAPI channels (by protocol).
  * Built-in transports cover WebSocket and SSE; consumers can append their own (e.g. SignalR)
- * via {@link AsyncApiMockServerOptions.transports} without changing the core.
+ * via {@link MockServerOptions.transports} without changing the core.
  */
 export type MockTransport = {
   /** Unique transport id, e.g. `websocket`, `sse`. */

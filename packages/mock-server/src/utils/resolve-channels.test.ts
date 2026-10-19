@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
-import { processAsyncApiDocument } from './process-asyncapi-document'
+import { type ProcessedDocument, processDocument } from './process-document'
 import { resolveChannels } from './resolve-channels'
+
+const processAsyncApiDocument = async (
+  ...args: Parameters<typeof processDocument>
+): Promise<Extract<ProcessedDocument, { type: 'asyncapi' }>['document']> => {
+  const result = await processDocument(...args)
+  if (result.type !== 'asyncapi') throw new Error('Expected AsyncAPI')
+  return result.document
+}
 
 describe('resolveChannels', () => {
   it('derives route, protocols, operations and messages from a document', async () => {

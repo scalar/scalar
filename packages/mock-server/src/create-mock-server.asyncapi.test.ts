@@ -4,19 +4,49 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-import { serve } from '@hono/node-server'
+import { serve, upgradeWebSocket } from '@hono/node-server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { WebSocket } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
+import { stringify } from 'yaml'
 
-import { createAsyncApiMockServer } from './create-asyncapi-mock-server'
+import { createMockServer } from './create-mock-server'
 import type { MockTransport } from './transports/types'
-import { isAsyncApiDocument } from './utils/process-asyncapi-document'
 
-describe('createAsyncApiMockServer', () => {
+describe('createMockServer', () => {
+  it.each(['object', 'json', 'yaml'] as const)(
+    'detects AsyncAPI from %s and serves SSE without a WebSocket adapter',
+    async (format) => {
+      const document = {
+        asyncapi: '3.0.0',
+        info: { title: 'Events', version: '1' },
+        servers: { events: { host: 'localhost', protocol: 'sse' } },
+        channels: { events: { address: 'events', messages: { event: { payload: { const: 'hello' } } } } },
+        operations: { receive: { action: 'receive', channel: { $ref: '#/channels/events' } } },
+      }
+      const input = format === 'json' ? JSON.stringify(document) : format === 'yaml' ? stringify(document) : document
+      const app = await createMockServer({ document: input })
+      expect(await (await app.request('/events')).text()).toBe('event: event\ndata: hello\n\n')
+    },
+  )
+
+  it('requires a runtime adapter for WebSocket channels', async () => {
+    await expect(
+      createMockServer({
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Events', version: '1' },
+          servers: { events: { host: 'localhost', protocol: 'ws' } },
+          channels: { events: { address: 'events' } },
+        },
+      }),
+    ).rejects.toThrow('AsyncAPI WebSocket channels require an upgradeWebSocket adapter.')
+  })
+
   it.each(['authorizationCode', 'implicit', 'password', 'clientCredentials'] as const)(
     'serves the declared OAuth %s endpoints',
     async (flow) => {
-      const { app, websocket } = await createAsyncApiMockServer({
+      const app = await createMockServer({
+        upgradeWebSocket,
         document: {
           asyncapi: '3.0.0',
           info: { title: 'OAuth Events', version: '1.0.0' },
@@ -39,36 +69,33 @@ describe('createAsyncApiMockServer', () => {
           },
         },
       })
-      try {
-        for (const path of flow === 'implicit' ? ['/custom/refresh'] : ['/custom/token', '/custom/refresh']) {
-          const response = await app.request(path, {
-            method: 'POST',
-            headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'http://localhost:5173' },
-            body: 'grant_type=refresh_token&refresh_token=example-refresh-token&client_id=',
-          })
-          expect(response.status).toBe(200)
-          expect(response.headers.get('cache-control')).toBe('no-store')
-          expect(response.headers.get('access-control-allow-origin')).toBe('*')
-          expect(await response.json()).toStrictEqual({
-            access_token: 'super-secret-access-token',
-            token_type: 'Bearer',
-            expires_in: 3600,
-            refresh_token: 'example-refresh-token',
-          })
-        }
-        if (flow === 'authorizationCode' || flow === 'implicit') {
-          const response = await app.request(
-            `/custom/authorize?redirect_uri=http://localhost:5173/callback&response_type=${flow === 'implicit' ? 'token' : 'code'}&scope=read:events&state=example`,
-          )
-          expect(response.status).toBe(200)
-          const page = await response.text()
-          expect(page).toContain('OAuth Events')
-          expect(page).toContain(
-            flow === 'implicit' ? '#access_token=super-secret-access-token' : '?code=super-secret-token',
-          )
-        }
-      } finally {
-        websocket.server.close()
+
+      for (const path of flow === 'implicit' ? ['/custom/refresh'] : ['/custom/token', '/custom/refresh']) {
+        const response = await app.request(path, {
+          method: 'POST',
+          headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'http://localhost:5173' },
+          body: 'grant_type=refresh_token&refresh_token=example-refresh-token&client_id=',
+        })
+        expect(response.status).toBe(200)
+        expect(response.headers.get('cache-control')).toBe('no-store')
+        expect(response.headers.get('access-control-allow-origin')).toBe('*')
+        expect(await response.json()).toStrictEqual({
+          access_token: 'super-secret-access-token',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          refresh_token: 'example-refresh-token',
+        })
+      }
+      if (flow === 'authorizationCode' || flow === 'implicit') {
+        const response = await app.request(
+          `/custom/authorize?redirect_uri=http://localhost:5173/callback&response_type=${flow === 'implicit' ? 'token' : 'code'}&scope=read:events&state=example`,
+        )
+        expect(response.status).toBe(200)
+        const page = await response.text()
+        expect(page).toContain('OAuth Events')
+        expect(page).toContain(
+          flow === 'implicit' ? '#access_token=super-secret-access-token' : '?code=super-secret-token',
+        )
       }
     },
   )
@@ -77,7 +104,8 @@ describe('createAsyncApiMockServer', () => {
     'registers OAuth routes from a %s',
     async (location) => {
       const security = [{ $ref: '#/x-oauth' }]
-      const { app, websocket } = await createAsyncApiMockServer({
+      const app = await createMockServer({
+        upgradeWebSocket,
         document: {
           asyncapi: '3.1.0',
           info: { title: 'Referenced OAuth', version: '1.0.0' },
@@ -107,22 +135,20 @@ describe('createAsyncApiMockServer', () => {
             : {}),
         },
       })
-      try {
-        // A flow without a separate refresh URL refreshes through its token endpoint.
-        const response = await app.request('/token', {
-          method: 'POST',
-          body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: 'example-refresh-token' }),
-        })
-        expect(response.status).toBe(200)
-        expect((await response.json()).access_token).toBe('super-secret-access-token')
-      } finally {
-        websocket.server.close()
-      }
+
+      // A flow without a separate refresh URL refreshes through its token endpoint.
+      const response = await app.request('/token', {
+        method: 'POST',
+        body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: 'example-refresh-token' }),
+      })
+      expect(response.status).toBe(200)
+      expect((await response.json()).access_token).toBe('super-secret-access-token')
     },
   )
 
   it('does not create OAuth routes for broker credentials or unresolved schemes', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Broker authentication', version: '1.0.0' },
@@ -134,11 +160,7 @@ describe('createAsyncApiMockServer', () => {
         },
       },
     })
-    try {
-      expect((await app.request('/oauth/token', { method: 'POST' })).status).toBe(404)
-    } finally {
-      websocket.server.close()
-    }
+    expect((await app.request('/oauth/token', { method: 'POST' })).status).toBe(404)
   })
 
   // Some tests spy on the global console, so restore it even when an assertion throws first.
@@ -161,7 +183,8 @@ describe('createAsyncApiMockServer', () => {
     try {
       await writeFile(file, JSON.stringify(document))
       await writeFile(join(directory, 'payload.json'), JSON.stringify({ type: 'string', const: 'allowed' }))
-      const { app } = await createAsyncApiMockServer({
+      const app = await createMockServer({
+        upgradeWebSocket,
         document: preloaded ? document : file,
         ...(preloaded ? { origin: file } : {}),
       })
@@ -183,7 +206,7 @@ describe('createAsyncApiMockServer', () => {
         const file = join(sourceDirectory, 'asyncapi.json')
         await writeFile(file, JSON.stringify(documentWithReference(reference)))
         const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-        const { app } = await createAsyncApiMockServer({ document: file })
+        const app = await createMockServer({ upgradeWebSocket, document: file })
         expect(await (await app.request('/events')).text()).not.toContain('secret-content')
         expect(warning.mock.calls.flat().some((value) => String(value).includes('outside the allowed directory'))).toBe(
           true,
@@ -204,7 +227,10 @@ describe('createAsyncApiMockServer', () => {
         .spyOn(globalThis, 'fetch')
         .mockResolvedValue(Response.json({ type: 'string', const: 'private-content' }))
       vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-      const { app } = await createAsyncApiMockServer({ document: documentWithReference(`http://${host}/payload.json`) })
+      const app = await createMockServer({
+        upgradeWebSocket,
+        document: documentWithReference(`http://${host}/payload.json`),
+      })
       expect(dispatch).not.toHaveBeenCalled()
       expect(fetch).not.toHaveBeenCalled()
       expect(await (await app.request('/events')).text()).not.toContain('private-content')
@@ -226,7 +252,8 @@ describe('createAsyncApiMockServer', () => {
       .spyOn(Agent.prototype, 'dispatch')
       .mockImplementation((options, handler) => pool.dispatch(options, handler))
     try {
-      const { app } = await createAsyncApiMockServer({
+      const app = await createMockServer({
+        upgradeWebSocket,
         document: preloaded ? document : 'https://203.0.113.1/asyncapi.json',
         ...(preloaded ? { origin: 'https://203.0.113.1/asyncapi.json' } : {}),
       })
@@ -253,7 +280,7 @@ describe('createAsyncApiMockServer', () => {
       .mockImplementation((options, handler) => pool.dispatch(options, handler))
     vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     try {
-      await createAsyncApiMockServer({ document: documentWithReference('https://203.0.113.1/payload.json') })
+      await createMockServer({ upgradeWebSocket, document: documentWithReference('https://203.0.113.1/payload.json') })
       expect(dispatch).toHaveBeenCalledTimes(1)
       transport.assertNoPendingInterceptors()
     } finally {
@@ -264,7 +291,8 @@ describe('createAsyncApiMockServer', () => {
 
   it('pushes and replies to messages over a real WebSocket connection', async () => {
     const onMessage = vi.fn()
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Chat', version: '1.0.0' },
@@ -291,6 +319,7 @@ describe('createAsyncApiMockServer', () => {
       },
       onMessage,
     })
+    const websocket = { server: new WebSocketServer({ noServer: true }) }
     const server = serve({ fetch: app.fetch, hostname: '127.0.0.1', port: 0, websocket })
     const clients: WebSocket[] = []
 
@@ -334,7 +363,8 @@ describe('createAsyncApiMockServer', () => {
   })
 
   it('serves SSE channels with a generated message', async () => {
-    const { app } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Prices', version: '1.0.0' },
@@ -374,7 +404,8 @@ describe('createAsyncApiMockServer', () => {
   it('serves a generated message for a deprecated payload schema', async () => {
     // `deprecated` marks a payload as discouraged, not as absent, so omitting it sent the channel's
     // declared payload as `data: null` — `encode` falls back to `null` for a generated `undefined`.
-    const { app } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Legacy Prices', version: '1.0.0' },
@@ -417,7 +448,8 @@ describe('createAsyncApiMockServer', () => {
       },
     }
 
-    await createAsyncApiMockServer({
+    await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Hub', version: '1.0.0' },
@@ -434,7 +466,8 @@ describe('createAsyncApiMockServer', () => {
   it('warns about channels that no transport can serve, even with logging disabled', async () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
-    await createAsyncApiMockServer({
+    await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Kafka', version: '1.0.0' },
@@ -451,7 +484,8 @@ describe('createAsyncApiMockServer', () => {
   it('logs transport registration to the console when logger is true', async () => {
     const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
 
-    await createAsyncApiMockServer({
+    await createMockServer({
+      upgradeWebSocket,
       document: {
         asyncapi: '3.1.0',
         info: { title: 'Prices', version: '1.0.0' },
@@ -463,14 +497,5 @@ describe('createAsyncApiMockServer', () => {
     })
 
     expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('channel "prices"'))
-  })
-})
-
-describe('isAsyncApiDocument', () => {
-  it('detects AsyncAPI documents', () => {
-    expect(isAsyncApiDocument({ asyncapi: '3.1.0' })).toBe(true)
-    expect(isAsyncApiDocument({ openapi: '3.1.0' })).toBe(false)
-    expect(isAsyncApiDocument(null)).toBe(false)
-    expect(isAsyncApiDocument('asyncapi')).toBe(false)
   })
 })

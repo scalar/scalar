@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createAsyncApiMockServer } from '@/create-asyncapi-mock-server'
 import { createMockServer } from '@/create-mock-server'
 
 describe('set-up-authentication-routes', () => {
@@ -16,7 +15,7 @@ describe('set-up-authentication-routes', () => {
       const asyncServer =
         format === 'OpenAPI'
           ? undefined
-          : await createAsyncApiMockServer({
+          : await createMockServer({
               document: {
                 asyncapi: '3.0.0',
                 info,
@@ -26,46 +25,41 @@ describe('set-up-authentication-routes', () => {
               },
             })
       const app =
-        asyncServer?.app ??
-        (await createMockServer({ document: { openapi: '3.1.0', info, components }, logger: false }))
-      try {
-        const response = await app.request('https://mock.example.com/.well-known/openid-configuration')
-        expect(response.status).toBe(200)
-        const discovery = await response.json()
-        expect(discovery.issuer).toBe('https://mock.example.com')
-        expect(discovery.authorization_endpoint).toBe('https://mock.example.com/oauth/authorize')
-        expect(discovery.token_endpoint).toBe('https://mock.example.com/oauth/token')
-        const authorization = await app.request(
-          `${discovery.authorization_endpoint}?client_id=client&response_type=code&redirect_uri=http://localhost:5173/callback&scope=openid`,
-        )
-        expect(authorization.status).toBe(200)
-        const code = (await authorization.text()).match(/code=(oidc-code-[\w-]+)/)?.[1]
-        expect(code).toBeTypeOf('string')
-        const token = await app.request(discovery.token_endpoint, {
-          method: 'POST',
-          body: new URLSearchParams({
-            grant_type: 'authorization_code',
-            code: code ?? '',
-            client_id: 'client',
-            redirect_uri: 'http://localhost:5173/callback',
-          }),
-        })
-        expect(token.status).toBe(200)
-        const tokens = await token.json()
-        expect(tokens.id_token.split('.').length).toBe(3)
-        const refreshed = await app.request(discovery.token_endpoint, {
-          method: 'POST',
-          body: new URLSearchParams({
-            grant_type: 'refresh_token',
-            refresh_token: tokens.refresh_token,
-            client_id: 'client',
-          }),
-        })
-        expect(refreshed.status).toBe(200)
-        expect((await refreshed.json()).id_token.split('.').length).toBe(3)
-      } finally {
-        asyncServer?.websocket.server.close()
-      }
+        asyncServer ?? (await createMockServer({ document: { openapi: '3.1.0', info, components }, logger: false }))
+      const response = await app.request('https://mock.example.com/.well-known/openid-configuration')
+      expect(response.status).toBe(200)
+      const discovery = await response.json()
+      expect(discovery.issuer).toBe('https://mock.example.com')
+      expect(discovery.authorization_endpoint).toBe('https://mock.example.com/oauth/authorize')
+      expect(discovery.token_endpoint).toBe('https://mock.example.com/oauth/token')
+      const authorization = await app.request(
+        `${discovery.authorization_endpoint}?client_id=client&response_type=code&redirect_uri=http://localhost:5173/callback&scope=openid`,
+      )
+      expect(authorization.status).toBe(200)
+      const code = (await authorization.text()).match(/code=(oidc-code-[\w-]+)/)?.[1]
+      expect(code).toBeTypeOf('string')
+      const token = await app.request(discovery.token_endpoint, {
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: code ?? '',
+          client_id: 'client',
+          redirect_uri: 'http://localhost:5173/callback',
+        }),
+      })
+      expect(token.status).toBe(200)
+      const tokens = await token.json()
+      expect(tokens.id_token.split('.').length).toBe(3)
+      const refreshed = await app.request(discovery.token_endpoint, {
+        method: 'POST',
+        body: new URLSearchParams({
+          grant_type: 'refresh_token',
+          refresh_token: tokens.refresh_token,
+          client_id: 'client',
+        }),
+      })
+      expect(refreshed.status).toBe(200)
+      expect((await refreshed.json()).id_token.split('.').length).toBe(3)
     },
   )
   it.each(['/custom/metadata', '/custom/metadata/'])(

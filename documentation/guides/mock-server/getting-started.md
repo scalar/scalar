@@ -486,7 +486,7 @@ const app = await createMockServer({
 
 Diagnostics are not affected, so real problems still surface: warnings and errors about security schemes the mock server cannot handle, request validator compilation errors, and `x-seed` errors are printed either way.
 
-`createAsyncApiMockServer` takes the same `logger` option for its transport lifecycle lines, but it is silent by default — pass `logger: true` to print them.
+`createMockServer` with an AsyncAPI document takes the same `logger` option for its transport lifecycle lines, but it is silent by default — pass `logger: true` to print them.
 
 ### Custom Request Handlers
 

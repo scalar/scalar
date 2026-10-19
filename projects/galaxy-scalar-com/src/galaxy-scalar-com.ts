@@ -3,7 +3,7 @@
 import galaxyDocument from '@scalar/galaxy/3.1.json'
 import { PETSTORE_URL_2_0, PETSTORE_URL_3_1 } from '@scalar/helpers/url/oas-document-fixtures'
 import { Scalar } from '@scalar/hono-api-reference'
-import { createAsyncApiMockApp, createMockServer } from '@scalar/mock-server'
+import { createMockServer } from '@scalar/mock-server'
 import { Hono } from 'hono'
 
 import { asyncApiDocument, getAsyncApiDocument } from './asyncapi-document'
@@ -16,7 +16,7 @@ import { upgradeWebSocket } from './upgrade-websocket'
  */
 export const createApp = async (): Promise<Hono> => {
   const app = new Hono()
-  const events = await createAsyncApiMockApp({ document: asyncApiDocument, upgradeWebSocket })
+  const events = await createMockServer({ document: asyncApiDocument, upgradeWebSocket })
 
   // Register sockets before the REST app so its CORS middleware cannot modify upgrade responses.
   for (const version of asyncApiDocument.servers.production.variables.version.enum) {
