@@ -393,6 +393,7 @@ provideDocumentOutline('document')
     <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
     <AsyncApiTraversedEntry
       v-else-if="items.length && asyncApiDocument"
+      :clientDocument="asyncApiClientDocument"
       :document="asyncApiDocument"
       :entries="items"
       :eventBus

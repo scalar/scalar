@@ -49,6 +49,7 @@ type ParameterListOptions = AsyncApiSchemaRenderOptions &
 const {
   channel,
   document,
+  clientDocument,
   layout,
   isCollapsed,
   eventBus,
@@ -59,6 +60,8 @@ const {
   {
     channel: TraversedAsyncApiChannel
     document: AsyncApiDocument
+    /** Live document containing server selection and variable edits. */
+    clientDocument?: AsyncApiDocument
     layout: 'classic' | 'modern'
     isCollapsed: boolean
     eventBus: WorkspaceEventBus | null
@@ -228,6 +231,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
     <Operation
       v-for="operation in operations"
       :key="operation.id"
+      :clientDocument="clientDocument"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -340,6 +344,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <Operation
           v-for="operation in operations"
           :key="operation.id"
+          :clientDocument="clientDocument"
           :document="document"
           :eventBus="eventBus"
           :expandedItems="expandedItems"

@@ -40,6 +40,7 @@ type OperationOptions = AsyncApiSchemaRenderOptions
 const {
   operation,
   document,
+  clientDocument,
   eventBus,
   options,
   expandedItems = {},
@@ -47,6 +48,8 @@ const {
   {
     operation: TraversedAsyncApiOperation
     document: AsyncApiDocument
+    /** Live document containing server selection and variable edits. */
+    clientDocument?: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
     options?: Partial<OperationOptions>
     /** Map of navigation item id to expanded state, shared with the sidebar. */
@@ -200,7 +203,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <AsyncApiCodeExample
       class="operation-example"
-      :document="document"
+      :document="clientDocument ?? document"
       :operationName="operation.operationName" />
 
     <div class="operation-details">

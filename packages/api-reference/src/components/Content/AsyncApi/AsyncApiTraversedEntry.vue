@@ -26,6 +26,7 @@ import SourceModel from './SourceModel.vue'
 const {
   entries,
   document,
+  clientDocument,
   expandedItems,
   options,
   eventBus,
@@ -34,6 +35,8 @@ const {
   {
     entries: TraversedEntry[]
     document: AsyncApiDocument
+    /** Live document containing server selection and variable edits. */
+    clientDocument?: AsyncApiDocument
     expandedItems: Record<string, boolean>
     options: Pick<
       ApiReferenceConfigurationRaw,
@@ -107,6 +110,7 @@ const resolvedEntries = computed(() =>
     <Channel
       v-if="isChannel(entry)"
       :channel="entry"
+      :clientDocument="clientDocument"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -131,6 +135,7 @@ const resolvedEntries = computed(() =>
       :tag="entry">
       <template v-if="entry.children?.length">
         <AsyncApiTraversedEntry
+          :clientDocument="clientDocument"
           :document="document"
           :entries="entry.children"
           :eventBus="eventBus"
@@ -145,6 +150,7 @@ const resolvedEntries = computed(() =>
 
     <AsyncApiTraversedEntry
       v-else-if="isTagGroup(entry)"
+      :clientDocument="clientDocument"
       :document="document"
       :entries="entry.children ?? []"
       :eventBus="eventBus"
@@ -164,6 +170,7 @@ const resolvedEntries = computed(() =>
       :layout="options.layout"
       :modelsSectionLabel="options.modelsSectionLabel">
       <AsyncApiTraversedEntry
+        :clientDocument="clientDocument"
         :document="document"
         :entries="entry.children ?? []"
         :eventBus="eventBus"

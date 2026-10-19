@@ -1,5 +1,5 @@
 import * as apiClientModalModule from '@scalar/api-client/modal'
-import type { ClientOptionGroup } from '@scalar/blocks/code-example'
+import { AsyncApiCodeExample, type ClientOptionGroup } from '@scalar/blocks/code-example'
 import type { TraversedEntry, TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -1004,9 +1004,10 @@ describe('ApiReference AsyncAPI onServerChange', () => {
             info: { title: 'Events API', version: '1.0.0' },
             servers: {
               production: { host: 'broker.example.com', protocol: 'wss' },
-              development: { host: 'localhost:8080', protocol: 'ws' },
+              development: { host: '{region}.example.com', protocol: 'wss', variables: { region: { default: 'dev' } } },
             },
-            channels: { events: { address: 'events' } },
+            channels: { events: { address: '/events' } },
+            operations: { listen: { action: 'receive', channel: { $ref: '#/channels/events' } } },
           },
         },
       },
@@ -1016,9 +1017,22 @@ describe('ApiReference AsyncAPI onServerChange', () => {
     const serverSelector = wrapper.findComponent({ name: 'Selector' })
     expect(serverSelector.exists()).toBe(true)
 
+    const codeExample = wrapper.findComponent(AsyncApiCodeExample)
+    expect(codeExample.text()).toContain('wss://broker.example.com/events')
+
     await serverSelector.vm.$emit('update:modelValue', 'development')
 
-    expect(onServerChange).toHaveBeenCalledWith('ws://localhost:8080')
+    expect(onServerChange).toHaveBeenCalledWith('wss://dev.example.com')
+    await flushPromises()
+    expect(codeExample.text()).toContain('wss://dev.example.com/events')
+    expect(codeExample.text()).not.toContain('wss://broker.example.com/events')
+
+    const content = wrapper.findComponent({ name: 'Content' })
+    content
+      .props('eventBus')
+      .emit('asyncapi-server:update:variables', { name: 'development', key: 'region', value: 'staging' })
+    await flushPromises()
+    expect(codeExample.text()).toContain('wss://staging.example.com/events')
 
     wrapper.unmount()
   })
