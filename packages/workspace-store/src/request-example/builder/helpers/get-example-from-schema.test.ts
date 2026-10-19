@@ -1181,6 +1181,29 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('keeps JSON property names inside legacy XML examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'string',
+          xml: { name: 'payload' },
+          contentMediaType: 'application/json',
+          contentSchema: {
+            type: 'object',
+            required: ['id'],
+            properties: {
+              id: { type: 'integer', xml: { name: 'identifier' } },
+              secret: { type: 'string', readOnly: true },
+            },
+          },
+        },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { xml: true, mode: 'write' })).toStrictEqual({ payload: '{"id":1}' })
+  })
+
   it('bounds deeply nested JSON content generation', () => {
     const schema = Array.from({ length: 18 }).reduce<SchemaObject>(
       (contentSchema) =>

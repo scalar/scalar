@@ -1336,15 +1336,20 @@ const generateExampleFromSchema = (
   if (hasUnencodedJsonContent(_schema)) {
     const contentSchema = resolve.schema(_schema.contentSchema)
     if (contentSchema) {
-      const content = getExampleFromSchema(contentSchema, options, {
-        level: level + 1,
-        // The decoded value inherits the field requirement, not the string wrapper as a parent.
-        parentSchema,
-        name,
-        schemaPath: [...schemaPath, 'contentSchema'],
-        seen,
-        dynamicScope: childScope,
-      })
+      // JSON content keeps JSON property names even when the enclosing value uses legacy XML mapping.
+      const content = getExampleFromSchema(
+        contentSchema,
+        { ...options, xml: false },
+        {
+          level: level + 1,
+          // The decoded value inherits the field requirement, not the string wrapper as a parent.
+          parentSchema,
+          name,
+          schemaPath: [...schemaPath, 'contentSchema'],
+          seen,
+          dynamicScope: childScope,
+        },
+      )
       if (content !== undefined) {
         seen.delete(targetValue)
         return cache(_schema, JSON.stringify(content), cacheKey, skipCache)
