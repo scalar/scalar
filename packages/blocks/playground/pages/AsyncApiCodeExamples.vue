@@ -73,6 +73,7 @@ onBeforeUnmount(() => instances.forEach((instance) => instance.destroy()))
 </template>
 
 <style scoped>
+/* Playground files are outside the library Tailwind source scan. */
 .examples {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

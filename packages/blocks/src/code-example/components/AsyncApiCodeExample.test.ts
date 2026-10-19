@@ -1,6 +1,6 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
-import { mount } from '@vue/test-utils'
+import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { nextTick } from 'vue'
 
@@ -44,18 +44,21 @@ describe('AsyncApiCodeExample', () => {
     if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
     const wrapper = mount(AsyncApiCodeExample, { props: { document, operationName: 'send' } })
     expect(wrapper.text()).toContain('client.send_event()')
-    wrapper.findComponent(ExamplePicker).vm.$emit('update:modelValue', 'js/websocket')
+    wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', { id: 'js/websocket' })
     await nextTick()
     expect(wrapper.text()).toContain('"id": 1')
-    const picker = (label: string) =>
-      wrapper.findAllComponents(ExamplePicker).find((item) => item.vm.$attrs['aria-label'] === label)
+    const picker = (label: string): VueWrapper | undefined =>
+      wrapper
+        .findAllComponents(ExamplePicker)
+        .find((item) => String(item.vm.$attrs['aria-label']).startsWith(`${label}:`))
+    expect(wrapper.get('button[aria-label="Message example: One"]').text()).toBe('One')
     picker('Message example')?.vm.$emit('update:modelValue', '1')
     await nextTick()
     expect(wrapper.text()).toContain('"id": 2')
     picker('Message')?.vm.$emit('update:modelValue', 'second')
     await nextTick()
     expect(wrapper.text()).toContain('const payload = false;')
-    picker('Code sample')?.vm.$emit('update:modelValue', 'custom/0')
+    wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', { id: 'custom/0' })
     await nextTick()
     expect(wrapper.text()).toContain('client.send_event()')
     wrapper.unmount()

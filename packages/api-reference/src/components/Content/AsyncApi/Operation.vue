@@ -174,66 +174,70 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </div>
     </div>
 
-    <p
-      v-if="summary"
-      class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
-      {{ summary }}
-    </p>
-    <ScalarMarkdown
-      v-if="description"
-      class="operation-description"
-      :value="description"
-      withImages />
+    <div class="operation-overview">
+      <p
+        v-if="summary"
+        class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
+        {{ summary }}
+      </p>
+      <ScalarMarkdown
+        v-if="description"
+        class="operation-description"
+        :value="description"
+        withImages />
 
-    <div
-      v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
-      class="mt-12 space-y-4">
-      <Bindings
-        :bindings="resolvedOperation?.bindings"
-        :options="options"
-        scope="operation" />
+      <div
+        v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+        class="mt-12 space-y-4">
+        <Bindings
+          :bindings="resolvedOperation?.bindings"
+          :options="options"
+          scope="operation" />
       <AsyncApiDocumentation
         :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+      </div>
     </div>
 
     <AsyncApiCodeExample
-      class="my-4"
+      class="operation-example"
       :document="document"
       :operationName="operation.operationName" />
 
-    <SectionHeaderTag
-      v-if="messages.length || reply"
-      class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
-      :level="messagesHeadingLevel">
-      Messages
-    </SectionHeaderTag>
+    <div class="operation-details">
+      <SectionHeaderTag
+        v-if="messages.length || reply"
+        class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
+        :level="messagesHeadingLevel">
+        Messages
+      </SectionHeaderTag>
 
-    <Message
-      v-for="message in messages"
-      :key="message.id"
-      :document="document"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
-      :expansion="expansion"
-      :message="message"
-      :options="options"
-      :scrollTargetId="scrollTargetId"
-      :specificationExtension="specificationExtension" />
-    <p
-      v-if="reply && !messages.length"
-      class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
-      No messages listed for this operation.
-    </p>
-    <OperationReply
-      v-if="reply"
-      class="mt-12"
-      :document="document"
-      :eventBus="eventBus"
-      :expansion="expansion"
-      :level="messagesHeadingLevel"
-      :options="options"
-      :reply="reply"
-      :specificationExtension="specificationExtension" />
+      <Message
+        v-for="message in messages"
+        :key="message.id"
+        :document="document"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
+        :expansion="expansion"
+        :message="message"
+        :options="options"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
+      <p
+        v-if="reply && !messages.length"
+        class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
+        No messages listed for this operation.
+      </p>
+      <OperationReply
+        v-if="reply"
+        class="mt-12"
+        :document="document"
+        :eventBus="eventBus"
+        :expansion="expansion"
+        :level="messagesHeadingLevel"
+        :options="options"
+        :reply="reply"
+        :specificationExtension="specificationExtension" />
+    </div>
   </section>
 </template>
 
@@ -243,9 +247,44 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   margin-top: 90px;
   padding-top: 90px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: 'heading heading' 'overview example' 'details example';
+  column-gap: 48px;
+}
+.operation-overview {
+  grid-area: overview;
+  min-width: 0;
+}
+.operation-details {
+  grid-area: details;
+  min-width: 0;
+  /* Message schemas use the available column width for their responsive layout. */
+  container: references-container / inline-size;
+}
+.operation-example {
+  grid-area: example;
+  align-self: start;
+  position: sticky;
+  top: calc(var(--refs-viewport-offset) + 24px);
+  max-height: calc(var(--refs-viewport-height) - 60px);
+}
+@container references-container (max-width: 900px) {
+  .operation {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'heading' 'overview' 'example' 'details';
+    row-gap: 16px;
+  }
+  .operation-example {
+    position: static;
+    max-height: none;
+  }
 }
 
 .operation-header {
+  grid-area: heading;
+  margin-bottom: 12px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -305,11 +344,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     padding-top: 48px;
   }
 }
-/* Match the message columns, including their 48px gutter. */
-@container references-container (min-width: 900px) {
-  .operation-summary,
-  .operation-description {
-    width: calc((100% - 48px) / 2);
-  }
+/* Space the first message accordion away from the operation header/description. */
+.operation-details > :deep(.message) {
+  margin-top: 8px;
 }
 </style>

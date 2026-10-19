@@ -35,7 +35,9 @@ export const generateWebSocketSnippet = ({
     if (payload === undefined || (!isJson && typeof payload !== 'string')) {
       lines.push('// Replace this with a payload encoded for your application.', 'const payload = "YOUR_MESSAGE";')
     } else {
-      lines.push(`const payload = ${value};`)
+      // JSON's __proto__ is data, whereas an ordinary JavaScript property changes the prototype.
+      const literal = value?.replace(/^(\s*)"__proto__":/gm, '$1["__proto__"]:')
+      lines.push(`const payload = ${literal};`)
     }
     const encode = isJson && payload !== undefined ? 'JSON.stringify(payload)' : 'payload'
     lines.push('', 'socket.addEventListener("open", () => {', `  socket.send(${encode});`, '});')

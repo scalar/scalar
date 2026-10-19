@@ -30,6 +30,25 @@ describe('generate-websocket-snippet', () => {
     expect(sent).toEqual([JSON.stringify(payload)])
   })
 
+  it('preserves prototype-named keys in nested authored JSON payloads', () => {
+    const payload: unknown = JSON.parse(
+      '{"__proto__":{"id":1},"nested":{"__proto__":false},"text":"\\\"__proto__\\\": value"}',
+    )
+    const listeners: Record<string, () => void> = {}
+    const sent: unknown[] = []
+    class WebSocket {
+      addEventListener(name: string, listener: () => void): void {
+        listeners[name] = listener
+      }
+      send(value: unknown): void {
+        sent.push(value)
+      }
+    }
+    runInNewContext(generateWebSocketSnippet({ url: 'wss://example.com', action: 'send', payload }), { WebSocket })
+    listeners.open?.()
+    expect(sent).toEqual([JSON.stringify(payload)])
+  })
+
   it('sends text without JSON quotes', () => {
     const code = generateWebSocketSnippet({
       url: 'ws://localhost',
