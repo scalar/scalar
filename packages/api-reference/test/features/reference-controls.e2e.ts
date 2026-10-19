@@ -65,6 +65,26 @@ const collapsedPreviewContent = {
   },
 }
 
+/** An operation with both header actions: the authentication badge and the Markdown copy button. */
+const securedOperationContent = {
+  openapi: '3.1.1',
+  info: { title: 'Secured operation', version: '1.0.0' },
+  security: [{ bearerAuth: [] }],
+  paths: {
+    '/planets': {
+      get: {
+        summary: 'Get all planets',
+        responses: { '200': { description: 'Planets' } },
+      },
+    },
+  },
+  components: {
+    securitySchemes: {
+      bearerAuth: { type: 'http', scheme: 'bearer' },
+    },
+  },
+}
+
 test.describe('reference controls', () => {
   for (const width of [1440, 320]) {
     test(`keeps schema controls at least 24px at ${width}px`, async ({ page }) => {
@@ -163,5 +183,18 @@ test.describe('reference controls', () => {
     await page.keyboard.press('Tab')
     await expect(copyLink).toBeFocused()
     await expect(copyLink).toHaveCSS('opacity', '1')
+  })
+
+  test('wraps operation header actions inside the page at 320px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 })
+    // Longer labels than English: the badge and the copy button no longer fit on one line
+    const example = await serveExample({ content: securedOperationContent, localization: { locale: 'ru' } })
+    await page.goto(example)
+
+    const copyMarkdown = page.getByRole('button', { name: 'Копировать как Markdown' })
+    await expect(copyMarkdown).toBeVisible()
+    const box = await copyMarkdown.boundingBox()
+    expect(box!.x + box!.width).toBeLessThanOrEqual(320)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
 })
