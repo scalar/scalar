@@ -15,6 +15,9 @@ Add `cpp` under `targets` to generate a C++ SDK.
 {
   "targets": {
     "cpp": {
+      "options": {
+        "namespace": "acme"
+      },
       "destinations": {
         "production": {
           "repo": "acme/acme-cpp"
@@ -26,6 +29,42 @@ Add `cpp` under `targets` to generate a C++ SDK.
 ```
 
 C++ has no package registry the generator publishes to, so this target generates the library and its CI workflow but no publishing workflow. Distribute the build artifacts from your GitHub release.
+
+## options
+
+**Type:** `object`
+
+C++ emitter options.
+
+### namespace
+
+**Type:** `string`
+
+C++ namespace the generated client, models and resources are declared in, such as `acme` or `acme::v2`. Each `::` segment is lowercase snake_case that starts with a letter, with no doubled or trailing `_`; a segment that C++, the C library or a dependency reserves fails generation: for example a keyword, `std`, a macro such as `linux` or `min`, or a C library function such as `time` as the first segment. The namespace also names the public include directory, the umbrella header and the macro prefix (`acme::v2` gives `include/acme_v2/`, `acme_v2.hpp` and `ACME_V2_`). Defaults to the package name passed to the generator, else the SDK's slug, converted to snake_case.
+
+**Constraints:** `pattern: ^[a-z](_?[a-z0-9])*(::[a-z](_?[a-z0-9])*)*$`
+
+### libraryName
+
+**Type:** `string`
+
+Name of the generated CMake project and library target, and of the package `find_package` looks for. The value is converted to snake_case. The public headers live under `include/` in a directory named after `namespace`, not this. Defaults to the package name passed to the generator, else the SDK's slug, converted to snake_case. A value that does not start with a letter once converted, or one CMake, a dependency or Windows reserves (such as `test`, `install` or `con`), fails generation.
+
+### async
+
+**Type:** `boolean`
+
+Generates an asynchronous client beside the synchronous one (`client.async()`), whose methods return a `std::future` or take a completion callback and run on the client's executor. Set `false` to leave it out, with its executor runtime, its client options and its example, which shortens build times for a very large API. Defaults to `true`.
+
+**Default:** `true`
+
+### preserveUnknownFields
+
+**Type:** `boolean`
+
+Gives every generated model an `extra_fields` member that keeps the JSON keys the API document does not describe, so a model decoded from a response and written back into a request round-trips them unchanged. Set `false` to drop the member and discard those keys on decode. Defaults to `true`.
+
+**Default:** `true`
 
 ## destinations
 

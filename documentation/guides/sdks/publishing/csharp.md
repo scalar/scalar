@@ -90,3 +90,4 @@ Add the key as a repository secret named **`NUGET_API_KEY`**. See [Adding reposi
 ## Notes
 
 - The workflow pushes with `--skip-duplicate`, so re-publishing an existing version is a no-op.
+- With [`options.strongName`](../configuration/csharp.md#strongname) set, commit the `.snk` key at its `keyFile` path to the integration branch before the first release. The generator never writes the key, and packing without it fails the publish job after release-please has already tagged the release. A tag cut without the key cannot be re-published, because both `release-please.yml` and `sdk-release.yml` build the tagged commit; commit the key, and the next release publishes signed.
