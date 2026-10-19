@@ -77,14 +77,14 @@ const python: Grammar = {
 
         // `match`/`case` are soft keywords: only treat them as control flow in
         // the statement shape that introduces a block. A `case` may put its
-        // body on the same line (`case 200: return r`), so for it the colon
-        // only has to come before any `=`, which keeps `case = 1` a name.
+        // body on the same line (`case 200: return r`). Exclude an assignment
+        // immediately after `case`, but allow `=` in class patterns and guards.
         {
           match: '^([ \\t]*)(match)\\b(?=[^\\n]*:[ \\t]*(?:#[^\\n]*)?$)',
           scope: [null, 'keyword.control'],
         },
         {
-          match: '^([ \\t]*)(case)\\b(?=[ \\t]+[^=\\n]*:)',
+          match: '^([ \\t]*)(case)\\b(?![ \\t]*=)(?=[ \\t]+[^\\n]*:)',
           scope: [null, 'keyword.control'],
         },
       ],

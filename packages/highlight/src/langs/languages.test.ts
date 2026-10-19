@@ -1372,4 +1372,41 @@ describe('regressions from the TextMate comparison', () => {
       scoped('foo(a, b => c)\n', 'typescript').some(([t, s]) => t === 'a' && s === 'variable.parameter'),
     ).toBeFalsy()
   })
+
+  it.each(['javascript', 'typescript'])('%s: keeps regex defaults inside the parameter expression', (lang) => {
+    const code = 'function f(re = /a,b[)]/, next = 2) { return true }'
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'regexp')).toEqual([['/a,b[)]/', 'regexp']])
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['re', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+    expect(scopeOf(code, lang, 'true')).toBe('boolean')
+  })
+
+  it.each(['javascript', 'typescript'])('%s: distinguishes quoted destructuring keys from bindings', (lang) => {
+    const code = String.raw`function f({"x-y": x, 'a\'b': renamed = 1, "nested": { value }}) { return x }`
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'string')).toEqual([
+      ['"x-y"', 'string'],
+      [String.raw`'a\'b'`, 'string'],
+      ['"nested"', 'string'],
+    ])
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['renamed', 'variable.parameter'],
+      ['value', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+  })
+
+  it.each(['Point(x=0)', 'value if value == 0', '"="'])('python: reads case keywords with %s', (pattern) => {
+    const code = `match value:\n    case ${pattern}: return True\n`
+    expect(scopeOf(code, 'python', 'case')).toBe('keyword.control')
+    expect(scopeOf(code, 'python', 'return')).toBe('keyword.control')
+  })
+
+  it('python: keeps assignments to case as names even when their value contains a colon', () => {
+    const code = 'case = {"x": 1}\ncase = lambda x: x\n'
+    expect(scoped(code, 'python').filter(([text]) => text === 'case')).toEqual([])
+  })
 })

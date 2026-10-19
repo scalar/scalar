@@ -258,7 +258,8 @@ const javascript: Grammar = {
         { match: '/\\*', scope: 'comment', push: 'block-comment' },
         { match: '//[^\\n]*', scope: 'comment' },
         { match: ':', scope: 'punctuation.delimiter', push: 'param-type' },
-        { match: '=(?!>)', scope: 'operator', push: 'param-default' },
+        // Leave the operator for expression rules that need it to recognize a regex.
+        { match: '(?==(?!>))', push: 'param-default' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'param-object' },
         { match: '\\[', scope: 'punctuation.bracket', push: 'param-object' },
         { match: '\\.{3}|\\?', scope: 'operator' },
@@ -281,6 +282,11 @@ const javascript: Grammar = {
     'param-object': {
       rules: [
         { match: '[}\\]]', scope: 'punctuation.bracket', pop: true },
+        // Quoted keys rename a binding; their colon does not introduce a type.
+        {
+          match: `("(?:[^"\\\\\\r\\n]|\\\\.)*"|'(?:[^'\\\\\\r\\n]|\\\\.)*')([ \\t]*)(:)`,
+          scope: ['string', null, 'punctuation.delimiter'],
+        },
         {
           match: `(${ID})([ \\t]*)(:)`,
           scope: ['property', null, 'punctuation.delimiter'],
