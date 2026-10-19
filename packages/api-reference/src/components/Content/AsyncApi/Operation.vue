@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AsyncApiCodeExample } from '@scalar/blocks/code-example'
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
@@ -195,12 +196,18 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
     </div>
 
+    <AsyncApiCodeExample
+      class="my-4"
+      :document="document"
+      :operationName="operation.operationName" />
+
     <SectionHeaderTag
       v-if="messages.length || reply"
       class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
       :level="messagesHeadingLevel">
       Messages
     </SectionHeaderTag>
+
     <Message
       v-for="message in messages"
       :key="message.id"

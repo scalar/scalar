@@ -4,6 +4,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   <nav class="playground-nav">
+    <RouterLink to="/asyncapi">AsyncAPI Code Examples</RouterLink>
     <RouterLink to="/">Code Example Blocks</RouterLink>
     <RouterLink to="/specification-extensions">
       Specification Extensions

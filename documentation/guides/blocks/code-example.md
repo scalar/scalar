@@ -110,3 +110,67 @@ onBeforeUnmount(() => block?.destroy())
 For full control, the same entry point exports the `CodeExample` Vue component and `CodeExampleProps`. Its API differs from the mounting helper: pass a resolved `operation`, `path`, `method`, `clientOptions`, `eventBus`, and `securitySchemes` instead of `store`. Build client options with `generateClientOptions()` and the event bus with `createWorkspaceEventBus()` from `@scalar/workspace-store/events`.
 
 When using the component directly, your host must update the selected props in response to `workspace:update:selected-client` and `workspace:update:selected-example` events. It must also provide the style and teleport wrappers described in [Getting Started](getting-started.md#styles-and-vue-components). Prefer the helper when you want these integrations handled for you.
+
+## AsyncAPI operations
+
+For AsyncAPI 3.x, pass an `operationName` instead of an HTTP `path` and `method`:
+
+```ts
+createCodeExample('#code-example', {
+  store,
+  operationName: 'sendUpdate',
+})
+```
+
+The active workspace document supplies the operation, channel, and servers. In Vue, use
+`AsyncApiCodeExample` from `@scalar/blocks/code-example` with `document` and `operationName`
+props. Pass a workspace-resolved document so references can be followed.
+
+Add authored samples to an operation with `x-codeSamples` (or `x-code-samples`):
+
+```yaml
+asyncapi: 3.1.0
+info:
+  title: Updates
+  version: 1.0.0
+servers:
+  production:
+    host: events.example.com
+    protocol: wss
+channels:
+  updates:
+    address: /updates
+    messages:
+      updated:
+        name: Updated
+        examples:
+          - name: Ada
+            payload: { name: Ada }
+          - name: Grace
+            payload: { name: Grace }
+operations:
+  sendUpdate:
+    action: send
+    channel:
+      $ref: '#/channels/updates'
+    x-codeSamples:
+      - lang: python
+        label: Python SDK
+        source: client.send_update(name="Ada")
+```
+
+Authored samples are displayed unchanged and work with any protocol. Select
+**JavaScript WebSocket** to generate browser code for a `ws` or `wss` server.
+The message picker respects the operation's `messages` list; an omitted list uses
+all channel messages, while an empty list uses none. The example picker selects
+an authored message payload. Missing payloads produce an explicit placeholder.
+
+Generated examples follow the described application's direction: `send` sends after
+connecting, and `receive` listens for incoming data. JSON payloads are serialized;
+text payloads are sent as strings. Other encodings need application-specific code.
+Message headers, authentication, and reply correlation require application-specific
+setup and are called out in the generated sample. No connection is opened by the block.
+
+Use `selectedServer` to select a server by name. By default, the block follows the
+document's selected server when available, falling back to the first eligible WebSocket
+server. Channel server restrictions and server variable defaults are respected.

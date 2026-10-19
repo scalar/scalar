@@ -6,6 +6,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import App from './App.vue'
 import ApiReferenceLight from './pages/ApiReferenceLight.vue'
+import AsyncApiCodeExamples from './pages/AsyncApiCodeExamples.vue'
 import CodeExampleBlocks from './pages/CodeExampleBlocks.vue'
 import SchemaBlocks from './pages/SchemaBlocks.vue'
 import SpecificationExtensionBlocks from './pages/SpecificationExtensionBlocks.vue'
@@ -13,6 +14,7 @@ import SpecificationExtensionBlocks from './pages/SpecificationExtensionBlocks.v
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    { path: '/asyncapi', component: AsyncApiCodeExamples },
     { path: '/', name: 'code-example-blocks', component: CodeExampleBlocks },
     { path: '/specification-extensions', name: 'specification-extensions', component: SpecificationExtensionBlocks },
     { path: '/schemas', name: 'schema-blocks', component: SchemaBlocks },

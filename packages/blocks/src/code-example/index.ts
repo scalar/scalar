@@ -1,6 +1,7 @@
 // Re-export commonly used workspace-store helpers
 export { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
 
+export { default as AsyncApiCodeExample } from './components/AsyncApiCodeExample.vue'
 export type { CodeExampleProps } from './components/CodeExample.vue'
 export { default as CodeExample } from './components/CodeExample.vue'
 export { default as ExamplePicker } from './components/ExamplePicker.vue'
@@ -15,4 +16,5 @@ export { getSecrets } from './helpers/get-secrets'
 export type { OperationToHarProps } from './helpers/operation-to-har/operation-to-har'
 export { operationToHar } from './helpers/operation-to-har/operation-to-har'
 export { type CreateCodeExampleOptions, createCodeExample } from './mount'
+export type { CreateAsyncApiCodeExampleOptions } from './mount-asyncapi'
 export type { ClientOption, ClientOptionGroup, CustomClientOption, CustomClientOptionGroup } from './types'
