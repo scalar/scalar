@@ -1534,4 +1534,70 @@ describe('regressions from the TextMate comparison', () => {
       expect(scopeOf(code, 'nginx', 'server')).toBe('property')
     },
   )
+  it('swift: scales linearly on hash runs without a regex opener', () => {
+    const small = '#'.repeat(8000)
+    const large = '#'.repeat(32000)
+    const bestTime = (code: string): number => {
+      let best = Number.POSITIVE_INFINITY
+      for (let run = 0; run < 5; run++) {
+        const start = performance.now()
+        tokenize(code, 'swift')
+        best = Math.min(best, performance.now() - start)
+      }
+      return best
+    }
+    tokenize(small, 'swift')
+    const smallTime = bestTime(small)
+    const largeTime = bestTime(large)
+    // Four times the input should not approach the sixteenfold quadratic cost.
+    expect(largeTime / smallTime).toBeLessThan(10)
+    expect(scoped(`${small}\nlet re = ##/a/#b/##\n`, 'swift').filter(([, scope]) => scope === 'regexp')).toEqual([
+      ['##/a/#b/##', 'regexp'],
+    ])
+  })
+
+  it('typescript: keeps generic-call lookahead inside the default expression', () => {
+    const code = 'function f(x = a < b, next) { return c > (d); }\nconst q = e > f;\nconst x = 1, y = 2;'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+    ])
+    expect(scoped(code, 'typescript').filter(([text]) => text === '<' || text === '>')).toEqual([
+      ['<', 'operator'],
+      ['>', 'operator'],
+      ['>', 'operator'],
+    ])
+  })
+
+  it.each(['foo<Map<K, V>, U>()', 'foo<(x: T) => U, V>()', 'foo<{a: T, b: U}, V>()'])(
+    'typescript: retains balanced generic type arguments in %s',
+    (value) => {
+      const code = `function f(x = ${value}, next) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['first', 'left', 'right', 'blank'])(
+    'css: preserves the page pseudo-selector %s without whitespace',
+    (selector) => {
+      const code = `@page:${selector} { margin: 0; }`
+      expect(scopeOf(code, 'css', '@page')).toBe('keyword')
+      expect(scopeOf(code, 'css', `:${selector}`)).toBe('selector')
+      expect(scopeOf(code, 'css', 'margin')).toBe('property')
+    },
+  )
+
+  it('less: retains variable definitions alongside page pseudo-selectors', () => {
+    const code = '@brand:red; @page:left { margin: 0; } .a { color: @brand; }'
+    expect(scoped(code, 'less').filter(([text]) => text === '@brand')).toEqual([
+      ['@brand', 'variable'],
+      ['@brand', 'variable'],
+    ])
+    expect(scopeOf(code, 'less', '@page')).toBe('keyword')
+    expect(scopeOf(code, 'less', 'margin')).toBe('property')
+  })
 })

@@ -125,6 +125,8 @@ const css: Grammar = {
 
     'variable-definition': {
       rules: [
+        // CSS permits `@page:first` without whitespace before the pseudo-class.
+        { match: '@page(?=:(?:first|left|right|blank)\\b)', scope: 'keyword' },
         {
           match: `(\\$${IDENT})(\\s*)(:)`,
           scope: ['variable', null, 'punctuation.delimiter'],

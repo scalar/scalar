@@ -204,7 +204,9 @@ const swift: Grammar = {
       rules: [
         // `#/…/#` can span lines and holds a bare `/`; only the `/` followed by
         // as many `#` as opened it closes the literal.
-        { match: '(#+)/', scope: 'regexp', push: 'regex-extended', remember: 1 },
+        // Only try at the start of a hash run; retrying each suffix is quadratic
+        // when a pasted or incomplete run has no opening slash.
+        { match: '(?<!#)(#+)/', scope: 'regexp', push: 'regex-extended', remember: 1 },
         // A bare `/…/` is a regex only where an expression starts, and never
         // with a space just inside either slash, which is how Swift itself
         // tells it apart from division. The lookbehind sits after the `/` so the

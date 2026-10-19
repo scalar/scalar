@@ -334,8 +334,13 @@ const javascript: Grammar = {
         { match: `(\\()(\\s*)(${REGEX})`, scope: ['punctuation.bracket', null, 'regexp'], push: 'paren' },
         { match: `(\\[)(\\s*)(${REGEX})`, scope: ['punctuation.bracket', null, 'regexp'], push: 'bracket' },
         // Generic calls nest commas too. Require a following call and stop at an
-        // assignment so `a < b, next = c > (d)` remains two parameter defaults.
-        { match: '<(?=(?:[^;=\\n]|=>){1,512}>[ \\t]*\\()', scope: 'punctuation.bracket', push: 'type-angle' },
+        // assignment or an unmatched closing parenthesis or brace. Balanced function/object
+        // types are allowed, but the scan cannot escape into the function body.
+        {
+          match: '<(?=(?:[^;=(){}\\n]|=>|\\([^(){}\\n]{0,128}\\)|\\{[^{}()\\n]{0,128}\\}){1,512}>[ \\t]*\\()',
+          scope: 'punctuation.bracket',
+          push: 'type-angle',
+        },
         { match: '\\(', scope: 'punctuation.bracket', push: 'paren' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'brace' },
         { match: '\\[', scope: 'punctuation.bracket', push: 'bracket' },
