@@ -8,6 +8,18 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.36.8 (2026-10-19)
+
+### Improved union handling and refined SDK documentation
+
+This release improves how discriminated unions are generated across all targets and refines generated SDK documentation. Union arms that reference configured models now use those models directly instead of creating copies, and several documentation improvements landed for C# and PHP SDKs.
+
+- Discriminated union arms that reference configured models are no longer copied; the configured models are used directly as union variants.
+- C# SDK documentation now shows accurate method signatures in `reference.md` and correctly describes client options in README and `SKILL.md`.
+- C# SDKs now mark deprecated required members as `[Obsolete]` and mark records that contain them to allow compilation.
+- PHP union arms without their own component are now named more descriptively using `x-stainless-naming`, component names, or `UnionMember<n>` instead of generic `Variant<n>` names.
+- Python models declared at the top level now stay importable from `types/` even when they reference subresource models, avoiding import path changes.
+
 ## 0.36.7 (2026-10-16)
 
 ### Operations can now route to their own server URLs
