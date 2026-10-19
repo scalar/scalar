@@ -234,7 +234,8 @@ describe('nginx', () => {
     const rewrite = 'rewrite ^/docs/v{1,2}/(.*)$ /$1 permanent;\n'
     assertHas(rewrite, 'nginx', 'rewrite', 'property')
     assertHas(rewrite, 'nginx', '^/docs/v{1,2}/(.*)$', 'regexp')
-    expect(scoped(rewrite, 'nginx').some(([, s]) => s === 'keyword')).toBeFalsy()
+    // Only the flag at the end is a keyword; nothing on the line opens a block.
+    expect(scoped(rewrite, 'nginx').filter(([, s]) => s === 'keyword')).toEqual([['permanent', 'keyword']])
   })
 
   it('lets a quoted regex carry a semicolon', () => {

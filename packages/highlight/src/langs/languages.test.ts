@@ -904,7 +904,7 @@ describe('regressions from the TextMate comparison', () => {
 
   it('javascript: scopes functions assigned to a name, and capitalised calls as calls rather than types', () => {
     const code = "function Card() {}\nconst App = () => null\nclass Foo extends Bar {}\nthrow Error('x')\nnew Date()\n"
-    assertHas(code, 'javascript', 'Card', 'function.call')
+    assertHas(code, 'javascript', 'Card', 'function')
     assertHas(code, 'javascript', 'App', 'function')
     assertHas(code, 'javascript', 'Foo', 'type')
     assertHas(code, 'javascript', 'Error', 'function.call')
@@ -1192,5 +1192,412 @@ describe('regressions from the TextMate comparison', () => {
     assertHas(code, 'bash', 'name', 'variable')
     assertHas(code, 'bash', 'X', 'variable')
     expect(scoped(code, 'bash').some(([t, s]) => t.includes('API_KEY') && s === 'string')).toBeFalsy()
+  })
+
+  it('rust: reads .await as a keyword, self as the receiver and r#type as a name', () => {
+    const code = 'pub async fn get(&self) -> Self {\n  let r#type = 1;\n  client.get(url).send().await?\n}\n'
+    assertHas(code, 'rust', 'await', 'keyword.control')
+    assertHas(code, 'rust', 'self', 'variable.builtin')
+    assertHas(code, 'rust', 'Self', 'type')
+    expect(scoped(code, 'rust').some(([t]) => t === 'type')).toBeFalsy()
+  })
+
+  it('python: reads a case with its body on the same line as a keyword', () => {
+    const code = 'match r.status_code:\n    case 200: return r.json()\n    case _: raise X\ncase = 1\n'
+    expect(
+      scoped(code, 'python')
+        .filter(([t]) => t === 'case')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.control', 'keyword.control'])
+  })
+
+  it('typescript: names a generic arrow function', () => {
+    const code = 'const id = <T,>(x: T) => x\nconst f = <T extends string>(x: T): T => x\n'
+    assertHas(code, 'typescript', 'id', 'function')
+    assertHas(code, 'typescript', 'f', 'function')
+  })
+
+  it('css: gives a custom property the same scope where it is used as where it is defined', () => {
+    const code = '.a { --brand: #0af; color: var(--brand, red); margin: --gap; }\n'
+    expect(
+      scoped(code, 'css')
+        .filter(([t]) => t.startsWith('--'))
+        .map(([, s]) => s),
+    ).toEqual(['property', 'property', 'property'])
+  })
+
+  it('scss: reads a variable definition as a value and a variable reference whole', () => {
+    const code = '$brand: red;\n.a { $gap: 2px; color: $brand; margin: $gap; }\n'
+    assertHas(code, 'scss', '$brand', 'variable')
+    assertHas(code, 'scss', '$gap', 'variable')
+    assertHas(code, 'scss', 'red', 'constant')
+    expect(scoped(code, 'scss').some(([, s]) => s === 'tag')).toBeFalsy()
+    expect(scoped(code, 'scss').filter(([t]) => t === '$brand')).toHaveLength(2)
+  })
+
+  it('less: reads @name: as a variable but keeps @media and @page :first at-rules', () => {
+    const code = '@brand: red;\n.a { color: @brand; }\n@media screen { }\n@page :first { margin: 0 }\n'
+    expect(scoped(code, 'less').filter(([t]) => t === '@brand')).toEqual([
+      ['@brand', 'variable'],
+      ['@brand', 'variable'],
+    ])
+    assertHas(code, 'less', '@media', 'keyword')
+    assertHas(code, 'less', '@page', 'keyword')
+  })
+
+  it('swift: reads regex literals but leaves division alone', () => {
+    const code = 'let a = #/\\d+/#\nlet b = ##/x/#y/##\nlet c = /[a-z]+/\nif s.contains(/x+/) {}\nlet d = n / 2 / 3\n'
+    assertHas(code, 'swift', '#/\\d+/#', 'regexp')
+    assertHas(code, 'swift', '##/x/#y/##', 'regexp')
+    assertHas(code, 'swift', '/[a-z]+/', 'regexp')
+    assertHas(code, 'swift', '/x+/', 'regexp')
+    expect(scoped('let d = n / 2 / 3\n', 'swift').some(([, s]) => s === 'regexp')).toBeFalsy()
+  })
+
+  it('swift: reads the newer modifiers', () => {
+    const code = 'nonisolated func f(x: consuming Foo, y: borrowing Bar) {}\n'
+    assertHas(code, 'swift', 'nonisolated', 'keyword.declaration')
+    assertHas(code, 'swift', 'consuming', 'keyword.declaration')
+    assertHas(code, 'swift', 'borrowing', 'keyword.declaration')
+  })
+
+  it('diff: reads context and normal diffs', () => {
+    const code =
+      '*** a.txt\n--- b.txt\n***************\n*** 1,2 ****\n--- 1,3 ----\nIndex: f\n=====\n2c2\n< old\n---\n> new\n'
+    assertHas(code, 'diff', '*** a.txt', 'heading')
+    assertHas(code, 'diff', '***************', 'keyword')
+    assertHas(code, 'diff', '*** 1,2 ****', 'keyword')
+    assertHas(code, 'diff', '--- 1,3 ----', 'keyword')
+    assertHas(code, 'diff', 'Index: f', 'comment')
+    assertHas(code, 'diff', '=====', 'comment')
+    assertHas(code, 'diff', '2c2', 'keyword')
+    assertHas(code, 'diff', '< old', 'diff.minus')
+    assertHas(code, 'diff', '> new', 'diff.plus')
+  })
+
+  it('ruby: reads a method called without parentheses as a call', () => {
+    const code = 'puts list.length\nlist.map { |v| v.to_s }.join\nuser&.name\np total\np = 1\n'
+    assertHas(code, 'ruby', 'length', 'function.method')
+    assertHas(code, 'ruby', 'to_s', 'function.method')
+    assertHas(code, 'ruby', 'join', 'function.method')
+    assertHas(code, 'ruby', 'name', 'function.method')
+    expect(
+      scoped(code, 'ruby')
+        .filter(([t]) => t === 'p')
+        .map(([, s]) => s),
+    ).toEqual(['function.builtin'])
+  })
+
+  it('go: reads a package-qualified type where a type goes, and a value elsewhere', () => {
+    const code =
+      'func h(w http.ResponseWriter, r *http.Request) http.Handler {\n\treturn http.StatusOK\n}\nvar c = &http.Client{}\nd := 2*time.Second\nfunc TestX(t *testing.T) {}\n'
+    for (const type of ['ResponseWriter', 'Request', 'Handler', 'Client', 'T']) {
+      assertHas(code, 'go', type, 'type')
+    }
+    assertHas(code, 'go', 'StatusOK', 'variable.member')
+    assertHas(code, 'go', 'Second', 'variable.member')
+  })
+
+  it('nginx: reads the values nginx defines and the name of an upstream', () => {
+    const code =
+      'error_log logs/error.log warn;\nevents { use epoll; }\nrewrite ^/a /b permanent;\nupstream docs_backend {\n  server a:1;\n}\n'
+    assertHas(code, 'nginx', 'warn', 'constant.builtin')
+    assertHas(code, 'nginx', 'epoll', 'constant.builtin')
+    assertHas(code, 'nginx', 'permanent', 'keyword')
+    assertHas(code, 'nginx', 'docs_backend', 'type')
+    expect(scoped(code, 'nginx').some(([t]) => t === 'error')).toBeFalsy()
+  })
+
+  it('haskell: reads the names in an import list', () => {
+    const code =
+      'import Data.List (unfoldr, intercalate)\nimport Control.Applicative ((<|>), Alternative(..))\nimport Data.Text\n  ( pack\n  , Text\n  )\nmain = print 1\n'
+    assertHas(code, 'haskell', 'unfoldr', 'function')
+    assertHas(code, 'haskell', 'intercalate', 'function')
+    assertHas(code, 'haskell', '<|>', 'operator')
+    assertHas(code, 'haskell', 'Alternative', 'type')
+    assertHas(code, 'haskell', 'pack', 'function')
+    assertHas(code, 'haskell', 'Text', 'type')
+    assertHas(code, 'haskell', 'main', 'function')
+  })
+
+  it('kotlin: reads package and import paths, and the newer modifiers', () => {
+    const code =
+      'package com.example.shop\nimport java.util.*\ntailrec fun f() {}\nvalue class A(val x: Int)\nval value = 1\n'
+    assertHas(code, 'kotlin', 'com.example.shop', 'namespace')
+    assertHas(code, 'kotlin', 'java.util.*', 'namespace')
+    assertHas(code, 'kotlin', 'tailrec', 'keyword.declaration')
+    expect(
+      scoped(code, 'kotlin')
+        .filter(([t]) => t === 'value')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.declaration', 'variable'])
+  })
+
+  it('cpp: reads a call with explicit template arguments as a call', () => {
+    const code = 'auto a = std::any_cast<int>(x);\nauto b = std::get<std::vector<int>>(t);\nstd::vector<int> v(3);\n'
+    assertHas(code, 'cpp', 'any_cast', 'function.call')
+    assertHas(code, 'cpp', 'get', 'function.call')
+    expect(scopeOf(code, 'cpp', 'vector')).not.toBe('function.call')
+  })
+
+  it('javascript: reads import attributes', () => {
+    const code = "import data from './x.json' with { type: 'json' }\nconst o = { with: 1 }\n"
+    expect(
+      scoped(code, 'javascript')
+        .filter(([t]) => t === 'with')
+        .map(([, s]) => s),
+    ).toEqual(['keyword.import', 'property'])
+  })
+
+  it('typescript: reads the names in a parameter list as parameters', () => {
+    const code = [
+      'function f(a, b: string, { c, d: e }) {}',
+      'const g = async <T,>({ x }: Props<T>, ...rest: T[]): Promise<void> => {}',
+      'function* gen(m: Map<K, V> = new Map(), n = [1, 2]) {}',
+      'list.map((item) => item)',
+      'foo(a, b => c)',
+      'class P { constructor(private readonly svc: Service) {} }',
+      '',
+    ].join('\n')
+    for (const name of ['a', 'b', 'c', 'e', 'x', 'rest', 'm', 'n', 'item']) {
+      assertHas(code, 'typescript', name, 'variable.parameter')
+    }
+    assertHas(code, 'typescript', 'f', 'function')
+    assertHas(code, 'typescript', 'd', 'property')
+    assertHas(code, 'typescript', 'K', 'type')
+    assertHas(code, 'typescript', 'V', 'type')
+    assertHas(code, 'typescript', 'private', 'keyword.declaration')
+    // A call's arguments are not parameters, even next to an arrow function.
+    expect(
+      scoped('foo(a, b => c)\n', 'typescript').some(([t, s]) => t === 'a' && s === 'variable.parameter'),
+    ).toBeFalsy()
+  })
+
+  it.each(['javascript', 'typescript'])('%s: keeps regex defaults inside the parameter expression', (lang) => {
+    const code = 'function f(re = /a,b[)]/, next = 2) { return true }'
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'regexp')).toEqual([['/a,b[)]/', 'regexp']])
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['re', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+    expect(scopeOf(code, lang, 'true')).toBe('boolean')
+  })
+
+  it.each(['javascript', 'typescript'])('%s: distinguishes quoted destructuring keys from bindings', (lang) => {
+    const code = String.raw`function f({"x-y": x, 'a\'b': renamed = 1, "nested": { value }}) { return x }`
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'string')).toEqual([
+      ['"x-y"', 'string'],
+      [String.raw`'a\'b'`, 'string'],
+      ['"nested"', 'string'],
+    ])
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['renamed', 'variable.parameter'],
+      ['value', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+  })
+
+  it.each(['Point(x=0)', 'value if value == 0', '"="'])('python: reads case keywords with %s', (pattern) => {
+    const code = `match value:\n    case ${pattern}: return True\n`
+    expect(scopeOf(code, 'python', 'case')).toBe('keyword.control')
+    expect(scopeOf(code, 'python', 'return')).toBe('keyword.control')
+  })
+
+  it('python: keeps assignments to case as names even when their value contains a colon', () => {
+    const code = 'case = {"x": 1}\ncase = lambda x: x\n'
+    expect(scoped(code, 'python').filter(([text]) => text === 'case')).toEqual([])
+  })
+  it.each(['', '  '])('haskell: ends imports before declarations indented by %j', (indent) => {
+    for (const tail of ['', ' (sort)', '\n    (sort)', ' qualified as L hiding (sort)', ' -- trailing comment']) {
+      const code = `module Main where\n${indent}import Data.List${tail}\n${indent}main = print 123\n${indent}other = True\n`
+      expect(scopeOf(code, 'haskell', 'print')).toBe('function.builtin')
+      expect(scopeOf(code, 'haskell', '123')).toBe('number')
+      expect(scopeOf(code, 'haskell', 'True')).toBe('boolean')
+    }
+    expect(scopeOf('module Main where { import Data.List; main = print 123 }', 'haskell', '123')).toBe('number')
+  })
+
+  it.each(['[/a,b[)]/]', '(/a,b[)]/)', 'wrap([(/a,b[)]/)])'])(
+    'typescript: keeps nested regex default %s intact',
+    (value) => {
+      const code = `function f(x = ${value}, next = 2) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'regexp')).toEqual([['/a,b[)]/', 'regexp']])
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['foo<T, U>()', 'foo<Map<K, V>, U>()', 'wrap(foo<T, U>())'])(
+    'typescript: keeps generic default %s intact',
+    (value) => {
+      const code = `function f(x = ${value}, next = 2) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'U')).toBe('type')
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it('typescript: keeps comparisons and division as default expressions', () => {
+    const code = 'function f(x = a < b, next = c > (d), ratio = [a / b]) {}'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+      ['ratio', 'variable.parameter'],
+    ])
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'regexp')).toEqual([])
+  })
+
+  it.each(['javascript', 'typescript'])('%s: distinguishes computed and numeric keys from bindings', (lang) => {
+    const code =
+      'function f({[key]: value, 1: first, [keys[index]]: { nested }}, [item, {name: renamed}]) { return value }'
+    expect(scoped(code, lang).filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['value', 'variable.parameter'],
+      ['first', 'variable.parameter'],
+      ['nested', 'variable.parameter'],
+      ['item', 'variable.parameter'],
+      ['renamed', 'variable.parameter'],
+    ])
+    expect(scopeOf(code, lang, '1')).toBe('number')
+    expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
+  })
+  it.each([
+    'console.log("x) =>"); const y = 1;',
+    "console.log('x) =>'); const y = 1;",
+    'console.log(`x) =>`); const y = 1;',
+    'console.log(/* x) => */ value); const y = 1;',
+    'console.log(/x[)] =>/); const y = 1;',
+  ])('javascript: ignores arrow-like text in call arguments: %s', (code) => {
+    expect(scoped(code, 'javascript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([])
+    expect(scopeOf(code, 'javascript', 'const')).toBe('keyword.declaration')
+    expect(scopeOf(code, 'javascript', '1')).toBe('number')
+  })
+
+  it('typescript: still recognizes unambiguous arrow parameters', () => {
+    const code = 'const f = (x: number = 1, { y }: Props): number => x + y'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['y', 'variable.parameter'],
+    ])
+  })
+
+  it.each([
+    ': int = 1',
+    '= {"x": 1}',
+    '+= "x:"',
+    '-= {"x": 1}',
+    '*= "x:"',
+    '**= {"x": 1}',
+    '/= {"x": 1}',
+    '//= {"x": 1}',
+    '%= "x:"',
+    '@= {"x": 1}',
+    '&= {"x": 1}',
+    '|= {"x": 1}',
+    '^= {"x": 1}',
+    '<<= {"x": 1}',
+    '>>= {"x": 1}',
+  ])('python: keeps case as a name before %s', (assignment) => {
+    expect(scoped(`case ${assignment}\n`, 'python').filter(([text]) => text === 'case')).toEqual([])
+  })
+
+  it.each(['-1', 'Point(x=0)', 'value if value != 0', 'value if value >= 0'])(
+    'python: keeps case as a keyword before %s',
+    (pattern) => {
+      expect(scopeOf(`match x:\n    case ${pattern}: return True\n`, 'python', 'case')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['$http_host', '"$http_host:$uri"', '${http_host}'])(
+    'nginx: highlights the map destination after source %s',
+    (source) => {
+      const code = `map ${source} $name {\n default 1;\n}\nupstream backend {\n server localhost:80;\n}\n`
+      expect(scoped(code, 'nginx').filter(([, scope]) => scope === 'type')).toEqual([
+        ['$name', 'type'],
+        ['backend', 'type'],
+      ])
+      expect(scoped(code, 'nginx').filter(([, scope]) => scope === 'variable')).toEqual(
+        source.startsWith('"')
+          ? [
+              ['$http_host', 'variable'],
+              ['$uri', 'variable'],
+            ]
+          : [[source, 'variable']],
+      )
+      expect(scopeOf(code, 'nginx', 'server')).toBe('property')
+    },
+  )
+  it('swift: scales linearly on hash runs without a regex opener', () => {
+    const small = '#'.repeat(8000)
+    const large = '#'.repeat(32000)
+    const bestTime = (code: string): number => {
+      let best = Number.POSITIVE_INFINITY
+      for (let run = 0; run < 5; run++) {
+        const start = performance.now()
+        tokenize(code, 'swift')
+        best = Math.min(best, performance.now() - start)
+      }
+      return best
+    }
+    tokenize(small, 'swift')
+    const smallTime = bestTime(small)
+    const largeTime = bestTime(large)
+    // Four times the input should not approach the sixteenfold quadratic cost.
+    expect(largeTime / smallTime).toBeLessThan(10)
+    expect(scoped(`${small}\nlet re = ##/a/#b/##\n`, 'swift').filter(([, scope]) => scope === 'regexp')).toEqual([
+      ['##/a/#b/##', 'regexp'],
+    ])
+  })
+
+  it('typescript: keeps generic-call lookahead inside the default expression', () => {
+    const code = 'function f(x = a < b, next) { return c > (d); }\nconst q = e > f;\nconst x = 1, y = 2;'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['next', 'variable.parameter'],
+    ])
+    expect(scoped(code, 'typescript').filter(([text]) => text === '<' || text === '>')).toEqual([
+      ['<', 'operator'],
+      ['>', 'operator'],
+      ['>', 'operator'],
+    ])
+  })
+
+  it.each(['foo<Map<K, V>, U>()', 'foo<(x: T) => U, V>()', 'foo<{a: T, b: U}, V>()'])(
+    'typescript: retains balanced generic type arguments in %s',
+    (value) => {
+      const code = `function f(x = ${value}, next) { return true }`
+      expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+        ['x', 'variable.parameter'],
+        ['next', 'variable.parameter'],
+      ])
+      expect(scopeOf(code, 'typescript', 'return')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['first', 'left', 'right', 'blank'])(
+    'css: preserves the page pseudo-selector %s without whitespace',
+    (selector) => {
+      const code = `@page:${selector} { margin: 0; }`
+      expect(scopeOf(code, 'css', '@page')).toBe('keyword')
+      expect(scopeOf(code, 'css', `:${selector}`)).toBe('selector')
+      expect(scopeOf(code, 'css', 'margin')).toBe('property')
+    },
+  )
+
+  it('less: retains variable definitions alongside page pseudo-selectors', () => {
+    const code = '@brand:red; @page:left { margin: 0; } .a { color: @brand; }'
+    expect(scoped(code, 'less').filter(([text]) => text === '@brand')).toEqual([
+      ['@brand', 'variable'],
+      ['@brand', 'variable'],
+    ])
+    expect(scopeOf(code, 'less', '@page')).toBe('keyword')
+    expect(scopeOf(code, 'less', 'margin')).toBe('property')
   })
 })
