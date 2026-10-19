@@ -165,14 +165,15 @@ const javascript: Grammar = {
         // its optional name, or before the `=>` of an arrow function. The arrow
         // lookahead cannot see past nested parentheses, so a list holding a
         // call in a default value or a function type keeps reading as plain
-        // code, which is what every list did before.
+        // code. Quotes and slashes also force that fallback: a string, comment
+        // or regex can contain `) =>` without introducing an arrow function.
         {
           match: `(\\bfunction\\b)([ \\t]*\\*?[ \\t]*)(?:(${ID})([ \\t]*))?(\\()`,
           scope: ['keyword.declaration', null, 'function', null, 'punctuation.bracket'],
           push: 'params',
         },
         {
-          match: '\\((?=[^()]{0,512}\\)[ \\t]*(?::[^=;\\n]{0,256})?=>)',
+          match: '\\((?=[^()"\'`/]{0,512}\\)[ \\t]*(?::[^=;\\n"\'`/]{0,256})?=>)',
           scope: 'punctuation.bracket',
           push: 'params',
         },

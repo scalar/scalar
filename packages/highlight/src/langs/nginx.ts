@@ -91,10 +91,12 @@ const nginx: Grammar = {
           push: 'regex',
         },
 
-        // A context, with the name of a named one: the name is what
-        // `proxy_pass http://name` and `map … $name` refer back to.
+        // A map defines its second argument; the first is an expression that
+        // keeps ordinary variable and string highlighting.
+        { match: `${STATEMENT}(map)\\b${OPENS_BLOCK}`, scope: ['keyword'], push: 'map-arguments' },
+        // An upstream defines its first argument, used by `proxy_pass http://name`.
         {
-          match: `${STATEMENT}(?:(upstream|map)([ \\t]+)([$\\w.-]+)|(${NAME}))${OPENS_BLOCK}`,
+          match: `${STATEMENT}(?:(upstream)([ \\t]+)([$\\w.-]+)|(${NAME}))${OPENS_BLOCK}`,
           scope: ['keyword', null, 'type', 'keyword'],
         },
         { match: `${STATEMENT}(${NAME})`, scope: ['property'] },
@@ -151,6 +153,15 @@ const nginx: Grammar = {
     /** A `{ … }` body. Popping on `}` is the whole of how contexts nest. */
     block: {
       rules: [{ match: '\\}', scope: 'punctuation.bracket', pop: true }, { include: 'root' }],
+    },
+
+    /** Scope the map destination without consuming or recoloring its source. */
+    'map-arguments': {
+      rules: [
+        { match: '\\$\\w+(?=[ \\t]*\\{)', scope: 'type', pop: true },
+        { match: '(?=[;{}\\n])', pop: true },
+        { include: 'root' },
+      ],
     },
 
     variables: {

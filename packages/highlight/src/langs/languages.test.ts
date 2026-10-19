@@ -1468,4 +1468,70 @@ describe('regressions from the TextMate comparison', () => {
     expect(scopeOf(code, lang, '1')).toBe('number')
     expect(scopeOf(code, lang, 'return')).toBe('keyword.control')
   })
+  it.each([
+    'console.log("x) =>"); const y = 1;',
+    "console.log('x) =>'); const y = 1;",
+    'console.log(`x) =>`); const y = 1;',
+    'console.log(/* x) => */ value); const y = 1;',
+    'console.log(/x[)] =>/); const y = 1;',
+  ])('javascript: ignores arrow-like text in call arguments: %s', (code) => {
+    expect(scoped(code, 'javascript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([])
+    expect(scopeOf(code, 'javascript', 'const')).toBe('keyword.declaration')
+    expect(scopeOf(code, 'javascript', '1')).toBe('number')
+  })
+
+  it('typescript: still recognizes unambiguous arrow parameters', () => {
+    const code = 'const f = (x: number = 1, { y }: Props): number => x + y'
+    expect(scoped(code, 'typescript').filter(([, scope]) => scope === 'variable.parameter')).toEqual([
+      ['x', 'variable.parameter'],
+      ['y', 'variable.parameter'],
+    ])
+  })
+
+  it.each([
+    ': int = 1',
+    '= {"x": 1}',
+    '+= "x:"',
+    '-= {"x": 1}',
+    '*= "x:"',
+    '**= {"x": 1}',
+    '/= {"x": 1}',
+    '//= {"x": 1}',
+    '%= "x:"',
+    '@= {"x": 1}',
+    '&= {"x": 1}',
+    '|= {"x": 1}',
+    '^= {"x": 1}',
+    '<<= {"x": 1}',
+    '>>= {"x": 1}',
+  ])('python: keeps case as a name before %s', (assignment) => {
+    expect(scoped(`case ${assignment}\n`, 'python').filter(([text]) => text === 'case')).toEqual([])
+  })
+
+  it.each(['-1', 'Point(x=0)', 'value if value != 0', 'value if value >= 0'])(
+    'python: keeps case as a keyword before %s',
+    (pattern) => {
+      expect(scopeOf(`match x:\n    case ${pattern}: return True\n`, 'python', 'case')).toBe('keyword.control')
+    },
+  )
+
+  it.each(['$http_host', '"$http_host:$uri"', '${http_host}'])(
+    'nginx: highlights the map destination after source %s',
+    (source) => {
+      const code = `map ${source} $name {\n default 1;\n}\nupstream backend {\n server localhost:80;\n}\n`
+      expect(scoped(code, 'nginx').filter(([, scope]) => scope === 'type')).toEqual([
+        ['$name', 'type'],
+        ['backend', 'type'],
+      ])
+      expect(scoped(code, 'nginx').filter(([, scope]) => scope === 'variable')).toEqual(
+        source.startsWith('"')
+          ? [
+              ['$http_host', 'variable'],
+              ['$uri', 'variable'],
+            ]
+          : [[source, 'variable']],
+      )
+      expect(scopeOf(code, 'nginx', 'server')).toBe('property')
+    },
+  )
 })
