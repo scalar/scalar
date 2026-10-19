@@ -55,14 +55,14 @@ The invited person receives an email with a link to join your team. Invites are 
 
 Pending invites appear in the member list marked as **Invite Pending**. To withdraw one, open the menu next to the invite and choose **Cancel Invite**.
 
-> On a paid plan, every member you invite adds a billing seat, and removing a member removes one again. You can see the current seat count above the member list.
+> Current flat-price plans include editor seats and unlimited viewers. Inviting a viewer does not add a billable editor seat. Check [pricing](../pricing.md) for editor allowances and your billing page for legacy or custom subscription terms.
 
 ## Manage members
 
 All member management happens in [Team > Members](https://dashboard.scalar.com/team/members). Open the menu next to a person to:
 
 - **Change role** — move somebody between Owner, Admin and Editor
-- **Remove from team** — revoke their access to the team and free up their billing seat
+- **Remove from team** — revoke their access to the team
 
 Owners are listed separately from the rest of the team, so it is always clear who is ultimately responsible for the account.
 

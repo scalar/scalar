@@ -2246,6 +2246,18 @@
                       ]
                     }
                   },
+                  "configuration": {
+                    "title": "MCP Configuration",
+                    "type": "page",
+                    "description": "Configure MCP environments, variables, secrets, and limits.",
+                    "filepath": "documentation/guides/agent/configuration.md"
+                  },
+                  "custom-domains": {
+                    "title": "Custom Domains",
+                    "type": "page",
+                    "description": "Serve your MCP server from your own domain and configure DNS and OAuth connections.",
+                    "filepath": "documentation/guides/agent/custom-domains.md"
+                  },
                   "authentication": {
                     "title": "Authentication",
                     "type": "group",

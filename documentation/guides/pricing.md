@@ -57,7 +57,7 @@
     <li>Every plan includes 1 SDK, where an SDK is one language target for one API — a TypeScript and a Python client for the same API are two SDKs. Additional SDKs are priced by each SDK's endpoint count: $150 per month each for up to 100 endpoints, or $600 per month each for 101–250 endpoints. Business teams can have SDKs in both price bands. The included SDK is applied to the most expensive band first. Volume discounts are available. Enterprise SDK pricing is custom.</li>
     <li>Editor seats: 1 on Free, 5 on Pro, 10 on Business, custom on Enterprise.</li>
     <li>Agent Scalar includes 50 credits on Free, 500 credits on Pro, 2,000 credits on Business, and custom usage on Enterprise.</li>
-    <li>One Agent Scalar credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens.</li>
+    <li>One Agent Scalar credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 reference-model tokens. Token usage varies by model; see <a href="/products/agent/pricing">Agent pricing</a>.</li>
   </ul>
 </section>
 
@@ -894,7 +894,7 @@
     </details>
     <details class="pricing-faq-item">
       <summary>Do Agent Scalar credits roll over?</summary>
-      <p>No — included credits reset each billing period. One credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens.</p>
+      <p>No. Included credits reset each monthly usage period, including on yearly subscriptions. One credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 reference-model tokens. See <a href="/products/agent/pricing">Agent pricing</a> for model multipliers and overage billing.</p>
     </details>
   </div>
 </section>

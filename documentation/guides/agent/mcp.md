@@ -14,7 +14,7 @@ Scalar spins up MCP Servers ([Model Context Protocol](https://modelcontextprotoc
 Most "MCP server generators" hand you a code project. You then own a runtime, secrets, deploys, and a new service to patch every time your API changes. Scalar takes a different route: the MCP server is generated from your OpenAPI document and hosted by Scalar, so there is nothing to deploy. Tools map directly to the operations in your OpenAPI document, so the API description stays the source of truth.
 
 - **OAuth built in.** Since March 2026, people outside your team can sign in to an MCP server through OAuth, gated by email or domain with access groups. Team members connect with a Personal Access Token. [How MCP OAuth works](/blog/posts/2026-03-25-scalar-mcp-oauth).
-- **Your credentials stay on the server.** Store one upstream credential per installation, or let each caller pass their own through. Agents never receive the keys you store.
+- **Your credentials stay on the server.** Store a shared upstream credential, choose credentials per access group, or let callers bring their own. Agents never receive the keys you store.
 - **Built by the team behind Scalar's open-source API tooling.** The MIT-licensed [Scalar API Reference](/products/api-references) has 15.7k GitHub stars and is documented on Microsoft Learn for ASP.NET Core.
 
 ## Small context, any size of API
@@ -27,89 +27,65 @@ The OpenAPI document behind your MCP server can also power [API documentation](/
 
 Hosted MCP servers are included on the Pro, Business, and Enterprise plans. See [pricing](/pricing), [start free](https://dashboard.scalar.com/register), or [book a demo](https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a).
 
-## Docs MCP vs. Installation MCP
+## Docs MCP and API MCP servers
 
-Scalar exposes two separate MCP surfaces, and they are easy to conflate because most clients just show both as "MCP". The **Docs MCP** lives at `https://your-docs-domain/mcp` and lets AI clients search and read your published documentation. It is proxied through your docs hosting, so it inherits the visibility of the docs project. If the docs are public, the Docs MCP is public too, otherwise the in-docs chat would not work.
+The **Docs MCP** at `https://your-docs-domain/mcp` lets clients search and read your published documentation. A docs project's generated server follows the project's privacy: public docs allow anonymous access; private docs require admitted sign-in. These generated servers do not appear in MCP Studio's overview. Manage the docs connection from the docs project's settings.
 
-The **Installation MCP** lives at `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID` and lets AI clients call the API endpoints you have selected, using the upstream authentication you configured for the installation: a credential you stored, or one the caller brings. It is a completely separate endpoint and is private by default: team members connect with a Personal Access Token, while people outside your team sign in through OAuth once you grant them access (see [Authentication](./authentication/index.md)). If you want to verify which one a client is actually pointed at, `curl` the URL directly: the Installation MCP responds with `401` when no valid credentials are present.
+Servers you create in **MCP Studio** expose tools for selected APIs. Copy the server's address from the dashboard, for example `https://mcp.scalar.com/@acme/payments`. Select an environment such as staging with `?env=staging`, or use a [custom domain](custom-domains.md). Older `/mcp/<installation-id>` addresses remain supported; use the dashboard's connection URL for new setups.
 
 ## Create an MCP Server
 
-Create a new MCP Server for your API in under a minute (I promise):
+1. Open **MCP** in the [Scalar Dashboard](https://dashboard.scalar.com) and create a server for your API.
+2. Select the API and environment you want to configure.
+3. Open **Configure → MCP Tools** to select the operations to expose.
+4. Open **Configure → Authorization** to decide how callers sign in and which credentials the server sends upstream.
+5. Save your configuration, then copy the environment's connection URL from the dashboard.
 
-1. Open the [Scalar Dashboard](https://dashboard.scalar.com) and go to _MCP_.
-2. Create an MCP Server.
-3. Configure your tools, select your API and decide which endpoints to expose.
-4. Create an installation.
-5. Authenticate with your API.
-6. Write the installation URL on a napkin, you will need it sooner or later.
-
-Your MCP Server is ready to be used.
+See [MCP configuration](configuration.md) for variables, stored secrets, and limits.
 
 ## Connect to your MCP Server
 
-1. Create a personal access token under [Account > API Keys](https://dashboard.scalar.com/account).
-2. Got the MCP Server installation URL (see above)? That is good.
-3. Pass the installation URL and Personal Access Token to your LLM.
-
-The exact steps for adding an MCP server depend on your client, refer to its documentation for details. Here is how you would do that with Claude:
+For an OAuth Gated server, an OAuth-capable client starts sign-in when it connects. Team members can also use a Personal Access Token from [Account → API Keys](https://dashboard.scalar.com/account). Use the connection instructions shown by the dashboard for your environment's authorization mode.
 
 ### Claude Code
 
-For Claude Code, you can run the following command in your terminal to add and test the MCP:
+Add an OAuth connection without a static header:
 
 ```bash
-claude mcp add \
-  YOUR_MCP_SERVER_NAME \
-  https://mcp.scalar.com/mcp/YOUR_MCP_SERVER_ID \
-  --header "Authorization: YOUR_PERSONAL_ACCESS_TOKEN" \
-  --transport http
+claude mcp add --transport http payments https://mcp.scalar.com/@acme/payments
 ```
+
+Replace the example URL with your server's URL and complete authentication in the client when prompted. For team-member access with a Personal Access Token:
+
+```bash
+claude mcp add --transport http payments https://mcp.scalar.com/@acme/payments \
+  --header "Authorization: Bearer YOUR_PERSONAL_ACCESS_TOKEN"
+```
+
+A team-member token cannot call tools that require [per-access-group credentials](authentication/customer-access.md#sharing-one-server-with-many-customers), because it has no access group.
 
 ## Tools
 
-Tools are the individual capabilities your MCP exposes. Each tool maps to an operation (endpoint) in your OpenAPI document. To configure your tools:
+Open the API and environment in your MCP server, then use **Configure → MCP Tools** to choose which operations clients may discover or execute. Keep operations that should not make requests in search-only mode.
 
-1. Open [APIs](https://dashboard.scalar.com/apis) in the Scalar Dashboard.
-2. Select your API.
-3. Open **Settings > MCP tools**.
-4. Select which operations can be searched or executed.
-
-| Mode    | Description                                                             |
-| ------- | ----------------------------------------------------------------------- |
-| Search  | Exposes the endpoint for lookup only (no requests are sent to your API) |
-| Execute | Makes real, authenticated requests to your API                          |
+| Mode | Description |
+| --- | --- |
+| Search | Makes an operation available for lookup without sending an API request. |
+| Execute | Allows an authenticated request to the upstream API. |
 
 ## API Authentication
 
-Authentication is configured per installation in the [Scalar Dashboard](https://dashboard.scalar.com). In global mode your MCP Server makes authenticated requests to your API without exposing credentials to the client. In the passthrough modes the caller brings the credential, and Scalar forwards it without storing it.
-
-<br>
-
-![UI to configure authentication for your API](./configure-authentication.png)
-
-<br>
-
-There are three modes:
-
-- **Global** — store one credential (OAuth, API key, or bearer token) on the installation; the server uses it for every call. See [One shared key for everyone](./authentication/shared-key.md).
-- **Passthrough** — the caller supplies the credential in a header or query parameter you nominate, and Scalar forwards it upstream per request without storing it. Use this when each user must call your API with their own key. See [Public MCP with passthrough auth](./authentication/public-passthrough.md).
-- **OAuth passthrough** — the caller signs in with your API's own OAuth authorization server, and Scalar forwards the token they receive upstream per request. Use this when your API already uses OAuth and each user should act as themselves. See [OAuth passthrough](./authentication/oauth-passthrough.md).
-
-For who is allowed to connect—public, team, or specific customers via access groups and OAuth login—see [Authentication](./authentication/index.md).
+Configure authorization separately from tool exposure. Callers can bring API credentials, use a shared stored credential, or sign in through Scalar and use a credential selected for their access group. See [Authentication](authentication/index.md) for the available recipes.
 
 ## Billing
 
-Both MCP surfaces draw on the Agent Scalar credits included in your plan: 50 on Free, 500 on Pro, 2,000 on Business, and custom usage on Enterprise. One credit covers 200 MCP tool calls, 2 Docs chat messages, or 50,000 tokens, as listed on the [pricing page](/pricing).
-
-- **Docs MCP** queries are metered as Docs chat messages, at the same rate as the in-docs Ask AI widget.
-- **Installation MCP** requests are metered as MCP tool calls.
-
-You can review the breakdown on the billing usage page in the dashboard. Hosted MCP servers themselves are included on Pro and above, so the Free plan's credits apply to the Docs MCP only.
+Hosted MCP tool calls consume your team's Agent credits, including calls through a docs MCP endpoint. The in-docs Ask AI widget consumes chat-message credits. See [Agent pricing](pricing.md) for conversions, included allowances, and monthly overage billing.
 
 ## Rate Limiting and Abuse Protection
 
-The Docs MCP is publicly reachable whenever the docs project is public, so we apply rate limiting at the load balancer to protect against abuse. These limits are not currently configurable per project. If you have specific requirements (for example, an expected spike or a stricter ceiling), reach out and we can work with you on the right settings.
+Scalar applies edge rate limits to MCP endpoints, including docs sites' `/mcp` routes. The standard edge budget is **150 requests per minute per client IP**, shared across hosts covered by the shared rule. Selected hosts have their own budgets, so this is not a separate 150-request allowance for every server. Edge counters also depend on the data centre handling the request.
+
+A limit violation returns `429` and temporarily blocks requests for 60 seconds. Reduce concurrency and use delayed retries instead of retrying immediately. Limits are not a per-project dashboard setting; contact support if your traffic needs different handling. Other service limits may also apply.
 
 ## Frequently asked questions
 
@@ -121,7 +97,7 @@ No. Scalar hosts the server at `mcp.scalar.com`. You configure it in the dashboa
 
 <scalar-detail title="Can I generate an MCP server from an OpenAPI document?">
 
-Yes, that is exactly how it works. Import or select an API in the Scalar Dashboard, choose the operations to expose, create an installation, and connect a client. See [Create an MCP Server](#create-an-mcp-server) above.
+Yes, that is exactly how it works. Import or select an API in the Scalar Dashboard, choose the operations to expose, configure authorization, and connect a client. See [Create an MCP Server](#create-an-mcp-server) above.
 
 </scalar-detail>
 

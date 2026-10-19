@@ -9,15 +9,14 @@ This is the right setup when your API already requires authentication and every 
 - **Public access** means Scalar does not require a sign-in to reach the MCP server. Anyone with the URL can connect.
 - **Passthrough auth** means the caller puts their API credential in a header you nominate, and Scalar forwards that header upstream on each request without storing it.
 
-Because the server is public, you can nominate the standard `Authorization` header for the credential. On a private installation the incoming `Authorization` header carries the Scalar OAuth token, so it is reserved—there you would nominate a different header such as `X-API-Key`. Using `Authorization` for passthrough only works on a **public** MCP server, and not next to an API in [OAuth passthrough](./oauth-passthrough.md) mode on the same installation, which takes that header for the OAuth token.
+Because the server is public, you can nominate the standard `Authorization` header for the credential. On an OAuth Gated environment the incoming `Authorization` header carries the Scalar OAuth token; configure stored upstream credentials there instead. Using `Authorization` for passthrough only works on a **public** MCP server, and not next to an API in [OAuth passthrough](./oauth-passthrough.md) mode on the same installation, which takes that header for the OAuth token.
 
 ## Set it up
 
-1. In the [Scalar Dashboard](https://dashboard.scalar.com), go to *MCP* and create an MCP server.
-2. Select the API you want to expose.
-3. Set access to **Public**.
-4. Set authentication to **Passthrough**.
-5. Nominate the header that carries the credential, for example `Authorization`.
+1. In the [Scalar Dashboard](https://dashboard.scalar.com), open your MCP server and select the API and environment.
+2. Open **Configure → Authorization** and choose **Passthrough**.
+3. Select the upstream security scheme and leave its credential sourced from the caller rather than a stored secret.
+4. Save the configuration and copy the environment's connection URL.
 
 ## Connect a client
 
@@ -26,18 +25,18 @@ Share the installation URL and let each user pass their own credential. With Cla
 ```bash
 claude mcp add \
   YOUR_MCP_SERVER_NAME \
-  https://mcp.scalar.com/mcp/YOUR_INSTALL_ID \
+  https://mcp.scalar.com/@YOUR_NAMESPACE/YOUR_SERVER \
   --header "Authorization: Bearer YOUR_API_CREDENTIAL" \
   --transport http
 ```
 
-- `YOUR_INSTALL_ID` is generated for your MCP server.
-- `YOUR_API_CREDENTIAL` is whatever your API expects—for example `Bearer super-secret-token`.
+- Replace the example URL with the environment URL shown in your dashboard.
+- Replace `YOUR_API_CREDENTIAL` with the token itself; the example already includes the `Bearer` prefix.
 
 Scalar forwards only the specific header(s) you nominated. Structural and Scalar-internal headers are never forwarded upstream.
 
 ## Related
 
 - [Authentication](./index.md) — the two layers, and the other recipes
-- [Private access for customers](./customer-access.md) — gate a passthrough server to specific emails with access groups
+- [Private access for customers](./customer-access.md) — use Scalar sign-in and stored credentials for allowed customers
 - [OAuth passthrough](./oauth-passthrough.md) — let users sign in with your API's OAuth server instead of pasting a key

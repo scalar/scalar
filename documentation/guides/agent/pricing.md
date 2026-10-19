@@ -1,77 +1,46 @@
 # Agent Pricing
 
-Agent offers flexible pricing to fit your needs, from free local development to scalable production deployments.
+Agent usage draws from your team's shared credit allowance. Docs and API chat, token-based agent features, and hosted MCP tool calls all contribute to that usage. See [Scalar pricing](../pricing.md) for plan prices and included product features.
 
-## Free Tier
+## Included credits
 
-Agent works out of the box on `localhost` with no configuration required. This includes:
+| Plan       | Monthly included credits |
+| ---------- | ------------------------ |
+| Free       | 50                       |
+| Pro        | 500                      |
+| Business   | 2,000                    |
+| Enterprise | Set by your agreement    |
 
-- 10 free messages per session
-- Full chat functionality
-- No API key needed
+Your team's allowance may differ if it has a custom agreement or credit override. Check the dashboard's billing usage for your team's allowance and consumption.
 
-This is perfect for testing and exploring the feature before committing to production use.
+## What consumes a credit?
 
-## Production Pricing
+| Usage                      | Credit conversion                        |
+| -------------------------- | ---------------------------------------- |
+| Docs or API chat           | 2 messages per credit                    |
+| Hosted MCP                 | 200 tool calls per credit                |
+| Token-based agent features | 50,000 reference-model tokens per credit |
 
-For production deployments, Agent requires a [Scalar Pro or Business](../pricing.md) subscription. Pricing depends on how you use Agent:
+A feature uses its own billing unit; a Docs chat message is not also charged as token usage. Token-based features count input and output tokens equally, with a model multiplier: Haiku uses the reference rate, Sonnet uses 3×, and Opus uses 5×. The 50,000-token figure is the reference rate, not an allowance that applies equally to every model.
 
-### Keys
+For example, 100 Docs chat messages consume 50 credits, and 10,000 MCP tool calls consume another 50 credits. Together they consume 100 credits from the team's allowance.
 
-When you use Agent in API References or Docs, usage is billed by message count.
+## Overage and billing periods
 
-| Plan            | Price                          | Messages Included | Additional Messages |
-| --------------- | ------------------------------ | ----------------- | ------------------- |
-| Scalar Pro      | $150/month (5 seats included)  | 250 messages      | $0.02 per message   |
-| Scalar Business | $600/month (10 seats included) | 1,000 messages    | $0.02 per message   |
+For paid subscriptions, usage above the included allowance is charged at **$0.057 per credit**. Paid usage continues beyond the allowance. Free and trial chat usage stops when its included credit limit is reached.
 
-#### Pricing Example
+Usage billing is monthly, including on yearly subscriptions. A yearly subscription keeps its annual base-plan renewal and receives monthly usage billing; it does not provide a single annual pool of credits. Included credits reset each monthly usage period and do not roll over. For paid subscriptions, the usage billing period follows the subscription's monthly usage cycle rather than necessarily the calendar month.
 
-Here is what you would pay for different message levels under the Scalar Pro plan:
+Check your billing page and agreement for account-specific terms, including legacy subscriptions being migrated to the current pricing model.
 
-| Total Messages | Included | Additional | Total Price                       |
-| -------------- | -------- | ---------- | --------------------------------- |
-| 250            | 250      | 0          | $150 (base price)                 |
-| 1,000          | 250      | 750        | $150 + (750 × $0.02) = **$165**   |
-| 5,000          | 250      | 4,750      | $150 + (4,750 × $0.02) = **$245** |
+## Team seats
 
-### agent.scalar.com
+Current flat-price plans include editor seats, and viewer seats are unlimited. Inviting a viewer does not add a billable editor seat. Check [Scalar pricing](../pricing.md) for editor allowances and your billing page for any legacy or custom subscription terms.
 
-[agent.scalar.com](https://agent.scalar.com) is billed by token usage (input and output tokens combined across your requests).
+## Local development
 
-| Plan            | Price                          | Tokens Included | Additional Input | Additional Output |
-| --------------- | ------------------------------ | --------------- | ---------------- | ----------------- |
-| Scalar Pro      | $150/month (5 seats included)  | 2,000,000       | $2 / Million     | $10 / Million     |
-| Scalar Business | $600/month (10 seats included) | 8,000,000       | $2 / Million     | $10 / Million     |
+Anonymous local development retains a small trial allowance without an Agent key. That allowance is separate from a team's monthly credits. For production setup, see [Agent in API Reference](api-reference.md) and [Agent Keys](key.md).
 
-- **Included:** 2,000,000 tokens per billing period.
-- **Overage:** $0.000002 per additional input token ($2 / Million input tokens), $0.00001 per additional output token ($10 / Million output tokens).
+## Review or reduce usage
 
-### What Is a Seat?
-
-A seat is one team member with editor access. The Pro plan includes 5 seats and the Business plan includes 10.
-
-### What Are "Member, Usage, and Service Fees"?
-
-- **Member fees:** Charges for seats beyond the included minimum.
-- **Usage fees:** Overage charges based on messages (Keys) or tokens (`agent.scalar.com`).
-- **Service fees:** Optional add-ons or services selected by your team.
-
-### What Counts as a Message?
-
-A message is defined as one response generated by Agent when using Agent Keys in References or Docs. Each answer you receive counts as a single message. Agent Web is billed by tokens, not messages.
-
-## FAQ
-
-### Do unused messages or tokens roll over?
-
-No, included messages and tokens reset each billing period.
-
-### What happens if I exceed my limit?
-
-- **Keys:** Additional messages are charged at $0.02 per message. Your Agent will continue working without interruption.
-- **agent.scalar.com:** Additional tokens are charged at $2 / Million input and $10 / Million output. Your Agent will continue working without interruption.
-
-### Can I disable Agent to avoid charges?
-
-Yes, you can disable it entirely. See [Disabling Agent](api-reference.md#disabling-agent).
+Review usage in the dashboard's billing section. To turn off chat in an API reference, see [Disabling Agent](api-reference.md#disabling-agent). Disabling that chat does not disable a separately configured MCP server.
