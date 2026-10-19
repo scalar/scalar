@@ -8,7 +8,6 @@ import { createPathFromSegments } from '@/helpers/json-path-utils'
 import {
   type DynamicScope,
   carriesDynamicAnchor,
-  clearDynamicAnchorCaches,
   collectDynamicAnchors,
   resolveDynamicRef,
 } from '@/magic-proxy/dynamic-ref'
@@ -17,6 +16,11 @@ import type { UnknownObject } from '@/types'
 const isMagicProxy = Symbol('isMagicProxy')
 const magicProxyTarget = Symbol('magicProxyTarget')
 const magicProxyRevision = Symbol('magicProxyRevision')
+const dynamicAnchorCacheKey = Symbol('dynamicAnchorCacheKey')
+
+/** Share anchor caches across one document revision, including store-wrapped proxy views. */
+export const getDynamicAnchorCacheKey = (resource: object): { revision: number } | undefined =>
+  Reflect.get(resource, dynamicAnchorCacheKey)
 
 const REF_VALUE = '$ref-value'
 const REF_KEY = '$ref'
@@ -195,7 +199,8 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   const getChildScope = (): DynamicScope => {
     const inheritedScope = args.getDynamicScope?.() ?? args.dynamicScope
     return carriesDynamicAnchor(target as UnknownObject, args.currentContext !== '') &&
-      (inheritedScope.length > 0 || collectDynamicAnchors(target as UnknownObject).size > 0) &&
+      (inheritedScope.length > 0 ||
+        collectDynamicAnchors(target as UnknownObject, getRaw, args.mutationState).size > 0) &&
       !inheritedScope.includes(target)
       ? internScope(args.scopeCache, inheritedScope, target as UnknownObject)
       : inheritedScope
@@ -215,7 +220,6 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     args.mutationState.revision++
     args.cache.clear()
     args.mutationState.dynamicRefCache = new WeakMap()
-    clearDynamicAnchorCaches()
   }
 
   const handler: ProxyHandler<T> = {
@@ -228,6 +232,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * - For all other properties, recursively wrap the returned value in a magic proxy (if applicable).
      */
     get(target, prop, receiver) {
+      // Read this before refreshing scopes: anchor collection also asks proxy views for this key.
+      if (prop === dynamicAnchorCacheKey) {
+        return args.mutationState
+      }
       if (prop === magicProxyRevision) {
         return creationRevision
       }
@@ -267,7 +275,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // A reference on the resource root belongs to that resource, including its bookend.
-        const resolved = resolveDynamicRef(dynamicRef, childScope)
+        const resolved = resolveDynamicRef(dynamicRef, childScope, getRaw, args.mutationState)
         if (resolved === undefined) {
           return undefined
         }

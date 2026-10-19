@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
+import { collectDynamicAnchors, pushDynamicScope, resolveDynamicRef } from '@/magic-proxy/dynamic-ref'
 import { createMagicProxy } from '@/magic-proxy/proxy'
 
 /** A proxied document read by path, including the virtual `$ref-value` and `$dynamicRef-value` keys. */
@@ -12,6 +12,30 @@ type ProxyNode = { readonly [key: string]: ProxyNode }
  * exercise that behavior through the proxy itself (not the standalone resolver). See #9414.
  */
 describe('proxy-dynamic-ref', () => {
+  it.each([false, true])('invalidates only the edited document, with a merged view: %s', (merged) => {
+    const createDocument = () =>
+      createMagicProxy({
+        $id: 'urn:page',
+        $defs: { item: { $dynamicAnchor: 'item', title: 'User' } },
+        items: { $dynamicRef: '#item' },
+      })
+    const edited = createDocument()
+    const untouched = createDocument()
+    const editedView = merged ? { ...edited } : edited
+    const untouchedView = merged ? { ...untouched } : untouched
+    const editedAnchors = collectDynamicAnchors(editedView)
+    const untouchedAnchors = collectDynamicAnchors(untouchedView)
+    const untouchedItem = Reflect.get(untouched.items, '$dynamicRef-value')
+
+    edited.$defs.item = { $dynamicAnchor: 'item', title: 'Group' }
+
+    expect(collectDynamicAnchors(editedView)).not.toBe(editedAnchors)
+    expect(collectDynamicAnchors(editedView).get('item')?.title).toBe('Group')
+    expect(Reflect.get(edited.items, '$dynamicRef-value').title).toBe('Group')
+    expect(collectDynamicAnchors(untouchedView)).toBe(untouchedAnchors)
+    expect(Reflect.get(untouched.items, '$dynamicRef-value')).toBe(untouchedItem)
+  })
+
   it('refreshes inherited scopes on child proxies saved before an anchor is added', () => {
     const proxy = createMagicProxy({
       $id: 'urn:page',
