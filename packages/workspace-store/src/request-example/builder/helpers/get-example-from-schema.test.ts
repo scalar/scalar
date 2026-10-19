@@ -1181,6 +1181,75 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('bounds deeply nested JSON content generation', () => {
+    const schema = Array.from({ length: 18 }).reduce<SchemaObject>(
+      (contentSchema) =>
+        coerceValue(SchemaObjectSchema, { type: 'string', contentMediaType: 'application/json', contentSchema }),
+      coerceValue(SchemaObjectSchema, { const: 0 }),
+    )
+    const expected = Array.from({ length: 11 }).reduce<string>((value) => JSON.stringify(value), '')
+
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it('bounds JSON content with a recursive dynamic reference', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      $dynamicAnchor: 'node',
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentSchema: { $dynamicRef: '#node' },
+    })
+    const expected = Array.from({ length: 6 }).reduce<string>((value) => JSON.stringify(value), '')
+
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves selected %s examples ahead of JSON content', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentSchema: { type: 'object' },
+      [keyword]: [{ example: '{"chosen":true}' }],
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('{"chosen":true}')
+  })
+
+  it('uses selected JSON content when the string type is omitted', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      contentMediaType: 'application/json',
+      contentSchema: { type: 'object' },
+      oneOf: [{ contentSchema: { const: { chosen: true } } }],
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('{"chosen":true}')
+  })
+
+  it.each([
+    { contentSchema: { type: 'number' }, expected: '1' },
+    { contentSchema: { type: 'string' }, expected: '""' },
+    { contentSchema: { type: 'boolean' }, expected: 'true' },
+    {
+      contentSchema: {
+        type: 'object',
+        required: ['included'],
+        properties: { included: { type: 'number' }, omitted: { type: 'string' } },
+      },
+      expected: '{"included":1}',
+    },
+  ])('keeps required JSON content while omitting optional properties: $expected', ({ contentSchema, expected }) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['data'],
+      properties: {
+        data: { type: 'string', contentMediaType: 'application/json', contentSchema },
+        optional: { type: 'string' },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ data: expected })
+  })
+
   describe('JSON content', () => {
     it('serializes complete SSE event payloads from contentSchema', () => {
       const schema = coerceValue(SchemaObjectSchema, {

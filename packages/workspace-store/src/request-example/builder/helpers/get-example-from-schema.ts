@@ -1280,24 +1280,6 @@ const generateExampleFromSchema = (
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
   }
 
-  if (hasUnencodedJsonContent(_schema)) {
-    const contentSchema = resolve.schema(_schema.contentSchema)
-    if (contentSchema) {
-      const content = getExampleFromSchema(contentSchema, options, {
-        level: level + 1,
-        parentSchema: _schema,
-        name,
-        schemaPath: [...schemaPath, 'contentSchema'],
-        seen,
-        dynamicScope: childScope,
-      })
-      if (content !== undefined) {
-        seen.delete(targetValue)
-        return cache(_schema, JSON.stringify(content), cacheKey, skipCache)
-      }
-    }
-  }
-
   // Stop descending once the walk is too deep to keep going, which also breaks circular references.
   // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
   // any other level; only the children are given up on.
@@ -1317,7 +1299,13 @@ const generateExampleFromSchema = (
     const rootType = 'type' in _schema ? _schema.type : undefined
     const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
     const selectedType =
-      variantType ?? rootType ?? ('items' in _schema && !('properties' in _schema) ? 'array' : undefined)
+      variantType ??
+      rootType ??
+      (hasUnencodedJsonContent(_schema)
+        ? 'string'
+        : 'items' in _schema && !('properties' in _schema)
+          ? 'array'
+          : undefined)
     if (selectedType !== undefined && selectedType !== 'object') {
       const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
       const selectedSchema = { ...base, ...selectedVariant }
@@ -1342,6 +1330,25 @@ const generateExampleFromSchema = (
       )
       seen.delete(targetValue)
       return cache(_schema, result, cacheKey, skipCache)
+    }
+  }
+
+  if (hasUnencodedJsonContent(_schema)) {
+    const contentSchema = resolve.schema(_schema.contentSchema)
+    if (contentSchema) {
+      const content = getExampleFromSchema(contentSchema, options, {
+        level: level + 1,
+        // The decoded value inherits the field requirement, not the string wrapper as a parent.
+        parentSchema,
+        name,
+        schemaPath: [...schemaPath, 'contentSchema'],
+        seen,
+        dynamicScope: childScope,
+      })
+      if (content !== undefined) {
+        seen.delete(targetValue)
+        return cache(_schema, JSON.stringify(content), cacheKey, skipCache)
+      }
     }
   }
 
