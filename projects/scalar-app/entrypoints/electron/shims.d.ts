@@ -63,6 +63,8 @@ declare global {
       }) => void
       /** Cancel an in-progress fetch by its abort ID, releasing the underlying connection. */
       customFetchAbort: (abortId: string) => void
+      /** Close the window that hosts the renderer */
+      closeWindow: () => void
     }
   }
 }
@@ -74,6 +76,11 @@ export type BrowserIpcEvents = {
    * These files trigger node based actions that must be propagated to the browser
    */
   'import-file': (filePath: string) => Promise<void> | void
+  /**
+   * Fired by the "Close Tab" menu item (CmdOrCtrl+W). The browser owns the tab state,
+   * so it decides whether to close the active tab or the whole window.
+   */
+  closeTab: () => void
   /** A chunk of body data for an in-progress streaming fetch. */
   'customFetch:data': (data: { streamId: string; chunk: ArrayBuffer }) => void
   /** Signals that all body chunks have been delivered for a streaming fetch. */
