@@ -325,8 +325,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
               </template>
               <template #footer="{ exampleName }">
                 <div class="flex">
-                  <AskAgentButton
-                    :context="`${document?.info?.title ?? 'OpenAPI'}: ${method.toUpperCase()} ${path}`" />
+                  <AskAgentButton />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
                     :id

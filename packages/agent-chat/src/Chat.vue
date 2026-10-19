@@ -28,6 +28,7 @@ const {
   mode,
   addDocument,
   getActiveDocumentJson,
+  getActiveDocumentContext,
   terms,
 } = useState()
 
@@ -92,7 +93,12 @@ useAgentKeyDocuments()
 useCuratedDocuments()
 
 async function handleSubmit() {
-  await chat.sendMessage({ text: prompt.value })
+  const context = getActiveDocumentContext?.()
+  await chat.sendMessage({
+    text: context
+      ? `${prompt.value}\n\nSelected API description: ${context}`
+      : prompt.value,
+  })
 }
 </script>
 

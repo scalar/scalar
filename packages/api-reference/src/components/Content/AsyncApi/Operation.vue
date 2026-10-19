@@ -11,7 +11,6 @@ import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { SectionHeaderTag } from '@/components/Section'
-import AskAgentButton from '@/features/ask-agent-button/AskAgentButton.vue'
 import {
   useDocumentOutline,
   type HeadingLevel,
@@ -134,10 +133,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       <SecurityRequirementBadge :requiredSecurity />
     </div>
 
-    <div class="relative my-2 h-6 w-fit">
-      <AskAgentButton
-        :context="`${document.info.title}: AsyncAPI operation ${operation.operationName} (${operation.action}), channel ${operation.channelName}`" />
-    </div>
     <AsyncApiTags :tags="resolvedOperation?.tags" />
     <ScalarMarkdown
       v-if="description"

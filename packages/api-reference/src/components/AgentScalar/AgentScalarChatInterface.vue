@@ -5,6 +5,7 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type Ref } from 'vue'
 
 const {
@@ -22,6 +23,15 @@ const {
 const documentJson = computed(
   () => workspaceStore.exportActiveDocument('json') ?? '',
 )
+/** Include the selected source even when an agent key grants access to several APIs. */
+const documentContext = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  if (!document) {
+    return undefined
+  }
+  const format = isAsyncApiDocument(document) ? 'AsyncAPI' : 'OpenAPI'
+  return `${document.info.title} (${format}, version ${document.info.version}, source ${workspaceStore.workspace['x-scalar-active-document']})`
+})
 const sessionKey = computed(() =>
   JSON.stringify([
     workspaceStore.workspace['x-scalar-active-document'],
@@ -50,6 +60,7 @@ watch(
     :key="sessionKey"
     :baseUrl="externalUrls.apiBaseUrl"
     :dashboardUrl="externalUrls.dashboardUrl"
+    :getActiveDocumentContext="() => documentContext"
     :getActiveDocumentJson="() => documentJson"
     :getAgentKey="
       agentScalarConfiguration?.key

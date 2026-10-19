@@ -5,8 +5,6 @@ import { ref } from 'vue'
 import { useLocalization } from '@/features/localization'
 import { useAgentContext } from '@/hooks/use-agent'
 
-const { context } = defineProps<{ context?: string }>()
-
 const agentContext = useAgentContext()
 const { translate } = useLocalization()
 
@@ -14,9 +12,7 @@ const message = ref('')
 const inputRef = ref<HTMLInputElement>()
 
 function handleSubmit() {
-  agentContext.value?.openAgent(
-    context ? `${message.value}\n\nContext: ${context}` : message.value,
-  )
+  agentContext.value?.openAgent(message.value)
   message.value = ''
 }
 </script>
@@ -35,12 +31,10 @@ function handleSubmit() {
     <input
       ref="inputRef"
       v-model="message"
-      :aria-label="translate('agent.askAiAgent')"
       class="ask-agent-scalar-input"
       :class="{ 'ask-agent-scalar-input-not-empty': message.length > 0 }"
       :placeholder="translate('agent.askAiAgent')" />
     <button
-      :aria-label="translate('agent.askAiAgent')"
       class="ask-agent-scalar-send"
       type="submit">
       <ScalarIconArrowUp

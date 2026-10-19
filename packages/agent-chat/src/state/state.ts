@@ -100,6 +100,7 @@ type State = {
   uploadedTmpDocumentUrl: Ref<string | undefined>
   curatedDocuments: Ref<ApiMetadata[]>
   getActiveDocumentJson?: () => string
+  getActiveDocumentContext?: () => string | undefined
   hideAddApi?: boolean
 }
 
@@ -177,6 +178,7 @@ export function createState({
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  getActiveDocumentContext,
   prefilledMessageRef,
   hideAddApi,
 }: {
@@ -190,6 +192,7 @@ export function createState({
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  getActiveDocumentContext?: () => string | undefined
   prefilledMessageRef?: Ref<string>
   hideAddApi?: boolean
 }): State {
@@ -404,6 +407,7 @@ export function createState({
     uploadedTmpDocumentUrl,
     curatedDocuments,
     getActiveDocumentJson,
+    getActiveDocumentContext,
     hideAddApi,
   }
 }
