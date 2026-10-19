@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
@@ -1133,6 +1134,12 @@ const getMaxDepthValue = (
   return MAX_DEPTH_EXCEEDED
 }
 
+const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
+  if (!('contentSchema' in schema) || !isJsonMediaType(schema.contentMediaType)) return false
+  if ('contentEncoding' in schema) return false
+  return !('type' in schema) || getDeclaredTypes(schema).includes('string')
+}
+
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
@@ -1271,6 +1278,24 @@ const generateExampleFromSchema = (
   if (Array.isArray(_schema.enum) && _schema.enum.length > 0) {
     seen.delete(targetValue)
     return cache(_schema, _schema.enum[0], cacheKey, skipCache)
+  }
+
+  if (hasUnencodedJsonContent(_schema)) {
+    const contentSchema = resolve.schema(_schema.contentSchema)
+    if (contentSchema) {
+      const content = getExampleFromSchema(contentSchema, options, {
+        level: level + 1,
+        parentSchema: _schema,
+        name,
+        schemaPath: [...schemaPath, 'contentSchema'],
+        seen,
+        dynamicScope: childScope,
+      })
+      if (content !== undefined) {
+        seen.delete(targetValue)
+        return cache(_schema, JSON.stringify(content), cacheKey, skipCache)
+      }
+    }
   }
 
   // Stop descending once the walk is too deep to keep going, which also breaks circular references.

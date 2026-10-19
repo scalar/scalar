@@ -1181,6 +1181,127 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  describe('JSON content', () => {
+    it('serializes complete SSE event payloads from contentSchema', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          event: { type: 'string' },
+          data: { type: 'string' },
+        },
+        required: ['event'],
+        oneOf: [
+          {
+            properties: {
+              data: {
+                contentMediaType: 'application/json',
+                contentSchema: {
+                  type: 'object',
+                  required: ['id', 'type', 'data'],
+                  properties: {
+                    id: { type: 'string' },
+                    type: { const: 'user.message' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        content: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              type: { const: 'text' },
+                              text: { type: 'string' },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              event: { const: 'user.message' },
+            },
+          },
+        ],
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({
+        event: 'user.message',
+        data: '{"id":"","type":"user.message","data":{"content":[{"type":"text","text":""}]}}',
+      })
+    })
+
+    it.each([
+      { contentMediaType: 'application/json; charset=utf-8', type: 'string' },
+      { contentMediaType: 'application/problem+json', type: ['string', 'null'] },
+      { contentMediaType: 'application/json', type: undefined },
+    ])('generates JSON content for $contentMediaType', ({ contentMediaType, type }) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(type ? { type } : {}),
+        contentMediaType,
+        contentSchema: {
+          type: 'object',
+          properties: { ok: { const: true } },
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toBe('{"ok":true}')
+    })
+
+    it('serializes arrays and scalar values from JSON contentSchema', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            contentMediaType: 'application/json',
+            contentSchema: { type: 'array', items: { type: 'string' } },
+          }),
+        ),
+      ).toBe('[""]')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            contentMediaType: 'application/json',
+            contentSchema: { const: false },
+          }),
+        ),
+      ).toBe('false')
+    })
+
+    it('keeps explicit examples and legacy behavior for encoded or non-JSON content', () => {
+      const base = {
+        type: 'string',
+        contentSchema: { type: 'object', properties: { ok: { const: true } } },
+      }
+
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'application/json',
+            example: '{"custom":true}',
+          }),
+        ),
+      ).toBe('{"custom":true}')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'application/json',
+            contentEncoding: 'base64',
+          }),
+        ),
+      ).toBe('')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'text/plain',
+          }),
+        ),
+      ).toBe('')
+    })
+  })
+
   describe('XML handling', () => {
     it('outputs XML', () => {
       expect(
