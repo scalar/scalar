@@ -236,15 +236,25 @@ const content = computed<string | undefined>(() => {
       class="bg-b-3 relative flex shrink-0 flex-wrap items-center justify-end gap-2 p-1.5">
       <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
         <ExamplePicker
-          v-if="Object.keys(messages).length"
+          v-if="Object.keys(messages).length > 1"
           v-model="selectedMessage"
           :aria-label="messageLabel"
           :examples="messages" />
+        <span
+          v-else-if="Object.keys(messages).length === 1"
+          class="text-c-2 min-w-0 truncate px-1.5 py-0.75 text-base">
+          {{ messages[selectedMessage]?.summary }}
+        </span>
         <ExamplePicker
-          v-if="examples.length"
+          v-if="examples.length > 1"
           v-model="selectedExample"
           :aria-label="exampleLabel"
           :examples="exampleOptions" />
+        <span
+          v-else-if="examples.length === 1"
+          class="text-c-2 min-w-0 truncate px-1.5 py-0.75 text-base">
+          {{ exampleOptions[selectedExample]?.summary }}
+        </span>
       </div>
     </ScalarCardFooter>
   </ScalarCard>
