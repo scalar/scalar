@@ -2,7 +2,7 @@
 
 # scalar team
 
-List and switch between your Scalar teams. Generated from `@scalar/cli` 2.12.1.
+List and switch between your Scalar teams.
 
 | Command | Description |
 | --- | --- |

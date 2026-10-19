@@ -2,7 +2,7 @@
 
 # scalar schema
 
-Manage shared schemas in the Scalar Registry. Generated from `@scalar/cli` 2.12.1.
+Manage shared schemas in the Scalar Registry.
 
 | Command | Description |
 | --- | --- |

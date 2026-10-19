@@ -1,6 +1,18 @@
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
-import { type CliContext, anchor, groupIntoPages, renderCommand, renderIndex, renderPage } from './generate-cli-docs'
+import {
+  type CliContext,
+  anchor,
+  generateCliDocs,
+  groupIntoPages,
+  renderCommand,
+  renderIndex,
+  renderPage,
+} from './generate-cli-docs'
 
 type Command = CliContext['commands'][number]
 
@@ -141,7 +153,7 @@ describe('renderPage', () => {
       throw new Error('Expected a document page')
     }
 
-    const markdown = renderPage(page, '1.2.3')
+    const markdown = renderPage(page)
 
     expect(markdown).toContain('# scalar document')
     expect(markdown).toContain('| [`scalar document bundle`](#bundle) | Run bundle |')
@@ -151,10 +163,48 @@ describe('renderPage', () => {
 
 describe('renderIndex', () => {
   it('links every command to its page and anchor', () => {
-    const markdown = renderIndex(groupIntoPages(context), '1.2.3')
+    const markdown = renderIndex(groupIntoPages(context))
 
     expect(markdown).toContain('## [scalar team](commands/team.md)')
     expect(markdown).toContain('- [`scalar team set`](commands/team.md#set): Run set')
     expect(markdown).toContain('- [`scalar upgrade`](commands/general.md#upgrade): Run upgrade')
+  })
+})
+
+describe('generateCliDocs', () => {
+  it('ignores version-only changes but preserves command-description changes', async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'scalar-cli-docs-'))
+    const contextPath = path.join(directory, 'context.json')
+    const output = path.join(directory, 'docs')
+    const generate = async (input: CliContext): Promise<string[]> => {
+      await fs.writeFile(contextPath, JSON.stringify(input))
+      await generateCliDocs.parseAsync(['--context', contextPath, '--output', output], { from: 'user' })
+      return Promise.all([
+        fs.readFile(path.join(output, 'commands.md'), 'utf-8'),
+        ...groupIntoPages(input).map((page) => fs.readFile(path.join(output, 'commands', `${page.slug}.md`), 'utf-8')),
+      ])
+    }
+
+    try {
+      const original = await generate(context)
+      const upgraded = await generate({ ...context, version: '2.12.1' })
+      expect(upgraded).toEqual(original)
+      expect(original.join('\n')).not.toContain(context.version)
+      expect(original.join('\n')).not.toContain('Generated from `@scalar/cli`')
+      expect(original[0]).not.toContain('Every command in')
+
+      const changed = structuredClone(context)
+      const upgrade = changed.commands[0]
+      if (!upgrade) {
+        throw new Error('Expected an upgrade command')
+      }
+      upgrade.description = 'Install the latest CLI release'
+      const updated = await generate(changed)
+      expect(updated).not.toEqual(original)
+      expect(updated[0]).toContain('Install the latest CLI release')
+      expect(updated.at(-1)).toContain('Install the latest CLI release')
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
   })
 })
