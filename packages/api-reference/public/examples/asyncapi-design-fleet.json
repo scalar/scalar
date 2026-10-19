@@ -1,0 +1,299 @@
+{
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "Waypoint Fleet Control",
+    "version": "2.4.0",
+    "description": "Monitor refrigerated delivery vehicles and remotely change device settings.\n\n### Command lifecycle\nSend a command with a unique `requestId`. The device replies on its acknowledgement topic. A timeout does not imply that the command failed.\n\n> Devices may be offline for extended periods. Telemetry timestamps refer to the measurement time, not the delivery time.",
+    "contact": {
+      "name": "Developer Experience",
+      "url": "https://example.com/support"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "mqtt.{region}.example.com:8883",
+      "protocol": "mqtts",
+      "protocolVersion": "5.0",
+      "variables": {
+        "region": {
+          "default": "eu",
+          "enum": ["eu", "us"],
+          "description": "Region where the fleet is registered."
+        }
+      },
+      "security": [
+        {
+          "$ref": "#/components/securitySchemes/deviceCertificate"
+        }
+      ],
+      "bindings": {
+        "mqtt": {
+          "clientId": {
+            "type": "string",
+            "description": "Unique device or service identifier."
+          },
+          "keepAlive": 60,
+          "cleanSession": false,
+          "bindingVersion": "0.2.0"
+        }
+      }
+    }
+  },
+  "channels": {
+    "telemetry": {
+      "address": "fleets/{fleetId}/vehicles/{vehicleId}/telemetry",
+      "title": "Vehicle telemetry",
+      "parameters": {
+        "fleetId": {
+          "$ref": "#/components/parameters/FleetId"
+        },
+        "vehicleId": {
+          "$ref": "#/components/parameters/VehicleId"
+        }
+      },
+      "messages": {
+        "Telemetry": {
+          "$ref": "#/components/messages/Telemetry"
+        }
+      }
+    },
+    "commands": {
+      "address": "fleets/{fleetId}/vehicles/{vehicleId}/commands",
+      "title": "Device commands",
+      "parameters": {
+        "fleetId": {
+          "$ref": "#/components/parameters/FleetId"
+        },
+        "vehicleId": {
+          "$ref": "#/components/parameters/VehicleId"
+        }
+      },
+      "messages": {
+        "SetTemperature": {
+          "$ref": "#/components/messages/SetTemperature"
+        }
+      }
+    },
+    "acknowledgements": {
+      "address": "fleets/{fleetId}/vehicles/{vehicleId}/acks",
+      "title": "Command acknowledgements",
+      "parameters": {
+        "fleetId": {
+          "$ref": "#/components/parameters/FleetId"
+        },
+        "vehicleId": {
+          "$ref": "#/components/parameters/VehicleId"
+        }
+      },
+      "messages": {
+        "CommandResult": {
+          "$ref": "#/components/messages/CommandResult"
+        }
+      }
+    }
+  },
+  "operations": {
+    "receiveTelemetry": {
+      "action": "receive",
+      "title": "Monitor vehicle conditions",
+      "channel": {
+        "$ref": "#/channels/telemetry"
+      },
+      "bindings": {
+        "mqtt": {
+          "qos": 0,
+          "retain": false,
+          "bindingVersion": "0.2.0"
+        }
+      }
+    },
+    "setTemperature": {
+      "action": "send",
+      "title": "Set target temperature",
+      "description": "Only fleet operators may change the target. The controller validates safety limits before applying the command.",
+      "channel": {
+        "$ref": "#/channels/commands"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/commands/messages/SetTemperature"
+        }
+      ],
+      "reply": {
+        "channel": {
+          "$ref": "#/channels/acknowledgements"
+        },
+        "messages": [
+          {
+            "$ref": "#/channels/acknowledgements/messages/CommandResult"
+          }
+        ]
+      },
+      "bindings": {
+        "mqtt": {
+          "qos": 1,
+          "retain": false,
+          "bindingVersion": "0.2.0"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "deviceCertificate": {
+        "type": "X509",
+        "description": "Present a client certificate issued for this fleet."
+      }
+    },
+    "parameters": {
+      "FleetId": {
+        "description": "Fleet identifier, for example `fleet_berlin`.",
+        "enum": ["fleet_berlin", "fleet_london"]
+      },
+      "VehicleId": {
+        "description": "Stable vehicle identifier printed on the gateway.",
+        "examples": ["van_042", "truck_118"]
+      }
+    },
+    "messageTraits": {
+      "correlated": {
+        "correlationId": {
+          "location": "$message.payload#/requestId"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {
+            "firmwareVersion": {
+              "type": "string"
+            },
+            "sentAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["sentAt"]
+        }
+      }
+    },
+    "messages": {
+      "Telemetry": {
+        "name": "Telemetry",
+        "title": "Temperature and position",
+        "payload": {
+          "type": "object",
+          "properties": {
+            "measuredAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Degrees Celsius.",
+              "minimum": -40,
+              "maximum": 80
+            },
+            "batteryPercent": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "position": {
+              "type": "object",
+              "properties": {
+                "latitude": {
+                  "type": "number"
+                },
+                "longitude": {
+                  "type": "number"
+                }
+              },
+              "required": ["latitude", "longitude"]
+            },
+            "doorOpen": {
+              "type": "boolean"
+            }
+          },
+          "required": ["measuredAt", "temperature"]
+        },
+        "examples": [
+          {
+            "payload": {
+              "measuredAt": "2026-10-19T09:30:00Z",
+              "temperature": 3.8,
+              "batteryPercent": 86,
+              "position": {
+                "latitude": 52.52,
+                "longitude": 13.405
+              },
+              "doorOpen": false
+            }
+          }
+        ]
+      },
+      "SetTemperature": {
+        "name": "SetTemperature",
+        "title": "Set target temperature",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/correlated"
+          }
+        ],
+        "payload": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "targetCelsius": {
+              "type": "number",
+              "minimum": -25,
+              "maximum": 10
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["requestId", "targetCelsius", "expiresAt"]
+        }
+      },
+      "CommandResult": {
+        "name": "CommandResult",
+        "title": "Command result",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/correlated"
+          }
+        ],
+        "payload": {
+          "type": "object",
+          "properties": {
+            "requestId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "status": {
+              "type": "string",
+              "enum": ["applied", "rejected", "expired"]
+            },
+            "reason": {
+              "type": "string",
+              "description": "Present when a command is rejected."
+            },
+            "appliedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "required": ["requestId", "status"]
+        }
+      }
+    }
+  }
+}
