@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
@@ -1133,6 +1134,12 @@ const getMaxDepthValue = (
   return MAX_DEPTH_EXCEEDED
 }
 
+const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
+  if (!('contentSchema' in schema) || !isJsonMediaType(schema.contentMediaType)) return false
+  if ('contentEncoding' in schema) return false
+  return !('type' in schema) || getDeclaredTypes(schema).includes('string')
+}
+
 /**
  * Generate an example value from a given OpenAPI SchemaObject.
  *
@@ -1292,7 +1299,13 @@ const generateExampleFromSchema = (
     const rootType = 'type' in _schema ? _schema.type : undefined
     const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
     const selectedType =
-      variantType ?? rootType ?? ('items' in _schema && !('properties' in _schema) ? 'array' : undefined)
+      variantType ??
+      rootType ??
+      (hasUnencodedJsonContent(_schema)
+        ? 'string'
+        : 'items' in _schema && !('properties' in _schema)
+          ? 'array'
+          : undefined)
     if (selectedType !== undefined && selectedType !== 'object') {
       const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
       const selectedSchema = { ...base, ...selectedVariant }
@@ -1317,6 +1330,30 @@ const generateExampleFromSchema = (
       )
       seen.delete(targetValue)
       return cache(_schema, result, cacheKey, skipCache)
+    }
+  }
+
+  if (hasUnencodedJsonContent(_schema)) {
+    const contentSchema = resolve.schema(_schema.contentSchema)
+    if (contentSchema) {
+      // JSON content preserves strings and property names regardless of the enclosing wire format.
+      const content = getExampleFromSchema(
+        contentSchema,
+        { ...options, xml: false, binaryAsFile: false },
+        {
+          level: level + 1,
+          // The decoded value inherits the field requirement, not the string wrapper as a parent.
+          parentSchema,
+          name,
+          schemaPath: [...schemaPath, 'contentSchema'],
+          seen,
+          dynamicScope: childScope,
+        },
+      )
+      if (content !== undefined) {
+        seen.delete(targetValue)
+        return cache(_schema, JSON.stringify(content), cacheKey, skipCache)
+      }
     }
   }
 

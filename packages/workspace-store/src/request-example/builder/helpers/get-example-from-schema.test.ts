@@ -1181,6 +1181,244 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('keeps binary strings inside JSON content while preserving multipart files', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        upload: { type: 'string', format: 'binary', example: '@upload.bin' },
+        metadata: {
+          type: 'string',
+          contentMediaType: 'application/json',
+          contentSchema: {
+            type: 'object',
+            properties: {
+              image: { type: 'string', format: 'binary' },
+              blob: { type: 'string', format: 'binary', example: '@payload.bin' },
+            },
+          },
+        },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { binaryAsFile: true, mode: 'write' })).toStrictEqual({
+      upload: new File([], 'upload.bin', { lastModified: 0 }),
+      metadata: '{"image":"@filename","blob":"@payload.bin"}',
+    })
+  })
+
+  it('keeps JSON property names inside legacy XML examples', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'string',
+          xml: { name: 'payload' },
+          contentMediaType: 'application/json',
+          contentSchema: {
+            type: 'object',
+            required: ['id'],
+            properties: {
+              id: { type: 'integer', xml: { name: 'identifier' } },
+              secret: { type: 'string', readOnly: true },
+            },
+          },
+        },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { xml: true, mode: 'write' })).toStrictEqual({ payload: '{"id":1}' })
+  })
+
+  it('bounds deeply nested JSON content generation', () => {
+    const schema = Array.from({ length: 18 }).reduce<SchemaObject>(
+      (contentSchema) =>
+        coerceValue(SchemaObjectSchema, { type: 'string', contentMediaType: 'application/json', contentSchema }),
+      coerceValue(SchemaObjectSchema, { const: 0 }),
+    )
+    const expected = Array.from({ length: 11 }).reduce<string>((value) => JSON.stringify(value), '')
+
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it('bounds JSON content with a recursive dynamic reference', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      $dynamicAnchor: 'node',
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentSchema: { $dynamicRef: '#node' },
+    })
+    const expected = Array.from({ length: 6 }).reduce<string>((value) => JSON.stringify(value), '')
+
+    expect(getExampleFromSchema(schema)).toBe(expected)
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves selected %s examples ahead of JSON content', (keyword) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'string',
+      contentMediaType: 'application/json',
+      contentSchema: { type: 'object' },
+      [keyword]: [{ example: '{"chosen":true}' }],
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('{"chosen":true}')
+  })
+
+  it('uses selected JSON content when the string type is omitted', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      contentMediaType: 'application/json',
+      contentSchema: { type: 'object' },
+      oneOf: [{ contentSchema: { const: { chosen: true } } }],
+    })
+
+    expect(getExampleFromSchema(schema)).toBe('{"chosen":true}')
+  })
+
+  it.each([
+    { contentSchema: { type: 'number' }, expected: '1' },
+    { contentSchema: { type: 'string' }, expected: '""' },
+    { contentSchema: { type: 'boolean' }, expected: 'true' },
+    {
+      contentSchema: {
+        type: 'object',
+        required: ['included'],
+        properties: { included: { type: 'number' }, omitted: { type: 'string' } },
+      },
+      expected: '{"included":1}',
+    },
+  ])('keeps required JSON content while omitting optional properties: $expected', ({ contentSchema, expected }) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['data'],
+      properties: {
+        data: { type: 'string', contentMediaType: 'application/json', contentSchema },
+        optional: { type: 'string' },
+      },
+    })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ data: expected })
+  })
+
+  describe('JSON content', () => {
+    it('serializes complete SSE event payloads from contentSchema', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          event: { type: 'string' },
+          data: { type: 'string' },
+        },
+        required: ['event'],
+        oneOf: [
+          {
+            properties: {
+              data: {
+                contentMediaType: 'application/json',
+                contentSchema: {
+                  type: 'object',
+                  required: ['id', 'type', 'data'],
+                  properties: {
+                    id: { type: 'string' },
+                    type: { const: 'user.message' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        content: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              type: { const: 'text' },
+                              text: { type: 'string' },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+              event: { const: 'user.message' },
+            },
+          },
+        ],
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({
+        event: 'user.message',
+        data: '{"id":"","type":"user.message","data":{"content":[{"type":"text","text":""}]}}',
+      })
+    })
+
+    it.each([
+      { contentMediaType: 'application/json; charset=utf-8', type: 'string' },
+      { contentMediaType: 'application/problem+json', type: ['string', 'null'] },
+      { contentMediaType: 'application/json', type: undefined },
+    ])('generates JSON content for $contentMediaType', ({ contentMediaType, type }) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        ...(type ? { type } : {}),
+        contentMediaType,
+        contentSchema: {
+          type: 'object',
+          properties: { ok: { const: true } },
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toBe('{"ok":true}')
+    })
+
+    it('serializes arrays and scalar values from JSON contentSchema', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            contentMediaType: 'application/json',
+            contentSchema: { type: 'array', items: { type: 'string' } },
+          }),
+        ),
+      ).toBe('[""]')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            contentMediaType: 'application/json',
+            contentSchema: { const: false },
+          }),
+        ),
+      ).toBe('false')
+    })
+
+    it('keeps explicit examples and legacy behavior for encoded or non-JSON content', () => {
+      const base = {
+        type: 'string',
+        contentSchema: { type: 'object', properties: { ok: { const: true } } },
+      }
+
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'application/json',
+            example: '{"custom":true}',
+          }),
+        ),
+      ).toBe('{"custom":true}')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'application/json',
+            contentEncoding: 'base64',
+          }),
+        ),
+      ).toBe('')
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            ...base,
+            contentMediaType: 'text/plain',
+          }),
+        ),
+      ).toBe('')
+    })
+  })
+
   describe('XML handling', () => {
     it('outputs XML', () => {
       expect(
