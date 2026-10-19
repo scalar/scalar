@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-Export SpecificationExtension from the features entry point and scrollTargetId from the helpers entry point for custom API reference layouts.
+Supply the plugin-aware specification extension renderer by default in API reference components while preserving custom renderer overrides. Export scrollTargetId from the helpers entry point for custom layouts.

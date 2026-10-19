@@ -20,6 +20,7 @@ import {
 } from '@/features/document-outline'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -39,6 +40,7 @@ import OperationReply from './OperationReply.vue'
 type OperationOptions = AsyncApiSchemaRenderOptions
 
 const {
+  specificationExtension = SpecificationExtension,
   operation,
   document,
   eventBus,

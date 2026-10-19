@@ -23,6 +23,7 @@ import {
 } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
+import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'
@@ -47,6 +48,7 @@ type ParameterListOptions = AsyncApiSchemaRenderOptions &
   Pick<ApiReferenceConfigurationRaw, 'hideModels'>
 
 const {
+  specificationExtension = SpecificationExtension,
   channel,
   document,
   layout,
