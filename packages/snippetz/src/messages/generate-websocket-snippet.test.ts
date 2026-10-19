@@ -56,13 +56,13 @@ describe('generate-websocket-snippet', () => {
       payload: 'hello',
       contentType: 'text/plain',
     })
-    expect(code).toContain('socket.send(payload);')
-    expect(code).toContain('const payload = "hello";')
+    expect(code).toContain('socket.send(payload)')
+    expect(code).toContain('const payload = "hello"')
   })
 
   it('preserves a null JSON example', () => {
     expect(generateWebSocketSnippet({ url: 'wss://example.com', action: 'send', payload: null })).toContain(
-      'const payload = null;',
+      'const payload = null',
     )
   })
 
@@ -72,22 +72,23 @@ describe('generate-websocket-snippet', () => {
       action: 'receive',
       payload: { event: 'updated' },
     })
-    expect(code).toContain('socket.addEventListener("message", (event) => {')
-    expect(code).not.toContain('socket.send(')
-    expect(code).toContain('//   "event": "updated"')
+    expect(code).toBe(`const socket = new WebSocket("wss://example.com")
+
+socket.addEventListener("message", (event) => {
+  // Example incoming payload:
+  // {
+  //   "event": "updated"
+  // }
+
+  console.log(event.data)
+})`)
   })
 
-  it('marks missing payloads and application-specific setup explicitly', () => {
+  it('marks missing payloads explicitly', () => {
     const code = generateWebSocketSnippet({
       url: 'wss://example.com',
       action: 'send',
-      hasSecurity: true,
-      hasHeaders: true,
-      hasReply: true,
     })
-    expect(code).toContain('const payload = "YOUR_MESSAGE";')
-    expect(code).toContain('// Configure authentication before connecting.')
-    expect(code).toContain('// Encode message headers')
-    expect(code).toContain('// Add reply routing')
+    expect(code).toContain('const payload = "YOUR_MESSAGE"')
   })
 })

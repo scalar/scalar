@@ -166,12 +166,6 @@ const content = computed<string | undefined>(() => {
     action: current.operation.action,
     payload: example.value?.payload,
     contentType: message.value?.contentType ?? document.defaultContentType,
-    hasSecurity: Boolean(
-      current.operation.security?.length ||
-      current.server.server.security?.length,
-    ),
-    hasHeaders: Boolean(message.value?.headers || example.value?.headers),
-    hasReply: Boolean(current.operation.reply),
   })
 })
 </script>

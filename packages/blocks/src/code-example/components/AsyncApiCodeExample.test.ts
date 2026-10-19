@@ -57,7 +57,7 @@ describe('AsyncApiCodeExample', () => {
     expect(wrapper.text()).toContain('"id": 2')
     picker('Message')?.vm.$emit('update:modelValue', 'second')
     await nextTick()
-    expect(wrapper.text()).toContain('const payload = false;')
+    expect(wrapper.text()).toContain('const payload = false')
     wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', { id: 'custom/0' })
     await nextTick()
     expect(wrapper.text()).toContain('client.send_event()')

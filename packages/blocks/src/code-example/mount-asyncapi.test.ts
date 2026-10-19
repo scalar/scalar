@@ -31,7 +31,7 @@ describe('mount-asyncapi', () => {
     const instance = createCodeExample(element, { store, operationName: 'sendEvent' })
     instances.push(instance)
     expect(element.textContent).toContain('wss://one.example.com/events')
-    expect(element.textContent).toContain('const payload = 0;')
+    expect(element.textContent).toContain('const payload = 0')
     const activeDocument = store.workspace.activeDocument
     if (!activeDocument) throw new Error('Expected document')
     activeDocument['x-scalar-selected-server'] = 'second'

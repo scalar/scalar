@@ -169,7 +169,7 @@ Generated examples follow the described application's direction: `send` sends af
 connecting, and `receive` listens for incoming data. JSON payloads are serialized;
 text payloads are sent as strings. Other encodings need application-specific code.
 Message headers, authentication, and reply correlation require application-specific
-setup and are called out in the generated sample. No connection is opened by the block.
+setup. No connection is opened by the block.
 
 Use `selectedServer` to select a server by name. By default, the block follows the
 document's selected server when available, falling back to the first eligible WebSocket
