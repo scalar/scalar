@@ -22,7 +22,9 @@ test.describe('onShowMore', () => {
 
     await page.goto(example)
 
-    await page.getByRole('button', { name: 'Show all Moons endpoints' }).click()
+    const showMore = page.getByRole('button', { name: 'Show More' })
+    await expect(showMore).toHaveAccessibleDescription('Show all Moons endpoints')
+    await showMore.click()
 
     await expect
       .poll(() => page.evaluate(() => (window as unknown as Record<string, unknown>).__showMoreTagId))
