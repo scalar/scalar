@@ -64,6 +64,10 @@ describe('javascript', () => {
       expect(scopeOf('useState<number>(0)', 'useState')).toBe('function.call')
     })
 
+    it('scopes a call with nested generic arguments', () => {
+      expect(scopeOf('useState<Array<string>>([])', 'useState')).toBe('function.call')
+    })
+
     // `<` used to be enough on its own to read as the start of a generic call,
     // so every one of these painted a plain identifier as a function name.
     it('does not treat a less-than comparison as a call', () => {
