@@ -13,6 +13,8 @@ import { computed, useId } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import {
   Section,
+  SectionColumn,
+  SectionColumns,
   SectionContainer,
   SectionContainerAccordion,
   SectionContent,
@@ -37,6 +39,7 @@ import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
 import Operation from './Operation.vue'
+import OperationsList from './OperationsList.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
 type ParameterListOptions = AsyncApiSchemaRenderOptions &
@@ -251,50 +254,61 @@ const { level: headingLevel } = useDocumentOutline('channel')
         </Anchor>
       </SectionHeader>
       <SectionContent>
-        <AsyncApiLabels
-          class="channel-labels"
-          :protocols="labels.protocols"
-          :servers="labels.servers" />
-        <p
-          v-if="summary"
-          class="text-c-1 mt-4 mb-2 text-left">
-          {{ summary }}
-        </p>
-        <ScalarMarkdown
-          :value="description"
-          withImages />
-        <ChannelMetadata
-          :address="resolvedChannel?.address"
-          class="mt-4" />
-        <Bindings
-          :bindings="resolvedChannel?.bindings"
-          class="mt-4"
-          :options="options"
-          scope="channel" />
-        <AsyncApiDocumentation
-          :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
-        <ParameterList
-          v-if="parameters.length"
-          class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
-          :eventBus="eventBus"
-          :expansion="expansion"
-          :options="parameterListOptions"
-          :parameters="parameters"
-          :scrollTargetId="scrollTargetId"
-          :specificationExtension="specificationExtension">
-          <template #title>Parameters</template>
-          <template #parameter-details="{ parameter }">
-            <div
-              v-if="parameter.location"
-              class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
-              Location:
-              <code
-                class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
-                >{{ parameter.location }}</code
-              >
-            </div>
-          </template>
-        </ParameterList>
+        <SectionColumns>
+          <SectionColumn>
+            <AsyncApiLabels
+              class="channel-labels"
+              :protocols="labels.protocols"
+              :servers="labels.servers" />
+            <p
+              v-if="summary"
+              class="text-c-1 mt-4 mb-2 text-left">
+              {{ summary }}
+            </p>
+            <ScalarMarkdown
+              :value="description"
+              withImages />
+            <ChannelMetadata
+              :address="resolvedChannel?.address"
+              class="mt-4" />
+            <Bindings
+              :bindings="resolvedChannel?.bindings"
+              class="mt-4"
+              :options="options"
+              scope="channel" />
+            <AsyncApiDocumentation
+              :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+            <ParameterList
+              v-if="parameters.length"
+              class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+              :eventBus="eventBus"
+              :expansion="expansion"
+              :options="parameterListOptions"
+              :parameters="parameters"
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension">
+              <template #title>Parameters</template>
+              <template #parameter-details="{ parameter }">
+                <div
+                  v-if="parameter.location"
+                  class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
+                  Location:
+                  <code
+                    class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
+                    >{{ parameter.location }}</code
+                  >
+                </div>
+              </template>
+            </ParameterList>
+          </SectionColumn>
+          <SectionColumn v-if="operations.length">
+            <OperationsList
+              :channelTitle="headingText"
+              :document="document"
+              :eventBus="eventBus"
+              :operations="operations" />
+          </SectionColumn>
+        </SectionColumns>
         <Operation
           v-for="operation in operations"
           :key="operation.id"
