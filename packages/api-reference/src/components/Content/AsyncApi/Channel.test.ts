@@ -83,27 +83,47 @@ describe('Channel', () => {
     expect(wrapper.text()).toContain('3')
   })
 
-  it.each(['modern', 'classic'] as const)('shows title, actual address, summary and description in %s', (layout) => {
-    const wrapper = mount(Channel, {
-      props: {
-        channel: createChannel(),
-        document: createDocumentWithChannel({
-          title: 'User signups',
-          address: 'users.{tenantId}.signedup',
-          summary: 'Account lifecycle notifications',
-          description: 'Read **every** signup.',
-        }),
-        layout,
-        isCollapsed: false,
-        eventBus: null,
-      },
-    })
-    expect(wrapper.get('h1').text()).toBe('User signups')
-    expect(wrapper.get('dt').text()).toBe('Address')
-    expect(wrapper.get('dd code').text()).toBe('users.{tenantId}.signedup')
-    expect(wrapper.text()).toContain('Account lifecycle notifications')
-    expect(wrapper.get('strong').text()).toBe('every')
-    wrapper.unmount()
+  it.each(['modern', 'classic'] as const)(
+    'shows title, actual address and description without a redundant summary in %s',
+    (layout) => {
+      const wrapper = mount(Channel, {
+        props: {
+          channel: createChannel(),
+          document: createDocumentWithChannel({
+            title: 'User signups',
+            address: 'users.{tenantId}.signedup',
+            summary: 'Account lifecycle notifications',
+            description: 'Read **every** signup.',
+          }),
+          layout,
+          isCollapsed: false,
+          eventBus: null,
+        },
+      })
+      expect(wrapper.get('h1').text()).toBe('User signups')
+      expect(wrapper.get('dt').text()).toBe('Address')
+      expect(wrapper.get('dd code').text()).toBe('users.{tenantId}.signedup')
+      expect(wrapper.text()).not.toContain('Account lifecycle notifications')
+      expect(wrapper.get('strong').text()).toBe('every')
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)('uses a summary once as the heading or body fallback in %s', (layout) => {
+    for (const title of [undefined, 'User signups']) {
+      const wrapper = mount(Channel, {
+        props: {
+          channel: createChannel(),
+          document: createDocumentWithChannel({ title, summary: 'Account lifecycle notifications' }),
+          layout,
+          isCollapsed: false,
+          eventBus: null,
+        },
+      })
+      expect(wrapper.get('h1').text()).toBe(title ?? 'Account lifecycle notifications')
+      expect(wrapper.text().split('Account lifecycle notifications').length - 1).toBe(1)
+      wrapper.unmount()
+    }
   })
 
   it.each(['modern', 'classic'] as const)('distinguishes unknown addresses from identifiers in %s', async (layout) => {

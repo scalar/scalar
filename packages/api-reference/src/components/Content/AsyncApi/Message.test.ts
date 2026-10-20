@@ -64,7 +64,8 @@ describe('Message', () => {
     expect(wrapper.get('h1, h2, h3, h4, h5, h6').text()).toBe(heading)
     for (const value of [title, summary, description]) {
       if (value?.trim()) {
-        expect(wrapper.text().split(value.trim()).length - 1).toBe(1)
+        const hiddenSummary = value === summary && Boolean(description?.trim()) && heading !== summary?.trim()
+        expect(wrapper.text().split(value.trim()).length - 1).toBe(hiddenSummary ? 0 : 1)
       }
     }
   })
@@ -91,7 +92,7 @@ describe('Message', () => {
     const source = override ? 'Local' : 'Trait'
     expect(wrapper.get('h1, h2, h3, h4, h5, h6').text()).toBe(`${source} title`)
     for (const field of ['title', 'summary', 'description']) {
-      expect(wrapper.text().split(`${source} ${field}`).length - 1).toBe(1)
+      expect(wrapper.text().split(`${source} ${field}`).length - 1).toBe(field === 'summary' ? 0 : 1)
       expect(wrapper.text().includes(`Initial ${field}`)).toBe(false)
       if (override) {
         expect(wrapper.text().includes(`Trait ${field}`)).toBe(false)

@@ -110,10 +110,13 @@ const headingText = computed(() =>
   ),
 )
 
-/** A summary used as the heading must not repeat in the body. */
+/** Use the summary as body text only when there is no description or matching heading. */
 const summary = computed((): string => {
   const value = resolvedMessage.value?.summary?.trim() ?? ''
-  return value === headingText.value ? '' : value
+  return resolvedMessage.value?.description?.trim() ||
+    value === headingText.value
+    ? ''
+    : value
 })
 
 const description = computed(

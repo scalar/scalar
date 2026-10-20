@@ -82,16 +82,26 @@ const resolvedChannel = computed(() =>
 
 const description = computed(() => resolvedChannel.value?.description ?? '')
 
+/** Keep one body introduction, using the summary only when a description is absent. */
+const summary = computed((): string => {
+  const value = resolvedChannel.value?.summary?.trim() ?? ''
+  return description.value.trim() || value === headingText.value ? '' : value
+})
+
 /**
  * Heading shown above each channel section.
  *
- * Prefers the human-friendly `channel.title` when it is set, then falls back
+ * Prefers the human-friendly `channel.title` when it is set, then the summary, then falls back
  * to `channel.address`. `channel.channelAddress` already encodes the
  * address-or-key fallback during navigation traversal, so we only need to
  * overlay `title` on top of it.
  */
 const headingText = computed(() =>
-  pickHeading(resolvedChannel.value?.title, channel.channelAddress),
+  pickHeading(
+    resolvedChannel.value?.title,
+    resolvedChannel.value?.summary,
+    channel.channelAddress,
+  ),
 )
 
 /**
@@ -154,9 +164,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
         :protocols="labels.protocols"
         :servers="labels.servers" />
       <p
-        v-if="resolvedChannel?.summary?.trim()"
+        v-if="summary"
         class="text-c-1 mt-4 mb-2 text-left">
-        {{ resolvedChannel.summary }}
+        {{ summary }}
       </p>
       <ScalarMarkdown
         class="channel-description"
@@ -246,9 +256,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :protocols="labels.protocols"
           :servers="labels.servers" />
         <p
-          v-if="resolvedChannel?.summary?.trim()"
+          v-if="summary"
           class="text-c-1 mt-4 mb-2 text-left">
-          {{ resolvedChannel.summary }}
+          {{ summary }}
         </p>
         <ScalarMarkdown
           :value="description"

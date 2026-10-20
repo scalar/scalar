@@ -85,10 +85,13 @@ const requiredSecurity = computed<RequiredSecurity>(() =>
   ),
 )
 
-/** A summary used as the heading must not repeat in the body. */
+/** Use the summary as body text only when there is no description or matching heading. */
 const summary = computed((): string => {
   const value = resolvedOperation.value?.summary?.trim() ?? ''
-  return value === headingText.value ? '' : value
+  return resolvedOperation.value?.description?.trim() ||
+    value === headingText.value
+    ? ''
+    : value
 })
 
 const description = computed(
