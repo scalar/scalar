@@ -480,6 +480,7 @@ export type ApiReferenceTranslations = {
     constraintIf: string
     constraintThen: string
     constraintElse: string
+    containsMatchingItems: string
     containsConstraint: string
     dependencyConstraint: string
     requiredProperties: string

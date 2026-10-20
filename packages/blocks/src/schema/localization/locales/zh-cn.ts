@@ -4,6 +4,7 @@ export const zhCn = {
     constraintIf: '如果符合此模式',
     constraintThen: '则应用',
     constraintElse: '否则应用',
+    containsMatchingItems: '匹配项数量：{minimum}–{maximum}',
     containsConstraint: '至少包含一个匹配项',
     dependencyConstraint: '当 {name} 存在时',
     requiredProperties: '必需属性：{names}',

@@ -5,6 +5,7 @@ export const zhTw = {
     constraintIf: '若符合此結構描述',
     constraintThen: '則套用',
     constraintElse: '否則套用',
+    containsMatchingItems: '符合的項目數量：{minimum}–{maximum}',
     containsConstraint: '至少包含一個符合的項目',
     dependencyConstraint: '當 {name} 存在時',
     requiredProperties: '必要屬性：{names}',

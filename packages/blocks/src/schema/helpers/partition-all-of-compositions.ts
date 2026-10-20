@@ -23,10 +23,10 @@ type AllOfSegment =
 
 /** Preserve the entire conditional group at its original schema boundary. */
 const preserveConstraints = (source: ConstraintSchema, rest: SchemaObject): ConstraintSchema =>
-  source[schemaDialect] === 'draft-07'
+  source[schemaDialect] && source[schemaDialect] !== 'unsupported'
     ? {
         ...rest,
-        [schemaDialect]: 'draft-07',
+        [schemaDialect]: source[schemaDialect],
         ...(source.if !== undefined ? { if: source.if, then: source.then, else: source.else } : {}),
       }
     : rest
@@ -43,7 +43,7 @@ type Member =
  * group it declares — recursing into nested `allOf` — into a flat, ordered list,
  * preserving source order so choice groups stay where they were authored.
  *
- * Draft-07 constraint members stay separate so unrelated conditions cannot merge.
+ * Recognized constraint members stay separate so unrelated conditions cannot merge.
  * Other pure constraints keep the existing OpenAPI display behavior.
  */
 const collectMembers = (

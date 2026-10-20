@@ -22,6 +22,7 @@ import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isOnSchemaTargetPath } from './helpers/is-on-schema-target-path'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { openApiSchemaView } from './helpers/openapi-schema-view'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import {
@@ -141,7 +142,7 @@ const dynamicScope = useDynamicScope()
  * so replacing or switching the document still re-renders.
  */
 const schema = computed((): SchemaObject | undefined =>
-  unwrapForRead(schemaProp),
+  openApiSchemaView(unwrapForRead(schemaProp), options.document),
 )
 
 /**

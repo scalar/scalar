@@ -4,6 +4,7 @@ import {
   schemaDialect,
   SchemaHeading,
   SchemaProperty,
+  supportsOpenApiSchemaDialect,
   type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -63,9 +64,9 @@ const { level: headingLevel } = useDocumentOutline('model')
       </Anchor>
     </template>
     <div class="py-2 ps-9 pe-3">
-      <!-- Draft-07 constraints belong to the model as well as its properties. -->
+      <!-- Dialect-aware constraints belong to the model as well as its properties. -->
       <Schema
-        v-if="schemaDialect in schema"
+        v-if="schemaDialect in schema || supportsOpenApiSchemaDialect(document)"
         :breadcrumb="[id]"
         :eventBus
         :expansion

@@ -4,6 +4,7 @@ export const de = {
     constraintIf: 'Wenn dieses Schema zutrifft',
     constraintThen: 'Dann anwenden',
     constraintElse: 'Andernfalls anwenden',
+    containsMatchingItems: 'Passende Elemente: {minimum}–{maximum}',
     containsConstraint: 'Enthält mindestens ein passendes Element',
     dependencyConstraint: 'Wenn {name} vorhanden ist',
     requiredProperties: 'Erforderliche Eigenschaften: {names}',

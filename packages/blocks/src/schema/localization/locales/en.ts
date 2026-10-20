@@ -4,6 +4,7 @@ export const en = {
     constraintIf: 'If this schema matches',
     constraintThen: 'Then apply',
     constraintElse: 'Otherwise apply',
+    containsMatchingItems: 'Matching items: {minimum}–{maximum}',
     containsConstraint: 'Contains at least one matching item',
     dependencyConstraint: 'When {name} is present',
     requiredProperties: 'Required properties: {names}',

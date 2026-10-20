@@ -2,7 +2,7 @@
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, useId } from 'vue'
 
-import type { ConstraintSchema } from './constraint-metadata'
+import { schemaDialect, type ConstraintSchema } from './constraint-metadata'
 import { useLocalization } from './localization'
 import SchemaConstraint from './SchemaConstraint.vue'
 import type { SchemaOptions, SchemaRenderingProps } from './types'
@@ -42,7 +42,28 @@ const branches = computed(() =>
 const dependencyLabelParts = computed(() =>
   translate('schema.dependencyConstraint').split('{name}'),
 )
-const dependencies = computed(() => Object.entries(schema.dependencies ?? {}))
+const modernDialect = computed(() => schema[schemaDialect] !== 'draft-07')
+const containsLabel = computed(() =>
+  modernDialect.value &&
+  (schema.minContains !== undefined || schema.maxContains !== undefined)
+    ? translate('schema.containsMatchingItems', {
+        minimum: schema.minContains ?? 1,
+        maximum: schema.maxContains ?? '∞',
+      })
+    : translate('schema.containsConstraint'),
+)
+const dependencies = computed(() =>
+  (modernDialect.value
+    ? (['dependentRequired', 'dependentSchemas'] as const)
+    : (['dependencies'] as const)
+  ).flatMap((keyword) =>
+    Object.entries(schema[keyword] ?? {}).map(([name, dependency]) => ({
+      keyword,
+      name,
+      dependency,
+    })),
+  ),
+)
 </script>
 <template>
   <div class="schema-constraints">
@@ -65,18 +86,18 @@ const dependencies = computed(() => Object.entries(schema.dependencies ?? {}))
       :depth
       :eventBus
       :expansion
-      :label="translate('schema.containsConstraint')"
+      :label="containsLabel"
       :level
       :options
       :scrollTargetId
       :specificationExtension />
     <SchemaConstraint
-      v-for="[name, dependency] in dependencies"
-      :key="name"
+      v-for="{ keyword, name, dependency } in dependencies"
+      :key="`${keyword}:${name}`"
       :branches="
         Array.isArray(dependency) ? [] : [{ key: name, schema: dependency }]
       "
-      :breadcrumb="[...constraintBreadcrumb, 'dependencies', name]"
+      :breadcrumb="[...constraintBreadcrumb, keyword, name]"
       :depth
       :eventBus
       :expansion

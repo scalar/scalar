@@ -4,4 +4,4 @@
 "@scalar/types": patch
 ---
 
-Render conditional schemas, array contains constraints, and Draft-07 dependencies in AsyncAPI payloads, headers, and models.
+Render conditional schemas, array contains constraints, and dependencies in AsyncAPI and OpenAPI 3.1+ schemas, respecting declared JSON Schema dialects.

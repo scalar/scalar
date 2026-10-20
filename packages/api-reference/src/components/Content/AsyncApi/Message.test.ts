@@ -1,3 +1,4 @@
+import { SchemaProperty } from '@scalar/blocks/schema'
 import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
@@ -170,7 +171,11 @@ describe('Message', () => {
     expect(wrapper.text()).toContain('priority')
     expect(wrapper.text()).toContain('When card is present')
     expect(wrapper.text()).toContain('Required properties: billingAddress')
-    expect(wrapper.text()).toContain('Required properties: accountId')
+    expect(wrapper.text()).not.toContain('Required properties: accountId')
+    const accountId = wrapper
+      .findAllComponents(SchemaProperty)
+      .find((property) => property.props('name') === 'accountId')
+    expect(accountId?.text()).toContain('required')
   })
 
   it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {

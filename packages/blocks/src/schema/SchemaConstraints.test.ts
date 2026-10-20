@@ -1,4 +1,5 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
+import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -6,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import { type ConstraintSchema, schemaDialect } from './constraint-metadata'
 import Schema from './Schema.vue'
 import SchemaConstraint from './SchemaConstraint.vue'
+import SchemaProperty from './SchemaProperty.vue'
 
 const draft = (value: Record<string, unknown>): ConstraintSchema =>
   ({
@@ -137,5 +139,97 @@ describe('SchemaConstraints', () => {
       }),
     )
     expect(wrapper.findAllComponents(SchemaConstraint).length).toBe(0)
+  })
+
+  const document = { openapi: '3.1.0', info: { title: 'Accounts', version: '1' }, paths: {} } as OpenApiDocument
+  const schema = {
+    type: 'object',
+    properties: { kind: { type: 'string' } },
+    if: { type: 'object', properties: { kind: { type: 'string', const: 'business' } }, required: ['kind'] },
+    then: { type: 'object', required: ['company'] },
+    dependentRequired: { card: ['billingAddress'] },
+    dependentSchemas: { card: { type: 'object', required: ['securityCode'] } },
+    dependencies: { ignored: ['legacy'] },
+  } as ConstraintSchema
+
+  it.each([Schema, SchemaProperty])('renders modern constraints from shared entry points', (component) => {
+    const wrapper = mount(component, {
+      props: { schema, eventBus: null, options: { document, expandAllSchemaProperties: true } },
+    })
+    expect(wrapper.text()).toContain('Conditional constraints')
+    expect(wrapper.text()).toContain('Required properties: company')
+    expect(wrapper.text()).toContain('Required properties: billingAddress')
+    expect(wrapper.text()).toContain('Required properties: securityCode')
+    expect(wrapper.text()).not.toContain('legacy')
+    expect(
+      wrapper
+        .findAllComponents(SchemaConstraint)
+        .filter((part) => part.props('label') === 'When card is present')
+        .map((part) => part.findAll('p').map((paragraph) => paragraph.text())),
+    ).toEqual([['Required properties: billingAddress'], ['Required properties: securityCode']])
+  })
+
+  it.each([
+    [0, 2, 'Matching items: 0–2'],
+    [2, undefined, 'Matching items: 2–∞'],
+    [undefined, 3, 'Matching items: 1–3'],
+    [undefined, undefined, 'Contains at least one matching item'],
+  ])('renders contains bounds %s and %s', (minContains, maxContains, label) => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: {
+          type: 'array',
+          items: { type: 'string' },
+          contains: { const: 'priority' },
+          minContains,
+          maxContains,
+        } as ConstraintSchema,
+        eventBus: null,
+        options: { document, expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain(label)
+    expect(wrapper.text()).toContain('priority')
+  })
+
+  it('ignores modern keywords under Draft-07 and bounds without contains', () => {
+    const wrapper = mount(Schema, {
+      props: {
+        schema: { ...schema, $schema: 'http://json-schema.org/draft-07/schema#', minContains: 0, maxContains: 2 },
+        eventBus: null,
+        options: { document, expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain('Required properties: legacy')
+    expect(wrapper.text()).not.toContain('billingAddress')
+    expect(wrapper.text()).not.toContain('securityCode')
+    expect(wrapper.text()).not.toContain('Matching items')
+  })
+
+  it('does not render constraints in unknown dialects or upgraded OpenAPI 3.0 documents', () => {
+    for (const overrides of [
+      { jsonSchemaDialect: 'https://example.com/custom' },
+      { 'x-original-oas-version': '3.0.4' },
+    ]) {
+      const wrapper = mount(Schema, {
+        props: {
+          schema,
+          eventBus: null,
+          options: { document: { ...document, ...overrides }, expandAllSchemaProperties: true },
+        },
+      })
+      expect(wrapper.findComponent(SchemaConstraint).exists()).toBe(false)
+    }
+  })
+  it('renders a referenced constraint through the property entry point', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        schema: { $ref: '#/components/schemas/Account', '$ref-value': schema } as unknown as ConstraintSchema,
+        eventBus: null,
+        options: { document, expandAllSchemaProperties: true },
+      },
+    })
+    expect(wrapper.text()).toContain('Conditional constraints')
+    expect(wrapper.text()).toContain('Required properties: billingAddress')
   })
 })

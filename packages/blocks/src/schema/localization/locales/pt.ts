@@ -4,6 +4,7 @@ export const pt = {
     constraintIf: 'Se este esquema corresponder',
     constraintThen: 'Então aplicar',
     constraintElse: 'Caso contrário aplicar',
+    containsMatchingItems: 'Itens correspondentes: {minimum}–{maximum}',
     containsConstraint: 'Contém pelo menos um item correspondente',
     dependencyConstraint: 'Quando {name} está presente',
     requiredProperties: 'Propriedades obrigatórias: {names}',

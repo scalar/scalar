@@ -4,6 +4,7 @@ export const es = {
     constraintIf: 'Si coincide con este esquema',
     constraintThen: 'Entonces aplicar',
     constraintElse: 'En caso contrario aplicar',
+    containsMatchingItems: 'Elementos coincidentes: {minimum}–{maximum}',
     containsConstraint: 'Contiene al menos un elemento coincidente',
     dependencyConstraint: 'Cuando {name} está presente',
     requiredProperties: 'Propiedades obligatorias: {names}',

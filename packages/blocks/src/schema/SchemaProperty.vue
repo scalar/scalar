@@ -55,6 +55,7 @@ import { hasComplexArrayItems } from './helpers/has-complex-array-items'
 import { hasSchemaConstraints } from './helpers/has-schema-constraints'
 import { isTypeObject } from './helpers/is-type-object'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
+import { openApiSchemaView } from './helpers/openapi-schema-view'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import type { CompositionKeyword } from './helpers/schema-composition'
@@ -148,14 +149,18 @@ const dynamicScope = useDynamicScope()
  * `ParameterListItem` and `Headers` hand a schema in below a root and would otherwise leave the
  * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
-const optimizedValue = computed(() =>
-  normalizeObjectComposition(
+const optimizedValue = computed(() => {
+  const bound = resolveDynamicSchema(
+    openApiSchemaView(unwrapForRead(props.schema), props.options.document),
+    dynamicScope,
+  )
+  return normalizeObjectComposition(
     optimizeValueForDisplay(
-      resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+      bound && '$ref' in bound ? resolve.schema(bound) : bound,
     ),
     props.name,
-  ),
-)
+  )
+})
 
 /** Mixed object/choice compositions still belong inside their named property's panel. */
 const hasObjectComposition = computed((): boolean => {

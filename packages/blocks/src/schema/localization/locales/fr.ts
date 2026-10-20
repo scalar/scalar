@@ -4,6 +4,7 @@ export const fr = {
     constraintIf: 'Si ce schéma correspond',
     constraintThen: 'Alors appliquer',
     constraintElse: 'Sinon appliquer',
+    containsMatchingItems: 'Éléments correspondants : {minimum}–{maximum}',
     containsConstraint: 'Contient au moins un élément correspondant',
     dependencyConstraint: 'Lorsque {name} est présent',
     requiredProperties: 'Propriétés obligatoires : {names}',
