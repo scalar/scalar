@@ -6,4 +6,4 @@
 
 Display authored AsyncAPI server-variable examples in the shared Example/Examples popup with copy support, including examples from referenced variables.
 
-Keep the shared examples popup label clickable when hovered.
+Keep the shared examples popup label clickable when hovered and align server-variable popups with their labels to avoid overlapping the sidebar.

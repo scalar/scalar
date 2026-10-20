@@ -152,7 +152,9 @@ const updateServerVariable = (key: string, value: string) => {
       :key="name"
       #[`hint-${name}`]>
       <div class="flex">
-        <SchemaPropertyExamples :examples="variable.examples" />
+        <SchemaPropertyExamples
+          align="start"
+          :examples="variable.examples" />
       </div>
     </template>
   </ServerVariablesForm>
