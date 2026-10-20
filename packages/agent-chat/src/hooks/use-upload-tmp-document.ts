@@ -1,6 +1,6 @@
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { coerce, object, string, validate } from '@scalar/validation'
-import { ref } from 'vue'
+import { onScopeDispose } from 'vue'
 
 import { useState } from '@/state/state'
 
@@ -43,11 +43,13 @@ export function removeTmpDocFromLocalStorage() {
 }
 
 /**
- * Handle uploading a temporary OpenAPI document.
+ * Handle uploading a temporary API description.
  */
 export function useUploadTmpDocument() {
   const state = useState()
-  const uploadState = ref<UploadTmpDocumentState>()
+  const { uploadState } = state
+  const controller = new AbortController()
+  onScopeDispose(() => controller.abort())
 
   function createUrl(path: string) {
     const fullUrl = `${state.baseUrl}${path}`
@@ -62,6 +64,7 @@ export function useUploadTmpDocument() {
 
       const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?source=agent' : ''}`), {
         method: 'POST',
+        signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -71,7 +74,7 @@ export function useUploadTmpDocument() {
       if (!response.ok) {
         uploadState.value = {
           type: 'error',
-          error: 'Failed to upload your OpenAPI document.',
+          error: 'Failed to upload your API description.',
         }
 
         return
@@ -98,20 +101,9 @@ export function useUploadTmpDocument() {
         createUrl(`/vector/registry/embeddings/${uploadData.namespace}/${uploadData.slug}`),
         {
           method: 'GET',
+          signal: controller.signal,
         },
       )
-
-      saveTmpDocumentInLocalStorage({
-        namespace: uploadData.namespace,
-        slug: uploadData.slug,
-      })
-
-      await state.addDocument({
-        namespace: uploadData.namespace,
-        slug: uploadData.slug,
-        removable: false,
-        tmp: true,
-      })
 
       if (!embeddingStatusResponse.ok) {
         uploadState.value = {
@@ -121,6 +113,17 @@ export function useUploadTmpDocument() {
         return
       }
 
+      await state.addDocument({
+        namespace: uploadData.namespace,
+        slug: uploadData.slug,
+        removable: false,
+        tmp: true,
+      })
+
+      if (controller.signal.aborted) {
+        return
+      }
+      saveTmpDocumentInLocalStorage({ namespace: uploadData.namespace, slug: uploadData.slug })
       uploadState.value = { type: 'done' }
       state.uploadedTmpDocumentUrl.value = uploadData.url
 
@@ -130,7 +133,10 @@ export function useUploadTmpDocument() {
 
       return uploadData
     } catch {
-      uploadState.value = { type: 'error', error: 'Failed to upload your OpenAPI document.' }
+      if (controller.signal.aborted) {
+        return
+      }
+      uploadState.value = { type: 'error', error: 'Failed to upload your API description.' }
       return
     }
   }

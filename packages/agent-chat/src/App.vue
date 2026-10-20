@@ -15,6 +15,7 @@ const {
   getAccessToken,
   getAgentKey,
   getActiveDocumentJson,
+  getActiveDocumentContext,
   isLoggedIn,
   prefilledMessage,
   hideAddApi,
@@ -28,6 +29,8 @@ const {
   getAccessToken?: () => string
   getAgentKey?: () => string
   getActiveDocumentJson?: () => string
+  /** Identifies the selected reference source in outgoing questions. */
+  getActiveDocumentContext?: () => string | undefined
   isLoggedIn?: Ref<boolean>
   prefilledMessage?: Ref<string>
   hideAddApi?: boolean
@@ -39,6 +42,7 @@ defineEmits<{
 
 const state = createState({
   getActiveDocumentJson,
+  getActiveDocumentContext,
   initialRegistryDocuments: registryDocuments,
   prefilledMessageRef: prefilledMessage,
   platformProxyUrl,

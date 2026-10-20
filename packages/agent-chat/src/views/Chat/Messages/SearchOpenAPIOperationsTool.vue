@@ -6,7 +6,7 @@ import { computed, ref, watch, type Reactive, type Ref } from 'vue'
 import ContextItem from '@/components/ContextItem.vue'
 import LoadingSearchOpenAPIOperations from '@/components/LoadingSearchOpenAPIOperations.vue'
 import type { SEARCH_OPENAPI_OPERATIONS_TOOL_NAME } from '@/entities/tools/search-openapi-operations'
-import { getOperations } from '@/helpers'
+import { getSearchResultLabels } from '@/helpers/get-search-result-labels'
 import { useState, type Tools } from '@/state/state'
 
 const { messagePart, message } = defineProps<{
@@ -40,18 +40,7 @@ const operations = computed(() => {
     return
   }
 
-  return messagePart.value.output.flatMap((spec) => {
-    const title = spec.info?.title
-
-    const documentOperations = getOperations(spec)
-
-    return documentOperations
-      .map(
-        (operation) =>
-          `${title ? `${title} - ` : ''}${operation.summary ?? ''}`,
-      )
-      .filter(Boolean)
-  })
+  return messagePart.value.output.flatMap(getSearchResultLabels)
 })
 
 const visibleOperations = computed(() =>
@@ -76,8 +65,8 @@ const state = useState()
     v-if="operations"
     class="operations">
     <ContextItem
-      v-for="operation of visibleOperations"
-      :key="operation"
+      v-for="(operation, index) of visibleOperations"
+      :key="index"
       :loading="!messageFinished">
       {{ operation }}
     </ContextItem>
@@ -90,8 +79,8 @@ const state = useState()
       <template #popover>
         <div class="overflowPopover">
           <ContextItem
-            v-for="operation of hiddenOperations"
-            :key="operation"
+            v-for="(operation, index) of hiddenOperations"
+            :key="index"
             :loading="!messageFinished">
             {{ operation }}
           </ContextItem>
