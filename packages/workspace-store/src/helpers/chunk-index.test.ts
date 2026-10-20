@@ -3,6 +3,34 @@ import { describe, expect, it } from 'vitest'
 import { CHUNK_INDEX_KEY, type ChunkIndex, chunkRefTemplates, expandChunkIndex } from './chunk-index'
 
 describe('chunk-index', () => {
+  it.each(['static', 'ssr'] as const)('keeps inline components alongside chunked entries in %s mode', (mode) => {
+    const auth = { type: 'http', scheme: 'bearer' }
+    const inline = JSON.parse(
+      '{"securitySchemes":{"token":{"type":"http","scheme":"bearer"}},"schemas":{"Inline":{"type":"string"},"__proto__":{"type":"number"}},"__proto__":{"constructor":{"type":"boolean"}}}',
+    )
+    const document: Record<string, unknown> = {
+      components: inline,
+      [CHUNK_INDEX_KEY]: {
+        mode,
+        refs: chunkRefTemplates({ mode, name: 'doc', baseUrl: 'https://example.com' }),
+        components: { securitySchemes: ['token'], schemas: ['Remote', 'Inline'] },
+        paths: { '/users': { get: 0 } },
+      } satisfies ChunkIndex,
+    }
+
+    expect(expandChunkIndex(document)).toBe(true)
+    const components = document['components'] as Record<string, Record<string, unknown>>
+    expect(components['securitySchemes']).toEqual({ token: auth })
+    expect(components['schemas']?.['Inline']).toEqual({ type: 'string' })
+    expect(components['schemas']?.['Remote']).toHaveProperty('$ref')
+    expect(components['schemas']?.['__proto__']).toEqual({ type: 'number' })
+    expect(components['__proto__']).toEqual({ constructor: { type: 'boolean' } })
+    expect(Object.getPrototypeOf(components)).toBe(Object.prototype)
+    expect(document['paths']).toHaveProperty('/users.get.$ref')
+    expect(Object.hasOwn(document, CHUNK_INDEX_KEY)).toBe(false)
+    expect(inline.schemas).not.toHaveProperty('Remote')
+  })
+
   it.each(['static', 'ssr'] as const)('preserves prototype-related keys as own properties in %s mode', (mode) => {
     const keys = ['__proto__', 'constructor', 'prototype']
     const pathItem = JSON.parse('{"__proto__":{"polluted":true},"constructor":"data","prototype":"data","get":0}')

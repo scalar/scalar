@@ -249,7 +249,17 @@ export const expandChunkIndex = (document: unknown): boolean => {
     ]),
   )
 
-  document['components'] = components
+  // Inline entries are already available and take precedence over chunk references.
+  const inlineComponents = isObject(document['components']) ? document['components'] : {}
+  document['components'] = Object.fromEntries(
+    [...new Set([...Object.keys(components), ...Object.keys(inlineComponents)])].map((type) => [
+      type,
+      {
+        ...(Object.hasOwn(components, type) ? components[type] : {}),
+        ...(Object.hasOwn(inlineComponents, type) && isObject(inlineComponents[type]) ? inlineComponents[type] : {}),
+      },
+    ]),
+  )
   document['paths'] = paths
   delete document[CHUNK_INDEX_KEY]
 
