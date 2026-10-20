@@ -14,15 +14,24 @@ Your API is now available in the registry under your team's namespace.
 
 ### Re-upload an existing API
 
-When an upload matches an API in the selected namespace, the import form displays **This API already exists**. Under **Add to existing API?**, select the API to update, or choose **Or create new API** to keep it separate.
+When an upload matches an API in the selected namespace by title or registry path, the import form offers **Add to existing API?**. A registry path match can offer the existing API even when the uploaded title differs. For a path-only match, creating a new API stays selected by default: explicitly choose the existing API to add a version, or choose a different registry path to create a separate API.
 
 Before adding to an existing API:
 
 - Review the destination and its access setting. Adding a version keeps the existing API's public or private access.
-- Review the **Version** and any overwrite warnings. Uploading an existing version replaces that version's content.
+- Review the **Version** and any overwrite warnings. Uploading an existing version replaces that version's content. To keep the existing version, choose the suggested next available version, such as **Use 1.4.1 instead**, or enter another unused version.
 - Review **Set as the current version**. A newer version is selected as current by default; re-uploading the current version keeps it current. An older version is not promoted by default.
 
-APIs linked to Git or a URL, and APIs with a different document type, cannot receive the upload as a new version through this flow. The form explains the conflict and offers **Or create new API**. A registry path collision alone also does not qualify as a matching API.
+APIs linked to Git or a URL, and APIs with a different document type, cannot receive the upload as a new version through this flow. The form explains the conflict and offers **Or create new API**.
+
+### Upload a version from API settings
+
+1. Open your API and go to **Settings → Versions**.
+2. Click **Upload version** and choose the API description to upload.
+3. Review the version, overwrite warning, and **Set as the current version** option. If the version already exists, choose the suggested next available version to keep both.
+4. Complete the upload. This form is fixed to the API you opened; it cannot create a different API.
+
+**Upload version** is hidden for APIs sourced from Git or a URL. Update those sources through their configured sync instead.
 
 ## Update an API Document
 
