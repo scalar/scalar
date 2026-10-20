@@ -47,6 +47,8 @@ jobs:
         with:
           token: ${{ steps.app-token.outputs.token }}
           branch: contributors-readme-action-update
+          # Avoid attributing generated commits to the scheduled workflow actor.
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: 'docs(contributor): update README contributors'
           title: 'docs(contributor): update README contributors'
           body: Auto-generated list of contributors.
