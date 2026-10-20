@@ -1448,9 +1448,10 @@ const LANDING_PROMPT_SHORT = [
     tag: 'ol',
     items: [
       { part: 'step-1' },
-      { part: 'step-2', parts: ['create', ' ', 'lang', ' ', 'sdk', 'sdk-end'] },
-      { part: 'step-3', parts: ['docs', 'docs-end'] },
-      { part: 'step-4' },
+      { part: 'step-2', parts: ['mcp', 'mcp-end'] },
+      { part: 'step-3', parts: ['create', ' ', 'lang', ' ', 'sdk', 'sdk-end'] },
+      { part: 'step-4', parts: ['docs', 'docs-end'] },
+      { part: 'step-5' },
     ],
   },
 ]

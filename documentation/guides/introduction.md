@@ -363,9 +363,10 @@
 <p><span class="lp-prompt-part" data-lp-part="find">Find my OpenAPI file and the brand site for</span> <span class="lp-prompt-keep lp-prompt-part" data-lp-part="brand"><span class="lp-prompt-fill" data-value="your brand"><input type="text" class="lp-prompt-input" placeholder="your brand" aria-label="Your brand name or website" data-fallback="my company" autocomplete="off" autocapitalize="off" spellcheck="false"></span>,</span> check what my team already has so nothing is duplicated, <span class="lp-prompt-part" data-lp-part="confirm">and confirm with me once. Then:</span></p>
 <ol>
 <li class="lp-prompt-part" data-lp-part="step-1">Publish the API to the Scalar Registry.</li>
-<li class="lp-prompt-part" data-lp-part="step-2" data-lp-deep><span class="lp-prompt-part" data-lp-part="create">Create one</span> <span class="lp-prompt-pick lp-prompt-part" data-lp-part="lang" data-value="TypeScript"><select class="lp-prompt-select" aria-label="SDK language"><option value="TypeScript" selected>TypeScript</option><option value="Python">Python</option><option value="Go">Go</option><option value="Java">Java</option><option value="Kotlin">Kotlin</option><option value="C#">C#</option><option value="PHP">PHP</option><option value="Ruby">Ruby</option><option value="Rust">Rust</option><option value="Swift">Swift</option></select><scalar-icon class="lp-prompt-pick-caret" src="phosphor/regular/caret-down"></scalar-icon></span> <span class="lp-prompt-part" data-lp-part="sdk">SDK</span> with <code>create_an_sdk</code> (it builds itself, never call <code>build_an_sdk</code>)<span class="lp-prompt-part" data-lp-part="sdk-end">.</span></li>
-<li class="lp-prompt-part" data-lp-part="step-3" data-lp-deep><span class="lp-prompt-part" data-lp-part="docs">Scaffold <code>scalar-docs/</code> with intro, quickstart and authentication guides from the spec</span>, a custom <code>--scalar-*</code> CSS theme from my brand (<code>siteConfig.theme</code>), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show<span class="lp-prompt-part" data-lp-part="docs-end">.</span></li>
-<li class="lp-prompt-part" data-lp-part="step-4" data-lp-deep>Create the docs project and <code>project publish</code> it.</li>
+<li class="lp-prompt-part" data-lp-part="step-2"><span class="lp-prompt-part" data-lp-part="mcp">Host an MCP server for the API</span> with <code>create_an_mcp_server</code>, pointed at the Registry entry<span class="lp-prompt-part" data-lp-part="mcp-end">.</span></li>
+<li class="lp-prompt-part" data-lp-part="step-3" data-lp-deep><span class="lp-prompt-part" data-lp-part="create">Create one</span> <span class="lp-prompt-pick lp-prompt-part" data-lp-part="lang" data-value="TypeScript"><select class="lp-prompt-select" aria-label="SDK language"><option value="TypeScript" selected>TypeScript</option><option value="Python">Python</option><option value="Go">Go</option><option value="Java">Java</option><option value="Kotlin">Kotlin</option><option value="C#">C#</option><option value="PHP">PHP</option><option value="Ruby">Ruby</option><option value="Rust">Rust</option><option value="Swift">Swift</option></select><scalar-icon class="lp-prompt-pick-caret" src="phosphor/regular/caret-down"></scalar-icon></span> <span class="lp-prompt-part" data-lp-part="sdk">SDK</span> with <code>create_an_sdk</code> (it builds itself, never call <code>build_an_sdk</code>)<span class="lp-prompt-part" data-lp-part="sdk-end">.</span></li>
+<li class="lp-prompt-part" data-lp-part="step-4" data-lp-deep><span class="lp-prompt-part" data-lp-part="docs">Scaffold <code>scalar-docs/</code> with intro, quickstart and authentication guides from the spec</span>, a custom <code>--scalar-*</code> CSS theme from my brand (<code>siteConfig.theme</code>), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show<span class="lp-prompt-part" data-lp-part="docs-end">.</span></li>
+<li class="lp-prompt-part" data-lp-part="step-5" data-lp-deep>Create the docs project and <code>project publish</code> it.</li>
 </ol>
 <p>Report the links. Never delete anything.</p>
 </div>
@@ -2616,7 +2617,8 @@
     border-radius: 12px;
     border-bottom-right-radius: 4px;
     background: var(--scalar-background-1);
-    color: var(--scalar-color-1);
+    /* the chatter is quieter than the prompt on the right */
+    color: var(--scalar-color-2);
     font-size: var(--scalar-font-size-4);
     line-height: 1.4;
     text-wrap: pretty;
