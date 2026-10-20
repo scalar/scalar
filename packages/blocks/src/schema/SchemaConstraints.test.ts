@@ -36,7 +36,9 @@ describe('SchemaConstraints', () => {
     expect(toggle.attributes('aria-expanded')).toBe('true')
     expect(wrapper.text()).toContain('If this schema matches')
     expect(wrapper.text()).toContain('business')
-    expect(wrapper.text()).toContain('Required properties: company')
+    expect(wrapper.text()).not.toContain('Required properties: company')
+    expect(wrapper.text()).toContain('company')
+    expect(wrapper.text()).not.toContain('Required properties: kind')
     expect(wrapper.text()).toContain('Required properties: person')
     await toggle.trigger('click')
     expect(wrapper.text()).not.toContain('company')
@@ -65,7 +67,20 @@ describe('SchemaConstraints', () => {
     expect(wrapper.text()).toContain('When card is present')
     expect(wrapper.text()).toContain('Required properties: billingAddress')
     expect(wrapper.text()).toContain('When account is present')
-    expect(wrapper.text()).toContain('Required properties: id')
+    expect(wrapper.text()).not.toContain('Required properties: id')
+    expect(wrapper.text()).toContain('id')
+  })
+
+  it('retains only required names without property rows in a mixed branch', () => {
+    const wrapper = render(
+      draft({
+        if: true,
+        then: { type: 'object', properties: { company: { type: 'string' } }, required: ['company', 'billingAddress'] },
+      }),
+    )
+    expect(wrapper.text()).toContain('Required properties: billingAddress')
+    expect(wrapper.text()).not.toContain('Required properties: company')
+    expect(wrapper.text()).toContain('company')
   })
 
   it('keeps independent allOf conditions separate and ignores orphan branches', () => {

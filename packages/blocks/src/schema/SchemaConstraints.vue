@@ -39,6 +39,9 @@ const branches = computed(() =>
         ],
   ),
 )
+const dependencyLabelParts = computed(() =>
+  translate('schema.dependencyConstraint').split('{name}'),
+)
 const dependencies = computed(() => Object.entries(schema.dependencies ?? {}))
 </script>
 <template>
@@ -82,6 +85,18 @@ const dependencies = computed(() => Object.entries(schema.dependencies ?? {}))
       :options
       :requiredProperties="Array.isArray(dependency) ? dependency : undefined"
       :scrollTargetId
-      :specificationExtension />
+      :specificationExtension>
+      <template #label>
+        <template
+          v-for="(part, index) in dependencyLabelParts"
+          :key="index">
+          <span
+            v-if="index"
+            class="font-code text-c-1"
+            >{{ name }}</span
+          >{{ part }}
+        </template>
+      </template>
+    </SchemaConstraint>
   </div>
 </template>

@@ -1230,7 +1230,8 @@ const onBeforeMatch = (): void => {
         hasSchemaConstraints(optimizedValue)
       "
       :breadcrumb="childBreadcrumb"
-      :depth
+      class="ms-[var(--schema-gutter,16px)]"
+      :depth="depth + 1"
       :eventBus
       :expansion
       :level

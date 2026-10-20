@@ -9,6 +9,7 @@ import type {
 import { computed, inject, toRef, useId } from 'vue'
 
 import { isOnSchemaTargetPath } from './helpers/is-on-schema-target-path'
+import { isTypeObject } from './helpers/is-type-object'
 import { getCycleKey, SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import { toNodeKey, useSchemaExpansion } from './helpers/schema-expansion'
 import { useLocalization } from './localization'
@@ -60,11 +61,21 @@ const views = computed(() =>
   branches.map((branch) => {
     const cycleKey = getCycleKey(branch.schema)
     const schema = resolve.schema(branch.schema)
-    const required = 'required' in schema ? schema.required : undefined
+    const cyclic = cycleKey !== undefined && !!ancestors?.has(cycleKey)
+    // Property rows already carry required badges; keep names without a visible row.
+    const required =
+      'required' in schema
+        ? schema.required?.filter(
+            (name) =>
+              cyclic ||
+              !isTypeObject(schema) ||
+              !Object.hasOwn(schema.properties ?? {}, name),
+          )
+        : undefined
     return {
       ...branch,
       cycleKey,
-      cyclic: cycleKey !== undefined && !!ancestors?.has(cycleKey),
+      cyclic,
       schema: Object.keys(schema).length ? schema : getBooleanSchema(true),
       required,
     }
@@ -72,9 +83,9 @@ const views = computed(() =>
 )
 </script>
 <template>
-  <div class="relative py-1.5 text-sm">
+  <div class="relative py-1 text-sm">
     <SchemaGutterToggle
-      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-4.5 -translate-y-1/2"
+      class="absolute start-[calc(0px_-_var(--schema-toggle-half,12px)_-_var(--schema-gutter,16px))] top-3.5 -translate-y-1/2"
       :fallbackLabel="label"
       :nameId="labelId"
       :open
@@ -83,9 +94,9 @@ const views = computed(() =>
       @toggle="toggle" />
     <span
       :id="labelId"
-      class="text-c-2 block min-h-6 cursor-pointer text-left leading-6"
+      class="text-c-2 block min-h-5 cursor-pointer text-left leading-5 wrap-anywhere"
       @click="toggle">
-      {{ label }}
+      <slot name="label">{{ label }}</slot>
     </span>
     <SchemaRailPanel
       v-if="open"
@@ -96,7 +107,7 @@ const views = computed(() =>
       @close="toggle">
       <p
         v-if="requiredProperties !== undefined"
-        class="text-c-2 py-1.5">
+        class="text-c-2 py-1">
         {{
           requiredProperties.length
             ? translate('schema.requiredProperties', {
@@ -106,16 +117,17 @@ const views = computed(() =>
         }}
       </p>
       <div
-        v-for="branch in views"
-        :key="branch.key">
+        v-for="(branch, index) in views"
+        :key="branch.key"
+        :class="{ 'mt-3': index > 0 }">
         <p
           v-if="branch.label"
-          class="text-c-2 py-1.5 font-medium">
+          class="text-c-1 py-1 font-medium">
           {{ branch.label }}
         </p>
         <p
           v-if="branch.required?.length"
-          class="text-c-2 py-1.5">
+          class="text-c-2 py-1">
           {{
             translate('schema.requiredProperties', {
               names: branch.required.join(', '),
@@ -124,7 +136,7 @@ const views = computed(() =>
         </p>
         <p
           v-if="branch.cyclic"
-          class="text-c-2 py-1.5">
+          class="text-c-2 py-1">
           {{ translate('schema.recursive') }}
         </p>
         <Schema
