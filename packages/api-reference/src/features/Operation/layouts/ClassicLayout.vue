@@ -41,13 +41,9 @@ import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
-import {
-  getRequiredScopeGroups,
-  type RequiredSecurity,
-} from '@/features/Operation/helpers/get-required-security'
+import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -107,11 +103,6 @@ const showGenerateSdk = computed(() =>
   Boolean(generateSdk.value?.enabled.value),
 )
 const operationExtensions = computed(() => getXKeysFromObject(operation))
-
-/** Whether the operation requires any OAuth scopes, used to skip the empty card item. */
-const hasRequiredScopes = computed(
-  () => getRequiredScopeGroups(requiredSecurity).length > 0,
-)
 
 /** Track the selected request body content type so the code sample stays in sync */
 const selectedRequestBodyContentType = ref<string | undefined>()
@@ -279,11 +270,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <SpecificationExtension
             :showExtensions="options.showExtensions"
             :value="operationExtensions" />
-        </div>
-        <div
-          v-if="hasRequiredScopes"
-          class="operation-details-card-item">
-          <OperationScopes :requiredSecurity />
         </div>
         <div class="operation-details-card-item">
           <OperationParameters
