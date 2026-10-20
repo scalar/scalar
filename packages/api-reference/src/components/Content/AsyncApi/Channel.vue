@@ -153,19 +153,21 @@ const { level: headingLevel } = useDocumentOutline('channel')
     ">
     <template #title>
       <SectionHeader class="channel-name">
-        <Anchor
-          @copyAnchorUrl="
-            () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
-          ">
-          <SectionHeaderTag :level="headingLevel">
-            {{ headingText }}
-          </SectionHeaderTag>
-        </Anchor>
+        <div class="flex flex-wrap items-baseline gap-[9px]">
+          <Anchor
+            @copyAnchorUrl="
+              () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
+            ">
+            <SectionHeaderTag :level="headingLevel">
+              {{ headingText }}
+            </SectionHeaderTag>
+          </Anchor>
+          <AsyncApiLabels
+            class="gap-[9px] leading-[1.15] font-normal"
+            :protocols="labels.protocols"
+            :servers="labels.servers" />
+        </div>
       </SectionHeader>
-      <AsyncApiLabels
-        class="channel-labels"
-        :protocols="labels.protocols"
-        :servers="labels.servers" />
       <p
         v-if="summary"
         class="text-c-1 mt-4 mb-2 text-left">
@@ -241,6 +243,10 @@ const { level: headingLevel } = useDocumentOutline('channel')
       @intersecting="
         () => eventBus?.emit('intersecting:nav-item', { id: channel.id })
       ">
+      <AsyncApiLabels
+        class="gap-1"
+        :protocols="labels.protocols"
+        :servers="labels.servers" />
       <SectionHeader>
         <Anchor
           @copyAnchorUrl="
@@ -256,10 +262,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
       <SectionContent>
         <SectionColumns>
           <SectionColumn>
-            <AsyncApiLabels
-              class="channel-labels"
-              :protocols="labels.protocols"
-              :servers="labels.servers" />
             <p
               v-if="summary"
               class="text-c-1 mt-4 mb-2 text-left">
@@ -340,9 +342,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
 }
 .channel-section.channel-section-nested {
   padding-inline: 0;
-}
-.channel-labels {
-  margin-bottom: 8px;
 }
 .channel-description {
   padding-bottom: 4px;
