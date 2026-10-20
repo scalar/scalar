@@ -1434,19 +1434,132 @@ const landingPromptText = (root) => {
     .join('\n\n')
 }
 
-/* The prompt box on the right: the blanks size themselves to what they
-   hold, the shade under the text lifts at the end of the scroll, and the
-   button puts the prompt on the clipboard and says so for a moment */
+/* The short form the prompt box shows at rest: the prompt's own words,
+   fewer of them. Each block is built from the prompt's parts (elements
+   with data-lp-part, cloned, so the brand field and the language menu are
+   the same controls in both and initLandingPrompt keeps the twins in
+   step); a part string starting with a space is literal text between
+   them. A step with no parts is the whole list item. Built here rather
+   than written into the page so nothing is in the markdown twin twice. */
+const LANDING_PROMPT_SHORT = [
+  { tag: 'p', parts: ['setup', 'setup-end'] },
+  { tag: 'p', parts: ['find', ' ', 'brand', ' ', 'confirm'] },
+  {
+    tag: 'ol',
+    items: [
+      { part: 'step-1' },
+      { part: 'step-2', parts: ['create', ' ', 'lang', ' ', 'sdk', 'sdk-end'] },
+      { part: 'step-3', parts: ['docs', 'docs-end'] },
+      { part: 'step-4' },
+    ],
+  },
+]
+
+const buildLandingPromptShort = (text) => {
+  const part = (key) => text.querySelector(`[data-lp-part="${key}"]`)
+  const fill = (el, parts) => {
+    parts.forEach((key) => {
+      if (key.startsWith(' ')) {
+        el.appendChild(document.createTextNode(key))
+        return
+      }
+      const source = part(key)
+      if (source) {
+        el.appendChild(source.cloneNode(true))
+      }
+    })
+  }
+  const short = document.createElement('div')
+  short.className = 'lp-prompt-text lp-prompt-text--short'
+  LANDING_PROMPT_SHORT.forEach((block) => {
+    if (block.tag === 'ol') {
+      const list = document.createElement('ol')
+      block.items.forEach((item) => {
+        const source = part(item.part)
+        if (!source) {
+          return
+        }
+        if (!item.parts) {
+          list.appendChild(source.cloneNode(true))
+          return
+        }
+        const li = source.cloneNode(false)
+        fill(li, item.parts)
+        list.appendChild(li)
+      })
+      short.appendChild(list)
+      return
+    }
+    const el = document.createElement(block.tag)
+    fill(el, block.parts)
+    short.appendChild(el)
+  })
+  return short
+}
+
+/* The prompt box on the right: it shows the short form until the pointer
+   is over it, a field or a keyboard focus is inside it, or (where nothing
+   hovers) it is tapped, then the full prompt, swapped with a view
+   transition where there is one. The blanks size themselves to what they
+   hold and the short form's twins mirror the prompt's, the shade under
+   the text lifts at the end of the scroll, and the button puts the prompt
+   on the clipboard and says so for a moment */
 const initLandingPrompt = debounce(() => {
   const boxes = [...document.querySelectorAll('.lp-prompt')].filter((box) => box.dataset.lpPromptBound !== 'true')
   if (!boxes.length) {
     return
   }
 
+  const canHover = window.matchMedia('(hover: hover)')
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
   boxes.forEach((box) => {
     box.dataset.lpPromptBound = 'true'
     // the icons are decoration; the controls' labels say what they do
     box.querySelectorAll('svg').forEach((icon) => icon.setAttribute('aria-hidden', 'true'))
+
+    const body = box.querySelector('.lp-prompt-body')
+    const text = box.querySelector('.lp-prompt-text:not(.lp-prompt-text--short)')
+
+    // the short form at rest, and each field paired with its twin
+    const twins = new Map()
+    if (body && text) {
+      const short = buildLandingPromptShort(text)
+      text.after(short)
+      const pairs = [
+        [text.querySelector('.lp-prompt-input'), short.querySelector('.lp-prompt-input')],
+        [text.querySelector('.lp-prompt-select'), short.querySelector('.lp-prompt-select')],
+      ]
+      pairs.forEach(([a, b]) => {
+        if (!a || !b) {
+          return
+        }
+        twins.set(a, b)
+        twins.set(b, a)
+        const mirror = (from, to) => () => {
+          if (to.value !== from.value) {
+            to.value = from.value
+            to.dispatchEvent(new Event('input'))
+            to.dispatchEvent(new Event('change'))
+          }
+        }
+        a.addEventListener('input', mirror(a, b))
+        b.addEventListener('input', mirror(b, a))
+        a.addEventListener('change', mirror(a, b))
+        b.addEventListener('change', mirror(b, a))
+      })
+    }
+
+    /* Each part is named for the swap, the same on a part and its clone.
+       Without nested transition groups (Safari, Firefox) a part gliding
+       below the fold would show over the button on its way, so the deep
+       steps are left unnamed there and fade instead */
+    const nested = typeof CSS !== 'undefined' && CSS.supports('view-transition-group', 'nearest')
+    box.querySelectorAll('[data-lp-part]').forEach((part) => {
+      if (nested || !part.closest('[data-lp-deep]')) {
+        part.style.setProperty('--lp-vt', `lp-part-${part.dataset.lpPart}`)
+      }
+    })
 
     box.querySelectorAll('.lp-prompt-fill, .lp-prompt-pick').forEach((chip) => {
       const field = chip.querySelector('input, select')
@@ -1464,9 +1577,9 @@ const initLandingPrompt = debounce(() => {
       fit()
     })
 
-    const body = box.querySelector('.lp-prompt-body')
+    let atEnd = () => {}
     if (body) {
-      const atEnd = () => box.classList.toggle('is-at-end', body.scrollTop + body.clientHeight >= body.scrollHeight - 2)
+      atEnd = () => box.classList.toggle('is-at-end', body.scrollTop + body.clientHeight >= body.scrollHeight - 2)
       body.addEventListener('scroll', atEnd, { passive: true })
       if (typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(atEnd).observe(body)
@@ -1474,7 +1587,154 @@ const initLandingPrompt = debounce(() => {
       atEnd()
     }
 
-    const text = box.querySelector('.lp-prompt-text')
+    /* The box is never shorter than the short form: its height goes into
+       --lp-prompt-short (the stylesheet takes the larger of that and the
+       base height), read while the short form shows, so a narrow column
+       or a long brand name wraps the box taller instead of into a scroll */
+    const short = box.querySelector('.lp-prompt-text--short')
+    const fitBody = () => {
+      if (!body || !short || !box.classList.contains('is-simple')) {
+        return
+      }
+      const style = getComputedStyle(body)
+      const needed = short.scrollHeight + Number.parseFloat(style.paddingTop) + Number.parseFloat(style.paddingBottom)
+      box.style.setProperty('--lp-prompt-short', `${Math.ceil(needed)}px`)
+    }
+    if (short) {
+      short.addEventListener('input', fitBody)
+      short.addEventListener('change', fitBody)
+      if (typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(fitBody).observe(short)
+      }
+    }
+
+    /* The swap. The pointer counts as over the box by where it last was,
+       not by a hit test: while a swap runs the browser skips what it has
+       captured, and reports the still pointer as having left, which would
+       fold the box back and start over. A focus inside counts when it is
+       in one of the prompt's fields or shows a ring (a click on the text
+       focuses the region too, and should not hold the prompt open once
+       the pointer has left). The short form's own fields do not count:
+       a tap on one types into the sentence where it is, since swapping
+       under the tap would hide the field and the move to its twin, made
+       outside the gesture, would not bring up the keyboard on a phone.
+       While a swap runs the wish is parked and read again when it is
+       done, so a pointer darting in and out never stacks transitions. A
+       field focused when the forms do swap (a tap, then the pointer of a
+       hybrid device) hands its focus to its twin, caret and all. */
+    let simple = false
+    let pinned = false
+    let pointer = null
+    let transition = null
+    const over = () => {
+      if (!canHover.matches || !pointer) {
+        return false
+      }
+      const rect = box.getBoundingClientRect()
+      return pointer.x >= rect.left && pointer.x < rect.right && pointer.y >= rect.top && pointer.y < rect.bottom
+    }
+    const engaged = (el) =>
+      !!el &&
+      box.contains(el) &&
+      !el.closest('.lp-prompt-text--short') &&
+      (el.matches('input, select') || el.matches(':focus-visible'))
+    const wantsOpen = (active) => over() || pinned || engaged(active)
+
+    const show = (next, animate = true) => {
+      if (next === simple || transition) {
+        return
+      }
+      simple = next
+      const apply = () => {
+        const active = document.activeElement
+        const twin = twins.get(active)
+        box.classList.toggle('is-simple', simple)
+        if (twin) {
+          twin.focus({ preventScroll: true })
+          if (active instanceof HTMLInputElement && twin instanceof HTMLInputElement) {
+            try {
+              twin.setSelectionRange(active.selectionStart, active.selectionEnd, active.selectionDirection ?? 'none')
+            } catch {
+              // a type of input without a selection
+            }
+          }
+        }
+        if (body) {
+          body.scrollTop = 0
+        }
+        fitBody()
+        atEnd()
+      }
+      // without nested groups a scrolled prompt's words would start their
+      // glide from above the box, over the heading, so that swap just lands
+      const scrolled = !nested && !!body && body.scrollTop > 0
+      if (
+        !animate ||
+        scrolled ||
+        typeof document.startViewTransition !== 'function' ||
+        reduceMotion.matches ||
+        !box.isConnected
+      ) {
+        apply()
+        return
+      }
+      document.documentElement.classList.add('lp-prompt-swap')
+      transition = document.startViewTransition(apply)
+      // a swap skipped before it starts (a scroll, a hidden tab) rejects
+      // ready, which is nothing to report
+      transition.ready.catch(() => {})
+      transition.finished
+        .catch(() => {})
+        .then(() => {
+          document.documentElement.classList.remove('lp-prompt-swap')
+          transition = null
+          update(document.activeElement)
+        })
+    }
+    const update = (active) => show(!wantsOpen(active))
+
+    // a finger is not a hover: it lifts without leaving, and would hold the box open
+    const onPointer = (event) => {
+      if (event.pointerType === 'touch') {
+        return
+      }
+      pointer = { x: event.clientX, y: event.clientY }
+      update(document.activeElement)
+    }
+    box.addEventListener('pointerenter', onPointer)
+    box.addEventListener('pointerleave', onPointer)
+    // the snapshots are pinned to the viewport, so a page scroll mid-swap
+    // (a focus or an anchor bringing the box into view) would draw the
+    // words away from the box; the swap just lands instead
+    window.addEventListener('scroll', () => transition?.skipTransition(), { passive: true })
+    // read once focus has settled: at focusout the next element is not
+    // focused yet, so a Tab to the button would read as leaving; and a
+    // window blur leaves the active element where it is, so nothing moves
+    const refocus = () => window.setTimeout(() => update(document.activeElement), 0)
+    box.addEventListener('focusin', refocus)
+    box.addEventListener('focusout', refocus)
+    // a tap on the words opens it and one outside closes it, on a phone or
+    // with a finger on a laptop that also has a pointer
+    let tapped = false
+    box.addEventListener('pointerdown', (event) => {
+      tapped = event.pointerType === 'touch'
+    })
+    box.addEventListener('click', (event) => {
+      if ((canHover.matches && !tapped) || event.target.closest('input, select, button')) {
+        return
+      }
+      pinned = !pinned
+      update(document.activeElement)
+    })
+    document.addEventListener('pointerdown', (event) => {
+      if (pinned && !box.contains(event.target)) {
+        pinned = false
+        update(document.activeElement)
+      }
+    })
+    // the short form at rest, with no transition at mount
+    show(true, false)
+
     const button = box.querySelector('.lp-prompt-copy')
     const label = box.querySelector('.lp-prompt-copy-text')
     let timer = 0

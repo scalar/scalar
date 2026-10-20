@@ -340,26 +340,32 @@
 <section class="lp-section lp-section--vs" id="lp-prompts">
 <div class="lp-vs">
 <div class="lp-vs-side lp-vs-side--diy">
-  <scalar-heading level="2" slug="manage-it-yourself" class="c">Just write the prompts and manage it yourself</scalar-heading>
+  <div class="lp-vs-head">
+  <span class="lp-kicker lp-vs-kicker">Without Scalar</span>
+  <scalar-heading level="2" slug="vibe-code-apis-docs-mcp-and-sdks" class="c">Vibe code APIs, Docs, MCP, &amp; SDKs</scalar-heading>
+  </div>
   <div class="lp-funnel" aria-hidden="true"><div class="lp-funnel-track" data-lp-funnel="true"></div></div>
 </div>
 <div class="lp-vs-side lp-vs-side--scalar">
 <scalar-icon class="lp-wash" src="../assets/prompt-blocks.svg"></scalar-icon>
 <div class="lp-flow lp-flow--card lp-flow--vs" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
 <div class="lp-flow-row" data-lp-node="api" data-reveal="fade" style="--d: 0">
-  <scalar-heading level="2" slug="prompt-it-with-scalar" class="c">or prompt it with Scalar</scalar-heading>
+  <div class="lp-vs-head">
+  <span class="lp-kicker lp-vs-kicker">With Scalar</span>
+  <scalar-heading level="2" slug="one-prompt-with-scalar" class="c">or just use one prompt with Scalar</scalar-heading>
+  </div>
 </div>
 <div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
 <div class="lp-prompt">
-<div class="lp-prompt-body" role="region" aria-label="The prompt" tabindex="0">
+<div class="lp-prompt-body" role="region" aria-label="The prompt" aria-description="Focus or tap it for the full prompt; Copy copies the full prompt." tabindex="0">
 <div class="lp-prompt-text">
-<p>Set up Scalar for this repo with the Scalar MCP server (https://mcp.scalar.com/) and the Scalar CLI (<code>npx -y @scalar/cli@latest</code>).</p>
-<p>Find my OpenAPI file and the brand site for <span class="lp-prompt-keep"><span class="lp-prompt-fill" data-value="your brand"><input type="text" class="lp-prompt-input" placeholder="your brand" aria-label="Your brand name or website" data-fallback="my company" autocomplete="off" autocapitalize="off" spellcheck="false"></span>,</span> check what my team already has so nothing is duplicated, and confirm with me once. Then:</p>
+<p><span class="lp-prompt-part" data-lp-part="setup">Set up Scalar for this repo</span> with the Scalar MCP server (https://mcp.scalar.com/) and the Scalar CLI (<code>npx -y @scalar/cli@latest</code>)<span class="lp-prompt-part" data-lp-part="setup-end">.</span></p>
+<p><span class="lp-prompt-part" data-lp-part="find">Find my OpenAPI file and the brand site for</span> <span class="lp-prompt-keep lp-prompt-part" data-lp-part="brand"><span class="lp-prompt-fill" data-value="your brand"><input type="text" class="lp-prompt-input" placeholder="your brand" aria-label="Your brand name or website" data-fallback="my company" autocomplete="off" autocapitalize="off" spellcheck="false"></span>,</span> check what my team already has so nothing is duplicated, <span class="lp-prompt-part" data-lp-part="confirm">and confirm with me once. Then:</span></p>
 <ol>
-<li>Publish the API to the Scalar Registry.</li>
-<li>Create one <span class="lp-prompt-pick" data-value="TypeScript"><select class="lp-prompt-select" aria-label="SDK language"><option value="TypeScript" selected>TypeScript</option><option value="Python">Python</option><option value="Go">Go</option><option value="Java">Java</option><option value="Kotlin">Kotlin</option><option value="C#">C#</option><option value="PHP">PHP</option><option value="Ruby">Ruby</option><option value="Rust">Rust</option><option value="Swift">Swift</option></select><scalar-icon class="lp-prompt-pick-caret" src="phosphor/regular/caret-down"></scalar-icon></span> SDK with <code>create_an_sdk</code> (it builds itself, never call <code>build_an_sdk</code>).</li>
-<li>Scaffold <code>scalar-docs/</code> with intro, quickstart and authentication guides from the spec, a custom <code>--scalar-*</code> CSS theme from my brand (<code>siteConfig.theme</code>), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show.</li>
-<li>Create the docs project and <code>project publish</code> it.</li>
+<li class="lp-prompt-part" data-lp-part="step-1">Publish the API to the Scalar Registry.</li>
+<li class="lp-prompt-part" data-lp-part="step-2" data-lp-deep><span class="lp-prompt-part" data-lp-part="create">Create one</span> <span class="lp-prompt-pick lp-prompt-part" data-lp-part="lang" data-value="TypeScript"><select class="lp-prompt-select" aria-label="SDK language"><option value="TypeScript" selected>TypeScript</option><option value="Python">Python</option><option value="Go">Go</option><option value="Java">Java</option><option value="Kotlin">Kotlin</option><option value="C#">C#</option><option value="PHP">PHP</option><option value="Ruby">Ruby</option><option value="Rust">Rust</option><option value="Swift">Swift</option></select><scalar-icon class="lp-prompt-pick-caret" src="phosphor/regular/caret-down"></scalar-icon></span> <span class="lp-prompt-part" data-lp-part="sdk">SDK</span> with <code>create_an_sdk</code> (it builds itself, never call <code>build_an_sdk</code>)<span class="lp-prompt-part" data-lp-part="sdk-end">.</span></li>
+<li class="lp-prompt-part" data-lp-part="step-3" data-lp-deep><span class="lp-prompt-part" data-lp-part="docs">Scaffold <code>scalar-docs/</code> with intro, quickstart and authentication guides from the spec</span>, a custom <code>--scalar-*</code> CSS theme from my brand (<code>siteConfig.theme</code>), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show<span class="lp-prompt-part" data-lp-part="docs-end">.</span></li>
+<li class="lp-prompt-part" data-lp-part="step-4" data-lp-deep>Create the docs project and <code>project publish</code> it.</li>
 </ol>
 <p>Report the links. Never delete anything.</p>
 </div>
@@ -2217,13 +2223,26 @@
     text-align: center;
     text-wrap: balance;
   }
+  /* Each side opens with a small label over its heading, Without Scalar
+     and With Scalar, in the product kickers' type but quiet */
+  .lp-vs-head {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .lp-vs-kicker {
+    color: var(--scalar-color-2);
+  }
   /* The flow on the wash: the heading is its first node; the words are
      the page's text colour, like the ad's dark type on its pastels */
   .lp-flow--vs {
     --lp-ink: var(--scalar-color-1);
     z-index: 1;
     padding: 0;
-    gap: 56px;
+    gap: 48px;
   }
   .lp-flow--vs .lp-flow-row {
     gap: 8px 40px;
@@ -2231,12 +2250,21 @@
   .lp-flow--vs .lp-flow-line {
     stroke: color-mix(in srgb, var(--scalar-color-1) 45%, transparent);
   }
-  /* The prompt box: the prompt scrolls inside a fixed height, with a
-     shade at the bottom that lifts at the end of the scroll (landing.js
-     toggles is-at-end), and a button under it to take it along */
+  /* The prompt box: at rest it holds a short form of the prompt, built by
+     landing.js (initLandingPrompt) from the prompt's own words so nothing
+     is written twice; the pointer over the box, a field or a keyboard
+     focus inside it, or a tap where nothing hovers swaps in the full
+     prompt, which scrolls inside the same height, with a shade at the
+     bottom that lifts at the end of the scroll (landing.js toggles
+     is-at-end), and a button under it to take it along. The swap is a
+     view transition, set up below the prose rules. */
   .lp-prompt {
     --lp-prompt-bg: var(--scalar-background-1);
     --lp-prompt-chip: var(--scalar-background-2);
+    /* just what the short form needs at the full column width (about
+       213px of text), so the two two-line headings do not make the panel
+       taller than it was */
+    --lp-prompt-body: 256px;
     --lp-prompt-foot: 48px;
     position: relative;
     display: flex;
@@ -2263,11 +2291,17 @@
     pointer-events: none;
     transition: opacity 160ms;
   }
-  .lp-prompt.is-at-end::before {
+  .lp-prompt.is-at-end::before,
+  html.lp-prompt-swap .lp-prompt::before {
+    /* the shade is live under the swap's snapshots, so it waits and fades
+       in once they are gone rather than popping over the words */
     opacity: 0;
   }
   .lp-prompt-body {
-    max-height: 272px;
+    /* never shorter than the short form (landing.js measures it into
+       --lp-prompt-short), so a narrow column or a long brand name wraps
+       the box taller rather than into a scroll at rest */
+    height: max(var(--lp-prompt-body), var(--lp-prompt-short, 0px));
     padding: 18px 20px 20px;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -2291,7 +2325,10 @@
     font-size: var(--scalar-font-size-3);
     line-height: 1.55;
     color: var(--scalar-color-1);
-    text-wrap: pretty;
+    /* greedy breaks, not pretty ones: the short form opens each block the
+       way the prompt does, and the same opening must break the same way
+       in both for the shared words to glide rather than reflow */
+    text-wrap: wrap;
   }
   .lp-prompt .lp-prompt-text p + p,
   .lp-prompt .lp-prompt-text ol,
@@ -2316,6 +2353,47 @@
     font-family: var(--scalar-font-code);
     font-size: 0.9em;
     white-space: nowrap;
+  }
+  /* The short form at rest is made of the prompt's own words (the parts,
+     cloned by landing.js), set in the same type, so what the two share
+     lines up and glides while the rest fades */
+  .lp-prompt.is-simple .lp-prompt-text:not(.lp-prompt-text--short),
+  .lp-prompt:not(.is-simple) .lp-prompt-text--short {
+    display: none;
+  }
+  /* The swap: the words and the pieces that move are captured, each part
+     under its own name (landing.js sets --lp-vt from data-lp-part, the
+     same on a part and its clone), nested in the body's group and
+     clipped to it, so a line sliding below the fold slips under it
+     instead of over the button. The body's name is not on the box: a
+     captured element is skipped by hit testing while the swap runs, and
+     on the box itself that read as the pointer leaving, which folded it
+     back, and so on forever. The page around the box is left out (its
+     root is unnamed while the swap runs) so the funnel keeps turning. */
+  html.lp-prompt-swap {
+    view-transition-name: none;
+  }
+  html.lp-prompt-swap .lp-prompt-body {
+    view-transition-name: lp-prompt;
+  }
+  html.lp-prompt-swap .lp-prompt-part {
+    view-transition-name: var(--lp-vt, none);
+    view-transition-group: nearest;
+  }
+  html.lp-prompt-swap::view-transition {
+    pointer-events: none;
+  }
+  html.lp-prompt-swap::view-transition-group(lp-prompt) {
+    overflow: clip;
+  }
+  html.lp-prompt-swap::view-transition-group(*) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  html.lp-prompt-swap::view-transition-old(*),
+  html.lp-prompt-swap::view-transition-new(*) {
+    animation-duration: 420ms;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
   /* The blanks in the prose, drawn as chips: a field for the brand that
      grows with what is typed, and a menu for the SDK language with a
@@ -2409,6 +2487,43 @@
     grid-area: 1 / 2;
     width: 10px;
     height: 10px;
+  }
+  /* At rest the blanks read as words of the sentence, in its own type: no
+     box, no caret, the placeholder in the text colour. The chip keeps its
+     size and is pulled into the words by a margin the width of its
+     padding and border, so the swap only draws the border and the fill
+     around text that does not move; the field and the menu are still
+     there under the words for a tap, and the open prompt is where they
+     show as controls and say what can be typed */
+  .lp-prompt-text--short .lp-prompt-fill,
+  .lp-prompt-text--short .lp-prompt-pick {
+    margin: 0 calc(-7px - var(--scalar-border-width));
+    border-color: transparent;
+    background: transparent;
+    font-weight: inherit;
+  }
+  .lp-prompt-text--short .lp-prompt-fill::after,
+  .lp-prompt-text--short .lp-prompt-pick::after {
+    content: attr(data-value);
+    min-width: 0;
+  }
+  .lp-prompt-text--short .lp-prompt-pick {
+    grid-template-columns: auto;
+    column-gap: 0;
+  }
+  .lp-prompt-text--short .lp-prompt-pick svg {
+    display: none;
+  }
+  .lp-prompt-text--short .lp-prompt-select {
+    padding-right: 7px;
+  }
+  .lp-prompt-text--short .lp-prompt-input::placeholder {
+    color: var(--scalar-color-1);
+  }
+  /* a tap on a word at rest types into it where it is; the box shows */
+  .lp-prompt-text--short .lp-prompt-fill:focus-within,
+  .lp-prompt-text--short .lp-prompt-pick:focus-within {
+    border-color: var(--scalar-color-blue);
   }
   .lp-prompt-foot {
     display: flex;
@@ -2615,6 +2730,10 @@
     }
     .lp-flow--vs {
       gap: 44px;
+    }
+    /* the narrower box wraps the short form onto more lines (about 250px) */
+    .lp-prompt {
+      --lp-prompt-body: 312px;
     }
   }
   /* lp-vs:end */
