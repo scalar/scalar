@@ -166,7 +166,7 @@
   </div>
 </div>
 </section>
-<section class="lp-section" id="lp-docs">
+<section class="lp-section lp-section--docs" id="lp-docs">
 <div class="lp-copy">
   <span class="lp-kicker text-blue">Docs</span>
   <scalar-heading level="2" slug="scalar-docs" class="c">
@@ -196,7 +196,7 @@
 </div>
   </div>
 </section>
-<section class="lp-section" id="lp-sdk">
+<section class="lp-section lp-section--sdk" id="lp-sdk">
 <div class="lp-copy">
   <span class="lp-kicker text-purple">SDK Generation</span>
   <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
@@ -285,7 +285,7 @@
 </div>
   </div>
 </section>
-<section class="lp-section" id="lp-mcp">
+<section class="lp-section lp-section--mcp" id="lp-mcp">
 <div class="lp-copy">
   <span class="lp-kicker text-orange">MCP &amp; Agent</span>
   <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
@@ -336,44 +336,49 @@
 </div>
   </div>
 </section>
+<!-- lp-vs:start -->
+<section class="lp-section lp-section--vs" id="lp-prompts">
+<div class="lp-vs">
+<div class="lp-vs-side lp-vs-side--diy">
+  <scalar-heading level="2" slug="manage-it-yourself" class="c">Just write the prompts and manage it yourself</scalar-heading>
+  <div class="lp-funnel" aria-hidden="true"><div class="lp-funnel-track" data-lp-funnel="true"></div></div>
 </div>
-
-<div class="founder-quote border rounded-lg p-12 relative">
-  <scalar-icon src="../assets/remote/scalar-logomark.svg"></scalar-icon>
-  <br />
-  <br />
-  <p>Marc from Scalar here,</p>
-  <br />
-  <p>
-    There's no better feeling than building and being enabled by the software you are integrating with.
-  </p>
-  <br />
-  <p>
-    We've all experienced friction with out-of-date docs, no client SDKs in your favorite language, and no one to talk to about your struggles on-boarding.
-  </p>
-  <br />
-  <p>
-    But we've also experienced those magical APIs that just work with everything you need right there. This drives our simple three tenants at Scalar: Accessibility, Open-Source, and API First. Making on-boarding easier and  magical enables people to build, and being API first means your business can scale for the future (LLMs).
-  </p>
-  <br />
-  <p>
-    Why Open-Source? If done right, it’s transparent, builds industry standards (OpenAPI), accelerates innovation, and fosters collaboration. We love Open-Source and keep it core to our values.
-  </p>
-  <br />
-  <p>
-    We are fans of “show don't tell here” at Scalar: so try our Docs (this page), our SDKs for our API that includes our API Client, Agent to chat with APIs, and our GitHub for all our open-source products. As always, we love your feedback so drop us a line in our discord, email, or book a call with me to see how we can help.
-  </p>
-  <br />
-  <scalar-icon src="../assets/remote/cdn-5b543dced5.svg"></scalar-icon>
-  <br />
-  <div>
-    <b>Marc Laventure</b>
-    <br />
-    <span>CEO, Scalar</span>
-  </div>
-  <div class="draggable sticker-9">
-    <scalar-icon src="../assets/remote/cdn-cfcd592576.svg"></scalar-icon>
-  </div>
+<div class="lp-vs-side lp-vs-side--scalar">
+<scalar-icon class="lp-wash" src="../assets/prompt-blocks.svg"></scalar-icon>
+<div class="lp-flow lp-flow--card lp-flow--vs" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
+<div class="lp-flow-row" data-lp-node="api" data-reveal="fade" style="--d: 0">
+  <scalar-heading level="2" slug="prompt-it-with-scalar" class="c">or prompt it with Scalar</scalar-heading>
+</div>
+<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
+<div class="lp-prompt">
+<div class="lp-prompt-body" role="region" aria-label="The prompt" tabindex="0">
+<div class="lp-prompt-text">
+<p>Set up Scalar for this repo with the Scalar MCP server (https://mcp.scalar.com/) and the Scalar CLI (<code>npx -y @scalar/cli@latest</code>).</p>
+<p>Find my OpenAPI file and the brand site for <span class="lp-prompt-keep"><span class="lp-prompt-fill" data-value="your brand"><input type="text" class="lp-prompt-input" placeholder="your brand" aria-label="Your brand name or website" data-fallback="my company" autocomplete="off" autocapitalize="off" spellcheck="false"></span>,</span> check what my team already has so nothing is duplicated, and confirm with me once. Then:</p>
+<ol>
+<li>Publish the API to the Scalar Registry.</li>
+<li>Create one <span class="lp-prompt-pick" data-value="TypeScript"><select class="lp-prompt-select" aria-label="SDK language"><option value="TypeScript" selected>TypeScript</option><option value="Python">Python</option><option value="Go">Go</option><option value="Java">Java</option><option value="Kotlin">Kotlin</option><option value="C#">C#</option><option value="PHP">PHP</option><option value="Ruby">Ruby</option><option value="Rust">Rust</option><option value="Swift">Swift</option></select><scalar-icon class="lp-prompt-pick-caret" src="phosphor/regular/caret-down"></scalar-icon></span> SDK with <code>create_an_sdk</code> (it builds itself, never call <code>build_an_sdk</code>).</li>
+<li>Scaffold <code>scalar-docs/</code> with intro, quickstart and authentication guides from the spec, a custom <code>--scalar-*</code> CSS theme from my brand (<code>siteConfig.theme</code>), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show.</li>
+<li>Create the docs project and <code>project publish</code> it.</li>
+</ol>
+<p>Report the links. Never delete anything.</p>
+</div>
+</div>
+<div class="lp-prompt-foot">
+  <button type="button" class="lp-prompt-copy" aria-label="Copy prompt"><scalar-icon class="lp-prompt-copy-icon" src="phosphor/regular/copy" aria-hidden="true"></scalar-icon><scalar-icon class="lp-prompt-copied-icon" src="phosphor/regular/check" aria-hidden="true"></scalar-icon><span class="lp-prompt-copy-text" aria-live="polite">Copy</span></button>
+</div>
+</div>
+</div>
+<div class="lp-flow-row">
+<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Docs</span>
+<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">MCPs</span>
+<span class="lp-flow-label" data-lp-node="end2" data-lp-parent="hub" data-reveal="fade" style="--d: 760">SDKs</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- lp-vs:end -->
 </div>
 
 <div class="cta flex flex-col gap-3 small-test">
@@ -691,6 +696,36 @@
   }
   .lp-actions .t-editor__button {
     margin: 0;
+  }
+  /* Each product's colour, the same token as its kicker, so the primary
+     button belongs to the product rather than the page */
+  .lp-section--docs {
+    --lp-accent: var(--scalar-color-blue);
+  }
+  .lp-section--sdk {
+    --lp-accent: var(--scalar-color-purple);
+  }
+  .lp-section--mcp {
+    --lp-accent: var(--scalar-color-orange);
+  }
+  /* Outranks the theme's .light-mode .t-editor__button, which sets the same
+     variables. The hover mixes in --scalar-color-1, the page's text colour,
+     so it darkens in light mode and lightens in dark mode, the same way the
+     secondary buttons in styles.css move, which also raises the label's
+     contrast */
+  .lp-section .lp-actions .t-editor__button {
+    --button-background: var(--lp-accent);
+    --button-background-hover: color-mix(in srgb, var(--lp-accent), var(--scalar-color-1) 15%);
+    --button-border-color: var(--button-background);
+    --button-border-color-hover: var(--button-background-hover);
+    --font-color: var(--scalar-button-1-color);
+    --font-color-hover: var(--font-color);
+  }
+  /* the theme's focus ring is the accent blue, which disappears into the
+     Docs button, so these rings take the text colour and a wider gap */
+  .lp-section .lp-actions .t-editor__button:focus-visible {
+    outline-color: var(--scalar-color-1);
+    outline-offset: 2px;
   }
   .lp-action {
     display: inline-block;
@@ -1955,13 +1990,7 @@
     }
   }
 
-  /* Founder quote and the closing grid ---------------------------------- */
-  .founder-quote {
-    padding: 80px 160px 260px 160px;
-  }
-  .founder-quote.founder-quote {
-    margin-top: 120px;
-  }
+  /* The closing grid ------------------------------------------------------ */
   .expander {
     display: grid;
     grid-template-rows: 0fr;
@@ -2089,6 +2118,507 @@
     clip-path: path("M128.27 0C134.19 0 139 4.8 139 10.73V134.6c0 5.93-4.8 10.73-10.73 10.73H22.72L7.46 160.3A4.39 4.39 0 0 1 0 157.17V128.3h.17V10.73C.17 4.81 4.97 0 10.9 0z");
   }
 
+  /* lp-vs:start */
+  /* Prompts, two ways ---------------------------------------------------
+     After the "Fighting infra with cloud / Shipping with Cloudflare" block
+     on cloudflare.com: one flat panel split in two. On the left the
+     prompts you would write yourself pour down a funnel, each card riding
+     the same helix (one set of keyframes, every card at its own point of
+     the cycle), getting smaller as it spirals in. landing.js builds the
+     cards (initLandingFunnel), so their words stay out of the page's
+     markdown twin. A CSS animation, so a background tab just stops
+     painting it and nothing runs in JS. On the right, one prompt to
+     Scalar: the heading, a hairline down to the prompt box, and hairlines
+     out to the three products, drawn and played by landing.js like the
+     product cards' flows, on a pale blue gradient with soft blue blocks
+     at the sides, after equals.com. The block is as wide as the hero panel,
+     overhang included, and flat like it: no border, the bg-1.5 wash, and
+     cards with no border or shadow. Generated by a scratch script. */
+  .lp-section--vs {
+    display: block;
+    min-height: 0;
+  }
+  .lp-vs {
+    --lp-vs-pad: 40px;
+    /* the glow's run, rim to core */
+    --lp-glow-1: #4a8cf0;
+    --lp-glow-2: #a99dff;
+    --lp-glow-3: #f56fc0;
+    --lp-glow-4: #ff7a2e;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 520px;
+    border-radius: var(--scalar-radius-xl);
+    background: var(--lp-bg-1-5);
+    overflow: hidden;
+  }
+  .lp-vs-side {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px var(--lp-vs-pad);
+    min-width: 0;
+    overflow: hidden;
+  }
+  .lp-vs-side--diy {
+    /* the funnel runs to the bottom edge */
+    padding-bottom: 0;
+  }
+  /* The backing, after the closing section on equals.com: a cream to
+     pale blue gradient with its decoration traced into vectors (two tones
+     of blue blocks with fades, prompt-blocks.svg, inlined at build time
+     and stretched to the panel), the right cluster top right and the left
+     one bottom left. The blues are the product blue at a few percent.
+     Dark mode mixes the same blue into the dark. */
+  .lp-vs-side--scalar {
+    --lp-tint-strong: color-mix(in srgb, var(--scalar-color-blue) 13%, var(--scalar-background-1));
+    --lp-tint-light: color-mix(in srgb, var(--scalar-color-blue) 7%, var(--scalar-background-1));
+    background: linear-gradient(
+      180deg,
+      var(--lp-bg-1-5),
+      color-mix(in srgb, var(--scalar-color-blue) 9%, var(--scalar-background-1))
+    );
+  }
+  .dark-mode .lp-vs-side--scalar {
+    --lp-tint-strong: color-mix(in srgb, var(--scalar-color-blue) 22%, var(--scalar-background-1));
+    --lp-tint-light: color-mix(in srgb, var(--scalar-color-blue) 12%, var(--scalar-background-1));
+    background: linear-gradient(
+      180deg,
+      var(--lp-bg-1-5),
+      color-mix(in srgb, var(--scalar-color-blue) 14%, var(--scalar-background-1))
+    );
+  }
+  .lp-wash {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    pointer-events: none;
+  }
+  .lp-tr--strong,
+  .lp-tr-stop--strong {
+    fill: var(--lp-tint-strong);
+    stop-color: var(--lp-tint-strong);
+  }
+  .lp-tr--light,
+  .lp-tr-stop--light {
+    fill: var(--lp-tint-light);
+    stop-color: var(--lp-tint-light);
+  }
+  .lp-vs-side .t-editor__heading {
+    position: relative;
+    z-index: 2;
+    max-width: 340px;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
+  /* The flow on the wash: the heading is its first node; the words are
+     the page's text colour, like the ad's dark type on its pastels */
+  .lp-flow--vs {
+    --lp-ink: var(--scalar-color-1);
+    z-index: 1;
+    padding: 0;
+    gap: 56px;
+  }
+  .lp-flow--vs .lp-flow-row {
+    gap: 8px 40px;
+  }
+  .lp-flow--vs .lp-flow-line {
+    stroke: color-mix(in srgb, var(--scalar-color-1) 45%, transparent);
+  }
+  /* The prompt box: the prompt scrolls inside a fixed height, with a
+     shade at the bottom that lifts at the end of the scroll (landing.js
+     toggles is-at-end), and a button under it to take it along */
+  .lp-prompt {
+    --lp-prompt-bg: var(--scalar-background-1);
+    --lp-prompt-chip: var(--scalar-background-2);
+    --lp-prompt-foot: 48px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(100%, 420px);
+    border-radius: 12px;
+    background: var(--lp-prompt-bg);
+    color: var(--scalar-color-1);
+    text-align: left;
+  }
+  .dark-mode .lp-prompt {
+    --lp-prompt-bg: var(--scalar-background-2);
+    --lp-prompt-chip: var(--scalar-background-3);
+  }
+  .lp-prompt::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: var(--lp-prompt-foot);
+    left: 0;
+    z-index: 1;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, var(--lp-prompt-bg));
+    pointer-events: none;
+    transition: opacity 160ms;
+  }
+  .lp-prompt.is-at-end::before {
+    opacity: 0;
+  }
+  .lp-prompt-body {
+    max-height: 272px;
+    padding: 18px 20px 20px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--scalar-color-1) 25%, transparent) transparent;
+  }
+  .lp-prompt-body:focus-visible {
+    outline: 1px solid var(--scalar-color-1);
+    outline-offset: -1px;
+    border-radius: 12px 12px 0 0;
+  }
+  /* The prose: outranks the theme's paragraph, list and code rules */
+  .lp-prompt .lp-prompt-text {
+    overflow-wrap: anywhere;
+  }
+  .lp-prompt .lp-prompt-text p,
+  .lp-prompt .lp-prompt-text ol,
+  .lp-prompt .lp-prompt-text li {
+    margin: 0;
+    padding: 0;
+    font-size: var(--scalar-font-size-3);
+    line-height: 1.55;
+    color: var(--scalar-color-1);
+    text-wrap: pretty;
+  }
+  .lp-prompt .lp-prompt-text p + p,
+  .lp-prompt .lp-prompt-text ol,
+  .lp-prompt .lp-prompt-text ol + p {
+    margin-top: 10px;
+  }
+  .lp-prompt .lp-prompt-text ol {
+    display: grid;
+    gap: 6px;
+    padding-left: 22px;
+    list-style: decimal;
+  }
+  .lp-prompt .lp-prompt-text li::marker {
+    color: var(--scalar-color-2);
+  }
+  .lp-prompt .lp-prompt-text code {
+    padding: 1px 5px;
+    border: 0;
+    border-radius: 5px;
+    background: var(--lp-prompt-chip);
+    color: inherit;
+    font-family: var(--scalar-font-code);
+    font-size: 0.9em;
+    white-space: nowrap;
+  }
+  /* The blanks in the prose, drawn as chips: a field for the brand that
+     grows with what is typed, and a menu for the SDK language with a
+     caret beside. Each chip's ::after is a hidden twin of the text
+     (landing.js keeps data-value current) and is what sets the width;
+     the control itself is laid over it, so its own size never counts */
+  .lp-prompt-fill,
+  .lp-prompt-pick {
+    position: relative;
+    display: inline-grid;
+    box-sizing: border-box;
+    align-items: center;
+    max-width: 100%;
+    height: 22px;
+    margin: 0 1px;
+    padding: 0 7px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 6px;
+    /* they read as fields: the box's own background with a hairline
+       round it; in the dark a shade lighter, and the box's background
+       once they have focus */
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+    line-height: 20px;
+    vertical-align: baseline;
+    overflow: hidden;
+    transition:
+      border-color 120ms,
+      background 120ms;
+  }
+  .dark-mode .lp-prompt-fill,
+  .dark-mode .lp-prompt-pick {
+    background: var(--lp-bg-1-5);
+  }
+  .lp-prompt-fill:focus-within,
+  .lp-prompt-pick:focus-within {
+    border-color: var(--scalar-color-blue);
+  }
+  .dark-mode .lp-prompt-fill:focus-within,
+  .dark-mode .lp-prompt-pick:focus-within {
+    background: var(--scalar-background-1);
+  }
+  /* a chip breaks like a character, so its comma would start a line */
+  .lp-prompt-keep {
+    white-space: nowrap;
+  }
+  .lp-prompt-fill::after,
+  .lp-prompt-pick::after {
+    content: attr(data-value) " ";
+    grid-area: 1 / 1;
+    min-width: 4ch;
+    visibility: hidden;
+    white-space: pre;
+  }
+  .lp-prompt-input,
+  .lp-prompt-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0 7px;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    background: none;
+    box-shadow: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    appearance: none;
+  }
+  .lp-prompt-input::placeholder {
+    color: var(--scalar-color-2);
+    font-weight: var(--scalar-regular);
+    opacity: 1;
+  }
+  .lp-prompt-pick {
+    grid-template-columns: auto 10px;
+    column-gap: 4px;
+    cursor: pointer;
+  }
+  .lp-prompt-select {
+    padding-right: 21px;
+    cursor: pointer;
+  }
+  .lp-prompt-pick svg {
+    grid-area: 1 / 2;
+    width: 10px;
+    height: 10px;
+  }
+  .lp-prompt-foot {
+    display: flex;
+    justify-content: flex-end;
+    height: var(--lp-prompt-foot);
+    padding: 0 16px 16px;
+  }
+  .lp-prompt-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--lp-prompt-chip);
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
+    font-size: var(--scalar-font-size-4);
+    line-height: 1;
+    cursor: pointer;
+    transition: background 120ms;
+  }
+  .lp-prompt-copy:hover {
+    background: var(--scalar-background-3);
+  }
+  .lp-prompt-copy:focus-visible {
+    outline: 1px solid var(--scalar-color-1);
+    outline-offset: 2px;
+  }
+  .dark-mode .lp-prompt-copy:hover {
+    background: color-mix(in srgb, var(--scalar-background-3), var(--scalar-color-1) 8%);
+  }
+  .lp-prompt-copy svg {
+    width: 14px;
+    height: 14px;
+  }
+  .lp-prompt-copied-icon,
+  .lp-prompt-copy.is-copied .lp-prompt-copy-icon {
+    display: none;
+  }
+  .lp-prompt-copy.is-copied .lp-prompt-copied-icon {
+    display: block;
+  }
+  /* The funnel takes the rest of the panel under the heading, the full
+     width of it. --lp-fr is the helix radius at the top and --lp-fh its
+     height; the keyframes scale them. The helix is taller than the box, so
+     the cards fade in from under the heading and out at the bottom and
+     sides rather than being cut. */
+  .lp-funnel {
+    --lp-fr: 190px;
+    --lp-fh: 400px;
+    --lp-funnel-time: 18s;
+    position: relative;
+    flex: 1;
+    width: calc(100% + 2 * var(--lp-vs-pad));
+    min-height: 320px;
+    margin: 12px calc(-1 * var(--lp-vs-pad)) 0;
+    perspective: 1000px;
+    perspective-origin: 50% 12%;
+    overflow: hidden;
+    mask-image:
+      linear-gradient(to bottom, transparent, #000 64px, #000 calc(100% - 24px), transparent),
+      linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent);
+    mask-composite: intersect;
+    pointer-events: none;
+    user-select: none;
+  }
+  /* seen from a little above, so the turns read as a vortex */
+  .lp-funnel-track {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(12deg);
+  }
+  .lp-funnel-item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max-content;
+    max-width: var(--w, 240px);
+    translate: -50% -50%;
+    opacity: 0;
+    animation: lp-funnel var(--lp-funnel-time) linear infinite;
+    animation-delay: calc(var(--lp-funnel-time) * -1 * var(--p, 0));
+    will-change: transform, opacity;
+  }
+  .lp-funnel-card {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border-bottom-right-radius: 4px;
+    background: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-size: var(--scalar-font-size-4);
+    line-height: 1.4;
+    text-wrap: pretty;
+    transform: rotate(var(--rz, 0deg));
+  }
+  /* on the dark wash a bg-1 card would vanish */
+  .dark-mode .lp-funnel-card {
+    background: var(--scalar-background-2);
+  }
+  @keyframes lp-funnel {
+    0% { transform: translate3d(calc(var(--lp-fr) * 1), calc(var(--lp-fh) * -0.5), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(1); opacity: 0; }
+    1.39% { transform: translate3d(calc(var(--lp-fr) * 0.955), calc(var(--lp-fh) * -0.486), calc(var(--lp-fr) * 0.218)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.991); opacity: 0.28; }
+    2.78% { transform: translate3d(calc(var(--lp-fr) * 0.847), calc(var(--lp-fh) * -0.472), calc(var(--lp-fr) * 0.416)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.983); opacity: 0.56; }
+    4.17% { transform: translate3d(calc(var(--lp-fr) * 0.684), calc(var(--lp-fh) * -0.458), calc(var(--lp-fr) * 0.582)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.974); opacity: 0.83; }
+    5.56% { transform: translate3d(calc(var(--lp-fr) * 0.478), calc(var(--lp-fh) * -0.444), calc(var(--lp-fr) * 0.704)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.966); opacity: 1; }
+    6.94% { transform: translate3d(calc(var(--lp-fr) * 0.245), calc(var(--lp-fh) * -0.431), calc(var(--lp-fr) * 0.777)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.957); opacity: 1; }
+    8.33% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.417), calc(var(--lp-fr) * 0.795)) rotateY(-50deg) rotateZ(0deg) scale(0.948); opacity: 1; }
+    9.72% { transform: translate3d(calc(var(--lp-fr) * -0.239), calc(var(--lp-fh) * -0.403), calc(var(--lp-fr) * 0.759)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.94); opacity: 1; }
+    11.11% { transform: translate3d(calc(var(--lp-fr) * -0.457), calc(var(--lp-fh) * -0.389), calc(var(--lp-fr) * 0.672)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.931); opacity: 1; }
+    12.5% { transform: translate3d(calc(var(--lp-fr) * -0.638), calc(var(--lp-fh) * -0.375), calc(var(--lp-fr) * 0.542)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.922); opacity: 1; }
+    13.89% { transform: translate3d(calc(var(--lp-fr) * -0.772), calc(var(--lp-fh) * -0.361), calc(var(--lp-fr) * 0.379)) rotateY(-25deg) rotateZ(6.1deg) scale(0.914); opacity: 1; }
+    15.28% { transform: translate3d(calc(var(--lp-fr) * -0.851), calc(var(--lp-fh) * -0.347), calc(var(--lp-fr) * 0.194)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.905); opacity: 1; }
+    16.67% { transform: translate3d(calc(var(--lp-fr) * -0.87), calc(var(--lp-fh) * -0.333), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.897); opacity: 1; }
+    18.06% { transform: translate3d(calc(var(--lp-fr) * -0.83), calc(var(--lp-fh) * -0.319), calc(var(--lp-fr) * -0.189)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.888); opacity: 1; }
+    19.44% { transform: translate3d(calc(var(--lp-fr) * -0.735), calc(var(--lp-fh) * -0.306), calc(var(--lp-fr) * -0.361)) rotateY(25deg) rotateZ(6.1deg) scale(0.879); opacity: 1; }
+    20.83% { transform: translate3d(calc(var(--lp-fr) * -0.592), calc(var(--lp-fh) * -0.292), calc(var(--lp-fr) * -0.503)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.871); opacity: 1; }
+    22.22% { transform: translate3d(calc(var(--lp-fr) * -0.413), calc(var(--lp-fh) * -0.278), calc(var(--lp-fr) * -0.609)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.862); opacity: 1; }
+    23.61% { transform: translate3d(calc(var(--lp-fr) * -0.211), calc(var(--lp-fh) * -0.264), calc(var(--lp-fr) * -0.67)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.854); opacity: 1; }
+    25% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.25), calc(var(--lp-fr) * -0.684)) rotateY(50deg) rotateZ(0deg) scale(0.845); opacity: 1; }
+    26.39% { transform: translate3d(calc(var(--lp-fr) * 0.206), calc(var(--lp-fh) * -0.236), calc(var(--lp-fr) * -0.652)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.836); opacity: 1; }
+    27.78% { transform: translate3d(calc(var(--lp-fr) * 0.392), calc(var(--lp-fh) * -0.222), calc(var(--lp-fr) * -0.577)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.828); opacity: 1; }
+    29.17% { transform: translate3d(calc(var(--lp-fr) * 0.546), calc(var(--lp-fh) * -0.208), calc(var(--lp-fr) * -0.464)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.819); opacity: 1; }
+    30.56% { transform: translate3d(calc(var(--lp-fr) * 0.66), calc(var(--lp-fh) * -0.194), calc(var(--lp-fr) * -0.324)) rotateY(25deg) rotateZ(-6.1deg) scale(0.811); opacity: 1; }
+    31.94% { transform: translate3d(calc(var(--lp-fr) * 0.725), calc(var(--lp-fh) * -0.181), calc(var(--lp-fr) * -0.165)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.802); opacity: 1; }
+    33.33% { transform: translate3d(calc(var(--lp-fr) * 0.74), calc(var(--lp-fh) * -0.167), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.793); opacity: 1; }
+    34.72% { transform: translate3d(calc(var(--lp-fr) * 0.704), calc(var(--lp-fh) * -0.153), calc(var(--lp-fr) * 0.16)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.785); opacity: 1; }
+    36.11% { transform: translate3d(calc(var(--lp-fr) * 0.622), calc(var(--lp-fh) * -0.139), calc(var(--lp-fr) * 0.305)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.776); opacity: 1; }
+    37.5% { transform: translate3d(calc(var(--lp-fr) * 0.5), calc(var(--lp-fh) * -0.125), calc(var(--lp-fr) * 0.425)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.768); opacity: 1; }
+    38.89% { transform: translate3d(calc(var(--lp-fr) * 0.348), calc(var(--lp-fh) * -0.111), calc(var(--lp-fr) * 0.513)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.759); opacity: 1; }
+    40.28% { transform: translate3d(calc(var(--lp-fr) * 0.178), calc(var(--lp-fh) * -0.097), calc(var(--lp-fr) * 0.563)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.75); opacity: 1; }
+    41.67% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.083), calc(var(--lp-fr) * 0.574)) rotateY(-50deg) rotateZ(0deg) scale(0.742); opacity: 1; }
+    43.06% { transform: translate3d(calc(var(--lp-fr) * -0.172), calc(var(--lp-fh) * -0.069), calc(var(--lp-fr) * 0.545)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.733); opacity: 1; }
+    44.44% { transform: translate3d(calc(var(--lp-fr) * -0.327), calc(var(--lp-fh) * -0.056), calc(var(--lp-fr) * 0.481)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.724); opacity: 1; }
+    45.83% { transform: translate3d(calc(var(--lp-fr) * -0.454), calc(var(--lp-fh) * -0.042), calc(var(--lp-fr) * 0.386)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.716); opacity: 1; }
+    47.22% { transform: translate3d(calc(var(--lp-fr) * -0.547), calc(var(--lp-fh) * -0.028), calc(var(--lp-fr) * 0.268)) rotateY(-25deg) rotateZ(6.1deg) scale(0.707); opacity: 1; }
+    48.61% { transform: translate3d(calc(var(--lp-fr) * -0.6), calc(var(--lp-fh) * -0.014), calc(var(--lp-fr) * 0.137)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.699); opacity: 1; }
+    50% { transform: translate3d(calc(var(--lp-fr) * -0.61), calc(var(--lp-fh) * 0), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.69); opacity: 1; }
+    51.39% { transform: translate3d(calc(var(--lp-fr) * -0.579), calc(var(--lp-fh) * 0.014), calc(var(--lp-fr) * -0.132)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.681); opacity: 1; }
+    52.78% { transform: translate3d(calc(var(--lp-fr) * -0.51), calc(var(--lp-fh) * 0.028), calc(var(--lp-fr) * -0.25)) rotateY(25deg) rotateZ(6.1deg) scale(0.673); opacity: 1; }
+    54.17% { transform: translate3d(calc(var(--lp-fr) * -0.408), calc(var(--lp-fh) * 0.042), calc(var(--lp-fr) * -0.347)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.664); opacity: 1; }
+    55.56% { transform: translate3d(calc(var(--lp-fr) * -0.283), calc(var(--lp-fh) * 0.056), calc(var(--lp-fr) * -0.417)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.656); opacity: 1; }
+    56.94% { transform: translate3d(calc(var(--lp-fr) * -0.144), calc(var(--lp-fh) * 0.069), calc(var(--lp-fr) * -0.456)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.647); opacity: 1; }
+    58.33% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.083), calc(var(--lp-fr) * -0.463)) rotateY(50deg) rotateZ(0deg) scale(0.638); opacity: 1; }
+    59.72% { transform: translate3d(calc(var(--lp-fr) * 0.138), calc(var(--lp-fh) * 0.097), calc(var(--lp-fr) * -0.439)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.63); opacity: 1; }
+    61.11% { transform: translate3d(calc(var(--lp-fr) * 0.262), calc(var(--lp-fh) * 0.111), calc(var(--lp-fr) * -0.385)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.621); opacity: 1; }
+    62.5% { transform: translate3d(calc(var(--lp-fr) * 0.362), calc(var(--lp-fh) * 0.125), calc(var(--lp-fr) * -0.308)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.613); opacity: 1; }
+    63.89% { transform: translate3d(calc(var(--lp-fr) * 0.434), calc(var(--lp-fh) * 0.139), calc(var(--lp-fr) * -0.213)) rotateY(25deg) rotateZ(-6.1deg) scale(0.604); opacity: 1; }
+    65.28% { transform: translate3d(calc(var(--lp-fr) * 0.474), calc(var(--lp-fh) * 0.153), calc(var(--lp-fr) * -0.108)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.595); opacity: 1; }
+    66.67% { transform: translate3d(calc(var(--lp-fr) * 0.48), calc(var(--lp-fh) * 0.167), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.587); opacity: 1; }
+    68.06% { transform: translate3d(calc(var(--lp-fr) * 0.453), calc(var(--lp-fh) * 0.181), calc(var(--lp-fr) * 0.103)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.578); opacity: 1; }
+    69.44% { transform: translate3d(calc(var(--lp-fr) * 0.397), calc(var(--lp-fh) * 0.194), calc(var(--lp-fr) * 0.195)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.569); opacity: 1; }
+    70.83% { transform: translate3d(calc(var(--lp-fr) * 0.316), calc(var(--lp-fh) * 0.208), calc(var(--lp-fr) * 0.269)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.561); opacity: 1; }
+    72.22% { transform: translate3d(calc(var(--lp-fr) * 0.218), calc(var(--lp-fh) * 0.222), calc(var(--lp-fr) * 0.321)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.552); opacity: 1; }
+    73.61% { transform: translate3d(calc(var(--lp-fr) * 0.11), calc(var(--lp-fh) * 0.236), calc(var(--lp-fr) * 0.35)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.544); opacity: 1; }
+    75% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.25), calc(var(--lp-fr) * 0.353)) rotateY(-50deg) rotateZ(0deg) scale(0.535); opacity: 1; }
+    76.39% { transform: translate3d(calc(var(--lp-fr) * -0.105), calc(var(--lp-fh) * 0.264), calc(var(--lp-fr) * 0.332)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.526); opacity: 1; }
+    77.78% { transform: translate3d(calc(var(--lp-fr) * -0.197), calc(var(--lp-fh) * 0.278), calc(var(--lp-fr) * 0.29)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.518); opacity: 1; }
+    79.17% { transform: translate3d(calc(var(--lp-fr) * -0.27), calc(var(--lp-fh) * 0.292), calc(var(--lp-fr) * 0.23)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.509); opacity: 1; }
+    80.56% { transform: translate3d(calc(var(--lp-fr) * -0.322), calc(var(--lp-fh) * 0.306), calc(var(--lp-fr) * 0.158)) rotateY(-25deg) rotateZ(6.1deg) scale(0.501); opacity: 1; }
+    81.94% { transform: translate3d(calc(var(--lp-fr) * -0.349), calc(var(--lp-fh) * 0.319), calc(var(--lp-fr) * 0.079)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.492); opacity: 1; }
+    83.33% { transform: translate3d(calc(var(--lp-fr) * -0.35), calc(var(--lp-fh) * 0.333), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.483); opacity: 1; }
+    84.72% { transform: translate3d(calc(var(--lp-fr) * -0.328), calc(var(--lp-fh) * 0.347), calc(var(--lp-fr) * -0.075)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.475); opacity: 1; }
+    86.11% { transform: translate3d(calc(var(--lp-fr) * -0.284), calc(var(--lp-fh) * 0.361), calc(var(--lp-fr) * -0.14)) rotateY(25deg) rotateZ(6.1deg) scale(0.466); opacity: 1; }
+    87.5% { transform: translate3d(calc(var(--lp-fr) * -0.225), calc(var(--lp-fh) * 0.375), calc(var(--lp-fr) * -0.191)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.458); opacity: 1; }
+    88.89% { transform: translate3d(calc(var(--lp-fr) * -0.153), calc(var(--lp-fh) * 0.389), calc(var(--lp-fr) * -0.226)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.449); opacity: 0.93; }
+    90.28% { transform: translate3d(calc(var(--lp-fr) * -0.077), calc(var(--lp-fh) * 0.403), calc(var(--lp-fr) * -0.243)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.44); opacity: 0.81; }
+    91.67% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.417), calc(var(--lp-fr) * -0.242)) rotateY(50deg) rotateZ(0deg) scale(0.432); opacity: 0.69; }
+    93.06% { transform: translate3d(calc(var(--lp-fr) * 0.071), calc(var(--lp-fh) * 0.431), calc(var(--lp-fr) * -0.225)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.423); opacity: 0.58; }
+    94.44% { transform: translate3d(calc(var(--lp-fr) * 0.132), calc(var(--lp-fh) * 0.444), calc(var(--lp-fr) * -0.194)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.414); opacity: 0.46; }
+    95.83% { transform: translate3d(calc(var(--lp-fr) * 0.179), calc(var(--lp-fh) * 0.458), calc(var(--lp-fr) * -0.152)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.406); opacity: 0.35; }
+    97.22% { transform: translate3d(calc(var(--lp-fr) * 0.209), calc(var(--lp-fh) * 0.472), calc(var(--lp-fr) * -0.103)) rotateY(25deg) rotateZ(-6.1deg) scale(0.397); opacity: 0.23; }
+    98.61% { transform: translate3d(calc(var(--lp-fr) * 0.223), calc(var(--lp-fh) * 0.486), calc(var(--lp-fr) * -0.051)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.389); opacity: 0.12; }
+    100% { transform: translate3d(calc(var(--lp-fr) * 0.22), calc(var(--lp-fh) * 0.5), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.38); opacity: 0; }
+  }
+  /* with less motion the cards hold the pose they start the cycle in */
+  @media (prefers-reduced-motion: reduce) {
+    .lp-funnel-item {
+      animation: none;
+      transform: var(--pose);
+      opacity: var(--pose-op);
+    }
+  }
+  /* one under the other once the column is too narrow for two */
+  @media screen and (max-width: 1100px) {
+    .lp-vs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .lp-vs-side--diy {
+      min-height: 520px;
+    }
+  }
+  @media screen and (max-width: 560px) {
+    .lp-vs {
+      --lp-vs-pad: 24px;
+    }
+    .lp-vs-side {
+      padding-top: 40px;
+    }
+    .lp-funnel {
+      --lp-fr: 96px;
+    }
+    .lp-flow--vs {
+      gap: 44px;
+    }
+  }
+  /* lp-vs:end */
+
   /* With the sidebar still open the content column gets narrow, so the
      copy gives up some width to keep the stage legible */
   @media screen and (max-width: 1320px) {
@@ -2158,15 +2688,6 @@
     }
   }
   @media screen and (max-width: 1000px) {
-    .sticker-9 {
-      transform: scale(0.8);
-      bottom: 70px;
-      right: 30px;
-    }
-    .founder-quote {
-      padding: 40px 40px 60px 40px;
-      margin-inline: -10px;
-    }
     .expander-container {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
