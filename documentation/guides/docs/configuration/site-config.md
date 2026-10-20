@@ -277,6 +277,10 @@ Previews do not have a publish history, so they show the current date.
 
 The `search` object within `layout` controls the global search behavior.
 
+Search finds guide content and API content, including parameter names, request and response fields, models, webhooks, and AsyncAPI content. You do not need to enable Ask AI to search these fields. Exact names rank above incidental mentions in descriptions, and results link to their API reference destinations.
+
+Models appear after you type a query. They are excluded from the initial suggestions so guide pages and API overviews remain easy to find. The search index is generated during the site build; publish a new build to index updated API content.
+
 | Property   | Type                        | Default    | Description                           |
 | ---------- | --------------------------- | ---------- | ------------------------------------- |
 | `enabled`  | `boolean`                   | `true`     | Enable or disable search globally     |
@@ -723,7 +727,7 @@ Set `userInfoHook` to your HTTPS endpoint to personalize published documentation
 }
 ```
 
-Publish the configuration, then generate the project's signing secret in **Settings → Privacy → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
+Publish the configuration, then generate the project's signing secret in **Settings → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
 
 Personalization changes visibility. Use [Access Control](#access-control) to restrict access to the site.
 
