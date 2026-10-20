@@ -22,7 +22,7 @@ import ScalarFileUploadError from './ScalarFileUploadError.vue'
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
 import ScalarFileUploadInputCompact from './ScalarFileUploadInputCompact.vue'
 import ScalarFileUploadLoading from './ScalarFileUploadLoading.vue'
-import { type ExtensionList, isExtensionList } from './types'
+import { isExtensionList, type ExtensionList } from './types'
 
 const {
   variant = 'default',

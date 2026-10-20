@@ -35,7 +35,7 @@ const { cx } = useBindCx()
       )
     "
     @click="$emit('click', $event)">
-    <div class="flex items-center gap-1 whitespace-nowrap text-c-2">
+    <div class="text-c-2 flex items-center gap-1 whitespace-nowrap">
       <slot>
         <ScalarIconUploadSimple class="size-3.5" />
         <span> Upload {{ multiple ? 'files' : 'file' }} </span>

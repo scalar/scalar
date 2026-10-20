@@ -65,7 +65,7 @@ const { cx } = useBindCx()
       :showLang="true">
       <template #backdrop>
         <ScalarCopyBackdrop
-          class="scalar-code-copy-backdrop -right-1.5 -top-1" />
+          class="scalar-code-copy-backdrop -top-1 -right-1.5" />
       </template>
     </ScalarCodeBlockCopy>
   </div>

@@ -26,7 +26,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { type Component, useSlots } from 'vue'
+import { useSlots, type Component } from 'vue'
 
 const { is = 'header' } = defineProps<{
   /** Render as a `div` when nested inside an existing `header` landmark */

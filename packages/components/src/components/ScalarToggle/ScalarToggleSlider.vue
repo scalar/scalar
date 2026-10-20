@@ -30,7 +30,7 @@ const { cx } = useBindCx()
     type="button"
     v-bind="cx(variants({ disabled }))">
     <div
-      class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-b-1 transition-transform duration-300"
+      class="bg-b-1 absolute top-px left-px flex h-3 w-3 items-center justify-center rounded-full transition-transform duration-300"
       :class="{
         'translate-x-1.25': thumb === 'center',
         'translate-x-2.5': thumb === 'end',

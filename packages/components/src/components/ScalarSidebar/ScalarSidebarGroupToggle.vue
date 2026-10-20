@@ -15,7 +15,7 @@ import type { ScalarIconComponent } from '@scalar/icons/types'
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
-import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
+import { ScalarIconLegacyAdapter, type Icon } from '../ScalarIcon'
 
 const { is = 'div', open = false } = defineProps<{
   /** Override the element tag */

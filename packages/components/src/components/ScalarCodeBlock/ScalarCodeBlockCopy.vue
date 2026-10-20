@@ -11,9 +11,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarCopy } from '@/components/ScalarCopy'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
+
+import { ScalarCopy } from '@/components/ScalarCopy'
 
 import { LANGUAGE_LABELS } from './constants'
 import type { StandardLanguageKey } from './types'
@@ -92,7 +93,7 @@ const { cx } = useBindCx()
     <template
       v-if="lang"
       #copy>
-      <span class="hidden group-hocus-within/code-block:inline">
+      <span class="group-hocus-within/code-block:inline hidden">
         <span
           v-if="showLang"
           class="group-hocus/copy-button:sr-only"

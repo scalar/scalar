@@ -13,7 +13,6 @@
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@playwright/test": "catalog:*",
-    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "catalog:*",
     "@typescript-eslint/parser": "catalog:*",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",

@@ -21,11 +21,11 @@ export default {}
 import { ScalarIconArrowRight, ScalarIconCaretLeft } from '@scalar/icons'
 import { nextTick, ref, useTemplateRef } from 'vue'
 
+import { findScrollContainer } from './findScrollContainer'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
 import ScalarSidebarLoading from './ScalarSidebarLoading.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
-import { findScrollContainer } from './findScrollContainer'
 import type { ScalarSidebarGroupProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
 import { useSidebarNestedItem } from './useSidebarNestedItems'
@@ -139,7 +139,7 @@ const handleBack = (event: MouseEvent) => {
         <slot />
         <template #aside>
           <slot name="aside">
-            <ScalarIconArrowRight class="size-4 text-sidebar-c-2" />
+            <ScalarIconArrowRight class="text-sidebar-c-2 size-4" />
           </slot>
         </template>
       </ScalarSidebarButton>
@@ -157,14 +157,14 @@ const handleBack = (event: MouseEvent) => {
         class="absolute inset-0 translate-x-full">
         <ScalarSidebarItems v-bind="$attrs">
           <div
-            class="flex flex-col gap-px sticky top-(--scalar-sidebar-sticky-offset,0) pt-(--scalar-sidebar-padding) -mt-(--scalar-sidebar-padding) px-(--scalar-sidebar-padding) -mx-(--scalar-sidebar-padding) bg-sidebar-b-1 z-1 animate-sidebar-border-bottom border-b-sidebar-border">
+            class="bg-sidebar-b-1 animate-sidebar-border-bottom border-b-sidebar-border sticky top-(--scalar-sidebar-sticky-offset,0) z-1 -mx-(--scalar-sidebar-padding) -mt-(--scalar-sidebar-padding) flex flex-col gap-px px-(--scalar-sidebar-padding) pt-(--scalar-sidebar-padding)">
             <slot name="back">
               <ScalarSidebarButton
                 is="button"
                 class="text-sidebar-c-1 font-sidebar-active hover:text-sidebar-c-1"
                 @click="handleBack">
                 <template #icon>
-                  <ScalarIconCaretLeft class="size-4 -m-px text-sidebar-c-2" />
+                  <ScalarIconCaretLeft class="text-sidebar-c-2 -m-px size-4" />
                 </template>
                 <slot name="back-label">Back</slot>
               </ScalarSidebarButton>

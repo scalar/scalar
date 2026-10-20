@@ -12,7 +12,7 @@ export default {}
 <script setup lang="ts">
 import { ScalarIconWarning, ScalarIconWarningCircle } from '@scalar/icons'
 import { cva, useBindCx } from '@scalar/use-hooks/useBindCx'
-import { type Component, computed } from 'vue'
+import { computed, type Component } from 'vue'
 
 const { variant = 'error', icon } = defineProps<{
   /** The variant of the error */

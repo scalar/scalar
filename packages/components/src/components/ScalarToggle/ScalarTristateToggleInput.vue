@@ -31,7 +31,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
         'text-c-1': model !== undefined,
       })
     ">
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
+    <div class="min-w-0 flex-1 truncate text-left"><slot /></div>
     <ScalarTristateToggle
       v-model="model"
       class="shrink-0"

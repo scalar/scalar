@@ -16,22 +16,23 @@ export default {}
   setup
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
-import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
 import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
+import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
+
 import { ScalarListboxCheckbox } from '../ScalarListbox'
-import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { ScalarLoading, type LoadingState } from '../ScalarLoading'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
+  isGroups,
   type ComboboxEmits,
   type ComboboxSlots,
   type FilterFunction,
   type Option,
   type OptionGroup,
   type OptionsOrGroups,
-  isGroups,
 } from './types'
 
 const {
@@ -311,9 +312,9 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
   <!-- Inset to line up with the options below -->
-  <div class="relative flex items-center m-1 mb-0.75">
+  <div class="relative m-1 mb-0.75 flex items-center">
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none absolute left-1.75 top-1/2 -translate-y-1/2 text-c-3 size-4" />
+      class="text-c-3 pointer-events-none absolute top-1/2 left-1.75 size-4 -translate-y-1/2" />
     <input
       ref="input"
       v-model="query"
@@ -322,7 +323,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-controls="id"
       :aria-expanded="showList"
       :aria-label="inputLabel"
-      class="min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 leading-none text-c-1"
+      class="text-c-1 min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 leading-none"
       :class="showSearchEnd ? 'pr-7.25' : 'pr-1.75'"
       data-1p-ignore
       :placeholder
@@ -336,7 +337,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       @keydown.up.prevent="moveActive(-1)" />
     <div
       v-if="showSearchEnd"
-      class="absolute right-1.75 top-1/2 flex -translate-y-1/2 items-center">
+      class="absolute top-1/2 right-1.75 flex -translate-y-1/2 items-center">
       <slot
         :loader
         name="search-end">
@@ -352,7 +353,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
     :id="id"
     :aria-busy="isLoading"
     :aria-multiselectable="multiselect"
-    class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
+    class="custom-scroll min-h-0 flex-1 overscroll-contain border-t p-0.75"
     role="listbox"
     tabindex="-1">
     <template v-if="showSkeleton">
@@ -363,7 +364,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
         class="flex px-2 py-1.5"
         role="presentation">
         <div
-          class="h-lh rounded-md bg-b-3 animate-pulse"
+          class="bg-b-3 h-lh animate-pulse rounded-md"
           :class="idx === 3 ? 'w-2/3' : 'w-full'" />
       </li>
     </template>
@@ -414,7 +415,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
             <ScalarListboxCheckbox
               :multiselect
               :selected="model.some((o) => o.id === option.id)" />
-            <span class="inline-block min-w-0 flex-1 truncate text-c-1">
+            <span class="text-c-1 inline-block min-w-0 flex-1 truncate">
               {{ option.label }}
             </span>
           </template>

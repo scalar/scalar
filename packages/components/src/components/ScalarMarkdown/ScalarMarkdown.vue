@@ -13,10 +13,10 @@ export default {}
 
 <script setup lang="ts">
 import {
-  type Node,
   htmlFromMarkdown,
   isHeading,
   textFromNode,
+  type Node,
 } from '@scalar/code-highlight'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'

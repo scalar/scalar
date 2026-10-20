@@ -73,7 +73,7 @@ defineOptions({ inheritAttrs: false })
       v-if="!controlled && (truncated || open)"
       :aria-controls="id"
       :aria-expanded="open"
-      class="whitespace-nowrap font-medium hover:underline"
+      class="font-medium whitespace-nowrap hover:underline"
       :class="{ 'self-end': open }"
       type="button"
       @click="open = !open">

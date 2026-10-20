@@ -79,33 +79,33 @@ defineExpose({ focus })
 
 <template>
   <div
-    class="scalar-virtual-text-search ml-auto mr-2 mt-2 flex h-fit w-fit items-center gap-1 overflow-visible rounded-lg bg-b-2 px-2 py-1 shadow-md"
+    class="scalar-virtual-text-search bg-b-2 mt-2 mr-2 ml-auto flex h-fit w-fit items-center gap-1 overflow-visible rounded-lg px-2 py-1 shadow-md"
     @click.stop>
     <ScalarIconMagnifyingGlass
-      class="pointer-events-none size-3.5 shrink-0 text-c-3" />
+      class="text-c-3 pointer-events-none size-3.5 shrink-0" />
     <input
       ref="searchInputRef"
       v-model="localQuery"
       aria-label="Search in text"
       autocomplete="off"
-      class="scalar-virtual-text-search-input min-w-0 w-36 appearance-none border-none bg-transparent px-1 py-0.5 text-xs text-c-1 outline-none"
+      class="scalar-virtual-text-search-input text-c-1 w-36 min-w-0 appearance-none border-none bg-transparent px-1 py-0.5 text-xs outline-none"
       placeholder="Find..."
       spellcheck="false"
       type="search"
       @keydown="handleSearchKeydown" />
     <span
       v-if="localQuery"
-      class="shrink-0 whitespace-nowrap text-xs tabular-nums text-c-3">
+      class="text-c-3 shrink-0 text-xs whitespace-nowrap tabular-nums">
       {{
         matchCount > 0
           ? `${activeMatchIndex + 1} of ${matchCount}`
           : 'No results'
       }}
     </span>
-    <span class="mx-0.5 h-3.5 w-px bg-b-3" />
+    <span class="bg-b-3 mx-0.5 h-3.5 w-px" />
     <button
       aria-label="Previous match"
-      class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1 disabled:pointer-events-none disabled:opacity-30"
+      class="text-c-3 hover:bg-b-3 hover:text-c-1 flex size-5 items-center justify-center rounded disabled:pointer-events-none disabled:opacity-30"
       :disabled="matchCount === 0"
       title="Previous match (Shift+Enter)"
       type="button"
@@ -114,7 +114,7 @@ defineExpose({ focus })
     </button>
     <button
       aria-label="Next match"
-      class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1 disabled:pointer-events-none disabled:opacity-30"
+      class="text-c-3 hover:bg-b-3 hover:text-c-1 flex size-5 items-center justify-center rounded disabled:pointer-events-none disabled:opacity-30"
       :disabled="matchCount === 0"
       title="Next match (Enter)"
       type="button"
@@ -123,7 +123,7 @@ defineExpose({ focus })
     </button>
     <button
       aria-label="Close search"
-      class="flex size-5 items-center justify-center rounded text-c-3 hover:bg-b-3 hover:text-c-1"
+      class="text-c-3 hover:bg-b-3 hover:text-c-1 flex size-5 items-center justify-center rounded"
       title="Close (Escape)"
       type="button"
       @click="emit('close')">

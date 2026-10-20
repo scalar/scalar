@@ -80,14 +80,14 @@ const { cx } = useBindCx()
     </slot>
     <div
       v-if="icon || $slots.icon"
-      class="h-lh *:size-4 mr-1 flex items-center">
+      class="mr-1 flex h-lh items-center *:size-4">
       <slot name="icon">
         <ScalarIconLegacyAdapter
           v-if="icon"
           :icon="icon" />
       </slot>
     </div>
-    <div class="group/button-label flex-1 min-w-0">
+    <div class="group/button-label min-w-0 flex-1">
       <slot />
     </div>
     <slot name="aside" />

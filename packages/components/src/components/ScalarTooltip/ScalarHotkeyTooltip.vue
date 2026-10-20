@@ -14,7 +14,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { type Ref, computed, h, ref, render } from 'vue'
+import { computed, h, ref, render, type Ref } from 'vue'
 
 import { ScalarHotkey } from '../ScalarHotkey'
 import type { HotKeyModifier } from '../ScalarHotkey/types'
