@@ -1055,7 +1055,8 @@
             "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
             "layout": {
               "toc": false,
-              "pageTitle": false
+              "pageTitle": false,
+              "feedback": false
             },
             "head": {
               "title": "Scalar — API Documentation, SDKs, API Client & Registry",
@@ -1120,7 +1121,8 @@
             "layout": {
               "toc": false,
               "pageTitle": false,
-              "sidebar": false
+              "sidebar": false,
+              "feedback": false
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
@@ -1157,7 +1159,8 @@
             "type": "page",
             "layout": {
               "toc": true,
-              "pageActions": false
+              "pageActions": false,
+              "feedback": false
             },
             "head": {
               "title": "Scalar Customers — Trusted by the World's Best API Teams",
@@ -1231,7 +1234,8 @@
               ]
             },
             "layout": {
-              "toc": false
+              "toc": false,
+              "feedback": false
             }
           },
           "/company": {
@@ -1240,7 +1244,8 @@
             "filepath": "documentation/guides/company.md",
             "type": "page",
             "layout": {
-              "pageActions": false
+              "pageActions": false,
+              "feedback": false
             },
             "head": {
               "title": "About Scalar — The API Platform for Developers & Agents",
@@ -1332,6 +1337,9 @@
                   "content": "index, follow"
                 }
               ]
+            },
+            "layout": {
+              "feedback": false
             }
           },
           "/solutions/openapi-documentation": {
@@ -1368,7 +1376,8 @@
               ]
             },
             "layout": {
-              "toc": false
+              "toc": false,
+              "feedback": false
             }
           },
           "/solutions/api-documentation-for-developer-tools-companies": {
@@ -1405,7 +1414,8 @@
               ]
             },
             "layout": {
-              "toc": false
+              "toc": false,
+              "feedback": false
             }
           },
           "/solutions/developer-portal": {
@@ -1442,7 +1452,8 @@
               ]
             },
             "layout": {
-              "toc": false
+              "toc": false,
+              "feedback": false
             }
           },
           "/customers/partech": {
@@ -1471,7 +1482,8 @@
               "sidebar": false,
               "search": {
                 "enabled": false
-              }
+              },
+              "feedback": false
             }
           },
           "/customers/warp": {
@@ -1500,7 +1512,8 @@
               "sidebar": false,
               "search": {
                 "enabled": false
-              }
+              },
+              "feedback": false
             }
           },
           "/svg-playground": {
@@ -1559,6 +1572,9 @@
                   "content": "index, follow"
                 }
               ]
+            },
+            "layout": {
+              "feedback": false
             }
           }
         }
@@ -1578,7 +1594,8 @@
             "layout": {
               "toc": false,
               "pageActions": false,
-              "pageTitle": false
+              "pageTitle": false,
+              "feedback": false
             }
           },
           "products": {
@@ -1624,6 +1641,9 @@
                           "content": "index, follow"
                         }
                       ]
+                    },
+                    "layout": {
+                      "feedback": false
                     }
                   },
                   "getting-started": {
@@ -2182,6 +2202,9 @@
                           "content": "index, follow"
                         }
                       ]
+                    },
+                    "layout": {
+                      "feedback": false
                     }
                   },
                   "getting-started": {
@@ -2397,7 +2420,8 @@
                     "filepath": "documentation/guides/sdks/index.md",
                     "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives.",
                     "layout": {
-                      "pageTitle": false
+                      "pageTitle": false,
+                      "feedback": false
                     },
                     "head": {
                       "title": "SDK generator from OpenAPI — TypeScript, Python, Go & more",
@@ -2827,6 +2851,9 @@
                           "content": "index, follow"
                         }
                       ]
+                    },
+                    "layout": {
+                      "feedback": false
                     }
                   },
                   "getting-started": {
@@ -2937,6 +2964,9 @@
                           "content": "index, follow"
                         }
                       ]
+                    },
+                    "layout": {
+                      "feedback": false
                     }
                   },
                   "getting-started": {
@@ -3545,6 +3575,9 @@
                           "content": "index, follow"
                         }
                       ]
+                    },
+                    "layout": {
+                      "feedback": false
                     }
                   },
                   "getting-started": {
