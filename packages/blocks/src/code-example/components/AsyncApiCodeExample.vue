@@ -61,7 +61,7 @@ type CodeSample = {
 const context = computed<ReturnType<typeof getAsyncApiExampleContext>>(() =>
   getAsyncApiExampleContext(document, operationName, selectedServer),
 )
-const selectedMessage = ref<string>('')
+const selectedMessage = defineModel<string>('selectedMessage', { default: '' })
 const selectedExample = ref<string>('')
 const selectedSample = ref<string>('')
 const messages = computed<PickerOptions>(() =>

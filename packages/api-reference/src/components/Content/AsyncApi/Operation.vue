@@ -11,7 +11,7 @@ import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import { computed, useId, useTemplateRef } from 'vue'
+import { computed, ref, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -69,6 +69,7 @@ defineSlots<{
   actions?: () => unknown
 }>()
 
+const selectedMessage = ref('')
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
 
@@ -210,11 +211,13 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <div class="operation-example flex min-w-0 flex-col gap-6">
       <AsyncApiCodeExample
+        v-model:selectedMessage="selectedMessage"
         :authStore="authStore"
         :document="clientDocument ?? document"
         :operationName="operation.operationName"
         :securitySchemes="securitySchemes" />
       <OperationMessageExamples
+        v-model:selectedMessage="selectedMessage"
         class="w-full"
         :document="document"
         :messages="messages" />

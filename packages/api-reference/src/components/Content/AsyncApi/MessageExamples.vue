@@ -2,6 +2,7 @@
 import { ExamplePicker } from '@scalar/blocks/code-example'
 import {
   ScalarCard,
+  ScalarCardFooter,
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
@@ -109,7 +110,10 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
       class="text-c-2 px-3 py-[7px] font-normal [&_.scalar-card-header-title]:whitespace-normal">
       <slot name="heading" />
       <div
-        v-if="selected?.example.name || selected?.example.summary"
+        v-if="
+          !$slots.heading &&
+          (selected?.example.name || selected?.example.summary)
+        "
         class="min-w-0 grow">
         <div
           v-if="selected.example.name"
@@ -122,7 +126,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
           :value="selected.example.summary" />
       </div>
       <template
-        v-if="hasMultipleExamples"
+        v-if="hasMultipleExamples && !$slots.heading"
         #actions>
         <ExamplePicker
           v-model="selectedKey"
@@ -158,5 +162,21 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
       class="text-c-2 p-3 text-sm">
       No payload example available.
     </ScalarCardSection>
+    <ScalarCardFooter
+      v-if="
+        $slots.heading && (hasMultipleExamples || selected?.example.summary)
+      "
+      class="flex shrink-0 flex-row-reverse flex-wrap justify-start gap-x-2 px-3 py-[7px]">
+      <ExamplePicker
+        v-if="hasMultipleExamples"
+        v-model="selectedKey"
+        :aria-label="translate('schema.examples')"
+        class="-m-1 shrink-0 px-0"
+        :examples="pickerExamples" />
+      <ScalarMarkdown
+        v-if="selected?.example.summary"
+        class="text-c-1 grow text-sm font-semibold [&_*]:m-0"
+        :value="selected.example.summary" />
+    </ScalarCardFooter>
   </ScalarCard>
 </template>

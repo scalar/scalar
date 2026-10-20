@@ -1,9 +1,14 @@
+import { AsyncApiCodeExample, ExamplePicker } from '@scalar/blocks/code-example'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import type { TraversedAsyncApiOperation } from '@scalar/workspace-store/schemas/navigation'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import Operation from './Operation.vue'
+import OperationMessageExamples from './OperationMessageExamples.vue'
 
 const OPERATION_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp'
 
@@ -120,6 +125,57 @@ describe('Operation', () => {
     expect(wrapper.get('h1, h2, h3, h4, h5, h6').text()).toBe('Inherited summary')
     expect(wrapper.text().split('Inherited summary').length - 1).toBe(1)
     expect(wrapper.text().includes('Inherited description')).toBe(true)
+  })
+
+  it('synchronizes message selection in both directions', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        servers: { production: { host: 'example.com', protocol: 'wss' } },
+        channels: {
+          userSignedUp: {
+            address: '/events',
+            messages: {
+              first: { title: 'First', examples: [{ payload: 'first payload' }] },
+              'second/event': { title: 'Second', payload: { type: 'string', examples: ['second payload'] } },
+            },
+          },
+        },
+        operations: {
+          onUserSignedUp: {
+            action: 'receive',
+            channel: { $ref: '#/channels/userSignedUp' },
+            messages: [
+              { $ref: '#/channels/userSignedUp/messages/first' },
+              { $ref: '#/channels/userSignedUp/messages/second~1event' },
+            ],
+          },
+        },
+      },
+    })
+    const document = store.workspace.activeDocument
+    if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
+    const children = ['first', 'second/event'].map((messageName) => ({
+      type: 'asyncapi-message' as const,
+      id: `nav/${messageName}`,
+      title: messageName,
+      messageName,
+      channelName: 'userSignedUp',
+    }))
+    const wrapper = mount(Operation, { props: { document, operation: createOperation({ children }), eventBus: null } })
+    const code = wrapper.getComponent(AsyncApiCodeExample)
+    const payload = wrapper.getComponent(OperationMessageExamples)
+    code.getComponent(ExamplePicker).vm.$emit('update:modelValue', 'second/event')
+    await nextTick()
+    expect(payload.get('pre').text()).toContain('second payload')
+    expect(payload.text()).not.toContain('Example')
+    payload.getComponent(ExamplePicker).vm.$emit('update:modelValue', 'first')
+    await nextTick()
+    expect(code.getComponent(ExamplePicker).props('modelValue')).toBe('first')
+    expect(payload.get('pre').text()).toContain('first payload')
   })
 
   it.each([1, 2])('starts all %i messages collapsed', (count) => {

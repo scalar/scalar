@@ -2,7 +2,7 @@
 import { ExamplePicker } from '@scalar/blocks/code-example'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 
 import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
@@ -24,7 +24,7 @@ const choices = computed(() =>
     return message
       ? [
           {
-            id: entry.id,
+            id: entry.messageName,
             label: pickHeading(message.title, entry.title, entry.messageName),
             message,
           },
@@ -32,7 +32,7 @@ const choices = computed(() =>
       : []
   }),
 )
-const selectedId = ref('')
+const selectedId = defineModel<string>('selectedMessage', { default: '' })
 watch(
   choices,
   (values) => {

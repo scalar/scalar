@@ -14,6 +14,7 @@ import {
   resolveOperationChannel,
   resolveOperationWithTraits,
 } from '@scalar/workspace-store/channel-example'
+import { getNameFromRef } from '@scalar/workspace-store/helpers/get-name-from-ref'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { resolveTraits } from '@scalar/workspace-store/helpers/resolve-traits'
 
@@ -49,7 +50,11 @@ export const getAsyncApiExampleContext = (
         : []
       : operation.messages.flatMap((ref, index) => {
           const message = getResolvedAsyncApiRef(ref)
-          return message && !('$ref' in message) ? [{ name: ref.$ref ?? String(index), message }] : []
+          const name =
+            ref.$ref && resolved?.channelName
+              ? getNameFromRef(ref.$ref, ['channels', resolved.channelName, 'messages'])
+              : undefined
+          return message && !('$ref' in message) ? [{ name: name ?? ref.$ref ?? String(index), message }] : []
         })
   const resolvedMessages = messages.map(({ name, message }) => ({
     name,

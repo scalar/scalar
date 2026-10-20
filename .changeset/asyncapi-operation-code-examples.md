@@ -10,4 +10,4 @@ Expose `generateMessageSnippet` and its protocol-specific input type through `@s
 
 Use selected server query and cookie API keys in generated browser WebSocket examples, with reactive credentials and masked values in the code block.
 
-Display one selectable message payload panel below each operation code example, with message schemas in the left column.
+Display one selectable message payload panel below each operation code example, with synchronized message pickers and message schemas in the left column.

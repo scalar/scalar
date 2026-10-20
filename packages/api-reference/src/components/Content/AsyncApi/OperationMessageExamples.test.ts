@@ -10,7 +10,7 @@ import OperationMessageExamples from './OperationMessageExamples.vue'
 
 const messages: TraversedAsyncApiMessage[] = ['created', 'updated', 'empty'].map((name) => ({
   type: 'asyncapi-message',
-  id: name,
+  id: `navigation/${name}`,
   title: name,
   messageName: name,
   channelName: 'events',
