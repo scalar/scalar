@@ -2,7 +2,7 @@
 
 # scalar document
 
-Work with OpenAPI and AsyncAPI descriptions. Generated from `@scalar/cli` 2.12.1.
+Work with OpenAPI and AsyncAPI descriptions.
 
 | Command | Description |
 | --- | --- |
