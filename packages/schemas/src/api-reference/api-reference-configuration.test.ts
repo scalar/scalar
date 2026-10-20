@@ -8,6 +8,10 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([undefined, true, false])('preserves syncUrl %s through configuration normalization', (syncUrl) => {
+    expect(apiReferenceConfigurationWithSourceSchema({ syncUrl, url: '/openapi.json' }).syncUrl).toBe(syncUrl)
+  })
+
   it('preserves selected extensions through runtime configuration normalization', () => {
     expect(coerce(apiReferenceConfigurationSchema, {}).showExtensions).toBeUndefined()
     expect(

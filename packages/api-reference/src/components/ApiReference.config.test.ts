@@ -151,6 +151,113 @@ const createBasicDocument = (title = 'Test API') => ({
 })
 
 describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
+  it.each([
+    ['http://localhost:3000/?api=second#second/tag/users', undefined, true],
+    ['http://localhost:3000/#second/model/User', undefined, false],
+    ['http://localhost:3000/docs/second/tag/users#host', { basePath: '/docs' }, true],
+    ['http://localhost:3000/#%invalid-host-hash', undefined, true],
+  ])('keeps navigation internal with syncUrl disabled at %s', async (href, pathRouting, showSidebar) => {
+    const initialLocation = { ...locationMock }
+    const url = new URL(href)
+    Object.assign(locationMock, { href, hash: url.hash, pathname: url.pathname, search: url.search })
+    const pushState = vi.spyOn(window.history, 'pushState')
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const previousRestoration = window.history.scrollRestoration
+    window.history.scrollRestoration = 'auto'
+    const redirect = vi.fn(() => '#redirected')
+    const modal = vi.spyOn(apiClientModalModule, 'createApiClientModal')
+    const configuration = {
+      syncUrl: false,
+      showSidebar,
+      pathRouting,
+      redirect,
+      content: createBasicDocument(),
+    }
+    const wrapper = mountComponent({
+      props: {
+        configuration: [
+          { ...configuration, slug: 'first', default: true },
+          { ...configuration, slug: 'second' },
+        ],
+      },
+    })
+    try {
+      await flushPromises()
+      expect(wrapper.vm.workspaceStore.workspace['x-scalar-active-document']).toBe('first')
+      expect(redirect).not.toHaveBeenCalled()
+      expect(window.history.scrollRestoration).toBe('auto')
+      const eventBus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+      eventBus.emit('select:nav-item', { id: 'first/GET/users' })
+      await flushPromises()
+      expect(wrapper.findComponent({ name: 'MobileHeader' }).props('breadcrumb')).toBe('Get users')
+
+      window.dispatchEvent(new PopStateEvent('popstate'))
+      await flushPromises()
+      expect(wrapper.findComponent({ name: 'MobileHeader' }).props('breadcrumb')).toBe('Get users')
+
+      await wrapper.findComponent({ name: 'TestRequestButton' }).get('button').trigger('click')
+      await flushPromises()
+      expect(modal.mock.results.at(-1)?.value.modalState.open).toBe(true)
+      modal.mock.results.at(-1)?.value.modalState.hide()
+
+      if (!showSidebar) {
+        await wrapper.setProps({
+          configuration: [
+            { ...configuration, slug: 'first', showSidebar: true },
+            { ...configuration, slug: 'second', showSidebar: true },
+          ],
+        })
+        await flushPromises()
+      }
+      wrapper.findComponent({ name: 'DocumentSelector' }).vm.$emit('update:modelValue', 'second')
+      await flushPromises()
+      expect(wrapper.vm.workspaceStore.workspace['x-scalar-active-document']).toBe('second')
+      expect(pushState).not.toHaveBeenCalled()
+      expect(replaceState).not.toHaveBeenCalled()
+      expect(locationMock.href).toBe(href)
+    } finally {
+      wrapper.unmount()
+      Object.assign(locationMock, initialLocation)
+      window.history.scrollRestoration = previousRestoration
+      vi.restoreAllMocks()
+    }
+  })
+
+  it('updates internal selection on scroll without writing history when syncUrl is false', async () => {
+    const wrapper = mountComponent({
+      props: {
+        configuration: {
+          syncUrl: false,
+          slug: 'doc',
+          content: {
+            ...createBasicDocument(),
+            info: { title: 'Scroll API', version: '1.0.0', description: 'Overview' },
+          },
+        },
+      },
+    })
+    await flushPromises()
+    const pushState = vi.spyOn(window.history, 'pushState')
+    const replaceState = vi.spyOn(window.history, 'replaceState')
+    const eventBus = wrapper.findComponent({ name: 'Content' }).props('eventBus')
+    // The document-start sentinel resolves visible sections to the introduction while at the top.
+    await vi.waitFor(
+      () => {
+        eventBus.emit('intersecting:nav-item', { id: 'doc/GET/users' })
+        expect(
+          wrapper.findComponent({ name: 'ScalarSidebar' }).props('isSelected')(
+            wrapper.findComponent({ name: 'Content' }).props('infoSectionId'),
+          ),
+        ).toBe(true)
+      },
+      { timeout: 5000 },
+    )
+    expect(pushState).not.toHaveBeenCalled()
+    expect(replaceState).not.toHaveBeenCalled()
+    wrapper.unmount()
+    vi.restoreAllMocks()
+  })
+
   it.each([undefined, [{ url: 'https://{env}.other.example.com', variables: { env: { default: 'original' } } }]])(
     'shares edited configuration variables between the reference and modal with document servers %j',
     async (documentServers) => {

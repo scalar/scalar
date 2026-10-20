@@ -1030,6 +1030,21 @@ Control how schema properties are ordered in model definitions. Can be set to:
 }
 ```
 
+### syncUrl
+
+Controls whether navigation reads from and writes to the browser URL. Defaults to `true`.
+
+Set `syncUrl: false` when embedding Scalar in a dialog or a page with its own routing. Scalar starts at the configured default API description and keeps navigation in internal state. Selecting sections, scrolling, switching API descriptions, and opening Test Request leave the host URL unchanged.
+
+In this mode, Scalar ignores incoming deep links, URL redirects, and browser Back/Forward navigation. `pathRouting` does not enable URL synchronization when `syncUrl` is `false`. Section links do not restore the selected section when reopened. For multiple API descriptions, set `syncUrl: false` on each configuration.
+
+```js
+const configuration = {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+  syncUrl: false,
+}
+```
+
 ### pathRouting
 
 **Type:** `{ basePath: string }`

@@ -226,7 +226,10 @@ const activeSlug = ref<string>(
  *
  * If there is we set the active slug to the document slug
  */
-if (typeof window !== 'undefined') {
+if (
+  typeof window !== 'undefined' &&
+  configList.value[activeSlug.value]?.config.syncUrl !== false
+) {
   const url = new URL(window.location.href)
 
   // To handle legacy query parameter multi-document support we redirect
@@ -374,6 +377,9 @@ const documentLang = computed(() =>
   apiReferenceLocalization.locale.value.replace('_', '-'),
 )
 
+/** Embeds can keep navigation local without taking over the host page URL. */
+const syncUrl = computed(() => mergedConfig.value.syncUrl !== false)
+
 /** Keep the detected host route stable while navigation changes the section hash. */
 const inferredHashBasePath = ref<string>()
 
@@ -442,7 +448,7 @@ const collectWebhooks = (entries: TraversedEntry[]): WebhookRedirectSource[] =>
 // Rewrite outdated `model/` and `models/` schema URLs to the current models
 // section slug so bookmarks from before the slug changed keep resolving. Webhook
 // deep links are handled separately once the document (and its navigation) loads.
-if (typeof window !== 'undefined') {
+if (syncUrl.value && typeof window !== 'undefined') {
   const canonical = redirectUrl(
     window.location.href,
     slugify(
@@ -458,7 +464,11 @@ if (typeof window !== 'undefined') {
 }
 
 // Front-end redirect
-if (mergedConfig.value.redirect && typeof window !== 'undefined') {
+if (
+  syncUrl.value &&
+  mergedConfig.value.redirect &&
+  typeof window !== 'undefined'
+) {
   const newPath = mergedConfig.value.redirect(
     (mergedConfig.value.pathRouting ? window.location.pathname : '') +
       window.location.hash,
@@ -485,7 +495,7 @@ function syncSlugAndUrlWithDocument(
     isMultiDocument.value,
   )
 
-  if (url) {
+  if (config.syncUrl !== false && url) {
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -1214,7 +1224,7 @@ const changeSelectedDocument = async (
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite
   // the URL and the scroll target to the current slug before we scroll to it.
   let scrollTargetId = elementId
-  if (elementId && typeof window !== 'undefined') {
+  if (config.syncUrl !== false && elementId && typeof window !== 'undefined') {
     const canonical = redirectUrl(
       window.location.href,
       slugify(config.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL),
@@ -1372,7 +1382,7 @@ onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
-  if (basePath.value === undefined && window.location.hash) {
+  if (syncUrl.value && basePath.value === undefined && window.location.hash) {
     const hash = decodeURIComponent(window.location.hash.slice(1))
     // Only load documents that could be named in the link, plus the default document.
     const segments = new Set(hash.split('/'))
@@ -1405,11 +1415,13 @@ onBeforeMount(async () => {
 
   await changeSelectedDocument(
     activeSlug.value,
-    getIdFromUrl(
-      window.location.href,
-      basePath.value,
-      isMultiDocument.value ? undefined : activeSlug.value,
-    ),
+    syncUrl.value
+      ? getIdFromUrl(
+          window.location.href,
+          basePath.value,
+          isMultiDocument.value ? undefined : activeSlug.value,
+        )
+      : undefined,
   )
 
   // Warm up the remaining documents in the background so switching between them is instant
@@ -1633,7 +1645,9 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
-    window.history.pushState({}, '', url)
+    if (syncUrl.value) {
+      window.history.pushState({}, '', url)
+    }
 
     // Trigger the onSidebarClick callback if the caller is sidebar
     if (caller === 'sidebar') {
@@ -1697,7 +1711,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   scrollSidebarToTop(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  if (url && workspaceStore.workspace.activeDocument) {
+  if (syncUrl.value && url && workspaceStore.workspace.activeDocument) {
     window.history.replaceState({}, '', url.toString())
   }
 })
@@ -1732,22 +1746,33 @@ eventBus.on('copy-url:nav-item', ({ id }) => {
 // History and scroll restoration
 
 onBeforeMount(() => {
-  window.history.scrollRestoration = 'manual'
+  if (syncUrl.value) {
+    window.history.scrollRestoration = 'manual'
+  }
   // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late
   addScalarClassesToHeadless()
 
   // When we detect a back button press we scroll to the new id
-  window.addEventListener('popstate', () => {
-    const id = getIdFromUrl(
-      window.location.href,
-      basePath.value,
-      isMultiDocument.value ? undefined : activeSlug.value,
-    )
-    if (id) {
-      scrollToLazyElement(id)
-    }
-  })
+  window.addEventListener('popstate', handlePopState)
 })
+
+onBeforeUnmount(() => {
+  window.removeEventListener('popstate', handlePopState)
+})
+
+const handlePopState = (): void => {
+  if (!syncUrl.value) {
+    return
+  }
+  const id = getIdFromUrl(
+    window.location.href,
+    basePath.value,
+    isMultiDocument.value ? undefined : activeSlug.value,
+  )
+  if (id) {
+    scrollToLazyElement(id)
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Document start intersection observer
