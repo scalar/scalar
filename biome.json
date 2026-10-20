@@ -1,14 +1,18 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
   "files": {
     "includes": [
       "**",
       "!**/node_modules",
-      "!**/.claude/**",
       "!**/dist",
-      "!!**/.worktrees",
-      "!!**/.claude/worktrees",
-      "!!**/.codex/worktrees",
+      "!!.worktrees",
+      "!!.claude",
+      "!!.codex/worktrees",
       "!**/.venv",
       "!**/.turbo",
       "!**/.nuxt",
@@ -42,7 +46,6 @@
       "!integrations/**/standalone.js",
       "!**/packages/api-reference/esm.js",
       "!**/target/**",
-      "!.claude/**",
       "!**/*.svg",
       "!integrations/docker/assets/index.html"
     ]
