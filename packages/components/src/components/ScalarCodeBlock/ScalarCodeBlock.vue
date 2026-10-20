@@ -155,12 +155,13 @@ const { cx } = useBindCx()
       :lang="lang"
       :showLang="!isOneLine">
       <template #backdrop>
+        <!-- Stops 2px short of the edges so it does not paint over the scroller's inset focus ring -->
         <ScalarCopyBackdrop
           class="scalar-code-copy-backdrop"
           :class="[
             isOneLine
-              ? '-inset-y-0.75 -right-1 group-hocus-within/code-block:-left-0.5 left-3'
-              : '-right-1.5 -top-1',
+              ? '-inset-y-0.25 -right-0.5 group-hocus-within/code-block:-left-0.5 left-3'
+              : '-right-1 -top-0.5',
           ]" />
       </template>
     </ScalarCodeBlockCopy>
