@@ -1,11 +1,131 @@
-import type { OpenAPIV3_2 } from '@scalar/openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { type UpgradeOptions, type UpgradeResult, upgrade } from './upgrade'
 import { UpgradeIncompatibilityError } from './upgrade-incompatibility-error'
 
+const upgradeTargets = [
+  ['3.0', (input: UnknownObject): OpenAPIV3.Document => upgrade(input, '3.0')],
+  ['3.1', (input: UnknownObject): OpenAPIV3_1.Document => upgrade(input, '3.1')],
+  ['3.2', (input: UnknownObject): OpenAPIV3_2.Document => upgrade(input, '3.2')],
+] as const
+
 describe('upgrade', () => {
+  it.each(upgradeTargets)('preserves security scheme metadata when upgrading to %s', (_target, upgradeDocument) => {
+    const extensions = {
+      'x-label': 'Authentication',
+      'x-config': { roles: ['reader'] },
+      'x-enabled': false,
+      'x-limit': 0,
+      'x-empty': null,
+    }
+    for (const description of ['Authentication documentation', '', undefined]) {
+      const metadata = { ...extensions, ...(description !== undefined ? { description } : {}) }
+      const securityDefinitions = {
+        basic: { type: 'basic', ...metadata },
+        apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header', ...metadata },
+        ...Object.fromEntries(
+          ['implicit', 'password', 'application', 'accessCode'].map((flow) => [
+            flow,
+            {
+              type: 'oauth2',
+              flow,
+              ...metadata,
+              scopes: { read: 'Read access' },
+              ...(['implicit', 'accessCode'].includes(flow)
+                ? { authorizationUrl: 'https://example.com/authorize' }
+                : {}),
+              ...(flow !== 'implicit' ? { tokenUrl: 'https://example.com/token' } : {}),
+            },
+          ]),
+        ),
+      }
+      const document = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Security metadata', version: '1.0' },
+        paths: {},
+        securityDefinitions,
+      })
+      expect(document.components?.securitySchemes).toStrictEqual({
+        basic: { type: 'http', scheme: 'basic', ...metadata },
+        apiKey: { type: 'apiKey', name: 'X-API-Key', in: 'header', ...metadata },
+        ...Object.fromEntries(
+          Object.entries({
+            implicit: 'implicit',
+            password: 'password',
+            application: 'clientCredentials',
+            accessCode: 'authorizationCode',
+          }).map(([flow, upgradedFlow]) => [
+            flow,
+            {
+              type: 'oauth2',
+              ...metadata,
+              flows: {
+                [upgradedFlow]: {
+                  scopes: { read: 'Read access' },
+                  ...(['implicit', 'accessCode'].includes(flow)
+                    ? { authorizationUrl: 'https://example.com/authorize' }
+                    : {}),
+                  ...(flow !== 'implicit' ? { tokenUrl: 'https://example.com/token' } : {}),
+                },
+              },
+            },
+          ]),
+        ),
+      })
+    }
+  })
+
+  it.each(upgradeTargets)('preserves form-data extensions when upgrading to %s', (target, upgradeDocument) => {
+    const extensions = {
+      'x-label': 'Field',
+      'x-config': { choices: ['a', 'b'] },
+      'x-enabled': false,
+      'x-limit': 0,
+      'x-empty': null,
+    }
+    const parameter = {
+      name: 'field',
+      in: 'formData',
+      type: 'string',
+      required: true,
+      description: 'A field',
+      'x-nullable': true,
+      ...extensions,
+    }
+    const consumes = ['multipart/form-data', 'application/x-www-form-urlencoded']
+    const document = upgradeDocument({
+      swagger: '2.0',
+      info: { title: 'Form extensions', version: '1.0' },
+      consumes,
+      parameters: { Shared: parameter },
+      paths: { '/form': { post: { parameters: [parameter], responses: { 200: { description: 'OK' } } } } },
+    })
+    const expected = {
+      content: Object.fromEntries(
+        consumes.map((mediaType) => [
+          mediaType,
+          {
+            schema: {
+              type: 'object',
+              required: ['field'],
+              properties: {
+                field: {
+                  ...extensions,
+                  description: 'A field',
+                  ...(target === '3.0' ? { type: 'string', nullable: true } : { type: ['string', 'null'] }),
+                },
+              },
+            },
+          },
+        ]),
+      ),
+    }
+    expect(document.components?.requestBodies?.Shared).toStrictEqual(expected)
+    expect(document.paths?.['/form']?.post?.requestBody).toStrictEqual(expected)
+  })
+
   it('upgrades documents from Swagger 2.0 to OpenAPI 3.1', () => {
     const document = upgrade(
       {
@@ -308,7 +428,7 @@ describe('upgrade', () => {
     expect(run({ onIncompatible: 'ignore' })).toStrictEqual({ ...input, openapi: '3.2.0' })
   })
 
-  it.each(['3.0', '3.1', '3.2'] as const)('preserves Swagger nullability when upgrading to %s', (version) => {
+  it.each(upgradeTargets)('preserves Swagger nullability when upgrading to %s', (version) => {
     const nullableNumber = { type: 'number', 'x-nullable': true }
     const data = { type: 'number', 'x-nullable': true }
     const input = {
@@ -378,7 +498,7 @@ describe('upgrade', () => {
     })
   })
 
-  it.each(['3.0', '3.1', '3.2'] as const)(
+  it.each(upgradeTargets)(
     'preserves nullability in request, response, parameter and header schemas when upgrading to %s',
     (version) => {
       const number = { type: 'number', 'x-nullable': true }
