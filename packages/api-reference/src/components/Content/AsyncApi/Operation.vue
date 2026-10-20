@@ -202,8 +202,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           :bindings="resolvedOperation?.bindings"
           :options="options"
           scope="operation" />
-      <AsyncApiDocumentation
-        :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+        <AsyncApiDocumentation
+          :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
       </div>
     </div>
 
