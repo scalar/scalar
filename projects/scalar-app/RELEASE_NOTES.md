@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.42 (2026-10-20)
+
+### Improved OAuth token management
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1142)
+
 ## 1.1.41 (2026-10-16)
 
 ### Security improvements and polish

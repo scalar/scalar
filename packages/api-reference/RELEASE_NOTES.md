@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.75.1 (2026-10-20)
+
+### Accessibility improvements and AsyncAPI refinements
+
+This release brings keyboard navigation support, responsive design fixes, and AsyncAPI rendering improvements that align messaging documentation with the OpenAPI experience.
+
+- Endpoint links in operation lists now support keyboard navigation and modified clicks to open in new tabs
+- Request example cards wrap long operation paths instead of truncating them, with the client picker moving below when space is tight
+- Operation header actions wrap on narrow screens instead of overflowing the viewport
+- AsyncAPI operations now match OpenAPI spacing, headings, and layout, with messages collapsed by default
+- Ask AI now supports AsyncAPI context and search results alongside OpenAPI
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1751)
+
 ## 1.75.0 (2026-10-16)
 
 ### AsyncAPI rendering improvements and Mermaid diagram support

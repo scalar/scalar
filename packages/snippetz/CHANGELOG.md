@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.10.10
+
+### Patch Changes
+
+- [#10673](https://github.com/scalar/scalar/pull/10673): Keep the port in the `Host` header of HTTP/1.1 snippets. A request to `http://localhost:8080/api` now shows `Host: localhost:8080` instead of `Host: localhost`.
+
 ## 0.10.9
 
 ## 0.10.8

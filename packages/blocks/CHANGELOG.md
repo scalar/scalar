@@ -1,5 +1,11 @@
 # @scalar/blocks
 
+## 0.5.4
+
+### Patch Changes
+
+- [#10669](https://github.com/scalar/scalar/pull/10669): fix: wrap long operation paths in request example cards instead of truncating them, and move the client picker below the path when it does not fit
+
 ## 0.5.3
 
 ### Patch Changes
