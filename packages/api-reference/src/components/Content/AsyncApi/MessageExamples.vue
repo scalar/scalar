@@ -127,7 +127,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         #actions>
         <ExamplePicker
           v-model="selectedKey"
-          :aria-label="translate('schema.examples')"
+          :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
           class="-m-1 shrink-0 px-0"
           :examples="pickerExamples" />
       </template>
@@ -167,7 +167,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         <ExamplePicker
           v-if="hasMultipleExamples"
           v-model="selectedKey"
-          :aria-label="translate('schema.examples')"
+          :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
           class="-m-1 shrink-0 px-0"
           :examples="pickerExamples" />
       </div>

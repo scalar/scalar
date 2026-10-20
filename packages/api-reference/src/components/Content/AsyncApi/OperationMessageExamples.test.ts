@@ -33,6 +33,7 @@ const document = {
 describe('OperationMessageExamples', () => {
   it('renders one payload and switches messages independently of the payload example', async () => {
     const wrapper = mount(OperationMessageExamples, { props: { document, messages } })
+    expect(wrapper.get('button[aria-label="Message example: Created"]').text()).toContain('Created')
     expect(wrapper.findAllComponents(ScalarCodeBlock)).toHaveLength(1)
     expect(wrapper.get('pre').text()).toContain('"id": 1')
     wrapper.findAllComponents(ExamplePicker)[1]!.vm.$emit('update:modelValue', '1')

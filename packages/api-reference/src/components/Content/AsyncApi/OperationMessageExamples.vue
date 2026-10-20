@@ -75,7 +75,7 @@ const generatedPayload = computed<unknown>(() =>
       <ExamplePicker
         v-if="choices.length > 1"
         v-model="selectedId"
-        :aria-label="pickerLabel"
+        :aria-label="`${pickerLabel}: ${selected.label}`"
         class="-ml-1.5 h-auto!"
         :examples="pickerOptions" />
       <span

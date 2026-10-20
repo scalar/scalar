@@ -122,11 +122,11 @@ createCodeExample('#code-example', {
 })
 ```
 
-The active workspace document supplies the operation, channel, and servers. In Vue, use
+The active workspace document supplies the operation and channel. In Vue, use
 `AsyncApiCodeExample` from `@scalar/blocks/code-example` with `document` and `operationName`
 props. Pass a workspace-resolved document so references can be followed.
 
-Add authored samples to an operation with `x-codeSamples` (or `x-code-samples`):
+Add authored payload examples to channel messages:
 
 ```yaml
 asyncapi: 3.1.0
@@ -153,31 +153,18 @@ operations:
     action: send
     channel:
       $ref: '#/channels/updates'
-    x-codeSamples:
-      - lang: python
-        label: Python SDK
-        source: client.send_update(name="Ada")
 ```
 
-Authored samples are displayed unchanged and work with any protocol. Select
-**JavaScript WebSocket** to generate browser code for a `ws` or `wss` server.
-The message picker respects the operation's `messages` list; an omitted list uses
-all channel messages, while an empty list uses none. The example picker selects
-an authored message payload. Missing payloads produce an explicit placeholder.
+The card displays the selected message payload, with its example name on the left and
+message picker on the right. Dropdowns appear only when there are multiple choices.
+The message picker preserves the document order and respects the operation's `messages`
+list; an omitted list uses all channel messages, while an empty list uses none.
 
-Generated examples follow the described application's direction: `send` sends after
-connecting, and `receive` listens for incoming data. JSON payloads are serialized;
-text payloads are sent as strings. Other encodings need application-specific code.
-Selected server authentication is applied for query and cookie API keys. Query
-credentials are encoded into the connection URL. Cookie credentials generate a
-`document.cookie` setup step that must run on the server's corresponding HTTP(S)
-origin; it cannot set cross-domain or HttpOnly cookies. Existing browser cookies
-are sent according to browser cookie rules.
+Authored payload examples take precedence. When none is provided, the block generates
+an example from a supported payload schema. If neither is available, it shows a placeholder.
+JSON payloads are formatted as JSON, while text examples retain their content type.
+Structured examples for non-JSON encodings are labeled as structure only.
 
-Header-based API keys, bearer, Basic, and OAuth authentication are not added to
-browser WebSocket examples. Message-level authentication and reply correlation
-still require application-specific setup. No connection is opened by the block.
-
-Use `selectedServer` to select a server by name. By default, the block follows the
-document's selected server when available, falling back to the first eligible WebSocket
-server. Channel server restrictions and server variable defaults are respected.
+The header shows the operation's send/receive direction and channel address, with
+highlighted address variables. The block displays payloads only; it does not generate
+client connection code or open a connection.
