@@ -8,7 +8,7 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { useTemplateRef } from 'vue'
 
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import ClassicLayout from './components/ClassicLayout.vue'

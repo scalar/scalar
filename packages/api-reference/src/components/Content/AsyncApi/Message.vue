@@ -21,7 +21,7 @@ import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { useIntersection } from '@/hooks/use-intersection'
 
