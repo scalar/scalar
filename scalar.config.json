@@ -9,6 +9,9 @@
   "siteConfig": {
     "subdomain": "scalar",
     "customDomain": "scalar.com",
+    "layout": {
+      "feedback": true
+    },
     "head": {
       "scripts": [
         {
