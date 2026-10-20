@@ -347,6 +347,7 @@ Pages support layout configuration to customize how they are displayed. These op
 | `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page |
 | `lastUpdated` | `boolean` | `false` | Whether to show the date the page last changed, above the previous and next links. See [Last updated date](site-config.md#last-updated-date) |
 | `search`      | `object`  | —       | Search configuration for this page       |
+| `colorSchemeToggle` | `"sidebar" \| "header" \| "tabs" \| false` | — | Where to show the light/dark toggle. Falls back to the site-level [`layout.colorSchemeToggle`](site-config.md#where-the-toggle-appears) option |
 
 ### Search Options
 
