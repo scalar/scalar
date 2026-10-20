@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.68.5
+
+### Patch Changes
+
+- [#10677](https://github.com/scalar/scalar/pull/10677): Generate serialized JSON examples from `contentSchema` instead of falling back to `null`, including JSON media type parameters, structured JSON suffixes, and string type arrays.
+
 ## 0.68.4
 
 ### Patch Changes

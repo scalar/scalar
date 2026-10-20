@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.32.1
+
+### Patch Changes
+
+- [#10669](https://github.com/scalar/scalar/pull/10669): fix: wrap long operation paths in request example cards instead of truncating them, and move the client picker below the path when it does not fit
+- [#10663](https://github.com/scalar/scalar/pull/10663): Stop `ScalarDropdown` from scrolling the page to the top of its containing block when it opens. The menu is now focused with `preventScroll`, since Floating UI has not positioned it yet at that point.
+
 ## 0.32.0
 
 ### Minor Changes

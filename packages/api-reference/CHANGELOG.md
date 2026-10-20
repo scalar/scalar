@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.75.1
+
+### Patch Changes
+
+- [#10669](https://github.com/scalar/scalar/pull/10669): fix: wrap long operation paths in request example cards instead of truncating them, and move the client picker below the path when it does not fit
+- [#10685](https://github.com/scalar/scalar/pull/10685): Support OpenAPI and AsyncAPI context and search results in Ask AI, preserve the selected API description when switching sources, and keep HTTP execution separate from unsupported messaging actions.
+- [#10647](https://github.com/scalar/scalar/pull/10647): Wrap the operation header actions (authentication badge and Markdown copy button) on narrow screens instead of pushing them past the page edge.
+- [#10646](https://github.com/scalar/scalar/pull/10646): Give the endpoint links in the tag operations list an `href`, so keyboard users can reach them and modified clicks open the operation in a new tab.
+- [#10672](https://github.com/scalar/scalar/pull/10672): Give the endpoint links in the tag operations list a 24px minimum height, so they meet the WCAG 2.5.8 target size.
+- [#10661](https://github.com/scalar/scalar/pull/10661): Align AsyncAPI operation spacing, headings, responsive authentication placement, and schema/example columns with OpenAPI. Simplify message and reply rendering, collapse messages by default, and remove redundant tags.
+
+  Render supported binding schema fields with the shared schema renderer and configured schema options. Unify address typography, example cards, and introduction metadata.
+
+- [#10689](https://github.com/scalar/scalar/pull/10689): fix: name the tag "Show More" button by its visible text and describe it with the tag title
+- [#10656](https://github.com/scalar/scalar/pull/10656): Use AsyncAPI summaries as heading and description fallbacks without repeating introductory text.
+
 ## 1.75.0
 
 ### Minor Changes

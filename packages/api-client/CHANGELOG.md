@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.23.2
+
+### Patch Changes
+
+- [#10654](https://github.com/scalar/scalar/pull/10654): Show the authorization form again after clearing OAuth access and refresh tokens.
+
 ## 3.23.1
 
 ### Patch Changes

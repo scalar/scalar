@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.45
+
+### Patch Changes
+
+- [#10685](https://github.com/scalar/scalar/pull/10685): Support OpenAPI and AsyncAPI context and search results in Ask AI, preserve the selected API description when switching sources, and keep HTTP execution separate from unsupported messaging actions.
+
 ## 0.12.44
 
 ### Patch Changes
