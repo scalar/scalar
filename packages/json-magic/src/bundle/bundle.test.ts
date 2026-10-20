@@ -27,6 +27,241 @@ import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([true, false])(
+    'preserves authored URL edges while loading remote relatives (treeShake: %s)',
+    async (treeShake) => {
+      const rootUrl = 'https://example.test/api/root.json'
+      const childUrl = 'https://example.test/api/child.json'
+      const nestedUrl = 'https://example.test/api/schemas/nested.json'
+      const documents = {
+        [rootUrl]: {
+          $id: rootUrl,
+          child: { $ref: './child.json' },
+          loaded: { $ref: `${childUrl}#/$defs/value` },
+          http: { $ref: 'http://never.test/schema#value', sibling: { $ref: './local.json' } },
+          https: { $ref: 'https://never.test/schema#/value' },
+          internal: { $ref: '#/child' },
+        },
+        [childUrl]: {
+          $id: './schemas/child.json',
+          $anchor: 'child',
+          $defs: {
+            value: { type: 'string' },
+            nested: { $id: './nested-resource.json', $anchor: 'nested', self: { $ref: '#nested' } },
+          },
+          value: { $ref: '#/$defs/value' },
+          self: { $ref: '#child' },
+          next: { $ref: './nested.json' },
+          preserved: { $ref: 'https://never.test/child#anchor' },
+        },
+        [nestedUrl]: { type: 'number' },
+        'https://example.test/api/local.json': { type: 'boolean' },
+      }
+      const calls: string[] = []
+      const decisions: [string, string][] = []
+      const cache = new Map<string, Promise<import('./bundle').ResolveResult>>()
+      const result = await bundle(rootUrl, {
+        treeShake,
+        urlMap: true,
+        cache,
+        compress: (value) => encodeURIComponent(value),
+        plugins: [
+          fetchUrls({
+            fetch: (url): Promise<Response> => {
+              calls.push(String(url))
+              return Promise.resolve(
+                new Response(JSON.stringify(documents[String(url)]), {
+                  status: documents[String(url)] ? 200 : 404,
+                }),
+              )
+            },
+          }),
+        ],
+        preserveReference: (ref, { origin }) => {
+          decisions.push([ref, origin])
+          return /^https?:\/\//i.test(ref)
+        },
+      })
+      const root = result as (typeof documents)[typeof rootUrl]
+      expect(calls).toStrictEqual([rootUrl, childUrl, nestedUrl, 'https://example.test/api/local.json'])
+      expect(root.loaded.$ref).toBe(`${childUrl}#/$defs/value`)
+      expect(root.http.$ref).toBe('http://never.test/schema#value')
+      expect(root.https.$ref).toBe('https://never.test/schema#/value')
+      expect(root.internal.$ref).toBe('#/child')
+      expect(decisions.find(([ref]) => ref === './nested.json')).toStrictEqual([
+        './nested.json',
+        'https://example.test/api/schemas/child.json',
+      ])
+      expect([...cache.keys()]).toStrictEqual(['child.json', 'schemas/nested.json', 'local.json'])
+      expect(result['x-ext-urls']).toStrictEqual({
+        'child.json': 'child.json',
+        'schemas%2Fnested.json': 'schemas/nested.json',
+        'local.json': 'local.json',
+      })
+
+      // Re-index serialized output at a different URI: IDs and anchor scope must survive.
+      const exported = JSON.parse(JSON.stringify(result))
+      const index = documentReferences('x-ext')
+      index.register(exported, 'https://download.test/elsewhere/output.json')
+      for (const [key, document] of Object.entries(exported['x-ext'])) {
+        index.register(document, `https://download.test/elsewhere/${key}`, ['x-ext', key])
+      }
+      const child = exported['x-ext']['child.json']
+      expect(child.$id).toBe('https://example.test/api/schemas/child.json')
+      expect(index.resolve(child.self.$ref, child.$id)?.value).toBe(child)
+      expect(index.resolve(child.value.$ref, child.$id)?.value).toBe(child.$defs.value)
+      expect(index.resolve(child.next.$ref, child.$id)?.value).toBe(exported['x-ext']['schemas%2Fnested.json'])
+      const nested = child.$defs.nested
+      expect(index.resolve(nested.self.$ref, nested.$id)?.value).toBe(nested)
+      expect(nested.$id).toBe('https://example.test/api/schemas/nested-resource.json')
+    },
+  )
+
+  it('preserves cached and indexed targets without resolution hooks or cache insertion', async () => {
+    const cached = { type: 'string' }
+    const cache = new Map([
+      ['https://example.test/cached', Promise.resolve({ ok: true as const, data: cached, raw: '' })],
+    ])
+    const input = {
+      $id: 'https://example.test/root',
+      local: { $id: 'https://example.test/indexed', type: 'number' },
+      first: { $ref: 'https://example.test/cached' },
+      second: { $ref: 'https://example.test/indexed' },
+      third: { $ref: 'http://example.test/missing#anchor' },
+    }
+    const before = structuredClone(input)
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const onResolveStart = vi.fn()
+    const onResolveSuccess = vi.fn()
+    const onResolveError = vi.fn()
+    const result = await bundle(input, {
+      treeShake: true,
+      urlMap: true,
+      cache,
+      plugins: [fetchUrls({ fetch })],
+      preserveReference: (ref) => /^https?:\/\//.test(ref),
+      hooks: { onResolveStart, onResolveSuccess, onResolveError },
+    })
+    expect(result).toStrictEqual({ ...before, 'x-ext-urls': {} })
+    expect(fetch).toHaveBeenCalledTimes(0)
+    expect(onResolveStart).toHaveBeenCalledTimes(0)
+    expect(onResolveSuccess).toHaveBeenCalledTimes(0)
+    expect(onResolveError).toHaveBeenCalledTimes(0)
+    expect([...cache.keys()]).toStrictEqual(['https://example.test/cached'])
+  })
+
+  it.each([true, false])(
+    'bundles local files and reports real failures with preservation (treeShake: %s)',
+    async (treeShake) => {
+      const reads: string[] = []
+      const errors: string[] = []
+      const loader: LoaderPlugin = {
+        type: 'loader',
+        validate: () => true,
+        exec: (uri): Promise<import('./bundle').ResolveResult> => {
+          reads.push(uri)
+          return Promise.resolve(
+            uri === '/local.json' ? { ok: true, data: { value: { type: 'string' } }, raw: '' } : { ok: false },
+          )
+        },
+      }
+      const input = {
+        local: { $ref: './local.json#/value' },
+        missing: { $ref: './missing.json' },
+        remote: { $ref: 'https://broken.test/schema' },
+        keep: { $ref: 'https://keep.test/schema' },
+      }
+      await bundle(input, {
+        origin: '/root.json',
+        treeShake,
+        plugins: [loader],
+        preserveReference: (ref) => ref.startsWith('https://keep.test/'),
+        hooks: {
+          onResolveError: (node) => {
+            errors.push(String(node.$ref))
+          },
+        },
+      })
+      expect(reads).toStrictEqual(['/local.json', '/missing.json', 'https://broken.test/schema'])
+      expect(errors).toStrictEqual(['./missing.json', 'https://broken.test/schema'])
+      expect(input.keep.$ref).toBe('https://keep.test/schema')
+    },
+  )
+
+  it.each([undefined, () => false])(
+    'retains normal HTTP resolution when preservation is absent or declines',
+    async (preserveReference) => {
+      const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response('{"type":"string"}'))
+      const input = { value: { $ref: 'https://example.test/schema' }, again: { $ref: 'https://example.test/schema' } }
+      await bundle(input, { treeShake: false, plugins: [fetchUrls({ fetch })], preserveReference })
+      expect(fetch).toHaveBeenCalledTimes(1)
+      expect(input.value.$ref).toBe(input.again.$ref)
+      expect(input.value.$ref.startsWith('#/x-ext/')).toBe(true)
+    },
+  )
+
+  it('retains enclosing IDs and scoped anchors when copying only a referenced subtree', async () => {
+    const input = { value: { $ref: './child.json#/$defs/nested' } }
+    const child = {
+      $id: './schemas/child.json',
+      $defs: {
+        nested: {
+          $id: './nested.json',
+          $anchor: 'value',
+          self: { $ref: '#value' },
+          external: { $ref: 'https://keep.test/schema#value' },
+        },
+        unused: { type: 'string' },
+      },
+    }
+    const fetch = vi.fn<typeof globalThis.fetch>().mockResolvedValue(new Response(JSON.stringify(child)))
+    const result = await bundle(input, {
+      origin: 'https://example.test/api/root.json',
+      treeShake: true,
+      plugins: [fetchUrls({ fetch })],
+      compress: () => 'child',
+      preserveReference: (ref) => /^https?:\/\//.test(ref),
+    })
+    expect(fetch).toHaveBeenCalledTimes(1)
+    const exported = JSON.parse(JSON.stringify(result))
+    const copied = exported['x-ext'].child
+    expect(copied.$id).toBe('https://example.test/api/schemas/child.json')
+    expect(Object.keys(copied.$defs)).toStrictEqual(['nested'])
+    const index = documentReferences('x-ext')
+    index.register(copied, 'https://download.test/bundle.json')
+    const nested = copied.$defs.nested
+    expect(index.resolve(nested.self.$ref, nested.$id)?.value).toBe(nested)
+    expect(nested.$id).toBe('https://example.test/api/schemas/nested.json')
+    expect(nested.external.$ref).toBe('https://keep.test/schema#value')
+  })
+
+  it.each(['mappings', '__proto__'])(
+    'does not mutate inherited URL mappings through %s',
+    async (externalDocumentsMappingsKey) => {
+      const inheritedMappings = { stale: 'https://example.test/unused.json' }
+      const prototype =
+        externalDocumentsMappingsKey === '__proto__'
+          ? inheritedMappings
+          : { [externalDocumentsMappingsKey]: inheritedMappings }
+      const input = Object.assign(Object.create(prototype), {
+        remote: { $ref: 'https://example.test/preserved.json' },
+      })
+
+      await bundle(input, {
+        plugins: [],
+        treeShake: true,
+        urlMap: true,
+        externalDocumentsMappingsKey,
+        preserveReference: (): boolean => true,
+      })
+
+      expect(inheritedMappings).toStrictEqual({ stale: 'https://example.test/unused.json' })
+      expect(Object.getPrototypeOf(input)).toBe(prototype)
+      expect(Object.getOwnPropertyDescriptor(input, externalDocumentsMappingsKey)?.value).toStrictEqual({})
+      expect(input.remote.$ref).toBe('https://example.test/preserved.json')
+    },
+  )
+
   it.each([undefined, 'https://example.com/api.json'])(
     'preserves references across embedded schema scopes without root identity (origin: %s)',
     async (origin) => {

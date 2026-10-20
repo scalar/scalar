@@ -70,6 +70,8 @@ Scalar generates a compatibility module for exactly this. Set `compatibility` on
 
 That emits `src/compat/speakeasy.ts` — Speakeasy-style standalone functions returning a functional `Result`, matching Speakeasy's tree-shakable `funcs/` surface, marked deprecated and forwarding to the generated Scalar SDK. Existing call sites keep compiling while you migrate, and the deprecation markers give your users a machine-readable path off the old surface rather than a changelog entry.
 
+The compatibility module is experimental: it does not yet reproduce every part of a Speakeasy SDK's surface, so check your most-used call sites against it before relying on it.
+
 It is a bridge, not a permanent shim: the compat module reproduces the Speakeasy surface, and the idiomatic Scalar client is what you move people toward. See the [TypeScript configuration reference](../guides/sdks/configuration/typescript.md) for the current options.
 
 ## MCP servers
@@ -222,7 +224,7 @@ Speakeasy's free tier is [one SDK with up to 50 API methods](https://www.speakea
 
 <scalar-detail title="Can I move from Speakeasy to Scalar without breaking my users' code?">
 
-For TypeScript, yes. Setting `"compatibility": "speakeasy"` on the target emits a module of Speakeasy-style standalone functions, marked deprecated, that forward to the Scalar SDK. Existing call sites keep compiling while your users move to the new surface.
+For TypeScript, yes. Setting `"compatibility": "speakeasy"` on the target emits a module of Speakeasy-style standalone functions, marked deprecated, that forward to the Scalar SDK. Existing call sites keep compiling while your users move to the new surface. The module is experimental and does not yet cover every Speakeasy surface.
 
 </scalar-detail>
 

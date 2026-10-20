@@ -346,7 +346,9 @@ Pages support layout configuration to customize how they are displayed. These op
 | `pageActions` | `boolean` | `true`  | Whether to show page actions             |
 | `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page |
 | `lastUpdated` | `boolean` | `false` | Whether to show the date the page last changed, above the previous and next links. See [Last updated date](site-config.md#last-updated-date) |
+| `feedback`    | `boolean` | —       | Whether to ask readers if the page was helpful. Falls back to the site-level [`layout.feedback`](site-config.md#layout) option. See [Page feedback](site-config.md#page-feedback) |
 | `search`      | `object`  | —       | Search configuration for this page       |
+| `colorSchemeToggle` | `"sidebar" \| "header" \| "tabs" \| false` | — | Where to show the light/dark toggle. Falls back to the site-level [`layout.colorSchemeToggle`](site-config.md#where-the-toggle-appears) option |
 
 ### Search Options
 

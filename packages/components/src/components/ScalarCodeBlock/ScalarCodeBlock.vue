@@ -1,4 +1,23 @@
 <script lang="ts">
+import { languages, registerLanguage } from '@scalar/highlight/all'
+
+/**
+ * Registers every bundled grammar, once per module rather than once per block.
+ *
+ * `@scalar/highlight/all` already registers them when it is evaluated, so a
+ * bare `import '@scalar/highlight/all'` reads like enough. It is not: that is a
+ * side-effect-only import of an external package, and the library build drops
+ * it from the emitted module. Storybook hid this because it compiles from
+ * source, while the API reference consumes `dist` and lost highlighting
+ * entirely — every block fell back to escaped, unscoped text.
+ *
+ * Registering from a named import keeps a binding the bundler can see used, so
+ * the module survives. It lives in this block rather than in `<script setup>`
+ * because setup runs for every instance, and a page of API reference renders
+ * hundreds of code blocks.
+ */
+registerLanguage(...languages)
+
 /**
  * Scalar Code Block component
  *
@@ -13,7 +32,6 @@ export default {}
 <script lang="ts" setup>
 import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
-import { languages, registerLanguage } from '@scalar/highlight/all'
 import { syntaxHighlight } from '@scalar/highlight/compat'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
@@ -72,22 +90,6 @@ const {
         }
     )
 >()
-
-/**
- * Registers every bundled grammar.
- *
- * `@scalar/highlight/all` already registers them when it is evaluated, so a
- * bare `import '@scalar/highlight/all'` reads like enough. It is not: that is a
- * side-effect-only import of an external package, and the library build drops
- * it from the emitted module. Storybook hid this because it compiles from
- * source, while the API reference consumes `dist` and lost highlighting
- * entirely — every block fell back to escaped, unscoped text.
- *
- * Registering from a named import keeps a binding the bundler can see used, so
- * the module survives. Re-registering a grammar replaces the same entry, so
- * doing it here as well as on evaluation is harmless.
- */
-registerLanguage(...languages)
 
 /** Base id for the code block */
 const id = useId()

@@ -1,0 +1,481 @@
+{
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "Northstar Commerce Events",
+    "version": "2.4.0",
+    "description": "Consume the order lifecycle and inventory changes from our commerce platform.\n\nEvents are delivered **at least once**. Deduplicate using `eventId`, and preserve ordering within each order partition.\n\n### Delivery guarantees\n- Events remain available for seven days.\n- Monetary amounts are expressed in minor currency units.\n- Unknown optional fields must be ignored by consumers.",
+    "contact": {
+      "name": "Developer Experience",
+      "url": "https://example.com/support"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "tags": [
+      {
+        "name": "Orders",
+        "description": "Follow a purchase from checkout to fulfillment."
+      },
+      {
+        "name": "Inventory",
+        "description": "Keep storefront availability synchronized across warehouses."
+      }
+    ]
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "kafka.eu.example.com:9093",
+      "protocol": "kafka-secure",
+      "title": "Production",
+      "description": "Live customer events.",
+      "security": [
+        {
+          "$ref": "#/components/securitySchemes/brokerCredentials"
+        }
+      ],
+      "bindings": {
+        "kafka": {
+          "schemaRegistryUrl": "https://schemas.example.com",
+          "bindingVersion": "0.5.0"
+        }
+      }
+    },
+    "sandbox": {
+      "host": "kafka.sandbox.example.com:9093",
+      "protocol": "kafka-secure",
+      "title": "Sandbox",
+      "description": "Synthetic data; retained for 24 hours.",
+      "security": [
+        {
+          "$ref": "#/components/securitySchemes/brokerCredentials"
+        }
+      ],
+      "bindings": {
+        "kafka": {
+          "schemaRegistryUrl": "https://schemas.example.com",
+          "bindingVersion": "0.5.0"
+        }
+      }
+    }
+  },
+  "channels": {
+    "orders": {
+      "address": "commerce.orders.v2",
+      "title": "Order lifecycle",
+      "description": "Partitioned by order ID.",
+      "tags": [
+        {
+          "name": "Orders"
+        }
+      ],
+      "messages": {
+        "OrderPlaced": {
+          "$ref": "#/components/messages/OrderPlaced"
+        },
+        "OrderCancelled": {
+          "$ref": "#/components/messages/OrderCancelled"
+        }
+      },
+      "bindings": {
+        "kafka": {
+          "topic": "commerce.orders.v2",
+          "partitions": 12,
+          "replicas": 3,
+          "bindingVersion": "0.5.0"
+        }
+      }
+    },
+    "shipments": {
+      "address": "commerce.shipments.v1",
+      "title": "Shipment updates",
+      "description": "Partitioned by order ID.",
+      "tags": [
+        {
+          "name": "Orders"
+        }
+      ],
+      "messages": {
+        "ShipmentDispatched": {
+          "$ref": "#/components/messages/ShipmentDispatched"
+        }
+      },
+      "bindings": {
+        "kafka": {
+          "topic": "commerce.shipments.v1",
+          "partitions": 12,
+          "replicas": 3,
+          "bindingVersion": "0.5.0"
+        }
+      }
+    },
+    "stock": {
+      "address": "inventory.stock.v1",
+      "title": "Stock availability",
+      "description": "One event per warehouse and SKU adjustment.",
+      "tags": [
+        {
+          "name": "Inventory"
+        }
+      ],
+      "messages": {
+        "StockAdjusted": {
+          "$ref": "#/components/messages/StockAdjusted"
+        }
+      },
+      "bindings": {
+        "kafka": {
+          "topic": "inventory.stock.v1",
+          "partitions": 12,
+          "replicas": 3,
+          "bindingVersion": "0.5.0"
+        }
+      }
+    }
+  },
+  "operations": {
+    "consumeOrders": {
+      "action": "receive",
+      "title": "Consume order lifecycle",
+      "channel": {
+        "$ref": "#/channels/orders"
+      },
+      "summary": "Process events with idempotent consumers.",
+      "messages": [
+        {
+          "$ref": "#/channels/orders/messages/OrderPlaced"
+        },
+        {
+          "$ref": "#/channels/orders/messages/OrderCancelled"
+        }
+      ],
+      "bindings": {
+        "kafka": {
+          "groupId": {
+            "type": "string",
+            "default": "fulfillment-service"
+          },
+          "bindingVersion": "0.5.0"
+        }
+      }
+    },
+    "consumeShipments": {
+      "action": "receive",
+      "title": "Consume shipment updates",
+      "channel": {
+        "$ref": "#/channels/shipments"
+      },
+      "summary": "Process events with idempotent consumers.",
+      "messages": [
+        {
+          "$ref": "#/channels/shipments/messages/ShipmentDispatched"
+        }
+      ],
+      "bindings": {
+        "kafka": {
+          "groupId": {
+            "type": "string",
+            "default": "fulfillment-service"
+          },
+          "bindingVersion": "0.5.0"
+        }
+      }
+    },
+    "consumeStock": {
+      "action": "receive",
+      "title": "Consume stock availability",
+      "channel": {
+        "$ref": "#/channels/stock"
+      },
+      "summary": "Process events with idempotent consumers.",
+      "messages": [
+        {
+          "$ref": "#/channels/stock/messages/StockAdjusted"
+        }
+      ],
+      "bindings": {
+        "kafka": {
+          "groupId": {
+            "type": "string",
+            "default": "fulfillment-service"
+          },
+          "bindingVersion": "0.5.0"
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "brokerCredentials": {
+        "type": "scramSha512",
+        "description": "Use the service account issued for your environment."
+      }
+    },
+    "messageTraits": {
+      "eventEnvelope": {
+        "headers": {
+          "type": "object",
+          "properties": {
+            "eventId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "occurredAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "traceId": {
+              "type": "string"
+            }
+          },
+          "required": ["eventId", "occurredAt"]
+        },
+        "correlationId": {
+          "location": "$message.header#/traceId"
+        }
+      }
+    },
+    "schemas": {
+      "Money": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Amount in minor currency units."
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["EUR", "USD", "GBP"]
+          }
+        },
+        "required": ["amount", "currency"]
+      },
+      "LineItem": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "unitPrice": {
+            "$ref": "#/components/schemas/Money"
+          }
+        },
+        "required": ["sku", "quantity", "unitPrice"]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "customer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "email": {
+                "type": "string",
+                "format": "email"
+              }
+            },
+            "required": ["id"]
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/LineItem"
+            }
+          },
+          "total": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "delivery": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["shipping"]
+                  },
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": ["kind", "address"]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "enum": ["pickup"]
+                  },
+                  "storeId": {
+                    "type": "string"
+                  }
+                },
+                "required": ["kind", "storeId"]
+              }
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional delivery instructions."
+          }
+        },
+        "required": ["orderId", "items", "total"]
+      }
+    },
+    "messages": {
+      "OrderPlaced": {
+        "name": "OrderPlaced",
+        "title": "Order placed",
+        "summary": "A durable business event.",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/eventEnvelope"
+          }
+        ],
+        "payload": {
+          "$ref": "#/components/schemas/Order"
+        },
+        "examples": [
+          {
+            "name": "Home delivery",
+            "headers": {
+              "eventId": "a246c7eb-6a1f-46bf-81ba-4caaf4612a1b",
+              "occurredAt": "2026-10-19T09:30:00Z",
+              "traceId": "trace_4812"
+            },
+            "payload": {
+              "orderId": "6bc410c3-a672-4a24-a7d8-ed41100ac774",
+              "items": [
+                {
+                  "sku": "MUG-001",
+                  "quantity": 2,
+                  "unitPrice": {
+                    "amount": 1800,
+                    "currency": "EUR"
+                  }
+                }
+              ],
+              "total": {
+                "amount": 3600,
+                "currency": "EUR"
+              },
+              "delivery": {
+                "kind": "shipping",
+                "address": "Example Street 12, Berlin"
+              }
+            }
+          }
+        ]
+      },
+      "OrderCancelled": {
+        "name": "OrderCancelled",
+        "title": "Order cancelled",
+        "summary": "A durable business event.",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/eventEnvelope"
+          }
+        ],
+        "payload": {
+          "type": "object",
+          "properties": {
+            "orderId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "reason": {
+              "type": "string",
+              "enum": ["customer_request", "payment_failed", "fraud_check"]
+            },
+            "refund": {
+              "$ref": "#/components/schemas/Money"
+            }
+          },
+          "required": ["orderId", "reason"]
+        }
+      },
+      "ShipmentDispatched": {
+        "name": "ShipmentDispatched",
+        "title": "Shipment dispatched",
+        "summary": "A durable business event.",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/eventEnvelope"
+          }
+        ],
+        "payload": {
+          "type": "object",
+          "properties": {
+            "orderId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "trackingUrl": {
+              "type": "string",
+              "format": "uri"
+            },
+            "parcels": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "carrier": {
+                    "type": "string"
+                  },
+                  "trackingNumber": {
+                    "type": "string"
+                  }
+                },
+                "required": ["carrier", "trackingNumber"]
+              }
+            }
+          },
+          "required": ["orderId", "parcels"]
+        }
+      },
+      "StockAdjusted": {
+        "name": "StockAdjusted",
+        "title": "Stock adjusted",
+        "summary": "A durable business event.",
+        "traits": [
+          {
+            "$ref": "#/components/messageTraits/eventEnvelope"
+          }
+        ],
+        "payload": {
+          "type": "object",
+          "properties": {
+            "sku": {
+              "type": "string"
+            },
+            "warehouseId": {
+              "type": "string"
+            },
+            "available": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "delta": {
+              "type": "integer"
+            }
+          },
+          "required": ["sku", "warehouseId", "available"]
+        }
+      }
+    }
+  }
+}

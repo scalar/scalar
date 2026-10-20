@@ -91,7 +91,14 @@ const nginx: Grammar = {
           push: 'regex',
         },
 
-        { match: `${STATEMENT}(${NAME})${OPENS_BLOCK}`, scope: ['keyword'] },
+        // A map defines its second argument; the first is an expression that
+        // keeps ordinary variable and string highlighting.
+        { match: `${STATEMENT}(map)\\b${OPENS_BLOCK}`, scope: ['keyword'], push: 'map-arguments' },
+        // An upstream defines its first argument, used by `proxy_pass http://name`.
+        {
+          match: `${STATEMENT}(?:(upstream)([ \\t]+)([$\\w.-]+)|(${NAME}))${OPENS_BLOCK}`,
+          scope: ['keyword', null, 'type', 'keyword'],
+        },
         { match: `${STATEMENT}(${NAME})`, scope: ['property'] },
 
         // Quotes get a state because nginx allows a value to run across lines
@@ -109,6 +116,17 @@ const nginx: Grammar = {
         { match: '\\B-!?[fdex]\\b', scope: 'keyword.operator' },
 
         { match: '\\b(?:on|off)\\b', scope: 'boolean' },
+        // The few argument values nginx defines itself — log levels, event
+        // methods, the default log format — and the flags that end a rewrite.
+        // Bounded on both sides by anything that can continue a path, so the
+        // `error` of `logs/error.log` stays part of the path. One rule for
+        // both, since every alternative costs on files this regular, and the
+        // check on what comes before runs last, once a word has matched.
+        {
+          match:
+            '\\b(?:(debug|info|notice|warn|error|crit|alert|emerg|main|combined|epoll|kqueue|eventport|devpoll)(?![\\w/.-])|(last|break|redirect|permanent)(?=[ \\t]*;))(?<![/.$-][a-z]*)',
+          scope: ['constant.builtin', 'keyword'],
+        },
 
         // Paths and URLs are most of what a config actually says, so they are
         // worth a colour. The scheme is capped rather than open-ended: an
@@ -135,6 +153,15 @@ const nginx: Grammar = {
     /** A `{ … }` body. Popping on `}` is the whole of how contexts nest. */
     block: {
       rules: [{ match: '\\}', scope: 'punctuation.bracket', pop: true }, { include: 'root' }],
+    },
+
+    /** Scope the map destination without consuming or recoloring its source. */
+    'map-arguments': {
+      rules: [
+        { match: '\\$\\w+(?=[ \\t]*\\{)', scope: 'type', pop: true },
+        { match: '(?=[;{}\\n])', pop: true },
+        { include: 'root' },
+      ],
     },
 
     variables: {

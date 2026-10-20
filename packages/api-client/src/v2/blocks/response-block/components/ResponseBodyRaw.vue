@@ -76,10 +76,10 @@ const toggleLineWrapping = (): void => {
       v-if="getCurrentContent()"
       class="absolute top-2 right-2 flex items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover/code-block:opacity-100 group-has-focus-visible/code-block:opacity-100">
       <ScalarIconButton
+        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
+        :aria-pressed="isLineWrapping"
         class="bg-b-2 text-c-2 hover:text-c-1 absolute right-18"
         :icon="ScalarIconArrowElbowDownLeft"
-        :aria-pressed="isLineWrapping"
-        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         :label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         size="sm"
         tooltip

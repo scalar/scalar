@@ -68,8 +68,8 @@ const EXAMPLE_API_DEFINITIONS = [
 
 it.each(EXAMPLE_API_DEFINITIONS)('$title ($url)', { timeout: 40000 }, async ({ title, name }) => {
   // Spy for console.error to avoid errors in the console
-  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
   if (!document) {
     console.log(`Failed to fetch definition for https://fixtures.staging.scalar.com/layout-reference/${name}`)

@@ -21,6 +21,7 @@ import {
   ScalarColorModeToggleIcon,
 } from '@scalar/components/color-mode-toggle'
 import { addScalarClassesToHeadless } from '@scalar/components/helpers'
+import { MARKDOWN_RENDER_HOOKS } from '@scalar/components/markdown'
 import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
@@ -141,6 +142,7 @@ import { useDocumentEnvironment } from '@/helpers/use-document-environment'
 import { AGENT_CONTEXT_SYMBOL, useAgent } from '@/hooks/use-agent'
 import { useConfiguredServers } from '@/hooks/use-configured-servers'
 import { useIntersection } from '@/hooks/use-intersection'
+import { NAVIGATION_HREF } from '@/hooks/use-navigation-href'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { persistencePlugin } from '@/plugins/persistence-plugin'
 
@@ -283,7 +285,7 @@ const documentOptionList = computed(() =>
 )
 
 /**
- * AsyncAPI sidebar filters (protocol + server).
+ * AsyncAPI sidebar filters (protocol, server, and tag).
  *
  * These mirror the document picker: stacked dropdowns at the top of the sidebar
  * that narrow the visible operations. State resets whenever the active document
@@ -291,6 +293,7 @@ const documentOptionList = computed(() =>
  */
 const selectedProtocol = ref<string>('')
 const selectedServer = ref<string>('')
+const selectedTag = ref<string>('')
 
 /** The active document, narrowed to AsyncAPI (or `null` for OpenAPI documents). */
 const activeAsyncApiDocument = computed(() => {
@@ -302,6 +305,7 @@ const activeAsyncApiDocument = computed(() => {
 watch(activeSlug, () => {
   selectedProtocol.value = ''
   selectedServer.value = ''
+  selectedTag.value = ''
 })
 
 /** Configuration overrides to apply to the selected document (from the localhost toolbar) */
@@ -376,6 +380,10 @@ const inferredHashBasePath = ref<string>()
 /** Explicit routing always takes precedence over automatic host-prefix detection. */
 const basePath = computed(
   () => mergedConfig.value.pathRouting?.basePath ?? inferredHashBasePath.value,
+)
+
+provide(NAVIGATION_HREF, (id: string): string =>
+  makeHrefFromId(id, basePath.value, isMultiDocument.value),
 )
 
 /**
@@ -562,6 +570,7 @@ const pluginManager = createPluginManager({
   },
 })
 provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+provide(MARKDOWN_RENDER_HOOKS, pluginManager.getMarkdownRenderHooks())
 
 pluginManager.notifyInit(mergedConfig.value)
 
@@ -731,6 +740,14 @@ const setChildrenOpen = (items: TraversedEntry[]): void => {
   })
 }
 
+/** Unfiltered entries keep tag options available while a filter is active. */
+const unfilteredSidebarItems = computed<TraversedEntry[]>(
+  () =>
+    sidebarState.items.value.find(
+      (item): item is TraversedTag => item.id === activeSlug.value,
+    )?.children ?? [],
+)
+
 /** We get the sub items for the sidebar based on the configuration/document slug */
 const sidebarItems = computed<TraversedEntry[]>(() => {
   const config = mergedConfig.value
@@ -739,17 +756,15 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
     return []
   }
 
-  const rawDocItems =
-    sidebarState.items.value.find(
-      (item): item is TraversedTag => item.id === activeSlug.value,
-    )?.children ?? []
+  const rawDocItems = unfilteredSidebarItems.value
 
-  // Apply the AsyncAPI protocol/server filters to the sidebar tree. This is a no-op
+  // Apply the AsyncAPI protocol/server/tag filters to the sidebar tree. This is a no-op
   // for OpenAPI documents and when no filter is selected.
   const docItems = activeAsyncApiDocument.value
     ? filterAsyncApiNavigation(rawDocItems, activeAsyncApiDocument.value, {
         protocol: selectedProtocol.value,
         server: selectedServer.value,
+        tag: selectedTag.value,
       })
     : rawDocItems
 
@@ -1198,6 +1213,7 @@ const changeSelectedDocument = async (
   // Now that the navigation is available, canonicalize a legacy webhook deep link:
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite
   // the URL and the scroll target to the current slug before we scroll to it.
+  let scrollTargetId = elementId
   if (elementId && typeof window !== 'undefined') {
     const canonical = redirectUrl(
       window.location.href,
@@ -1212,7 +1228,7 @@ const changeSelectedDocument = async (
     )
     if (canonical) {
       window.history.replaceState({}, '', canonical.toString())
-      elementId =
+      scrollTargetId =
         getIdFromUrl(
           canonical.href,
           config.pathRouting?.basePath ?? inferredHashBasePath.value,
@@ -1233,8 +1249,8 @@ const changeSelectedDocument = async (
   })()
 
   // When loading to a specified element we need to freeze and scroll
-  if (elementId && elementId !== slug) {
-    scrollToLazyElement(elementId)
+  if (scrollTargetId && scrollTargetId !== slug) {
+    scrollToLazyElement(scrollTargetId)
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
@@ -1245,7 +1261,9 @@ const changeSelectedDocument = async (
   }
 
   // Reflect the freshly selected document in the browser tab title
-  updatePageTitle(elementId && elementId !== slug ? elementId : slug)
+  updatePageTitle(
+    scrollTargetId && scrollTargetId !== slug ? scrollTargetId : slug,
+  )
 }
 
 /**
@@ -1473,6 +1491,8 @@ watch(agent.showAgent, (open) => {
 
 // Reference controls must keep working before the modal installs its own event handlers.
 const stopReferenceClientEvents = initializeWorkspaceEventHandlers({
+  getConfiguredSecuritySchemes: () =>
+    mergedConfig.value.authentication?.securitySchemes,
   eventBus,
   store: ref(clientStore),
   hooks: {},
@@ -1489,8 +1509,9 @@ const apiClient = useLazyApiClient({
         return null
       }
       stopReferenceClientEvents()
-      return createApiClientModal({
+      const client = createApiClientModal({
         el: modal.value,
+        mountOnInitialize: false,
         eventBus,
         workspaceStore: clientStore,
         options: runtimeConfig,
@@ -1499,6 +1520,12 @@ const apiClient = useLazyApiClient({
           ...mapConfigPlugins(mergedConfig, environment),
         ],
       })
+      client.app.provide(
+        MARKDOWN_RENDER_HOOKS,
+        pluginManager.getMarkdownRenderHooks(),
+      )
+      client.mount(modal.value)
+      return client
     }
   },
 })
@@ -1572,6 +1599,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
     if (!containsTarget(sidebarItems.value)) {
       selectedProtocol.value = ''
       selectedServer.value = ''
+      selectedTag.value = ''
       await nextTick()
     }
   }
@@ -1922,11 +1950,13 @@ const sidebarCta = computed((): SidebarCta => {
                 v-bind="slotProps" />
             </template>
             <template #before>
-              <!-- AsyncAPI protocol + server filters (only render with >1 choice) -->
+              <!-- AsyncAPI filters appear when there are options to select -->
               <AsyncApiSidebarFilters
                 v-model:protocol="selectedProtocol"
                 v-model:server="selectedServer"
-                :document="activeAsyncApiDocument" />
+                v-model:tag="selectedTag"
+                :document="activeAsyncApiDocument"
+                :entries="unfilteredSidebarItems" />
               <ScalarSidebarSection
                 v-if="activeAsyncApiDocument"
                 class="asyncapi-sidebar-document-section">
@@ -2073,6 +2103,19 @@ const sidebarCta = computed((): SidebarCta => {
                   @click="() => toggleColorMode()" />
               </template>
             </ClassicHeader>
+            <div
+              v-if="mergedConfig.layout === 'classic' && activeAsyncApiDocument"
+              class="mx-auto w-full max-w-[var(--refs-content-max-width)] px-6 pb-4">
+              <div class="max-w-64">
+                <AsyncApiSidebarFilters
+                  is="div"
+                  v-model:protocol="selectedProtocol"
+                  v-model:server="selectedServer"
+                  v-model:tag="selectedTag"
+                  :document="activeAsyncApiDocument"
+                  :entries="unfilteredSidebarItems" />
+              </div>
+            </div>
             <slot
               name="content-start"
               v-bind="slotProps" />
@@ -2118,13 +2161,6 @@ const sidebarCta = computed((): SidebarCta => {
 </template>
 
 <style>
-/* Add base styles to the body. Removed browser default margins for a better experience. */
-@layer scalar-base {
-  body {
-    margin: 0;
-    background-color: var(--scalar-background-1);
-  }
-}
 /** Used to check if css is loaded */
 :root {
   --scalar-loaded-api-reference: true;

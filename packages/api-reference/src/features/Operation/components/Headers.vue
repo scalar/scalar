@@ -170,8 +170,8 @@ const countLabel = computed(() =>
             :orderRequiredPropertiesFirst="orderRequiredPropertiesFirst"
             :orderSchemaPropertiesBy="orderSchemaPropertiesBy"
             :schemaKeyboardNav="schemaKeyboardNav"
-            :showExtensions="showExtensions"
             :scrollTargetId="scrollTargetId"
+            :showExtensions="showExtensions"
             :specificationExtension="specificationExtension" />
         </template>
       </ul>

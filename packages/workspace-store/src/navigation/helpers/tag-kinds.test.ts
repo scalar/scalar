@@ -68,7 +68,7 @@ describe('tag-kinds', () => {
       {
         type: 'tag',
         title: 'Webhooks',
-        id: 'doc/webhook/undefined/',
+        id: 'doc/webhooks',
         children: [{ type: 'webhook', title: 'changed', id: 'doc/webhook/POST/changed', children: [] }],
       },
     ])

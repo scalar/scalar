@@ -46,3 +46,4 @@ export type {
   StateRule,
   Token,
 } from './core/types'
+export { REMEMBERED } from './core/types'

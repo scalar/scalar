@@ -14,18 +14,16 @@ const rust: Grammar = {
       rules: [
         { match: '//[/!][^\\n]*', scope: 'comment.doc' },
         { match: '//[^\\n]*', scope: 'comment' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // Block comments nest in Rust, so the state pushes itself.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
 
-        // Raw strings, longest hash run first. Beyond two hashes is vanishingly
-        // rare and would need a backreference to match exactly.
+        // Raw strings close with a quote and as many hashes as opened them,
+        // which the state remembers. No escapes inside.
         {
-          match: '(b?r##)("[\\s\\S]*?"##)',
-          scope: ['string.special', 'string'],
-        },
-        { match: '(b?r#)("[\\s\\S]*?"#)', scope: ['string.special', 'string'] },
-        {
-          match: '(b?r)("(?:[^"\\\\]|\\\\.)*")',
-          scope: ['string.special', 'string'],
+          match: '(b?r)(#*)(")',
+          scope: ['string.special', 'string.special', 'string'],
+          push: 'raw-string',
+          remember: 2,
         },
         {
           match: '(b?)(")',
@@ -60,7 +58,12 @@ const rust: Grammar = {
             '\\b(?:fn|let|const|static|struct|enum|trait|impl|type|mod|union|async|move|dyn|pub|crate|unsafe|extern|ref|mut|where)\\b',
           scope: 'keyword.declaration',
         },
-        { match: '\\b(?:use|as|super|self|Self)\\b', scope: 'keyword.import' },
+        // `r#type` is an identifier spelled like a keyword; claiming it here,
+        // where it starts, keeps the keyword rules from matching its tail.
+        { match: 'r#[A-Za-z_]\\w*' },
+        { match: '\\b(?:use|as|super)\\b', scope: 'keyword.import' },
+        { match: '\\bself\\b', scope: 'variable.builtin' },
+        { match: '\\bSelf\\b', scope: 'type' },
         { match: '\\b(?:in|box)\\b', scope: 'keyword.operator' },
         { match: '\\b(?:true|false)\\b', scope: 'boolean' },
         { match: '\\b(?:None|Some|Ok|Err)\\b', scope: 'constant.builtin' },
@@ -78,6 +81,8 @@ const rust: Grammar = {
           match: '\\b([A-Za-z_]\\w*)(!)',
           scope: ['function.builtin', 'function.builtin'],
         },
+        // `.await` is a keyword in field position, not a member.
+        { match: '(\\.)(await)\\b', scope: ['punctuation', 'keyword.control'] },
         {
           match: '(\\.)([A-Za-z_]\\w*)(?=\\s*\\()',
           scope: ['punctuation', 'function.method'],
@@ -122,6 +127,17 @@ const rust: Grammar = {
         { match: '\\{[^{}\\n]*\\}', scope: 'string.special' },
         { match: '"', scope: 'string', pop: true },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
+        { match: '\\*/', scope: 'comment', pop: true },
+      ],
+    },
+    'raw-string': {
+      default: 'string',
+      rules: [{ match: '"{{remembered}}', scope: 'string', pop: true }],
     },
   },
 }

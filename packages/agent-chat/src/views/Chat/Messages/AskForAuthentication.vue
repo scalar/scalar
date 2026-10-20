@@ -75,6 +75,12 @@ async function authorizeClicked() {
     :class="{
       open: isAuthenticationExpanded,
     }">
+    <p
+      v-if="messagePart.value.state === 'output-error'"
+      class="text-c-2 py-3"
+      role="status">
+      {{ messagePart.value.errorText }}
+    </p>
     <div class="toggleButton">
       <AuthenticationProvided
         v-if="messagePart.value.state === 'output-available'" />

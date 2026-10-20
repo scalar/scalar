@@ -1,5 +1,5 @@
 import type { ToolUIPart, UIMessagePart, UITools } from 'ai'
-import { computed } from 'vue'
+import { type ComputedRef, computed } from 'vue'
 
 import { useState } from '@/state/state'
 
@@ -9,7 +9,10 @@ function isPendingClientToolPart(part: UIMessagePart<any, UITools>): part is Pen
   return part.type.startsWith('tool') && (part as ToolUIPart).state === 'input-available'
 }
 
-export function useChatPendingClientToolParts() {
+/** Exposes pending client tools without leaking SDK implementation types. */
+export function useChatPendingClientToolParts(): {
+  pendingClientToolParts: ComputedRef<PendingClientToolPart[]>
+} {
   const state = useState()
 
   const pendingClientToolParts = computed(() => {

@@ -239,12 +239,13 @@ const r: Grammar = {
     strings: {
       rules: [
         // A raw string is `r"(…)"`, with any of three bracket pairs and any
-        // number of dashes for padding. Matching the dashes exactly would need
-        // a backreference, so the closer accepts any run of them.
+        // number of dashes for padding. The dashes are remembered, so only a
+        // closer with the same run ends the literal.
         {
-          match: '([rR])(["\'][-]*[(\\[{])',
+          match: '([rR])(["\'](-*)[(\\[{])',
           scope: ['string.special', 'string'],
           push: 'raw-string',
+          remember: 3,
         },
         { match: '"', scope: 'string', push: 'string-double' },
         { match: "'", scope: 'string', push: 'string-single' },
@@ -273,7 +274,7 @@ const r: Grammar = {
         // R strings may span lines, but an unterminated one should not swallow
         // the file. Stopping at a blank line is the compromise: it is never
         // inside a real literal, and it bounds the damage to one paragraph.
-        { match: '\\n[ \\t]*\\n', pop: true },
+        { match: '\\n[ \\t\\r]*\\n', pop: true },
       ],
     },
     'string-single': {
@@ -281,18 +282,17 @@ const r: Grammar = {
       rules: [
         { include: 'string-body' },
         { match: "'", scope: 'string', pop: true },
-        { match: '\\n[ \\t]*\\n', pop: true },
+        { match: '\\n[ \\t\\r]*\\n', pop: true },
       ],
     },
 
     /**
-     * Raw string contents: no escapes, and the closer is a bracket followed by
-     * the opening quote character. A body holding `)"` — legal, if perverse —
-     * ends the literal early.
+     * Raw string contents: no escapes, and the closer is a bracket, the
+     * remembered dashes and a quote.
      */
     'raw-string': {
       default: 'string',
-      rules: [{ match: '[)\\]}][-]*["\']', pop: true }],
+      rules: [{ match: '[)\\]}]{{remembered}}["\']', pop: true }],
     },
   },
 }

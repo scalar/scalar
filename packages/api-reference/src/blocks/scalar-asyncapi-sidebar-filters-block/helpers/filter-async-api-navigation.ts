@@ -6,8 +6,15 @@ import {
   getChannelReachability,
   getOperationReachability,
 } from '@scalar/workspace-store/channel-example'
-import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+
+import {
+  type AsyncApiTags,
+  getAsyncApiEntryTags,
+  getAsyncApiTags,
+} from '@/components/Content/AsyncApi/helpers/get-async-api-tags'
+import { resolveAsyncApiChannel } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 
 /** The currently selected sidebar filters. Empty / sentinel values disable a filter. */
 type AsyncApiNavigationFilter = {
@@ -15,10 +22,12 @@ type AsyncApiNavigationFilter = {
   protocol?: string
   /** Selected server name, or {@link ALL} / undefined for no server filter. */
   server?: string
+  /** Exact tag name. Empty / undefined clears this filter. */
+  tag?: string
 }
 
-/** Whether the filter would keep every entry, so the tree can be returned untouched. */
-const isNoopFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =>
+/** Whether protocol and server selections leave reachability unrestricted. */
+const isNoopReachabilityFilter = ({ protocol, server }: AsyncApiNavigationFilter): boolean =>
   (!protocol || protocol === ALL) && (!server || server === ALL)
 
 /** Whether a selection (protocol or server) keeps an operation, given the set it is reachable through. */
@@ -52,11 +61,13 @@ const filterEntry = (
       return entry
     }
 
-    // Resolve the same way the navigation traversal did, so sibling overrides
-    // (e.g. an inline `channel` alongside a `$ref`) are honored consistently.
-    const operation = getResolvedRef(operationNode, mergeSiblingReferences)
+    // Use the same target as navigation, ignoring any sibling channel override.
+    const operation = getResolvedAsyncApiRef(operationNode)
 
     // Resolve the operation's reachability once, then test both selections against it.
+    if (!operation) {
+      return entry
+    }
     const { protocols, serverNames } = getOperationReachability(document, operation, context)
     const keep = selectionMatches(protocols, filter.protocol) && selectionMatches(serverNames, filter.server)
 
@@ -66,7 +77,10 @@ const filterEntry = (
   if (entry.type === 'asyncapi-channel' && !entry.children?.some((child) => child.type === 'asyncapi-operation')) {
     const channelNode = document.channels?.[entry.channelName]
     if (channelNode) {
-      const channel = getResolvedRef(channelNode, mergeSiblingReferences)
+      const channel = getResolvedAsyncApiRef(channelNode)
+      if (!channel) {
+        return entry
+      }
       const { protocols, serverNames } = getChannelReachability(document, channel, context)
       if (!selectionMatches(protocols, filter.protocol) || !selectionMatches(serverNames, filter.server)) {
         return null
@@ -80,7 +94,10 @@ const filterEntry = (
       return entry
     }
 
-    const channel = getResolvedRef(channelNode, mergeSiblingReferences)
+    const channel = getResolvedAsyncApiRef(channelNode)
+    if (!channel) {
+      return entry
+    }
     const { protocols, serverNames } = getChannelReachability(document, channel, context)
     return selectionMatches(protocols, filter.protocol) && selectionMatches(serverNames, filter.server) ? entry : null
   }
@@ -104,7 +121,7 @@ const filterEntry = (
 }
 
 /**
- * Filters the AsyncAPI sidebar tree by the selected protocol and/or server.
+ * Filters the AsyncAPI sidebar tree by protocol, server, and tag while retaining parent context.
  *
  * Returns the original entries untouched when no filter is active, so OpenAPI
  * documents and the unfiltered AsyncAPI case pay no cost.
@@ -114,15 +131,60 @@ export const filterAsyncApiNavigation = (
   document: AsyncApiDocument,
   filter: AsyncApiNavigationFilter,
 ): TraversedEntry[] => {
-  if (isNoopFilter(filter)) {
+  if (isNoopReachabilityFilter(filter) && !filter.tag) {
     return entries
   }
 
   // Build the document-level reachability lookups once for the whole pass.
   const context = createReachabilityContext(document)
 
-  return entries.flatMap((entry) => {
-    const filtered = filterEntry(entry, document, filter, context)
+  const reachableEntries = isNoopReachabilityFilter(filter)
+    ? entries
+    : entries.flatMap((entry) => {
+        const filtered = filterEntry(entry, document, filter, context)
+        return filtered ? [filtered] : []
+      })
+  if (!filter.tag) {
+    return reachableEntries
+  }
+
+  const matches = (tags: AsyncApiTags): boolean => getAsyncApiTags(tags).some((tag) => tag.name === filter.tag)
+  const taggedServers = new Set(
+    Object.entries(document.servers ?? {}).flatMap(([name, node]) => {
+      const server = getResolvedAsyncApiRef(node)
+      return matches(server?.tags) &&
+        selectionMatches(new Set([name]), filter.server) &&
+        selectionMatches(new Set([context.serverProtocols.get(name) ?? '']), filter.protocol)
+        ? [name]
+        : []
+    }),
+  )
+
+  const filterTags = (entry: TraversedEntry): TraversedEntry | null => {
+    const isAsyncApi =
+      entry.type === 'asyncapi-channel' || entry.type === 'asyncapi-operation' || entry.type === 'asyncapi-message'
+    if (!isAsyncApi && entry.type !== 'tag') {
+      return entry
+    }
+    if (isAsyncApi) {
+      const channel = resolveAsyncApiChannel(document, entry.channelName)
+      const { serverNames } = getChannelReachability(document, channel ?? null, context)
+      if (matches(getAsyncApiEntryTags(entry, document)) || [...serverNames].some((name) => taggedServers.has(name))) {
+        return entry
+      }
+    }
+    // Descendant matches keep their ancestors as context, without unrelated siblings.
+    if (entry.type === 'asyncapi-message') {
+      return null
+    }
+    const children = entry.children?.flatMap((child) => {
+      const filtered = filterTags(child)
+      return filtered ? [filtered] : []
+    })
+    return children?.length ? { ...entry, children } : null
+  }
+  return reachableEntries.flatMap((entry) => {
+    const filtered = filterTags(entry)
     return filtered ? [filtered] : []
   })
 }

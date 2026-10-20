@@ -856,7 +856,7 @@ paths:
     )
 
     try {
-      const result = await createMarkdownFromOpenApi(openApiFile)
+      const result = await createMarkdownFromOpenApi(openApiFile, { documentLoading: { basePath: tempDirectory } })
       expect(result).toContain('Get user')
       expect(result).toContain('id')
       expect(result).toContain('email')
@@ -1144,7 +1144,7 @@ paths:
     const documentUrl = `http://127.0.0.1:${port}/openapi.yaml`
 
     try {
-      const result = await createMarkdownFromOpenApi(documentUrl)
+      const result = await createMarkdownFromOpenApi(documentUrl, { documentLoading: { allowPrivateNetworks: true } })
       expect(result).toContain('List users')
       expect(result).toContain('id')
       expect(result).toContain('name')

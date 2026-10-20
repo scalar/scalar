@@ -22,6 +22,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
 import type { ScalarMarkdownProps } from './types'
+import { useMarkdownRenderHooks } from './useMarkdownRenderHooks'
 
 const {
   value,
@@ -78,6 +79,11 @@ const html = computed(() => {
     transformType,
   })
 })
+useMarkdownRenderHooks(
+  templateRef,
+  () => value ?? '',
+  () => html.value,
+)
 </script>
 <template>
   <div

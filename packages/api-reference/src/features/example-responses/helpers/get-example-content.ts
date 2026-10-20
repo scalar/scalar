@@ -3,7 +3,9 @@ import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-conten
 import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { getExampleValue, getExplicitExampleText } from '@scalar/workspace-store/helpers/get-example-value'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
+import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import {
   type XmlExampleOptions,
   getExampleFromSchema,
@@ -44,11 +46,13 @@ export const getExampleContent = (
     const selected = getExampleValue(getResolvedRefDeep(example))
     if (isStreamingContentType(contentType) && selected?.source !== 'serialized') {
       const value = selected?.value
-      return value === undefined
-        ? ''
-        : typeof value === 'string'
-          ? value
-          : (serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2))
+      if (value === undefined) {
+        return ''
+      }
+      if (typeof value === 'string') {
+        return value
+      }
+      return serializeStreamExample(value, contentType, false) ?? JSON.stringify(value, null, 2)
     }
     const explicitText = getExplicitExampleText(selected, contentType, 2)
     if (explicitText !== undefined) {
@@ -63,12 +67,9 @@ export const getExampleContent = (
   }
 
   const contentSchema = response?.schema ?? response?.itemSchema
-  if (contentSchema) {
-    const schema = getResolvedRefDeep(contentSchema) as SchemaObject | undefined
-    if (!schema) {
-      return undefined
-    }
-    const content = getExampleFromSchema(schema, {
+  if (contentSchema && getResolvedRef(contentSchema) !== undefined) {
+    // Let the generator resolve references so recursive schemas retain their type information.
+    const content = getExampleFromSchema(snapshotSchema(contentSchema) as SchemaObject, {
       emptyString: 'string',
       mode: 'read',
       compositionSelection,

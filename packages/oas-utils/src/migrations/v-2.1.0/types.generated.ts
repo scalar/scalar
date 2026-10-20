@@ -1,3 +1,4 @@
+// biome-ignore lint/style/noNamespace: Versioned migration types retain their public namespace for compatibility.
 export namespace v_2_1_0 {
   export type Collection = {
     'type': 'collection'

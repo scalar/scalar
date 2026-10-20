@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isPlainLeftClick } from '@scalar/helpers/dom/is-plain-left-click'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -12,8 +13,9 @@ import { computed } from 'vue'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
+import { useNavigationHref } from '@/hooks/use-navigation-href'
 
-const { operation } = defineProps<{
+const { operation, eventBus } = defineProps<{
   operation: TraversedOperation | TraversedWebhook
   isCollapsed?: boolean
   eventBus: WorkspaceEventBus | null
@@ -32,6 +34,16 @@ const isWebhook = (
 ): _operation is TraversedWebhook => _operation.type === 'webhook'
 
 const { level: headingLevel } = useDocumentOutline('operation')
+
+const href = useNavigationHref()
+
+const navigate = (event: MouseEvent): void => {
+  if (!eventBus || !isPlainLeftClick(event)) {
+    return
+  }
+  event.preventDefault()
+  eventBus.emit('scroll-to:nav-item', { id: operation.id })
+}
 </script>
 
 <template>
@@ -47,9 +59,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
     </SectionHeaderTag>
     <a
       class="endpoint"
-      @click.prevent="
-        () => eventBus?.emit('scroll-to:nav-item', { id: operation.id })
-      ">
+      :href="href(operation.id)"
+      @click="navigate">
       <HttpMethod
         class="endpoint-method items-center justify-end gap-2"
         :method="operation.method">
@@ -72,6 +83,8 @@ const { level: headingLevel } = useDocumentOutline('operation')
 <style scoped>
 .endpoint {
   display: flex;
+  align-items: center;
+  min-height: 24px;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;

@@ -57,15 +57,15 @@ const parsed = computed<{ extensions: Record<string, unknown>; error: string }>(
         <textarea
           id="extension-values"
           v-model="source"
-          class="bg-b-1 font-code min-h-96 w-full rounded-lg border p-3 text-sm"
-          spellcheck="false"
+          :aria-describedby="parsed.error ? 'extension-error' : undefined"
           :aria-invalid="Boolean(parsed.error)"
-          :aria-describedby="parsed.error ? 'extension-error' : undefined" />
+          class="bg-b-1 font-code min-h-96 w-full rounded-lg border p-3 text-sm"
+          spellcheck="false" />
         <p
           v-if="parsed.error"
           id="extension-error"
-          role="alert"
-          class="mt-2">
+          class="mt-2"
+          role="alert">
           {{ parsed.error }}
         </p>
       </div>

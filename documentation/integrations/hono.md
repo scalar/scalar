@@ -1,8 +1,30 @@
 # API Reference for Hono
 
-This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Hono.
+This middleware provides an easy way to render a beautiful API reference based on an OpenAPI or [AsyncAPI](../asyncapi.md) document with Hono.
 
 ![Screenshot of the Hono integration](../assets/screenshots/hono.png)
+
+## Setup Prompt
+
+Copy this prompt into your coding agent to add Scalar to an existing Hono app with OpenAPI, AsyncAPI, or both.
+
+<scalar-prompt title="Set up Scalar for Hono">
+
+```text
+Add Scalar API Reference to this Hono app using @scalar/hono-api-reference.
+
+Read https://scalar.com/products/api-references/integrations/hono for the integration guide and https://scalar.com/products/api-references/asyncapi for AsyncAPI support before making changes.
+
+1. Inspect the app entrypoint, runtime, package manager, HTTP routes, event-driven channels, and existing API descriptions. Use OpenAPI for HTTP request/response APIs and AsyncAPI for event-driven APIs, or both when appropriate.
+2. Install @scalar/hono-api-reference using the project’s package manager.
+3. Reuse existing API descriptions and generation tools. For HTTP routes without an OpenAPI description, add @hono/zod-openapi or hono-openapi to fit the app’s existing validation and routing. For event-driven APIs without an AsyncAPI description, create an AsyncAPI 3.x document from the actual servers, channels, operations, messages, and payload schemas. These OpenAPI generation libraries do not generate AsyncAPI. Do not invent endpoints, responses, channels, or messages; ask about behavior that cannot be determined from the app.
+4. Serve each description as JSON or YAML at an appropriate URL, such as /openapi.json or /asyncapi.json, or reuse its existing URL. Import { Scalar } from '@scalar/hono-api-reference' and register app.get('/scalar', Scalar({ url: '/asyncapi.json' })) for an AsyncAPI document, or use the OpenAPI document URL instead. If both are present, use Scalar({ sources: [{ title: 'HTTP API', url: '/openapi.json' }, { title: 'Events', url: '/asyncapi.json' }] }). Adjust URLs for the actual document routes and base path. Register the documentation routes before catch-all handlers.
+5. Preserve the app’s runtime, existing routes, event handlers, middleware, and authentication requirements. Do not replace the server entrypoint or expose protected documentation publicly.
+6. Run the relevant project checks and validate each description with tooling for its format and declared version. Start the app with its existing development command. Verify that each document URL returns the expected description and /scalar renders its endpoints or channels and messages. If both formats are configured, verify that both are available in the document selector.
+7. Summarize the changed files, checks performed, and local documentation URL.
+```
+
+</scalar-prompt>
 
 ## Installation
 
@@ -45,7 +67,7 @@ The Hono middleware takes our universal configuration object, [read more about c
 
 ### Serve the reference and document together
 
-With the middleware above you serve the OpenAPI document on one route and point the reference at it on another. If you generate your document with [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), `Scalar.serve` does both from a single mount, so you do not have to add a separate document route and keep its `url` in sync:
+With the middleware above you serve the API document on one route and point the reference at it on another. If you generate your document with [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi), `Scalar.serve` does both from a single mount, so you do not have to add a separate document route and keep its `url` in sync:
 
 ```typescript
 import { OpenAPIHono } from '@hono/zod-openapi'
@@ -70,7 +92,66 @@ app.route(
 export default app
 ```
 
-`document` can be the OpenAPI object itself or a function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `documentPath` (defaults to `/openapi.json`).
+`document` can be an OpenAPI or AsyncAPI object, or a synchronous or asynchronous function that returns it. The function receives the Hono `Context`, so you can read `c.env` or `c.req` and build the document per request. Pass any other [configuration option](../configuration.md) (such as `theme` or `pageTitle`) alongside `document`, and change where the JSON is served with `documentPath` (defaults to `/openapi.json`).
+
+### AsyncAPI and WebSocket apps
+
+The same integration renders OpenAPI and AsyncAPI. If your app already serves an AsyncAPI document, point Scalar at its URL:
+
+```typescript
+import { Scalar } from '@scalar/hono-api-reference'
+import { Hono } from 'hono'
+
+const app = new Hono()
+
+// Your app serves its existing AsyncAPI document at /asyncapi.json.
+app.get('/reference', Scalar({ url: '/asyncapi.json' }))
+```
+
+To serve both the reference and an existing document, use `Scalar.serve()`. This minimal AsyncAPI 3.0 example describes a WebSocket chat server receiving text messages:
+
+```typescript
+import { Scalar } from '@scalar/hono-api-reference'
+import { Hono } from 'hono'
+
+const app = new Hono()
+const document = {
+  asyncapi: '3.0.0',
+  info: { title: 'WebSocket Chat', version: '1.0.0' },
+  servers: {
+    local: { host: 'localhost:3000', protocol: 'ws' },
+  },
+  channels: {
+    chat: {
+      address: '/chat',
+      servers: [{ $ref: '#/servers/local' }],
+      messages: {
+        text: { payload: { type: 'string' } },
+      },
+    },
+  },
+  operations: {
+    receiveMessage: {
+      action: 'receive',
+      channel: { $ref: '#/channels/chat' },
+      messages: [{ $ref: '#/channels/chat/messages/text' }],
+    },
+  },
+}
+
+app.route(
+  '/reference',
+  Scalar.serve({ document, documentPath: '/asyncapi.json' }),
+)
+
+export default app
+```
+
+This serves the reference at `/reference` and JSON at `/reference/asyncapi.json`. You can also pass a document factory, such as `document: () => document`, including an asynchronous factory. Factories receive the Hono `Context` and run when the JSON document is requested. If you mount the app under `/api`, the reference automatically points to `/api/reference/asyncapi.json`.
+
+`documentPath` defaults to `/openapi.json` for both formats; set it explicitly as above for an AsyncAPI URL. Scalar serves and renders the document you supply. It does not generate AsyncAPI from Hono routes or WebSocket handlers, or implement the described WebSocket server.
+
+See the [AsyncAPI documentation](../asyncapi.md) for supported versions, rendering features, and current limitations.
 
 ### Themes
 

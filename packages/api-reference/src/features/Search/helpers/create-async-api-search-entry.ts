@@ -1,6 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 import { pickHeading } from '@/components/Content/AsyncApi/helpers/pick-heading'
@@ -10,6 +10,7 @@ import {
   resolveAsyncApiOperation,
 } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
+import { isAsyncApiJsonSchemaFormat } from '@/helpers/resolve-async-api-schema'
 
 /** Collect schema fields without treating examples, defaults, or other literal data as schemas. */
 const extractSchemaFields = (roots: unknown[]): { names: string[]; descriptions: string[] } => {
@@ -24,19 +25,11 @@ const extractSchemaFields = (roots: unknown[]): { names: string[]; descriptions:
     }
     visited.add(value)
     if ('$ref' in value) {
-      pending.push(getResolvedRef(value))
+      pending.push(getResolvedAsyncApiRef(value))
+      continue
     }
     if ('schemaFormat' in value) {
-      const format = String(value.schemaFormat).split(';')[0]?.trim().toLowerCase()
-      if (
-        [
-          'application/schema+json',
-          'application/schema+yaml',
-          'application/vnd.aai.asyncapi',
-          'application/vnd.aai.asyncapi+json',
-          'application/vnd.aai.asyncapi+yaml',
-        ].includes(format ?? '')
-      ) {
+      if (isAsyncApiJsonSchemaFormat(value.schemaFormat)) {
         pending.push(value.schema)
       }
       continue
@@ -72,11 +65,11 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       title: entry.title,
       entry,
       identifiers: [entry.channelName],
-      path: channel?.address ?? entry.channelAddress,
+      path: channel?.address ?? undefined,
       description: [channel?.summary, channel?.description].filter(Boolean).join('\n'),
       parameters: Object.keys(channel?.parameters ?? {}),
       parameterDescriptions: Object.values(channel?.parameters ?? {}).flatMap((parameter) => {
-        const description = getResolvedRef(parameter)?.description
+        const description = getResolvedAsyncApiRef(parameter)?.description
         return description ? [description] : []
       }),
     }
@@ -90,7 +83,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       entry,
       identifiers: [entry.operationName],
       action: entry.action,
-      path: entry.channelAddress,
+      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
       description: [operation?.summary, operation?.description].filter(Boolean).join('\n'),
     }
   }
@@ -103,7 +96,7 @@ export const createAsyncApiSearchEntry = (document: AsyncApiDocument, entry: Tra
       title: pickHeading(message?.title, entry.title, entry.messageName),
       entry,
       identifiers: message?.name ? [entry.messageName, message.name] : [entry.messageName],
-      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? entry.channelName,
+      path: resolveAsyncApiChannel(document, entry.channelName)?.address ?? undefined,
       description: message?.description ?? message?.summary ?? '',
       body: fields.names,
       bodyDescriptions: [...new Set([...(message?.summary ? [message.summary] : []), ...fields.descriptions])],

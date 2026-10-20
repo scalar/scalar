@@ -9,6 +9,7 @@ This is a supported path rather than a workaround. [Custom code](../custom-code.
 - A target with a [linked GitHub repository](github.md). Without one no workflows are generated at all, and there is no `scalar-next` branch to commit to.
 - The URL of your registry for the ecosystem you are publishing.
 - A credential for that registry, added as a [repository secret](github.md#adding-repository-secrets).
+- Merge commits allowed on the integration branch. Each regeneration lands there as a merge commit, so do not enable *Require linear history* on it.
 
 ## The one rule
 
@@ -22,7 +23,7 @@ Add a **new** file under `.github/workflows/`. Do not edit the workflows Scalar 
 | `.github/workflows/sdk-release.yml` | Scalar, rewritten every build |
 | **anything else under `.github/workflows/`** | **you** |
 
-Commit it to **`scalar-next`**, the integration branch, directly or through a pull request against it. Never commit to `scalar-generated`, which holds pristine generator output and is replaced on every build.
+Commit it to the integration branch, **`scalar-next`** unless you renamed it with [`integrationBranch`](github.md#repository-configuration), directly or through a pull request against it. Never commit to `scalar-generated`, which holds pristine generator output and is replaced on every build.
 
 Editing a generated workflow is not forbidden, but it costs you: when a later build changes the same lines you did, the merge conflicts and has to be [resolved by hand](../custom-code.md#resolving-conflicts) — every time. A separate file never conflicts.
 
@@ -33,7 +34,7 @@ Editing a generated workflow is not forbidden, but it costs you: when a later bu
 
 Two triggers do work.
 
-**The release commit** — the release pull request is merged by a person, so that push starts workflows normally. The release commit is the only thing that ever rewrites `.release-please-manifest.json`, which makes this precise:
+**The release commit** — the release pull request is merged by a person, so that push starts workflows normally. The release commit is the only thing that ever rewrites `.release-please-manifest.json`, which makes this precise. `main` here is your default branch, the one release pull requests merge into, which [`destinations.production.branch`](github.md#repository-configuration) configures. Replace it if yours is different.
 
 ```yaml
 on:
@@ -42,7 +43,7 @@ on:
     paths: ['.release-please-manifest.json']
 ```
 
-**The release workflow finishing** — `workflow_run` fires on run completion whatever token drove the run:
+**The release workflow finishing** — `workflow_run` fires on run completion whatever token drove the run. `Release Please` is the `name:` of the generated `release-please.yml`:
 
 ```yaml
 on:
@@ -51,11 +52,11 @@ on:
     types: [completed]
 ```
 
-The examples below use the first. It is simpler, and the commit it runs on is the released state, so the version and the source are both right there with nothing to resolve.
+The examples below use the first. It is simpler, and the commit it runs on is the released state, so the version and the source are both right there with nothing to resolve. Each one has `branches: [main]`; change it to your default branch if that is not `main`.
 
 ## Publish an npm package to Artifactory
 
-Save as `.github/workflows/publish-private-registry.yml` on `scalar-next`, change the two marked values, and commit.
+Save as `.github/workflows/publish-private-registry.yml` on `scalar-next`, change the marked values, and commit.
 
 ```yaml
 name: Publish to private registry
@@ -64,6 +65,7 @@ on:
   # Runs when a release pull request is merged. The release commit is the only
   # commit that rewrites the manifest, so this never fires on anything else.
   push:
+    # CHANGE ME if your default branch is not main.
     branches: [main]
     paths: ['.release-please-manifest.json']
   # Lets you run it by hand from the Actions tab, which is how to test it first.
@@ -143,7 +145,7 @@ jobs:
 
 ## Publish to AWS CodeArtifact
 
-CodeArtifact does not take a long-lived token. Assume an AWS role with GitHub's OIDC identity, mint a short-lived token, and publish with that — so there is still no credential stored in the repository.
+CodeArtifact does not take a long-lived token. Assume an AWS role with GitHub's OIDC identity, request a short-lived token, and publish with that — so there is still no credential stored in the repository.
 
 ```yaml
 name: Publish to CodeArtifact
@@ -197,7 +199,7 @@ jobs:
 
 `NODE_AUTH_TOKEN` is written to the job environment, so the publish step picks it up without an `env:` block of its own.
 
-For Python, swap the last four steps for the `build` and `twine` steps from the section above, and point `--repository-url` at your CodeArtifact PyPI endpoint with `TWINE_USERNAME: aws` and `TWINE_PASSWORD` set to the minted token.
+For Python, swap the last four steps for the `build` and `twine` steps from the section above, and point `--repository-url` at your CodeArtifact PyPI endpoint with `TWINE_USERNAME: aws` and `TWINE_PASSWORD` set to the short-lived token.
 
 ## Any other registry
 
@@ -206,7 +208,7 @@ Every example above is the same five steps. To target Nexus, GitLab, Azure Artif
 1. Check out the repository.
 2. Set up the language toolchain, pointing it at your registry.
 3. Install dependencies and build, exactly as `sdk-ci.yml` does for your target.
-4. Authenticate, from a repository secret or a minted token.
+4. Authenticate, from a repository secret or a short-lived token.
 5. Publish with the ecosystem's normal command.
 
 The build commands for your language are the ones already in your repository's `.github/workflows/sdk-ci.yml`. Copying them from there keeps your workflow in step with the SDK.
@@ -215,7 +217,7 @@ The build commands for your language are the ones already in your repository's `
 
 Both example workflows include `workflow_dispatch`, so you do not have to wait for a release to find out whether the credential works.
 
-1. Commit the workflow to `scalar-next` and let it reach your default branch through the next release pull request.
+1. Commit the workflow to `scalar-next` (or your `integrationBranch`) and let it reach your default branch through the next release pull request.
 2. Open **Actions**, pick the workflow, and choose **Run workflow**.
 3. Fix whatever it reports, then merge a real release.
 
@@ -247,13 +249,15 @@ The two are independent. A workflow you add runs alongside Scalar's publishing r
 - **Private only** — leave `publish` out of the target's configuration. Scalar still generates the SDK, the release pull request, tags, and the changelog; nothing is uploaded to a public registry, and your workflow does the publishing.
 - **Both** — [enable publishing](overview.md#enable-publishing) for the public registry as normal. Your workflow runs on the same release commit and publishes to your internal registry too.
 
+If the public publish runs in a GitHub environment (`publish.<registry>.releaseEnvironment`) and you want the same protection rules on your own workflow, add `environment: <name>` to its `publish` job. Its secrets then come from that environment as well, overriding repository secrets of the same name. Your workflow is not tied to `releaseEnvironment` otherwise; without an `environment:` line it reads repository secrets only.
+
 ## Troubleshooting
 
 | What you see | Why |
 | ------------ | --- |
 | Nothing runs when a release merges | The workflow is on `on: release` or `on: push: tags:`. Use one of the [triggers that fire](#choose-a-trigger-that-fires). |
-| Nothing runs, and the trigger looks right | The workflow has not reached your default branch yet. A `push` trigger runs the copy on the branch receiving the push, so the file has to land there through a release pull request first. |
-| The workflow disappeared after a build | It was committed to `scalar-generated`, which is replaced on every build. Commit to `scalar-next`. |
+| Nothing runs, and the trigger looks right | `branches:` does not name your default branch, or the workflow has not reached your default branch yet. A `push` trigger runs the copy on the branch receiving the push, so the file has to land there through a release pull request first. |
+| The workflow disappeared after a build | It was committed to `scalar-generated`, which is replaced on every build. Commit to `scalar-next`, or your `integrationBranch`. |
 | `401` or `403` from the registry | The secret is missing, misnamed, or lacks publish rights. Check it under **Settings → Secrets and variables → Actions**. |
 | The package went to the public registry | `registry-url` is missing or misspelled, or a scoped package needs `scope` on `setup-node`. |
 | Conflicts on every regeneration | You edited a generated workflow instead of adding your own. Move your changes to a separate file. |

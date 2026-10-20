@@ -33,12 +33,12 @@ Each address of an installation is a separate resource with its own metadata doc
 
 ## Set it up
 
-1. In the [Scalar Dashboard](https://dashboard.scalar.com), open your MCP server and select the installation (the dashboard calls it an _environment_).
-2. Under **Upstream authentication**, select **Configure** for the API.
-3. Choose **OAuth passthrough** as the mode.
-4. Enter the **authorization server**: the issuer URL, `https` only. The field is prefilled from the API description when it can be—from an `openIdConnect` security scheme's discovery URL, or from the origin of an `oauth2` scheme's authorization URL, which is only a guess. Check it against your server's metadata either way.
-5. Optionally list the **scopes** clients should request, separated by spaces. When the server was prefilled from an `oauth2` scheme, the scopes of its authorization code flow are prefilled too. The `401` names no scopes, so clients request exactly what you list here, and nothing when the list is empty. If your authorization server only issues a token your API accepts when a scope is requested, list that scope.
-6. Save. If the installation was private, saving makes it public in the same step; the dialog warns you first.
+1. In the [Scalar Dashboard](https://dashboard.scalar.com), open your MCP server and select the API and environment.
+2. Open **Configure → Authorization** and choose **Passthrough**.
+3. Configure the API's OAuth security scheme and select its authorization-code flow. Check the authorization, token, and metadata URLs against your provider's published configuration.
+4. Save your configuration. The MCP client discovers the upstream authorization server and signs the caller in there.
+
+OAuth URLs and client IDs can use environment variables where supported. See [MCP configuration](../configuration.md#oauth-urls).
 
 ### More than one API on the installation
 

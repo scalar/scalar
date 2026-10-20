@@ -198,14 +198,14 @@ describe('ruby', () => {
     assertHas(SAMPLE, 'ruby', 'parse', 'function')
     assertHas(SAMPLE, 'ruby', 'parse', 'function.method')
     assertHas(SAMPLE, 'ruby', 'new', 'function.call')
-    // An attribute read is not a call, even though Ruby has no attributes.
-    assertHas(SAMPLE, 'ruby', 'sku', 'variable.member')
+    // Ruby has no public fields, so an attribute read is a method call too.
+    assertHas(SAMPLE, 'ruby', 'sku', 'function.method')
   })
 
   it('reads a method that takes a block as a call', () => {
     assertHas('rows.each do |row|\nend\n', 'ruby', 'each', 'function.method')
     assertHas('rows.map { |row| row }\n', 'ruby', 'map', 'function.method')
-    assertHas('rows.size\n', 'ruby', 'size', 'variable.member')
+    assertHas('rows.size\n', 'ruby', 'size', 'function.method')
   })
 
   it('names an operator method at its definition', () => {
@@ -226,7 +226,7 @@ describe('ruby', () => {
 
   it('keeps the line after a heredoc marker as code', () => {
     assertHas(SAMPLE, 'ruby', 'TEXT', 'string.special')
-    assertHas(SAMPLE, 'ruby', 'strip', 'variable.member')
+    assertHas(SAMPLE, 'ruby', 'strip', 'function.method')
     // …and the body itself is a string, interpolation included.
     assertHas(SAMPLE, 'ruby', '#{', 'interpolation')
   })

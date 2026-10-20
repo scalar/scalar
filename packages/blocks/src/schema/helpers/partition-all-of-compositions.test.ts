@@ -141,6 +141,7 @@ describe('partitionAllOfCompositions', () => {
       allOf: [
         { type: 'object', properties: { id: { type: 'string' } } },
         { not: { required: ['a', 'b'] } },
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then as a conditional keyword, not a Promise method.
         { if: { required: ['x'] }, then: { required: ['y'] } },
       ],
     } as SchemaObject

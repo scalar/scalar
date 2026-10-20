@@ -1,5 +1,7 @@
 export const pt = {
   schema: {
+    variants: 'Variantes',
+    discriminatorValue: 'Valor do discriminador',
     noAllowedValues: 'Nenhum valor satisfaz esta restrição enum.',
     example: 'Exemplo',
     examples: 'Exemplos',
@@ -46,6 +48,14 @@ export const pt = {
     unique: 'único',
     values: 'valores',
     writeOnly: 'somente escrita',
+    typeInteger: 'Números inteiros.',
+    formatInt32: 'Inteiros de 32 bits com sinal (tipo inteiro mais comum).',
+    formatInt64: 'Inteiros de 64 bits com sinal (tipo long).',
+    formatDate: 'notação full-date definida pela RFC 3339, seção 5.6, por exemplo, 2017-07-21',
+    formatDateTime: 'notação date-time definida pela RFC 3339, seção 5.6, por exemplo, 2017-07-21T17:32:28Z',
+    formatPassword: 'indica às interfaces que ocultem a entrada',
+    formatBase64: 'caracteres codificados em base64, por exemplo, U3dhZ2dlciByb2Nrcw==',
+    formatBinary: 'dados binários, usados para descrever arquivos',
   },
   common: { copyDefault: 'Copiar valor padrão', copyExample: 'Copiar valor de exemplo' },
   actions: { copyLinkTo: 'Copiar link para {name}' },

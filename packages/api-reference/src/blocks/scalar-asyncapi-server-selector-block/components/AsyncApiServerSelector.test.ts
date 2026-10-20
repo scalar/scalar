@@ -39,6 +39,58 @@ describe('AsyncApiServerSelector', () => {
     }),
   ]
 
+  it('shows binding-only server details and updates them with the selection', async () => {
+    const first = createEntry({
+      name: 'first',
+      url: 'kafka://first',
+      server: {
+        host: 'first',
+        protocol: 'kafka',
+        bindings: { kafka: { schemaRegistryUrl: 'https://registry.example.com', bindingVersion: '0.5.0' } },
+      },
+    })
+    const second = createEntry({
+      name: 'second',
+      url: 'mqtt://second',
+      server: { host: 'second', protocol: 'mqtt', bindings: { mqtt: { clientId: 'consumer-1' } } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [first, second], selectedServer: first, eventBus },
+    })
+    expect(wrapper.text()).toContain('https://registry.example.com')
+    expect(wrapper.text()).toContain('0.5.0')
+    await wrapper.setProps({ selectedServer: second })
+    expect(wrapper.text()).toContain('consumer-1')
+    expect(wrapper.text()).not.toContain('https://registry.example.com')
+  })
+
+  it('updates documentation when the selected server changes', async () => {
+    const servers = ['production', 'staging'].map((name) =>
+      createEntry({
+        name,
+        url: `mqtt://${name}.example.com`,
+        server: {
+          host: `${name}.example.com`,
+          protocol: 'mqtt',
+          protocolVersion: '5.0',
+          summary: `${name} event stream`,
+          externalDocs: { url: `https://example.com/${name}`, description: `**${name}** guide` },
+          tags: [{ name: 'Broker', externalDocs: { url: `https://example.com/${name}-tag` } }],
+        },
+      }),
+    )
+    const wrapper = mount(AsyncApiServerSelector, { props: { servers, selectedServer: servers[0]!, eventBus } })
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
+      'https://example.com/production',
+    ])
+    await wrapper.setProps({ selectedServer: servers[1]! })
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual(['https://example.com/staging'])
+    expect(wrapper.get('a[href="https://example.com/staging"]').text()).toBe('**staging** guide')
+    expect(wrapper.text()).toContain('staging event stream')
+    expect(wrapper.text()).toContain('MQTT 5.0')
+    expect(wrapper.text()).not.toContain('Broker')
+  })
+
   it('renders the server label', () => {
     const wrapper = mount(AsyncApiServerSelector, {
       props: { servers: mockServers, selectedServer: mockServers[0]!, eventBus },
@@ -82,6 +134,24 @@ describe('AsyncApiServerSelector', () => {
       environment: { default: 'prod', description: 'Environment name', enum: ['prod', 'staging', 'dev'] },
     })
     expect(variablesForm.props('layout')).toBe('reference')
+  })
+
+  it('ignores siblings throughout chained server variable references', () => {
+    const target = { default: 'prod', description: 'Target environment', enum: ['prod', 'staging'] }
+    const alias = { $ref: '#/components/serverVariables/target', '$ref-value': target, default: 'wrong-alias' }
+    const variable = { $ref: '#/components/serverVariables/alias', '$ref-value': alias, default: 'wrong' }
+    const server = createEntry({
+      name: 'production',
+      url: 'mqtt://prod.example.com',
+      server: { host: '{environment}.example.com', protocol: 'mqtt', variables: { environment: variable } },
+    })
+    const wrapper = mount(AsyncApiServerSelector, {
+      props: { servers: [server], selectedServer: server, eventBus },
+    })
+
+    expect(wrapper.findComponent({ name: 'ServerVariablesForm' }).props('variables')).toEqual({
+      environment: target,
+    })
   })
 
   it('emits the selected server name when a server is chosen', async () => {
@@ -149,6 +219,7 @@ describe('AsyncApiServerSelector', () => {
 
     expect(wrapper.text()).toContain('Production broker · mqtt://broker.example.com')
     expect(wrapper.text()).toContain('MQTT 5.0')
+    expect(wrapper.text()).not.toContain('Broker')
     expect(wrapper.text()).toContain('Public event stream')
     expect(wrapper.find('strong').text()).toBe('TLS')
 

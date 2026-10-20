@@ -1,0 +1,304 @@
+{
+  "asyncapi": "3.1.0",
+  "info": {
+    "title": "Relay Team Chat",
+    "version": "2.4.0",
+    "description": "A browser-facing stream for team conversations. Connect once per workspace, send commands, and receive events on the same socket.\n\n### Reconnecting\nInclude the last received sequence number when reconnecting. Typing indicators are ephemeral and are never replayed.\n\n### Message types\nThe `type` field identifies each frame. Clients must ignore unknown message types.",
+    "contact": {
+      "name": "Developer Experience",
+      "url": "https://example.com/support"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "defaultContentType": "application/json",
+  "servers": {
+    "production": {
+      "host": "realtime.example.com",
+      "pathname": "/v1",
+      "protocol": "wss",
+      "security": [
+        {
+          "$ref": "#/components/securitySchemes/accessToken"
+        }
+      ]
+    },
+    "local": {
+      "host": "localhost:8080",
+      "protocol": "ws",
+      "description": "Local integration environment."
+    }
+  },
+  "channels": {
+    "conversation": {
+      "address": "/workspaces/{workspaceId}/rooms/{roomId}",
+      "title": "Room conversation",
+      "summary": "Bidirectional room events and commands.",
+      "parameters": {
+        "workspaceId": {
+          "description": "Workspace slug.",
+          "examples": ["design-team"]
+        },
+        "roomId": {
+          "description": "Room identifier.",
+          "examples": ["general"]
+        }
+      },
+      "bindings": {
+        "ws": {
+          "method": "GET",
+          "query": {
+            "type": "object",
+            "properties": {
+              "afterSequence": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          },
+          "bindingVersion": "0.1.0"
+        }
+      },
+      "messages": {
+        "postMessage": {
+          "name": "PostMessage",
+          "title": "Post a message",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["message.post"]
+              },
+              "clientId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000
+              },
+              "attachments": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "url": {
+                      "type": "string",
+                      "format": "uri"
+                    },
+                    "filename": {
+                      "type": "string"
+                    },
+                    "contentType": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["url", "filename"]
+                }
+              }
+            },
+            "required": ["type", "clientId", "text"]
+          },
+          "examples": [
+            {
+              "payload": {
+                "type": "message.post",
+                "clientId": "draft_128",
+                "text": "The new dashboard is ready for review."
+              }
+            }
+          ]
+        },
+        "messageCreated": {
+          "name": "MessageCreated",
+          "title": "Message created",
+          "headers": {
+            "type": "object",
+            "properties": {
+              "sequence": {
+                "type": "integer"
+              }
+            },
+            "required": ["sequence"]
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["message.created"]
+              },
+              "id": {
+                "type": "string"
+              },
+              "author": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  },
+                  "avatarUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  }
+                },
+                "required": ["id", "displayName"]
+              },
+              "text": {
+                "type": "string"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "reactions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "emoji": {
+                      "type": "string"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    }
+                  },
+                  "required": ["emoji", "count"]
+                }
+              }
+            },
+            "required": ["type", "id", "author", "text", "createdAt"]
+          }
+        },
+        "typing": {
+          "name": "Typing",
+          "title": "Typing indicator",
+          "description": "Expires after five seconds without a refresh.",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["typing"]
+              },
+              "userId": {
+                "type": "string"
+              },
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "required": ["type", "userId", "active"]
+          }
+        },
+        "error": {
+          "name": "CommandError",
+          "title": "Command rejected",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["error"]
+              },
+              "clientId": {
+                "type": "string"
+              },
+              "code": {
+                "type": "string",
+                "enum": ["rate_limited", "forbidden", "invalid_message"]
+              },
+              "retryAfterSeconds": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["type", "code"]
+          }
+        }
+      }
+    },
+    "presence": {
+      "address": "/workspaces/{workspaceId}/presence",
+      "title": "Workspace presence",
+      "description": "A read-only channel catalogue entry with no operation. Useful for clients that only display online status.",
+      "parameters": {
+        "workspaceId": {
+          "description": "Workspace slug."
+        }
+      },
+      "messages": {
+        "presenceChanged": {
+          "name": "PresenceChanged",
+          "title": "Presence changed",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "userId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["online", "away", "offline"]
+              },
+              "lastSeenAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": ["userId", "status"]
+          }
+        }
+      }
+    }
+  },
+  "operations": {
+    "postMessage": {
+      "action": "send",
+      "title": "Post to a room",
+      "channel": {
+        "$ref": "#/channels/conversation"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/conversation/messages/postMessage"
+        }
+      ]
+    },
+    "receiveRoomEvents": {
+      "action": "receive",
+      "title": "Watch room activity",
+      "channel": {
+        "$ref": "#/channels/conversation"
+      },
+      "messages": [
+        {
+          "$ref": "#/channels/conversation/messages/messageCreated"
+        },
+        {
+          "$ref": "#/channels/conversation/messages/typing"
+        },
+        {
+          "$ref": "#/channels/conversation/messages/error"
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "accessToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Short-lived workspace access token."
+      }
+    }
+  }
+}

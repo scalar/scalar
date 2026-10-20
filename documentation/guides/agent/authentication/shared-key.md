@@ -1,25 +1,24 @@
 # One Shared Key for Everyone
 
-Use **global auth** when every caller should hit your API with the *same* credentials. You store one credential on the installation and the server uses it for every request—agents and users never see it.
-
-## How it works
-
-You store one credential (OAuth, API key, or bearer token) on the installation. On every call, the server authenticates to your upstream API with that stored credential. The caller never provides an API key of their own; they only need to be allowed to connect (see [Authentication](./index.md)).
+Use a stored credential when every caller should reach your API with the same API key, bearer token, or OAuth client credentials. Scalar reads the credential on the server; callers do not receive its value.
 
 ## Set it up
 
-1. In the [Scalar Dashboard](https://dashboard.scalar.com), open your MCP installation.
-2. Set authentication to **Global**.
-3. Store the credential the server should use—OAuth, an API key, or a bearer token.
+1. In the [Scalar Dashboard](https://dashboard.scalar.com), open **Configuration → Environments** and add a secret for the environment you will use, such as `PAYMENTS_TOKEN`.
+2. Open your MCP server, select the API and environment, and open **Configure → Authorization**.
+3. Choose **OAuth Gated** if callers must sign in through Scalar, or **Passthrough** if Scalar should not require sign-in.
+4. In the upstream scheme's credential field, reference `{{ secrets.PAYMENTS_TOKEN }}`. For OAuth client credentials, configure the token URL, client ID, and client secret for that flow.
+5. Save your configuration and connect a client using the address shown for that environment.
 
-Combine this with access control that fits your audience: keep it public for an open API, or attach an [access group](./customer-access.md) to limit who can connect.
+A stored credential can be used without Scalar sign-in. In that case anyone who can reach the MCP endpoint can call the tools you expose with that credential. Choose OAuth Gated and attach [access groups](./customer-access.md) when only selected customers should connect.
 
 ## Per-customer keys
 
-Global auth stores one key per installation. If you need a *different* stored key per customer, create one installation per customer, each with its own stored credential and its own access group. See [Private access for customers](./customer-access.md). If instead each customer should bring their own credential, use [passthrough auth](./public-passthrough.md) for keys, or [OAuth passthrough](./oauth-passthrough.md) when your API has its own OAuth authorization server.
+For different stored credentials per customer, use **Per access group auth** on one OAuth Gated server. Map each customer's access group to its secret and use `{{ group.PAYMENTS_TOKEN }}` in the upstream scheme. You do not need a separate installation for each customer. See [Private access for customers](./customer-access.md#sharing-one-server-with-many-customers).
+
+If callers should supply their own API keys, use [passthrough auth](./public-passthrough.md).
 
 ## Related
 
-- [Authentication](./index.md) — the two layers, and the other recipes
-- [Private access for customers](./customer-access.md) — gate the server with access groups and OAuth
-- [OAuth passthrough](./oauth-passthrough.md) — let each user sign in with your API's own authorization server
+- [Authentication](./index.md)
+- [MCP configuration](../configuration.md)

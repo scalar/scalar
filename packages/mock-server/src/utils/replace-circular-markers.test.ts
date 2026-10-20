@@ -134,6 +134,7 @@ describe('replaceCircularMarkers', () => {
       replaceCircularMarkers({
         type: 'object',
         if: '[circular]',
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then as a conditional keyword, not a Promise method.
         then: { required: ['a'] },
         else: { required: ['b'] },
       }),

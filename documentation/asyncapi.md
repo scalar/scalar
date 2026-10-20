@@ -108,18 +108,24 @@ Behind the scenes the document is converted to the latest 3.x version (for examp
 
 The reference renders the AsyncAPI document grouped by channel. For each channel you'll see:
 
-- The channel title (or address) and description.
+- The channel heading and description, with the summary used as a fallback. A separate **Address** row preserves the actual address when a title is present. Missing or null addresses display **Unknown**; the channel identifier is only a heading fallback.
 - **Server** and **protocol** labels for the channel: the servers it's available on (from `document.servers`, restricted to `channel.servers` when declared) and their protocols (for example `wss`, `kafka`).
 - The channel address **parameters**.
-- Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, title, and summary/description.
+- Each **operation** on the channel, nested beneath it, with its `send`/`receive` action, heading, and description.
 - A **Channel messages** catalog containing every visible message defined on the channel, including messages that no operation lists. Channels with messages render even when they have no operations.
-- Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its description and its **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
+- Each **message** under its operation, shown as a collapsible accordion. The message header shows **protocol** labels for every protocol it's carried over — its channel's server protocols unioned with any protocols it declares its own `bindings` for. Expanding a message reveals its description (or summary fallback) and **headers** and **payload** schemas. Messages start collapsed and stay in sync with the sidebar, so selecting a message in the navigation (or opening a deep link to it) expands it here too.
+
+Channel, operation, and message headings prefer the title, then the summary, then the existing address, name, or identifier fallback. The body shows the description when present, otherwise the summary unless it already appears as the heading. This follows the OpenAPI heading-and-description pattern without adding a second introduction. Metadata inherited through traits follows the same rules.
 
 Channels remain visible when no operation references them. Their messages appear directly beneath the channel, with the same schemas, examples, and navigation links as operation messages. Channels without messages remain visible too. Channels whose operations are all hidden with `x-internal` or `x-scalar-ignore` remain hidden.
 
 An operation lists only its supported messages. Omitting its `messages` property includes every channel message; setting `messages: []` includes none. The channel catalog does not change these operation subsets.
 
+Request/reply operations show a **Replies** section with the reply channel, its static address or a dynamic address expression, and the declared reply messages. The channel and address share a compact card header, with expandable reply message schemas below. Operations with replies keep Messages before Replies and show an empty state when no messages are listed. Channel links and message copy links lead to their existing documentation. Dynamic expressions describe where the address comes from at runtime; they are displayed without evaluation. Referenced reply objects and reply addresses are supported.
+
 Reusable schemas defined under `components.schemas` are rendered in the **Models** section, just like OpenAPI.
+
+Multi Format Schema Objects use `schemaFormat` to choose how to display their schema. JSON Schema, AsyncAPI Schema, and OpenAPI Schema formats use the structured schema renderer. Avro, Protobuf, and other formats appear as copyable source with their declared format, in message payloads, headers, and reusable models. Structured source such as Avro is formatted as JSON; text such as Protobuf keeps its original whitespace. Source-only formats do not provide generated examples or field-level search and correlation links.
 
 Rendering works in both the `modern` and `classic` layouts.
 
@@ -130,13 +136,21 @@ Rendering works in both the `modern` and `classic` layouts.
   size="full">
 </scalar-image>
 
+## Protocol bindings
+
+Binding details appear on channels, operations, and expanded messages, and beneath the selected server in the introduction. Each binding shows its protocol key and all supplied fields, including `bindingVersion` when declared. Expand nested fields to inspect their JSON.
+
+Referenced bindings and bindings inherited from operation or message traits are supported. Unfamiliar fields remain visible; unavailable references retain their `$ref` pointer. Binding versions describe the binding format and are separate from the server's protocol version.
+
 ## Search
 
-Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
+Search finds channels, operations, and messages by their titles, names, summaries, and descriptions. Channel addresses and parameter names and descriptions are searchable too. Channel, operation, and message results display the actual channel address, or **Address: Unknown** when it is missing or null. Channel identifiers remain searchable independently of the address. For messages, search also includes payload and application-header field names and descriptions, including nested objects and array items in supported JSON Schema formats.
 
 Select a result to navigate to its content. Selecting a message opens its accordion. Search shows each message once per channel, opening its channel-catalog entry. Search covers the full document; selecting a result hidden by a protocol or server filter clears those filters to reveal its content.
 
 ## Payload examples
+
+Messages display their `contentType`, falling back to the document’s `defaultContentType` when omitted. Payload examples use JSON, XML, or YAML highlighting for those media types and plain text otherwise. Authored non-JSON strings keep their original formatting. Examples with both headers and payload show separate blocks with independent copy buttons. Structured non-JSON values are labeled as structure only, not encoded messages. When neither content type is declared, examples keep the existing JSON formatting.
 
 Message-level `examples` appear in a code panel with a copy button and a picker when there is more than one example. Examples inherited from message traits are supported too.
 
@@ -145,6 +159,18 @@ When no message example contains a payload, Scalar generates a representative pa
 Generation supports native JSON Schema payloads and JSON Schema or AsyncAPI Schema wrappers. Other schema formats, such as Avro, and boolean payload schemas do not generate examples. Generated values illustrate the payload structure; they are not guaranteed to satisfy every JSON Schema constraint.
 
 The server selector shows each server title alongside its connection URL, falling back to the server map key when no title is provided. The selected server also shows its summary, protocol version, and description when provided. Selection and variable updates continue to use the server map key.
+
+## Tags
+
+Tags appear on the application introduction, selected server, channels, operations, and messages. Expand a tag with a description or external documentation to read its details. Referenced tags and tags inherited from operation or message traits are supported. Explicit tag arrays replace inherited arrays, including an empty array.
+
+The **Tag** picker appears in the modern sidebar or above the content in classic layout. It lists tags from servers and visible channels, operations, and messages. Application tags appear in the introduction but do not add filter options or match content, even when they share a name with a channel, operation, or message tag. Selecting a tag narrows navigation while keeping channel grouping:
+
+- Server tags match content reachable through a server carrying that tag.
+- Channel and operation tags retain their matching section and its children.
+- Message tags retain matching messages with their operation and channel as context.
+
+Tag filtering combines with the protocol and server filters. A server-tag match must satisfy both selections. Choosing **All tags** clears the tag filter. Filters reset when switching documents, and selecting a search result hidden by a filter clears the filters to reveal it. Tag names are matched exactly, and identical names across scopes share a filter option.
 
 ## Filtering by protocol and server
 

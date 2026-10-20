@@ -223,6 +223,7 @@ const processorCache = new Map<string, ReturnType<typeof createProcessor>>()
  * inside a regular expression literal is a syntax error.
  */
 const PLAIN_PARAGRAPH =
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Control characters are intentionally matched to validate or sanitize input.
   /^(?![-+=]|\d{1,9}[.)](?:\s|$))(?!.*(?: {2}|:\/|www\.|mailto:|xmpp:))[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff](?:[^\\`*_\[\]<>&#~|@\t\n\v\f\r\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff]*[^\s\\`*_\[\]<>&#~|@\x00-\x1f\x7f\u00a0\u1680\u2000-\u200b\u2028\u2029\u202f\u205f\u3000\ufeff])?$/i
 
 /**

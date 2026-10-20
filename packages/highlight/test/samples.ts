@@ -2079,6 +2079,72 @@ record LineItem(String sku, double amount) {}
 
 enum Status { DRAFT, SETTLED, VOIDED }
 `,
+  julia: String.raw`#!/usr/bin/env julia
+# Inventory service client, written the way a small package would be.
+
+module Inventory
+
+using HTTP, JSON3
+import Base: show
+
+export Item, fetch_items, total_value
+
+#= Prices are stored in cents so totals never pick up float error.
+   #= Nested block comments are legal Julia. =#
+=#
+const API_ROOT = "https://api.example.com/v1"
+const TIMEOUT = 2.5e1
+
+abstract type AbstractItem end
+
+mutable struct Item <: AbstractItem
+    sku::String
+    name::String
+    price_cents::Int64
+    tags::Vector{Symbol}
+end
+
+Item(sku, name, price) = Item(sku, name, price, Symbol[])
+
+function show(io::IO, item::Item)
+    print(io, "Item($(item.sku), \"$(item.name)\", $(item.price_cents / 100))")
+end
+
+"""
+    fetch_items(token; limit=25) -> Vector{Item}
+
+Fetches one page of items. Throws on any non-2xx response.
+"""
+function fetch_items(token::AbstractString; limit::Integer = 25)
+    headers = ["Authorization" => "Bearer $token", "Accept" => "application/json"]
+    resp = HTTP.request("GET", "$API_ROOT/items?limit=$limit", headers; readtimeout = TIMEOUT)
+    if resp.status != 200
+        error("unexpected status: $(resp.status)")
+    end
+    body = JSON3.read(String(resp.body))
+    return [Item(x.sku, x.name, x.price_cents, Symbol.(x.tags)) for x in body.items]
+end
+
+total_value(items) = sum(i -> i.price_cents, items; init = 0) ÷ 100
+
+function cheapest(items::Vector{<:AbstractItem})
+    isempty(items) && return nothing
+    best = items[1]
+    for item in items[2:end]
+        item.price_cents < best.price_cents && (best = item)
+    end
+    best
+end
+
+pattern = r"^[A-Z]{3}-\d{4}$"
+valid(sku) = occursin(pattern, sku)
+grid = [1 2; 3 4]'
+initial = 'I'
+status = :active
+@assert valid("ABC-1234")
+
+end # module
+`,
   kotlin: `@file:JvmName("Inventory")
 
 package com.example.shop

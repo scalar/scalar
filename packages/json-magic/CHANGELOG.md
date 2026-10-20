@@ -1,5 +1,17 @@
 # @scalar/json-magic
 
+## 0.16.1
+
+### Patch Changes
+
+- [#10694](https://github.com/scalar/scalar/pull/10694): Update Undici to 7.30.1 to fix security vulnerabilities, including CVE-2026-109869 and CVE-2026-109383, while preserving support for all Node 22 versions.
+
+## 0.16.0
+
+### Minor Changes
+
+- [#10618](https://github.com/scalar/scalar/pull/10618): Add an opt-in `preserveReference` predicate to bundling, retaining selected authored references without loading their targets while preserving schema identities on relocation.
+
 ## 0.15.7
 
 ### Patch Changes

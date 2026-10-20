@@ -56,6 +56,48 @@ const search = (document: AsyncApiDocument, term: string): string[] => {
 }
 
 describe('create-async-api-search-entry', () => {
+  it.each([undefined, null, '', 'accounts.{tenantId}'])(
+    'indexes only the actual address (%s) for all AsyncAPI results',
+    (address) => {
+      const document = createDocument()
+      const channel = getResolvedRef(document.channels?.accountEvents)
+      if (!channel) {
+        throw new Error('Expected the account channel')
+      }
+      channel.address = address
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('events', document)
+      const entries = createSearchIndex(document).filter((entry) => entry.type.startsWith('asyncapi-'))
+      expect(entries.map(({ type, path }) => [type, path])).toStrictEqual([
+        ['asyncapi-channel', address ?? undefined],
+        ['asyncapi-operation', address ?? undefined],
+        ['asyncapi-message', address ?? undefined],
+        ['asyncapi-operation', address ?? undefined],
+      ])
+      expect(search(document, 'accountEvents')).toStrictEqual(['Account events'])
+      expect(search(document, 'Lifecycle notifications')[0]).toBe('Account events')
+    },
+  )
+
+  it('indexes the schema target without sibling descriptions or properties', () => {
+    const document = createDocument({
+      payload: {
+        $ref: '#/components/schemas/Target',
+        '$ref-value': { type: 'object', description: 'Target description', properties: { actual: { type: 'string' } } },
+        description: 'Ignored description',
+        properties: { ignored: { type: 'string' } },
+      },
+    } as unknown as AsyncApiMessageObject)
+    const entry = createAsyncApiSearchEntry(document, {
+      type: 'asyncapi-message',
+      id: 'message',
+      title: 'Account created',
+      channelName: 'accountEvents',
+      messageName: 'accountCreated',
+    })
+    expect(entry?.body).toStrictEqual(['actual'])
+    expect(entry?.bodyDescriptions).toStrictEqual(['Signup notification', 'Target description'])
+  })
+
   it('finds channels, parameters, operations, messages and inherited descriptions', () => {
     const document = createDocument()
     for (const [term, title] of [
@@ -89,19 +131,62 @@ describe('create-async-api-search-entry', () => {
     expect(search(document, 'accountCreated')).toStrictEqual(['Invoice issued'])
   })
 
-  it('uses the first rendered message anchor when two operations reference the message', () => {
+  it('uses the first rendered operation message anchor when two operations share a message', () => {
     const document = createDocument()
     const channel = traverseAsyncApiDocument('events', document).children?.find(
       (entry) => entry.type === 'asyncapi-channel',
     )
-    const operation = channel?.type === 'asyncapi-channel' ? channel.children?.[0] : undefined
-    const message = operation?.type === 'asyncapi-operation' ? operation.children?.[0] : undefined
-    if (message?.type !== 'asyncapi-message') {
-      throw new Error('Expected a rendered operation message')
-    }
+    const operations =
+      channel?.type === 'asyncapi-channel'
+        ? channel.children?.filter((entry) => entry.type === 'asyncapi-operation')
+        : undefined
+    const firstMessage = operations?.[0]?.children?.find((entry) => entry.type === 'asyncapi-message')
+    const secondMessage = operations?.[1]?.children?.find((entry) => entry.type === 'asyncapi-message')
+
+    expect(firstMessage).toBeDefined()
+    expect(secondMessage).toBeDefined()
+    expect(firstMessage?.id).not.toBe(secondMessage?.id)
+
     const messages = createSearchIndex(document).filter((entry) => entry.type === 'asyncapi-message')
-    expect(messages.map(({ id }) => id)).toStrictEqual([message.id])
+    expect(messages.map(({ id }) => id)).toStrictEqual([firstMessage?.id])
     expect(messages.map(({ identifiers }) => identifiers)).toStrictEqual([['accountCreated', 'account.created.v1']])
+  })
+
+  it.each([undefined, [], [{ $ref: '#/channels/accountEvents/messages/accountCreated' }]])(
+    'indexes operation and channel-only messages for selection %j',
+    (messages) => {
+      const document = createDocument()
+      document.operations = {
+        publishAccount: { action: 'send', channel: { $ref: '#/channels/accountEvents' }, messages },
+      }
+      document['x-scalar-navigation'] = traverseAsyncApiDocument('events', document)
+      expect(search(document, 'account.created.v1')).toStrictEqual(['Account created'])
+    },
+  )
+
+  it('uses a visible operation anchor when another operation is hidden', () => {
+    const document = createDocument()
+    document.operations = {
+      hidden: { action: 'send', channel: { $ref: '#/channels/accountEvents' }, ...{ 'x-internal': true } },
+      visible: { action: 'receive', channel: { $ref: '#/channels/accountEvents' } },
+    }
+    const navigation = traverseAsyncApiDocument('events', document)
+    document['x-scalar-navigation'] = navigation
+    const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+    const operation =
+      channel?.type === 'asyncapi-channel'
+        ? channel.children?.find((entry) => entry.type === 'asyncapi-operation')
+        : undefined
+    const message = operation?.children?.find((entry) => entry.type === 'asyncapi-message')
+    if (!message) {
+      throw new Error('Expected visible operation message')
+    }
+    expect(
+      createSearchIndex(document)
+        .filter((entry) => entry.type === 'asyncapi-message')
+        .map(({ id }) => id),
+    ).toStrictEqual([message.id])
+    expect(search(document, 'account.created.v1')).toStrictEqual(['Account created'])
   })
 
   it('indexes nested array and composed fields, references, and trait headers without indexing literal data', () => {

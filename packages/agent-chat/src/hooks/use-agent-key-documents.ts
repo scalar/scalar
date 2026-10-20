@@ -15,7 +15,7 @@ export function useAgentKeyDocuments() {
     const keyDocumentsResult = await api.getKeyDocuments()
 
     if (!keyDocumentsResult.success) {
-      toast('Failed to fetch your OpenAPI document. The Agent key may be invalid.', 'error')
+      toast('Failed to fetch your API description. The Agent key may be invalid.', 'error')
       return
     }
 

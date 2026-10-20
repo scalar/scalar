@@ -1,5 +1,7 @@
 # @scalar/client-side-rendering
 
+## 0.4.12
+
 ## 0.4.11
 
 ### Patch Changes

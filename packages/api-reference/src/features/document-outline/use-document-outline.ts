@@ -36,10 +36,10 @@ const OUTLINE: Record<OutlineRole, number> = {
   modelGroup: 2,
   operation: 3,
   channelMessages: 3,
-  asyncApiOperation: 4,
+  asyncApiOperation: 3,
   model: 3,
   channelMessage: 4,
-  message: 6,
+  message: 5,
   /** A titled group inside an operation: Body, Responses, Query Parameters */
   operationSection: 4,
 }

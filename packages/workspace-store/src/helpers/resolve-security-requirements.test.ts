@@ -187,6 +187,7 @@ describe('resolve-security-requirements', () => {
           const server = await createServerWorkspaceStore({
             mode,
             baseUrl: 'https://scalar.example.com',
+            documentLoading: { basePath: directory },
             documents: [{ name: 'api', document }],
           })
           const alias = server.get(`#/api/components/securitySchemes/${escapeJsonPointer(key)}`)

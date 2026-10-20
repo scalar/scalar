@@ -24,8 +24,16 @@ You can also set `SCALAR_API_KEY` and run `scalar auth login`. When both are set
 
 ## Check the Current User
 
+Show the logged-in user and current team:
+
 ```bash
 scalar auth whoami
+```
+
+For scripts and automated workflows, output authentication details as JSON:
+
+```bash
+scalar auth whoami --json
 ```
 
 ## Logout

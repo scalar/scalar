@@ -1,5 +1,54 @@
 # @scalar/api-reference
 
+## 1.75.1
+
+### Patch Changes
+
+- [#10669](https://github.com/scalar/scalar/pull/10669): fix: wrap long operation paths in request example cards instead of truncating them, and move the client picker below the path when it does not fit
+- [#10685](https://github.com/scalar/scalar/pull/10685): Support OpenAPI and AsyncAPI context and search results in Ask AI, preserve the selected API description when switching sources, and keep HTTP execution separate from unsupported messaging actions.
+- [#10647](https://github.com/scalar/scalar/pull/10647): Wrap the operation header actions (authentication badge and Markdown copy button) on narrow screens instead of pushing them past the page edge.
+- [#10646](https://github.com/scalar/scalar/pull/10646): Give the endpoint links in the tag operations list an `href`, so keyboard users can reach them and modified clicks open the operation in a new tab.
+- [#10672](https://github.com/scalar/scalar/pull/10672): Give the endpoint links in the tag operations list a 24px minimum height, so they meet the WCAG 2.5.8 target size.
+- [#10661](https://github.com/scalar/scalar/pull/10661): Align AsyncAPI operation spacing, headings, responsive authentication placement, and schema/example columns with OpenAPI. Simplify message and reply rendering, collapse messages by default, and remove redundant tags.
+
+  Render supported binding schema fields with the shared schema renderer and configured schema options. Unify address typography, example cards, and introduction metadata.
+
+- [#10689](https://github.com/scalar/scalar/pull/10689): fix: name the tag "Show More" button by its visible text and describe it with the tag title
+- [#10656](https://github.com/scalar/scalar/pull/10656): Use AsyncAPI summaries as heading and description fallbacks without repeating introductory text.
+
+## 1.75.0
+
+### Minor Changes
+
+- [#10616](https://github.com/scalar/scalar/pull/10616): Render AsyncAPI operation replies with expandable message schemas, channel links, static addresses, and dynamic reply address expressions.
+- [#10600](https://github.com/scalar/scalar/pull/10600): Display AsyncAPI application, server, operation, and message tags, including trait tags, and filter navigation by tags while preserving channel grouping.
+- [#10604](https://github.com/scalar/scalar/pull/10604): Display AsyncAPI server, channel, operation, and message binding details, including versions, referenced bindings, and unfamiliar fields.
+- [#10213](https://github.com/scalar/scalar/pull/10213): Add per-reference Markdown rendering hooks and an explicitly loaded Mermaid plugin with interactive diagrams, keyboard panning, and zoom controls.
+
+  Provide Markdown hooks before mounting the embedded client modal so its initial render receives the configured hooks. The Mermaid viewer uses customizable Scalar theme styles and an intentional light drawing surface.
+
+  Isolate Markdown plugin cleanup failures so other plugins still release their resources when content changes or unmounts.
+
+### Patch Changes
+
+- [#10597](https://github.com/scalar/scalar/pull/10597): Render AsyncAPI string discriminators with inherited schema variants and effective discriminator values.
+- [#10530](https://github.com/scalar/scalar/pull/10530): Render AsyncAPI external documentation on servers, channels, operations, messages, tags, and schemas, with referenced objects and descriptions, using the existing OpenAPI link presentation.
+
+  Keep AsyncAPI messages searchable when navigation renders them beneath operations.
+
+- [#10599](https://github.com/scalar/scalar/pull/10599): Preserve recursive schemas when generating request bodies, code samples, and response examples instead of replacing recursion points with null or empty arrays.
+- [#10608](https://github.com/scalar/scalar/pull/10608): Keep shared component styles from overriding host page body backgrounds and margins, including hosts using CSS layers. Keep full-page body styling in the standalone bundles.
+- [#10594](https://github.com/scalar/scalar/pull/10594): Update AI SDK dependencies to address GHSA-866g-f22w-33x8 in response body handling.
+- [#10365](https://github.com/scalar/scalar/pull/10365): Preserve document-backed API key name edits for export, allow clearing configured names, and release configured overrides when their default name is restored.
+- [#10628](https://github.com/scalar/scalar/pull/10628): Add developer-tools controls for parameter and schema expansion, model names, required properties, and schema property ordering. Preserve explicit toggle overrides of supplied configuration.
+- [#10588](https://github.com/scalar/scalar/pull/10588): Ignore sibling properties on AsyncAPI Reference Objects when rendering content, navigation, search, and schemas.
+- [#10587](https://github.com/scalar/scalar/pull/10587): Display AsyncAPI channel parameter locations alongside their descriptions, examples, and constraints.
+- [#10595](https://github.com/scalar/scalar/pull/10595): Display AsyncAPI channel summaries and addresses separately, and label missing or null addresses as unknown in channel content and search results.
+- [#10603](https://github.com/scalar/scalar/pull/10603): Display AsyncAPI message content types, inherit document defaults, and format examples for their effective media type.
+- [#10615](https://github.com/scalar/scalar/pull/10615): Render AsyncAPI Avro, Protobuf, and other schema formats as labeled, copyable source instead of dropping them or treating them as JSON Schema.
+- [#10617](https://github.com/scalar/scalar/pull/10617): Index response schema fields on operations and webhook request/response fields. Search nested objects, arrays, compositions, and resolved references with bounded, cycle-safe traversal while keeping field names ranked above descriptive prose.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up API reference lint warnings while preserving existing behavior.
+
 ## 1.74.0
 
 ### Minor Changes

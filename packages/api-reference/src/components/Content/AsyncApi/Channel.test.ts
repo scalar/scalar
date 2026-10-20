@@ -4,6 +4,8 @@ import type { TraversedAsyncApiChannel } from '@scalar/workspace-store/schemas/n
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
+import ParameterListItem from '@/features/Operation/components/ParameterListItem.vue'
+
 import Channel from './Channel.vue'
 import Message from './Message.vue'
 
@@ -42,6 +44,125 @@ function createDocumentWithChannel(channel: Record<string, unknown>): AsyncApiDo
 }
 
 describe('Channel', () => {
+  it.each(['modern', 'classic'] as const)('omits redundant channel tags in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        document: createDocumentWithChannel({
+          address: 'orders',
+          tags: [{ name: 'Orders', description: 'Follow the order lifecycle.' }],
+        }),
+      },
+    })
+
+    expect(wrapper.text()).not.toContain('Orders')
+    expect(wrapper.text()).not.toContain('Follow the order lifecycle.')
+  })
+
+  it.each(['modern', 'classic'] as const)('renders referenced channel bindings in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+        document: createDocumentWithChannel({
+          address: 'orders',
+          bindings: {
+            $ref: '#/components/channelBindings/common',
+            '$ref-value': { kafka: { topic: 'orders', partitions: 3 } },
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('Bindings')
+    expect(wrapper.text()).toContain('partitions')
+    expect(wrapper.text()).toContain('3')
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'shows title, actual address and description without a redundant summary in %s',
+    (layout) => {
+      const wrapper = mount(Channel, {
+        props: {
+          channel: createChannel(),
+          document: createDocumentWithChannel({
+            title: 'User signups',
+            address: 'users.{tenantId}.signedup',
+            summary: 'Account lifecycle notifications',
+            description: 'Read **every** signup.',
+          }),
+          layout,
+          isCollapsed: false,
+          eventBus: null,
+        },
+      })
+      expect(wrapper.get('h1').text()).toBe('User signups')
+      expect(wrapper.get('dt').text()).toBe('Address')
+      expect(wrapper.get('dd code').text()).toBe('users.{tenantId}.signedup')
+      expect(wrapper.text()).not.toContain('Account lifecycle notifications')
+      expect(wrapper.get('strong').text()).toBe('every')
+      wrapper.unmount()
+    },
+  )
+
+  it.each(['modern', 'classic'] as const)('uses a summary once as the heading or body fallback in %s', (layout) => {
+    for (const title of [undefined, 'User signups']) {
+      const wrapper = mount(Channel, {
+        props: {
+          channel: createChannel(),
+          document: createDocumentWithChannel({ title, summary: 'Account lifecycle notifications' }),
+          layout,
+          isCollapsed: false,
+          eventBus: null,
+        },
+      })
+      expect(wrapper.get('h1').text()).toBe(title ?? 'Account lifecycle notifications')
+      expect(wrapper.text().split('Account lifecycle notifications').length - 1).toBe(1)
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['modern', 'classic'] as const)('distinguishes unknown addresses from identifiers in %s', async (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({ channelAddress: 'userSignedUp' }),
+        document: createDocumentWithChannel({ summary: 'Account lifecycle notifications' }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    for (const address of [undefined, null, '', '  events  ']) {
+      await wrapper.setProps({ document: createDocumentWithChannel({ address }) })
+      expect(wrapper.get('dd code').element.textContent).toBe(address ?? 'Unknown')
+      expect(wrapper.get('h1').text()).toBe('userSignedUp')
+    }
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('reads metadata from a resolved channel reference in %s', (layout) => {
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel(),
+        document: createDocumentWithChannel({
+          $ref: '#/components/channels/signups',
+          '$ref-value': { title: 'Signup events', address: 'signup.events', summary: 'New accounts' },
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+    expect(wrapper.get('h1').text()).toBe('Signup events')
+    expect(wrapper.get('dd code').text()).toBe('signup.events')
+    expect(wrapper.text()).toContain('New accounts')
+    wrapper.unmount()
+  })
+
   it.each(['modern', 'classic'] as const)('renders and expands direct messages in the %s layout', (layout) => {
     const id = 'doc/channel/userSignedUp/message/signup'
     const wrapper = mount(Channel, {
@@ -178,6 +299,53 @@ describe('Channel', () => {
     expect(wrapper.text()).toContain('Parameters')
     expect(wrapper.text()).toContain('userId')
     expect(wrapper.text()).toContain('The unique user identifier')
+  })
+
+  it.each(['modern', 'classic'] as const)('renders parameter locations as literal code in the %s layout', (layout) => {
+    const payloadLocation = '$message.payload#/user/<id>`'
+    const headerLocation = '$message.header#/tenant'
+    const wrapper = mount(Channel, {
+      props: {
+        channel: createChannel({ channelAddress: 'users/{userId}/{tenant}/{region}/{missing}' }),
+        document: createDocumentWithChannel({
+          address: 'users/{userId}/{tenant}/{region}/{missing}',
+          parameters: {
+            userId: {
+              description: 'The unique user identifier',
+              location: payloadLocation,
+              enum: ['alice', 'bob'],
+              default: 'alice',
+              examples: ['bob'],
+            },
+            tenant: {
+              $ref: '#/components/parameters/tenant',
+              '$ref-value': { location: headerLocation },
+            },
+            region: { description: 'No location supplied' },
+            missing: { $ref: '#/components/parameters/missing' },
+          },
+        }),
+        layout,
+        isCollapsed: false,
+        eventBus: null,
+      },
+    })
+
+    const rows = wrapper.findAllComponents(ParameterListItem)
+    const locations = rows.map((row) =>
+      row
+        .findAll('code')
+        .map((code) => code.text())
+        .filter((text) => text.startsWith('$message.')),
+    )
+    expect(locations).toStrictEqual([[payloadLocation], [headerLocation], [], []])
+    expect(rows.map((row) => row.text().includes('Location:'))).toStrictEqual([true, true, false, false])
+    expect(rows[0]?.text()).toContain('The unique user identifier')
+    expect(rows[0]?.text()).toContain('required')
+    expect(rows[0]?.text()).toContain('alice')
+    expect(rows[0]?.text()).toContain('bob')
+    expect(wrapper.find('id').exists()).toBe(false)
+    expect(rows[3]?.text()).toContain('missing')
   })
 
   it('does not render a parameters section when the channel has none', () => {
@@ -375,7 +543,7 @@ describe('Channel', () => {
       } satisfies AsyncApiDocument
       const navigation = traverseAsyncApiDocument('catalog', document)
       const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
-      if (!channel || channel.type !== 'asyncapi-channel') {
+      if (channel?.type !== 'asyncapi-channel') {
         throw new Error('Expected the catalog channel')
       }
       const messageId = 'catalog/channel/events/message/eventb'
@@ -395,11 +563,12 @@ describe('Channel', () => {
       ])
       expect(wrapper.text()).toContain('Other Channel Messages')
       expect(wrapper.text()).not.toContain('Channel-only details')
+      await wrapper.setProps({ expandedItems: { [messageId]: false } })
+      expect(wrapper.text()).not.toContain('Channel-only details')
       await wrapper.setProps({ expandedItems: { [messageId]: true } })
       expect(wrapper.text()).toContain('Channel-only details')
       expect(wrapper.findAll('h1,h2,h3,h4,h5,h6').map((heading) => heading.text())).toStrictEqual([
         '/events',
-        'Operations',
         'Listen',
         'Messages',
         'Event A',

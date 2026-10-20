@@ -9,6 +9,9 @@ import type { Grammar } from '../core/types'
  */
 const IDENT = '-{0,2}[A-Za-z_\\u0080-\\uFFFF][\\w-\\u0080-\\uFFFF]*'
 
+/** At-rules followed by a condition rather than by a selector or a name. */
+const AT_CONDITION = '@(?:media|supports|container|import)\\b'
+
 const css: Grammar = {
   name: 'css',
   aliases: ['scss', 'less'],
@@ -18,6 +21,10 @@ const css: Grammar = {
         { include: 'comments' },
         { include: 'strings' },
 
+        { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
+        // An SCSS `$name:` or Less `@name:` definition takes a value, not a
+        // selector, so `red` in `$brand: red` is a color rather than a tag.
+        { include: 'variable-definition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         { match: `\\$${IDENT}`, scope: 'variable' },
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
@@ -41,6 +48,8 @@ const css: Grammar = {
         // A nested rule (SCSS, or a media query body) gets its own scope.
         { match: '\\{', scope: 'punctuation.bracket', push: 'declarations' },
         { match: ';', scope: 'punctuation.delimiter' },
+        { match: AT_CONDITION, scope: 'keyword', push: 'condition' },
+        { include: 'variable-definition' },
         { match: '@[A-Za-z-]+', scope: 'keyword' },
         {
           match: `(${IDENT})(\\s*)(:)`,
@@ -68,34 +77,132 @@ const css: Grammar = {
           match: '#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b',
           scope: 'number',
         },
+        // A custom property reads the same where it is used as where it is
+        // defined, so `var(--brand)` and `--brand: …` share the property color.
         {
           match: 'var\\(\\s*(--[\\w-]+)',
-          scope: ['variable'],
+          scope: ['property'],
           rest: 'function.builtin',
         },
-        { match: '--[\\w-]+', scope: 'variable' },
-        { match: `\\b(${IDENT})(?=\\()`, scope: 'function.call' },
-        {
-          match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
-          scope: ['number', 'unit'],
-        },
+        { match: '--[\\w-]+', scope: 'property' },
+        // SCSS `$brand` and Less `@brand` used in a value.
+        { match: `[$@]${IDENT}`, scope: 'variable' },
+        // An unquoted `url(…)` is a string up to the `)`. Without its own state
+        // the `//` in `url(https://…)` reads as an SCSS line comment and takes
+        // the rest of the declaration with it.
+        { include: 'value-tokens' },
         { match: '\\b[a-zA-Z-]+\\b', scope: 'constant' },
         { match: '[(),/]', scope: 'punctuation' },
         { match: ';', scope: 'punctuation.delimiter', pop: true },
       ],
     },
 
-    comments: {
+    /**
+     * The condition of `@media`, `@supports`, `@container` or `@import`, up to
+     * the `{` or `;` that ends it: `screen and (min-width: 600px)`. Media
+     * features read as properties and their values as values, and the words
+     * between them as keywords.
+     */
+    condition: {
       rules: [
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
-        { match: '//[^\\n]*', scope: 'comment' },
+        { match: '(?=[{;}])', pop: true },
+        { include: 'comments' },
+        { include: 'strings' },
+        { match: '\\b(?:and|or|not|only)\\b', scope: 'keyword' },
+        {
+          match: `(${IDENT})(\\s*)(:)`,
+          scope: ['property', null, 'punctuation.delimiter'],
+        },
+        { include: 'value-tokens' },
+        { match: `\\$${IDENT}`, scope: 'variable' },
+        // A whole identifier, underscores included, so the feature rule above
+        // is not retried — and failed for want of a colon — at every position
+        // of a long name, which is O(n) each.
+        { match: IDENT, scope: 'constant' },
+        { match: '[(),/<>=]', scope: 'punctuation' },
       ],
     },
 
+    'variable-definition': {
+      rules: [
+        // CSS permits `@page:first` without whitespace before the pseudo-class.
+        { match: '@page(?=:(?:first|left|right|blank)\\b)', scope: 'keyword' },
+        {
+          match: `(\\$${IDENT})(\\s*)(:)`,
+          scope: ['variable', null, 'punctuation.delimiter'],
+          push: 'value',
+        },
+        // No space before the colon for Less, so `@page :first` stays an at-rule.
+        {
+          match: `(@${IDENT})(:)`,
+          scope: ['variable', 'punctuation.delimiter'],
+          push: 'value',
+        },
+      ],
+    },
+
+    'value-tokens': {
+      rules: [
+        {
+          match: '\\b(url)(\\()(?=[ \\t]*[^\\s"\'])',
+          scope: ['function.builtin', 'punctuation'],
+          push: 'url',
+        },
+        { match: `\\b(${IDENT})(?=\\()`, scope: 'function.call' },
+        {
+          match: '(-?\\d*\\.?\\d+)((?:e[-+]?\\d+)?(?:%|[a-zA-Z]+)?)',
+          scope: ['number', 'unit'],
+        },
+      ],
+    },
+
+    url: {
+      default: 'string',
+      rules: [
+        { match: '\\\\.', scope: 'string.escape' },
+        { match: '\\)', scope: 'punctuation', pop: true },
+        { match: '(?=[;}\\n])', pop: true },
+      ],
+    },
+
+    comments: {
+      rules: [
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and
+        // fails once per opener, which is O(n²) on unterminated `/*` runs.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
+        // SCSS and Less line comments. Not after a `:`, which is a URL scheme.
+        { match: '(?<!:)//[^\\n]*', scope: 'comment' },
+      ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
+    },
+
+    // States rather than one pattern per literal: a pattern that alternates
+    // escapes with other characters rescans to the end of the line for every
+    // unterminated quote, which is O(n²) on a line of `\"`.
     strings: {
       rules: [
-        { match: '"(?:[^"\\\\\\n]|\\\\.)*"', scope: 'string' },
-        { match: "'(?:[^'\\\\\\n]|\\\\.)*'", scope: 'string' },
+        { match: '"', scope: 'string', push: 'string-double' },
+        { match: "'", scope: 'string', push: 'string-single' },
+      ],
+    },
+    'string-double': {
+      default: 'string',
+      rules: [
+        // A backslash before a line break continues the string; `\\r\\n` is one.
+        { match: '\\\\(?:\\r\\n|[\\s\\S])', scope: 'string' },
+        { match: '"', scope: 'string', pop: true },
+        { match: '$', pop: true },
+      ],
+    },
+    'string-single': {
+      default: 'string',
+      rules: [
+        { match: '\\\\(?:\\r\\n|[\\s\\S])', scope: 'string' },
+        { match: "'", scope: 'string', pop: true },
+        { match: '$', pop: true },
       ],
     },
   },

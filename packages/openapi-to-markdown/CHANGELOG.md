@@ -1,5 +1,29 @@
 # @scalar/openapi-to-markdown
 
+## 1.6.1
+
+## 1.6.0
+
+### Minor Changes
+
+- [#10586](https://github.com/scalar/scalar/pull/10586): Add AsyncAPI Markdown conversion with reusable renderers and individual reference pages. Share Markdown description parsing between the OpenAPI and AsyncAPI converters.
+
+  Include shared model links, contents navigation, tag pages, generated examples, and an interactive playground.
+
+  Preserve discriminators and linked schema descriptions, generate examples from primitive aliases, and compact property annotations.
+
+  Include full-export tag documentation, preserve XML schema examples, and normalize annotated primitive aliases.
+
+  Infer enum and const type labels and honor primitive-link settings in generated model examples.
+
+  Preserve AsyncAPI application and schema metadata, explain security alternatives, and render reply and unknown-address semantics accurately.
+
+### Patch Changes
+
+- [#10606](https://github.com/scalar/scalar/pull/10606): Block private-network document requests by default and require an explicit basePath for local files. Apply the same permissions to external references, with an opt-in for trusted private-network inputs.
+- [#10598](https://github.com/scalar/scalar/pull/10598): Preserve OpenAPI 3.2 tag ancestry in Markdown exports with parent-first breadcrumb headings.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+
 ## 1.5.4
 
 ### Patch Changes

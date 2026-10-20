@@ -1,5 +1,17 @@
 # scalar_api_reference
 
+## 0.2.16
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.75.1
+
+## 0.2.15
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.75.0
+
 ## 0.2.14
 
 ### Bundled API Reference

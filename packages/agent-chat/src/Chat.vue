@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'
 import { useChatScroll } from '@/hooks/use-chat-scroll'
 import { useCuratedDocuments } from '@/hooks/use-curated-documents'
-import { getTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
+import {
+  getTmpDocFromLocalStorage,
+  useUploadTmpDocument,
+} from '@/hooks/use-upload-tmp-document'
 import { useState } from '@/state/state'
 import Layout from '@/views/Layout.vue'
 import Settings from '@/views/Settings/Settings.vue'
@@ -24,6 +27,9 @@ const {
   config,
   mode,
   addDocument,
+  getActiveDocumentJson,
+  getActiveDocumentContext,
+  terms,
 } = useState()
 
 const clientModalRef = useTemplateRef<HTMLElement>('clientModal')
@@ -58,7 +64,7 @@ onBeforeUnmount(stopClientEvents)
 onMounted(async () => {
   const tmpDoc = getTmpDocFromLocalStorage()
 
-  if (mode === 'preview' && tmpDoc) {
+  if (mode === 'preview' && tmpDoc && !getActiveDocumentJson) {
     await addDocument({
       namespace: tmpDoc.namespace,
       slug: tmpDoc.slug,
@@ -68,12 +74,31 @@ onMounted(async () => {
   }
 })
 
+const { uploadTempDocument } = useUploadTmpDocument()
+watch(
+  terms.accepted,
+  (accepted) => {
+    if (accepted && mode === 'preview' && getActiveDocumentJson) {
+      void uploadTempDocument(getActiveDocumentJson(), true)
+    }
+  },
+  { immediate: true },
+)
+onBeforeUnmount(() => {
+  void chat.stop()
+})
+
 useChatScroll()
 useAgentKeyDocuments()
 useCuratedDocuments()
 
 async function handleSubmit() {
-  await chat.sendMessage({ text: prompt.value })
+  const context = getActiveDocumentContext?.()
+  await chat.sendMessage({
+    text: context
+      ? `${prompt.value}\n\nSelected API description: ${context}`
+      : prompt.value,
+  })
 }
 </script>
 

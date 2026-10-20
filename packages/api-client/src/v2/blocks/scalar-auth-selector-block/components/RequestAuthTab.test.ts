@@ -302,6 +302,26 @@ describe('RequestAuthTab', () => {
       })
     })
 
+    it('clears the API key name using the clear button', async () => {
+      const wrapper = mountWithProps({
+        securitySchemes: {
+          ApiKeyAuth: { type: 'apiKey', in: 'header', name: 'apikey-aa', 'x-scalar-secret-token': 'secret' },
+        },
+        selectedSecuritySchemas: { ApiKeyAuth: [] },
+      })
+      const emitted = vi.fn()
+      const unsubscribe = eventBus.on('auth:update:security-scheme', emitted)
+      const input = wrapper.findAllComponents(RequestAuthDataTableInput)[0]
+      assert(input)
+      await input.get('button').trigger('click')
+      expect(emitted).toHaveBeenCalledExactlyOnceWith({
+        name: 'ApiKeyAuth',
+        payload: { type: 'apiKey', name: '' },
+      })
+      unsubscribe()
+      wrapper.unmount()
+    })
+
     it('renders only the value input for an AsyncAPI apiKey (in: user), hiding the name field', () => {
       const wrapper = mountWithProps({
         securitySchemes: {

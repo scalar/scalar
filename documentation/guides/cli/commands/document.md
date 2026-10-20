@@ -2,27 +2,27 @@
 
 # scalar document
 
-Manage local openapi file. Generated from `@scalar/cli` 2.10.0.
+Work with OpenAPI and AsyncAPI descriptions.
 
 | Command | Description |
 | --- | --- |
-| [`scalar document bundle`](#bundle) | Bundle an OpenAPI document by resolving all references and external dependencies |
-| [`scalar document split`](#split) | Split OpenAPI or AsyncAPI documents into small chunks |
-| [`scalar document join`](#join) | Merge multiple OpenAPI or AsyncAPI documents into a single unified document |
-| [`scalar document format`](#format) | Format an OpenAPI or AsyncAPI file |
-| [`scalar document convert`](#convert) | Convert a Postman collection to an OpenAPI document |
-| [`scalar document markdown`](#markdown) | Generate Markdown from an OpenAPI file |
-| [`scalar document mock`](#mock) | Mock an OpenAPI API or AsyncAPI WebSocket and SSE channels |
-| [`scalar document serve`](#serve) | Serve an API Reference from an OpenAPI or AsyncAPI file |
-| [`scalar document share`](#share) | Share an OpenAPI or AsyncAPI file |
-| [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI file |
-| [`scalar document void`](#void) | Boot a server to mirror HTTP requests |
-| [`scalar document lint`](#lint) | Lint your OpenAPI or AsyncAPI file using spectral rules |
-| [`scalar document upgrade`](#upgrade) | Upgrade an OpenAPI or AsyncAPI document to version 3.1 |
+| [`scalar document bundle`](#bundle) | Bundle external references into a single API description |
+| [`scalar document split`](#split) | Split an OpenAPI or AsyncAPI description into referenced JSON files |
+| [`scalar document join`](#join) | Join API descriptions of the same format into one description |
+| [`scalar document format`](#format) | Format an OpenAPI or AsyncAPI description |
+| [`scalar document convert`](#convert) | Convert a Postman collection to an OpenAPI description |
+| [`scalar document markdown`](#markdown) | Generate Markdown documentation from an OpenAPI description |
+| [`scalar document mock`](#mock) | Run a Mock Server for OpenAPI operations or AsyncAPI WebSocket and SSE channels |
+| [`scalar document serve`](#serve) | Serve API Reference documentation from an OpenAPI or AsyncAPI description |
+| [`scalar document share`](#share) | Publish an OpenAPI or AsyncAPI description to a public sandbox |
+| [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI description |
+| [`scalar document void`](#void) | Mirror HTTP requests with a local server |
+| [`scalar document lint`](#lint) | Lint an OpenAPI or AsyncAPI description with Spectral rules |
+| [`scalar document upgrade`](#upgrade) | Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version |
 
 ## bundle
 
-Bundle an OpenAPI document by resolving all references and external dependencies.
+Bundle external references into a single API description.
 
 ```bash
 scalar document bundle [options] [file|url]
@@ -32,20 +32,20 @@ scalar document bundle [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | Path to OpenAPI file or URL to bundle. |
+| `file\|url` | API description file path or URL to bundle. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Path to save the bundled output file. |
+| `-o, --output <file>` | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
 | `--treeShake` | Remove unused components from the bundled output. |
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |
-| `--fetchLimit <limit>` | Maximum number of URLs to fetch during bundling at the same time. |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. |
 
 ## split
 
-Split OpenAPI or AsyncAPI documents into small chunks.
+Split an OpenAPI or AsyncAPI description into referenced JSON files.
 
 ```bash
 scalar document split [options] [file|url]
@@ -55,17 +55,17 @@ scalar document split [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | Path to OpenAPI or AsyncAPI file or URL to split. |
+| `file\|url` | API description file path or URL to split. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <path>` | Path to save the chunks. |
+| `-o, --output <path>` | Output directory for the split description and referenced files. |
 
 ## join
 
-Merge multiple OpenAPI or AsyncAPI documents into a single unified document.
+Join API descriptions of the same format into one description.
 
 ```bash
 scalar document join [options] <files...>
@@ -75,18 +75,18 @@ scalar document join [options] <files...>
 
 | Argument | Description |
 | --- | --- |
-| `files...` | **Required.** Paths to the OpenAPI or AsyncAPI files to merge. |
+| `files...` | **Required.** OpenAPI or AsyncAPI file paths to join. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Path to save the merged output file. |
+| `-o, --output <file>` | Output file for the joined description (required). |
 | `-p, --prefix-components-with-path-value <path>` | Dot-separated path to extract a prefix value from each input file for component names. |
 
 ## format
 
-Format an OpenAPI or AsyncAPI file.
+Format an OpenAPI or AsyncAPI description.
 
 ```bash
 scalar document format [options] [file|url]
@@ -102,11 +102,11 @@ scalar document format [options] [file|url]
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file. |
+| `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
 
 ## convert
 
-Convert a Postman collection to an OpenAPI document.
+Convert a Postman collection to an OpenAPI description.
 
 ```bash
 scalar document convert [options] [file|url]
@@ -127,7 +127,7 @@ scalar document convert [options] [file|url]
 
 ## markdown
 
-Generate Markdown from an OpenAPI file.
+Generate Markdown documentation from an OpenAPI description.
 
 ```bash
 scalar document markdown [options] [file|url]
@@ -147,7 +147,7 @@ scalar document markdown [options] [file|url]
 
 ## mock
 
-Mock an OpenAPI API or AsyncAPI WebSocket and SSE channels.
+Run a Mock Server for OpenAPI operations or AsyncAPI WebSocket and SSE channels.
 
 ```bash
 scalar document mock [options] [file|url]
@@ -163,13 +163,13 @@ scalar document mock [options] [file|url]
 
 | Option | Description |
 | --- | --- |
-| `-w, --watch` | Watch the file for changes. |
-| `-o, --once` | Run the server only once and exit after that. |
-| `-p, --port <port>` | Set the HTTP port for the mock server. |
+| `-w, --watch` | Watch the file or URL for changes. |
+| `-o, --once` | Start the server, then stop it after two seconds. |
+| `-p, --port <port>` | HTTP port for the Mock Server. |
 
 ## serve
 
-Serve an API Reference from an OpenAPI or AsyncAPI file.
+Serve API Reference documentation from an OpenAPI or AsyncAPI description.
 
 ```bash
 scalar document serve [options] [file|url]
@@ -179,20 +179,20 @@ scalar document serve [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | OpenAPI or AsyncAPI file or URL to show the reference for. |
+| `file\|url` | API description file path or URL to preview. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
 | `-c, --config <file>` | JSON file with API Reference configuration. |
-| `-w, --watch` | Watch the file for changes. |
-| `-o, --once` | Run the server only once and exit after that. |
-| `-p, --port <port>` | Set the HTTP port for the API reference server. |
+| `-w, --watch` | Watch the file or URL for changes. |
+| `-o, --once` | Start the server, then stop it after two seconds. |
+| `-p, --port <port>` | HTTP port for the API Reference server. |
 
 ## share
 
-Share an OpenAPI or AsyncAPI file.
+Publish an OpenAPI or AsyncAPI description to a public sandbox.
 
 ```bash
 scalar document share [options] [file]
@@ -202,17 +202,17 @@ scalar document share [options] [file]
 
 | Argument | Description |
 | --- | --- |
-| `file` | File to share. |
+| `file` | API description file path or URL to share. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-t, --token <token>` | Pass a token to update an existing sandbox. |
+| `-t, --token <token>` | Token to update an existing public sandbox. |
 
 ## validate
 
-Validate an OpenAPI or AsyncAPI file.
+Validate an OpenAPI or AsyncAPI description.
 
 ```bash
 scalar document validate [options] [file|url]
@@ -226,7 +226,7 @@ scalar document validate [options] [file|url]
 
 ## void
 
-Boot a server to mirror HTTP requests.
+Mirror HTTP requests with a local server.
 
 ```bash
 scalar document void [options]
@@ -236,12 +236,12 @@ scalar document void [options]
 
 | Option | Description |
 | --- | --- |
-| `-o, --once` | Run the server only once and exit after that. |
-| `-p, --port <port>` | Set the HTTP port for the mock server. |
+| `-o, --once` | Start the server, then stop it after two seconds. |
+| `-p, --port <port>` | HTTP port for the request-mirroring server. |
 
 ## lint
 
-Lint your OpenAPI or AsyncAPI file using spectral rules.
+Lint an OpenAPI or AsyncAPI description with Spectral rules.
 
 ```bash
 scalar document lint [options] [file|url]
@@ -251,13 +251,13 @@ scalar document lint [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | OpenAPI or AsyncAPI file path or url. |
+| `file\|url` | API description file path or URL to lint. |
 
 **Options**
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `-r, --rule <file\|url>` | Rule path or url. |  |
+| `-r, --rule <file\|url>` | Spectral ruleset file path or URL. |  |
 | `--format <format>` | Report format. One of `text`, `codeframe`, `markdown`, `summary`, `json`, `github-actions`, `junit`. | `codeframe` |
 | `--max-problems <number>` | Maximum displayed findings (totals and exit status include all findings). | `100` |
 | `-o, --output <file>` | Write the report to a file instead of stdout. |  |
@@ -266,7 +266,7 @@ scalar document lint [options] [file|url]
 
 ## upgrade
 
-Upgrade an OpenAPI or AsyncAPI document to version 3.1.
+Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version.
 
 ```bash
 scalar document upgrade [options] [file|url]
@@ -282,4 +282,4 @@ scalar document upgrade [options] [file|url]
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Path to save the upgraded output file. |
+| `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |

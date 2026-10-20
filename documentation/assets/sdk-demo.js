@@ -1376,7 +1376,7 @@ const initSdkDemo = (root) => {
    * drop the src. showPage sets it again the next time the tab is opened. */
   const unloadEmbeds = () => {
     for (const embed of [nodes.videoEmbed, nodes.siteEmbed]) {
-      if (embed && embed.src) {
+      if (embed?.src) {
         embed.removeAttribute('src')
       }
     }

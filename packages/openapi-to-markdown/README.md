@@ -68,6 +68,27 @@ const operationMarkdownByPointer = await createMarkdownFromOpenApi(content, {
 })
 ```
 
+### Document loading permissions
+
+URL inputs and external references block private, loopback, and link-local addresses by default.
+Protected requests also reject redirects. File access is disabled unless you provide an approved
+`basePath`; paths and symlinks outside that directory are rejected.
+
+```ts
+const markdown = await createMarkdownFromOpenApi('./descriptions/openapi.yaml', {
+  documentLoading: { basePath: './descriptions' },
+})
+
+const renderer = await createOpenApiMarkdownRenderer('./descriptions/openapi.yaml', {
+  basePath: './descriptions',
+})
+```
+
+For trusted local development inputs, set `allowPrivateNetworks: true` in the same loading options.
+This also permits redirects. Keep these permissions under application control, rather than taking
+them from uploaded API descriptions or request parameters. An approved directory applies to all
+files loaded during that call, including references in remote documents.
+
 ### Render multiple pages
 
 Create a reusable renderer when exporting several pages from the same API description.
@@ -144,7 +165,12 @@ schema expansion still tracks ancestors and stops at a depth of ten. Output may 
 list spacing and normalized Markdown escaping compared with earlier versions.
 
 For OpenAPI 3.2 descriptions, tag headings use `summary` when present and otherwise
-use `name`. Tag selectors and operation tag metadata continue to use `name`.
+use `name`. Nested tags appear parent-first with breadcrumb headings such as
+`### Accounts › Billing › Invoices`. Every tag uses the same heading level, including
+deeply nested tags. Parent relationships use tag names, while breadcrumb labels use
+summaries when available. Missing parents and circular relationships fall back to flat
+headings. Tag selectors and operation tag metadata continue to use `name`; selecting
+one tag still exports only that tag and its directly tagged operations.
 
 The package only generates Markdown. To produce HTML, pass the Markdown output to a
 Markdown renderer in your application.

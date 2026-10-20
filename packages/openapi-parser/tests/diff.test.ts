@@ -111,6 +111,31 @@ test.concurrent.each(fetched)('diff $file', { timeout: 15_000 }, async ({ file, 
     expect(Object.keys(oldSchema?.paths ?? {}).length).toBeLessThanOrEqual(Object.keys(newSchema?.paths ?? {}).length)
 
     if (oldSchema) {
+      // SwaggerParser dereferences extension data; Scalar intentionally preserves it.
+      if (file === 'oas/files/ablynetcontrol.yaml') {
+        const extensionPaths = [
+          ['components', 'schemas', 'ifttt_rule_patch', 'x-source'],
+          ['components', 'schemas', 'rule_patch', 'oneOf', 1, 'x-source'],
+          [
+            'paths',
+            '/apps/{app_id}/rules/{rule_id}',
+            'patch',
+            'requestBody',
+            'content',
+            'application/json',
+            'schema',
+            'oneOf',
+            1,
+            'x-source',
+          ],
+        ]
+        for (const path of extensionPaths) {
+          const preserved = { $ref: '#/components/schemas/rule_source' }
+          expect(get(newSchema, path)).toStrictEqual(preserved)
+          get(oldSchema, path.slice(0, -1))['x-source'] = preserved
+        }
+      }
+
       // Any difference?
       let result: any[] = []
 

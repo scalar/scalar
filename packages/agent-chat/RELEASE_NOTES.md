@@ -9,6 +9,30 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.45 (2026-10-20)
+
+### AsyncAPI support in Ask AI
+
+Ask AI now works with both OpenAPI and AsyncAPI descriptions. The chat interface understands AsyncAPI channels, operations, and messages, and switching between different API sources starts a fresh conversation with the correct context.
+
+- Ask AI now supports AsyncAPI descriptions alongside OpenAPI
+- Search results display AsyncAPI channels, operations, and messages with their native identities
+- Switching between API sources preserves the selected description and starts a new conversation
+- Unsupported AsyncAPI execution actions return a helpful explanation instead of attempting HTTP requests
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01245)
+
+## 0.12.44 (2026-10-16)
+
+### Security patch and code quality improvements
+
+This release addresses a security advisory in the AI SDK response handling and cleans up code quality issues across the package.
+
+- Updated AI SDK dependencies to patch GHSA-866g-f22w-33x8 in response body handling
+- Cleaned up lint warnings while preserving all existing runtime behavior
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01244)
+
 ## 0.12.43 (2026-10-12)
 
 ### Polish and bug fixes shipped

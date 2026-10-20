@@ -93,7 +93,7 @@
       {
         "path": "/resources/changelog",
         "title": "Scalar Changelog",
-        "description": "Releases across Scalar products — API Client, API Reference, Agent, and Mock Server"
+        "description": "Releases across Scalar products — API Client, API Reference, Agent, Mock Server, and SDK Generator"
       },
       {
         "path": "/blog",
@@ -779,6 +779,10 @@
         {
           "from": "/changelog/mock-server",
           "to": "/resources/changelog/mock-server"
+        },
+        {
+          "from": "/changelog/sdk-generator",
+          "to": "/resources/changelog/sdk-generator"
         },
         {
           "from": "/guides",
@@ -1569,7 +1573,7 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false
             }
@@ -2242,11 +2246,23 @@
                       ]
                     }
                   },
+                  "configuration": {
+                    "title": "MCP Configuration",
+                    "type": "page",
+                    "description": "Configure MCP environments, variables, secrets, and limits.",
+                    "filepath": "documentation/guides/agent/configuration.md"
+                  },
+                  "custom-domains": {
+                    "title": "Custom Domains",
+                    "type": "page",
+                    "description": "Serve your MCP server from your own domain and configure DNS and OAuth connections.",
+                    "filepath": "documentation/guides/agent/custom-domains.md"
+                  },
                   "authentication": {
                     "title": "Authentication",
                     "type": "group",
                     "mode": "flat",
-                    "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global, passthrough, or OAuth passthrough).",
+                    "description": "Configure MCP authorization and upstream credentials, including shared secrets, per-access-group credentials, and passthrough.",
                     "children": {
                       "/": {
                         "type": "page",
@@ -2275,7 +2291,7 @@
                       "shared-key": {
                         "type": "page",
                         "title": "One Shared Key",
-                        "description": "Store a single credential on the installation with global auth so callers never handle a key.",
+                        "description": "Store a shared upstream credential for your MCP environment so callers never handle the key.",
                         "filepath": "documentation/guides/agent/authentication/shared-key.md"
                       }
                     }
@@ -3967,6 +3983,12 @@
                     "type": "page",
                     "title": "Authentication"
                   },
+                  "autocompletion": {
+                    "description": "Set up Scalar CLI autocompletion for Bash, Zsh, and Fish.",
+                    "filepath": "documentation/guides/cli/autocompletion.md",
+                    "type": "page",
+                    "title": "Autocompletion"
+                  },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",
                     "filepath": "documentation/guides/cli/ci-and-scripting.md",
@@ -4355,7 +4377,7 @@
                   "type": "page",
                   "title": "Changelog",
                   "filepath": "documentation/changelog/index.md",
-                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server.",
+                  "description": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator.",
                   "layout": {
                     "toc": false
                   },
@@ -4369,7 +4391,7 @@
                     "meta": [
                       {
                         "name": "description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator."
                       },
                       {
                         "property": "og:title",
@@ -4377,7 +4399,7 @@
                       },
                       {
                         "property": "og:description",
-                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, and Mock Server."
+                        "content": "Curated release notes for Scalar API Client, API Reference, Agent, Mock Server, and SDK Generator."
                       },
                       {
                         "name": "robots",
@@ -4447,6 +4469,22 @@
                         {
                           "rel": "canonical",
                           "href": "https://scalar.com/resources/changelog/mock-server"
+                        }
+                      ]
+                    }
+                  },
+                  "/sdk-generator": {
+                    "type": "page",
+                    "title": "SDK Generator",
+                    "icon": "phosphor/regular/package",
+                    "filepath": "documentation/changelog/sdk-generator/index.md",
+                    "changelog": true,
+                    "description": "Release notes for the Scalar SDK Generator and every language it targets.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/resources/changelog/sdk-generator"
                         }
                       ]
                     }
@@ -9003,5 +9041,16 @@
         }
       }
     }
-  }
+  },
+  "agentSkills": [
+    {
+      "filepath": ".agents/skills/scalar-docs/SKILL.md"
+    },
+    {
+      "filepath": ".agents/skills/scalar-mock-server/SKILL.md"
+    },
+    {
+      "filepath": ".agents/skills/scalar-api-reference/SKILL.md"
+    }
+  ]
 }

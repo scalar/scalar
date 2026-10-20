@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
+import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -19,12 +20,16 @@ import SecurityRequirementBadge from '@/features/Operation/components/SecurityRe
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
 import { useIntersection } from '@/hooks/use-intersection'
 
+import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
+import Bindings from './Bindings.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
+import { getOperationReply } from './helpers/get-operation-reply'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
+import OperationReply from './OperationReply.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
 type OperationOptions = AsyncApiSchemaRenderOptions
@@ -62,10 +67,11 @@ const resolvedOperation = computed(() =>
   resolveAsyncApiOperation(document, operation.operationName),
 )
 
-/** Heading prefers title, then summary, then the operation map key. */
+/** Heading prefers title, then summary, then the navigation label or operation map key. */
 const headingText = computed(() =>
   pickHeading(
     resolvedOperation.value?.title,
+    resolvedOperation.value?.summary,
     operation.title,
     operation.operationName,
   ),
@@ -79,11 +85,17 @@ const requiredSecurity = computed<RequiredSecurity>(() =>
   ),
 )
 
+/** Use the summary as body text only when there is no description or matching heading. */
+const summary = computed((): string => {
+  const value = resolvedOperation.value?.summary?.trim() ?? ''
+  return resolvedOperation.value?.description?.trim() ||
+    value === headingText.value
+    ? ''
+    : value
+})
+
 const description = computed(
-  () =>
-    resolvedOperation.value?.description ||
-    resolvedOperation.value?.summary ||
-    '',
+  (): string => resolvedOperation.value?.description ?? '',
 )
 
 /** Only the message children of this operation. */
@@ -94,47 +106,83 @@ const messages = computed(() =>
   ),
 )
 
+const reply = computed(() =>
+  getOperationReply(document, resolvedOperation.value),
+)
+
 const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
 const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 </script>
 
 <template>
-  <div
+  <section
     :id="operation.id"
     ref="section"
+    :aria-labelledby="headerId"
     class="operation"
     :class="`operation--${operation.action}`">
-    <div class="operation-header">
-      <span
-        class="operation-action"
-        :class="`operation-action--${operation.action}`">
-        {{ operation.action }}
-      </span>
+    <div class="operation-header mb-3">
       <Anchor
+        class="mr-6"
         @copyAnchorUrl="
           () => eventBus?.emit('copy-url:nav-item', { id: operation.id })
         ">
-        <SectionHeaderTag
-          :id="headerId"
-          class="operation-title"
-          :level="headingLevel">
-          {{ headingText }}
-        </SectionHeaderTag>
+        <span
+          class="inline-flex max-w-full flex-wrap items-center gap-2 align-middle">
+          <SectionHeaderTag
+            :id="headerId"
+            class="operation-title"
+            :level="headingLevel">
+            {{ headingText }}
+          </SectionHeaderTag>
+          <span
+            class="operation-action"
+            :class="`operation-action--${operation.action}`">
+            <component
+              :is="
+                operation.action === 'send'
+                  ? ScalarIconArrowUpRight
+                  : ScalarIconArrowDownLeft
+              "
+              aria-hidden="true"
+              class="size-3" />
+            {{ operation.action === 'send' ? 'Send' : 'Receive' }}
+          </span>
+        </span>
       </Anchor>
-      <SecurityRequirementBadge :requiredSecurity />
+      <div
+        v-if="requiredSecurity.state !== 'none'"
+        class="operation-auth ms-auto flex shrink-0 items-center">
+        <SecurityRequirementBadge :requiredSecurity />
+      </div>
     </div>
 
+    <p
+      v-if="summary"
+      class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
+      {{ summary }}
+    </p>
     <ScalarMarkdown
       v-if="description"
       class="operation-description"
       :value="description"
       withImages />
 
+    <div
+      v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+      class="mt-12 space-y-4">
+      <Bindings
+        :bindings="resolvedOperation?.bindings"
+        :options="options"
+        scope="operation" />
+      <AsyncApiDocumentation
+        :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+    </div>
+
     <SectionHeaderTag
-      v-if="messages.length"
-      class="text-c-1 mt-6 mb-3 block! text-lg leading-[1.45] font-medium"
-      :level="messagesHeadingLevel"
-      rule>
+      v-if="messages.length || reply"
+      class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
+      :level="messagesHeadingLevel">
       Messages
     </SectionHeaderTag>
     <Message
@@ -148,35 +196,54 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       :options="options"
       :scrollTargetId="scrollTargetId"
       :specificationExtension="specificationExtension" />
-  </div>
+    <p
+      v-if="reply && !messages.length"
+      class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
+      No messages listed for this operation.
+    </p>
+    <OperationReply
+      v-if="reply"
+      class="mt-12"
+      :document="document"
+      :eventBus="eventBus"
+      :expansion="expansion"
+      :level="messagesHeadingLevel"
+      :options="options"
+      :reply="reply"
+      :specificationExtension="specificationExtension" />
+  </section>
 </template>
 
 <style scoped>
 .operation {
-  margin-top: 24px;
   scroll-margin-top: var(--refs-viewport-offset);
+  margin-top: 90px;
+  padding-top: 90px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .operation-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 .operation-title {
-  font-size: var(--scalar-heading-3);
-  font-weight: var(--scalar-semibold);
+  font-size: var(--font-size, var(--scalar-heading-1));
+  font-weight: var(--font-weight, var(--scalar-bold));
+  line-height: 1.45;
   color: var(--scalar-color-1);
 }
 
-/* Filled, color-coded pill carries the primary send/receive signal. */
+/* Direction remains readable through both its label and icon. */
 .operation-action {
-  text-transform: uppercase;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-micro);
   font-weight: var(--scalar-semibold);
-  letter-spacing: 0.05em;
   border-radius: 12px;
   padding: 2px 8px;
   display: inline-flex;
+  gap: 4px;
+  flex-shrink: 0;
   align-items: center;
 }
 /*
@@ -207,10 +274,28 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
 .operation-description {
   text-align: left;
-  margin-top: 4px;
-}
-/* Space the first message accordion away from the operation header/description. */
-.operation > :deep(.message) {
   margin-top: 12px;
+}
+.references-classic .operation {
+  margin-top: 48px;
+  padding-top: 48px;
+}
+@container references-container (max-width: 900px) {
+  .operation-auth {
+    order: -1;
+    width: 100%;
+    margin-left: 0;
+  }
+  .operation {
+    margin-top: 48px;
+    padding-top: 48px;
+  }
+}
+/* Match the message columns, including their 48px gutter. */
+@container references-container (min-width: 900px) {
+  .operation-summary,
+  .operation-description {
+    width: calc((100% - 48px) / 2);
+  }
 }
 </style>

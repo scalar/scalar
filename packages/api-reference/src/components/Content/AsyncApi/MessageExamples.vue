@@ -2,7 +2,6 @@
 import { ExamplePicker } from '@scalar/blocks/code-example'
 import {
   ScalarCard,
-  ScalarCardFooter,
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
@@ -11,16 +10,21 @@ import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
 import { getMessageExampleContent } from './helpers/get-message-example-content'
 
-const { examples = [], generatedPayload } = defineProps<{
+const {
+  examples = [],
+  generatedPayload,
+  contentType,
+} = defineProps<{
   examples?: AsyncApiMessageObject['examples']
   generatedPayload?: unknown
+  contentType?: string
 }>()
 
 const { translate } = useLocalization()
@@ -30,13 +34,17 @@ const availableExamples = computed(() => {
   const candidates =
     generatedPayload === undefined
       ? examples
-      : [...examples, { name: 'Generated example', payload: generatedPayload }]
+      : [
+          ...examples,
+          {
+            name: translate('schema.example'),
+            summary: undefined,
+            payload: generatedPayload,
+          },
+        ]
   const entries = candidates.flatMap((value, index) => {
-    const example = getResolvedRef(value)
-    if (
-      !example ||
-      (example.headers === undefined && example.payload === undefined)
-    ) {
+    const example = getResolvedAsyncApiRef(value)
+    if (!example || example.payload === undefined) {
       return []
     }
     return [
@@ -75,8 +83,8 @@ watch(
 const selected = computed(() =>
   availableExamples.value.find(({ key }) => key === selectedKey.value),
 )
-const content = computed(() =>
-  selected.value ? getMessageExampleContent(selected.value.example) : undefined,
+const block = computed(() =>
+  getMessageExampleContent(selected.value?.example.payload, contentType),
 )
 const pickerExamples = computed(() =>
   Object.fromEntries(
@@ -84,52 +92,62 @@ const pickerExamples = computed(() =>
   ),
 )
 const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
-const showFooter = computed(
-  () =>
-    hasMultipleExamples.value ||
-    selected.value?.example.name ||
-    selected.value?.example.summary,
-)
 </script>
 
 <template>
   <ScalarCard
-    v-if="content !== undefined"
+    v-if="block"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
-    <ScalarCardHeader>
-      {{ translate('schema.examples') }}
+    <ScalarCardHeader
+      v-if="
+        hasMultipleExamples ||
+        selected?.example.name ||
+        selected?.example.summary
+      "
+      class="text-c-2 px-3 py-[7px] font-normal [&_.scalar-card-header-title]:whitespace-normal">
+      <div
+        v-if="selected?.example.name || selected?.example.summary"
+        class="min-w-0 grow">
+        <div
+          v-if="selected.example.name"
+          class="text-c-1 font-medium">
+          {{ selected.label }}
+        </div>
+        <ScalarMarkdown
+          v-if="selected.example.summary"
+          class="mt-1 text-base [&_*]:m-0"
+          :value="selected.example.summary" />
+      </div>
+      <template
+        v-if="hasMultipleExamples"
+        #actions>
+        <ExamplePicker
+          v-model="selectedKey"
+          :aria-label="translate('schema.examples')"
+          class="-m-1 shrink-0 px-0"
+          :examples="pickerExamples" />
+      </template>
     </ScalarCardHeader>
     <ScalarCardSection class="flex-col">
+      <div
+        v-if="block.structural"
+        class="text-c-2 px-3 py-2 text-sm">
+        Structure only; not encoded
+      </div>
       <ScalarVirtualCodeBlock
-        v-if="content.length > 20_000"
+        v-if="block.content.length > 20_000"
         class="bg-b-2"
-        :content="content"
-        lang="json" />
+        :content="block.content"
+        label="Payload"
+        :lang="block.lang" />
       <ScalarCodeBlock
         v-else
         class="bg-b-2"
-        lang="json"
-        :prettyPrintedContent="content" />
+        copyLabel="Copy payload"
+        label="Payload"
+        :lang="block.lang"
+        :prettyPrintedContent="block.content" />
     </ScalarCardSection>
-    <ScalarCardFooter
-      v-if="showFooter"
-      class="text-c-2 flex flex-col items-start gap-2 px-3 py-3">
-      <ExamplePicker
-        v-if="hasMultipleExamples"
-        v-model="selectedKey"
-        :aria-label="translate('schema.examples')"
-        class="-ml-1.5"
-        :examples="pickerExamples" />
-      <span
-        v-else-if="selected?.example.name"
-        class="text-c-1 font-medium"
-        >{{ selected.label }}</span
-      >
-      <ScalarMarkdown
-        v-if="selected?.example.summary"
-        class="min-w-0"
-        :value="selected.example.summary" />
-    </ScalarCardFooter>
   </ScalarCard>
 </template>

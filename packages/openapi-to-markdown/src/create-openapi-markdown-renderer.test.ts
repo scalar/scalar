@@ -196,7 +196,7 @@ describe('create-openapi-markdown-renderer', () => {
           paths: { '/pets': { $ref: './alias.json' } },
         }),
       )
-      const renderer = await createOpenApiMarkdownRenderer(input)
+      const renderer = await createOpenApiMarkdownRenderer(input, { basePath: dir })
       expect(await renderer.render()).toContain('### External pets')
       expect(await renderer.render({ operation: { path: '/pets', method: 'get' } })).toContain('# External pets')
     } finally {
@@ -218,7 +218,7 @@ describe('create-openapi-markdown-renderer', () => {
           components: { ...document.components, schemas: { Pet: { $ref: './pet.json' } } },
         }),
       )
-      const renderer = await createOpenApiMarkdownRenderer(join(dir, 'api.json'))
+      const renderer = await createOpenApiMarkdownRenderer(join(dir, 'api.json'), { basePath: dir })
       await rm(dir, { recursive: true, force: true })
       expect(await renderer.render({ model: 'Pet' })).toContain('externalField')
       expect(await renderer.render({ operation: { operationId: 'listPets' } })).toContain('externalField')

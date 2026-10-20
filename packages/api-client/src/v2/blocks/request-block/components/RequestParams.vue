@@ -128,7 +128,9 @@ const availableFields = computed<AvailableField[]>(() =>
 const selectField = async (
   option: { id: string; index: number } | undefined,
 ): Promise<void> => {
-  if (!option) return
+  if (!option) {
+    return
+  }
   selectedFields.value.add(option.id)
   await nextTick()
   table.value?.focusValue(
@@ -144,7 +146,9 @@ const getOriginalIndex = (index: number): number =>
 const deleteRow = (index: number): void => {
   const originalIndex = getOriginalIndex(index)
   const entry = visibleRows.value[index]
-  if (entry) selectedFields.value.delete(getFieldKey(entry.row))
+  if (entry) {
+    selectedFields.value.delete(getFieldKey(entry.row))
+  }
   emit('delete', {
     index: originalIndex,
   })

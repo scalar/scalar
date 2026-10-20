@@ -1,5 +1,6 @@
 /* basic theme */
-:root {
+:root,
+:host {
   --scalar-text-decoration: underline;
   --scalar-text-decoration-hover: underline;
 }

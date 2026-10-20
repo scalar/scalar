@@ -1,6 +1,8 @@
 /** Built-in schema translations for zh-TW. */
 export const zhTw = {
   schema: {
+    variants: '變體',
+    discriminatorValue: '鑑別器值',
     noAllowedValues: '沒有值滿足此列舉限制。',
     example: '範例',
     examples: '範例',
@@ -47,6 +49,14 @@ export const zhTw = {
     unique: '唯一',
     values: '值',
     writeOnly: '唯寫',
+    typeInteger: '整數。',
+    formatInt32: '有號 32 位元整數（常用的整數型別）。',
+    formatInt64: '有號 64 位元整數（long 型別）。',
+    formatDate: 'RFC 3339 第 5.6 節定義的 full-date 表示法，例如 2017-07-21',
+    formatDateTime: 'RFC 3339 第 5.6 節定義的 date-time 表示法，例如 2017-07-21T17:32:28Z',
+    formatPassword: '提示介面遮蔽輸入內容',
+    formatBase64: 'base64 編碼的字元，例如 U3dhZ2dlciByb2Nrcw==',
+    formatBinary: '二進位資料，用於描述檔案',
   },
   common: { copyDefault: '複製預設值', copyExample: '複製範例值' },
   actions: { copyLinkTo: '複製指向 {name} 的連結' },

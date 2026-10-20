@@ -26,6 +26,7 @@ const {
 const { translate } = useLocalization()
 
 const headerId = useId()
+const showMoreDescriptionId = useId()
 
 const moreThanOneDefaultTag = computed(
   () => moreThanOneTag || tag?.title !== 'default' || tag?.description !== '',
@@ -77,15 +78,19 @@ const { level: headingLevel } = useDocumentOutline('tag')
         <slot name="actions" />
       </template>
     </TagSection>
-    <ShowMoreButton
-      v-if="showMore"
-      :id="tag.id"
-      :aria-label="
-        translate('navigation.showAllEndpoints', { name: tag.title })
-      "
-      @click="
-        () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
-      " />
+    <template v-if="showMore">
+      <ShowMoreButton
+        :id="tag.id"
+        :aria-describedby="showMoreDescriptionId"
+        @click="
+          () => eventBus?.emit('toggle:nav-item', { id: tag.id, open: true })
+        " />
+      <span
+        :id="showMoreDescriptionId"
+        hidden>
+        {{ translate('navigation.showAllEndpoints', { name: tag.title }) }}
+      </span>
+    </template>
 
     <!-- Show slot when the section is expanded or is a lone top-level tag (inverse of ShowMoreButton visibility). -->
     <div

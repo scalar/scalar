@@ -68,7 +68,7 @@ const copyMarkdown = async (): Promise<void> => {
         (text) => new Blob([text], { type: 'text/plain' }),
       )
       // A denied write may never consume the promise passed to ClipboardItem.
-      void blob.catch(() => {})
+      void blob.catch(() => undefined)
       await navigator.clipboard.write([
         new ClipboardItem({ 'text/plain': blob }),
       ])

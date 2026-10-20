@@ -58,7 +58,9 @@ const generatedExample = computed(() => {
 const prettyPrintedContent = computed(() => generatedExample.value.value)
 const errorMessage = computed(() => {
   const error = generatedExample.value.error
-  if (!error) return undefined
+  if (!error) {
+    return undefined
+  }
   return error.code === 'limit-exceeded'
     ? translate('response.xmlGenerationLimit')
     : translate('response.xmlGenerationFailed', { message: error.message })

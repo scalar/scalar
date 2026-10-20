@@ -1,6 +1,6 @@
 import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
-import { loadDocument } from './load-document'
+import { type DocumentLoadOptions, loadDocument } from './load-document'
 import { createDocumentRenderer } from './render-document'
 import { type OpenApiRenderOptions, createDocumentLookup, selectDocument } from './select-document'
 
@@ -14,8 +14,11 @@ export type OpenApiMarkdownRenderer = {
  * Load and resolve an API description once, then render any number of selections.
  * Each renderer owns its document; create a new renderer to pick up source changes.
  */
-export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise<OpenApiMarkdownRenderer> => {
-  const content = await loadDocument(input)
+export const createOpenApiMarkdownRenderer = async (
+  input: AnyDocument,
+  options?: DocumentLoadOptions,
+): Promise<OpenApiMarkdownRenderer> => {
+  const content = await loadDocument(input, options)
 
   const renderDocument = createDocumentRenderer()
   const lookup = createDocumentLookup(content)
@@ -27,8 +30,12 @@ export const createOpenApiMarkdownRenderer = async (input: AnyDocument): Promise
 /** Generate Markdown from an API description, optionally scoped to a single page. */
 export const createMarkdownFromOpenApi = async (
   input: AnyDocument,
-  options?: OpenApiRenderOptions,
+  options?: OpenApiRenderOptions & { documentLoading?: DocumentLoadOptions },
 ): Promise<string> => {
-  const renderer = await createOpenApiMarkdownRenderer(input)
+  const renderer = await createOpenApiMarkdownRenderer(input, options?.documentLoading)
+  if (options && 'documentLoading' in options) {
+    const { documentLoading: _, ...renderOptions } = options
+    return renderer.render(renderOptions)
+  }
   return renderer.render(options)
 }

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends ParameterObject">
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type {
@@ -15,7 +15,7 @@ import ParameterListItem from './ParameterListItem.vue'
 
 const { parameters } = defineProps<
   {
-    parameters: ParameterObject[]
+    parameters: T[]
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
@@ -33,6 +33,12 @@ const { parameters } = defineProps<
     >
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  'title'?: () => unknown
+  /** Additional metadata for adapters that reuse the parameter renderer. */
+  'parameter-details'?: (props: { parameter: T }) => unknown
+}>()
 
 /** Accessible id for the heading */
 const id = useId()
@@ -69,7 +75,11 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
         :options="options"
         :parameter="item"
         :scrollTargetId="scrollTargetId"
-        :specificationExtension="specificationExtension" />
+        :specificationExtension="specificationExtension">
+        <slot
+          name="parameter-details"
+          :parameter="item" />
+      </ParameterListItem>
     </ul>
   </div>
 </template>

@@ -167,16 +167,22 @@
    * not invent a day that the page does not state.
    */
   const parseHumanDate = (text) => {
-    if (!text) return null
+    if (!text) {
+      return null
+    }
     const value = String(text).trim()
 
     const iso = value.match(/\b(\d{4})-(\d{2})(?:-(\d{2}))?\b/)
-    if (iso) return iso[3] ? `${iso[1]}-${iso[2]}-${iso[3]}` : `${iso[1]}-${iso[2]}`
+    if (iso) {
+      return iso[3] ? `${iso[1]}-${iso[2]}-${iso[3]}` : `${iso[1]}-${iso[2]}`
+    }
 
     const lower = value.toLowerCase()
     const monthIndex = MONTHS.findIndex((m) => lower.includes(m))
     const year = lower.match(/\b(20\d{2})\b/)
-    if (monthIndex === -1 || !year) return null
+    if (monthIndex === -1 || !year) {
+      return null
+    }
 
     const month = pad(monthIndex + 1)
     const day = lower.replace(year[1], '').match(/\b(\d{1,2})\b/)
@@ -196,9 +202,13 @@
    */
   const parseByline = (line) => {
     const match = String(line || '').match(/^\s*by\s+([^·|•\n]+?)\s*(?:[·|•]|$)/i)
-    if (!match) return null
+    if (!match) {
+      return null
+    }
     const name = match[1].trim()
-    if (!name || /^(scalar|the scalar team)$/i.test(name)) return null
+    if (!name || /^(scalar|the scalar team)$/i.test(name)) {
+      return null
+    }
 
     const reviewer = String(line).match(/reviewed\s+by\s*:?\s*([^·|•\n]+)/i)
     const reviewedBy = reviewer ? reviewer[1].trim() : null
@@ -227,7 +237,9 @@
   /** Build a BreadcrumbList from the path, skipping segments without a page. */
   const buildBreadcrumbs = (path, currentTitle) => {
     const normalized = normalizePath(path)
-    if (normalized === '/') return null
+    if (normalized === '/') {
+      return null
+    }
 
     const segments = normalized.slice(1).split('/')
     const items = [{ name: 'Home', url: `${SITE}/` }]
@@ -241,7 +253,9 @@
       }
     })
 
-    if (items.length < 2) return null
+    if (items.length < 2) {
+      return null
+    }
     return {
       '@type': 'BreadcrumbList',
       'itemListElement': items.map((item, index) => ({
@@ -254,8 +268,10 @@
   }
 
   const buildFaqPage = (faqs, url) => {
-    const questions = (faqs || []).filter((faq) => faq && faq.question && faq.answer)
-    if (!questions.length) return null
+    const questions = (faqs || []).filter((faq) => faq?.question && faq.answer)
+    if (!questions.length) {
+      return null
+    }
     return {
       '@type': 'FAQPage',
       '@id': `${url}#faq`,
@@ -329,18 +345,30 @@
         'publisher': { '@id': ORG_ID },
         'author': byline ? { '@type': 'Person', 'name': byline.author } : { '@id': ORG_ID },
       }
-      if (page.description) article.description = page.description
-      if (page.image) article.image = page.image
-      if (published) article.datePublished = published
-      if (modified || published) article.dateModified = modified || published
+      if (page.description) {
+        article.description = page.description
+      }
+      if (page.image) {
+        article.image = page.image
+      }
+      if (published) {
+        article.datePublished = published
+      }
+      if (modified || published) {
+        article.dateModified = modified || published
+      }
       graph.push(article)
     }
 
     const faq = buildFaqPage(page.faqs, url)
-    if (faq) graph.push(faq)
+    if (faq) {
+      graph.push(faq)
+    }
 
     const breadcrumbs = buildBreadcrumbs(path, title)
-    if (breadcrumbs) graph.push(breadcrumbs)
+    if (breadcrumbs) {
+      graph.push(breadcrumbs)
+    }
 
     return { '@context': 'https://schema.org', '@graph': graph }
   }
@@ -370,14 +398,17 @@
     const paragraphs = container ? Array.from(container.querySelectorAll(':scope > p')).slice(0, 4) : []
     for (const p of paragraphs) {
       const text = collapse(p.textContent)
-      if (!lastUpdated && /^last\s+updated/i.test(text)) lastUpdated = text
-      else if (!byline && /^by\s+/i.test(text)) byline = text
+      if (!lastUpdated && /^last\s+updated/i.test(text)) {
+        lastUpdated = text
+      } else if (!byline && /^by\s+/i.test(text)) {
+        byline = text
+      }
     }
 
     // <scalar-detail title="…"> renders as details.t-editor__detail. Steps use
     // a different class (t-editor__step), so they are not mistaken for FAQs.
     // Scope to the page content so nothing in the header or sidebar counts.
-    const content = (h1 && h1.closest('.content')) || document.querySelector('main') || document
+    const content = h1?.closest('.content') || document.querySelector('main') || document
     const faqs = Array.from(content.querySelectorAll('details.t-editor__detail'))
       .map((detail) => ({
         question: collapse(detail.querySelector('.t-editor__detail-title')?.textContent),
@@ -402,7 +433,9 @@
   const render = () => {
     const json = JSON.stringify(buildGraph(readPage()))
     let tag = document.getElementById(SCRIPT_ID)
-    if (tag && tag.textContent === json) return
+    if (tag && tag.textContent === json) {
+      return
+    }
     if (!tag) {
       tag = document.createElement('script')
       tag.type = 'application/ld+json'
@@ -419,7 +452,9 @@
     // trigger ourselves) and coalesce bursts of mutations into one frame.
     let queued = false
     new MutationObserver(() => {
-      if (queued) return
+      if (queued) {
+        return
+      }
       queued = true
       requestAnimationFrame(() => {
         queued = false

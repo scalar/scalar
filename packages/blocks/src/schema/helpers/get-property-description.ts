@@ -1,30 +1,33 @@
+import type { ApiReferenceTranslationKey } from '@scalar/types/api-reference'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
+type SchemaTranslationKey = Extract<ApiReferenceTranslationKey, `schema.${string}`>
+
 // Type descriptions for built-in types
-const TYPE_DESCRIPTIONS: Record<string, Record<string, string>> = {
+const TYPE_DESCRIPTIONS: Record<string, Record<string, SchemaTranslationKey>> = {
   integer: {
-    _default: 'Integer numbers.',
-    int32: 'Signed 32-bit integers (commonly used integer type).',
-    int64: 'Signed 64-bit integers (long type).',
+    _default: 'schema.typeInteger',
+    int32: 'schema.formatInt32',
+    int64: 'schema.formatInt64',
   },
   string: {
-    'date': 'full-date notation as defined by RFC 3339, section 5.6, for example, 2017-07-21',
-    'date-time': 'the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z',
-    'password': 'a hint to UIs to mask the input',
-    'base64': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
-    'byte': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
-    'binary': 'binary data, used to describe files',
+    'date': 'schema.formatDate',
+    'date-time': 'schema.formatDateTime',
+    'password': 'schema.formatPassword',
+    'base64': 'schema.formatBase64',
+    'byte': 'schema.formatBase64',
+    'binary': 'schema.formatBinary',
   },
 } as const
 
 /**
- * Generate property description from type/format
+ * Get the translation key of the property description from type/format
  *
  * @param value - The schema object to generate description from
- * @returns Description string or null if no description available
+ * @returns Translation key or null if no description available
  */
-export const getPropertyDescription = (value: SchemaObject | undefined): string | null => {
+export const getPropertyDescriptionKey = (value: SchemaObject | undefined): SchemaTranslationKey | null => {
   if (!isSchema(value)) {
     return null
   }

@@ -35,15 +35,20 @@ import {
   type Component,
 } from 'vue'
 
+import ExternalDocs from '../shared/ExternalDocs.vue'
 import CopyLinkButton from './components/CopyLinkButton.vue'
 import WithBreadcrumb from './components/WithBreadcrumb.vue'
+import {
+  schemaDiscriminator,
+  type DiscriminatorMetadata,
+} from './discriminator-metadata'
 import { resolveDynamicSchema, useDynamicScope } from './helpers/dynamic-scope'
 import {
   getCompositionsToRender,
   inferDiscriminatorMappingComposition,
 } from './helpers/get-compositions-to-render'
 import { getEnumValues } from './helpers/get-enum-values'
-import { getPropertyDescription } from './helpers/get-property-description'
+import { getPropertyDescriptionKey } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
@@ -329,9 +334,10 @@ const shouldRenderArrayOfObjects = computed(() => {
 const enumValues = computed(() => getEnumValues(optimizedValue.value))
 
 /** Generate property description from type/format */
-const propertyDescription = computed(() =>
-  getPropertyDescription(optimizedValue.value),
-)
+const propertyDescription = computed(() => {
+  const key = getPropertyDescriptionKey(optimizedValue.value)
+  return key ? translate(key) : null
+})
 
 /** Determine if description should be displayed */
 const displayDescription = computed(() =>
@@ -365,6 +371,7 @@ const objectSchemaForChildren = computed(() => {
     allOf: _allOf,
     not: _not,
     discriminator: _discriminator,
+    externalDocs: _externalDocs,
     ...objectSchema
   } = value
 
@@ -494,6 +501,8 @@ const objectChildProps = computed(() =>
         compositionPath: currentCompositionPath.value,
         cycleKey: props.cycleKey,
         schema: objectSchemaForChildren.value,
+        discriminator:
+          optimizedValue.value?.discriminator ?? props.discriminator,
       }
     : null,
 )
@@ -542,6 +551,14 @@ const treeChildProps = computed(() => {
  */
 const rendersArrayBranch = computed(
   (): boolean => !objectChildProps.value && !!arrayChildProps.value,
+)
+
+/** A named property receives the selected variant's display value, never a fabricated const. */
+const discriminatorValue = computed((): string | undefined =>
+  props.name === props.discriminator?.propertyName
+    ? (props.discriminator as DiscriminatorMetadata)?.[schemaDiscriminator]
+        ?.value
+    : undefined,
 )
 
 /** Check if discriminator matches current property */
@@ -1000,6 +1017,7 @@ const onBeforeMatch = (): void => {
         { 'cursor-pointer': isTreeRow },
         'relative row-start-1 min-h-5 content-center [&>*:has(+.copy-link-trailing)]:me-0!',
       ]"
+      :discriminatorValue="discriminatorValue"
       :enum="hasEnum"
       :eventBus="eventBus"
       :hideModelNames
@@ -1116,6 +1134,10 @@ const onBeforeMatch = (): void => {
           :eventBus="eventBus" />
       </template>
     </SchemaPropertyHeading>
+
+    <ExternalDocs
+      class="my-2"
+      :value="optimizedValue?.externalDocs" />
 
     <!-- Description -->
     <!-- The heading's 20px slot already leaves slack under the name, so 4px is

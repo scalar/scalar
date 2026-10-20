@@ -1,4 +1,7 @@
+import { dynamicRegExps } from './compile'
+import { getLanguage } from './registry'
 import type { CompiledGrammar, CompiledRule, CompiledState, Emit, Token } from './types'
+import { REMEMBERED } from './types'
 
 /**
  * Runs the state machine over `code`, calling `emit` for every range.
@@ -10,6 +13,8 @@ import type { CompiledGrammar, CompiledRule, CompiledState, Emit, Token } from '
 export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): void => {
   const len = code.length
   const stack: CompiledState[] = [grammar.root]
+  // What each stack entry remembered (see `Rule.remember`), in step with `stack`.
+  const memory: string[] = ['']
   let top = grammar.root
   let pos = 0
   // Zero-length matches are legal (a pure state transition on a lookahead),
@@ -17,7 +22,23 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
   let spin = 0
 
   while (pos < len) {
-    const re = top.re
+    if (top.embed !== null) {
+      pos = embedded(code, pos, top, memory[memory.length - 1]!, grammar, emit)
+      // An embedding state pops itself. A rule that `set` into it from the
+      // only state on the stack leaves nothing below, so the root takes over.
+      if (stack.length > 1) {
+        stack.length -= 1
+        memory.length -= 1
+      } else {
+        stack[0] = grammar.root
+        memory[0] = ''
+      }
+      top = stack[stack.length - 1]!
+      continue
+    }
+
+    const dyn = top.dynamic === null ? null : dynamicRegExps(top, memory[memory.length - 1]!)
+    const re = dyn === null ? top.re : dyn.re
     re.lastIndex = pos
     const m = re.exec(code)
     if (m === null) {
@@ -32,9 +53,10 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 
     const rules = top.rules
     let rule: CompiledRule | undefined
-    for (const r of rules) {
-      if (m[r.group] !== undefined) {
-        rule = r
+    let index = 0
+    for (; index < rules.length; index++) {
+      if (m[rules[index]!.group] !== undefined) {
+        rule = rules[index]
         break
       }
     }
@@ -45,22 +67,42 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
     const end = start + m[0].length
     if (end > start) {
       if (rule.captures !== null) {
-        emitCaptures(code, start, rule, top, emit)
+        // Only rules that use the remembered text are rebuilt per value; the
+        // rest of a dynamic state's capture rules keep their own pattern.
+        emitCaptures(code, start, rule, dyn?.own[index] ?? rule.own!, top, emit)
       } else {
         emit(rule.scope ?? top.default, start, end)
       }
+    }
+
+    // Read before the stack changes: an entered state inherits the memory of
+    // the state that entered it unless the rule remembers something new.
+    let remembered = memory[memory.length - 1]!
+    if (rule.remember > 0) {
+      // The merged regex captures only which rule won, so the group comes from
+      // the rule's own pattern, re-run where the merged one matched.
+      const own = dyn?.own[index] ?? rule.own!
+      own.lastIndex = start
+      const text = own.exec(code)?.[rule.remember] ?? ''
+      remembered = rule.rememberIndent ? ' '.repeat(text.length) : text
     }
 
     if (rule.pop > 0) {
       // Never pop the root state off.
       const n = Math.min(rule.pop, stack.length - 1)
       stack.length -= n
+      memory.length -= n
+      if (rule.remember === 0) {
+        remembered = memory[memory.length - 1]!
+      }
     }
     if (rule.set !== null) {
       stack[stack.length - 1] = grammar.states[rule.set]!
+      memory[memory.length - 1] = remembered
     }
     if (rule.push !== null) {
       stack.push(grammar.states[rule.push]!)
+      memory.push(remembered)
     }
     top = stack[stack.length - 1]!
 
@@ -83,6 +125,121 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
 }
 
 /**
+ * How deep embeds may nest before a body falls back to its state's default
+ * scope. Real code nests two or three deep — Markdown, then HTML, then
+ * JavaScript — but a Markdown fence can embed Markdown, and a run of
+ * ` ```md ` lines would otherwise recurse once per line until the stack runs
+ * out.
+ */
+const MAX_EMBED_DEPTH = 8
+
+/** How many embedded bodies are being tokenized right now, one inside another. */
+let depth = 0
+
+/**
+ * Tokenizes the body of an embedding state with its language and returns the
+ * position after it.
+ *
+ * The body runs to the first match of the state's `until`, which is left for
+ * the state below to tokenize. The slice is tokenized on its own, so the
+ * embedded grammar starts in its root state and cannot read past the body —
+ * an unterminated string in a `<script>` cannot swallow the `</script>`.
+ */
+const embedded = (
+  code: string,
+  pos: number,
+  state: CompiledState,
+  remembered: string,
+  host: CompiledGrammar,
+  emit: Emit,
+): number => {
+  const boundary = state.embed!.boundary
+  boundary.lastIndex = pos
+  let found = boundary.exec(code)
+  while (state.embed!.holes !== null && found?.[1] !== undefined) {
+    // An empty hole must not prevent the scanner from making progress.
+    if (found[0].length === 0) {
+      boundary.lastIndex += code.codePointAt(boundary.lastIndex)! > 0xffff ? 2 : 1
+    }
+    found = boundary.exec(code)
+  }
+  const stop = found === null ? code.length : found.index
+  if (stop === pos) {
+    return pos
+  }
+  // `{{remembered}}` takes the language from the text the entering rule
+  // remembered, which is how a Markdown fence names its language at runtime.
+  const language = state.embed!.language
+  const grammar = getLanguage(language === REMEMBERED ? remembered : language)
+  if (grammar === undefined || depth >= MAX_EMBED_DEPTH) {
+    emit(state.default, pos, stop)
+  } else {
+    depth += 1
+    try {
+      withHoles(code.slice(pos, stop), pos, grammar, state.embed!.holes, host, emit)
+    } finally {
+      depth -= 1
+    }
+  }
+  return stop
+}
+
+/**
+ * Tokenizes an embedded body, around any `holes` that belong to the host
+ * grammar.
+ *
+ * The embedded grammar reads the body with every hole character except line
+ * breaks replaced by `_`, an identifier character in the languages that get
+ * embedded, so a hole reads as a name and the embedded state runs on across
+ * it. Its tokens are then emitted around the holes, and each hole is
+ * tokenized with the host grammar in its place.
+ */
+const withHoles = (
+  body: string,
+  offset: number,
+  grammar: CompiledGrammar,
+  holes: RegExp | null,
+  host: CompiledGrammar,
+  emit: Emit,
+): void => {
+  // Flat [start, end, start, end, …] offsets into `body`.
+  const ranges: number[] = []
+  const pieces: string[] = []
+  let cursor = 0
+  if (holes !== null) {
+    holes.lastIndex = 0
+    for (const match of body.matchAll(holes)) {
+      const start = match.index
+      const end = start + match[0].length
+      if (start === end) {
+        continue
+      }
+      ranges.push(start, end)
+      pieces.push(body.slice(cursor, start), match[0].replace(/[^\r\n]/g, '_'))
+      cursor = end
+    }
+  }
+  const masked = ranges.length === 0 ? body : pieces.join('') + body.slice(cursor)
+  let next = 0
+  // Everything before `done` has been emitted, by one grammar or the other.
+  let done = 0
+  tokenize(masked, grammar, (scope, from, to) => {
+    for (let at = Math.max(from, done); at < to; at = done) {
+      const start = ranges[next] ?? to
+      if (start <= at) {
+        const end = ranges[next + 1]!
+        tokenize(body.slice(start, end), host, (s, a, b) => emit(s, a + start + offset, b + start + offset))
+        next += 2
+        done = end
+      } else {
+        done = Math.min(to, start)
+        emit(scope, at + offset, done + offset)
+      }
+    }
+  })
+}
+
+/**
  * Re-runs the winning rule on its own to find where its capture groups sit.
  *
  * The rule's pattern is sticky and anchored at the position the merged regex
@@ -96,8 +253,14 @@ export const tokenize = (code: string, grammar: CompiledGrammar, emit: Emit): vo
  * either verbatim would repeat text, or claim text the tokenizer is about to
  * visit again, so a group only ever scopes what the match still has left.
  */
-const emitCaptures = (code: string, start: number, rule: CompiledRule, state: CompiledState, emit: Emit): void => {
-  const own = rule.own!
+const emitCaptures = (
+  code: string,
+  start: number,
+  rule: CompiledRule,
+  own: RegExp,
+  state: CompiledState,
+  emit: Emit,
+): void => {
   own.lastIndex = start
   const m = own.exec(code)
   if (m === null) {

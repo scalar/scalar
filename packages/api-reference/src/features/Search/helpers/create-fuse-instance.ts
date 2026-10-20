@@ -1,6 +1,12 @@
-import Fuse from 'fuse.js'
+import Fuse, { type FuseSortFunctionArg } from 'fuse.js'
 
 import type { FuseData } from '@/features/Search/types'
+
+/** Prevent repeated prose matches from outweighing an exact field or identifier match. */
+const hasExactIdentifierMatch = (result: FuseSortFunctionArg): boolean =>
+  result.matches?.some(
+    (match) => match.score === 0 && ['title', 'operationId', 'parameters', 'body', 'path'].includes(match.key.id),
+  ) ?? false
 
 /**
  * Create a Fuse instance for searching the API reference.
@@ -25,7 +31,7 @@ export function createFuseInstance(): Fuse<FuseData> {
       // Clean parameter names. Above `path` so `userId` ranks the operation that defines the param
       // higher than another operation that merely contains it in its path string.
       { name: 'parameters', weight: 0.55 },
-      // Clean request-body property names — same reasoning as `parameters`.
+      // Clean request, response, and model property names — same reasoning as `parameters`.
       { name: 'body', weight: 0.55 },
       // Endpoint paths.
       { name: 'path', weight: 0.5 },
@@ -39,9 +45,14 @@ export function createFuseInstance(): Fuse<FuseData> {
       { name: 'responseExamples', weight: 0.25 },
       // Verbose parameter descriptions — supplementary signal only.
       { name: 'parameterDescriptions', weight: 0.2 },
-      // Verbose request-body descriptions — supplementary signal only.
+      // Verbose schema property descriptions — supplementary signal only.
       { name: 'bodyDescriptions', weight: 0.2 },
     ],
+
+    // Fuse multiplies scores across array matches, so enough descriptions can otherwise
+    // outrank an exact field name. Within each group preserve weighted scores and stable order.
+    sortFn: (a, b) =>
+      Number(hasExactIdentifierMatch(b)) - Number(hasExactIdentifierMatch(a)) || a.score - b.score || a.idx - b.idx,
 
     // Threshold controls how strict the matching is (0.0 = perfect match, 1.0 = very loose)
     // 0.3 allows for some typos and partial matches while maintaining relevance

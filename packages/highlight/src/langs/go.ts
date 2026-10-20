@@ -8,7 +8,9 @@ const go: Grammar = {
     root: {
       rules: [
         { match: '//[^\\n]*', scope: 'comment' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and fails
+        // once per opener, which is O(n²) on a run of unterminated `/*`.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
 
         { match: '`[^`]*`', scope: 'string' },
         { match: '"', scope: 'string', push: 'string' },
@@ -53,6 +55,22 @@ const go: Grammar = {
           scope: 'type.builtin',
         },
 
+        // A package-qualified type, `http.Request`, where a type goes: after a
+        // name (`w http.ResponseWriter`, `var c http.Client`), a pointer star
+        // that is not a multiplication (`*http.Request`, but not
+        // `2*time.Second`), a closing `]` or `)` (`[]http.Header`,
+        // `func() http.Handler`), a type assertion's `.(`, or in front of a
+        // composite literal's `{`. A keyword in front makes it a value instead:
+        // `return http.StatusOK`, `case http.MethodGet:`.
+        //
+        // The context is checked last, looking back from the end of the match,
+        // so the rule fails on the `.` test at nearly every identifier before
+        // it ever looks behind.
+        {
+          match:
+            '\\b([a-z]\\w*)(\\.)([A-Z]\\w*)\\b(?![ \\t]*\\()(?:(?=\\{)|(?<=(?:(?<![\\w)\\]])\\*|\\]|\\.\\(|\\)[ \\t]+|\\b(?!(?:return|case|go|defer|if|else|for|range|switch|select|goto|break|continue)\\b)[A-Za-z_]\\w*[ \\t]+)[a-z]\\w*\\.[A-Z]\\w*))',
+          scope: [null, 'punctuation', 'type'],
+        },
         {
           match: '(\\.)([A-Za-z_]\\w*)(?=\\s*\\()',
           scope: ['punctuation', 'function.method'],
@@ -95,6 +113,10 @@ const go: Grammar = {
         { match: '"', scope: 'string', pop: true },
         { match: '$', pop: true },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
     },
   },
 }

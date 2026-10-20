@@ -2,20 +2,20 @@
 
 # scalar project
 
-Manage scalar project. Generated from `@scalar/cli` 2.10.0.
+Manage Scalar Docs projects.
 
 | Command | Description |
 | --- | --- |
 | [`scalar project list`](#list) | List projects and their slugs for the current team |
-| [`scalar project get`](#get) | Get project details for the current team |
-| [`scalar project init`](#init) | Create a new Scalar Docs project |
-| [`scalar project check-config`](#check-config) | Check a Scalar Configuration file |
-| [`scalar project create`](#create) | Create a new project that is not linked to a github project |
-| [`scalar project preview`](#preview) | Preview scalar guides |
-| [`scalar project publish`](#publish) | Publish new build for a github sync project that is not linked |
+| [`scalar project get`](#get) | Show project details for the current team |
+| [`scalar project init`](#init) | Initialize a local Scalar Docs project |
+| [`scalar project check-config`](#check-config) | Validate a Scalar configuration file |
+| [`scalar project create`](#create) | Create a Scalar project without a linked GitHub repository |
+| [`scalar project preview`](#preview) | Preview a Scalar Docs project locally |
+| [`scalar project publish`](#publish) | Publish a new build of a Scalar project |
 | [`scalar project rollback`](#rollback) | Roll the live deployment back to a previously deployed build |
-| [`scalar project deployments list`](#deployments-list) | List the production deployment history for a project |
-| [`scalar project upgrade`](#upgrade) | Upgrade scalar project |
+| [`scalar project deployments list`](#deployments-list) | List production deployments for a project |
+| [`scalar project upgrade`](#upgrade) | Upgrade a Scalar Docs configuration |
 
 ## list
 
@@ -33,7 +33,7 @@ scalar project list [options]
 
 ## get
 
-Get project details for the current team.
+Show project details for the current team.
 
 ```bash
 scalar project get [options] <slug>
@@ -53,7 +53,7 @@ scalar project get [options] <slug>
 
 ## init
 
-Create a new Scalar Docs project.
+Initialize a local Scalar Docs project.
 
 ```bash
 scalar project init [options]
@@ -63,12 +63,12 @@ scalar project init [options]
 
 | Option | Description |
 | --- | --- |
-| `-s, --subdomain [url]` | Subdomain to publish on. |
-| `--force` | Override existing configuration. |
+| `-s, --subdomain [url]` | Subdomain for the published documentation. |
+| `--force` | Overwrite existing configuration. |
 
 ## check-config
 
-Check a Scalar Configuration file.
+Validate a Scalar configuration file.
 
 ```bash
 scalar project check-config [options] [file]
@@ -78,11 +78,11 @@ scalar project check-config [options] [file]
 
 | Argument | Description |
 | --- | --- |
-| `file` | File to check. |
+| `file` | Scalar configuration file path (discovered in the current directory if omitted). |
 
 ## create
 
-Create a new project that is not linked to a github project.
+Create a Scalar project without a linked GitHub repository.
 
 ```bash
 scalar project create [options]
@@ -92,12 +92,12 @@ scalar project create [options]
 
 | Option | Description |
 | --- | --- |
-| `-n, --name <name>` | Name of your project. |
+| `-n, --name <name>` | Project name. |
 | `-s, --slug <slug>` | Project slug. |
 
 ## preview
 
-Preview scalar guides.
+Preview a Scalar Docs project locally.
 
 ```bash
 scalar project preview [options] [config]
@@ -113,14 +113,14 @@ scalar project preview [options] [config]
 
 | Option | Description | Default |
 | --- | --- | --- |
-| `-p, --port [port]` | Port to run the server on. If the port is not available, it will select another one. | `7970` |
-| `-H, --host [host]` | Specify which IP addresses the server should listen on. |  |
+| `-p, --port [port]` | Preferred server port (uses another port if unavailable). | `7970` |
+| `-H, --host [host]` | Host address for the preview server. |  |
 | `-L, --log-level <level>` | Set the log level. One of `debug`, `info`. | `info` |
 | `-N, --no-open` | Do not open the browser automatically. |  |
 
 ## publish
 
-Publish new build for a github sync project that is not linked.
+Publish a new build of a Scalar project.
 
 ```bash
 scalar project publish [options]
@@ -131,9 +131,9 @@ scalar project publish [options]
 | Option | Description |
 | --- | --- |
 | `-s, --slug [slug]` | Project slug from scalar project list. |
-| `-c, --config [config]` | Your config file of the project. |
-| `-p, --preview` | Publish in preview mode. |
-| `-g, --github` | Publish from your linked remote GitHub repository. |
+| `-c, --config [config]` | Scalar configuration file path for local publishing. |
+| `-p, --preview` | Publish a preview without replacing the live deployment. |
+| `-g, --github` | Publish from the linked GitHub repository instead of local files. |
 
 ## rollback
 
@@ -153,7 +153,7 @@ scalar project rollback [options]
 
 ## deployments list
 
-List the production deployment history for a project.
+List production deployments for a project.
 
 ```bash
 scalar project deployments list [options]
@@ -167,7 +167,7 @@ scalar project deployments list [options]
 
 ## upgrade
 
-Upgrade scalar project.
+Upgrade a Scalar Docs configuration.
 
 ```bash
 scalar project upgrade [options] [config]
