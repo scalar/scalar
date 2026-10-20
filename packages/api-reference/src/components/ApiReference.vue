@@ -378,7 +378,7 @@ const documentLang = computed(() =>
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
-const syncUrl = computed(() => mergedConfig.value.syncUrl !== false)
+const syncUrl = computed<boolean>(() => mergedConfig.value.syncUrl !== false)
 
 /** Keep the detected host route stable while navigation changes the section hash. */
 const inferredHashBasePath = ref<string>()
@@ -1745,6 +1745,20 @@ eventBus.on('copy-url:nav-item', ({ id }) => {
 // ---------------------------------------------------------------------------
 // History and scroll restoration
 
+const handlePopState = (): void => {
+  if (!syncUrl.value) {
+    return
+  }
+  const id = getIdFromUrl(
+    window.location.href,
+    basePath.value,
+    isMultiDocument.value ? undefined : activeSlug.value,
+  )
+  if (id) {
+    scrollToLazyElement(id)
+  }
+}
+
 onBeforeMount(() => {
   if (syncUrl.value) {
     window.history.scrollRestoration = 'manual'
@@ -1759,20 +1773,6 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('popstate', handlePopState)
 })
-
-const handlePopState = (): void => {
-  if (!syncUrl.value) {
-    return
-  }
-  const id = getIdFromUrl(
-    window.location.href,
-    basePath.value,
-    isMultiDocument.value ? undefined : activeSlug.value,
-  )
-  if (id) {
-    scrollToLazyElement(id)
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Document start intersection observer
