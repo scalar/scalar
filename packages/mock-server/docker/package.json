@@ -13,7 +13,7 @@
   },
   "version": "0.2.71",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
