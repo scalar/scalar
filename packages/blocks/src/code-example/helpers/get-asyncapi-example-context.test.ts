@@ -37,21 +37,23 @@ describe('get-asyncapi-example-context', () => {
             action: 'send',
             channel: { $ref: '#/channels/events' },
             messages: [{ $ref: '#/channels/events/messages/second' }],
-            traits: [{ $ref: '#/components/operationTraits/samples' }],
+            traits: [{ $ref: '#/components/operationTraits/metadata' }],
           },
           receive: { action: 'receive', channel: { $ref: '#/channels/events' } },
           empty: { action: 'send', channel: { $ref: '#/channels/events' }, messages: [] },
         },
         components: {
-          operationTraits: { samples: { 'x-codeSamples': [{ lang: 'python', source: 'send_event()', label: 'SDK' }] } },
+          operationTraits: { metadata: { summary: 'Send an event' } },
         },
       },
     })
     const document = store.workspace.activeDocument
-    if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
+    if (!isAsyncApiDocument(document)) {
+      throw new Error('Expected AsyncAPI')
+    }
     const context = getAsyncApiExampleContext(document, 'send')
     expect(context?.messages.map(({ message }) => message.name)).toEqual(['Second'])
-    expect(context?.operation['x-codeSamples']).toEqual([{ lang: 'python', source: 'send_event()', label: 'SDK' }])
+    expect(context?.operation.summary).toBe('Send an event')
     expect(getAsyncApiExampleContext(document, 'receive')?.messages.map(({ message }) => message.name)).toEqual([
       'First',
       'Second',
