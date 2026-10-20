@@ -3102,6 +3102,12 @@
                     "filepath": "documentation/markdown.md",
                     "type": "page"
                   },
+                  "mermaid": {
+                    "title": "Mermaid",
+                    "description": "Add interactive Mermaid diagrams to your API descriptions with pan and zoom controls.",
+                    "filepath": "documentation/mermaid.md",
+                    "type": "page"
+                  },
                   "server-side-rendering": {
                     "title": "Server-Side Rendering",
                     "description": "Server-side render Scalar API References in Node.js for faster loads and better SEO.",
