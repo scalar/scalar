@@ -1,55 +1,72 @@
 # Private Access for Customers
 
-Share an MCP server with specific people outside your Scalar team—your customers or partners—without inviting them into your workspace. Access is gated by an allowlist, and outside users sign in with OAuth. No Scalar account required.
+Share an MCP server with customers or partners without inviting them into your Scalar workspace. Access groups allow specific emails or domains to sign in through OAuth. Readers do not need a Scalar account.
 
 ## Access groups
 
-An access group is an allowlist of emails and/or domains that may authenticate to an installation.
+1. In the [Scalar Dashboard](https://dashboard.scalar.com), create an access group and add allowed emails, such as `customer@acme.com`, or domains, such as `acme.com`.
+2. Open your MCP server and select the API and environment to configure.
+3. Under **Configure → Authorization**, choose **OAuth Gated** and attach the access groups that may connect.
+4. Configure stored upstream credentials for the API's authentication schemes.
+5. Share the environment's connection URL.
 
-1. In the [Scalar Dashboard](https://dashboard.scalar.com), create an access group and add the emails (e.g. `customer@acme.com`) or whole domains (e.g. `acme.com`) you want to allow.
-2. Open your MCP installation and attach the access group to it.
-3. Share the installation URL with those users.
-
-When someone connects, Scalar checks their authenticated email against the group's allowed emails and domains. A match grants access; anyone not on the list is rejected. An installation can have more than one access group attached, and a group can be reused across installations.
+An environment can admit multiple access groups, and a group can be reused across servers. When an email matches several groups, the first matching group in the environment's access-group order determines the group used for upstream credentials.
 
 ## How external users sign in
 
-External users never need a Personal Access Token. When their MCP client connects to a private installation, Scalar runs a standard **OAuth** flow:
+An unauthenticated MCP request receives a `401` challenge before the client connects, including on `initialize` and `tools/list`. An OAuth-capable client then:
 
-1. The client opens a browser to Scalar's login page for that installation.
-2. The user signs in with their **email** (one-time code) or via **SSO**, if your team has configured an identity provider.
-3. Scalar verifies the email against the installation's access groups.
-4. On success, the client receives an OAuth token and connects. No Scalar dashboard access is granted—only the MCP server.
+1. Opens the reader sign-in page for that address.
+2. Lets the reader sign in with an enabled method: email, Google, Microsoft, or reader SSO.
+3. Receives a token after Scalar checks the reader against the allowed access groups.
+4. Connects to the MCP server. This does not grant dashboard access.
 
-This is why an installation shared this way does not leak access on its own: the URL is useless to anyone whose email is not on the allowlist.
-
-> The email login and SSO options shown on the login page are controlled by your team's external-access settings. If email sign-in is turned off for the team and no identity provider is configured, the login page will have no way to sign in—so make sure at least one method is enabled.
+Enable at least one reader sign-in method in your team's external-access settings. The reader page does not provide **Continue with Scalar** as a fallback. Team members can use a Personal Access Token for ordinary OAuth Gated access, subject to the group-credential restriction below.
 
 ## Login portals
 
-A **login portal** customizes the OAuth login page so it looks like your product instead of a generic Scalar screen. You can set the title and description, company name and logo, favicon, theme, and links to your terms and privacy policy.
+A [login portal](../../login-portals.md) customizes the reader sign-in page with your company name, logo, theme, copy, and policy links. Select the portal in the environment's authorization settings.
 
-1. In the dashboard, create a login portal and set your branding.
-2. Attach it to an installation.
-
-The portal changes only the *appearance and copy* of the sign-in page—it does not change who is allowed in. Access is still governed entirely by the installation's access groups. If the portal appears to "do nothing," check that the installation is private, has an access group attached, and that a sign-in method (email or SSO) is enabled for the team.
+The portal changes the sign-in page's appearance. Access groups still decide who is admitted, and your team's enabled reader methods determine how they sign in.
 
 ## Sharing one server with many customers
 
-If each of your customers has their own API key, pair access groups with [passthrough auth](./public-passthrough.md): one installation, one URL, shared with every customer, and each customer supplies their own key. Attach an access group so only your customers' emails can connect.
+Use **Per access group auth** when each customer needs a different stored upstream API key:
 
-If your API has its own OAuth authorization server, [OAuth passthrough](./oauth-passthrough.md) does the same without keys: each customer signs in with your authorization server from their MCP client. The installation is then public on the Scalar side and your authorization server decides who gets in, so access groups do not apply.
+1. Add each customer's credential as a team secret, for example `PARTNER_A_TOKEN` and `PARTNER_B_TOKEN`.
+2. On the OAuth Gated environment's **Authorization** page, enable **Per access group auth**.
+3. Add a shared key name, such as `PAYMENTS_TOKEN`, and map it to the appropriate secret name for each admitted group.
+4. Reference `{{ group.PAYMENTS_TOKEN }}` in the upstream scheme's credential field.
+5. Save and test using a reader account admitted by each group.
 
-If you would rather your customers never handle a key, use [global auth](./shared-key.md) with **one installation per customer**, each storing that customer's key, and attach a per-customer access group. Installations and access groups can be created programmatically through the Scalar API, so you can script this per customer rather than clicking through the dashboard.
+The corresponding access configuration fragment is:
 
-## Current limitations
+```json
+{
+  "x-scalar-access": {
+    "accessGroups": ["partner-a", "partner-b"],
+    "groupSecrets": {
+      "partner-a": { "PAYMENTS_TOKEN": "PARTNER_A_TOKEN" },
+      "partner-b": { "PAYMENTS_TOKEN": "PARTNER_B_TOKEN" }
+    }
+  }
+}
+```
 
-- **Custom domains are not supported for MCP servers yet.** Installations are served from Scalar's MCP endpoint by installation ID; you cannot currently serve an MCP server from your own domain (e.g. `mcp.yourcompany.com`). Custom domains are supported for hosted docs, but not for the Installation MCP.
-- **A single shared URL cannot yet inject a different *stored* key per signed-in user.** To give each user their own credential today, use passthrough (the user supplies the key), OAuth passthrough (the user signs in with your authorization server), or one installation per user. Fully dynamic per-user installations are on the roadmap.
+Merge this fragment into an existing OAuth Gated MCP Config; it does not enable OAuth Gated authorization by itself. For a bearer scheme, set its `x-scalar-secret-token` to `{{ group.PAYMENTS_TOKEN }}`. The values in `groupSecrets` are secret names, not credentials or template expressions.
+
+A missing or empty group mapping refuses the upstream call with `credential-unavailable`. It never falls back to a shared secret. **Team-member tokens, platform tokens, and the dashboard test chat have no access group**, so they cannot make calls requiring `{{ group.KEY }}`. Test with an admitted external reader.
+
+Other environments inherit production's group mappings until they save their own. Clearing an overridden mapping means no credential, rather than restoring inheritance. See [MCP configuration](../configuration.md).
+
+This selects credentials per access group, not through an arbitrary per-user lookup. For callers bringing their own credentials, see [passthrough auth](./public-passthrough.md).
+
+## Custom domains
+
+You can serve the same MCP server from a subdomain such as `mcp.example.com`. Scalar provides OAuth discovery on that host, so readers can sign in through the custom address. Follow [MCP custom domains](../custom-domains.md) for DNS, connection URLs, and troubleshooting.
 
 ## Related
 
-- [Authentication](./index.md) — the two layers, and the other recipes
-- [Public MCP with passthrough auth](./public-passthrough.md) — let each user bring their own key
-- [OAuth passthrough](./oauth-passthrough.md) — let each user sign in with your API's own authorization server
-- [One shared key for everyone](./shared-key.md) — store a single credential per installation
+- [Authentication](./index.md)
+- [One shared key for everyone](./shared-key.md)
+- [MCP configuration](../configuration.md)

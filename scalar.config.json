@@ -2246,11 +2246,23 @@
                       ]
                     }
                   },
+                  "configuration": {
+                    "title": "MCP Configuration",
+                    "type": "page",
+                    "description": "Configure MCP environments, variables, secrets, and limits.",
+                    "filepath": "documentation/guides/agent/configuration.md"
+                  },
+                  "custom-domains": {
+                    "title": "Custom Domains",
+                    "type": "page",
+                    "description": "Serve your MCP server from your own domain and configure DNS and OAuth connections.",
+                    "filepath": "documentation/guides/agent/custom-domains.md"
+                  },
                   "authentication": {
                     "title": "Authentication",
                     "type": "group",
                     "mode": "flat",
-                    "description": "How an MCP server authenticates: who is allowed to connect (public, team, access groups) and how the server calls your API (global, passthrough, or OAuth passthrough).",
+                    "description": "Configure MCP authorization and upstream credentials, including shared secrets, per-access-group credentials, and passthrough.",
                     "children": {
                       "/": {
                         "type": "page",
@@ -2279,7 +2291,7 @@
                       "shared-key": {
                         "type": "page",
                         "title": "One Shared Key",
-                        "description": "Store a single credential on the installation with global auth so callers never handle a key.",
+                        "description": "Store a shared upstream credential for your MCP environment so callers never handle the key.",
                         "filepath": "documentation/guides/agent/authentication/shared-key.md"
                       }
                     }
