@@ -1,8 +1,3 @@
-export {
-  type AsyncApiMockServer,
-  type AsyncApiMockServerOptions,
-  createAsyncApiMockServer,
-} from './create-asyncapi-mock-server'
 export { createMockServer } from './create-mock-server'
 export { defaultTransports, sseTransport, websocketTransport } from './transports'
 export type {
@@ -15,4 +10,3 @@ export type {
   TransportContext,
 } from './transports/types'
 export type { MockServerLogger, MockServerOptions } from './types'
-export { isAsyncApiDocument } from './utils/process-asyncapi-document'

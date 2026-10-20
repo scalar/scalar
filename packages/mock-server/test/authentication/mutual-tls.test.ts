@@ -5,7 +5,6 @@ import { createServer, request } from 'node:https'
 import { serve } from '@hono/node-server'
 import { describe, expect, it } from 'vitest'
 
-import { createAsyncApiMockServer } from '../../src/create-asyncapi-mock-server'
 import { createMockServer } from '../../src/create-mock-server'
 
 const cert = readFileSync(new URL('../fixtures/tls/localhost.crt', import.meta.url))
@@ -18,7 +17,7 @@ describe('mutual-tls', () => {
   it.each(['OpenAPI', 'AsyncAPI'])('requires a verified TLS client certificate for %s', async (format) => {
     const asyncServer =
       format === 'AsyncAPI'
-        ? await createAsyncApiMockServer({
+        ? await createMockServer({
             document: {
               asyncapi: '3.0.0',
               info: { title: 'Certificates', version: '1' },
@@ -28,7 +27,7 @@ describe('mutual-tls', () => {
           })
         : undefined
     const app =
-      asyncServer?.app ??
+      asyncServer ??
       (await createMockServer({
         logger: false,
         document: {
@@ -87,7 +86,6 @@ describe('mutual-tls', () => {
         server.closeAllConnections()
       }
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
-      asyncServer?.websocket.server.close()
     }
   })
 })

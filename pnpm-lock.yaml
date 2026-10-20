@@ -2387,9 +2387,6 @@ importers:
       '@faker-js/faker':
         specifier: catalog:*
         version: 10.6.0
-      '@hono/node-server':
-        specifier: catalog:*
-        version: 2.1.1(hono@4.13.8)
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2420,13 +2417,13 @@ importers:
       quickjs-emscripten:
         specifier: catalog:*
         version: 0.32.0
-      ws:
-        specifier: catalog:*
-        version: 8.21.3
       yaml:
         specifier: catalog:*
         version: 2.9.0
     devDependencies:
+      '@hono/node-server':
+        specifier: catalog:*
+        version: 2.1.1(hono@4.13.8)
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13
@@ -2439,6 +2436,9 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)
+      ws:
+        specifier: catalog:*
+        version: 8.21.3
 
   packages/mock-server/docker:
     dependencies:
@@ -2451,10 +2451,16 @@ importers:
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:..
+      ws:
+        specifier: catalog:*
+        version: 8.21.3
     devDependencies:
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.13
+      '@types/ws':
+        specifier: catalog:*
+        version: 8.18.1
       vite:
         specifier: catalog:*
         version: 8.1.5(@types/node@24.10.13)(esbuild@0.27.3)(jiti@2.7.0)(terser@5.31.2)(tsx@4.21.0)(yaml@2.9.0)

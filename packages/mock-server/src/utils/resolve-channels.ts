@@ -1,3 +1,4 @@
+import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { AsyncApiDocument, AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import {
@@ -12,6 +13,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 
 import type { ResolvedChannel, ResolvedMessage, ResolvedOperation } from '@/transports/types'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
+
+import { resolveServerPathnames } from './resolve-server-pathnames'
 
 /** Extract a plain JSON Schema from a message `payload`, unwrapping the Multi Format Schema Object. */
 function extractPayloadSchema(payload: unknown): OpenAPIV3_1.SchemaObject | undefined {
@@ -122,26 +125,36 @@ export function resolveChannels(document: AsyncApiDocument): ResolvedChannel[] {
       },
     )
 
-    const servers = getAsyncApiServers(document, { channel, webSocketOnly: false })
-    const security = servers.map(({ protocol, server }) => ({
-      protocol,
-      schemes: (server.security ?? []).map((scheme) => getResolvedRef(scheme)),
-    }))
-    // A channel restricted to unresolved servers must not accidentally become public.
-    if (channel.servers?.length && servers.length === 0) {
-      security.push({ protocol: '', schemes: [undefined] })
+    // An empty server list means all servers, just like an omitted list.
+    const serverChannel = channel.servers?.length ? channel : { ...channel, servers: undefined }
+    const servers = getAsyncApiServers(document, { channel: serverChannel, webSocketOnly: false })
+    const routes = new Map<string, ResolvedChannel>()
+    for (const entry of servers.length ? servers : [undefined]) {
+      for (const pathname of entry ? resolveServerPathnames(entry.server) : ['']) {
+        const route = honoRouteFromPath(combineUrlAndPath(pathname || '/', channelAddress))
+        const security = entry
+          ? { protocol: entry.protocol, schemes: (entry.server.security ?? []).map((scheme) => getResolvedRef(scheme)) }
+          : { protocol: '', schemes: channel.servers?.length ? [undefined] : [] }
+        const existing = routes.get(route)
+        if (existing) {
+          existing.protocols = [...new Set([...existing.protocols, entry!.protocol])]
+          existing.security!.push(security)
+          continue
+        }
+        routes.set(route, {
+          security: [security],
+          id: channelName,
+          address: channelAddress,
+          route: route.startsWith('/') ? route : `/${route}`,
+          protocols: entry ? [entry.protocol] : resolveProtocols(document, serverChannel),
+          operations,
+          messages,
+        })
+      }
     }
-
-    return [
-      {
-        ...(security.some(({ schemes }) => schemes.length) ? { security } : {}),
-        id: channelName,
-        address: channelAddress,
-        route: honoRouteFromPath(`/${channelAddress.replace(/^\//, '')}`),
-        protocols: resolveProtocols(document, channel),
-        operations,
-        messages,
-      } satisfies ResolvedChannel,
-    ]
+    return [...routes.values()].map(({ security, ...channel }) => ({
+      ...channel,
+      ...(security?.some(({ schemes }) => schemes.length) ? { security } : {}),
+    }))
   })
 }

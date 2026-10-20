@@ -13,11 +13,12 @@ The mock server can mock **event-driven APIs** described with an [AsyncAPI 3.1](
 
 ## Usage
 
-The mock server returns the Hono `app` and a `websocket` option. Pass both to `@hono/node-server` v2 to enable WebSocket channels:
+Like OpenAPI, `createMockServer` returns a Hono application. For WebSocket channels, pass the runtime adapter to the mock factory and configure the listening server:
 
 ```typescript
-import { serve } from '@hono/node-server'
-import { createAsyncApiMockServer } from '@scalar/mock-server'
+import { serve, upgradeWebSocket } from '@hono/node-server'
+import { createMockServer } from '@scalar/mock-server'
+import { WebSocketServer } from 'ws'
 
 const document = {
   asyncapi: '3.1.0',
@@ -49,12 +50,13 @@ const document = {
   },
 }
 
-const { app, websocket } = await createAsyncApiMockServer({
+const app = await createMockServer({
   document,
+  upgradeWebSocket,
   onMessage: ({ channel, direction, payload }) => console.log(direction, channel, payload),
 })
 
-serve({ fetch: app.fetch, port: 3000, websocket })
+serve({ fetch: app.fetch, port: 3000, websocket: { server: new WebSocketServer({ noServer: true }) } })
 ```
 
 Connect a WebSocket client to the channel route to receive a generated message and echo replies:
@@ -106,14 +108,15 @@ The core checks the exact channel route for custom transports and requires acces
 
 ## Document detection
 
-The Docker mock server and CLI automatically detect AsyncAPI documents (by their top-level `asyncapi` field) and start the AsyncAPI mock instead of the REST mock — no extra flag is required.
+`createMockServer` detects the top-level `asyncapi` field after loading the document. Objects, inline JSON/YAML, file paths, and URLs all use the same entry point. OpenAPI and Swagger documents continue to use the REST mock. SSE channels need no WebSocket adapter; WebSocket channels report an error at startup if the adapter is missing.
 
 ## Adding custom transports
 
 Transports are pluggable. A transport declares which channels it owns via `supports()` and registers them via `register()`. The first transport whose `supports()` returns `true` for a channel owns it; built-in WebSocket and SSE transports are checked first.
 
 ```typescript
-import { createAsyncApiMockServer, type MockTransport } from '@scalar/mock-server'
+import { upgradeWebSocket } from '@hono/node-server'
+import { createMockServer, type MockTransport } from '@scalar/mock-server'
 
 const signalrTransport: MockTransport = {
   name: 'signalr',
@@ -125,10 +128,27 @@ const signalrTransport: MockTransport = {
   },
 }
 
-const { app, websocket } = await createAsyncApiMockServer({
+const app = await createMockServer({
   document,
+  upgradeWebSocket,
   transports: [signalrTransport], // appended after the built-in transports
 })
 ```
 
 Because `register()` receives both the Hono `app` and the `upgradeWebSocket` helper, protocols that negotiate over HTTP before upgrading to a socket (such as SignalR) fit without any core changes.
+
+## Other runtimes
+
+`createMockServer({ document, upgradeWebSocket })` returns the Hono application without creating a Node.js WebSocket server. Supply a Hono-compatible `UpgradeWebSocket` adapter for the host runtime. The adapter must call `onOpen` after accepting the connection so subscriptions receive their initial sample. The standard Hono Cloudflare adapter does not emit that callback; Galaxy's Pages worker uses an adapter that does.
+
+Mount WebSocket routes before middleware that modifies response headers, such as an enclosing REST application's CORS middleware. The AsyncAPI mock applies CORS only to ordinary HTTP requests.
+
+## Migrating from the AsyncAPI-specific factory
+
+Replace `createAsyncApiMockServer` with `createMockServer`, pass `upgradeWebSocket` for WebSocket channels, and use the returned Hono app directly. On Node.js, create the `WebSocketServer` in the host application as shown above. The AsyncAPI-specific factory and its result/options types are no longer exported.
+
+## Server paths and API descriptions
+
+The mock server prefixes channel addresses with each server's `pathname`. It registers every enum value for variables in that pathname, including combinations of multiple variables. Without an enum it uses the variable's default; variables without either remain dynamic. Channel parameters remain dynamic, and host variables and payload enums do not create extra routes. For example, `/ws/{version}` with `enum: [v1, v2]` serves both `/ws/v1/planets/{id}/events` and `/ws/v2/planets/{id}/events`.
+
+AsyncAPI apps serve `/asyncapi.json` and `/asyncapi.yaml` automatically, alongside the mock channels. WebSocket and HTTP server hosts and mock OAuth/OpenID Connect URLs in these documents use the incoming request's origin, so local development and deployment previews connect to their own mock. Other broker protocols retain their original hosts. The input document is not mutated. Mount the app at `/` to use the paths declared by its servers.

@@ -1,6 +1,7 @@
 import path from 'node:path'
 import { cwd } from 'node:process'
 
+import { isObjectLike } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls, parseJson, parseYaml, readFiles } from '@scalar/json-magic/bundle/plugins/node'
 import { isFilePath } from '@scalar/json-magic/helpers/is-file-path'
@@ -8,42 +9,36 @@ import { isHttpUrl } from '@scalar/json-magic/helpers/is-http-url'
 import { createMagicProxy } from '@scalar/json-magic/magic-proxy'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { upgrade } from '@scalar/openapi-upgrader'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 
-/**
- * Processes an OpenAPI document by bundling external references, upgrading compatible input to OpenAPI 3.2,
- * and wrapping it so internal references stay intact but resolve lazily.
- *
- * Unlike a full dereference, the returned document keeps `$ref` nodes in place. Consumers
- * resolve them on demand with `getResolvedRef` from `@scalar/workspace-store`, which reads the
- * `$ref-value` exposed by the magic proxy. This avoids eagerly flattening (and duplicating)
- * the whole document up front.
- *
- * Compatibility failures retain the OpenAPI 3.1 document and its version, without applying partial migrations.
- *
- * @param document - The OpenAPI document to process. Can be a string (URL/path) or an object.
- * @param origin - Source file path or URL for resolving references in an already loaded document.
- * @returns A promise that resolves to the document with lazily resolvable references.
- * @throws Error if the document cannot be processed or is invalid.
- */
-export async function processOpenApiDocument(
-  document: string | Record<string, any> | undefined,
+/** A processed API description, tagged so each mock engine receives its own document type. */
+export type ProcessedDocument =
+  | { type: 'openapi'; document: OpenAPIV3_1.Document | OpenAPIV3_2.Document }
+  | { type: 'asyncapi'; document: AsyncApiDocument }
+
+/** Bundle API descriptions once, retaining AsyncAPI and upgrading compatible OpenAPI input. */
+export const processDocument = async (
+  document: string | Record<string, unknown> | undefined,
   origin?: string,
-): Promise<OpenAPIV3_1.Document | OpenAPIV3_2.Document> {
+): Promise<ProcessedDocument> => {
   // Handle empty/undefined input gracefully
   if (!document || (typeof document === 'object' && Object.keys(document).length === 0)) {
     // Return a minimal valid OpenAPI 3.2 document
     return {
-      openapi: '3.2.0',
-      info: {
-        title: 'Mock API',
-        version: '1.0.0',
+      type: 'openapi',
+      document: {
+        openapi: '3.2.0',
+        info: {
+          title: 'Mock API',
+          version: '1.0.0',
+        },
+        paths: {},
       },
-      paths: {},
     }
   }
 
-  let bundled: Record<string, any>
+  let bundled: unknown
 
   // Confine local file `$ref`s to the document's own directory (or the working directory when the
   // document is an object or inline string), and refuse to fetch private or internal addresses.
@@ -66,11 +61,15 @@ export async function processOpenApiDocument(
       treeShake: false,
     })
   } catch (error) {
-    throw new Error(`Failed to bundle OpenAPI document: ${error instanceof Error ? error.message : String(error)}`)
+    throw new Error(`Failed to bundle API document: ${error instanceof Error ? error.message : String(error)}`)
   }
 
-  if (!bundled || typeof bundled !== 'object') {
+  if (!isObjectLike(bundled)) {
     throw new Error('Bundled document is invalid: expected an object')
+  }
+
+  if ('asyncapi' in bundled) {
+    return { type: 'asyncapi', document: createMagicProxy(bundled) as AsyncApiDocument }
   }
 
   // Upgrading must not activate a $self field authored in an older OpenAPI version.
@@ -94,5 +93,5 @@ export async function processOpenApiDocument(
 
   // Wrap the document in a magic proxy so internal references resolve lazily via `$ref-value`.
   // External references were already pulled inline by `bundle` above, so only local `$ref`s remain.
-  return createMagicProxy(upgraded, { documentUri })
+  return { type: 'openapi', document: createMagicProxy(upgraded, { documentUri }) }
 }

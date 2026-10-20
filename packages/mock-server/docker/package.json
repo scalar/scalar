@@ -37,12 +37,14 @@
     "documentation": "https://scalar.com/tools/mock-server/docker"
   },
   "dependencies": {
+    "@hono/node-server": "catalog:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "@hono/node-server": "catalog:*"
+    "ws": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",
+    "@types/ws": "catalog:*",
     "vite": "catalog:*"
   }
 }

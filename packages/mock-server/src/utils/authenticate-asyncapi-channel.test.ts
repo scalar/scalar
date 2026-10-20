@@ -1,10 +1,10 @@
 import { once } from 'node:events'
 
-import { serve } from '@hono/node-server'
+import { serve, upgradeWebSocket } from '@hono/node-server'
 import { describe, expect, it, vi } from 'vitest'
-import { WebSocket } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
 
-import { createAsyncApiMockServer } from '../create-asyncapi-mock-server'
+import { createMockServer } from '../create-mock-server'
 
 const document = (security: unknown[], protocol = 'sse'): Record<string, unknown> => ({
   asyncapi: '3.0.0',
@@ -30,7 +30,8 @@ const operation = (message: string, security: unknown[], action = 'receive'): Re
 
 describe('authenticate-asyncapi-channel', () => {
   it('does not use an unsecured SSE server to bypass WebSocket security', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([], 'ws'),
         servers: {
@@ -39,15 +40,12 @@ describe('authenticate-asyncapi-channel', () => {
         },
       },
     })
-    try {
-      expect((await app.request('/events')).status).toBe(401)
-    } finally {
-      websocket.server.close()
-    }
+    expect((await app.request('/events')).status).toBe(401)
   })
 
   it('keeps custom transports closed unless every operation is authorized', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([], 'custom'),
         operations: {
@@ -65,26 +63,19 @@ describe('authenticate-asyncapi-channel', () => {
         },
       ],
     })
-    try {
-      expect((await app.request('/events')).status).toBe(401)
-      expect((await app.request('/events', { headers: { Authorization: 'Bearer token' } })).status).toBe(200)
-    } finally {
-      websocket.server.close()
-    }
+    expect((await app.request('/events')).status).toBe(401)
+    expect((await app.request('/events', { headers: { Authorization: 'Bearer token' } })).status).toBe(200)
   })
 
   it('does not fall back to all messages when SSE has only send operations', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([]),
         operations: { send: operation('private', [], 'send') },
       },
     })
-    try {
-      expect(await (await app.request('/events')).text()).toBe('')
-    } finally {
-      websocket.server.close()
-    }
+    expect(await (await app.request('/events')).text()).toBe('')
   })
 
   it.each([
@@ -96,19 +87,16 @@ describe('authenticate-asyncapi-channel', () => {
     [{ type: 'oauth2', flows: {} }, { Authorization: 'Bearer token' }, '/events'],
     [{ type: 'openIdConnect' }, { Authorization: 'Bearer token' }, '/events'],
   ] as const)('enforces %j before opening SSE', async (scheme, headers, path) => {
-    const { app, websocket } = await createAsyncApiMockServer({ document: document([scheme]) })
-    try {
-      expect((await app.request('/events')).status).toBe(401)
-      const response = await app.request(path, { headers })
-      expect(response.status).toBe(200)
-      expect(await response.text()).toContain('data: private')
-    } finally {
-      websocket.server.close()
-    }
+    const app = await createMockServer({ upgradeWebSocket, document: document([scheme]) })
+    expect((await app.request('/events')).status).toBe(401)
+    const response = await app.request(path, { headers })
+    expect(response.status).toBe(200)
+    expect(await response.text()).toContain('data: private')
   })
 
   it('filters protected operations without exposing their messages', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([]),
         operations: {
@@ -122,18 +110,15 @@ describe('authenticate-asyncapi-channel', () => {
         components: { securitySchemes: { key: { type: 'httpApiKey', in: 'query', name: 'key' } } },
       },
     })
-    try {
-      expect(await (await app.request('/events')).text()).toBe('event: event\ndata: public\n\n')
-      expect(await (await app.request('/events?key=secret')).text()).toBe(
-        'event: event\ndata: public\n\nevent: event\ndata: private\n\n',
-      )
-    } finally {
-      websocket.server.close()
-    }
+    expect(await (await app.request('/events')).text()).toBe('event: event\ndata: public\n\n')
+    expect(await (await app.request('/events?key=secret')).text()).toBe(
+      'event: event\ndata: public\n\nevent: event\ndata: private\n\n',
+    )
   })
 
   it('does not emit channel messages for an operation with no resolved messages', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([]),
         operations: {
@@ -142,15 +127,12 @@ describe('authenticate-asyncapi-channel', () => {
         },
       },
     })
-    try {
-      expect(await (await app.request('/events')).text()).toBe('')
-    } finally {
-      websocket.server.close()
-    }
+    expect(await (await app.request('/events')).text()).toBe('')
   })
 
   it('requires server and operation security while allowing scheme alternatives', async () => {
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       document: {
         ...document([
           { type: 'http', scheme: 'basic' },
@@ -159,13 +141,9 @@ describe('authenticate-asyncapi-channel', () => {
         operations: { private: operation('private', [{ type: 'httpApiKey', in: 'query', name: 'key' }]) },
       },
     })
-    try {
-      expect((await app.request('/events?key=secret')).status).toBe(401)
-      expect((await app.request('/events', { headers: { Authorization: 'Bearer token' } })).status).toBe(401)
-      expect((await app.request('/events?key=secret', { headers: { Authorization: 'Bearer token' } })).status).toBe(200)
-    } finally {
-      websocket.server.close()
-    }
+    expect((await app.request('/events?key=secret')).status).toBe(401)
+    expect((await app.request('/events', { headers: { Authorization: 'Bearer token' } })).status).toBe(401)
+    expect((await app.request('/events?key=secret', { headers: { Authorization: 'Bearer token' } })).status).toBe(200)
   })
 
   it.each([
@@ -179,23 +157,21 @@ describe('authenticate-asyncapi-channel', () => {
     'apiKey',
   ])('reports unsupported %s and never silently authenticates it', async (type) => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const { app, websocket } = await createAsyncApiMockServer({ document: document([{ type }]) })
+    const app = await createMockServer({ upgradeWebSocket, document: document([{ type }]) })
     try {
       expect(warning).toHaveBeenCalledWith(expect.stringContaining(`unsupported security: ${type}`))
       expect((await app.request('/events', { headers: { Authorization: 'Basic dXNlcjpwYXNz' } })).status).toBe(401)
     } finally {
-      websocket.server.close()
       warning.mockRestore()
     }
   })
 
   it('rejects unresolved security references', async () => {
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-    const { app, websocket } = await createAsyncApiMockServer({ document: document([{ $ref: '#/missing' }]) })
+    const app = await createMockServer({ upgradeWebSocket, document: document([{ $ref: '#/missing' }]) })
     try {
       expect((await app.request('/events')).status).toBe(401)
     } finally {
-      websocket.server.close()
       warning.mockRestore()
     }
   })
@@ -203,13 +179,15 @@ describe('authenticate-asyncapi-channel', () => {
   it('checks WebSocket upgrades and prevents unauthorized sends', async () => {
     const onMessage = vi.fn()
     const key = { type: 'httpApiKey', in: 'query', name: 'key' }
-    const { app, websocket } = await createAsyncApiMockServer({
+    const app = await createMockServer({
+      upgradeWebSocket,
       onMessage,
       document: {
         ...document([{ type: 'http', scheme: 'bearer' }], 'ws'),
         operations: { receive: operation('public', []), send: operation('private', [key], 'send') },
       },
     })
+    const websocket = { server: new WebSocketServer({ noServer: true }) }
     const server = serve({ fetch: app.fetch, hostname: '127.0.0.1', port: 0, websocket })
     const clients: WebSocket[] = []
     try {
