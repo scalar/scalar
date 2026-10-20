@@ -24,7 +24,7 @@ import {
 import { SpecificationExtension } from '@/features/specification-extension'
 import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import AsyncApiLabels from './AsyncApiLabels.vue'

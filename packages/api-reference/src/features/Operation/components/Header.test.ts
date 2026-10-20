@@ -3,7 +3,7 @@ import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 import Header from './Header.vue'
 

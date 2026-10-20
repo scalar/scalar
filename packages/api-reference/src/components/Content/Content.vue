@@ -51,8 +51,10 @@ import TraversedEntry from '@/components/Content/Operations/TraversedEntry.vue'
 import { RenderPlugins } from '@/components/RenderPlugins'
 import { SectionFlare } from '@/components/SectionFlare'
 import { provideDocumentOutline } from '@/features/document-outline'
-import { getXKeysFromObject } from '@/features/specification-extension'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import {
+  getXKeysFromObject,
+  SpecificationExtension,
+} from '@/features/specification-extension'
 import {
   firstLazyLoadComplete,
   scheduleInitialLoadComplete,
