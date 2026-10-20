@@ -67,7 +67,7 @@ const resolvedOperation = computed(() =>
   resolveAsyncApiOperation(document, operation.operationName),
 )
 
-/** Heading prefers title, then summary, then the operation map key. */
+/** Heading prefers title, then summary, then the navigation label or operation map key. */
 const headingText = computed(() =>
   pickHeading(
     resolvedOperation.value?.title,
@@ -156,7 +156,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <p
       v-if="summary"
-      class="text-c-1 mb-2 [overflow-wrap:anywhere]">
+      class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
       {{ summary }}
     </p>
     <ScalarMarkdown
@@ -290,6 +290,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 }
 /* Match the message columns, including their 48px gutter. */
 @container references-container (min-width: 900px) {
+  .operation-summary,
   .operation-description {
     width: calc((100% - 48px) / 2);
   }
