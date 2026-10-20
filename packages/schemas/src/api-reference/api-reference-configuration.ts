@@ -203,7 +203,7 @@ export const apiReferenceConfigurationSchema = intersection([
     onSidebarClick: optional(fn<(href: string) => Promise<void> | void>(), {
       typeComment: 'onSidebarClick is fired when the user clicks on a sidebar item',
     }),
-    syncUrl: optional(boolean(), {
+    urlRouting: optional(boolean(), {
       typeComment:
         'Sync navigation with the browser URL. Set to false for embedded references that must leave the host URL and history alone. Defaults to true.',
     }),

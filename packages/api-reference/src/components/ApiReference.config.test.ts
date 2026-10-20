@@ -156,7 +156,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     ['http://localhost:3000/#second/model/User', undefined, false],
     ['http://localhost:3000/docs/second/tag/users#host', { basePath: '/docs' }, true],
     ['http://localhost:3000/#%invalid-host-hash', undefined, true],
-  ])('keeps navigation internal with syncUrl disabled at %s', async (href, pathRouting, showSidebar) => {
+  ])('keeps navigation internal with urlRouting disabled at %s', async (href, pathRouting, showSidebar) => {
     const initialLocation = { ...locationMock }
     const url = new URL(href)
     Object.assign(locationMock, { href, hash: url.hash, pathname: url.pathname, search: url.search })
@@ -167,7 +167,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     const redirect = vi.fn(() => '#redirected')
     const modal = vi.spyOn(apiClientModalModule, 'createApiClientModal')
     const configuration = {
-      syncUrl: false,
+      urlRouting: false,
       showSidebar,
       pathRouting,
       redirect,
@@ -223,11 +223,11 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     }
   })
 
-  it('updates internal selection on scroll without writing history when syncUrl is false', async () => {
+  it('updates internal selection on scroll without writing history when urlRouting is false', async () => {
     const wrapper = mountComponent({
       props: {
         configuration: {
-          syncUrl: false,
+          urlRouting: false,
           slug: 'doc',
           content: {
             ...createBasicDocument(),

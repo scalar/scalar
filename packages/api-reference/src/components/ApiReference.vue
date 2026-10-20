@@ -228,7 +228,7 @@ const activeSlug = ref<string>(
  */
 if (
   typeof window !== 'undefined' &&
-  configList.value[activeSlug.value]?.config.syncUrl !== false
+  configList.value[activeSlug.value]?.config.urlRouting !== false
 ) {
   const url = new URL(window.location.href)
 
@@ -378,7 +378,9 @@ const documentLang = computed(() =>
 )
 
 /** Embeds can keep navigation local without taking over the host page URL. */
-const syncUrl = computed<boolean>(() => mergedConfig.value.syncUrl !== false)
+const urlRouting = computed<boolean>(
+  () => mergedConfig.value.urlRouting !== false,
+)
 
 /** Keep the detected host route stable while navigation changes the section hash. */
 const inferredHashBasePath = ref<string>()
@@ -448,7 +450,7 @@ const collectWebhooks = (entries: TraversedEntry[]): WebhookRedirectSource[] =>
 // Rewrite outdated `model/` and `models/` schema URLs to the current models
 // section slug so bookmarks from before the slug changed keep resolving. Webhook
 // deep links are handled separately once the document (and its navigation) loads.
-if (syncUrl.value && typeof window !== 'undefined') {
+if (urlRouting.value && typeof window !== 'undefined') {
   const canonical = redirectUrl(
     window.location.href,
     slugify(
@@ -465,7 +467,7 @@ if (syncUrl.value && typeof window !== 'undefined') {
 
 // Front-end redirect
 if (
-  syncUrl.value &&
+  urlRouting.value &&
   mergedConfig.value.redirect &&
   typeof window !== 'undefined'
 ) {
@@ -495,7 +497,7 @@ function syncSlugAndUrlWithDocument(
     isMultiDocument.value,
   )
 
-  if (config.syncUrl !== false && url) {
+  if (config.urlRouting !== false && url) {
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -1224,7 +1226,11 @@ const changeSelectedDocument = async (
   // old ids dropped the dot in the event name (`account-holdercreated`), so rewrite
   // the URL and the scroll target to the current slug before we scroll to it.
   let scrollTargetId = elementId
-  if (config.syncUrl !== false && elementId && typeof window !== 'undefined') {
+  if (
+    config.urlRouting !== false &&
+    elementId &&
+    typeof window !== 'undefined'
+  ) {
     const canonical = redirectUrl(
       window.location.href,
       slugify(config.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL),
@@ -1382,7 +1388,11 @@ onBeforeMount(async () => {
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
-  if (syncUrl.value && basePath.value === undefined && window.location.hash) {
+  if (
+    urlRouting.value &&
+    basePath.value === undefined &&
+    window.location.hash
+  ) {
     const hash = decodeURIComponent(window.location.hash.slice(1))
     // Only load documents that could be named in the link, plus the default document.
     const segments = new Set(hash.split('/'))
@@ -1415,7 +1425,7 @@ onBeforeMount(async () => {
 
   await changeSelectedDocument(
     activeSlug.value,
-    syncUrl.value
+    urlRouting.value
       ? getIdFromUrl(
           window.location.href,
           basePath.value,
@@ -1645,7 +1655,7 @@ const handleSelectSidebarEntry = async (id: string, caller?: 'sidebar') => {
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
   if (url) {
-    if (syncUrl.value) {
+    if (urlRouting.value) {
       window.history.pushState({}, '', url)
     }
 
@@ -1711,7 +1721,7 @@ eventBus.on('intersecting:nav-item', ({ id: intersectingId }) => {
   scrollSidebarToTop(id)
 
   const url = makeUrlFromId(id, basePath.value, isMultiDocument.value)
-  if (syncUrl.value && url && workspaceStore.workspace.activeDocument) {
+  if (urlRouting.value && url && workspaceStore.workspace.activeDocument) {
     window.history.replaceState({}, '', url.toString())
   }
 })
@@ -1746,7 +1756,7 @@ eventBus.on('copy-url:nav-item', ({ id }) => {
 // History and scroll restoration
 
 const handlePopState = (): void => {
-  if (!syncUrl.value) {
+  if (!urlRouting.value) {
     return
   }
   const id = getIdFromUrl(
@@ -1760,7 +1770,7 @@ const handlePopState = (): void => {
 }
 
 onBeforeMount(() => {
-  if (syncUrl.value) {
+  if (urlRouting.value) {
     window.history.scrollRestoration = 'manual'
   }
   // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late

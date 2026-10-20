@@ -8,8 +8,8 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
-  it.each([undefined, true, false])('preserves syncUrl %s through configuration normalization', (syncUrl) => {
-    expect(apiReferenceConfigurationWithSourceSchema({ syncUrl, url: '/openapi.json' }).syncUrl).toBe(syncUrl)
+  it.each([undefined, true, false])('preserves urlRouting %s through configuration normalization', (urlRouting) => {
+    expect(apiReferenceConfigurationWithSourceSchema({ urlRouting, url: '/openapi.json' }).urlRouting).toBe(urlRouting)
   })
 
   it('preserves selected extensions through runtime configuration normalization', () => {

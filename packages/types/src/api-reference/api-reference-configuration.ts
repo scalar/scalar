@@ -272,7 +272,7 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     })
     .optional() as z.ZodType<((a: string) => Promise<void> | void) | undefined>,
   /** Keep navigation internal when embedding Scalar in a page with its own routing. */
-  syncUrl: z.boolean().optional(),
+  urlRouting: z.boolean().optional(),
   /**
    * Route using paths instead of hashes, your server MUST support this
    * @example '/standalone-api-reference/:custom(.*)?'

@@ -4,4 +4,4 @@
 '@scalar/schemas': minor
 ---
 
-Add `syncUrl: false` to keep API reference navigation in internal state without reading or changing the host page URL.
+Add `urlRouting: false` to keep API reference navigation in internal state without reading or changing the host page URL.

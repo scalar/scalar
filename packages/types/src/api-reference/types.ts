@@ -823,7 +823,7 @@ type ExtendedConfiguration = {
   /** onSidebarClick is fired when the user clicks on a sidebar item */
   onSidebarClick?: (href: string) => void | Promise<void>
   /** Sync navigation with the browser URL. Set to false to leave the host URL and history alone. Defaults to true. */
-  syncUrl?: boolean
+  urlRouting?: boolean
   /** Route using paths instead of hashes, your server MUST support this. @experimental */
   pathRouting?: {
     basePath: string
