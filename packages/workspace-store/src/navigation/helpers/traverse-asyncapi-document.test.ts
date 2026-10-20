@@ -181,16 +181,16 @@ describe('traverseAsyncApiDocument', () => {
     expect(channels[0]?.children).toStrictEqual([
       {
         type: 'asyncapi-message',
-        id: 'events/channel/events/message/a',
-        title: 'Apple',
-        messageName: 'a',
+        id: 'events/channel/events/message/z',
+        title: 'Zebra',
+        messageName: 'z',
         channelName: 'events',
       },
       {
         type: 'asyncapi-message',
-        id: 'events/channel/events/message/z',
-        title: 'Zebra',
-        messageName: 'z',
+        id: 'events/channel/events/message/a',
+        title: 'Apple',
+        messageName: 'a',
         channelName: 'events',
       },
     ])
@@ -665,7 +665,7 @@ describe('traverseAsyncApiDocument', () => {
   })
 
   it.each([
-    { messages: undefined, expected: ['eventA', 'eventB'] },
+    { messages: undefined, expected: ['eventB', 'eventA'] },
     { messages: [], expected: [] },
     { messages: [{ $ref: '#/channels/events/messages/eventA' }], expected: ['eventA'] },
   ])('shows only unclaimed messages in the channel catalog: $expected', ({ messages, expected }) => {
@@ -684,7 +684,7 @@ describe('traverseAsyncApiDocument', () => {
     )
 
     expect(catalog?.map((message) => message.messageName)).toStrictEqual(
-      ['eventA', 'eventB'].filter((name) => !expected.includes(name)),
+      ['eventB', 'eventA'].filter((name) => !expected.includes(name)),
     )
     expect(operation?.children?.map((message) => message.title) ?? []).toStrictEqual(
       expected.map((name) => (name === 'eventA' ? 'A' : 'B')),
@@ -723,7 +723,27 @@ describe('traverseAsyncApiDocument', () => {
     ).toStrictEqual(['c'])
   })
 
-  it('renders tagged message-only channels, resolves references, sorts titles, and skips hidden entries', () => {
+  it.each([undefined, ['a', 'z']])('preserves declared operation message order %j', (names) => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      'x-scalar-original-document-hash': '',
+      channels: { events: { messages: { z: { title: 'Zebra' }, a: { title: 'Apple' } } } },
+      operations: {
+        receive: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          ...(names ? { messages: names.map((name) => ({ $ref: `#/channels/events/messages/${name}` })) } : {}),
+        },
+      },
+    } satisfies AsyncApiDocument
+    const navigation = traverseAsyncApiDocument('events', document)
+    expect(collectAsyncApiMessages(navigation.children).map(({ messageName }) => messageName)).toStrictEqual(
+      names ?? ['z', 'a'],
+    )
+  })
+
+  it('renders tagged message-only channels, resolves references, preserves message order, and skips hidden entries', () => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Catalog', version: '1.0.0' },
@@ -754,8 +774,8 @@ describe('traverseAsyncApiDocument', () => {
     expect(
       collectAsyncApiMessages(result.children).map(({ id, title, messageName }) => ({ id, title, messageName })),
     ).toStrictEqual([
-      { id: 'catalog/tag/events/channel/events/message/first', title: 'Alpha', messageName: 'first' },
       { id: 'catalog/tag/events/channel/events/message/last', title: 'Zebra', messageName: 'last' },
+      { id: 'catalog/tag/events/channel/events/message/first', title: 'Alpha', messageName: 'first' },
     ])
   })
 

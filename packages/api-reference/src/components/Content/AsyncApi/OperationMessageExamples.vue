@@ -9,9 +9,14 @@ import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
 
-const { document, messages } = defineProps<{
+const {
+  document,
+  messages,
+  pickerLabel = 'Message example',
+} = defineProps<{
   document: AsyncApiDocument
   messages: TraversedAsyncApiMessage[]
+  pickerLabel?: string
 }>()
 
 const choices = computed(() =>
@@ -64,16 +69,16 @@ const generatedPayload = computed<unknown>(() =>
     :contentType="selected.message.contentType ?? document.defaultContentType"
     :examples="selected.message.examples"
     :generatedPayload="generatedPayload">
-    <template #heading>
+    <template #footer>
       <ExamplePicker
         v-if="choices.length > 1"
         v-model="selectedId"
-        aria-label="Message example"
+        :aria-label="pickerLabel"
         class="-ml-1.5 h-auto!"
         :examples="pickerOptions" />
       <span
         v-else
-        class="text-c-1 font-medium"
+        class="text-c-2 min-w-0 truncate py-0.75 text-base font-normal"
         >{{ selected.label }}</span
       >
     </template>

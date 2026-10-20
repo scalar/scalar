@@ -97,23 +97,19 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
 
 <template>
   <ScalarCard
-    v-if="block || $slots.heading"
+    v-if="block || $slots.footer"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
     <ScalarCardHeader
       v-if="
-        $slots.heading ||
-        hasMultipleExamples ||
-        selected?.example.name ||
-        selected?.example.summary
+        !$slots.footer &&
+        (hasMultipleExamples ||
+          selected?.example.name ||
+          selected?.example.summary)
       "
       class="text-c-2 px-3 py-[7px] font-normal [&_.scalar-card-header-title]:whitespace-normal">
-      <slot name="heading" />
       <div
-        v-if="
-          !$slots.heading &&
-          (selected?.example.name || selected?.example.summary)
-        "
+        v-if="selected?.example.name || selected?.example.summary"
         class="min-w-0 grow">
         <div
           v-if="selected.example.name"
@@ -126,7 +122,7 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
           :value="selected.example.summary" />
       </div>
       <template
-        v-if="hasMultipleExamples && !$slots.heading"
+        v-if="hasMultipleExamples"
         #actions>
         <ExamplePicker
           v-model="selectedKey"
@@ -163,10 +159,9 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
       No payload example available.
     </ScalarCardSection>
     <ScalarCardFooter
-      v-if="
-        $slots.heading && (hasMultipleExamples || selected?.example.summary)
-      "
-      class="flex shrink-0 flex-row-reverse flex-wrap justify-start gap-x-2 px-3 py-[7px]">
+      v-if="$slots.footer"
+      class="flex shrink-0 flex-wrap items-center gap-x-2 px-3 py-[7px]">
+      <slot name="footer" />
       <ExamplePicker
         v-if="hasMultipleExamples"
         v-model="selectedKey"

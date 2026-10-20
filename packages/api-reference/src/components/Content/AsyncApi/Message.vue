@@ -403,8 +403,6 @@ const { level: headingLevel } = useDocumentOutline(
   font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
-  padding-bottom: 8px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   margin-bottom: 8px;
 }
 .message-layout {

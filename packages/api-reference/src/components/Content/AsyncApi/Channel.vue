@@ -214,7 +214,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
-      class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+      class="[&_.parameter-list-title--tree]:border-b-0! [&_.parameter-list-title--tree]:pb-0! [&_.parameter-list-title--tree]:text-base!"
       :eventBus="eventBus"
       :expansion="expansion"
       :options="parameterListOptions"

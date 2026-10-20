@@ -15,7 +15,7 @@ const displayAddress = computed(
 <template>
   <div class="min-w-0 space-y-3 text-left text-sm">
     <dl class="space-y-3">
-      <dt class="text-c-1 border-b pb-2 text-base leading-[1.45] font-medium">
+      <dt class="text-c-1 text-base leading-[1.45] font-medium">
         {{ translate('asyncapi.address') }}
       </dt>
       <dd class="group/address flex items-center gap-2">

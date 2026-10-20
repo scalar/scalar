@@ -11,6 +11,7 @@ import {
   ScalarCombobox,
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
+import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import { generateMessageSnippet } from '@scalar/snippetz/messages'
 import type {
@@ -61,6 +62,10 @@ type CodeSample = {
 const context = computed<ReturnType<typeof getAsyncApiExampleContext>>(() =>
   getAsyncApiExampleContext(document, operationName, selectedServer),
 )
+const channelPathParts = computed(() =>
+  (context.value?.channel?.address ?? operationName).split(/({[^}]+})/),
+)
+
 const selectedMessage = defineModel<string>('selectedMessage', { default: '' })
 const selectedExample = ref<string>('')
 const selectedSample = ref<string>('')
@@ -206,7 +211,8 @@ const content = computed<string | undefined>(() => {
   <ScalarCard
     class="request-card dark-mode min-w-0"
     label="Code example">
-    <ScalarCardHeader class="pr-2.5">
+    <ScalarCardHeader
+      class="flex-nowrap items-start gap-3 pr-2.5 [&_.scalar-card-header-title]:flex-1 [&_.scalar-card-header-title]:whitespace-normal [&>div:last-child]:shrink-0">
       <span class="sr-only">Code example for</span>
       <span
         class="font-code mr-1.5 uppercase"
@@ -215,9 +221,20 @@ const content = computed<string | undefined>(() => {
         "
         >{{ context?.operation.action }}</span
       >
-      <span class="text-c-2 font-code min-w-0 truncate">{{
-        context?.channel?.address ?? operationName
-      }}</span>
+      <span class="text-c-2 font-code min-w-0 font-semibold break-words">
+        <template
+          v-for="(part, index) in channelPathParts"
+          :key="index">
+          <span
+            v-if="part.startsWith('{') && part.endsWith('}')"
+            class="text-c-1 whitespace-nowrap"
+            >{{ part }}</span
+          >
+          <ScalarWrappingText
+            v-else
+            :text="part" />
+        </template>
+      </span>
       <template #actions>
         <ScalarCombobox
           v-if="samples.length > 1"

@@ -11,7 +11,7 @@ import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
 } from '@scalar/workspace-store/schemas/navigation'
-import { computed, ref, useId, useTemplateRef } from 'vue'
+import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -69,7 +69,6 @@ defineSlots<{
   actions?: () => unknown
 }>()
 
-const selectedMessage = ref('')
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
 
@@ -127,6 +126,11 @@ const messages = computed(() =>
 
 const reply = computed(() =>
   getOperationReply(document, resolvedOperation.value),
+)
+
+const replyMessages = computed(
+  () =>
+    reply.value?.messages.flatMap(({ entry }) => (entry ? [entry] : [])) ?? [],
 )
 
 const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
@@ -211,16 +215,16 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <div class="operation-example flex min-w-0 flex-col gap-6">
       <AsyncApiCodeExample
-        v-model:selectedMessage="selectedMessage"
         :authStore="authStore"
         :document="clientDocument ?? document"
         :operationName="operation.operationName"
         :securitySchemes="securitySchemes" />
       <OperationMessageExamples
-        v-model:selectedMessage="selectedMessage"
+        v-if="replyMessages.length"
         class="w-full"
         :document="document"
-        :messages="messages" />
+        :messages="replyMessages"
+        pickerLabel="Reply message example" />
     </div>
 
     <div class="operation-details">
@@ -363,9 +367,5 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     margin-top: 48px;
     padding-top: 48px;
   }
-}
-/* Space the first message accordion away from the operation header/description. */
-.operation-details > :deep(.message) {
-  margin-top: 8px;
 }
 </style>
