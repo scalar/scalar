@@ -67,10 +67,11 @@ const resolvedOperation = computed(() =>
   resolveAsyncApiOperation(document, operation.operationName),
 )
 
-/** Heading prefers title, then summary, then the operation map key. */
+/** Heading prefers title, then summary, then the navigation label or operation map key. */
 const headingText = computed(() =>
   pickHeading(
     resolvedOperation.value?.title,
+    resolvedOperation.value?.summary,
     operation.title,
     operation.operationName,
   ),
@@ -84,11 +85,17 @@ const requiredSecurity = computed<RequiredSecurity>(() =>
   ),
 )
 
+/** Use the summary as body text only when there is no description or matching heading. */
+const summary = computed((): string => {
+  const value = resolvedOperation.value?.summary?.trim() ?? ''
+  return resolvedOperation.value?.description?.trim() ||
+    value === headingText.value
+    ? ''
+    : value
+})
+
 const description = computed(
-  () =>
-    resolvedOperation.value?.description ||
-    resolvedOperation.value?.summary ||
-    '',
+  (): string => resolvedOperation.value?.description ?? '',
 )
 
 /** Only the message children of this operation. */
@@ -114,7 +121,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     :aria-labelledby="headerId"
     class="operation"
     :class="`operation--${operation.action}`">
-    <div class="operation-header">
+    <div class="operation-header mb-3">
       <Anchor
         class="mr-6"
         @copyAnchorUrl="
@@ -150,6 +157,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </div>
     </div>
 
+    <p
+      v-if="summary"
+      class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
+      {{ summary }}
+    </p>
     <ScalarMarkdown
       v-if="description"
       class="operation-description"
@@ -281,6 +293,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 }
 /* Match the message columns, including their 48px gutter. */
 @container references-container (min-width: 900px) {
+  .operation-summary,
   .operation-description {
     width: calc((100% - 48px) / 2);
   }
