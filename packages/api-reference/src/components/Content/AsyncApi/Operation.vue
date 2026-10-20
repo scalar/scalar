@@ -271,7 +271,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
-  grid-template-areas: 'heading example' 'overview example' 'details example';
+  grid-template-areas: 'heading .' 'overview .' 'details example';
   column-gap: 48px;
 }
 .operation-overview {
@@ -287,6 +287,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 .operation-example {
   grid-area: example;
   align-self: start;
+  margin-top: 48px;
 }
 @container references-container (max-width: 900px) {
   .operation {
@@ -295,6 +296,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     row-gap: 16px;
   }
   .operation-example {
+    margin-top: 0;
     position: static;
     max-height: none;
   }
