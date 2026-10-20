@@ -85,7 +85,13 @@ const { level: headingLevel } = useDocumentOutline('document')
               {{ info?.title }}
             </SectionHeaderTag>
             <template #links>
-              <div class="flex flex-wrap items-start justify-end gap-3">
+              <!-- Keep the original links layout when no custom actions are supplied. -->
+              <div
+                :class="
+                  $slots.actions
+                    ? 'flex flex-wrap items-start justify-end gap-3'
+                    : 'contents'
+                ">
                 <InfoLinks
                   :externalDocs="externalDocs"
                   :info="info" />
