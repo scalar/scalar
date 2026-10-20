@@ -34,6 +34,7 @@ import { getOperationReply } from './helpers/get-operation-reply'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
+import OperationMessageExamples from './OperationMessageExamples.vue'
 import OperationReply from './OperationReply.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
@@ -207,12 +208,17 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </div>
     </div>
 
-    <AsyncApiCodeExample
-      :authStore="authStore"
-      class="operation-example"
-      :document="clientDocument ?? document"
-      :operationName="operation.operationName"
-      :securitySchemes="securitySchemes" />
+    <div class="operation-example flex min-w-0 flex-col gap-6">
+      <AsyncApiCodeExample
+        :authStore="authStore"
+        :document="clientDocument ?? document"
+        :operationName="operation.operationName"
+        :securitySchemes="securitySchemes" />
+      <OperationMessageExamples
+        class="w-full"
+        :document="document"
+        :messages="messages" />
+    </div>
 
     <div class="operation-details">
       <SectionHeaderTag
@@ -229,6 +235,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         :eventBus="eventBus"
         :expandedItems="expandedItems"
         :expansion="expansion"
+        hideExamples
         :message="message"
         :options="options"
         :scrollTargetId="scrollTargetId"
@@ -261,7 +268,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
-  grid-template-areas: 'heading heading' 'overview example' 'details example';
+  grid-template-areas: 'heading example' 'overview example' 'details example';
   column-gap: 48px;
 }
 .operation-overview {
@@ -277,9 +284,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 .operation-example {
   grid-area: example;
   align-self: start;
-  position: sticky;
-  top: calc(var(--refs-viewport-offset) + 24px);
-  max-height: calc(var(--refs-viewport-height) - 60px);
 }
 @container references-container (max-width: 900px) {
   .operation {

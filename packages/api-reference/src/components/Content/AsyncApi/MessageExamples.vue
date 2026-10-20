@@ -96,16 +96,18 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
 
 <template>
   <ScalarCard
-    v-if="block"
+    v-if="block || $slots.heading"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
     <ScalarCardHeader
       v-if="
+        $slots.heading ||
         hasMultipleExamples ||
         selected?.example.name ||
         selected?.example.summary
       "
       class="text-c-2 px-3 py-[7px] font-normal [&_.scalar-card-header-title]:whitespace-normal">
+      <slot name="heading" />
       <div
         v-if="selected?.example.name || selected?.example.summary"
         class="min-w-0 grow">
@@ -129,7 +131,9 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
           :examples="pickerExamples" />
       </template>
     </ScalarCardHeader>
-    <ScalarCardSection class="flex-col">
+    <ScalarCardSection
+      v-if="block"
+      class="flex-col">
       <div
         v-if="block.structural"
         class="text-c-2 px-3 py-2 text-sm">
@@ -148,6 +152,11 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         label="Payload"
         :lang="block.lang"
         :prettyPrintedContent="block.content" />
+    </ScalarCardSection>
+    <ScalarCardSection
+      v-else
+      class="text-c-2 p-3 text-sm">
+      No payload example available.
     </ScalarCardSection>
   </ScalarCard>
 </template>

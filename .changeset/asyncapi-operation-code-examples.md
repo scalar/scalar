@@ -9,3 +9,5 @@ Add operation-level AsyncAPI authored code samples and JavaScript WebSocket gene
 Expose `generateMessageSnippet` and its protocol-specific input type through `@scalar/snippetz/messages` for reuse outside AsyncAPI. Initially supports WebSocket with browser JavaScript.
 
 Use selected server query and cookie API keys in generated browser WebSocket examples, with reactive credentials and masked values in the code block.
+
+Display one selectable message payload panel below each operation code example, with message schemas in the left column.

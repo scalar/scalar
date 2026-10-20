@@ -47,6 +47,7 @@ const {
   expandedItems = {},
   parent = 'operation',
   inline = false,
+  hideExamples = false,
   scrollTargetId = '',
   expansion,
 } = defineProps<
@@ -55,6 +56,8 @@ const {
     parent?: 'channel' | 'operation'
     /** Render another occurrence without duplicating navigation anchors or sidebar state. */
     inline?: boolean
+    /** Operation examples are displayed together in the right column. */
+    hideExamples?: boolean
     message: TraversedAsyncApiMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
@@ -366,6 +369,7 @@ const { level: headingLevel } = useDocumentOutline(
             </div>
           </div>
           <MessageExamples
+            v-if="!hideExamples"
             class="message-examples"
             :contentType="contentType"
             :examples="resolvedMessage?.examples"
