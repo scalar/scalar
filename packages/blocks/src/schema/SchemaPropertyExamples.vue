@@ -259,6 +259,7 @@ onKeyStroke('Escape', () => {
   position: relative;
 }
 .property-example:hover:before {
+  pointer-events: none;
   content: '';
   position: absolute;
   top: 0;

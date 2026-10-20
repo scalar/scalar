@@ -174,12 +174,19 @@ describe('AsyncApiServerSelector', () => {
     })
     const wrapper = mount(AsyncApiServerSelector, { props: { servers: [server], selectedServer: server, eventBus } })
 
-    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual([
-      '"staging"',
-      '"<tenant>"',
-      '""',
-      '"two words"',
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.text())).toStrictEqual([
+      'staging',
+      '<tenant>',
+      '',
+      'two words',
     ])
+    const exampleTriggers = wrapper
+      .findAll('button[aria-expanded]')
+      .filter((button) => ['Example', 'Examples'].includes(button.text()))
+    expect(exampleTriggers.map((button) => button.text())).toStrictEqual(['Example', 'Examples'])
+    expect(exampleTriggers[1]!.attributes('aria-expanded')).toBe('false')
+    await exampleTriggers[1]!.trigger('click')
+    expect(exampleTriggers[1]!.attributes('aria-expanded')).toBe('true')
     expect(wrapper.find('tenant').exists()).toBe(false)
     expect(wrapper.get('input').element.value).toBe('demo')
     const enumButton = wrapper.get('button[aria-describedby]')
@@ -199,11 +206,11 @@ describe('AsyncApiServerSelector', () => {
       key: 'tenant',
       value: 'custom',
     })
-    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual([
-      '"staging"',
-      '"<tenant>"',
-      '""',
-      '"two words"',
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.text())).toStrictEqual([
+      'staging',
+      '<tenant>',
+      '',
+      'two words',
     ])
     emit.mockRestore()
   })
@@ -239,13 +246,17 @@ describe('AsyncApiServerSelector', () => {
     const wrapper = mount(AsyncApiServerSelector, {
       props: { servers: [first, second], selectedServer: first, eventBus },
     })
-    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual(['"authored"'])
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.text())).toStrictEqual([
+      'authored',
+    ])
     expect(wrapper.get('input').element.value).toBe('')
     await wrapper.setProps({ selectedServer: second })
-    expect(wrapper.findAll('code').map((code) => code.text())).toStrictEqual(['"replacement"'])
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.text())).toStrictEqual([
+      'replacement',
+    ])
     expect(wrapper.get('input').element.value).toBe('other')
     await wrapper.setProps({ selectedServer: null })
-    expect(wrapper.findAll('code')).toStrictEqual([])
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]')).toStrictEqual([])
     expect(wrapper.findAll('input')).toStrictEqual([])
   })
 
@@ -256,7 +267,7 @@ describe('AsyncApiServerSelector', () => {
       server: { host: 'prod', protocol: 'mqtt', variables: { tenant: { default: 'demo' }, region: { examples: [] } } },
     })
     const wrapper = mount(AsyncApiServerSelector, { props: { servers: [server], selectedServer: server, eventBus } })
-    expect(wrapper.findAll('code')).toStrictEqual([])
+    expect(wrapper.findAll('button[aria-label^="Copy example value:"]')).toStrictEqual([])
     expect(wrapper.findAll('[aria-describedby]')).toStrictEqual([])
   })
 

@@ -24,6 +24,7 @@ export default {}
 
 <script lang="ts" setup>
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
+import { SchemaPropertyExamples } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -150,17 +151,9 @@ const updateServerVariable = (key: string, value: string) => {
       v-for="[name, variable] in variableExamples"
       :key="name"
       #[`hint-${name}`]>
-      <span>{{ translate('schema.examples') }}:</span>
-      <ul class="mt-1 flex flex-wrap gap-x-2 gap-y-1">
-        <li
-          v-for="(example, index) in variable.examples"
-          :key="index"
-          class="max-w-full min-w-0">
-          <code class="font-code wrap-anywhere whitespace-pre-wrap">{{
-            JSON.stringify(example)
-          }}</code>
-        </li>
-      </ul>
+      <div class="flex">
+        <SchemaPropertyExamples :examples="variable.examples" />
+      </div>
     </template>
   </ServerVariablesForm>
 
