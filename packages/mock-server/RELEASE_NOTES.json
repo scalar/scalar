@@ -1,5 +1,32 @@
 [
   {
+    "version": "0.19.0",
+    "date": "2026-10-20",
+    "title": "Unified OpenAPI and AsyncAPI mocking in a single factory",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "createMockServer now detects whether you provide an OpenAPI or AsyncAPI document and returns the appropriate Hono app. This replaces the separate createAsyncApiMockServer factory with a single unified API."
+      },
+      {
+        "type": "list",
+        "items": [
+          "createMockServer automatically detects OpenAPI or AsyncAPI documents from objects, files, URLs, or inline JSON and YAML",
+          "AsyncAPI WebSocket channels now require a runtime-specific upgradeWebSocket adapter for flexible deployment",
+          "AsyncAPI apps automatically serve /asyncapi.json and /asyncapi.yaml with deployment-specific connection URLs",
+          "Galaxy now serves sample events on connection at wss://galaxy.scalar.com/ws/v1/planets/4/events",
+          "Node hosts create their own WebSocketServer for AsyncAPI channels"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0190",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.18.0",
     "date": "2026-10-16",
     "title": "OpenID Connect provider and transport security enforcement",

@@ -1,5 +1,17 @@
 [
   {
+    "version": "1.1.42",
+    "date": "2026-10-20",
+    "title": "Improved OAuth token management",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1142",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.41",
     "date": "2026-10-16",
     "title": "Security improvements and polish",

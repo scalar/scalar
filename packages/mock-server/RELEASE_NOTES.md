@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.19.0 (2026-10-20)
+
+### Unified OpenAPI and AsyncAPI mocking in a single factory
+
+createMockServer now detects whether you provide an OpenAPI or AsyncAPI document and returns the appropriate Hono app. This replaces the separate createAsyncApiMockServer factory with a single unified API.
+
+- createMockServer automatically detects OpenAPI or AsyncAPI documents from objects, files, URLs, or inline JSON and YAML
+- AsyncAPI WebSocket channels now require a runtime-specific upgradeWebSocket adapter for flexible deployment
+- AsyncAPI apps automatically serve /asyncapi.json and /asyncapi.yaml with deployment-specific connection URLs
+- Galaxy now serves sample events on connection at wss://galaxy.scalar.com/ws/v1/planets/4/events
+- Node hosts create their own WebSocketServer for AsyncAPI channels
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0190)
+
 ## 0.18.0 (2026-10-16)
 
 ### OpenID Connect provider and transport security enforcement
