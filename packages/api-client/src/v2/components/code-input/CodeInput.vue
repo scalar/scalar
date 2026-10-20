@@ -524,11 +524,11 @@ defineExpose({
       v-if="lineNumbers"
       class="absolute top-2 right-2 z-10 flex items-center opacity-0 transition-opacity duration-150 group-hover/input:opacity-100 group-has-focus-visible/input:opacity-100">
       <ScalarIconButton
+        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
+        :aria-pressed="isLineWrapping"
         class="bg-b-2 text-c-2 hover:text-c-1"
         :class="{ '!bg-b-3 !text-c-1': isLineWrapping }"
         :icon="ScalarIconArrowElbowDownLeft"
-        :aria-pressed="isLineWrapping"
-        :aria-label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         :label="isLineWrapping ? 'Disable line wrap' : 'Wrap lines'"
         size="sm"
         tooltip

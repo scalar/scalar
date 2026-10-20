@@ -1,6 +1,7 @@
-import type { AsyncApiMockServer } from '@scalar/mock-server'
+import { upgradeWebSocket } from '@hono/node-server'
 import type { Hono } from 'hono'
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { WebSocketServer } from 'ws'
 
 import { startMockServer } from './server'
 
@@ -13,8 +14,6 @@ vi.mock('@hono/node-server', async (importOriginal) => ({
 // Mock @scalar/mock-server
 vi.mock('@scalar/mock-server', () => ({
   createMockServer: vi.fn(),
-  createAsyncApiMockServer: vi.fn(),
-  isAsyncApiDocument: vi.fn(() => false),
 }))
 
 // Mock @scalar/hono-api-reference
@@ -29,36 +28,19 @@ describe('startMockServer', () => {
   }
   let mockServe: ReturnType<typeof vi.fn>
   let mockCreateMockServer: ReturnType<typeof vi.fn>
-  let mockCreateAsyncApiMockServer: ReturnType<typeof vi.fn>
-  let mockIsAsyncApiDocument: ReturnType<typeof vi.fn>
   let mockScalar: ReturnType<typeof vi.fn>
-  let websocket: AsyncApiMockServer['websocket']
-
-  beforeAll(async () => {
-    // Loading the real handler can take longer on busy runners, so keep it outside the test timeout.
-    const { createAsyncApiMockServer } =
-      await vi.importActual<typeof import('@scalar/mock-server')>('@scalar/mock-server')
-    const server = await createAsyncApiMockServer({
-      document: '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}',
-    })
-    websocket = server.websocket
-  }, 60_000)
 
   beforeEach(async () => {
     vi.clearAllMocks()
 
     // Import mocked modules
     const { serve } = await import('@hono/node-server')
-    const { createMockServer, createAsyncApiMockServer, isAsyncApiDocument } = await import('@scalar/mock-server')
+    const { createMockServer } = await import('@scalar/mock-server')
     const { Scalar } = await import('@scalar/hono-api-reference')
 
     mockServe = vi.mocked(serve)
     mockCreateMockServer = vi.mocked(createMockServer)
-    mockCreateAsyncApiMockServer = vi.mocked(createAsyncApiMockServer)
-    mockIsAsyncApiDocument = vi.mocked(isAsyncApiDocument)
     mockScalar = vi.mocked(Scalar)
-    // OpenAPI by default; individual tests opt into the AsyncAPI branch.
-    mockIsAsyncApiDocument.mockReturnValue(false)
 
     mockApp = {
       get: vi.fn(),
@@ -72,6 +54,12 @@ describe('startMockServer', () => {
         callback({ address: '0.0.0.0', port: config.port || 3000 })
       }
     })
+  })
+
+  afterEach(() => {
+    for (const [options] of mockServe.mock.calls) {
+      options.websocket.server.close()
+    }
   })
 
   it('preserves the OpenAPI document origin', async () => {
@@ -91,12 +79,16 @@ describe('startMockServer', () => {
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
       origin: undefined,
+      upgradeWebSocket,
+      onMessage: expect.any(Function),
+      logger: expect.any(Function),
       onRequest: expect.any(Function),
     })
     expect(mockServe).toHaveBeenCalledWith(
       {
         fetch: mockApp.fetch,
         port: 3000,
+        websocket: { server: expect.any(WebSocketServer) },
       },
       expect.any(Function),
     )
@@ -115,6 +107,7 @@ describe('startMockServer', () => {
       {
         fetch: mockApp.fetch,
         port: 8080,
+        websocket: { server: expect.any(WebSocketServer) },
       },
       expect.any(Function),
     )
@@ -226,6 +219,9 @@ describe('startMockServer', () => {
     expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
       origin: undefined,
+      upgradeWebSocket,
+      onMessage: expect.any(Function),
+      logger: expect.any(Function),
       onRequest: expect.any(Function),
     })
 
@@ -278,26 +274,20 @@ describe('startMockServer', () => {
   it('passes WebSocket support to the server for AsyncAPI documents', async () => {
     const document = '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}'
 
-    mockIsAsyncApiDocument.mockReturnValue(true)
-    mockCreateAsyncApiMockServer.mockResolvedValue({
-      app: mockApp as unknown as Hono,
-      websocket,
-    })
-
     await startMockServer({ document, format: 'json', origin: '/docs/asyncapi.json' })
 
-    expect(mockCreateAsyncApiMockServer).toHaveBeenCalledWith({
+    expect(mockCreateMockServer).toHaveBeenCalledWith({
       document,
       origin: '/docs/asyncapi.json',
+      upgradeWebSocket,
+      onRequest: expect.any(Function),
       onMessage: expect.any(Function),
       logger: expect.any(Function),
     })
-    // The REST mocker is not used for AsyncAPI documents.
-    expect(mockCreateMockServer).not.toHaveBeenCalled()
     expect(mockServe.mock.calls[0]?.[0]).toStrictEqual({
       fetch: mockApp.fetch,
       port: 3000,
-      websocket,
+      websocket: { server: expect.any(WebSocketServer) },
     })
   })
 })

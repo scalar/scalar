@@ -47,8 +47,14 @@ const requestState = computed(() => {
 
 <template>
   <div class="executeRequestTool">
+    <p
+      v-if="messagePart.value.state === 'output-error'"
+      class="text-c-2 py-3"
+      role="status">
+      {{ messagePart.value.errorText }}
+    </p>
     <RequestPreview
-      v-if="requestState"
+      v-else-if="requestState"
       :request="messagePart.value.input"
       :response="messagePart.value.output"
       :state="requestState" />

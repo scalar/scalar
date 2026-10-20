@@ -1230,10 +1230,10 @@ describe('createSearchIndex', () => {
           path: item.path,
         })),
     ).toStrictEqual([
-      { title: 'Avro event', body: [], path: 'events' },
-      { title: 'Boolean event', body: [], path: 'events' },
-      { title: 'Missing schema', body: [], path: 'events' },
-      { title: 'Nested boolean event', body: [], path: 'events' },
+      { title: 'Avro event', body: [], path: undefined },
+      { title: 'Boolean event', body: [], path: undefined },
+      { title: 'Missing schema', body: [], path: undefined },
+      { title: 'Nested boolean event', body: [], path: undefined },
     ])
   })
 

@@ -36,24 +36,24 @@ const isLoading = computed(() =>
       <strong
         v-if="uploadState.type === 'loading'"
         class="uploadText">
-        Loading OpenAPI document…
+        Loading API description…
       </strong>
       <strong
         v-else-if="uploadState.type === 'processing'"
         class="uploadText">
-        Processing OpenAPI document…
+        Processing API description…
       </strong>
       <strong
         v-else
         class="uploadText">
-        Uploading OpenAPI document…
+        Uploading API description…
       </strong>
     </div>
     <strong
       v-if="uploadState.type === 'done'"
       class="uploadText flex items-center gap-1.5">
       <ScalarIconCheck class="icon text-green" />
-      Your OpenAPI document has been processed successfully.
+      Your API description has been processed successfully.
     </strong>
     <strong
       v-if="uploadState.type === 'error'"

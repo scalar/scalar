@@ -524,6 +524,39 @@ describe('ScalarDropdown', () => {
   })
 
   describe('Focus management', () => {
+    /**
+     * The menu is focused before Floating UI positions it, so it still sits at the top of its
+     * containing block. Focusing it with scrolling allowed would jump the page there.
+     */
+    it.each([
+      ['click', { type: 'click' }],
+      ['keyboard', { type: 'keydown', options: { key: 'ArrowDown' } }],
+    ] as const)('focuses the menu without scrolling the page when opened via %s', async (_, event) => {
+      const wrapper = mount(ScalarDropdown, {
+        attachTo: document.body,
+        slots: {
+          default: '<button id="trigger">Open</button>',
+          items: () => [h(ScalarDropdownItem, null, { default: () => 'Item 1' })],
+        },
+      })
+
+      await nextTick()
+
+      const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus')
+
+      await wrapper.get('button#trigger').trigger(event.type, 'options' in event ? event.options : undefined)
+      await flushPromises()
+
+      const menu = wrapper.get('[role="menu"]').element
+      const menuFocusCalls = focusSpy.mock.contexts
+        .map((context, index) => ({ context, args: focusSpy.mock.calls[index] }))
+        .filter(({ context }) => context === menu)
+
+      expect(menuFocusCalls).not.toHaveLength(0)
+      for (const { args } of menuFocusCalls) expect(args).toEqual([{ preventScroll: true }])
+      focusSpy.mockRestore()
+    })
+
     it('returns focus to button when menu closes', async () => {
       const wrapper = mount(ScalarDropdown, {
         attachTo: document.body,

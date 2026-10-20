@@ -2,7 +2,8 @@ import { isTypeObject, optimizeValueForDisplay } from '@scalar/blocks/schema/hel
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { unwrapAsyncApiSchema } from '@/helpers/get-async-api-message-payload-schema'
 
@@ -22,20 +23,8 @@ export const getCorrelationIdTarget = (
     return undefined
   }
   const section = match[1] === 'header' ? 'headers' : 'payload'
-  const source = getResolvedRef(message[section])
-  if (isObject(source) && 'schemaFormat' in source) {
-    const mediaType = String(source.schemaFormat).split(';')[0]?.trim().toLowerCase()
-    if (
-      ![
-        'application/schema+json',
-        'application/schema+yaml',
-        'application/vnd.aai.asyncapi+json',
-        'application/vnd.aai.asyncapi+yaml',
-      ].includes(mediaType ?? '')
-    ) {
-      return undefined
-    }
-  }
+  const source = getResolvedAsyncApiRef(message[section])
+
   const schema = unwrapAsyncApiSchema(source)
   if (!schema) {
     return undefined
@@ -56,13 +45,14 @@ export const getCorrelationIdTarget = (
     }
     const ancestors = new Set<unknown>()
     const target = path.reduce<unknown>((node, name, index) => {
-      const source = unwrapAsyncApiSchema(node)
-      if (!source || ancestors.has(source)) {
+      // The root is already adapted. Rebuilding its view here would lose recursive identity.
+      const source = getResolvedAsyncApiRef(node)
+      if (!isObject(source) || ancestors.has(source)) {
         return undefined
       }
       ancestors.add(source)
       // Use the renderer's normalization so single branches and nullable fields share their anchors.
-      const resolved = optimizeValueForDisplay(source)
+      const resolved = optimizeValueForDisplay(source as SchemaObject)
       if (!isTypeObject(resolved) || !resolved.properties) {
         return undefined
       }
@@ -73,7 +63,7 @@ export const getCorrelationIdTarget = (
       )
       return !collision && Object.hasOwn(resolved.properties, name) ? resolved.properties[name] : undefined
     }, schema)
-    return isObject(getResolvedRef(target)) ? { section, path } : undefined
+    return isObject(getResolvedAsyncApiRef(target)) ? { section, path } : undefined
   } catch {
     // Invalid URI escapes are authored content, not a rendering failure.
     return undefined

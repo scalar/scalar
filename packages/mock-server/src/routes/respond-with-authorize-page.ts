@@ -6,7 +6,7 @@ const EXAMPLE_AUTHORIZATION_CODE = 'super-secret-token'
 const EXAMPLE_ACCESS_TOKEN = 'super-secret-access-token'
 
 /**
- * Escapes HTML special characters to prevent XSS when rendering user-controlled scope values.
+ * Escapes user-controlled text and quoted HTML attribute values.
  */
 function escapeHtml(s: string): string {
   return s
@@ -33,7 +33,7 @@ function parseScopeParam(scopeQuery: string | undefined): string[] {
 /**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
-export function respondWithAuthorizePage(c: Context, title = '') {
+export function respondWithAuthorizePage(c: Context, title = '', authorizationCode = EXAMPLE_AUTHORIZATION_CODE) {
   const redirectUri = c.req.query('redirect_uri')
   const responseType = c.req.query('response_type')
   const scope = c.req.query('scope')
@@ -50,8 +50,11 @@ export function respondWithAuthorizePage(c: Context, title = '') {
   }
 
   try {
-    // Validate redirect URI against allowed domains
     const redirectUrl = new URL(redirectUri)
+    // Mock callbacks can use any host, but must never execute code in this page.
+    if (redirectUrl.protocol !== 'https:' && redirectUrl.protocol !== 'http:') {
+      return c.html(generateErrorHtml('Invalid redirect_uri protocol', 'The redirect_uri must use HTTP or HTTPS.'), 400)
+    }
     const isImplicitFlow = responseType === 'token'
 
     if (isImplicitFlow) {
@@ -70,7 +73,7 @@ export function respondWithAuthorizePage(c: Context, title = '') {
 
       redirectUrl.hash = fragmentParams.toString()
     } else {
-      redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
+      redirectUrl.searchParams.set('code', authorizationCode)
 
       if (state) {
         redirectUrl.searchParams.set('state', state)
@@ -155,10 +158,10 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
               </p>
             </div>
             <div class="px-6 py-4 pt-0 flex justify-between">
-              <a href="${deniedUrl}" class="inline-block px-6 py-2 text-gray-600 rounded border" aria-label="Cancel authorization">
+              <a href="${escapeHtml(deniedUrl)}" class="inline-block px-6 py-2 text-gray-600 rounded border" aria-label="Cancel authorization">
                 Cancel
               </a>
-              <a href="${redirectUrl}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800" aria-label="Authorize application">
+              <a href="${escapeHtml(redirectUrl)}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800" aria-label="Authorize application">
                 Authorize
               </a>
             </div>

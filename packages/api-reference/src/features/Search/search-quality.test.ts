@@ -1,11 +1,19 @@
-import { createNavigation } from '@scalar/workspace-store/navigation'
-import type { OpenApiDocument } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createNavigation, traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
+import type {
+  OpenApiDocument,
+  ResponseObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { FuseResult } from 'fuse.js'
 import { describe, expect, it } from 'vitest'
 
 import { createFuseInstance } from './helpers/create-fuse-instance'
 import { createSearchIndex } from './helpers/create-search-index'
+import { useSearchIndex } from './hooks/useSearchIndex'
+import type { FuseData } from './types'
 
-function search(query: string, document: Partial<OpenApiDocument>) {
+function search(query: string, document: Partial<OpenApiDocument>, limit?: number): FuseResult<FuseData>[] {
   const doc = {
     openapi: '3.1.0',
     info: {
@@ -20,10 +28,317 @@ function search(query: string, document: Partial<OpenApiDocument>) {
 
   fuse.setCollection(createSearchIndex(doc))
 
-  return fuse.search(query)
+  return fuse.search(query, { limit })
 }
 
-describe('search quality', () => {
+describe('search-quality', () => {
+  const response = (schema: SchemaObject): ResponseObject => ({
+    description: 'Result',
+    content: { 'application/json': { schema } },
+  })
+
+  const fieldSchema: SchemaObject = {
+    type: 'object',
+    properties: { zirconiumReceipt: { type: 'string', description: 'Crystalline delivery confirmation' } },
+  }
+
+  const shapes: [string, SchemaObject][] = [
+    ['response-only', fieldSchema],
+    [
+      'deep objects',
+      {
+        type: 'object',
+        properties: {
+          first: { type: 'object', properties: { second: { type: 'object', properties: { third: fieldSchema } } } },
+        },
+      },
+    ],
+    ['arrays', { type: 'array', items: fieldSchema }],
+    ['nested arrays', { type: 'array', items: { type: 'array', items: fieldSchema } }],
+    ...(['allOf', 'anyOf', 'oneOf'] as const).map((keyword): [string, SchemaObject] => [
+      keyword,
+      {
+        type: 'object',
+        [keyword]: [
+          {
+            type: 'object',
+            properties: {
+              values: { type: 'array', items: { $ref: '#/components/schemas/Receipt', '$ref-value': fieldSchema } },
+            },
+          },
+        ],
+      },
+    ]),
+    [
+      'reference chain',
+      { type: 'object', allOf: [{ $ref: '#/a', '$ref-value': { $ref: '#/b', '$ref-value': fieldSchema } }] },
+    ],
+  ]
+
+  it.each(shapes)('finds %s fields in operations, models, and webhooks', (_name, schema) => {
+    const requestBody = { content: { 'application/json': { schema } } }
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/output': { get: { responses: { '200': response(schema) } } },
+        '/input': { post: { requestBody } },
+      },
+      webhooks: {
+        incoming: { post: { requestBody } },
+        outgoing: { post: { responses: { '200': response(schema) } } },
+      },
+      components: { schemas: { Receipt: schema } },
+    }
+    for (const query of ['zirconiumReceipt', 'Crystalline delivery confirmation']) {
+      const results = search(query, document)
+      expect(results.map(({ item }) => item.type).sort()).toEqual([
+        'model',
+        'operation',
+        'operation',
+        'webhook',
+        'webhook',
+      ])
+      expect(
+        results
+          .filter(({ item }) => item.type === 'operation')
+          .map(({ item }) => item.path)
+          .sort(),
+      ).toEqual(['/input', '/output'])
+      expect(results.every(({ item }) => item.id === item.entry.id)).toBe(true)
+    }
+  })
+
+  it.each(['3.0.4', '3.1.2', '3.2.1'])('respects schema reference siblings in OpenAPI %s', (openapi) => {
+    const target: SchemaObject = { type: 'object', properties: { inheritedField: { type: 'string' } } }
+    const schema = {
+      type: 'object',
+      $ref: '#/components/schemas/Base',
+      '$ref-value': target,
+      allOf: [{ type: 'object', properties: { composedSibling: { type: 'string' } } }],
+      properties: {
+        localSibling: {
+          $ref: '#/components/schemas/String',
+          '$ref-value': { type: 'string' },
+          description: 'Saffron dispatch annotation',
+        },
+      },
+    } satisfies SchemaObject & { $ref: string; '$ref-value': SchemaObject }
+    const document: Partial<OpenApiDocument> = {
+      openapi,
+      paths: { '/output': { get: { responses: { '200': response(schema) } } } },
+      components: { schemas: { Receipt: schema } },
+    }
+    expect(
+      search('inheritedField', document)
+        .map(({ item }) => item.type)
+        .sort(),
+    ).toEqual(['model', 'operation'])
+    for (const query of ['localSibling', 'composedSibling', 'Saffron dispatch annotation']) {
+      expect(
+        search(query, document)
+          .map(({ item }) => item.type)
+          .sort(),
+      ).toEqual(openapi === '3.0.4' ? [] : ['model', 'operation'])
+    }
+  })
+
+  it('indexes every response code and media type, including resolved responses', () => {
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/output': {
+          get: {
+            responses: {
+              '200': { $ref: '#/components/responses/Success', '$ref-value': response(fieldSchema) },
+              '400': {
+                description: 'Error',
+                content: {
+                  'application/json': { schema: { type: 'object', properties: { problemMarker: { type: 'string' } } } },
+                  'application/xml': { schema: { type: 'object', properties: { xmlFailureCode: { type: 'string' } } } },
+                },
+              },
+              default: response({ type: 'object', properties: { fallbackReason: { type: 'string' } } }),
+              '503': { $ref: '#/missing' },
+            },
+          },
+        },
+      },
+    }
+    for (const query of ['zirconiumReceipt', 'problemMarker', 'xmlFailureCode', 'fallbackReason']) {
+      expect(search(query, document).map(({ item }) => item.path)).toEqual(['/output'])
+    }
+  })
+
+  it('terminates recursive and mutually recursive schemas without losing shared operation fields', () => {
+    const first: SchemaObject = { type: 'object', properties: { ...fieldSchema.properties } }
+    const second: SchemaObject = { type: 'object', properties: { mutualMarker: { type: 'string' }, parent: first } }
+    first.properties = { ...first.properties, child: { $ref: '#/first', '$ref-value': first }, second }
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/one': {
+          get: {
+            requestBody: { content: { 'application/json': { schema: first } } },
+            responses: { '200': response(first) },
+          },
+        },
+        '/two': { get: { responses: { '200': response(first) } } },
+      },
+    }
+    for (const query of ['zirconiumReceipt', 'mutualMarker']) {
+      expect(
+        search(query, document)
+          .map(({ item }) => item.path)
+          .sort(),
+      ).toEqual(['/one', '/two'])
+    }
+    expect(search('zirconiumReceipt', document)[0]?.item.body).toEqual([
+      'zirconiumReceipt',
+      'child',
+      'second',
+      'mutualMarker',
+      'parent',
+    ])
+  })
+
+  it('ranks exact response field names above incidental prose without indexing schema metadata', () => {
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/prose': { get: { description: 'Use zirconiumReceipt when reading the delivery guide.' } },
+        '/field': {
+          get: {
+            responses: {
+              '200': response({
+                ...fieldSchema,
+                title: 'MetadataOnlySentinel',
+                example: { ignoredExample: true },
+                properties: { ...fieldSchema.properties, unresolvedField: { $ref: '#/missing' } },
+              }),
+            },
+          },
+        },
+      },
+    }
+    expect(search('zirconiumReceipt', document).map(({ item }) => item.path)).toEqual(['/field', '/prose'])
+    expect(search('unresolvedField', document).map(({ item }) => item.path)).toEqual(['/field'])
+    expect(search('MetadataOnlySentinel', document)).toEqual([])
+    expect(search('ignoredExample', document)).toEqual([])
+  })
+
+  it('keeps exact fields ahead of many incidental description matches', () => {
+    const proseSchema: SchemaObject = {
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 100 }, (_, index) => [
+          `field${index}`,
+          { type: 'string', description: `Read zirconiumReceipt in guide number ${index}` },
+        ]),
+      ),
+    }
+    const document: Partial<OpenApiDocument> = {
+      paths: {
+        '/prose': { get: { responses: { '200': response(proseSchema) } } },
+        '/field': { get: { responses: { '200': response(fieldSchema) } } },
+      },
+    }
+    expect(search('zirconiumReceipt', document).map(({ item }) => item.path)).toEqual(['/field', '/prose'])
+    expect(search('zirconiumReceipt', document, 1).map(({ item }) => item.path)).toEqual(['/field'])
+  })
+
+  it('finds nested AsyncAPI model fields through multi-format wrappers', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Events', version: '1' },
+      'x-scalar-original-document-hash': '',
+      components: {
+        schemas: {
+          Receipt: {
+            schemaFormat: 'application/schema+json;version=draft-07',
+            schema: {
+              type: 'array',
+              items: { type: 'object', allOf: [fieldSchema] },
+            },
+          },
+        },
+      },
+    } as unknown as AsyncApiDocument
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+    const fuse = createFuseInstance()
+    fuse.setCollection(createSearchIndex(document))
+    expect(fuse.search('zirconiumReceipt').map(({ item }) => item.title)).toEqual(['Receipt'])
+    expect(fuse.search('Crystalline delivery confirmation').map(({ item }) => item.title)).toEqual(['Receipt'])
+  })
+
+  it('bounds deeply nested schemas and still visits a shared schema through a shorter path', () => {
+    const deep: SchemaObject = Array.from({ length: 200 }).reduce<SchemaObject>(
+      (items) => ({ type: 'array', items }),
+      fieldSchema,
+    )
+    expect(
+      search('zirconiumReceipt', { paths: { '/deep': { get: { responses: { '200': response(deep) } } } } }),
+    ).toEqual([])
+    const shared: SchemaObject = { type: 'object', properties: { leaf: fieldSchema } }
+    const nearLimit = Array.from({ length: 63 }).reduce<SchemaObject>((items) => ({ type: 'array', items }), shared)
+    const schema: SchemaObject = { type: 'object', allOf: [nearLimit, shared] }
+    expect(
+      search('zirconiumReceipt', { paths: { '/shared': { get: { responses: { '200': response(schema) } } } } }).map(
+        ({ item }) => item.path,
+      ),
+    ).toEqual(['/shared'])
+  })
+
+  it('bounds wide schemas and indexed prose', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 12_000 }, (_, index) => [`field${index}`, { type: 'string' }]),
+      ),
+    }
+    const document: Partial<OpenApiDocument> = {
+      paths: { '/wide': { get: { responses: { '200': response(schema) } } } },
+    }
+    const body = search('field0', document)[0]?.item.body
+    expect(Array.isArray(body)).toBe(true)
+    expect(body?.length).toBe(9_998)
+    expect(body?.includes('field11999')).toBe(false)
+
+    const verbose: SchemaObject = {
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 100 }, (_, index) => [
+          `entry${index}`,
+          { type: 'string', description: `${index}${'x'.repeat(5_000)}` },
+        ]),
+      ),
+    }
+    const item = search('entry0', { paths: { '/verbose': { get: { responses: { '200': response(verbose) } } } } })[0]
+      ?.item
+    const strings = [...(Array.isArray(item?.body) ? item.body : []), ...(item?.bodyDescriptions ?? [])]
+    expect(strings.reduce((sum, value) => sum + value.length, 0)).toBe(100_000)
+    expect(strings.every((value) => value.length <= 2_048)).toBe(true)
+  })
+
+  it('preserves the search result limit and owning operation navigation entries', () => {
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1' },
+      'x-scalar-original-document-hash': '',
+      paths: Object.fromEntries(
+        Array.from({ length: 30 }, (_, index) => [
+          `/resource/${index}`,
+          { get: { responses: { '200': response(fieldSchema) } } },
+        ]),
+      ),
+    } as OpenApiDocument
+    document['x-scalar-navigation'] = createNavigation('test', document, { hideModels: false })
+    const { query, results } = useSearchIndex(document)
+    expect(results.value.length).toBe(25)
+    query.value = 'zirconiumReceipt'
+    expect(results.value.length).toBe(25)
+    expect(
+      results.value.every(
+        ({ item }) => item.entry.type === 'operation' && item.entry.path === item.path && item.entry.id === item.id,
+      ),
+    ).toBe(true)
+  })
+
   it('looks up operations by summary', () => {
     const query = 'Get a token'
 

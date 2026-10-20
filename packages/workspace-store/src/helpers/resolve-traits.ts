@@ -1,11 +1,28 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { getResolvedRef } from './get-resolved-ref'
+import { getResolvedAsyncApiRef } from './get-resolved-async-api-ref'
 
 type MergeContext = 'object' | 'map' | 'data' | 'reference'
 
 const schemaMaps = new Set(['properties', 'patternProperties', '$defs', 'definitions', 'dependentSchemas'])
 const dataFields = new Set(['example', 'examples', 'default', 'enum', 'const', 'value', 'dataValue'])
+
+/** Select how the next trait field treats schema references and literal data. */
+const getChildContext = (context: MergeContext, key: string): MergeContext => {
+  if (context === 'data') {
+    return 'data'
+  }
+  if (context === 'map') {
+    return 'object'
+  }
+  if (key === 'channel') {
+    return 'reference'
+  }
+  if (dataFields.has(key) || key.startsWith('x-')) {
+    return 'data'
+  }
+  return schemaMaps.has(key) ? 'map' : 'object'
+}
 
 /**
  * Apply JSON Merge Patch to resolved trait fields. Unlike mergeObjects, null removes a key.
@@ -23,7 +40,7 @@ const mergeTraitFields = (
   }
 
   const resolvedPatch =
-    context === 'object' && isObject(patch) && typeof patch.$ref === 'string' ? getResolvedRef(patch) : patch
+    context === 'object' && isObject(patch) && typeof patch.$ref === 'string' ? getResolvedAsyncApiRef(patch) : patch
   if (!isObject(resolvedPatch)) {
     return resolvedPatch
   }
@@ -33,7 +50,9 @@ const mergeTraitFields = (
     return ancestors.get(resolvedPatch)
   }
   const resolvedTarget =
-    context === 'object' && isObject(target) && typeof target.$ref === 'string' ? getResolvedRef(target) : target
+    context === 'object' && isObject(target) && typeof target.$ref === 'string'
+      ? getResolvedAsyncApiRef(target)
+      : target
   const result: Record<string, unknown> = isObject(resolvedTarget) ? { ...resolvedTarget } : {}
   ancestors.set(resolvedPatch, result)
   for (const [key, value] of Object.entries(resolvedPatch)) {
@@ -41,18 +60,7 @@ const mergeTraitFields = (
       delete result[key]
     } else if (value !== undefined) {
       // Schema names and example data can contain literal $ref keys without being references.
-      const childContext: MergeContext =
-        context === 'data'
-          ? 'data'
-          : context === 'map'
-            ? 'object'
-            : key === 'channel'
-              ? 'reference'
-              : dataFields.has(key) || key.startsWith('x-')
-                ? 'data'
-                : schemaMaps.has(key)
-                  ? 'map'
-                  : 'object'
+      const childContext = getChildContext(context, key)
       // Define an own property even for schema properties named __proto__.
       Object.defineProperty(result, key, {
         value: mergeTraitFields(Object.hasOwn(result, key) ? result[key] : undefined, value, childContext, ancestors),
@@ -73,7 +81,7 @@ export const resolveTraits = <T extends object>(target: T, traits: readonly obje
   }
 
   const inherited = traits.reduce<Record<string, unknown>>((fields, trait) => {
-    const resolved = getResolvedRef(trait)
+    const resolved = getResolvedAsyncApiRef(trait)
     return resolved ? (mergeTraitFields(fields, resolved) as Record<string, unknown>) : fields
   }, {})
 

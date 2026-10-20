@@ -95,7 +95,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate what App.vue does in router.afterEach
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
     await waitForNavigation()
 
     // The URL routing should take precedence over the saved tab on initial load
@@ -115,7 +115,7 @@ describe('app-state', () => {
     })
     await router.isReady()
 
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
     await waitForNavigation()
 
     expect(router.currentRoute.value.name).toBe('document.overview')
@@ -136,7 +136,7 @@ describe('app-state', () => {
       params: { teamSlug: 'local', workspaceSlug: 'sync-tabs', documentSlug: 'drafts' },
     })
 
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
 
     // Wait until the workspace has finished loading — once store.value is populated
     // the tabs computed switches from the currentRoute fallback to persisted tabs.
@@ -255,7 +255,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate what App.vue does: call handleRouteChange with the team context
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     await vi.waitFor(() => {
@@ -287,7 +287,7 @@ describe('app-state', () => {
     await router.isReady()
 
     // Simulate the shell calling handleRouteChange with team context
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     await vi.waitFor(() => {
@@ -368,7 +368,7 @@ describe('app-state', () => {
     expect(router.currentRoute.value.params.workspaceSlug).toBe('team-default')
 
     // Simulate the shell resolving the team and then calling handleRouteChange
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
 
     await vi.waitFor(() => {
       expect(appState.store.value).not.toBeNull()
@@ -414,7 +414,7 @@ describe('app-state', () => {
 
     // The redirect navigated to the local default workspace. We need to call
     // handleRouteChange again for the new route to load the workspace store.
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'local'))
 
     await vi.waitFor(() => {
       expect(appState.store.value).not.toBeNull()
@@ -439,7 +439,7 @@ describe('app-state', () => {
     })
     await router.isReady()
 
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, teamSlug))
     await waitForNavigation()
 
     // Verify workspace A is loaded (by slug pair — `id` is now the
@@ -483,7 +483,7 @@ describe('app-state', () => {
 
     // `useTeams` resolves with the *current* server-advertised slug
     // (`new-slug`) — the URL is the stale value the user reloaded onto.
-    appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'new-slug', teamUid))
+    await appState.handleRouteChange(router.currentRoute.value, routeMetadata(appState, 'new-slug', teamUid))
     await waitForNavigation()
 
     expect(router.currentRoute.value.params.teamSlug).toBe('new-slug')

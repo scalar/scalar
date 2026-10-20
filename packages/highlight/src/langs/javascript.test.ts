@@ -27,7 +27,7 @@ const scopeOf = (code: string, text: string): string | null | undefined => runs(
 describe('javascript', () => {
   describe('function names', () => {
     it('scopes a function declaration', () => {
-      expect(scopeOf('function greet() {}', 'greet')).toBe('function.call')
+      expect(scopeOf('function greet() {}', 'greet')).toBe('function')
     })
 
     it('scopes a name bound to an arrow function', () => {
@@ -127,8 +127,9 @@ describe('javascript', () => {
     })
 
     it('leaves a capitalised word after an element unscoped', () => {
-      // Nothing here should still be inside the element once it has closed.
-      expect(scopeOf('const x = <b>hi</b>\nconst Total = 1', 'Total')).toBe('type')
+      // Nothing here should still be inside the element once it has closed,
+      // so the declaration reads as one.
+      expect(scopeOf('const x = <b>hi</b>\nconst Total = 1', 'Total')).toBe('variable')
     })
   })
 })

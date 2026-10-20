@@ -1,46 +1,14 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
-import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 import { getAsyncApiMessagePayloadSchema } from '@/helpers/get-async-api-message-payload-schema'
 
-/**
- * Snapshot each schema object once, retaining shared and recursive references.
- * Unpacking is shallow: use the raw object only for identity and ownership, then
- * read through the proxy so reactive edits remain tracked and references resolve.
- * Synthetic reference targets stay accessible to the generator but are omitted
- * when literal example data is serialized.
- */
-const snapshotSchema = <T>(source: T, seen = new WeakMap<object, object>()): T => {
-  if (typeof source !== 'object' || source === null) {
-    return source
-  }
-
-  const raw = unpackProxyObject(source)
-  const existing = seen.get(raw)
-  if (existing) {
-    return existing as T
-  }
-
-  const snapshot = Array.isArray(source) ? [] : {}
-  seen.set(raw, snapshot)
-  for (const key of Object.keys(source)) {
-    // Data descriptors also preserve literal __proto__ and inherited accessor names.
-    Object.defineProperty(snapshot, key, {
-      value: snapshotSchema(Reflect.get(source, key), seen),
-      enumerable: key !== '$ref-value' || Object.hasOwn(raw, key),
-      configurable: true,
-      writable: true,
-    })
-  }
-  return snapshot as T
-}
-
 /** An allOf containing a false schema cannot have a valid example. */
 const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolean => {
-  const schema = getResolvedRef(source)
+  const schema = getResolvedAsyncApiRef(source)
   if (schema === false) {
     return true
   }
@@ -53,32 +21,17 @@ const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolea
 
 /** Generate a payload only when the document does not already provide one. */
 export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unknown => {
-  if (message.examples?.some((example) => getResolvedRef(example)?.payload !== undefined)) {
+  if (message.examples?.some((example) => getResolvedAsyncApiRef(example)?.payload !== undefined)) {
     return undefined
   }
 
-  const payload = getResolvedRef(message.payload)
+  const payload = getResolvedAsyncApiRef(message.payload)
   // Boolean schemas describe validation, but do not suggest a representative payload.
   if (
     typeof payload === 'boolean' ||
-    (isObject(payload) && 'schemaFormat' in payload && typeof getResolvedRef(payload.schema) === 'boolean')
+    (isObject(payload) && 'schemaFormat' in payload && typeof getResolvedAsyncApiRef(payload.schema) === 'boolean')
   ) {
     return undefined
-  }
-
-  if (isObject(payload) && 'schemaFormat' in payload) {
-    // Avro and other formats can also be objects, but the shared generator only understands JSON Schema.
-    const mediaType = String(payload.schemaFormat).split(';')[0]?.trim().toLowerCase()
-    if (
-      ![
-        'application/schema+json',
-        'application/schema+yaml',
-        'application/vnd.aai.asyncapi+json',
-        'application/vnd.aai.asyncapi+yaml',
-      ].includes(mediaType ?? '')
-    ) {
-      return undefined
-    }
   }
 
   const schema = getAsyncApiMessagePayloadSchema(message)

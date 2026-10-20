@@ -55,6 +55,7 @@ export const list = (children: ListItem[]): List => ({ type: 'list', ordered: fa
  * additional schemes and excludes IRC/XMPP, so it is not compatible here.
  */
 export const safeUrl = (url: string): string => {
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: Control characters are intentionally matched to validate or sanitize input.
   const normalized = url.replace(/[\u0000-\u0020\u007f-\u009f]/g, '')
   const protocol = /^([^/?#]*):/.exec(normalized)?.[1]
   return protocol && !['http', 'https', 'irc', 'ircs', 'mailto', 'xmpp'].includes(protocol.toLowerCase()) ? '' : url

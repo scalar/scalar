@@ -7,7 +7,7 @@ import { hasPluginUrls, loadPluginsFromUrls } from './load-plugins-from-urls'
 const pluginModuleUrl = (name: string) =>
   `data:text/javascript,export default () => ({ name: '${name}', extensions: [] })`
 
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
 
 afterEach(() => {
   consoleErrorSpy.mockClear()

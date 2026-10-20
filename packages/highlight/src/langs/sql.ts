@@ -10,7 +10,9 @@ const sql: Grammar = {
       rules: [
         { match: '--[^\\n]*', scope: 'comment' },
         { match: '#[^\\n]*', scope: 'comment' },
-        { match: '/\\*[\\s\\S]*?\\*/', scope: 'comment' },
+        // A state, not a lazy `[\\s\\S]*?` scan: that form runs to EOF and fails
+        // once per opener, which is O(n²) on a run of unterminated `/*`.
+        { match: '/\\*', scope: 'comment', push: 'block-comment' },
 
         // Doubled quotes are the escape, so a literal never ends early.
         { match: "'(?:[^']|'')*'", scope: 'string' },
@@ -22,7 +24,7 @@ const sql: Grammar = {
 
         {
           match:
-            '\\b(?:select|from|where|group|by|order|having|limit|offset|join|inner|left|right|full|outer|cross|lateral|on|using|union|intersect|except|with|recursive|case|when|then|else|end|distinct|returning|fetch|next|rows?|only)\\b',
+            '\\b(?:select|from|where|group|by|order|having|limit|offset|join|inner|left|right|full|outer|cross|lateral|on|using|union|intersect|except|with|recursive|case|when|then|else|end|distinct|returning|fetch|next|rows?|only|declare|print|go|exec|execute|return|returns|while|loop|for|call|connect|prior|merge|matched|raise|exception|elsif|immediate)\\b',
           scope: 'keyword.control',
         },
         {
@@ -38,7 +40,7 @@ const sql: Grammar = {
         { match: '\\b(?:true|false)\\b', scope: 'boolean' },
         {
           match:
-            '\\b(?:int|integer|bigint|smallint|serial|bigserial|decimal|numeric|real|double|precision|float|money|char|varchar|text|bytea|timestamp|timestamptz|date|time|interval|boolean|bool|uuid|json|jsonb|array|enum|blob)\\b',
+            '\\b(?:int|integer|bigint|smallint|serial|bigserial|decimal|numeric|real|double|precision|float|money|char|varchar|text|bytea|timestamp|timestamptz|date|time|interval|boolean|bool|uuid|json|jsonb|array|enum|blob|varchar2|nvarchar2?|nchar|number|binary|varbinary|tinyint|datetime2?|bit|clob|nclob|character|dec|xml)\\b',
           scope: 'type.builtin',
         },
         {
@@ -62,6 +64,10 @@ const sql: Grammar = {
         { match: '[()]', scope: 'punctuation.bracket' },
         { match: '[,;.]', scope: 'punctuation.delimiter' },
       ],
+    },
+    'block-comment': {
+      default: 'comment',
+      rules: [{ match: '\\*/', scope: 'comment', pop: true }],
     },
   },
 }

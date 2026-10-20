@@ -230,7 +230,7 @@ Scalar derives a starting configuration from your document. You adjust naming, e
 
 ```json
 {
-  "name": "Acme API",
+  "organization": { "name": "Acme API" },
   "environments": {
     "production": "https://api.acme.com",
     "sandbox": "https://sandbox.acme.com"
@@ -239,7 +239,9 @@ Scalar derives a starting configuration from your document. You adjust naming, e
   "targets": {
     "typescript": { "packageName": "@acme/api" },
     "python": { "packageName": "acme_api", "projectName": "acme-api" },
-    "go": { "repo": "acme/acme-go" }
+    "go": {
+      "destinations": { "production": { "repo": "acme/acme-go" } }
+    }
   },
   "clientSettings": {
     "defaultRetries": {

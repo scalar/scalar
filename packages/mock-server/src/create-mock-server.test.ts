@@ -1902,10 +1902,10 @@ describe('createMockServer', () => {
 
     expect(response.status).toBe(200)
     expect(html).toContain(
-      'href="https://example.com/callback#access_token=super-secret-access-token&token_type=Bearer&expires_in=3600&scope=read&state=abc123"',
+      'href="https://example.com/callback#access_token=super-secret-access-token&amp;token_type=Bearer&amp;expires_in=3600&amp;scope=read&amp;state=abc123"',
     )
     expect(html).toContain(
-      'href="https://example.com/callback#error=access_denied&error_description=User+has+denied+the+authorization+request&state=abc123"',
+      'href="https://example.com/callback#error=access_denied&amp;error_description=User+has+denied+the+authorization+request&amp;state=abc123"',
     )
   })
 
@@ -1943,9 +1943,9 @@ describe('createMockServer', () => {
     const html = await response.text()
 
     expect(response.status).toBe(200)
-    expect(html).toContain('href="https://example.com/callback?code=super-secret-token&state=abc123"')
+    expect(html).toContain('href="https://example.com/callback?code=super-secret-token&amp;state=abc123"')
     expect(html).toContain(
-      'href="https://example.com/callback?state=abc123&error=access_denied&error_description=User+has+denied+the+authorization+request"',
+      'href="https://example.com/callback?state=abc123&amp;error=access_denied&amp;error_description=User+has+denied+the+authorization+request"',
     )
   })
 
@@ -2562,12 +2562,12 @@ describe('createMockServer', () => {
         document: {
           ...authenticatedDocument(),
           security: [{ mutualTls: [] }],
-          components: { securitySchemes: { mutualTls: { type: 'mutualTLS' } } },
+          components: { securitySchemes: { mutualTls: { type: 'unknownScheme' } } },
         },
         logger: false,
       })
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: mutualTLS')
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Unsupported security scheme type: unknownScheme')
     })
 
     it('answers requests as usual when logging is disabled', async () => {

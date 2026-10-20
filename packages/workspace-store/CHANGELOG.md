@@ -1,5 +1,26 @@
 # @scalar/workspace-store
 
+## 0.68.5
+
+### Patch Changes
+
+- [#10677](https://github.com/scalar/scalar/pull/10677): Generate serialized JSON examples from `contentSchema` instead of falling back to `null`, including JSON media type parameters, structured JSON suffixes, and string type arrays.
+
+## 0.68.4
+
+### Patch Changes
+
+- [#10530](https://github.com/scalar/scalar/pull/10530): Render AsyncAPI external documentation on servers, channels, operations, messages, tags, and schemas, with referenced objects and descriptions, using the existing OpenAPI link presentation.
+
+  Keep AsyncAPI messages searchable when navigation renders them beneath operations.
+
+- [#10599](https://github.com/scalar/scalar/pull/10599): Preserve recursive schemas when generating request bodies, code samples, and response examples instead of replacing recursion points with null or empty arrays.
+- [#10607](https://github.com/scalar/scalar/pull/10607): Block private-network document requests by default and require an explicit documentLoading.basePath for local files. Apply the same permissions to external references, with an opt-in for trusted private-network inputs.
+- [#10365](https://github.com/scalar/scalar/pull/10365): Preserve document-backed API key name edits for export, allow clearing configured names, and release configured overrides when their default name is restored.
+- [#10588](https://github.com/scalar/scalar/pull/10588): Ignore sibling properties on AsyncAPI Reference Objects when rendering content, navigation, search, and schemas.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+- [#10638](https://github.com/scalar/scalar/pull/10638): Give the untagged webhooks sidebar section the id `{document}/webhooks` instead of `{document}/webhook/undefined/`.
+
 ## 0.68.3
 
 ### Patch Changes

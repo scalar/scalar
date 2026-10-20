@@ -108,6 +108,7 @@ const haskell: Grammar = {
         {
           match: `${START}(import)([ \\t]+)(?:(qualified)([ \\t]+))?(${MODULE})`,
           scope: ['keyword.import', null, 'keyword', null, 'namespace'],
+          push: 'import-tail',
         },
         // `as` is a keyword only in an import, and `as` is a common name for a
         // list elsewhere — requiring a module name after it is what keeps
@@ -320,6 +321,39 @@ const haskell: Grammar = {
         // other ordinary identifier.
         { match: `${START}${UID}`, scope: 'type' },
         { include: 'operators' },
+      ],
+    },
+
+    /**
+     * What follows the module name of an import: `qualified`, `as M`, `hiding`
+     * and the list of names. Only import syntax keeps this state open, so the
+     * next declaration can start at any indentation, including on the same line.
+     */
+    'import-tail': {
+      rules: [
+        { match: '\\s+' },
+        { include: 'comments' },
+        {
+          match: `${START}(as)([ \\t]+)(${MODULE})`,
+          scope: ['keyword', null, 'namespace'],
+        },
+        { match: `${START}(?:hiding|qualified)${END}`, scope: 'keyword' },
+        { match: '\\(', scope: 'punctuation.bracket', set: 'import-names' },
+        { match: '(?=\\S)', pop: true },
+      ],
+    },
+    /** `(unfoldr, Map, Maybe(..), (<|>))`: functions, types and operators. */
+    'import-names': {
+      rules: [
+        { match: '\\)', scope: 'punctuation.bracket', pop: true },
+        { match: '\\(', scope: 'punctuation.bracket', push: 'import-names' },
+        { include: 'comments' },
+        { match: `${START}(?:type|pattern)${END}`, scope: 'keyword' },
+        { match: UID, scope: 'type' },
+        { match: LID, scope: 'function' },
+        { match: ',', scope: 'punctuation.delimiter' },
+        { match: '\\.\\.', scope: 'punctuation' },
+        { match: `[${SYM}]+`, scope: 'operator' },
       ],
     },
 

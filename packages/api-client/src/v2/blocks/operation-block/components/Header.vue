@@ -128,7 +128,9 @@ const handleAddEnvironment = () => {
       @add:environment="emit('add:environment')"
       @execute="emit('execute')"
       @select:history:item="(payload) => emit('select:history:item', payload)"
-      @update:webhook-url="(value) => emit('update:webhook-url', value)" />
+      @update:webhookUrl="
+        (value: string) => emit('update:webhook-url', value)
+      " />
 
     <div class="mb-2 flex flex-1 items-center justify-end gap-2 @3xl:mb-0">
       <!--

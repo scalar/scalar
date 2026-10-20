@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components/code-block'
-import { ScalarFormField, ScalarFormSection } from '@scalar/components/form'
+import {
+  ScalarFormField,
+  ScalarFormInput,
+  ScalarFormSection,
+} from '@scalar/components/form'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { type ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -37,6 +41,17 @@ const layout = computed<'modern' | 'classic'>({
   get: () => overrides.value?.layout ?? configuration?.layout ?? 'modern',
   set: (l) => (overrides.value = { ...overrides.value, layout: l }),
 })
+
+const schemaPropertyOrder = computed<
+  ApiReferenceConfiguration['orderSchemaPropertiesBy']
+>({
+  get: () =>
+    overrides.value?.orderSchemaPropertiesBy ??
+    configuration?.orderSchemaPropertiesBy ??
+    'alpha',
+  set: (orderSchemaPropertiesBy) =>
+    (overrides.value = { ...overrides.value, orderSchemaPropertiesBy }),
+})
 </script>
 <template>
   <ApiReferenceToolbarPopover class="w-120">
@@ -58,6 +73,24 @@ const layout = computed<'modern' | 'classic'>({
       <ScalarFormField>
         <template #label>{{ translate('developerTools.layout') }}</template>
         <ApiReferenceToolbarConfigLayout v-model="layout" />
+      </ScalarFormField>
+      <ScalarFormField>
+        <template #label>
+          {{ translate('developerTools.orderSchemaPropertiesBy') }}
+        </template>
+        <ScalarFormInput is="div">
+          <select
+            v-model="schemaPropertyOrder"
+            :aria-label="translate('developerTools.orderSchemaPropertiesBy')"
+            class="text-c-1 w-full cursor-pointer border-0 bg-transparent p-0 outline-offset-4">
+            <option value="alpha">
+              {{ translate('developerTools.alphabeticalOrder') }}
+            </option>
+            <option value="preserve">
+              {{ translate('developerTools.documentOrder') }}
+            </option>
+          </select>
+        </ScalarFormInput>
       </ScalarFormField>
       <ScalarFormField is="div">
         <template #label>

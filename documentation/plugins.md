@@ -15,6 +15,12 @@ const configuration = {
 }
 ```
 
+## Mermaid diagrams
+
+The optional `@scalar/mermaid-plugin` package renders Mermaid fences with pan and zoom controls. Enable it explicitly through `plugins: [mermaidPlugin()]`; without it, fences remain code blocks and Mermaid is not loaded. See the [Mermaid plugin README](../packages/mermaid-plugin/README.md) for setup and styling.
+
+Enabling this plugin adds Mermaid as a rendering and sanitization dependency. Diagram source may be untrusted API description content. The plugin inserts generated SVG after Scalar has sanitized the Markdown, so Mermaid's sanitizer, rather than Scalar's Markdown sanitizer, is the security boundary for diagram output. It uses Mermaid's `securityLevel: 'strict'` to sanitize content and disable callbacks. Keep that setting intact and keep the dependency updated.
+
 ## Loading a Plugin from a URL
 
 When you use the standalone browser build (`Scalar.createApiReference`), you can also reference plugins by URL.

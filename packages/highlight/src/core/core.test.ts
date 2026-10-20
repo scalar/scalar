@@ -7,6 +7,7 @@ import { escapeHtml, highlight, highlightBlock } from './render'
 import { scopeClass } from './scopes'
 import { tokenizeToArray } from './tokenize'
 import type { Grammar } from './types'
+import { REMEMBERED } from './types'
 
 const tiny: Grammar = {
   name: 'tiny',
@@ -191,6 +192,46 @@ describe('tokenize', () => {
         .map((t) => t.text)
         .join(''),
     ).toBe('ab')
+  })
+
+  it('captures only the rule wrapper in the merged regex', () => {
+    // Past 63 groups V8 allocates on every match, so each rule's own groups
+    // are made non-capturing there and read back from its sticky pattern.
+    const many = compile({
+      name: 'many',
+      states: {
+        root: {
+          rules: [
+            ...Array.from({ length: 80 }, (_, i) => ({
+              match: `(w${i})(x)`,
+              scope: ['keyword', null] as [string, null],
+            })),
+            { match: '(?<sign>[-+])([0-9]+)', scope: ['operator', 'number'] },
+            { match: '(\\[)(\\w+)(\\[)', scope: 'string', push: 'body', remember: 2 },
+          ],
+        },
+        body: {
+          default: 'string',
+          rules: [{ match: `\\]${REMEMBERED}\\]`, scope: 'string', pop: true }],
+        },
+      },
+    })
+    expect(new RegExp(`${many.root.re.source}|`).exec('')!.length - 1).toBe(82)
+    const code = 'w79x -12 [eq[a]b]eq] w3x'
+    expect(tokenizeToArray(code, many).map((t) => [t.text, t.scope])).toEqual([
+      ['w79', 'keyword'],
+      ['x', null],
+      [' ', null],
+      ['-', 'operator'],
+      ['12', 'number'],
+      [' ', null],
+      ['[eq[', 'string'],
+      ['a]b', 'string'],
+      [']eq]', 'string'],
+      [' ', null],
+      ['w3', 'keyword'],
+      ['x', null],
+    ])
   })
 })
 
@@ -416,5 +457,350 @@ describe('registry', () => {
     expect(resolveGrammar('gone').name).toBe('shrink')
     registerLanguage({ name: 'shrink', states: { root: { rules: [] } } })
     expect(() => resolveGrammar('gone')).toThrow(/not registered/)
+  })
+})
+
+describe('line terminators', () => {
+  const quoted: Grammar = {
+    name: 'quoted',
+    states: {
+      root: { rules: [{ match: '"', scope: 'string', push: 'string' }] },
+      // An unterminated string ends with its line.
+      string: {
+        default: 'string',
+        rules: [
+          { match: '"', scope: 'string', pop: true },
+          { match: '$', pop: true },
+        ],
+      },
+    },
+  }
+
+  const scopeAt = (code: string, text: string): string | null | undefined => {
+    const at = code.indexOf(text)
+    return tokenizeToArray(code, compile(quoted)).find((t) => t.start <= at && at < t.end)?.scope
+  }
+
+  it('does not end a line at a lone carriage return', () => {
+    expect(scopeAt('"a\rb" c', 'b')).toBe('string')
+    expect(scopeAt('"a\rb" c', 'c')).toBe(null)
+  })
+
+  it('does not end a line at U+2028 or U+2029', () => {
+    expect(scopeAt('"a b" c', 'b')).toBe('string')
+    expect(scopeAt('"a b" c', 'b')).toBe('string')
+  })
+
+  it('still ends a line before CRLF and LF', () => {
+    expect(scopeAt('"a\r\nb', 'b')).toBe(null)
+    expect(scopeAt('"a\nb', 'b')).toBe(null)
+  })
+
+  it('rewrites a pattern in linear time, even one full of `[`', () => {
+    // A class holding 50k `[`: a tokenizing regex retried at every `[` would
+    // be quadratic here.
+    const match = `[${'['.repeat(50_000)}]`
+    const start = performance.now()
+    compile({ name: 'brackets', states: { root: { rules: [{ match, scope: 'punctuation' }] } } })
+    expect(performance.now() - start).toBeLessThan(500)
+  })
+
+  it('lets `.` match U+2028 but not the carriage return of a CRLF', () => {
+    const grammar = compile({ name: 'dot', states: { root: { rules: [{ match: '#.*', scope: 'comment' }] } } })
+    expect(tokenizeToArray('# a\u2028b\r\nc', grammar).map((t) => [t.text, t.scope])).toEqual([
+      ['# a\u2028b', 'comment'],
+      ['\r\nc', null],
+    ])
+  })
+})
+
+describe('remember', () => {
+  const heredoc: Grammar = {
+    name: 'heredoc',
+    states: {
+      root: {
+        rules: [{ match: '<<(\\w+)', scope: 'keyword', push: 'body', remember: 1 }],
+      },
+      body: {
+        default: 'string',
+        rules: [
+          { match: '^{{remembered}}$', scope: 'keyword', pop: true },
+          { match: '\\{', scope: 'punctuation', push: 'hole' },
+        ],
+      },
+      // Inherits the marker from `body`, so it can still see the terminator.
+      hole: {
+        rules: [{ match: '\\}', scope: 'punctuation', pop: true }],
+      },
+    },
+  }
+
+  it('closes only on the remembered text', () => {
+    const tokens = tokenizeToArray('<<END\nEOF\nEND\nafter', compile(heredoc))
+    expect(tokens.find((t) => t.text.includes('EOF'))?.scope).toBe('string')
+    expect(tokens.find((t) => t.text === 'END')?.scope).toBe('keyword')
+    expect(tokens.find((t) => t.text.includes('after'))?.scope).toBe(null)
+  })
+
+  it('keeps each stack entry’s value when states nest', () => {
+    const tokens = tokenizeToArray('<<A\n{x}\nA\n<<B\nA\nB\n', compile(heredoc))
+    expect(tokens.filter((t) => t.scope === 'keyword').map((t) => t.text)).toEqual(['<<A', 'A', '<<B', 'B'])
+  })
+
+  it('scopes a capture rule that does not use the memory, in a state that does', () => {
+    const grammar = compile({
+      name: 'heredoc-captures',
+      states: {
+        root: { rules: [{ match: '<<(\\w+)', scope: 'keyword', push: 'body', remember: 1 }] },
+        body: {
+          default: 'string',
+          rules: [
+            { match: '^{{remembered}}$', scope: 'keyword', pop: true },
+            { match: '(\\$)(\\w+)', scope: ['punctuation', 'variable'] },
+          ],
+        },
+      },
+    })
+    const tokens = tokenizeToArray('<<EOF\nhi $name\nEOF', grammar)
+    expect(tokens.find((t) => t.text === 'name')?.scope).toBe('variable')
+    expect(tokens.find((t) => t.text === 'EOF' && t.start > 0)?.scope).toBe('keyword')
+  })
+
+  it('splices the text in literally', () => {
+    const quotes: Grammar = {
+      name: 'quotes',
+      states: {
+        root: { rules: [{ match: '(\\.+)\\[', scope: 'string', push: 'body', remember: 1 }] },
+        body: { default: 'string', rules: [{ match: '\\]{{remembered}}', scope: 'string', pop: true }] },
+      },
+    }
+    // `..` must close only on `]..`, not on `]` followed by any two characters.
+    const tokens = tokenizeToArray('..[ ]ab ].. x', compile(quotes))
+    expect(tokens.find((t) => t.text === ' x')?.scope).toBe(null)
+    expect(tokens.find((t) => t.text.includes('ab'))?.scope).toBe('string')
+  })
+
+  it('remembers an indent as spaces', () => {
+    const block: Grammar = {
+      name: 'block',
+      states: {
+        root: {
+          rules: [{ match: '^(-[ \\t]+)\\|', scope: 'operator', push: 'body', remember: 1, rememberAs: 'indent' }],
+        },
+        body: { default: 'string', rules: [{ match: '^(?!{{remembered}} )(?=\\S)', pop: true }] },
+      },
+    }
+    const tokens = tokenizeToArray('-\t|\n   kept\nout', compile(block))
+    expect(tokens.find((t) => t.text.includes('kept'))?.scope).toBe('string')
+    expect(tokens.find((t) => t.text.includes('out'))?.scope).toBe(null)
+  })
+
+  it('rejects remembering without entering a state, or a group the pattern lacks', () => {
+    expect(() => compile({ name: 'x', states: { root: { rules: [{ match: '(a)', remember: 1 }] } } })).toThrow(
+      /remember 1 needs a push or set/,
+    )
+    expect(() =>
+      compile({ name: 'x', states: { root: { rules: [{ match: '(a)', push: 'root', remember: 2 }] } } }),
+    ).toThrow(/remember 2 needs a push or set and one of 1 groups/)
+  })
+})
+
+describe('embed', () => {
+  const host: Grammar = {
+    name: 'host',
+    states: {
+      root: {
+        rules: [
+          { match: '<x>', scope: 'tag', push: 'body' },
+          { match: '</x>', scope: 'tag' },
+        ],
+      },
+      body: { default: 'comment', embed: { language: 'tiny-embedded', until: '</x>' }, rules: [] },
+    },
+  }
+
+  it('tokenizes the body with the embedded language and leaves the end for the host', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const tokens = tokenizeToArray('<x>let a 1</x> 2', compile(host))
+    expect(tokens.map((t) => [t.text, t.scope])).toEqual([
+      ['<x>', 'tag'],
+      ['let', 'keyword'],
+      [' ', null],
+      ['a', 'variable'],
+      [' ', null],
+      ['1', 'number'],
+      ['</x>', 'tag'],
+      [' 2', null],
+    ])
+  })
+
+  it('hands back to the root when the embedding state was entered with `set` from the root', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const switching: Grammar = {
+      name: 'switching',
+      states: {
+        root: { rules: [{ match: '(?=<x>)', set: 'open' }] },
+        open: { rules: [{ match: '<x>', scope: 'tag', set: 'body' }] },
+        body: host.states.body!,
+      },
+    }
+    const code = '<x>let a</x> 2'
+    const tokens = tokenizeToArray(code, compile(switching))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    expect(tokens.find((t) => t.text === 'let')?.scope).toBe('keyword')
+  })
+
+  it('embeds the language the entering rule remembered', () => {
+    registerLanguage({ ...tiny, name: 'tiny-named', aliases: [] })
+    const named: Grammar = {
+      name: 'named',
+      states: {
+        root: { rules: [{ match: '<(\\w+(?:-\\w+)*)>', scope: 'tag', push: 'body', remember: 1 }] },
+        body: { default: 'comment', embed: { language: REMEMBERED, until: '</' }, rules: [] },
+      },
+    }
+    const known = tokenizeToArray('<tiny-named>let a 1</', compile(named))
+    expect(known.find((t) => t.text === 'let')?.scope).toBe('keyword')
+    // A name nothing is registered under falls back to the state's default.
+    const unknown = tokenizeToArray('<nothing-here>let a 1</', compile(named))
+    expect(unknown.find((t) => t.text === 'let a 1')?.scope).toBe('comment')
+  })
+
+  it('reads across holes the host grammar tokenizes, keeping the embedded state', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const holey: Grammar = {
+      name: 'holey',
+      states: {
+        root: {
+          rules: [
+            { match: '<x>', scope: 'tag', push: 'body' },
+            { match: '</x>', scope: 'tag' },
+            { match: '\\{\\{|\\}\\}', scope: 'punctuation' },
+          ],
+        },
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '\\{\\{[^}]*\\}\\}' }, rules: [] },
+      },
+    }
+    const code = '<x>let a "b{{ c }}d" 1</x>'
+    const tokens = tokenizeToArray(code, compile(holey))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    // The hole is the host's, and the string around it is still one string.
+    expect(tokens.filter((t) => t.text === '{{' || t.text === '}}').map((t) => t.scope)).toEqual([
+      'punctuation',
+      'punctuation',
+    ])
+    expect(tokens.find((t) => t.text === 'd')?.scope).toBe('string')
+    expect(tokens.find((t) => t.text === '1')?.scope).toBe('number')
+  })
+
+  it.each(['\\{\\{[^}]*\\}\\}', '(\\{\\{)([^}]*)(\\}\\})', '(?<open>\\{\\{)[^}]*\\}\\}'])(
+    'preserves every range when a hole pattern has captures: %s',
+    (holes) => {
+      registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+      const grammar: Grammar = {
+        ...host,
+        states: {
+          ...host.states,
+          body: { embed: { language: 'tiny-embedded', until: '</x>', holes }, rules: [] },
+        },
+      }
+      const code = '<x>1{{ first }}2{{ second }}3</x>'
+      const tokens = tokenizeToArray(code, compile(grammar))
+      expect(tokens.map(({ text, scope }) => [text, scope])).toEqual([
+        ['<x>', 'tag'],
+        ['1', 'number'],
+        ['{{ first }}', null],
+        ['2', 'number'],
+        ['{{ second }}', null],
+        ['3', 'number'],
+        ['</x>', 'tag'],
+      ])
+      expect(tokens.map(({ text }) => text).join('')).toBe(code)
+      expect(tokens.every(({ start, end, text }) => code.slice(start, end) === text)).toBe(true)
+    },
+  )
+
+  it('ignores end markers inside a host hole', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const grammar: Grammar = {
+      ...host,
+      states: {
+        ...host.states,
+        root: { rules: [{ match: '\\{\\{[^}]*\\}\\}', scope: 'comment' }, ...host.states.root!.rules] },
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '\\{\\{[^}]*\\}\\}' }, rules: [] },
+      },
+    }
+    const code = '<x>1{{ </x> }}2</x>'
+    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+      ['<x>', 'tag'],
+      ['1', 'number'],
+      ['{{ </x> }}', 'comment'],
+      ['2', 'number'],
+      ['</x>', 'tag'],
+    ])
+  })
+
+  it('ignores empty holes without losing source text', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const grammar: Grammar = {
+      ...host,
+      states: {
+        ...host.states,
+        body: { embed: { language: 'tiny-embedded', until: '</x>', holes: '(?=1)' }, rules: [] },
+      },
+    }
+    const code = '<x>1</x>'
+    expect(tokenizeToArray(code, compile(grammar)).map(({ text, scope }) => [text, scope])).toEqual([
+      ['<x>', 'tag'],
+      ['1', 'number'],
+      ['</x>', 'tag'],
+    ])
+  })
+
+  it('stops nesting embeds at a fixed depth and falls back to the default scope', () => {
+    const nested: Grammar = {
+      name: 'nested',
+      states: {
+        root: { rules: [{ match: '<', scope: 'tag', push: 'body' }] },
+        body: { default: 'comment', embed: { language: 'nested', until: '>' }, rules: [] },
+      },
+    }
+    registerLanguage(nested)
+    const code = '<'.repeat(20) + 'x'
+    const tokens = tokenizeToArray(code, compile(nested))
+    expect(tokens.map((t) => t.text).join('')).toBe(code)
+    // Eight levels in, the rest is the body's default scope rather than more tags.
+    expect(tokens.filter((t) => t.scope === 'tag')).toHaveLength(9)
+    expect(tokens.at(-1)?.scope).toBe('comment')
+  })
+
+  it('keeps an unterminated construct in the body from swallowing the end', () => {
+    registerLanguage({ ...tiny, name: 'tiny-embedded', aliases: [] })
+    const tokens = tokenizeToArray('<x>"open</x> 2', compile(host))
+    expect(tokens.find((t) => t.text === '</x>')?.scope).toBe('tag')
+  })
+
+  it('rejects an embed on the root state, which can never pop', () => {
+    expect(() =>
+      compile({ name: 'x', states: { root: { embed: { language: 'tiny', until: 'x' }, rules: [] } } }),
+    ).toThrow(/cannot embed/)
+  })
+
+  it('falls back to the state default when the language is not registered', () => {
+    const tokens = tokenizeToArray(
+      '<x>let a</x>',
+      compile({
+        ...host,
+        states: {
+          ...host.states,
+          body: { default: 'comment', embed: { language: 'not-registered-anywhere', until: '</x>' }, rules: [] },
+        },
+      }),
+    )
+    expect(tokens.map((t) => [t.text, t.scope])).toEqual([
+      ['<x>', 'tag'],
+      ['let a', 'comment'],
+      ['</x>', 'tag'],
+    ])
   })
 })

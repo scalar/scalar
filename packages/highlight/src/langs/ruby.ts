@@ -215,9 +215,12 @@ const ruby: Grammar = {
 
         {
           match:
-            '\\b(?:puts|pp|print|raise|fail|abort|loop|lambda|proc|format|sprintf|gets|exit|freeze|attr_accessor|attr_reader|attr_writer|define_method|block_given\\?)(?![\\w?!])',
+            '\\b(?:puts|pp|print|printf|putc|warn|raise|fail|abort|loop|lambda|proc|format|sprintf|gets|readlines?|sleep|rand|srand|exit|at_exit|freeze|attr_accessor|attr_reader|attr_writer|define_method|block_given\\?)(?![\\w?!])',
           scope: 'function.builtin',
         },
+        // `p x` prints, but `p` is also a common variable name, so it counts
+        // only when an argument follows it.
+        { match: '\\bp(?=\\(|[ \\t]+[\\w"\':\\[@$])', scope: 'function.builtin' },
 
         // A method with a block is still a call, so `.each do |x|` and
         // `.map { }` count alongside `.push(x)`.
@@ -225,14 +228,12 @@ const ruby: Grammar = {
           match: `(&?\\.)([ \\t]*)(${ID}[?!]?)(?=[ \\t]*(?:\\(|\\{|do\\b))`,
           scope: ['punctuation', null, 'function.method'],
         },
-        // A `?` or `!` suffix only ever ends a method name.
+        // Ruby has no public fields: `.length`, `.to_s` and `.name = x` all
+        // call a method, parentheses or not. A `?` or `!` suffix only ever ends
+        // a method name.
         {
-          match: `(&?\\.)([ \\t]*)(${ID}[?!])`,
+          match: `(&?\\.)([ \\t]*)(${ID}[?!]?)`,
           scope: ['punctuation', null, 'function.method'],
-        },
-        {
-          match: `(&?\\.)([ \\t]*)(${ID})`,
-          scope: ['punctuation', null, 'variable.member'],
         },
 
         { match: '\\b[A-Z]\\w*(?=::)', scope: 'namespace' },

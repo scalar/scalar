@@ -4,6 +4,8 @@ Personalize your published Scalar Docs for signed-in visitors: show relevant nav
 
 Personalization controls visibility, not access. Hidden pages remain reachable by URL, and hidden content remains in the page source. Use [Private Docs](private-docs.md) and access groups to restrict access to an entire site. Do not put confidential content behind a visibility filter.
 
+Personalization has its own project settings page on both public and private sites. **Settings → Privacy** continues to control site access.
+
 ## Configure and publish
 
 Add `siteConfig.userInfoHook` to your `scalar.config.json`. The URL must use HTTPS and resolve to a public address; localhost and private network addresses are not supported.
@@ -39,7 +41,7 @@ This complete configuration serves a welcome page and an enterprise page. Create
 
 The `navigation.header` spacer makes the header render without adding a visible link. On a public site with a hook configured, this exposes the sign-in action. Keep the header visible in your site and page layout options.
 
-Replace the endpoint URL with your own. [Publish your project](../deployment/automatic-deployment.md), then open the project in the [Scalar Dashboard](https://dashboard.scalar.com) and go to **Settings → Privacy → Personalization**.
+Replace the endpoint URL with your own. [Publish your project](../deployment/automatic-deployment.md), then open the project in the [Scalar Dashboard](https://dashboard.scalar.com) and go to **Settings → Personalization**.
 
 1. Check that your published endpoint appears. It is read-only here; change it in the configuration and publish again.
 2. Click **Generate secret**. Copy the secret immediately: Scalar shows it only once.
@@ -314,7 +316,7 @@ Scalar uses its existing magic-link, Google, Microsoft, or configured SSO sign-i
 
 ## Rotate the signing secret
 
-In **Settings → Privacy → Personalization**, rotate the secret and copy the newly displayed value into your hook server's secret settings. Redeploy or restart the hook so it uses the new value.
+In **Settings → Personalization**, rotate the secret and copy the newly displayed value into your hook server's secret settings. Redeploy or restart the hook so it uses the new value.
 
 During normal rotation, Scalar signs with both the new secret and the previous secret for a 24-hour grace window. The verifier above accepts any matching `v1` signature, so the old deployment continues working while you update it. Complete the update before the grace window ends.
 

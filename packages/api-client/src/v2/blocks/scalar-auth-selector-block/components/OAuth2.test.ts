@@ -1,5 +1,6 @@
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { updateClearedSecretFields } from '@scalar/workspace-store/helpers/auth-secret-fields'
 import type { OAuthFlowsObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -141,33 +142,52 @@ describe('OAuth2', () => {
     wrapper.unmount()
   })
 
-  it('keeps a field-local reset action after the access token is cleared', async () => {
+  it.each(
+    (['oauth2', 'openIdConnect'] as const).flatMap((schemeType) =>
+      (['authorizationCode', 'clientCredentials', 'implicit', 'password', 'deviceAuthorization'] as const).map(
+        (flowType) => ({ schemeType, flowType }),
+      ),
+    ),
+  )('returns to Authorize after clearing $schemeType $flowType tokens', async ({ schemeType, flowType }) => {
+    const flow = {
+      authorizationUrl: 'https://example.com/auth',
+      tokenUrl: 'https://example.com/token',
+      scopes: {},
+      'x-scalar-secret-token': 'access-token',
+      'x-scalar-secret-refresh-token': 'refresh-token',
+      'x-scalar-secret-client-id': 'client-id',
+      'x-scalar-secret-client-secret': 'client-secret',
+      'x-scalar-secret-defaults': { 'x-scalar-secret-token': 'configured-token' },
+    }
     const wrapper = mountWithProps({
-      flows: {
-        authorizationCode: {
-          authorizationUrl: 'https://example.com/auth',
-          tokenUrl: 'https://example.com/token',
-          refreshUrl: '',
-          scopes: {},
-          'x-scalar-secret-token': '',
-          'x-scalar-secret-cleared-fields': ['x-scalar-secret-token'],
-        },
-      },
+      type: flowType,
+      scheme: { type: schemeType },
+      flows: { [flowType]: flow },
     })
-    const reset = vi.fn()
-    const stop = eventBus.on('auth:reset:security-scheme-secret', reset)
-    const token = wrapper
-      .findAllComponents(RequestAuthDataTableInput)
-      .find((input) => input.text().includes('Access Token'))!
-    await token
-      .findAllComponents({ name: 'ScalarIconButton' })
-      .find((button) => button.props('label') === 'Reset to default')!
-      .trigger('click')
-    expect(reset).toHaveBeenCalledExactlyOnceWith({
+    const update = vi.fn()
+    const stop = eventBus.on('auth:update:security-scheme-secrets', update)
+    const clear = wrapper.findAll('button').find((button) => button.text() === 'Clear tokens')!
+    await clear.trigger('click')
+    const clearedTokens = { 'x-scalar-secret-token': '', 'x-scalar-secret-refresh-token': '' }
+    expect(update).toHaveBeenCalledExactlyOnceWith({
       name: 'OAuth2',
-      flow: 'authorizationCode',
-      field: 'x-scalar-secret-token',
+      payload: { type: schemeType, [flowType]: clearedTokens },
     })
+
+    // Apply the store's clear markers as well as the token values before rendering again.
+    const clearedFlow = { ...flow, ...clearedTokens }
+    updateClearedSecretFields(clearedFlow, clearedTokens)
+    await wrapper.setProps({ flows: { [flowType]: clearedFlow } })
+
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Authorize')).toBe(true)
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Clear tokens')).toBe(false)
+    expect(wrapper.findAll('button').some((button) => button.text() === 'Refresh')).toBe(false)
+    const inputs = wrapper.findAllComponents(RequestAuthDataTableInput)
+    expect(inputs.some((input) => input.text().includes('Access Token'))).toBe(false)
+    expect(inputs.find((input) => input.text().includes('Client ID'))?.props('modelValue')).toBe('client-id')
+    if (flowType !== 'implicit') {
+      expect(inputs.find((input) => input.text().includes('Client Secret'))?.props('modelValue')).toBe('client-secret')
+    }
     stop()
     wrapper.unmount()
   })

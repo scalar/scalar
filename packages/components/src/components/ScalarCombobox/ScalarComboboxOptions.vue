@@ -21,6 +21,7 @@ import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { ScalarListboxCheckbox } from '../ScalarListbox'
+import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
@@ -40,6 +41,7 @@ const {
   noResults,
   close,
   filterFn = filterByOptionLabel,
+  loader,
   multiselect,
 } = defineProps<{
   /** The options to display in the combobox */
@@ -56,9 +58,20 @@ const {
    * A function to filter the options based on a query,
    * if not provided, the options will be filtered by option label
    *
+   * Pass `(_, options) => options` when the caller searches the options itself (e.g. on a
+   * server) using the `query` model, so results the server already matched are shown as given.
+   *
    * @see {@link FilterFunction} for more information
    */
   filterFn?: FilterFunction<O, G>
+  /**
+   * The loading state of the options, see `useLoadingState`
+   *
+   * Shows a spinner at the end of the search input while active, or an X when the state is
+   * invalidated (e.g. a failed request). While loading with no options yet, the list shows
+   * placeholder rows instead of the "no results" message and the spinner.
+   */
+  loader?: LoadingState
   /** Whether the combobox is in multiselect mode, defaults to false */
   multiselect?: boolean
 }>()
@@ -101,8 +114,32 @@ const groups = computed<G[]>(
         [{ label: '', options: optionsOrGroups } as G], // G is OptionGroup<O>
 )
 
-const query = ref<string>('')
-const activeRef = ref<Option | undefined>(model.value?.[0] ?? options.value[0])
+/** The search query, exposed so callers can search the options themselves */
+const query = defineModel<string>('query', { default: '' })
+/** The filtered list of options */
+const filtered = computed<O[]>(() =>
+  filterFn(query.value, options.value, groups.value),
+)
+
+/** The list of filtered options with the "Add a new option" option */
+const withAdd = computed<Option[]>(() =>
+  slots.add ? [...filtered.value, addOption] : filtered.value,
+)
+
+/**
+ * The selected option when it is in the list, otherwise the top option.
+ *
+ * With async search the selected option is often not in the loaded results (e.g. a branch
+ * past the first page), and pointing at a row that does not exist would let Enter select nothing.
+ */
+const getInitialActive = (): Option | undefined => {
+  const selected = model.value[0]
+  return selected && withAdd.value.some((option) => option.id === selected.id)
+    ? selected
+    : withAdd.value[0]
+}
+
+const activeRef = ref<Option | undefined>(getInitialActive())
 
 // Clear the query on open and close
 onMounted(() => {
@@ -110,7 +147,7 @@ onMounted(() => {
   query.value = ''
 
   // Set the active option to the selected option or the first option
-  activeRef.value = model.value?.[0] ?? options.value[0]
+  activeRef.value = getInitialActive()
 
   // Scroll to the selected option
   const selected = model.value[0]
@@ -128,20 +165,62 @@ onMounted(() => {
   }
 })
 
+/**
+ * Whether the query changed since the options last updated. Async results arrive after the
+ * query changes, so the top hit of the new results should become active even when the
+ * previously active option is still somewhere in the list.
+ */
+let queryChanged = false
+
 // Set the top option as active when searching
 watch(
   () => query.value,
-  () => (activeRef.value = withAdd.value[0]),
+  () => {
+    activeRef.value = withAdd.value[0]
+    queryChanged = true
+  },
 )
 
-/** The filtered list of options */
-const filtered = computed<O[]>(() =>
-  filterFn(query.value, options.value, groups.value),
+/**
+ * Async options arrive after the query has changed, so the active option can point at a row
+ * that no longer exists or is no longer the top hit. Move it back to the top when that happens.
+ */
+watch(withAdd, (list) => {
+  if (
+    queryChanged ||
+    !list.some((option) => option.id === activeRef.value?.id)
+  ) {
+    activeRef.value = list[0]
+  }
+  queryChanged = false
+})
+
+/** Whether the options are still loading */
+const isLoading = computed<boolean>(() => Boolean(loader?.isLoading))
+
+/** Show placeholder rows while loading with nothing to show yet */
+const showSkeleton = computed<boolean>(
+  () => isLoading.value && !filtered.value.length,
 )
 
-/** The list of filtered options with the "Add a new option" option */
-const withAdd = computed<Option[]>(() =>
-  slots.add ? [...filtered.value, addOption] : filtered.value,
+/** Show the loader in the search input, unless the skeleton already says it is loading */
+const showLoader = computed<boolean>(
+  () => Boolean(loader?.isActive) && !showSkeleton.value,
+)
+
+/** Whether there is anything to show at the end of the search input */
+const showSearchEnd = computed<boolean>(() =>
+  Boolean(slots['search-end'] || showLoader.value),
+)
+
+/** Whether the listbox has anything to show */
+const showList = computed<boolean>(() =>
+  Boolean(
+    filtered.value.length ||
+    slots.add ||
+    showSkeleton.value ||
+    (noResults && !isLoading.value),
+  ),
 )
 
 function toggleSelected(option: Option | undefined) {
@@ -154,22 +233,20 @@ function toggleSelected(option: Option | undefined) {
     return
   }
 
-  if (multiselect) {
-    // Remove from selection list
-    if (model.value.some((o) => o.id === option.id)) {
-      model.value = model.value.filter((o) => o.id !== option.id)
-    }
-    // Add to selection list
-    else {
-      model.value = [
-        ...model.value,
-        options.value.find((o) => o.id === option.id)!,
-      ]
-    }
-  } else {
-    // Set selection for single select mode
-    model.value = [options.value.find((o) => o.id === option.id)!]
+  // Remove from selection list in multiselect mode
+  if (multiselect && model.value.some((o) => o.id === option.id)) {
+    model.value = model.value.filter((o) => o.id !== option.id)
+    return
   }
+
+  // The active option can be stale while async options load, so never select a missing one
+  const match = options.value.find((o) => o.id === option.id)
+  if (!match) {
+    return
+  }
+
+  // Add to the selection in multiselect mode, replace it in single select mode
+  model.value = multiselect ? [...model.value, match] : [match]
 }
 
 function moveActive(dir: 1 | -1) {
@@ -234,7 +311,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
   <!-- Inset to line up with the options below -->
-  <div class="relative flex m-1 mb-0.75">
+  <div class="relative flex items-center m-1 mb-0.75">
     <ScalarIconMagnifyingGlass
       class="pointer-events-none absolute left-1.75 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
@@ -243,9 +320,10 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       :aria-activedescendant="activeRef ? getOptionId(activeRef) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
-      :aria-expanded="Boolean(filtered.length || slots.add || noResults)"
+      :aria-expanded="showList"
       :aria-label="inputLabel"
-      class="min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 pr-1.75 leading-none text-c-1"
+      class="min-w-0 flex-1 rounded-md border-0 py-1.5 pl-7.25 leading-none text-c-1"
+      :class="showSearchEnd ? 'pr-7.25' : 'pr-1.75'"
       data-1p-ignore
       :placeholder
       role="combobox"
@@ -256,16 +334,41 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
       @keydown.esc.prevent="close?.()"
       @keydown.space="handleSpace"
       @keydown.up.prevent="moveActive(-1)" />
+    <div
+      v-if="showSearchEnd"
+      class="absolute right-1.75 top-1/2 flex -translate-y-1/2 items-center">
+      <slot
+        :loader
+        name="search-end">
+        <ScalarLoading
+          v-if="showLoader"
+          :loader
+          size="md" />
+      </slot>
+    </div>
   </div>
   <ul
-    v-show="filtered.length || slots.add || noResults"
+    v-show="showList"
     :id="id"
+    :aria-busy="isLoading"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
     role="listbox"
     tabindex="-1">
+    <template v-if="showSkeleton">
+      <li
+        v-for="idx in 3"
+        :key="idx"
+        aria-hidden="true"
+        class="flex px-2 py-1.5"
+        role="presentation">
+        <div
+          class="h-lh rounded-md bg-b-3 animate-pulse"
+          :class="idx === 3 ? 'w-2/3' : 'w-full'" />
+      </li>
+    </template>
     <li
-      v-if="!filtered.length && !slots.add && noResults"
+      v-else-if="!filtered.length && !slots.add && noResults && !isLoading"
       class="text-c-3 px-2.5 py-2"
       role="status">
       {{ noResults }}

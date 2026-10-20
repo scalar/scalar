@@ -1,4 +1,5 @@
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { describe, expect, it } from 'vitest'
 
 import { resolveAsyncApiChannel, resolveAsyncApiMessage, resolveAsyncApiOperation } from './resolve-async-api-nodes'
@@ -23,6 +24,58 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('resolveAsyncApiChannel', () => {
+  it('ignores channel, message, operation, and trait siblings through reference chains', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        channels: { events: { $ref: '#/components/channels/Events', title: 'Wrong channel', messages: {} } },
+        operations: { send: { $ref: '#/components/operations/Send', title: 'Wrong operation' } },
+        components: {
+          channels: {
+            Events: {
+              title: 'Events',
+              address: 'events',
+              messages: { event: { $ref: '#/components/messages/Alias', title: 'Wrong message' } },
+            },
+          },
+          messages: {
+            Alias: { $ref: '#/components/messages/Event', title: 'Wrong alias' },
+            Event: {
+              title: 'Event',
+              traits: [{ $ref: '#/components/messageTraits/Description', description: 'Wrong trait' }],
+            },
+          },
+          operations: { Send: { action: 'send', channel: { $ref: '#/channels/events' }, title: 'Send' } },
+          messageTraits: { Description: { description: 'Target trait' } },
+        },
+      },
+    })
+    const source = store.workspace.documents.events as AsyncApiDocument
+    expect(resolveAsyncApiChannel(source, 'events')?.title).toBe('Events')
+    const message = resolveAsyncApiMessage(source, 'events', 'event')
+    expect([message?.title, message?.description]).toStrictEqual(['Event', 'Target trait'])
+    expect(resolveAsyncApiOperation(source, 'send')?.title).toBe('Send')
+  })
+
+  it('does not use sibling content when message or operation targets are missing', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        channels: { events: { messages: { event: { $ref: '#/missing', title: 'Wrong message' } } } },
+        operations: { send: { $ref: '#/missing', title: 'Wrong operation' } },
+      },
+    })
+    const source = store.workspace.documents.events as AsyncApiDocument
+    expect(resolveAsyncApiMessage(source, 'events', 'event')).toBeUndefined()
+    expect(resolveAsyncApiOperation(source, 'send')).toBeUndefined()
+  })
+
   it('resolves a channel by its map key', () => {
     expect(resolveAsyncApiChannel(document, 'userSignedup')?.title).toBe('User signed up')
   })

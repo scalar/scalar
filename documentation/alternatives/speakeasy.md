@@ -50,7 +50,7 @@ Prices and language lists were checked on September 26, 2026. Stainless, once th
 
 In Scalar's [SDK generator](/products/sdk-generator), `docs` is a build target alongside the language targets. One run produces the SDKs, a static API reference, and the augmented OpenAPI document the SDKs were generated from, so your reference and your libraries cannot describe different APIs. TypeScript, Python, Go, Java, Kotlin, Ruby and CLI are generally available. C#, PHP, Rust, Swift, Dart and C++ are experimental. Custom code survives regeneration through a three-way merge.
 
-If you already ship Speakeasy SDKs, the TypeScript target can emit a [compatibility module](/resources/compare/speakeasy) that reproduces Speakeasy's standalone-function surface, marked deprecated and forwarding to the new client, so your users' call sites keep compiling while they migrate.
+If you already ship Speakeasy SDKs, the TypeScript target can emit a [compatibility module](/resources/compare/speakeasy) that reproduces Speakeasy's standalone-function surface, marked deprecated and forwarding to the new client, so your users' call sites keep compiling while they migrate. The module is experimental and not yet complete.
 
 The documentation layer is open: the [API reference](/products/api-references) and [API client](/products/api-client) are MIT licensed, with 15.7k stars on [GitHub](https://github.com/scalar/scalar). MCP is hosted rather than generated: Scalar runs [MCP servers from your OpenAPI document](/products/agent/mcp) with OAuth, instead of handing you server code to deploy.
 
@@ -160,7 +160,7 @@ For a self-run generator, OpenAPI Generator (Apache-2.0) and Kiota (MIT) are fre
 </scalar-detail>
 
 <scalar-detail title="Can I migrate from Speakeasy without breaking my users?">
-With Scalar, the TypeScript target can emit a Speakeasy compatibility module that keeps existing call sites compiling while you move users to the new client. The [Scalar vs Speakeasy](/resources/compare/speakeasy) page shows the configuration.
+With Scalar, the TypeScript target can emit a Speakeasy compatibility module that keeps existing call sites compiling while you move users to the new client. It is experimental and not yet complete. The [Scalar vs Speakeasy](/resources/compare/speakeasy) page shows the configuration.
 </scalar-detail>
 
 <scalar-detail title="Does Scalar generate Terraform providers?">

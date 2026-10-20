@@ -32,10 +32,16 @@ describe('OpenID Connect', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      issuer: 'https://example.com',
-      authorization_endpoint: '/oauth/authorize',
-      token_endpoint: '/oauth/token',
-      response_types_supported: ['code', 'token', 'id_token'],
+      issuer: 'http://localhost',
+      authorization_endpoint: 'http://localhost/oauth/authorize',
+      token_endpoint: 'http://localhost/oauth/token',
+      jwks_uri: 'http://localhost/oauth/jwks',
+      userinfo_endpoint: 'http://localhost/oauth/userinfo',
+      response_types_supported: ['code'],
+      grant_types_supported: ['authorization_code', 'refresh_token'],
+      token_endpoint_auth_methods_supported: ['none'],
+      code_challenge_methods_supported: ['S256'],
+      scopes_supported: ['openid', 'profile', 'email'],
       subject_types_supported: ['public'],
       id_token_signing_alg_values_supported: ['RS256'],
     })

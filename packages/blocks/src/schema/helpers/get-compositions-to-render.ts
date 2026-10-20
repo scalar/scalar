@@ -1,4 +1,5 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { OpenApiDocument, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
@@ -30,6 +31,8 @@ const normalizeDiscriminatorMappingRef = (value: string) =>
 export const inferDiscriminatorMappingComposition = (
   value: SchemaObject,
   documentProp?: DocumentSchemaLookup,
+  /** Inheritance can supply ordered variants, including schemas that share a mapped value. */
+  variantRefs?: readonly string[],
 ): SchemaObject | null => {
   if (value.oneOf || value.anyOf) {
     return null
@@ -51,12 +54,14 @@ export const inferDiscriminatorMappingComposition = (
     return null
   }
 
-  const refs = Object.values(mapping)
+  const refs = (variantRefs ?? Object.values(mapping))
     .filter((mappingValue): mappingValue is string => typeof mappingValue === 'string')
     .map((mappingValue) => {
       const ref = normalizeDiscriminatorMappingRef(mappingValue)
       const refName = getRefName(ref)
-      const refValue = refName ? resolve.schema(document.components?.schemas?.[refName]) : undefined
+      const refValue = refName
+        ? resolve.schema(document.components?.schemas?.[unescapeJsonPointerSegment(refName)])
+        : undefined
 
       if (!refValue) {
         return undefined

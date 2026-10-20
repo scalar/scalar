@@ -2,20 +2,20 @@
 
 # scalar sdk
 
-Manage your Scalar SDKs (Enterprise Only). Generated from `@scalar/cli` 2.10.0.
+Manage Scalar SDKs (Enterprise only).
 
 | Command | Description |
 | --- | --- |
-| [`scalar sdk list`](#list) | List all SDKs for a team namespace |
+| [`scalar sdk list`](#list) | List SDKs in a team namespace |
 | [`scalar sdk get`](#get) | Inspect SDK metadata, API source, versions, and build status |
-| [`scalar sdk create`](#create) | Create a new SDK. The SDK is created in the namespace of the API it is built from |
+| [`scalar sdk create`](#create) | Create an SDK in the namespace of its source API |
 | [`scalar sdk update`](#update) | Update SDK metadata |
 | [`scalar sdk delete`](#delete) | Delete an SDK |
-| [`scalar sdk build`](#build) | Build an SDK |
+| [`scalar sdk build`](#build) | Start an SDK build |
 
 ## list
 
-List all SDKs for a team namespace.
+List SDKs in a team namespace.
 
 ```bash
 scalar sdk list [options]
@@ -46,7 +46,7 @@ scalar sdk get [options]
 
 ## create
 
-Create a new SDK. The SDK is created in the namespace of the API it is built from.
+Create an SDK in the namespace of its source API.
 
 ```bash
 scalar sdk create [options]
@@ -56,9 +56,9 @@ scalar sdk create [options]
 
 | Option | Description |
 | --- | --- |
-| `-a, --api <api>` | Registry API slug. |
-| `-n, --namespace <namespace>` | Team namespace to look the API up in. |
-| `-l, --language <language>` | Language of your SDK. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| `-a, --api <api>` | Scalar Registry API slug. |
+| `-n, --namespace <namespace>` | Team namespace of the source API. |
+| `-l, --language <language>` | SDK language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
 
 ## update
 
@@ -74,8 +74,8 @@ scalar sdk update [options]
 | --- | --- |
 | `-s, --slug <slug>` | SDK slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
-| `--title <title>` | Title. |
-| `--isPrivate <isPrivate>` | Privacy (true/false or public/private). One of `true`, `false`, `public`, `private`. |
+| `--title <title>` | SDK title. |
+| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
 
 ## delete
 
@@ -94,7 +94,7 @@ scalar sdk delete [options]
 
 ## build
 
-Build an SDK.
+Start an SDK build.
 
 ```bash
 scalar sdk build [options]

@@ -1,5 +1,7 @@
 export const de = {
   schema: {
+    variants: 'Varianten',
+    discriminatorValue: 'Diskriminatorwert',
     noAllowedValues: 'Keine Werte erfüllen diese Enum-Bedingung.',
     example: 'Beispiel',
     examples: 'Beispiele',
@@ -46,6 +48,14 @@ export const de = {
     unique: 'eindeutig',
     values: 'Werte',
     writeOnly: 'nur schreibbar',
+    typeInteger: 'Ganzzahlen.',
+    formatInt32: 'Vorzeichenbehaftete 32-Bit-Ganzzahlen (üblicher Ganzzahltyp).',
+    formatInt64: 'Vorzeichenbehaftete 64-Bit-Ganzzahlen (Typ long).',
+    formatDate: 'full-date-Notation gemäß RFC 3339, Abschnitt 5.6, zum Beispiel 2017-07-21',
+    formatDateTime: 'date-time-Notation gemäß RFC 3339, Abschnitt 5.6, zum Beispiel 2017-07-21T17:32:28Z',
+    formatPassword: 'Hinweis an Oberflächen, die Eingabe zu maskieren',
+    formatBase64: 'Base64-kodierte Zeichen, zum Beispiel U3dhZ2dlciByb2Nrcw==',
+    formatBinary: 'Binärdaten zur Beschreibung von Dateien',
   },
   common: { copyDefault: 'Standardwert kopieren', copyExample: 'Beispielwert kopieren' },
   actions: { copyLinkTo: 'Link zu {name} kopieren' },

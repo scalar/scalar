@@ -273,6 +273,68 @@ describe('Scalar', () => {
     expect(text).toContain('deepSpace')
   })
 
+  it.each([
+    { mount: '/', source: 'object' },
+    { mount: '/api/reference', source: 'object' },
+    { mount: '/', source: 'factory' },
+    { mount: '/api/reference', source: 'factory' },
+    { mount: '/', source: 'async factory' },
+    { mount: '/api/reference', source: 'async factory' },
+  ])('serves an AsyncAPI $source mounted at $mount', async ({ mount, source }) => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'WebSocket Chat', version: '1.0.0' },
+      servers: {
+        local: { host: 'localhost:3000', protocol: 'ws' },
+      },
+      channels: {
+        chat: {
+          address: '/chat',
+          servers: [{ $ref: '#/servers/local' }],
+          messages: {
+            text: { payload: { type: 'string' } },
+          },
+        },
+      },
+      operations: {
+        receiveMessage: {
+          action: 'receive',
+          channel: { $ref: '#/channels/chat' },
+          messages: [{ $ref: '#/channels/chat/messages/text' }],
+        },
+      },
+    }
+    const documentUrl = mount === '/' ? '/asyncapi.json' : '/api/reference/asyncapi.json'
+    const app = new Hono()
+    const reference = Scalar.serve({
+      document:
+        source === 'object'
+          ? document
+          : (c) => {
+              expect(c.req.path).toBe(documentUrl)
+              return source === 'async factory' ? Promise.resolve(document) : document
+            },
+      documentPath: '/asyncapi.json',
+    })
+    if (mount === '/') {
+      app.route('/', reference)
+    } else {
+      const api = new Hono()
+      api.route('/reference', reference)
+      app.route('/api', api)
+    }
+
+    const html = await app.request(mount)
+    expect(html.status).toBe(200)
+    expect(html.headers.get('content-type')).toContain('text/html')
+    expect(await html.text()).toContain(`"url": "${documentUrl}"`)
+
+    const json = await app.request(documentUrl)
+    expect(json.status).toBe(200)
+    expect(json.headers.get('content-type')).toContain('application/json')
+    expect(await json.json()).toStrictEqual(document)
+  })
+
   describe('serve', () => {
     const document = {
       openapi: '3.1.0',

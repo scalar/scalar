@@ -1,5 +1,7 @@
 export const ar = {
   schema: {
+    variants: 'المتغيرات',
+    discriminatorValue: 'قيمة المميز',
     noAllowedValues: 'لا توجد قيم تستوفي قيد التعداد هذا.',
     example: 'مثال',
     examples: 'أمثلة',
@@ -46,6 +48,14 @@ export const ar = {
     unique: 'فريد',
     values: 'القيم',
     writeOnly: 'كتابة فقط',
+    typeInteger: 'أعداد صحيحة.',
+    formatInt32: 'أعداد صحيحة بإشارة بطول 32 بت (نوع الأعداد الصحيحة الشائع).',
+    formatInt64: 'أعداد صحيحة بإشارة بطول 64 بت (النوع long).',
+    formatDate: 'تدوين full-date وفق RFC 3339، القسم 5.6، مثلًا 2017-07-21',
+    formatDateTime: 'تدوين date-time وفق RFC 3339، القسم 5.6، مثلًا 2017-07-21T17:32:28Z',
+    formatPassword: 'تلميح للواجهات بإخفاء الإدخال',
+    formatBase64: 'أحرف بترميز base64، مثلًا U3dhZ2dlciByb2Nrcw==',
+    formatBinary: 'بيانات ثنائية لوصف الملفات',
   },
   common: { copyDefault: 'نسخ القيمة الافتراضية', copyExample: 'نسخ القيمة النموذجية' },
   actions: { copyLinkTo: 'نسخ الرابط إلى {name}' },

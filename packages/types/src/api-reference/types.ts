@@ -1,3 +1,4 @@
+import type { MarkdownRenderHook } from '@scalar/helpers/markdown/markdown-render-hook'
 import type { PartialDeep } from 'type-fest'
 
 import type { AvailableClient, ClientId, TargetId } from '../snippetz'
@@ -233,6 +234,8 @@ export type ApiReferencePlugin = () => {
   }
   hooks?: LifecycleHooks
   apiClientPlugins?: any[]
+  /** Enhance sanitized Markdown after it renders in the browser. */
+  markdown?: MarkdownRenderHook
 }
 
 export type ExternalUrls = {
@@ -425,6 +428,10 @@ export type ApiReferenceTranslations = {
   asyncapi: {
     /** Label for the root AsyncAPI application identifier. */
     applicationIdentifier: string
+    /** Label for the actual channel address, distinct from its identifier. */
+    address: string
+    /** Displayed when a channel address is absent or null. */
+    unknownAddress: string
     servers: string
     protocols: string
   }
@@ -466,6 +473,8 @@ export type ApiReferenceTranslations = {
     examples: string
     default: string
     schema: string
+    variants: string
+    discriminatorValue: string
     noAllowedValues: string
     emptyObject: string
     showAdditionalProperties: string
@@ -508,6 +517,14 @@ export type ApiReferenceTranslations = {
     unique: string
     values: string
     writeOnly: string
+    typeInteger: string
+    formatInt32: string
+    formatInt64: string
+    formatDate: string
+    formatDateTime: string
+    formatPassword: string
+    formatBase64: string
+    formatBinary: string
   }
   download: {
     openapi: string
@@ -560,6 +577,13 @@ export type ApiReferenceTranslations = {
     defaultOpenFirstTag: string
     defaultOpenAllTags: string
     expandAll: string
+    expandAllParameters: string
+    expandAllSchemaProperties: string
+    hideModelNames: string
+    orderRequiredPropertiesFirst: string
+    orderSchemaPropertiesBy: string
+    alphabeticalOrder: string
+    documentOrder: string
     expandAllResponses: string
     hideClientButton: string
     hideDarkModeToggle: string

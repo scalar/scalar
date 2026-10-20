@@ -130,6 +130,33 @@ describe('ShowMoreButton rendering', () => {
     expect(wrapper.find('.tag-section-container').classes()).toContain('tag-section-collapsed')
   })
 
+  it('names ShowMoreButton by its visible text and describes it with the tag title', () => {
+    const wrapper = mount(ModernLayout, {
+      props: {
+        ...mockProps,
+        tag: createMockTag({
+          children: [
+            {
+              type: 'operation',
+              id: 'op-1',
+              title: 'Test Operation',
+              ref: '#/paths/test',
+              method: 'get',
+              path: '/test',
+            },
+          ],
+        }),
+        moreThanOneTag: true,
+        isCollapsed: true,
+      },
+    })
+
+    const button = wrapper.find('button.show-more')
+    expect(button.attributes('aria-label')).toBeUndefined()
+    const description = wrapper.find(`[id="${button.attributes('aria-describedby')}"][hidden]`)
+    expect(description.text()).toBe('Show all Test Tag endpoints')
+  })
+
   it('does not render ShowMoreButton when tag is not collapsed', () => {
     const wrapper = mount(ModernLayout, {
       props: {

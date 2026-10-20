@@ -11,15 +11,16 @@ import type { Grammar } from '../core/types'
  * - a header name is only matched from the start of a line, which is the only
  *   way to tell it from the colons inside `Host: localhost:8080` or a timestamp
  * - the blank line after the headers switches into the body, where JSON — the
- *   body that actually shows up in API docs — is highlighted as JSON
+ *   body that actually shows up in API docs — is highlighted as JSON, and an
+ *   XML body is handed to the HTML grammar when that is registered
  *
  * Comments are not part of HTTP. The `#` and `//` lines and the `###` separator
  * come from the request-file format editors and REST clients use, and they are
  * recognised outside the body only, where a `#` is far more likely to be data.
  *
- * What it does not model: a method has to be uppercase, a body that is not JSON
- * — form-encoded, XML, multipart — renders as plain text, and chunk sizes are
- * not distinguished from the chunks around them.
+ * What it does not model: a method has to be uppercase, a form-encoded or
+ * multipart body renders as plain text, and chunk sizes are not distinguished
+ * from the chunks around them.
  */
 
 /**
@@ -27,6 +28,15 @@ import type { Grammar } from '../core/types'
  * here", which is how a body knows where it ends.
  */
 const METHOD = 'GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS|TRACE|CONNECT'
+
+/** What begins the next message in a document: a separator, a status line or a request line. */
+const MESSAGE_START = `###|HTTP/\\d|(?:${METHOD})[ \\t]`
+
+/**
+ * Where a body ends: the next message, or a comment line directly above it.
+ * The same two exits the `body` state takes, as one pattern for an embed.
+ */
+const NEXT_MESSAGE = `^(?:${MESSAGE_START}|[ \\t]*(?://|#)[^\\n]*\\n(?:${MESSAGE_START}))`
 
 /** `HTTP/1.1`, `HTTP/2` — scoped in three pieces so the version reads as a number. */
 const VERSION = '(HTTP)(/)(\\d(?:\\.\\d)?)'
@@ -126,9 +136,9 @@ const http: Grammar = {
     },
 
     /**
-     * The body. JSON is highlighted as JSON; XML, form-encoded and plain bodies
-     * fall through unscoped rather than being guessed at, which is the quiet
-     * failure rather than the loud one.
+     * The body. JSON is highlighted as JSON and XML or HTML with the HTML
+     * grammar; form-encoded and plain bodies fall through unscoped rather than
+     * being guessed at, which is the quiet failure rather than the loud one.
      */
     body: {
       rules: [
@@ -137,7 +147,7 @@ const http: Grammar = {
         // of the three can begin a line of JSON — a plain-text body that starts
         // a line with `GET ` is read as a new message, which is the price of
         // supporting multi-message documents at all.
-        { match: `^(?=###|HTTP/\\d|(?:${METHOD})[ \\t])`, set: 'root' },
+        { match: `^(?=${MESSAGE_START})`, set: 'root' },
 
         // A comment introducing the next message also ends the body, but only
         // when the message starts on the very next line. A bare `^#` exit
@@ -161,9 +171,13 @@ const http: Grammar = {
           // exits the body to a state that cannot parse what the lookahead
           // matched, leaving the line unscoped and reading the line after it
           // as a header.
-          match: `^(?=[ \\t]*(?://|#)[^\\n]*\\n(?:###|HTTP/\\d|(?:${METHOD})[ \\t]))`,
+          match: `^(?=[ \\t]*(?://|#)[^\\n]*\\n(?:${MESSAGE_START}))`,
           set: 'root',
         },
+
+        // A body that opens a line with `<` is XML or HTML, which the HTML
+        // grammar highlights up to where the next message starts.
+        { match: '^(?=[ \\t]*<)', push: 'markup' },
 
         // A string followed by `:` is a key, at any depth.
         {
@@ -181,6 +195,12 @@ const http: Grammar = {
         { match: '[{}\\[\\]]', scope: 'punctuation.bracket' },
         { match: '[,:]', scope: 'punctuation.delimiter' },
       ],
+    },
+
+    /** An XML or HTML body. Unscoped when the HTML grammar is not registered. */
+    markup: {
+      embed: { language: 'html', until: NEXT_MESSAGE },
+      rules: [],
     },
 
     string: {

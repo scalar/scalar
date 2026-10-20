@@ -25,7 +25,7 @@ import { xml } from '@/openapi/3.1/xml'
  * Build the shared Schema Object shape, optionally accepting boolean child schemas.
  * AsyncAPI uses JSON Schema booleans recursively; the OpenAPI ingestion pipeline normalizes them first.
  */
-export const createSchema = (booleanSchemas = false): Schema => {
+export const createSchema = (booleanSchemas = false, discriminator: Schema = discriminatorObject): Schema => {
   const schemaExtensionObjects = [
     XScalarIgnore,
     XInternal,
@@ -48,7 +48,7 @@ export const createSchema = (booleanSchemas = false): Schema => {
     contentEncoding: optional(string({ typeComment: 'Content encoding.' })),
     contentSchema: optional(normalRef(lazy(() => nestedSchema))),
     deprecated: optional(boolean({ typeComment: 'Whether the schema is deprecated.' })),
-    discriminator: optional(discriminatorObject),
+    discriminator: optional(discriminator),
     readOnly: optional(boolean({ typeComment: 'Whether the schema is read-only.' })),
     writeOnly: optional(boolean({ typeComment: 'Whether the schema is write-only.' })),
     xml: optional(xml),

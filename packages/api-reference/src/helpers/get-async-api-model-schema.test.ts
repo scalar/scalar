@@ -43,7 +43,7 @@ describe('getAsyncApiModelSchema', () => {
     expect(getAsyncApiModelSchema(document, 'Planet')).toEqual(target)
   })
 
-  it('reads schemas declared beside a `$ref` on components', () => {
+  it('ignores schemas declared beside a `$ref` on components', () => {
     const schema = { type: 'object' }
     const document = asDocument({
       $ref: '#/components',
@@ -51,7 +51,7 @@ describe('getAsyncApiModelSchema', () => {
       schemas: { Planet: schema },
     })
 
-    expect(getAsyncApiModelSchema(document, 'Planet')).toEqual(schema)
+    expect(getAsyncApiModelSchema(document, 'Planet')).toBeUndefined()
   })
 
   it('returns undefined for an unknown name or missing components', () => {

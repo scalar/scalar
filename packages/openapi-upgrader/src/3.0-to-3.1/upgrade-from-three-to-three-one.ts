@@ -30,6 +30,17 @@ function isNamedSchemaMap(path: string[] | undefined): boolean {
   return NAMED_SCHEMA_MAP_SEGMENTS.has(last)
 }
 
+/**
+ * Determine if `path[index]` is the `default` entry of a Responses Object.
+ *
+ * That `default` is a response, not the `default` keyword, so everything under it (its schemas
+ * included) still has to be upgraded. A schema property literally called `responses` does not
+ * count: there `default` is the keyword again.
+ */
+function isDefaultResponse(path: string[], index: number): boolean {
+  return path[index] === 'default' && path[index - 1] === 'responses' && !isNamedSchemaMap(path.slice(0, index - 1))
+}
+
 // Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make
 // sense for schema keywords, so nothing nested under these may be rewritten.
 const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
@@ -49,7 +60,7 @@ function isInsideDataValue(path: string[] | undefined): boolean {
   for (const [index, segment] of path.entries()) {
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
-    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index))) {
+    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
       return true
     }
 
@@ -62,6 +73,52 @@ function isInsideDataValue(path: string[] | undefined): boolean {
   }
 
   return false
+}
+
+// Keywords that only describe a schema. An arm made of these and `nullable` constrains nothing else.
+const ANNOTATION_KEYWORDS = new Set([
+  'title',
+  'description',
+  'deprecated',
+  'default',
+  'example',
+  'examples',
+  'externalDocs',
+  'readOnly',
+  'writeOnly',
+])
+
+/**
+ * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
+ *
+ * Extension payloads can contain objects that look like union arms too. Only interpret unions
+ * in schema context, keeping extension values opaque and allowing schema names prefixed by `x-`.
+ */
+function isUnionArm(path: string[] | undefined): boolean {
+  if (!path || path.length < 2 || !isSchemaPath(path.slice(0, -2))) {
+    return false
+  }
+
+  const isInsideSchemaExtension = path.some((segment, index) => {
+    const parent = path.slice(0, index)
+    return segment.startsWith('x-') && isSchemaPath(parent) && !isNamedSchemaMap(parent)
+  })
+
+  if (isInsideSchemaExtension) {
+    return false
+  }
+
+  const keyword = path[path.length - 2]
+  const index = path[path.length - 1]
+
+  return (keyword === 'oneOf' || keyword === 'anyOf') && index !== undefined && /^\d+$/.test(index)
+}
+
+/**
+ * Determine if a schema carries `nullable: true` and nothing else but annotations and extensions.
+ */
+function isNullableOnly(schema: UnknownObject): boolean {
+  return Object.keys(schema).every((key) => key === 'nullable' || ANNOTATION_KEYWORDS.has(key) || key.startsWith('x-'))
 }
 
 /**
@@ -113,6 +170,14 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
       // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
       const base = allOf.length === 1 ? allOf[0] : { allOf }
       return { ...rest, anyOf: [base, { type: 'null' }] }
+    }
+
+    // A union arm that says nothing but `nullable: true` is how some 3.0 exporters spell "or null":
+    // `oneOf: [{ nullable: true }, { $ref: X }]`. Left alone, the arm reads as "any value" in 3.1 and
+    // swallows the real arm, so it becomes the `{ type: 'null' }` arm it was meant to be.
+    if (isUnionArm(path) && isNullableOnly(schema)) {
+      delete schema.nullable
+      schema.type = 'null'
     }
 
     // Otherwise there is nothing for `nullable` to attach to, so leave the schema untouched.

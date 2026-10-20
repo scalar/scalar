@@ -53,8 +53,8 @@ const selected = computed<ThemeOption>({
           :class="{ 'rotate-180': open }" />
       </ScalarFormInput>
     </template>
-    <template #option="{ selected, option }">
-      <ScalarListboxCheckbox :selected />
+    <template #option="{ selected: isSelected, option }">
+      <ScalarListboxCheckbox :selected="isSelected" />
       <span class="text-c-1 inline-block min-w-0 flex-1 truncate">
         {{ option.label }}
       </span>

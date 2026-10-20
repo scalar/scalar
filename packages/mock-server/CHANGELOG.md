@@ -1,5 +1,30 @@
 # @scalar/mock-server
 
+## 0.19.0
+
+### Minor Changes
+
+- [#10683](https://github.com/scalar/scalar/pull/10683): Unify OpenAPI and AsyncAPI mocking in createMockServer, detecting the document format after loading it. The factory returns a Hono app for either format. WebSocket channels now require a runtime-specific upgradeWebSocket adapter; Node hosts create their own WebSocketServer. This replaces the exported createAsyncApiMockServer factory and its result/options types.
+
+  Serve sample Galaxy events on connection in the existing Cloudflare Pages deployment.
+
+  Expand AsyncAPI server pathname enums and serve deployment-specific AsyncAPI JSON and YAML documents automatically.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#10571](https://github.com/scalar/scalar/pull/10571): Enforce AsyncAPI WebSocket/SSE security per server and operation, accept case-insensitive HTTP authentication schemes, add Digest credential-shape checks and verified mutual TLS, and report unsupported broker schemes.
+- [#10572](https://github.com/scalar/scalar/pull/10572): Add a development OpenID Connect code-flow provider with signed ID tokens, JWKS, PKCE, token expiry and refresh rotation, and scoped UserInfo.
+
+### Patch Changes
+
+- [#10605](https://github.com/scalar/scalar/pull/10605): Reject non-HTTP OAuth callback URLs and escape callback links in the mock authorization page.
+- [#10614](https://github.com/scalar/scalar/pull/10614): Clean up lint warnings while preserving runtime behavior, and document intentional schema and type syntax.
+- [#10560](https://github.com/scalar/scalar/pull/10560): Register OAuth authorization, token, and refresh endpoints for AsyncAPI mock servers and point the Galaxy AsyncAPI example at its existing token endpoint for refresh requests.
+
+  Support OpenID Connect discovery and token routes in AsyncAPI mocks, return discovery endpoints on the mock origin, and accept form-encoded token exchanges and refresh requests.
+
 ## 0.17.6
 
 ### Patch Changes

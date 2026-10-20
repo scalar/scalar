@@ -48,15 +48,13 @@ const { level: headingLevel } = useDocumentOutline('channelMessages')
     v-if="messages.length"
     class="mt-8">
     <SectionHeaderTag
-      class="text-c-1 mb-3 block! text-lg leading-[1.45] font-medium"
-      :level="headingLevel"
-      rule>
+      class="text-c-1 mb-3 block! text-base leading-[1.45] font-medium"
+      :level="headingLevel">
       {{ hasOperations ? 'Other Channel Messages' : 'Messages' }}
     </SectionHeaderTag>
     <Message
       v-for="message in messages"
       :key="message.id"
-      class="mt-3"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"

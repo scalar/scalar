@@ -1,0 +1,65 @@
+asyncapi: 3.1.0
+info:
+  title: Order Events
+  version: 1.0.0
+  description: Protocol configuration for consuming order events.
+servers:
+  production:
+    host: broker.example.com:9092
+    protocol: kafka
+    title: Production
+    bindings:
+      kafka:
+        schemaRegistryUrl: https://schemas.example.com
+        bindingVersion: 0.5.0
+  staging:
+    host: staging.example.com:9092
+    protocol: kafka
+    title: Staging
+    bindings:
+      kafka:
+        schemaRegistryUrl: https://staging-schemas.example.com
+        bindingVersion: 0.5.0
+channels:
+  orders:
+    address: orders.created
+    title: Order events
+    description: Published when an order is created.
+    bindings:
+      $ref: '#/components/channelBindings/orders'
+    messages:
+      orderCreated:
+        title: Order created
+        bindings:
+          $ref: '#/components/messageBindings/order'
+operations:
+  receiveOrder:
+    action: receive
+    title: Consume order events
+    channel:
+      $ref: '#/channels/orders'
+    bindings:
+      kafka:
+        groupId:
+          type: string
+          enum: [order-processing]
+        bindingVersion: 0.5.0
+components:
+  channelBindings:
+    orders:
+      kafka:
+        topic: orders.created
+        partitions: 3
+        replicas: 2
+        topicConfiguration:
+          cleanup.policy: [delete]
+          retention.ms: 604800000
+        bindingVersion: 0.5.0
+        x-retentionNote: Kept for seven days
+  messageBindings:
+    order:
+      kafka:
+        key:
+          type: string
+          description: The order identifier.
+        bindingVersion: 0.5.0

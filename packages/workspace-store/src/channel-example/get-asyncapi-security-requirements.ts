@@ -7,7 +7,7 @@ import type {
 } from '@scalar/types/asyncapi/3.1'
 
 import { getNameFromRef } from '@/helpers/get-name-from-ref'
-import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@/helpers/get-resolved-async-api-ref'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 
 import { dedupeRequirements } from './dedupe-requirements'
@@ -20,7 +20,7 @@ const getSecuritySchemeNameFromRef = (ref: string): string | undefined =>
 
 /** Strips requirement-only `scopes` so inline entries can match component scheme definitions. */
 const getSecuritySchemeDefinition = (entry: AsyncApiSecurityEntry): AsyncApiSecuritySchemeObject | undefined => {
-  const resolved: AsyncApiSecuritySchemeObject | undefined = getResolvedRef(entry)
+  const resolved: AsyncApiSecuritySchemeObject | undefined = getResolvedAsyncApiRef(entry)
   if (resolved == null) {
     return undefined
   }
@@ -45,11 +45,11 @@ export const getAsyncApiSecuritySchemes = (
     operations?: Record<string, AsyncApiOperationObject>
   } = {},
 ): Record<string, AsyncApiSecuritySchemeObject> => {
-  const components = document.components ? getResolvedRef(document.components) : undefined
+  const components = document.components ? getResolvedAsyncApiRef(document.components) : undefined
   const schemes: Record<string, AsyncApiSecuritySchemeObject> = {}
 
   for (const [name, reference] of Object.entries(components?.securitySchemes ?? {})) {
-    const scheme = getResolvedRef(reference)
+    const scheme = getResolvedAsyncApiRef(reference)
     if (scheme) {
       schemes[name] = scheme
     }
@@ -57,7 +57,7 @@ export const getAsyncApiSecuritySchemes = (
 
   const register = (security: AsyncApiSecurityEntry[] | undefined, location: string): void => {
     for (const [index, entry] of (security ?? []).entries()) {
-      const scheme = getResolvedRef(entry)
+      const scheme = getResolvedAsyncApiRef(entry)
       if (!scheme || !('type' in scheme)) {
         continue
       }
@@ -69,13 +69,14 @@ export const getAsyncApiSecuritySchemes = (
     }
   }
 
-  const servers = owners.servers ?? (document.servers ? getResolvedRef(document.servers) : undefined)
+  const servers = owners.servers ?? (document.servers ? getResolvedAsyncApiRef(document.servers) : undefined)
   for (const [name, reference] of Object.entries(servers ?? {})) {
-    register(getResolvedRef(reference)?.security, `Server ${name}`)
+    register(getResolvedAsyncApiRef(reference)?.security, `Server ${name}`)
   }
-  const operations = owners.operations ?? (document.operations ? getResolvedRef(document.operations) : undefined)
+  const operations =
+    owners.operations ?? (document.operations ? getResolvedAsyncApiRef(document.operations) : undefined)
   for (const [name, reference] of Object.entries(operations ?? {})) {
-    const operation = getResolvedRef(reference)
+    const operation = getResolvedAsyncApiRef(reference)
     if (operation) {
       register(resolveOperationWithTraits(operation).security, `Operation ${name}`)
     }
@@ -97,7 +98,7 @@ const getComponentSecuritySchemeName = (
   if (!definition) {
     return undefined
   }
-  const components = document.components ? getResolvedRef(document.components) : undefined
+  const components = document.components ? getResolvedAsyncApiRef(document.components) : undefined
   return Object.entries(components?.securitySchemes ?? {}).find(([, scheme]) =>
     isObjectEqual(getSecuritySchemeDefinition(scheme), definition),
   )?.[0]
@@ -110,7 +111,7 @@ const getInlineSecuritySchemeName = (
   location: string,
   index: number,
 ): string => {
-  const components = document.components ? getResolvedRef(document.components) : undefined
+  const components = document.components ? getResolvedAsyncApiRef(document.components) : undefined
   const availableName = (name: string): string =>
     Object.hasOwn(components?.securitySchemes ?? {}, name) ? availableName(`${name} (inline)`) : name
   return availableName(`${location} · ${scheme.type} ${index + 1}`)
@@ -123,7 +124,7 @@ const securityEntryToRequirement = (
   location: string | undefined,
   schemes: Record<string, AsyncApiSecuritySchemeObject>,
 ): SecurityRequirementObject | undefined => {
-  const resolved = getResolvedRef(entry)
+  const resolved = getResolvedAsyncApiRef(entry)
   const schemeName =
     getComponentSecuritySchemeName(document, entry) ??
     (resolved && 'type' in resolved && location !== undefined
@@ -207,14 +208,14 @@ export const getAsyncApiSecurityRequirements = (
  * intentionally excluded here — that is per-channel and handled separately.
  */
 export const getAsyncApiDocumentSecurityRequirements = (document: AsyncApiDocument): SecurityRequirementObject[] => {
-  const servers = document.servers ? getResolvedRef(document.servers) : undefined
+  const servers = document.servers ? getResolvedAsyncApiRef(document.servers) : undefined
   if (!servers) {
     return []
   }
 
   const resolvedServers = Object.entries(servers).map(([name, serverRef]) => ({
     name,
-    server: getResolvedRef(serverRef),
+    server: getResolvedAsyncApiRef(serverRef),
   }))
 
   const perServerRequirements = resolvedServers.map(({ name, server }) =>

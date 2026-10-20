@@ -105,10 +105,6 @@ const uploadTmpDoc = useUploadTmpDocument()
 
 function acceptTerms() {
   state.terms.accept()
-
-  if (state.mode === 'preview' && state.getActiveDocumentJson) {
-    void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
-  }
 }
 
 const isPending = computed(() =>

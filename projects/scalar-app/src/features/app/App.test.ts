@@ -142,7 +142,7 @@ describe('App', () => {
 
     // Simulate what App.vue's router.afterEach does — call handleRouteChange
     // so the workspace loads from IndexedDB.
-    appState.handleRouteChange(router.currentRoute.value, {
+    await appState.handleRouteChange(router.currentRoute.value, {
       teamSlug: computed(() => WORKSPACE_TEAM_SLUG),
       teamUid: computed(() => 'local'),
       filteredWorkspaces: computed(() =>

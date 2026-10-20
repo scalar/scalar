@@ -69,6 +69,11 @@ const emit = defineEmits<{
   (e: 'update:selectedContentType', value: string): void
 }>()
 
+defineSlots<{
+  /** Additional metadata displayed alongside the schema details. */
+  default?: () => unknown
+}>()
+
 const { translate } = useLocalization()
 
 /** Compact parameter rows also hide scalar details, unlike response rows. */
@@ -117,14 +122,15 @@ const headers = computed<ResponseObject['headers'] | null>(() =>
 )
 
 /** Raw schema (possibly with $ref) for the selected content type or param. */
-const baseSchema = computed(() =>
-  content.value
-    ? (content.value?.[selectedContentType.value]?.schema ??
-      content.value?.[selectedContentType.value]?.itemSchema)
-    : 'schema' in parameter && parameter.schema
-      ? parameter.schema
-      : null,
-)
+const baseSchema = computed(() => {
+  if (content.value) {
+    return (
+      content.value[selectedContentType.value]?.schema ??
+      content.value[selectedContentType.value]?.itemSchema
+    )
+  }
+  return 'schema' in parameter && parameter.schema ? parameter.schema : null
+})
 
 /** When the schema is a $ref, preserve its name so the UI can show the ref name instead of just the type. */
 const schemaModelName = computed(() => {
@@ -408,12 +414,12 @@ const triggerAnchorId = computed<string | undefined>(() =>
           is="div"
           :breadcrumb="schemaBreadcrumb"
           compact
-          :extensionSource="'in' in parameter ? parameter : undefined"
           :description="
             collapsableItems && !isStaticTreeItem ? '' : parameter.description
           "
           :eventBus="eventBus"
           :expansion="expansion"
+          :extensionSource="'in' in parameter ? parameter : undefined"
           :hideWriteOnly="true"
           :modelName="schemaModelName"
           :name="collapsableItems && !isStaticTreeItem ? '' : name"
@@ -450,6 +456,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
 
+        <slot />
+
         <!-- Headers: the body reads first, directly under the status row, and
              Headers follows — opening Headers then appends its list at the
              end instead of pushing the body's description away from the
@@ -468,8 +476,8 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :orderRequiredPropertiesFirst="options.orderRequiredPropertiesFirst"
           :orderSchemaPropertiesBy="options.orderSchemaPropertiesBy"
           :schemaKeyboardNav="options.schemaKeyboardNav"
-          :showExtensions="options.showExtensions"
           :scrollTargetId="scrollTargetId"
+          :showExtensions="options.showExtensions"
           :specificationExtension="specificationExtension" />
       </component>
       <div

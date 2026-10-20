@@ -34,7 +34,8 @@ export const httpHttp11: Plugin = {
       path = normalizedRequest.url || '/'
     }
 
-    const hostname = url?.hostname || 'UNKNOWN_HOSTNAME'
+    // `host` keeps a non-default port (e.g. `localhost:8080`), as the Host header requires
+    const host = url?.host || 'UNKNOWN_HOSTNAME'
 
     // Start building the request
     let requestString = `${normalizedRequest.method} ${joinUrlAndQuery(path, normalizedRequest.queryString)} HTTP/1.1\r\n`
@@ -43,7 +44,7 @@ export const httpHttp11: Plugin = {
     const headers = new Map()
 
     // Host header
-    headers.set('Host', hostname)
+    headers.set('Host', host)
 
     // Passed headers
     normalizedRequest.headers.forEach((header) => {

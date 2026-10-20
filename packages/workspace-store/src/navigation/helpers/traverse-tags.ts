@@ -3,6 +3,7 @@ import { sortByOrder } from '@scalar/helpers/array/sort-by-order'
 import { getTagKind } from '@/helpers/get-tag-kind'
 import { isHidden } from '@/helpers/is-hidden'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { getTagExternalDocs } from '@/navigation/helpers/get-tag-external-docs'
 import { getXKeysFromObject } from '@/navigation/helpers/get-x-keys'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import type { TraversedEntry, TraversedTag } from '@/schemas/navigation'
@@ -45,6 +46,7 @@ const createTagEntry = ({
     isTagGroup,
   })
   // `summary` is the OpenAPI 3.2 display label; `x-displayName` keeps precedence for backwards compatibility.
+  const externalDocs = getTagExternalDocs(tag)
   const title = tag['x-displayName'] ?? tag.summary ?? tag.name ?? 'Untitled Tag'
 
   // Update the order of the children based on the items
@@ -56,6 +58,7 @@ const createTagEntry = ({
     title,
     name: tag.name || title,
     description: tag.description,
+    ...(externalDocs ? { externalDocs } : {}),
     children,
     isGroup,
     // Only tag on legacy `x-tagGroups` wrappers so the renderer can flatten them without a header.

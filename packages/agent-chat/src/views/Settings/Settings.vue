@@ -59,6 +59,12 @@ function selectDocument(name: string) {
               :document
               :name />
           </div>
+          <p
+            v-else-if="workspaceStore.workspace.activeDocument === document"
+            class="text-c-2 pb-3">
+            Ask about channels, messages, and schemas. Live AsyncAPI messaging
+            and authentication are not supported in Ask AI.
+          </p>
         </div>
       </template>
       <div

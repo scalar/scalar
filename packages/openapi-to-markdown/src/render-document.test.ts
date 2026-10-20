@@ -93,6 +93,44 @@ describe('render-document', () => {
     await expect(renderer.render({ tag: 'Account Updates' })).rejects.toThrow('Tag "Account Updates" was not found')
   })
 
+  it.each(['3.0.4', '3.1.2', '3.2.0', '3.2.1'])(
+    'renders breadcrumb headings only for OpenAPI 3.2 in %s',
+    async (openapi) => {
+      const document = withMeta({
+        openapi,
+        info: { title: 'Nested tags', version: '1' },
+        paths: {},
+        tags: [
+          {
+            name: 'invoices',
+            parent: 'billing',
+            description: 'Invoice metadata.',
+            externalDocs: { url: 'https://example.com' },
+          },
+          { name: 'billing', parent: 'accounts', summary: 'Billing' },
+          { name: 'accounts', summary: 'Accounts' },
+        ],
+      })
+      const renderer = await createOpenApiMarkdownRenderer(document)
+      const outputs = [
+        await createMarkdownFromOpenApi(document),
+        await renderer.render(),
+        await browserRender(document),
+        await browserRender({ ...document, openapi: '3.2.0', 'x-original-oas-version': openapi }),
+      ]
+      const expected = openapi.startsWith('3.2.')
+        ? '## Tags\n\n### Accounts\n\n### Accounts › Billing\n\n### Accounts › Billing › invoices\n\nInvoice metadata.\n\n<https://example.com>\n'
+        : '## Tags\n\n### invoices\n\nInvoice metadata.\n\n<https://example.com>\n\n### billing\n\n### accounts\n'
+      for (const output of outputs) {
+        expect(output.slice(output.indexOf('## Tags'))).toBe(expected)
+      }
+      const selected = await renderer.render({ tag: 'invoices' })
+      expect(selected.slice(selected.indexOf('## Tags'))).toBe(
+        '## Tags\n\n### invoices\n\nInvoice metadata.\n\n<https://example.com>\n',
+      )
+    },
+  )
+
   it('renders basic API information', async () => {
     const content: OpenApiDocument = withMeta({
       openapi: '3.1.1',

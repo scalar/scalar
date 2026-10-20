@@ -6,6 +6,7 @@ type SelectorProps = {
   selectedServer: AsyncApiServerEntry | null
   /** Available servers */
   servers: AsyncApiServerEntry[]
+  options?: Partial<AsyncApiSchemaRenderOptions>
 }
 
 /**
@@ -26,15 +27,20 @@ import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import type { ServerVariableObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, useId } from 'vue'
 
+import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumentation.vue'
+import Bindings from '@/components/Content/AsyncApi/Bindings.vue'
+import type { AsyncApiSchemaRenderOptions } from '@/components/Content/AsyncApi/helpers/async-api-render-options'
+import { getBindingEntries } from '@/components/Content/AsyncApi/helpers/get-binding-entries'
 import { useLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
 
-const { eventBus, servers, selectedServer } = defineProps<SelectorProps>()
+const { eventBus, servers, selectedServer, options } =
+  defineProps<SelectorProps>()
 
 const id = useId()
 const { translate } = useLocalization()
@@ -52,7 +58,7 @@ const serverVariables = computed(() => {
   return Object.fromEntries(
     Object.entries(variables).flatMap(
       ([name, variable]): [string, ServerVariableObject][] => {
-        const resolved = getResolvedRef(variable)
+        const resolved = getResolvedAsyncApiRef(variable)
         if (!resolved) return []
         return [
           [
@@ -80,7 +86,9 @@ const hasServerDetails = computed(() =>
   Boolean(
     serverSummary.value ||
     serverProtocolVersion.value ||
-    selectedServer?.description,
+    selectedServer?.description ||
+    getBindingEntries(selectedServer?.server.bindings).length ||
+    selectedServer?.server.externalDocs,
   ),
 )
 
@@ -138,5 +146,12 @@ const updateServerVariable = (key: string, value: string) => {
     <ScalarMarkdown
       v-if="selectedServer?.description"
       :value="selectedServer.description" />
+    <Bindings
+      :bindings="selectedServer?.server.bindings"
+      class="my-2 [&>.bindings-heading]:-mx-3 [&>.bindings-heading]:px-3"
+      :options="options"
+      scope="server" />
+    <AsyncApiDocumentation
+      :owner="{ externalDocs: selectedServer?.server.externalDocs }" />
   </div>
 </template>

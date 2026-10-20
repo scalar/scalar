@@ -179,6 +179,7 @@ describe('normalize-boolean-schemas', () => {
             propertyNames: false,
             $defs: { Never: false },
             if: true,
+            // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then as a conditional keyword, not a Promise method.
             then: false,
             else: true,
             additionalProperties: false,
@@ -202,6 +203,7 @@ describe('normalize-boolean-schemas', () => {
             propertyNames: neverSchema,
             $defs: { Never: neverSchema },
             if: anySchema,
+            // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then as a conditional keyword, not a Promise method.
             then: neverSchema,
             else: anySchema,
             additionalProperties: false,

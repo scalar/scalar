@@ -1,3 +1,5 @@
+import type { LoadingState } from '../ScalarLoading'
+
 export type Option = {
   id: string
   label: string
@@ -61,4 +63,6 @@ export type ComboboxSlots<O extends Option = Option, G extends OptionGroup<O> = 
   group?(props: { group: G }): unknown
   /** Creates an "Add a new option" button after the options list*/
   add?(props: { active: boolean }): unknown
+  /** Content at the end of the search input, replaces the loading indicator */
+  'search-end'?(props: { loader: LoadingState | undefined }): unknown
 }

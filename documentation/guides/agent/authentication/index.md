@@ -1,40 +1,39 @@
 # Authentication
 
-An MCP server has **two independent layers of authentication**, and keeping them separate makes everything else clearer:
+MCP authentication answers two questions:
 
-1. **Who is allowed to connect to the MCP server?** This is Scalar-side access control—public, your team, or an access group.
-2. **How does the server call your upstream API?** This is upstream auth, configured per installation: a credential you store, or a credential the caller passes through.
+1. **Who can connect?** The server can accept callers without Scalar sign-in, or require an admitted Scalar token through **OAuth Gated** authorization.
+2. **How does the server call your API?** It can forward the caller's credential, use a stored team secret, or select a stored secret for the caller's access group.
 
-They are independent. Someone can be allowed to connect (layer 1) while the server calls your API with a key you stored—or with a key they supply themselves (layer 2).
+Configure authorization for the selected API and environment under **Configure → Authorization** in your MCP server. Environments hold settings for stages such as production and staging. Older guides and URLs may refer to an environment as an installation.
 
 ## Who can connect
 
-Every installation is **private by default**. There are three ways a caller can be granted access:
+With **OAuth Gated** authorization, Scalar challenges unauthenticated MCP requests immediately, including the initial connection. An OAuth-capable client starts sign-in before connecting. A team member can also use a Personal Access Token.
 
-| Access           | Who gets in                                                  | How they authenticate          |
-| ---------------- | ------------------------------------------------------------ | ------------------------------ |
-| **Public**       | Anyone with the URL                                          | No Scalar auth                 |
-| **Team**         | Members of the installation's owning team                    | Personal Access Token or OAuth |
-| **Access group** | Any email/domain on the allowlist—no Scalar account required | OAuth login (email or SSO)     |
+For customers outside your team, attach access groups that allow their emails or domains. They sign in using the reader methods your team enables: email, Google, Microsoft, or reader SSO. They do not need a Scalar account or dashboard access. The reader sign-in page does not offer **Continue with Scalar**; enable at least one reader method before sharing an OAuth login flow.
+
+With **Passthrough** authorization, Scalar does not require its own sign-in. Your API validates the credential sent upstream. An OAuth security scheme can direct callers to your API's own authorization server instead.
 
 ## How the server authenticates to your API
 
-Separately from who connects, each installation decides how it authenticates against your upstream API:
+| Credential source           | Behavior                                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Caller credential           | Forward the caller's credential to the upstream API.                                                 |
+| Shared stored credential    | Reference a team secret so every caller uses the same upstream credential.                           |
+| Per-access-group credential | On an OAuth Gated environment, select a stored secret for the access group that admitted the reader. |
 
-- **Global** — You store one credential on the installation and the server uses it for every call. Agents never see it.
-- **Passthrough** — The caller supplies the credential, and Scalar forwards it upstream per request without storing it.
-- **OAuth passthrough** — The caller signs in with your API's own OAuth authorization server, and Scalar forwards the token they receive upstream per request without storing it. Public installations only: your authorization server, not Scalar, decides who gets in.
+OAuth Gated authorization uses the incoming bearer token for Scalar sign-in. Configure stored upstream credentials for the API schemes that require authentication. Do not use the Scalar token as your API credential.
 
 ## Pick a recipe
 
-Most setups are one of these combinations:
-
-- [Public MCP with passthrough auth](./public-passthrough.md) — anyone can connect, and each user authenticates with their own API credentials. The simplest way to share one MCP with the world.
-- [OAuth passthrough](./oauth-passthrough.md) — your API has its own OAuth authorization server, and each user signs in with it from their MCP client to act as themselves.
-- [Private access for customers](./customer-access.md) — gate the server to specific emails or domains with access groups and OAuth login, and brand the sign-in page.
-- [One shared key for everyone](./shared-key.md) — store a single credential on the installation so callers never handle a key.
+- [Public MCP with passthrough auth](./public-passthrough.md): callers bring their own API keys.
+- [OAuth passthrough](./oauth-passthrough.md): callers sign in with your API's authorization server.
+- [Private access for customers](./customer-access.md): customers sign in through Scalar access groups, optionally using a different stored API key per group.
+- [One shared key for everyone](./shared-key.md): callers use the same stored upstream credential.
 
 ## Related
 
-- [MCP Servers](../mcp.md) — create a server and connect a client
-- [Getting Started](../getting-started.md) — from OpenAPI to agent-ready
+- [MCP Servers](../mcp.md)
+- [MCP configuration](../configuration.md)
+- [Custom domains](../custom-domains.md)

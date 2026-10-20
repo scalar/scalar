@@ -22,6 +22,7 @@ import { renderExamples } from './render-examples'
 import { type DocumentContext, formatOperationMethod, renderOperation } from './render-operation'
 import { type SchemaView, type ShownSchema, createSchemaRenderer } from './render-schema'
 import { renderSecurity } from './render-security'
+import { getTagSections } from './render-tags'
 import type { OpenApiRenderOptions } from './select-document'
 
 const serializer = unified()
@@ -260,8 +261,7 @@ export const createDocumentRenderer = (): ((
       nodes.push(...(await renderSecurity(document.security, document.components?.securitySchemes, description, 2)))
       if (document.tags?.length) {
         nodes.push(heading(2, text('Tags')))
-        for (const tag of document.tags) {
-          const title = /^3\.2\./.test(openapiVersion) ? (tag.summary ?? tag.name) : tag.name
+        for (const { tag, title } of getTagSections(document.tags, openapiVersion)) {
           nodes.push(heading(3, text(title)), ...(await description(tag.description)))
           if (tag.externalDocs) {
             nodes.push(paragraph(link(tag.externalDocs.url, tag.externalDocs.description ?? tag.externalDocs.url)))

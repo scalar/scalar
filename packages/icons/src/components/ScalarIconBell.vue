@@ -14,9 +14,9 @@ const { bind, weight } = useScalarIcon(props)
 </script>
 <template>
   <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 256 256"
     fill="currentColor"
+    viewBox="0 0 256 256"
+    xmlns="http://www.w3.org/2000/svg"
     v-bind="bind">
     <slot />
     <g v-if="weight === 'bold'">

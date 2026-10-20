@@ -81,19 +81,19 @@ npx @scalar/cli document mock openapi.yaml --watch
 
 ### More document commands
 
-| Command                                     | Use it to                                                             |
-| ------------------------------------------- | --------------------------------------------------------------------- |
+| Command                                              | Use it to                                                             |
+| ---------------------------------------------------- | --------------------------------------------------------------------- |
 | [`document bundle`](commands/document.md#bundle)     | Combine an API description and its external references into one file. |
 | [`document validate`](commands/document.md#validate) | Check an API description against the OpenAPI Specification.           |
 | [`document lint`](commands/document.md#lint)         | Apply Spectral rules to your API description.                         |
 | [`document serve`](commands/document.md#serve)       | Preview an interactive API Reference.                                 |
 | [`document mock`](commands/document.md#mock)         | Run a mock API server.                                                |
-| [`document split`](commands/document.md#split)       | Break an API description into smaller files.                          |
-| [`document join`](commands/document.md#join)         | Merge multiple API descriptions into one.                             |
+| [`document split`](commands/document.md#split)       | Split an API document into referenced JSON files.                     |
+| [`document join`](commands/document.md#join)         | Join API documents of the same format into one document.              |
 | [`document format`](commands/document.md#format)     | Format an OpenAPI file.                                               |
 | [`document convert`](commands/document.md#convert)   | Convert a Postman collection to an OpenAPI description.               |
 | [`document markdown`](commands/document.md#markdown) | Generate Markdown from an API description.                            |
-| [`document upgrade`](commands/document.md#upgrade) | Upgrade an API description to OpenAPI 3.1.                            |
+| [`document upgrade`](commands/document.md#upgrade)   | Upgrade an API description to OpenAPI 3.1.                            |
 | [`document share`](commands/document.md#share)       | Share an OpenAPI file.                                                |
 | [`document void`](commands/document.md#void)         | Start a server that mirrors HTTP requests.                            |
 
@@ -155,24 +155,7 @@ pnpm dlx @scalar/cli help
 
 ## Shell completion
 
-Completion for Bash, Zsh, and Fish runs locally and covers commands, flags, and option values.
-
-```bash
-# Bash: then add the `source` line to ~/.bashrc
-mkdir -p ~/.local/share/scalar
-scalar completion bash > ~/.local/share/scalar/completion.bash
-source ~/.local/share/scalar/completion.bash
-
-# Zsh: then add `fpath=(~/.zsh/completions $fpath)` before `compinit` in ~/.zshrc
-mkdir -p ~/.zsh/completions
-scalar completion zsh > ~/.zsh/completions/_scalar
-
-# Fish
-mkdir -p ~/.config/fish/completions
-scalar completion fish > ~/.config/fish/completions/scalar.fish
-```
-
-Completion reads the installed CLI on each Tab press, so new commands appear after an upgrade. Regenerate the script after upgrading to pick up changes to the shell adapter itself.
+[Set up autocompletion](autocompletion.md) for commands, flags, and option values in Bash, Zsh, or Fish.
 
 ## AI agents
 
@@ -198,16 +181,16 @@ On Windows, the standalone CLI keeps the skill in `%LOCALAPPDATA%\Scalar\current
 
 ## Commands
 
-| Group | Use it to |
-| --- | --- |
-| [`scalar document`](commands/document.md) | Bundle, validate, lint, format, mock, and preview API descriptions. |
-| [`scalar project`](commands/project.md) | Create, preview, publish, and roll back Scalar Docs projects. |
-| [`scalar registry`](commands/registry.md) | Publish and download API descriptions in the Scalar Registry. |
-| [`scalar auth`](commands/auth.md) | Log in and out of Scalar. |
-| [`scalar team`](commands/team.md) | List and switch between your teams. |
-| [`scalar schema`](commands/schema.md) | Publish and manage shared schemas. |
-| [`scalar sdk`](commands/sdk.md) | Create, build, and inspect SDKs. |
-| [`scalar access-group`](commands/access-group.md) | Control who can read private docs. |
+| Group                                             | Use it to                                                           |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| [`scalar document`](commands/document.md)         | Bundle, validate, lint, format, mock, and preview API descriptions. |
+| [`scalar project`](commands/project.md)           | Create, preview, publish, and roll back Scalar Docs projects.       |
+| [`scalar registry`](commands/registry.md)         | Publish and download API descriptions in the Scalar Registry.       |
+| [`scalar auth`](commands/auth.md)                 | Log in and out of Scalar.                                           |
+| [`scalar team`](commands/team.md)                 | List and switch between your teams.                                 |
+| [`scalar schema`](commands/schema.md)             | Publish and manage shared schemas.                                  |
+| [`scalar sdk`](commands/sdk.md)                   | Create, build, and inspect SDKs.                                    |
+| [`scalar access-group`](commands/access-group.md) | Control who can read private docs.                                  |
 
 The [command reference](commands.md) lists every command and option.
 

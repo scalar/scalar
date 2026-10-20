@@ -20,5 +20,5 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('size-4')" />
+  <div v-bind="cx('h-4 w-5')" />
 </template>

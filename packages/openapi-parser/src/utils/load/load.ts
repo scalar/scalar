@@ -1,7 +1,7 @@
 import { ERRORS } from '@/configuration'
 import type { AnyApiDefinitionFormat, ErrorObject, Filesystem, LoadResult, ThrowOnErrorOption } from '@/types/index'
 import { getEntrypoint } from '@/utils/get-entrypoint'
-import { getListOfReferences } from '@/utils/get-list-of-references'
+import { type ReferenceTarget, getReferenceTargets } from '@/utils/get-reference-targets'
 import { makeFilesystem } from '@/utils/make-filesystem'
 import { normalize } from '@/utils/normalize'
 
@@ -34,7 +34,15 @@ export type LoadOptions = {
  * It builds a filesystem representation of all loaded content and collects any errors
  * encountered during the process.
  */
-export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> {
+export const load = (value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> =>
+  loadDocument(value, options)
+
+const loadDocument = async (
+  value: AnyApiDefinitionFormat,
+  options?: LoadOptions,
+  targets?: ReferenceTarget[],
+  documents = new Map<string, { content: ReturnType<typeof normalize>; targets: Set<string> }>(),
+): Promise<LoadResult> => {
   const errors: ErrorObject[] = []
 
   // Don't load a reference twice, check the filesystem before fetching something
@@ -49,9 +57,11 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Check whether the value is an URL or file path
   const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
 
-  let content = normalize(value)
+  const documentKey = typeof value === 'string' ? value : options?.filename
+  const cached = documentKey === undefined ? undefined : documents.get(documentKey)
+  let content = cached?.content ?? normalize(value)
 
-  if (plugin) {
+  if (plugin && !cached) {
     try {
       content = normalize(await plugin.get(value))
     } catch (_error) {
@@ -90,7 +100,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
-  let filesystem = makeFilesystem(content, {
+  const filesystem = makeFilesystem(content, {
     filename: options?.filename ?? null,
   })
 
@@ -99,7 +109,22 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     ? filesystem.find((entry) => entry.filename === options?.filename)
     : getEntrypoint(filesystem)
 
-  const listOfReferences = newEntry.references ?? getListOfReferences(content)
+  // A file may be reached later through another fragment or another object type.
+  const visitedTargets = cached?.targets ?? new Set<string>()
+  const pendingTargets = (targets ?? [{ fragment: '', context: 'document' as const }]).filter((target) => {
+    const key = JSON.stringify(target)
+    if (visitedTargets.has(key)) {
+      return false
+    }
+    visitedTargets.add(key)
+    return true
+  })
+  if (documentKey !== undefined) {
+    documents.set(documentKey, { content, targets: visitedTargets })
+  }
+  const referenceTargets = getReferenceTargets(newEntry.specification, pendingTargets)
+  const listOfReferences = [...new Set(referenceTargets.map(({ filename }) => filename))]
+  newEntry.references = listOfReferences
 
   // No other references
   if (listOfReferences.length === 0) {
@@ -123,29 +148,30 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     const target =
       otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
 
-    // Don't load a reference twice, check the filesystem before fetching something
-    if (filesystem.find((entry) => entry.filename === reference)) {
-      continue
-    }
-
-    const { filesystem: referencedFiles, errors: newErrors } = await load(target, {
-      ...options,
-      // Make the filename the exact same value as the $ref
-      // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
-      filename: reference,
-    })
+    const { filesystem: referencedFiles, errors: newErrors } = await loadDocument(
+      target,
+      {
+        ...options,
+        // Make the filename the exact same value as the $ref
+        // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
+        filename: reference,
+      },
+      referenceTargets
+        .filter(({ filename }) => filename === reference)
+        .map(({ fragment, context }) => ({ fragment, context })),
+      documents,
+    )
 
     errors.push(...newErrors)
 
-    filesystem = [
-      ...filesystem,
-      ...referencedFiles.map((file) => {
-        return {
-          ...file,
-          isEntrypoint: false,
-        }
-      }),
-    ]
+    for (const file of referencedFiles) {
+      const existing = filesystem.find((entry) => entry.filename === file.filename)
+      if (existing) {
+        existing.references = [...new Set([...existing.references, ...file.references])]
+      } else {
+        filesystem.push({ ...file, isEntrypoint: false })
+      }
+    }
   }
 
   return {

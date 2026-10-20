@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting" />
-    <!-- Aspire.Hosting pulls MessagePack 2.5.192 transitively via StreamJsonRpc, which has a known high-severity advisory (CVE-2026-48109 / GHSA-hv8m-jj95-wg3x). Pin the patched version until the upstream chain ships it. -->
+    <!-- Aspire.Hosting pulls MessagePack transitively via StreamJsonRpc. Pin 2.5.303 to address GHSA-hv8m-jj95-wg3x and GHSA-qhrr-8q5h-9q3h until the upstream chain ships a patched version. -->
     <PackageReference Include="MessagePack" />
     <PackageReference Include="NetEscapades.EnumGenerators.Generators" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>

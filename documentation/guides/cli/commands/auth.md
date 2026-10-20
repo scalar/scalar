@@ -2,17 +2,17 @@
 
 # scalar auth
 
-Manage authorization on scalar platform. Generated from `@scalar/cli` 2.10.0.
+Log in to Scalar and manage your session.
 
 | Command | Description |
 | --- | --- |
-| [`scalar auth login`](#login) | Login to scalar |
-| [`scalar auth whoami`](#whoami) | Display the current user |
-| [`scalar auth logout`](#logout) | Logout from scalar |
+| [`scalar auth login`](#login) | Log in to Scalar |
+| [`scalar auth whoami`](#whoami) | Show the logged-in user and current team |
+| [`scalar auth logout`](#logout) | Log out of Scalar |
 
 ## login
 
-Login to scalar.
+Log in to Scalar.
 
 ```bash
 scalar auth login [options]
@@ -22,19 +22,25 @@ scalar auth login [options]
 
 | Option | Description |
 | --- | --- |
-| `--token <token>` | Personal token. |
+| `--token <token>` | Personal token for authentication. |
 
 ## whoami
 
-Display the current user.
+Show the logged-in user and current team.
 
 ```bash
 scalar auth whoami [options]
 ```
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--json` | Output authentication details as JSON. |
+
 ## logout
 
-Logout from scalar.
+Log out of Scalar.
 
 ```bash
 scalar auth logout [options]

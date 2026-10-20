@@ -259,13 +259,13 @@ export const renderCommand = (command: ContextCommand, page: CommandPage): strin
   return lines
 }
 
-export const renderPage = (page: CommandPage, version: string): string =>
+export const renderPage = (page: CommandPage): string =>
   [
     GENERATED_NOTICE,
     '',
     `# ${page.title}`,
     '',
-    `${sentence(page.description)} Generated from \`@scalar/cli\` ${version}.`,
+    sentence(page.description),
     '',
     ...table(
       ['Command', 'Description'],
@@ -278,13 +278,13 @@ export const renderPage = (page: CommandPage, version: string): string =>
     ...page.commands.flatMap((command) => [...renderCommand(command, page), '']),
   ].join('\n')
 
-export const renderIndex = (pages: CommandPage[], version: string): string =>
+export const renderIndex = (pages: CommandPage[]): string =>
   [
     GENERATED_NOTICE,
     '',
     '# Commands',
     '',
-    `Every command in \`@scalar/cli\` ${version}. Run \`scalar <command> --help\` for the same details in your terminal, or \`scalar context\` to get the whole tree as JSON for an AI agent.`,
+    'Run `scalar <command> --help` for the same details in your terminal, or `scalar context` to get the whole tree as JSON for an AI agent.',
     '',
     ...pages.flatMap((page) => [
       `## [${page.title}](commands/${page.slug}.md)`,
@@ -312,10 +312,8 @@ const writeCliDocs = async (context: CliContext, outputDirectory: string) => {
   await fs.mkdir(pagesDirectory, { recursive: true })
 
   await Promise.all([
-    fs.writeFile(path.join(outputDirectory, 'commands.md'), renderIndex(pages, context.version)),
-    ...pages.map((page) =>
-      fs.writeFile(path.join(pagesDirectory, `${page.slug}.md`), renderPage(page, context.version)),
-    ),
+    fs.writeFile(path.join(outputDirectory, 'commands.md'), renderIndex(pages)),
+    ...pages.map((page) => fs.writeFile(path.join(pagesDirectory, `${page.slug}.md`), renderPage(page))),
   ])
 
   return pages

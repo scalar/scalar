@@ -126,7 +126,7 @@ export function createSearchIndex(
   options?: CreateSearchIndexOptions,
 ): FuseData[] {
   const index: FuseData[] = []
-  const extractFields = createSearchFieldExtractor()
+  const extractFields = createSearchFieldExtractor(isOpenApiDocument(document) && /^3\.[12]\./.test(document.openapi))
   const modelsSectionTitle = options?.modelsSectionLabel ?? DEFAULT_MODELS_SECTION_LABEL
   const labels = options?.labels ?? DEFAULT_SEARCH_INDEX_LABELS
 
@@ -198,7 +198,7 @@ function addEntryToIndex(
 
     const parameters = extractParameterNames(operationWithPathParams.parameters ?? [])
     const parameterDescriptions = extractParameterDescriptions(operationWithPathParams.parameters ?? [])
-    const { names: body, descriptions: bodyDescriptions } = extractFields.body(operationWithPathParams)
+    const { names: body, descriptions: bodyDescriptions } = extractFields.operation(operation)
     const responseExamples = extractResponseExamples(operationWithPathParams.responses)
 
     index.push({
@@ -224,6 +224,7 @@ function addEntryToIndex(
   if (entry.type === 'webhook') {
     const webhook = getResolvedRef(getPathItemOperation(openApiDocument?.webhooks?.[entry.name], entry.method)) ?? {}
     const webhookDescription = webhook.description || ''
+    const { names, descriptions } = extractFields.operation(webhook)
 
     index.push({
       id: entry.id,
@@ -231,8 +232,8 @@ function addEntryToIndex(
       title: entry.title,
       description: 'Webhook',
       method: entry.method,
-      body: '',
-      bodyDescriptions: webhookDescription ? [webhookDescription] : [],
+      body: names.length ? names : '',
+      bodyDescriptions: webhookDescription ? [webhookDescription, ...descriptions] : descriptions,
       operationId: webhook.operationId,
       entry,
     })
@@ -244,7 +245,9 @@ function addEntryToIndex(
   if (entry.type === 'model') {
     const schema = getModelSchema(document, entry.name)
     const schemaDescription = schema?.description ?? ''
-    const { names: propertyNames, descriptions: propertyDescriptions } = extractFields.schema(schema)
+    const { names: propertyNames, descriptions: propertyDescriptions } = extractFields.schema(
+      openApiDocument?.components?.schemas?.[entry.name] ?? schema,
+    )
 
     index.push({
       type: 'model',

@@ -1,5 +1,7 @@
 export const zhCn = {
   schema: {
+    variants: '变体',
+    discriminatorValue: '鉴别器值',
     noAllowedValues: '没有值满足此枚举约束。',
     example: '示例',
     examples: '示例',
@@ -46,6 +48,14 @@ export const zhCn = {
     unique: '唯一',
     values: '值',
     writeOnly: '只写',
+    typeInteger: '整数。',
+    formatInt32: '有符号 32 位整数（常用整数类型）。',
+    formatInt64: '有符号 64 位整数（long 类型）。',
+    formatDate: 'RFC 3339 第 5.6 节定义的 full-date 表示法，例如 2017-07-21',
+    formatDateTime: 'RFC 3339 第 5.6 节定义的 date-time 表示法，例如 2017-07-21T17:32:28Z',
+    formatPassword: '提示界面遮蔽输入内容',
+    formatBase64: 'base64 编码的字符，例如 U3dhZ2dlciByb2Nrcw==',
+    formatBinary: '二进制数据，用于描述文件',
   },
   common: { copyDefault: '复制默认值', copyExample: '复制示例值' },
   actions: { copyLinkTo: '复制指向 {name} 的链接' },

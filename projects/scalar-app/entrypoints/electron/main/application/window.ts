@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { shell } from 'electron/common'
 import { BrowserWindow } from 'electron/main'
 import windowStateKeeper from 'electron-window-state'
@@ -53,7 +54,11 @@ export function createWindow({ isDev }: { isDev?: boolean }): BrowserWindow {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
+    // Renderer links must not invoke arbitrary OS protocol handlers.
+    const url = URL.parse(details.url)
+    if (url && isAllowedOAuthUrl(url)) {
+      void shell.openExternal(url.href)
+    }
     return { action: 'deny' }
   })
 

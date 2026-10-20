@@ -1,5 +1,21 @@
 # @scalar/aspire
 
+## 0.12.2
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.75.1
+
+### Patch Changes
+
+- [#10655](https://github.com/scalar/scalar/pull/10655): Update MessagePack to 2.5.303 to address GHSA-qhrr-8q5h-9q3h and restore .NET CI builds.
+
+## 0.12.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.75.0
+
 ## 0.12.0
 
 ### Bundled API Reference

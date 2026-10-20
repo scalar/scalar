@@ -13,7 +13,8 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 3.0.33
+    '@ai-sdk/vue': 3.0.214
+    mermaid: 12.0.0
     '@astrojs/starlight': 0.42.2
     '@fastify/basic-auth': ^6.3.0
     '@fastify/http-proxy': ^11.6.0
@@ -42,6 +43,7 @@ catalogs:
     '@tanstack/vue-query': 5.100.5
     '@types/express': 5.0.3
     '@types/jsdom': 28.0.1
+    '@types/mdast': ^4.0.4
     '@types/node': ^24.1.0
     '@types/picomatch': 4.0.2
     '@types/react-dom': ^19.2.3
@@ -56,12 +58,15 @@ catalogs:
     '@vueuse/core': 13.9.0
     '@vueuse/integrations': 13.9.0
     'fastify-plugin': ^4.5.1
-    ai: 6.0.33
+    ai: 6.0.214
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
     ansis: 4.1.0
     astro: 7.2.10
+    remark-gfm: ^4.0.1
+    remark-stringify: ^11.0.0
+    unified: ^11.0.5
     commander: 13.1.0
     concurrently: 9.1.2
     cross-env: 10.1.0
@@ -100,7 +105,7 @@ catalogs:
     type-fest: ^5.8.0
     truncate-json: 3.0.1
     tsx: 4.19.4
-    undici: 7.29.1
+    undici: 7.30.1
     vite-plugin-monaco-editor-esm: 2.0.2
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.1
@@ -139,6 +144,8 @@ overrides:
   '@types/node': catalog:*
   fast-uri@3.1.2: 3.0.1
   lodash: 4.18.1
+  # Keep Mermaid's transitive Lodash ES dependency on the patched release.
+  lodash-es: 4.18.1
   property-information: 7.1.0
   undici: catalog:*
   scalar-app>undici: 8.11.2
@@ -163,3 +170,5 @@ minimumReleaseAgeExclude:
   - ajv@8.18.0
   # Electron runtime update, released September 29, 2026
   - electron@44.5.1
+  # Security patches for the October 2026 Undici advisories.
+  - undici@7.30.1

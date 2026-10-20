@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarWrappingText } from '@scalar/components/wrapping-text'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -18,8 +19,14 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
     <template
       v-for="(part, i) in pathParts"
       :key="i">
-      <em v-if="isVariable(part)">{{ part }}</em>
-      <template v-else>{{ part }}</template>
+      <em v-if="isVariable(part)">
+        <ScalarWrappingText
+          preset="property"
+          :text="part" />
+      </em>
+      <ScalarWrappingText
+        v-else
+        :text="part" />
     </template>
   </span>
 </template>
@@ -28,7 +35,6 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
   overflow: hidden;
   word-wrap: break-word;
   font-weight: var(--scalar-semibold);
-  line-break: anywhere;
 }
 .deprecated {
   text-decoration: line-through;

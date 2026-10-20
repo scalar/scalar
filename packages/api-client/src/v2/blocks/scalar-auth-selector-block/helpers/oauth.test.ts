@@ -5,7 +5,13 @@ import { flushPromises } from '@vue/test-utils'
 import { encode } from 'js-base64'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2, getActiveServerBase, getServerUrl, refreshOauth2Token } from './oauth'
+import {
+  type CaptureOAuth2Callback,
+  authorizeOauth2,
+  getActiveServerBase,
+  getServerUrl,
+  refreshOauth2Token,
+} from './oauth'
 
 const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',
@@ -58,6 +64,107 @@ describe('oauth', () => {
   const mockServer = {
     url: 'https://api.example.com',
   } as ServerObject
+
+  it.each(
+    (['authorizationCode', 'implicit'] as const).flatMap((type) =>
+      [false, true].flatMap((capture) =>
+        [false, true].flatMap((override) =>
+          [
+            'file:///tmp/authorization',
+            'smb://example.invalid/share',
+            'javascript:void(0)//',
+            'java\tscript:void(0)//',
+            'data:text/html,inert',
+            'custom-protocol://authorize',
+            'http://auth.example.com/authorize',
+          ].map((url) => ({ type, capture, override, url })),
+        ),
+      ),
+    ),
+  )('rejects $url for $type (capture: $capture, override: $override)', async ({ type, capture, override, url }) => {
+    const captureCallback = vi.fn<CaptureOAuth2Callback>().mockResolvedValue([new Error('Unexpected capture'), null])
+    vi.mocked(window.open).mockReturnValue(null)
+    const flow = {
+      ...baseFlow,
+      authorizationUrl: override ? authorizationUrl : url,
+      ...(override ? { 'x-scalar-secret-auth-url': url } : {}),
+      tokenUrl,
+      'x-usePkce': 'no' as const,
+      'x-scalar-secret-client-secret': '',
+      'x-scalar-secret-token': '',
+      'x-scalar-secret-redirect-uri': redirectUri,
+    }
+    const flows = { [type]: flow } satisfies OAuthFlowsObjectSecret
+
+    const [error, tokens] = await authorizeOauth2(
+      flows,
+      type,
+      [],
+      mockServer,
+      '',
+      {},
+      undefined,
+      capture ? captureCallback : undefined,
+    )
+
+    expect(error?.message).toBe('Authorization URL must use HTTPS or HTTP for local development URLs')
+    expect(tokens).toBe(null)
+    expect(window.open).not.toHaveBeenCalled()
+    expect(captureCallback).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { url: '/authorize', server: 'https://auth.example.com', expected: 'https://auth.example.com/authorize' },
+    { url: '/authorize', server: 'http://localhost:3000', expected: 'http://localhost:3000/authorize' },
+    {
+      url: 'http://127.0.0.1:3000/authorize',
+      server: 'https://api.example.com',
+      expected: 'http://127.0.0.1:3000/authorize',
+    },
+  ])('allows resolved authorization URL $expected', async ({ url, server, expected }) => {
+    const captureCallback = vi.fn<CaptureOAuth2Callback>().mockResolvedValue([new Error('Captured'), null])
+    const flows = {
+      implicit: {
+        ...baseFlow,
+        authorizationUrl: url,
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-redirect-uri': redirectUri,
+      },
+    } satisfies OAuthFlowsObjectSecret
+
+    const [error] = await authorizeOauth2(flows, 'implicit', [], { url: server }, '', {}, undefined, captureCallback)
+
+    const capturedUrl = new URL(captureCallback.mock.calls[0]![0].authorizationUrl)
+    expect(capturedUrl.origin + capturedUrl.pathname).toBe(expected)
+    expect(error?.message).toBe('Captured')
+  })
+
+  it('rejects a relative authorization URL resolved against a file server', async () => {
+    const captureCallback = vi.fn<CaptureOAuth2Callback>().mockResolvedValue([new Error('Unexpected capture'), null])
+    const flows = {
+      implicit: {
+        ...baseFlow,
+        authorizationUrl: '/authorize',
+        'x-scalar-secret-token': '',
+        'x-scalar-secret-redirect-uri': redirectUri,
+      },
+    } satisfies OAuthFlowsObjectSecret
+
+    const [error] = await authorizeOauth2(
+      flows,
+      'implicit',
+      [],
+      { url: 'file:///tmp/api' },
+      '',
+      {},
+      undefined,
+      captureCallback,
+    )
+
+    expect(error?.message).toBe('Authorization URL must use HTTPS or HTTP for local development URLs')
+    expect(window.open).not.toHaveBeenCalled()
+    expect(captureCallback).not.toHaveBeenCalled()
+  })
 
   it('rejects a cleared authorization URL without opening a window', async () => {
     const flows = {

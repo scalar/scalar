@@ -1,5 +1,10 @@
+import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -13,6 +18,135 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('AsyncApiTraversedEntry', () => {
+  it.each(['classic', 'modern'] as const)('renders source models and keeps their anchors in %s layout', (layout) => {
+    const schema = 'message User { string id = 1; }'
+    const wrapper = mount(AsyncApiTraversedEntry, {
+      props: {
+        entries: [{ type: 'model', id: 'model-user', ref: '#/components/schemas/User', name: 'User', title: 'User' }],
+        document: {
+          ...document,
+          components: { schemas: { User: { schemaFormat: 'application/vnd.google.protobuf;version=3', schema } } },
+        },
+        expandedItems: { 'model-user': true },
+        options: {
+          layout,
+          hideModels: false,
+          expandAllSchemaProperties: false,
+          schemaKeyboardNav: false,
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: true,
+        },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    expect(wrapper.text()).toContain('User')
+    expect(wrapper.text()).toContain('application/vnd.google.protobuf;version=3')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    expect(wrapper.find('[id="model-user"]').exists()).toBe(true)
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'renders documentation across an AsyncAPI document in %s layout',
+    async (layout) => {
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'events',
+        document: {
+          asyncapi: '3.1.0',
+          info: { title: 'Events', version: '1' },
+          channels: {
+            events: {
+              address: 'events',
+              externalDocs: { $ref: '#/components/externalDocs/channel' },
+              tags: [{ $ref: '#/components/tags/events' }],
+              messages: { notice: { $ref: '#/components/messages/notice' } },
+            },
+          },
+          operations: {
+            receive: {
+              action: 'receive',
+              channel: { $ref: '#/channels/events' },
+              externalDocs: { $ref: '#/components/externalDocs/operation' },
+              traits: [{ $ref: '#/components/operationTraits/documentation' }],
+            },
+          },
+          components: {
+            operationTraits: {
+              documentation: { tags: [{ $ref: '#/components/tags/operation' }] },
+            },
+            externalDocs: {
+              channel: { $ref: '#/components/externalDocs/guide' },
+              guide: { url: 'https://example.com/channel', description: '**Channel** guide' },
+              operation: { url: 'https://example.com/operation' },
+              message: { url: 'https://example.com/message' },
+              tag: { url: 'https://example.com/channel-tag' },
+            },
+            tags: {
+              events: { name: 'Events', externalDocs: { $ref: '#/components/externalDocs/tag' } },
+              operation: {
+                name: 'Operation tag',
+                externalDocs: { url: 'https://example.com/operation-tag', description: '*Trait tag* guide' },
+              },
+            },
+            messages: {
+              notice: {
+                externalDocs: { $ref: '#/components/externalDocs/message' },
+                tags: [{ name: 'Message tag', externalDocs: { url: 'https://example.com/message-tag' } }],
+              },
+            },
+            schemas: { Notice: { type: 'object', externalDocs: { url: 'https://example.com/model' } } },
+          },
+        },
+      })
+      const document = store.workspace.documents.events
+      if (!isAsyncApiDocument(document)) {
+        throw new Error('Expected an AsyncAPI document')
+      }
+      const navigation = traverseAsyncApiDocument('events', document)
+      const expandedItems: Record<string, boolean> = {}
+      const expand = (entries: TraversedEntry[]): void => {
+        for (const entry of entries) {
+          expandedItems[entry.id] = true
+          if ('children' in entry && entry.children) {
+            expand(entry.children)
+          }
+        }
+      }
+      expand(navigation.children ?? [])
+      const wrapper = mount(AsyncApiTraversedEntry, {
+        props: {
+          document,
+          entries: navigation.children ?? [],
+          expandedItems,
+          eventBus: createWorkspaceEventBus(),
+          options: {
+            layout,
+            hideModels: false,
+            expandAllSchemaProperties: true,
+            schemaKeyboardNav: false,
+            orderSchemaPropertiesBy: 'preserve',
+            orderRequiredPropertiesFirst: true,
+          },
+        },
+      })
+      const urls = wrapper
+        .findAll('a')
+        .map((link) => link.attributes('href'))
+        .filter((url) => url?.startsWith('https://example.com/'))
+      expect(urls.sort()).toStrictEqual([
+        'https://example.com/channel',
+        // Tag documentation is available in its navigation section.
+        'https://example.com/channel-tag',
+        // Messages owned by an operation are rendered once, with their documentation.
+        'https://example.com/message',
+        'https://example.com/model',
+        'https://example.com/operation',
+      ])
+      expect(wrapper.text()).toContain('**Channel** guide')
+      expect(wrapper.text()).not.toContain('*Trait tag* guide')
+    },
+  )
+
   /**
    * Tag groups are rendered through the flatten branch in modern layout, so they
    * must not count toward the sibling-tag total. If they did, a lone regular tag

@@ -96,7 +96,7 @@ The `theme` property sets a platform-defined theme for your documentation site.
 
 ## Color Scheme
 
-The `colorScheme` property controls the light/dark mode appearance and toggle behavior for your documentation site.
+The `colorScheme` property sets the light/dark mode your site loads in. To move or hide the toggle, see [Where the Toggle Appears](#where-the-toggle-appears).
 
 ```json
 // scalar.config.json
@@ -105,8 +105,7 @@ The `colorScheme` property controls the light/dark mode appearance and toggle be
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "system",
-      "showToggle": true
+      "default": "system"
     }
   }
 }
@@ -117,7 +116,26 @@ The `colorScheme` property controls the light/dark mode appearance and toggle be
 | Property     | Type                             | Default    | Description                                |
 | ------------ | -------------------------------- | ---------- | ------------------------------------------ |
 | `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load          |
-| `showToggle` | `boolean`                        | `true`     | Whether to show the color scheme toggle    |
+| `showToggle` | `boolean`                        | `true`     | **Deprecated.** Use [`layout.colorSchemeToggle`](#where-the-toggle-appears). `false` still hides the toggle everywhere |
+
+### Where the Toggle Appears
+
+Set `layout.colorSchemeToggle` to `"sidebar"` (the default), `"header"`, `"tabs"`, or `false` to hide it. The sidebar shows a switch; the header and tabs show a sun/moon icon.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "colorSchemeToggle": "header"
+    }
+  }
+}
+```
+
+If a page does not have that surface, the toggle falls back to the sidebar, then the header, then the tabs, and does not render if the page has none of them. On mobile, pages without a sidebar show it in the header. You can override the location per page in its [layout options](navigation.md#layout-options).
 
 ### Examples
 
@@ -132,8 +150,10 @@ Force your documentation to always display in light mode without a toggle:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "light",
-      "showToggle": false
+      "default": "light"
+    },
+    "layout": {
+      "colorSchemeToggle": false
     }
   }
 }
@@ -150,8 +170,10 @@ Force your documentation to always display in dark mode without a toggle:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "dark",
-      "showToggle": false
+      "default": "dark"
+    },
+    "layout": {
+      "colorSchemeToggle": false
     }
   }
 }
@@ -168,8 +190,7 @@ Respect the user's system preference while allowing them to override it:
   "scalar": "2.0.0",
   "siteConfig": {
     "colorScheme": {
-      "default": "system",
-      "showToggle": true
+      "default": "system"
     }
   }
 }
@@ -246,6 +267,7 @@ The `layout` property controls global layout options that apply to all pages unl
       "pageActions": true,
       "pageNav": true,
       "lastUpdated": false,
+      "feedback": false,
       "search": {
         "enabled": true,
         "position": "header"
@@ -265,7 +287,9 @@ The `layout` property controls global layout options that apply to all pages unl
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
 | `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
 | `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
+| `feedback`    | `boolean` | `false`  | Whether to ask readers if each page was helpful, between the last updated date and the previous and next links. See [Page feedback](#page-feedback) |
 | `search`      | `object`  | —        | Search bar configuration                       |
+| `colorSchemeToggle` | `"sidebar" \| "header" \| "tabs" \| false` | `"sidebar"` | Where to show the light/dark toggle. See [Where the Toggle Appears](#where-the-toggle-appears) |
 
 ### Last updated date
 
@@ -273,9 +297,21 @@ Scalar records the date for you, so there is no field to set it by hand. Each ti
 
 Previews do not have a publish history, so they show the current date.
 
+### Page feedback
+
+Page feedback is off unless you turn it on, because it puts a question at the foot of every page it covers. Readers answer with a thumbs up or down, then can pick a reason from a short list.
+
+Set `feedback` here to ask on every page, or on a single page with its own [layout options](navigation.md#layout-options). A page's own value wins in either direction, so you can turn it on site-wide and off for one page, or the other way around.
+
+Votes appear in the editor under **Settings → Analytics**, in a **Page feedback** panel that shows once `feedback` is on for any page. The widget never appears in a preview, or while [analytics is turned off](../privacy.md#turn-off-analytics) for the project, since there is nowhere to record the vote.
+
 ### Search Configuration
 
 The `search` object within `layout` controls the global search behavior.
+
+Search finds guide content and API content, including parameter names, request and response fields, models, webhooks, and AsyncAPI content. You do not need to enable Ask AI to search these fields. Exact names rank above incidental mentions in descriptions, and results link to their API reference destinations.
+
+Models appear after you type a query. They are excluded from the initial suggestions so guide pages and API overviews remain easy to find. The search index is generated during the site build; publish a new build to index updated API content.
 
 | Property   | Type                        | Default    | Description                           |
 | ---------- | --------------------------- | ---------- | ------------------------------------- |
@@ -723,7 +759,7 @@ Set `userInfoHook` to your HTTPS endpoint to personalize published documentation
 }
 ```
 
-Publish the configuration, then generate the project's signing secret in **Settings → Privacy → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
+Publish the configuration, then generate the project's signing secret in **Settings → Personalization**. Your endpoint verifies Scalar's signed request and returns visitor groups, content values, and optional API playground inputs. See [Personalization](personalization.md) for the complete hook contract and a working example.
 
 Personalization changes visibility. Use [Access Control](#access-control) to restrict access to the site.
 

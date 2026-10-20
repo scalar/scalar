@@ -9,6 +9,34 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.19.0 (2026-10-20)
+
+### Unified OpenAPI and AsyncAPI mocking in a single factory
+
+createMockServer now detects whether you provide an OpenAPI or AsyncAPI document and returns the appropriate Hono app. This replaces the separate createAsyncApiMockServer factory with a single unified API.
+
+- createMockServer automatically detects OpenAPI or AsyncAPI documents from objects, files, URLs, or inline JSON and YAML
+- AsyncAPI WebSocket channels now require a runtime-specific upgradeWebSocket adapter for flexible deployment
+- AsyncAPI apps automatically serve /asyncapi.json and /asyncapi.yaml with deployment-specific connection URLs
+- Galaxy now serves sample events on connection at wss://galaxy.scalar.com/ws/v1/planets/4/events
+- Node hosts create their own WebSocketServer for AsyncAPI channels
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0190)
+
+## 0.18.0 (2026-10-16)
+
+### OpenID Connect provider and transport security enforcement
+
+This release adds a development OpenID Connect authorization server with signed ID tokens and enforces security requirements for AsyncAPI WebSocket and Server-Sent Events connections.
+
+- Added a development OpenID Connect provider with signed ID tokens, JWKS endpoints, PKCE support, and token refresh rotation for testing identity flows.
+- AsyncAPI WebSocket and SSE connections now enforce server and operation security requirements before opening channels.
+- HTTP authentication accepts case-insensitive Basic and Bearer schemes, validates Digest credentials, and recognizes verified mutual TLS certificates.
+- OAuth callback URLs are validated to reject non-HTTP schemes and prevent executable links on authorization pages.
+- AsyncAPI mock servers register OAuth and OpenID Connect endpoints declared in security schemes and return discovery metadata on the mock origin.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0180)
+
 ## 0.17.6 (2026-10-12)
 
 ### Polish and bug fixes shipped

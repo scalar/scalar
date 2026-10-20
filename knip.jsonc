@@ -149,6 +149,8 @@
       "entry": [
         // Loaded by the standalone browser through pluginUrls in the plugin example and E2E test
         "public/examples/plugins/custom-extension.js",
+        "playground/mermaid/main.ts",
+        "playground/mermaid/summary.ts",
         "src/index.ts",
         "src/components/index.ts",
         "src/blocks/index.ts",
@@ -260,10 +262,20 @@
     "packages/object-utils": {
       "entry": ["src/*/index.ts"]
     },
+    "packages/asyncapi-to-markdown": {
+      "entry": [
+        "src/index.ts",
+        "src/browser.ts",
+        "playground/src/main.ts",
+        "playground/vite.config.ts",
+        "playground/worker.mjs"
+      ]
+    },
     "packages/openapi-to-markdown": {
       // Run manually to compare the old and new renderers.
       "entry": [
         "src/index.ts",
+        "src/markdown/index.ts",
         "benchmarks/compare.mjs",
         "playground/src/main.ts",
         "playground/vite.config.ts",

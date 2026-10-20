@@ -179,7 +179,9 @@ const handleUpsertRow = (
 defineExpose({
   focusValue: (index: number): void => {
     const row = keyedRows.value[index]
-    if (row) rowRefs.get(row.key)?.focusValue()
+    if (row) {
+      rowRefs.get(row.key)?.focusValue()
+    }
   },
 })
 </script>

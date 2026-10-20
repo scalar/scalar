@@ -1,31 +1,13 @@
-import { serve } from '@hono/node-server'
+import { serve, upgradeWebSocket } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
-import {
-  type AsyncApiMockServer,
-  createAsyncApiMockServer,
-  createMockServer,
-  isAsyncApiDocument,
-} from '@scalar/mock-server'
-import type { Hono } from 'hono'
+import { createMockServer } from '@scalar/mock-server'
+import { WebSocketServer } from 'ws'
 
 interface ServerConfig {
   document: string
   origin?: string
   format: 'json' | 'yaml'
   port?: number
-}
-
-/** Parse the raw document just enough to tell whether it is an AsyncAPI definition. */
-function parseDocument(document: string, format: 'json' | 'yaml'): unknown {
-  if (format === 'json') {
-    try {
-      return JSON.parse(document)
-    } catch {
-      return undefined
-    }
-  }
-  // For YAML, a cheap top-level check avoids pulling a parser just for detection.
-  return /^asyncapi\s*:/m.test(document) ? { asyncapi: true } : undefined
 }
 
 export async function startMockServer(config: ServerConfig): Promise<void> {
@@ -35,30 +17,16 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   console.log('Starting mock server...')
   console.log()
 
-  const isAsyncApi = isAsyncApiDocument(parseDocument(document, format))
-
-  let app: Hono
-  let websocket: AsyncApiMockServer['websocket'] | undefined
-
-  if (isAsyncApi) {
-    const mock = await createAsyncApiMockServer({
-      document,
-      origin: config.origin,
-      logger: (line) => console.log(line),
-      onMessage: ({ channel, direction, payload }) =>
-        console.log(`${direction === 'in' ? '→' : '←'} ${channel}`, payload),
-    })
-    app = mock.app
-    websocket = mock.websocket
-  } else {
-    app = await createMockServer({
-      document,
-      origin: config.origin,
-      onRequest({ context }) {
-        console.log(context.req.method, context.req.path)
-      },
-    })
-  }
+  const app = await createMockServer({
+    document,
+    origin: config.origin,
+    upgradeWebSocket,
+    logger: (line) => console.log(line),
+    onMessage: ({ channel, direction, payload }) =>
+      console.log(`${direction === 'in' ? '→' : '←'} ${channel}`, payload),
+    onRequest: ({ context }) => console.log(context.req.method, context.req.path),
+  })
+  const websocket = { server: new WebSocketServer({ noServer: true }) }
 
   // Determine endpoint and content type based on format
   const endpoint = format === 'json' ? '/openapi.json' : '/openapi.yaml'
@@ -77,7 +45,7 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
     {
       fetch: app.fetch,
       port,
-      ...(websocket ? { websocket } : {}),
+      websocket,
     },
     (info) => {
       console.log(`🚀 Mock Server listening on http://${info.address}:${info.port}`)

@@ -45,6 +45,7 @@ const languages = [
   'java',
   'javascript',
   'json',
+  'julia',
   'kotlin',
   'lua',
   'makefile',

@@ -69,6 +69,13 @@ type CreateServerWorkspaceStoreBase = {
   documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   navigationOptions?: NavigationOptions
+  /** Permissions applied to initial documents, later additions, and external references. */
+  documentLoading?: {
+    /** Allow private-network requests only for trusted input. Defaults to false. */
+    allowPrivateNetworks?: boolean
+    /** Approved directory for local files. File access is disabled when omitted. */
+    basePath?: string
+  }
   /**
    * Sends the sparse document in its compact form, for documents large enough that the sparse
    * document is itself a cost.
@@ -347,13 +354,19 @@ type ServerWorkspace = Omit<Workspace, 'activeDocument'>
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-function loadDocument(workspaceDocument: WorkspaceDocumentInput): ReturnType<LoaderPlugin['exec']> {
+function loadDocument(
+  workspaceDocument: WorkspaceDocumentInput,
+  options: CreateServerWorkspaceStoreBase['documentLoading'] = {},
+): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
-    return fetchUrls().exec(workspaceDocument.url)
+    return fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks }).exec(workspaceDocument.url)
   }
 
   if ('path' in workspaceDocument) {
-    return readFiles().exec(workspaceDocument.path)
+    if (options.basePath === undefined) {
+      return Promise.resolve({ ok: false })
+    }
+    return readFiles({ basePath: options.basePath }).exec(workspaceDocument.path)
   }
 
   return Promise.resolve({
@@ -800,7 +813,7 @@ export async function createServerWorkspaceStore(
     const assetsBeforeAdd = assets[input.name]
 
     try {
-      const document = await loadDocument(input)
+      const document = await loadDocument(input, workspaceProps.documentLoading)
 
       if (!document.ok) {
         console.warn(`Failed to load document "${input.name}"`)
@@ -813,7 +826,11 @@ export async function createServerWorkspaceStore(
       const data: Record<string, unknown> = isThreeTwo ? JSON.parse(document.raw) : loaded
       const fileOrigin = 'path' in input ? input.path : undefined
       const origin = 'url' in input ? input.url : fileOrigin
-      const loaders = [fetchUrls(), readFiles()]
+      const options = workspaceProps.documentLoading
+      const loaders = [
+        fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
+        ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
+      ]
       if (isThreeTwo) {
         await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
         await resolveSecurityRequirements(data, { origin, loaders })

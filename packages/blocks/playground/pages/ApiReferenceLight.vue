@@ -129,9 +129,9 @@ onMounted(async () => {
           :method="endpoint.method"
           :operation="endpoint.operation"
           :path="endpoint.path"
-          selectedClient="shell/curl"
+          :securitySchemes="[]"
           :selectedServer="selectedServer"
-          :securitySchemes="[]">
+          selectedClient="shell/curl">
           <template #header>
             <span class="operation-path">{{ endpoint.path }}</span>
           </template>

@@ -30,6 +30,8 @@ const props = withDefaults(
     value: SchemaObject | undefined
     enum?: boolean
     isDiscriminator?: boolean
+    /** Effective AsyncAPI variant value, separate from const/enum constraints. */
+    discriminatorValue?: string
     required?: boolean
     additional?: boolean
     withExamples?: boolean
@@ -532,6 +534,12 @@ const patternValue = computed(() => {
       class="property-deprecated">
       <Badge>{{ translate('schema.deprecated') }}</Badge>
     </div>
+    <span
+      v-if="discriminatorValue !== undefined"
+      class="text-c-2">
+      {{ translate('schema.discriminatorValue') }}:
+      <RenderString :value="discriminatorValue" />
+    </span>
     <!-- Don't use `isDefined` here, we want to show `const` when the value is `null` -->
     <div
       v-if="constValue !== undefined"

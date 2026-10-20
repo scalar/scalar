@@ -313,6 +313,7 @@ provideDocumentOutline('document')
             class="scalar-reference-intro-server scalar-client introduction-card-item text-base leading-normal [--scalar-address-bar-height:0px]">
             <AsyncApiServerSelector
               :eventBus
+              :options="options"
               :selectedServer="asyncApiSelectedServer"
               :servers="asyncApiServers" />
           </IntroductionCardItem>

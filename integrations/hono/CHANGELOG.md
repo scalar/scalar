@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.12.13
+
+### Patch Changes
+
+- [#10629](https://github.com/scalar/scalar/pull/10629): Document AsyncAPI support in the Hono integration and use format-neutral types and JSDoc for Scalar.serve().
+
 ## 0.12.12
 
 ### Patch Changes

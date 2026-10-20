@@ -1,4 +1,5 @@
 import type { ErrorResponse } from '@scalar/helpers/errors/normalize-error'
+import { isAllowedOAuthUrl } from '@scalar/helpers/url/is-allowed-oauth-url'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 
@@ -9,7 +10,6 @@ import {
   type OpenIDConnectDiscovery as AuthorizationServerMetadata,
   OpenIDConnectDiscoverySchema as AuthorizationServerMetadataSchema,
 } from './fetch-openid-connect-discovery'
-import { isAllowedOAuthUrl } from './is-allowed-oauth-url'
 
 /** Fetches the exact RFC8414 metadata URL, without applying OIDC issuer URL conventions. */
 export const fetchOAuth2Metadata = async (

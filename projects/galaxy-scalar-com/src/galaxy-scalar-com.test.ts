@@ -3,7 +3,9 @@ import { createMockServer } from '@scalar/mock-server'
 import { type Context, Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { asyncApiDocument } from './asyncapi-document'
 import { configureApiReference, createApp } from './galaxy-scalar-com'
+import { upgradeWebSocket } from './upgrade-websocket'
 
 // The OpenAPI document is mocked so the test stays isolated from the built
 // @scalar/galaxy package.
@@ -21,6 +23,7 @@ describe('galaxy-scalar-com', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(createMockServer).mockResolvedValue(new Hono())
 
     vi.spyOn(console, 'log').mockImplementation(vi.fn())
 
@@ -31,24 +34,24 @@ describe('galaxy-scalar-com', () => {
 
   describe('createApp', () => {
     it('creates the mock server with the bundled document', async () => {
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(new Hono())
 
-      const app = await createApp()
+      await createApp()
 
       expect(createMockServer).toHaveBeenCalledWith({
         document: { openapi: '3.1.0' },
         onRequest: expect.any(Function),
       })
-      expect(app).toBe(mockApp)
+      expect(createMockServer).toHaveBeenCalledWith({ document: asyncApiDocument, upgradeWebSocket })
     })
 
     it('logs requests in the onRequest callback', async () => {
-      vi.mocked(createMockServer).mockResolvedValue(mockApp as Hono)
+      vi.mocked(createMockServer).mockResolvedValue(new Hono())
 
       await createApp()
 
       // Grab the onRequest callback that was handed to createMockServer.
-      const onRequestCallback = vi.mocked(createMockServer).mock.calls[0]?.[0]?.onRequest
+      const onRequestCallback = vi.mocked(createMockServer).mock.calls[1]?.[0]?.onRequest
 
       const mockContext = {
         req: {
@@ -164,10 +167,10 @@ describe('galaxy-scalar-com', () => {
     it('includes the AsyncAPI document as a source', () => {
       configureApiReference(mockApp as Hono)
 
-      const config = vi.mocked(Scalar).mock.calls[0]?.[0] as { sources?: Array<{ title?: string; content?: unknown }> }
+      const config = vi.mocked(Scalar).mock.calls[0]?.[0] as { sources?: Array<{ title?: string; url?: string }> }
       const asyncApiSource = config.sources?.find((source) => source.title === 'Scalar Galaxy Events (AsyncAPI)')
 
-      expect(asyncApiSource?.content).toMatchObject({ asyncapi: expect.any(String) })
+      expect(asyncApiSource?.url).toBe('/asyncapi.json')
     })
   })
 })
