@@ -252,7 +252,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-blue), transparent 88%);
-  border-color: color-mix(in srgb, var(--scalar-color-blue), transparent 65%);
+  border-color: color-mix(in srgb, var(--scalar-color-blue), transparent 78%);
 }
 .operation-action--receive {
   color: color-mix(
@@ -261,7 +261,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-green), transparent 88%);
-  border-color: color-mix(in srgb, var(--scalar-color-green), transparent 65%);
+  border-color: color-mix(in srgb, var(--scalar-color-green), transparent 78%);
 }
 
 .operation-description {
