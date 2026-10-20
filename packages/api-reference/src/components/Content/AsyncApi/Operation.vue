@@ -137,7 +137,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
             {{ headingText }}
           </SectionHeaderTag>
           <Badge
-            class="operation-action inline-flex shrink-0 items-center gap-1 border-transparent"
+            class="operation-action inline-flex shrink-0 items-center gap-1"
             :class="`operation-action--${operation.action}`">
             <component
               :is="
