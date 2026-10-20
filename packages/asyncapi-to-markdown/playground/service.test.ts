@@ -3,24 +3,25 @@ import { describe, expect, it } from 'vitest'
 import { createExportService } from './service'
 
 describe('service', () => {
-  it('exports every advertised page with linked and self-contained modes', async () => {
+  it.each([
+    { document: 'events', linked: false },
+    { document: 'events', linked: true },
+    { document: 'shared', linked: false },
+    { document: 'shared', linked: true },
+  ])('exports every advertised page for $document with linked=$linked', async ({ document, linked }) => {
     const service = createExportService()
-    for (const document of ['events', 'shared']) {
-      const manifest = await service('/__markdown/document', `document=${document}`)
-      if (typeof manifest === 'string' || !('pages' in manifest)) {
-        throw new Error('Expected a manifest')
+    const manifest = await service('/__markdown/document', `document=${document}`)
+    if (typeof manifest === 'string' || !('pages' in manifest)) {
+      throw new Error('Expected a manifest')
+    }
+    for (const [index] of manifest.pages.entries()) {
+      const result = await service('/__markdown/render', `document=${document}&page=${index}&linked=${linked}`)
+      if (typeof result === 'string' || !('markdown' in result)) {
+        throw new Error('Expected an export')
       }
-      for (const [index] of manifest.pages.entries()) {
-        for (const linked of [false, true]) {
-          const result = await service('/__markdown/render', `document=${document}&page=${index}&linked=${linked}`)
-          if (typeof result === 'string' || !('markdown' in result)) {
-            throw new Error('Expected an export')
-          }
-          expect(result.bytes).toBe(Buffer.byteLength(result.markdown))
-          expect(result.markdown.startsWith('#') || result.markdown.startsWith('<a ')).toBe(true)
-          expect(result.html).not.toContain('<script')
-        }
-      }
+      expect(result.bytes).toBe(Buffer.byteLength(result.markdown))
+      expect(result.markdown.startsWith('#') || result.markdown.startsWith('<a ')).toBe(true)
+      expect(result.html).not.toContain('<script')
     }
     // About 150 renders with a preview each, including every page of the 60-operation benchmark
     // document. That fits the 5 s default on an idle machine but not reliably on a busy CI runner.
