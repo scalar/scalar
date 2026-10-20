@@ -7,6 +7,7 @@ import type { ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } fro
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
 import { makeFilesystem } from './make-filesystem'
+import { type ReferenceContext, canResolveReference, getChildReferenceContext } from './reference-context'
 
 // TODO: Add support for all pointer words
 // export const pointerWords = new Set([
@@ -71,7 +72,7 @@ export function resolveReferences(
   }
 
   // Recursively resolve all references
-  dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
+  dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options, 'document')
 
   // Remove duplicates (according to message) from errors
   const uniqueErrors = errors.filter(
@@ -99,16 +100,20 @@ function dereference(
   errors: ErrorObject[],
 
   options?: ResolveReferencesOptions,
+  context: ReferenceContext = 'object',
 ): void {
-  if (schema === null || resolvedSchemas.has(schema)) {
+  if (context === 'literal' || schema === null || resolvedSchemas.has(schema)) {
     return
   }
   resolvedSchemas.add(schema)
 
-  function resolveExternal(externalFile: FilesystemEntry) {
-    dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
-
-    return externalFile
+  // A fragment inherits the reference site's context, not its storage container's keys.
+  const resolveExternal = (externalFile: FilesystemEntry, fragment: string): AnyObject | undefined => {
+    const target = resolveUri(`#${fragment}`, options, externalFile, filesystem, resolveExternal, errors)
+    if (isObjectLike(target)) {
+      dereference(target, filesystem, externalFile, resolvedSchemas, errors, options, context)
+    }
+    return target
   }
 
   /**
@@ -125,7 +130,7 @@ function dereference(
    */
   const processedRefs = new Set<string>()
 
-  while (schema.$ref !== undefined) {
+  while (canResolveReference(context) && schema.$ref !== undefined) {
     const selfReferenceDetected = processedRefs.has(schema.$ref)
 
     if (selfReferenceDetected) {
@@ -165,9 +170,17 @@ function dereference(
   }
 
   // Iterate over the whole object
-  for (const value of Object.values(schema)) {
+  for (const [key, value] of Object.entries(schema)) {
     if (typeof value === 'object' && value !== null) {
-      dereference(value, filesystem, entrypoint, resolvedSchemas, errors, options)
+      dereference(
+        value,
+        filesystem,
+        entrypoint,
+        resolvedSchemas,
+        errors,
+        options,
+        getChildReferenceContext(context, key, value),
+      )
     }
   }
 }
@@ -187,7 +200,7 @@ function resolveUri(
   filesystem: Filesystem,
 
   // a function to resolve references in external file
-  resolve: (file: FilesystemEntry) => FilesystemEntry,
+  resolve: (file: FilesystemEntry, fragment: string) => AnyObject | undefined,
 
   errors: ErrorObject[],
 ): AnyObject | undefined {
@@ -229,14 +242,7 @@ function resolveUri(
 
       return undefined
     }
-    // $ref: 'other-file.yaml'
-    if (path === undefined) {
-      return externalReference.specification
-    }
-
-    // $ref: 'other-file.yaml#/foo/bar'
-    // resolve refs first before accessing properties directly
-    return resolveUri(`#${path}`, options, resolve(externalReference), filesystem, resolve, errors)
+    return resolve(externalReference, path ?? '')
   }
 
   // Try to find the URI

@@ -17,6 +17,292 @@ import { resolveReferences } from './resolve-references'
 const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
+  it('resolves OpenAPI 2 response definitions named like extensions', () => {
+    const specification = {
+      swagger: '2.0',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      responses: { 'x-response': { $ref: '#/responses/Target' }, Target: { description: 'OK' } },
+    }
+    expect(resolveReferences(specification)).toStrictEqual({
+      valid: true,
+      errors: [],
+      schema: {
+        ...specification,
+        responses: {
+          'x-response': { description: 'OK' },
+          Target: { description: 'OK' },
+        },
+      },
+    })
+  })
+
+  it('preserves Paths and Responses extensions while resolving component names beginning with x-', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'Extensions', version: '1' },
+      paths: {
+        'x-meta': { $ref: 'literal-path.json' },
+        '/': { get: { responses: { '200': { description: 'OK' }, 'x-meta': { $ref: 'literal-response.json' } } } },
+      },
+      components: {
+        responses: { 'x-response': { $ref: '#/components/responses/Target' }, Target: { description: 'OK' } },
+        schemas: { 'x-schema': { type: 'string' } },
+      },
+    }
+    expect(resolveReferences(specification)).toStrictEqual({
+      valid: true,
+      errors: [],
+      schema: {
+        ...specification,
+        components: {
+          ...specification.components,
+          responses: { 'x-response': { description: 'OK' }, Target: { description: 'OK' } },
+        },
+      },
+    })
+  })
+
+  it('preserves dependentRequired property names while resolving properties named dependentRequired', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'Dependencies', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Thing: {
+            type: 'object',
+            properties: {
+              $ref: { type: 'string' },
+              other: { type: 'string' },
+              dependentRequired: { $ref: '#/components/schemas/Target' },
+            },
+            dependentRequired: { $ref: ['other'] },
+          },
+          Target: { type: 'string' },
+        },
+      },
+    }
+    const result = resolveReferences(specification)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        schemas: {
+          Target: { type: 'string' },
+          Thing: {
+            type: 'object',
+            properties: { $ref: { type: 'string' }, other: { type: 'string' }, dependentRequired: { type: 'string' } },
+            dependentRequired: { $ref: ['other'] },
+          },
+        },
+      },
+    })
+  })
+
+  it('resolves schema references inside custom operations named example', () => {
+    const target = { type: 'string' }
+    const operation = {
+      requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/Target' } } } },
+      responses: { '200': { description: 'OK' } },
+    }
+    const specification = {
+      openapi: '3.2.1',
+      paths: { '/': { additionalOperations: { example: operation } } },
+      components: { schemas: { Target: target } },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      paths: {
+        '/': {
+          additionalOperations: {
+            example: {
+              ...operation,
+              requestBody: { content: { 'application/json': { schema: target } } },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('preserves OAuth scopes, discriminator mappings, Link values, and extensions', () => {
+    const literal = { $ref: '#/components/schemas/Target' }
+    const target = { type: 'object' }
+    const mapping = { $ref: '#/components/schemas/Target' }
+    const specification = {
+      openapi: '3.1.0',
+      'x-data': { ...literal },
+      components: {
+        schemas: {
+          Target: target,
+          Choice: { oneOf: [literal], discriminator: { propertyName: 'kind', mapping } },
+          NamedProperty: { properties: { 'x-data': literal } },
+        },
+        links: { Next: { operationId: 'next', requestBody: { ...literal }, parameters: { filter: { ...literal } } } },
+        securitySchemes: {
+          OAuth: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                authorizationUrl: 'https://example.com/auth',
+                scopes: { $ref: 'Read reference resources' },
+              },
+            },
+          },
+        },
+      },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        ...specification.components,
+        schemas: {
+          ...specification.components.schemas,
+          Choice: { oneOf: [target], discriminator: { propertyName: 'kind', mapping } },
+          NamedProperty: { properties: { 'x-data': target } },
+        },
+      },
+    })
+  })
+
+  it('resolves callback references when the callback name is example', () => {
+    const specification = {
+      openapi: '3.1.0',
+      components: {
+        callbacks: {
+          example: { $ref: '#/components/callbacks/Original' },
+          Original: { '{$request.body#/url}': { post: { responses: { '200': { description: 'OK' } } } } },
+        },
+      },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        callbacks: {
+          Original: specification.components.callbacks.Original,
+          example: specification.components.callbacks.Original,
+        },
+      },
+    })
+  })
+
+  it.each(['examples', 'default', 'enum', 'const'])('preserves literal $ref data in schema %s', (keyword) => {
+    const literal = { $ref: '#/components/schemas/Target', nested: { $ref: 'https://example.com/data' } }
+    const specification = {
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Target: { type: 'string' },
+          Example: { [keyword]: keyword === 'examples' || keyword === 'enum' ? [literal] : literal },
+        },
+      },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual(specification)
+  })
+
+  it('resolves Example Object references while preserving their literal values', () => {
+    const literal = { $ref: '#/components/schemas/Target' }
+    const specification = {
+      openapi: '3.1.0',
+      components: {
+        schemas: { Target: { type: 'string' } },
+        examples: { Original: { value: literal }, Copy: { $ref: '#/components/examples/Original' } },
+      },
+    }
+    const result = resolveReferences(specification, { throwOnError: true })
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        ...specification.components,
+        examples: { Original: { value: literal }, Copy: { value: literal } },
+      },
+    })
+  })
+
+  it.each(['properties', 'patternProperties', '$defs', 'dependentSchemas'])(
+    'treats %s entries as schema names',
+    (keyword) => {
+      const specification = {
+        [keyword]: {
+          $ref: true,
+          example: { properties: { $ref: false }, allOf: [{ $ref: '#/target' }] },
+        },
+        target: { type: 'object' },
+      }
+      const result = resolveReferences(specification, { throwOnError: true })
+      expect(result.errors).toStrictEqual([])
+      expect(result.schema).toStrictEqual({
+        ...specification,
+        [keyword]: { $ref: true, example: { properties: { $ref: false }, allOf: [{ type: 'object' }] } },
+      })
+    },
+  )
+
+  it('preserves a property named $ref and resolves references within its schema', () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: { title: 'SCIM', version: '1.0.0' },
+      paths: {},
+      components: {
+        schemas: {
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { $ref: '#/components/schemas/Uri' },
+            },
+          },
+          Uri: { type: 'string', format: 'uri' },
+        },
+      },
+    }
+
+    const result = resolveReferences(specification, { throwOnError: true })
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toStrictEqual([])
+    expect(result.schema).toStrictEqual({
+      ...specification,
+      components: {
+        schemas: {
+          ...specification.components.schemas,
+          GroupMember: {
+            type: 'object',
+            properties: {
+              value: { type: 'string' },
+              $ref: { type: 'string', format: 'uri' },
+            },
+          },
+        },
+      },
+    })
+    expect(specification.components.schemas.GroupMember.properties.$ref).toStrictEqual({
+      $ref: '#/components/schemas/Uri',
+    })
+  })
+
+  it.each([123, true, false, null, { type: 'string' }])('rejects a non-string reference value %s', ($ref) => {
+    const specification = { openapi: '3.1.0', components: { schemas: { Broken: { $ref } } } }
+    const result = resolveReferences(specification)
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toStrictEqual([{ code: 'INVALID_REFERENCE', message: `Can't resolve reference: ${$ref}` }])
+    expect(() => resolveReferences(specification, { throwOnError: true })).toThrowError(
+      `Can't resolve reference: ${$ref}`,
+    )
+  })
+
   it('resolves a media type reference', () => {
     const specification: OpenApiDocumentV3_2 = {
       openapi: '3.2.0',
