@@ -22,7 +22,9 @@ describe('service', () => {
         }
       }
     }
-  })
+    // About 150 renders with a preview each, including every page of the 60-operation benchmark
+    // document. That fits the 5 s default on an idle machine but not reliably on a busy CI runner.
+  }, 30_000)
 
   it('returns the same complete Markdown from the text endpoint', async () => {
     const service = createExportService()

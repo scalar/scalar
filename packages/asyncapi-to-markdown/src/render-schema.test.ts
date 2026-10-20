@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { createMarkdownFromAsyncApi } from './index'
 
@@ -9,6 +9,11 @@ const model = async (schema: unknown): Promise<string> =>
   )
 
 describe('render-schema', () => {
+  // The first description with HTML loads the sanitizer and code highlighter on demand. That
+  // can take over 5 s on a busy CI runner, so load it once here instead of inside whichever test
+  // happens to need it first.
+  beforeAll(() => model({ type: 'string', description: '<p>Warm up</p>' }), 30_000)
+
   it('renders boolean schemas explicitly', async () => {
     expect(await model(false)).toBe('<a id="scalar-model-example"></a>\n\n# Example\n\nNo value is allowed.\n')
     expect(await model(true)).toBe('<a id="scalar-model-example"></a>\n\n# Example\n\nAny value is allowed.\n')
