@@ -211,7 +211,7 @@
     <span class="lp-quote-by"><scalar-icon class="lp-quote-logo" src="../assets/logos/warp.svg" aria-label="Warp"></scalar-icon><span>Adam Rankin, CTO</span></span>
   </blockquote>
 </div>
-  <div class="lp-card lp-card--sdk" aria-hidden="true">
+  <div class="lp-card lp-card--sdk" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
 <div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
 <div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
@@ -296,7 +296,7 @@
     <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/agent" aria-label="Learn more about Scalar MCP and Agent">Learn more &rarr;</a>
   </div>
 </div>
-  <div class="lp-card lp-card--mcp" aria-hidden="true">
+  <div class="lp-card lp-card--mcp" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
 <div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
 <div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
@@ -339,7 +339,7 @@
 <!-- lp-vs:start -->
 <section class="lp-section lp-section--vs" id="lp-prompts">
 <div class="lp-vs">
-<div class="lp-vs-side lp-vs-side--diy">
+<div class="lp-vs-side lp-vs-side--diy" data-md-exclude>
   <div class="lp-vs-head">
   <span class="lp-kicker lp-vs-kicker">Without Scalar</span>
   <scalar-heading level="2" slug="vibe-code-apis-docs-mcp-and-sdks" class="c">Vibe code APIs, Docs, MCP, &amp; SDKs</scalar-heading>
