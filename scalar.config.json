@@ -3971,6 +3971,12 @@
                     "type": "page",
                     "title": "Authentication"
                   },
+                  "autocompletion": {
+                    "description": "Set up Scalar CLI autocompletion for Bash, Zsh, and Fish.",
+                    "filepath": "documentation/guides/cli/autocompletion.md",
+                    "type": "page",
+                    "title": "Autocompletion"
+                  },
                   "ci-and-scripting": {
                     "description": "Run the Scalar CLI in CI: authenticate with tokens, publish lint reports, adopt lint baselines, and read JSON output.",
                     "filepath": "documentation/guides/cli/ci-and-scripting.md",
