@@ -5,6 +5,40 @@ import type { Item } from '@/types'
 import { filterItems } from './filter-items'
 
 describe('filter-items', () => {
+  it('hides AsyncAPI messages while preserving operation entries and their content data', () => {
+    const message: Item = {
+      type: 'asyncapi-message',
+      id: 'ping',
+      title: 'Ping',
+      channelName: 'ping',
+      messageName: 'ping',
+    }
+    const operation: Item = {
+      type: 'asyncapi-operation',
+      id: 'send',
+      title: 'Send ping',
+      channelName: 'ping',
+      operationName: 'sendPing',
+      channelAddress: 'ping',
+      action: 'send',
+      children: [message],
+    }
+    expect(filterItems('reference', [operation, message])).toStrictEqual([operation])
+    expect(operation.children).toStrictEqual([message])
+    const channel: Item = {
+      type: 'asyncapi-channel',
+      id: 'channel',
+      channelAddress: 'ping',
+      title: 'Ping',
+      channelName: 'ping',
+      children: [message],
+    }
+    expect(filterItems('reference', [channel])).toStrictEqual([])
+    expect(filterItems('reference', [{ ...channel, children: [operation] }])).toStrictEqual([
+      { ...channel, children: [operation] },
+    ])
+  })
+
   it('returns all items for reference layout', () => {
     const items: Item[] = [
       { id: '0', title: 'Document', type: 'document', name: 'test-document' },
