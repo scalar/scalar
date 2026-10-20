@@ -23,16 +23,16 @@ The output starts with `openapi`, `info`, and `servers`, in the order the specif
 
 ## What changes from Swagger 2.0 to OpenAPI 3
 
-| Swagger 2.0 | OpenAPI 3.x |
-| --- | --- |
-| `host`, `basePath`, `schemes` | One `servers` entry, such as `https://galaxy.scalar.com/v1` |
-| `definitions` | `components/schemas`, with every `$ref` rewritten |
-| `in: body` parameter | `requestBody` with a `content` map |
-| `in: formData` parameters | Properties of a `multipart/form-data` or `application/x-www-form-urlencoded` request body schema |
-| `type: file` | A file property in the request body (`format: binary` in 3.0, `contentMediaType` in 3.1) |
-| `consumes` and `produces` | Media type keys under `content` |
-| `securityDefinitions` | `components/securitySchemes` |
-| `type` on a parameter | A `schema` object on the parameter |
+| Swagger 2.0                   | OpenAPI 3.x                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------ |
+| `host`, `basePath`, `schemes` | One `servers` entry, such as `https://galaxy.scalar.com/v1`                                      |
+| `definitions`                 | `components/schemas`, with every `$ref` rewritten                                                |
+| `in: body` parameter          | `requestBody` with a `content` map                                                               |
+| `in: formData` parameters     | Properties of a `multipart/form-data` or `application/x-www-form-urlencoded` request body schema |
+| `type: file`                  | A file property in the request body (`format: binary` in 3.0, `contentMediaType` in 3.1)         |
+| `consumes` and `produces`     | Media type keys under `content`                                                                  |
+| `securityDefinitions`         | `components/securitySchemes`                                                                     |
+| `type` on a parameter         | A `schema` object on the parameter                                                               |
 
 Going from OpenAPI 3.0 to 3.1 is smaller. The upgrader turns `nullable: true` into a type array that includes `"null"`, `example` into `examples`, and boolean `exclusiveMinimum` or `exclusiveMaximum` into numbers, because 3.1 schemas are plain JSON Schema. The [OpenAPI 3.1 vs 3.0 guide](/learn/openapi/openapi-3-1-vs-3-0) covers the rest.
 

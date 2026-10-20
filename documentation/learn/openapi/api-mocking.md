@@ -1,6 +1,6 @@
 # API mocking: how an OpenAPI mock server works
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 API mocking means running a fake version of an API that answers requests with realistic responses, so that frontend code, tests, demos and integrations can be built before the real backend exists or without depending on it. An OpenAPI mock server is the most practical way to do it: it reads your OpenAPI document and serves every endpoint described there, returning the examples and schemas you already wrote.
 
@@ -52,13 +52,13 @@ Because everything comes from the document, the mock is only as good as your exa
 
 These words get used loosely. The distinctions matter when you decide what to build.
 
-| Term | What it is | Where the behavior comes from | Typical use |
-| --- | --- | --- | --- |
-| Stub | Hard-coded responses for specific requests | Fixtures written by hand, often inside the test | Unit tests of one code path |
-| Mock server | A running HTTP server that imitates an API | The API description: examples and schemas | Frontend development, integration tests, demos |
-| Stateful mock (fake) | A mock that remembers what you created | The description plus handler code and an in-memory store | Realistic CRUD flows, end-to-end tests |
-| Sandbox | The real API running against test data | The real implementation | Pre-production integration by customers |
-| Recorded mock | Responses captured from real traffic and replayed | Recordings | Legacy APIs without a description |
+| Term                 | What it is                                        | Where the behavior comes from                            | Typical use                                    |
+| -------------------- | ------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------- |
+| Stub                 | Hard-coded responses for specific requests        | Fixtures written by hand, often inside the test          | Unit tests of one code path                    |
+| Mock server          | A running HTTP server that imitates an API        | The API description: examples and schemas                | Frontend development, integration tests, demos |
+| Stateful mock (fake) | A mock that remembers what you created            | The description plus handler code and an in-memory store | Realistic CRUD flows, end-to-end tests         |
+| Sandbox              | The real API running against test data            | The real implementation                                  | Pre-production integration by customers        |
+| Recorded mock        | Responses captured from real traffic and replayed | Recordings                                               | Legacy APIs without a description              |
 
 A mock server generated from OpenAPI sits in the middle: more realistic than stubs, far cheaper than a sandbox, and always in sync with the contract.
 

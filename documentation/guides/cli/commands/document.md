@@ -4,21 +4,21 @@
 
 Work with OpenAPI and AsyncAPI descriptions.
 
-| Command | Description |
-| --- | --- |
-| [`scalar document bundle`](#bundle) | Bundle external references into a single API description |
-| [`scalar document split`](#split) | Split an OpenAPI or AsyncAPI description into referenced JSON files |
-| [`scalar document join`](#join) | Join API descriptions of the same format into one description |
-| [`scalar document format`](#format) | Format an OpenAPI or AsyncAPI description |
-| [`scalar document convert`](#convert) | Convert a Postman collection to an OpenAPI description |
-| [`scalar document markdown`](#markdown) | Generate Markdown documentation from an OpenAPI description |
-| [`scalar document mock`](#mock) | Run a Mock Server for OpenAPI operations or AsyncAPI WebSocket and SSE channels |
-| [`scalar document serve`](#serve) | Serve API Reference documentation from an OpenAPI or AsyncAPI description |
-| [`scalar document share`](#share) | Publish an OpenAPI or AsyncAPI description to a public sandbox |
-| [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI description |
-| [`scalar document void`](#void) | Mirror HTTP requests with a local server |
-| [`scalar document lint`](#lint) | Lint an OpenAPI or AsyncAPI description with Spectral rules |
-| [`scalar document upgrade`](#upgrade) | Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version |
+| Command                                 | Description                                                                        |
+| --------------------------------------- | ---------------------------------------------------------------------------------- |
+| [`scalar document bundle`](#bundle)     | Bundle external references into a single API description                           |
+| [`scalar document split`](#split)       | Split an OpenAPI or AsyncAPI description into referenced JSON files                |
+| [`scalar document join`](#join)         | Join API descriptions of the same format into one description                      |
+| [`scalar document format`](#format)     | Format an OpenAPI or AsyncAPI description                                          |
+| [`scalar document convert`](#convert)   | Convert a Postman collection to an OpenAPI description                             |
+| [`scalar document markdown`](#markdown) | Generate Markdown documentation from an OpenAPI description                        |
+| [`scalar document mock`](#mock)         | Run a Mock Server for OpenAPI operations or AsyncAPI WebSocket and SSE channels    |
+| [`scalar document serve`](#serve)       | Serve API Reference documentation from an OpenAPI or AsyncAPI description          |
+| [`scalar document share`](#share)       | Publish an OpenAPI or AsyncAPI description to a public sandbox                     |
+| [`scalar document validate`](#validate) | Validate an OpenAPI or AsyncAPI description                                        |
+| [`scalar document void`](#void)         | Mirror HTTP requests with a local server                                           |
+| [`scalar document lint`](#lint)         | Lint an OpenAPI or AsyncAPI description with Spectral rules                        |
+| [`scalar document upgrade`](#upgrade)   | Upgrade an API description to OpenAPI 3.1 or the latest supported AsyncAPI version |
 
 ## bundle
 
@@ -30,18 +30,18 @@ scalar document bundle [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                                 |
+| ----------- | ------------------------------------------- |
 | `file\|url` | API description file path or URL to bundle. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-o, --output <file>` | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
-| `--treeShake` | Remove unused components from the bundled output. |
-| `--urlMap` | Generate a map of resolved URLs in the bundled output. |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. |
+| Option                 | Description                                                                                                                      |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `-o, --output <file>`  | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
+| `--treeShake`          | Remove unused components from the bundled output.                                                                                |
+| `--urlMap`             | Generate a map of resolved URLs in the bundled output.                                                                           |
+| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches.                                                                                        |
 
 ## split
 
@@ -53,14 +53,14 @@ scalar document split [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                                |
+| ----------- | ------------------------------------------ |
 | `file\|url` | API description file path or URL to split. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
 | `-o, --output <path>` | Output directory for the split description and referenced files. |
 
 ## join
@@ -73,15 +73,15 @@ scalar document join [options] <files...>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument   | Description                                           |
+| ---------- | ----------------------------------------------------- |
 | `files...` | **Required.** OpenAPI or AsyncAPI file paths to join. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-o, --output <file>` | Output file for the joined description (required). |
+| Option                                           | Description                                                                            |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| `-o, --output <file>`                            | Output file for the joined description (required).                                     |
 | `-p, --prefix-components-with-path-value <path>` | Dot-separated path to extract a prefix value from each input file for component names. |
 
 ## format
@@ -94,14 +94,14 @@ scalar document format [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description            |
+| ----------- | ---------------------- |
 | `file\|url` | File or URL to format. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                                                           |
+| --------------------- | --------------------------------------------------------------------- |
 | `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
 
 ## convert
@@ -114,16 +114,16 @@ scalar document convert [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                                     |
+| ----------- | ----------------------------------------------- |
 | `file\|url` | Postman collection file path or URL to convert. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-o, --output <file>` | Output file (defaults to stdout). |
-| `--merge-operations` | Merge operations with shared path+method combinations. |
+| Option                | Description                                            |
+| --------------------- | ------------------------------------------------------ |
+| `-o, --output <file>` | Output file (defaults to stdout).                      |
+| `--merge-operations`  | Merge operations with shared path+method combinations. |
 
 ## markdown
 
@@ -135,14 +135,14 @@ scalar document markdown [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                          |
+| ----------- | ------------------------------------ |
 | `file\|url` | OpenAPI file path or URL to convert. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                       |
+| --------------------- | --------------------------------- |
 | `-o, --output <file>` | Output file (defaults to stdout). |
 
 ## mock
@@ -155,17 +155,17 @@ scalar document mock [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                              |
+| ----------- | ---------------------------------------- |
 | `file\|url` | OpenAPI or AsyncAPI file or URL to mock. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
-| `-p, --port <port>` | HTTP port for the Mock Server. |
+| Option              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `-w, --watch`       | Watch the file or URL for changes.                |
+| `-o, --once`        | Start the server, then stop it after two seconds. |
+| `-p, --port <port>` | HTTP port for the Mock Server.                    |
 
 ## serve
 
@@ -177,18 +177,18 @@ scalar document serve [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                                  |
+| ----------- | -------------------------------------------- |
 | `file\|url` | API description file path or URL to preview. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-c, --config <file>` | JSON file with API Reference configuration. |
-| `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
-| `-p, --port <port>` | HTTP port for the API Reference server. |
+| Option                | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `-c, --config <file>` | JSON file with API Reference configuration.       |
+| `-w, --watch`         | Watch the file or URL for changes.                |
+| `-o, --once`          | Start the server, then stop it after two seconds. |
+| `-p, --port <port>`   | HTTP port for the API Reference server.           |
 
 ## share
 
@@ -200,14 +200,14 @@ scalar document share [options] [file]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `file` | API description file path or URL to share. |
+| Argument | Description                                |
+| -------- | ------------------------------------------ |
+| `file`   | API description file path or URL to share. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                                 |
+| --------------------- | ------------------------------------------- |
 | `-t, --token <token>` | Token to update an existing public sandbox. |
 
 ## validate
@@ -220,8 +220,8 @@ scalar document validate [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description              |
+| ----------- | ------------------------ |
 | `file\|url` | File or URL to validate. |
 
 ## void
@@ -234,10 +234,10 @@ scalar document void [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-o, --once` | Start the server, then stop it after two seconds. |
-| `-p, --port <port>` | HTTP port for the request-mirroring server. |
+| Option              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `-o, --once`        | Start the server, then stop it after two seconds. |
+| `-p, --port <port>` | HTTP port for the request-mirroring server.       |
 
 ## lint
 
@@ -249,20 +249,20 @@ scalar document lint [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description                               |
+| ----------- | ----------------------------------------- |
 | `file\|url` | API description file path or URL to lint. |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `-r, --rule <file\|url>` | Spectral ruleset file path or URL. |  |
-| `--format <format>` | Report format. One of `text`, `codeframe`, `markdown`, `summary`, `json`, `github-actions`, `junit`. | `codeframe` |
-| `--max-problems <number>` | Maximum displayed findings (totals and exit status include all findings). | `100` |
-| `-o, --output <file>` | Write the report to a file instead of stdout. |  |
-| `--generate-ignore-file` | Record current findings in the ignore baseline. |  |
-| `--ignore-file <file>` | Ignore baseline path (Scalar file takes priority over Redocly fallback in the current directory). |  |
+| Option                    | Description                                                                                          | Default     |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- | ----------- |
+| `-r, --rule <file\|url>`  | Spectral ruleset file path or URL.                                                                   |             |
+| `--format <format>`       | Report format. One of `text`, `codeframe`, `markdown`, `summary`, `json`, `github-actions`, `junit`. | `codeframe` |
+| `--max-problems <number>` | Maximum displayed findings (totals and exit status include all findings).                            | `100`       |
+| `-o, --output <file>`     | Write the report to a file instead of stdout.                                                        |             |
+| `--generate-ignore-file`  | Record current findings in the ignore baseline.                                                      |             |
+| `--ignore-file <file>`    | Ignore baseline path (Scalar file takes priority over Redocly fallback in the current directory).    |             |
 
 ## upgrade
 
@@ -274,12 +274,12 @@ scalar document upgrade [options] [file|url]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description             |
+| ----------- | ----------------------- |
 | `file\|url` | File or URL to upgrade. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                                                           |
+| --------------------- | --------------------------------------------------------------------- |
 | `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |

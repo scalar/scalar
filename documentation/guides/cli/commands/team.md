@@ -4,11 +4,11 @@
 
 List and switch between your Scalar teams.
 
-| Command | Description |
-| --- | --- |
-| [`scalar team list`](#list) | List your Scalar teams |
-| [`scalar team get`](#get) | Show the current team and its namespaces |
-| [`scalar team set`](#set) | Select the current team |
+| Command                     | Description                              |
+| --------------------------- | ---------------------------------------- |
+| [`scalar team list`](#list) | List your Scalar teams                   |
+| [`scalar team get`](#get)   | Show the current team and its namespaces |
+| [`scalar team set`](#set)   | Select the current team                  |
 
 ## list
 
@@ -20,8 +20,8 @@ scalar team list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description           |
+| -------- | --------------------- |
 | `--json` | Output teams as JSON. |
 
 ## get
@@ -34,8 +34,8 @@ scalar team get [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description                      |
+| -------- | -------------------------------- |
 | `--json` | Output the current team as JSON. |
 
 ## set
@@ -48,6 +48,6 @@ scalar team set [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--team <team>` | Team ID. |
+| Option          | Description |
+| --------------- | ----------- |
+| `--team <team>` | Team ID.    |

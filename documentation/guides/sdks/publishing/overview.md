@@ -50,17 +50,17 @@ In the same workflow run, the release is synced back to `scalar-next`, and the i
 
 Every target with a linked repository gets its release machinery committed alongside the SDK. They are normal, readable files you can inspect (and edit) in your repo.
 
-| File | Trigger | What it does |
-| ---- | ------- | ------------ |
-| `.github/workflows/sdk-ci.yml` | `push`, `pull_request` | Installs dependencies and builds the SDK so every change is checked. |
-| `.github/workflows/release-please.yml` | `push` to the default branch | Cuts the tag and GitHub Release when a release pull request merges, publishes from its inline `publish` job, and syncs the release back to `scalar-next`. |
-| `.github/workflows/release-title-edit.yml` | `pull_request` | Runs the `Release PR version` check and turns an edited release-pull-request title into the `Release-As` commit Scalar re-renders the pull request from. |
-| `.github/workflows/sdk-release.yml` | `workflow_dispatch` | Manually re-publishes an existing tag. Only generated when the target publishes at release time. |
-| `release-please-config.json`, `.release-please-manifest.json` | — | release-please's configuration and version state. The manifest is seeded once and then owned by your repository. |
-| `VERSIONING.md` | — | Documents the branch model, how to pick an exact version, and the repository prerequisites. |
+| File                                                          | Trigger                      | What it does                                                                                                                                              |
+| ------------------------------------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/sdk-ci.yml`                                | `push`, `pull_request`       | Installs dependencies and builds the SDK so every change is checked.                                                                                      |
+| `.github/workflows/release-please.yml`                        | `push` to the default branch | Cuts the tag and GitHub Release when a release pull request merges, publishes from its inline `publish` job, and syncs the release back to `scalar-next`. |
+| `.github/workflows/release-title-edit.yml`                    | `pull_request`               | Runs the `Release PR version` check and turns an edited release-pull-request title into the `Release-As` commit Scalar re-renders the pull request from.  |
+| `.github/workflows/sdk-release.yml`                           | `workflow_dispatch`          | Manually re-publishes an existing tag. Only generated when the target publishes at release time.                                                          |
+| `release-please-config.json`, `.release-please-manifest.json` | —                            | release-please's configuration and version state. The manifest is seeded once and then owned by your repository.                                          |
+| `VERSIONING.md`                                               | —                            | Documents the branch model, how to pick an exact version, and the repository prerequisites.                                                               |
 
 > [!NOTE]
-> Tag-served ecosystems (Swift Package Manager, Packagist) have nothing to upload, so they get no `publish` job and no `sdk-release.yml`. For those, the `vX.Y.Z` tag and GitHub Release *are* the publish. Go versions are tags as well, but Go still gets a release workflow, which uploads nothing and warms the public module proxy after the tag. See [Package Registries](registries.md).
+> Tag-served ecosystems (Swift Package Manager, Packagist) have nothing to upload, so they get no `publish` job and no `sdk-release.yml`. For those, the `vX.Y.Z` tag and GitHub Release _are_ the publish. Go versions are tags as well, but Go still gets a release workflow, which uploads nothing and warms the public module proxy after the tag. See [Package Registries](registries.md).
 
 ## Enable publishing
 
@@ -104,7 +104,7 @@ A taken name is a **warning, never a block**: the registry cannot tell whether a
 By default Scalar uses **OIDC trusted publishing** wherever the registry supports it. The publish job exchanges a short-lived GitHub identity token for a registry credential at publish time, so there is **no token to create, store, or rotate**. You register your repository and workflow as a trusted publisher on the registry once. Two exceptions: npm and crates.io only register a trusted publisher on a package that already exists, so their first release uses a token, and NuGet's OIDC login still reads your profile name from a `NUGET_USER` secret.
 
 > [!IMPORTANT]
-> Register **`release-please.yml`** as the trusted publisher's workflow, not `sdk-release.yml`. The automated publish runs as a job inside `release-please.yml`, so that is the file the OIDC claims name. `sdk-release.yml` exists for manual re-publishes; register it as an *additional* trusted publisher only if you use it.
+> Register **`release-please.yml`** as the trusted publisher's workflow, not `sdk-release.yml`. The automated publish runs as a job inside `release-please.yml`, so that is the file the OIDC claims name. `sdk-release.yml` exists for manual re-publishes; register it as an _additional_ trusted publisher only if you use it.
 
 Registries that do not support OIDC (Maven Central, which also requires GPG signing, and a Homebrew tap) use repository secrets instead, and so does pub.dev: it authorizes a tag pattern the generated workflows cannot satisfy, so a Dart target sets `authMethod` to `access-token`. Setup for each registry is covered in [Package Registries](registries.md) and the per-language guides it links.
 

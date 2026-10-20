@@ -1,6 +1,6 @@
 # Library: API tool roundups and reviews
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 The Scalar Library is a set of dated, sourced roundups of API tooling (documentation platforms, SDK generators, MCP server generators, API clients, and API management platforms), written to help you shortlist tools, not to sell you ours.
 

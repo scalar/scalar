@@ -163,29 +163,29 @@ Every target publishes to the registry its ecosystem expects, using workflows ge
 
 **Generally available**
 
-| Target | Package registry |
-| ------ | ---------------- |
-| TypeScript | npm |
-| Python | PyPI |
-| Go | Go modules |
-| Java | Maven Central |
-| Kotlin | Maven Central |
-| Ruby | RubyGems |
-| CLI | npm and Homebrew |
+| Target     | Package registry |
+| ---------- | ---------------- |
+| TypeScript | npm              |
+| Python     | PyPI             |
+| Go         | Go modules       |
+| Java       | Maven Central    |
+| Kotlin     | Maven Central    |
+| Ruby       | RubyGems         |
+| CLI        | npm and Homebrew |
 
 </div>
 <div>
 
 **Experimental**
 
-| Target | Package registry |
-| ------ | ---------------- |
-| C# | NuGet |
-| PHP | Packagist |
-| Rust | crates.io |
-| Swift | Swift Package Manager |
-| Dart | pub.dev |
-| C++ | No standard registry |
+| Target | Package registry      |
+| ------ | --------------------- |
+| C#     | NuGet                 |
+| PHP    | Packagist             |
+| Rust   | crates.io             |
+| Swift  | Swift Package Manager |
+| Dart   | pub.dev               |
+| C++    | No standard registry  |
 
 </div>
 </div>
@@ -230,11 +230,11 @@ Two details do most of that work. The client is named after your API and exporte
 
 The third is method naming. Scalar strips the redundant resource noun and normalizes the verb, so the same handful of methods appears on every resource:
 
-| `operationId` | Template-based generator | Scalar |
-| ------------- | ------------------------ | ------ |
-| `listPets` | `client.pets.listPets()` | `client.pet.list()` |
-| `getPetById` | `client.pets.getPetById()` | `client.pet.retrieve()` |
-| `addPet` | `client.pets.addPet()` | `client.pet.create()` |
+| `operationId` | Template-based generator   | Scalar                  |
+| ------------- | -------------------------- | ----------------------- |
+| `listPets`    | `client.pets.listPets()`   | `client.pet.list()`     |
+| `getPetById`  | `client.pets.getPetById()` | `client.pet.retrieve()` |
+| `addPet`      | `client.pets.addPet()`     | `client.pet.create()`   |
 
 Across a large API that consistency is the difference between guessing a method name and knowing it. For fuller side-by-sides against other generators, see [Scalar vs Fern](../../compare/fern.md), [Scalar vs Speakeasy](../../compare/speakeasy.md), and [Scalar vs Stainless](../../compare/stainless.md).
 
@@ -408,14 +408,14 @@ Read the [Stainless migration guide](../../migration/stainless.md) for the pract
 
 Every plan includes one SDK target, and pricing scales with the size of your SDK — measured by the number of endpoints in your OpenAPI document. Additional targets are priced by each SDK's size: $150 per month each for up to 100 endpoints or $600 per month each for 101–250 endpoints. Business teams can use both price bands, and the included SDK applies to the most expensive band first. Enterprise SDK pricing is custom.
 
-| | Free | Pro | Business | Enterprise |
-| --- | --- | --- | --- | --- |
-| SDK targets included | 1 | 1 | 1 | Custom |
-| Included SDK size | Up to 25 endpoints | 100 endpoints | 250 endpoints | Custom |
-| Additional targets | - | $150 / month each | $150–$600 / month each, by SDK size; volume discounts | Custom pricing; volume discounts |
-| Every target free during your trial | Included | Included | Included | Included |
-| SSO/SAML | - | - | Included | Included |
-| RBAC, priority support, and dedicated Slack or Teams support | - | - | - | Included |
+|                                                              | Free               | Pro               | Business                                              | Enterprise                       |
+| ------------------------------------------------------------ | ------------------ | ----------------- | ----------------------------------------------------- | -------------------------------- |
+| SDK targets included                                         | 1                  | 1                 | 1                                                     | Custom                           |
+| Included SDK size                                            | Up to 25 endpoints | 100 endpoints     | 250 endpoints                                         | Custom                           |
+| Additional targets                                           | -                  | $150 / month each | $150–$600 / month each, by SDK size; volume discounts | Custom pricing; volume discounts |
+| Every target free during your trial                          | Included           | Included          | Included                                              | Included                         |
+| SSO/SAML                                                     | -                  | -                 | Included                                              | Included                         |
+| RBAC, priority support, and dedicated Slack or Teams support | -                  | -                 | -                                                     | Included                         |
 
 A target becomes billable when you save a version and queue its build. Drafts are never billed. [See the full comparison](../pricing.md) for SDKs and the other Scalar products.
 

@@ -1,6 +1,6 @@
 # Build vs buy an SDK: a cost model
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Building an SDK means your engineers write and maintain a client library per language, by hand or around an open-source generator; buying means paying a vendor to generate, update, and help publish those libraries from your OpenAPI document. For most HTTP APIs, buying costs less once you count maintenance, but building is still the right call in specific situations, and the answer depends heavily on how many languages you need and how often your API changes.
 
@@ -47,37 +47,37 @@ State these out loud in your own planning document, and change any that do not m
 
 These are our planning estimates, based on the work breakdown above, not measured industry data.
 
-| Work item | Hand-written | Open-source generator | Managed generator |
-| --- | --- | --- | --- |
-| Runtime (transport, auth, retries, errors, serialization) | 2–4 weeks | 0.5–1.5 weeks (template fixes) | Included |
-| Resources and models for ~60 operations | 1.5–3 weeks | Generated; 0.5–1 week of fixes | Generated |
-| Pagination helpers | 0.5–1 week | 0.5–1 week (often custom) | Configuration, hours |
-| Tests | 1–2 weeks | 0.5–1 week | Review of generated tests |
-| README, reference, examples | 1 week | 0.5–1 week | Generated; review |
-| Packaging, CI, and publishing | 0.5–1 week | 0.5–1 week | Generated workflows; registry setup, hours |
-| **Total per language** | **6.5–12 weeks** | **3–6.5 weeks** | **1–3 days** |
+| Work item                                                 | Hand-written     | Open-source generator          | Managed generator                          |
+| --------------------------------------------------------- | ---------------- | ------------------------------ | ------------------------------------------ |
+| Runtime (transport, auth, retries, errors, serialization) | 2–4 weeks        | 0.5–1.5 weeks (template fixes) | Included                                   |
+| Resources and models for ~60 operations                   | 1.5–3 weeks      | Generated; 0.5–1 week of fixes | Generated                                  |
+| Pagination helpers                                        | 0.5–1 week       | 0.5–1 week (often custom)      | Configuration, hours                       |
+| Tests                                                     | 1–2 weeks        | 0.5–1 week                     | Review of generated tests                  |
+| README, reference, examples                               | 1 week           | 0.5–1 week                     | Generated; review                          |
+| Packaging, CI, and publishing                             | 0.5–1 week       | 0.5–1 week                     | Generated workflows; registry setup, hours |
+| **Total per language**                                    | **6.5–12 weeks** | **3–6.5 weeks**                | **1–3 days**                               |
 
 For the managed option, the first language takes longest because you are also cleaning up the OpenAPI document. That cleanup benefits every option, and teams choosing to hand-write often skip it and pay for it later.
 
 ### Ongoing maintenance per language, per year
 
-| Work item | Hand-written | Open-source generator | Managed generator |
-| --- | --- | --- | --- |
-| Keeping up with API changes | 1–2 days per month | Regenerate and review; 0.5–1 day per month | Review release pull request; 1–2 hours per month |
-| Runtime, dependency, and security upkeep | 1–2 days per month | Generator upgrades and template breakage; 0.5–1 day per month | Vendor |
-| Issues and user pull requests | 0.5–1 day per month | 0.5–1 day per month | 0.5 day per month (mostly routed to the vendor) |
-| **Total per language** | **~6–12 weeks per year** | **~3.5–7 weeks per year** | **~1.5–2 weeks per year** |
+| Work item                                | Hand-written             | Open-source generator                                         | Managed generator                                |
+| ---------------------------------------- | ------------------------ | ------------------------------------------------------------- | ------------------------------------------------ |
+| Keeping up with API changes              | 1–2 days per month       | Regenerate and review; 0.5–1 day per month                    | Review release pull request; 1–2 hours per month |
+| Runtime, dependency, and security upkeep | 1–2 days per month       | Generator upgrades and template breakage; 0.5–1 day per month | Vendor                                           |
+| Issues and user pull requests            | 0.5–1 day per month      | 0.5–1 day per month                                           | 0.5 day per month (mostly routed to the vendor)  |
+| **Total per language**                   | **~6–12 weeks per year** | **~3.5–7 weeks per year**                                     | **~1.5–2 weeks per year**                        |
 
 ### Worked example: three languages, about 60 endpoints
 
 Multiplying the tables by three languages and $4,000 per engineer-week (5 working days per week). Year one is the first release plus one year of maintenance:
 
-| | Hand-written | Open-source generator | Managed (Scalar Pro) |
-| --- | --- | --- | --- |
-| First release, engineering | 19.5–36 weeks ($78,000–$144,000) | 9–19.5 weeks ($36,000–$78,000) | ~1–2 weeks ($4,000–$8,000) |
-| Each year after, engineering | 18–36 weeks ($72,000–$144,000) | 10.5–21 weeks ($42,000–$84,000) | 4.5–6 weeks ($18,000–$24,000) |
-| Licence per year | $0 | $0 | $5,400 |
-| **Year one total** | **~$150,000–$288,000** | **~$78,000–$162,000** | **~$27,000–$37,000** |
+|                              | Hand-written                     | Open-source generator           | Managed (Scalar Pro)          |
+| ---------------------------- | -------------------------------- | ------------------------------- | ----------------------------- |
+| First release, engineering   | 19.5–36 weeks ($78,000–$144,000) | 9–19.5 weeks ($36,000–$78,000)  | ~1–2 weeks ($4,000–$8,000)    |
+| Each year after, engineering | 18–36 weeks ($72,000–$144,000)   | 10.5–21 weeks ($42,000–$84,000) | 4.5–6 weeks ($18,000–$24,000) |
+| Licence per year             | $0                               | $0                              | $5,400                        |
+| **Year one total**           | **~$150,000–$288,000**           | **~$78,000–$162,000**           | **~$27,000–$37,000**          |
 
 The Scalar licence line uses published pricing as of September 2026: the [Pro plan](/pricing) is $150 per month and includes one SDK (one language target for one API) for APIs up to 100 endpoints; each additional SDK in that size band is $150 per month. Three languages is therefore $150 + 2 × $150 = $450 per month, or $5,400 a year on monthly billing. An API with 101 to 250 endpoints moves to the Business band, where additional SDKs are $600 per month each; rerun the numbers if that is you. Other vendors mostly price SDKs through sales, so get a written quote for your endpoint count and language list before comparing.
 
@@ -182,4 +182,4 @@ Fix it first, whichever route you choose. A hand-written SDK built against an in
 
 ---
 
-*Pricing and vendor details on this page are from each vendor's own site as of September 26, 2026. The effort estimates are Scalar's planning assumptions, not measured industry data; replace them with your own. If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Pricing and vendor details on this page are from each vendor's own site as of September 26, 2026. The effort estimates are Scalar's planning assumptions, not measured industry data; replace them with your own. If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

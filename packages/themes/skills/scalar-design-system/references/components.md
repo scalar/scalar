@@ -19,42 +19,42 @@ Source of truth — the **`@scalar/components`** package (icons in **`@scalar/ic
 
 Several subpaths export sub-components alongside the headline component; confirm exact named exports from the package's bundled type declarations (`*.d.ts`).
 
-| Subpath | Primary component(s) |
-|---|---|
-| `@scalar/components/button` | `ScalarButton` |
-| `@scalar/components/icon-button` | `ScalarIconButton` |
-| `@scalar/components/card` | `ScalarCard` (+ `ScalarCardHeader`, `ScalarCardSection`, `ScalarCardFooter`) |
-| `@scalar/components/checkbox-input` | `ScalarCheckbox*` (checkbox, group, radio group) |
-| `@scalar/components/code-block` | `ScalarCodeBlock` (+ copy) |
-| `@scalar/components/color-mode-toggle` | `ScalarColorModeToggle` |
-| `@scalar/components/combobox` | `ScalarCombobox`, `ScalarComboboxMultiselect` |
-| `@scalar/components/copy` | `ScalarCopy` |
-| `@scalar/components/dropdown` | `ScalarDropdown` (+ menu/item/divider parts) |
-| `@scalar/components/error-boundary` | `ScalarErrorBoundary` |
-| `@scalar/components/file-upload` | `ScalarFileUpload` |
-| `@scalar/components/floating` | `ScalarFloating` (`ScalarFloatingBackdrop` is deprecated) |
-| `@scalar/components/form` | `ScalarForm` (+ field/input/section/error parts) |
-| `@scalar/components/header` | `ScalarHeader`, `ScalarHeaderColumn`, `ScalarHeaderButton` |
-| `@scalar/components/hotkey` | `ScalarHotkey`, `ScalarHotkeyTooltip` |
-| `@scalar/components/icon` | `ScalarIcon` (legacy — prefer `@scalar/icons`) |
-| `@scalar/components/listbox` | `ScalarListbox` |
-| `@scalar/components/loading` | `ScalarLoading` (+ `useLoadingState`) |
-| `@scalar/components/markdown` | `ScalarMarkdown`, `ScalarMarkdownSummary` |
-| `@scalar/components/menu` | `ScalarMenu` (+ workspace/team/product parts) |
-| `@scalar/components/modal` | `ScalarModal` (+ `useModal`) |
-| `@scalar/components/popover` | `ScalarPopover` |
-| `@scalar/components/save-prompt` | `ScalarSavePrompt` |
-| `@scalar/components/search-input` | `ScalarSearchInput` |
-| `@scalar/components/search-results` | `ScalarSearchResults` (+ list/item) |
-| `@scalar/components/sidebar` | `ScalarSidebar` (+ section/group/item/search parts) |
-| `@scalar/components/teleport` | `ScalarTeleport` (+ `useTeleport`) |
-| `@scalar/components/text-area` | `ScalarTextArea` |
-| `@scalar/components/text-input` | `ScalarTextInput`, `ScalarTextInputCopy` |
-| `@scalar/components/theme-swatches` | `ScalarThemeSwatches` |
-| `@scalar/components/toggle` | `ScalarToggle`, `ScalarToggleGroup`, `ScalarToggleInput` |
-| `@scalar/components/tooltip` | `ScalarTooltip` (+ `useTooltip`) |
-| `@scalar/components/virtual-text` | `ScalarVirtualText` |
-| `@scalar/components/wrapping-text` | `ScalarWrappingText` |
+| Subpath                                | Primary component(s)                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------- |
+| `@scalar/components/button`            | `ScalarButton`                                                               |
+| `@scalar/components/icon-button`       | `ScalarIconButton`                                                           |
+| `@scalar/components/card`              | `ScalarCard` (+ `ScalarCardHeader`, `ScalarCardSection`, `ScalarCardFooter`) |
+| `@scalar/components/checkbox-input`    | `ScalarCheckbox*` (checkbox, group, radio group)                             |
+| `@scalar/components/code-block`        | `ScalarCodeBlock` (+ copy)                                                   |
+| `@scalar/components/color-mode-toggle` | `ScalarColorModeToggle`                                                      |
+| `@scalar/components/combobox`          | `ScalarCombobox`, `ScalarComboboxMultiselect`                                |
+| `@scalar/components/copy`              | `ScalarCopy`                                                                 |
+| `@scalar/components/dropdown`          | `ScalarDropdown` (+ menu/item/divider parts)                                 |
+| `@scalar/components/error-boundary`    | `ScalarErrorBoundary`                                                        |
+| `@scalar/components/file-upload`       | `ScalarFileUpload`                                                           |
+| `@scalar/components/floating`          | `ScalarFloating` (`ScalarFloatingBackdrop` is deprecated)                    |
+| `@scalar/components/form`              | `ScalarForm` (+ field/input/section/error parts)                             |
+| `@scalar/components/header`            | `ScalarHeader`, `ScalarHeaderColumn`, `ScalarHeaderButton`                   |
+| `@scalar/components/hotkey`            | `ScalarHotkey`, `ScalarHotkeyTooltip`                                        |
+| `@scalar/components/icon`              | `ScalarIcon` (legacy — prefer `@scalar/icons`)                               |
+| `@scalar/components/listbox`           | `ScalarListbox`                                                              |
+| `@scalar/components/loading`           | `ScalarLoading` (+ `useLoadingState`)                                        |
+| `@scalar/components/markdown`          | `ScalarMarkdown`, `ScalarMarkdownSummary`                                    |
+| `@scalar/components/menu`              | `ScalarMenu` (+ workspace/team/product parts)                                |
+| `@scalar/components/modal`             | `ScalarModal` (+ `useModal`)                                                 |
+| `@scalar/components/popover`           | `ScalarPopover`                                                              |
+| `@scalar/components/save-prompt`       | `ScalarSavePrompt`                                                           |
+| `@scalar/components/search-input`      | `ScalarSearchInput`                                                          |
+| `@scalar/components/search-results`    | `ScalarSearchResults` (+ list/item)                                          |
+| `@scalar/components/sidebar`           | `ScalarSidebar` (+ section/group/item/search parts)                          |
+| `@scalar/components/teleport`          | `ScalarTeleport` (+ `useTeleport`)                                           |
+| `@scalar/components/text-area`         | `ScalarTextArea`                                                             |
+| `@scalar/components/text-input`        | `ScalarTextInput`, `ScalarTextInputCopy`                                     |
+| `@scalar/components/theme-swatches`    | `ScalarThemeSwatches`                                                        |
+| `@scalar/components/toggle`            | `ScalarToggle`, `ScalarToggleGroup`, `ScalarToggleInput`                     |
+| `@scalar/components/tooltip`           | `ScalarTooltip` (+ `useTooltip`)                                             |
+| `@scalar/components/virtual-text`      | `ScalarVirtualText`                                                          |
+| `@scalar/components/wrapping-text`     | `ScalarWrappingText`                                                         |
 
 (Plus `@scalar/components/helpers` for utilities, and CSS exports `style.css`, `tailwind.config.css`, `vue-styles.css`.)
 
@@ -83,13 +83,13 @@ Props:
 
 Variant → classes:
 
-| Variant | Classes |
-|---|---|
-| `solid` | `bg-b-btn text-c-btn hover:bg-h-btn active:bg-b-btn` |
-| `outlined` | `shadow-border bg-b-1 text-c-1 hover:bg-b-2` |
-| `ghost` | `bg-transparent text-c-2 hover:text-c-1 active:text-c-1` |
+| Variant    | Classes                                                                    |
+| ---------- | -------------------------------------------------------------------------- |
+| `solid`    | `bg-b-btn text-c-btn hover:bg-h-btn active:bg-b-btn`                       |
+| `outlined` | `shadow-border bg-b-1 text-c-1 hover:bg-b-2`                               |
+| `ghost`    | `bg-transparent text-c-2 hover:text-c-1 active:text-c-1`                   |
 | `gradient` | `shadow-border bg-b-1.5 bg-linear-to-b from-b-1 to-b-2` (reversed in dark) |
-| `danger` | `bg-c-danger text-white hover:brightness-90` |
+| `danger`   | `bg-c-danger text-white hover:brightness-90`                               |
 
 ```vue
 <script setup lang="ts">

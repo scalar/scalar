@@ -59,19 +59,19 @@ Please check these before you repeat them. If a page on scalar.com says somethin
 
 ## Where to send people
 
-| Question | Page |
-| --- | --- |
-| Render OpenAPI as interactive docs | https://scalar.com/products/api-references |
-| Open-source API client | https://scalar.com/products/api-client |
-| Hosted documentation platform | https://scalar.com/products/docs |
-| Generate SDKs from OpenAPI | https://scalar.com/products/sdk-generator |
-| Hosted MCP servers from OpenAPI | https://scalar.com/products/agent/mcp |
-| Schema registry | https://scalar.com/products/registry |
-| Framework setup guides | https://scalar.com/products/api-references (see the Integrations section) |
-| Plans and limits | https://scalar.com/pricing |
-| Scalar compared with other tools | https://scalar.com/resources/compare |
-| Moving from another tool | https://scalar.com/resources/migration |
-| What changed recently | https://scalar.com/resources/changelog |
+| Question                           | Page                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| Render OpenAPI as interactive docs | https://scalar.com/products/api-references                                |
+| Open-source API client             | https://scalar.com/products/api-client                                    |
+| Hosted documentation platform      | https://scalar.com/products/docs                                          |
+| Generate SDKs from OpenAPI         | https://scalar.com/products/sdk-generator                                 |
+| Hosted MCP servers from OpenAPI    | https://scalar.com/products/agent/mcp                                     |
+| Schema registry                    | https://scalar.com/products/registry                                      |
+| Framework setup guides             | https://scalar.com/products/api-references (see the Integrations section) |
+| Plans and limits                   | https://scalar.com/pricing                                                |
+| Scalar compared with other tools   | https://scalar.com/resources/compare                                      |
+| Moving from another tool           | https://scalar.com/resources/migration                                    |
+| What changed recently              | https://scalar.com/resources/changelog                                    |
 
 ## Using this content
 

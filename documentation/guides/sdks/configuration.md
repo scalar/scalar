@@ -4,6 +4,7 @@ Generated from scalar-sdk.config.schema.json. Do not edit by hand.
 Published at https://scalar.com/products/sdk-generator/configuration/overview, which is where the links to
 pages outside this reference resolve.
 -->
+
 # Configuration
 
 Scalar SDK generation is driven by a single config object: which languages to generate, the resource tree the clients expose, the environments they can reach, and how each package is named, versioned, and published.
@@ -56,27 +57,27 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 
 ## Properties
 
-| Property | Description |
-| --- | --- |
-| [`organization`](#organization)* | Identity of the organization publishing the SDKs. Its `name` also names the SDK and its generated client. |
-| [`resources`](#resources)* | Resource tree that drives the generated client and resource shape. |
-| [`targets`](#targets)* | Per-language packaging, publishing, and generation options, keyed by target id. |
-| [`environments`](#environments)* | Named base URLs the generated client can switch between. |
-| `environmentOrder`* | Order the generated client lists environments in; the first entry is the default. |
-| `readme` | Generated README content: its heading, whether it credits the generator, and the example requests its sections render. |
-| `customCasings` | SDK symbol casing overrides, including initialisms. A key may span several words when written with separators (`three_ds`, not `threeDS`), and then matches that word sequence anywhere in a generated name. A multi-word key needs an explicit `pascal` or `camel` spelling, since `initialism` applies to a single word; whichever one it declares spells both PascalCase and camelCase names. snake_case names already spell the key as written. |
-| [`clientSettings`](#clientsettings) | SDK-wide client constructor settings for auth, retries, timeouts, and headers. |
-| [`pagination`](#pagination) | Named pagination schemes referenced by method-level pagination settings. |
-| [`querySettings`](#querysettings) | Query string serialization preferences shared by generated request builders. |
-| [`multipartSettings`](#multipartsettings) | Multipart/form-data serialization preferences shared by generated request builders. |
-| `settings` | Generator behavior shared by every target. |
-| [`openapi`](#openapi) | OpenAPI-adjacent config such as code samples and auth overrides. |
-| `grpc` | How proto services become SDK methods: which protos are compiled, the wire protocol generated clients speak, per-service placement and naming, and RPCs to drop. Under `transcode`, an RPC with no usable `google.api.http` annotation falls back to a Connect call and is reported. |
-| `errors` | Error response interpretation settings used by generated runtimes. |
-| `ignoredEndpoints` | Endpoints to drop from generation entirely, even when a resource places them. Equivalent to `skip: true` on the placed method. Written as `"<verb> <path>"` for HTTP operations and `"grpc <package>.<Service>/<Method>"` for RPCs generated from a proto. |
-| `streaming` | Global streaming behavior and event handling hints. |
-| `models` | Models not tied to a resource, keyed by component name. Used to carry settings (e.g. skipProperties) for component schemas that no resource lists. |
-| [`diagnostics`](#diagnostics) | When diagnostics fail the build, per-rule severity overrides, and suppressions. |
+| Property                                  | Description                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`organization`](#organization)\*         | Identity of the organization publishing the SDKs. Its `name` also names the SDK and its generated client.                                                                                                                                                                                                                                                                                                                                           |
+| [`resources`](#resources)\*               | Resource tree that drives the generated client and resource shape.                                                                                                                                                                                                                                                                                                                                                                                  |
+| [`targets`](#targets)\*                   | Per-language packaging, publishing, and generation options, keyed by target id.                                                                                                                                                                                                                                                                                                                                                                     |
+| [`environments`](#environments)\*         | Named base URLs the generated client can switch between.                                                                                                                                                                                                                                                                                                                                                                                            |
+| `environmentOrder`\*                      | Order the generated client lists environments in; the first entry is the default.                                                                                                                                                                                                                                                                                                                                                                   |
+| `readme`                                  | Generated README content: its heading, whether it credits the generator, and the example requests its sections render.                                                                                                                                                                                                                                                                                                                              |
+| `customCasings`                           | SDK symbol casing overrides, including initialisms. A key may span several words when written with separators (`three_ds`, not `threeDS`), and then matches that word sequence anywhere in a generated name. A multi-word key needs an explicit `pascal` or `camel` spelling, since `initialism` applies to a single word; whichever one it declares spells both PascalCase and camelCase names. snake_case names already spell the key as written. |
+| [`clientSettings`](#clientsettings)       | SDK-wide client constructor settings for auth, retries, timeouts, and headers.                                                                                                                                                                                                                                                                                                                                                                      |
+| [`pagination`](#pagination)               | Named pagination schemes referenced by method-level pagination settings.                                                                                                                                                                                                                                                                                                                                                                            |
+| [`querySettings`](#querysettings)         | Query string serialization preferences shared by generated request builders.                                                                                                                                                                                                                                                                                                                                                                        |
+| [`multipartSettings`](#multipartsettings) | Multipart/form-data serialization preferences shared by generated request builders.                                                                                                                                                                                                                                                                                                                                                                 |
+| `settings`                                | Generator behavior shared by every target.                                                                                                                                                                                                                                                                                                                                                                                                          |
+| [`openapi`](#openapi)                     | OpenAPI-adjacent config such as code samples and auth overrides.                                                                                                                                                                                                                                                                                                                                                                                    |
+| `grpc`                                    | How proto services become SDK methods: which protos are compiled, the wire protocol generated clients speak, per-service placement and naming, and RPCs to drop. Under `transcode`, an RPC with no usable `google.api.http` annotation falls back to a Connect call and is reported.                                                                                                                                                                |
+| `errors`                                  | Error response interpretation settings used by generated runtimes.                                                                                                                                                                                                                                                                                                                                                                                  |
+| `ignoredEndpoints`                        | Endpoints to drop from generation entirely, even when a resource places them. Equivalent to `skip: true` on the placed method. Written as `"<verb> <path>"` for HTTP operations and `"grpc <package>.<Service>/<Method>"` for RPCs generated from a proto.                                                                                                                                                                                          |
+| `streaming`                               | Global streaming behavior and event handling hints.                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `models`                                  | Models not tied to a resource, keyed by component name. Used to carry settings (e.g. skipProperties) for component schemas that no resource lists.                                                                                                                                                                                                                                                                                                  |
+| [`diagnostics`](#diagnostics)             | When diagnostics fail the build, per-rule severity overrides, and suppressions.                                                                                                                                                                                                                                                                                                                                                                     |
 
 ### organization
 
@@ -91,13 +92,13 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
 }
 ```
 
-| Property | Description |
-| --- | --- |
-| `name`* | Organization or company publishing the SDKs. Used as the author of generated packages and as the name the SDK and its client are derived from. |
-| `docs` | URL of the API documentation site, linked from generated package metadata and from the generated README. |
-| `contact` | Email address for SDK feedback, questions, and support requests, surfaced in generated package metadata. Also where the generated security policy sends API vulnerability reports when `securityContact` is unset. |
-| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. When unset, the policy names `contact` instead. Every target generates one, and each sends reports about the generated SDK code itself to Scalar instead, whether or not this is set. |
-| `logo` | Logo shown at the top of the page the generated CLI serves when a browser sign-in finishes: an `https` URL, or a `data:image/...` URI to keep the page from fetching anything. The page follows the viewer's light or dark mode, so use a logo that reads on both a white and a near-black background. Omit it and the page shows no logo, since generated SDKs carry no branding but the publisher's own. |
+| Property          | Description                                                                                                                                                                                                                                                                                                                                                                                                |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`\*          | Organization or company publishing the SDKs. Used as the author of generated packages and as the name the SDK and its client are derived from.                                                                                                                                                                                                                                                             |
+| `docs`            | URL of the API documentation site, linked from generated package metadata and from the generated README.                                                                                                                                                                                                                                                                                                   |
+| `contact`         | Email address for SDK feedback, questions, and support requests, surfaced in generated package metadata. Also where the generated security policy sends API vulnerability reports when `securityContact` is unset.                                                                                                                                                                                         |
+| `securityContact` | Email address API vulnerability reports should go to, named in the generated security policy. When unset, the policy names `contact` instead. Every target generates one, and each sends reports about the generated SDK code itself to Scalar instead, whether or not this is set.                                                                                                                        |
+| `logo`            | Logo shown at the top of the page the generated CLI serves when a browser sign-in finishes: an `https` URL, or a `data:image/...` URI to keep the page from fetching anything. The page follows the viewer's light or dark mode, so use a logo that reads on both a white and a near-black background. Omit it and the page shows no logo, since generated SDKs carry no branding but the publisher's own. |
 
 ### resources
 
@@ -284,10 +285,10 @@ Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `fakePage`, `o
 }
 ```
 
-| Property | Description |
-| --- | --- |
+| Property                        | Description                                 |
+| ------------------------------- | ------------------------------------------- |
 | [`nestedFormat`](#nestedformat) | Object/nested query serialization strategy. |
-| [`arrayFormat`](#arrayformat) | Array query serialization strategy. |
+| [`arrayFormat`](#arrayformat)   | Array query serialization strategy.         |
 
 #### nestedFormat
 
@@ -299,8 +300,8 @@ Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `fakePage`, `o
 
 ### multipartSettings
 
-| Property | Description |
-| --- | --- |
+| Property                        | Description                                                  |
+| ------------------------------- | ------------------------------------------------------------ |
 | [`arrayFormat`](#arrayformat-1) | Array serialization strategy for multipart/form-data fields. |
 
 #### arrayFormat
@@ -369,13 +370,13 @@ These sit next to the source API document rather than in it: they override its s
 
 Every build analyzes your OpenAPI document and this configuration together and reports what generation had to skip, guess, or degrade. See [Diagnostics](diagnostics.md) for how the analysis works and the full list of rules.
 
-| Property | Default | Description |
-| --- | --- | --- |
-| [`failOn`](#failon) | `"error"` | Lowest severity that fails the build; `off` means no severity fails it. |
-| [`maxWarnings`](#maxwarnings) |  | Maximum allowed warnings before the build fails. |
-| [`maxErrors`](#maxerrors) |  | Maximum allowed errors before the build fails. |
-| `rules` |  | Per-rule severity override keyed by rule id (e.g. `Endpoint/NotConfigured`); `off` disables the rule. |
-| `ignored` |  | Per-rule suppressions keyed by rule id. |
+| Property                      | Default   | Description                                                                                           |
+| ----------------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| [`failOn`](#failon)           | `"error"` | Lowest severity that fails the build; `off` means no severity fails it.                               |
+| [`maxWarnings`](#maxwarnings) |           | Maximum allowed warnings before the build fails.                                                      |
+| [`maxErrors`](#maxerrors)     |           | Maximum allowed errors before the build fails.                                                        |
+| `rules`                       |           | Per-rule severity override keyed by rule id (e.g. `Endpoint/NotConfigured`); `off` disables the rule. |
+| `ignored`                     |           | Per-rule suppressions keyed by rule id.                                                               |
 
 #### failOn
 

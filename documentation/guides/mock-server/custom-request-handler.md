@@ -5,6 +5,7 @@ The `x-handler` extension allows you to write custom JavaScript code directly in
 ## When to Use x-handler
 
 Use `x-handler` when you need:
+
 - **Persistent data** across requests (CRUD operations)
 - **Dynamic responses** based on request data
 - **Custom business logic** in your mock server
@@ -70,11 +71,11 @@ req.headers   // Request headers
 
 `req.body` is automatically parsed based on the request's `Content-Type`:
 
-| Content-Type | `req.body` value |
-|---|---|
-| `application/json` | Parsed JavaScript object. Malformed JSON yields `undefined`. |
-| `application/x-www-form-urlencoded` | Parsed key-value object (e.g., `{ name: 'Ada', role: 'dev' }`). |
-| `text/*` (e.g., `text/plain`, `text/csv`) | Raw string. |
+| Content-Type                              | `req.body` value                                                |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| `application/json`                        | Parsed JavaScript object. Malformed JSON yields `undefined`.    |
+| `application/x-www-form-urlencoded`       | Parsed key-value object (e.g., `{ name: 'Ada', role: 'dev' }`). |
+| `text/*` (e.g., `text/plain`, `text/csv`) | Raw string.                                                     |
 
 ### `res` - Response Examples
 
@@ -347,4 +348,3 @@ x-handler: |
 2. Generate IDs: Use `faker.string.uuid()` for consistent ID generation
 3. Handle missing data: Check for `null` or `undefined` when using `store.get()`
 4. Use Faker for realistic data: Generate realistic test data instead of hardcoding values
-

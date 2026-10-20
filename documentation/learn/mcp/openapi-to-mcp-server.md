@@ -1,6 +1,6 @@
 # OpenAPI to MCP server: how the mapping works
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Turning OpenAPI into an MCP server means mapping each OpenAPI operation to an MCP tool: the `operationId` becomes the tool name, the `summary` and `description` become the tool description, the operation's path, query, and header parameters plus its request body become one JSON Schema `inputSchema`, and the security scheme becomes something the server handles on the model's behalf, never a tool argument. The idea fits in one sentence. The details (references, recursion, `oneOf`, `readOnly`, file uploads, and credentials) are where most OpenAPI-to-MCP conversions go wrong.
 
@@ -24,26 +24,26 @@ This guide is about that mapping. It goes element by element through an OpenAPI 
 
 An OpenAPI document and an MCP tool list describe the same thing from two directions, which is also the core of the [MCP vs API](/learn/mcp/mcp-vs-api) distinction. OpenAPI describes an HTTP interface for any client. An MCP tool list describes callable functions for a language model. Here is how the pieces line up.
 
-| OpenAPI element | MCP tool element | Notes |
-| --- | --- | --- |
-| Operation (`paths./x.get`) | One tool | Or none, if you leave it out. Curate. |
-| `operationId` | `name` | Stable and unique. Must fit MCP's recommended name rules. |
-| `summary` | `title` | Human-readable label shown in clients. |
-| `summary` + `description` | `description` | Rewrite for a model: what it does, what it returns, when to use it. |
-| `parameters` (`in: path`) | Required `inputSchema.properties` | Always required, per the OpenAPI Specification. |
-| `parameters` (`in: query`) | Optional or required properties | Keep defaults, enums, and limits. |
-| `parameters` (`in: header` / `cookie`) | Properties, or server-side config | Most are infrastructure, not model input. Never auth headers. |
-| `requestBody` (JSON) | A `body` property holding the schema | Nesting avoids collisions with parameter names. |
-| `requestBody` (`multipart/form-data`) | Needs a design decision | Models do not hold files; accept a URL or resource instead. |
-| `components.schemas` + `$ref` | `$defs` + `$ref` inside `inputSchema` | Avoid full inlining; recursive schemas never finish. |
-| `readOnly` / `writeOnly` | Drop `readOnly` from input schemas | A server-assigned `id` is not a model input. |
-| `responses` (2xx schema) | `outputSchema` + `structuredContent` (optional) | Plus a text block for compatibility. |
-| `responses` (4xx/5xx) | Result with `isError: true` | Not a protocol error, so the model can recover. |
-| HTTP method | `annotations` (`readOnlyHint`, `destructiveHint`) | Hints only; clients treat them as untrusted. |
-| `securitySchemes` + `security` | Server configuration | Credentials never appear in tool arguments or results. |
-| `servers[0].url` | The server's upstream base URL | Configurable per environment. |
-| `deprecated: true` | Usually excluded | Do not teach a model deprecated operations. |
-| `tags` | Toolsets or separate servers | Useful for splitting large APIs. |
+| OpenAPI element                        | MCP tool element                                  | Notes                                                               |
+| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------- |
+| Operation (`paths./x.get`)             | One tool                                          | Or none, if you leave it out. Curate.                               |
+| `operationId`                          | `name`                                            | Stable and unique. Must fit MCP's recommended name rules.           |
+| `summary`                              | `title`                                           | Human-readable label shown in clients.                              |
+| `summary` + `description`              | `description`                                     | Rewrite for a model: what it does, what it returns, when to use it. |
+| `parameters` (`in: path`)              | Required `inputSchema.properties`                 | Always required, per the OpenAPI Specification.                     |
+| `parameters` (`in: query`)             | Optional or required properties                   | Keep defaults, enums, and limits.                                   |
+| `parameters` (`in: header` / `cookie`) | Properties, or server-side config                 | Most are infrastructure, not model input. Never auth headers.       |
+| `requestBody` (JSON)                   | A `body` property holding the schema              | Nesting avoids collisions with parameter names.                     |
+| `requestBody` (`multipart/form-data`)  | Needs a design decision                           | Models do not hold files; accept a URL or resource instead.         |
+| `components.schemas` + `$ref`          | `$defs` + `$ref` inside `inputSchema`             | Avoid full inlining; recursive schemas never finish.                |
+| `readOnly` / `writeOnly`               | Drop `readOnly` from input schemas                | A server-assigned `id` is not a model input.                        |
+| `responses` (2xx schema)               | `outputSchema` + `structuredContent` (optional)   | Plus a text block for compatibility.                                |
+| `responses` (4xx/5xx)                  | Result with `isError: true`                       | Not a protocol error, so the model can recover.                     |
+| HTTP method                            | `annotations` (`readOnlyHint`, `destructiveHint`) | Hints only; clients treat them as untrusted.                        |
+| `securitySchemes` + `security`         | Server configuration                              | Credentials never appear in tool arguments or results.              |
+| `servers[0].url`                       | The server's upstream base URL                    | Configurable per environment.                                       |
+| `deprecated: true`                     | Usually excluded                                  | Do not teach a model deprecated operations.                         |
+| `tags`                                 | Toolsets or separate servers                      | Useful for splitting large APIs.                                    |
 
 The rest of this page explains each row.
 
@@ -102,13 +102,13 @@ An MCP tool result is a list of content blocks (text, images, audio, resource li
 
 This is the row people most often get wrong. An OpenAPI `securitySchemes` entry describes how a client authenticates to the API. In MCP, the client is a model, and a model must never hold the credential. So security schemes do not map to tool inputs at all. They map to how the MCP server attaches credentials when it makes the upstream call.
 
-| Scheme in OpenAPI | Typical MCP server handling |
-| --- | --- |
+| Scheme in OpenAPI                    | Typical MCP server handling                                                |
+| ------------------------------------ | -------------------------------------------------------------------------- |
 | `apiKey` in header, query, or cookie | Server holds the key, or forwards a key each caller supplies (passthrough) |
-| `http` with `scheme: bearer` | Same: stored token or per-user passthrough |
-| `http` with `scheme: basic` | Stored credential; avoid passing passwords through a model-facing system |
-| `oauth2` | Per-user tokens, usually obtained through the MCP server's own OAuth flow |
-| `openIdConnect` | Same as `oauth2` |
+| `http` with `scheme: bearer`         | Same: stored token or per-user passthrough                                 |
+| `http` with `scheme: basic`          | Stored credential; avoid passing passwords through a model-facing system   |
+| `oauth2`                             | Per-user tokens, usually obtained through the MCP server's own OAuth flow  |
+| `openIdConnect`                      | Same as `oauth2`                                                           |
 
 Operation-level `security` overrides the global requirement. An operation with `security: []` (like `getPlanet` in the Galaxy API) needs no credentials, so the handler should not attach any.
 
@@ -423,4 +423,4 @@ OpenAPI 3.1 maps most directly, because its schemas are JSON Schema 2020-12. Ope
 
 ---
 
-*MCP details reflect specification revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. The converter was tested on that date with @modelcontextprotocol/server 2.1.0 and the Scalar Galaxy OpenAPI document.*
+_MCP details reflect specification revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. The converter was tested on that date with @modelcontextprotocol/server 2.1.0 and the Scalar Galaxy OpenAPI document._

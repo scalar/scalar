@@ -1,6 +1,6 @@
 # How to migrate from Bump.sh to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Bump.sh is a hosted API documentation platform that publishes both OpenAPI and AsyncAPI documents, with change detection and changelogs built in. Scalar covers most of the same documentation ground, and when you bring your API into Scalar you also get a set of tools that sit around the docs:
 
@@ -16,12 +16,12 @@ Be honest with yourself about what you use Bump.sh for, though. If automatic cha
 
 Scalar has a free plan. As of September 2026, Bump.sh does not; its [pricing page](https://bump.sh/pricing) offers a 14-day trial on Pro instead.
 
-| Plan       | Scalar                                                   | Bump.sh                                              |
-| ---------- | -------------------------------------------------------- | ---------------------------------------------------- |
-| Free       | $0 (up to 3 APIs, 1 editor seat)                         | ✗                                                    |
-| Entry paid | Pro: $150/month, or $125/month billed yearly (5 seats)   | [Basic](https://bump.sh/pricing): $50/month (10 API docs, 3 internal users) |
-| Mid tier   | Business: $600/month, or $500/month billed yearly (10 seats) | [Pro](https://bump.sh/pricing): $120/month (30 API docs, 5 internal users) |
-| Enterprise | Custom pricing                                           | [Custom](https://bump.sh/pricing): contact sales     |
+| Plan       | Scalar                                                       | Bump.sh                                                                     |
+| ---------- | ------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Free       | $0 (up to 3 APIs, 1 editor seat)                             | ✗                                                                           |
+| Entry paid | Pro: $150/month, or $125/month billed yearly (5 seats)       | [Basic](https://bump.sh/pricing): $50/month (10 API docs, 3 internal users) |
+| Mid tier   | Business: $600/month, or $500/month billed yearly (10 seats) | [Pro](https://bump.sh/pricing): $120/month (30 API docs, 5 internal users)  |
+| Enterprise | Custom pricing                                               | [Custom](https://bump.sh/pricing): contact sales                            |
 
 - Scalar offers a free plan, Bump.sh does not.
 - Bump.sh is cheaper at the entry level. Basic at $50/month is a third of Scalar Pro, and if all you need is published OpenAPI docs on a custom domain, that matters.
@@ -35,69 +35,69 @@ For detailed pricing information, visit [Scalar Pricing](/pricing) and [Bump.sh 
 
 The Bump.sh column reflects its [pricing page](https://bump.sh/pricing) as of September 2026. Where a feature needs a specific Bump.sh plan, the plan is noted.
 
-| Feature                                  |           Scalar            |        Bump.sh         |
-| ---------------------------------------- | :-------------------------: | :--------------------: |
-| **Specification Support**                |                             |                        |
-| OpenAPI                                  |              ✓              |           ✓            |
-| AsyncAPI                                 |   ✓ (work in progress)      |           ✓            |
-| OpenAPI Overlays                         |              ✗              |           ✓            |
-| **Documentation Publication**            |                             |                        |
-| API Reference                            |              ✓              |           ✓            |
-| API Registry                             |              ✓              |           ✓            |
-| Unified Search                           |              ✓              |           ✓            |
-| API Explorer (Try-it-out)                |       ✓ (every plan)        |       Pro and up       |
-| Automatic Changelog | ✗ | Pro and up |
-| Branches Management | ✓ | Pro and up |
-| Automatic API Key Filling (OAuth) | ✓ | Custom only |
-| **Access Management**                    |                             |                        |
-| Role Based Access Management | ✓ | ✓ |
-| Email Invitations                        |              ✓              |           ✓            |
-| Single Sign-On (SSO)                     |      Business and up        |      Custom only       |
-| **Release Management**                   |                             |                        |
-| Diff (Breaking Changes Detection) | ✗ | ✓ |
-| Previews                                 |              ✓              |           ✓            |
-| Unrelease a Version (Rollback) | ✓ | Pro and up |
-| Release Notes | ✗ | Pro and up |
-| Manual Release Management | ✓ | Custom only |
-| **Branding Customization**               |                             |                        |
-| Custom Domain                            |        Pro and up           |           ✓            |
-| Custom Logo, Color, Favicon & Meta Image |              ✓              |           ✓            |
-| Custom CSS & JS | ✓ | Custom only |
-| Embed docs in your own site              | ✓ (open-source component)   |      Custom only       |
-| **Integrations**                         |                             |                        |
-| CLI                                      |              ✓              |           ✓            |
-| API                                      |              ✓              |           ✓            |
-| Deploy Docs with GitHub Action           |              ✓              |           ✓            |
-| Comments on PRs with GitHub Action | ✓ | Pro and up |
-| Slack Notifications                      |              ✗              |       Pro and up       |
-| Custom Webhooks on API Changes           |              ✗              |      Custom only       |
-| **Beyond docs**                          |                             |                        |
-| SDK generation                           |              ✓              |           ✗            |
-| Hosted MCP servers                       |              ✓              | ✓ ([workflow-based](https://bump.sh/help/mcp-servers/)) |
-| **Procurement & Compliance**             |                             |                        |
-| Wire Transfer | ✓ | Custom only |
-| Custom Security Review | ✓ | Custom only |
-| Custom Contract | ✓ | Custom only |
+| Feature                                  |          Scalar           |                         Bump.sh                         |
+| ---------------------------------------- | :-----------------------: | :-----------------------------------------------------: |
+| **Specification Support**                |                           |                                                         |
+| OpenAPI                                  |             ✓             |                            ✓                            |
+| AsyncAPI                                 |   ✓ (work in progress)    |                            ✓                            |
+| OpenAPI Overlays                         |             ✗             |                            ✓                            |
+| **Documentation Publication**            |                           |                                                         |
+| API Reference                            |             ✓             |                            ✓                            |
+| API Registry                             |             ✓             |                            ✓                            |
+| Unified Search                           |             ✓             |                            ✓                            |
+| API Explorer (Try-it-out)                |      ✓ (every plan)       |                       Pro and up                        |
+| Automatic Changelog                      |             ✗             |                       Pro and up                        |
+| Branches Management                      |             ✓             |                       Pro and up                        |
+| Automatic API Key Filling (OAuth)        |             ✓             |                       Custom only                       |
+| **Access Management**                    |                           |                                                         |
+| Role Based Access Management             |             ✓             |                            ✓                            |
+| Email Invitations                        |             ✓             |                            ✓                            |
+| Single Sign-On (SSO)                     |      Business and up      |                       Custom only                       |
+| **Release Management**                   |                           |                                                         |
+| Diff (Breaking Changes Detection)        |             ✗             |                            ✓                            |
+| Previews                                 |             ✓             |                            ✓                            |
+| Unrelease a Version (Rollback)           |             ✓             |                       Pro and up                        |
+| Release Notes                            |             ✗             |                       Pro and up                        |
+| Manual Release Management                |             ✓             |                       Custom only                       |
+| **Branding Customization**               |                           |                                                         |
+| Custom Domain                            |        Pro and up         |                            ✓                            |
+| Custom Logo, Color, Favicon & Meta Image |             ✓             |                            ✓                            |
+| Custom CSS & JS                          |             ✓             |                       Custom only                       |
+| Embed docs in your own site              | ✓ (open-source component) |                       Custom only                       |
+| **Integrations**                         |                           |                                                         |
+| CLI                                      |             ✓             |                            ✓                            |
+| API                                      |             ✓             |                            ✓                            |
+| Deploy Docs with GitHub Action           |             ✓             |                            ✓                            |
+| Comments on PRs with GitHub Action       |             ✓             |                       Pro and up                        |
+| Slack Notifications                      |             ✗             |                       Pro and up                        |
+| Custom Webhooks on API Changes           |             ✗             |                       Custom only                       |
+| **Beyond docs**                          |                           |                                                         |
+| SDK generation                           |             ✓             |                            ✗                            |
+| Hosted MCP servers                       |             ✓             | ✓ ([workflow-based](https://bump.sh/help/mcp-servers/)) |
+| **Procurement & Compliance**             |                           |                                                         |
+| Wire Transfer                            |             ✓             |                       Custom only                       |
+| Custom Security Review                   |             ✓             |                       Custom only                       |
+| Custom Contract                          |             ✓             |                       Custom only                       |
 
 ### SDKs
 
 Generate type-safe client libraries from your OpenAPI documents. The SDK generator also accepts AsyncAPI and gRPC as inputs; AsyncAPI generation is [experimental](/products/sdk-generator/asyncapi).
 
-| Language   | Status                  |
-| ---------- | ----------------------- |
-| TypeScript | Generally available     |
-| Python     | Generally available     |
-| Go         | Generally available     |
-| CLI        | Generally available     |
-| Java       | Generally available     |
-| Kotlin     | Generally available     |
-| Ruby       | Generally available     |
-| C#         | Experimental            |
-| PHP        | Experimental            |
-| Rust       | Experimental            |
-| Swift      | Experimental            |
-| Dart       | Experimental            |
-| C++        | Experimental            |
+| Language   | Status              |
+| ---------- | ------------------- |
+| TypeScript | Generally available |
+| Python     | Generally available |
+| Go         | Generally available |
+| CLI        | Generally available |
+| Java       | Generally available |
+| Kotlin     | Generally available |
+| Ruby       | Generally available |
+| C#         | Experimental        |
+| PHP        | Experimental        |
+| Rust       | Experimental        |
+| Swift      | Experimental        |
+| Dart       | Experimental        |
+| C++        | Experimental        |
 
 Experimental targets generate working code, but talk to us before you depend on one in production. SDKs sync with your API documentation, so whenever you update your OpenAPI document, your SDKs stay up to date. Learn more in our [SDK documentation](/products/sdk-generator).
 
@@ -125,9 +125,9 @@ However, transitioning via the CLI is typically more straightforward:
 
 #### Package
 
-| Bump.sh                                          | Scalar        |
-| ------------------------------------------------ | ------------- |
-| [`bump-cli`](https://github.com/bump-sh/cli)     | `@scalar/cli` |
+| Bump.sh                                      | Scalar        |
+| -------------------------------------------- | ------------- |
+| [`bump-cli`](https://github.com/bump-sh/cli) | `@scalar/cli` |
 
 #### Commands
 
@@ -230,4 +230,4 @@ TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#,
 
 ---
 
-*Bump.sh details on this page come from its [pricing page](https://bump.sh/pricing), [help centre](https://bump.sh/help/mcp-servers/), and [CLI repository](https://github.com/bump-sh/cli) as checked on September 26, 2026. Bump.sh's plans and features may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Bump.sh details on this page come from its [pricing page](https://bump.sh/pricing), [help centre](https://bump.sh/help/mcp-servers/), and [CLI repository](https://github.com/bump-sh/cli) as checked on September 26, 2026. Bump.sh's plans and features may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

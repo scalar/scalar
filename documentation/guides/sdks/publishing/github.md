@@ -101,8 +101,8 @@ Turning **Promote manually** off ships the build already waiting, so production 
 }
 ```
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
+| Property    | Type                      | Description                                                                                                                                                                            |
+| ----------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `promotion` | `"automatic" \| "manual"` | When this target's builds reach its production repository. `manual` holds each build at staging until it is promoted. Defaults to `automatic`, which is also what an absent key means. |
 
 ## Your custom code is preserved
@@ -112,7 +112,7 @@ You can edit generated files in your repository on `scalar-next`. Scalar perform
 ## Repository prerequisites
 
 - Branch protection on `scalar-next` and the default branch must allow the Scalar app and the `github-actions` bot to push, or be left unprotected. The default branch only ever advances by merging a release pull request, and `scalar-next` receives each released state back from the release workflow.
-- No Actions settings changes are required. The generated workflows declare their own permissions, and none of them opens a pull request, so *Allow GitHub Actions to create and approve pull requests* can stay off. `release-please.yml` asks for `pull-requests: write` only to update the labels on the release pull request it has just released; the release pull request itself is opened by the Scalar app.
+- No Actions settings changes are required. The generated workflows declare their own permissions, and none of them opens a pull request, so _Allow GitHub Actions to create and approve pull requests_ can stay off. `release-please.yml` asks for `pull-requests: write` only to update the labels on the release pull request it has just released; the release pull request itself is opened by the Scalar app.
 
 ## Repository configuration
 
@@ -133,11 +133,11 @@ Linking from the dashboard sets the target's `destinations` in your SDK configur
 }
 ```
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `repo` | `string` | The `owner/repo` the generated SDK is pushed to. |
-| `branch` | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
-| `integrationBranch` | `string` | The branch where generated output is combined with your custom code. Defaults to `scalar-next`. |
+| Property            | Type     | Description                                                                                                                                                      |
+| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repo`              | `string` | The `owner/repo` the generated SDK is pushed to.                                                                                                                 |
+| `branch`            | `string` | The repository's default branch, which releases are promoted to. Defaults to `main`. Generated output itself always goes to the fixed `scalar-generated` branch. |
+| `integrationBranch` | `string` | The branch where generated output is combined with your custom code. Defaults to `scalar-next`.                                                                  |
 
 ## Adding repository secrets
 

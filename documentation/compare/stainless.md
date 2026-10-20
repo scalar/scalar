@@ -1,6 +1,6 @@
 # Scalar vs Stainless
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Stainless set the bar for what a generated SDK should feel like. If you have used the OpenAI, Anthropic, or Cloudflare client libraries, you have used one.
 
@@ -14,16 +14,16 @@ If you are looking for the practical steps rather than the product comparison, g
 
 ## At a glance
 
-| | Scalar | Stainless |
-| --- | --- | --- |
-| Accepting new customers | Yes | [No, as of May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic) |
-| Generally available targets | TypeScript, Python, Go, Java, Kotlin, CLI | [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, C#](https://www.stainless.com/products/sdks) |
-| Terraform providers | No | [Yes, experimental](https://www.stainless.com/docs/terraform/) |
-| MCP servers | Yes, hosted and configurable | [Yes](https://www.stainless.com/docs/mcp/), generated to deploy yourself |
-| Docs renderer | MIT, self-hostable on any plan | [Hosted docs platform](https://www.stainless.com/products/docs/) |
-| Standalone API client | Yes, open source | No |
-| Reads `stainless.yml` | Yes | Yes |
-| Published price | One target included; additional targets from $150/month | [No longer published](https://www.stainless.com/pricing/) |
+|                             | Scalar                                                  | Stainless                                                                                      |
+| --------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Accepting new customers     | Yes                                                     | [No, as of May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic)            |
+| Generally available targets | TypeScript, Python, Go, Java, Kotlin, CLI               | [TypeScript, Python, Go, Java, Kotlin, Ruby, PHP, C#](https://www.stainless.com/products/sdks) |
+| Terraform providers         | No                                                      | [Yes, experimental](https://www.stainless.com/docs/terraform/)                                 |
+| MCP servers                 | Yes, hosted and configurable                            | [Yes](https://www.stainless.com/docs/mcp/), generated to deploy yourself                       |
+| Docs renderer               | MIT, self-hostable on any plan                          | [Hosted docs platform](https://www.stainless.com/products/docs/)                               |
+| Standalone API client       | Yes, open source                                        | No                                                                                             |
+| Reads `stainless.yml`       | Yes                                                     | Yes                                                                                            |
+| Published price             | One target included; additional targets from $150/month | [No longer published](https://www.stainless.com/pricing/)                                      |
 
 ## Where Stainless is stronger
 
@@ -111,13 +111,13 @@ Scalar also ships agent context inside the SDK itself: a `SKILL.md`, a `.claude/
 
 ## Pricing
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Stainless ([pricing](https://www.stainless.com/pricing/)) |
-| --- | --- | --- |
-| Free | $0: 1 SDK up to 25 endpoints, docs with 1 editor seat, up to 3 APIs | Not available to new customers |
-| Entry paid | Pro, $150/month ($125/month billed yearly): 1 SDK up to 100 endpoints, 5 editor seats, MCP servers | No longer published |
-| Mid tier | Business, $600/month ($500/month billed yearly): SDKs up to 250 endpoints, 10 editor seats, SSO | No longer published |
-| Top tier | Enterprise, custom, with migration services | No longer published |
-| Additional SDKs | $150/month each up to 100 endpoints, $600/month each for 101–250 | — |
+| Plan            | Scalar ([pricing](https://scalar.com/pricing))                                                     | Stainless ([pricing](https://www.stainless.com/pricing/)) |
+| --------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Free            | $0: 1 SDK up to 25 endpoints, docs with 1 editor seat, up to 3 APIs                                | Not available to new customers                            |
+| Entry paid      | Pro, $150/month ($125/month billed yearly): 1 SDK up to 100 endpoints, 5 editor seats, MCP servers | No longer published                                       |
+| Mid tier        | Business, $600/month ($500/month billed yearly): SDKs up to 250 endpoints, 10 editor seats, SSO    | No longer published                                       |
+| Top tier        | Enterprise, custom, with migration services                                                        | No longer published                                       |
+| Additional SDKs | $150/month each up to 100 endpoints, $600/month each for 101–250                                   | —                                                         |
 
 Checked on 26 September 2026. Stainless's pricing page no longer shows paid plans, and [new signups are closed](https://www.stainless.com/blog/stainless-is-joining-anthropic).
 
@@ -181,4 +181,4 @@ TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available, along wi
 
 ---
 
-*This comparison is based on Stainless's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. Stainless announced their wind-down in May 2026, so their documentation may change or be withdrawn and some links here may not survive. We have made a genuine effort to be accurate and to state where Stainless is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Stainless's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. Stainless announced their wind-down in May 2026, so their documentation may change or be withdrawn and some links here may not survive. We have made a genuine effort to be accurate and to state where Stainless is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

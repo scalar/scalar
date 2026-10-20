@@ -1,6 +1,6 @@
 # MCP server examples: real servers worth knowing
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 MCP server examples fall into two groups: the official reference servers maintained by the Model Context Protocol project, which show how the protocol works, and production servers run by companies such as GitHub, Stripe, Sentry and Linear, which let AI applications use their products. Every server on this page is real and public, and each entry links to the maintainer's own documentation so you can check the details yourself.
 
@@ -54,20 +54,20 @@ So for each remote server below we only list the URL. Most use OAuth, which mean
 
 ## At a glance
 
-| Server | Maintainer | Type | Endpoint or install | Auth | Source |
-| --- | --- | --- | --- | --- | --- |
-| Everything, Fetch, Filesystem, Git, Memory, Sequential Thinking, Time | MCP project | Local | `npx` or `uvx` packages | None / environment | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
-| GitHub | GitHub | Remote or local | `https://api.githubcopilot.com/mcp/` | OAuth or personal access token | [github/github-mcp-server](https://github.com/github/github-mcp-server) |
-| Sentry | Sentry | Remote | `https://mcp.sentry.dev/mcp` | OAuth | [mcp.sentry.dev](https://mcp.sentry.dev/) |
-| Linear | Linear | Remote | `https://mcp.linear.app/mcp` | OAuth or API key | [linear.app/docs/mcp](https://linear.app/docs/mcp) |
-| Atlassian | Atlassian | Remote | `https://mcp.atlassian.com/v2/mcp` | OAuth 2.1 or API token | [Atlassian support](https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/) |
-| Supabase | Supabase | Remote | `https://mcp.supabase.com/mcp` | OAuth or personal access token | [Supabase docs](https://supabase.com/docs/guides/getting-started/mcp) |
-| Cloudflare | Cloudflare | Remote | `https://docs.mcp.cloudflare.com/mcp` and others | Varies by server | [cloudflare/mcp-server-cloudflare](https://github.com/cloudflare/mcp-server-cloudflare) |
-| Stripe | Stripe | Remote | `https://mcp.stripe.com` | OAuth or agent API key | [docs.stripe.com/mcp](https://docs.stripe.com/mcp) |
-| Notion | Notion | Remote | `https://mcp.notion.com/mcp` | OAuth | [Notion developers](https://developers.notion.com/docs/mcp) |
-| Playwright | Microsoft | Local | `npx @playwright/mcp@latest` | None | [microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp) |
-| AWS MCP servers | AWS Labs | Mostly local | `uvx awslabs.<server>@latest` | AWS credentials | [awslabs/mcp](https://github.com/awslabs/mcp) |
-| Context7 | Upstash | Remote | `https://mcp.context7.com/mcp` | API key recommended | [upstash/context7](https://github.com/upstash/context7) |
+| Server                                                                | Maintainer  | Type            | Endpoint or install                              | Auth                           | Source                                                                                                                                  |
+| --------------------------------------------------------------------- | ----------- | --------------- | ------------------------------------------------ | ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Everything, Fetch, Filesystem, Git, Memory, Sequential Thinking, Time | MCP project | Local           | `npx` or `uvx` packages                          | None / environment             | [modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)                                                         |
+| GitHub                                                                | GitHub      | Remote or local | `https://api.githubcopilot.com/mcp/`             | OAuth or personal access token | [github/github-mcp-server](https://github.com/github/github-mcp-server)                                                                 |
+| Sentry                                                                | Sentry      | Remote          | `https://mcp.sentry.dev/mcp`                     | OAuth                          | [mcp.sentry.dev](https://mcp.sentry.dev/)                                                                                               |
+| Linear                                                                | Linear      | Remote          | `https://mcp.linear.app/mcp`                     | OAuth or API key               | [linear.app/docs/mcp](https://linear.app/docs/mcp)                                                                                      |
+| Atlassian                                                             | Atlassian   | Remote          | `https://mcp.atlassian.com/v2/mcp`               | OAuth 2.1 or API token         | [Atlassian support](https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/) |
+| Supabase                                                              | Supabase    | Remote          | `https://mcp.supabase.com/mcp`                   | OAuth or personal access token | [Supabase docs](https://supabase.com/docs/guides/getting-started/mcp)                                                                   |
+| Cloudflare                                                            | Cloudflare  | Remote          | `https://docs.mcp.cloudflare.com/mcp` and others | Varies by server               | [cloudflare/mcp-server-cloudflare](https://github.com/cloudflare/mcp-server-cloudflare)                                                 |
+| Stripe                                                                | Stripe      | Remote          | `https://mcp.stripe.com`                         | OAuth or agent API key         | [docs.stripe.com/mcp](https://docs.stripe.com/mcp)                                                                                      |
+| Notion                                                                | Notion      | Remote          | `https://mcp.notion.com/mcp`                     | OAuth                          | [Notion developers](https://developers.notion.com/docs/mcp)                                                                             |
+| Playwright                                                            | Microsoft   | Local           | `npx @playwright/mcp@latest`                     | None                           | [microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp)                                                                 |
+| AWS MCP servers                                                       | AWS Labs    | Mostly local    | `uvx awslabs.<server>@latest`                    | AWS credentials                | [awslabs/mcp](https://github.com/awslabs/mcp)                                                                                           |
+| Context7                                                              | Upstash     | Remote          | `https://mcp.context7.com/mcp`                   | API key recommended            | [upstash/context7](https://github.com/upstash/context7)                                                                                 |
 
 Endpoints and auth methods were checked against each maintainer's documentation on 26 September 2026.
 
@@ -276,4 +276,4 @@ Yes. You can write one with an official SDK, or generate the tools from your Ope
 - **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with MCP & Agent](/products/agent/getting-started)
 - **Product:** [Scalar MCP](/products/agent/mcp) — a hosted MCP server for your own API, generated from your OpenAPI document
 
-*Server URLs, licences and authentication methods were checked against each maintainer's documentation or repository on 26 September 2026. Servers change often; if something here is out of date, tell us and we will fix it.*
+_Server URLs, licences and authentication methods were checked against each maintainer's documentation or repository on 26 September 2026. Servers change often; if something here is out of date, tell us and we will fix it._

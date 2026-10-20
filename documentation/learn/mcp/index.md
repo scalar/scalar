@@ -1,6 +1,6 @@
 # MCP guides
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 The Model Context Protocol (MCP) is the open standard AI applications use to discover and call tools, and these guides explain it from the point of view of someone who already runs an API. They cover what the protocol is, how it relates to the API and OpenAPI document you already have, how to turn that document into an MCP server, and how to run and secure that server once people depend on it.
 

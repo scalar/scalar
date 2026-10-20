@@ -1,6 +1,6 @@
 # Scalar vs ReadMe
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 ReadMe has been rendering OpenAPI documents into developer hubs since 2014, and a lot of what the category now takes for granted — interactive API references, personalized onboarding, developer metrics — they shipped first. If you are choosing a developer portal platform, they belong on your shortlist.
 
@@ -10,19 +10,19 @@ The short version: ReadMe is a hosted developer hub with the best built-in API a
 
 ## At a glance
 
-| | Scalar | ReadMe |
-| --- | --- | --- |
-| Docs renderer | MIT, self-hostable on any plan | Closed; hosted only |
-| Interactive API reference | Yes | Yes |
-| Standalone API client | Yes, open source | No — in-docs API explorer |
-| SDK generation | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | TypeScript/JavaScript via the `api` CLI |
-| API analytics | — | Yes — Developer Dashboard and Metrics |
-| Personalized docs with user API keys | Yes | Yes |
-| Hosted MCP server | Yes | Yes |
-| Git sync | Yes | Yes, bi-directional |
-| Versioning | Yes | Yes — 1 version free, unlimited on Pro |
-| Framework integrations | 35 | None |
-| Entry paid tier | $150/month | $250/month, billed annually |
+|                                      | Scalar                                                                                                  | ReadMe                                  |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| Docs renderer                        | MIT, self-hostable on any plan                                                                          | Closed; hosted only                     |
+| Interactive API reference            | Yes                                                                                                     | Yes                                     |
+| Standalone API client                | Yes, open source                                                                                        | No — in-docs API explorer               |
+| SDK generation                       | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | TypeScript/JavaScript via the `api` CLI |
+| API analytics                        | —                                                                                                       | Yes — Developer Dashboard and Metrics   |
+| Personalized docs with user API keys | Yes                                                                                                     | Yes                                     |
+| Hosted MCP server                    | Yes                                                                                                     | Yes                                     |
+| Git sync                             | Yes                                                                                                     | Yes, bi-directional                     |
+| Versioning                           | Yes                                                                                                     | Yes — 1 version free, unlimited on Pro  |
+| Framework integrations               | 35                                                                                                      | None                                    |
+| Entry paid tier                      | $150/month                                                                                              | $250/month, billed annually             |
 
 ## Where ReadMe is stronger
 
@@ -62,13 +62,13 @@ Scalar: Free at $0, [Pro at $150/month](../guides/pricing.md) with one SDK targe
 
 ReadMe: [Starter at $0, Pro at $250/month billed annually, and Enterprise on a custom quote with annual billing only](https://readme.com/pricing), with Ask AI as a $150/month add-on. Team collaboration, private docs, custom MDX, and CSS/HTML all start at Pro, so the realistic entry point for a team is $250/month. You may find older ReadMe pricing quoted around the web at $99/month; that reflects a previous pricing model, so check their current page.
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | ReadMe ([pricing](https://readme.com/pricing)) |
-| --- | --- | --- |
-| Free | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | Starter, $0: custom domain, API reference, Git sync, usage metrics, MCP server, 1 version |
-| Entry paid | Pro, $150/month ($125/month billed yearly), 5 editor seats, 1 SDK | Pro, $250/month billed annually: collaboration, private docs, custom MDX, CSS/HTML, unlimited versions |
-| Mid tier | Business, $600/month ($500/month billed yearly), 10 editor seats, SSO | — |
-| Top tier | Enterprise, custom | Enterprise, contact us, annual billing only |
-| AI add-ons | Agent Scalar credits included on every plan | Ask AI, $150/month |
+| Plan       | Scalar ([pricing](https://scalar.com/pricing))                        | ReadMe ([pricing](https://readme.com/pricing))                                                         |
+| ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Free       | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints             | Starter, $0: custom domain, API reference, Git sync, usage metrics, MCP server, 1 version              |
+| Entry paid | Pro, $150/month ($125/month billed yearly), 5 editor seats, 1 SDK     | Pro, $250/month billed annually: collaboration, private docs, custom MDX, CSS/HTML, unlimited versions |
+| Mid tier   | Business, $600/month ($500/month billed yearly), 10 editor seats, SSO | —                                                                                                      |
+| Top tier   | Enterprise, custom                                                    | Enterprise, contact us, annual billing only                                                            |
+| AI add-ons | Agent Scalar credits included on every plan                           | Ask AI, $150/month                                                                                     |
 
 Prices checked on 26 September 2026.
 
@@ -130,4 +130,4 @@ ReadMe's open-source [`api` package](https://api.readme.dev/docs/getting-started
 
 ---
 
-*This comparison is based on ReadMe's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where ReadMe is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on ReadMe's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where ReadMe is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

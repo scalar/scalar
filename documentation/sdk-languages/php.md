@@ -78,15 +78,15 @@ $apiInstance = new OpenAPI\Client\Api\PetApi(new GuzzleHttp\Client());
 
 If you want the SDK to sit on Guzzle specifically, or need a stable generator today, OpenAPI Generator is the practical choice.
 
-| | Scalar PHP target (experimental) | OpenAPI Generator `php` |
-| --- | --- | --- |
-| Status | Experimental | Stable (with `php-nextgen` in beta) |
-| HTTP client | Generated client | Guzzle, or PSR-18 (beta) |
-| Client shape | Resource tree from one client | One `*Api` class per tag |
-| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
-| Pagination | Iterable pages | Not among the generator's documented options |
-| Packagist release | Tagged on merge, no secrets | Your own tagging process |
-| Same config drives other languages | Yes | Separate generator run per language |
+|                                    | Scalar PHP target (experimental)              | OpenAPI Generator `php`                             |
+| ---------------------------------- | --------------------------------------------- | --------------------------------------------------- |
+| Status                             | Experimental                                  | Stable (with `php-nextgen` in beta)                 |
+| HTTP client                        | Generated client                              | Guzzle, or PSR-18 (beta)                            |
+| Client shape                       | Resource tree from one client                 | One `*Api` class per tag                            |
+| `oneOf` / `anyOf` / `allOf`        | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
+| Pagination                         | Iterable pages                                | Not among the generator's documented options        |
+| Packagist release                  | Tagged on merge, no secrets                   | Your own tagging process                            |
+| Same config drives other languages | Yes                                           | Separate generator run per language                 |
 
 For more on that decision, see [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -135,4 +135,4 @@ Yes. Adding the PHP target creates a preview repository with the generated code,
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/php) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/php) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

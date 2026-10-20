@@ -1,6 +1,6 @@
 # Best Fern alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best Fern alternative depends on which half of Fern you are replacing: the SDK generator, the hosted docs, or both. This page covers all three cases, starting with Scalar, which like Fern produces documentation and SDKs from one OpenAPI document.
 
@@ -20,15 +20,15 @@ It is worth being precise here, because one common reason no longer applies.
 
 ## Fern alternatives at a glance
 
-| Tool | Replaces | Docs renderer | SDK generation | Self-hosting | Entry paid price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | Docs and SDKs | MIT API reference, hosted docs | Native; TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA | API reference on any plan | Pro $150/month ([pricing](/pricing)) |
-| **Speakeasy** | SDKs | Uses a docs vendor | Native | Generator self-runnable (AGPL-3.0) | Enterprise, tailored ([pricing](https://www.speakeasy.com/pricing)) |
-| **Mintlify** | Docs | Closed, hosted | None; integrates third parties | Enterprise | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
-| **ReadMe** | Docs | Closed, hosted | TypeScript/JavaScript via `api` CLI | No | Pro $250/month billed annually ([pricing](https://readme.com/pricing)) |
-| **Redocly** | Docs | Redoc is open source; platform is commercial | None | Yes, on commercial plans | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
-| **Bump.sh** | API reference | Hosted | None | No | Basic $50/month ([pricing](https://bump.sh/pricing)) |
-| **OpenAPI Generator** | SDKs | Basic HTML output | [80 client generators](https://openapi-generator.tech/docs/generators) | Yes | Free, Apache-2.0 |
+| Tool                  | Replaces      | Docs renderer                                | SDK generation                                                         | Self-hosting                       | Entry paid price                                                           |
+| --------------------- | ------------- | -------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
+| **Scalar**            | Docs and SDKs | MIT API reference, hosted docs               | Native; TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA             | API reference on any plan          | Pro $150/month ([pricing](/pricing))                                       |
+| **Speakeasy**         | SDKs          | Uses a docs vendor                           | Native                                                                 | Generator self-runnable (AGPL-3.0) | Enterprise, tailored ([pricing](https://www.speakeasy.com/pricing))        |
+| **Mintlify**          | Docs          | Closed, hosted                               | None; integrates third parties                                         | Enterprise                         | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
+| **ReadMe**            | Docs          | Closed, hosted                               | TypeScript/JavaScript via `api` CLI                                    | No                                 | Pro $250/month billed annually ([pricing](https://readme.com/pricing))     |
+| **Redocly**           | Docs          | Redoc is open source; platform is commercial | None                                                                   | Yes, on commercial plans           | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))            |
+| **Bump.sh**           | API reference | Hosted                                       | None                                                                   | No                                 | Basic $50/month ([pricing](https://bump.sh/pricing))                       |
+| **OpenAPI Generator** | SDKs          | Basic HTML output                            | [80 client generators](https://openapi-generator.tech/docs/generators) | Yes                                | Free, Apache-2.0                                                           |
 
 All prices were checked on September 26, 2026, on each vendor's own pricing page.
 
@@ -162,4 +162,4 @@ Scalar's SDK generator accepts AsyncAPI and gRPC as inputs. It does not accept O
 
 ---
 
-*This page is based on Fern's public pricing page, documentation, blog and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Fern is owned by Postman and its product and pricing may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Fern's public pricing page, documentation, blog and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Fern is owned by Postman and its product and pricing may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

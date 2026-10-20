@@ -9,10 +9,6 @@
 *.mov
 *.cjs
 
-# TODO: [error] [prettier-plugin-sort-imports]: import sorting aborted due to babel parsing error.
-*.md
-*.mdx
-
 .git
 .venv
 **/.nuxt/**
@@ -56,3 +52,30 @@ packages/openapi-validator/tests/**/*.yaml
 **/.worktrees/
 **/.claude/worktrees/
 **/.codex/worktrees/
+
+# Generated release history and README files
+**/CHANGELOG.md
+**/RELEASE_NOTES.md
+integrations/astro/README.md
+integrations/django-ninja/README.md
+integrations/docker/README.md
+integrations/docusaurus/README.md
+integrations/dotnet/aspire/README.md
+integrations/dotnet/aspnetcore/README.md
+integrations/dotnet/aws-lambda/README.md
+integrations/dotnet/azure-functions/README.md
+integrations/express/README.md
+integrations/fastapi/README.md
+integrations/fastify/README.md
+integrations/hono/README.md
+integrations/java/README.md
+integrations/nestjs/README.md
+integrations/nextjs/README.md
+integrations/nuxt/README.md
+integrations/rust/README.md
+integrations/sveltekit/README.md
+packages/asyncapi-upgrader/README.md
+packages/mock-server/README.md
+packages/mock-server/docker/README.md
+packages/openapi-upgrader/README.md
+packages/server-side-rendering/README.md

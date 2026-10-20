@@ -4,11 +4,11 @@ The CLI target ships in two forms from one source tree. The **npm** package stay
 
 These three channels are independent, and you can enable any combination:
 
-| Key | What it does | Auth |
-| --- | ------------ | ---- |
-| `npm` | Publishes the package to npm for `npm install -g`. | OIDC (default) or `NPM_TOKEN` |
-| `binaries` | Cross-compiles standalone executables and attaches them to the GitHub Release. | none (uses `GITHUB_TOKEN`) |
-| `homebrew` | Writes a Homebrew formula (or cask) for those executables into a tap repository. | `HOMEBREW_TAP_TOKEN` |
+| Key        | What it does                                                                     | Auth                          |
+| ---------- | -------------------------------------------------------------------------------- | ----------------------------- |
+| `npm`      | Publishes the package to npm for `npm install -g`.                               | OIDC (default) or `NPM_TOKEN` |
+| `binaries` | Cross-compiles standalone executables and attaches them to the GitHub Release.   | none (uses `GITHUB_TOKEN`)    |
+| `homebrew` | Writes a Homebrew formula (or cask) for those executables into a tap repository. | `HOMEBREW_TAP_TOKEN`          |
 
 `signing` sits beside them but is not a channel: it signs the macOS executables that `binaries` and `homebrew` ship. See [macOS signing](#macos-signing).
 
@@ -86,7 +86,7 @@ Create a **public** repository named `homebrew-<tap>` (for example `acme/homebre
 Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with:
 
 - **Resource owner:** the tap's owner (the user or organization), not the SDK repository's owner if they differ.
-- **Repository access:** *Only select repositories* → the tap.
+- **Repository access:** _Only select repositories_ → the tap.
 - **Permissions:** **Contents: Read and write**, plus **Pull requests: Read and write** if you set `pullRequest`. **Metadata: Read-only** is added automatically; nothing else is needed.
 
 A classic token with the `repo` scope also works (`public_repo` is enough for a public tap), but it can reach every repository its account can.
@@ -152,13 +152,13 @@ Set `signing.macos` to sign the `darwin-*` executables. Without it they ship uns
 
 The release reads these repository secrets:
 
-| Secret | Value |
-| ------ | ----- |
-| `MACOS_SIGN_P12` | The `Developer ID Application` certificate and private key as a base64-encoded `.p12` bundle |
-| `MACOS_SIGN_PASSWORD` | The bundle's password (may be empty) |
-| `MACOS_NOTARY_ISSUER_ID` | App Store Connect API key issuer ID (`sign-and-notarize` only) |
-| `MACOS_NOTARY_KEY_ID` | The API key's ID, the `<ID>` in `AuthKey_<ID>.p8` (`sign-and-notarize` only) |
-| `MACOS_NOTARY_KEY` | The API key's `.p8` private key, as PEM or base64 (`sign-and-notarize` only) |
+| Secret                   | Value                                                                                        |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| `MACOS_SIGN_P12`         | The `Developer ID Application` certificate and private key as a base64-encoded `.p12` bundle |
+| `MACOS_SIGN_PASSWORD`    | The bundle's password (may be empty)                                                         |
+| `MACOS_NOTARY_ISSUER_ID` | App Store Connect API key issuer ID (`sign-and-notarize` only)                               |
+| `MACOS_NOTARY_KEY_ID`    | The API key's ID, the `<ID>` in `AuthKey_<ID>.p8` (`sign-and-notarize` only)                 |
+| `MACOS_NOTARY_KEY`       | The API key's `.p8` private key, as PEM or base64 (`sign-and-notarize` only)                 |
 
 The signing secrets are checked at the start of the publish job, before anything is compiled or published. Other channels' credentials, such as `NPM_TOKEN` and `HOMEBREW_TAP_TOKEN`, are first used at the step that needs them. The npm package is unaffected: it contains no compiled executable.
 

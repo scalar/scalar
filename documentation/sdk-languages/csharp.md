@@ -74,15 +74,15 @@ OpenAPI Generator's [`csharp` generator](https://openapi-generator.tech/docs/gen
 
 If you need a Unity client, .NET Framework support, or tight Generic Host integration out of the box, OpenAPI Generator covers those today, and we would point you to it.
 
-| | Scalar C# target (experimental) | OpenAPI Generator `csharp` |
-| --- | --- | --- |
-| Status | Experimental | Stable |
-| HTTP and DI | One generated client | `generichost` (default), `httpclient`, `restsharp`, `unityWebRequest` |
-| Target frameworks | Set by the generator | Configurable; default `net10.0` |
-| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
-| Pagination | `await foreach` over `Paginate()` | Not among the generator's documented options |
-| NuGet release | OIDC trusted publishing workflow generated into your repo | Project files generated; release process is yours |
-| Same config drives other languages | Yes | Separate generator run per language |
+|                                    | Scalar C# target (experimental)                           | OpenAPI Generator `csharp`                                            |
+| ---------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
+| Status                             | Experimental                                              | Stable                                                                |
+| HTTP and DI                        | One generated client                                      | `generichost` (default), `httpclient`, `restsharp`, `unityWebRequest` |
+| Target frameworks                  | Set by the generator                                      | Configurable; default `net10.0`                                       |
+| `oneOf` / `anyOf` / `allOf`        | Lowered into typed unions; check your preview             | Marked unsupported in the generator's feature table                   |
+| Pagination                         | `await foreach` over `Paginate()`                         | Not among the generator's documented options                          |
+| NuGet release                      | OIDC trusted publishing workflow generated into your repo | Project files generated; release process is yours                     |
+| Same config drives other languages | Yes                                                       | Separate generator run per language                                   |
 
 For a broader look at when OpenAPI Generator is the right tool, read [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -131,4 +131,4 @@ Add the C# target in the dashboard. It gets a preview repository with the genera
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/csharp) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator/tree/master/samples/client/petstore/csharp/generichost) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/csharp) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator/tree/master/samples/client/petstore/csharp/generichost) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

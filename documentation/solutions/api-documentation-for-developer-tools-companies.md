@@ -6,17 +6,17 @@ This page is written by Scalar. Every product claim on it is backed by our own d
 
 ## At a glance
 
-| | Scalar |
-| --- | --- |
-| Source of truth | One OpenAPI document (3.0 or 3.1; Swagger 2.0 upgraded on load) |
-| Docs update via | [Git sync](../guides/docs/integrations/github.md): commit, merge, published |
-| Preview before merge | [Preview deployment per pull request](../guides/docs/deployment/preview-deployments.md), with a PR comment link |
-| SDK targets | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI generally available; more experimental |
-| Code samples in docs | Generated per SDK, injected as `x-codeSamples` into your reference |
-| Try-it-out | Open-source API client built into the reference |
-| Docs renderer license | MIT, self-hostable on any plan |
-| Framework integrations | 35 (Express, Fastify, Hono, NestJS, Next.js, FastAPI, and more) |
-| Pricing | Free tier; Pro $150/month with one SDK target included; additional targets $150/month — [published](../guides/pricing.md) |
+|                        | Scalar                                                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Source of truth        | One OpenAPI document (3.0 or 3.1; Swagger 2.0 upgraded on load)                                                           |
+| Docs update via        | [Git sync](../guides/docs/integrations/github.md): commit, merge, published                                               |
+| Preview before merge   | [Preview deployment per pull request](../guides/docs/deployment/preview-deployments.md), with a PR comment link           |
+| SDK targets            | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI generally available; more experimental                                    |
+| Code samples in docs   | Generated per SDK, injected as `x-codeSamples` into your reference                                                        |
+| Try-it-out             | Open-source API client built into the reference                                                                           |
+| Docs renderer license  | MIT, self-hostable on any plan                                                                                            |
+| Framework integrations | 35 (Express, Fastify, Hono, NestJS, Next.js, FastAPI, and more)                                                           |
+| Pricing                | Free tier; Pro $150/month with one SDK target included; additional targets $150/month — [published](../guides/pricing.md) |
 
 ## The problem, specifically
 
@@ -47,7 +47,7 @@ What Scalar does not do: it will not keep your OpenAPI document itself accurate.
 
 ## Why this fits developer tools companies in particular
 
-Scalar's customer profile is companies whose API *is* the product, or is close to it: public APIs, developer-facing surfaces, teams that treat API developer experience as a competitive input rather than a compliance task. Some public examples:
+Scalar's customer profile is companies whose API _is_ the product, or is close to it: public APIs, developer-facing surfaces, teams that treat API developer experience as a competitive input rather than a compliance task. Some public examples:
 
 - **[Clerk](https://clerk.com/docs/reference/frontend-api)** — authentication and user management for the modern web. Their Frontend API reference runs on Scalar.
 - **[PAR Technology](https://developers.partech.com)** — restaurant and retail software. PAR [migrated its developer portal to Scalar](../guides/customers/partech.md) to modernize a docs-as-code workflow tied to GitHub, with pull-request-based reviews and automatic publishing on merge. The full story is worth reading if your setup looks similar.
@@ -125,4 +125,4 @@ It is not the right choice for everyone. If your API is gRPC or JSON-RPC rather 
 
 ---
 
-*This page describes Scalar as documented on scalar.com as of July 2026. Customer examples link to public documentation sites and a published case study; we have not invented quotes or numbers, and we would rather you catch us being wrong than quietly stay wrong. If you find an error, please [open an issue](https://github.com/scalar/scalar/issues).*
+_This page describes Scalar as documented on scalar.com as of July 2026. Customer examples link to public documentation sites and a published case study; we have not invented quotes or numbers, and we would rather you catch us being wrong than quietly stay wrong. If you find an error, please [open an issue](https://github.com/scalar/scalar/issues)._

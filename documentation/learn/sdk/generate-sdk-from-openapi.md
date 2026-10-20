@@ -1,6 +1,6 @@
 # How to generate an SDK from OpenAPI
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 To generate an SDK from OpenAPI, you give an OpenAPI document to a code generator that turns every operation into a typed method and every schema into a typed model, and then you package the output and publish it to a registry such as npm, PyPI, or Go modules. The generator is the easy part. Most of the quality in a generated SDK comes from the document you feed it, and most of the ongoing cost comes from what happens after the first build: publishing, versioning, and regenerating every time the API changes.
 
@@ -22,17 +22,17 @@ If you are still deciding whether you need an SDK at all, start with [what an SD
 
 Every OpenAPI-based SDK generator performs roughly the same mapping. Knowing it tells you which parts of the document matter most.
 
-| OpenAPI element | What it becomes in the SDK | What goes wrong when it is missing or weak |
-| --- | --- | --- |
-| `servers` | The default base URL and named environments | Users have to pass a base URL by hand |
-| `tags` | Resource groups, such as `client.users` | One flat namespace with hundreds of methods |
-| `operationId` | Method names | Names derived from paths, like `usersUserIdGet` |
-| `parameters` and `requestBody` | Typed method arguments | Untyped dictionaries or positional arguments |
-| `components/schemas` | Named model types | Anonymous types with generated names such as `InlineResponse2003` |
-| `responses` | Return types and typed errors | `unknown` return values, generic exceptions |
-| `securitySchemes` | Constructor options for credentials | Auth has to be set as a raw header |
-| `oneOf`, `anyOf`, `discriminator` | Union types | Loosely typed objects the caller has to inspect |
-| Vendor extensions (`x-...`) | Pagination helpers, retries, renames, streaming | List endpoints return one page at a time, no retries |
+| OpenAPI element                   | What it becomes in the SDK                      | What goes wrong when it is missing or weak                        |
+| --------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------- |
+| `servers`                         | The default base URL and named environments     | Users have to pass a base URL by hand                             |
+| `tags`                            | Resource groups, such as `client.users`         | One flat namespace with hundreds of methods                       |
+| `operationId`                     | Method names                                    | Names derived from paths, like `usersUserIdGet`                   |
+| `parameters` and `requestBody`    | Typed method arguments                          | Untyped dictionaries or positional arguments                      |
+| `components/schemas`              | Named model types                               | Anonymous types with generated names such as `InlineResponse2003` |
+| `responses`                       | Return types and typed errors                   | `unknown` return values, generic exceptions                       |
+| `securitySchemes`                 | Constructor options for credentials             | Auth has to be set as a raw header                                |
+| `oneOf`, `anyOf`, `discriminator` | Union types                                     | Loosely typed objects the caller has to inspect                   |
+| Vendor extensions (`x-...`)       | Pagination helpers, retries, renames, streaming | List endpoints return one page at a time, no retries              |
 
 The last row matters because OpenAPI has no standard way to say "this list endpoint uses cursor pagination" or "retry this request on a 429". Every generator fills that gap with its own extensions or configuration. Plan for it.
 
@@ -160,14 +160,14 @@ Should the extensions live in the OpenAPI document or in a separate config file?
 
 There are two families. **Template-based open-source generators** give you the code and the templates, free, and you own the result and the upkeep. **Managed generators** produce more idiomatic code, handle publishing, and regenerate for you, for a fee. The table summarizes the main options as of September 2026, with each vendor's own page as the source.
 
-| Generator | Model | Licence | SDK languages (per the vendor) | Best for |
-| --- | --- | --- | --- | --- |
-| [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) | Open-source CLI, template-based | [Apache 2.0](https://github.com/OpenAPITools/openapi-generator) | [80 client generators](https://openapi-generator.tech/docs/generators), many marked beta or experimental | Breadth, niche languages, full control, zero licence cost |
-| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) (Microsoft) | Open-source CLI | [MIT](https://github.com/microsoft/kiota) | C#, Go, Java, PHP, Python, Ruby, TypeScript and more; [maturity varies by language](https://github.com/microsoft/kiota) | Large APIs where you only need a subset of paths, .NET shops |
-| [Scalar](/products/sdk-generator) | Managed, dashboard and config | Generator is closed source; output is yours | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI generally available; C#, PHP, Rust, Swift, Dart, C++ experimental | Idiomatic SDKs plus docs, published from your own repositories, with published pricing |
-| [Speakeasy](https://www.speakeasy.com/docs/sdks/create-client-sdks) | CLI plus platform | Generator [open-sourced under AGPL-3.0 on 2026-09-17](https://www.speakeasy.com/blog/partnering-with-google) | TypeScript, Python, Go, Java, C#, PHP, Ruby ([source](https://www.speakeasy.com/blog/partnering-with-google)) | Teams that want to read and run the generator, Terraform providers |
-| [Fern](https://buildwithfern.com/learn/sdks/overview/introduction) | CLI plus platform, acquired by [Postman in January 2026](https://buildwithfern.com/post/postman-acquires-fern) | Repository is [Apache 2.0](https://github.com/fern-api/fern) | TypeScript, Python, Go, Java, C#, PHP, Ruby, Swift, Rust ([source](https://buildwithfern.com/learn/sdks/overview/introduction)) | Teams already on Postman, or APIs described in Fern's own definition format |
-| [liblab](https://liblab.com) | Managed platform | Commercial | C#, TypeScript, PHP, Java, Go, Python ([source](https://liblab.com)) | Teams that also want generated Terraform providers |
+| Generator                                                                     | Model                                                                                                          | Licence                                                                                                      | SDK languages (per the vendor)                                                                                                  | Best for                                                                               |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator)        | Open-source CLI, template-based                                                                                | [Apache 2.0](https://github.com/OpenAPITools/openapi-generator)                                              | [80 client generators](https://openapi-generator.tech/docs/generators), many marked beta or experimental                        | Breadth, niche languages, full control, zero licence cost                              |
+| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) (Microsoft) | Open-source CLI                                                                                                | [MIT](https://github.com/microsoft/kiota)                                                                    | C#, Go, Java, PHP, Python, Ruby, TypeScript and more; [maturity varies by language](https://github.com/microsoft/kiota)         | Large APIs where you only need a subset of paths, .NET shops                           |
+| [Scalar](/products/sdk-generator)                                             | Managed, dashboard and config                                                                                  | Generator is closed source; output is yours                                                                  | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI generally available; C#, PHP, Rust, Swift, Dart, C++ experimental               | Idiomatic SDKs plus docs, published from your own repositories, with published pricing |
+| [Speakeasy](https://www.speakeasy.com/docs/sdks/create-client-sdks)           | CLI plus platform                                                                                              | Generator [open-sourced under AGPL-3.0 on 2026-09-17](https://www.speakeasy.com/blog/partnering-with-google) | TypeScript, Python, Go, Java, C#, PHP, Ruby ([source](https://www.speakeasy.com/blog/partnering-with-google))                   | Teams that want to read and run the generator, Terraform providers                     |
+| [Fern](https://buildwithfern.com/learn/sdks/overview/introduction)            | CLI plus platform, acquired by [Postman in January 2026](https://buildwithfern.com/post/postman-acquires-fern) | Repository is [Apache 2.0](https://github.com/fern-api/fern)                                                 | TypeScript, Python, Go, Java, C#, PHP, Ruby, Swift, Rust ([source](https://buildwithfern.com/learn/sdks/overview/introduction)) | Teams already on Postman, or APIs described in Fern's own definition format            |
+| [liblab](https://liblab.com)                                                  | Managed platform                                                                                               | Commercial                                                                                                   | C#, TypeScript, PHP, Java, Go, Python ([source](https://liblab.com))                                                            | Teams that also want generated Terraform providers                                     |
 
 Two notes on the table. Stainless is not listed because its hosted generator stopped taking new signups when [Stainless joined Anthropic on 2026-05-18](https://www.stainless.com/blog/stainless-is-joining-anthropic/); existing customers keep the code they generated. If you are in that position, our [Stainless wind-down write-up](/resources/stainless-wind-down) covers every option, including ones that are not Scalar. And "languages supported" is a weak signal on its own. Ask each vendor which targets are production-ready, then generate from your own document and read the output.
 
@@ -527,4 +527,4 @@ The inputs are the same (an OpenAPI document with clear operations and schemas),
 
 ---
 
-*Competitor details in this guide come from each vendor's own documentation, repositories, and announcements as of September 26, 2026. Products change; if something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Competitor details in this guide come from each vendor's own documentation, repositories, and announcements as of September 26, 2026. Products change; if something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -24,11 +24,11 @@ pnpm turbo --filter @scalar/api-client dev
 
 ### Layout differences
 
-| Layout | Script | Description |
-|--------|--------|-------------|
-| **Web** | `pnpm playground:v2:web` | Standalone browser client. Default `dev` target. Single-request focused. |
-| **App** | `pnpm playground:v2:app` | Full desktop-style layout with sidebar, collections, environments, and workspace management. Test here for changes to workspace features. |
-| **Modal** | `pnpm playground:v2:modal` | Opens as an overlay. Also testable via the api-reference playground by clicking "Test Request" on any operation. |
+| Layout    | Script                     | Description                                                                                                                               |
+| --------- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| **Web**   | `pnpm playground:v2:web`   | Standalone browser client. Default `dev` target. Single-request focused.                                                                  |
+| **App**   | `pnpm playground:v2:app`   | Full desktop-style layout with sidebar, collections, environments, and workspace management. Test here for changes to workspace features. |
+| **Modal** | `pnpm playground:v2:modal` | Opens as an overlay. Also testable via the api-reference playground by clicking "Test Request" on any operation.                          |
 
 ### What to check
 

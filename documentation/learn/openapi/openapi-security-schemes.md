@@ -1,6 +1,6 @@
 # OpenAPI security schemes: every type with examples
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An OpenAPI security scheme is a named description of one way a client can authenticate with your API, such as an API key in a header, an HTTP bearer token, an OAuth 2.0 flow, OpenID Connect, or a mutual TLS client certificate. You declare schemes under `components.securitySchemes`, then apply them with `security` requirements at the document or operation level, so every tool that reads the [OpenAPI document](/learn/openapi/what-is-openapi) knows exactly what credentials each request needs.
 
@@ -46,13 +46,13 @@ security:
 
 The [Security Scheme Object in OpenAPI 3.2.1](https://spec.openapis.org/oas/v3.2.1.html#security-scheme-object) defines these types and required fields:
 
-| `type` | Required fields | Credential goes in | Available since | Typical use |
-| --- | --- | --- | --- | --- |
-| `apiKey` | `name`, `in` (`header`, `query` or `cookie`) | The named header, query parameter or cookie | Swagger 2.0 | Server-to-server APIs, simple developer keys |
-| `http` | `scheme` (plus optional `bearerFormat`) | The `Authorization` header | OpenAPI 3.0 (`basic` existed in 2.0) | Bearer tokens, JWTs, HTTP Basic |
-| `oauth2` | `flows` | Usually an `Authorization: Bearer` header, after a token flow | Swagger 2.0, reshaped in 3.0 | Delegated user access, machine-to-machine tokens |
-| `openIdConnect` | `openIdConnectUrl` | Same as OAuth 2.0, endpoints discovered | OpenAPI 3.0 | Identity providers that publish discovery documents |
-| `mutualTLS` | none beyond `type` | The TLS handshake, as a client certificate | OpenAPI 3.1 | High-trust B2B and financial APIs |
+| `type`          | Required fields                              | Credential goes in                                            | Available since                      | Typical use                                         |
+| --------------- | -------------------------------------------- | ------------------------------------------------------------- | ------------------------------------ | --------------------------------------------------- |
+| `apiKey`        | `name`, `in` (`header`, `query` or `cookie`) | The named header, query parameter or cookie                   | Swagger 2.0                          | Server-to-server APIs, simple developer keys        |
+| `http`          | `scheme` (plus optional `bearerFormat`)      | The `Authorization` header                                    | OpenAPI 3.0 (`basic` existed in 2.0) | Bearer tokens, JWTs, HTTP Basic                     |
+| `oauth2`        | `flows`                                      | Usually an `Authorization: Bearer` header, after a token flow | Swagger 2.0, reshaped in 3.0         | Delegated user access, machine-to-machine tokens    |
+| `openIdConnect` | `openIdConnectUrl`                           | Same as OAuth 2.0, endpoints discovered                       | OpenAPI 3.0                          | Identity providers that publish discovery documents |
+| `mutualTLS`     | none beyond `type`                           | The TLS handshake, as a client certificate                    | OpenAPI 3.1                          | High-trust B2B and financial APIs                   |
 
 Every type also accepts an optional `description`, which supports CommonMark. Use it. It is the only place to tell people where to get a key.
 
@@ -107,13 +107,13 @@ Do not describe the `Authorization` header as a regular parameter. The specifica
 
 An `oauth2` scheme lists one or more flows, each with the endpoints and scopes for that grant type. OpenAPI 3.2 supports five flows:
 
-| Flow | Required fields | OAuth grant | Use it for |
-| --- | --- | --- | --- |
-| `authorizationCode` | `authorizationUrl`, `tokenUrl`, `scopes` | Authorization code, ideally with PKCE | Apps acting on behalf of a user |
-| `clientCredentials` | `tokenUrl`, `scopes` | Client credentials | Machine-to-machine access |
-| `deviceAuthorization` (3.2+) | `deviceAuthorizationUrl`, `tokenUrl`, `scopes` | Device authorization (RFC 8628) | CLIs, TVs, devices without a browser |
-| `implicit` | `authorizationUrl`, `scopes` | Implicit | Legacy only |
-| `password` | `tokenUrl`, `scopes` | Resource owner password | Legacy first-party apps only |
+| Flow                         | Required fields                                | OAuth grant                           | Use it for                           |
+| ---------------------------- | ---------------------------------------------- | ------------------------------------- | ------------------------------------ |
+| `authorizationCode`          | `authorizationUrl`, `tokenUrl`, `scopes`       | Authorization code, ideally with PKCE | Apps acting on behalf of a user      |
+| `clientCredentials`          | `tokenUrl`, `scopes`                           | Client credentials                    | Machine-to-machine access            |
+| `deviceAuthorization` (3.2+) | `deviceAuthorizationUrl`, `tokenUrl`, `scopes` | Device authorization (RFC 8628)       | CLIs, TVs, devices without a browser |
+| `implicit`                   | `authorizationUrl`, `scopes`                   | Implicit                              | Legacy only                          |
+| `password`                   | `tokenUrl`, `scopes`                           | Resource owner password               | Legacy first-party apps only         |
 
 Every flow can also have a `refreshUrl`. `scopes` is a map from scope name to a short description, and it may be empty.
 
@@ -319,14 +319,14 @@ security:
 
 Swagger 2.0 called these `securityDefinitions`, at the top level of the document, and had only three types: `basic`, `apiKey` and `oauth2`. Each OAuth scheme had a single `flow` with different names:
 
-| Swagger 2.0 | OpenAPI 3.x |
-| --- | --- |
-| `securityDefinitions` | `components.securitySchemes` |
-| `type: basic` | `type: http`, `scheme: basic` |
-| `flow: implicit` | `flows.implicit` |
-| `flow: password` | `flows.password` |
-| `flow: application` | `flows.clientCredentials` |
-| `flow: accessCode` | `flows.authorizationCode` |
+| Swagger 2.0           | OpenAPI 3.x                   |
+| --------------------- | ----------------------------- |
+| `securityDefinitions` | `components.securitySchemes`  |
+| `type: basic`         | `type: http`, `scheme: basic` |
+| `flow: implicit`      | `flows.implicit`              |
+| `flow: password`      | `flows.password`              |
+| `flow: application`   | `flows.clientCredentials`     |
+| `flow: accessCode`    | `flows.authorizationCode`     |
 
 You do not have to convert these by hand. The [Scalar CLI](/tools/cli/getting-started) upgrades a Swagger 2.0 document to OpenAPI 3.1 with `npx @scalar/cli document upgrade swagger.json --output openapi.json`, and the Scalar API Client does the same automatically on import. See [OpenAPI vs Swagger](/learn/openapi/openapi-vs-swagger) for the naming history.
 

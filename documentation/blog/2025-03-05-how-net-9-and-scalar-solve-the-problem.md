@@ -45,7 +45,7 @@ app.Run();
 
 Running this then generates an OpenAPI document at `https://localhost:<port>/openapi/v1.json`.
 
-[![Dotnet 9 OpenAPI](https://substackcdn.com/image/fetch/$s_!CkN3!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png "Dotnet 9 OpenAPI")](https://substackcdn.com/image/fetch/$s_!CkN3!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png)
+[![Dotnet 9 OpenAPI](https://substackcdn.com/image/fetch/$s_!CkN3!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png 'Dotnet 9 OpenAPI')](https://substackcdn.com/image/fetch/$s_!CkN3!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7f04e6c4-42a9-48a7-82e8-9fb654dbe118_1480x1190.png)
 
 Generating this document is a great first step, but is only part of the solution. It then needs to be turned into documentation people can use. This is where Scalar’s suite of API tools come in.
 
@@ -80,7 +80,7 @@ app.Run();
 
 Like magic, this gives you a full set of API docs when you navigate to `https://localhost:<port>/scalar/v1` in your browser.
 
-[![Dotnet 9 API docs](https://substackcdn.com/image/fetch/$s_!kaOL!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fad9851fe-7441-49bc-9a95-a3022904481e_2842x1618.png "Dotnet 9 API docs")](https://substackcdn.com/image/fetch/$s_!kaOL!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fad9851fe-7441-49bc-9a95-a3022904481e_2842x1618.png)
+[![Dotnet 9 API docs](https://substackcdn.com/image/fetch/$s_!kaOL!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fad9851fe-7441-49bc-9a95-a3022904481e_2842x1618.png 'Dotnet 9 API docs')](https://substackcdn.com/image/fetch/$s_!kaOL!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fad9851fe-7441-49bc-9a95-a3022904481e_2842x1618.png)
 
 ## Under the hood of how Scalar generates your API docs
 
@@ -98,6 +98,6 @@ The combination of new ASP.NET OpenAPI generation and Scalar solves the undocume
 
 We don’t stop there either. Our API seamlessly turns into a fully featured API client. This means you not only get to document your API but test it. This is a core part of our aim of creating a world-class developer experience for your APIs.
 
-[![Dotnet 9 API client](https://substackcdn.com/image/fetch/$s_!nm9-!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png "Dotnet 9 API client")](https://substackcdn.com/image/fetch/$s_!nm9-!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png)
+[![Dotnet 9 API client](https://substackcdn.com/image/fetch/$s_!nm9-!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png 'Dotnet 9 API client')](https://substackcdn.com/image/fetch/$s_!nm9-!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F7cf53bcc-3c00-48ad-a283-4e5202aa06db_2868x1624.png)
 
 **Mar 5, 2025**

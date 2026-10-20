@@ -1,6 +1,6 @@
 # Best Bruno alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Bruno is one of the good ones: open source, offline, no account, collections stored as files in Git. So the right Bruno alternative depends on which of those you want to keep and what you want to change. This page compares six options, starting with Scalar, and it is candid that for many teams the honest answer is to stay on Bruno.
 
@@ -10,18 +10,18 @@ This page is written by Scalar, so read it with that in mind. Every claim about 
 
 Before the reasons to switch, here is what Bruno and Scalar have in common, because most "alternatives" pages skip this.
 
-| | Bruno | Scalar |
-| --- | --- | --- |
-| License | [MIT](https://github.com/usebruno/bruno) | MIT |
-| Account needed | [No](https://www.usebruno.com/) | No |
-| Works offline | [Yes, "offline-only"](https://github.com/usebruno/bruno) | Yes, offline-first |
-| Desktop | [macOS, Windows, Linux](https://github.com/usebruno/bruno) | macOS, Windows, Linux |
-| Browser version | Not listed in Bruno's downloads | Yes, [client.scalar.com](https://client.scalar.com) |
-| Source of truth | Collection files ([Bru or OpenCollection YAML](https://docs.usebruno.com/opencollection-yaml/overview.md)) | Your OpenAPI document |
-| OpenAPI | [Import, plus OpenAPI Sync](https://docs.usebruno.com/open-api/openapi-sync.md) | Native format, watched on disk |
-| Protocols today | [REST, GraphQL, gRPC, WebSocket](https://www.usebruno.com/) | HTTP (gRPC, GraphQL, WebSocket, SOAP coming soon) |
-| CLI runner | [Yes](https://docs.usebruno.com/bru-cli/overview.md) | Not in the client |
-| Paid plans | [Pro $6, Ultimate $11 per user per month, annual](https://www.usebruno.com/pricing) | Client free on every plan ([pricing](/pricing)) |
+|                 | Bruno                                                                                                      | Scalar                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| License         | [MIT](https://github.com/usebruno/bruno)                                                                   | MIT                                                 |
+| Account needed  | [No](https://www.usebruno.com/)                                                                            | No                                                  |
+| Works offline   | [Yes, "offline-only"](https://github.com/usebruno/bruno)                                                   | Yes, offline-first                                  |
+| Desktop         | [macOS, Windows, Linux](https://github.com/usebruno/bruno)                                                 | macOS, Windows, Linux                               |
+| Browser version | Not listed in Bruno's downloads                                                                            | Yes, [client.scalar.com](https://client.scalar.com) |
+| Source of truth | Collection files ([Bru or OpenCollection YAML](https://docs.usebruno.com/opencollection-yaml/overview.md)) | Your OpenAPI document                               |
+| OpenAPI         | [Import, plus OpenAPI Sync](https://docs.usebruno.com/open-api/openapi-sync.md)                            | Native format, watched on disk                      |
+| Protocols today | [REST, GraphQL, gRPC, WebSocket](https://www.usebruno.com/)                                                | HTTP (gRPC, GraphQL, WebSocket, SOAP coming soon)   |
+| CLI runner      | [Yes](https://docs.usebruno.com/bru-cli/overview.md)                                                       | Not in the client                                   |
+| Paid plans      | [Pro $6, Ultimate $11 per user per month, annual](https://www.usebruno.com/pricing)                        | Client free on every plan ([pricing](/pricing))     |
 
 If you read that table and Bruno wins on everything you care about, stay. If the middle rows matter to you, keep reading.
 
@@ -39,14 +39,14 @@ These are the reasons we can support from Bruno's own pages. None of them is "Br
 
 ## Bruno alternatives at a glance
 
-| Tool | License | Account | Files in Git | OpenAPI role | Protocols today | Paid from |
-| --- | --- | --- | --- | --- | --- | --- |
-| **Scalar** | MIT | No | Your OpenAPI document | The collection format | HTTP | Client free ([pricing](/pricing)) |
-| **Yaak** | [MIT](https://github.com/mountain-loop/yaak) | [No](https://yaak.app/pricing) | [Mirror workspaces to files](https://github.com/mountain-loop/yaak) | Import | REST, GraphQL, WebSockets, SSE, gRPC | [$79/year for work use](https://yaak.app/pricing) |
-| **Insomnia** | [Apache-2.0](https://github.com/Kong/insomnia) | [Beyond Scratch Pad](https://developer.konghq.com/insomnia/storage/) | [Git Sync](https://developer.konghq.com/insomnia/storage/) | Design and import | REST, GraphQL, WebSockets, SSE, gRPC | [$12/user/month](https://insomnia.rest/pricing) |
-| **Postman** | Closed source | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | [Native Git, desktop only](https://learning.postman.com/docs/use/native-git/overview) | Import | HTTP, GraphQL, gRPC, WebSocket, MQTT, MCP | [$9/month Solo](https://www.postman.com/pricing/) |
-| **Hoppscotch** | [MIT](https://github.com/hoppscotch/hoppscotch) | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md) | No | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT | [$6/user/month, annual](https://hoppscotch.com/pricing) |
-| **VS Code REST Client** | [MIT](https://github.com/Huachao/vscode-restclient) | No | `.http` files | None | HTTP, GraphQL | Free |
+| Tool                    | License                                             | Account                                                                                    | Files in Git                                                                          | OpenAPI role                                                            | Protocols today                                | Paid from                                               |
+| ----------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------- |
+| **Scalar**              | MIT                                                 | No                                                                                         | Your OpenAPI document                                                                 | The collection format                                                   | HTTP                                           | Client free ([pricing](/pricing))                       |
+| **Yaak**                | [MIT](https://github.com/mountain-loop/yaak)        | [No](https://yaak.app/pricing)                                                             | [Mirror workspaces to files](https://github.com/mountain-loop/yaak)                   | Import                                                                  | REST, GraphQL, WebSockets, SSE, gRPC           | [$79/year for work use](https://yaak.app/pricing)       |
+| **Insomnia**            | [Apache-2.0](https://github.com/Kong/insomnia)      | [Beyond Scratch Pad](https://developer.konghq.com/insomnia/storage/)                       | [Git Sync](https://developer.konghq.com/insomnia/storage/)                            | Design and import                                                       | REST, GraphQL, WebSockets, SSE, gRPC           | [$12/user/month](https://insomnia.rest/pricing)         |
+| **Postman**             | Closed source                                       | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | [Native Git, desktop only](https://learning.postman.com/docs/use/native-git/overview) | Import                                                                  | HTTP, GraphQL, gRPC, WebSocket, MQTT, MCP      | [$9/month Solo](https://www.postman.com/pricing/)       |
+| **Hoppscotch**          | [MIT](https://github.com/hoppscotch/hoppscotch)     | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md)          | No                                                                                    | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT | [$6/user/month, annual](https://hoppscotch.com/pricing) |
+| **VS Code REST Client** | [MIT](https://github.com/Huachao/vscode-restclient) | No                                                                                         | `.http` files                                                                         | None                                                                    | HTTP, GraphQL                                  | Free                                                    |
 
 ## The options, one by one
 
@@ -146,4 +146,4 @@ If your API has an OpenAPI document, import it into Scalar and you have every op
 
 ---
 
-*This page is based on Bruno's website, pricing page, documentation and GitHub repository, and on the public pages of every other tool listed, as checked on September 26, 2026. Bruno is actively developed and its plans may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Bruno's website, pricing page, documentation and GitHub repository, and on the public pages of every other tool listed, as checked on September 26, 2026. Bruno is actively developed and its plans may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

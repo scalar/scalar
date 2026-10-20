@@ -86,9 +86,9 @@ Call `attachVoidWebSocket(httpServer)` to enable the WebSocket echo on an existi
 
 Calling `attachVoidWebSocket` more than once on the same HTTP server is ignored: the first call registers the upgrade listener and later calls return the same `WebSocketServer` without adding another listener. Options passed on later calls are not applied.
 
-| Option | Description |
-| --- | --- |
-| `path` | Restrict accepted upgrades to a specific path. Defaults to accepting any path. |
+| Option                | Description                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------- |
+| `path`                | Restrict accepted upgrades to a specific path. Defaults to accepting any path.                          |
 | `connectionTimeoutMs` | Maximum connection lifetime. Falls back to the `VOID_WEBSOCKET_TIMEOUT_MS` env var, then to 60 seconds. |
 
 ```ts

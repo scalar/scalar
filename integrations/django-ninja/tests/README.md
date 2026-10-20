@@ -7,9 +7,11 @@ This directory contains comprehensive tests for the `scalar_ninja` integration p
 The test suite is organized into three main test files:
 
 ### 1. `test_imports.py`
+
 Tests basic imports and enum values to catch import issues early.
 
 **Coverage:**
+
 - Import verification for all public API components
 - Layout enum values
 - SearchHotKey enum values (all alphabet letters)
@@ -19,9 +21,11 @@ Tests basic imports and enum values to catch import issues early.
 - Model instantiation (OpenAPISource, ScalarConfig)
 
 ### 2. `test_scalar_ninja.py`
+
 Tests core functionality of the scalar_ninja package.
 
 **Coverage:**
+
 - Enum classes (Layout, SearchHotKey, Theme, DocumentDownloadType)
 - OpenAPISource model with various configurations
 - ScalarConfig model with default and custom values
@@ -34,9 +38,11 @@ Tests core functionality of the scalar_ninja package.
 - Complex JSON structures in configuration
 
 ### 3. `test_integration.py`
+
 Integration tests with Django Ninja API.
 
 **Coverage:**
+
 - ScalarViewer instantiation and usage
 - Integration with Django Ninja NinjaAPI
 - Multiple viewers with different configurations
@@ -137,10 +143,13 @@ The test suite provides comprehensive coverage of:
 ## Test Fixtures
 
 ### `request_factory`
+
 A Django RequestFactory instance for creating mock HTTP requests.
 
 ### `api`
+
 A test Django Ninja API with sample endpoints:
+
 - `GET /` - Root endpoint
 - `GET /items/{item_id}` - Item detail endpoint
 - `POST /items/` - Item creation endpoint
@@ -148,6 +157,7 @@ A test Django Ninja API with sample endpoints:
 ## Continuous Integration
 
 These tests are designed to run in CI/CD pipelines. They require:
+
 - Python 3.8+
 - Django 4.2+
 - django-ninja 1.1+
@@ -165,4 +175,3 @@ When adding new features to `scalar_ninja`, please:
 ## Test Inspiration
 
 These tests are inspired by and maintain parity with the FastAPI integration tests, ensuring consistent quality across all Scalar integrations.
-

@@ -2,7 +2,7 @@
 
 The Python target publishes to [PyPI](https://pypi.org/). The distribution name is the target's `projectName` (or `packageName`). See the [Python configuration](../configuration/python.md) for naming options.
 
-Authenticate the release with **OIDC trusted publishing** (the default, recommended) or a **PyPI API token**. PyPI accepts a *pending* trusted publisher for a project that does not exist yet, so even a brand-new SDK can publish its first version without a token.
+Authenticate the release with **OIDC trusted publishing** (the default, recommended) or a **PyPI API token**. PyPI accepts a _pending_ trusted publisher for a project that does not exist yet, so even a brand-new SDK can publish its first version without a token.
 
 ## Enable publishing
 
@@ -29,7 +29,7 @@ Recommended. PyPI exchanges the workflow's identity token for a short-lived uplo
 
 On [pypi.org](https://pypi.org/), add a **GitHub** publisher:
 
-- For a project that does not exist yet, add a *pending* publisher at [pypi.org/manage/account/publishing](https://pypi.org/manage/account/publishing/). It also asks for the **PyPI project name** to reserve (the target's `projectName`), and becomes an ordinary publisher on the first successful upload.
+- For a project that does not exist yet, add a _pending_ publisher at [pypi.org/manage/account/publishing](https://pypi.org/manage/account/publishing/). It also asks for the **PyPI project name** to reserve (the target's `projectName`), and becomes an ordinary publisher on the first successful upload.
 - For an existing project, open it from [your projects](https://pypi.org/manage/projects/) and go to **Manage → Publishing**.
 
 Both forms ask for:

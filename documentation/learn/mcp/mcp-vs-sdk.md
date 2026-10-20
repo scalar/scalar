@@ -1,6 +1,6 @@
 # MCP vs SDK: which one should an agent use?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An SDK is a code library a developer installs and calls from a program they write, while an MCP server is a running service that an AI application connects to at run time, which describes its tools to a model and executes whichever calls the model decides to make. Both let software use your API. The difference is who decides what to call and when: with an SDK a developer decides in advance, and with MCP a model decides in the moment.
 
@@ -26,7 +26,7 @@ That one difference drives almost every other trade-off: typing, cost, reliabili
 
 1. **An API SDK.** A client library for one API, such as a TypeScript or Python package for a payments or HR API. This is the comparison most of this page is about. If the term is new, [what is an SDK](/learn/sdk/what-is-an-sdk) covers the basics, and [SDK vs API](/learn/sdk/sdk-vs-api) explains how an SDK relates to the API underneath it.
 2. **An AI SDK or agent framework.** Libraries such as the Vercel AI SDK, the OpenAI Agents SDK and the Claude Agent SDK help you build an agent: call a model, loop over tool calls, stream output. They are not alternatives to MCP. They are MCP clients, and they consume MCP servers. There is a [section on them below](#mcp-vs-ai-sdks-and-agent-frameworks).
-3. **An MCP SDK.** The official MCP SDKs (TypeScript, Python and others) are libraries for *building* MCP servers and clients. If you are asking "should I use the MCP SDK or write the protocol myself?", the answer is almost always the SDK.
+3. **An MCP SDK.** The official MCP SDKs (TypeScript, Python and others) are libraries for _building_ MCP servers and clients. If you are asking "should I use the MCP SDK or write the protocol myself?", the answer is almost always the SDK.
 
 With that out of the way: API SDK versus MCP server.
 
@@ -38,18 +38,18 @@ With that out of the way: API SDK versus MCP server.
 
 ## MCP vs SDK side by side
 
-| | API SDK | MCP server |
-| --- | --- | --- |
-| Who chooses the call | A developer, in code | A model, at run time |
-| When integration happens | Build time: install, write code, deploy | Connect time: add a URL to a client |
-| Contract | Language types, checked by a compiler | JSON Schema, checked at run time |
-| Typical user | Backend services, scripts, CI jobs, coding agents | Assistants in Claude, Cursor, VS Code and similar clients |
-| Authentication | API key or OAuth handled by your code | OAuth in the client, or a key in the client config |
-| Pagination, retries, errors | Built in: iterators, backoff, typed exceptions | Up to the server's tool design; errors come back as text |
-| Cost per operation | One HTTP request | Model tokens for definitions, arguments and results, plus the request |
-| Determinism | Same input, same request | Depends on the model's choice |
-| Distribution | Package registries (npm, PyPI, Go modules) | A server URL, or a local package the client launches |
-| Updating | New package version, users upgrade | Server changes apply on next `tools/list` |
+|                             | API SDK                                           | MCP server                                                            |
+| --------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| Who chooses the call        | A developer, in code                              | A model, at run time                                                  |
+| When integration happens    | Build time: install, write code, deploy           | Connect time: add a URL to a client                                   |
+| Contract                    | Language types, checked by a compiler             | JSON Schema, checked at run time                                      |
+| Typical user                | Backend services, scripts, CI jobs, coding agents | Assistants in Claude, Cursor, VS Code and similar clients             |
+| Authentication              | API key or OAuth handled by your code             | OAuth in the client, or a key in the client config                    |
+| Pagination, retries, errors | Built in: iterators, backoff, typed exceptions    | Up to the server's tool design; errors come back as text              |
+| Cost per operation          | One HTTP request                                  | Model tokens for definitions, arguments and results, plus the request |
+| Determinism                 | Same input, same request                          | Depends on the model's choice                                         |
+| Distribution                | Package registries (npm, PyPI, Go modules)        | A server URL, or a local package the client launches                  |
+| Updating                    | New package version, users upgrade                | Server changes apply on next `tools/list`                             |
 
 Two rows deserve a comment.
 
@@ -206,4 +206,4 @@ Yes. Scalar's SDK generator produces SDKs from an OpenAPI document, with TypeScr
 - **Docs:** [Agent SDK](/products/agent/integration/sdk) · [SDK generator](/products/sdk-generator)
 - **Product:** [Scalar MCP](/products/agent/mcp) — a hosted MCP server and generated SDKs from the same OpenAPI document
 
-*SDK language availability reflects Scalar's generator as of September 2026. The token figures quoted from Anthropic come from its November 2025 engineering post and describe one example workflow.*
+_SDK language availability reflects Scalar's generator as of September 2026. The token figures quoted from Anthropic come from its November 2025 engineering post and describe one example workflow._

@@ -135,26 +135,26 @@ modal.updateOptions({
 
 `createApiClientModal` accepts these top-level properties:
 
-| Option | Description |
-|---|---|
-| `el` | [Required] The HTML element to mount the modal app to. |
-| `workspaceStore` | [Required] An initialized workspace store with documents loaded. |
+| Option              | Description                                                                  |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `el`                | [Required] The HTML element to mount the modal app to.                       |
+| `workspaceStore`    | [Required] An initialized workspace store with documents loaded.             |
 | `mountOnInitialize` | Mount immediately (default: `true`). Set to `false` to mount manually later. |
-| `eventBus` | Pass an existing workspace event bus, or let the modal create one. |
-| `plugins` | Client plugins to include in the modal. |
-| `options` | Partial API client configuration for modal behavior (see below). |
+| `eventBus`          | Pass an existing workspace event bus, or let the modal create one.           |
+| `plugins`           | Client plugins to include in the modal.                                      |
+| `options`           | Partial API client configuration for modal behavior (see below).             |
 
 `options` supports these keys:
 
-| Option | Description |
-|---|---|
-| `options.proxyUrl` | Use a proxy URL to send requests when CORS blocks direct browser requests. |
-| `options.authentication` | Prefill authentication credentials and default security scheme behavior. |
-| `options.baseServerURL` | Prefix all relative servers with a base URL. |
-| `options.hideClientButton` | Hide the client button in modal-based integrations. |
-| `options.hiddenClients` | Control which HTTP code-example clients are shown; pass `[]` to show all clients. |
-| `options.oauth2RedirectUri` | Set the default OAuth 2.0 redirect URI for auth code and implicit flows. |
-| `options.servers` | Override the servers from your OpenAPI document. |
+| Option                      | Description                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------- |
+| `options.proxyUrl`          | Use a proxy URL to send requests when CORS blocks direct browser requests.        |
+| `options.authentication`    | Prefill authentication credentials and default security scheme behavior.          |
+| `options.baseServerURL`     | Prefix all relative servers with a base URL.                                      |
+| `options.hideClientButton`  | Hide the client button in modal-based integrations.                               |
+| `options.hiddenClients`     | Control which HTTP code-example clients are shown; pass `[]` to show all clients. |
+| `options.oauth2RedirectUri` | Set the default OAuth 2.0 redirect URI for auth code and implicit flows.          |
+| `options.servers`           | Override the servers from your OpenAPI document.                                  |
 
 ## Available Methods
 
@@ -196,7 +196,6 @@ The modal prompts for the destination URL. Destination edits apply only to
 the request and do not change the OpenAPI document. In the API reference, the
 **Test Request** button opens webhook entries this way automatically.
 
-
 ## Plugins
 
 The `plugins` option accepts an array of `ClientPlugin` objects that extend the API Client with custom behavior. Plugins can add lifecycle hooks, custom UI components, and custom response body handlers for content types that the client does not natively support.
@@ -230,13 +229,13 @@ createApiClientApp(el, {
 
 Each handler in `responseBody` supports:
 
-| Property | Description |
-|---|---|
-| `mimeTypes` | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`). |
-| `decode` | Transforms the raw `ArrayBuffer` into a string or Blob for display. |
-| `language` | CodeMirror language hint for the built-in raw renderer (for example, `json`). |
-| `rawComponent` | A custom Vue component for the raw view (mutually exclusive with `language`). |
-| `previewComponent` | A custom Vue component for the preview view. |
+| Property           | Description                                                                    |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `mimeTypes`        | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`). |
+| `decode`           | Transforms the raw `ArrayBuffer` into a string or Blob for display.            |
+| `language`         | CodeMirror language hint for the built-in raw renderer (for example, `json`).  |
+| `rawComponent`     | A custom Vue component for the raw view (mutually exclusive with `language`).  |
+| `previewComponent` | A custom Vue component for the preview view.                                   |
 
 ## Community
 

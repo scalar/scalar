@@ -75,6 +75,9 @@
       // Loaded dynamically from the composite action's github-script step.
       "entry": [".github/actions/update-contributors/update-contributors.ts"],
       "ignoreDependencies": [
+        // Loaded by source-file overrides in .prettierrc; Knip only reads top-level plugins.
+        "@ianvs/prettier-plugin-sort-imports",
+        "prettier-plugin-tailwindcss",
         // Executed from the repo root by tooling/changelog-generator/src/version.ts.
         "@changesets/cli"
       ]

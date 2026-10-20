@@ -45,7 +45,6 @@ Sometimes you may want to apply the merged classes and style attributes to a wra
 
 This mock component uses the `useBindCx` hook to merge the component's classes and apply the style attribute to a outer `div` while passing through other attributes to an inner `div`.
 
-
 ```html
 <script setup>
 import { useBindCx, cva } from '@scalar/components'
@@ -74,5 +73,3 @@ const variants = cva({
 
 <Controls of={Stories.Complex} />
 <Canvas of={Stories.Complex} />
-
-

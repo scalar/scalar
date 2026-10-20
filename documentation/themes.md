@@ -2,17 +2,17 @@
 
 You don't like the color scheme? We've prepared some themes for you:
 
-* `alternate`
-* `default`
-* `moon`
-* `purple`
-* `solarized`
-* `bluePlanet`
-* `saturn`
-* `kepler`
-* `mars`
-* `deepSpace`
-* `laserwave`
+- `alternate`
+- `default`
+- `moon`
+- `purple`
+- `solarized`
+- `bluePlanet`
+- `saturn`
+- `kepler`
+- `mars`
+- `deepSpace`
+- `laserwave`
 
 Just pass the theme name to your [API Reference configuration](configuration.md):
 
@@ -164,13 +164,13 @@ When you embed the Scalar API Reference in an existing application that already 
 
 Scalar uses [CSS cascade layers](https://developer.mozilla.org/en-US/docs/Web/CSS/@layer) to organize its styles and to make them easy to override.
 
-| Layer | Purpose |
-|-------|---------|
-| `scalar-base` | Core CSS variables and the default theme |
-| `scalar-theme` | Theme-specific overrides (for example, the `moon` or `kepler` themes) |
-| `scalar-config` | Configurable layout variables used by the API Reference component |
+| Layer           | Purpose                                                               |
+| --------------- | --------------------------------------------------------------------- |
+| `scalar-base`   | Core CSS variables and the default theme                              |
+| `scalar-theme`  | Theme-specific overrides (for example, the `moon` or `kepler` themes) |
+| `scalar-config` | Configurable layout variables used by the API Reference component     |
 
-Layers defined earlier in the layer order have *lower* cascade priority. Any styles outside of these layers will override them, which makes it easy to customize.
+Layers defined earlier in the layer order have _lower_ cascade priority. Any styles outside of these layers will override them, which makes it easy to customize.
 
 The layer order is declared at the top of the Scalar theme stylesheet:
 
@@ -178,7 +178,7 @@ The layer order is declared at the top of the Scalar theme stylesheet:
 @layer scalar-base, scalar-theme;
 ```
 
-This works great on a standalone page, but when you embed the API Reference alongside another CSS framework that also uses `@layer`, you need to tell the browser the order of *all* layers so they don't conflict.
+This works great on a standalone page, but when you embed the API Reference alongside another CSS framework that also uses `@layer`, you need to tell the browser the order of _all_ layers so they don't conflict.
 
 ### Tailwind CSS
 
@@ -186,9 +186,9 @@ We love Tailwind and use it extensively in the API References. Where possible we
 
 Tailwind CSS v4 introduced its own set of cascade layers (`theme`, `base`, `components`, `utilities`). When Scalar's styles and Tailwind's styles are both on the page, the browser determines layer priority based on [whichever `@layer` declaration it encounters first](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@layer).
 
-If the ordering is not explicitly set, Scalar's layers may end up with *higher* priority than Tailwind's `utilities` layer. This can cause Scalar CSS variables (like `--leading-normal` or `--ease-in`) and other properties to override your Tailwind utility classes.
+If the ordering is not explicitly set, Scalar's layers may end up with _higher_ priority than Tailwind's `utilities` layer. This can cause Scalar CSS variables (like `--leading-normal` or `--ease-in`) and other properties to override your Tailwind utility classes.
 
-**The fix:** Declare the full layer order yourself, *before* importing Tailwind, so that Tailwind's layers always win over Scalar's layers.
+**The fix:** Declare the full layer order yourself, _before_ importing Tailwind, so that Tailwind's layers always win over Scalar's layers.
 
 In your main CSS file (for example, `src/index.css` or `src/app.css`):
 

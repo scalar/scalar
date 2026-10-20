@@ -1,6 +1,6 @@
 # Scalar vs Postman
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Postman is the default API client for millions of developers, and it earned that position. If you are evaluating API tooling, it is almost certainly already on your list — it may be the tool you are using right now.
 
@@ -12,17 +12,17 @@ The short version: Postman is a large collaboration platform built around its ow
 
 ## At a glance
 
-| | Scalar | Postman |
-| --- | --- | --- |
-| API client license | MIT, fully open source | Closed source; Newman and the collection schema are open |
-| Native format | OpenAPI | Postman Collection Format |
-| Works without an account | Yes, the full client | [Lightweight client](https://learning.postman.com/docs/getting-started/basics/using-api-client/) only; collections require sign-in |
-| Where your work lives | Local, offline-first | Synced to Postman's cloud when signed in |
-| OpenAPI | The working format itself | [Imported and converted](https://learning.postman.com/docs/design-apis/specifications/import-a-specification/) to collections |
-| Documentation | Same platform, same OpenAPI document | [Generated from collections](https://learning.postman.com/docs/publishing-your-api/api-documentation-overview/); full sites via Fern |
-| SDK generation | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview), nine languages, Team plan and up; Fern sold separately |
-| Client pricing | Free on every plan | [Free tier; paid from $9/month](https://www.postman.com/pricing/) |
-| Platforms | Web, macOS, Windows, Linux | [Web, macOS, Windows, Linux](https://www.postman.com/downloads/) |
+|                          | Scalar                                                                                                  | Postman                                                                                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| API client license       | MIT, fully open source                                                                                  | Closed source; Newman and the collection schema are open                                                                                  |
+| Native format            | OpenAPI                                                                                                 | Postman Collection Format                                                                                                                 |
+| Works without an account | Yes, the full client                                                                                    | [Lightweight client](https://learning.postman.com/docs/getting-started/basics/using-api-client/) only; collections require sign-in        |
+| Where your work lives    | Local, offline-first                                                                                    | Synced to Postman's cloud when signed in                                                                                                  |
+| OpenAPI                  | The working format itself                                                                               | [Imported and converted](https://learning.postman.com/docs/design-apis/specifications/import-a-specification/) to collections             |
+| Documentation            | Same platform, same OpenAPI document                                                                    | [Generated from collections](https://learning.postman.com/docs/publishing-your-api/api-documentation-overview/); full sites via Fern      |
+| SDK generation           | Native. Generally available: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI; more targets experimental | [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator/overview), nine languages, Team plan and up; Fern sold separately |
+| Client pricing           | Free on every plan                                                                                      | [Free tier; paid from $9/month](https://www.postman.com/pricing/)                                                                         |
+| Platforms                | Web, macOS, Windows, Linux                                                                              | [Web, macOS, Windows, Linux](https://www.postman.com/downloads/)                                                                          |
 
 ## Where Postman is stronger
 
@@ -84,12 +84,12 @@ The client [imports Postman Collections](../guides/app/import.md) (v2.0 and v2.1
 
 ## Pricing
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Postman ([pricing](https://www.postman.com/pricing/)) |
-| --- | --- | --- |
-| Free | $0: full API client for anyone; docs with 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | $0, 1 user |
-| Entry paid | Pro, $150/month flat ($125/month billed yearly), 5 editor seats, 1 SDK | Solo, $9/month billed annually, 1 user |
-| Team tier | Business, $600/month flat ($500/month billed yearly), 10 editor seats, SSO | Team, $19 per user/month billed annually, includes SDK generation |
-| Top tier | Enterprise, custom | Enterprise, contact sales |
+| Plan       | Scalar ([pricing](https://scalar.com/pricing))                                                  | Postman ([pricing](https://www.postman.com/pricing/))             |
+| ---------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Free       | $0: full API client for anyone; docs with 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | $0, 1 user                                                        |
+| Entry paid | Pro, $150/month flat ($125/month billed yearly), 5 editor seats, 1 SDK                          | Solo, $9/month billed annually, 1 user                            |
+| Team tier  | Business, $600/month flat ($500/month billed yearly), 10 editor seats, SSO                      | Team, $19 per user/month billed annually, includes SDK generation |
+| Top tier   | Enterprise, custom                                                                              | Enterprise, contact sales                                         |
 
 Prices checked on 26 September 2026. Postman's monthly-billed prices are higher than the annual figures shown.
 
@@ -153,4 +153,4 @@ Yes. The [Postman SDK Generator](https://learning.postman.com/docs/sdk-generator
 
 ---
 
-*This comparison is based on Postman's publicly available documentation, pricing page, and public repositories as of September 2026, and on Scalar's own source. Postman ships quickly and their platform may change. We have made a genuine effort to be accurate and to state where Postman is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Postman's publicly available documentation, pricing page, and public repositories as of September 2026, and on Scalar's own source. Postman ships quickly and their platform may change. We have made a genuine effort to be accurate and to state where Postman is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -1,6 +1,6 @@
 # Learn OpenAPI
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 OpenAPI is the open standard for describing HTTP APIs in a machine-readable document, and this hub collects Scalar's guides to writing, documenting, checking, and using those documents. The articles are written for developers and technical writers who work with an API description every day, whether they write it by hand or generate it from code.
 

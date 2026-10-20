@@ -22,20 +22,20 @@ Direction matters when deciding what breaks. A request schema may accept more th
 
 ## What counts as breaking
 
-| Change | Severity |
-| --- | --- |
-| Operation removed | Breaking |
-| Required parameter added, or an optional one made required | Breaking |
-| Path parameter removed | Breaking |
-| Required request body field added, or a field made required | Breaking |
-| Response field removed | Breaking |
-| Type changed incompatibly (for example `integer` to `string`) | Breaking |
-| Enum value removed from a request field | Breaking |
-| Success (2xx) response removed | Breaking |
-| Optional parameter or request field removed | Warning |
-| Response field no longer required | Warning |
-| Enum value added to a response field | Warning |
-| Operation, optional parameter, response field, or response added | Info |
+| Change                                                           | Severity |
+| ---------------------------------------------------------------- | -------- |
+| Operation removed                                                | Breaking |
+| Required parameter added, or an optional one made required       | Breaking |
+| Path parameter removed                                           | Breaking |
+| Required request body field added, or a field made required      | Breaking |
+| Response field removed                                           | Breaking |
+| Type changed incompatibly (for example `integer` to `string`)    | Breaking |
+| Enum value removed from a request field                          | Breaking |
+| Success (2xx) response removed                                   | Breaking |
+| Optional parameter or request field removed                      | Warning  |
+| Response field no longer required                                | Warning  |
+| Enum value added to a response field                             | Warning  |
+| Operation, optional parameter, response field, or response added | Info     |
 
 Warnings are changes that break some clients: a strict client that validates enums rejects a value it has never seen. **Copy report** gives you a plain-text list to paste into a pull request or changelog.
 

@@ -11,6 +11,7 @@ Create a Docs project from the dashboard, the [Starter Kit](starter-kit.md), or 
 ```bash
 npx @scalar/cli project preview
 ```
+
   </scalar-step>
 
   <scalar-step title="Add guides and APIs" icon="phosphor/regular/book-open">
@@ -29,6 +30,7 @@ Write guides in Markdown or MDX, then add API documents for interactive API refe
   }
 }
 ```
+
   </scalar-step>
 
   <scalar-step title="Preview, publish, and sync" icon="phosphor/regular/git-branch">
@@ -37,16 +39,17 @@ Use preview deployments for review, publish from the CLI, or connect GitHub Acti
 ```bash
 npx @scalar/cli project publish --slug your-docs
 ```
+
   </scalar-step>
 </scalar-steps>
 
 ## Write anywhere
 
-| Source | Description |
-| ------ | ----------- |
-| **GitHub** | Keep content and API documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
-| **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish --slug your-docs`](deployment/cli.md). |
-| **Web editor** | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required. |
+| Source                | Description                                                                                                                                                                                                                                                                                 |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub**            | Keep content and API documents in your repository. Use [preview deployments](deployment/preview-deployments.md), [automatic deployment](deployment/automatic-deployment.md), [GitHub Actions](deployment/github-actions.md), and [scalar.config.json](configuration/scalar.config.json.md). |
+| **Any folder or CLI** | Work from any folder or repository without granting repository access. Publish with [`npx @scalar/cli project publish --slug your-docs`](deployment/cli.md).                                                                                                                                |
+| **Web editor**        | Edit and store docs at [docs.scalar.com](https://docs.scalar.com). No Git required.                                                                                                                                                                                                         |
 
 ## Next steps
 

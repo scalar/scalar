@@ -1,6 +1,6 @@
 # Alternatives to popular API tools
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 These guides compare the realistic alternatives to the API documentation tools, SDK generators and API clients teams most often want to replace, with sourced facts and a verdict for each option.
 
@@ -80,4 +80,4 @@ Start with the output you own: your OpenAPI document, your generated code and yo
 
 ---
 
-*Last reviewed September 26, 2026. Vendor facts on the linked pages are dated individually. If you spot something wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_Last reviewed September 26, 2026. Vendor facts on the linked pages are dated individually. If you spot something wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

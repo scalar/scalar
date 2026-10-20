@@ -71,15 +71,15 @@ If your API is a Rails app, you probably already produce an OpenAPI document, fo
 
 OpenAPI Generator's [`ruby` generator](https://openapi-generator.tech/docs/generators/ruby) is stable and free. It lets you choose the HTTP library with `library`: `typhoeus` by default, or `faraday` or `httpx`. The default gem name is `openapi_client`. There is also a [`ruby-nextgen`](https://openapi-generator.tech/docs/generators) generator, currently marked beta.
 
-| | Scalar Ruby target | OpenAPI Generator `ruby` |
-| --- | --- | --- |
-| Status | Generally available | Stable |
-| HTTP library | One generated client | Typhoeus (default), Faraday, or HTTPX |
-| Client shape | `Warp::Client.new`, resources as methods | One `*Api` class per tag |
-| Method names | Normalised verbs: `list`, `retrieve`, `create` | Derived from `operationId` |
+|                             | Scalar Ruby target                                                      | OpenAPI Generator `ruby`                            |
+| --------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------- |
+| Status                      | Generally available                                                     | Stable                                              |
+| HTTP library                | One generated client                                                    | Typhoeus (default), Faraday, or HTTPX               |
+| Client shape                | `Warp::Client.new`, resources as methods                                | One `*Api` class per tag                            |
+| Method names                | Normalised verbs: `list`, `retrieve`, `create`                          | Derived from `operationId`                          |
 | `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your schemas in the preview repository | Marked unsupported in the generator's feature table |
-| Pagination | Generated page objects with block iteration | Not among the generator's documented options |
-| RubyGems release | Workflow and release PR generated into your repo | Gemspec generated; release process is yours |
+| Pagination                  | Generated page objects with block iteration                             | Not among the generator's documented options        |
+| RubyGems release            | Workflow and release PR generated into your repo                        | Gemspec generated; release process is yours         |
 
 If you already run a Faraday middleware stack and want the generated client to sit on it, OpenAPI Generator's library choice is a real advantage. For the wider picture, see [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -128,4 +128,4 @@ Yes. Every build three-way merges the new output with your repository and opens 
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/ruby) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/ruby) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

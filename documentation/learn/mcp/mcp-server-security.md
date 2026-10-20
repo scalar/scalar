@@ -1,6 +1,6 @@
 # MCP server security: threats and controls for production servers
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 MCP server security is the set of controls that stop an MCP server, and the AI agent calling it, from being used to read or change data the user never meant to expose: authenticating every request, giving each tool the least access it needs, treating everything a tool receives or returns as untrusted, limiting how often tools run, and keeping an audit trail. Most of it is ordinary API security. The part that is new is that the caller is a language model, which follows instructions it reads, including instructions an attacker has planted.
 
@@ -31,18 +31,18 @@ You cannot fix model behaviour from your server. What you can do is make your se
 
 ## The main threats at a glance
 
-| Threat | How it happens | Primary control |
-| --- | --- | --- |
+| Threat                            | How it happens                                                                                  | Primary control                                                                    |
+| --------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Prompt injection via tool results | Data your tool returns (an email, a ticket, a web page) contains instructions the model follows | Treat results as data, limit what one session can reach, confirm sensitive actions |
-| Tool poisoning | A tool's description or schema contains hidden instructions | Review definitions, pin versions, show users what tools do |
-| Definition changes ("rug pull") | A server changes tool descriptions after users approved it | Snapshot `tools/list`, review diffs, alert on change |
-| Confused deputy | A proxy server uses its own privileges on behalf of a client that should not have them | Per-client consent, exact redirect URI checks |
-| Token passthrough | The server forwards the client's token to another API | Accept only tokens issued for this server; use a separate upstream credential |
-| Excessive scopes | Tokens or tools grant far more than the task needs | Minimal initial scopes, step-up authorization, read-only defaults |
-| Server-side request forgery | A tool or the OAuth discovery process fetches an attacker-chosen URL | Allowlists, block private IP ranges, egress proxy |
-| State handle hijacking | An attacker guesses a handle (cart ID, workflow ID) and reuses it | Random handles bound to the authenticated user |
-| Local server compromise | A malicious command or package runs with the user's privileges | Consent before install, sandboxing, trusted sources |
-| Abuse and runaway cost | An agent loops, or a public server is scraped | Rate limits, quotas, timeouts |
+| Tool poisoning                    | A tool's description or schema contains hidden instructions                                     | Review definitions, pin versions, show users what tools do                         |
+| Definition changes ("rug pull")   | A server changes tool descriptions after users approved it                                      | Snapshot `tools/list`, review diffs, alert on change                               |
+| Confused deputy                   | A proxy server uses its own privileges on behalf of a client that should not have them          | Per-client consent, exact redirect URI checks                                      |
+| Token passthrough                 | The server forwards the client's token to another API                                           | Accept only tokens issued for this server; use a separate upstream credential      |
+| Excessive scopes                  | Tokens or tools grant far more than the task needs                                              | Minimal initial scopes, step-up authorization, read-only defaults                  |
+| Server-side request forgery       | A tool or the OAuth discovery process fetches an attacker-chosen URL                            | Allowlists, block private IP ranges, egress proxy                                  |
+| State handle hijacking            | An attacker guesses a handle (cart ID, workflow ID) and reuses it                               | Random handles bound to the authenticated user                                     |
+| Local server compromise           | A malicious command or package runs with the user's privileges                                  | Consent before install, sandboxing, trusted sources                                |
+| Abuse and runaway cost            | An agent loops, or a public server is scraped                                                   | Rate limits, quotas, timeouts                                                      |
 
 The rest of the guide takes these in turn.
 
@@ -235,4 +235,4 @@ Installations are private by default. Team members connect with a personal acces
 - **Docs:** [MCP authentication](/products/agent/authentication) · [Private access for customers](/products/agent/authentication/customer-access)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted, private-by-default MCP servers with OAuth, access groups and per-operation tool control
 
-*Specification requirements refer to MCP revision 2026-07-28 and its security best practices page, checked on 26 September 2026. Client behaviour was checked against Anthropic's documentation on the same date.*
+_Specification requirements refer to MCP revision 2026-07-28 and its security best practices page, checked on 26 September 2026. Client behaviour was checked against Anthropic's documentation on the same date._

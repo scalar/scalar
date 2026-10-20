@@ -1,6 +1,6 @@
 # SDK vs API: what is the difference?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An API is the contract a service exposes, the endpoints, requests, and responses you can send and receive, while an SDK is a library for one programming language that calls that API for you. The API is what the server offers. The SDK is a convenience layer on the client side that turns HTTP requests into ordinary function calls, with types, authentication, retries, and error handling already written.
 
@@ -8,16 +8,16 @@ So the two are not alternatives in the way "Postgres vs MySQL" are alternatives.
 
 ## The quick answer
 
-| | API | SDK |
-| --- | --- | --- |
-| What it is | A contract: operations, inputs, outputs, errors | A package of code in one language |
-| Where it lives | On the server, described by an API description such as an OpenAPI document | In your application, installed from npm, PyPI, Go modules, and so on |
-| Language | Language-neutral (HTTP and JSON, usually) | Language-specific (TypeScript, Python, Go...) |
-| How you use it | Send HTTP requests with any client | Call methods like `client.users.list()` |
-| Who maintains it | The API provider | The provider (official SDK) or the community |
-| Types and autocomplete | Only if you write them | Included |
-| Retries, pagination, auth | You implement them | Usually built in |
-| Can exist without the other | Yes | No, an API SDK always wraps an API |
+|                             | API                                                                        | SDK                                                                  |
+| --------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| What it is                  | A contract: operations, inputs, outputs, errors                            | A package of code in one language                                    |
+| Where it lives              | On the server, described by an API description such as an OpenAPI document | In your application, installed from npm, PyPI, Go modules, and so on |
+| Language                    | Language-neutral (HTTP and JSON, usually)                                  | Language-specific (TypeScript, Python, Go...)                        |
+| How you use it              | Send HTTP requests with any client                                         | Call methods like `client.users.list()`                              |
+| Who maintains it            | The API provider                                                           | The provider (official SDK) or the community                         |
+| Types and autocomplete      | Only if you write them                                                     | Included                                                             |
+| Retries, pagination, auth   | You implement them                                                         | Usually built in                                                     |
+| Can exist without the other | Yes                                                                        | No, an API SDK always wraps an API                                   |
 
 ## What is an API?
 
@@ -129,14 +129,14 @@ Skipping the SDK is a reasonable choice more often than SDK vendors like to admi
 
 These words get mixed together. A rough guide:
 
-| Term | Meaning | Example |
-| --- | --- | --- |
-| API | The contract a service exposes | `GET /users/{id}` |
-| API description | A machine-readable document of that contract | `openapi.yaml` |
-| API client (tool) | An application for sending requests by hand | Scalar API Client, Postman, Bruno |
-| Client library | Code that calls an API from one language | `@acme/api` on npm |
-| SDK | A client library, sometimes plus tools, docs, and samples | The Acme TypeScript SDK |
-| Framework | Code that calls *your* code and shapes the application | Express, Django |
+| Term              | Meaning                                                   | Example                           |
+| ----------------- | --------------------------------------------------------- | --------------------------------- |
+| API               | The contract a service exposes                            | `GET /users/{id}`                 |
+| API description   | A machine-readable document of that contract              | `openapi.yaml`                    |
+| API client (tool) | An application for sending requests by hand               | Scalar API Client, Postman, Bruno |
+| Client library    | Code that calls an API from one language                  | `@acme/api` on npm                |
+| SDK               | A client library, sometimes plus tools, docs, and samples | The Acme TypeScript SDK           |
+| Framework         | Code that calls _your_ code and shapes the application    | Express, Django                   |
 
 "Client library" and "SDK" are close to synonyms in API work. "SDK" tends to imply an official, maintained package with docs and examples; "client library" is the more neutral term.
 

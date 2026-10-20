@@ -18,13 +18,13 @@ This page previews an approximation of how OpenAPI operations map to MCP tools. 
 
 The [Model Context Protocol](/learn/mcp/what-is-mcp) lets AI clients such as Claude, Cursor, and VS Code call tools. An OpenAPI document already describes everything a tool needs, so the mapping is mostly mechanical. For each operation in your document, the preview builds one tool:
 
-| MCP tool field | Comes from |
-| --- | --- |
-| `name` | `operationId`, cleaned to letters, digits, `_` and `-`, at most 64 characters. Without an `operationId`, the method and path, like `delete_planets_planetId` |
-| `title` | `summary` |
-| `description` | `summary` and `description` together, or the method and path if both are missing |
-| `inputSchema` | One JSON Schema object: a property per path, query, header, and cookie parameter, plus a `body` property for a JSON or form request body |
-| `annotations` | `readOnlyHint` for `GET`, `HEAD`, and `OPTIONS`; `destructiveHint` for `DELETE`; `idempotentHint` for `PUT` and `DELETE` |
+| MCP tool field | Comes from                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name`         | `operationId`, cleaned to letters, digits, `_` and `-`, at most 64 characters. Without an `operationId`, the method and path, like `delete_planets_planetId` |
+| `title`        | `summary`                                                                                                                                                    |
+| `description`  | `summary` and `description` together, or the method and path if both are missing                                                                             |
+| `inputSchema`  | One JSON Schema object: a property per path, query, header, and cookie parameter, plus a `body` property for a JSON or form request body                     |
+| `annotations`  | `readOnlyHint` for `GET`, `HEAD`, and `OPTIONS`; `destructiveHint` for `DELETE`; `idempotentHint` for `PUT` and `DELETE`                                     |
 
 A few details follow the specification. Path parameters are always required. Local `$ref` values are inlined, and circular references are cut off with a note so the schema stays finite. `readOnly` properties are removed from request bodies, because clients never send them. `Authorization`, `Accept`, and `Content-Type` header parameters are left out: OpenAPI ignores them, and credentials belong to the server, not the model. Deprecated operations and operations marked `x-scalar-ignore` are skipped. Swagger 2.0 documents are upgraded to OpenAPI 3.1 first with `upgrade()` from `@scalar/openapi-parser`.
 

@@ -1,6 +1,6 @@
 # What is an API catalog?
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 An API catalog is a searchable inventory of an organization's APIs, where each entry records what the API does, who owns it, which version is current, and where its machine-readable description (usually an OpenAPI or AsyncAPI document) and its documentation live. It answers the question every growing engineering team eventually asks: "Do we already have an API for this, and where is it?"
 
@@ -48,13 +48,13 @@ Nobody sets out to have 400 APIs. It happens one service at a time, and the cost
 
 These four overlap in marketing copy. They do different jobs.
 
-| | API catalog | API registry | Developer portal | API gateway |
-| --- | --- | --- | --- | --- |
-| Main job | Discovery: find the right API | Storage: hold the canonical description, versioned | Consumption: docs, guides, keys for users of an API | Runtime: route, authenticate and rate-limit traffic |
-| Unit | An entry per API | A document per API version | A site per product or audience | A route per endpoint |
-| Primary user | Engineers, architects, security | Tools and pipelines | External or internal developers | Production traffic |
-| Source of data | Registry plus metadata | CI, Git, publish commands | Registry plus hand-written content | Its own configuration |
-| Question it answers | "Which API does this?" | "What exactly is version 2.3 of this API?" | "How do I use this API?" | "Should this request go through?" |
+|                     | API catalog                     | API registry                                       | Developer portal                                    | API gateway                                         |
+| ------------------- | ------------------------------- | -------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------- |
+| Main job            | Discovery: find the right API   | Storage: hold the canonical description, versioned | Consumption: docs, guides, keys for users of an API | Runtime: route, authenticate and rate-limit traffic |
+| Unit                | An entry per API                | A document per API version                         | A site per product or audience                      | A route per endpoint                                |
+| Primary user        | Engineers, architects, security | Tools and pipelines                                | External or internal developers                     | Production traffic                                  |
+| Source of data      | Registry plus metadata          | CI, Git, publish commands                          | Registry plus hand-written content                  | Its own configuration                               |
+| Question it answers | "Which API does this?"          | "What exactly is version 2.3 of this API?"         | "How do I use this API?"                            | "Should this request go through?"                   |
 
 A gateway sees live traffic, which makes it good at discovering undocumented APIs, but it does not know what an API is for. A developer portal is beautifully written but usually covers only the APIs someone decided to publish. The catalog and registry are what tie them together: the gateway config, the portal and the SDKs should all be derived from the same registered description. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) covers the wider split between runtime and lifecycle tooling.
 
@@ -272,14 +272,14 @@ Serve the output at `/.well-known/api-catalog` with the content type `applicatio
 
 ## Which tools to use
 
-| Need | Tool category | Examples |
-| --- | --- | --- |
-| Store and version the descriptions | API registry | Scalar Registry, Postman Private API Network, Swagger Studio, Git plus a convention |
-| Browse and search every API, with owners and lifecycle | API catalog | Backstage software catalog, Scalar Registry's dashboard, the catalog pages of gateway suites such as Kong Konnect, Apigee API hub, and Azure API Center |
-| Enforce the metadata the catalog depends on | Linter in CI | Spectral-compatible rules with `scalar document lint`, Spectral CLI, Redocly CLI |
-| Let consumers read docs and get credentials | Developer portal | Scalar Docs, ReadMe, Redocly, the portal that ships with your gateway |
-| Discover undocumented traffic and enforce access at runtime | API gateway | Kong, Apigee, Azure API Management, AWS API Gateway, Tyk, Gravitee, Zuplo |
-| Publish the catalog for machines | RFC 9727 file | A script like the one above, served from your domain |
+| Need                                                        | Tool category    | Examples                                                                                                                                                |
+| ----------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Store and version the descriptions                          | API registry     | Scalar Registry, Postman Private API Network, Swagger Studio, Git plus a convention                                                                     |
+| Browse and search every API, with owners and lifecycle      | API catalog      | Backstage software catalog, Scalar Registry's dashboard, the catalog pages of gateway suites such as Kong Konnect, Apigee API hub, and Azure API Center |
+| Enforce the metadata the catalog depends on                 | Linter in CI     | Spectral-compatible rules with `scalar document lint`, Spectral CLI, Redocly CLI                                                                        |
+| Let consumers read docs and get credentials                 | Developer portal | Scalar Docs, ReadMe, Redocly, the portal that ships with your gateway                                                                                   |
+| Discover undocumented traffic and enforce access at runtime | API gateway      | Kong, Apigee, Azure API Management, AWS API Gateway, Tyk, Gravitee, Zuplo                                                                               |
+| Publish the catalog for machines                            | RFC 9727 file    | A script like the one above, served from your domain                                                                                                    |
 
 The registry and linter are the parts to get right first; everything else reads from them. [API governance with OpenAPI](/learn/api-management/api-governance) has the CI workflow, and [best API management platforms (2026)](/library/best-api-management-platforms-2026) compares the gateway suites and their portals with sourced prices.
 
@@ -332,4 +332,4 @@ A registry to store and version the descriptions (the Scalar Registry, Postman's
 
 ---
 
-*RFC 9727 details were re-checked against rfc-editor.org on 7 October 2026; the catalog script on this page was run the same day on Node.js 24.21.0. Scalar wrote this guide and sells the registry it describes. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*
+_RFC 9727 details were re-checked against rfc-editor.org on 7 October 2026; the catalog script on this page was run the same day on Node.js 24.21.0. Scalar wrote this guide and sells the registry it describes. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues)._

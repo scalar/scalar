@@ -1,6 +1,6 @@
 # Best API documentation tools (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best API documentation tool for you is the one that renders your OpenAPI document faithfully, lets readers send a real request from the page, and fits how your team already writes and ships, and in 2026 that shortlist is Scalar, Mintlify, ReadMe, Redocly, Fern, GitBook, Stoplight, Swagger UI, Redoc, Docusaurus, Bump.sh, and Document360.
 
@@ -29,20 +29,20 @@ We did not score design, because it is subjective, and every tool on this list c
 
 Prices are the lowest paid tier as published on 26 September 2026. "Custom" means the vendor does not publish a number.
 
-| Tool | Type | Renderer open source | Try-it console | Entry paid price |
-| --- | --- | --- | --- | --- |
-| Scalar | Renderer + hosted platform | Yes, MIT | Yes, every plan | $150/month ([pricing](/pricing)) |
-| Mintlify | Hosted platform | No | Yes, every plan | $450/month billed annually ([pricing](https://www.mintlify.com/pricing)) |
-| ReadMe | Hosted platform | No | Yes | $250/month billed annually ([pricing](https://readme.com/pricing)) |
-| Redocly | Hosted platform + Redoc CE | Redoc CE is MIT | Paid products only | $10/seat/month ([pricing](https://redocly.com/pricing)) |
-| Fern | Hosted platform | No public renderer | Yes | Free tier; Enterprise custom ([pricing](https://buildwithfern.com/pricing.md)) |
-| GitBook | Hosted knowledge base | No | Yes, via Scalar | $65/site/month billed annually ([pricing](https://www.gitbook.com/pricing)) |
-| Stoplight | Hosted design + docs | Elements is Apache-2.0 | Yes | $44/month billed annually ([pricing](https://stoplight.io/pricing)) |
-| Swagger UI | Renderer | Yes, Apache-2.0 | Yes | Free |
-| Redoc | Renderer | Yes, MIT | No | Free |
-| Docusaurus | Static site generator | Yes, MIT | Via plugin | Free |
-| Bump.sh | Hosted platform | No | Pro plan and up | $50/month ([pricing](https://bump.sh/pricing)) |
-| Document360 | Hosted knowledge base | No | Yes | Custom ([pricing](https://document360.com/pricing/)) |
+| Tool        | Type                       | Renderer open source   | Try-it console     | Entry paid price                                                               |
+| ----------- | -------------------------- | ---------------------- | ------------------ | ------------------------------------------------------------------------------ |
+| Scalar      | Renderer + hosted platform | Yes, MIT               | Yes, every plan    | $150/month ([pricing](/pricing))                                               |
+| Mintlify    | Hosted platform            | No                     | Yes, every plan    | $450/month billed annually ([pricing](https://www.mintlify.com/pricing))       |
+| ReadMe      | Hosted platform            | No                     | Yes                | $250/month billed annually ([pricing](https://readme.com/pricing))             |
+| Redocly     | Hosted platform + Redoc CE | Redoc CE is MIT        | Paid products only | $10/seat/month ([pricing](https://redocly.com/pricing))                        |
+| Fern        | Hosted platform            | No public renderer     | Yes                | Free tier; Enterprise custom ([pricing](https://buildwithfern.com/pricing.md)) |
+| GitBook     | Hosted knowledge base      | No                     | Yes, via Scalar    | $65/site/month billed annually ([pricing](https://www.gitbook.com/pricing))    |
+| Stoplight   | Hosted design + docs       | Elements is Apache-2.0 | Yes                | $44/month billed annually ([pricing](https://stoplight.io/pricing))            |
+| Swagger UI  | Renderer                   | Yes, Apache-2.0        | Yes                | Free                                                                           |
+| Redoc       | Renderer                   | Yes, MIT               | No                 | Free                                                                           |
+| Docusaurus  | Static site generator      | Yes, MIT               | Via plugin         | Free                                                                           |
+| Bump.sh     | Hosted platform            | No                     | Pro plan and up    | $50/month ([pricing](https://bump.sh/pricing))                                 |
+| Document360 | Hosted knowledge base      | No                     | Yes                | Custom ([pricing](https://document360.com/pricing/))                           |
 
 ## 1. Scalar
 
@@ -292,4 +292,4 @@ From $0 for open-source renderers to custom enterprise contracts. On 26 Septembe
 
 ---
 
-*Prices, licences, and features for third-party tools are taken from each vendor's public pricing page, documentation, or GitHub repository as of 26 September 2026, and are linked inline. GitHub star counts were read the same day. This page is written by Scalar, which is one of the tools listed. We have tried to be accurate and to say where other tools are the better choice. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Prices, licences, and features for third-party tools are taken from each vendor's public pricing page, documentation, or GitHub repository as of 26 September 2026, and are linked inline. GitHub star counts were read the same day. This page is written by Scalar, which is one of the tools listed. We have tried to be accurate and to say where other tools are the better choice. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

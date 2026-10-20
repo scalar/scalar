@@ -17,7 +17,6 @@ Write in Markdown or MDX, pull content from GitHub, preview every pull request, 
   size="full">
 </scalar-image>
 
-
 <div class="logowall">
   <div class="logowall-item logowall-item-tr">
     <scalar-icon src="../../assets/remote/logo-tr.svg"></scalar-icon>
@@ -147,11 +146,11 @@ Ready to build? Follow the [Getting Started guide](getting-started.md) to publis
 
 ## Plans
 
-| Feature | Free | Pro | Enterprise |
-| ------- | ---- | --- | ---------- |
-| Subdomains, API references, themes, email domain access | - | Included | Included |
-| Custom domains, guides, versions, Git Sync, Markdown, MDX, and landing pages | - | Included | Included |
-| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support | - | - | Included |
+| Feature                                                                      | Free | Pro      | Enterprise |
+| ---------------------------------------------------------------------------- | ---- | -------- | ---------- |
+| Subdomains, API references, themes, email domain access                      | -    | Included | Included   |
+| Custom domains, guides, versions, Git Sync, Markdown, MDX, and landing pages | -    | Included | Included   |
+| SSO/SAML, RBAC, priority support, and dedicated Slack or Teams support       | -    | -        | Included   |
 
 Publishing a Docs site needs a paid plan. Every new team starts with a 7-day trial that includes Docs publishing.
 

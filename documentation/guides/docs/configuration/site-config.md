@@ -114,10 +114,10 @@ The `colorScheme` property controls the light/dark mode appearance and toggle be
 
 ### Properties
 
-| Property     | Type                             | Default    | Description                                |
-| ------------ | -------------------------------- | ---------- | ------------------------------------------ |
-| `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load          |
-| `showToggle` | `boolean`                        | `true`     | Whether to show the color scheme toggle    |
+| Property     | Type                            | Default    | Description                             |
+| ------------ | ------------------------------- | ---------- | --------------------------------------- |
+| `default`    | `"light" \| "dark" \| "system"` | `"system"` | Default color scheme on page load       |
+| `showToggle` | `boolean`                       | `true`     | Whether to show the color scheme toggle |
 
 ### Examples
 
@@ -194,8 +194,8 @@ The `og` property points at your own template for the social card shown when a p
 
 ### Properties
 
-| Property        | Type     | Required | Description                                                                       |
-| --------------- | -------- | -------- | --------------------------------------------------------------------------------- |
+| Property        | Type     | Required | Description                                                                            |
+| --------------- | -------- | -------- | -------------------------------------------------------------------------------------- |
 | `imageTemplate` | `string` | No       | Path to a TSX or JSX template, relative to `scalar.config.json` and inside the project |
 
 See [Social Cards](social-cards.md) for how to write one.
@@ -220,14 +220,14 @@ The `agent` property controls the appearance of [Ask AI](ask-ai.md) on your docu
 
 ### Properties
 
-| Property          | Type                          | Default    | Description                                                                                                    |
-| ----------------- | ----------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------- |
-| `enabled`         | `boolean`                     | —          | Whether the Ask AI button is shown on the site                                                                 |
-| `buttonText`      | `string`                      | `"Ask AI"` | Label shown on the Ask AI button                                                                               |
+| Property          | Type                          | Default    | Description                                                                                                                                                     |
+| ----------------- | ----------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`         | `boolean`                     | —          | Whether the Ask AI button is shown on the site                                                                                                                  |
+| `buttonText`      | `string`                      | `"Ask AI"` | Label shown on the Ask AI button                                                                                                                                |
 | `sidebarPosition` | `"below-search" \| "default"` | —          | Placement of the Ask AI button in the sidebar. `"default"` renders it next to the search bar; `"below-search"` renders it on its own row beneath the search bar |
-| `position`        | `"center" \| "right"`         | `"center"` | Where the floating chat widget anchors at the bottom of the viewport                                           |
-| `suggestions`     | `string[]`                    | —          | Suggested questions shown as pills above the chat input when it is focused. Two or three short questions work best |
-| `mcp`             | `object`                      | —          | References an MCP server and installation by slug (`serverSlug`, `installationSlug`), resolved on publish      |
+| `position`        | `"center" \| "right"`         | `"center"` | Where the floating chat widget anchors at the bottom of the viewport                                                                                            |
+| `suggestions`     | `string[]`                    | —          | Suggested questions shown as pills above the chat input when it is focused. Two or three short questions work best                                              |
+| `mcp`             | `object`                      | —          | References an MCP server and installation by slug (`serverSlug`, `installationSlug`), resolved on publish                                                       |
 
 ## Layout
 
@@ -257,15 +257,15 @@ The `layout` property controls global layout options that apply to all pages unl
 
 ### Properties
 
-| Property      | Type      | Default  | Description                                    |
-| ------------- | --------- | -------- | ---------------------------------------------- |
-| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
-| `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
-| `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
-| `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
-| `pageNav`     | `boolean` | `true`   | Whether to show previous and next page links at the bottom of each page |
-| `lastUpdated` | `boolean` | `false`  | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
-| `search`      | `object`  | —        | Search bar configuration                       |
+| Property      | Type      | Default | Description                                                                                                                     |
+| ------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `toc`         | `boolean` | `true`  | Whether to show the table of contents globally                                                                                  |
+| `header`      | `boolean` | —       | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared       |
+| `pageTitle`   | `boolean` | `true`  | Whether to show page titles globally                                                                                            |
+| `pageActions` | `boolean` | `true`  | Whether to show page actions globally                                                                                           |
+| `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of each page                                                         |
+| `lastUpdated` | `boolean` | `false` | Whether to show the date each page last changed, above the previous and next links. See [Last updated date](#last-updated-date) |
+| `search`      | `object`  | —       | Search bar configuration                                                                                                        |
 
 ### Last updated date
 
@@ -281,10 +281,10 @@ Search finds guide content and API content, including parameter names, request a
 
 Models appear after you type a query. They are excluded from the initial suggestions so guide pages and API overviews remain easy to find. The search index is generated during the site build; publish a new build to index updated API content.
 
-| Property   | Type                        | Default    | Description                           |
-| ---------- | --------------------------- | ---------- | ------------------------------------- |
-| `enabled`  | `boolean`                   | `true`     | Enable or disable search globally     |
-| `position` | `"header" \| "sidebar"`    | `"header"` | Where to display the search bar       |
+| Property   | Type                    | Default    | Description                       |
+| ---------- | ----------------------- | ---------- | --------------------------------- |
+| `enabled`  | `boolean`               | `true`     | Enable or disable search globally |
+| `position` | `"header" \| "sidebar"` | `"header"` | Where to display the search bar   |
 
 #### Disable Search
 
@@ -421,11 +421,11 @@ Include custom CSS files in your documentation. Each entry loads from either a l
 ]
 ```
 
-| Property      | Type                                    | Required | Description                                  |
-| ------------- | --------------------------------------- | -------- | -------------------------------------------- |
-| `path`        | `string`                                | Yes\*    | Relative path to the CSS file                |
-| `url`         | `string`                                | Yes\*    | Remote URL to the CSS file                   |
-| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"`   | No       | Where to inject the style tag                |
+| Property      | Type                                  | Required | Description                   |
+| ------------- | ------------------------------------- | -------- | ----------------------------- |
+| `path`        | `string`                              | Yes\*    | Relative path to the CSS file |
+| `url`         | `string`                              | Yes\*    | Remote URL to the CSS file    |
+| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"` | No       | Where to inject the style tag |
 
 \* Provide either `path` or `url`.
 
@@ -442,14 +442,14 @@ Include custom JavaScript files. Each entry loads from either a local `path` or 
 ]
 ```
 
-| Property      | Type                                    | Required | Description                                                                       |
-| ------------- | --------------------------------------- | -------- | --------------------------------------------------------------------------------- |
-| `path`        | `string`                                | Yes\*    | Relative path to the JavaScript file                                              |
-| `url`         | `string`                                | Yes\*    | Remote URL to the JavaScript file                                                 |
-| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"`   | No       | Where to inject the script tag                                                    |
-| `async`       | `boolean`                               | No       | Load the script without blocking the parser, running it as soon as it arrives     |
-| `defer`       | `boolean`                               | No       | Load the script without blocking the parser, running it after parsing in document order |
-| `type`        | `string`                                | No       | The script type attribute, for example `"module"`                                 |
+| Property      | Type                                  | Required | Description                                                                             |
+| ------------- | ------------------------------------- | -------- | --------------------------------------------------------------------------------------- |
+| `path`        | `string`                              | Yes\*    | Relative path to the JavaScript file                                                    |
+| `url`         | `string`                              | Yes\*    | Remote URL to the JavaScript file                                                       |
+| `tagPosition` | `"head" \| "bodyOpen" \| "bodyClose"` | No       | Where to inject the script tag                                                          |
+| `async`       | `boolean`                             | No       | Load the script without blocking the parser, running it as soon as it arrives           |
+| `defer`       | `boolean`                             | No       | Load the script without blocking the parser, running it after parsing in document order |
+| `type`        | `string`                              | No       | The script type attribute, for example `"module"`                                       |
 
 \* Provide either `path` or `url`.
 
@@ -507,12 +507,12 @@ The `banner` property shows an announcement above the header on every page, such
 
 ### Properties
 
-| Property      | Type                                             | Default  | Description                                                                                                 |
-| ------------- | ------------------------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------- |
-| `content`     | `string`                                         | —        | Banner text as inline Markdown (bold, italic, code, links). An empty string hides the banner                |
-| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | Color of the banner                                                                                         |
-| `dismissible` | `boolean`                                        | `false`  | Show a close button. A dismissed banner reappears when `content` changes                                    |
-| `icon`        | `string \| false`                                | —        | An [icon key or URL](../components/icons.mdx). Defaults to an icon for the `type`; `false` hides it         |
+| Property      | Type                                             | Default  | Description                                                                                         |
+| ------------- | ------------------------------------------------ | -------- | --------------------------------------------------------------------------------------------------- |
+| `content`     | `string`                                         | —        | Banner text as inline Markdown (bold, italic, code, links). An empty string hides the banner        |
+| `type`        | `"neutral" \| "info" \| "warning" \| "critical"` | `"info"` | Color of the banner                                                                                 |
+| `dismissible` | `boolean`                                        | `false`  | Show a close button. A dismissed banner reappears when `content` changes                            |
+| `icon`        | `string \| false`                                | —        | An [icon key or URL](../components/icons.mdx). Defaults to an icon for the `type`; `false` hides it |
 
 Link to your own pages by their file path, relative to the project root, as you would inside a page. Links to other sites open in a new tab.
 
@@ -577,11 +577,11 @@ Point `path` at the route your changelog lives on. The feed is written to `rss.x
 
 ### Properties
 
-| Property      | Type     | Required | Description                                                                         |
-| ------------- | -------- | -------- | ----------------------------------------------------------------------------------- |
-| `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments |
-| `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog` |
-| `description` | `string` | No       | Description of the feed, shown in feed readers                                      |
+| Property      | Type     | Required | Description                                                                                                                                                         |
+| ------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `path`        | `string` | Yes      | Route of your changelog, for example `/changelog`. Must be a plain site route with no `..` segments                                                                 |
+| `title`       | `string` | No       | Title of the feed, shown in feed readers. Defaults to your site title plus `Changelog`                                                                              |
+| `description` | `string` | No       | Description of the feed, shown in feed readers                                                                                                                      |
 | `entries`     | `string` | No       | How items are found. `headings` (default) turns each dated heading into an item; `pages` turns each page under `path` with a `date` in its frontmatter into an item |
 
 ### Multiple Feeds
@@ -707,11 +707,11 @@ Set `isPrivate` to require visitors to sign in before they can view your documen
 
 ### Properties
 
-| Property       | Type       | Default | Description |
-| -------------- | ---------- | ------- | ----------- |
-| `isPrivate`    | `boolean`  | `false` | Require visitors to sign in. |
+| Property       | Type       | Default | Description                                                                               |
+| -------------- | ---------- | ------- | ----------------------------------------------------------------------------------------- |
+| `isPrivate`    | `boolean`  | `false` | Require visitors to sign in.                                                              |
 | `accessGroups` | `string[]` | —       | Slugs of the access groups allowed to view the site when `isPrivate` is `true`. Up to 50. |
-| `loginPortal`  | `string`   | —       | Slug of a custom login portal. Without one, visitors sign in on the default page. |
+| `loginPortal`  | `string`   | —       | Slug of a custom login portal. Without one, visitors sign in on the default page.         |
 
 Access groups and login portals are created in the [Scalar Dashboard](https://dashboard.scalar.com), and the config refers to them by slug. You can also manage these settings in your documentation project's **Settings → Privacy**, which reads and writes the same properties.
 
@@ -745,12 +745,12 @@ Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 Set `contentSignals` to `false` to omit the directive, or use an object with these optional properties:
 
-| Property  | Type              | Default | Description |
-| --------- | ----------------- | ------- | ----------- |
+| Property  | Type              | Default | Description                                                                                       |
+| --------- | ----------------- | ------- | ------------------------------------------------------------------------------------------------- |
 | `enabled` | `boolean`         | `true`  | Whether to emit the directive. Set to `false` to retain your preferences without publishing them. |
-| `search`  | `"yes"` or `"no"` | `"yes"` | Building a search index and showing links and short excerpts. |
-| `aiInput` | `"yes"` or `"no"` | `"yes"` | Using content as input for AI answers, including retrieval and grounding. |
-| `aiTrain` | `"yes"` or `"no"` | `"yes"` | Training or fine-tuning AI models. |
+| `search`  | `"yes"` or `"no"` | `"yes"` | Building a search index and showing links and short excerpts.                                     |
+| `aiInput` | `"yes"` or `"no"` | `"yes"` | Using content as input for AI answers, including retrieval and grounding.                         |
+| `aiTrain` | `"yes"` or `"no"` | `"yes"` | Training or fine-tuning AI models.                                                                |
 
 ### Allow Search and AI Answers, Decline AI Training
 

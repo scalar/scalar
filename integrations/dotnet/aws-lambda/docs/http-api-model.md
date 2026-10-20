@@ -36,10 +36,10 @@ through the API Gateway proxy integration), the request is treated as an index r
 HTTP APIs embed the stage name as a path segment in `RawPath` for any **named** stage, but not for the special
 `$default` stage:
 
-| Stage       | `RawPath` for `GET /scalar/` | Behavior                                             |
-|-------------|------------------------------|-------------------------------------------------------|
-| `$default`  | `/scalar/`                   | No prefix stripped.                                    |
-| `prod`      | `/prod/scalar/`               | `prod` is auto-detected and stripped from relative URLs. |
+| Stage      | `RawPath` for `GET /scalar/` | Behavior                                                 |
+| ---------- | ---------------------------- | -------------------------------------------------------- |
+| `$default` | `/scalar/`                   | No prefix stripped.                                      |
+| `prod`     | `/prod/scalar/`              | `prod` is auto-detected and stripped from relative URLs. |
 
 `Scalar.Aws.Lambda` reads `request.RequestContext.Stage` and, unless you already set `ScalarOptions.RoutePrefix`
 explicitly, folds the stage name into `RoutePrefix` before resolving relative URLs. This mirrors how the Azure

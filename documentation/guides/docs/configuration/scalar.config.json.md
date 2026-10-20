@@ -124,24 +124,24 @@ Configure your site's domain, appearance, and custom assets:
 
 #### siteConfig properties
 
-| Property         | Type                | Description                                                                                                                 |
-| ---------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `subdomain`      | `string`            | Subdomain to publish to, as in `<subdomain>.apidocumentation.com`. Must be unique on Scalar. See [Domains](domains.md)      |
-| `customDomain`   | `string`            | Custom domain for the site. See [Domains](domains.md)                                                                       |
-| `subpath`        | `string`            | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                         |
-| `isPrivate`      | `boolean`           | Require visitors to sign in. See [Access Control](site-config.md#access-control)                                            |
-| `accessGroups`   | `string[]`          | Slugs of the access groups allowed to view a private site. See [Access Control](site-config.md#access-control)              |
-| `loginPortal`    | `string`            | Slug of a custom login portal for a private site. See [Access Control](site-config.md#access-control)                       |
-| `theme`          | `string`            | Built-in theme name, path to a `.css` file, or one of your team's themes. See [Themes](themes.md)                           |
-| `logo`           | `object`            | Logo URLs for dark and light modes                                                                                          |
-| `head`           | `object`            | Custom scripts, styles, meta tags, and links                                                                                |
-| `routing`        | `object`            | URL redirects configuration                                                                                                 |
-| `colorScheme`    | `object`            | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                                |
-| `layout`         | `object`            | Global layout options including search configuration. See [Site](site-config.md#layout)                                     |
-| `agent`          | `object`            | Ask AI button settings. See [Ask AI](ask-ai.md)                                                                             |
-| `footer`         | `object`            | Custom HTML footer. See [Site](site-config.md#footer)                                                                       |
-| `rss`            | `object` or `array` | RSS feeds for changelog-style pages. See [Site](site-config.md#rss)                                                         |
-| `contentSignals` | `object` or `false` | Search and AI crawler preferences for `robots.txt`. See [Site](site-config.md#content-signals)                              |
+| Property         | Type                | Description                                                                                                            |
+| ---------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `subdomain`      | `string`            | Subdomain to publish to, as in `<subdomain>.apidocumentation.com`. Must be unique on Scalar. See [Domains](domains.md) |
+| `customDomain`   | `string`            | Custom domain for the site. See [Domains](domains.md)                                                                  |
+| `subpath`        | `string`            | URL subpath for multi-project deployments (e.g., `/guides`, `/api`)                                                    |
+| `isPrivate`      | `boolean`           | Require visitors to sign in. See [Access Control](site-config.md#access-control)                                       |
+| `accessGroups`   | `string[]`          | Slugs of the access groups allowed to view a private site. See [Access Control](site-config.md#access-control)         |
+| `loginPortal`    | `string`            | Slug of a custom login portal for a private site. See [Access Control](site-config.md#access-control)                  |
+| `theme`          | `string`            | Built-in theme name, path to a `.css` file, or one of your team's themes. See [Themes](themes.md)                      |
+| `logo`           | `object`            | Logo URLs for dark and light modes                                                                                     |
+| `head`           | `object`            | Custom scripts, styles, meta tags, and links                                                                           |
+| `routing`        | `object`            | URL redirects configuration                                                                                            |
+| `colorScheme`    | `object`            | Light/dark mode appearance settings. See [Site](site-config.md#color-scheme)                                           |
+| `layout`         | `object`            | Global layout options including search configuration. See [Site](site-config.md#layout)                                |
+| `agent`          | `object`            | Ask AI button settings. See [Ask AI](ask-ai.md)                                                                        |
+| `footer`         | `object`            | Custom HTML footer. See [Site](site-config.md#footer)                                                                  |
+| `rss`            | `object` or `array` | RSS feeds for changelog-style pages. See [Site](site-config.md#rss)                                                    |
+| `contentSignals` | `object` or `false` | Search and AI crawler preferences for `robots.txt`. See [Site](site-config.md#content-signals)                         |
 
 ### Publishing
 

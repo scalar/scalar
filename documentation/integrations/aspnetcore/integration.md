@@ -337,7 +337,6 @@ For more details, see [Agent](../../configuration.md#agent) and [How to get an A
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
-
 > [!WARNING]
 > **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
 >
@@ -345,7 +344,6 @@ Scalar allows you to pre-configure authentication details for your API, making i
 
 > [!CAUTION]
 > **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
-
 
 #### API Key Authentication
 

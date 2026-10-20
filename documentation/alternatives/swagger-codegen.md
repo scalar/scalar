@@ -1,6 +1,6 @@
 # Best Swagger Codegen alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If Swagger Codegen still generates your clients, moving off it takes two steps: bring your API description up to OpenAPI 3.1, then pick the generator that fits the code you actually ship. This guide covers both, with sources for every claim.
 
@@ -36,14 +36,14 @@ If your document came from a framework, the better fix is usually to regenerate 
 
 ## Step two: choose a generator
 
-| Tool | License | Reads OpenAPI 3.1 | Languages | Best for |
-| --- | --- | --- | --- | --- |
-| **Scalar** | Hosted service | Yes | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; C#, PHP, Rust, Swift, Dart, C++ experimental | Published SDKs with releases handled |
-| [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) | Apache 2.0 | [Beta](https://github.com/OpenAPITools/openapi-generator#overview) | Dozens of clients and servers | The closest drop-in, including server stubs |
-| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) | MIT | Check your keywords | C#, Go, Java, PHP, Python, Ruby, TypeScript | Consistent internal clients |
-| [NSwag](https://github.com/RicoSuter/NSwag) | MIT | [Lists 2.0 and 3.0](https://github.com/RicoSuter/NSwag) | C#, TypeScript | .NET shops with Swagger-era tooling |
-| [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) | MIT | [Yes](https://www.npmjs.com/package/openapi-typescript) | TypeScript | Front-end types without a JVM |
-| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | Apache 2.0 | [Yes](https://github.com/oapi-codegen/oapi-codegen) | Go | Go clients and servers |
+| Tool                                                                   | License        | Reads OpenAPI 3.1                                                  | Languages                                                                                        | Best for                                    |
+| ---------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| **Scalar**                                                             | Hosted service | Yes                                                                | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; C#, PHP, Rust, Swift, Dart, C++ experimental | Published SDKs with releases handled        |
+| [OpenAPI Generator](https://github.com/OpenAPITools/openapi-generator) | Apache 2.0     | [Beta](https://github.com/OpenAPITools/openapi-generator#overview) | Dozens of clients and servers                                                                    | The closest drop-in, including server stubs |
+| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview)      | MIT            | Check your keywords                                                | C#, Go, Java, PHP, Python, Ruby, TypeScript                                                      | Consistent internal clients                 |
+| [NSwag](https://github.com/RicoSuter/NSwag)                            | MIT            | [Lists 2.0 and 3.0](https://github.com/RicoSuter/NSwag)            | C#, TypeScript                                                                                   | .NET shops with Swagger-era tooling         |
+| [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) | MIT            | [Yes](https://www.npmjs.com/package/openapi-typescript)            | TypeScript                                                                                       | Front-end types without a JVM               |
+| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)           | Apache 2.0     | [Yes](https://github.com/oapi-codegen/oapi-codegen)                | Go                                                                                               | Go clients and servers                      |
 
 Checked against each project's repository, README or package page on 26 September 2026.
 
@@ -136,4 +136,4 @@ Often the change is small, because OpenAPI Generator started as a fork and kept 
 
 ---
 
-*This page is based on Swagger Codegen's public GitHub repository, README, version documentation and issue tracker, and on the public repositories and documentation of every other tool listed, as of 26 September 2026. Code generation tools change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Swagger Codegen's public GitHub repository, README, version documentation and issue tracker, and on the public repositories and documentation of every other tool listed, as of 26 September 2026. Code generation tools change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -88,15 +88,15 @@ const api = new TimeOffApi(new Configuration({ apiKey: process.env.WARP_API_KEY 
 const response = await api.timeOffListAssignmentsGet(undefined, undefined, undefined)
 ```
 
-| | Scalar TypeScript target | OpenAPI Generator `typescript-fetch` / `typescript-axios` |
-| --- | --- | --- |
-| Client shape | One default export, resources as properties | One class per tag (`PetApi`, `StoreApi`) |
-| Method names | Normalised: `client.pet.list()`, `client.pet.retrieve()` | Derived from `operationId`: `listPets()`, `getPetById()` |
-| `oneOf` / `anyOf` / `allOf` | Union and intersection types | [Marked unsupported](https://openapi-generator.tech/docs/generators/typescript-fetch) in both generators' feature tables |
-| Pagination | Generated async iterators | Not among the generators' documented options; you write the loop |
-| Retries and timeouts | Built in, configurable | Not among the documented options; configure your HTTP client |
-| Publishing | Workflows and release PRs generated into your repo | Generates `package.json` when `npmName` is set; release process is yours |
-| Cost | One target on the free plan; more from $150/month | Free |
+|                             | Scalar TypeScript target                                 | OpenAPI Generator `typescript-fetch` / `typescript-axios`                                                                |
+| --------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Client shape                | One default export, resources as properties              | One class per tag (`PetApi`, `StoreApi`)                                                                                 |
+| Method names                | Normalised: `client.pet.list()`, `client.pet.retrieve()` | Derived from `operationId`: `listPets()`, `getPetById()`                                                                 |
+| `oneOf` / `anyOf` / `allOf` | Union and intersection types                             | [Marked unsupported](https://openapi-generator.tech/docs/generators/typescript-fetch) in both generators' feature tables |
+| Pagination                  | Generated async iterators                                | Not among the generators' documented options; you write the loop                                                         |
+| Retries and timeouts        | Built in, configurable                                   | Not among the documented options; configure your HTTP client                                                             |
+| Publishing                  | Workflows and release PRs generated into your repo       | Generates `package.json` when `npmName` is set; release process is yours                                                 |
+| Cost                        | One target on the free plan; more from $150/month        | Free                                                                                                                     |
 
 OpenAPI Generator's feature tables can lag its templates, so test your own schemas before deciding either way. If you want a deeper look at when the open source route is the right call, read [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -151,4 +151,4 @@ The free plan includes one SDK target for APIs up to 25 endpoints. Additional ta
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

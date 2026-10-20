@@ -1,6 +1,6 @@
 # Best MCP server generators (2026)
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 An MCP server generator takes an API description, usually an OpenAPI document, and produces a Model Context Protocol server that exposes your endpoints as tools an AI agent can call, and the options worth evaluating in September 2026 are Scalar, Speakeasy (Gram and its open-source generator), FastMCP, openapi-mcp-generator, the AWS Labs OpenAPI MCP server, Bump.sh, and liblab.
 
@@ -20,17 +20,17 @@ One caution applies to all three. The FastMCP documentation says plainly that "L
 
 ## Comparison table
 
-| Tool | Shape | Licence | Auth to your API | Pricing |
-| --- | --- | --- | --- | --- |
-| Scalar | Hosted | Closed service (docs stack is MIT) | Stored credential or per-user passthrough; OAuth for people connecting | Pro and up; usage in Agent Scalar credits ([pricing](/pricing)) |
-| Speakeasy Gram | Hosted | [AGPL-3.0 repo](https://github.com/speakeasy-api/gram) | Optional OAuth 2.1 proxy with DCR | Not published |
-| Speakeasy generator | Generated code (TypeScript) | [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation) | Configured in generated code | Free under AGPL; commercial licence available |
-| FastMCP | Runtime conversion (Python) | [Apache-2.0](https://github.com/PrefectHQ/fastmcp) | Your HTTP client | Free |
-| openapi-mcp-generator | Generated code (TypeScript) | [MIT](https://github.com/harsha-iiiv/openapi-mcp-generator) | API key, bearer, basic, OAuth2 | Free |
-| AWS Labs OpenAPI MCP server | Runtime conversion (Python) | [Apache-2.0](https://github.com/awslabs/mcp/tree/main/src/openapi-mcp-server) | Bearer, basic, API key via env vars | Free |
-| Bump.sh | Hosted, workflow-based | Closed | Hosted data plane | From $50/month, 5 MCP tools ([pricing](https://bump.sh/pricing)) |
-| liblab | MCP generator | Closed | Not documented on pricing page | 100 calls/month free for the first year, then $5 per 100 calls ([pricing](https://liblab.com/pricing)) |
-| Stainless | Generated code | Closed | n/a | Closed to new signups |
+| Tool                        | Shape                       | Licence                                                                       | Auth to your API                                                       | Pricing                                                                                                |
+| --------------------------- | --------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Scalar                      | Hosted                      | Closed service (docs stack is MIT)                                            | Stored credential or per-user passthrough; OAuth for people connecting | Pro and up; usage in Agent Scalar credits ([pricing](/pricing))                                        |
+| Speakeasy Gram              | Hosted                      | [AGPL-3.0 repo](https://github.com/speakeasy-api/gram)                        | Optional OAuth 2.1 proxy with DCR                                      | Not published                                                                                          |
+| Speakeasy generator         | Generated code (TypeScript) | [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation)               | Configured in generated code                                           | Free under AGPL; commercial licence available                                                          |
+| FastMCP                     | Runtime conversion (Python) | [Apache-2.0](https://github.com/PrefectHQ/fastmcp)                            | Your HTTP client                                                       | Free                                                                                                   |
+| openapi-mcp-generator       | Generated code (TypeScript) | [MIT](https://github.com/harsha-iiiv/openapi-mcp-generator)                   | API key, bearer, basic, OAuth2                                         | Free                                                                                                   |
+| AWS Labs OpenAPI MCP server | Runtime conversion (Python) | [Apache-2.0](https://github.com/awslabs/mcp/tree/main/src/openapi-mcp-server) | Bearer, basic, API key via env vars                                    | Free                                                                                                   |
+| Bump.sh                     | Hosted, workflow-based      | Closed                                                                        | Hosted data plane                                                      | From $50/month, 5 MCP tools ([pricing](https://bump.sh/pricing))                                       |
+| liblab                      | MCP generator               | Closed                                                                        | Not documented on pricing page                                         | 100 calls/month free for the first year, then $5 per 100 calls ([pricing](https://liblab.com/pricing)) |
+| Stainless                   | Generated code              | Closed                                                                        | n/a                                                                    | Closed to new signups                                                                                  |
 
 ## 1. Scalar
 
@@ -199,4 +199,4 @@ Either the server holds one credential and uses it for every call, or each user 
 
 ---
 
-*Tool status, licences, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline; the Stainless announcement, Speakeasy's AGPL-3.0 release and hosted-product naming, Postman's generator inputs, and Scalar's pricing were re-checked on 7 October 2026. GitHub star counts were read on 26 September 2026. This page is written by Scalar, which hosts MCP servers and has a working relationship with Speakeasy. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Tool status, licences, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline; the Stainless announcement, Speakeasy's AGPL-3.0 release and hosted-product naming, Postman's generator inputs, and Scalar's pricing were re-checked on 7 October 2026. GitHub star counts were read on 26 September 2026. This page is written by Scalar, which hosts MCP servers and has a working relationship with Speakeasy. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

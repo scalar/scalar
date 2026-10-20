@@ -20,20 +20,20 @@ On top of this, drag and drop can be used to import OpenAPI docs. This can be do
 
 Creating a slick drag and drop experience required us to solve the following challenges:
 
-* **Where.** You can’t drag everything everywhere. Only certain objects can be dropped into certain spots. This means you need validation and visual feedback like drop zones, UI updates, cancellation, and error handling.
-* **State management**. Both dragging and dropping needs to work with the many levels of state the API client has including collections, folders, and requests as well as their parent-child relationships. The UI aspects like collapsed versus expanded also need to be handled.
-* **Performance.** When you drag an element, your browser fires `dragover` events many times per second. If you don’t throttle these, you run potentially expensive calculations like determining drop zones, calculating positions, updating UI indicators on every single mouse movement. This can create UI jitters or lag your entire app.
-* **Context.** Requests and collections aren’t simple. They include information on authentication settings, examples, test cases, response history, security schemes, and servers. Behind this is a structured OpenAPI document that needs to stay valid.
+- **Where.** You can’t drag everything everywhere. Only certain objects can be dropped into certain spots. This means you need validation and visual feedback like drop zones, UI updates, cancellation, and error handling.
+- **State management**. Both dragging and dropping needs to work with the many levels of state the API client has including collections, folders, and requests as well as their parent-child relationships. The UI aspects like collapsed versus expanded also need to be handled.
+- **Performance.** When you drag an element, your browser fires `dragover` events many times per second. If you don’t throttle these, you run potentially expensive calculations like determining drop zones, calculating positions, updating UI indicators on every single mouse movement. This can create UI jitters or lag your entire app.
+- **Context.** Requests and collections aren’t simple. They include information on authentication settings, examples, test cases, response history, security schemes, and servers. Behind this is a structured OpenAPI document that needs to stay valid.
 
 ## How does our API client handle drag and drop challenges?
 
 Rather than existing libraries like `react-dnd`, `vue-draggable`, we developed our own [@scalar/draggable package](https://github.com/scalar/scalar/tree/main/packages/draggable) with a [Draggable.vue component](https://github.com/scalar/scalar/blob/main/packages/draggable/src/Draggable.vue). To make dragging and dropping consistent across the API client, the component uses standard HTML 5 drag and drop APIs to:
 
-* Track dragging and hovering state
-* Handle drag events
-* Provide visual feedback
-* Customize drop zones
-* Track hierarchy for validation
+- Track dragging and hovering state
+- Handle drag events
+- Provide visual feedback
+- Customize drop zones
+- Track hierarchy for validation
 
 Here’s how we specifically handle some of the challenges with dragging and dropping we identified:
 

@@ -1,6 +1,6 @@
 # API Reference vs. Swagger UI
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Swagger UI is one of the most widely used tools for rendering OpenAPI documentation. Its [compatibility table](https://github.com/swagger-api/swagger-ui#compatibility) goes back to 2011, it is Apache 2.0 licensed, and it is still actively maintained by SmartBear, with [5.33.0 released in September 2026](https://github.com/swagger-api/swagger-ui/releases). Scalar's API Reference is a modern alternative that offers a more polished developer experience while remaining fully compatible with your existing OpenAPI documents.
 
@@ -29,42 +29,42 @@ Scalar offers 11 built-in themes and extensive CSS customization options. You ca
 
 ## Feature Comparison
 
-| Feature                        |                                                Scalar                                                 |                                                  Swagger UI                                                  |
-| ------------------------------ | :---------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------: |
-| **Core Features**              |                                                                                                       |                                                                                                              |
-| OpenAPI 3.0 Support            |                                                   ✓                                                   |                                                      ✓                                                       |
-| OpenAPI 3.1 Support            |                                                   ✓                                                   |                                                      ✓                                                       |
-| OpenAPI 3.1.2 Support | ✓ | ✓ (since [5.19.0](https://github.com/swagger-api/swagger-ui#compatibility)) |
-| OpenAPI 3.2 Support | ✓ ([docs](/products/api-references/openapi)) | basic support since [5.32.0](https://github.com/swagger-api/swagger-ui/releases/tag/v5.32.0) |
-| Swagger 2.0 Support            |                                                   ✓                                                   |                                                      ✓                                                       |
-| Try It Out / Test Requests     |                                                   ✓                                                   |                                            simple implementation                                             |
-| Multiple Documents             |                                                   ✓                                                   |                                                      ✓                                                       |
-| **User Interface**             |                                                                                                       |                                                                                                              |
-| Modern Layout                  |                                                   ✓                                                   |                                                                                                              |
-| Classic (Swagger-style) Layout |                                                   ✓                                                   |                                                      ✓                                                       |
-| Dark Mode | ✓ | ✓ (since [5.31.0](https://github.com/swagger-api/swagger-ui/releases/tag/v5.31.0)) |
-| Built-in Themes                |                                               11 themes                                               |                                                                                                              |
-| Custom CSS Support             |                                                   ✓                                                   |                                                      ✓                                                       |
-| Sidebar Navigation             |                                                   ✓                                                   |                                                                                                              |
-| Search | ✓ | tag filter ([`filter`](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/)) |
-| **Code Snippets**              |                                                                                                       |                                                                                                              |
-| Code Snippet Generation | 25+ languages | cURL for bash, PowerShell, CMD ([`requestSnippets`](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/)) |
-| Custom Code Examples           |                                                   ✓                                                   |                                                                                                              |
-| **Authentication**             |                                                                                                       |                                                                                                              |
-| OAuth 2.0 Support              |                                                   ✓                                                   |                                                      ✓                                                       |
-| API Key Support                |                                                   ✓                                                   |                                                      ✓                                                       |
-| Persist Auth Credentials       |                                                   ✓                                                   |                                                      ✓                                                       |
-| Pre-fill Auth Credentials | ✓ | via `preauthorizeApiKey` / `initOAuth` |
-| **Integrations**               |                                                                                                       |                                                                                                              |
-| React Component                |                                                   ✓                                                   |                                                      ✓                                                       |
-| Vue Component                  |                                                   ✓                                                   |                                                                                                              |
-| **Advanced Features**          |                                                                                                       |                                                                                                              |
-| CORS Proxy                     |                                                   ✓                                                   |                                                                                                              |
-| Quick Share                    |                                                   ✓                                                   |                                                                                                              |
-| Desktop API Client             |                                                   ✓                                                   |                                                                                                              |
-| **Community**                  |                                                                                                       |                                                                                                              |
-| PRs merged (2025)              | [2,075](https://github.com/scalar/scalar/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) | [176](https://github.com/swagger-api/swagger-ui/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) |
-| Discord                        | [discord.gg/scalar](https://discord.gg/scalar) | |
+| Feature                        |                                                Scalar                                                 |                                                           Swagger UI                                                            |
+| ------------------------------ | :---------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------: |
+| **Core Features**              |                                                                                                       |                                                                                                                                 |
+| OpenAPI 3.0 Support            |                                                   ✓                                                   |                                                                ✓                                                                |
+| OpenAPI 3.1 Support            |                                                   ✓                                                   |                                                                ✓                                                                |
+| OpenAPI 3.1.2 Support          |                                                   ✓                                                   |                           ✓ (since [5.19.0](https://github.com/swagger-api/swagger-ui#compatibility))                           |
+| OpenAPI 3.2 Support            |                             ✓ ([docs](/products/api-references/openapi))                              |                  basic support since [5.32.0](https://github.com/swagger-api/swagger-ui/releases/tag/v5.32.0)                   |
+| Swagger 2.0 Support            |                                                   ✓                                                   |                                                                ✓                                                                |
+| Try It Out / Test Requests     |                                                   ✓                                                   |                                                      simple implementation                                                      |
+| Multiple Documents             |                                                   ✓                                                   |                                                                ✓                                                                |
+| **User Interface**             |                                                                                                       |                                                                                                                                 |
+| Modern Layout                  |                                                   ✓                                                   |                                                                                                                                 |
+| Classic (Swagger-style) Layout |                                                   ✓                                                   |                                                                ✓                                                                |
+| Dark Mode                      |                                                   ✓                                                   |                       ✓ (since [5.31.0](https://github.com/swagger-api/swagger-ui/releases/tag/v5.31.0))                        |
+| Built-in Themes                |                                               11 themes                                               |                                                                                                                                 |
+| Custom CSS Support             |                                                   ✓                                                   |                                                                ✓                                                                |
+| Sidebar Navigation             |                                                   ✓                                                   |                                                                                                                                 |
+| Search                         |                                                   ✓                                                   |               tag filter ([`filter`](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/))                |
+| **Code Snippets**              |                                                                                                       |                                                                                                                                 |
+| Code Snippet Generation        |                                             25+ languages                                             | cURL for bash, PowerShell, CMD ([`requestSnippets`](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/)) |
+| Custom Code Examples           |                                                   ✓                                                   |                                                                                                                                 |
+| **Authentication**             |                                                                                                       |                                                                                                                                 |
+| OAuth 2.0 Support              |                                                   ✓                                                   |                                                                ✓                                                                |
+| API Key Support                |                                                   ✓                                                   |                                                                ✓                                                                |
+| Persist Auth Credentials       |                                                   ✓                                                   |                                                                ✓                                                                |
+| Pre-fill Auth Credentials      |                                                   ✓                                                   |                                             via `preauthorizeApiKey` / `initOAuth`                                              |
+| **Integrations**               |                                                                                                       |                                                                                                                                 |
+| React Component                |                                                   ✓                                                   |                                                                ✓                                                                |
+| Vue Component                  |                                                   ✓                                                   |                                                                                                                                 |
+| **Advanced Features**          |                                                                                                       |                                                                                                                                 |
+| CORS Proxy                     |                                                   ✓                                                   |                                                                                                                                 |
+| Quick Share                    |                                                   ✓                                                   |                                                                                                                                 |
+| Desktop API Client             |                                                   ✓                                                   |                                                                                                                                 |
+| **Community**                  |                                                                                                       |                                                                                                                                 |
+| PRs merged (2025)              | [2,075](https://github.com/scalar/scalar/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) |          [176](https://github.com/swagger-api/swagger-ui/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31)           |
+| Discord                        |                            [discord.gg/scalar](https://discord.gg/scalar)                             |                                                                                                                                 |
 
 ## Migrate from Swagger UI to Scalar
 
@@ -207,16 +207,16 @@ Override CSS variables to match your brand:
 
 These features have no Swagger UI equivalent:
 
-| Feature             | Description                                    |
-| ------------------- | ---------------------------------------------- |
-| `proxyUrl`          | Avoid CORS issues with a proxy server          |
-| `hiddenClients`     | Control which code snippet languages are shown |
-| `defaultHttpClient` | Set the default code snippet language          |
-| `searchHotKey`      | Customize the keyboard shortcut for search     |
-| `baseServerURL`     | Prefix all relative server URLs                |
-| `pathRouting`       | Use path-based routing instead of hash-based   |
+| Feature             | Description                                                                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `proxyUrl`          | Avoid CORS issues with a proxy server                                                                                                               |
+| `hiddenClients`     | Control which code snippet languages are shown                                                                                                      |
+| `defaultHttpClient` | Set the default code snippet language                                                                                                               |
+| `searchHotKey`      | Customize the keyboard shortcut for search                                                                                                          |
+| `baseServerURL`     | Prefix all relative server URLs                                                                                                                     |
+| `pathRouting`       | Use path-based routing instead of hash-based                                                                                                        |
 | `onBeforeRequest`   | Run before send; prefer mutating the request builder (`requestBuilder`). See [Configuration: onBeforeRequest](../configuration.md#onbeforerequest). |
-| `authentication`    | Pre-fill authentication credentials            |
+| `authentication`    | Pre-fill authentication credentials                                                                                                                 |
 
 ## Frequently asked questions
 
@@ -248,4 +248,4 @@ Yes. The API Reference and API Client are MIT licensed on [GitHub](https://githu
 
 ---
 
-*Swagger UI details on this page come from its [GitHub repository](https://github.com/swagger-api/swagger-ui), [release notes](https://github.com/swagger-api/swagger-ui/releases), and [configuration docs](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) as checked on September 26, 2026. Swagger UI is actively developed and may have changed since. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Swagger UI details on this page come from its [GitHub repository](https://github.com/swagger-api/swagger-ui), [release notes](https://github.com/swagger-api/swagger-ui/releases), and [configuration docs](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) as checked on September 26, 2026. Swagger UI is actively developed and may have changed since. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -40,34 +40,34 @@ paths:
 
 Each sample has:
 
-| Field | Description |
-| --- | --- |
-| `lang` | Language identifier (for example, `bash`, `python`, `javascript`) |
-| `label` | Display label shown in the language picker |
-| `source` | The full snippet source code |
+| Field    | Description                                                       |
+| -------- | ----------------------------------------------------------------- |
+| `lang`   | Language identifier (for example, `bash`, `python`, `javascript`) |
+| `label`  | Display label shown in the language picker                        |
+| `source` | The full snippet source code                                      |
 
 ## Supported languages
 
-| Language | Clients |
-| --- | --- |
-| C | Libcurl |
-| C# | HttpClient, RestSharp |
-| Clojure | clj-http |
-| Dart | Http |
-| F# | HttpClient |
-| Go | NewRequest |
-| HTTP | HTTP/1.1 |
-| Java | AsyncHttp, java.net.http, OkHttp, Unirest |
-| JavaScript | Fetch, Axios, ofetch, jQuery, XHR |
-| Kotlin | OkHttp |
-| Node.js | Fetch, Axios, ofetch, undici |
-| Objective-C | NSURLSession |
-| OCaml | Cohttp |
-| PHP | cURL, Guzzle, Laravel HTTP Client |
-| PowerShell | Invoke-WebRequest, Invoke-RestMethod |
-| Python | http.client, Requests, aiohttp, HTTPX (Sync), HTTPX (Async) |
-| R | httr2 |
-| Ruby | net::http |
-| Rust | reqwest |
-| Shell | Curl, Wget, HTTPie |
-| Swift | NSURLSession |
+| Language    | Clients                                                     |
+| ----------- | ----------------------------------------------------------- |
+| C           | Libcurl                                                     |
+| C#          | HttpClient, RestSharp                                       |
+| Clojure     | clj-http                                                    |
+| Dart        | Http                                                        |
+| F#          | HttpClient                                                  |
+| Go          | NewRequest                                                  |
+| HTTP        | HTTP/1.1                                                    |
+| Java        | AsyncHttp, java.net.http, OkHttp, Unirest                   |
+| JavaScript  | Fetch, Axios, ofetch, jQuery, XHR                           |
+| Kotlin      | OkHttp                                                      |
+| Node.js     | Fetch, Axios, ofetch, undici                                |
+| Objective-C | NSURLSession                                                |
+| OCaml       | Cohttp                                                      |
+| PHP         | cURL, Guzzle, Laravel HTTP Client                           |
+| PowerShell  | Invoke-WebRequest, Invoke-RestMethod                        |
+| Python      | http.client, Requests, aiohttp, HTTPX (Sync), HTTPX (Async) |
+| R           | httr2                                                       |
+| Ruby        | net::http                                                   |
+| Rust        | reqwest                                                     |
+| Shell       | Curl, Wget, HTTPie                                          |
+| Swift       | NSURLSession                                                |

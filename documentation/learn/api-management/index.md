@@ -1,6 +1,6 @@
 # Learn API management
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 API management is the combination of a runtime gateway and the lifecycle tooling around the API contract, and these guides explain the second half from the point of view of a team that already runs APIs: what the layers are, how they connect through the OpenAPI document, how to govern APIs with rules in CI, and how to keep an inventory that stays accurate.
 

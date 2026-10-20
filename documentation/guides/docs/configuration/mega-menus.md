@@ -116,8 +116,8 @@ Tab links have no `type` key. They take `title`, `to`, `icon`, `newTab`, and `se
 
 ## The `section` property
 
-| Property  | Type     | Required | Description                                                                                   |
-| --------- | -------- | -------- | --------------------------------------------------------------------------------------------- |
+| Property  | Type     | Required | Description                                                                                                         |
+| --------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
 | `section` | `string` | No       | The column heading a link sits under. Applies to children of a `group` in `navigation.header` or `navigation.tabs`. |
 
 - It must be a non-empty string. An empty string fails validation. To leave a link out of any titled column, omit the key instead.

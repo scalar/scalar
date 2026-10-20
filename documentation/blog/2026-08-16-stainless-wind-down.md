@@ -6,7 +6,7 @@ date: 2026-08-16
 
 Stainless [announced on 18 May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic) that it is joining Anthropic and winding down all of its hosted products, including the SDK generator. New signups, projects, and SDKs closed the same day.
 
-Three months on, the thing we keep hearing from teams in that position is not "which generator is best". It is a narrower and more awkward question: *my users have already written code against my SDK — how do I move without breaking them?*
+Three months on, the thing we keep hearing from teams in that position is not "which generator is best". It is a narrower and more awkward question: _my users have already written code against my SDK — how do I move without breaking them?_
 
 That question has a specific answer, and it is not the one most migration content gives. Your OpenAPI document was never the hard part of leaving Stainless. It is yours and every generator reads it. The hard part is `stainless.yml` — the file that decides which operations become which namespaces, what each method is called, which pagination scheme each list endpoint uses, and what your package is named in every language. None of that is expressible in OpenAPI. Regenerate from the specification alone with any tool and you get a working SDK with a different public surface, which is a breaking change your users absorb.
 

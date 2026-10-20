@@ -26,9 +26,9 @@ Boolean `additionalProperties` already passes object coercion and is never norma
 
 A local Node benchmark compared the prior full clone plus normalization with the iterative copy-on-write implementation on a real bundled Stripe API description. The 3,908,678-byte fixture includes externally bundled data under `x-ext`. Five fresh child processes ran each implementation on unchanged and sparse-boolean variants; normalized JSON output matched.
 
-| Fixture | Full clone + normalization | Copy-on-write normalization | Process peak RSS, before → after |
-| --- | --- | --- | --- |
-| Unchanged | 42.42 ms | 33.93 ms | 124,912 → 116,064 KiB |
-| Sparse boolean schemas | 42.78 ms | 34.04 ms | 125,088 → 116,144 KiB |
+| Fixture                | Full clone + normalization | Copy-on-write normalization | Process peak RSS, before → after |
+| ---------------------- | -------------------------- | --------------------------- | -------------------------------- |
+| Unchanged              | 42.42 ms                   | 33.93 ms                    | 124,912 → 116,064 KiB            |
+| Sparse boolean schemas | 42.78 ms                   | 34.04 ms                    | 125,088 → 116,144 KiB            |
 
 These are single-machine medians, approximately 20% lower elapsed time and 7% lower process peak RSS for this fixture. Process RSS includes parsing and runtime overhead; it is not an isolated peak-heap measurement. Post-GC heap deltas were about 7.13 MB before and 7.31–7.32 MB after, so this benchmark does not establish a retained-heap saving. Traversal metadata still costs memory, and results depend on document shape. The change removes the unconditional full-document copy and its recursive clone limit, not all normalization costs.

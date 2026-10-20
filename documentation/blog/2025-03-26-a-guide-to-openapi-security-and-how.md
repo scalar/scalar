@@ -107,10 +107,10 @@ paths:
 
 Each security scheme also has different properties beyond `type` and the optional `description` you can define. For example:
 
-* `apiKey` has `in` and `name`
-* `http` has `scheme` and `bearerFormat`
-* `oauth2` has `flows` which has `authorizationCode`, `implicit`, and `password` each with their own properties
-* `OpenIdConnect` has `openIdConnectUrl`
+- `apiKey` has `in` and `name`
+- `http` has `scheme` and `bearerFormat`
+- `oauth2` has `flows` which has `authorizationCode`, `implicit`, and `password` each with their own properties
+- `OpenIdConnect` has `openIdConnectUrl`
 
 Of course, the flip side of all of this is that the OpenAPI doc is just a representation of your actual underlying API. You need to actually implement the security.
 

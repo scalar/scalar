@@ -65,10 +65,10 @@ Create a new project on the Scalar platform:
 scalar project create --name "My Documentation" --slug your-docs
 ```
 
-| Option   | Type     | Required | Description                     |
-| -------- | -------- | -------- | ------------------------------- |
-| `--name` | `string` | Yes, outside an interactive terminal | Display name for your project |
-| `--slug` | `string` | No       | URL-friendly project identifier |
+| Option   | Type     | Required                             | Description                     |
+| -------- | -------- | ------------------------------------ | ------------------------------- |
+| `--name` | `string` | Yes, outside an interactive terminal | Display name for your project   |
+| `--slug` | `string` | No                                   | URL-friendly project identifier |
 
 ## Local Preview
 

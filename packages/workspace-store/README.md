@@ -280,10 +280,10 @@ none, and a workspace exported before the children were loaded can still load th
 `getResolvedDocument()` is unaffected and still carries the whole document and its navigation, and so
 are AsyncAPI documents, which are never externalized.
 
-| Document | sparse | compact | sparse, gzip | compact, gzip |
-| --- | --- | --- | --- | --- |
-| Cloudflare public API | 4,447 KB | 431 KB | 346 KB | 63 KB |
-| 100 operations over 150 shared schemas | 71 KB | 10 KB | 6 KB | 2 KB |
+| Document                               | sparse   | compact | sparse, gzip | compact, gzip |
+| -------------------------------------- | -------- | ------- | ------------ | ------------- |
+| Cloudflare public API                  | 4,447 KB | 431 KB  | 346 KB       | 63 KB         |
+| 100 operations over 150 shared schemas | 71 KB    | 10 KB   | 6 KB         | 2 KB          |
 
 ## Client-Side Workspace Store
 

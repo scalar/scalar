@@ -1,6 +1,6 @@
 # Best Docusaurus alternatives for API documentation (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If you are looking for a Docusaurus alternative for API documentation, you may not need to leave Docusaurus at all. Docusaurus is an excellent general documentation framework; what it lacks is a built-in OpenAPI reference. Often the fix is a plugin. Sometimes it is a platform built around OpenAPI from the start. This page helps you tell which case you are in.
 
@@ -28,15 +28,15 @@ If none of these bother you, stay on Docusaurus and add a plugin. If several do,
 
 ## Docusaurus API documentation options at a glance
 
-| Option | Type | Keeps Docusaurus | Interactive requests | SDKs | Cost |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar plugin for Docusaurus** | Plugin | Yes | Yes | No | Free, MIT ([integration](/products/api-references/integrations/docusaurus)) |
-| **Scalar Docs** | Hosted platform | No | Yes | Yes, native | Free plan; Pro $150/month ([pricing](/pricing)) |
-| **docusaurus-openapi-docs** | Plugin, generates MDX | Yes | Yes | No | Free, MIT ([repo](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs)) |
-| **Redocusaurus** | Plugin, renders Redoc | Yes | No | No | Free, MIT ([repo](https://github.com/rohit-gohri/redocusaurus)) |
-| **Starlight + starlight-openapi** | Framework plus plugin | No, Astro | See plugin | No | Free, MIT ([Starlight](https://github.com/withastro/starlight), [plugin](https://github.com/HiDeoo/starlight-openapi)) |
-| **Mintlify** | Hosted platform | No | Yes | No | Starter $0; Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
-| **Redocly** | Platform and CLI | No | Yes | No | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
+| Option                            | Type                  | Keeps Docusaurus | Interactive requests | SDKs        | Cost                                                                                                                   |
+| --------------------------------- | --------------------- | ---------------- | -------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Scalar plugin for Docusaurus**  | Plugin                | Yes              | Yes                  | No          | Free, MIT ([integration](/products/api-references/integrations/docusaurus))                                            |
+| **Scalar Docs**                   | Hosted platform       | No               | Yes                  | Yes, native | Free plan; Pro $150/month ([pricing](/pricing))                                                                        |
+| **docusaurus-openapi-docs**       | Plugin, generates MDX | Yes              | Yes                  | No          | Free, MIT ([repo](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs))                                        |
+| **Redocusaurus**                  | Plugin, renders Redoc | Yes              | No                   | No          | Free, MIT ([repo](https://github.com/rohit-gohri/redocusaurus))                                                        |
+| **Starlight + starlight-openapi** | Framework plus plugin | No, Astro        | See plugin           | No          | Free, MIT ([Starlight](https://github.com/withastro/starlight), [plugin](https://github.com/HiDeoo/starlight-openapi)) |
+| **Mintlify**                      | Hosted platform       | No               | Yes                  | No          | Starter $0; Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing))                                 |
+| **Redocly**                       | Platform and CLI      | No               | Yes                  | No          | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))                                                        |
 
 Repository details and prices were checked on September 26, 2026.
 
@@ -148,12 +148,12 @@ Redocly's platform is priced per seat ([pricing](https://redocly.com/pricing)) a
 
 Most of the decision comes down to four questions. Answer them honestly and the right shape usually becomes obvious.
 
-| Question | If yes, lean toward | If no, lean toward |
-| --- | --- | --- |
-| Is more than half of your site API reference? | A platform built around OpenAPI | Docusaurus plus a plugin |
-| Do non-engineers need to edit pages without Git? | A hosted platform with a web editor | Docusaurus |
-| Do you want SDKs or an MCP server from the same OpenAPI document? | A platform that generates them | Docusaurus plus a plugin |
-| Do you have someone who enjoys maintaining a React build? | Docusaurus | A hosted platform |
+| Question                                                          | If yes, lean toward                 | If no, lean toward       |
+| ----------------------------------------------------------------- | ----------------------------------- | ------------------------ |
+| Is more than half of your site API reference?                     | A platform built around OpenAPI     | Docusaurus plus a plugin |
+| Do non-engineers need to edit pages without Git?                  | A hosted platform with a web editor | Docusaurus               |
+| Do you want SDKs or an MCP server from the same OpenAPI document? | A platform that generates them      | Docusaurus plus a plugin |
+| Do you have someone who enjoys maintaining a React build?         | Docusaurus                          | A hosted platform        |
 
 A common path: teams start with Docusaurus for guides, add an API reference plugin, and only reconsider when a second or third API arrives, or when someone asks for SDKs. At that point the question is less "is Docusaurus good" (it is) and more "do we want to keep composing the API experience from parts". Neither answer is wrong. Composing gives you control; consolidating gives you fewer moving pieces.
 
@@ -199,4 +199,4 @@ Move if maintaining the build, plugins and hosting costs you more than a subscri
 
 ---
 
-*This page is based on the public documentation and GitHub repositories of Docusaurus and each plugin listed, and on the pricing pages of every commercial tool, as checked on September 26, 2026. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on the public documentation and GitHub repositories of Docusaurus and each plugin listed, and on the pricing pages of every commercial tool, as checked on September 26, 2026. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

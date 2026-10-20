@@ -1,6 +1,6 @@
 # Scalar vs Swagger UI
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Swagger UI is the renderer most developers picture when they hear "OpenAPI docs". It has been around [since 2011](https://github.com/swagger-api/swagger-ui), it is Apache-2.0 licensed, it is maintained by SmartBear, and it ships by default in frameworks such as [FastAPI](https://fastapi.tiangolo.com/features/). If you have an OpenAPI document, you have almost certainly seen it rendered in Swagger UI.
 
@@ -12,18 +12,18 @@ If you are already sure and want the steps, go straight to the [Swagger UI migra
 
 ## At a glance
 
-| | Scalar API Reference | Swagger UI |
-| --- | --- | --- |
-| Licence | [MIT](https://github.com/scalar/scalar) | [Apache-2.0](https://github.com/swagger-api/swagger-ui) |
-| Maintainer | Scalar | [SmartBear](https://github.com/swagger-api/swagger-ui) |
-| OpenAPI versions | Swagger 2.0, OpenAPI 3.0, 3.1; 3.2 features [landing incrementally](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md) | [2.0, 3.0.x, 3.1.x, 3.2.0](https://github.com/swagger-api/swagger-ui#compatibility) (5.32.0 and later) |
-| Try it out | Full API client: environments, auth flows, cookies, history | ["Try it out" section](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) per operation |
-| Search | Built in, full text | [Tag filter box](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) (`filter`) |
-| Code snippets | Dozens of languages and HTTP clients | [cURL for bash, PowerShell, and CMD](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) by default |
-| Dark mode and themes | Yes, 11 built-in themes plus CSS variables | Syntax-highlight themes; no documented UI dark mode option |
-| Framework integrations | 35+ (Express, Fastify, NestJS, FastAPI, ASP.NET Core, Laravel, Rails, and more) | npm modules, [React component](https://github.com/swagger-api/swagger-ui), Docker, and community wrappers |
-| Extensibility | Configuration, CSS, plugins, Vue slots | [Plugin API](https://github.com/swagger-api/swagger-ui) and custom layouts |
-| Hosted docs, SDKs, MCP | Optional paid platform | Not part of Swagger UI |
+|                        | Scalar API Reference                                                                                                                                | Swagger UI                                                                                                                 |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Licence                | [MIT](https://github.com/scalar/scalar)                                                                                                             | [Apache-2.0](https://github.com/swagger-api/swagger-ui)                                                                    |
+| Maintainer             | Scalar                                                                                                                                              | [SmartBear](https://github.com/swagger-api/swagger-ui)                                                                     |
+| OpenAPI versions       | Swagger 2.0, OpenAPI 3.0, 3.1; 3.2 features [landing incrementally](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md) | [2.0, 3.0.x, 3.1.x, 3.2.0](https://github.com/swagger-api/swagger-ui#compatibility) (5.32.0 and later)                     |
+| Try it out             | Full API client: environments, auth flows, cookies, history                                                                                         | ["Try it out" section](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) per operation            |
+| Search                 | Built in, full text                                                                                                                                 | [Tag filter box](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) (`filter`)                     |
+| Code snippets          | Dozens of languages and HTTP clients                                                                                                                | [cURL for bash, PowerShell, and CMD](https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/) by default |
+| Dark mode and themes   | Yes, 11 built-in themes plus CSS variables                                                                                                          | Syntax-highlight themes; no documented UI dark mode option                                                                 |
+| Framework integrations | 35+ (Express, Fastify, NestJS, FastAPI, ASP.NET Core, Laravel, Rails, and more)                                                                     | npm modules, [React component](https://github.com/swagger-api/swagger-ui), Docker, and community wrappers                  |
+| Extensibility          | Configuration, CSS, plugins, Vue slots                                                                                                              | [Plugin API](https://github.com/swagger-api/swagger-ui) and custom layouts                                                 |
+| Hosted docs, SDKs, MCP | Optional paid platform                                                                                                                              | Not part of Swagger UI                                                                                                     |
 
 ## Where Swagger UI is stronger
 
@@ -177,12 +177,12 @@ If none of those apply, the renderer comparison above is the whole story, and ei
 
 ## Pricing
 
-| | Scalar | Swagger UI |
-| --- | --- | --- |
-| Open-source renderer | Free, [MIT](https://github.com/scalar/scalar) | Free, [Apache-2.0](https://github.com/swagger-api/swagger-ui) |
-| Self-hosting | Free, any plan or no plan | Free |
-| Hosted docs | Free plan: up to 3 APIs, 1 editor seat | Not part of Swagger UI |
-| Paid tiers | [Pro $150/month](/pricing) ($125/month yearly), [Business $600/month](/pricing) ($500/month yearly), Enterprise custom | Not applicable |
+|                      | Scalar                                                                                                                 | Swagger UI                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Open-source renderer | Free, [MIT](https://github.com/scalar/scalar)                                                                          | Free, [Apache-2.0](https://github.com/swagger-api/swagger-ui) |
+| Self-hosting         | Free, any plan or no plan                                                                                              | Free                                                          |
+| Hosted docs          | Free plan: up to 3 APIs, 1 editor seat                                                                                 | Not part of Swagger UI                                        |
+| Paid tiers           | [Pro $150/month](/pricing) ($125/month yearly), [Business $600/month](/pricing) ($500/month yearly), Enterprise custom | Not applicable                                                |
 
 If all you want is a reference page mounted in your app, both cost nothing. The paid Scalar plans are for the hosted platform: custom domains, Git sync, SDKs, MCP servers, SSO, and seats.
 
@@ -260,4 +260,4 @@ Microsoft's [ASP.NET Core guidance](https://learn.microsoft.com/en-us/aspnet/cor
 
 ---
 
-*This comparison is based on Swagger UI's public repository, npm releases, and configuration documentation as of September 2026, and on Scalar's own source. Both projects release frequently. We have made a genuine effort to be accurate and to state where Swagger UI is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Swagger UI's public repository, npm releases, and configuration documentation as of September 2026, and on Scalar's own source. Both projects release frequently. We have made a genuine effort to be accurate and to state where Swagger UI is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

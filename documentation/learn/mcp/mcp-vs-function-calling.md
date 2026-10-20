@@ -1,6 +1,6 @@
 # MCP vs function calling: what is the difference?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Function calling is a feature of a model's API that lets the model return a structured request to run a function you described, while the Model Context Protocol (MCP) is an open protocol that standardizes how an AI application discovers and calls tools that live in separate servers. They are not competitors. MCP sits one layer above function calling: an MCP client fetches tool definitions from a server and hands them to the model through function calling, then sends the model's chosen call back to the server to run.
 
@@ -23,8 +23,8 @@ So the real question is rarely "MCP or function calling?" It is "should my tools
 
 ## The short answer
 
-- **Function calling** is how a model *asks* for a tool. You send tool definitions with each request; the model replies with a tool name and JSON arguments; your code runs it and sends back the result.
-- **MCP** is how an application *gets* tools and *runs* them when they belong to someone else. A server publishes tools over a standard protocol, and any compatible client can list and call them.
+- **Function calling** is how a model _asks_ for a tool. You send tool definitions with each request; the model replies with a tool name and JSON arguments; your code runs it and sends back the result.
+- **MCP** is how an application _gets_ tools and _runs_ them when they belong to someone else. A server publishes tools over a standard protocol, and any compatible client can list and call them.
 
 Every major model provider supports function calling in its own request format. MCP is one protocol that works across providers and across host applications. If you have not met MCP before, [What is MCP?](/learn/mcp/what-is-mcp) is the place to start.
 
@@ -84,7 +84,7 @@ The same tool for Claude, from Anthropic's [tool use overview](https://platform.
 
 Claude replies with `stop_reason: "tool_use"` and a `tool_use` block; you answer with a `tool_result` block carrying the matching `tool_use_id`.
 
-Notice what function calling does *not* cover. It says nothing about where the function lives, how your application learns that it exists, how it authenticates to the system it touches, or how another application could reuse it. All of that is your code.
+Notice what function calling does _not_ cover. It says nothing about where the function lives, how your application learns that it exists, how it authenticates to the system it touches, or how another application could reuse it. All of that is your code.
 
 ## What MCP adds
 
@@ -160,18 +160,18 @@ That is the whole relationship. Function calling is the model-facing interface. 
 
 ## MCP vs function calling compared
 
-| | Function calling | MCP |
-| --- | --- | --- |
-| What it is | A model API feature | An open client-server protocol |
-| Who defines the tools | Your application, in code | The server, published at runtime |
-| Where the tool runs | In your application | In the MCP server (local process or remote service) |
-| Tool discovery | None; you pass tools with every request | `tools/list` on each connected server |
-| Portability | Tied to one provider's request format | Same server works in any MCP-capable host |
-| Authentication to the system behind the tool | Whatever your code does | Standard OAuth 2.1 flow for remote servers, or environment variables for local ones |
-| Reuse across apps | Copy the code | Connect the same URL |
-| Extra capabilities | Tools only | Tools, resources, prompts |
-| Operational overhead | None beyond your app | A server to run, or a hosted one to connect |
-| Best fit | Tools that are specific to one application | Tools many applications or users should share |
+|                                              | Function calling                           | MCP                                                                                 |
+| -------------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------- |
+| What it is                                   | A model API feature                        | An open client-server protocol                                                      |
+| Who defines the tools                        | Your application, in code                  | The server, published at runtime                                                    |
+| Where the tool runs                          | In your application                        | In the MCP server (local process or remote service)                                 |
+| Tool discovery                               | None; you pass tools with every request    | `tools/list` on each connected server                                               |
+| Portability                                  | Tied to one provider's request format      | Same server works in any MCP-capable host                                           |
+| Authentication to the system behind the tool | Whatever your code does                    | Standard OAuth 2.1 flow for remote servers, or environment variables for local ones |
+| Reuse across apps                            | Copy the code                              | Connect the same URL                                                                |
+| Extra capabilities                           | Tools only                                 | Tools, resources, prompts                                                           |
+| Operational overhead                         | None beyond your app                       | A server to run, or a hosted one to connect                                         |
+| Best fit                                     | Tools that are specific to one application | Tools many applications or users should share                                       |
 
 ## When function calling alone is enough
 
@@ -285,4 +285,4 @@ Not inherently. An MCP tool becomes a function definition before it reaches the 
 - **Docs:** [MCP servers](/products/agent/mcp) · [Agent SDK](/products/agent/integration/sdk)
 - **Product:** [Scalar MCP](/products/agent/mcp) — turn your OpenAPI document into a hosted MCP server any client can call
 
-*Provider request formats were checked against OpenAI and Anthropic documentation on 26 September 2026. MCP details refer to specification revision 2026-07-28.*
+_Provider request formats were checked against OpenAI and Anthropic documentation on 26 September 2026. MCP details refer to specification revision 2026-07-28._

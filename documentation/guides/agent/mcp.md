@@ -68,10 +68,10 @@ A team-member token cannot call tools that require [per-access-group credentials
 
 Open the API and environment in your MCP server, then use **Configure → MCP Tools** to choose which operations clients may discover or execute. Keep operations that should not make requests in search-only mode.
 
-| Mode | Description |
-| --- | --- |
-| Search | Makes an operation available for lookup without sending an API request. |
-| Execute | Allows an authenticated request to the upstream API. |
+| Mode    | Description                                                             |
+| ------- | ----------------------------------------------------------------------- |
+| Search  | Makes an operation available for lookup without sending an API request. |
+| Execute | Allows an authenticated request to the upstream API.                    |
 
 ## API Authentication
 

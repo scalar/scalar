@@ -4,13 +4,13 @@
 
 Manage shared schemas in the Scalar Registry.
 
-| Command | Description |
-| --- | --- |
-| [`scalar schema delete`](#delete) | Delete a shared schema |
-| [`scalar schema update`](#update) | Update shared schema metadata |
-| [`scalar schema list`](#list) | List shared schemas in a team namespace |
-| [`scalar schema get`](#get) | Download a shared schema version from the Scalar Registry |
-| [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar Registry |
+| Command                             | Description                                               |
+| ----------------------------------- | --------------------------------------------------------- |
+| [`scalar schema delete`](#delete)   | Delete a shared schema                                    |
+| [`scalar schema update`](#update)   | Update shared schema metadata                             |
+| [`scalar schema list`](#list)       | List shared schemas in a team namespace                   |
+| [`scalar schema get`](#get)         | Download a shared schema version from the Scalar Registry |
+| [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar Registry            |
 
 ## delete
 
@@ -22,9 +22,9 @@ scalar schema delete [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | Schema slug. |
+| Option                        | Description     |
+| ----------------------------- | --------------- |
+| `-s, --slug <slug>`           | Schema slug.    |
 | `-n, --namespace <namespace>` | Team namespace. |
 
 ## update
@@ -37,13 +37,13 @@ scalar schema update [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | Schema slug. |
-| `-n, --namespace <namespace>` | Team namespace. |
-| `--title <title>` | Schema title. |
-| `--description <description>` | Schema description. |
-| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| Option                        | Description                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------- |
+| `-s, --slug <slug>`           | Schema slug.                                                                                |
+| `-n, --namespace <namespace>` | Team namespace.                                                                             |
+| `--title <title>`             | Schema title.                                                                               |
+| `--description <description>` | Schema description.                                                                         |
+| `--isPrivate <isPrivate>`     | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
 
 ## list
 
@@ -55,10 +55,10 @@ scalar schema list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--namespace <namespace>` | Team namespace. |
-| `--json` | Output schema metadata as JSON. |
+| Option                    | Description                     |
+| ------------------------- | ------------------------------- |
+| `--namespace <namespace>` | Team namespace.                 |
+| `--json`                  | Output schema metadata as JSON. |
 
 ## get
 
@@ -70,18 +70,18 @@ scalar schema get [options] [namespace] [slug]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument    | Description     |
+| ----------- | --------------- |
 | `namespace` | Team namespace. |
-| `slug` | Schema slug. |
+| `slug`      | Schema slug.    |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `--version <version>` | Schema version (defaults to latest). |  |
-| `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
-| `-o, --output <file>` | Output file (defaults to stdout). |  |
+| Option                | Description                           | Default |
+| --------------------- | ------------------------------------- | ------- |
+| `--version <version>` | Schema version (defaults to latest).  |         |
+| `--format <format>`   | Output format. One of `json`, `yaml`. | `json`  |
+| `-o, --output <file>` | Output file (defaults to stdout).     |         |
 
 ## publish
 
@@ -93,21 +93,21 @@ scalar schema publish [options] [file]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `file` | Shared schema file path or URL to upload. |
+| Argument | Description                               |
+| -------- | ----------------------------------------- |
+| `file`   | Shared schema file path or URL to upload. |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `--slug <slug>` | Shared schema slug. |  |
-| `--title <title>` | Schema title. |  |
-| `--namespace <namespace>` | Scalar team namespace. |  |
-| `--version <version>` | Schema version (for example, 0.1.0). |  |
-| `--private` | Make the shared schema private. | `false` |
-| `--force` | Overwrite an existing version. | `false` |
-| `--bundle` | Bundle all external references before uploading. |  |
-| `--treeShake` | Remove unused components from the bundled document. |  |
-| `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| Option                    | Description                                                 | Default |
+| ------------------------- | ----------------------------------------------------------- | ------- |
+| `--slug <slug>`           | Shared schema slug.                                         |         |
+| `--title <title>`         | Schema title.                                               |         |
+| `--namespace <namespace>` | Scalar team namespace.                                      |         |
+| `--version <version>`     | Schema version (for example, 0.1.0).                        |         |
+| `--private`               | Make the shared schema private.                             | `false` |
+| `--force`                 | Overwrite an existing version.                              | `false` |
+| `--bundle`                | Bundle all external references before uploading.            |         |
+| `--treeShake`             | Remove unused components from the bundled document.         |         |
+| `--urlMap`                | Generate a map of resolved URLs when bundling the document. |         |
+| `--fetchLimit <limit>`    | Maximum number of concurrent URL fetches when bundling.     |         |

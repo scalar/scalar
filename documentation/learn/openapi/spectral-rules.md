@@ -1,6 +1,6 @@
 # Spectral rules: how to lint OpenAPI with custom rulesets
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Spectral rules are small, declarative checks that the open source Spectral linter runs against JSON or YAML documents such as OpenAPI descriptions. Each rule selects part of the document with a JSONPath expression (`given`), applies a function to it (`then`), and reports a problem at a chosen severity when the check fails. A collection of rules is a ruleset, usually stored in a file called `.spectral.yaml`.
 
@@ -46,11 +46,11 @@ Save it as `.spectral.yaml` next to your OpenAPI document and run `spectral lint
 
 Three kinds of checks get lumped together as "OpenAPI validation". They catch different problems.
 
-| Check | Question it answers | Example failure | Typical tool |
-| --- | --- | --- | --- |
-| Description validation | Is this a valid OpenAPI document? | `paths` is missing, a `$ref` points nowhere, `type: strng` | `scalar document validate`, any OpenAPI parser |
-| Linting | Does this valid document follow our rules? | An operation has no description, a path uses camelCase | Spectral with a ruleset |
-| Contract testing | Does the running API match the document? | The API returns a field the schema does not declare | Validation proxies, contract test suites |
+| Check                  | Question it answers                        | Example failure                                            | Typical tool                                   |
+| ---------------------- | ------------------------------------------ | ---------------------------------------------------------- | ---------------------------------------------- |
+| Description validation | Is this a valid OpenAPI document?          | `paths` is missing, a `$ref` points nowhere, `type: strng` | `scalar document validate`, any OpenAPI parser |
+| Linting                | Does this valid document follow our rules? | An operation has no description, a path uses camelCase     | Spectral with a ruleset                        |
+| Contract testing       | Does the running API match the document?   | The API returns a field the schema does not declare        | Validation proxies, contract test suites       |
 
 A document can pass validation and still fail linting badly: an API with no descriptions, inconsistent naming and no error responses is perfectly valid OpenAPI. Linting is where your team's opinions live. If you only need the first row, read [how to do OpenAPI validation](/blog/posts/2025-07-07-how-to-do-openapi-validation-and).
 
@@ -177,19 +177,19 @@ Check the version you run against the version your documents use. Spectral's for
 
 Most rules only need a built-in function. These are the ones Spectral documents as core functions:
 
-| Function | Checks that the value... | Key options |
-| --- | --- | --- |
-| `truthy` / `falsy` | is present and not empty / is absent or empty | none |
-| `defined` / `undefined` | is defined / is not defined | none |
-| `pattern` | matches (or does not match) a regular expression | `match`, `notMatch` |
-| `casing` | follows a naming convention | `type` (`flat`, `camel`, `pascal`, `kebab`, `cobol`, `snake`, `macro`), `disallowDigits`, `separator` |
-| `enumeration` | is one of a list | `values` |
-| `length` | has a length (string, array, or object keys) within bounds | `min`, `max` |
-| `schema` | validates against a JSON Schema | `schema`, `dialect`, `allErrors` |
-| `alphabetical` | is sorted | `keyedBy` |
-| `xor` / `or` | has exactly one / at least one of several properties | `properties` |
-| `unreferencedReusableObject` | is referenced somewhere | `reusableObjectsLocation` |
-| `typedEnum` | has enum values that match the declared type | none |
+| Function                     | Checks that the value...                                   | Key options                                                                                           |
+| ---------------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `truthy` / `falsy`           | is present and not empty / is absent or empty              | none                                                                                                  |
+| `defined` / `undefined`      | is defined / is not defined                                | none                                                                                                  |
+| `pattern`                    | matches (or does not match) a regular expression           | `match`, `notMatch`                                                                                   |
+| `casing`                     | follows a naming convention                                | `type` (`flat`, `camel`, `pascal`, `kebab`, `cobol`, `snake`, `macro`), `disallowDigits`, `separator` |
+| `enumeration`                | is one of a list                                           | `values`                                                                                              |
+| `length`                     | has a length (string, array, or object keys) within bounds | `min`, `max`                                                                                          |
+| `schema`                     | validates against a JSON Schema                            | `schema`, `dialect`, `allErrors`                                                                      |
+| `alphabetical`               | is sorted                                                  | `keyedBy`                                                                                             |
+| `xor` / `or`                 | has exactly one / at least one of several properties       | `properties`                                                                                          |
+| `unreferencedReusableObject` | is referenced somewhere                                    | `reusableObjectsLocation`                                                                             |
+| `typedEnum`                  | has enum values that match the declared type               | none                                                                                                  |
 
 When none of these fit, Spectral supports [custom JavaScript functions](https://github.com/stoplightio/spectral/blob/develop/docs/guides/5-custom-functions.md), but try `schema` first. A small JSON Schema can express most structural checks, and it keeps the ruleset declarative. If JSON Schema itself is new to you, [JSON Schema vs OpenAPI](/learn/openapi/json-schema-vs-openapi) explains how the two relate.
 

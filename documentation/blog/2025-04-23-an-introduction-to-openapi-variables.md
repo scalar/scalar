@@ -35,10 +35,10 @@ This helps developers on your team know the constraints of the URL as well as ea
 
 Generally, server variables fit into one of the following use cases:
 
-* Configuring an API to work across dev, staging, and production environments
-* Testing APIs across both `http` and `https` protocols
-* Allowing flexibility in port selection
-* Defining subdomain values for customers, regions, or multi-tenant applications.
+- Configuring an API to work across dev, staging, and production environments
+- Testing APIs across both `http` and `https` protocols
+- Allowing flexibility in port selection
+- Defining subdomain values for customers, regions, or multi-tenant applications.
 
 ## Parameters
 
@@ -46,10 +46,10 @@ Although not named variables, OpenAPI parameters function as variables in your O
 
 There are four main types of parameters:
 
-* **Path**, used in URL paths like `/users/{id}` to identify specific resources.
-* **Query**, added after a `?` in the URL to optionally filter, sort, and paginate.
-* **Header**, sent in HTTP for metadata, auth tokens, and tracking.
-* **Cookie**, sent in the cookie header for things like session management, but generally avoided/not recommended.
+- **Path**, used in URL paths like `/users/{id}` to identify specific resources.
+- **Query**, added after a `?` in the URL to optionally filter, sort, and paginate.
+- **Header**, sent in HTTP for metadata, auth tokens, and tracking.
+- **Cookie**, sent in the cookie header for things like session management, but generally avoided/not recommended.
 
 For example, a basic parameter to get a specific user might look like this:
 
@@ -70,15 +70,15 @@ For each parameter, you need to define its `name`, location (`in`), and data typ
 
 Parameter attributes have many uses including:
 
-* **Constraints** including ones like maximum or minimum number values, string length and patterns, array uniqueness, and enum allowed values.
-* **Validation** including basic types like `integer`, data formats like `int64`, and complex objects (built of many constraints). This enables you to sanitize inputs and protect against attack vectors.
-* **Defaults** as well as defining whether null values are allowed with `nullable: true`.
-* **Style and serialization definition** AKA how arrays and objects are formatted in URLs and headers. For example, `ids=[1,2,3]` changes to:
+- **Constraints** including ones like maximum or minimum number values, string length and patterns, array uniqueness, and enum allowed values.
+- **Validation** including basic types like `integer`, data formats like `int64`, and complex objects (built of many constraints). This enables you to sanitize inputs and protect against attack vectors.
+- **Defaults** as well as defining whether null values are allowed with `nullable: true`.
+- **Style and serialization definition** AKA how arrays and objects are formatted in URLs and headers. For example, `ids=[1,2,3]` changes to:
+  - `?ids=1,2,3` when `style: form`
+  - `?ids=1%202%203` when `style: spaceDelimited`
+  - `?ids=1|2|3` when `style: pipeDelimited`
 
-  * `?ids=1,2,3` when `style: form`
-  * `?ids=1%202%203` when `style: spaceDelimited`
-  * `?ids=1|2|3` when `style: pipeDelimited`
-* **Content types** like `application/json`, `application/xml`, `application/x-www-form-urlencoded`, `text/plain`, `image/png`, `application/pdf`, and their schemas.
+- **Content types** like `application/json`, `application/xml`, `application/x-www-form-urlencoded`, `text/plain`, `image/png`, `application/pdf`, and their schemas.
 
 For example, to represent a filter that accepts a JSON object with a name and (optionally) age that looks like this `/api/endpoint?filter={"name":"John","age":25}`, you can define the parameter like this:
 
@@ -144,10 +144,10 @@ In a way, this is a sort of meta-level variable, a variable inside a variable.
 
 Although OpenAPI provides a lot of flexibility for defining and using variables, it’s not close to providing everything you could ever want:
 
-* Server variables can only be strings and have limited validation options.
-* Parameters don’t support dynamic default values, computed values, or conditional values.
-* Parameter schemas don’t support custom validation functions, complex data structures for queries, and other advanced features.
-* Descriptions are limited to basic text limiting rich media, interactivity, and markdown.
+- Server variables can only be strings and have limited validation options.
+- Parameters don’t support dynamic default values, computed values, or conditional values.
+- Parameter schemas don’t support custom validation functions, complex data structures for queries, and other advanced features.
+- Descriptions are limited to basic text limiting rich media, interactivity, and markdown.
 
 Luckily, there’s no OpenAPI police going around preventing you from extending or changing how your document is written and processed. You can do whatever you want as long as you do the work to make the functionality work as you expect.
 

@@ -45,12 +45,12 @@ pm.test("Request completed quickly", () => {
 
 The `pm.request` object represents the request that is about to be sent. Changes to headers and method are applied to the actual request.
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `pm.request.method` | string | HTTP method (GET, POST, etc.) |
-| `pm.request.url` | Url | Request URL |
-| `pm.request.headers` | HeaderList | Request headers |
-| `pm.request.body` | RequestBody | Request body |
+| Property             | Type        | Description                   |
+| -------------------- | ----------- | ----------------------------- |
+| `pm.request.method`  | string      | HTTP method (GET, POST, etc.) |
+| `pm.request.url`     | Url         | Request URL                   |
+| `pm.request.headers` | HeaderList  | Request headers               |
+| `pm.request.body`    | RequestBody | Request body                  |
 
 ### Modifying headers
 

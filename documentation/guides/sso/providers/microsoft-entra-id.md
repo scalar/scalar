@@ -4,8 +4,8 @@ Configure SAML-based SSO between Microsoft Entra ID and Scalar.
 
 ## Requirements
 
-* SSO/SAML requires a Scalar Business or Enterprise subscription. Read more about [our pricing](../../pricing.md).
-* You are the owner or admin of your Scalar team.
+- SSO/SAML requires a Scalar Business or Enterprise subscription. Read more about [our pricing](../../pricing.md).
+- You are the owner or admin of your Scalar team.
 
 ## 1. Create a New Enterprise Application
 
@@ -102,6 +102,6 @@ Your organization is now ready to use Scalar SSO with Microsoft Entra ID! If you
 
 ## Troubleshooting
 
-* **"Invalid SAML signature state" after signing in with Microsoft** - the **Signing Option** in the SAML Certificates card is still set to **Sign SAML assertion**. Change it to **Sign SAML response and assertion** (step 7).
-* **Sent back to the Scalar login page without an error** - token encryption is not enabled for the application, or the wrong certificate was imported. Re-check step 8.
-* **Users cannot be matched to their Scalar account** - the **Unique User Identifier (Name ID)** claim under **Attributes & Claims** must be the user's email address (`user.mail` or `user.userprincipalname`).
+- **"Invalid SAML signature state" after signing in with Microsoft** - the **Signing Option** in the SAML Certificates card is still set to **Sign SAML assertion**. Change it to **Sign SAML response and assertion** (step 7).
+- **Sent back to the Scalar login page without an error** - token encryption is not enabled for the application, or the wrong certificate was imported. Re-check step 8.
+- **Users cannot be matched to their Scalar account** - the **Unique User Identifier (Name ID)** claim under **Attributes & Claims** must be the user's email address (`user.mail` or `user.userprincipalname`).

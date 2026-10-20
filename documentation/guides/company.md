@@ -4,9 +4,7 @@ Building on a great API is one of the best feelings in software: every desired i
 
 As a small team (10) of engineers and designers, we wear a lot of hats and obsess over our craft. We think every company deserves Stripe-level docs, SDKs, and MCP servers from day zero, not just the ones with a platform team to build them.
 
-
-<a href="#careers" aria-label="Join Scalar community on Discord" class="expander-hover-link t-editor__anchor">Explore Careers  →</a>
-
+<a href="#careers" aria-label="Join Scalar community on Discord" class="expander-hover-link t-editor__anchor">Explore Careers →</a>
 
 ## Our Story
 

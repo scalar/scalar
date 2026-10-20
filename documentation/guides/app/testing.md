@@ -234,20 +234,20 @@ Access the response object inside your scripts.
 
 #### Properties
 
-| Property | Type | Description |
-| --- | --- | --- |
-| `pm.response.code` | number | HTTP status code |
-| `pm.response.status` | string | HTTP status text |
-| `pm.response.headers` | HeaderList | Response headers |
-| `pm.response.responseTime` | number | Time to receive the response in milliseconds |
-| `pm.response.responseSize` | number | Size of the response in bytes |
+| Property                   | Type       | Description                                  |
+| -------------------------- | ---------- | -------------------------------------------- |
+| `pm.response.code`         | number     | HTTP status code                             |
+| `pm.response.status`       | string     | HTTP status text                             |
+| `pm.response.headers`      | HeaderList | Response headers                             |
+| `pm.response.responseTime` | number     | Time to receive the response in milliseconds |
+| `pm.response.responseSize` | number     | Size of the response in bytes                |
 
 #### Methods
 
-| Method | Returns | Description |
-| --- | --- | --- |
-| `pm.response.text()` | string | Response body as a string |
-| `pm.response.json()` | object | Parse the response body as JSON |
+| Method               | Returns | Description                     |
+| -------------------- | ------- | ------------------------------- |
+| `pm.response.text()` | string  | Response body as a string       |
+| `pm.response.json()` | object  | Parse the response body as JSON |
 
 #### Response assertions
 
@@ -286,12 +286,12 @@ pm.response.to.not.have.status(404)
 
 Read and write variables at different scopes. All scopes support `.get(name)` and `.set(name, value)`.
 
-| Scope | Description |
-| --- | --- |
-| `pm.variables` | Local to the current script |
-| `pm.environment` | Tied to the active environment |
-| `pm.collectionVariables` | Shared across the collection |
-| `pm.globals` | Available everywhere |
+| Scope                    | Description                    |
+| ------------------------ | ------------------------------ |
+| `pm.variables`           | Local to the current script    |
+| `pm.environment`         | Tied to the active environment |
+| `pm.collectionVariables` | Shared across the collection   |
+| `pm.globals`             | Available everywhere           |
 
 ```js
 // Read a variable

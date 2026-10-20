@@ -70,7 +70,7 @@ options.AddDocumentTransformer((document, _, _) =>
             Type = ReferenceType.SecurityScheme
         }
     };
-    
+
     document.SecurityRequirements.Add(new OpenApiSecurityRequirement
     {
         [referenceScheme] = []
@@ -175,7 +175,7 @@ app.MapScalarApiReference(options => options
                 ClientSecret = "your-client-secret"
             }
         };
-        
+
         // Set default scopes
         scheme.DefaultScopes = ["profile", "email"];
     });
@@ -183,8 +183,8 @@ app.MapScalarApiReference(options => options
 ```
 
 > [!NOTE]
-> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
-> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core method 
+> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`,
+> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core method
 > that make it easier to configure specific flows.
 
 ### Prefilling Client Credentials Flow

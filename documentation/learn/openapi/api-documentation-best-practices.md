@@ -1,6 +1,6 @@
 # API documentation best practices
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 API documentation best practices are the habits that make an API easy to adopt: keep one accurate, machine-readable description of the API (usually an OpenAPI document), generate the reference from it, pair that reference with task-based guides, show realistic examples and every error, make authentication obvious, and publish automatically whenever the API changes. Everything else is refinement.
 

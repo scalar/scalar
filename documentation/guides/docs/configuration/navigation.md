@@ -130,12 +130,12 @@ A group collects several links into a single dropdown.
 }
 ```
 
-| Property   | Type                           | Required | Description                                            |
-| ---------- | ------------------------------ | -------- | ------------------------------------------------------ |
-| `type`     | `"group"`                      | Yes      | Must be `"group"`                                      |
-| `title`    | `string`                       | Yes      | The display text for the dropdown                      |
-| `children` | `array`                        | Yes      | The links inside the dropdown                          |
-| `align`    | `"start" \| "center" \| "end"` | No       | Which region the group sits in (defaults to `"start"`) |
+| Property   | Type                           | Required | Description                                                                                                                                                                                     |
+| ---------- | ------------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`     | `"group"`                      | Yes      | Must be `"group"`                                                                                                                                                                               |
+| `title`    | `string`                       | Yes      | The display text for the dropdown                                                                                                                                                               |
+| `children` | `array`                        | Yes      | The links inside the dropdown                                                                                                                                                                   |
+| `align`    | `"start" \| "center" \| "end"` | No       | Which region the group sits in (defaults to `"start"`)                                                                                                                                          |
 | `icon`     | `string`                       | No       | An icon to display next to the group. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 
 `children` accepts link items only. Each child takes the same properties as a [header link](#header-links).
@@ -188,12 +188,12 @@ The `navigation.sidebar` array defines links that appear in the footer of the si
 
 ### Properties
 
-| Property | Type                 | Required | Description                              |
-| -------- | -------------------- | -------- | ---------------------------------------- |
-| `title`  | `string`             | Yes      | The display text for the sidebar link    |
-| `to`     | `string`             | Yes      | The route path or URL the link points to |
-| `icon`   | `string`             | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
-| `newTab` | `boolean`            | No       | Whether to open the link in a new tab    |
+| Property | Type      | Required | Description                                                                                                                                                                                    |
+| -------- | --------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`  | `string`  | Yes      | The display text for the sidebar link                                                                                                                                                          |
+| `to`     | `string`  | Yes      | The route path or URL the link points to                                                                                                                                                       |
+| `icon`   | `string`  | No       | An icon to display next to the link. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
+| `newTab` | `boolean` | No       | Whether to open the link in a new tab                                                                                                                                                          |
 
 ## Tabs
 
@@ -225,10 +225,10 @@ Tabs and a header work together, and you do not need both. If you use tabs witho
 
 ### Properties
 
-| Property | Type     | Required | Description                            |
-| -------- | -------- | -------- | -------------------------------------- |
-| `title`  | `string` | Yes      | The display text for the tab           |
-| `to`     | `string` | Yes      | The route path or URL the tab links to |
+| Property | Type     | Required | Description                                                                                                                                                                                   |
+| -------- | -------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `title`  | `string` | Yes      | The display text for the tab                                                                                                                                                                  |
+| `to`     | `string` | Yes      | The route path or URL the tab links to                                                                                                                                                        |
 | `icon`   | `string` | No       | An icon to display next to the tab. Accepts a built-in [icon key](../components/icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](../components/icons.mdx#custom-icons). |
 
 ### Multiple Tabs
@@ -336,17 +336,17 @@ Pages support layout configuration to customize how they are displayed. These op
 }
 ```
 
-| Option        | Type      | Default | Description                              |
-| ------------- | --------- | ------- | ---------------------------------------- |
-| `toc`         | `boolean` | `true`  | Whether to show the table of contents    |
-| `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation   |
-| `tabs`        | `boolean` | `true`  | Whether to show the navigation tabs      |
-| `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option |
-| `pageTitle`   | `boolean` | `true`  | Whether to show the page title           |
-| `pageActions` | `boolean` | `true`  | Whether to show page actions             |
-| `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page |
+| Option        | Type      | Default | Description                                                                                                                                  |
+| ------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `toc`         | `boolean` | `true`  | Whether to show the table of contents                                                                                                        |
+| `sidebar`     | `boolean` | `true`  | Whether to show the sidebar navigation                                                                                                       |
+| `tabs`        | `boolean` | `true`  | Whether to show the navigation tabs                                                                                                          |
+| `header`      | `boolean` | —       | Whether to show the header. Falls back to the site-level [`layout.header`](site-config.md#layout) option                                     |
+| `pageTitle`   | `boolean` | `true`  | Whether to show the page title                                                                                                               |
+| `pageActions` | `boolean` | `true`  | Whether to show page actions                                                                                                                 |
+| `pageNav`     | `boolean` | `true`  | Whether to show previous and next page links at the bottom of the page                                                                       |
 | `lastUpdated` | `boolean` | `false` | Whether to show the date the page last changed, above the previous and next links. See [Last updated date](site-config.md#last-updated-date) |
-| `search`      | `object`  | —       | Search configuration for this page       |
+| `search`      | `object`  | —       | Search configuration for this page                                                                                                           |
 
 ### Search Options
 
@@ -366,10 +366,10 @@ You can configure the search behavior on a per-page basis:
 }
 ```
 
-| Option     | Type                      | Default    | Description                             |
-| ---------- | ------------------------- | ---------- | --------------------------------------- |
-| `enabled`  | `boolean`                 | `true`     | Enable or disable search for this page  |
-| `position` | `"header" \| "sidebar"`  | `"header"` | The position of the search bar          |
+| Option     | Type                    | Default    | Description                            |
+| ---------- | ----------------------- | ---------- | -------------------------------------- |
+| `enabled`  | `boolean`               | `true`     | Enable or disable search for this page |
+| `position` | `"header" \| "sidebar"` | `"header"` | The position of the search bar         |
 
 ### Example with All Options
 
@@ -710,12 +710,12 @@ In this example, clicking "Company" in the sidebar navigates to the "About Us" p
 
 The `page` property accepts the same configuration as a regular page route:
 
-| Property      | Type      | Required | Description                        |
-| ------------- | --------- | -------- | ---------------------------------- |
-| `type`        | `"page"`  | Yes      | Must be `"page"`                   |
-| `title`       | `string`  | No       | The display text for the page      |
-| `filepath`    | `string`  | Yes      | Relative path to the markdown file |
-| `description` | `string`  | No       | A description for SEO and metadata |
+| Property      | Type     | Required | Description                        |
+| ------------- | -------- | -------- | ---------------------------------- |
+| `type`        | `"page"` | Yes      | Must be `"page"`                   |
+| `title`       | `string` | No       | The display text for the page      |
+| `filepath`    | `string` | Yes      | Relative path to the markdown file |
+| `description` | `string` | No       | A description for SEO and metadata |
 
 ### Default Folder State
 

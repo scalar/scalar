@@ -47,11 +47,11 @@ Beyond covering many more use cases, the combination of OpenAPI and Scalar provi
 
 An interactive API reference is basically an entire separate app. It requires:
 
-* An OpenAPI parser to make the data usable
-* A page generator for each of the endpoints
-* Components with each page to handle URLs, authentication, and examples
-* Templates for each example that need to work with specific client libraries
-* And all this needs to load fast, look nice, and be responsive
+- An OpenAPI parser to make the data usable
+- A page generator for each of the endpoints
+- Components with each page to handle URLs, authentication, and examples
+- Templates for each example that need to work with specific client libraries
+- And all this needs to load fast, look nice, and be responsive
 
 If teams had to do this themselves, they might default to a subpar experience: one that rapidly goes out of date, has poor performance, and doesn’t integrate with their existing website.
 
@@ -73,9 +73,9 @@ As an example, tools in this ecosystem can generate client SDKs (like Python or 
 
 OpenAPI also helps make developers at Cloudinary more productive by:
 
-* Generating code like the SDKs mentioned above
-* Act as a source of truth for API functionality and purpose for internal and external stakeholders
-* Ensure API development best practices like consistent endpoint design and descriptions
+- Generating code like the SDKs mentioned above
+- Act as a source of truth for API functionality and purpose for internal and external stakeholders
+- Ensure API development best practices like consistent endpoint design and descriptions
 
 ---
 

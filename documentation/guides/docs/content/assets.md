@@ -90,6 +90,7 @@ Assets can also be referenced in the `siteConfig.head` configuration for scripts
 ```
 
 Note that when referencing assets in `siteConfig.head`:
+
 - For `scripts` and `styles`, use the full path relative to your configuration root (e.g., `docs/assets/script.js`)
 - For `links` like favicons, use the root-relative path (e.g., `/favicon.png`)
 
@@ -148,4 +149,3 @@ In your Markdown files, you can then reference these assets:
 
 Welcome to our documentation. Check out our [API Client](/api-client-static.svg) for more details.
 ```
-

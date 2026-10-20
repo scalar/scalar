@@ -1,6 +1,6 @@
 # OpenAPI documentation: how to document an API with OpenAPI
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 OpenAPI documentation is API documentation generated from an OpenAPI document, and writing it well means filling that document with more than structure: clear summaries and descriptions, realistic examples, meaningful tags, documented errors and authentication, and Markdown where a longer explanation helps. The renderer takes care of layout. The words, examples, and organization are up to you, and they decide whether the result is a useful reference or a list of endpoints.
 

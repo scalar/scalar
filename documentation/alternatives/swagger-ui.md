@@ -1,6 +1,6 @@
 # Best Swagger UI alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If Swagger UI is rendering your OpenAPI document and you want something your readers will actually enjoy using, this page shows you the realistic replacements, what the swap looks like in code, and what changes for your team afterwards.
 
@@ -26,15 +26,15 @@ To be fair to the project: it has moved faster recently. [Basic OpenAPI 3.2 supp
 
 ## Swagger UI alternatives compared
 
-| Tool | License | Interactive requests | Hosted option | Also does | Best for |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | [MIT](https://github.com/scalar/scalar) | Full API client built in | Yes, free tier | SDKs, hosted MCP, docs site | A drop-in upgrade that can grow into a docs platform |
-| [Redoc](https://github.com/Redocly/redoc) | MIT | No, [hosted Redoc only](https://github.com/Redocly/redoc#redoc-vs-hosted-redoc) | Via Redocly | Static HTML build | Read-only three-panel references |
-| [Stoplight Elements](https://github.com/stoplightio/elements) | Apache 2.0 | Yes | No (self-host) | Web component, React | Embedding a reference inside an existing React site |
-| [RapiDoc](https://github.com/rapi-doc/RapiDoc) | MIT | Yes | No | Web component | Heavy visual customisation with no framework |
-| [docusaurus-openapi-docs](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) | MIT | Yes | No (self-host Docusaurus) | Full docs site | Teams already on Docusaurus |
-| [Mintlify](https://www.mintlify.com/pricing) | Proprietary | API playground | Yes, free Starter | Guides, AI assistant | Content-heavy docs sites |
-| [ReadMe](https://readme.com/pricing) | Proprietary | Yes | Yes, free Starter | Usage metrics, guides | Developer hubs with API usage analytics |
+| Tool                                                                                   | License                                 | Interactive requests                                                            | Hosted option             | Also does                   | Best for                                             |
+| -------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------- | ------------------------- | --------------------------- | ---------------------------------------------------- |
+| **Scalar**                                                                             | [MIT](https://github.com/scalar/scalar) | Full API client built in                                                        | Yes, free tier            | SDKs, hosted MCP, docs site | A drop-in upgrade that can grow into a docs platform |
+| [Redoc](https://github.com/Redocly/redoc)                                              | MIT                                     | No, [hosted Redoc only](https://github.com/Redocly/redoc#redoc-vs-hosted-redoc) | Via Redocly               | Static HTML build           | Read-only three-panel references                     |
+| [Stoplight Elements](https://github.com/stoplightio/elements)                          | Apache 2.0                              | Yes                                                                             | No (self-host)            | Web component, React        | Embedding a reference inside an existing React site  |
+| [RapiDoc](https://github.com/rapi-doc/RapiDoc)                                         | MIT                                     | Yes                                                                             | No                        | Web component               | Heavy visual customisation with no framework         |
+| [docusaurus-openapi-docs](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) | MIT                                     | Yes                                                                             | No (self-host Docusaurus) | Full docs site              | Teams already on Docusaurus                          |
+| [Mintlify](https://www.mintlify.com/pricing)                                           | Proprietary                             | API playground                                                                  | Yes, free Starter         | Guides, AI assistant        | Content-heavy docs sites                             |
+| [ReadMe](https://readme.com/pricing)                                                   | Proprietary                             | Yes                                                                             | Yes, free Starter         | Usage metrics, guides       | Developer hubs with API usage analytics              |
 
 Licenses and stars are from each project's GitHub page; pricing from each vendor's pricing page, all checked 26 September 2026.
 
@@ -212,4 +212,4 @@ Any renderer works with any framework, since they all read the generated OpenAPI
 
 ---
 
-*This page is based on Swagger UI's public GitHub repository and documentation, and on the public repositories, documentation and pricing pages of every other tool listed, as of 26 September 2026. Products in this category change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Swagger UI's public GitHub repository and documentation, and on the public repositories, documentation and pricing pages of every other tool listed, as of 26 September 2026. Products in this category change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

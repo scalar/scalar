@@ -69,15 +69,15 @@ OpenAPI Generator's [`rust` generator](https://openapi-generator.tech/docs/gener
 
 If you need control over the HTTP stack, a trait-based client for mocking, or a stable generator today, OpenAPI Generator is a good fit and we would say so.
 
-| | Scalar Rust target (experimental) | OpenAPI Generator `rust` |
-| --- | --- | --- |
-| Status | Experimental | Stable |
-| HTTP stack | One generated client | `reqwest` (default), `reqwest-trait`, `hyper`, `hyper0x` |
-| Async | Async pager for paginated methods | `supportAsync` (default true with `reqwest`) |
-| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | `oneOf` supported; `allOf` and `anyOf` marked unsupported |
-| Pagination | Pager, including next-page URLs | Not among the generator's documented options |
-| Retries | Built in, honours `Retry-After` | Add your own through `reqwest-middleware` |
-| crates.io release | Trusted publishing workflow generated into your repo | `Cargo.toml` generated; release process is yours |
+|                             | Scalar Rust target (experimental)                    | OpenAPI Generator `rust`                                  |
+| --------------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
+| Status                      | Experimental                                         | Stable                                                    |
+| HTTP stack                  | One generated client                                 | `reqwest` (default), `reqwest-trait`, `hyper`, `hyper0x`  |
+| Async                       | Async pager for paginated methods                    | `supportAsync` (default true with `reqwest`)              |
+| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview        | `oneOf` supported; `allOf` and `anyOf` marked unsupported |
+| Pagination                  | Pager, including next-page URLs                      | Not among the generator's documented options              |
+| Retries                     | Built in, honours `Retry-After`                      | Add your own through `reqwest-middleware`                 |
+| crates.io release           | Trusted publishing workflow generated into your repo | `Cargo.toml` generated; release process is yours          |
 
 For the broader decision, see [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -130,4 +130,4 @@ Rust is currently the only target that follows a next-page URL. Other targets ex
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/rust) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/rust) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

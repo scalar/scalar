@@ -217,14 +217,14 @@ With Flex, inspect `config/bundles.php` after changing dependencies and remove a
 
 These names stay unchanged:
 
-| API | Name |
-|---|---|
-| Bundle | `ScalarSymfonyBundle` |
-| Configuration alias | `scalar_symfony` |
-| Default path | `/scalar` |
-| Route | `scalar_symfony_reference` |
-| Route import | `@ScalarSymfonyBundle/config/routes.php` |
-| Twig template | `@ScalarSymfony/reference.html.twig` |
+| API                         | Name                                     |
+| --------------------------- | ---------------------------------------- |
+| Bundle                      | `ScalarSymfonyBundle`                    |
+| Configuration alias         | `scalar_symfony`                         |
+| Default path                | `/scalar`                                |
+| Route                       | `scalar_symfony_reference`               |
+| Route import                | `@ScalarSymfonyBundle/config/routes.php` |
+| Twig template               | `@ScalarSymfony/reference.html.twig`     |
 | Template override directory | `templates/bundles/ScalarSymfonyBundle/` |
 
 Move `scalar_options` entries into `configuration`. The alias still works and takes precedence if both maps contain the same option, but it is deprecated for new code.

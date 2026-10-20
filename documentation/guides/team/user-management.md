@@ -23,22 +23,22 @@ You can belong to more than one team, and switch between them from the team swit
 
 Scalar uses three roles. Assign the lowest role that still lets someone do their job.
 
-| Role | Best for | Can do |
-|------|----------|--------|
-| **Owner** | The people responsible for the account | Everything an Admin can do, plus adding and removing other Owners, changing Owner roles, and deleting the team |
-| **Admin** | Team leads and API platform owners | Invite and remove members, change roles of non-Owners, manage billing and the plan, and everything an Editor can do |
-| **Editor** | Everyone writing docs or shipping APIs | Create, edit and delete docs, APIs, SDKs and themes |
+| Role       | Best for                               | Can do                                                                                                              |
+| ---------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Owner**  | The people responsible for the account | Everything an Admin can do, plus adding and removing other Owners, changing Owner roles, and deleting the team      |
+| **Admin**  | Team leads and API platform owners     | Invite and remove members, change roles of non-Owners, manage billing and the plan, and everything an Editor can do |
+| **Editor** | Everyone writing docs or shipping APIs | Create, edit and delete docs, APIs, SDKs and themes                                                                 |
 
 Here is the same information as a permission matrix:
 
-| Permission | Owner | Admin | Editor |
-|------------|:-----:|:-----:|:------:|
-| Create, edit and delete docs and projects | ✅ | ✅ | ✅ |
-| Invite and remove members | ✅ | ✅ | ❌ |
-| Change roles below Owner | ✅ | ✅ | ❌ |
-| Manage billing and the plan | ✅ | ✅ | ❌ |
-| Add, remove or promote Owners | ✅ | ❌ | ❌ |
-| Delete the team | ✅ | ❌ | ❌ |
+| Permission                                | Owner | Admin | Editor |
+| ----------------------------------------- | :---: | :---: | :----: |
+| Create, edit and delete docs and projects |  ✅   |  ✅   |   ✅   |
+| Invite and remove members                 |  ✅   |  ✅   |   ❌   |
+| Change roles below Owner                  |  ✅   |  ✅   |   ❌   |
+| Manage billing and the plan               |  ✅   |  ✅   |   ❌   |
+| Add, remove or promote Owners             |  ✅   |  ❌   |   ❌   |
+| Delete the team                           |  ✅   |  ❌   |   ❌   |
 
 A team must always have at least one Owner. If you are the only Owner, promote somebody else before you remove yourself or leave the team.
 
@@ -86,7 +86,7 @@ SSO/SAML is available on the Business and Enterprise plans. Domain restrictions 
 These two things sound similar, so it is worth being precise:
 
 - **Team members** are the people who build with you inside the Scalar dashboard. They are covered by this guide.
-- **[Access groups](../docs/configuration/private-docs.md)** are the people allowed to *read* your private docs. They do not need a seat on your team, and they never see the dashboard.
+- **[Access groups](../docs/configuration/private-docs.md)** are the people allowed to _read_ your private docs. They do not need a seat on your team, and they never see the dashboard.
 
 Use team members for your colleagues, and access groups for customers and partners who should only read your documentation.
 

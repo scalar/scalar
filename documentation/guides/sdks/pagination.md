@@ -144,12 +144,12 @@ Values read from an OpenAPI document are untrusted input: a scheme that does not
 
 A method opts in through `paginated`:
 
-| Value | Effect |
-| ----- | ------ |
-| `"offsetPage"` | Paginates with that named scheme. |
-| `false` | Never paginates, whatever the document says. |
-| Omitted | Falls back to the document's pagination markers (`x-stainless-pagination-property` on request-parameter schemas). If a marker names a type and exactly one configured scheme has that type, the method adopts it. More than one match is ambiguous, so the method stays unpaginated and reports `Pagination/AmbiguousMarker`. |
-| `true` | Resolves to no scheme: the method is not paginated, and document markers are not consulted. Only a Stainless import gives it meaning, matching the method against the configured schemes. |
+| Value          | Effect                                                                                                                                                                                                                                                                                                                        |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `"offsetPage"` | Paginates with that named scheme.                                                                                                                                                                                                                                                                                             |
+| `false`        | Never paginates, whatever the document says.                                                                                                                                                                                                                                                                                  |
+| Omitted        | Falls back to the document's pagination markers (`x-stainless-pagination-property` on request-parameter schemas). If a marker names a type and exactly one configured scheme has that type, the method adopts it. More than one match is ambiguous, so the method stays unpaginated and reports `Pagination/AmbiguousMarker`. |
+| `true`         | Resolves to no scheme: the method is not paginated, and document markers are not consulted. Only a Stainless import gives it meaning, matching the method against the configured schemes.                                                                                                                                     |
 
 Configuration always wins over the document: a named scheme or an explicit `false` is never overridden by a marker, and a marker can only select a scheme your configuration already defines.
 
@@ -181,29 +181,29 @@ Nothing is inferred when:
 
 ## Scheme reference
 
-| Key | Required | What it is |
-| --- | -------- | ---------- |
-| `name` | Yes | The name methods reference through `paginated`, and the stem of the generated page class. |
-| `type` | Yes | The paging strategy. One of `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `fakePage`. |
-| `request` | Yes | The parameters the next page is built from, keyed by field name. |
-| `response` | Yes | The fields read off the response, keyed by field name. |
-| `description` | No | Human-readable note about how the strategy works, for whoever reads the configuration next. It is carried through the compiled output but no target renders it into generated code. |
-| `paramLocation` | No | Default wire location for the request fields, `query` or `body`. A field's own `location` overrides it. |
-| `continueOnEmptyItems` | No | Keep paging when a page returns no items. Off by default, because an empty page normally means the collection is exhausted. |
+| Key                    | Required | What it is                                                                                                                                                                          |
+| ---------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`                 | Yes      | The name methods reference through `paginated`, and the stem of the generated page class.                                                                                           |
+| `type`                 | Yes      | The paging strategy. One of `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `fakePage`.                                                                                  |
+| `request`              | Yes      | The parameters the next page is built from, keyed by field name.                                                                                                                    |
+| `response`             | Yes      | The fields read off the response, keyed by field name.                                                                                                                              |
+| `description`          | No       | Human-readable note about how the strategy works, for whoever reads the configuration next. It is carried through the compiled output but no target renders it into generated code. |
+| `paramLocation`        | No       | Default wire location for the request fields, `query` or `body`. A field's own `location` overrides it.                                                                             |
+| `continueOnEmptyItems` | No       | Keep paging when a page returns no items. Off by default, because an empty page normally means the collection is exhausted.                                                         |
 
 ### Request fields
 
 Each entry under `request` describes one parameter the SDK sets when it asks for the next page.
 
-| Key | What it is |
-| --- | ---------- |
-| `type` | The field's role: `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `limit`, or `pageSize`. |
-| `param` | The wire name of the parameter. Defaults to the entry's key. |
-| `location` | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`; Swift and Rust send a `header` paging parameter as a header, and so do Java and Kotlin when the operation declares that header; most other targets advance it as a query parameter. |
-| `path`, `property` | Where the field sits inside a request body, for body-located paging. |
-| `value` | A literal value to send for this field on every request. |
-| `schema` | The field's schema, which types the parameter in the generated params object. Absent, a cursor role types as a string and the numeric roles as an integer. |
-| `required` | Whether the generated parameter is required. |
+| Key                | What it is                                                                                                                                                                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`             | The field's role: `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `limit`, or `pageSize`.                                                                                                                                                                                |
+| `param`            | The wire name of the parameter. Defaults to the entry's key.                                                                                                                                                                                                                        |
+| `location`         | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`; Swift and Rust send a `header` paging parameter as a header, and so do Java and Kotlin when the operation declares that header; most other targets advance it as a query parameter. |
+| `path`, `property` | Where the field sits inside a request body, for body-located paging.                                                                                                                                                                                                                |
+| `value`            | A literal value to send for this field on every request.                                                                                                                                                                                                                            |
+| `schema`           | The field's schema, which types the parameter in the generated params object. Absent, a cursor role types as a string and the numeric roles as an integer.                                                                                                                          |
+| `required`         | Whether the generated parameter is required.                                                                                                                                                                                                                                        |
 
 `limit` and `pageSize` are the same role under two names — use whichever matches your API's vocabulary.
 
@@ -213,16 +213,16 @@ The wire name is `param`, defaulting to the entry key, and it is also what the f
 
 Each entry under `response` describes one field the page reads out of the response.
 
-| Key | What it is |
-| --- | ---------- |
-| `type` | The field's role: `items`, `cursor`, `cursorId`, `cursorUrl`, `offset`, `pageNumber`, `hasMore`, `total`, `totalPages`, `currentPage`, or `pageSize`. |
-| `property` | The response property holding the value. |
-| `path` | The path to it, for a value nested inside an envelope, such as `["data", "items"]`. |
-| `location` | `body`, `header`, `linkHeader`, or `bodyLink`. Defaults to `body`. See [Where fields are read from](#where-fields-are-read-from). |
+| Key                 | What it is                                                                                                                                                                         |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`              | The field's role: `items`, `cursor`, `cursorId`, `cursorUrl`, `offset`, `pageNumber`, `hasMore`, `total`, `totalPages`, `currentPage`, or `pageSize`.                              |
+| `property`          | The response property holding the value.                                                                                                                                           |
+| `path`              | The path to it, for a value nested inside an envelope, such as `["data", "items"]`.                                                                                                |
+| `location`          | `body`, `header`, `linkHeader`, or `bodyLink`. Defaults to `body`. See [Where fields are read from](#where-fields-are-read-from).                                                  |
 | `headerName`, `rel` | The header and link relation for a header or `Link`-header field. For `linkHeader` they default to `Link` and `next`; a `header` field's `headerName` defaults to the entry's key. |
-| `itemCursor` | The path *within each item* to the value used as the next cursor, for `cursorId` schemes. |
-| `cursorPath` | The path within this field's own object to the cursor, such as `["next"]` when the field is a `links` envelope. The field keeps its declared shape; only the cursor read descends. |
-| `schema` | The field's schema, which types the member on the generated page. |
+| `itemCursor`        | The path _within each item_ to the value used as the next cursor, for `cursorId` schemes.                                                                                          |
+| `cursorPath`        | The path within this field's own object to the cursor, such as `["next"]` when the field is a `links` envelope. The field keeps its declared shape; only the cursor read descends. |
+| `schema`            | The field's schema, which types the member on the generated page.                                                                                                                  |
 
 A field's entry key names the member on the generated page, while `property` and `path` say where to read it from. Both default to the key, so the two forms differ only in what the page member ends up called:
 
@@ -357,19 +357,19 @@ In TypeScript, Python, Go, Ruby, and PHP the scheme name becomes the page type, 
 
 Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items). C++ keeps that metadata as each page's whole response body instead, read through `page.body()`.
 
-| Target | Walking every item | One page at a time |
-| ------ | ------------------ | ------------------ |
-| TypeScript | `for await (const item of page)` | `page.hasNextPage()`, `page.getNextPage()`, `page.iterPages()` |
-| Python | `for item in page`, `async for item in page` | `page.has_next_page()`, `page.get_next_page()`, `page.iter_pages()` |
-| Go | `client.X.ListAutoPaging(...)` with `Next()`, `Current()`, `Err()` | `page.GetNextPage()` |
-| Java, Kotlin | `page.autoPager()` | `page.hasNextPage()`, `page.nextPage()` |
-| Ruby | `page.auto_paging_each` with a block | `page.next_page` |
-| C# | `await foreach (var item in page.Paginate())` | `page.HasNext()`, `page.Next()` |
-| PHP | `foreach ($page as $item)`, `$page->pagingEachItem()` | `$page->hasNextPage()`, `$page->getNextPage()` |
-| Rust | `let mut pager = ...paginate();` then `pager.next().await` | `Pager::next_page` |
-| Dart | — | Not generated yet |
-| C++ | `for (const auto& item : page.auto_paging())` | `page.items()`, `page.has_next_page()`, `page.next_page()` |
-| Swift | `for try await item in client.x.list(...)` | `.pages`, `firstPage()`, `page.hasNextPage`, `page.nextPage()` |
+| Target       | Walking every item                                                 | One page at a time                                                  |
+| ------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| TypeScript   | `for await (const item of page)`                                   | `page.hasNextPage()`, `page.getNextPage()`, `page.iterPages()`      |
+| Python       | `for item in page`, `async for item in page`                       | `page.has_next_page()`, `page.get_next_page()`, `page.iter_pages()` |
+| Go           | `client.X.ListAutoPaging(...)` with `Next()`, `Current()`, `Err()` | `page.GetNextPage()`                                                |
+| Java, Kotlin | `page.autoPager()`                                                 | `page.hasNextPage()`, `page.nextPage()`                             |
+| Ruby         | `page.auto_paging_each` with a block                               | `page.next_page`                                                    |
+| C#           | `await foreach (var item in page.Paginate())`                      | `page.HasNext()`, `page.Next()`                                     |
+| PHP          | `foreach ($page as $item)`, `$page->pagingEachItem()`              | `$page->hasNextPage()`, `$page->getNextPage()`                      |
+| Rust         | `let mut pager = ...paginate();` then `pager.next().await`         | `Pager::next_page`                                                  |
+| Dart         | —                                                                  | Not generated yet                                                   |
+| C++          | `for (const auto& item : page.auto_paging())`                      | `page.items()`, `page.has_next_page()`, `page.next_page()`          |
+| Swift        | `for try await item in client.x.list(...)`                         | `.pages`, `firstPage()`, `page.hasNextPage`, `page.nextPage()`      |
 
 Your generated README also picks up a `## Pagination` section walking a real paginated operation, on every target but Dart, which renders none until it generates calls. Choose which one with `readme.exampleRequests.pagination`.
 
@@ -385,11 +385,11 @@ If your API pages by a `Link` header and you need it followed on a target other 
 
 Three rules watch pagination, and all three report against a specific method or scheme:
 
-| Code | Severity | What it means |
-| ---- | -------- | ------------- |
-| `Pagination/UnknownScheme` | `error` | A method's `paginated` names a scheme that `pagination` does not define. That method degrades to unpaginated. |
-| `Pagination/AmbiguousMarker` | `warn` | The document's markers matched more than one configured scheme of the same type. The compiler refuses to guess, so the method stays unpaginated. Set `paginated` explicitly. |
-| `Pagination/UnusedScheme` | `warn` | A configured scheme is bound to no method — usually the remains of a renamed or removed `paginated` reference. |
+| Code                         | Severity | What it means                                                                                                                                                                |
+| ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Pagination/UnknownScheme`   | `error`  | A method's `paginated` names a scheme that `pagination` does not define. That method degrades to unpaginated.                                                                |
+| `Pagination/AmbiguousMarker` | `warn`   | The document's markers matched more than one configured scheme of the same type. The compiler refuses to guess, so the method stays unpaginated. Set `paginated` explicitly. |
+| `Pagination/UnusedScheme`    | `warn`   | A configured scheme is bound to no method — usually the remains of a renamed or removed `paginated` reference.                                                               |
 
 See [Diagnostics](diagnostics.md) for how findings are graded, suppressed, and used to fail a build.
 

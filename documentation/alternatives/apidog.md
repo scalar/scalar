@@ -1,6 +1,6 @@
 # Best Apidog alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best Apidog alternative depends on whether you want another all-in-one platform or a set of open tools that each do one job and share the same OpenAPI document. This page covers both routes, starting with Scalar, and it names the cases where Apidog is the stronger choice.
 
@@ -28,13 +28,13 @@ The reasons we can support from Apidog's own documentation are about the model, 
 
 ## Apidog alternatives at a glance
 
-| Tool | Covers | License | Account for the client | Self-hosting | OpenAPI role | Paid from |
-| --- | --- | --- | --- | --- | --- | --- |
-| **Scalar** | Client, API reference, mocks, docs, SDKs, registry | Client, reference and mock server MIT | No | Reference and mock server on any plan | Source of truth for every product | Client free; Pro $150/month for docs ([pricing](/pricing)) |
-| **Postman** | Client, tests, mocks, monitors, docs; SDKs via Fern | Closed; [Newman](https://github.com/postmanlabs/newman) Apache-2.0 | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | No | Imported | [$9/month Solo, $19/user/month Team](https://www.postman.com/pricing/) |
-| **Insomnia** | Client, design, tests, mocks | [Apache-2.0](https://github.com/Kong/insomnia) | [Beyond Scratch Pad](https://developer.konghq.com/insomnia/storage/) | Local Vault, Git Sync | Design editor and import | [$12/user/month](https://insomnia.rest/pricing) |
-| **Bruno** | Client, tests, CLI | [MIT](https://github.com/usebruno/bruno) | [No](https://www.usebruno.com/) | Files in your repo | [Import and sync](https://docs.usebruno.com/open-api/openapi-sync.md) | [$6/user/month, annual](https://www.usebruno.com/pricing) |
-| **Hoppscotch** | Client, tests, CLI | [MIT](https://github.com/hoppscotch/hoppscotch) | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md) | [Community Edition](https://docs.hoppscotch.io/documentation/self-host/community-edition/getting-started.md) | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | [$6/user/month, annual](https://hoppscotch.com/pricing) |
+| Tool           | Covers                                              | License                                                            | Account for the client                                                                     | Self-hosting                                                                                                 | OpenAPI role                                                            | Paid from                                                              |
+| -------------- | --------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Scalar**     | Client, API reference, mocks, docs, SDKs, registry  | Client, reference and mock server MIT                              | No                                                                                         | Reference and mock server on any plan                                                                        | Source of truth for every product                                       | Client free; Pro $150/month for docs ([pricing](/pricing))             |
+| **Postman**    | Client, tests, mocks, monitors, docs; SDKs via Fern | Closed; [Newman](https://github.com/postmanlabs/newman) Apache-2.0 | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | No                                                                                                           | Imported                                                                | [$9/month Solo, $19/user/month Team](https://www.postman.com/pricing/) |
+| **Insomnia**   | Client, design, tests, mocks                        | [Apache-2.0](https://github.com/Kong/insomnia)                     | [Beyond Scratch Pad](https://developer.konghq.com/insomnia/storage/)                       | Local Vault, Git Sync                                                                                        | Design editor and import                                                | [$12/user/month](https://insomnia.rest/pricing)                        |
+| **Bruno**      | Client, tests, CLI                                  | [MIT](https://github.com/usebruno/bruno)                           | [No](https://www.usebruno.com/)                                                            | Files in your repo                                                                                           | [Import and sync](https://docs.usebruno.com/open-api/openapi-sync.md)   | [$6/user/month, annual](https://www.usebruno.com/pricing)              |
+| **Hoppscotch** | Client, tests, CLI                                  | [MIT](https://github.com/hoppscotch/hoppscotch)                    | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md)          | [Community Edition](https://docs.hoppscotch.io/documentation/self-host/community-edition/getting-started.md) | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | [$6/user/month, annual](https://hoppscotch.com/pricing)                |
 
 ## The options, one by one
 
@@ -126,4 +126,4 @@ No. Scalar assumes you write OpenAPI in your repository or generate it from your
 
 ---
 
-*This page is based on Apidog's public documentation, self-hosting guide and GitHub organization, and on the public pages of every other tool listed, as checked on September 26, 2026. Apidog's plans and features may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Apidog's public documentation, self-hosting guide and GitHub organization, and on the public pages of every other tool listed, as checked on September 26, 2026. Apidog's plans and features may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

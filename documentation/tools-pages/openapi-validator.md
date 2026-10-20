@@ -24,16 +24,16 @@ Each error shows a JSON pointer, like `/paths/~1planets~1{planetId}/get/response
 
 ## What it checks
 
-| Check | Level | Why it matters |
-| --- | --- | --- |
-| Structure against the official schema for Swagger 2.0, OpenAPI 3.0, 3.1, or 3.2 | Error | Tools reject or misread invalid documents |
-| Local `$ref` targets exist | Error | A broken reference becomes a missing schema everywhere downstream |
-| Path template parameters are declared | Error | Clients cannot build the URL |
-| Every operation has an `operationId` | Warning | SDK method names and MCP tool names come from it |
-| `operationId` values are unique | Warning | Duplicate IDs collide in generated code |
-| Every operation has a summary or description | Warning | Docs and AI agents need to know what it does |
-| Every operation documents a success response | Warning | Clients cannot type what they will get back |
-| Every component schema is referenced | Warning | Unused schemas are usually leftovers |
+| Check                                                                           | Level   | Why it matters                                                    |
+| ------------------------------------------------------------------------------- | ------- | ----------------------------------------------------------------- |
+| Structure against the official schema for Swagger 2.0, OpenAPI 3.0, 3.1, or 3.2 | Error   | Tools reject or misread invalid documents                         |
+| Local `$ref` targets exist                                                      | Error   | A broken reference becomes a missing schema everywhere downstream |
+| Path template parameters are declared                                           | Error   | Clients cannot build the URL                                      |
+| Every operation has an `operationId`                                            | Warning | SDK method names and MCP tool names come from it                  |
+| `operationId` values are unique                                                 | Warning | Duplicate IDs collide in generated code                           |
+| Every operation has a summary or description                                    | Warning | Docs and AI agents need to know what it does                      |
+| Every operation documents a success response                                    | Warning | Clients cannot type what they will get back                       |
+| Every component schema is referenced                                            | Warning | Unused schemas are usually leftovers                              |
 
 ## Limits
 

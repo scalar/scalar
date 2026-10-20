@@ -6,17 +6,17 @@ This page describes what a developer portal on Scalar includes, how it compares 
 
 ## At a glance
 
-| Portal component | On Scalar |
-| --- | --- |
-| API reference | Generated from your OpenAPI document, with built-in request testing |
-| Guides and landing pages | Markdown and MDX, synced from GitHub with preview deployments |
-| API client | Built into the reference; also a standalone open-source client |
-| SDKs | Generated from the same OpenAPI document, published through your own repositories |
-| MCP servers | Docs MCP at `your-domain/mcp`, plus hosted MCP servers for calling your API |
-| AI assistant | Ask AI, enabled by default on every Scalar Docs project |
-| Versioning | Multiple documentation versions with a version selector |
-| Custom domains | Included on Pro, plus a free subdomain on `apidocumentation.com` |
-| Access control | Email domain access groups on Pro; SSO/SAML on Business; RBAC on Enterprise |
+| Portal component         | On Scalar                                                                         |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| API reference            | Generated from your OpenAPI document, with built-in request testing               |
+| Guides and landing pages | Markdown and MDX, synced from GitHub with preview deployments                     |
+| API client               | Built into the reference; also a standalone open-source client                    |
+| SDKs                     | Generated from the same OpenAPI document, published through your own repositories |
+| MCP servers              | Docs MCP at `your-domain/mcp`, plus hosted MCP servers for calling your API       |
+| AI assistant             | Ask AI, enabled by default on every Scalar Docs project                           |
+| Versioning               | Multiple documentation versions with a version selector                           |
+| Custom domains           | Included on Pro, plus a free subdomain on `apidocumentation.com`                  |
+| Access control           | Email domain access groups on Pro; SSO/SAML on Business; RBAC on Enterprise       |
 
 ## What a Scalar developer portal includes
 
@@ -78,4 +78,4 @@ The clearest way to evaluate a portal platform is to use a portal built on it:
 
 ---
 
-*This page describes Scalar's developer portal capabilities as of July 2026, based on Scalar's own documentation and pricing. Claims about ReadMe and Mintlify link to their public documentation. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page describes Scalar's developer portal capabilities as of July 2026, based on Scalar's own documentation and pricing. Claims about ReadMe and Mintlify link to their public documentation. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -1,6 +1,6 @@
 # SDK pagination: patterns, iterators, and how OpenAPI describes them
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 SDK pagination is the part of a client library that walks a paginated API endpoint for you, fetching the next page when the current one runs out, so the caller writes one loop over items instead of juggling cursors, offsets, and stop conditions by hand. The API still returns one page per request. What changes is who owns the paging logic: every caller, or the SDK.
 
@@ -25,12 +25,12 @@ This guide covers the four pagination patterns you will meet in HTTP APIs, what 
 
 Almost every paginated REST endpoint uses one of four patterns, or a small variation of one. The pattern decides what the client has to remember between requests and how it knows when to stop.
 
-| Pattern | Request carries | Response carries | How the client knows it is done | Main weakness |
-| --- | --- | --- | --- | --- |
-| Offset and limit | `offset=200&limit=100` | Items, often a `total` | Offset reaches `total`, or a short or empty page | Rows inserted or deleted while paging shift the window, so items are skipped or repeated |
-| Page number | `page=3&per_page=100` | Items, often `total_pages` | Page number reaches `total_pages`, or an empty page | Same drift problem as offset; deep pages are slow on many databases |
-| Cursor | `cursor=eyJpZCI6...` or `after_id=usr_123` | Items plus a next cursor, often `has_more` | Cursor missing or `has_more` is `false` | Cannot jump to page 40; cursors can expire |
-| Link header | Nothing extra; the client follows a URL | Items in the body, next URL in a `Link` header | No `rel="next"` link | The next URL lives outside the body, so typed clients often ignore it |
+| Pattern          | Request carries                            | Response carries                               | How the client knows it is done                     | Main weakness                                                                            |
+| ---------------- | ------------------------------------------ | ---------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Offset and limit | `offset=200&limit=100`                     | Items, often a `total`                         | Offset reaches `total`, or a short or empty page    | Rows inserted or deleted while paging shift the window, so items are skipped or repeated |
+| Page number      | `page=3&per_page=100`                      | Items, often `total_pages`                     | Page number reaches `total_pages`, or an empty page | Same drift problem as offset; deep pages are slow on many databases                      |
+| Cursor           | `cursor=eyJpZCI6...` or `after_id=usr_123` | Items plus a next cursor, often `has_more`     | Cursor missing or `has_more` is `false`             | Cannot jump to page 40; cursors can expire                                               |
+| Link header      | Nothing extra; the client follows a URL    | Items in the body, next URL in a `Link` header | No `rel="next"` link                                | The next URL lives outside the body, so typed clients often ignore it                    |
 
 ### Offset and limit
 

@@ -8,12 +8,12 @@ Steps render numbered, optionally collapsible sections — ideal for tutorials, 
 
 ### Step
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `title` | `string` | — | Label shown next to the step marker. |
-| `id` | `string` | — | Optional unique identifier for the step. Used for deep links and accessibility. |
-| `icon` | `string` | — | Custom icon for the step marker. Accepts a built-in [icon key](./icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](./icons.mdx#custom-icons). |
-| `interactivity` | `'none'` | — | Set to `"none"` to render a static, non-collapsible step. |
+| Prop            | Type     | Default | Description                                                                                                                                                        |
+| --------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `title`         | `string` | —       | Label shown next to the step marker.                                                                                                                               |
+| `id`            | `string` | —       | Optional unique identifier for the step. Used for deep links and accessibility.                                                                                    |
+| `icon`          | `string` | —       | Custom icon for the step marker. Accepts a built-in [icon key](./icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](./icons.mdx#custom-icons). |
+| `interactivity` | `'none'` | —       | Set to `"none"` to render a static, non-collapsible step.                                                                                                          |
 
 ### Steps
 
@@ -30,6 +30,7 @@ Steps render numbered, optionally collapsible sections — ideal for tutorials, 
     ```bash
     pnpm add @scalar/guide-elements
     ```
+
   </Step>
 </Preview>
 
@@ -41,15 +42,17 @@ First, install the required dependencies:
 ```bash
 pnpm add @scalar/guide-elements
 ```
+
 </scalar-step>
 ````
 ````mdx MDX
 <Step title="Install Dependencies">
   First, install the required dependencies:
 
-  ```bash
-  pnpm add @scalar/guide-elements
-  ```
+```bash
+pnpm add @scalar/guide-elements
+```
+
 </Step>
 ````
 </CodeGroup>
@@ -77,6 +80,7 @@ pnpm add @scalar/guide-elements
       pnpm dev
       ```
     </Step>
+
   </Steps>
 </Preview>
 
@@ -91,6 +95,7 @@ mkdir my-project
 cd my-project
 pnpm init
 ```
+
   </scalar-step>
   <scalar-step title="Install dependencies">
 ```bash
@@ -114,6 +119,7 @@ pnpm dev
     cd my-project
     pnpm init
     ```
+
   </Step>
   <Step title="Install dependencies">
     ```bash

@@ -61,7 +61,6 @@
   </ul>
 </section>
 
-
 <h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
 
 <div class="logowall">
@@ -231,7 +230,6 @@
     </div>
   </article>
 </section>
-
 
 ## Overview
 

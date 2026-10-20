@@ -66,7 +66,7 @@ In the Scalar editor, `OgTemplateProps`, `OgCss`, `OgColors` and `OgMode` are de
 | `breadcrumb`  | `string?`           | The section the page belongs to, as shown above the title on the built-in card. |
 | `path`        | `string`            | The page's route, such as `/guides/authentication`.                             |
 | `colors`      | `OgColors`          | Colors from your theme. See below.                                              |
-| `logo`        | `string \| null`    | Your site logo as a data URI, or `null` when there isn't one.                    |
+| `logo`        | `string \| null`    | Your site logo as a data URI, or `null` when there isn't one.                   |
 | `mode`        | `'light' \| 'dark'` | The color scheme the card is drawn in.                                          |
 
 Text arrives in full. Nothing is shortened for you, so long titles and descriptions need a line limit.

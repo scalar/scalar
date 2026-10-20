@@ -32,16 +32,16 @@ block.destroy()
 
 ## Options
 
-| Option | Type | Description |
-| --- | --- | --- |
-| `store` | `WorkspaceStore` | **Required.** The workspace store that holds the OpenAPI document(s) to render from. |
-| `path` | `string` | **Required.** Path of the operation to render, e.g. `/users/{id}`. |
-| `method` | `HttpMethod` | **Required.** HTTP method of the operation to render. |
-| `selectedClient` | `AvailableClients[number]` | Pre-selected client ID, e.g. `shell/curl`. |
-| `selectedServer` | `ServerObject \| null` | Server override used to build the example. When omitted, the server is derived from the active document (operation, then path item, then document level). Pass `null` to force "no server". |
-| `selectedExample` | `string` | Pre-selected example key for parameters and the request body. |
-| `securitySchemes` | `SecuritySchemeObjectSecret[]` | Security schemes applicable to the operation. |
-| `darkMode` | `boolean` | Force a color mode. When omitted, the block inherits the ambient theme of the host page. |
+| Option            | Type                           | Description                                                                                                                                                                                 |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store`           | `WorkspaceStore`               | **Required.** The workspace store that holds the OpenAPI document(s) to render from.                                                                                                        |
+| `path`            | `string`                       | **Required.** Path of the operation to render, e.g. `/users/{id}`.                                                                                                                          |
+| `method`          | `HttpMethod`                   | **Required.** HTTP method of the operation to render.                                                                                                                                       |
+| `selectedClient`  | `AvailableClients[number]`     | Pre-selected client ID, e.g. `shell/curl`.                                                                                                                                                  |
+| `selectedServer`  | `ServerObject \| null`         | Server override used to build the example. When omitted, the server is derived from the active document (operation, then path item, then document level). Pass `null` to force "no server". |
+| `selectedExample` | `string`                       | Pre-selected example key for parameters and the request body.                                                                                                                               |
+| `securitySchemes` | `SecuritySchemeObjectSecret[]` | Security schemes applicable to the operation.                                                                                                                                               |
+| `darkMode`        | `boolean`                      | Force a color mode. When omitted, the block inherits the ambient theme of the host page.                                                                                                    |
 
 ## The store is the source of truth
 

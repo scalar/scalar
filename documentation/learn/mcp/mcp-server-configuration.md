@@ -1,6 +1,6 @@
 # MCP server configuration: client config files and best practices
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 MCP server configuration is the small block of JSON, or the equivalent CLI command, that tells an MCP client how to reach a server: a URL and optional headers for a remote server, or a command, arguments and environment variables for a local one, saved at either a user or a project scope. Every major client uses nearly the same shape, and nearly every client differs in one detail that breaks copied snippets.
 
@@ -57,14 +57,14 @@ The name (`my-api`, `galaxy`) is yours to choose. It shows up in the client's UI
 
 ## Client formats at a glance
 
-| Client | Config location | Top-level key | Remote entry | Variable syntax | Notes |
-| --- | --- | --- | --- | --- | --- |
-| Claude Code | `.mcp.json` (project), `~/.claude.json` (local and user) | `mcpServers` | `"type": "http"`, `url`, `headers` | `${VAR}`, `${VAR:-default}` | Also `claude mcp add`; entries need `type` for remote servers |
-| Claude Desktop | `claude_desktop_config.json` for local servers | `mcpServers` | Added as connectors, not in the file | None documented | Restart after editing |
-| claude.ai | Account or organization settings | Not a file | Custom connector by URL | Not applicable | Must be reachable from the public internet |
-| Cursor | `.cursor/mcp.json` (project), `~/.cursor/mcp.json` (global) | `mcpServers` | `url`, `headers` | `${env:NAME}`, `${workspaceFolder}`, `${userHome}` | `envFile` for local servers only |
-| VS Code | `.vscode/mcp.json`, user profile `mcp.json`, or portable `.mcp.json` | `servers` (or `mcpServers` in `.mcp.json`) | `"type": "http"`, `url`, `headers` | `${input:id}` prompts, `envFile` | Workspace trust governs startup |
-| Devin Desktop (Windsurf) | `mcp_config.json` for the legacy Cascade agent | `mcpServers` | `serverUrl` (or `url`), `headers` | `${env:NAME}`, `${file:/path}` | 100-tool limit in Cascade |
+| Client                   | Config location                                                      | Top-level key                              | Remote entry                         | Variable syntax                                    | Notes                                                         |
+| ------------------------ | -------------------------------------------------------------------- | ------------------------------------------ | ------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------- |
+| Claude Code              | `.mcp.json` (project), `~/.claude.json` (local and user)             | `mcpServers`                               | `"type": "http"`, `url`, `headers`   | `${VAR}`, `${VAR:-default}`                        | Also `claude mcp add`; entries need `type` for remote servers |
+| Claude Desktop           | `claude_desktop_config.json` for local servers                       | `mcpServers`                               | Added as connectors, not in the file | None documented                                    | Restart after editing                                         |
+| claude.ai                | Account or organization settings                                     | Not a file                                 | Custom connector by URL              | Not applicable                                     | Must be reachable from the public internet                    |
+| Cursor                   | `.cursor/mcp.json` (project), `~/.cursor/mcp.json` (global)          | `mcpServers`                               | `url`, `headers`                     | `${env:NAME}`, `${workspaceFolder}`, `${userHome}` | `envFile` for local servers only                              |
+| VS Code                  | `.vscode/mcp.json`, user profile `mcp.json`, or portable `.mcp.json` | `servers` (or `mcpServers` in `.mcp.json`) | `"type": "http"`, `url`, `headers`   | `${input:id}` prompts, `envFile`                   | Workspace trust governs startup                               |
+| Devin Desktop (Windsurf) | `mcp_config.json` for the legacy Cascade agent                       | `mcpServers`                               | `serverUrl` (or `url`), `headers`    | `${env:NAME}`, `${file:/path}`                     | 100-tool limit in Cascade                                     |
 
 The differences that break copied snippets most often: VS Code's `servers` key, Claude Code's requirement for `"type": "http"` on remote entries, Windsurf's `serverUrl`, and four different variable syntaxes.
 
@@ -281,4 +281,4 @@ On the client side, only the installation URL, plus a header if the installation
 - **Docs:** [MCP servers](/products/agent/mcp) · [Public MCP with passthrough auth](/products/agent/authentication/public-passthrough) · [OAuth passthrough](/products/agent/authentication/oauth-passthrough)
 - **Product:** [Scalar MCP](/products/agent/mcp) — a hosted MCP server where configuration lives in the dashboard and clients need only a URL
 
-*Client formats were checked against Anthropic, Cursor, Microsoft and Cognition documentation on 26 September 2026. Client configuration changes often; when a snippet stops working, the vendor's documentation linked above is the source of truth.*
+_Client formats were checked against Anthropic, Cursor, Microsoft and Cognition documentation on 26 September 2026. Client configuration changes often; when a snippet stops working, the vendor's documentation linked above is the source of truth._

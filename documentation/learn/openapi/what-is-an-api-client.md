@@ -1,6 +1,6 @@
 # What is an API client?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An API client is a tool that lets you build an HTTP request to an API, send it, and inspect the response, all without writing application code. You pick a method and a URL, add headers, authentication and a body, press send, and read the status code, headers and payload that come back.
 
@@ -62,13 +62,13 @@ Most API clients share the same core features. The details vary, but the anatomy
 
 API clients come in a few shapes. Many developers use more than one: curl in a terminal for a quick check, a graphical client for longer sessions, and the "try it" panel in documentation when evaluating a new API.
 
-| Type | Examples | Good for | Trade-offs |
-| --- | --- | --- | --- |
-| Command line | curl, HTTPie | Quick checks, scripts, CI, sharing a one-liner | No saved collections or auth flows unless you build them yourself |
-| Desktop app | Scalar API Client, Bruno, Insomnia, Postman | Long debugging sessions, collections, environments, OAuth | One more app to install and keep in sync with the API |
-| Browser app | Scalar API Client at client.scalar.com, Hoppscotch | Zero install, quick sharing | Browser security rules (CORS) can get in the way, so a proxy is often needed |
-| Embedded in docs | The "Test Request" panel in an API reference | Trying an endpoint while reading about it | Scoped to one API, usually no long-term storage |
-| Embedded in an editor | `.http` files in IDE extensions | Keeping requests next to code | Feature depth varies a lot by extension |
+| Type                  | Examples                                           | Good for                                                  | Trade-offs                                                                   |
+| --------------------- | -------------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Command line          | curl, HTTPie                                       | Quick checks, scripts, CI, sharing a one-liner            | No saved collections or auth flows unless you build them yourself            |
+| Desktop app           | Scalar API Client, Bruno, Insomnia, Postman        | Long debugging sessions, collections, environments, OAuth | One more app to install and keep in sync with the API                        |
+| Browser app           | Scalar API Client at client.scalar.com, Hoppscotch | Zero install, quick sharing                               | Browser security rules (CORS) can get in the way, so a proxy is often needed |
+| Embedded in docs      | The "Test Request" panel in an API reference       | Trying an endpoint while reading about it                 | Scoped to one API, usually no long-term storage                              |
+| Embedded in an editor | `.http` files in IDE extensions                    | Keeping requests next to code                             | Feature depth varies a lot by extension                                      |
 
 The line between these has blurred. Scalar's API client, for example, runs in the browser, as a desktop app for macOS, Windows and Linux, and inside every [Scalar API reference](/products/api-references) as the request panel, so the same client follows an API from its documentation to your desk.
 
@@ -242,12 +242,12 @@ The last line stores the new order's ID in the environment, so a follow-up reque
 
 These four tools all read the same OpenAPI document, which is why they get confused. They answer different questions.
 
-| Tool | Who uses it | Question it answers | Output |
-| --- | --- | --- | --- |
-| API client | A developer, by hand | "What does this endpoint actually return right now?" | A sent request and its response |
-| SDK | Your application code | "How do I call this API from my program?" | A typed library, such as a TypeScript or Python package |
-| API reference | Anyone reading about the API | "What endpoints exist and how do they work?" | Interactive documentation |
-| Mock server | Frontend and test code | "What would the API return, before it exists?" | A fake API that answers with example data |
+| Tool          | Who uses it                  | Question it answers                                  | Output                                                  |
+| ------------- | ---------------------------- | ---------------------------------------------------- | ------------------------------------------------------- |
+| API client    | A developer, by hand         | "What does this endpoint actually return right now?" | A sent request and its response                         |
+| SDK           | Your application code        | "How do I call this API from my program?"            | A typed library, such as a TypeScript or Python package |
+| API reference | Anyone reading about the API | "What endpoints exist and how do they work?"         | Interactive documentation                               |
+| Mock server   | Frontend and test code       | "What would the API return, before it exists?"       | A fake API that answers with example data               |
 
 They work best together. You read the [API reference](/learn/openapi/what-is-an-api-reference), try a call in the API client, point the client at a [mock server](/learn/openapi/api-mocking) while the backend is still being built, and ship with the [SDK generated from the same document](/learn/sdk/generate-sdk-from-openapi).
 

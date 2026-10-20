@@ -32,14 +32,14 @@ Everything else works the same way too: pass the document [as a URL or as conten
 
 The concepts line up closely, they just have different names:
 
-| OpenAPI | AsyncAPI | In the reference |
-| ------- | -------- | ---------------- |
-| Path (`/planets/{planetId}`) | Channel (`planets/{planetId}/events`) | A sidebar entry with its address, description, and parameters |
-| Operation (`get`, `post`) | Operation with an `action` of `send` or `receive` | Nested under its channel, labelled with the action |
-| Request and response bodies | Message payloads | Collapsible message accordions under the operation |
-| `servers[].url` | `servers[].host`, `pathname`, and `protocol` | Server and protocol labels on the channel |
-| Root-level `security` | The union of every server's `security` | The authentication selector in the introduction |
-| `components.schemas` | `components.schemas` | The Models section |
+| OpenAPI                      | AsyncAPI                                          | In the reference                                              |
+| ---------------------------- | ------------------------------------------------- | ------------------------------------------------------------- |
+| Path (`/planets/{planetId}`) | Channel (`planets/{planetId}/events`)             | A sidebar entry with its address, description, and parameters |
+| Operation (`get`, `post`)    | Operation with an `action` of `send` or `receive` | Nested under its channel, labelled with the action            |
+| Request and response bodies  | Message payloads                                  | Collapsible message accordions under the operation            |
+| `servers[].url`              | `servers[].host`, `pathname`, and `protocol`      | Server and protocol labels on the channel                     |
+| Root-level `security`        | The union of every server's `security`            | The authentication selector in the introduction               |
+| `components.schemas`         | `components.schemas`                              | The Models section                                            |
 
 The biggest thing to know: `action` is written from the point of view of the application the document describes. `receive` means that application receives the message (you send it), and `send` means it sends one to you.
 

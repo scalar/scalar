@@ -1,6 +1,6 @@
 # Best SDK generators (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An SDK generator reads your API description, usually an OpenAPI document, and emits typed client libraries in one or more languages, and in 2026 the realistic shortlist is Scalar, Speakeasy, Fern, OpenAPI Generator, Kiota, liblab, and APIMatic, with Stainless no longer taking new customers.
 
@@ -23,16 +23,16 @@ We did not benchmark generated code quality across all seven, because a fair ben
 
 ## Comparison table
 
-| Generator | Status | Generator licence | Languages (vendor's own labels) | Free tier | Paid pricing |
-| --- | --- | --- | --- | --- | --- |
-| Scalar | Independent | Closed source | GA: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI. Experimental: C#, PHP, Rust, Swift, Dart, C++ | 1 SDK up to 25 endpoints | 1 SDK included; extra SDKs $150 or $600/month ([pricing](/pricing)) |
-| Speakeasy | Independent; AI control plane focus | [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation), commercial licence available | TypeScript, Python, Go, Java, C#, PHP, Ruby, Unity, plus Terraform, CLI, MCP | [1 SDK, 50 methods](https://www.speakeasy.com/docs/sdks/introduction) | [Tailored](https://www.speakeasy.com/pricing) |
-| Fern | Owned by Postman | [Apache-2.0](https://github.com/fern-api/fern) | TypeScript, Python, Java, Go, Ruby, PHP, C#, Swift, Rust | [Python and TypeScript, up to 200 endpoints](https://buildwithfern.com/pricing.md) | Enterprise, per SDK, billed annually |
-| OpenAPI Generator | Community project | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator) | [80 client and 72 server generators](https://openapi-generator.tech/docs/generators) | Free | Free |
-| Kiota | Microsoft open source | [MIT](https://github.com/microsoft/kiota) | Stable: C#, Go, Java, PHP, Python. Preview: TypeScript, Dart, Ruby | Free | Free |
-| liblab | Independent | Closed source | [TypeScript, Python, Java, .NET, Go, PHP, Terraform](https://liblab.com/docs) | Not published | [Not published for SDKs](https://liblab.com/pricing) |
-| APIMatic | Independent | Closed source | Up to 7 SDK languages | 14-day trial | [From $10/month](https://www.apimatic.io/pricing) |
-| Stainless | Winding down | Closed source | n/a for new users | Closed to new signups | Closed to new signups |
+| Generator         | Status                              | Generator licence                                                                             | Languages (vendor's own labels)                                                                    | Free tier                                                                          | Paid pricing                                                        |
+| ----------------- | ----------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Scalar            | Independent                         | Closed source                                                                                 | GA: TypeScript, Python, Go, Java, Kotlin, Ruby, CLI. Experimental: C#, PHP, Rust, Swift, Dart, C++ | 1 SDK up to 25 endpoints                                                           | 1 SDK included; extra SDKs $150 or $600/month ([pricing](/pricing)) |
+| Speakeasy         | Independent; AI control plane focus | [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation), commercial licence available | TypeScript, Python, Go, Java, C#, PHP, Ruby, Unity, plus Terraform, CLI, MCP                       | [1 SDK, 50 methods](https://www.speakeasy.com/docs/sdks/introduction)              | [Tailored](https://www.speakeasy.com/pricing)                       |
+| Fern              | Owned by Postman                    | [Apache-2.0](https://github.com/fern-api/fern)                                                | TypeScript, Python, Java, Go, Ruby, PHP, C#, Swift, Rust                                           | [Python and TypeScript, up to 200 endpoints](https://buildwithfern.com/pricing.md) | Enterprise, per SDK, billed annually                                |
+| OpenAPI Generator | Community project                   | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator)                               | [80 client and 72 server generators](https://openapi-generator.tech/docs/generators)               | Free                                                                               | Free                                                                |
+| Kiota             | Microsoft open source               | [MIT](https://github.com/microsoft/kiota)                                                     | Stable: C#, Go, Java, PHP, Python. Preview: TypeScript, Dart, Ruby                                 | Free                                                                               | Free                                                                |
+| liblab            | Independent                         | Closed source                                                                                 | [TypeScript, Python, Java, .NET, Go, PHP, Terraform](https://liblab.com/docs)                      | Not published                                                                      | [Not published for SDKs](https://liblab.com/pricing)                |
+| APIMatic          | Independent                         | Closed source                                                                                 | Up to 7 SDK languages                                                                              | 14-day trial                                                                       | [From $10/month](https://www.apimatic.io/pricing)                   |
+| Stainless         | Winding down                        | Closed source                                                                                 | n/a for new users                                                                                  | Closed to new signups                                                              | Closed to new signups                                               |
 
 ## 1. Scalar
 
@@ -187,4 +187,4 @@ By raw count, OpenAPI Generator. Among commercial generators, Speakeasy and Fern
 
 ---
 
-*Vendor status, licences, languages, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline. This page is written by Scalar, which makes one of the generators listed, and Scalar has a working relationship with Speakeasy. We have tried to be accurate and to say where others are stronger. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Vendor status, licences, languages, and prices are taken from each vendor's public announcements, pricing pages, documentation, and GitHub repositories as of 26 September 2026, and are linked inline. This page is written by Scalar, which makes one of the generators listed, and Scalar has a working relationship with Speakeasy. We have tried to be accurate and to say where others are stronger. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

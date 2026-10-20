@@ -1,6 +1,6 @@
 # Mintlify pricing, reviews and alternatives (September 2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Mintlify pricing in September 2026 is $0 for Starter, $450 per month billed annually for Pro, and a custom price for Enterprise, with AI features billed in credits on top of the Pro allowance.
 
@@ -10,18 +10,18 @@ This page is written by Scalar. We make a documentation platform that competes w
 
 ## Mintlify pricing at a glance
 
-| | Starter | Pro | Enterprise |
-| --- | --- | --- | --- |
-| Price | $0 | $450/month, billed annually | Custom |
-| Editor seats | 5 | Unlimited | Unlimited |
-| Custom domain, web editor, API playground, MCP server | Yes | Yes | Yes |
-| AI assistant, writing agent, automations | No | Yes | Yes |
-| AI credits | None | 10,000/month, then $0.01 per credit | Custom, with committed-volume discounts |
-| Preview deployments | No | Yes | Yes |
-| Custom components, custom CSS and JS | Yes | Yes | Yes |
-| White labeling | No | No | Yes |
-| Self-hosting, EU hosting | No | No | Available |
-| SSO, SCIM, audit logs | No | No | Yes |
+|                                                       | Starter | Pro                                 | Enterprise                              |
+| ----------------------------------------------------- | ------- | ----------------------------------- | --------------------------------------- |
+| Price                                                 | $0      | $450/month, billed annually         | Custom                                  |
+| Editor seats                                          | 5       | Unlimited                           | Unlimited                               |
+| Custom domain, web editor, API playground, MCP server | Yes     | Yes                                 | Yes                                     |
+| AI assistant, writing agent, automations              | No      | Yes                                 | Yes                                     |
+| AI credits                                            | None    | 10,000/month, then $0.01 per credit | Custom, with committed-volume discounts |
+| Preview deployments                                   | No      | Yes                                 | Yes                                     |
+| Custom components, custom CSS and JS                  | Yes     | Yes                                 | Yes                                     |
+| White labeling                                        | No      | No                                  | Yes                                     |
+| Self-hosting, EU hosting                              | No      | No                                  | Available                               |
+| SSO, SCIM, audit logs                                 | No      | No                                  | Yes                                     |
 
 Source: [Mintlify pricing](https://www.mintlify.com/pricing), 26 September 2026. The page defaults to annual billing; a monthly-billing option is also offered, and we quote the annual figure shown by default.
 
@@ -37,13 +37,13 @@ A few details from the same page that matter when you budget:
 
 The headline price is simple. The AI line is where bills diverge, so here is the arithmetic using Mintlify's published rates.
 
-| Scenario | Monthly | Yearly |
-| --- | --- | --- |
-| Pro, annual billing, within the included credits | $450 | $5,400 |
-| Included Assistant answers per month (10,000 ÷ 25) | 400 answers | — |
-| Each Assistant answer beyond the allowance (25 × $0.01) | $0.25 | — |
-| Each automation update beyond the allowance (250 × $0.01) | $2.50 | — |
-| Pro plus 2,000 extra Assistant answers a month | $450 + $500 = $950 | $11,400 |
+| Scenario                                                  | Monthly            | Yearly  |
+| --------------------------------------------------------- | ------------------ | ------- |
+| Pro, annual billing, within the included credits          | $450               | $5,400  |
+| Included Assistant answers per month (10,000 ÷ 25)        | 400 answers        | —       |
+| Each Assistant answer beyond the allowance (25 × $0.01)   | $0.25              | —       |
+| Each automation update beyond the allowance (250 × $0.01) | $2.50              | —       |
+| Pro plus 2,000 extra Assistant answers a month            | $450 + $500 = $950 | $11,400 |
 
 The last row is illustrative, not typical: most docs sites will sit inside the allowance. But if your docs get heavy AI traffic, model it before you sign, because the Assistant is billed per answer.
 
@@ -112,8 +112,8 @@ Before you move, export your analytics and note which pages receive AI Assistant
 
 ## Change log for this page
 
-| Date | Change |
-| --- | --- |
+| Date              | Change                                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | 26 September 2026 | First published. Pricing, AI credit rates, trial terms, and review data checked against Mintlify's site and Product Hunt. |
 
 ## Frequently asked questions
@@ -150,4 +150,4 @@ Mintlify's OSS program offers Pro free to non-commercial open source projects un
 
 ---
 
-*Mintlify pricing, features, and policies are taken from mintlify.com and Mintlify's documentation as of 26 September 2026. Review data is taken from the linked review sites on the same date; we do not publish ratings we could not read ourselves. This page is written by Scalar, a Mintlify competitor, and is refreshed monthly. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Mintlify pricing, features, and policies are taken from mintlify.com and Mintlify's documentation as of 26 September 2026. Review data is taken from the linked review sites on the same date; we do not publish ratings we could not read ourselves. This page is written by Scalar, a Mintlify competitor, and is refreshed monthly. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

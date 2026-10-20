@@ -1,6 +1,6 @@
 # JSON Schema vs OpenAPI: what is the difference?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 JSON Schema describes the shape of a single piece of JSON data, such as "an object with a required string `email` and an optional integer `age`", and lets you validate data against that description. OpenAPI describes an entire HTTP API (its paths, operations, parameters, responses, servers and authentication) and uses JSON Schema inside it to describe the data those operations send and receive.
 
@@ -108,27 +108,27 @@ Everything under `components.schemas.User` is JSON Schema. Everything around it 
 
 ## Side-by-side comparison
 
-| | JSON Schema | OpenAPI |
-| --- | --- | --- |
-| Describes | One JSON value | An entire HTTP API |
-| Main building blocks | Types, properties, constraints, composition (`allOf`, `oneOf`, `anyOf`, `not`) | Paths, operations, parameters, request bodies, responses, servers, security schemes |
-| Knows about HTTP | No | Yes: methods, status codes, headers, media types, authentication |
-| Current version | Draft 2020-12 | OpenAPI 3.2 (3.1 is the most widely supported) |
-| Relationship | Standalone | Uses JSON Schema for data, via the Schema Object |
-| Validation | Validates data instances | Validates as a document; its schemas validate request and response data |
-| Typical tools | Validators (Ajv and others), form and type generators | [API references](/products/api-references), [API clients](/learn/openapi/what-is-an-api-client), [SDK generators](/products/sdk-generator), mock servers, linters |
-| File name examples | `user.schema.json` | `openapi.yaml`, `openapi.json` |
+|                      | JSON Schema                                                                    | OpenAPI                                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Describes            | One JSON value                                                                 | An entire HTTP API                                                                                                                                                |
+| Main building blocks | Types, properties, constraints, composition (`allOf`, `oneOf`, `anyOf`, `not`) | Paths, operations, parameters, request bodies, responses, servers, security schemes                                                                               |
+| Knows about HTTP     | No                                                                             | Yes: methods, status codes, headers, media types, authentication                                                                                                  |
+| Current version      | Draft 2020-12                                                                  | OpenAPI 3.2 (3.1 is the most widely supported)                                                                                                                    |
+| Relationship         | Standalone                                                                     | Uses JSON Schema for data, via the Schema Object                                                                                                                  |
+| Validation           | Validates data instances                                                       | Validates as a document; its schemas validate request and response data                                                                                           |
+| Typical tools        | Validators (Ajv and others), form and type generators                          | [API references](/products/api-references), [API clients](/learn/openapi/what-is-an-api-client), [SDK generators](/products/sdk-generator), mock servers, linters |
+| File name examples   | `user.schema.json`                                                             | `openapi.yaml`, `openapi.json`                                                                                                                                    |
 
 ## How the relationship changed across OpenAPI versions
 
 OpenAPI has used JSON Schema since the Swagger days, but which JSON Schema, and how faithfully, has changed a lot. The details come from each version's own specification text.
 
-| OpenAPI version | Schema Object is... | Practical effect |
-| --- | --- | --- |
-| Swagger 2.0 ([history](/learn/openapi/openapi-vs-swagger)) | Based on JSON Schema Draft 4, using ["a predefined subset of it"](https://spec.openapis.org/oas/v2.0.html#schema-object) plus extensions | Many JSON Schema keywords unavailable; `type: file` added for uploads |
-| OpenAPI 3.0 | ["An extended subset"](https://spec.openapis.org/oas/v3.0.4.html#schema-object) of JSON Schema Draft Wright-00 (the draft often called Draft 5) | Close to JSON Schema, but with changed keywords such as `nullable` and single-value `type` |
-| OpenAPI 3.1 | ["A superset of the JSON Schema Specification Draft 2020-12"](https://spec.openapis.org/oas/v3.1.2.html#schema-object) | Any valid 2020-12 schema works; OpenAPI adds a few annotation keywords |
-| OpenAPI 3.2 | By default, ["a superset of the JSON Schema Specification Draft 2020-12"](https://spec.openapis.org/oas/v3.2.1.html#schema-object) | Same model as 3.1, with the dialect identified by a dated OAS dialect URI |
+| OpenAPI version                                            | Schema Object is...                                                                                                                             | Practical effect                                                                           |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Swagger 2.0 ([history](/learn/openapi/openapi-vs-swagger)) | Based on JSON Schema Draft 4, using ["a predefined subset of it"](https://spec.openapis.org/oas/v2.0.html#schema-object) plus extensions        | Many JSON Schema keywords unavailable; `type: file` added for uploads                      |
+| OpenAPI 3.0                                                | ["An extended subset"](https://spec.openapis.org/oas/v3.0.4.html#schema-object) of JSON Schema Draft Wright-00 (the draft often called Draft 5) | Close to JSON Schema, but with changed keywords such as `nullable` and single-value `type` |
+| OpenAPI 3.1                                                | ["A superset of the JSON Schema Specification Draft 2020-12"](https://spec.openapis.org/oas/v3.1.2.html#schema-object)                          | Any valid 2020-12 schema works; OpenAPI adds a few annotation keywords                     |
+| OpenAPI 3.2                                                | By default, ["a superset of the JSON Schema Specification Draft 2020-12"](https://spec.openapis.org/oas/v3.2.1.html#schema-object)              | Same model as 3.1, with the dialect identified by a dated OAS dialect URI                  |
 
 The big break is between 3.0 and 3.1. The 3.0 specification spelled out which JSON Schema keywords were allowed and said that any keyword not mentioned "is strictly unsupported". That excluded useful keywords such as `const`, `if`/`then`/`else`, `prefixItems`, `$defs`, `unevaluatedProperties` and `dependentRequired`, and it changed the meaning of several others. OpenAPI 3.1 dropped the subset and adopted full JSON Schema.
 

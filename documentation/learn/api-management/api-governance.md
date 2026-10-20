@@ -1,6 +1,6 @@
 # API governance with OpenAPI: style guides, linting in CI, and breaking-change checks
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 API governance is the set of rules an organization applies to how its APIs are designed, changed, and published, and the automation that enforces those rules so they hold across every team. With OpenAPI, governance becomes concrete: the style guide is a ruleset, the review is a lint step in CI, versioning and breaking-change checks compare two documents, and access control decides who can see or publish each API description.
 
@@ -33,13 +33,13 @@ Governance that lives in a wiki is advice. Governance that lives in CI is policy
 
 ## The five controls of API governance
 
-| Control | Question it answers | Mechanism |
-| --- | --- | --- |
-| Style guide | Does this API look like our other APIs? | A ruleset, linted on every change |
-| Linting in CI | Was the rule applied before the change merged? | A required status check |
-| Versioning and breaking changes | Will this change break existing consumers? | A diff against the published version |
-| Registry and access control | Where is the current description, and who may see or change it? | A versioned store with permissions |
-| Ownership and lifecycle | Who owns this, and is it still supported? | Required metadata in the document |
+| Control                         | Question it answers                                             | Mechanism                            |
+| ------------------------------- | --------------------------------------------------------------- | ------------------------------------ |
+| Style guide                     | Does this API look like our other APIs?                         | A ruleset, linted on every change    |
+| Linting in CI                   | Was the rule applied before the change merged?                  | A required status check              |
+| Versioning and breaking changes | Will this change break existing consumers?                      | A diff against the published version |
+| Registry and access control     | Where is the current description, and who may see or change it? | A versioned store with permissions   |
+| Ownership and lifecycle         | Who owns this, and is it still supported?                       | Required metadata in the document    |
 
 The rest of this guide takes each in turn. The examples use a small `openapi.yaml` for an Orders API; any valid OpenAPI 3.x document works.
 
@@ -297,4 +297,4 @@ Mostly. The Scalar CLI lints AsyncAPI documents with Spectral's AsyncAPI ruleset
 
 ---
 
-*The lint, validate, and breaking-change commands on this page were run on 7 October 2026 with @scalar/cli 2.10.0 on Node.js 24.21.0 and the tufin/oasdiff Docker image (version 6de374d). Spectral was at 6.17.0 the same day. The registry publish and fetch steps follow the Scalar CLI documentation and were not executed against a live registry for this page. Scalar wrote this guide and sells the registry it describes. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*
+_The lint, validate, and breaking-change commands on this page were run on 7 October 2026 with @scalar/cli 2.10.0 on Node.js 24.21.0 and the tufin/oasdiff Docker image (version 6de374d). Spectral was at 6.17.0 the same day. The registry publish and fetch steps follow the Scalar CLI documentation and were not executed against a live registry for this page. Scalar wrote this guide and sells the registry it describes. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues)._

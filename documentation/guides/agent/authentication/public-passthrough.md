@@ -2,7 +2,7 @@
 
 This is the simplest way to share an MCP server with everyone: make the **Scalar layer public** so anyone can connect, and use **passthrough auth** so each user authenticates with their own credentials for your API.
 
-This is the right setup when your API already requires authentication and every caller should use their *own* key. Scalar does not gate access—your API does. If your API uses OAuth rather than keys, [OAuth passthrough](./oauth-passthrough.md) lets users sign in with your authorization server instead.
+This is the right setup when your API already requires authentication and every caller should use their _own_ key. Scalar does not gate access—your API does. If your API uses OAuth rather than keys, [OAuth passthrough](./oauth-passthrough.md) lets users sign in with your authorization server instead.
 
 ## How it works
 

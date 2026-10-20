@@ -8,33 +8,33 @@ Most web frameworks can describe their routes as an OpenAPI document, either bui
 
 Each guide covers a three-step setup, a live demo, what you get beyond the reference, and how to migrate from Swagger UI or Redoc.
 
-| Framework | Language | Guide |
-| --- | --- | --- |
-| ASP.NET Core | C# | [.NET API documentation](/docs-for/dotnet) |
-| FastAPI | Python | [FastAPI API documentation](/docs-for/fastapi) |
-| NestJS | TypeScript | [NestJS API documentation](/docs-for/nestjs) |
-| Hono | TypeScript | [Hono API documentation](/docs-for/hono) |
-| Express | JavaScript, TypeScript | [Express API documentation](/docs-for/express) |
-| Fastify | JavaScript, TypeScript | [Fastify API documentation](/docs-for/fastify) |
-| Laravel | PHP | [Laravel API documentation](/docs-for/laravel) |
-| Django REST Framework | Python | [Django API documentation](/docs-for/django) |
-| Spring Boot | Java, Kotlin | [Spring Boot API documentation](/docs-for/spring-boot) |
-| Ruby on Rails | Ruby | [Rails API documentation](/docs-for/rails) |
+| Framework             | Language               | Guide                                                  |
+| --------------------- | ---------------------- | ------------------------------------------------------ |
+| ASP.NET Core          | C#                     | [.NET API documentation](/docs-for/dotnet)             |
+| FastAPI               | Python                 | [FastAPI API documentation](/docs-for/fastapi)         |
+| NestJS                | TypeScript             | [NestJS API documentation](/docs-for/nestjs)           |
+| Hono                  | TypeScript             | [Hono API documentation](/docs-for/hono)               |
+| Express               | JavaScript, TypeScript | [Express API documentation](/docs-for/express)         |
+| Fastify               | JavaScript, TypeScript | [Fastify API documentation](/docs-for/fastify)         |
+| Laravel               | PHP                    | [Laravel API documentation](/docs-for/laravel)         |
+| Django REST Framework | Python                 | [Django API documentation](/docs-for/django)           |
+| Spring Boot           | Java, Kotlin           | [Spring Boot API documentation](/docs-for/spring-boot) |
+| Ruby on Rails         | Ruby                   | [Rails API documentation](/docs-for/rails)             |
 
 ## More integrations
 
 These frameworks have a Scalar integration guide with setup instructions and configuration options:
 
-| Framework | Language | Integration guide |
-| --- | --- | --- |
-| Next.js | TypeScript | [Next.js integration](/products/api-references/integrations/nextjs) |
-| Nuxt | TypeScript | [Nuxt integration](/products/api-references/integrations/nuxt) |
-| ElysiaJS | TypeScript | [ElysiaJS integration](/products/api-references/integrations/elysiajs) |
-| Go | Go | [Go integration](/products/api-references/integrations/go) |
-| Axum | Rust | [Axum integration](/products/api-references/integrations/rust/axum) |
-| Flask | Python | [Flask integration](/products/api-references/integrations/flask) |
-| Symfony | PHP | [Symfony integration](/products/api-references/integrations/symfony) |
-| Phoenix | Elixir | [Elixir integration](/products/api-references/integrations/elixir) |
+| Framework | Language   | Integration guide                                                      |
+| --------- | ---------- | ---------------------------------------------------------------------- |
+| Next.js   | TypeScript | [Next.js integration](/products/api-references/integrations/nextjs)    |
+| Nuxt      | TypeScript | [Nuxt integration](/products/api-references/integrations/nuxt)         |
+| ElysiaJS  | TypeScript | [ElysiaJS integration](/products/api-references/integrations/elysiajs) |
+| Go        | Go         | [Go integration](/products/api-references/integrations/go)             |
+| Axum      | Rust       | [Axum integration](/products/api-references/integrations/rust/axum)    |
+| Flask     | Python     | [Flask integration](/products/api-references/integrations/flask)       |
+| Symfony   | PHP        | [Symfony integration](/products/api-references/integrations/symfony)   |
+| Phoenix   | Elixir     | [Elixir integration](/products/api-references/integrations/elixir)     |
 
 Not listed? The [HTML/JS integration](/products/api-references/integrations/html-js) renders a reference from any OpenAPI URL with a single script tag, so it works with any stack that can serve a static page.
 

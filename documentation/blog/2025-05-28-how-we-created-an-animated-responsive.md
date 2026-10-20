@@ -50,13 +50,13 @@ As a tool built for developers, we’re big fans of the ultimate art form of dev
 
 Instead, we use SVGs with foreign objects (again). This lets us do this:
 
-[![ASCII is cool](https://substackcdn.com/image/fetch/$s_!UG1o!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F84daff85-d5f4-4ed2-b403-fd72d6b86f4b_1768x638.png "ASCII is cool")](https://substackcdn.com/image/fetch/$s_!UG1o!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F84daff85-d5f4-4ed2-b403-fd72d6b86f4b_1768x638.png)
+[![ASCII is cool](https://substackcdn.com/image/fetch/$s_!UG1o!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F84daff85-d5f4-4ed2-b403-fd72d6b86f4b_1768x638.png 'ASCII is cool')](https://substackcdn.com/image/fetch/$s_!UG1o!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F84daff85-d5f4-4ed2-b403-fd72d6b86f4b_1768x638.png)
 
 As you can see, this enables three things:
 
-* Use ASCII in our README
-* Have a horizontal split for our two different products
-* Have both link to the correct spots
+- Use ASCII in our README
+- Have a horizontal split for our two different products
+- Have both link to the correct spots
 
 This is done with a combination of HTML (for the links) and SVGs that look like this:
 
@@ -93,7 +93,7 @@ This is done with a combination of HTML (for the links) and SVGs that look like 
                     white-space: pre;
                     font-size: 0.5rem;
                 }
-                
+
                 <!-- more styles... -->
             </style>
         </div>
@@ -111,19 +111,19 @@ Our first iteration of this was [a pillar in a room with each of our contributor
 
 This works by:
 
-* Creating “walls” using background textures and rotations.
-* Defining a 3D, rotating cube with ASCII-style avatars with commit info.
-* More ASCII art with usernames, number of commits, and line additions/deletions.
-* A CSS scroll animation to scroll this ASCII art continually upward
+- Creating “walls” using background textures and rotations.
+- Defining a 3D, rotating cube with ASCII-style avatars with commit info.
+- More ASCII art with usernames, number of commits, and line additions/deletions.
+- A CSS scroll animation to scroll this ASCII art continually upward
 
 Eventually, we got bored of this and moved airplanes. The airplanes are HTML and they are animated with CSS.
 
 This works by:
 
-* Creating two banners with the contributor name, commit count, and stats as well as the ASCII art of an airplane.
-* Using `@keyframes`, they move from left to right continuously at slightly different offset speeds.
-* The plane bounces continuously by repeatedly fading in and out of slightly different planes.
-* The banner contributor text and color change based on `@keyframes` as well.
+- Creating two banners with the contributor name, commit count, and stats as well as the ASCII art of an airplane.
+- Using `@keyframes`, they move from left to right continuously at slightly different offset speeds.
+- The plane bounces continuously by repeatedly fading in and out of slightly different planes.
+- The banner contributor text and color change based on `@keyframes` as well.
 
 > **Why not use a gif?** Other than people not knowing how it is pronounced, gifs have worse performance and are honestly more difficult to make for developers used to coding animations by hand. Since we can show off our programming chops, why not do it?
 

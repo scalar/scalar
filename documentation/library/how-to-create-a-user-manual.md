@@ -1,6 +1,6 @@
 # How to create a user manual: a practical guide
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 A user manual is the document people open when they need to get something done with your product and nobody is around to ask. This guide covers how to plan, write, publish, and maintain one, in eight steps, with a checklist you can copy and the mistakes that make manuals go unread.
 
@@ -12,12 +12,12 @@ A user manual is a reference that explains how to use a product: how to set it u
 
 For software, "user manual" usually means one of four things, often combined on the same site:
 
-| Type | Answers | Example page |
-| --- | --- | --- |
-| Getting started guide | "How do I get to my first result?" | Install, sign in, create your first project |
-| Task guides | "How do I do this specific thing?" | Invite a teammate, export a report, rotate an API key |
-| Reference | "What exactly does this option do?" | Every setting, field, error code, or API endpoint |
-| Troubleshooting | "Why is this not working?" | Common errors, symptoms, and fixes |
+| Type                  | Answers                             | Example page                                          |
+| --------------------- | ----------------------------------- | ----------------------------------------------------- |
+| Getting started guide | "How do I get to my first result?"  | Install, sign in, create your first project           |
+| Task guides           | "How do I do this specific thing?"  | Invite a teammate, export a report, rotate an API key |
+| Reference             | "What exactly does this option do?" | Every setting, field, error code, or API endpoint     |
+| Troubleshooting       | "Why is this not working?"          | Common errors, symptoms, and fixes                    |
 
 Admin and security guides (permissions, SSO, audit logs) are a fifth type that often lives in its own section, because the reader is different: an administrator, not an everyday user.
 
@@ -135,15 +135,15 @@ Copy this into your planning doc:
 
 PDFs still have a place: regulated industries, hardware shipped in a box, and customers who need an offline copy for an audit. For software, an online manual is almost always the better primary format.
 
-| | Online manual | PDF manual |
-| --- | --- | --- |
-| Updating | Publish a change in minutes | Re-export and redistribute |
-| Search | Full-text search across the manual | Within one file |
-| Linking | Link any page from the product, support, or other docs | Link to the file, then a page number |
-| Out-of-date copies | One live version | Old copies keep circulating |
-| Analytics | See what readers search for and view | Little or none |
-| AI assistants | Readable by crawlers and AI tools | Often ignored or poorly parsed |
-| Offline and archival use | Needs an export | Works everywhere |
+|                          | Online manual                                          | PDF manual                           |
+| ------------------------ | ------------------------------------------------------ | ------------------------------------ |
+| Updating                 | Publish a change in minutes                            | Re-export and redistribute           |
+| Search                   | Full-text search across the manual                     | Within one file                      |
+| Linking                  | Link any page from the product, support, or other docs | Link to the file, then a page number |
+| Out-of-date copies       | One live version                                       | Old copies keep circulating          |
+| Analytics                | See what readers search for and view                   | Little or none                       |
+| AI assistants            | Readable by crawlers and AI tools                      | Often ignored or poorly parsed       |
+| Offline and archival use | Needs an export                                        | Works everywhere                     |
 
 If you need both, write online first and generate the PDF from it, so there is one source of truth.
 
@@ -212,4 +212,4 @@ If your product has an API, yes, but as its own section. Generate the API refere
 
 ---
 
-*This page is written by Scalar, which makes a documentation platform. The process and checklist apply whichever tool you use. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is written by Scalar, which makes a documentation platform. The process and checklist apply whichever tool you use. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

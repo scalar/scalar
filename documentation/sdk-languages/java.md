@@ -82,15 +82,15 @@ PetApi apiInstance = new PetApi(defaultClient);
 // errors surface as ApiException with getCode()
 ```
 
-| | Scalar Java target | OpenAPI Generator `java` |
-| --- | --- | --- |
-| Status | Generally available | Stable |
-| HTTP stack | One generated client | Choose from more than a dozen libraries |
-| Client shape | `WarpClient.builder()`, resource tree | `ApiClient` + `Configuration` + one `*Api` class per tag |
-| Params | Immutable builder objects | Method arguments |
+|                             | Scalar Java target                                                      | OpenAPI Generator `java`                                                                                   |
+| --------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Status                      | Generally available                                                     | Stable                                                                                                     |
+| HTTP stack                  | One generated client                                                    | Choose from more than a dozen libraries                                                                    |
+| Client shape                | `WarpClient.builder()`, resource tree                                   | `ApiClient` + `Configuration` + one `*Api` class per tag                                                   |
+| Params                      | Immutable builder objects                                               | Method arguments                                                                                           |
 | `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your schemas in the preview repository | Marked unsupported in the generator's [feature table](https://openapi-generator.tech/docs/generators/java) |
-| Pagination | `autoPager()` | Not among the generator's documented options |
-| Maven Central release | Signed Gradle publish generated into your repo | Build files generated; release process is yours |
+| Pagination                  | `autoPager()`                                                           | Not among the generator's documented options                                                               |
+| Maven Central release       | Signed Gradle publish generated into your repo                          | Build files generated; release process is yours                                                            |
 
 Feature tables can lag the templates, so try your own schemas in both. For the wider decision, read [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -139,4 +139,4 @@ Yes. Every rebuild three-way merges the new output with your repository, so edit
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/java) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/java) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

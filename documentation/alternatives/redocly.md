@@ -1,6 +1,6 @@
 # Best Redocly alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If you are paying for Redocly's hosted platform and wondering whether another developer portal fits better, this guide lays out the realistic options, what each costs, and where Redocly is still the stronger choice.
 
@@ -24,14 +24,14 @@ Redocly has real strengths, which we cover below. The reasons teams start evalua
 
 ## Redocly alternatives compared
 
-| Platform | Entry paid price | Pricing model | Interactive reference | SDK generation | Open-source renderer |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | [$150/month](/pricing) | Flat, 5 editor seats included | Yes, full API client | Yes, TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA | Yes, MIT |
-| [Redocly](https://redocly.com/pricing) | $10/seat/month | Per seat, page limits | Replay on hosted plans | Experimental TypeScript client | Redoc, MIT, no try-it |
-| [Mintlify](https://www.mintlify.com/pricing) | Listed at $450/month | Flat, unlimited seats | API playground | No | No |
-| [ReadMe](https://readme.com/pricing) | $250/month billed annually | Flat | Yes | No | No |
-| [Fern](https://buildwithfern.com/pricing.md) | Free tier; Enterprise via sales | Per SDK, billed annually | Yes | Yes | No |
-| [Bump.sh](https://bump.sh/pricing) | $50/month | Flat, user limits | API Explorer on Pro ($120) | No | No |
+| Platform                                     | Entry paid price                | Pricing model                 | Interactive reference      | SDK generation                                          | Open-source renderer  |
+| -------------------------------------------- | ------------------------------- | ----------------------------- | -------------------------- | ------------------------------------------------------- | --------------------- |
+| **Scalar**                                   | [$150/month](/pricing)          | Flat, 5 editor seats included | Yes, full API client       | Yes, TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA | Yes, MIT              |
+| [Redocly](https://redocly.com/pricing)       | $10/seat/month                  | Per seat, page limits         | Replay on hosted plans     | Experimental TypeScript client                          | Redoc, MIT, no try-it |
+| [Mintlify](https://www.mintlify.com/pricing) | Listed at $450/month            | Flat, unlimited seats         | API playground             | No                                                      | No                    |
+| [ReadMe](https://readme.com/pricing)         | $250/month billed annually      | Flat                          | Yes                        | No                                                      | No                    |
+| [Fern](https://buildwithfern.com/pricing.md) | Free tier; Enterprise via sales | Per SDK, billed annually      | Yes                        | Yes                                                     | No                    |
+| [Bump.sh](https://bump.sh/pricing)           | $50/month                       | Flat, user limits             | API Explorer on Pro ($120) | No                                                      | No                    |
 
 Prices are the vendors' published list prices on 26 September 2026. Plans change often; follow the links before you budget.
 
@@ -129,4 +129,4 @@ Yes. Redocly CLI is MIT licensed and works on any OpenAPI document. Many teams k
 
 ---
 
-*This page is based on Redocly's public pricing page, documentation and GitHub repositories, and on the public pricing pages and documentation of every other vendor listed, as of 26 September 2026. Pricing in this category changes often. We have made a genuine effort to be accurate and to say where Redocly is stronger. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Redocly's public pricing page, documentation and GitHub repositories, and on the public pricing pages and documentation of every other vendor listed, as of 26 September 2026. Pricing in this category changes often. We have made a genuine effort to be accurate and to say where Redocly is stronger. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

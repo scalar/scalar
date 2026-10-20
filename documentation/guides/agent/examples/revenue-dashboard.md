@@ -51,15 +51,15 @@ In [dashboard.scalar.com](https://dashboard.scalar.com):
 
 Create a Notion database with these properties:
 
-| Property | Type |
-|---|---|
-| Customer | Title |
-| Email | Email |
-| Amount Due | Number |
-| Status | Select (open, paid, overdue) |
-| Due Date | Date |
-| Invoice URL | URL |
-| Last Synced | Date |
+| Property    | Type                         |
+| ----------- | ---------------------------- |
+| Customer    | Title                        |
+| Email       | Email                        |
+| Amount Due  | Number                       |
+| Status      | Select (open, paid, overdue) |
+| Due Date    | Date                         |
+| Invoice URL | URL                          |
+| Last Synced | Date                         |
 
 Copy the database ID from the URL: `notion.so/your-workspace/[DATABASE_ID]?v=...`
 
@@ -94,7 +94,7 @@ Today is ${today}.`,
 1. Fetch all Stripe invoices with status = open or paid, limit 50.
 2. For each invoice, create or update a row in the Notion database with:
    - Customer: customer_name
-   - Email: customer_email  
+   - Email: customer_email
    - Amount Due: amount_due / 100 (convert from cents)
    - Status: "overdue" if due_date < today and status = open, otherwise use status
    - Due Date: due_date

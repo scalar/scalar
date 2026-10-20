@@ -5,6 +5,7 @@ The `x-seed` extension allows you to automatically populate initial data when th
 ## When to Use x-seed
 
 Use `x-seed` when you need:
+
 - **Initial test data** available on server startup
 - **Realistic sample data** for development and testing
 - **Consistent starting state** across server restarts
@@ -288,4 +289,3 @@ Post:
       }
     })
 ```
-

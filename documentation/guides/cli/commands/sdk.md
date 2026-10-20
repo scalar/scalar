@@ -4,14 +4,14 @@
 
 Manage Scalar SDKs (Enterprise only).
 
-| Command | Description |
-| --- | --- |
-| [`scalar sdk list`](#list) | List SDKs in a team namespace |
-| [`scalar sdk get`](#get) | Inspect SDK metadata, API source, versions, and build status |
-| [`scalar sdk create`](#create) | Create an SDK in the namespace of its source API |
-| [`scalar sdk update`](#update) | Update SDK metadata |
-| [`scalar sdk delete`](#delete) | Delete an SDK |
-| [`scalar sdk build`](#build) | Start an SDK build |
+| Command                        | Description                                                  |
+| ------------------------------ | ------------------------------------------------------------ |
+| [`scalar sdk list`](#list)     | List SDKs in a team namespace                                |
+| [`scalar sdk get`](#get)       | Inspect SDK metadata, API source, versions, and build status |
+| [`scalar sdk create`](#create) | Create an SDK in the namespace of its source API             |
+| [`scalar sdk update`](#update) | Update SDK metadata                                          |
+| [`scalar sdk delete`](#delete) | Delete an SDK                                                |
+| [`scalar sdk build`](#build)   | Start an SDK build                                           |
 
 ## list
 
@@ -23,10 +23,10 @@ scalar sdk list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--json` | Output structured SDK metadata as JSON. |
-| `--namespace <namespace>` | Team namespace. |
+| Option                    | Description                             |
+| ------------------------- | --------------------------------------- |
+| `--json`                  | Output structured SDK metadata as JSON. |
+| `--namespace <namespace>` | Team namespace.                         |
 
 ## get
 
@@ -38,11 +38,11 @@ scalar sdk get [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | **Required.** SDK slug. |
-| `-n, --namespace <namespace>` | Team namespace. |
-| `--json` | Output structured SDK metadata as JSON. |
+| Option                        | Description                             |
+| ----------------------------- | --------------------------------------- |
+| `-s, --slug <slug>`           | **Required.** SDK slug.                 |
+| `-n, --namespace <namespace>` | Team namespace.                         |
+| `--json`                      | Output structured SDK metadata as JSON. |
 
 ## create
 
@@ -54,11 +54,11 @@ scalar sdk create [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-a, --api <api>` | Scalar Registry API slug. |
-| `-n, --namespace <namespace>` | Team namespace of the source API. |
-| `-l, --language <language>` | SDK language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
+| Option                        | Description                                                                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `-a, --api <api>`             | Scalar Registry API slug.                                                                                                            |
+| `-n, --namespace <namespace>` | Team namespace of the source API.                                                                                                    |
+| `-l, --language <language>`   | SDK language. One of `typescript`, `python`, `cli`, `csharp`, `java`, `ruby`, `php`, `go`, `rust`, `kotlin`, `swift`, `cpp`, `dart`. |
 
 ## update
 
@@ -70,12 +70,12 @@ scalar sdk update [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | SDK slug. |
-| `-n, --namespace <namespace>` | Team namespace. |
-| `--title <title>` | SDK title. |
-| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| Option                        | Description                                                                                 |
+| ----------------------------- | ------------------------------------------------------------------------------------------- |
+| `-s, --slug <slug>`           | SDK slug.                                                                                   |
+| `-n, --namespace <namespace>` | Team namespace.                                                                             |
+| `--title <title>`             | SDK title.                                                                                  |
+| `--isPrivate <isPrivate>`     | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
 
 ## delete
 
@@ -87,9 +87,9 @@ scalar sdk delete [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | SDK slug. |
+| Option                        | Description     |
+| ----------------------------- | --------------- |
+| `-s, --slug <slug>`           | SDK slug.       |
 | `-n, --namespace <namespace>` | Team namespace. |
 
 ## build
@@ -102,7 +102,7 @@ scalar sdk build [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug <slug>` | SDK slug. |
+| Option                        | Description     |
+| ----------------------------- | --------------- |
+| `-s, --slug <slug>`           | SDK slug.       |
 | `-n, --namespace <namespace>` | Team namespace. |

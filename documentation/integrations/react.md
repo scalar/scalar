@@ -126,7 +126,7 @@ Open <http://localhost:5173/> and you should see your API reference. Done!
 
 ## Using with Tailwind CSS
 
-If your React project uses Tailwind CSS v4, Scalar's CSS layers may conflict with Tailwind's layer ordering. To fix this, declare the layer order in your main CSS file *before* importing Tailwind:
+If your React project uses Tailwind CSS v4, Scalar's CSS layers may conflict with Tailwind's layer ordering. To fix this, declare the layer order in your main CSS file _before_ importing Tailwind:
 
 ```css
 /* src/index.css */

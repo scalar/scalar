@@ -619,7 +619,7 @@ We generate custom code examples for all languages, but you might have a custom 
 
 Each entry has a `lang` (used as the tab label and to pick a matching language icon) and a `description`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
-```diff
+````diff
 openapi: 3.1.0
 info:
   title: Example
@@ -649,9 +649,9 @@ info:
 +      ```groovy
 +      implementation 'com.your-awesome-company:sdk:1.0.0'
 +      ```
-```
+````
 
-| Option      | Type   | Description                                                                                        |
+| Option      | Type   | Description                                                                                       |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------- |
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
@@ -672,10 +672,10 @@ info:
 +    url: https://example.com/imprint
 ```
 
-| Option | Type   | Description                                       |
-| ------ | ------ | ------------------------------------------------- |
-| name   | string | **REQUIRED**. The label to display for the link.  |
-| url    | string | **REQUIRED**. The URL the link points to.         |
+| Option | Type   | Description                                      |
+| ------ | ------ | ------------------------------------------------ |
+| name   | string | **REQUIRED**. The label to display for the link. |
+| url    | string | **REQUIRED**. The URL the link points to.        |
 
 ## x-pre-request
 

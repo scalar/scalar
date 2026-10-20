@@ -56,10 +56,10 @@ app.MapScalarApiReference(options =>
 {
     // Default route pattern: /openapi/{documentName}.json. Only document name is required, title and routePattern are optional
     options.AddDocument("v1");
-    
+
     // Skip title and only specify routePattern
     options.AddDocument("v2", routePattern: "/api-docs/{documentName}/spec.json");
-    
+
     // All parameters specified
     options.AddDocument("v3", "Version 3.0", "/api-documentation/v3.json");
 
@@ -110,7 +110,6 @@ builder.Services.Configure<ScalarOptions>(options =>
 
 The `routePattern` parameter allows you to customize how the OpenAPI document is served. If not specified, it uses the default pattern from `ScalarOptions.OpenApiRoutePattern`. The pattern can include the `{documentName}` placeholder which will be replaced with the document name.
 
-
 A full example code may look like this:
 
 ```csharp
@@ -140,6 +139,5 @@ foreach (var version in versions)
   });
 }
 ```
-
 
 With this setup, Scalar will display a version selector in the UI, allowing users to switch between different API versions and their corresponding documentation.

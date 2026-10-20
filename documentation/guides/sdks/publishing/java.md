@@ -54,12 +54,12 @@ Send the public key well before the first release: it can take hours to propagat
 
 Add these as repository secrets (see [Adding repository secrets](github.md#adding-repository-secrets)). Each is also read under the name in the last column when it is unset, so a repository that already stores them under those names needs nothing new. When `publish.maven.releaseEnvironment` is set, an environment secret of the same name overrides the repository one.
 
-| Secret | Value | Also accepted |
-| ------ | ----- | ------------- |
-| `MAVEN_CENTRAL_USERNAME` | Central Portal user token username | `SONATYPE_USERNAME` |
-| `MAVEN_CENTRAL_PASSWORD` | Central Portal user token password | `SONATYPE_PASSWORD` |
-| `MAVEN_GPG_PRIVATE_KEY` | The ASCII-armored private key from the export above | `GPG_SIGNING_KEY` |
-| `MAVEN_GPG_PASSPHRASE` | The passphrase for that key | `GPG_SIGNING_PASSWORD` |
+| Secret                   | Value                                               | Also accepted          |
+| ------------------------ | --------------------------------------------------- | ---------------------- |
+| `MAVEN_CENTRAL_USERNAME` | Central Portal user token username                  | `SONATYPE_USERNAME`    |
+| `MAVEN_CENTRAL_PASSWORD` | Central Portal user token password                  | `SONATYPE_PASSWORD`    |
+| `MAVEN_GPG_PRIVATE_KEY`  | The ASCII-armored private key from the export above | `GPG_SIGNING_KEY`      |
+| `MAVEN_GPG_PASSPHRASE`   | The passphrase for that key                         | `GPG_SIGNING_PASSWORD` |
 
   </scalar-step>
 </scalar-steps>

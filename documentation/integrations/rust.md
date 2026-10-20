@@ -4,22 +4,22 @@ We provide an official Rust crate for rendering the Scalar API documentation in 
 
 ## Features
 
-* Embed Scalar's HTML/JS assets directly into your Rust binary
-* Framework-agnostic core with optional integrations for popular web frameworks
-* Simple configuration injection via JSON
-* Automatic asset serving with proper MIME types
+- Embed Scalar's HTML/JS assets directly into your Rust binary
+- Framework-agnostic core with optional integrations for popular web frameworks
+- Simple configuration injection via JSON
+- Automatic asset serving with proper MIME types
 
 ## Integrations
 
-* [Axum (feature: `axum`)](axum.md)
-* [Actix-web (feature: `actix-web`)](actix-web.md)
-* [Warp (feature: `warp`)](warp.md)
+- [Axum (feature: `axum`)](axum.md)
+- [Actix-web (feature: `actix-web`)](actix-web.md)
+- [Warp (feature: `warp`)](warp.md)
 
 There are a few community integrations, too:
 
-* [utoipa-scalar](https://github.com/juhaku/utoipa/tree/master/utoipa-scalar)
-* [Aide](https://github.com/tamasfe/aide)
-* [scalar-doc](https://crates.io/crates/scalar-doc) (framework-agnostic)
+- [utoipa-scalar](https://github.com/juhaku/utoipa/tree/master/utoipa-scalar)
+- [Aide](https://github.com/tamasfe/aide)
+- [scalar-doc](https://crates.io/crates/scalar-doc) (framework-agnostic)
 
 ## Installation
 
@@ -110,10 +110,10 @@ let html = scalar_html_default(&configuration);
 
 The configuration object supports all standard Scalar options. Common options include:
 
-* `url`: Path to your OpenAPI document
-* `layout`: Layout style ("classic" or "modern")
-* `theme`: [Theme name (e.g., "purple", "blue", "green")](../themes.md)
-* `darkMode`: Enable dark mode
+- `url`: Path to your OpenAPI document
+- `layout`: Layout style ("classic" or "modern")
+- `theme`: [Theme name (e.g., "purple", "blue", "green")](../themes.md)
+- `darkMode`: Enable dark mode
 
 See the documentation for [the complete configuration reference](../configuration.md).
 
@@ -188,4 +188,3 @@ let config = json!({ "sources": serde_json::to_value(&sources).unwrap() });
 ```
 
 For more details, see [Agent](../configuration.md#agent) and [How to get an Agent key](../guides/agent/key.md).
-

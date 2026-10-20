@@ -1,6 +1,6 @@
 # Scalar vs Redoc
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Redoc is the open-source OpenAPI renderer behind the familiar three-panel reference: navigation on the left, documentation in the middle, request and response examples on the right. It is MIT licensed, maintained by Redocly, and ships by default in frameworks such as [FastAPI](https://fastapi.tiangolo.com/features/). For a clean, static, read-only reference, it is still one of the best-looking options there is.
 
@@ -12,18 +12,18 @@ The short version: Redoc is a polished, read-focused renderer. Scalar is a rende
 
 ## At a glance
 
-| | Scalar API Reference | Redoc (community edition) |
-| --- | --- | --- |
-| Licence | [MIT](https://github.com/scalar/scalar) | [MIT](https://github.com/Redocly/redoc) |
-| Maintainer | Scalar | [Redocly](https://github.com/Redocly/redoc) |
-| OpenAPI versions | Swagger 2.0, OpenAPI 3.0, 3.1; 3.2 features [landing incrementally](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md) | [Swagger 2.0, OpenAPI 3.0, 3.1](https://github.com/Redocly/redoc) |
-| Layout | Modern (sidebar + content) or classic | [Three-panel, responsive](https://github.com/Redocly/redoc) |
-| Try-it console | Yes, a full API client | No; a [hosted Redocly feature](https://github.com/Redocly/redoc) |
-| Automatic code samples | Yes, many languages and HTTP clients | No; hand-written via [`x-codeSamples`](https://github.com/Redocly/redoc), automatic samples are a hosted feature |
-| Search | Yes | Yes |
-| Theming | Light and dark mode, 11 themes, CSS variables | Configurable `theme` option |
-| Deployment | CDN script, 35+ framework integrations, React, Vue, Docker, CLI | [HTML tag, React component, Docker image, CLI](https://github.com/Redocly/redoc) |
-| Latest release | Continuous; see [npm](https://www.npmjs.com/package/@scalar/api-reference) | [2.5.4 on npm](https://www.npmjs.com/package/redoc), September 2026 |
+|                        | Scalar API Reference                                                                                                                                | Redoc (community edition)                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Licence                | [MIT](https://github.com/scalar/scalar)                                                                                                             | [MIT](https://github.com/Redocly/redoc)                                                                          |
+| Maintainer             | Scalar                                                                                                                                              | [Redocly](https://github.com/Redocly/redoc)                                                                      |
+| OpenAPI versions       | Swagger 2.0, OpenAPI 3.0, 3.1; 3.2 features [landing incrementally](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md) | [Swagger 2.0, OpenAPI 3.0, 3.1](https://github.com/Redocly/redoc)                                                |
+| Layout                 | Modern (sidebar + content) or classic                                                                                                               | [Three-panel, responsive](https://github.com/Redocly/redoc)                                                      |
+| Try-it console         | Yes, a full API client                                                                                                                              | No; a [hosted Redocly feature](https://github.com/Redocly/redoc)                                                 |
+| Automatic code samples | Yes, many languages and HTTP clients                                                                                                                | No; hand-written via [`x-codeSamples`](https://github.com/Redocly/redoc), automatic samples are a hosted feature |
+| Search                 | Yes                                                                                                                                                 | Yes                                                                                                              |
+| Theming                | Light and dark mode, 11 themes, CSS variables                                                                                                       | Configurable `theme` option                                                                                      |
+| Deployment             | CDN script, 35+ framework integrations, React, Vue, Docker, CLI                                                                                     | [HTML tag, React component, Docker image, CLI](https://github.com/Redocly/redoc)                                 |
+| Latest release         | Continuous; see [npm](https://www.npmjs.com/package/@scalar/api-reference)                                                                          | [2.5.4 on npm](https://www.npmjs.com/package/redoc), September 2026                                              |
 
 ## Where Redoc is stronger
 
@@ -125,12 +125,12 @@ You can run all three side by side while you decide, then turn the others off wi
 
 If your OpenAPI document is tuned for Redoc, most of that work carries over.
 
-| Redoc extension | In Scalar |
-| --- | --- |
-| `x-tagGroups` | Supported; groups tags in the sidebar |
-| `x-codeSamples` | Supported, along with `x-code-samples` |
-| `x-displayName` on tags | Supported |
-| `x-enumDescriptions` | Use `x-enum-descriptions` (same shape) |
+| Redoc extension         | In Scalar                              |
+| ----------------------- | -------------------------------------- |
+| `x-tagGroups`           | Supported; groups tags in the sidebar  |
+| `x-codeSamples`         | Supported, along with `x-code-samples` |
+| `x-displayName` on tags | Supported                              |
+| `x-enumDescriptions`    | Use `x-enum-descriptions` (same shape) |
 
 Check anything else you rely on against the [OpenAPI extensions reference](/products/api-references/openapi) before migrating. If something important is missing, [open an issue](https://github.com/scalar/scalar/issues); extension support is one of the areas where we move quickly.
 
@@ -144,13 +144,13 @@ On the Scalar side, the same OpenAPI document can drive a hosted [docs site](/pr
 
 ## Pricing
 
-| | Scalar | Redoc |
-| --- | --- | --- |
-| Open-source renderer | Free, [MIT](https://github.com/scalar/scalar) | Free, [MIT](https://github.com/Redocly/redoc) |
-| Try-it in the free renderer | Included | Not included; [hosted Redocly feature](https://github.com/Redocly/redoc) |
-| Hosted entry tier | Free plan (up to 3 APIs); [Pro $150/month](/pricing) flat with 5 editor seats | [Redocly Pro $10 per seat/month](https://redocly.com/pricing), 1 project, 100 pages |
-| Next tier | [Business $600/month](/pricing): SSO, subpath hosting, 10 seats | [Redocly Enterprise $24 per seat/month](https://redocly.com/pricing): 500 pages, SSO, RBAC |
-| Top tier | Enterprise, custom | [Enterprise+](https://redocly.com/pricing), custom, billed yearly |
+|                             | Scalar                                                                        | Redoc                                                                                      |
+| --------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Open-source renderer        | Free, [MIT](https://github.com/scalar/scalar)                                 | Free, [MIT](https://github.com/Redocly/redoc)                                              |
+| Try-it in the free renderer | Included                                                                      | Not included; [hosted Redocly feature](https://github.com/Redocly/redoc)                   |
+| Hosted entry tier           | Free plan (up to 3 APIs); [Pro $150/month](/pricing) flat with 5 editor seats | [Redocly Pro $10 per seat/month](https://redocly.com/pricing), 1 project, 100 pages        |
+| Next tier                   | [Business $600/month](/pricing): SSO, subpath hosting, 10 seats               | [Redocly Enterprise $24 per seat/month](https://redocly.com/pricing): 500 pages, SSO, RBAC |
+| Top tier                    | Enterprise, custom                                                            | [Enterprise+](https://redocly.com/pricing), custom, billed yearly                          |
 
 Scalar Pro is $125/month and Business $500/month when billed yearly. Redocly lists a [30-day free trial](https://redocly.com/pricing) on paid plans. For a small team that only needs hosted reference docs with try-it, Redocly Pro can be cheaper; the fuller analysis is on the [Redocly page](/resources/compare/redocly).
 
@@ -232,4 +232,4 @@ The Scalar API reference and API client are MIT licensed and free to self-host w
 
 ---
 
-*This comparison is based on Redoc's public repository, README, and npm releases as of September 2026, and on Scalar's own source. It covers the open-source Redoc renderer only; Redocly's commercial products are compared separately. We have made a genuine effort to be accurate and to state where Redoc is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Redoc's public repository, README, and npm releases as of September 2026, and on Scalar's own source. It covers the open-source Redoc renderer only; Redocly's commercial products are compared separately. We have made a genuine effort to be accurate and to state where Redoc is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

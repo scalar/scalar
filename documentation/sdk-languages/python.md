@@ -92,7 +92,7 @@ Users then run `pip install acme-api` and write `import acme_api`. The [Python c
 
 Scalar never publishes on your behalf. It keeps a release pull request open in your repository, and merging that pull request runs a `publish` job inside `release-please.yml`, which uploads with `pypa/gh-action-pypi-publish`.
 
-The recommended authentication is **PyPI trusted publishing**. Add a GitHub publisher on pypi.org pointing at your repository and the workflow `release-please.yml`. For a project that does not exist yet, use a *pending publisher* from your account's Publishing page, so the very first release can go out without a token. If you prefer tokens, store a project-scoped token as `PYPI_API_TOKEN` and set `"authMethod": "access-token"`.
+The recommended authentication is **PyPI trusted publishing**. Add a GitHub publisher on pypi.org pointing at your repository and the workflow `release-please.yml`. For a project that does not exist yet, use a _pending publisher_ from your account's Publishing page, so the very first release can go out without a token. If you prefer tokens, store a project-scoped token as `PYPI_API_TOKEN` and set `"authMethod": "access-token"`.
 
 `skip-existing` is on, so re-running a release for a version that is already on PyPI is a no-op instead of a failed job. Details are in [PyPI publishing](/products/sdk-generator/publishing/python).
 
@@ -113,15 +113,15 @@ with petstore_api.ApiClient(configuration) as api_client:
     pet = api_instance.get_pet_by_id(pet_id=1)
 ```
 
-| | Scalar Python target | OpenAPI Generator `python` |
-| --- | --- | --- |
-| Client shape | `Warp()` with resources as attributes | `Configuration` + `ApiClient` + one `*Api` class per tag |
-| Async | `AsyncWarp` in every SDK, same resource tree | Chosen at generation time with `library=asyncio` or `httpx` |
-| Pagination | Generated page types and iterators | Not among the generator's documented options |
-| Retries | Built in, honours `Retry-After` | Not among the generator's documented options |
-| Package naming | `packageName` and `projectName` separately | `packageName`, default `openapi_client` |
-| Release to PyPI | Workflow and release PR generated into your repo | Generates packaging files; release process is yours |
-| Cost | One target on the free plan | Free |
+|                 | Scalar Python target                             | OpenAPI Generator `python`                                  |
+| --------------- | ------------------------------------------------ | ----------------------------------------------------------- |
+| Client shape    | `Warp()` with resources as attributes            | `Configuration` + `ApiClient` + one `*Api` class per tag    |
+| Async           | `AsyncWarp` in every SDK, same resource tree     | Chosen at generation time with `library=asyncio` or `httpx` |
+| Pagination      | Generated page types and iterators               | Not among the generator's documented options                |
+| Retries         | Built in, honours `Retry-After`                  | Not among the generator's documented options                |
+| Package naming  | `packageName` and `projectName` separately       | `packageName`, default `openapi_client`                     |
+| Release to PyPI | Workflow and release PR generated into your repo | Generates packaging files; release process is yours         |
+| Cost            | One target on the free plan                      | Free                                                        |
 
 If your team is comfortable owning the release pipeline and the call-site ergonomics suit you, OpenAPI Generator is a reasonable choice. [OpenAPI Generator alternatives](/alternatives/openapi-generator) goes further into that decision.
 
@@ -170,4 +170,4 @@ Add them as you would in any repository. Each build three-way merges the new out
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/python) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/python) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

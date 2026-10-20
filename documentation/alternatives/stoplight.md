@@ -1,6 +1,6 @@
 # Best Stoplight alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Stoplight is really five tools in one: a visual OpenAPI editor, hosted documentation, style-guide linting with Spectral, mock servers with Prism, and Git-backed collaboration. The best Stoplight alternative is the one that replaces the pieces you actually use, so this page maps each piece to its replacement before ranking anything.
 
@@ -20,28 +20,28 @@ We found no official end-of-life announcement for the Stoplight platform. If you
 
 ## Replacing Stoplight, piece by piece
 
-| Stoplight capability | What it does | Scalar | Other options |
-| --- | --- | --- | --- |
-| Studio / visual editor | Edit OpenAPI with forms and preview | [Scalar editor](https://editor.scalar.com/) | SmartBear API Hub Studio, any IDE with an OpenAPI plugin |
-| Hosted docs (Elements) | Interactive API reference and guides | [Scalar Docs](/products/docs) and [API reference](/products/api-references) | Redocly, Bump.sh, ReadMe |
-| Style guides (Spectral) | Lint OpenAPI against rules | Spectral rules in the [Scalar Registry](/products/registry) | Spectral CLI in CI, Redocly CLI |
-| Mocking (Prism) | Fake API from OpenAPI | [Scalar mock server](/tools/mock-server/getting-started) | Prism CLI |
-| Git projects | Sync OpenAPI and Markdown with Git | [Git Sync](/products/docs/github-sync) | Redocly, ReadMe `rdme` |
-| Try it | Send requests from the docs | Built-in [API client](/products/api-client), also standalone | Most docs tools |
+| Stoplight capability    | What it does                         | Scalar                                                                      | Other options                                            |
+| ----------------------- | ------------------------------------ | --------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Studio / visual editor  | Edit OpenAPI with forms and preview  | [Scalar editor](https://editor.scalar.com/)                                 | SmartBear API Hub Studio, any IDE with an OpenAPI plugin |
+| Hosted docs (Elements)  | Interactive API reference and guides | [Scalar Docs](/products/docs) and [API reference](/products/api-references) | Redocly, Bump.sh, ReadMe                                 |
+| Style guides (Spectral) | Lint OpenAPI against rules           | Spectral rules in the [Scalar Registry](/products/registry)                 | Spectral CLI in CI, Redocly CLI                          |
+| Mocking (Prism)         | Fake API from OpenAPI                | [Scalar mock server](/tools/mock-server/getting-started)                    | Prism CLI                                                |
+| Git projects            | Sync OpenAPI and Markdown with Git   | [Git Sync](/products/docs/github-sync)                                      | Redocly, ReadMe `rdme`                                   |
+| Try it                  | Send requests from the docs          | Built-in [API client](/products/api-client), also standalone                | Most docs tools                                          |
 
 If you only used Stoplight for hosted docs, almost any tool below works. If you leaned on Studio and style guides, your options narrow quickly.
 
 ## Stoplight alternatives at a glance
 
-| Tool | Editor | Docs | Linting | Mocking | Entry paid price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | Yes | Yes | Spectral rules | Yes, open source | Pro $150/month, 5 editor seats ([pricing](/pricing)) |
-| **SmartBear API Hub** | Yes (Studio) | Yes (Portal) | Yes | See SmartBear | See [swagger.io](https://swagger.io/api-hub/) |
-| **Redocly** | Via IDE and CLI | Yes | Yes | No | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
-| **Bump.sh** | No | Yes | No | No | Basic $50/month ([pricing](https://bump.sh/pricing)) |
-| **Spectral + Prism + Elements** | No | Self-hosted component | Yes | Yes | Free, Apache-2.0 |
-| **ReadMe** | Web editor | Yes | AI linter on Pro | No | Pro $250/month billed annually ([pricing](https://readme.com/pricing)) |
-| **Stoplight (stay)** | Yes | Yes | Yes | Yes | Basic $44/month billed annually, 3 users ([pricing](https://stoplight.io/pricing)) |
+| Tool                            | Editor          | Docs                  | Linting          | Mocking          | Entry paid price                                                                   |
+| ------------------------------- | --------------- | --------------------- | ---------------- | ---------------- | ---------------------------------------------------------------------------------- |
+| **Scalar**                      | Yes             | Yes                   | Spectral rules   | Yes, open source | Pro $150/month, 5 editor seats ([pricing](/pricing))                               |
+| **SmartBear API Hub**           | Yes (Studio)    | Yes (Portal)          | Yes              | See SmartBear    | See [swagger.io](https://swagger.io/api-hub/)                                      |
+| **Redocly**                     | Via IDE and CLI | Yes                   | Yes              | No               | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))                    |
+| **Bump.sh**                     | No              | Yes                   | No               | No               | Basic $50/month ([pricing](https://bump.sh/pricing))                               |
+| **Spectral + Prism + Elements** | No              | Self-hosted component | Yes              | Yes              | Free, Apache-2.0                                                                   |
+| **ReadMe**                      | Web editor      | Yes                   | AI linter on Pro | No               | Pro $250/month billed annually ([pricing](https://readme.com/pricing))             |
+| **Stoplight (stay)**            | Yes             | Yes                   | Yes              | Yes              | Basic $44/month billed annually, 3 users ([pricing](https://stoplight.io/pricing)) |
 
 Prices were checked on each vendor's pricing page on September 26, 2026.
 
@@ -153,4 +153,4 @@ Connect the same repository to Scalar with Git Sync. Scalar reads your OpenAPI a
 
 ---
 
-*This page is based on Stoplight's and SmartBear's public pages and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. We could not find an official statement on Stoplight's long-term future, and have said so rather than guess. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Stoplight's and SmartBear's public pages and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. We could not find an official statement on Stoplight's long-term future, and have said so rather than guess. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

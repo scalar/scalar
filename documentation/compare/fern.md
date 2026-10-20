@@ -1,6 +1,6 @@
 # Scalar vs Fern
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Fern and Scalar both turn an OpenAPI document into documentation and client SDKs. They are genuinely comparable products, and if you are evaluating one you should evaluate the other.
 
@@ -10,14 +10,14 @@ This page is written by Scalar, so read it with that in mind. Every claim we mak
 
 ## At a glance
 
-| | Scalar | Fern |
-| --- | --- | --- |
-| Docs renderer | MIT, self-hostable on any plan | Not public; self-hosting is Enterprise |
-| SDK generator | Closed source | Apache-2.0 |
-| Docs + SDKs from one spec | Yes | Yes |
-| Standalone API client | Yes, open source | No |
-| Framework integrations | 35 | None (iframe embed only) |
-| SDK pricing | One target included; additional targets from $150/month, published | [Free up to 200 endpoints](https://buildwithfern.com/pricing) in TypeScript and Python; Enterprise "per SDK, billed annually", contact sales |
+|                           | Scalar                                                             | Fern                                                                                                                                         |
+| ------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Docs renderer             | MIT, self-hostable on any plan                                     | Not public; self-hosting is Enterprise                                                                                                       |
+| SDK generator             | Closed source                                                      | Apache-2.0                                                                                                                                   |
+| Docs + SDKs from one spec | Yes                                                                | Yes                                                                                                                                          |
+| Standalone API client     | Yes, open source                                                   | No                                                                                                                                           |
+| Framework integrations    | 35                                                                 | None (iframe embed only)                                                                                                                     |
+| SDK pricing               | One target included; additional targets from $150/month, published | [Free up to 200 endpoints](https://buildwithfern.com/pricing) in TypeScript and Python; Enterprise "per SDK, billed annually", contact sales |
 
 ## Where Fern is stronger
 
@@ -60,11 +60,11 @@ Two differences worth noting. Scalar names the client after your API and exports
 
 For this one it is worth putting both generators on the same input. Below is what each produces from a Petstore document — the same operations, the same resource.
 
-| `operationId` | Fern | Scalar |
-| --- | --- | --- |
-| `listPets` | `client.pets.listPets()` | `client.pet.list()` |
-| `getPet` / `getPetById` | `client.pets.getPet()` | `client.pet.retrieve()` |
-| `createPet` / `addPet` | `client.pets.createPet()` | `client.pet.create()` |
+| `operationId`           | Fern                      | Scalar                  |
+| ----------------------- | ------------------------- | ----------------------- |
+| `listPets`              | `client.pets.listPets()`  | `client.pet.list()`     |
+| `getPet` / `getPetById` | `client.pets.getPet()`    | `client.pet.retrieve()` |
+| `createPet` / `addPet`  | `client.pets.createPet()` | `client.pet.create()`   |
 
 Fern carries the operationId through nearly verbatim, so the resource noun appears twice on every call — `pets.listPets`, `pets.getPet`, `pets.createPet`. Scalar strips the redundant noun and normalises the verb, giving you `list`, `retrieve`, and `create` on every resource. Over a large API that consistency is the difference between guessing a method name and knowing it.
 
@@ -157,13 +157,13 @@ Fern's comparison content [describes Scalar](https://buildwithfern.com/post/inte
 
 ## Pricing
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Fern ([pricing](https://buildwithfern.com/pricing)) |
-| --- | --- | --- |
-| Free | $0: docs with 1 editor seat and up to 3 APIs, 1 SDK up to 25 endpoints | Docs: $0, 10 members, 1,000 pages. SDKs: $0, TypeScript and Python up to 200 endpoints |
-| Entry paid | Pro, $150/month ($125/month billed yearly): 5 editor seats, 1 SDK up to 100 endpoints, MCP servers | No self-serve paid tier |
-| Mid tier | Business, $600/month ($500/month billed yearly): 10 editor seats, SSO, SDKs up to 250 endpoints | — |
-| Top tier | Enterprise, custom | Enterprise, custom; SDKs "per SDK, billed annually" |
-| Additional SDKs | $150/month each up to 100 endpoints, $600/month each for 101–250 | Contact sales |
+| Plan            | Scalar ([pricing](https://scalar.com/pricing))                                                     | Fern ([pricing](https://buildwithfern.com/pricing))                                    |
+| --------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Free            | $0: docs with 1 editor seat and up to 3 APIs, 1 SDK up to 25 endpoints                             | Docs: $0, 10 members, 1,000 pages. SDKs: $0, TypeScript and Python up to 200 endpoints |
+| Entry paid      | Pro, $150/month ($125/month billed yearly): 5 editor seats, 1 SDK up to 100 endpoints, MCP servers | No self-serve paid tier                                                                |
+| Mid tier        | Business, $600/month ($500/month billed yearly): 10 editor seats, SSO, SDKs up to 250 endpoints    | —                                                                                      |
+| Top tier        | Enterprise, custom                                                                                 | Enterprise, custom; SDKs "per SDK, billed annually"                                    |
+| Additional SDKs | $150/month each up to 100 endpoints, $600/month each for 101–250                                   | Contact sales                                                                          |
 
 Prices checked on 26 September 2026. Fern also runs a program for Postman customers with larger free limits.
 
@@ -223,4 +223,4 @@ Only on Enterprise, as a closed Docker image, and several features — Ask Fern,
 
 ---
 
-*This comparison is based on Fern's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. Fern was acquired by Postman in January 2026 and their product may change. We have made a genuine effort to be accurate and to state where Fern is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Fern's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. Fern was acquired by Postman in January 2026 and their product may change. We have made a genuine effort to be accurate and to state where Fern is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

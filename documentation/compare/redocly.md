@@ -1,6 +1,6 @@
 # Scalar vs Redocly
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Redocly is the company behind Redoc, one of the original OpenAPI renderers — the repository dates back to [October 2015](https://github.com/Redocly/redoc) and has over 25,000 stars. A very large share of the API documentation on the internet has been rendered by Redoc at some point, and if you are evaluating OpenAPI documentation tooling, Redocly belongs on your list.
 
@@ -10,16 +10,16 @@ The short version: both companies ship an MIT-licensed OpenAPI renderer. The dif
 
 ## At a glance
 
-| | Scalar | Redocly |
-| --- | --- | --- |
-| Docs renderer license | [MIT](https://github.com/scalar/scalar) | [MIT](https://github.com/Redocly/redoc) (Redoc community edition) |
-| Try-it console in the open renderer | Yes — a full API client | No — [commercial feature](https://github.com/Redocly/redoc#redoc-vs-hosted-redoc) |
-| API linting and governance | Spectral rules in the registry | [Redocly CLI](https://github.com/Redocly/redocly-cli), mature and configurable |
-| Framework integrations | 35 | HTML tag, React component, Docker, CLI |
-| SDK generation | Native, published pricing | [Experimental TypeScript client](https://github.com/Redocly/redocly-cli) in the CLI |
-| Standalone API client | Yes, open source | No |
-| Hosted MCP servers | Pro, $150/month | [Enterprise tier](https://redocly.com/pricing) |
-| Entry paid tier | $150/month flat, 5 seats included | $10 per seat/month, 100-page limit |
+|                                     | Scalar                                  | Redocly                                                                             |
+| ----------------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------- |
+| Docs renderer license               | [MIT](https://github.com/scalar/scalar) | [MIT](https://github.com/Redocly/redoc) (Redoc community edition)                   |
+| Try-it console in the open renderer | Yes — a full API client                 | No — [commercial feature](https://github.com/Redocly/redoc#redoc-vs-hosted-redoc)   |
+| API linting and governance          | Spectral rules in the registry          | [Redocly CLI](https://github.com/Redocly/redocly-cli), mature and configurable      |
+| Framework integrations              | 35                                      | HTML tag, React component, Docker, CLI                                              |
+| SDK generation                      | Native, published pricing               | [Experimental TypeScript client](https://github.com/Redocly/redocly-cli) in the CLI |
+| Standalone API client               | Yes, open source                        | No                                                                                  |
+| Hosted MCP servers                  | Pro, $150/month                         | [Enterprise tier](https://redocly.com/pricing)                                      |
+| Entry paid tier                     | $150/month flat, 5 seats included       | $10 per seat/month, 100-page limit                                                  |
 
 ## Where Redocly is stronger
 
@@ -65,13 +65,13 @@ If all you need is a reference page, this section does not matter. If you want d
 
 Both companies publish their pricing, which we respect — much of this category does not.
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Redocly ([pricing](https://redocly.com/pricing)) |
-| --- | --- | --- |
-| Free | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | No free hosted plan listed; Redoc CE and Redocly CLI are free and open source |
-| Entry paid | Pro, $150/month flat ($125/month billed yearly), 5 editor seats | Pro, $10 per seat/month, 1 project, 100 pages |
-| Mid tier | Business, $600/month flat ($500/month billed yearly), 10 editor seats, SSO | Enterprise, $24 per seat/month, 500 pages, SSO, RBAC, MCP servers |
-| Top tier | Enterprise, custom | Enterprise+, custom, billed yearly |
-| Add-ons | Additional SDKs from $150/month each | Revel or Reef +$10 (Pro) / +$24 (Enterprise) per seat/month; Realm bundle +$18 / +$42 per seat/month; Respect monitoring usage-based |
+| Plan       | Scalar ([pricing](https://scalar.com/pricing))                             | Redocly ([pricing](https://redocly.com/pricing))                                                                                     |
+| ---------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Free       | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints                  | No free hosted plan listed; Redoc CE and Redocly CLI are free and open source                                                        |
+| Entry paid | Pro, $150/month flat ($125/month billed yearly), 5 editor seats            | Pro, $10 per seat/month, 1 project, 100 pages                                                                                        |
+| Mid tier   | Business, $600/month flat ($500/month billed yearly), 10 editor seats, SSO | Enterprise, $24 per seat/month, 500 pages, SSO, RBAC, MCP servers                                                                    |
+| Top tier   | Enterprise, custom                                                         | Enterprise+, custom, billed yearly                                                                                                   |
+| Add-ons    | Additional SDKs from $150/month each                                       | Revel or Reef +$10 (Pro) / +$24 (Enterprise) per seat/month; Realm bundle +$18 / +$42 per seat/month; Respect monitoring usage-based |
 
 Prices checked on 26 September 2026.
 
@@ -137,4 +137,4 @@ It depends on team size. Redocly Pro is $10 per seat per month, so a two-person 
 
 ---
 
-*This comparison is based on Redocly's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where Redocly is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Redocly's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where Redocly is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

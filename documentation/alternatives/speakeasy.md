@@ -1,6 +1,6 @@
 # Best Speakeasy alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If you are looking for a Speakeasy alternative, the honest first question is not "which generator is better" but "do I want my SDKs and my documentation to come from one platform, or from two specialists I compose myself?" This page walks through that choice and the realistic options on each side.
 
@@ -30,15 +30,15 @@ Both are legitimate. If your docs setup already works and you are happy with Spe
 
 ## Speakeasy alternatives at a glance
 
-| Tool | Shape | SDK languages (generally available) | Docs included | License of generator | Published SDK price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | Consolidated | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI (6 more experimental) | Yes, MIT API reference plus hosted docs | Closed source | 1 SDK on every plan, extra SDKs from $150/month ([pricing](/pricing)) |
-| **Fern** | Consolidated | 10 languages on Enterprise ([pricing](https://buildwithfern.com/pricing)) | Yes, hosted | [Apache-2.0](https://github.com/fern-api/fern) | Free up to 200 endpoints (Python, TypeScript); Enterprise per SDK, custom |
-| **Speakeasy open-source generator** | Composed, self-run | See [repo](https://github.com/speakeasy-api/openapi-generation) | No | AGPL-3.0 | Free to run; commercial license from Speakeasy |
-| **OpenAPI Generator** | Composed, self-run | 80 client generators, community-maintained ([repo](https://github.com/OpenAPITools/openapi-generator)) | Basic HTML output | Apache-2.0 | Free |
-| **Microsoft Kiota** | Composed, self-run | C#, Go, Java, PHP, Python stable; TypeScript preview ([repo](https://github.com/microsoft/kiota)) | No | MIT | Free |
-| **APIMatic** | Consolidated | Java, Python, TypeScript, Ruby, C#, PHP, Go ([site](https://www.apimatic.io/)) | Yes, developer portal | Closed source | Basic from $300/month per language ([pricing](https://www.apimatic.io/pricing)) |
-| **liblab** | Composed | See [liblab](https://liblab.com/) | See liblab | Closed source | Now part of Postman ([announcement](https://liblab.com/blog/liblab-joins-postman)) |
+| Tool                                | Shape              | SDK languages (generally available)                                                                    | Docs included                           | License of generator                           | Published SDK price                                                                |
+| ----------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------ | --------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Scalar**                          | Consolidated       | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI (6 more experimental)                                  | Yes, MIT API reference plus hosted docs | Closed source                                  | 1 SDK on every plan, extra SDKs from $150/month ([pricing](/pricing))              |
+| **Fern**                            | Consolidated       | 10 languages on Enterprise ([pricing](https://buildwithfern.com/pricing))                              | Yes, hosted                             | [Apache-2.0](https://github.com/fern-api/fern) | Free up to 200 endpoints (Python, TypeScript); Enterprise per SDK, custom          |
+| **Speakeasy open-source generator** | Composed, self-run | See [repo](https://github.com/speakeasy-api/openapi-generation)                                        | No                                      | AGPL-3.0                                       | Free to run; commercial license from Speakeasy                                     |
+| **OpenAPI Generator**               | Composed, self-run | 80 client generators, community-maintained ([repo](https://github.com/OpenAPITools/openapi-generator)) | Basic HTML output                       | Apache-2.0                                     | Free                                                                               |
+| **Microsoft Kiota**                 | Composed, self-run | C#, Go, Java, PHP, Python stable; TypeScript preview ([repo](https://github.com/microsoft/kiota))      | No                                      | MIT                                            | Free                                                                               |
+| **APIMatic**                        | Consolidated       | Java, Python, TypeScript, Ruby, C#, PHP, Go ([site](https://www.apimatic.io/))                         | Yes, developer portal                   | Closed source                                  | Basic from $300/month per language ([pricing](https://www.apimatic.io/pricing))    |
+| **liblab**                          | Composed           | See [liblab](https://liblab.com/)                                                                      | See liblab                              | Closed source                                  | Now part of Postman ([announcement](https://liblab.com/blog/liblab-joins-postman)) |
 
 Prices and language lists were checked on September 26, 2026. Stainless, once the other big name here, [joined Anthropic in May 2026](https://www.stainless.com/blog/stainless-is-joining-anthropic/) and is winding down its hosted products; see [Stainless alternatives](/alternatives/stainless) if you are also on Stainless.
 
@@ -175,4 +175,4 @@ No. Terraform is on the roadmap without a date. If you need Terraform providers 
 
 ---
 
-*This page is based on Speakeasy's public pricing page, documentation, blog and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Scalar and Speakeasy have a working relationship, described at the top of this page. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Speakeasy's public pricing page, documentation, blog and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Scalar and Speakeasy have a working relationship, described at the top of this page. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -2,7 +2,7 @@
 
 The Ruby target publishes to [RubyGems](https://rubygems.org/). The gem name is the target's `gemName`. See the [Ruby configuration](../configuration/ruby.md#publish) for options.
 
-Authenticate the release with **OIDC trusted publishing** (the default, recommended) or a **RubyGems API key**. RubyGems accepts a *pending* trusted publisher for a gem that does not exist yet, so even a brand-new gem can publish its first version without a key.
+Authenticate the release with **OIDC trusted publishing** (the default, recommended) or a **RubyGems API key**. RubyGems accepts a _pending_ trusted publisher for a gem that does not exist yet, so even a brand-new gem can publish its first version without a key.
 
 ## Enable publishing
 
@@ -24,7 +24,7 @@ Recommended. The release workflow exchanges its GitHub Actions identity for a sh
 <scalar-steps>
   <scalar-step id="gem-oidc-add" title="Add a trusted publisher on RubyGems">
 
-For a gem with no releases yet, register a *pending* publisher at [rubygems.org/profile/oidc/pending_trusted_publishers](https://rubygems.org/profile/oidc/pending_trusted_publishers). It names the gem up front and becomes an ordinary publisher on the first successful push. For a gem that already exists, use its own **Trusted publishers** page instead (`https://rubygems.org/gems/<gem>/trusted_publishers`).
+For a gem with no releases yet, register a _pending_ publisher at [rubygems.org/profile/oidc/pending_trusted_publishers](https://rubygems.org/profile/oidc/pending_trusted_publishers). It names the gem up front and becomes an ordinary publisher on the first successful push. For a gem that already exists, use its own **Trusted publishers** page instead (`https://rubygems.org/gems/<gem>/trusted_publishers`).
 
 Enter:
 

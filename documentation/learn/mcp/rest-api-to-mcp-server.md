@@ -1,6 +1,6 @@
 # REST API to MCP server: an architecture guide for API providers
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Turning a REST API into an MCP server means deciding which of your endpoints an AI agent should be allowed to call, describing each one as an MCP tool the model can understand, and running a server in front of your API that handles authentication, pagination and errors on the agent's behalf. The protocol work is small. The design work is where the quality of the result is decided.
 
@@ -43,14 +43,14 @@ There are three broad ways to lay out an MCP server in front of a REST API. Most
 
 **Dynamic discovery.** The server exposes a small fixed set of tools, typically one to search the API, one to fetch the details of an operation, and one to execute a request. The model discovers what it needs at run time instead of receiving every definition up front. The tool list stays the same size no matter how large the API gets.
 
-| | One tool per endpoint | Curated and composite | Dynamic discovery |
-| --- | --- | --- | --- |
-| Tools the model sees | One per operation (can be hundreds) | Usually 5 to 30 | A small fixed set, often 3 |
-| Context cost at start | Grows with the API | Low | Low and constant |
-| Calls per task | Usually one per step | Fewest (composite tools do several steps) | One or two extra for search and lookup |
-| Precision on known tasks | Good for small APIs, drops as the list grows | Highest | Good, depends on search quality |
-| Maintenance | Regenerate from OpenAPI | Hand-maintained, drifts from the API | Regenerate the search index from OpenAPI |
-| Best for | Small, focused APIs | A handful of high-value workflows | Large APIs, many APIs, internal catalogs |
+|                          | One tool per endpoint                        | Curated and composite                     | Dynamic discovery                        |
+| ------------------------ | -------------------------------------------- | ----------------------------------------- | ---------------------------------------- |
+| Tools the model sees     | One per operation (can be hundreds)          | Usually 5 to 30                           | A small fixed set, often 3               |
+| Context cost at start    | Grows with the API                           | Low                                       | Low and constant                         |
+| Calls per task           | Usually one per step                         | Fewest (composite tools do several steps) | One or two extra for search and lookup   |
+| Precision on known tasks | Good for small APIs, drops as the list grows | Highest                                   | Good, depends on search quality          |
+| Maintenance              | Regenerate from OpenAPI                      | Hand-maintained, drifts from the API      | Regenerate the search index from OpenAPI |
+| Best for                 | Small, focused APIs                          | A handful of high-value workflows         | Large APIs, many APIs, internal catalogs |
 
 Scalar's hosted MCP servers use the third layout by default: a tool to summarize the available API descriptions, one to search operations and return a minified slice of the OpenAPI document, and one to execute the request. You still choose which operations are searchable and which can be executed. The [MCP product docs](/products/agent/mcp) show how that selection works.
 
@@ -301,4 +301,4 @@ No. You can write one with the official SDKs, generate one from your OpenAPI doc
 - **Docs:** [MCP servers](/products/agent/mcp) · [MCP authentication](/products/agent/authentication)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from your OpenAPI document, with per-operation tool selection and delegated auth
 
-*Specification details refer to MCP revision 2026-07-28. Client limits and behaviour were checked against each vendor's documentation on 26 September 2026. The benchmark figures come from Scalar's own March 2026 test and are not an independent measurement.*
+_Specification details refer to MCP revision 2026-07-28. Client limits and behaviour were checked against each vendor's documentation on 26 September 2026. The benchmark figures come from Scalar's own March 2026 test and are not an independent measurement._

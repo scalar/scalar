@@ -37,19 +37,19 @@ pnpm clean:build                # Clean everything, reinstall, rebuild
 
 ## Key Commands
 
-| Task | Command |
-|------|---------|
-| Build all packages | `pnpm build:packages` |
-| Build integrations | `pnpm build:integrations` |
-| Clean build | `pnpm clean:build` |
-| Run unit tests | `pnpm test` |
+| Task                                   | Command                              |
+| -------------------------------------- | ------------------------------------ |
+| Build all packages                     | `pnpm build:packages`                |
+| Build integrations                     | `pnpm build:integrations`            |
+| Clean build                            | `pnpm clean:build`                   |
+| Run unit tests                         | `pnpm test`                          |
 | Run tests (single package, single run) | `pnpm vitest packages/helpers --run` |
-| Run tests (single package, watch mode) | `pnpm vitest packages/api-client` |
-| Run tests filtered by name | `pnpm test your-test-name` |
-| Lint check | `pnpm lint:check` |
-| Lint fix | `pnpm lint:fix` |
-| Format | `pnpm format` |
-| Type check | `pnpm types:check` |
+| Run tests (single package, watch mode) | `pnpm vitest packages/api-client`    |
+| Run tests filtered by name             | `pnpm test your-test-name`           |
+| Lint check                             | `pnpm lint:check`                    |
+| Lint fix                               | `pnpm lint:fix`                      |
+| Format                                 | `pnpm format`                        |
+| Type check                             | `pnpm types:check`                   |
 
 ## Development Servers
 
@@ -61,12 +61,12 @@ pnpm --filter @scalar/api-reference dev
 pnpm --filter @scalar/components dev
 ```
 
-| Package | Purpose |
-|---------|---------|
-| `api-client` | API testing client playground |
-| `api-reference` | Main API reference playground |
-| `components` | Storybook (port 5100) |
-| `void-server` | HTTP mirror server (port 5052) |
+| Package         | Purpose                        |
+| --------------- | ------------------------------ |
+| `api-client`    | API testing client playground  |
+| `api-reference` | Main API reference playground  |
+| `components`    | Storybook (port 5100)          |
+| `void-server`   | HTTP mirror server (port 5052) |
 
 ## Test Servers
 
@@ -138,28 +138,28 @@ All workspace packages use `workspace:*` for internal dependencies. Shared third
 
 Before writing a new utility function, check `@scalar/helpers` (`packages/helpers/src/`) first. It already covers a wide range of common needs, organized by category:
 
-| Category | Examples |
-|----------|---------|
-| `array` | array manipulation utilities |
-| `dom` | DOM helpers |
-| `errors` | error handling utilities |
-| `file` | file utilities |
-| `formatters` | value formatting |
-| `general` | miscellaneous general utilities |
-| `http` | HTTP methods, headers, status codes, MIME types |
-| `json` | JSON pointer helpers, pretty-print |
-| `markdown` | heading extraction |
-| `node` | Node-only path helpers |
-| `object` | deep equality, key helpers, path access, local storage |
-| `playwright` | Playwright/Docker test helpers |
-| `queue` | async queue |
-| `regex` | variable finding/replacing |
-| `storybook` | shared Storybook themes and toolbar globals |
-| `string` | capitalize, hash, truncate, camel-to-title |
-| `testing` | sleep, measure, console spies |
-| `theme` | color mode classes, CSS variable loading |
-| `types` | result, assertion, and safe-run helpers |
-| `url` | URL validation, merging, proxy helpers |
+| Category     | Examples                                               |
+| ------------ | ------------------------------------------------------ |
+| `array`      | array manipulation utilities                           |
+| `dom`        | DOM helpers                                            |
+| `errors`     | error handling utilities                               |
+| `file`       | file utilities                                         |
+| `formatters` | value formatting                                       |
+| `general`    | miscellaneous general utilities                        |
+| `http`       | HTTP methods, headers, status codes, MIME types        |
+| `json`       | JSON pointer helpers, pretty-print                     |
+| `markdown`   | heading extraction                                     |
+| `node`       | Node-only path helpers                                 |
+| `object`     | deep equality, key helpers, path access, local storage |
+| `playwright` | Playwright/Docker test helpers                         |
+| `queue`      | async queue                                            |
+| `regex`      | variable finding/replacing                             |
+| `storybook`  | shared Storybook themes and toolbar globals            |
+| `string`     | capitalize, hash, truncate, camel-to-title             |
+| `testing`    | sleep, measure, console spies                          |
+| `theme`      | color mode classes, CSS variable loading               |
+| `types`      | result, assertion, and safe-run helpers                |
+| `url`        | URL validation, merging, proxy helpers                 |
 
 If the helper you need already exists there, import it from `@scalar/helpers`. Only add a new helper to `@scalar/helpers` (or another package) if nothing suitable already exists.
 
@@ -334,11 +334,11 @@ To link multiple issues:
 Use GitHub closing keywords in the PR description to link and auto-close issues on merge:
 `close`, `closes`, `closed`, `fix`, `fixes`, `fixed`, `resolve`, `resolves`, `resolved`
 
-| Scenario | Syntax | Example |
-|----------|--------|---------|
-| Same repository | `KEYWORD #ISSUE` | `Closes #42` |
-| Different repository | `KEYWORD OWNER/REPO#ISSUE` | `Fixes scalar/scalar#100` |
-| Multiple issues | Repeat full syntax | `Resolves #10, resolves #42` |
+| Scenario             | Syntax                     | Example                      |
+| -------------------- | -------------------------- | ---------------------------- |
+| Same repository      | `KEYWORD #ISSUE`           | `Closes #42`                 |
+| Different repository | `KEYWORD OWNER/REPO#ISSUE` | `Fixes scalar/scalar#100`    |
+| Multiple issues      | Repeat full syntax         | `Resolves #10, resolves #42` |
 
 #### Where to place the link
 
@@ -441,24 +441,24 @@ Alternatively, `pnpm turbo dev` or `pnpm turbo build` in a package directory can
 
 Each playground can be started with `pnpm dev` inside its package directory, or from repo root with Turbo:
 
-| Package | Quick start | Turbo | Details |
-|---------|-------------|-------|---------|
+| Package         | Quick start                             | Turbo                                           | Details                                           |
+| --------------- | --------------------------------------- | ----------------------------------------------- | ------------------------------------------------- |
 | `api-reference` | `cd packages/api-reference && pnpm dev` | `pnpm turbo --filter @scalar/api-reference dev` | [`AGENTS.md`](./packages/api-reference/AGENTS.md) |
-| `api-client` | `cd packages/api-client && pnpm dev` | `pnpm turbo --filter @scalar/api-client dev` | [`AGENTS.md`](./packages/api-client/AGENTS.md) |
-| `components` | `cd packages/components && pnpm dev` | `pnpm turbo --filter @scalar/components dev` | [`AGENTS.md`](./packages/components/AGENTS.md) |
+| `api-client`    | `cd packages/api-client && pnpm dev`    | `pnpm turbo --filter @scalar/api-client dev`    | [`AGENTS.md`](./packages/api-client/AGENTS.md)    |
+| `components`    | `cd packages/components && pnpm dev`    | `pnpm turbo --filter @scalar/components dev`    | [`AGENTS.md`](./packages/components/AGENTS.md)    |
 
 The `api-client` has multiple layouts (web, app, modal) - see its package `AGENTS.md` for details.
 
 ### Which playground to use
 
-| Change area | Primary playground | Secondary |
-|-------------|--------------------|-----------|
-| Base components (buttons, inputs, modals) | `components` Storybook | `api-reference`, `api-client` |
-| Themes, CSS variables, design tokens | `api-reference` | `api-client`, `components` |
-| Sidebar, search, OpenAPI rendering | `api-reference` | `api-client` |
-| Request editor, response viewer, auth | `api-client` (web + app) | `api-reference` (modal via "Test Request") |
-| Code highlighting, snippets | `api-reference` | `api-client` |
-| Icons | `components` Storybook | `api-reference` |
+| Change area                               | Primary playground       | Secondary                                  |
+| ----------------------------------------- | ------------------------ | ------------------------------------------ |
+| Base components (buttons, inputs, modals) | `components` Storybook   | `api-reference`, `api-client`              |
+| Themes, CSS variables, design tokens      | `api-reference`          | `api-client`, `components`                 |
+| Sidebar, search, OpenAPI rendering        | `api-reference`          | `api-client`                               |
+| Request editor, response viewer, auth     | `api-client` (web + app) | `api-reference` (modal via "Test Request") |
+| Code highlighting, snippets               | `api-reference`          | `api-client`                               |
+| Icons                                     | `components` Storybook   | `api-reference`                            |
 
 ### Artifact guidelines for PRs
 

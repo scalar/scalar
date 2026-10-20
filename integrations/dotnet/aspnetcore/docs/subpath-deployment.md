@@ -7,6 +7,7 @@ When deploying your API under a subpath (e.g., `https://api.example.com/your-api
 When your API is deployed under a subpath (e.g., `/your-api`), it's recommended to deploy Scalar under a subpath as well (e.g., `/your-api/scalar`). Deploying Scalar at the root path (`/`) while the API is under a subpath may lead to unexpected behavior with OpenAPI document URL resolution.
 
 Recommended configuration:
+
 - API: `https://api.example.com/your-api`
 - Scalar API Reference endpoint: `/scalar`
 - OpenAPI document endpoint: `/openapi/v1.json`

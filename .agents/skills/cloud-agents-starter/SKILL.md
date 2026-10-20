@@ -51,7 +51,7 @@ pnpm types:check        # TypeScript check
 
 ---
 
-## 2. Packages (packages/*)
+## 2. Packages (packages/\*)
 
 ### Run a package dev server
 
@@ -62,14 +62,14 @@ pnpm dev
 
 Common entrypoints:
 
-| Package | Dev command | Notes |
-|---------|-------------|-------|
-| `api-client` | `pnpm dev` | Runs playground:v2:web (Vite) |
-| `api-reference` | `pnpm dev` | Main API reference playground |
-| `components` | `pnpm dev` | Storybook on port 5100 |
-| `mock-server` | `pnpm dev` | Mock server playground |
-| `void-server` | `pnpm dev` | HTTP mirror server (port 5052) |
-| `galaxy` | `pnpm dev` | Serves OpenAPI doc with @scalar/cli |
+| Package         | Dev command | Notes                               |
+| --------------- | ----------- | ----------------------------------- |
+| `api-client`    | `pnpm dev`  | Runs playground:v2:web (Vite)       |
+| `api-reference` | `pnpm dev`  | Main API reference playground       |
+| `components`    | `pnpm dev`  | Storybook on port 5100              |
+| `mock-server`   | `pnpm dev`  | Mock server playground              |
+| `void-server`   | `pnpm dev`  | HTTP mirror server (port 5052)      |
+| `galaxy`        | `pnpm dev`  | Serves OpenAPI doc with @scalar/cli |
 
 ### Unit tests (Vitest)
 
@@ -91,7 +91,7 @@ Then wait for ports: `pnpm script wait -p 5051 5052`
 
 ---
 
-## 3. Integrations (integrations/*)
+## 3. Integrations (integrations/\*)
 
 ### Run integration dev servers
 
@@ -170,7 +170,7 @@ This codebase does not use feature flags. Configuration is via package options, 
 ## 6. Projects & Examples
 
 - **proxy-scalar-com** (Go): `cd projects/proxy-scalar-com && go run main.go` (port 5051)
-- **Examples** (examples/*): Each has its own `pnpm dev` (e.g. `examples/web`, `examples/react`)
+- **Examples** (examples/\*): Each has its own `pnpm dev` (e.g. `examples/web`, `examples/react`)
 
 ---
 

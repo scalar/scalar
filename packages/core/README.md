@@ -20,7 +20,6 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 
 ---
 
-
 ## Installation
 
 ```bash

@@ -32,9 +32,9 @@ php artisan vendor:publish --tag="scalar-views"
 
 You'll need an OpenAPI document to render your API reference. Several packages can generate one from your Laravel app:
 
-* [dedoc/scramble](https://github.com/dedoc/scramble)
-* [knuckleswtf/scribe](https://github.com/knuckleswtf/scribe)
-* [vyuldashev/laravel-openapi](https://github.com/vyuldashev/laravel-openapi)
+- [dedoc/scramble](https://github.com/dedoc/scramble)
+- [knuckleswtf/scribe](https://github.com/knuckleswtf/scribe)
+- [vyuldashev/laravel-openapi](https://github.com/vyuldashev/laravel-openapi)
 
 Point Scalar at your document in `config/scalar.php`. You can provide it in three ways:
 

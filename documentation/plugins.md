@@ -171,11 +171,11 @@ Plugins can read the global authentication state — the secrets the user has en
 
 The auth accessor exposes three methods:
 
-| Method | Description |
-|---|---|
-| `export()` | Returns a snapshot of the entire authentication state, keyed by document name. |
-| `getAuthSecrets(documentName, schemeName)` | Returns the stored secrets for a security scheme within a document, or `undefined`. |
-| `getAuthSelectedSchemas(payload)` | Returns the selected security for a document (`{ type: 'document', documentName }`) or operation (`{ type: 'operation', documentName, path, method }`), or `undefined`. |
+| Method                                     | Description                                                                                                                                                             |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `export()`                                 | Returns a snapshot of the entire authentication state, keyed by document name.                                                                                          |
+| `getAuthSecrets(documentName, schemeName)` | Returns the stored secrets for a security scheme within a document, or `undefined`.                                                                                     |
+| `getAuthSelectedSchemas(payload)`          | Returns the selected security for a document (`{ type: 'document', documentName }`) or operation (`{ type: 'operation', documentName, path, method }`), or `undefined`. |
 
 #### From lifecycle hooks
 
@@ -398,13 +398,13 @@ createApiReference(el, {
 
 Each handler in `responseBody` supports:
 
-| Property | Description |
-|---|---|
-| `mimeTypes` | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`). |
-| `decode` | Transforms the raw `ArrayBuffer` into a string or Blob for display. |
-| `language` | CodeMirror language hint for the built-in raw renderer (for example, `json`). Mutually exclusive with `rawComponent`. |
-| `rawComponent` | A custom Vue component for the raw view. Mutually exclusive with `language`. |
-| `previewComponent` | A custom Vue component for the preview view. |
+| Property           | Description                                                                                                           |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `mimeTypes`        | MIME type patterns to match (exact or wildcard like `application/vnd.*+json`).                                        |
+| `decode`           | Transforms the raw `ArrayBuffer` into a string or Blob for display.                                                   |
+| `language`         | CodeMirror language hint for the built-in raw renderer (for example, `json`). Mutually exclusive with `rawComponent`. |
+| `rawComponent`     | A custom Vue component for the raw view. Mutually exclusive with `language`.                                          |
+| `previewComponent` | A custom Vue component for the preview view.                                                                          |
 
 ## Lifecycle Hooks
 
@@ -414,48 +414,48 @@ Plugins can hook into the request lifecycle:
 
 Runs when an operation view mounts, before any request is sent. Use it to warm up resources.
 
-| Field | Type | Description |
-|---|---|---|
-| `document` | `OpenApiDocument` | The current OpenAPI document. |
-| `operation` | `OperationObject` | The current operation. |
+| Field       | Type              | Description                   |
+| ----------- | ----------------- | ----------------------------- |
+| `document`  | `OpenApiDocument` | The current OpenAPI document. |
+| `operation` | `OperationObject` | The current operation.        |
 
 ### `beforeRequest`
 
 Runs before the fetch `Request` is built. Mutate `requestBuilder` to change the outgoing request.
 
-| Field | Type | Description |
-|---|---|---|
-| `requestBuilder` | `RequestFactory` | The mutable request builder. Change its method, path, query, headers, body, or security before the request is built. |
-| `document` | `OpenApiDocument` | The current OpenAPI document. |
-| `operation` | `OperationObject` | The current operation. |
-| `variablesStore?` | `VariablesStore` | The request variable store. |
-| `server?` | `ServerObject \| null` | The optional active [OpenAPI Server Object](https://spec.openapis.org/oas/v3.1.1.html#server-object) selected for the request. Its `url` can be relative or include server variables, so resolve it for the plugin's runtime before making network calls. |
-| `customFetch?` | `typeof fetch` | The optional host-provided fetch implementation configured for the API client. Use it for plugin-owned network calls so they use the same network channel as the request, including the desktop app's IPC-backed fetch. |
+| Field             | Type                   | Description                                                                                                                                                                                                                                               |
+| ----------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `requestBuilder`  | `RequestFactory`       | The mutable request builder. Change its method, path, query, headers, body, or security before the request is built.                                                                                                                                      |
+| `document`        | `OpenApiDocument`      | The current OpenAPI document.                                                                                                                                                                                                                             |
+| `operation`       | `OperationObject`      | The current operation.                                                                                                                                                                                                                                    |
+| `variablesStore?` | `VariablesStore`       | The request variable store.                                                                                                                                                                                                                               |
+| `server?`         | `ServerObject \| null` | The optional active [OpenAPI Server Object](https://spec.openapis.org/oas/v3.1.1.html#server-object) selected for the request. Its `url` can be relative or include server variables, so resolve it for the plugin's runtime before making network calls. |
+| `customFetch?`    | `typeof fetch`         | The optional host-provided fetch implementation configured for the API client. Use it for plugin-owned network calls so they use the same network channel as the request, including the desktop app's IPC-backed fetch.                                   |
 
 ### `requestBuilt`
 
 Runs after the fetch `Request` is built, immediately before it is sent. Outside Electron, mutate `request.headers` to change the outgoing request; its body matches the bytes sent over the wire. In Electron, Scalar sends the request payload through `customFetch` instead, so mutations to `request` do not apply and multipart body bytes can differ.
 
-| Field | Type | Description |
-|---|---|---|
-| `request` | `Request` | The request built before sending. Outside Electron it is sent as-is; Electron sends the request payload through `customFetch` instead. |
-| `requestBuilder` | `RequestFactory` | The builder used to create `request`. Mutating it at this stage does not change the outgoing request. |
-| `document` | `OpenApiDocument` | The current OpenAPI document. |
-| `operation` | `OperationObject` | The current operation. |
-| `variablesStore?` | `VariablesStore` | The request variable store. |
+| Field             | Type              | Description                                                                                                                            |
+| ----------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `request`         | `Request`         | The request built before sending. Outside Electron it is sent as-is; Electron sends the request payload through `customFetch` instead. |
+| `requestBuilder`  | `RequestFactory`  | The builder used to create `request`. Mutating it at this stage does not change the outgoing request.                                  |
+| `document`        | `OpenApiDocument` | The current OpenAPI document.                                                                                                          |
+| `operation`       | `OperationObject` | The current operation.                                                                                                                 |
+| `variablesStore?` | `VariablesStore`  | The request variable store.                                                                                                            |
 
 ### `responseReceived`
 
 Runs after a response is received.
 
-| Field | Type | Description |
-|---|---|---|
-| `response` | `Response` | The received response. |
-| `request` | `Request` | A request rebuilt from the sent request payload. It is not the same instance as the sent request; header mutations from `requestBuilt` are absent and multipart body bytes can differ. |
-| `requestBuilder` | `RequestFactory` | The builder used to create `request`. Mutating it does not change the already-sent request. |
-| `document` | `OpenApiDocument` | The current OpenAPI document. |
-| `operation` | `OperationObject` | The current operation. |
-| `variablesStore?` | `VariablesStore` | The request variable store. |
+| Field             | Type              | Description                                                                                                                                                                            |
+| ----------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `response`        | `Response`        | The received response.                                                                                                                                                                 |
+| `request`         | `Request`         | A request rebuilt from the sent request payload. It is not the same instance as the sent request; header mutations from `requestBuilt` are absent and multipart body bytes can differ. |
+| `requestBuilder`  | `RequestFactory`  | The builder used to create `request`. Mutating it does not change the already-sent request.                                                                                            |
+| `document`        | `OpenApiDocument` | The current OpenAPI document.                                                                                                                                                          |
+| `operation`       | `OperationObject` | The current operation.                                                                                                                                                                 |
+| `variablesStore?` | `VariablesStore`  | The request variable store.                                                                                                                                                            |
 
 If a hook acquires a stream reader with `response.body.getReader()`, release its lock in a `finally` block with `reader.releaseLock()` before the hook returns or throws. Scalar cannot cancel a discarded clone while its body is locked. A returned streaming response may retain the reader while consuming the stream, but it must release the reader when it finishes or is canceled.
 

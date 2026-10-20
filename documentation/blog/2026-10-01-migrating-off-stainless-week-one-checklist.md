@@ -18,13 +18,13 @@ This one sits before all of them. Nothing on this list depends on which generato
 
 ## The week at a glance
 
-| Day | Goal | Output you should have by the end of the day |
-| --- | --- | --- |
-| 1 | Inventory | One table listing every SDK, package, repository and owner |
-| 2 | Snapshot | A committed record of each SDK's public surface, tagged |
-| 3 | Credentials and access | A list of every token, app and workflow that publishes your SDKs |
-| 4 | Compatibility harness | A test suite that exercises every public method of the current SDK |
-| 5 | Guardrails and communication | A CI check on API changes, a decision date, and a note for your team |
+| Day | Goal                         | Output you should have by the end of the day                         |
+| --- | ---------------------------- | -------------------------------------------------------------------- |
+| 1   | Inventory                    | One table listing every SDK, package, repository and owner           |
+| 2   | Snapshot                     | A committed record of each SDK's public surface, tagged              |
+| 3   | Credentials and access       | A list of every token, app and workflow that publishes your SDKs     |
+| 4   | Compatibility harness        | A test suite that exercises every public method of the current SDK   |
+| 5   | Guardrails and communication | A CI check on API changes, a decision date, and a note for your team |
 
 You can compress this into two days on a small API or stretch it over two weeks on a large one. The order matters more than the pace.
 
@@ -34,15 +34,15 @@ Most teams know roughly which SDKs they have. Fewer can list, without looking, e
 
 Open your `stainless.yml`. Its `targets` block lists every language you generate. For each target, record:
 
-| Field | Where to find it |
-| --- | --- |
-| Language and package name | `targets` in `stainless.yml`, then the registry page (npm, PyPI, Maven Central, RubyGems, Go module path) |
-| Production repository | The repository your releases are published from |
-| Current published version | The registry page |
-| Date of the last regeneration | The most recent generated commit in the production repository |
-| Files with hand-written changes | Commits in the repository that were not made by the generator |
-| Owner | A named person, not a team alias |
-| Known heavy users | Your largest customers or internal services that depend on the SDK |
+| Field                           | Where to find it                                                                                          |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Language and package name       | `targets` in `stainless.yml`, then the registry page (npm, PyPI, Maven Central, RubyGems, Go module path) |
+| Production repository           | The repository your releases are published from                                                           |
+| Current published version       | The registry page                                                                                         |
+| Date of the last regeneration   | The most recent generated commit in the production repository                                             |
+| Files with hand-written changes | Commits in the repository that were not made by the generator                                             |
+| Owner                           | A named person, not a team alias                                                                          |
+| Known heavy users               | Your largest customers or internal services that depend on the SDK                                        |
 
 Two rows people forget. First, `targets: terraform` and `targets: sql`: if you generated either, flag them now, because they narrow your options more than anything else. Second, docs: if you used the Stainless Docs Platform, add a row for that repository too, and note that it lives in the `stainless-sdks` GitHub organisation rather than yours.
 
@@ -190,4 +190,4 @@ Stainless's announcement does not give an end date for existing projects, and we
 
 ---
 
-*Stainless facts in this post come from Stainless's own announcement and documentation, as of 26 September 2026. If Stainless publishes a timeline or anything here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Stainless facts in this post come from Stainless's own announcement and documentation, as of 26 September 2026. If Stainless publishes a timeline or anything here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

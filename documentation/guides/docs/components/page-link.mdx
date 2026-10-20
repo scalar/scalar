@@ -8,13 +8,13 @@ Page Link creates a styled link to another page within your documentation, with 
 
 Exactly one of `filepath`, `path`, or `uid` is required — the rest are optional.
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `filepath` | `string` | _required (one of)_ | Path to the destination MDX/MD file, relative to the project root. Resolved at build time. |
-| `path` | `string` | _required (one of)_ | URL path of the destination page (e.g. `/products/docs/components/row`). |
-| `uid` | `string` | _required (one of)_ | Stable page UID, resolved at build time. Useful when the URL or path may change. |
-| `title` | `string` | `'Link to Page'` | Title shown in the link card. |
-| `description` | `string` | `'Link to a page in the guide'` | Secondary text shown under the title. |
+| Prop          | Type     | Default                         | Description                                                                                |
+| ------------- | -------- | ------------------------------- | ------------------------------------------------------------------------------------------ |
+| `filepath`    | `string` | _required (one of)_             | Path to the destination MDX/MD file, relative to the project root. Resolved at build time. |
+| `path`        | `string` | _required (one of)_             | URL path of the destination page (e.g. `/products/docs/components/row`).                   |
+| `uid`         | `string` | _required (one of)_             | Stable page UID, resolved at build time. Useful when the URL or path may change.           |
+| `title`       | `string` | `'Link to Page'`                | Title shown in the link card.                                                              |
+| `description` | `string` | `'Link to a page in the guide'` | Secondary text shown under the title.                                                      |
 
 ## Examples
 

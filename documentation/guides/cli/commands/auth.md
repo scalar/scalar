@@ -4,11 +4,11 @@
 
 Log in to Scalar and manage your session.
 
-| Command | Description |
-| --- | --- |
-| [`scalar auth login`](#login) | Log in to Scalar |
+| Command                         | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| [`scalar auth login`](#login)   | Log in to Scalar                         |
 | [`scalar auth whoami`](#whoami) | Show the logged-in user and current team |
-| [`scalar auth logout`](#logout) | Log out of Scalar |
+| [`scalar auth logout`](#logout) | Log out of Scalar                        |
 
 ## login
 
@@ -20,8 +20,8 @@ scalar auth login [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option            | Description                        |
+| ----------------- | ---------------------------------- |
 | `--token <token>` | Personal token for authentication. |
 
 ## whoami
@@ -34,8 +34,8 @@ scalar auth whoami [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description                            |
+| -------- | -------------------------------------- |
 | `--json` | Output authentication details as JSON. |
 
 ## logout

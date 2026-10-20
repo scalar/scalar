@@ -4,13 +4,13 @@
 
 Manage API descriptions in the Scalar Registry.
 
-| Command | Description |
-| --- | --- |
-| [`scalar registry publish`](#publish) | Publish an OpenAPI description to the Scalar Registry |
-| [`scalar registry update`](#update) | Update API description metadata in the Scalar Registry |
-| [`scalar registry delete`](#delete) | Delete an API description from the Scalar Registry |
-| [`scalar registry list`](#list) | List Scalar Registry API descriptions in a team namespace |
-| [`scalar registry get`](#get) | Download an API description version from the Scalar Registry |
+| Command                               | Description                                                  |
+| ------------------------------------- | ------------------------------------------------------------ |
+| [`scalar registry publish`](#publish) | Publish an OpenAPI description to the Scalar Registry        |
+| [`scalar registry update`](#update)   | Update API description metadata in the Scalar Registry       |
+| [`scalar registry delete`](#delete)   | Delete an API description from the Scalar Registry           |
+| [`scalar registry list`](#list)       | List Scalar Registry API descriptions in a team namespace    |
+| [`scalar registry get`](#get)         | Download an API description version from the Scalar Registry |
 
 ## publish
 
@@ -22,24 +22,24 @@ scalar registry publish [options] [file]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `file` | API description file path or URL to upload. |
+| Argument | Description                                 |
+| -------- | ------------------------------------------- |
+| `file`   | API description file path or URL to upload. |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `--slug <slug>` | Scalar Registry entry slug (defaults to a slug generated from the title). |  |
-| `--namespace <namespace>` | Scalar team namespace. |  |
-| `--version <version>` | API description version (for example, 0.1.0). |  |
-| `--private` | Make the API description private. | `false` |
-| `--no-current` | Keep the existing current version. |  |
-| `--force` | Overwrite an existing version. | `false` |
-| `--bundle` | Bundle all external references before uploading. |  |
-| `--treeShake` | Remove unused components from the bundled document. |  |
-| `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
-| `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| Option                    | Description                                                               | Default |
+| ------------------------- | ------------------------------------------------------------------------- | ------- |
+| `--slug <slug>`           | Scalar Registry entry slug (defaults to a slug generated from the title). |         |
+| `--namespace <namespace>` | Scalar team namespace.                                                    |         |
+| `--version <version>`     | API description version (for example, 0.1.0).                             |         |
+| `--private`               | Make the API description private.                                         | `false` |
+| `--no-current`            | Keep the existing current version.                                        |         |
+| `--force`                 | Overwrite an existing version.                                            | `false` |
+| `--bundle`                | Bundle all external references before uploading.                          |         |
+| `--treeShake`             | Remove unused components from the bundled document.                       |         |
+| `--urlMap`                | Generate a map of resolved URLs when bundling the document.               |         |
+| `--fetchLimit <limit>`    | Maximum number of concurrent URL fetches when bundling.                   |         |
 
 ## update
 
@@ -51,16 +51,16 @@ scalar registry update [options] [namespace] [slug]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `namespace` | Team namespace. |
-| `slug` | API description slug. |
+| Argument    | Description           |
+| ----------- | --------------------- |
+| `namespace` | Team namespace.       |
+| `slug`      | API description slug. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--title <title>` | API description title. |
+| Option                        | Description              |
+| ----------------------------- | ------------------------ |
+| `--title <title>`             | API description title.   |
 | `--description <description>` | API description summary. |
 
 ## delete
@@ -73,10 +73,10 @@ scalar registry delete [options] [namespace] [slug]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `namespace` | Team namespace. |
-| `slug` | API description slug. |
+| Argument    | Description           |
+| ----------- | --------------------- |
+| `namespace` | Team namespace.       |
+| `slug`      | API description slug. |
 
 ## list
 
@@ -88,10 +88,10 @@ scalar registry list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--namespace <namespace>` | Team namespace. |
-| `--json` | Output Scalar Registry API metadata as JSON. |
+| Option                    | Description                                  |
+| ------------------------- | -------------------------------------------- |
+| `--namespace <namespace>` | Team namespace.                              |
+| `--json`                  | Output Scalar Registry API metadata as JSON. |
 
 ## get
 
@@ -103,15 +103,15 @@ scalar registry get [options] [namespace] [slug]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `namespace` | Team namespace. |
-| `slug` | API description slug. |
+| Argument    | Description           |
+| ----------- | --------------------- |
+| `namespace` | Team namespace.       |
+| `slug`      | API description slug. |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `--version <version>` | API description version (defaults to latest). |  |
-| `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
-| `-o, --output <file>` | Output file (defaults to stdout). |  |
+| Option                | Description                                   | Default |
+| --------------------- | --------------------------------------------- | ------- |
+| `--version <version>` | API description version (defaults to latest). |         |
+| `--format <format>`   | Output format. One of `json`, `yaml`.         | `json`  |
+| `-o, --output <file>` | Output file (defaults to stdout).             |         |

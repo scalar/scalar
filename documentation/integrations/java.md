@@ -22,6 +22,7 @@ If you were using the previous single `scalar` module, follow these steps to mig
 ### Step 1: Update Dependencies
 
 **Maven:**
+
 ```xml
 <!-- Remove the old dependency -->
 <!-- <dependency>
@@ -39,6 +40,7 @@ If you were using the previous single `scalar` module, follow these steps to mig
 ```
 
 **Gradle:**
+
 ```gradle
 // Remove the old dependency
 // implementation 'com.scalar.maven:scalar:X.X.X'
@@ -62,6 +64,7 @@ If you had custom controller implementations, you'll need to update them to exte
 1. **Add the dependency**
 
 **Maven:**
+
 ```xml
 <dependency>
   <groupId>com.scalar.maven</groupId>
@@ -71,6 +74,7 @@ If you had custom controller implementations, you'll need to update them to exte
 ```
 
 **Gradle:**
+
 ```gradle
 implementation 'com.scalar.maven:scalar-webmvc:X.X.X'
 ```
@@ -101,6 +105,7 @@ Navigate to `/scalar` (or your custom path) to view your API Reference.
 1. **Add the dependency**
 
 **Maven:**
+
 ```xml
 <dependency>
   <groupId>com.scalar.maven</groupId>
@@ -110,6 +115,7 @@ Navigate to `/scalar` (or your custom path) to view your API Reference.
 ```
 
 **Gradle:**
+
 ```gradle
 implementation 'com.scalar.maven:scalar-webflux:X.X.X'
 ```
@@ -615,4 +621,3 @@ You can then serve the rendered HTML through any HTTP framework or servlet conta
 For all available configuration properties and their default values, check out the [`ScalarProperties`](https://github.com/scalar/scalar/blob/main/integrations/java/scalar-core/src/main/java/com/scalar/maven/core/ScalarProperties.java) class.
 
 The Scalar Java integration requires Java 17 or higher and is compatible with Spring Boot 3.x.
-

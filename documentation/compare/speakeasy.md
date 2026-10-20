@@ -1,6 +1,6 @@
 # Scalar vs Speakeasy
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Speakeasy and Scalar both turn an OpenAPI document into client SDKs. If you are evaluating one, you should evaluate the other.
 
@@ -14,17 +14,17 @@ The second is that Speakeasy's company focus has moved, and its generator has ch
 
 ## At a glance
 
-| | Scalar | Speakeasy |
-| --- | --- | --- |
-| Generator source | Closed source | Generator is [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation) since September 2026; the CLI stays [Elastic License 2.0](https://github.com/speakeasy-api/speakeasy/blob/main/LICENSE) |
-| Docs renderer | MIT, self-hostable on any plan | Generates an API reference; a full docs site means a docs vendor |
-| Docs + SDKs from one run | Yes, `docs` is a build target | Code samples are published to a docs vendor |
-| Terraform providers | No | [Yes](https://www.speakeasy.com/docs/terraform/create-terraform) |
-| MCP servers | Yes, hosted and configurable | [Yes](https://www.speakeasy.com/docs/standalone-mcp/overview), generated to deploy yourself |
-| Custom code survives regeneration | Yes, three-way merge | [Yes](https://www.speakeasy.com/docs/sdks/customize/basics), three-way merge |
-| Speakeasy call-site compatibility | Yes, generated compat module | n/a |
-| Standalone API client | Yes, open source | No |
-| Published SDK price | One target included; additional targets from $150/month | Not published; free tier is [1 SDK, 50 API methods](https://www.speakeasy.com/docs/sdks/introduction) |
+|                                   | Scalar                                                  | Speakeasy                                                                                                                                                                                            |
+| --------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Generator source                  | Closed source                                           | Generator is [AGPL-3.0](https://github.com/speakeasy-api/openapi-generation) since September 2026; the CLI stays [Elastic License 2.0](https://github.com/speakeasy-api/speakeasy/blob/main/LICENSE) |
+| Docs renderer                     | MIT, self-hostable on any plan                          | Generates an API reference; a full docs site means a docs vendor                                                                                                                                     |
+| Docs + SDKs from one run          | Yes, `docs` is a build target                           | Code samples are published to a docs vendor                                                                                                                                                          |
+| Terraform providers               | No                                                      | [Yes](https://www.speakeasy.com/docs/terraform/create-terraform)                                                                                                                                     |
+| MCP servers                       | Yes, hosted and configurable                            | [Yes](https://www.speakeasy.com/docs/standalone-mcp/overview), generated to deploy yourself                                                                                                          |
+| Custom code survives regeneration | Yes, three-way merge                                    | [Yes](https://www.speakeasy.com/docs/sdks/customize/basics), three-way merge                                                                                                                         |
+| Speakeasy call-site compatibility | Yes, generated compat module                            | n/a                                                                                                                                                                                                  |
+| Standalone API client             | Yes, open source                                        | No                                                                                                                                                                                                   |
+| Published SDK price               | One target included; additional targets from $150/month | Not published; free tier is [1 SDK, 50 API methods](https://www.speakeasy.com/docs/sdks/introduction)                                                                                                |
 
 ## Where Speakeasy is stronger
 
@@ -116,11 +116,11 @@ Speakeasy carries your `operationId` through to the method name. When your OpenA
 
 Scalar takes the other position and normalizes by default: it strips the redundant resource noun and maps the verb onto a fixed set, so `list`, `retrieve`, `create`, `update`, and `delete` appear on every resource.
 
-| `operationId` | Carried through | Scalar |
-| --- | --- | --- |
-| `listPets` | `client.pets.listPets()` | `client.pet.list()` |
-| `getPetById` | `client.pets.getPetById()` | `client.pet.retrieve()` |
-| `addPet` | `client.pets.addPet()` | `client.pet.create()` |
+| `operationId` | Carried through            | Scalar                  |
+| ------------- | -------------------------- | ----------------------- |
+| `listPets`    | `client.pets.listPets()`   | `client.pet.list()`     |
+| `getPetById`  | `client.pets.getPetById()` | `client.pet.retrieve()` |
+| `addPet`      | `client.pets.addPet()`     | `client.pet.create()`   |
 
 This is a genuine trade-off rather than a win. Speakeasy's default gives you the names you wrote, which is predictable and auditable against your specification. Scalar's default gives you names you can guess without reading the reference, at the cost of not matching your `operationId` exactly. Pick the one that matches how much you trust your own document.
 
@@ -148,11 +148,11 @@ Speakeasy is comparable here, and we would not pick between the two products on 
 
 Both products ship Agent Skills. They are aimed at different people, and the distinction matters more than the shared name.
 
-Speakeasy's [skills](https://www.speakeasy.com/docs/speakeasy-reference/skills) are installed with `speakeasy agent setup-skills` and help *you* generate SDKs — starting a project, following generation best practices, generating a server. They make your coding assistant good at Speakeasy.
+Speakeasy's [skills](https://www.speakeasy.com/docs/speakeasy-reference/skills) are installed with `speakeasy agent setup-skills` and help _you_ generate SDKs — starting a project, following generation best practices, generating a server. They make your coding assistant good at Speakeasy.
 
-Scalar's ship inside the generated SDK, for the developers and agents who *consume* your API. Every generated SDK carries a `SKILL.md`, a `.claude/skills/` entry for automatic discovery, a generated `api.md` listing every method grouped by resource, and an `openapi.augmented.json`. All four are readable in the [generated Warp SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/scalar-generated). The intent is that an agent writing code against your API cannot invent a method name that does not exist.
+Scalar's ship inside the generated SDK, for the developers and agents who _consume_ your API. Every generated SDK carries a `SKILL.md`, a `.claude/skills/` entry for automatic discovery, a generated `api.md` listing every method grouped by resource, and an `openapi.augmented.json`. All four are readable in the [generated Warp SDK](https://github.com/TeamWarp/warp-sdk-typescript/tree/scalar-generated). The intent is that an agent writing code against your API cannot invent a method name that does not exist.
 
-These are complements, not competitors. If you generate with Speakeasy you can install their skills; the question is whether your *users'* agents get the same treatment.
+These are complements, not competitors. If you generate with Speakeasy you can install their skills; the question is whether your _users'_ agents get the same treatment.
 
 ## Open source, precisely
 
@@ -170,13 +170,13 @@ Speakeasy's free tier is [one SDK with up to 50 API methods](https://www.speakea
 
 Scalar publishes its price: **one SDK target is included with every plan, and additional targets start at $150 per month each**, with volume discounts as you add more. Pricing scales with the number of endpoints in your OpenAPI document. A target becomes billable when you save a version and queue its build, and drafts are never billed. You can work out what it costs without talking to us.
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Speakeasy ([pricing](https://www.speakeasy.com/pricing)) |
-| --- | --- | --- |
-| Free | $0: 1 SDK up to 25 endpoints, docs with 1 editor seat, up to 3 APIs | [1 SDK, up to 50 API methods](https://www.speakeasy.com/docs/sdks/introduction), plus a 14-day business-tier trial |
-| Self-run | Not available; the generator is closed source | [AGPL-3.0 generator](https://github.com/speakeasy-api/openapi-generation), no licence fee under AGPL terms |
-| Entry paid | Pro, $150/month ($125/month billed yearly): 1 SDK up to 100 endpoints, 5 editor seats, MCP servers | Not published |
-| Mid tier | Business, $600/month ($500/month billed yearly): SDKs up to 250 endpoints, 10 editor seats, SSO | Not published |
-| Top tier | Enterprise, custom | Enterprise, "Tailored" |
+| Plan       | Scalar ([pricing](https://scalar.com/pricing))                                                     | Speakeasy ([pricing](https://www.speakeasy.com/pricing))                                                           |
+| ---------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Free       | $0: 1 SDK up to 25 endpoints, docs with 1 editor seat, up to 3 APIs                                | [1 SDK, up to 50 API methods](https://www.speakeasy.com/docs/sdks/introduction), plus a 14-day business-tier trial |
+| Self-run   | Not available; the generator is closed source                                                      | [AGPL-3.0 generator](https://github.com/speakeasy-api/openapi-generation), no licence fee under AGPL terms         |
+| Entry paid | Pro, $150/month ($125/month billed yearly): 1 SDK up to 100 endpoints, 5 editor seats, MCP servers | Not published                                                                                                      |
+| Mid tier   | Business, $600/month ($500/month billed yearly): SDKs up to 250 endpoints, 10 editor seats, SSO    | Not published                                                                                                      |
+| Top tier   | Enterprise, custom                                                                                 | Enterprise, "Tailored"                                                                                             |
 
 Checked on 26 September 2026.
 
@@ -242,4 +242,4 @@ No. Terraform providers are on Scalar's roadmap with no date. If you need them, 
 
 ---
 
-*This comparison is based on Speakeasy's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. One correction in the other direction: Speakeasy's docs vendor comparison describes Scalar as lacking MDX, and Scalar Docs [supports MDX](../guides/docs/content/mdx.mdx) — we mention it here rather than asking them to change their page. We have made a genuine effort to be accurate and to state where Speakeasy is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Speakeasy's publicly available documentation, pricing page, and public GitHub repositories as of September 2026, and on Scalar's own source and generated output. One correction in the other direction: Speakeasy's docs vendor comparison describes Scalar as lacking MDX, and Scalar Docs [supports MDX](../guides/docs/content/mdx.mdx) — we mention it here rather than asking them to change their page. We have made a genuine effort to be accurate and to state where Speakeasy is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

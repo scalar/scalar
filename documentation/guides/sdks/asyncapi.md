@@ -20,11 +20,11 @@ Both JSON and YAML are supported, and external `$ref` values are bundled before 
 
 A channel becomes exactly one method, and the protocol its servers speak decides what kind of method that is.
 
-| Server `protocol` | What is generated |
-| ----------------- | ----------------- |
-| `ws`, `wss` | A **connect method** that opens a WebSocket and exposes typed send and receive events. |
-| `http`, `https` | An ordinary **HTTP method** — a buffered request/response, or a stream when the messages say so. |
-| Anything else (`kafka`, `amqp`, `mqtt`, `nats`, `redis`, …) | Nothing. The channel is skipped and reported. |
+| Server `protocol`                                           | What is generated                                                                                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `ws`, `wss`                                                 | A **connect method** that opens a WebSocket and exposes typed send and receive events.           |
+| `http`, `https`                                             | An ordinary **HTTP method** — a buffered request/response, or a stream when the messages say so. |
+| Anything else (`kafka`, `amqp`, `mqtt`, `nats`, `redis`, …) | Nothing. The channel is skipped and reported.                                                    |
 
 Channels are resolved to servers the way the specification prescribes: `channel.servers` narrows a channel to a subset, and a channel that declares no `servers` is treated as available on every server in the document.
 
@@ -39,11 +39,11 @@ A few consequences worth knowing:
 
 This is the part of AsyncAPI most worth understanding before you read a generated client.
 
-AsyncAPI 3's `action` is written from the point of view of the application the document describes. Most published documents describe the **provider**, so `action: send` means *the server sends* — which is a message your SDK **receives**. The generator inverts by default, and gets you the client-side reading:
+AsyncAPI 3's `action` is written from the point of view of the application the document describes. Most published documents describe the **provider**, so `action: send` means _the server sends_ — which is a message your SDK **receives**. The generator inverts by default, and gets you the client-side reading:
 
-| Document says | SDK does |
-| ------------- | -------- |
-| `action: send` | Receives the message (an inbound event, or a response) |
+| Document says     | SDK does                                                 |
+| ----------------- | -------------------------------------------------------- |
+| `action: send`    | Receives the message (an inbound event, or a response)   |
 | `action: receive` | Sends the message (an outbound event, or a request body) |
 
 If your document is authored from the client's side instead, opt out per method:
@@ -124,11 +124,11 @@ A channel served over `http`/`https` is not a socket. Its outbound messages beco
 
 Whether it streams is decided by the media type its messages advertise, not guessed:
 
-| Message `contentType` | Result |
-| --------------------- | ------ |
-| `text/event-stream` | Server-sent events, iterated as a stream |
+| Message `contentType`                             | Result                                       |
+| ------------------------------------------------- | -------------------------------------------- |
+| `text/event-stream`                               | Server-sent events, iterated as a stream     |
 | `application/x-ndjson` and other JSON Lines types | Newline-delimited JSON, iterated as a stream |
-| `application/json` and other buffered types | A single decoded response |
+| `application/json` and other buffered types       | A single decoded response                    |
 
 ```ts
 const stream = await client.activity.stream();
@@ -181,12 +181,12 @@ Whether a credential is **required** is decided over a wider set of servers: eve
 
 Four scheme families become credentials:
 
-| AsyncAPI scheme | Generated credential |
-| --------------- | -------------------- |
-| `httpApiKey` | An API key in a header, query parameter, or cookie |
-| `http` | HTTP authentication, including `bearer` and `basic` |
-| `oauth2` | OAuth 2.0, with `availableScopes` read as the scope list |
-| `openIdConnect` | OpenID Connect |
+| AsyncAPI scheme | Generated credential                                     |
+| --------------- | -------------------------------------------------------- |
+| `httpApiKey`    | An API key in a header, query parameter, or cookie       |
+| `http`          | HTTP authentication, including `bearer` and `basic`      |
+| `oauth2`        | OAuth 2.0, with `availableScopes` read as the scope list |
+| `openIdConnect` | OpenID Connect                                           |
 
 Mind the `apiKey` trap. AsyncAPI spends that name on a key identifying the client to a **broker**, with no HTTP position to put it in — so `type: apiKey` generates nothing. The spelling that becomes an ordinary API key credential is **`httpApiKey`**, which carries the `name` and `in` pair a client needs:
 
@@ -245,10 +245,10 @@ The resource is named after the channel's `title`, falling back to the first seg
 
 ### The `asyncapi` method block
 
-| Property | Description |
-| -------- | ----------- |
-| `channel` | **Required.** The `channels` key this method binds to. |
-| `operations` | Operation ids folded into this method. Omit to bind every operation targeting the channel. |
+| Property      | Description                                                                                            |
+| ------------- | ------------------------------------------------------------------------------------------------------ |
+| `channel`     | **Required.** The `channels` key this method binds to.                                                 |
+| `operations`  | Operation ids folded into this method. Omit to bind every operation targeting the channel.             |
 | `perspective` | `provider` (default) or `client`. Whose point of view the document's `action` values are written from. |
 
 Everything else about the method is ordinary config. Rename it by changing its key under `methods` (or pin the exact identifier with `publicIdentifier`), limit it to some targets with `only`/`skip`, give it `defaultRequestOptions`, or point an HTTP channel at a `paginated` scheme — all of it works exactly as it does for an operation from an OpenAPI document.
@@ -270,21 +270,21 @@ A channel the document declares but no method binds is reported as `AsyncApi/Cha
 
 Every AsyncAPI-specific rule, gradable and suppressible through the [`diagnostics`](configuration.md#diagnostics) config like any other. See [Diagnostics](diagnostics.md) for how findings are graded, located, and suppressed, and for the rules that run on every build:
 
-| Rule | Default | Fires when |
-| ---- | ------- | ---------- |
-| `Unsupported/AsyncApiProtocol` | `warn` | A channel's servers all speak a protocol with no generated transport. |
-| `Unsupported/AsyncApiSchemaFormat` | `warn` | A payload or schema declares a `schemaFormat` that is not JSON Schema. |
-| `Unsupported/AsyncApiSecurityScheme` | `info` | A security scheme family has no HTTP-shaped credential to generate. |
-| `Unsupported/AsyncApiContentType` | `warn` | An HTTP channel's messages state a media type no runtime decodes. |
-| `Unsupported/AsyncApiFeature` | `info` | The channel declares something not modelled yet. The specific gap rides in `data.feature`. |
-| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. |
-| `AsyncApi/AmbiguousProtocol` | `warn` | A channel's servers disagree on protocol; names which one won. |
-| `AsyncApi/ChannelNotConfigured` | `warn` | The document declares a channel no configured method binds. |
-| `AsyncApi/NoMethodsGenerated` | `warn` | A target ends up with models and a client but no methods. |
-| `AsyncApi/OperationNotFound` | `warn` | `asyncapi.operations` names ids no operation on the channel answers to. |
-| `AsyncApi/UnnamedSecurityScheme` | `warn` | A server states a security scheme inline instead of referencing one. |
-| `AsyncApi/UnsendablePayload` | `warn` | An HTTP channel's outbound payloads sit on a verb that cannot carry a body. |
-| `AsyncApi/TransformationsIgnored` | `info` | `openapi.transformations` is configured for a document that is not OpenAPI. |
+| Rule                                 | Default | Fires when                                                                                                                                                          |
+| ------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Unsupported/AsyncApiProtocol`       | `warn`  | A channel's servers all speak a protocol with no generated transport.                                                                                               |
+| `Unsupported/AsyncApiSchemaFormat`   | `warn`  | A payload or schema declares a `schemaFormat` that is not JSON Schema.                                                                                              |
+| `Unsupported/AsyncApiSecurityScheme` | `info`  | A security scheme family has no HTTP-shaped credential to generate.                                                                                                 |
+| `Unsupported/AsyncApiContentType`    | `warn`  | An HTTP channel's messages state a media type no runtime decodes.                                                                                                   |
+| `Unsupported/AsyncApiFeature`        | `info`  | The channel declares something not modelled yet. The specific gap rides in `data.feature`.                                                                          |
+| `Unsupported/WebSocketMethod`        | `warn`  | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. |
+| `AsyncApi/AmbiguousProtocol`         | `warn`  | A channel's servers disagree on protocol; names which one won.                                                                                                      |
+| `AsyncApi/ChannelNotConfigured`      | `warn`  | The document declares a channel no configured method binds.                                                                                                         |
+| `AsyncApi/NoMethodsGenerated`        | `warn`  | A target ends up with models and a client but no methods.                                                                                                           |
+| `AsyncApi/OperationNotFound`         | `warn`  | `asyncapi.operations` names ids no operation on the channel answers to.                                                                                             |
+| `AsyncApi/UnnamedSecurityScheme`     | `warn`  | A server states a security scheme inline instead of referencing one.                                                                                                |
+| `AsyncApi/UnsendablePayload`         | `warn`  | An HTTP channel's outbound payloads sit on a verb that cannot carry a body.                                                                                         |
+| `AsyncApi/TransformationsIgnored`    | `info`  | `openapi.transformations` is configured for a document that is not OpenAPI.                                                                                         |
 
 ## Limitations
 

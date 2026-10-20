@@ -38,52 +38,52 @@ Scalar runs OAuth flows end-to-end: Fill in the form and click **Authorize**. Th
 
 User-driven flow. The user consents in a browser popup and Scalar exchanges the returned code for an access token.
 
-| Field | Description |
-| --- | --- |
-| Auth URL | Authorization endpoint |
-| Token URL | Token exchange endpoint |
-| Redirect URL | Must match an allowed redirect configured at the provider. Defaults to the current page origin. |
-| Client ID | Application client identifier |
-| Client Secret | Required for confidential clients |
-| Use PKCE | `SHA-256` (recommended), `plain`, or `no` |
+| Field                | Description                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| Auth URL             | Authorization endpoint                                                                                 |
+| Token URL            | Token exchange endpoint                                                                                |
+| Redirect URL         | Must match an allowed redirect configured at the provider. Defaults to the current page origin.        |
+| Client ID            | Application client identifier                                                                          |
+| Client Secret        | Required for confidential clients                                                                      |
+| Use PKCE             | `SHA-256` (recommended), `plain`, or `no`                                                              |
 | Credentials Location | Send client credentials in the `header` (HTTP Basic) or the `body` (form-encoded) of the token request |
-| Scopes | Pick from the scopes defined by the scheme |
+| Scopes               | Pick from the scopes defined by the scheme                                                             |
 
 ### Client Credentials
 
 Machine-to-machine flow. No user interaction — Scalar exchanges the client ID and secret for a token directly.
 
-| Field | Description |
-| --- | --- |
-| Token URL | Token exchange endpoint |
-| Client ID | Application client identifier |
-| Client Secret | Application secret |
-| Credentials Location | `header` or `body` |
-| Scopes | Requested scopes |
+| Field                | Description                   |
+| -------------------- | ----------------------------- |
+| Token URL            | Token exchange endpoint       |
+| Client ID            | Application client identifier |
+| Client Secret        | Application secret            |
+| Credentials Location | `header` or `body`            |
+| Scopes               | Requested scopes              |
 
 ### Implicit
 
 Browser-based flow where the access token is returned directly from the authorize endpoint. No token exchange.
 
-| Field | Description |
-| --- | --- |
-| Auth URL | Authorization endpoint |
+| Field        | Description                                    |
+| ------------ | ---------------------------------------------- |
+| Auth URL     | Authorization endpoint                         |
 | Redirect URL | Must match an allowed redirect at the provider |
-| Client ID | Application client identifier |
-| Scopes | Requested scopes |
+| Client ID    | Application client identifier                  |
+| Scopes       | Requested scopes                               |
 
 ### Password
 
 Username and password are exchanged for a token directly. Intended for trusted first-party applications.
 
-| Field | Description |
-| --- | --- |
-| Token URL | Token exchange endpoint |
-| Client ID | Application client identifier |
-| Client Secret | Application secret |
-| Username, Password | User credentials |
-| Credentials Location | `header` or `body` |
-| Scopes | Requested scopes |
+| Field                | Description                   |
+| -------------------- | ----------------------------- |
+| Token URL            | Token exchange endpoint       |
+| Client ID            | Application client identifier |
+| Client Secret        | Application secret            |
+| Username, Password   | User credentials              |
+| Credentials Location | `header` or `body`            |
+| Scopes               | Requested scopes              |
 
 ## OpenID Connect
 
@@ -142,13 +142,13 @@ components:
             resource: user-profile
 ```
 
-| Extension | Applies to | Description |
-| --- | --- | --- |
-| `x-default-scopes` | OAuth flows | Scopes selected by default |
-| `x-usePkce` | Authorization code | `SHA-256`, `plain`, or `no` |
-| `x-tokenName` | OAuth flows | Field name to read the access token from in the token response |
-| `x-scalar-credentials-location` | Non-implicit flows | Send client credentials in the `header` or `body` |
-| `x-scalar-security-query` | Authorize requests | Extra query parameters to include on the authorize request |
-| `x-scalar-security-body` | Token requests | Extra body parameters to include on the token request |
+| Extension                       | Applies to         | Description                                                    |
+| ------------------------------- | ------------------ | -------------------------------------------------------------- |
+| `x-default-scopes`              | OAuth flows        | Scopes selected by default                                     |
+| `x-usePkce`                     | Authorization code | `SHA-256`, `plain`, or `no`                                    |
+| `x-tokenName`                   | OAuth flows        | Field name to read the access token from in the token response |
+| `x-scalar-credentials-location` | Non-implicit flows | Send client credentials in the `header` or `body`              |
+| `x-scalar-security-query`       | Authorize requests | Extra query parameters to include on the authorize request     |
+| `x-scalar-security-body`        | Token requests     | Extra body parameters to include on the token request          |
 
 See the [OpenAPI extensions reference](../../openapi.md) for more details.

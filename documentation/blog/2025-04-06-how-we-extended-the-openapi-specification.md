@@ -41,7 +41,7 @@ x-scalar-environments:
 
 This creates a pre-filled environment in the Scalar API client anytime someone imports the OpenAPI doc. This makes environments reusable and much easier to set up.
 
-[![Scalar environments](https://substackcdn.com/image/fetch/$s_!36lp!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa789657d-1f53-4a48-a122-a0345f246b03_1404x360.png "Scalar environments")](https://substackcdn.com/image/fetch/$s_!36lp!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa789657d-1f53-4a48-a122-a0345f246b03_1404x360.png)
+[![Scalar environments](https://substackcdn.com/image/fetch/$s_!36lp!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa789657d-1f53-4a48-a122-a0345f246b03_1404x360.png 'Scalar environments')](https://substackcdn.com/image/fetch/$s_!36lp!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fa789657d-1f53-4a48-a122-a0345f246b03_1404x360.png)
 
 On top of that, you can specify which environment should be the default with `x-scalar-active-environment`. If you don’t set this, we just use the first `x-scalar-environments` value.
 
@@ -239,9 +239,9 @@ Finally, with the data validated and integrated with the stores, we can change t
 
 On top of this, the complexity varies dramatically:
 
-* `x-displayName`, `x-tagGroup`, `x-internal`, `x-additionalPropertiesName` are all relatively straightforward conditional rendering.
-* `x-codeSamples` integrates with the existing code sample code.
-* The most complicated is `x-scalar-environments` which integrates with multiple different components including all of the ones necessary to create, select, and edit environments as well as variable substitution in requests and more.
+- `x-displayName`, `x-tagGroup`, `x-internal`, `x-additionalPropertiesName` are all relatively straightforward conditional rendering.
+- `x-codeSamples` integrates with the existing code sample code.
+- The most complicated is `x-scalar-environments` which integrates with multiple different components including all of the ones necessary to create, select, and edit environments as well as variable substitution in requests and more.
 
 In the end, most of what you see is small improvements to the overall experience of using OpenAPI docs with Scalar’s API client and reference. **This is the point.** We know these small improvements add up to create the best possible experience for API developers.
 

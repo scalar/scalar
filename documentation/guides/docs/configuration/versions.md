@@ -71,13 +71,13 @@ Inside each version's `routes`, wrap your pages in a top-level group so they ren
 
 Each version entry supports the same properties as a `navigation` object:
 
-| Property  | Type     | Required | Description                                        |
-| --------- | -------- | -------- | -------------------------------------------------- |
-| `title`   | `string` | No       | Display title for the version in the selector      |
-| `routes`  | `object` | Yes      | Navigation routes for this version                 |
-| `header`  | `array`  | No       | Header links for this version                      |
-| `sidebar` | `array`  | No       | Sidebar footer links for this version              |
-| `tabs`    | `array`  | No       | Navigation tabs for this version                   |
+| Property  | Type     | Required | Description                                   |
+| --------- | -------- | -------- | --------------------------------------------- |
+| `title`   | `string` | No       | Display title for the version in the selector |
+| `routes`  | `object` | Yes      | Navigation routes for this version            |
+| `header`  | `array`  | No       | Header links for this version                 |
+| `sidebar` | `array`  | No       | Sidebar footer links for this version         |
+| `tabs`    | `array`  | No       | Navigation tabs for this version              |
 
 The `default` version key is required and represents the version shown by default. Other version keys (for example `v2`, `v1`, `beta`) appear in the version selector dropdown. The optional `title` property provides a more descriptive label for each entry.
 

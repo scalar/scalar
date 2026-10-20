@@ -1,6 +1,6 @@
 # What is MCP (Model Context Protocol)?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 MCP, the Model Context Protocol, is an open standard that lets AI applications such as Claude, ChatGPT, Cursor, and VS Code discover and use external tools, data, and prompt templates through one common interface, instead of a custom integration for every pair of app and service. An MCP server describes what it can do, an MCP client inside the AI application reads that description, and the language model decides when to call it.
 
@@ -63,14 +63,14 @@ The model never talks to the server directly. The host stays in control of what 
 
 ## The building blocks: tools, resources, and prompts
 
-Servers can offer three kinds of features. Clients can offer one core feature back to servers. The difference that matters most is *who decides* when each is used.
+Servers can offer three kinds of features. Clients can offer one core feature back to servers. The difference that matters most is _who decides_ when each is used.
 
-| Primitive | Offered by | Controlled by | What it is | Typical example |
-| --- | --- | --- | --- | --- |
-| **Tools** | Server | The model | Functions the model can call, each with a name, description, and JSON Schema input | `get_planet`, `create_invoice`, `search_issues` |
-| **Resources** | Server | The application | Read-only context identified by a URI, such as a file, a record, or a document | `file:///project/README.md`, a customer record |
-| **Prompts** | Server | The user | Reusable prompt templates the user picks, often as slash commands | "Summarize this incident", "Draft a release note" |
-| **Elicitation** | Client | The user | A way for the server to ask the user for missing input mid-request | Asking which account to use before a transfer |
+| Primitive       | Offered by | Controlled by   | What it is                                                                         | Typical example                                   |
+| --------------- | ---------- | --------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **Tools**       | Server     | The model       | Functions the model can call, each with a name, description, and JSON Schema input | `get_planet`, `create_invoice`, `search_issues`   |
+| **Resources**   | Server     | The application | Read-only context identified by a URI, such as a file, a record, or a document     | `file:///project/README.md`, a customer record    |
+| **Prompts**     | Server     | The user        | Reusable prompt templates the user picks, often as slash commands                  | "Summarize this incident", "Draft a release note" |
+| **Elicitation** | Client     | The user        | A way for the server to ask the user for missing input mid-request                 | Asking which account to use before a transfer     |
 
 **Tools** are by far the most used primitive. When people say "an MCP server for our API", they almost always mean a set of tools that call API endpoints. A tool definition contains a `name`, an optional human-readable `title`, a `description`, an `inputSchema` (JSON Schema, 2020-12 by default), an optional `outputSchema`, and optional `annotations` that hint at behavior, such as whether a tool is read-only or destructive. The specification is careful to say that clients must treat annotations as untrusted unless the server is trusted.
 
@@ -308,4 +308,4 @@ The protocol defines an OAuth-based authorization framework for HTTP servers and
 
 ---
 
-*Specification details reflect the MCP revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. Client configuration formats are taken from each vendor's documentation on the same date and may change.*
+_Specification details reflect the MCP revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. Client configuration formats are taken from each vendor's documentation on the same date and may change._

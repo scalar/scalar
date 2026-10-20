@@ -4,15 +4,15 @@
 
 Manage access groups and allowed email domains for the current team.
 
-| Command | Description |
-| --- | --- |
-| [`scalar access-group list`](#list) | List access groups for the current team |
-| [`scalar access-group create`](#create) | Create an access group (Pro or above) |
-| [`scalar access-group get`](#get) | Get an access group and its allowlists |
-| [`scalar access-group update`](#update) | Update access group metadata |
-| [`scalar access-group delete`](#delete) | Delete an access group and remove its project assignments |
-| [`scalar access-group domain add`](#domain-add) | Add an exact email domain to an access group |
-| [`scalar access-group domain remove`](#domain-remove) | Remove an exact email domain from an access group |
+| Command                                               | Description                                               |
+| ----------------------------------------------------- | --------------------------------------------------------- |
+| [`scalar access-group list`](#list)                   | List access groups for the current team                   |
+| [`scalar access-group create`](#create)               | Create an access group (Pro or above)                     |
+| [`scalar access-group get`](#get)                     | Get an access group and its allowlists                    |
+| [`scalar access-group update`](#update)               | Update access group metadata                              |
+| [`scalar access-group delete`](#delete)               | Delete an access group and remove its project assignments |
+| [`scalar access-group domain add`](#domain-add)       | Add an exact email domain to an access group              |
+| [`scalar access-group domain remove`](#domain-remove) | Remove an exact email domain from an access group         |
 
 ## list
 
@@ -24,8 +24,8 @@ scalar access-group list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description               |
+| -------- | ------------------------- |
 | `--json` | Print the result as JSON. |
 
 ## create
@@ -38,17 +38,17 @@ scalar access-group create [options] <slug>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** New access group slug. |
+| Argument | Description                          |
+| -------- | ------------------------------------ |
+| `slug`   | **Required.** New access group slug. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--name <name>` | Display name. |
-| `--domain <domains...>` | Allowed email domains. |
-| `--json` | Print the result as JSON. |
+| Option                  | Description               |
+| ----------------------- | ------------------------- |
+| `--name <name>`         | Display name.             |
+| `--domain <domains...>` | Allowed email domains.    |
+| `--json`                | Print the result as JSON. |
 
 ## get
 
@@ -60,14 +60,14 @@ scalar access-group get [options] <slug>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Access group slug. |
+| Argument | Description                      |
+| -------- | -------------------------------- |
+| `slug`   | **Required.** Access group slug. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description               |
+| -------- | ------------------------- |
 | `--json` | Print the result as JSON. |
 
 ## update
@@ -80,17 +80,17 @@ scalar access-group update [options] <slug>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Current access group slug. |
+| Argument | Description                              |
+| -------- | ---------------------------------------- |
+| `slug`   | **Required.** Current access group slug. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `--name <name>` | New display name. |
-| `--new-slug <slug>` | New access group slug. |
-| `--json` | Print the result as JSON. |
+| Option              | Description               |
+| ------------------- | ------------------------- |
+| `--name <name>`     | New display name.         |
+| `--new-slug <slug>` | New access group slug.    |
+| `--json`            | Print the result as JSON. |
 
 ## delete
 
@@ -102,16 +102,16 @@ scalar access-group delete [options] <slug>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Access group slug. |
+| Argument | Description                      |
+| -------- | -------------------------------- |
+| `slug`   | **Required.** Access group slug. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-y, --yes` | Confirm deletion without prompting. |
-| `--json` | Print the result as JSON (requires --yes). |
+| Option      | Description                                |
+| ----------- | ------------------------------------------ |
+| `-y, --yes` | Confirm deletion without prompting.        |
+| `--json`    | Print the result as JSON (requires --yes). |
 
 ## domain add
 
@@ -123,15 +123,15 @@ scalar access-group domain add [options] <slug> <domain>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Access group slug. |
+| Argument | Description                                      |
+| -------- | ------------------------------------------------ |
+| `slug`   | **Required.** Access group slug.                 |
 | `domain` | **Required.** Email domain, such as example.com. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description               |
+| -------- | ------------------------- |
 | `--json` | Print the result as JSON. |
 
 ## domain remove
@@ -144,13 +144,13 @@ scalar access-group domain remove [options] <slug> <domain>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Access group slug. |
+| Argument | Description                                      |
+| -------- | ------------------------------------------------ |
+| `slug`   | **Required.** Access group slug.                 |
 | `domain` | **Required.** Email domain, such as example.com. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description               |
+| -------- | ------------------------- |
 | `--json` | Print the result as JSON. |

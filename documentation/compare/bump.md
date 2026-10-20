@@ -1,6 +1,6 @@
 # Scalar vs Bump.sh
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Bump.sh is a hosted API documentation platform built around change management: it publishes OpenAPI and AsyncAPI documents as docs and hubs, detects breaking changes between versions, and writes a changelog for you. It also hosts MCP servers built from workflow documents. If your main problem is keeping API consumers informed about what changed, Bump.sh is built for exactly that, and it is worth a close look.
 
@@ -12,20 +12,20 @@ Looking for the command-by-command switch rather than the product comparison? Th
 
 ## At a glance
 
-| | Scalar | Bump.sh |
-| --- | --- | --- |
-| Free plan | Yes: up to 3 APIs, 1 editor seat | [No](https://bump.sh/pricing); 14-day trial on Pro |
-| Entry paid plan | $150/month flat, 5 editor seats | [Basic $50/month](https://bump.sh/pricing): 10 API docs, 3 internal users |
-| Docs renderer licence | MIT, self-hostable on any plan | Hosted; the [CLI is MIT](https://github.com/bump-sh/cli), we found no public renderer repository |
-| Try-it explorer | Every plan, and in the open-source renderer | [Pro and above](https://bump.sh/pricing) |
-| Breaking-change diff | No | [Pro and above](https://bump.sh/pricing) |
-| Automatic changelog | No | [Pro and above](https://bump.sh/pricing) |
-| AsyncAPI | Rendering, [work in progress](/products/api-references/asyncapi) | [All plans](https://bump.sh/pricing) |
-| Arazzo | No | [All plans](https://bump.sh/pricing) |
-| OpenAPI Overlays | No | [CLI `overlay` command](https://github.com/bump-sh/cli) |
-| MCP servers | Hosted, generated from OpenAPI operations | [Hosted, built from Flower or Arazzo workflows](https://bump.sh/help/mcp-servers/) |
-| SDK generation | Yes | No |
-| Standalone API client | Yes, open source | No |
+|                       | Scalar                                                           | Bump.sh                                                                                          |
+| --------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Free plan             | Yes: up to 3 APIs, 1 editor seat                                 | [No](https://bump.sh/pricing); 14-day trial on Pro                                               |
+| Entry paid plan       | $150/month flat, 5 editor seats                                  | [Basic $50/month](https://bump.sh/pricing): 10 API docs, 3 internal users                        |
+| Docs renderer licence | MIT, self-hostable on any plan                                   | Hosted; the [CLI is MIT](https://github.com/bump-sh/cli), we found no public renderer repository |
+| Try-it explorer       | Every plan, and in the open-source renderer                      | [Pro and above](https://bump.sh/pricing)                                                         |
+| Breaking-change diff  | No                                                               | [Pro and above](https://bump.sh/pricing)                                                         |
+| Automatic changelog   | No                                                               | [Pro and above](https://bump.sh/pricing)                                                         |
+| AsyncAPI              | Rendering, [work in progress](/products/api-references/asyncapi) | [All plans](https://bump.sh/pricing)                                                             |
+| Arazzo                | No                                                               | [All plans](https://bump.sh/pricing)                                                             |
+| OpenAPI Overlays      | No                                                               | [CLI `overlay` command](https://github.com/bump-sh/cli)                                          |
+| MCP servers           | Hosted, generated from OpenAPI operations                        | [Hosted, built from Flower or Arazzo workflows](https://bump.sh/help/mcp-servers/)               |
+| SDK generation        | Yes                                                              | No                                                                                               |
+| Standalone API client | Yes, open source                                                 | No                                                                                               |
 
 ## Where Bump.sh is stronger
 
@@ -77,13 +77,13 @@ Bump.sh does not generate SDKs. Scalar generates them from the same document as 
 
 Both vendors publish prices.
 
-| | Scalar | Bump.sh |
-| --- | --- | --- |
-| Free | $0: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints, try-it included | [No free plan](https://bump.sh/pricing) |
-| Entry | [Pro $150/month](/pricing) ($125/month billed yearly): up to 15 APIs, 5 editor seats, custom domains, Git sync, hosted MCP, 1 SDK up to 100 endpoints | [Basic $50/month](https://bump.sh/pricing): 10 API docs, 5 MCP tools, 3 internal and 20 guest users, custom domain and logo; no API Explorer |
-| Mid | [Business $600/month](/pricing) ($500/month billed yearly): SSO, subpath hosting, up to 25 APIs, 10 editor seats, SDKs up to 250 endpoints | [Pro $120/month](https://bump.sh/pricing): 30 API docs, 50 MCP tools, 5 internal and 40 guest users, API Explorer, diff, changelog, branches, rollback, private MCP, branding removal |
-| Top | Enterprise, custom | [Custom](https://bump.sh/pricing): SSO, reverse proxy and embed mode, on-premise MCP dataplane |
-| Trial | Free plan, no card | [14-day trial on Pro](https://bump.sh/pricing) |
+|       | Scalar                                                                                                                                                | Bump.sh                                                                                                                                                                               |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Free  | $0: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints, try-it included                                                                            | [No free plan](https://bump.sh/pricing)                                                                                                                                               |
+| Entry | [Pro $150/month](/pricing) ($125/month billed yearly): up to 15 APIs, 5 editor seats, custom domains, Git sync, hosted MCP, 1 SDK up to 100 endpoints | [Basic $50/month](https://bump.sh/pricing): 10 API docs, 5 MCP tools, 3 internal and 20 guest users, custom domain and logo; no API Explorer                                          |
+| Mid   | [Business $600/month](/pricing) ($500/month billed yearly): SSO, subpath hosting, up to 25 APIs, 10 editor seats, SDKs up to 250 endpoints            | [Pro $120/month](https://bump.sh/pricing): 30 API docs, 50 MCP tools, 5 internal and 40 guest users, API Explorer, diff, changelog, branches, rollback, private MCP, branding removal |
+| Top   | Enterprise, custom                                                                                                                                    | [Custom](https://bump.sh/pricing): SSO, reverse proxy and embed mode, on-premise MCP dataplane                                                                                        |
+| Trial | Free plan, no card                                                                                                                                    | [14-day trial on Pro](https://bump.sh/pricing)                                                                                                                                        |
 
 The honest read: for documentation alone, Bump.sh is cheaper at every published tier, and its Pro plan includes change management that Scalar does not offer. Scalar's price covers more product: a free tier, try-it on every plan, more editor seats, SDKs, and self-hosting under MIT. Which is better value depends on whether you need those things.
 
@@ -168,4 +168,4 @@ Scalar renders AsyncAPI documents as an API reference, and the SDK generator acc
 
 ---
 
-*This comparison is based on Bump.sh's public pricing page, help centre, and CLI repository as of September 2026, and on Scalar's own source. Bump.sh's plans and features may change. We have made a genuine effort to be accurate and to state where Bump.sh is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Bump.sh's public pricing page, help centre, and CLI repository as of September 2026, and on Scalar's own source. Bump.sh's plans and features may change. We have made a genuine effort to be accurate and to state where Bump.sh is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

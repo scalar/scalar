@@ -14,7 +14,7 @@ The caller is responsible for checking that a DOM exists. Reading the default ar
 
 Reads the operating system preference via `prefers-color-scheme`, returning `'light' | 'dark'`.
 
-Without a `window` it reports light, matching what the server renders. A `window` *without* `matchMedia` reports dark instead — inconsistent, but the behaviour predates this helper and is preserved so `useColorMode` keeps resolving the way it always has. Only a stubbed test environment reaches that branch.
+Without a `window` it reports light, matching what the server renders. A `window` _without_ `matchMedia` reports dark instead — inconsistent, but the behaviour predates this helper and is preserved so `useColorMode` keeps resolving the way it always has. Only a stubbed test environment reaches that branch.
 
 ### `DarkLightMode`
 

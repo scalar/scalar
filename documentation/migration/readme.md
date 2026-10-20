@@ -1,6 +1,6 @@
 # How to migrate from ReadMe to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Moving from ReadMe to Scalar starts with getting your content out as Markdown files, which ReadMe supports through Git sync or the `rdme` CLI. From there you add a `scalar.config.json`, point it at your OpenAPI document, and rebuild the handful of ReadMe features that do not have a one-to-one equivalent.
 
@@ -16,21 +16,21 @@ This guide is the practical how-to, and it assumes you have already picked Scala
 
 ## What maps to what
 
-| ReadMe | Scalar | Notes |
-| --- | --- | --- |
-| Guides (`/docs/...`) | `page` routes | Markdown or MDX from Git |
-| API Reference (`/reference/...`) | An `openapi` route | Generated from your OpenAPI document, one page per operation |
-| Custom pages (`/page/...`) | `page` routes | HTML is fine in Markdown pages |
-| Changelog (`/changelog/...`) | Pages with a `date`, plus an RSS feed | See step 4 |
-| Recipes | A page built with `<Steps>` and code blocks | No modal walkthrough equivalent |
-| Versions | `versions` in `scalar.config.json` | |
-| `_order.yaml` sidebar order | Route order in `scalar.config.json` | |
-| `x-readme.code-samples` | Read as is | Shows under "Code Examples" |
-| Personalized docs and user variables | Private docs, access groups, credential prefill | No per-user variables; see below |
-| Developer Dashboard and API logs | No equivalent | The main thing you give up |
-| Ask AI, MCP server | Ask AI, docs MCP at `/mcp`, `llms.txt` | On by default in Scalar Docs |
-| Errors & Redirects | `siteConfig.routing.redirects` | |
-| Custom domain | `siteConfig.customDomain` | CNAME to `dns.scalar.com` |
+| ReadMe                               | Scalar                                          | Notes                                                        |
+| ------------------------------------ | ----------------------------------------------- | ------------------------------------------------------------ |
+| Guides (`/docs/...`)                 | `page` routes                                   | Markdown or MDX from Git                                     |
+| API Reference (`/reference/...`)     | An `openapi` route                              | Generated from your OpenAPI document, one page per operation |
+| Custom pages (`/page/...`)           | `page` routes                                   | HTML is fine in Markdown pages                               |
+| Changelog (`/changelog/...`)         | Pages with a `date`, plus an RSS feed           | See step 4                                                   |
+| Recipes                              | A page built with `<Steps>` and code blocks     | No modal walkthrough equivalent                              |
+| Versions                             | `versions` in `scalar.config.json`              |                                                              |
+| `_order.yaml` sidebar order          | Route order in `scalar.config.json`             |                                                              |
+| `x-readme.code-samples`              | Read as is                                      | Shows under "Code Examples"                                  |
+| Personalized docs and user variables | Private docs, access groups, credential prefill | No per-user variables; see below                             |
+| Developer Dashboard and API logs     | No equivalent                                   | The main thing you give up                                   |
+| Ask AI, MCP server                   | Ask AI, docs MCP at `/mcp`, `llms.txt`          | On by default in Scalar Docs                                 |
+| Errors & Redirects                   | `siteConfig.routing.redirects`                  |                                                              |
+| Custom domain                        | `siteConfig.customDomain`                       | CNAME to `dns.scalar.com`                                    |
 
 The ReadMe column reflects its [URL paths](https://docs.readme.com/main/docs/url-paths-in-readme), [bi-directional sync](https://docs.readme.com/main/docs/bi-directional-sync), and [OpenAPI extensions](https://docs.readme.com/main/docs/openapi-extensions) documentation as of September 2026.
 
@@ -132,18 +132,18 @@ If you publish several ReadMe versions, use [`versions`](/products/docs/configur
 
 Your OpenAPI document renders in Scalar as it is. Code samples you wrote under `x-readme.code-samples` show up without edits, in the "Code Examples" group of the language picker. The rest of ReadMe's [extensions](https://docs.readme.com/main/docs/openapi-extensions) are ignored rather than rejected, so nothing breaks, but here is how to get the same behaviour:
 
-| ReadMe extension | In Scalar |
-| --- | --- |
-| `code-samples` | Read as is |
-| `samples-languages` | [`defaultHttpClient`](/products/api-references/configuration) and `hiddenClients` in the route's `config` |
-| `explorer-enabled: false` | `hideTestRequestButton: true` |
-| `proxy-enabled` | `proxyUrl` |
-| `x-internal` | Read as is (an alias of [`x-scalar-ignore`](/products/api-references/openapi)) |
-| `x-enumDescriptions` | Read as is; Scalar also accepts `x-enum-descriptions` |
-| `x-default` on security schemes | Prefill with `authentication` in the route's `config` |
-| `oauth-options` (PKCE) | `x-usePkce` in the `authentication` config |
-| `headers` | No equivalent; document the headers as parameters |
-| `metrics-enabled` | Not applicable; Scalar has no API metrics |
+| ReadMe extension                | In Scalar                                                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `code-samples`                  | Read as is                                                                                                |
+| `samples-languages`             | [`defaultHttpClient`](/products/api-references/configuration) and `hiddenClients` in the route's `config` |
+| `explorer-enabled: false`       | `hideTestRequestButton: true`                                                                             |
+| `proxy-enabled`                 | `proxyUrl`                                                                                                |
+| `x-internal`                    | Read as is (an alias of [`x-scalar-ignore`](/products/api-references/openapi))                            |
+| `x-enumDescriptions`            | Read as is; Scalar also accepts `x-enum-descriptions`                                                     |
+| `x-default` on security schemes | Prefill with `authentication` in the route's `config`                                                     |
+| `oauth-options` (PKCE)          | `x-usePkce` in the `authentication` config                                                                |
+| `headers`                       | No equivalent; document the headers as parameters                                                         |
+| `metrics-enabled`               | Not applicable; Scalar has no API metrics                                                                 |
 
 Configuration goes on the route:
 
@@ -166,16 +166,16 @@ Configuration goes on the route:
 
 ReadMe pages are MDX. Scalar Docs supports [MDX](/products/docs/content/mdx) too, but only in files with an `.mdx` extension, so rename any exported file that uses components.
 
-| ReadMe | Scalar | What to change |
-| --- | --- | --- |
-| Blockquote callouts (`> 📘`) | `<Callout type="info">` | ReadMe [writes callouts](https://docs.readme.com/main/docs/mdx) as a blockquote led by an emoji; replace each with a callout of the matching type |
-| `<Tabs>`, `<Tab>` | [`<Tabs>`, `<Tab>`](/products/docs/components/tabs) | Same shape |
-| `<Accordion>` | [`<Detail>`](/products/docs/components/details) | `<Accordion>` also works as an alias; its `icon` maps to `title-icon` |
-| `<Cards>`, `<Card>` | [`<Grid>`](/products/docs/components/grid) with `<Card>` | Swap the wrapper |
-| `<Columns>`, `<Column>` | `<Grid>` | Put each column's content in the grid |
-| `<Glossary>` | No equivalent | Link to a glossary page instead |
-| `{user.name}` and other user variables | No equivalent | See personalized docs below |
-| Custom components | Rebuild | ReadMe custom components are React, [available on Pro and Enterprise](https://docs.readme.com/main/docs/building-custom-mdx-components); Scalar MDX supports JSX and imports of other MDX files |
+| ReadMe                                 | Scalar                                                   | What to change                                                                                                                                                                                  |
+| -------------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Blockquote callouts (`> 📘`)           | `<Callout type="info">`                                  | ReadMe [writes callouts](https://docs.readme.com/main/docs/mdx) as a blockquote led by an emoji; replace each with a callout of the matching type                                               |
+| `<Tabs>`, `<Tab>`                      | [`<Tabs>`, `<Tab>`](/products/docs/components/tabs)      | Same shape                                                                                                                                                                                      |
+| `<Accordion>`                          | [`<Detail>`](/products/docs/components/details)          | `<Accordion>` also works as an alias; its `icon` maps to `title-icon`                                                                                                                           |
+| `<Cards>`, `<Card>`                    | [`<Grid>`](/products/docs/components/grid) with `<Card>` | Swap the wrapper                                                                                                                                                                                |
+| `<Columns>`, `<Column>`                | `<Grid>`                                                 | Put each column's content in the grid                                                                                                                                                           |
+| `<Glossary>`                           | No equivalent                                            | Link to a glossary page instead                                                                                                                                                                 |
+| `{user.name}` and other user variables | No equivalent                                            | See personalized docs below                                                                                                                                                                     |
+| Custom components                      | Rebuild                                                  | ReadMe custom components are React, [available on Pro and Enterprise](https://docs.readme.com/main/docs/building-custom-mdx-components); Scalar MDX supports JSX and imports of other MDX files |
 
 The ReadMe column comes from its [built-in components](https://docs.readme.com/main/docs/built-in-components) and [features](https://docs.readme.com/rdmd/docs/features) documentation.
 
@@ -276,4 +276,4 @@ Not in Scalar. ReadMe's Developer Dashboard is its strongest feature and Scalar 
 
 ---
 
-*ReadMe details on this page come from its own documentation ([bi-directional sync](https://docs.readme.com/main/docs/bi-directional-sync), [URL paths](https://docs.readme.com/main/docs/url-paths-in-readme), [OpenAPI extensions](https://docs.readme.com/main/docs/openapi-extensions), [MDX](https://docs.readme.com/main/docs/mdx), [built-in](https://docs.readme.com/main/docs/built-in-components) and [custom](https://docs.readme.com/main/docs/building-custom-mdx-components) components, [personalized docs](https://docs.readme.com/main/docs/personalized-docs), [redirects](https://docs.readme.com/main/docs/error-pages), and [custom domains](https://docs.readme.com/main/docs/setting-up-custom-domain)) and the [`rdme` repository](https://github.com/readmeio/rdme), as checked on September 26, 2026. ReadMe's product and CLI may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_ReadMe details on this page come from its own documentation ([bi-directional sync](https://docs.readme.com/main/docs/bi-directional-sync), [URL paths](https://docs.readme.com/main/docs/url-paths-in-readme), [OpenAPI extensions](https://docs.readme.com/main/docs/openapi-extensions), [MDX](https://docs.readme.com/main/docs/mdx), [built-in](https://docs.readme.com/main/docs/built-in-components) and [custom](https://docs.readme.com/main/docs/building-custom-mdx-components) components, [personalized docs](https://docs.readme.com/main/docs/personalized-docs), [redirects](https://docs.readme.com/main/docs/error-pages), and [custom domains](https://docs.readme.com/main/docs/setting-up-custom-domain)) and the [`rdme` repository](https://github.com/readmeio/rdme), as checked on September 26, 2026. ReadMe's product and CLI may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -1,6 +1,6 @@
 # How to migrate from SmartBear Swagger Studio (API Hub, ex. SwaggerHub) to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 [Scalar](https://scalar.com/) is a drop-in replacement for SmartBear's design, portal, and explore tools. The naming has changed a few times, so here is the map. SwaggerHub became API Hub for Design, and on November 13, 2025, SmartBear [renamed API Hub for Design to Swagger Studio](https://support.smartbear.com/swagger/studio/docs/en/what-s-new.html). The documentation portal is [Swagger Portal](https://swagger.io/product/) (it replaced SwaggerHub's Docs Branding in 2024), and the API testing tool is Swagger Explore. SmartBear now groups them, along with Functional Testing, Contract Testing, and Catalog, under [Swagger / API Hub](https://swagger.io/product/). This guide uses "API Hub Design", "Portal", and "Explore" because that is what most existing projects still call them.
 
@@ -149,4 +149,4 @@ Yes. Scalar generates SDKs from your OpenAPI document. TypeScript, Python, Go, J
 
 ---
 
-*SmartBear product names and features on this page come from SmartBear's [Swagger product page](https://swagger.io/product/) and [Swagger Studio documentation](https://support.smartbear.com/swagger/studio/docs/en/what-s-new.html) as checked on September 26, 2026. SmartBear has renamed these products several times and may do so again. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_SmartBear product names and features on this page come from SmartBear's [Swagger product page](https://swagger.io/product/) and [Swagger Studio documentation](https://support.smartbear.com/swagger/studio/docs/en/what-s-new.html) as checked on September 26, 2026. SmartBear has renamed these products several times and may do so again. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

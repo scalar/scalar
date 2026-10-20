@@ -1,6 +1,6 @@
 # Stripe API reference, SDKs and MCP server
 
-*Last updated: September 2026 · Data from Stripe's public OpenAPI document, checked 2026-09-26*
+_Last updated: September 2026 · Data from Stripe's public OpenAPI document, checked 2026-09-26_
 
 Browse the Stripe API from Stripe's own OpenAPI document, see what it contains at a glance, and find the official SDKs and MCP server in one place.
 
@@ -20,20 +20,20 @@ Stripe now ships two API generations side by side. Almost everything lives under
 
 We computed these numbers from `latest/openapi.spec3.json` in [stripe/openapi](https://github.com/stripe/openapi) (the file Stripe's README recommends for new projects) on 2026-09-26.
 
-| | |
-|---|---|
-| OpenAPI version | 3.0.0 |
-| API version in the document (`info.version`) | `2026-09-30.endive` |
-| Server | `https://api.stripe.com/` |
-| Path items | 454 |
-| Operations (path + method) | 644 (612 under `/v1/`, 32 under `/v2/`) |
-| Operations by method | 325 `POST`, 285 `GET`, 34 `DELETE` |
-| Operations marked deprecated | 6 |
-| List operations with cursor pagination (`starting_after`) | 126 |
-| Search operations (`/search`) | 7 |
-| Schemas in `components/schemas` | 1,701 |
-| Security schemes | `basicAuth` (HTTP Basic), `bearerAuth` (HTTP Bearer) |
-| Document licence | MIT |
+|                                                           |                                                      |
+| --------------------------------------------------------- | ---------------------------------------------------- |
+| OpenAPI version                                           | 3.0.0                                                |
+| API version in the document (`info.version`)              | `2026-09-30.endive`                                  |
+| Server                                                    | `https://api.stripe.com/`                            |
+| Path items                                                | 454                                                  |
+| Operations (path + method)                                | 644 (612 under `/v1/`, 32 under `/v2/`)              |
+| Operations by method                                      | 325 `POST`, 285 `GET`, 34 `DELETE`                   |
+| Operations marked deprecated                              | 6                                                    |
+| List operations with cursor pagination (`starting_after`) | 126                                                  |
+| Search operations (`/search`)                             | 7                                                    |
+| Schemas in `components/schemas`                           | 1,701                                                |
+| Security schemes                                          | `basicAuth` (HTTP Basic), `bearerAuth` (HTTP Bearer) |
+| Document licence                                          | MIT                                                  |
 
 Stripe also publishes a `preview/` folder with public preview endpoints and a legacy `openapi/` folder that is v1 only (431 path items, 612 operations). Note that the version string in the repository can run ahead of the docs: on the day we checked, Stripe's versioning page listed `2026-08-26.dahlia` as current, while the document on `master` already said `2026-09-30.endive`.
 
@@ -234,4 +234,4 @@ For a new integration, the version your SDK pins is the simplest choice, because
 
 ---
 
-*Stripe is a trademark of Stripe, Inc. This page is not affiliated with or endorsed by Stripe. Statistics were computed by Scalar from Stripe's public OpenAPI document on 2026-09-26, and facts about authentication, versioning, SDKs and the MCP server come from Stripe's documentation as linked above, checked the same day. If something is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues).*
+_Stripe is a trademark of Stripe, Inc. This page is not affiliated with or endorsed by Stripe. Statistics were computed by Scalar from Stripe's public OpenAPI document on 2026-09-26, and facts about authentication, versioning, SDKs and the MCP server come from Stripe's documentation as linked above, checked the same day. If something is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues)._

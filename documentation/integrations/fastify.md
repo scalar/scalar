@@ -50,13 +50,13 @@ The fastify plugin takes our universal configuration object, [read more about co
 
 The plugin accepts the following options:
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `routePrefix` | `string` | `/reference` | Path where the API reference is served. |
-| `configuration` | `object` | – | The universal Scalar [configuration object](../configuration.md) (`url`, `content`, `sources`, `title`, `theme`, `layout`, …). |
-| `openApiDocumentEndpoints` | `object` | `{ json: '/openapi.json', yaml: '/openapi.yaml' }` | Where the OpenAPI document is exposed, relative to `routePrefix`. |
-| `hooks` | `object` | – | Fastify `onRequest` and `preHandler` hooks applied to every route the plugin registers (useful for authentication). |
-| `logLevel` | `string` | – | Log level for the plugin's routes. Set to `silent` to silence them. |
+| Option                     | Type     | Default                                            | Description                                                                                                                    |
+| -------------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `routePrefix`              | `string` | `/reference`                                       | Path where the API reference is served.                                                                                        |
+| `configuration`            | `object` | –                                                  | The universal Scalar [configuration object](../configuration.md) (`url`, `content`, `sources`, `title`, `theme`, `layout`, …). |
+| `openApiDocumentEndpoints` | `object` | `{ json: '/openapi.json', yaml: '/openapi.yaml' }` | Where the OpenAPI document is exposed, relative to `routePrefix`.                                                              |
+| `hooks`                    | `object` | –                                                  | Fastify `onRequest` and `preHandler` hooks applied to every route the plugin registers (useful for authentication).            |
+| `logLevel`                 | `string` | –                                                  | Log level for the plugin's routes. Set to `silent` to silence them.                                                            |
 
 Scalar looks for the OpenAPI document in this order of precedence: `configuration.content`, then `configuration.url`, then [@fastify/swagger](https://github.com/fastify/fastify-swagger) if it is registered.
 

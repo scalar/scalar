@@ -20,16 +20,16 @@ If you are on an existing Swashbuckle project, nothing forces you to move. Swash
 
 ## .NET 9 vs .NET 10 at a glance
 
-| | .NET 9 | .NET 10 |
-| --- | --- | --- |
-| Package | `Microsoft.AspNetCore.OpenApi` | `Microsoft.AspNetCore.OpenApi` |
-| Default OpenAPI version | 3.0 | 3.1 |
-| Version you can switch to | 2.0 | 3.0 |
-| JSON Schema dialect | OpenAPI 3.0 schema subset | JSON Schema draft 2020-12 |
-| Nullable types | `nullable: true` | `type: ["null", "string"]` (3.1) |
-| XML doc comments | Not read | Read by a source generator |
-| YAML endpoint | No | Yes, via `.yaml` route suffix |
-| Object model | `Microsoft.OpenApi` 1.x (`Microsoft.OpenApi.Models`) | `Microsoft.OpenApi` 2.x (`Microsoft.OpenApi`) |
+|                           | .NET 9                                               | .NET 10                                       |
+| ------------------------- | ---------------------------------------------------- | --------------------------------------------- |
+| Package                   | `Microsoft.AspNetCore.OpenApi`                       | `Microsoft.AspNetCore.OpenApi`                |
+| Default OpenAPI version   | 3.0                                                  | 3.1                                           |
+| Version you can switch to | 2.0                                                  | 3.0                                           |
+| JSON Schema dialect       | OpenAPI 3.0 schema subset                            | JSON Schema draft 2020-12                     |
+| Nullable types            | `nullable: true`                                     | `type: ["null", "string"]` (3.1)              |
+| XML doc comments          | Not read                                             | Read by a source generator                    |
+| YAML endpoint             | No                                                   | Yes, via `.yaml` route suffix                 |
+| Object model              | `Microsoft.OpenApi` 1.x (`Microsoft.OpenApi.Models`) | `Microsoft.OpenApi` 2.x (`Microsoft.OpenApi`) |
 
 Microsoft's .NET 11 documentation already describes OpenAPI 3.2 as the default for that release. If you are reading this after .NET 11 ships, the pattern is the same; only the default changes.
 
@@ -156,7 +156,7 @@ There is no extra code. A source generator intercepts your `AddOpenApi()` calls 
 
 Two gotchas from the Microsoft docs that catch people:
 
-- A `<response code="404">` tag only *describes* a response. It does not declare one. If the endpoint's metadata does not already include a 404 (from a typed result, `Produces`, or `[ProducesResponseType]`), the comment is silently dropped.
+- A `<response code="404">` tag only _describes_ a response. It does not declare one. If the endpoint's metadata does not already include a 404 (from a typed result, `Produces`, or `[ProducesResponseType]`), the comment is silently dropped.
 - The source generator only recognises document names that are string literals. `AddOpenApi("v1")` works; `AddOpenApi(documentName)` with a variable gets no XML comments at all.
 
 ## Customize the document with transformers

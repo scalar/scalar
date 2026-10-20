@@ -118,6 +118,7 @@ const { cx } = useBindCx()
 ```
 
 Key conventions:
+
 - **`defineOptions({ inheritAttrs: false })`** + **`useBindCx()`** — lets consumers override Tailwind classes via the `class` attribute.
 - **`v-bind="cx(...)"`** on the root element merges component classes with consumer overrides.
 - **`cva()`** for variant-based styling (import from `@scalar/use-hooks/useBindCx`).
@@ -200,6 +201,7 @@ export const Base: Story = {}
 ```
 
 Conventions:
+
 - Use `satisfies Meta` (not `as Meta`) for the config object.
 - Define `argTypes` with `control: 'select'` for union-type props.
 - Export one named story per meaningful variant (e.g., `Base`, `Disabled`, `WithIcon`).
@@ -225,6 +227,7 @@ describe('ScalarExample', () => {
 ```
 
 Conventions:
+
 - Always import `describe`, `it`, `expect` explicitly from `vitest`.
 - Test **behavior and accessibility attributes**, not DOM structure or Tailwind classes.
 - Do not start test names with "should": use `it('renders with a label')` not `it('should render with a label')`.
@@ -269,6 +272,7 @@ export type ScalarExampleProps = {
 ```
 
 Conventions:
+
 - Use `type` not `interface`.
 - JSDoc on every exported type and property (with `@default` and `@example` where appropriate).
 - Internal-only types stay unexported or in the `.vue` file.

@@ -6,10 +6,10 @@ Callouts are highlighted boxes that draw attention to important information. Eac
 
 ## Properties
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `type` | `'neutral'` `'success'` `'danger'` `'warning'` `'info'` | `neutral` | Visual style and default icon. Accepts the aliases `warn` and `information`. |
-| `icon` | `string` | — | Overrides the default icon for the type. Accepts a built-in [icon key](./icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](./icons.mdx#custom-icons). |
+| Prop   | Type                                                    | Default   | Description                                                                                                                                                                |
+| ------ | ------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type` | `'neutral'` `'success'` `'danger'` `'warning'` `'info'` | `neutral` | Visual style and default icon. Accepts the aliases `warn` and `information`.                                                                                               |
+| `icon` | `string`                                                | —         | Overrides the default icon for the type. Accepts a built-in [icon key](./icons.mdx#built-in-icons) (Phosphor or Simple Icons) or a [custom URL](./icons.mdx#custom-icons). |
 
 ## Examples
 
@@ -84,14 +84,14 @@ Callouts are highlighted boxes that draw attention to important information. Eac
 
 In MDX, the following named components are equivalent to `<Callout>` with a preset `type`:
 
-| Component | Equivalent |
-| --------- | ---------- |
-| `<Note>` | `<Callout type="info">` |
-| `<Tip>` | `<Callout type="success" icon="lightbulb">` |
-| `<Warning>` | `<Callout type="warning">` |
-| `<Danger>` | `<Callout type="danger">` |
-| `<Check>` | `<Callout type="success">` |
-| `<Info>` | `<Callout type="neutral">` |
+| Component   | Equivalent                                  |
+| ----------- | ------------------------------------------- |
+| `<Note>`    | `<Callout type="info">`                     |
+| `<Tip>`     | `<Callout type="success" icon="lightbulb">` |
+| `<Warning>` | `<Callout type="warning">`                  |
+| `<Danger>`  | `<Callout type="danger">`                   |
+| `<Check>`   | `<Callout type="success">`                  |
+| `<Info>`    | `<Callout type="neutral">`                  |
 
 <Preview>
   <Note>Useful information that's good to know.</Note>

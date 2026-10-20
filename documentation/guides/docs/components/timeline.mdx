@@ -10,18 +10,18 @@ On wide pages the label hangs in the margin beside the entry and stays in view a
 
 ### TimelineItem
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `label` | `string` | — | Version or title of the entry. Also its anchor and its table of contents item. |
-| `date` | `string` | — | Release date in ISO 8601 (`2026-09-16`). Shown under the label as `Sep 16, 2026`. |
-| `description` | `string` | — | Text under the label. Replaces the formatted date when both are set. |
-| `tags` | `string[]` | — | Short labels such as `Added` or `Fixed`. In Markdown, a comma-separated list (`tags="Added, Fixed"`). |
+| Prop          | Type       | Default | Description                                                                                           |
+| ------------- | ---------- | ------- | ----------------------------------------------------------------------------------------------------- |
+| `label`       | `string`   | —       | Version or title of the entry. Also its anchor and its table of contents item.                        |
+| `date`        | `string`   | —       | Release date in ISO 8601 (`2026-09-16`). Shown under the label as `Sep 16, 2026`.                     |
+| `description` | `string`   | —       | Text under the label. Replaces the formatted date when both are set.                                  |
+| `tags`        | `string[]` | —       | Short labels such as `Added` or `Fixed`. In Markdown, a comma-separated list (`tags="Added, Fixed"`). |
 
 ### Timeline
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `src` | `string` | — | Path to a Markdown changelog (`.md`), relative to the page. Its entries replace any `<TimelineItem>` children. |
+| Prop  | Type     | Default | Description                                                                                                    |
+| ----- | -------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| `src` | `string` | —       | Path to a Markdown changelog (`.md`), relative to the page. Its entries replace any `<TimelineItem>` children. |
 
 ## Examples
 

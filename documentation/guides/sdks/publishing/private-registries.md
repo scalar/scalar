@@ -9,19 +9,19 @@ This is a supported path rather than a workaround. [Custom code](../custom-code.
 - A target with a [linked GitHub repository](github.md). Without one no workflows are generated at all, and there is no `scalar-next` branch to commit to.
 - The URL of your registry for the ecosystem you are publishing.
 - A credential for that registry, added as a [repository secret](github.md#adding-repository-secrets).
-- Merge commits allowed on the integration branch. Each regeneration lands there as a merge commit, so do not enable *Require linear history* on it.
+- Merge commits allowed on the integration branch. Each regeneration lands there as a merge commit, so do not enable _Require linear history_ on it.
 
 ## The one rule
 
 Add a **new** file under `.github/workflows/`. Do not edit the workflows Scalar generates.
 
-| Path | Owner |
-| ---- | ----- |
-| `.github/workflows/sdk-ci.yml` | Scalar, rewritten every build |
-| `.github/workflows/release-please.yml` | Scalar, rewritten every build |
-| `.github/workflows/release-title-edit.yml` | Scalar, rewritten every build |
-| `.github/workflows/sdk-release.yml` | Scalar, rewritten every build |
-| **anything else under `.github/workflows/`** | **you** |
+| Path                                         | Owner                         |
+| -------------------------------------------- | ----------------------------- |
+| `.github/workflows/sdk-ci.yml`               | Scalar, rewritten every build |
+| `.github/workflows/release-please.yml`       | Scalar, rewritten every build |
+| `.github/workflows/release-title-edit.yml`   | Scalar, rewritten every build |
+| `.github/workflows/sdk-release.yml`          | Scalar, rewritten every build |
+| **anything else under `.github/workflows/`** | **you**                       |
 
 Commit it to the integration branch, **`scalar-next`** unless you renamed it with [`integrationBranch`](github.md#repository-configuration), directly or through a pull request against it. Never commit to `scalar-generated`, which holds pristine generator output and is replaced on every build.
 
@@ -253,14 +253,14 @@ If the public publish runs in a GitHub environment (`publish.<registry>.releaseE
 
 ## Troubleshooting
 
-| What you see | Why |
-| ------------ | --- |
-| Nothing runs when a release merges | The workflow is on `on: release` or `on: push: tags:`. Use one of the [triggers that fire](#choose-a-trigger-that-fires). |
+| What you see                              | Why                                                                                                                                                                                                                                          |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Nothing runs when a release merges        | The workflow is on `on: release` or `on: push: tags:`. Use one of the [triggers that fire](#choose-a-trigger-that-fires).                                                                                                                    |
 | Nothing runs, and the trigger looks right | `branches:` does not name your default branch, or the workflow has not reached your default branch yet. A `push` trigger runs the copy on the branch receiving the push, so the file has to land there through a release pull request first. |
-| The workflow disappeared after a build | It was committed to `scalar-generated`, which is replaced on every build. Commit to `scalar-next`, or your `integrationBranch`. |
-| `401` or `403` from the registry | The secret is missing, misnamed, or lacks publish rights. Check it under **Settings → Secrets and variables → Actions**. |
-| The package went to the public registry | `registry-url` is missing or misspelled, or a scoped package needs `scope` on `setup-node`. |
-| Conflicts on every regeneration | You edited a generated workflow instead of adding your own. Move your changes to a separate file. |
+| The workflow disappeared after a build    | It was committed to `scalar-generated`, which is replaced on every build. Commit to `scalar-next`, or your `integrationBranch`.                                                                                                              |
+| `401` or `403` from the registry          | The secret is missing, misnamed, or lacks publish rights. Check it under **Settings → Secrets and variables → Actions**.                                                                                                                     |
+| The package went to the public registry   | `registry-url` is missing or misspelled, or a scoped package needs `scope` on `setup-node`.                                                                                                                                                  |
+| Conflicts on every regeneration           | You edited a generated workflow instead of adding your own. Move your changes to a separate file.                                                                                                                                            |
 
 ## Next steps
 

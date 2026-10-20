@@ -1,6 +1,6 @@
 # Scalar vs OpenAPI Generator
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 OpenAPI Generator is the open-source default for turning an OpenAPI document into client libraries, server stubs, and documentation. It is free, Apache-2.0 licensed, and covers more languages than any commercial generator, Scalar included. If you are deciding how to produce SDKs for your API, you should look at it seriously.
 
@@ -10,17 +10,17 @@ The short version: OpenAPI Generator is a toolkit. It hands you a large set of M
 
 ## At a glance
 
-| | Scalar | OpenAPI Generator |
-| --- | --- | --- |
-| Licence | Generator is closed source; API reference and API client are MIT | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator) |
-| Price | One SDK included on every plan, including Free; more from $150/month | [Free](https://github.com/OpenAPITools/openapi-generator) |
-| Client generators | 7 generally available (TypeScript, Python, Go, Java, Kotlin, Ruby, CLI), 6 experimental | [80 client generators](https://openapi-generator.tech/docs/generators), several marked beta or experimental |
-| Server stubs | No | [72 server generators](https://openapi-generator.tech/docs/generators) |
-| How you customise output | Edit generated code in Git; changes are merged forward | [Mustache templates](https://openapi-generator.tech/docs/templating) you override with `-t` |
-| Retries, pagination helpers | Built in | Not in the [typescript-fetch runtime](https://github.com/OpenAPITools/openapi-generator/blob/master/samples/client/petstore/typescript-fetch/builds/default/runtime.ts) |
-| Publishing to npm, PyPI, and others | Managed, with GitHub workflows | You build it |
-| Runtime | Hosted, runs from the dashboard | [Java 11 JAR, with npm and pip wrappers](https://github.com/OpenAPITools/openapi-generator) |
-| API reference from the same run | Yes | Separate tooling |
+|                                     | Scalar                                                                                  | OpenAPI Generator                                                                                                                                                       |
+| ----------------------------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Licence                             | Generator is closed source; API reference and API client are MIT                        | [Apache-2.0](https://github.com/OpenAPITools/openapi-generator)                                                                                                         |
+| Price                               | One SDK included on every plan, including Free; more from $150/month                    | [Free](https://github.com/OpenAPITools/openapi-generator)                                                                                                               |
+| Client generators                   | 7 generally available (TypeScript, Python, Go, Java, Kotlin, Ruby, CLI), 6 experimental | [80 client generators](https://openapi-generator.tech/docs/generators), several marked beta or experimental                                                             |
+| Server stubs                        | No                                                                                      | [72 server generators](https://openapi-generator.tech/docs/generators)                                                                                                  |
+| How you customise output            | Edit generated code in Git; changes are merged forward                                  | [Mustache templates](https://openapi-generator.tech/docs/templating) you override with `-t`                                                                             |
+| Retries, pagination helpers         | Built in                                                                                | Not in the [typescript-fetch runtime](https://github.com/OpenAPITools/openapi-generator/blob/master/samples/client/petstore/typescript-fetch/builds/default/runtime.ts) |
+| Publishing to npm, PyPI, and others | Managed, with GitHub workflows                                                          | You build it                                                                                                                                                            |
+| Runtime                             | Hosted, runs from the dashboard                                                         | [Java 11 JAR, with npm and pip wrappers](https://github.com/OpenAPITools/openapi-generator)                                                                             |
+| API reference from the same run     | Yes                                                                                     | Separate tooling                                                                                                                                                        |
 
 ## Where OpenAPI Generator is stronger
 
@@ -81,11 +81,11 @@ OpenAPI Generator creates one class per tag (`PetApi`, `StoreApi`, `UserApi`), e
 
 On the same Petstore input:
 
-| `operationId` | OpenAPI Generator (typescript-fetch) | Scalar |
-| --- | --- | --- |
-| `findPetsByStatus` | `petApi.findPetsByStatus({ status })` | `client.pet.list()` |
-| `getPetById` | `petApi.getPetById({ petId })` | `client.pet.retrieve()` |
-| `addPet` | `petApi.addPet({ pet })` | `client.pet.create()` |
+| `operationId`      | OpenAPI Generator (typescript-fetch)  | Scalar                  |
+| ------------------ | ------------------------------------- | ----------------------- |
+| `findPetsByStatus` | `petApi.findPetsByStatus({ status })` | `client.pet.list()`     |
+| `getPetById`       | `petApi.getPetById({ petId })`        | `client.pet.retrieve()` |
+| `addPet`           | `petApi.addPet({ pet })`              | `client.pet.create()`   |
 
 OpenAPI Generator carries the `operationId` through verbatim. That is predictable, and if your operation IDs are already clean it works well. Scalar normalises verbs across resources, so a developer who has learned `list` and `retrieve` on one resource can guess them on the next.
 
@@ -140,15 +140,15 @@ The practical difference is where your changes live. With templates, they live i
 
 It is worth writing out the work explicitly, because the licence price hides it.
 
-| Task | With OpenAPI Generator | With Scalar |
-| --- | --- | --- |
-| Run generation on every API change | Your CI job | A build per document update, from the dashboard or registry |
-| Keep templates current with upstream | You | Not applicable |
-| Retries, pagination, typed errors | You write them | Generated |
-| Versioning and changelog | You | Release pull requests managed by release-please |
-| Publish to npm, PyPI, Go modules | You script it | [Managed publishing](/products/sdk-generator/publishing/overview) |
-| README and usage examples | README generated from templates | README with auth and option tables, plus `api.md` and `x-codeSamples` in your reference |
-| Keep docs and SDKs in sync | Separate tools | Same run, same compiled document |
+| Task                                 | With OpenAPI Generator          | With Scalar                                                                             |
+| ------------------------------------ | ------------------------------- | --------------------------------------------------------------------------------------- |
+| Run generation on every API change   | Your CI job                     | A build per document update, from the dashboard or registry                             |
+| Keep templates current with upstream | You                             | Not applicable                                                                          |
+| Retries, pagination, typed errors    | You write them                  | Generated                                                                               |
+| Versioning and changelog             | You                             | Release pull requests managed by release-please                                         |
+| Publish to npm, PyPI, Go modules     | You script it                   | [Managed publishing](/products/sdk-generator/publishing/overview)                       |
+| README and usage examples            | README generated from templates | README with auth and option tables, plus `api.md` and `x-codeSamples` in your reference |
+| Keep docs and SDKs in sync           | Separate tools                  | Same run, same compiled document                                                        |
 
 None of those rows are hard for a strong platform team. They add up, though, and they recur every time the API or the generator changes.
 
@@ -160,13 +160,13 @@ If you need production SDKs in C# or PHP today, OpenAPI Generator has mature, wi
 
 ## Pricing
 
-| | Scalar | OpenAPI Generator |
-| --- | --- | --- |
-| Licence cost | Free plan: 1 SDK up to 25 endpoints | [$0, Apache-2.0](https://github.com/OpenAPITools/openapi-generator) |
-| Paid plans | [Pro $150/month](/pricing) (1 SDK up to 100 endpoints, 5 editor seats); [Business $600/month](/pricing) (SDKs up to 250 endpoints, SSO) | None |
-| Additional SDKs | $150/month each up to 100 endpoints, $600/month each for 101–250 | $0 |
-| Engineering time | Mostly configuration | Templates, runtime helpers, publishing, upgrades |
-| Enterprise | Custom | Community support; no vendor |
+|                  | Scalar                                                                                                                                  | OpenAPI Generator                                                   |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Licence cost     | Free plan: 1 SDK up to 25 endpoints                                                                                                     | [$0, Apache-2.0](https://github.com/OpenAPITools/openapi-generator) |
+| Paid plans       | [Pro $150/month](/pricing) (1 SDK up to 100 endpoints, 5 editor seats); [Business $600/month](/pricing) (SDKs up to 250 endpoints, SSO) | None                                                                |
+| Additional SDKs  | $150/month each up to 100 endpoints, $600/month each for 101–250                                                                        | $0                                                                  |
+| Engineering time | Mostly configuration                                                                                                                    | Templates, runtime helpers, publishing, upgrades                    |
+| Enterprise       | Custom                                                                                                                                  | Community support; no vendor                                        |
 
 Yearly billing on Scalar is $125/month for Pro and $500/month for Business. An SDK on Scalar means one language target for one API, so a TypeScript and a Python client for the same API count as two.
 
@@ -248,4 +248,4 @@ Probably, because method names and client shape differ. Treat the switch as a ne
 
 ---
 
-*This comparison is based on OpenAPI Generator's public repository, documentation, and generated samples as of September 2026, and on Scalar's own source and generated output. Generator counts and sample code change between releases. We have made a genuine effort to be accurate and to state where OpenAPI Generator is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on OpenAPI Generator's public repository, documentation, and generated samples as of September 2026, and on Scalar's own source and generated output. Generator counts and sample code change between releases. We have made a genuine effort to be accurate and to state where OpenAPI Generator is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

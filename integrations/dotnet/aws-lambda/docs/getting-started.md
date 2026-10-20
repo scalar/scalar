@@ -100,7 +100,7 @@ options.AddDocument("v1", routePattern: "openapi/v1.json");
 
 ## 5. Stages and route prefixes
 
-When your API Gateway stage is *not* `$default` (e.g. `prod`), `Scalar.Aws.Lambda` auto-detects the stage name and
+When your API Gateway stage is _not_ `$default` (e.g. `prod`), `Scalar.Aws.Lambda` auto-detects the stage name and
 strips it from the relative URLs it renders, so you don't need to configure anything. If you use a custom domain
 base path mapping (which is invisible to the stage name), set `ScalarOptions.RoutePrefix` explicitly:
 

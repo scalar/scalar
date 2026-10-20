@@ -69,20 +69,20 @@ Defined in [theme presets](https://github.com/scalar/scalar/blob/main/packages/t
 
 Defined in [variables.css](https://github.com/scalar/scalar/blob/main/packages/themes/src/base/variables.css)
 
-| Variable               | Description                      |
-| ---------------------- | -------------------------------- |
-| `--scalar-font`        | Default font family              |
-| `--scalar-font-code`   | Monospace/code font family       |
-| `--scalar-radius`      | Default border radius (3px)      |
-| `--scalar-radius-md`   | Default radius, capped (3px)     |
-| `--scalar-radius-lg`   | Large border radius (6px)        |
-| `--scalar-radius-xl`   | Extra large border radius (8px)  |
-| `--scalar-radius-2xl`  | 2x large border radius (12px)    |
-| `--scalar-radius-3xl`  | 3x large border radius (16px)    |
-| `--scalar-radius-full` | Fully rounded pills and circles  |
-| `--scalar-radius-max`  | Ceiling for container corners    |
-| `--scalar-paragraph`   | Paragraph font size (16px)       |
-| `--scalar-small`       | Small text font size (14px)      |
+| Variable               | Description                     |
+| ---------------------- | ------------------------------- |
+| `--scalar-font`        | Default font family             |
+| `--scalar-font-code`   | Monospace/code font family      |
+| `--scalar-radius`      | Default border radius (3px)     |
+| `--scalar-radius-md`   | Default radius, capped (3px)    |
+| `--scalar-radius-lg`   | Large border radius (6px)       |
+| `--scalar-radius-xl`   | Extra large border radius (8px) |
+| `--scalar-radius-2xl`  | 2x large border radius (12px)   |
+| `--scalar-radius-3xl`  | 3x large border radius (16px)   |
+| `--scalar-radius-full` | Fully rounded pills and circles |
+| `--scalar-radius-max`  | Ceiling for container corners   |
+| `--scalar-paragraph`   | Paragraph font size (16px)      |
+| `--scalar-small`       | Small text font size (14px)     |
 
 **Border radius**
 

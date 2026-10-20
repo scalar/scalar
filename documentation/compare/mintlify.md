@@ -1,6 +1,6 @@
 # Scalar vs Mintlify
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Mintlify is the best-known documentation platform in this category, and for good reason. If you are evaluating documentation tooling, they belong on your list.
 
@@ -12,18 +12,18 @@ Mintlify is also well funded: it [raised a $45M Series B in April 2026](https://
 
 ## At a glance
 
-| | Scalar | Mintlify |
-| --- | --- | --- |
-| Docs renderer | MIT, self-hostable on any plan | Closed; self-hosting is Enterprise |
-| Entry paid tier | $150/month ($125/month billed yearly) | $450/month billed annually ($540 billed monthly) |
-| Editor seats | 1 Free, 5 Pro, 10 Business | 5 Starter, unlimited Pro and above |
-| Markdown and MDX | Yes | Yes |
-| Framework integrations | 35+ | None |
-| Standalone API client | Yes, open source | No |
-| SDK generation | Native | None — integrates third parties |
-| Localization | — | 30+ locales |
-| Visual editor | Yes | Yes, on every tier |
-| MCP server | Yes | Yes, on every tier |
+|                        | Scalar                                | Mintlify                                         |
+| ---------------------- | ------------------------------------- | ------------------------------------------------ |
+| Docs renderer          | MIT, self-hostable on any plan        | Closed; self-hosting is Enterprise               |
+| Entry paid tier        | $150/month ($125/month billed yearly) | $450/month billed annually ($540 billed monthly) |
+| Editor seats           | 1 Free, 5 Pro, 10 Business            | 5 Starter, unlimited Pro and above               |
+| Markdown and MDX       | Yes                                   | Yes                                              |
+| Framework integrations | 35+                                   | None                                             |
+| Standalone API client  | Yes, open source                      | No                                               |
+| SDK generation         | Native                                | None — integrates third parties                  |
+| Localization           | —                                     | 30+ locales                                      |
+| Visual editor          | Yes                                   | Yes, on every tier                               |
+| MCP server             | Yes                                   | Yes, on every tier                               |
 
 ## Where Mintlify is stronger
 
@@ -79,15 +79,15 @@ If you are on Stainless today, we have a [migration guide](../migration/stainles
 
 Mintlify is not your only alternative, and the category has moved considerably in the last year.
 
-| | Scalar | Mintlify | Fern | Stainless |
-| --- | --- | --- | --- | --- |
-| Status | Independent | Independent, [Series B April 2026](https://www.mintlify.com/blog/series-b) | [Acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern), Jan 2026 | [Winding down](https://www.stainless.com/blog/stainless-is-joining-anthropic) |
-| Docs renderer | MIT | Closed | Not public | Astro, self-hostable |
-| SDK generation | Native | None | Native, 9 languages | Winding down |
-| Self-hosting | Any plan | Enterprise | Enterprise | Yes |
-| Framework integrations | 35+ | None | None | None |
-| Standalone API client | Yes | No | No | No |
-| Entry paid tier | $150/mo | $450/mo | [Free, then Enterprise (custom)](https://buildwithfern.com/pricing) | Not available |
+|                        | Scalar      | Mintlify                                                                   | Fern                                                                                  | Stainless                                                                     |
+| ---------------------- | ----------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Status                 | Independent | Independent, [Series B April 2026](https://www.mintlify.com/blog/series-b) | [Acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern), Jan 2026 | [Winding down](https://www.stainless.com/blog/stainless-is-joining-anthropic) |
+| Docs renderer          | MIT         | Closed                                                                     | Not public                                                                            | Astro, self-hostable                                                          |
+| SDK generation         | Native      | None                                                                       | Native, 9 languages                                                                   | Winding down                                                                  |
+| Self-hosting           | Any plan    | Enterprise                                                                 | Enterprise                                                                            | Yes                                                                           |
+| Framework integrations | 35+         | None                                                                       | None                                                                                  | None                                                                          |
+| Standalone API client  | Yes         | No                                                                         | No                                                                                    | No                                                                            |
+| Entry paid tier        | $150/mo     | $450/mo                                                                    | [Free, then Enterprise (custom)](https://buildwithfern.com/pricing)                   | Not available                                                                 |
 
 **Fern** was [acquired by Postman](https://buildwithfern.com/post/postman-acquires-fern) in January 2026. They say the product and roadmap are unchanged. Their SDK generators are genuinely Apache-2.0 and their protocol support is broader than ours — AsyncAPI, gRPC, and OpenRPC alongside OpenAPI. Their docs renderer is not public. We compare in more detail on our [Fern page](./fern.md).
 
@@ -99,13 +99,13 @@ The pattern worth noticing: on the two things Scalar treats as core — an open 
 
 ## Pricing
 
-| Plan | Scalar ([pricing](https://scalar.com/pricing)) | Mintlify ([pricing](https://www.mintlify.com/pricing)) |
-| --- | --- | --- |
-| Free | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints | Starter, $0: 5 editor seats, custom domain, API playground, MCP server |
-| Entry paid | Pro, $150/month ($125/month billed yearly): 5 editor seats, 1 SDK, MCP servers | Pro, $450/month billed annually ($540 billed monthly): unlimited editor seats |
-| Mid tier | Business, $600/month ($500/month billed yearly): 10 editor seats, SSO, subpath hosting | — |
-| Top tier | Enterprise, custom | Enterprise, contact us |
-| SDKs | 1 included; additional from $150/month each | Not offered; use a third-party generator |
+| Plan       | Scalar ([pricing](https://scalar.com/pricing))                                         | Mintlify ([pricing](https://www.mintlify.com/pricing))                        |
+| ---------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Free       | $0: 1 editor seat, up to 3 APIs, 1 SDK up to 25 endpoints                              | Starter, $0: 5 editor seats, custom domain, API playground, MCP server        |
+| Entry paid | Pro, $150/month ($125/month billed yearly): 5 editor seats, 1 SDK, MCP servers         | Pro, $450/month billed annually ($540 billed monthly): unlimited editor seats |
+| Mid tier   | Business, $600/month ($500/month billed yearly): 10 editor seats, SSO, subpath hosting | —                                                                             |
+| Top tier   | Enterprise, custom                                                                     | Enterprise, contact us                                                        |
+| SDKs       | 1 included; additional from $150/month each                                            | Not offered; use a third-party generator                                      |
 
 Prices checked on 26 September 2026. For a team of five or fewer editors, Scalar Pro costs less and includes an SDK. For a large writing team, Mintlify's unlimited seats on Pro can come out ahead.
 
@@ -165,4 +165,4 @@ Mintlify. It supports [30+ locales](https://www.mintlify.com/docs/guides/interna
 
 ---
 
-*This comparison is based on Mintlify's publicly available documentation and pricing page as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where Mintlify is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Mintlify's publicly available documentation and pricing page as of September 2026, and on Scalar's own source. Products in this category change quickly. We have made a genuine effort to be accurate and to state where Mintlify is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

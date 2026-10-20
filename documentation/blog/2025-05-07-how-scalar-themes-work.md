@@ -16,7 +16,7 @@ We built **themes** to accomplish exactly this. They aim to make it easy to styl
 
 The simplest way to customize your API reference is to use a pre-built theme. These include options like `moon`, `solarized`, `saturn`, `mars`, and more.
 
-[![Web editor themes](https://substackcdn.com/image/fetch/$s_!Uby5!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc074881c-a279-42ca-9221-460e9029e4bc_2584x1466.png "Web editor themes")](https://substackcdn.com/image/fetch/$s_!Uby5!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc074881c-a279-42ca-9221-460e9029e4bc_2584x1466.png)
+[![Web editor themes](https://substackcdn.com/image/fetch/$s_!Uby5!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc074881c-a279-42ca-9221-460e9029e4bc_2584x1466.png 'Web editor themes')](https://substackcdn.com/image/fetch/$s_!Uby5!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc074881c-a279-42ca-9221-460e9029e4bc_2584x1466.png)
 
 We’ve worked hard to make these options you want to use. For example, we’ve built a custom shadow system to work well in both light and dark modes.
 
@@ -64,11 +64,11 @@ The second part of themes is creating a great developer experience so you actual
 
 All variables:
 
-* Start with `--scalar-`.
-* Are grouped logically by function (color, typography, layout)
-* Clearly separated between light and dark mode
+- Start with `--scalar-`.
+- Are grouped logically by function (color, typography, layout)
+- Clearly separated between light and dark mode
 
-[![Theme variables](https://substackcdn.com/image/fetch/$s_!Aji_!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb390de64-711c-47e5-bb77-e9cc773576dc_1940x934.png "Theme variables")](https://substackcdn.com/image/fetch/$s_!Aji_!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb390de64-711c-47e5-bb77-e9cc773576dc_1940x934.png)
+[![Theme variables](https://substackcdn.com/image/fetch/$s_!Aji_!,w_1456,c_limit,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb390de64-711c-47e5-bb77-e9cc773576dc_1940x934.png 'Theme variables')](https://substackcdn.com/image/fetch/$s_!Aji_!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fb390de64-711c-47e5-bb77-e9cc773576dc_1940x934.png)
 
 Beyond this, we also use a layer system to create conflict-free styling. The first layer is `scalar-base` which contains the core resets that normalize browser default styles and then sets the default styles for Scalar.
 

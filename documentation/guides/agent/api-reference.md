@@ -77,10 +77,10 @@ Only your preloaded APIs are shown; the “+ API” control and “Add context f
 
 The `agent` configuration accepts:
 
-| Property     | Type      | Default     | Description |
-| ------------ | --------- | ----------- | ----------- |
-| `key`        | `string`  | `undefined` | Your Agent key |
-| `disabled`   | `boolean` | `false`     | Enable or disable Agent |
+| Property     | Type      | Default     | Description                                                                  |
+| ------------ | --------- | ----------- | ---------------------------------------------------------------------------- |
+| `key`        | `string`  | `undefined` | Your Agent key                                                               |
+| `disabled`   | `boolean` | `false`     | Enable or disable Agent                                                      |
 | `hideAddApi` | `boolean` | `false`     | Hide the control to add more APIs; only preloaded or registry APIs are shown |
 
 **Per-source configuration** when using multiple sources:

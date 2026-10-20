@@ -8,16 +8,16 @@ Tabs organize content into multiple panels behind a row of clickable headers. Us
 
 ### Tabs
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `default` | `string` | — | Title of the tab that should be active on load. Matched case-insensitively against the `title` of each child. When omitted, the first tab is active. |
+| Prop      | Type     | Default | Description                                                                                                                                          |
+| --------- | -------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `default` | `string` | —       | Title of the tab that should be active on load. Matched case-insensitively against the `title` of each child. When omitted, the first tab is active. |
 
 ### Tab
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `title` | `string` | _required_ | Label shown in the tab header. |
-| `id` | `string` | _auto-generated_ | Unique identifier. Auto-generated from the title when not provided — usually fine to leave out. |
+| Prop    | Type     | Default          | Description                                                                                     |
+| ------- | -------- | ---------------- | ----------------------------------------------------------------------------------------------- |
+| `title` | `string` | _required_       | Label shown in the tab header.                                                                  |
+| `id`    | `string` | _auto-generated_ | Unique identifier. Auto-generated from the title when not provided — usually fine to leave out. |
 
 ## Examples
 
@@ -48,6 +48,7 @@ Each tab can hold rich markdown — headings, lists, links, and emphasis.
       - Automatic versioning on every push
       - Connect a custom domain
     </Tab>
+
   </Tabs>
 </Preview>
 
@@ -62,21 +63,22 @@ Generate beautiful, interactive API reference docs straight from your API docume
 - Full-text search across every endpoint
   </scalar-tab>
   <scalar-tab title="API Client">
-A standalone client for testing and debugging your APIs.
+  A standalone client for testing and debugging your APIs.
 
 - Save and organize requests
 - Environment variables and secrets
 - Works offline as a desktop app
   </scalar-tab>
   <scalar-tab title="Registry">
-Host and version your API documents in one place.
+  Host and version your API documents in one place.
 
 - Share docs with your whole team
 - Automatic versioning on every push
 - Connect a custom domain
   </scalar-tab>
-</scalar-tabs>
-````
+  </scalar-tabs>
+
+`````
 ````mdx MDX
 <Tabs>
   <Tab title="Documentation">
@@ -101,7 +103,8 @@ Host and version your API documents in one place.
     - Connect a custom domain
   </Tab>
 </Tabs>
-````
+`````
+
 </CodeGroup>
 
 ### Default Tab

@@ -483,7 +483,6 @@
   <scalar-icon src="../assets/remote/cdn-031ac82fbf.svg"></scalar-icon>
 </div>
 
-
 <style>
   :root {
     --scalar-text-decoration: underline;

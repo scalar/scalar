@@ -1,6 +1,6 @@
 # Best open-source API clients (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An open-source API client is a tool for building, sending, and saving HTTP requests whose source code is published under an open-source licence, and the strongest options in 2026 are Scalar, Bruno, Hoppscotch, Insomnia, Yaak, HTTPie, and RESTer.
 
@@ -22,15 +22,15 @@ This page is written by Scalar, which makes one of the clients listed. Every lic
 
 Stars are GitHub stars on 26 September 2026.
 
-| Client | Licence | Stars | Platforms | Protocols (from the project's docs) | Collections stored as | Paid tier |
-| --- | --- | --- | --- | --- | --- | --- |
-| Scalar | MIT | 15.7k (monorepo) | Windows, macOS, Linux, browser | REST, with streaming responses | OpenAPI documents | Client is free |
-| Bruno | MIT | 47.2k | Windows, macOS, Linux, CLI | REST, GraphQL, SOAP, gRPC, WebSocket | `.bru` files on disk | [From $6/user/month](https://www.usebruno.com/pricing) |
-| Hoppscotch | MIT | 80.5k | Browser (PWA), desktop, CLI, self-host | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT | Local or cloud workspaces | [$6/user/month](https://hoppscotch.com/pricing) |
-| Insomnia | Apache-2.0 | 40.0k | Windows, macOS, Linux, CLI | REST, GraphQL, WebSockets, SSE, gRPC | Local Vault, Git Sync, or cloud | [From $12/user/month](https://insomnia.rest/pricing) |
-| Yaak | MIT source; commercial use of builds needs a licence | 19.3k | Windows, macOS, Linux | REST, GraphQL, WebSockets, SSE, gRPC | Local | [From $79/year](https://yaak.app/pricing) |
-| HTTPie (CLI) | BSD-3-Clause | 38.6k | Command line | HTTP | Sessions and shell history | Free |
-| RESTer | MIT | 386 | Firefox and Chrome extension | HTTP | Browser storage | Free |
+| Client       | Licence                                              | Stars            | Platforms                              | Protocols (from the project's docs)            | Collections stored as           | Paid tier                                              |
+| ------------ | ---------------------------------------------------- | ---------------- | -------------------------------------- | ---------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
+| Scalar       | MIT                                                  | 15.7k (monorepo) | Windows, macOS, Linux, browser         | REST, with streaming responses                 | OpenAPI documents               | Client is free                                         |
+| Bruno        | MIT                                                  | 47.2k            | Windows, macOS, Linux, CLI             | REST, GraphQL, SOAP, gRPC, WebSocket           | `.bru` files on disk            | [From $6/user/month](https://www.usebruno.com/pricing) |
+| Hoppscotch   | MIT                                                  | 80.5k            | Browser (PWA), desktop, CLI, self-host | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT | Local or cloud workspaces       | [$6/user/month](https://hoppscotch.com/pricing)        |
+| Insomnia     | Apache-2.0                                           | 40.0k            | Windows, macOS, Linux, CLI             | REST, GraphQL, WebSockets, SSE, gRPC           | Local Vault, Git Sync, or cloud | [From $12/user/month](https://insomnia.rest/pricing)   |
+| Yaak         | MIT source; commercial use of builds needs a licence | 19.3k            | Windows, macOS, Linux                  | REST, GraphQL, WebSockets, SSE, gRPC           | Local                           | [From $79/year](https://yaak.app/pricing)              |
+| HTTPie (CLI) | BSD-3-Clause                                         | 38.6k            | Command line                           | HTTP                                           | Sessions and shell history      | Free                                                   |
+| RESTer       | MIT                                                  | 386              | Firefox and Chrome extension           | HTTP                                           | Browser storage                 | Free                                                   |
 
 ## 1. Scalar API Client
 
@@ -178,4 +178,4 @@ Desktop clients run on your machine, so there is nothing to host. For a shared b
 
 ---
 
-*Licences, star counts, and features are taken from each project's GitHub repository, and prices from each vendor's pricing page, as of 26 September 2026, and are linked inline. This page is written by Scalar, which makes one of the clients listed. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Licences, star counts, and features are taken from each project's GitHub repository, and prices from each vendor's pricing page, as of 26 September 2026, and are linked inline. This page is written by Scalar, which makes one of the clients listed. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

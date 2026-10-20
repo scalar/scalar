@@ -4,10 +4,10 @@ The mock server can mock **event-driven APIs** described with an [AsyncAPI 3.1](
 
 ## Supported transports
 
-| Transport | When it is used | Behavior |
-| --- | --- | --- |
-| **WebSocket** (`ws` / `wss`) | Channels whose servers use the `ws`/`wss` protocol (or declare a WebSocket binding). | `receive` operations push a generated message when a client connects; `send` operations echo a generated reply to each inbound frame. |
-| **SSE** (`sse`, or `http`/`https` with a `receive` operation) | One-way, server-push channels over HTTP. | A `GET` on the channel route opens an SSE stream and emits a generated message per `receive` operation. |
+| Transport                                                     | When it is used                                                                      | Behavior                                                                                                                              |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **WebSocket** (`ws` / `wss`)                                  | Channels whose servers use the `ws`/`wss` protocol (or declare a WebSocket binding). | `receive` operations push a generated message when a client connects; `send` operations echo a generated reply to each inbound frame. |
+| **SSE** (`sse`, or `http`/`https` with a `receive` operation) | One-way, server-push channels over HTTP.                                             | A `GET` on the channel route opens an SSE stream and emits a generated message per `receive` operation.                               |
 
 > Brokered protocols such as Kafka, MQTT, and AMQP require external broker infrastructure and are not served in-process. They can be added through the [transports extension point](#adding-custom-transports).
 
@@ -90,13 +90,13 @@ The built-in transports only emit messages for authorized operations. A WebSocke
 
 Supported schemes:
 
-| Scheme | Mock behavior |
-| --- | --- |
-| HTTP Basic | Accepts any well-formed username/password credential. Scheme names are case-insensitive. |
-| HTTP Bearer, OAuth2, OpenID Connect | Requires a non-empty bearer token on the channel request. Token contents and scopes are not validated for channel access. |
-| `httpApiKey` | Requires the named header, query parameter, or cookie. |
-| HTTP Digest | Issues an MD5 challenge with `qop=auth` and checks the response shape, nonce, and request URI. It does not verify a password or track nonce counts. |
-| `X509` | Requires a client certificate verified by the Node HTTPS adapter. |
+| Scheme                              | Mock behavior                                                                                                                                       |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HTTP Basic                          | Accepts any well-formed username/password credential. Scheme names are case-insensitive.                                                            |
+| HTTP Bearer, OAuth2, OpenID Connect | Requires a non-empty bearer token on the channel request. Token contents and scopes are not validated for channel access.                           |
+| `httpApiKey`                        | Requires the named header, query parameter, or cookie.                                                                                              |
+| HTTP Digest                         | Issues an MD5 challenge with `qop=auth` and checks the response shape, nonce, and request URI. It does not verify a password or track nonce counts. |
+| `X509`                              | Requires a client certificate verified by the Node HTTPS adapter.                                                                                   |
 
 OAuth2 schemes register authorization, token, and refresh routes. OpenID Connect schemes also register discovery, JWKS, and UserInfo routes; see [mock identity flows](getting-started.md#openid-connect).
 

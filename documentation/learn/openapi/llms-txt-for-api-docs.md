@@ -1,6 +1,6 @@
 # llms.txt for API documentation: what it does and what it does not
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 llms.txt is a proposed convention for a Markdown file at the root of a website, `/llms.txt`, that gives large language models and AI agents a short, curated index of the site's most useful content, with links to clean Markdown versions of the pages. For API documentation, it is a map an agent can read in one request: what the API is, where the OpenAPI document lives, how authentication works, and which pages to fetch next.
 
@@ -85,15 +85,15 @@ The honest part. Several sources point the same way.
 
 **AI crawlers rarely fetch it.** An [EZY.ai log study](https://www.ezy.ai/research/do-ai-bots-read-llms-txt) tracked verified bot requests across 83 websites for 12 weeks, from April 27 to July 19, 2026, and compared llms.txt fetches with robots.txt fetches:
 
-| Crawler | llms.txt fetches | robots.txt fetches |
-| --- | --- | --- |
-| OpenAI GPTBot | 7 | 3,990 |
-| Anthropic ClaudeBot | 9 | 3,120 |
-| PerplexityBot | 0 | 775 |
-| Googlebot | 67 | 5,125 |
-| Meta's crawler | 193 | 172 |
+| Crawler             | llms.txt fetches | robots.txt fetches |
+| ------------------- | ---------------- | ------------------ |
+| OpenAI GPTBot       | 7                | 3,990              |
+| Anthropic ClaudeBot | 9                | 3,120              |
+| PerplexityBot       | 0                | 775                |
+| Googlebot           | 67               | 5,125              |
+| Meta's crawler      | 193              | 172                |
 
-*Source: EZY.ai, "Do AI bots read llms.txt?", 83 sites, April 27 to July 19, 2026. Checked September 2026.*
+_Source: EZY.ai, "Do AI bots read llms.txt?", 83 sites, April 27 to July 19, 2026. Checked September 2026._
 
 The pattern is clear: the same crawlers that read robots.txt thousands of times read llms.txt a handful of times, with Meta's crawler the one exception in that sample. One study of 83 sites is not the whole web, but nobody has published data showing the opposite.
 
@@ -130,12 +130,12 @@ Leave out marketing pages, pricing tables, blog posts and anything behind a logi
 
 These files sit side by side at the root of a site and are often confused.
 
-| File | Purpose | Standardized? | Main reader |
-| --- | --- | --- | --- |
-| `robots.txt` | Tells crawlers what they may and may not fetch | Yes, RFC 9309 | Every well-behaved crawler |
-| `sitemap.xml` | Lists every indexable URL with update dates | Yes, sitemaps.org protocol | Search engine crawlers |
-| `llms.txt` | Curated Markdown index for language models | No, a community proposal | Agents directed at the site; few crawlers |
-| `/.well-known/api-catalog` | Machine-readable list of a publisher's APIs, with links to their descriptions and docs | Yes, RFC 9727 | API tooling and automated clients |
+| File                       | Purpose                                                                                | Standardized?              | Main reader                               |
+| -------------------------- | -------------------------------------------------------------------------------------- | -------------------------- | ----------------------------------------- |
+| `robots.txt`               | Tells crawlers what they may and may not fetch                                         | Yes, RFC 9309              | Every well-behaved crawler                |
+| `sitemap.xml`              | Lists every indexable URL with update dates                                            | Yes, sitemaps.org protocol | Search engine crawlers                    |
+| `llms.txt`                 | Curated Markdown index for language models                                             | No, a community proposal   | Agents directed at the site; few crawlers |
+| `/.well-known/api-catalog` | Machine-readable list of a publisher's APIs, with links to their descriptions and docs | Yes, RFC 9727              | API tooling and automated clients         |
 
 llms.txt does not replace robots.txt: if you want to control whether AI crawlers can fetch your content, robots.txt is still the mechanism they check. For APIs specifically, `/.well-known/api-catalog` is the standardized way to say "here are my APIs and their OpenAPI documents". It is covered in [what is an API catalog](/learn/openapi/api-catalog).
 

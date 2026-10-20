@@ -177,7 +177,6 @@ legacy XML metadata. References crossing schema resource boundaries are not used
 to infer requiredness. Validate the resulting description with tooling that
 supports its declared dialects and referenced documents.
 
-
 #### Handling an unsuccessful upgrade
 
 Both public upgrade entry points are synchronous. In the default strict mode,

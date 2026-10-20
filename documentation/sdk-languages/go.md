@@ -119,15 +119,15 @@ apiClient := openapiclient.NewAPIClient(configuration)
 resp, r, err := apiClient.PetAPI.GetPetById(context.Background(), petId).Execute()
 ```
 
-| | Scalar Go target | OpenAPI Generator `go` |
-| --- | --- | --- |
-| Construction | `sdk.NewClient(option.With...)` | `NewConfiguration()` then `NewAPIClient(cfg)` |
-| Call shape | `client.Pet.Retrieve(ctx, id)` returning `(*Pet, error)` | `GetPetById(ctx, id).Execute()` returning `(resp, *http.Response, error)` |
-| Auth | Options, with an environment variable default | Values placed on the `context` |
-| Pagination | `AutoPaging` iterators | Not among the generator's documented options |
-| Retries | Built in, honours `Retry-After` | Not among the generator's documented options |
-| Module path | Derived from the repository, or `goModulePathOverride` | `packageName`, default `openapi`, with `isGoSubmodule` for nested modules |
-| Release | Tagging and proxy warm-up generated into your repo | Your own tagging process |
+|              | Scalar Go target                                         | OpenAPI Generator `go`                                                    |
+| ------------ | -------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Construction | `sdk.NewClient(option.With...)`                          | `NewConfiguration()` then `NewAPIClient(cfg)`                             |
+| Call shape   | `client.Pet.Retrieve(ctx, id)` returning `(*Pet, error)` | `GetPetById(ctx, id).Execute()` returning `(resp, *http.Response, error)` |
+| Auth         | Options, with an environment variable default            | Values placed on the `context`                                            |
+| Pagination   | `AutoPaging` iterators                                   | Not among the generator's documented options                              |
+| Retries      | Built in, honours `Retry-After`                          | Not among the generator's documented options                              |
+| Module path  | Derived from the repository, or `goModulePathOverride`   | `packageName`, default `openapi`, with `isGoSubmodule` for nested modules |
+| Release      | Tagging and proxy warm-up generated into your repo       | Your own tagging process                                                  |
 
 If you are weighing open source generators more broadly, see [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -182,4 +182,4 @@ Point the SDK at an exact version of your OpenAPI document or at a semver range 
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/go) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/go) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

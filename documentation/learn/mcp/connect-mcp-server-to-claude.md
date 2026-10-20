@@ -1,6 +1,6 @@
 # How to use MCP with Claude: connect a server to Claude Code, Claude Desktop and claude.ai
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 To use an MCP server with Claude, you give the Claude product you use either the server's URL (for a remote server) or the command that starts it (for a local server): `claude mcp add` in Claude Code, **Customize > Connectors** in claude.ai and the Claude apps, or the `claude_desktop_config.json` file for local servers in Claude Desktop. Once connected, Claude sees the server's tools and can call them during a conversation, asking your permission as it goes.
 
@@ -24,12 +24,12 @@ This guide covers each of those routes step by step, with commands and settings 
 
 MCP servers come in two shapes. A **remote** server runs somewhere else and you connect to it with an HTTPS URL. A **local** server is a program on your computer that the client starts and talks to over standard input and output (stdio). [Remote MCP servers](/learn/mcp/remote-mcp-servers) explains the difference in depth. Which Claude product you use decides which shapes you can add and where the configuration lives.
 
-| Claude product | Remote servers (URL) | Local servers (command) | Where the configuration lives | Sign-in |
-| --- | --- | --- | --- | --- |
-| Claude Code | `claude mcp add --transport http` | `claude mcp add ... -- <command>` | `~/.claude.json` (local and user scope) or `.mcp.json` (project scope) | OAuth via `/mcp` or `claude mcp login`, or headers |
-| claude.ai (web) | Custom connector by URL | Not supported | Your claude.ai account or organization | OAuth, or request headers (beta) |
-| Claude Desktop | Custom connector by URL (same as claude.ai) | `claude_desktop_config.json` or a desktop extension (`.mcpb`) | Account connectors, plus a local config file | OAuth for connectors; environment variables for local servers |
-| Claude mobile apps | Connectors added on your account | Not supported | Your claude.ai account | OAuth |
+| Claude product     | Remote servers (URL)                        | Local servers (command)                                       | Where the configuration lives                                          | Sign-in                                                       |
+| ------------------ | ------------------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Claude Code        | `claude mcp add --transport http`           | `claude mcp add ... -- <command>`                             | `~/.claude.json` (local and user scope) or `.mcp.json` (project scope) | OAuth via `/mcp` or `claude mcp login`, or headers            |
+| claude.ai (web)    | Custom connector by URL                     | Not supported                                                 | Your claude.ai account or organization                                 | OAuth, or request headers (beta)                              |
+| Claude Desktop     | Custom connector by URL (same as claude.ai) | `claude_desktop_config.json` or a desktop extension (`.mcpb`) | Account connectors, plus a local config file                           | OAuth for connectors; environment variables for local servers |
+| Claude mobile apps | Connectors added on your account            | Not supported                                                 | Your claude.ai account                                                 | OAuth                                                         |
 
 Two points from that table catch people out. First, connectors you add in claude.ai follow your account, so they also appear in Claude Desktop and the mobile apps, and in Claude Code when you are signed in with a claude.ai subscription. Second, a remote connector is reached from Anthropic's cloud, not from your laptop, so a server on your private network will not connect as a custom connector. Anthropic's [custom connector guide](https://claude.com/docs/connectors/custom/remote-mcp) says the server must be reachable over the public internet.
 
@@ -286,4 +286,4 @@ Copy the installation URL from the Scalar dashboard, which looks like https://mc
 - **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with Scalar MCP](/products/agent/getting-started)
 - **Product:** [Scalar MCP](/products/agent/mcp) — turn an OpenAPI document into a hosted MCP server you can connect to Claude with one URL
 
-*Commands, menu paths and plan limits were checked against Anthropic's Claude Code, connector and help center documentation on 26 September 2026. Claude's interfaces change often; if a menu name differs, search Anthropic's help center for "custom connectors".*
+_Commands, menu paths and plan limits were checked against Anthropic's Claude Code, connector and help center documentation on 26 September 2026. Claude's interfaces change often; if a menu name differs, search Anthropic's help center for "custom connectors"._

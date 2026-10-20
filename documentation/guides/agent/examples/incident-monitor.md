@@ -98,10 +98,10 @@ Search Jira for new high-priority issues. Post alerts to Discord.
 Current time: ${new Date().toISOString()}`,
     prompt: `Check for new incidents:
 
-1. Search Jira for issues created after ${fifteenMinutesAgo} 
+1. Search Jira for issues created after ${fifteenMinutesAgo}
    with priority = High or Critical.
 
-2. If any are found, post one message per issue to Discord channel ID 
+2. If any are found, post one message per issue to Discord channel ID
    YOUR_CHANNEL_ID in this format:
 
    🚨 [PRIORITY] — [ISSUE KEY]: [SUMMARY]

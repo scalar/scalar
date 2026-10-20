@@ -12,15 +12,15 @@ examples, developer tools, and action buttons.
 API Reference and API Client ship translations for the following locales. Missing keys fall back to
 English (`en`).
 
-* `en` — English
-* `ru` — Russian
-* `es` — Spanish
-* `fr` — French
-* `de` — German
-* `zh-CN` — Simplified Chinese
-* `zh-TW` — Traditional Chinese (Taiwan)
-* `ar` — Arabic (renders right-to-left by default)
-* `pt` — Portuguese
+- `en` — English
+- `ru` — Russian
+- `es` — Spanish
+- `fr` — French
+- `de` — German
+- `zh-CN` — Simplified Chinese
+- `zh-TW` — Traditional Chinese (Taiwan)
+- `ar` — Arabic (renders right-to-left by default)
+- `pt` — Portuguese
 
 ## Configuration
 
@@ -79,7 +79,6 @@ change.
   },
 }
 ```
-
 
 ## API Client
 

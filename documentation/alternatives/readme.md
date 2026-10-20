@@ -1,6 +1,6 @@
 # Best ReadMe alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best ReadMe alternative for most API teams is one that keeps what ReadMe does well, an interactive reference generated from your OpenAPI document, while fixing whatever made you look: price, lock-in, SDKs, or where the docs can live. The one thing almost nobody else replaces is ReadMe's API analytics, so start by deciding how much you use it.
 
@@ -29,15 +29,15 @@ None of the alternatives below match that inside the docs. So before you compare
 
 ## ReadMe alternatives at a glance
 
-| Tool | Hosting | API analytics | SDK generation | Standalone API client | Entry paid price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | Hosted, or self-host the MIT reference | No | Native | Yes, open source | Pro $150/month ([pricing](/pricing)) |
-| **Mintlify** | Hosted; self-host on Enterprise | No | No, integrates third parties | No | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
-| **Fern** | Hosted; self-host on Enterprise | No | Native | No | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing)) |
-| **GitBook** | Hosted | No | No | In-docs "Test it", powered by Scalar | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
-| **Redocly** | Hosted or self-hosted | Respect Monitoring, usage-based | No | No | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
-| **Bump.sh** | Hosted | No | No | No | Basic $50/month ([pricing](https://bump.sh/pricing)) |
-| **Docusaurus** | Self-hosted | No | No | No | Free, MIT |
+| Tool           | Hosting                                | API analytics                   | SDK generation               | Standalone API client                | Entry paid price                                                                          |
+| -------------- | -------------------------------------- | ------------------------------- | ---------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| **Scalar**     | Hosted, or self-host the MIT reference | No                              | Native                       | Yes, open source                     | Pro $150/month ([pricing](/pricing))                                                      |
+| **Mintlify**   | Hosted; self-host on Enterprise        | No                              | No, integrates third parties | No                                   | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing))                |
+| **Fern**       | Hosted; self-host on Enterprise        | No                              | Native                       | No                                   | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing))              |
+| **GitBook**    | Hosted                                 | No                              | No                           | In-docs "Test it", powered by Scalar | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
+| **Redocly**    | Hosted or self-hosted                  | Respect Monitoring, usage-based | No                           | No                                   | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))                           |
+| **Bump.sh**    | Hosted                                 | No                              | No                           | No                                   | Basic $50/month ([pricing](https://bump.sh/pricing))                                      |
+| **Docusaurus** | Self-hosted                            | No                              | No                           | No                                   | Free, MIT                                                                                 |
 
 Prices were checked on each vendor's pricing page on September 26, 2026.
 
@@ -184,4 +184,4 @@ Only through the open-source [`api`](https://api.readme.dev/docs/getting-started
 
 ---
 
-*This page is based on ReadMe's public pricing page, documentation and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on ReadMe's public pricing page, documentation and GitHub repositories, and on the public pages of every other tool listed, as checked on September 26, 2026. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

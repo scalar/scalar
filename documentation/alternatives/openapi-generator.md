@@ -1,6 +1,6 @@
 # Best OpenAPI Generator alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The right OpenAPI Generator alternative depends on one question: are you publishing SDKs for other people to install, or generating a client for an API you call yourself? This guide sorts the options by that job, with sources for every claim.
 
@@ -26,26 +26,26 @@ We make Scalar, which is listed first. For a detailed, code-level head-to-head, 
 
 ## First, pick the job
 
-| If you need to... | Look at | Why |
-| --- | --- | --- |
-| Publish SDKs in several languages to npm, PyPI and others | Scalar, Speakeasy, Fern | Consistent output across languages plus release automation |
-| Generate a TypeScript client for your own front end | openapi-typescript, Hey API, Orval | Lightweight, TypeScript-first, no Java |
-| Generate a Go client or server | oapi-codegen | Idiomatic Go, single binary |
-| Call an API from many languages in-house | Kiota | Free, consistent model, Microsoft-maintained |
-| Generate server stubs in many frameworks | Stay on OpenAPI Generator | Nothing else on this list covers as many server frameworks |
+| If you need to...                                         | Look at                            | Why                                                        |
+| --------------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------- |
+| Publish SDKs in several languages to npm, PyPI and others | Scalar, Speakeasy, Fern            | Consistent output across languages plus release automation |
+| Generate a TypeScript client for your own front end       | openapi-typescript, Hey API, Orval | Lightweight, TypeScript-first, no Java                     |
+| Generate a Go client or server                            | oapi-codegen                       | Idiomatic Go, single binary                                |
+| Call an API from many languages in-house                  | Kiota                              | Free, consistent model, Microsoft-maintained               |
+| Generate server stubs in many frameworks                  | Stay on OpenAPI Generator          | Nothing else on this list covers as many server frameworks |
 
 ## OpenAPI Generator alternatives compared
 
-| Tool | License | Languages | Hosted publishing | Runs on |
-| --- | --- | --- | --- | --- |
-| **Scalar** | Hosted service | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; 6 more experimental | Yes | Scalar dashboard |
-| [Speakeasy](https://github.com/speakeasy-api/openapi-generation) | [AGPL-3.0](https://www.speakeasy.com/blog/partnering-with-google), commercial licence available | 7 SDK languages plus CLI and MCP | Commercial platform | Go binary |
-| [Fern](https://github.com/fern-api/fern) | Apache 2.0 | [TypeScript and Python free; 10 on Enterprise](https://buildwithfern.com/pricing.md) | Yes | CLI + cloud |
-| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) | MIT | C#, Go, Java, PHP, Python, Ruby, TypeScript | No | CLI |
-| [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) | MIT | TypeScript types from OpenAPI 3.0 and 3.1 | No | Node |
-| [Hey API](https://github.com/hey-api/openapi-ts) | MIT | TypeScript, with 20+ plugins | No | Node |
-| [Orval](https://github.com/orval-labs/orval) | MIT | TypeScript clients, hooks and mocks | No | Node |
-| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | Apache 2.0 | Go, OpenAPI 3.0 and 3.1 | No | Go |
+| Tool                                                                   | License                                                                                         | Languages                                                                            | Hosted publishing   | Runs on          |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------- | ---------------- |
+| **Scalar**                                                             | Hosted service                                                                                  | TypeScript, Python, Go, Java, Kotlin, Ruby, CLI GA; 6 more experimental              | Yes                 | Scalar dashboard |
+| [Speakeasy](https://github.com/speakeasy-api/openapi-generation)       | [AGPL-3.0](https://www.speakeasy.com/blog/partnering-with-google), commercial licence available | 7 SDK languages plus CLI and MCP                                                     | Commercial platform | Go binary        |
+| [Fern](https://github.com/fern-api/fern)                               | Apache 2.0                                                                                      | [TypeScript and Python free; 10 on Enterprise](https://buildwithfern.com/pricing.md) | Yes                 | CLI + cloud      |
+| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview)      | MIT                                                                                             | C#, Go, Java, PHP, Python, Ruby, TypeScript                                          | No                  | CLI              |
+| [openapi-typescript](https://github.com/openapi-ts/openapi-typescript) | MIT                                                                                             | TypeScript types from OpenAPI 3.0 and 3.1                                            | No                  | Node             |
+| [Hey API](https://github.com/hey-api/openapi-ts)                       | MIT                                                                                             | TypeScript, with 20+ plugins                                                         | No                  | Node             |
+| [Orval](https://github.com/orval-labs/orval)                           | MIT                                                                                             | TypeScript clients, hooks and mocks                                                  | No                  | Node             |
+| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen)           | Apache 2.0                                                                                      | Go, OpenAPI 3.0 and 3.1                                                              | No                  | Go               |
 
 Licenses from each GitHub repository and vendor page, checked 26 September 2026.
 
@@ -143,4 +143,4 @@ Usually, with some configuration. Most generators derive method names from `oper
 
 ---
 
-*This page is based on the public GitHub repositories, READMEs, documentation and pricing pages of OpenAPI Generator and every other tool listed, as of 26 September 2026. Code generation tools change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on the public GitHub repositories, READMEs, documentation and pricing pages of OpenAPI Generator and every other tool listed, as of 26 September 2026. Code generation tools change quickly. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

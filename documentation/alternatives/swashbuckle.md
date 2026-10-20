@@ -1,6 +1,6 @@
 # Best Swashbuckle alternatives for .NET (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Since .NET 9, ASP.NET Core generates OpenAPI documents itself, so replacing Swashbuckle usually means `Microsoft.AspNetCore.OpenApi` for the document and a separate UI such as Scalar for the documentation page.
 
@@ -24,14 +24,14 @@ Two things happened next, and both matter for your decision.
 
 ## Your options at a glance
 
-| Option | Replaces | License | OpenAPI output | UI | Best for |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar.AspNetCore** | The UI | [MIT](https://github.com/scalar/scalar) | Uses any generator's document | Scalar reference with API client | A modern docs page on any generator |
-| [Microsoft.AspNetCore.OpenApi](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi) | The generator | MIT | 3.1 default in .NET 10, 3.0 | None built in | New projects on .NET 9 and later |
-| [NSwag](https://github.com/RicoSuter/NSwag) | Both, plus clients | MIT | [Swagger 2.0 and OpenAPI 3.0](https://github.com/RicoSuter/NSwag) | Swagger UI or ReDoc | Teams that also generate C# or TypeScript clients |
-| [Swashbuckle SwaggerUI only](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents) | The generator, keeping the UI | MIT | From Microsoft's generator | Swagger UI | Keeping the familiar page, dropping SwaggerGen |
-| [Swashbuckle.AspNetCore.ReDoc](https://github.com/domaindrivendev/Swashbuckle.AspNetCore) | The UI | MIT | Any | Redoc (read-only) | Read-only public references |
-| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview) | Client generation | MIT | Consumes documents | None | Generating typed API clients from your document |
+| Option                                                                                                                   | Replaces                      | License                                 | OpenAPI output                                                    | UI                               | Best for                                          |
+| ------------------------------------------------------------------------------------------------------------------------ | ----------------------------- | --------------------------------------- | ----------------------------------------------------------------- | -------------------------------- | ------------------------------------------------- |
+| **Scalar.AspNetCore**                                                                                                    | The UI                        | [MIT](https://github.com/scalar/scalar) | Uses any generator's document                                     | Scalar reference with API client | A modern docs page on any generator               |
+| [Microsoft.AspNetCore.OpenApi](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/aspnetcore-openapi)    | The generator                 | MIT                                     | 3.1 default in .NET 10, 3.0                                       | None built in                    | New projects on .NET 9 and later                  |
+| [NSwag](https://github.com/RicoSuter/NSwag)                                                                              | Both, plus clients            | MIT                                     | [Swagger 2.0 and OpenAPI 3.0](https://github.com/RicoSuter/NSwag) | Swagger UI or ReDoc              | Teams that also generate C# or TypeScript clients |
+| [Swashbuckle SwaggerUI only](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents) | The generator, keeping the UI | MIT                                     | From Microsoft's generator                                        | Swagger UI                       | Keeping the familiar page, dropping SwaggerGen    |
+| [Swashbuckle.AspNetCore.ReDoc](https://github.com/domaindrivendev/Swashbuckle.AspNetCore)                                | The UI                        | MIT                                     | Any                                                               | Redoc (read-only)                | Read-only public references                       |
+| [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/overview)                                                        | Client generation             | MIT                                     | Consumes documents                                                | None                             | Generating typed API clients from your document   |
 
 Checked against Microsoft Learn and each project's GitHub repository on 26 September 2026.
 
@@ -120,17 +120,17 @@ Some teams used Swashbuckle-era tooling to generate clients as well. Microsoft's
 
 If you customised `UseSwaggerUI`, most settings have a direct equivalent in `MapScalarApiReference`.
 
-| Swashbuckle SwaggerUI | Scalar.AspNetCore |
-| --- | --- |
-| `options.RoutePrefix = "docs"` | `app.MapScalarApiReference("/docs")` |
-| `options.DocumentTitle = "My API"` | `options.WithTitle("My API")` |
-| `options.SwaggerEndpoint(...)` for several versions | `options.AddDocument("v1")`, `options.AddDocument("v2")` |
-| `options.EnablePersistAuthorization()` | `options.EnablePersistentAuthentication()` |
-| `options.OAuthClientId("...")` | `options.AddAuthorizationCodeFlow("OAuth2", flow => flow.ClientId = "...")` |
-| `options.DefaultModelsExpandDepth(-1)` | `options.HideModels()` |
-| `options.DisplayOperationId()` | `options.ShowOperationId()` |
-| `options.SupportedSubmitMethods()` (none) | `options.HideTestRequestButton()` |
-| `options.InjectStylesheet("/custom.css")` | `options.WithCustomCss("...")` |
+| Swashbuckle SwaggerUI                               | Scalar.AspNetCore                                                           |
+| --------------------------------------------------- | --------------------------------------------------------------------------- |
+| `options.RoutePrefix = "docs"`                      | `app.MapScalarApiReference("/docs")`                                        |
+| `options.DocumentTitle = "My API"`                  | `options.WithTitle("My API")`                                               |
+| `options.SwaggerEndpoint(...)` for several versions | `options.AddDocument("v1")`, `options.AddDocument("v2")`                    |
+| `options.EnablePersistAuthorization()`              | `options.EnablePersistentAuthentication()`                                  |
+| `options.OAuthClientId("...")`                      | `options.AddAuthorizationCodeFlow("OAuth2", flow => flow.ClientId = "...")` |
+| `options.DefaultModelsExpandDepth(-1)`              | `options.HideModels()`                                                      |
+| `options.DisplayOperationId()`                      | `options.ShowOperationId()`                                                 |
+| `options.SupportedSubmitMethods()` (none)           | `options.HideTestRequestButton()`                                           |
+| `options.InjectStylesheet("/custom.css")`           | `options.WithCustomCss("...")`                                              |
 
 The full option list is in the [ASP.NET Core integration docs](/products/api-references/integrations/aspnetcore/integration).
 
@@ -175,4 +175,4 @@ Yes. Scalar reads the document from a route pattern, `/openapi/{documentName}.js
 
 ---
 
-*This page is based on Microsoft Learn, the dotnet/aspnetcore announcement on GitHub, and the public repositories and documentation of Swashbuckle, NSwag, Redoc and Kiota, as of 26 September 2026. .NET tooling changes with every release. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Microsoft Learn, the dotnet/aspnetcore announcement on GitHub, and the public repositories and documentation of Swashbuckle, NSwag, Redoc and Kiota, as of 26 September 2026. .NET tooling changes with every release. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

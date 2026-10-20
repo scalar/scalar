@@ -4,13 +4,13 @@
 
 Commands for the CLI itself: help, upgrades, shell completion, and agent context.
 
-| Command | Description |
-| --- | --- |
-| [`scalar readme`](#readme) | Open CLI documentation in your browser |
-| [`scalar readme generate`](#readme-generate) | Generate the CLI README from the command tree |
-| [`scalar upgrade`](#upgrade) | Upgrade the Scalar CLI to the latest version |
-| [`scalar context`](#context) | Print every command, argument, and option as JSON for AI agents |
-| [`scalar completion`](#completion) | Generate shell completion definitions |
+| Command                                      | Description                                                     |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| [`scalar readme`](#readme)                   | Open CLI documentation in your browser                          |
+| [`scalar readme generate`](#readme-generate) | Generate the CLI README from the command tree                   |
+| [`scalar upgrade`](#upgrade)                 | Upgrade the Scalar CLI to the latest version                    |
+| [`scalar context`](#context)                 | Print every command, argument, and option as JSON for AI agents |
+| [`scalar completion`](#completion)           | Generate shell completion definitions                           |
 
 ## readme
 
@@ -30,8 +30,8 @@ scalar readme generate [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                | Description                                        |
+| --------------------- | -------------------------------------------------- |
 | `-o, --output [file]` | Path where the documentation file will be written. |
 
 ## upgrade
@@ -60,6 +60,6 @@ scalar completion [options] <shell>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `shell` | **Required.** Shell to configure. One of `bash`, `zsh`, `fish`. |
+| Argument | Description                                                     |
+| -------- | --------------------------------------------------------------- |
+| `shell`  | **Required.** Shell to configure. One of `bash`, `zsh`, `fish`. |

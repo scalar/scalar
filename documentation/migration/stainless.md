@@ -1,6 +1,6 @@
 # How to migrate from Stainless to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 On May 18, 2026, Stainless [announced they are joining Anthropic](https://www.stainless.com/blog/stainless-is-joining-anthropic) and winding down their hosted products:
 
@@ -25,7 +25,7 @@ There is no intermediate format, no config rewrite, and no re-mapping of your AP
 
 Your OpenAPI document was never the hard part of leaving Stainless. It is yours, it is portable, and every generator reads it.
 
-The hard part is `stainless.yml`. Its `resources` block is where the real design decisions live — which operations become which SDK namespaces, what each method is called, which pagination scheme each list endpoint uses, what your package is named in every language. None of that is expressible in OpenAPI. Regenerate from the specification alone and you get a *different SDK*: new namespaces, new method names, and a breaking change for everyone who installed your package.
+The hard part is `stainless.yml`. Its `resources` block is where the real design decisions live — which operations become which SDK namespaces, what each method is called, which pagination scheme each list endpoint uses, what your package is named in every language. None of that is expressible in OpenAPI. Regenerate from the specification alone and you get a _different SDK_: new namespaces, new method names, and a breaking change for everyone who installed your package.
 
 So Scalar reads `stainless.yml` directly. Resources, methods, sub-resources, models, pagination schemes, and per-language package names all carry across, which means the call sites your users have already written keep working.
 
@@ -156,4 +156,4 @@ Scalar hosts MCP servers generated from your OpenAPI document, with OAuth. They 
 
 ---
 
-*This guide describes Stainless as documented on its own site as of September 26, 2026, including its [announcement](https://www.stainless.com/blog/stainless-is-joining-anthropic) and [docs platform hosting guide](https://www.stainless.com/docs/docs-platform/hosting-and-deploys/). Stainless announced its wind-down in May 2026 and its documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues).*
+_This guide describes Stainless as documented on its own site as of September 26, 2026, including its [announcement](https://www.stainless.com/blog/stainless-is-joining-anthropic) and [docs platform hosting guide](https://www.stainless.com/docs/docs-platform/hosting-and-deploys/). Stainless announced its wind-down in May 2026 and its documentation may change or be withdrawn. If you find something here that is out of date, please [open an issue](https://github.com/scalar/scalar/issues)._

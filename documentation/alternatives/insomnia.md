@@ -1,6 +1,6 @@
 # Best Insomnia alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 If you are looking for an Insomnia alternative, you probably want the same fast desktop client without an account wall and without wondering whether the storage model will change under you again. This page covers six options, starting with Scalar's open-source client, and it is honest about the fact that Insomnia today is in better shape than it was in 2023.
 
@@ -20,14 +20,14 @@ Kong responded quickly. On [October 3, 2023 it announced](https://github.com/Kon
 
 Here is the current picture, from Kong's own docs and pricing:
 
-| | Insomnia today |
-| --- | --- |
-| Without an account | [Scratch Pad](https://developer.konghq.com/insomnia/storage/), stored locally |
-| With a free account | Local Vault (100% local), Cloud Sync (optionally end-to-end encrypted), Git Sync |
-| Free collaboration | [Cloud for unlimited users; Git Sync for up to 3 users](https://insomnia.rest/pricing) |
-| Paid plans | [Pro $12, Enterprise $45 per user per month](https://insomnia.rest/pricing) |
-| License | [Apache-2.0](https://github.com/Kong/insomnia) |
-| Recent additions | Vault integrations, per-project Git sync and multi-tabs in [Insomnia 11](https://konghq.com/blog/product-releases/insomnia-11); an MCP client and AI mock generation in [Insomnia 12](https://konghq.com/blog/product-releases/kong-insomnia-12) |
+|                     | Insomnia today                                                                                                                                                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Without an account  | [Scratch Pad](https://developer.konghq.com/insomnia/storage/), stored locally                                                                                                                                                                    |
+| With a free account | Local Vault (100% local), Cloud Sync (optionally end-to-end encrypted), Git Sync                                                                                                                                                                 |
+| Free collaboration  | [Cloud for unlimited users; Git Sync for up to 3 users](https://insomnia.rest/pricing)                                                                                                                                                           |
+| Paid plans          | [Pro $12, Enterprise $45 per user per month](https://insomnia.rest/pricing)                                                                                                                                                                      |
+| License             | [Apache-2.0](https://github.com/Kong/insomnia)                                                                                                                                                                                                   |
+| Recent additions    | Vault integrations, per-project Git sync and multi-tabs in [Insomnia 11](https://konghq.com/blog/product-releases/insomnia-11); an MCP client and AI mock generation in [Insomnia 12](https://konghq.com/blog/product-releases/kong-insomnia-12) |
 
 So the remaining reasons people leave are narrower than in 2023:
 
@@ -38,14 +38,14 @@ So the remaining reasons people leave are narrower than in 2023:
 
 ## Insomnia alternatives at a glance
 
-| Tool | License | Account needed | Where your work lives | OpenAPI role | Protocols today | Paid from |
-| --- | --- | --- | --- | --- | --- | --- |
-| **Scalar** | MIT | No | On your machine | The collection format | HTTP (gRPC, GraphQL, WebSocket, SOAP coming soon) | Client free on every plan ([pricing](/pricing)) |
-| **Bruno** | [MIT](https://github.com/usebruno/bruno) | [No](https://www.usebruno.com/) | Plain-text files in your repo | [Import and sync](https://docs.usebruno.com/open-api/openapi-sync.md) | REST, GraphQL, gRPC, WebSocket | [$6/user/month, annual](https://www.usebruno.com/pricing) |
-| **Yaak** | [MIT](https://github.com/mountain-loop/yaak) | [No](https://yaak.app/pricing) | On your device, [mirrorable to files](https://github.com/mountain-loop/yaak) | Import | REST, GraphQL, WebSockets, SSE, gRPC | [$79/year for work use](https://yaak.app/pricing) |
-| **Hoppscotch** | [MIT](https://github.com/hoppscotch/hoppscotch) | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md) | Hoppscotch cloud or self-hosted | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT | [$6/user/month, annual](https://hoppscotch.com/pricing) |
-| **Postman** | Closed source | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | Postman cloud, or [Git on desktop](https://learning.postman.com/docs/use/native-git/overview) | Import | HTTP, GraphQL, gRPC, WebSocket, MQTT, MCP | [$9/month Solo](https://www.postman.com/pricing/) |
-| **VS Code REST Client** | [MIT](https://github.com/Huachao/vscode-restclient) | No | `.http` files in your repo | None | HTTP, GraphQL | Free |
+| Tool                    | License                                             | Account needed                                                                             | Where your work lives                                                                         | OpenAPI role                                                            | Protocols today                                   | Paid from                                                 |
+| ----------------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| **Scalar**              | MIT                                                 | No                                                                                         | On your machine                                                                               | The collection format                                                   | HTTP (gRPC, GraphQL, WebSocket, SOAP coming soon) | Client free on every plan ([pricing](/pricing))           |
+| **Bruno**               | [MIT](https://github.com/usebruno/bruno)            | [No](https://www.usebruno.com/)                                                            | Plain-text files in your repo                                                                 | [Import and sync](https://docs.usebruno.com/open-api/openapi-sync.md)   | REST, GraphQL, gRPC, WebSocket                    | [$6/user/month, annual](https://www.usebruno.com/pricing) |
+| **Yaak**                | [MIT](https://github.com/mountain-loop/yaak)        | [No](https://yaak.app/pricing)                                                             | On your device, [mirrorable to files](https://github.com/mountain-loop/yaak)                  | Import                                                                  | REST, GraphQL, WebSockets, SSE, gRPC              | [$79/year for work use](https://yaak.app/pricing)         |
+| **Hoppscotch**          | [MIT](https://github.com/hoppscotch/hoppscotch)     | [For workspaces](https://docs.hoppscotch.io/documentation/features/workspaces.md)          | Hoppscotch cloud or self-hosted                                                               | [Import](https://docs.hoppscotch.io/documentation/features/importer.md) | REST, GraphQL, WebSocket, SSE, Socket.IO, MQTT    | [$6/user/month, annual](https://hoppscotch.com/pricing)   |
+| **Postman**             | Closed source                                       | [For collections](https://blog.postman.com/announcing-new-lightweight-postman-api-client/) | Postman cloud, or [Git on desktop](https://learning.postman.com/docs/use/native-git/overview) | Import                                                                  | HTTP, GraphQL, gRPC, WebSocket, MQTT, MCP         | [$9/month Solo](https://www.postman.com/pricing/)         |
+| **VS Code REST Client** | [MIT](https://github.com/Huachao/vscode-restclient) | No                                                                                         | `.http` files in your repo                                                                    | None                                                                    | HTTP, GraphQL                                     | Free                                                      |
 
 ## The options, one by one
 
@@ -143,4 +143,4 @@ Not directly. Scalar imports OpenAPI 3.x, Swagger 2.0, Postman Collections v2.0 
 
 ---
 
-*This page is based on Kong's Insomnia documentation, pricing page, blog and GitHub discussions, and on the public pages of every other tool listed, as checked on September 26, 2026. Insomnia ships frequently and its plans may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Kong's Insomnia documentation, pricing page, blog and GitHub discussions, and on the public pages of every other tool listed, as checked on September 26, 2026. Insomnia ships frequently and its plans may change. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -69,23 +69,23 @@ The `url` can be either a local pathname such as `/openapi.json` or a full URL s
 
 When you use `OpenAPIConfig.ui`, Spry supports these options on `Scalar(...)`:
 
-| Field | Type | Description |
-|---|---|---|
-| `route` | `String` | The route where Spry serves the Scalar page |
-| `title` | `String?` | The page `<title>` override |
-| `theme` | `String?` | A Scalar theme such as `default`, `moon`, `purple`, or `solarized` |
-| `layout` | `String?` | The Scalar layout, such as `modern` or `classic` |
+| Field    | Type      | Description                                                        |
+| -------- | --------- | ------------------------------------------------------------------ |
+| `route`  | `String`  | The route where Spry serves the Scalar page                        |
+| `title`  | `String?` | The page `<title>` override                                        |
+| `theme`  | `String?` | A Scalar theme such as `default`, `moon`, `purple`, or `solarized` |
+| `layout` | `String?` | The Scalar layout, such as `modern` or `classic`                   |
 
 ## Manual handler options
 
 When you use `defineScalarHandler(...)`, Spry forwards the key Scalar page options directly:
 
-| Field | Type | Description |
-|---|---|---|
-| `url` | `String` | A local pathname or full OpenAPI document URL |
-| `title` | `String` | The page `<title>` |
-| `theme` | `String?` | A Scalar theme such as `default`, `moon`, `purple`, or `solarized` |
-| `layout` | `String?` | The Scalar layout, such as `modern` or `classic` |
+| Field    | Type      | Description                                                        |
+| -------- | --------- | ------------------------------------------------------------------ |
+| `url`    | `String`  | A local pathname or full OpenAPI document URL                      |
+| `title`  | `String`  | The page `<title>`                                                 |
+| `theme`  | `String?` | A Scalar theme such as `default`, `moon`, `purple`, or `solarized` |
+| `layout` | `String?` | The Scalar layout, such as `modern` or `classic`                   |
 
 ---
 

@@ -1,6 +1,6 @@
 # Learn SDKs
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 SDKs are the client libraries that let developers call an API in their own language, and this hub collects Scalar's guides to what they are, when they are worth it, and how to generate them from an OpenAPI document. The articles are written for two readers: developers deciding whether to use an SDK or the raw API, and API teams deciding how to give their users one.
 

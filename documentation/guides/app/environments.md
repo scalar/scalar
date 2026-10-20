@@ -34,12 +34,12 @@ Workspace and collection environments are merged at request time, so a collectio
 
 Scalar supports four variable scopes, matching the Postman model:
 
-| Scope | Where it lives | Lifetime |
-| --- | --- | --- |
-| Local | A single request execution | Cleared after the request runs |
-| Environment | The active environment | Persists with the collection or workspace |
-| Collection | The current collection | Shared by all requests in the collection |
-| Global | The workspace | Available everywhere |
+| Scope       | Where it lives             | Lifetime                                  |
+| ----------- | -------------------------- | ----------------------------------------- |
+| Local       | A single request execution | Cleared after the request runs            |
+| Environment | The active environment     | Persists with the collection or workspace |
+| Collection  | The current collection     | Shared by all requests in the collection  |
+| Global      | The workspace              | Available everywhere                      |
 
 When the same variable name is set at multiple scopes, local wins over environment, then collection, then global. See [Testing](./testing.md#variables) for the precedence details used by scripts.
 

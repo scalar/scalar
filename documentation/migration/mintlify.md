@@ -1,6 +1,6 @@
 # How to migrate from Mintlify to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Moving from Mintlify to Scalar means translating one config file, renaming a handful of MDX components, and pointing your OpenAPI document at a new route. Your Markdown stays Markdown, your OpenAPI document stays as it is, and most teams spend their time on the component pass rather than anything structural.
 
@@ -19,22 +19,22 @@ Nothing here needs a proprietary export format. Mintlify content is MDX in a Git
 
 ## What maps to what
 
-| Mintlify | Scalar | Notes |
-| --- | --- | --- |
-| `docs.json` (formerly `mint.json`) | `scalar.config.json` | One file at the repository root in both cases |
-| `name` | `info.title` | |
-| `navigation` tabs, groups, pages | `navigation.tabs` and `navigation.routes` | Scalar keys every route by its URL path and points it at a file |
-| `"pages": ["quickstart"]` | `"filepath": "docs/quickstart.mdx"` | Scalar uses the full file path, extension included |
-| `openapi` on a tab or group | A route with `"type": "openapi"` | Generates one page per operation |
-| `"GET /users"` page references | The generated reference | Scalar renders every operation; hide ones you do not want with `x-scalar-ignore` |
-| `logo`, `favicon` | `siteConfig.logo`, `siteConfig.head.links` | |
-| `theme`, `colors` | `siteConfig.theme` plus custom CSS | Scalar ships named themes; brand colours go in a stylesheet |
-| `redirects` (`source`, `destination`) | `siteConfig.routing.redirects` (`from`, `to`) | Wildcard syntax differs, see step 5 |
-| `integrations` (analytics) | `siteConfig.head.scripts` | You add the provider's snippet yourself |
-| `seo.metatags` | `siteConfig.head.meta` | |
-| `versions` | `versions` | |
-| `languages` | No equivalent | Localization is a real gap on Scalar's side |
-| Assistant, `/mcp`, `llms.txt` | Ask AI, `/mcp`, `llms.txt` | All three are on by default in Scalar Docs |
+| Mintlify                              | Scalar                                        | Notes                                                                            |
+| ------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------- |
+| `docs.json` (formerly `mint.json`)    | `scalar.config.json`                          | One file at the repository root in both cases                                    |
+| `name`                                | `info.title`                                  |                                                                                  |
+| `navigation` tabs, groups, pages      | `navigation.tabs` and `navigation.routes`     | Scalar keys every route by its URL path and points it at a file                  |
+| `"pages": ["quickstart"]`             | `"filepath": "docs/quickstart.mdx"`           | Scalar uses the full file path, extension included                               |
+| `openapi` on a tab or group           | A route with `"type": "openapi"`              | Generates one page per operation                                                 |
+| `"GET /users"` page references        | The generated reference                       | Scalar renders every operation; hide ones you do not want with `x-scalar-ignore` |
+| `logo`, `favicon`                     | `siteConfig.logo`, `siteConfig.head.links`    |                                                                                  |
+| `theme`, `colors`                     | `siteConfig.theme` plus custom CSS            | Scalar ships named themes; brand colours go in a stylesheet                      |
+| `redirects` (`source`, `destination`) | `siteConfig.routing.redirects` (`from`, `to`) | Wildcard syntax differs, see step 5                                              |
+| `integrations` (analytics)            | `siteConfig.head.scripts`                     | You add the provider's snippet yourself                                          |
+| `seo.metatags`                        | `siteConfig.head.meta`                        |                                                                                  |
+| `versions`                            | `versions`                                    |                                                                                  |
+| `languages`                           | No equivalent                                 | Localization is a real gap on Scalar's side                                      |
+| Assistant, `/mcp`, `llms.txt`         | Ask AI, `/mcp`, `llms.txt`                    | All three are on by default in Scalar Docs                                       |
 
 The Mintlify column reflects its [global settings](https://www.mintlify.com/docs/organize/settings), [navigation](https://www.mintlify.com/docs/organize/navigation), and [redirects](https://www.mintlify.com/docs/create/redirects) documentation as of September 2026.
 
@@ -152,25 +152,25 @@ Validate the result with `npx @scalar/cli project check-config`. [Navigation](/p
 
 This is the part to budget time for. Scalar Docs supports [MDX](/products/docs/content/mdx), and several Mintlify names already work in Scalar's MDX as aliases: `<Accordion>` renders as a [Detail](/products/docs/components/details), and `<Columns>` and `<CardGroup>` render as a [Row](/products/docs/components/row). The rest need a find and replace.
 
-| Mintlify component | Scalar component | What to change |
-| --- | --- | --- |
-| `<Note>`, `<Info>` | `<Callout type="info">` | Rename the tag |
-| `<Tip>`, `<Check>` | `<Callout type="success">` | Rename the tag |
-| `<Warning>` | `<Callout type="warning">` | Rename the tag |
-| `<Danger>` | `<Callout type="danger">` | Rename the tag |
-| `<Callout>` | `<Callout>` | Check the `icon` value |
-| `<Card>` | [`<Card>`](/products/docs/components/cards) | `title`, `icon`, and `href` carry across |
-| `<CardGroup>`, `<Columns>` | `<Grid>` (or keep the alias) | Grid is the recommended layout component |
-| `<Steps>`, `<Step>` | [`<Steps>`, `<Step>`](/products/docs/components/steps) | Same shape |
-| `<Tabs>`, `<Tab>` | [`<Tabs>`, `<Tab>`](/products/docs/components/tabs) | Same shape |
-| `<CodeGroup>` | `<Tabs>` with a code block in each `<Tab>` | |
-| `<Accordion>`, `<AccordionGroup>`, `<Expandable>` | [`<Detail>`](/products/docs/components/details) | `<Accordion>` works as is; drop the group wrapper |
-| `<Frame>` | [`<Image>`](/products/docs/components/images) | Use `caption` for the frame caption |
-| `<Icon>` | [`<Icon>`](/products/docs/components/icons) | Scalar uses Phosphor and Simple Icons keys, so check each name |
-| `<ParamField>`, `<ResponseField>` | No direct equivalent | Document parameters in OpenAPI and let the reference render them |
-| `<RequestExample>`, `<ResponseExample>` | No direct equivalent | Use `x-codeSamples` and response `examples` in OpenAPI |
-| `<Mermaid>` | No equivalent today | Render the diagram to SVG and use `<Image>` |
-| `<Tooltip>`, `<Badge>`, `<Banner>`, `<Tree>`, `<Color>`, `<Update>`, `<Prompt>`, `<View>` | No equivalent today | Rewrite as prose, a table, or a callout |
+| Mintlify component                                                                        | Scalar component                                       | What to change                                                   |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------- |
+| `<Note>`, `<Info>`                                                                        | `<Callout type="info">`                                | Rename the tag                                                   |
+| `<Tip>`, `<Check>`                                                                        | `<Callout type="success">`                             | Rename the tag                                                   |
+| `<Warning>`                                                                               | `<Callout type="warning">`                             | Rename the tag                                                   |
+| `<Danger>`                                                                                | `<Callout type="danger">`                              | Rename the tag                                                   |
+| `<Callout>`                                                                               | `<Callout>`                                            | Check the `icon` value                                           |
+| `<Card>`                                                                                  | [`<Card>`](/products/docs/components/cards)            | `title`, `icon`, and `href` carry across                         |
+| `<CardGroup>`, `<Columns>`                                                                | `<Grid>` (or keep the alias)                           | Grid is the recommended layout component                         |
+| `<Steps>`, `<Step>`                                                                       | [`<Steps>`, `<Step>`](/products/docs/components/steps) | Same shape                                                       |
+| `<Tabs>`, `<Tab>`                                                                         | [`<Tabs>`, `<Tab>`](/products/docs/components/tabs)    | Same shape                                                       |
+| `<CodeGroup>`                                                                             | `<Tabs>` with a code block in each `<Tab>`             |                                                                  |
+| `<Accordion>`, `<AccordionGroup>`, `<Expandable>`                                         | [`<Detail>`](/products/docs/components/details)        | `<Accordion>` works as is; drop the group wrapper                |
+| `<Frame>`                                                                                 | [`<Image>`](/products/docs/components/images)          | Use `caption` for the frame caption                              |
+| `<Icon>`                                                                                  | [`<Icon>`](/products/docs/components/icons)            | Scalar uses Phosphor and Simple Icons keys, so check each name   |
+| `<ParamField>`, `<ResponseField>`                                                         | No direct equivalent                                   | Document parameters in OpenAPI and let the reference render them |
+| `<RequestExample>`, `<ResponseExample>`                                                   | No direct equivalent                                   | Use `x-codeSamples` and response `examples` in OpenAPI           |
+| `<Mermaid>`                                                                               | No equivalent today                                    | Render the diagram to SVG and use `<Image>`                      |
+| `<Tooltip>`, `<Badge>`, `<Banner>`, `<Tree>`, `<Color>`, `<Update>`, `<Prompt>`, `<View>` | No equivalent today                                    | Rewrite as prose, a table, or a callout                          |
 
 The Mintlify column comes from its [components overview](https://www.mintlify.com/docs/components) and [callouts page](https://www.mintlify.com/docs/components/callouts) as of September 2026. Custom React components you wrote for Mintlify will not carry across as they are. Scalar MDX supports JSX, expressions, and importing other MDX files, and you can add site-wide [HTML, CSS, and JavaScript](/products/docs/content/html-css-js), so most of them can be rebuilt, but plan for it.
 
@@ -187,15 +187,15 @@ Your OpenAPI document does not change. Add it as a route, as in step 2, and Scal
 
 Mintlify reads a few of its own OpenAPI extensions, [documented here](https://www.mintlify.com/docs/api-playground/openapi-setup). They are harmless to leave in the file, but they do nothing in Scalar:
 
-| Mintlify extension | In Scalar |
-| --- | --- |
-| `x-hidden` | [`x-scalar-ignore`](/products/api-references/openapi) (or `x-internal`) |
-| `x-mint.metadata.title` | The operation `summary` |
-| `x-mint.content` | Move the Markdown into the operation `description` |
-| `x-mint.href` | No equivalent; add a redirect for the old URL instead |
-| `x-group` on tags | [`x-displayName`](/products/api-references/openapi) |
-| `x-default` on security schemes | Prefill credentials with `authentication` in the route's `config` |
-| `x-codeSamples` | Read as is |
+| Mintlify extension              | In Scalar                                                               |
+| ------------------------------- | ----------------------------------------------------------------------- |
+| `x-hidden`                      | [`x-scalar-ignore`](/products/api-references/openapi) (or `x-internal`) |
+| `x-mint.metadata.title`         | The operation `summary`                                                 |
+| `x-mint.content`                | Move the Markdown into the operation `description`                      |
+| `x-mint.href`                   | No equivalent; add a redirect for the old URL instead                   |
+| `x-group` on tags               | [`x-displayName`](/products/api-references/openapi)                     |
+| `x-default` on security schemes | Prefill credentials with `authentication` in the route's `config`       |
+| `x-codeSamples`                 | Read as is                                                              |
 
 To prefill credentials, which is what `x-default` did, pass [API reference configuration](/products/api-references/configuration) on the route:
 
@@ -315,4 +315,4 @@ Yes. Every Scalar Docs site has Ask AI, a docs MCP server at `/mcp`, and generat
 
 ---
 
-*Mintlify details on this page come from its own documentation ([settings](https://www.mintlify.com/docs/organize/settings), [navigation](https://www.mintlify.com/docs/organize/navigation), [redirects](https://www.mintlify.com/docs/create/redirects), [components](https://www.mintlify.com/docs/components), [OpenAPI setup](https://www.mintlify.com/docs/api-playground/openapi-setup), [analytics](https://www.mintlify.com/docs/integrations/analytics/overview), [assistant](https://www.mintlify.com/docs/ai/assistant), [MCP](https://www.mintlify.com/docs/ai/model-context-protocol), [GitHub](https://www.mintlify.com/docs/deploy/github), and [custom domains](https://www.mintlify.com/docs/customize/custom-domain)) and [pricing page](https://www.mintlify.com/pricing), as checked on September 26, 2026. Mintlify ships often and its configuration may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Mintlify details on this page come from its own documentation ([settings](https://www.mintlify.com/docs/organize/settings), [navigation](https://www.mintlify.com/docs/organize/navigation), [redirects](https://www.mintlify.com/docs/create/redirects), [components](https://www.mintlify.com/docs/components), [OpenAPI setup](https://www.mintlify.com/docs/api-playground/openapi-setup), [analytics](https://www.mintlify.com/docs/integrations/analytics/overview), [assistant](https://www.mintlify.com/docs/ai/assistant), [MCP](https://www.mintlify.com/docs/ai/model-context-protocol), [GitHub](https://www.mintlify.com/docs/deploy/github), and [custom domains](https://www.mintlify.com/docs/customize/custom-domain)) and [pricing page](https://www.mintlify.com/pricing), as checked on September 26, 2026. Mintlify ships often and its configuration may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

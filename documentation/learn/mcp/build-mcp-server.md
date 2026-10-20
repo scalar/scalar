@@ -1,6 +1,6 @@
 # How to build an MCP server (TypeScript and Python)
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 To build an MCP server, you write a small program that registers one or more tools, each with a name, a description, and a JSON Schema for its inputs, and then connect that program to a transport: stdio for a server that runs on the user's machine, or Streamable HTTP for a server other people reach over the network. The official SDKs for [TypeScript](https://github.com/modelcontextprotocol/typescript-sdk) and [Python](https://github.com/modelcontextprotocol/python-sdk) handle the protocol, so a working server is about 40 lines. If your tools wrap an API you already describe with OpenAPI, you can skip most of the code and generate or host the server instead.
 
@@ -28,14 +28,14 @@ An MCP server is a program that exposes tools, resources, and prompts to AI appl
 
 There are three ways to end up with an MCP server. They differ in how much code you own and where the server runs.
 
-| | Write it with the official SDK | Generate it from OpenAPI | Use a hosted server |
-| --- | --- | --- | --- |
-| **What you do** | Write each tool by hand | Point a generator or runtime library at your OpenAPI document | Upload your OpenAPI document and pick the operations to expose |
-| **What you get** | A program you run and deploy | A generated project or a runtime proxy you run and deploy | A URL |
-| **Control over tool design** | Total | Through config, extensions, or editing generated code | Through a dashboard |
-| **Where it runs** | Anywhere: your laptop, a container, a serverless function | Anywhere you deploy it | The vendor's infrastructure |
-| **Best for** | A small, curated set of tools, or tools with their own logic | Teams that must run the server inside their own network | Teams that want a working server without deploying anything |
-| **This guide** | The rest of this page | [Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi) | [Hosted MCP servers on Scalar](/products/agent/mcp) |
+|                              | Write it with the official SDK                               | Generate it from OpenAPI                                                           | Use a hosted server                                            |
+| ---------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **What you do**              | Write each tool by hand                                      | Point a generator or runtime library at your OpenAPI document                      | Upload your OpenAPI document and pick the operations to expose |
+| **What you get**             | A program you run and deploy                                 | A generated project or a runtime proxy you run and deploy                          | A URL                                                          |
+| **Control over tool design** | Total                                                        | Through config, extensions, or editing generated code                              | Through a dashboard                                            |
+| **Where it runs**            | Anywhere: your laptop, a container, a serverless function    | Anywhere you deploy it                                                             | The vendor's infrastructure                                    |
+| **Best for**                 | A small, curated set of tools, or tools with their own logic | Teams that must run the server inside their own network                            | Teams that want a working server without deploying anything    |
+| **This guide**               | The rest of this page                                        | [Generate an MCP server from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi) | [Hosted MCP servers on Scalar](/products/agent/mcp)            |
 
 Write it yourself when the tools do real work: combining several API calls, reading local files, or enforcing rules a generator cannot know about. Generate or host it when every tool is a thin wrapper over an HTTP operation you already document.
 
@@ -357,4 +357,4 @@ As few as the tasks require. Tens of tools are fine; hundreds hurt tool selectio
 
 ---
 
-*The code on this page was run on 7 October 2026 with @modelcontextprotocol/server 2.3.1, @modelcontextprotocol/client 2.3.1 and zod 4.6.5 on Node.js 24.21.0, and with mcp 2.3.0 on Python 3.11.9 under uv 0.8.15, against MCP specification revision 2026-07-28. Client configuration formats were checked against each vendor's documentation the same day. Scalar wrote this guide and hosts MCP servers, so read the hosted-option section with that in mind. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues).*
+_The code on this page was run on 7 October 2026 with @modelcontextprotocol/server 2.3.1, @modelcontextprotocol/client 2.3.1 and zod 4.6.5 on Node.js 24.21.0, and with mcp 2.3.0 on Python 3.11.9 under uv 0.8.15, against MCP specification revision 2026-07-28. Client configuration formats were checked against each vendor's documentation the same day. Scalar wrote this guide and hosts MCP servers, so read the hosted-option section with that in mind. If something is wrong or out of date, [open an issue](https://github.com/scalar/scalar/issues)._

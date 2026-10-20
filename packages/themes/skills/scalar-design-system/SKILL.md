@@ -58,6 +58,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 | `--scalar-background-accent` | `#8ab4f81f` | `#3ea6ff1f` | Tinted accent fill |
 
 **Borders & shadows**
+
 - `--scalar-border-color` — `#dfdfdf` (light) / `#2d2d2d` (dark); `--scalar-border-width` — `0.5px`.
 - `--scalar-shadow-1` (subtle), `--scalar-shadow-2` (lifted).
 
@@ -66,6 +67,7 @@ Reference `--scalar-*` variables in CSS; in components, prefer the Tailwind clas
 **Radii:** `--scalar-radius` `3px`, `--scalar-radius-md` `3px`, `--scalar-radius-lg` `6px`, `--scalar-radius-xl` `8px`, `--scalar-radius-2xl` `12px`, `--scalar-radius-3xl` `16px`, `--scalar-radius-full` pill. All derive from `--scalar-radius`, so overriding it on `:root` rescales every corner, and `0` makes the interface square. Everything except `-full` clamps to `--scalar-radius-max` (`20px`) so a large radius cannot swallow a container's content. Reach for `--scalar-radius-md` rather than `--scalar-radius` on anything that holds content.
 
 **Typography**
+
 - Content sizes: heading-1 `24px`, heading-2 `20px`, heading-3–6 `16px`, paragraph `16px`, small `14px`, mini `13px`, micro `12px`.
 - UI app sizes: `--scalar-font-size-1…7` = `21, 16, 14, 13, 12, 12, 10` px.
 - Line heights: `--scalar-line-height-1…5` = `32, 24, 20, 18, 16` px.

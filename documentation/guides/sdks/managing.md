@@ -62,7 +62,7 @@ The dashboard keeps a version history of the SDK as it is built and served from 
 - **Active version**: set which version is live in the registry. Consumers and code samples resolve against the active version.
 - **Discard a draft**: delete an unbuilt draft without generating it.
 
-The SDK version here controls what the dashboard builds and serves from the Scalar registry. It does not set the version a *package* registry receives. That version is computed by release-please from the commit history of your SDK repository, and the way to set it exactly is to edit the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
+The SDK version here controls what the dashboard builds and serves from the Scalar registry. It does not set the version a _package_ registry receives. That version is computed by release-please from the commit history of your SDK repository, and the way to set it exactly is to edit the release pull request title. See [Publishing](publishing/overview.md#versioning-and-releases).
 
 ## Downloading an SDK
 

@@ -67,15 +67,15 @@ dependencies {
 
 OpenAPI Generator's [`kotlin` generator](https://openapi-generator.tech/docs/generators/kotlin) is stable and very flexible. Its `library` option covers `jvm-okhttp4` (the default), `jvm-ktor`, `jvm-retrofit2`, `jvm-spring-webclient`, `jvm-spring-restclient`, `jvm-volley`, `jvm-vertx`, and `multiplatform`. It serialises with Moshi by default and also supports Gson, Jackson, and `kotlinx_serialization`. The `useCoroutines` option applies to the Retrofit library. If you need Kotlin Multiplatform output or a Ktor client today, OpenAPI Generator is the better choice, and we would say so.
 
-| | Scalar Kotlin target | OpenAPI Generator `kotlin` |
-| --- | --- | --- |
-| Status | Generally available | Stable |
-| HTTP stack | One generated client | Eight library options, including Ktor and Multiplatform |
-| Serialisation | Chosen by the generator | Moshi (default), Gson, Jackson, or kotlinx.serialization |
-| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
-| Pagination | `autoPager()` | Not among the generator's documented options |
-| Maven Central release | Signed Gradle publish generated into your repo | Build files generated; release process is yours |
-| Same config drives other languages | Yes | Separate generator run per language |
+|                                    | Scalar Kotlin target                           | OpenAPI Generator `kotlin`                               |
+| ---------------------------------- | ---------------------------------------------- | -------------------------------------------------------- |
+| Status                             | Generally available                            | Stable                                                   |
+| HTTP stack                         | One generated client                           | Eight library options, including Ktor and Multiplatform  |
+| Serialisation                      | Chosen by the generator                        | Moshi (default), Gson, Jackson, or kotlinx.serialization |
+| `oneOf` / `anyOf` / `allOf`        | Lowered into typed unions; check your preview  | Marked unsupported in the generator's feature table      |
+| Pagination                         | `autoPager()`                                  | Not among the generator's documented options             |
+| Maven Central release              | Signed Gradle publish generated into your repo | Build files generated; release process is yours          |
+| Same config drives other languages | Yes                                            | Separate generator run per language                      |
 
 The deciding question is usually whether you want one tool keeping several SDKs in step, or maximum control over one Kotlin client. For more on the trade-off, see [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -124,4 +124,4 @@ Yes. Add both targets to the same SDK configuration. They share the namespace an
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/kotlin) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/kotlin) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._

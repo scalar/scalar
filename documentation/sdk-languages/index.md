@@ -10,18 +10,18 @@ TypeScript, Python, Go, Java, and Kotlin are **generally available**, together w
 
 C#, PHP, Rust, Swift, Dart, and C++ are **experimental**. They generate working code, and C# sits in the same test matrix as the GA targets, but we would rather talk with you before you ship one of them to customers. The C#, PHP, Rust, and Swift pages say so up front and only show code we can source; where no public sample exists yet, they show configuration and documented behaviour instead.
 
-| Language | Status | Registry | Page |
-| --- | --- | --- | --- |
-| TypeScript | Generally available | npm | [TypeScript SDK generator](/sdk/typescript) |
-| Python | Generally available | PyPI | [Python SDK generator](/sdk/python) |
-| Go | Generally available | Go modules | [Go SDK generator](/sdk/go) |
-| Java | Generally available | Maven Central | [Java SDK generator](/sdk/java) |
-| Kotlin | Generally available | Maven Central | [Kotlin SDK generator](/sdk/kotlin) |
-| Ruby | Generally available | RubyGems | [Ruby SDK generator](/sdk/ruby) |
-| C# | Experimental | NuGet | [C# SDK generator](/sdk/csharp) |
-| PHP | Experimental | Packagist | [PHP SDK generator](/sdk/php) |
-| Rust | Experimental | crates.io | [Rust SDK generator](/sdk/rust) |
-| Swift | Experimental | Swift Package Manager | [Swift SDK generator](/sdk/swift) |
+| Language   | Status              | Registry              | Page                                        |
+| ---------- | ------------------- | --------------------- | ------------------------------------------- |
+| TypeScript | Generally available | npm                   | [TypeScript SDK generator](/sdk/typescript) |
+| Python     | Generally available | PyPI                  | [Python SDK generator](/sdk/python)         |
+| Go         | Generally available | Go modules            | [Go SDK generator](/sdk/go)                 |
+| Java       | Generally available | Maven Central         | [Java SDK generator](/sdk/java)             |
+| Kotlin     | Generally available | Maven Central         | [Kotlin SDK generator](/sdk/kotlin)         |
+| Ruby       | Generally available | RubyGems              | [Ruby SDK generator](/sdk/ruby)             |
+| C#         | Experimental        | NuGet                 | [C# SDK generator](/sdk/csharp)             |
+| PHP        | Experimental        | Packagist             | [PHP SDK generator](/sdk/php)               |
+| Rust       | Experimental        | crates.io             | [Rust SDK generator](/sdk/rust)             |
+| Swift      | Experimental        | Swift Package Manager | [Swift SDK generator](/sdk/swift)           |
 
 Dart and C++ are also available as experimental targets; they are covered in the [SDK Generator configuration docs](/products/sdk-generator/configuration/overview) rather than here.
 

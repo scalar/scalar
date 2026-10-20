@@ -32,9 +32,9 @@ When you make those requests, you’ll get responses as if that server exists:
 
 The mock server also has a few options to customize it:
 
-* `--port` to change the port from the default of `3000`.
-* `--watch` to watch for file changes and reload when you modify the OpenAPI file.
-* `--once` to run tests once. Boots the server, responds to requests, and exits. Perfect for CI pipelines.
+- `--port` to change the port from the default of `3000`.
+- `--watch` to watch for file changes and reload when you modify the OpenAPI file.
+- `--once` to run tests once. Boots the server, responds to requests, and exits. Perfect for CI pipelines.
 
 ## Why does OpenAPI mocking matter anyways?
 

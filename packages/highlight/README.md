@@ -47,15 +47,15 @@ own chunk. The initial chunk with the loader and no languages is 5.0 KB.
 
 ### Entry points
 
-| Import | What you get |
-| --- | --- |
-| `@scalar/highlight` | `highlight`, `highlightBlock`, `tokenize`, the registry |
-| `@scalar/highlight/style.css` | The stylesheet. Required for color |
-| `@scalar/highlight/core` | Just the engine |
-| `@scalar/highlight/langs/<name>` | One grammar |
-| `@scalar/highlight/lazy` | `loadLanguage`, for code splitting |
-| `@scalar/highlight/all` | Every language, registered. For build-time rendering |
-| `@scalar/highlight/compat` | Drop-in `syntaxHighlight` for `@scalar/code-highlight` |
+| Import                           | What you get                                            |
+| -------------------------------- | ------------------------------------------------------- |
+| `@scalar/highlight`              | `highlight`, `highlightBlock`, `tokenize`, the registry |
+| `@scalar/highlight/style.css`    | The stylesheet. Required for color                      |
+| `@scalar/highlight/core`         | Just the engine                                         |
+| `@scalar/highlight/langs/<name>` | One grammar                                             |
+| `@scalar/highlight/lazy`         | `loadLanguage`, for code splitting                      |
+| `@scalar/highlight/all`          | Every language, registered. For build-time rendering    |
+| `@scalar/highlight/compat`       | Drop-in `syntaxHighlight` for `@scalar/code-highlight`  |
 
 ### Rendering somewhere other than HTML
 
@@ -78,15 +78,15 @@ tokenizeStream(source, resolveGrammar('python'), (scope, start, end) => { … })
 
 ## Bundle size
 
-Bundled with Rolldown, minified, gzipped. Entry points *call* the API rather than
+Bundled with Rolldown, minified, gzipped. Entry points _call_ the API rather than
 re-exporting it, so tree-shaking runs the way it does in a real app.
 
-| Bundle | Gzipped |
-| --- | ---: |
-| `@scalar/highlight` core | 3.50 KB |
-| …+ Python | 5.44 KB |
+| Bundle                      | Gzipped |
+| --------------------------- | ------: |
+| `@scalar/highlight` core    | 3.50 KB |
+| …+ Python                   | 5.44 KB |
 | …lazy loader, initial chunk | 5.05 KB |
-| …`style.css` | 1.26 KB |
+| …`style.css`                | 1.26 KB |
 
 Per language, on top of the core: `diff` 0.21 KB · `json` 0.29 KB · `html` 0.53 KB · `http` 0.67 KB · `nginx` 0.69 KB · `ini` 0.70 KB · `graphql` 0.73 KB · `css` 0.79 KB · `yaml` 0.82 KB · `rust` 0.88 KB · `go` 0.90 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.95 KB · `bash` 1.03 KB · `sql` 1.11 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `c` 1.31 KB · `clojure` 1.32 KB · `scala` 1.36 KB · `julia` 1.37 KB · `elixir` 1.38 KB · `kotlin` 1.38 KB · `powershell` 1.38 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `swift` 1.44 KB · `ocaml` 1.45 KB · `haskell` 1.50 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.71 KB · `ruby` 1.74 KB · `cpp` 1.78 KB · `perl` 1.87 KB · `php` 2.01 KB · `javascript` 2.11 KB.
 
@@ -118,7 +118,7 @@ patterns at every position. Rule order is priority order, exactly as alternation
 works.
 
 **Capture offsets are resolved off the hot path.** Scoping capture groups needs the `d`
-flag, which makes the engine compute offsets for *every* group on *every* match — measured
+flag, which makes the engine compute offsets for _every_ group on _every_ match — measured
 at ~40% of scan throughput. Instead the merged regex runs without `d`, and the handful of
 rules that need offsets re-run their own small sticky pattern at the position that already
 matched.
@@ -253,14 +253,14 @@ unchanged and the component's props keep their types.
 `@scalar/code-highlight` is two packages wearing one name. The compat layer replaces the
 first half only:
 
-| export | status |
-| --- | --- |
-| `syntaxHighlight` | covered |
-| `standardLanguages` | key-compatible; 49 of 50 names have a grammar |
-| `basicLanguages`, `jsonYamlLanguages` | **not covered** — never exported here |
-| `lowlightLanguageMappings` | covered |
-| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | **not covered** |
-| `rehypeHighlight`, `rehypeAlert` | **not covered** |
+| export                                                                         | status                                        |
+| ------------------------------------------------------------------------------ | --------------------------------------------- |
+| `syntaxHighlight`                                                              | covered                                       |
+| `standardLanguages`                                                            | key-compatible; 49 of 50 names have a grammar |
+| `basicLanguages`, `jsonYamlLanguages`                                          | **not covered** — never exported here         |
+| `lowlightLanguageMappings`                                                     | covered                                       |
+| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | **not covered**                               |
+| `rehypeHighlight`, `rehypeAlert`                                               | **not covered**                               |
 
 The Markdown half is a remark/rehype pipeline — GFM, sanitization, GitHub alerts, external
 links — that has nothing to do with tokenizing code, and it is not something this library
@@ -282,7 +282,7 @@ elements match exactly. It also ports the four assertions `@scalar/code-highligh
 today. Because the comparison runs against the workspace package rather than a copy of it,
 a change on either side shows up here.
 
-Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
+Colour is the part that does _not_ match exactly, and `pnpm compat:report --detail`
 quantifies it: across the whole 42-sample corpus 68.6% of visible characters keep the colour
 `code.css` gives them, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
@@ -294,10 +294,10 @@ original thirteen — so a new language cannot dilute a regression in an older o
 
 For the same three languages `ScalarCodeBlock` shows most often:
 
-| | gzipped |
-| --- | ---: |
-| `@scalar/code-highlight` | 127.58 KB |
-| `@scalar/highlight/compat` | 7.67 KB |
+|                            |   gzipped |
+| -------------------------- | --------: |
+| `@scalar/code-highlight`   | 127.58 KB |
+| `@scalar/highlight/compat` |   7.67 KB |
 
 ## Trade-offs
 

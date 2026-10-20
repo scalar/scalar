@@ -1,6 +1,6 @@
 # SDK error handling: typed errors, retries, idempotency, and timeouts
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 SDK error handling is how a client library turns everything that can go wrong with an API call (an error status, a dropped connection, a timeout, a rate limit) into errors the caller can recognise and act on, and how it recovers on its own from the failures that are safe to retry. A good SDK makes the common cases boring: a 404 is a `NotFoundError` you can catch by type, a 503 is retried with backoff before you ever see it, and a retried `POST` does not charge a customer twice.
 
@@ -64,19 +64,19 @@ A few design decisions in that file are worth copying, whether you generate your
 
 The same hierarchy appears in Warp's Python SDK under Python naming, which is the point of generating both from one API description: a 429 is a `RateLimitError` in both languages.
 
-| Situation | TypeScript class (`warp-hr`) | Python class (`warp`) | Go (Warp module) | Retried by default? |
-| --- | --- | --- | --- | --- |
-| No response: network, DNS, TLS | `APIConnectionError` | `APIConnectionError` | Transport error returned from the call | Yes |
-| Request timed out | `APIConnectionTimeoutError` | `APITimeoutError` | Deadline error from the request context | Yes |
-| Caller aborted | `APIUserAbortError` | Task cancellation, not an SDK error | `context.Canceled` | No |
-| 400 | `BadRequestError` | `BadRequestError` | `*sdk.Error` with `StatusCode` 400 | No |
-| 401 / 403 | `AuthenticationError` / `PermissionDeniedError` | `AuthenticationError` / `PermissionDeniedError` | `*sdk.Error` | No |
-| 404 | `NotFoundError` | `NotFoundError` | `*sdk.Error` | No |
-| 408 | `APIError` | `APIStatusError` | `*sdk.Error` | Yes |
-| 409 | `ConflictError` | `ConflictError` | `*sdk.Error` | Yes |
-| 422 | `UnprocessableEntityError` | `UnprocessableEntityError` | `*sdk.Error` | No |
-| 429 | `RateLimitError` | `RateLimitError` | `*sdk.Error` | Yes, honouring `Retry-After` |
-| 500 and above | `InternalServerError` | `InternalServerError` | `*sdk.Error` | Yes |
+| Situation                      | TypeScript class (`warp-hr`)                    | Python class (`warp`)                           | Go (Warp module)                        | Retried by default?          |
+| ------------------------------ | ----------------------------------------------- | ----------------------------------------------- | --------------------------------------- | ---------------------------- |
+| No response: network, DNS, TLS | `APIConnectionError`                            | `APIConnectionError`                            | Transport error returned from the call  | Yes                          |
+| Request timed out              | `APIConnectionTimeoutError`                     | `APITimeoutError`                               | Deadline error from the request context | Yes                          |
+| Caller aborted                 | `APIUserAbortError`                             | Task cancellation, not an SDK error             | `context.Canceled`                      | No                           |
+| 400                            | `BadRequestError`                               | `BadRequestError`                               | `*sdk.Error` with `StatusCode` 400      | No                           |
+| 401 / 403                      | `AuthenticationError` / `PermissionDeniedError` | `AuthenticationError` / `PermissionDeniedError` | `*sdk.Error`                            | No                           |
+| 404                            | `NotFoundError`                                 | `NotFoundError`                                 | `*sdk.Error`                            | No                           |
+| 408                            | `APIError`                                      | `APIStatusError`                                | `*sdk.Error`                            | Yes                          |
+| 409                            | `ConflictError`                                 | `ConflictError`                                 | `*sdk.Error`                            | Yes                          |
+| 422                            | `UnprocessableEntityError`                      | `UnprocessableEntityError`                      | `*sdk.Error`                            | No                           |
+| 429                            | `RateLimitError`                                | `RateLimitError`                                | `*sdk.Error`                            | Yes, honouring `Retry-After` |
+| 500 and above                  | `InternalServerError`                           | `InternalServerError`                           | `*sdk.Error`                            | Yes                          |
 
 The TypeScript and Python columns come from Warp's `scalar-generated` branches ([TypeScript](https://github.com/TeamWarp/warp-sdk-typescript/tree/scalar-generated), [Python](https://github.com/TeamWarp/warp-sdk-python/tree/scalar-generated)). The Go column follows the [Go SDK page](/sdk/go), which shows the Warp module returning a single `*sdk.Error` type that you inspect by status code, the idiomatic Go approach. The retry column describes the default retry policy covered below.
 

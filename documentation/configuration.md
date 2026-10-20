@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -206,11 +205,11 @@ Scalar.createApiReference('#app', [
 
 It is completely up to you whether you want to pass JSON or YAML. None of the differences make really a big difference, but here is a short overview:
 
-* JSON is faster to parse for the browser
-* JSON is supported natively in basically any environment
-* YAML is easier to write, especially if you want multiline text (for example for descriptions)
-* YAML is easier to read for humans
-* YAML documents tend to be a little bit smaller
+- JSON is faster to parse for the browser
+- JSON is supported natively in basically any environment
+- YAML is easier to write, especially if you want multiline text (for example for descriptions)
+- YAML is easier to read for humans
+- YAML documents tend to be a little bit smaller
 
 ## Agent
 
@@ -598,7 +597,6 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
-
 ### maxVisibleRequestBodyProperties
 
 **Type:** `number`
@@ -903,9 +901,9 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 You can also provide an `object` where each **key** corresponds to a language,
 and each **value** specifies the visibility behavior for the clients of that language.
 
-* `true` — hides all clients for the specified language
-* `false` — shows all clients for the specified language
-* `['client1', 'client2']` — hides only the listed clients for the specified language
+- `true` — hides all clients for the specified language
+- `false` — shows all clients for the specified language
+- `['client1', 'client2']` — hides only the listed clients for the specified language
 
 ```typescript
 {
@@ -1275,6 +1273,7 @@ By default we're using Inter and JetBrains Mono, served from our fonts CDN at `h
 ```
 
 ## Methods
+
 Custom functions to control specific behaviors and URL generation.
 
 ### customFetch
@@ -1460,6 +1459,7 @@ Or specify a custom function to sort the operations:
 **Type:** `(path: string) => string | null | undefined`
 
 Function to handle redirects in the API reference. Receives either:
+
 - The current path with hash if pathRouting is enabled
 - The current hash if using hashRouting (default)
 
@@ -1481,6 +1481,7 @@ Function to handle redirects in the API reference. Receives either:
 ```
 
 ## Events
+
 Callback functions that are triggered by user interactions and system events.
 
 ### onBeforeRequest
@@ -1507,25 +1508,25 @@ Callback fired before the outbound request is sent from the embedded API client.
 
 The `requestBuilder` object exposes the following fields:
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `baseUrl` | `string` | The base API server URL (may contain placeholders like `{{version}}`). |
-| `path.raw` | `string` | The raw path string, e.g. `/users/{userId}/settings`. |
-| `path.variables` | `Record<string, string>` | Path variable names and their current values. |
-| `method` | `string` | HTTP method (always uppercase). |
-| `headers` | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers) | Headers to send with the request. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
-| `query` | [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | Query parameters. Supports `.set()`, `.get()`, `.delete()`, `.append()`. |
-| `body` | `RequestBody \| null` | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`. |
-| `cookies` | `XScalarCookie[]` | Cookies to include with the request. |
-| `security` | `BuildRequestSecurityResult[]` | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
-| `options` | `object` | Advanced options (see below). |
+| Field            | Type                                                                                  | Description                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `baseUrl`        | `string`                                                                              | The base API server URL (may contain placeholders like `{{version}}`).                                                                                                           |
+| `path.raw`       | `string`                                                                              | The raw path string, e.g. `/users/{userId}/settings`.                                                                                                                            |
+| `path.variables` | `Record<string, string>`                                                              | Path variable names and their current values.                                                                                                                                    |
+| `method`         | `string`                                                                              | HTTP method (always uppercase).                                                                                                                                                  |
+| `headers`        | [`Headers`](https://developer.mozilla.org/en-US/docs/Web/API/Headers)                 | Headers to send with the request. Supports `.set()`, `.get()`, `.delete()`, `.append()`.                                                                                         |
+| `query`          | [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams) | Query parameters. Supports `.set()`, `.get()`, `.delete()`, `.append()`.                                                                                                         |
+| `body`           | `RequestBody \| null`                                                                 | The request body payload (`raw`, `formdata`, or `urlencoded`), or `null`.                                                                                                        |
+| `cookies`        | `XScalarCookie[]`                                                                     | Cookies to include with the request.                                                                                                                                             |
+| `security`       | `BuildRequestSecurityResult[]`                                                        | The resolved security schemes for this request. Each entry has `in` (`"header"`, `"query"`, or `"cookie"`), `name`, `value`, and an optional `format` (`"basic"` or `"bearer"`). |
+| `options`        | `object`                                                                              | Advanced options (see below).                                                                                                                                                    |
 
 **`options`**
 
-| Field | Type | Default | Description |
-| --- | --- | --- | --- |
+| Field             | Type      | Default | Description                                                                                                                                                                                              |
+| ----------------- | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `disableSecurity` | `boolean` | `false` | When `true`, Scalar skips its built-in security handling entirely. Security headers, query parameters, and cookies from the `security` array are **not** applied automatically, giving you full control. |
-| `isElectron` | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context. |
+| `isElectron`      | `boolean` | `false` | Indicates the request runs in an Electron (Node-like) context.                                                                                                                                           |
 
 #### Examples
 

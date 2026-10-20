@@ -1,6 +1,6 @@
 # How to test MCP servers: Inspector, unit tests, CI and evals
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Testing an MCP server means checking three things: that it speaks the protocol correctly, so any client can list and call its tools; that each tool does the right thing with valid and invalid input; and that a real model, given a realistic task, picks the right tool with the right arguments. The first two are ordinary software testing with a new tool or two. The third is new, and it is the one that decides whether users find your server useful.
 
@@ -22,13 +22,13 @@ This guide works through all three with commands and code we ran on 26 September
 
 ## What to test, and with what
 
-| Layer | What it catches | Tool | When to run |
-| --- | --- | --- | --- |
-| Protocol | Server does not start, wrong transport, malformed responses, auth discovery broken | MCP Inspector (web or CLI) | While developing, and as a smoke test in CI |
-| Tool logic | Wrong upstream request, bad error mapping, missing validation | Unit tests with an in-memory client | Every commit |
-| Definitions | Changed descriptions, renamed tools, schemas some clients reject | Snapshot of `tools/list`, Inspector `--strict` | Every pull request |
-| Behaviour | Model picks the wrong tool, invents arguments, loops on errors | Evals with real tasks and a real model | Before releases and after description changes |
-| Clients | A specific client's config format, OAuth quirks, size limits | Manual runs in Claude, Cursor, VS Code | Before launch and after client updates |
+| Layer       | What it catches                                                                    | Tool                                           | When to run                                   |
+| ----------- | ---------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------- |
+| Protocol    | Server does not start, wrong transport, malformed responses, auth discovery broken | MCP Inspector (web or CLI)                     | While developing, and as a smoke test in CI   |
+| Tool logic  | Wrong upstream request, bad error mapping, missing validation                      | Unit tests with an in-memory client            | Every commit                                  |
+| Definitions | Changed descriptions, renamed tools, schemas some clients reject                   | Snapshot of `tools/list`, Inspector `--strict` | Every pull request                            |
+| Behaviour   | Model picks the wrong tool, invents arguments, loops on errors                     | Evals with real tasks and a real model         | Before releases and after description changes |
+| Clients     | A specific client's config format, OAuth quirks, size limits                       | Manual runs in Claude, Cursor, VS Code         | Before launch and after client updates        |
 
 The layers apply whether you wrote the server by hand or [generated it from OpenAPI](/learn/mcp/generate-mcp-server-from-openapi). If you are still at the design stage, [REST API to MCP server](/learn/mcp/rest-api-to-mcp-server) covers the decisions that make a server easier to test: small tools, bounded results and explicit errors.
 
@@ -353,4 +353,4 @@ You do not test the server code, because Scalar runs it. You should still check 
 - **Docs:** [MCP servers](/products/agent/mcp) · [Agent SDK](/products/agent/integration/sdk)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from OpenAPI, so you test your API and descriptions, not server code
 
-*Commands were run on 26 September 2026 with MCP Inspector 2.8.0, @modelcontextprotocol/server and @modelcontextprotocol/client 2.1.0, Vitest 5 and Node 24. Specification details refer to MCP revision 2026-07-28.*
+_Commands were run on 26 September 2026 with MCP Inspector 2.8.0, @modelcontextprotocol/server and @modelcontextprotocol/client 2.1.0, Vitest 5 and Node 24. Specification details refer to MCP revision 2026-07-28._

@@ -1,6 +1,6 @@
 # MCP API documentation: documenting MCP servers and writing docs agents can read
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 MCP API documentation covers two related jobs: documenting an MCP server so that both people and models know what its tools do and how to connect to it, and publishing your ordinary API documentation in forms that AI agents can read directly, such as `llms.txt`, a Markdown version of every page, and a docs MCP server. The first job is about the server you ship. The second is about everything else an agent needs to use your API well.
 
@@ -192,16 +192,16 @@ A docs MCP server and an API MCP server are different things. The first answers 
 
 ## Which surface does what
 
-| Surface | What it contains | Who reads it | When it helps most | In Scalar |
-| --- | --- | --- | --- | --- |
-| Tool name, description and schema | Per-tool purpose, arguments, output | The model, every turn | Choosing and calling tools correctly | Taken from your OpenAPI operations |
-| Server instructions | Guidance that spans tools | The model, at session start | Clients that defer tool loading | Depends on the server |
-| MCP server web page | URL, auth, install snippets, tool list, limits | People deciding to connect | Adoption and support | Written in Scalar Docs |
-| `llms.txt` | Index of pages with descriptions | Agents and tools that fetch it | Orienting an agent in large docs | [Generated automatically](/products/docs/configuration/llms-txt) |
-| `llms-full.txt` | Full text of all pages | Agents loading everything | Small to medium doc sites | Generated automatically |
-| Markdown twins | One clean Markdown file per page | Agents fetching a specific page | Deep links from search or llms.txt | Served at the page URL plus `.md` |
-| Docs MCP | Search tool over your docs | Agents mid-task | Answering questions without leaving the client | At `/mcp` on your docs domain, via [Ask AI](/products/docs/configuration/ask-ai) |
-| API reference | Every operation from OpenAPI | People and agents | Exact parameters and responses | [Scalar API reference](/products/api-references) |
+| Surface                           | What it contains                               | Who reads it                    | When it helps most                             | In Scalar                                                                        |
+| --------------------------------- | ---------------------------------------------- | ------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| Tool name, description and schema | Per-tool purpose, arguments, output            | The model, every turn           | Choosing and calling tools correctly           | Taken from your OpenAPI operations                                               |
+| Server instructions               | Guidance that spans tools                      | The model, at session start     | Clients that defer tool loading                | Depends on the server                                                            |
+| MCP server web page               | URL, auth, install snippets, tool list, limits | People deciding to connect      | Adoption and support                           | Written in Scalar Docs                                                           |
+| `llms.txt`                        | Index of pages with descriptions               | Agents and tools that fetch it  | Orienting an agent in large docs               | [Generated automatically](/products/docs/configuration/llms-txt)                 |
+| `llms-full.txt`                   | Full text of all pages                         | Agents loading everything       | Small to medium doc sites                      | Generated automatically                                                          |
+| Markdown twins                    | One clean Markdown file per page               | Agents fetching a specific page | Deep links from search or llms.txt             | Served at the page URL plus `.md`                                                |
+| Docs MCP                          | Search tool over your docs                     | Agents mid-task                 | Answering questions without leaving the client | At `/mcp` on your docs domain, via [Ask AI](/products/docs/configuration/ask-ai) |
+| API reference                     | Every operation from OpenAPI                   | People and agents               | Exact parameters and responses                 | [Scalar API reference](/products/api-references)                                 |
 
 ## Keeping documentation and server in sync
 
@@ -265,4 +265,4 @@ Yes. Every published Scalar Docs site serves llms.txt and llms-full.txt automati
 - **Docs:** [llms.txt](/products/docs/configuration/llms-txt) · [Ask AI and docs MCP](/products/docs/configuration/ask-ai)
 - **Product:** [Scalar Docs](/products/docs) — API reference, guides, llms.txt, Markdown pages and a docs MCP server from one OpenAPI document
 
-*Specification details refer to MCP revision 2026-07-28. The scalar.com Markdown and docs MCP responses were checked on 26 September 2026. Tool names and fields in the invoice examples are illustrative.*
+_Specification details refer to MCP revision 2026-07-28. The scalar.com Markdown and docs MCP responses were checked on 26 September 2026. Tool names and fields in the invoice examples are illustrative._

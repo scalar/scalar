@@ -1,6 +1,6 @@
 # Remote MCP servers: how they work and where to host them
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 A remote MCP server is a Model Context Protocol server that runs on a network host and is reached over HTTP, instead of being started as a local subprocess on the same machine as the AI application. The client connects to a URL such as `https://mcp.example.com/mcp`, authenticates, and then lists and calls the server's tools exactly as it would with a local server.
 
@@ -79,17 +79,17 @@ You will still see URLs ending in `/sse`. Those belong to the 2024-11-05 HTTP+SS
 
 ## Local vs remote MCP servers
 
-| | Local (stdio) | Remote (Streamable HTTP) |
-| --- | --- | --- |
-| How the client connects | Launches a command, talks over stdin/stdout | Sends HTTP POST requests to a URL |
-| Where the code runs | The user's machine | A server, container or serverless platform |
-| Install step for users | Runtime plus package (for example `npx`, `uvx`, Docker) | Paste a URL |
-| Authentication | Credentials from environment variables; the spec says stdio servers SHOULD NOT use the OAuth flow | OAuth 2.1 per the MCP authorization spec, or API keys in headers |
-| Updates | Each user upgrades their own copy | Provider deploys once |
-| Access to local files and apps | Direct | None, unless you expose them some other way |
-| Works in web-based hosts (claude.ai, ChatGPT, API connectors) | No | Yes, if reachable from the public internet |
-| Who pays for compute | The user | The provider |
-| Typical examples | Filesystem, Git, Playwright browser automation | GitHub, Stripe, Sentry, Linear, Notion |
+|                                                               | Local (stdio)                                                                                     | Remote (Streamable HTTP)                                         |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| How the client connects                                       | Launches a command, talks over stdin/stdout                                                       | Sends HTTP POST requests to a URL                                |
+| Where the code runs                                           | The user's machine                                                                                | A server, container or serverless platform                       |
+| Install step for users                                        | Runtime plus package (for example `npx`, `uvx`, Docker)                                           | Paste a URL                                                      |
+| Authentication                                                | Credentials from environment variables; the spec says stdio servers SHOULD NOT use the OAuth flow | OAuth 2.1 per the MCP authorization spec, or API keys in headers |
+| Updates                                                       | Each user upgrades their own copy                                                                 | Provider deploys once                                            |
+| Access to local files and apps                                | Direct                                                                                            | None, unless you expose them some other way                      |
+| Works in web-based hosts (claude.ai, ChatGPT, API connectors) | No                                                                                                | Yes, if reachable from the public internet                       |
+| Who pays for compute                                          | The user                                                                                          | The provider                                                     |
+| Typical examples                                              | Filesystem, Git, Playwright browser automation                                                    | GitHub, Stripe, Sentry, Linear, Notion                           |
 
 The authentication row comes straight from the [authorization specification](https://modelcontextprotocol.io/specification/2026-07-28/basic/authorization): HTTP-based implementations SHOULD follow the OAuth flow, while stdio implementations SHOULD NOT and should read credentials from the environment instead. We cover the OAuth side in depth in [MCP OAuth](/learn/mcp/mcp-oauth).
 
@@ -317,4 +317,4 @@ Send an unauthenticated POST with curl and confirm you get a 401 with a WWW-Auth
 - **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with MCP & Agent](/products/agent/getting-started)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from your OpenAPI document, with OAuth built in
 
-*Specification details refer to MCP revision 2026-07-28. Client configuration formats and third-party server URLs were checked against each vendor's documentation on 26 September 2026. If something has changed, tell us and we will update this page.*
+_Specification details refer to MCP revision 2026-07-28. Client configuration formats and third-party server URLs were checked against each vendor's documentation on 26 September 2026. If something has changed, tell us and we will update this page._

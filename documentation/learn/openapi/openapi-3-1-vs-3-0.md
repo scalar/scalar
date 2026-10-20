@@ -1,6 +1,6 @@
 # OpenAPI 3.1 vs 3.0: what changed and how to migrate
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The main difference between OpenAPI 3.1 and 3.0 is that 3.1 makes the Schema Object a full superset of JSON Schema Draft 2020-12, while 3.0 used its own extended subset of an older JSON Schema draft. Almost every practical change follows from that: `nullable` is gone in favor of type arrays, `exclusiveMinimum` becomes a number, schema examples move to an `examples` array, and file uploads are described with `contentMediaType` instead of `format: binary`. On top of the schema changes, 3.1 adds top-level `webhooks`, makes `paths` optional, adds an SPDX `identifier` to the license, and allows `summary` and `description` next to a `$ref`.
 

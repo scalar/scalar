@@ -1,6 +1,6 @@
 # MCP OAuth: how MCP authentication works
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 MCP OAuth is the authorization flow defined by the Model Context Protocol specification, in which an MCP client gets an OAuth 2.1 access token for a remote MCP server by discovering the server's authorization server through protected resource metadata (RFC 9728) and then running an authorization code flow with PKCE. The user signs in through a browser, the client stores the token, and every request to the MCP server carries it as a bearer token.
 
@@ -39,8 +39,8 @@ Authorization is optional in MCP. It applies to HTTP-based transports; the spec 
 
 MCP maps its pieces onto standard OAuth roles:
 
-- The **MCP server** is an OAuth 2.1 *resource server*. It accepts access tokens and rejects requests without a valid one.
-- The **MCP client**, inside a host such as Claude Code, Cursor or VS Code, is an OAuth 2.1 *client* acting on behalf of the user.
+- The **MCP server** is an OAuth 2.1 _resource server_. It accepts access tokens and rejects requests without a valid one.
+- The **MCP client**, inside a host such as Claude Code, Cursor or VS Code, is an OAuth 2.1 _client_ acting on behalf of the user.
 - The **authorization server** signs users in and issues tokens. It can be run by the same provider as the MCP server or be a separate identity provider. The spec deliberately does not care which.
 
 That separation is the most important idea in the whole specification. The first authorization revision, 2025-03-26, leaned towards the MCP server acting as its own authorization server. Since 2025-06-18 the server only has to point at one, which means you can put an MCP server in front of an existing identity provider instead of building login from scratch.
@@ -49,16 +49,16 @@ That separation is the most important idea in the whole specification. The first
 
 MCP does not invent a new auth protocol. It picks a subset of existing OAuth specifications and states how strictly each applies.
 
-| Standard | What it does in MCP | Requirement in 2026-07-28 |
-| --- | --- | --- |
-| [OAuth 2.1 (draft 13)](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-13) | Base framework: authorization code flow, bearer tokens | Authorization servers MUST implement it |
-| [RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728) Protected Resource Metadata | MCP server tells clients where its authorization server is | Servers MUST implement; clients MUST use it |
-| [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) Authorization Server Metadata / [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html) | Client finds the authorize, token and registration endpoints | Servers MUST offer at least one; clients MUST support both |
-| PKCE with `S256` | Protects the authorization code from interception | Clients MUST use it and MUST refuse if the server does not advertise it |
-| [RFC 8707](https://www.rfc-editor.org/rfc/rfc8707.html) Resource Indicators | Binds the token to one MCP server | Clients MUST send `resource` on authorize and token requests |
-| [Client ID Metadata Documents](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-00) | Client identifies itself with an HTTPS URL | SHOULD support |
-| [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591) Dynamic Client Registration | Client registers itself at runtime | MAY support; deprecated |
-| [RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207) Issuer Identification | Detects mix-up attacks on the redirect | Servers SHOULD send `iss`; clients MUST validate it when present |
+| Standard                                                                                                                                                                         | What it does in MCP                                          | Requirement in 2026-07-28                                               |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| [OAuth 2.1 (draft 13)](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-13)                                                                                           | Base framework: authorization code flow, bearer tokens       | Authorization servers MUST implement it                                 |
+| [RFC 9728](https://datatracker.ietf.org/doc/html/rfc9728) Protected Resource Metadata                                                                                            | MCP server tells clients where its authorization server is   | Servers MUST implement; clients MUST use it                             |
+| [RFC 8414](https://datatracker.ietf.org/doc/html/rfc8414) Authorization Server Metadata / [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html) | Client finds the authorize, token and registration endpoints | Servers MUST offer at least one; clients MUST support both              |
+| PKCE with `S256`                                                                                                                                                                 | Protects the authorization code from interception            | Clients MUST use it and MUST refuse if the server does not advertise it |
+| [RFC 8707](https://www.rfc-editor.org/rfc/rfc8707.html) Resource Indicators                                                                                                      | Binds the token to one MCP server                            | Clients MUST send `resource` on authorize and token requests            |
+| [Client ID Metadata Documents](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-client-id-metadata-document-00)                                                            | Client identifies itself with an HTTPS URL                   | SHOULD support                                                          |
+| [RFC 7591](https://datatracker.ietf.org/doc/html/rfc7591) Dynamic Client Registration                                                                                            | Client registers itself at runtime                           | MAY support; deprecated                                                 |
+| [RFC 9207](https://datatracker.ietf.org/doc/html/rfc9207) Issuer Identification                                                                                                  | Detects mix-up attacks on the redirect                       | Servers SHOULD send `iss`; clients MUST validate it when present        |
 
 If you only remember two rows, make them RFC 9728 and PKCE. Those are where most broken implementations fail.
 
@@ -423,4 +423,4 @@ Installations are private by default. When a client connects, it discovers Scala
 - **Docs:** [MCP authentication](/products/agent/authentication) · [Private access for customers](/products/agent/authentication/customer-access)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers with OAuth, access groups and branded sign-in
 
-*Specification details refer to MCP revision 2026-07-28 and were re-checked against modelcontextprotocol.io on 7 October 2026, when 2026-07-28 was still the current revision. The Scalar metadata shown was retrieved on 26 September 2026 and trimmed for length; the client_id, code and verifier values in the flow examples are illustrative. The resource server example was run on 7 October 2026 with @modelcontextprotocol/server 2.3.1, @modelcontextprotocol/node 2.1.1 and zod 4.6.5 on Node.js 24.21.0.*
+_Specification details refer to MCP revision 2026-07-28 and were re-checked against modelcontextprotocol.io on 7 October 2026, when 2026-07-28 was still the current revision. The Scalar metadata shown was retrieved on 26 September 2026 and trimmed for length; the client_id, code and verifier values in the flow examples are illustrative. The resource server example was run on 7 October 2026 with @modelcontextprotocol/server 2.3.1, @modelcontextprotocol/node 2.1.1 and zod 4.6.5 on Node.js 24.21.0._

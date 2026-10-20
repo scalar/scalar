@@ -47,12 +47,12 @@ The plugin takes our universal configuration object, [read more about configurat
 
 ## Options
 
-| Option          | Default            | Description                                                                                            |
-| --------------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `configuration` | —                  | Scalar's universal [configuration object](../configuration.md).                                       |
-| `pathname`      | `'/api-reference'` | The path the API reference is served from.                                                            |
-| `label`         | `'API Reference'`  | The label of the sidebar entry.                                                                        |
-| `title`         | the `label`        | The title of the API reference page.                                                                  |
+| Option          | Default            | Description                                                     |
+| --------------- | ------------------ | --------------------------------------------------------------- |
+| `configuration` | —                  | Scalar's universal [configuration object](../configuration.md). |
+| `pathname`      | `'/api-reference'` | The path the API reference is served from.                      |
+| `label`         | `'API Reference'`  | The label of the sidebar entry.                                 |
+| `title`         | the `label`        | The title of the API reference page.                            |
 
 ### Custom path and label
 

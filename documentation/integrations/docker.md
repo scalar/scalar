@@ -46,11 +46,13 @@ docker run \
 ```
 
 The container automatically:
+
 - Scans for OpenAPI and AsyncAPI documents (`.json`, `.yaml`, `.yml` files)
 - Serves documents at `/openapi/{filename}` (the path is historical and used for both document types)
 - Generates titles from directory structure
 
 **Directory structure example:**
+
 ```
 /docs/
 ├── api-v1.json
@@ -106,11 +108,11 @@ docker run \
 
 ## Environment Variables
 
-| Variable               | Description                                                       | Default     |
-| ---------------------- | ----------------------------------------------------------------- | ----------- |
-| `API_REFERENCE_CONFIG` | JSON configuration for the API Reference                          | -           |
-| `BASE_PATH`            | URL prefix when serving under a subpath (for example, `/docs`)    | -           |
-| `CDN_URL`              | URL for the API Reference CDN                                     | `scalar.js` |
+| Variable               | Description                                                    | Default     |
+| ---------------------- | -------------------------------------------------------------- | ----------- |
+| `API_REFERENCE_CONFIG` | JSON configuration for the API Reference                       | -           |
+| `BASE_PATH`            | URL prefix when serving under a subpath (for example, `/docs`) | -           |
+| `CDN_URL`              | URL for the API Reference CDN                                  | `scalar.js` |
 
 **Note:** Either `API_REFERENCE_CONFIG` must be set OR documents must be mounted to `/docs`
 

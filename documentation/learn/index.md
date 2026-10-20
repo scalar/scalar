@@ -1,6 +1,6 @@
 # Learn: OpenAPI, SDKs and MCP
 
-*Last updated: October 2026*
+_Last updated: October 2026_
 
 The Scalar knowledge centre is a free library of practical guides to OpenAPI, SDK generation, the Model Context Protocol (MCP) and API management, written for developers who build, document and ship APIs. Every article starts with a plain definition, then gets specific: working examples, the trade-offs that matter, common mistakes, and links to the primary sources so you can check anything we say.
 

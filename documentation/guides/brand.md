@@ -17,7 +17,7 @@ Everything you need to reference Scalar in your project, logos, wordmark, icon, 
 
 ## Naming
 
-"Scalar" is a single word, always spelled with a capital *S*. It is the brand name of both our company and our platform, not "Scalar app" or "scalar.com". Refer to the platform as **Scalar**.
+"Scalar" is a single word, always spelled with a capital _S_. It is the brand name of both our company and our platform, not "Scalar app" or "scalar.com". Refer to the platform as **Scalar**.
 
 Individual products are proper nouns and should be capitalized when referred to by their full name: **Scalar Docs**, **Scalar API References**, **Scalar Registry**, **Scalar SDKs**, and **Scalar API Client**. When the context is already clear, the short form is fine (Docs, API References, Registry, SDKs, API Client).
 
@@ -57,7 +57,6 @@ Prefer the Scalar wordmark whenever space allows. Monochrome usage is preferred,
     </div>
   </div>
 </div>
-
 
 ## Logomark
 

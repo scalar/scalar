@@ -1,6 +1,6 @@
 # Best Redoc alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best Redoc alternative is the one that keeps Redoc's clean, readable reference and adds the thing Redoc's open-source edition leaves out: letting readers send a real request from the page.
 
@@ -22,14 +22,14 @@ We make Scalar, so it is listed first. Each claim about another project links to
 
 ## Redoc alternatives at a glance
 
-| Tool | License | Send requests from the docs | Auto-generated code samples | Layout | Best for |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | [MIT](https://github.com/scalar/scalar) | Yes, full client | Yes | Three-column or classic | Keeping Redoc's look and adding a client |
-| [Hosted Redoc (Redocly)](https://redocly.com/pricing) | Proprietary | Yes (Replay) | Yes | Three-panel | Staying with Redoc's renderer and paying for the extras |
-| [Swagger UI](https://github.com/swagger-api/swagger-ui) | Apache 2.0 | Yes, per operation | cURL | Single column | Internal tools where familiarity matters |
-| [Stoplight Elements](https://github.com/stoplightio/elements) | Apache 2.0 | Yes | Yes | Sidebar + panel | React sites |
-| [RapiDoc](https://github.com/rapi-doc/RapiDoc) | MIT | Yes | cURL | Configurable | Tinkering with layout through attributes |
-| [docusaurus-openapi-docs](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) | MIT | Yes | Yes | Docusaurus pages | Docs that already live in Docusaurus |
+| Tool                                                                                   | License                                 | Send requests from the docs | Auto-generated code samples | Layout                  | Best for                                                |
+| -------------------------------------------------------------------------------------- | --------------------------------------- | --------------------------- | --------------------------- | ----------------------- | ------------------------------------------------------- |
+| **Scalar**                                                                             | [MIT](https://github.com/scalar/scalar) | Yes, full client            | Yes                         | Three-column or classic | Keeping Redoc's look and adding a client                |
+| [Hosted Redoc (Redocly)](https://redocly.com/pricing)                                  | Proprietary                             | Yes (Replay)                | Yes                         | Three-panel             | Staying with Redoc's renderer and paying for the extras |
+| [Swagger UI](https://github.com/swagger-api/swagger-ui)                                | Apache 2.0                              | Yes, per operation          | cURL                        | Single column           | Internal tools where familiarity matters                |
+| [Stoplight Elements](https://github.com/stoplightio/elements)                          | Apache 2.0                              | Yes                         | Yes                         | Sidebar + panel         | React sites                                             |
+| [RapiDoc](https://github.com/rapi-doc/RapiDoc)                                         | MIT                                     | Yes                         | cURL                        | Configurable            | Tinkering with layout through attributes                |
+| [docusaurus-openapi-docs](https://github.com/PaloAltoNetworks/docusaurus-openapi-docs) | MIT                                     | Yes                         | Yes                         | Docusaurus pages        | Docs that already live in Docusaurus                    |
 
 Checked against each project's GitHub repository, README, or pricing page on 26 September 2026.
 
@@ -152,4 +152,4 @@ Both are used on large APIs. The practical difference for big references is navi
 
 ---
 
-*This page is based on Redoc's public GitHub repository, README and releases, Redocly's public documentation and pricing page, and the public repositories of every other tool listed, as of 26 September 2026. Redoc 3.0 had been announced but not released at that date. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Redoc's public GitHub repository, README and releases, Redocly's public documentation and pricing page, and the public repositories of every other tool listed, as of 26 September 2026. Redoc 3.0 had been announced but not released at that date. We have made a genuine effort to be accurate and fair. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

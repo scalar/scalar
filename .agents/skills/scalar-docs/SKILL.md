@@ -50,15 +50,15 @@ Validate config: `npx @scalar/cli project check-config`
 
 ## Root Properties
 
-| Property     | Type     | Description                                                                 |
-| ------------ | -------- | --------------------------------------------------------------------------- |
-| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                      |
-| `scalar`     | `string` | Configuration version. Use `"2.0.0"`                                       |
-| `info`       | `object` | Project metadata (title, description)                                       |
-| `navigation` | `object` | Navigation structure (header, routes, sidebar, tabs)                        |
-| `versions`   | `object` | Multi-version navigation. Use instead of `navigation` for versioned docs    |
-| `siteConfig` | `object` | Site-level settings (domain, theme, head, logo, routing)                    |
-| `assetsDir`  | `string` | Relative path to assets folder from config root                             |
+| Property     | Type     | Description                                                              |
+| ------------ | -------- | ------------------------------------------------------------------------ |
+| `$schema`    | `string` | JSON Schema URL for editor autocomplete and validation                   |
+| `scalar`     | `string` | Configuration version. Use `"2.0.0"`                                     |
+| `info`       | `object` | Project metadata (title, description)                                    |
+| `navigation` | `object` | Navigation structure (header, routes, sidebar, tabs)                     |
+| `versions`   | `object` | Multi-version navigation. Use instead of `navigation` for versioned docs |
+| `siteConfig` | `object` | Site-level settings (domain, theme, head, logo, routing)                 |
+| `assetsDir`  | `string` | Relative path to assets folder from config root                          |
 
 ---
 
@@ -147,6 +147,7 @@ Layout: `toc` (default `true`), `sidebar` (default `true`).
 API reference from file, Registry, or URL:
 
 **File:**
+
 ```json
 "/api": {
   "type": "openapi",
@@ -157,6 +158,7 @@ API reference from file, Registry, or URL:
 ```
 
 **Registry:**
+
 ```json
 "/api": {
   "type": "openapi",
@@ -167,6 +169,7 @@ API reference from file, Registry, or URL:
 ```
 
 **URL:**
+
 ```json
 "/api": {
   "type": "openapi",
@@ -422,14 +425,14 @@ npx @scalar/cli project preview
 
 ## CLI Commands
 
-| Command | Description |
-| ------- | ----------- |
-| `npx @scalar/cli project init` | Create scalar.config.json |
-| `npx @scalar/cli project check-config` | Validate config |
-| `npx @scalar/cli project preview` | Local preview (port 7970) |
-| `npx @scalar/cli project publish` | Publish from local files |
+| Command                                    | Description                     |
+| ------------------------------------------ | ------------------------------- |
+| `npx @scalar/cli project init`             | Create scalar.config.json       |
+| `npx @scalar/cli project check-config`     | Validate config                 |
+| `npx @scalar/cli project preview`          | Local preview (port 7970)       |
+| `npx @scalar/cli project publish`          | Publish from local files        |
 | `npx @scalar/cli project publish --github` | Publish from linked GitHub repo |
-| `npx @scalar/cli project upgrade` | Migrate from Docs 1.0 |
+| `npx @scalar/cli project upgrade`          | Migrate from Docs 1.0           |
 
 ---
 

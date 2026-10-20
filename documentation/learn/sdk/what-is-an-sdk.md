@@ -1,6 +1,6 @@
 # What is an SDK?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An SDK (software development kit) is a packaged set of code, tools, and documentation that lets developers build on a platform or call a service from their own programming language without writing the low-level plumbing themselves. For web APIs, an SDK is usually a client library: install `@acme/api` from npm or `acme-api` from PyPI, and the API's endpoints become typed methods like `client.users.list()`.
 
@@ -12,16 +12,16 @@ This article explains what goes into an SDK, the main kinds you will meet, what 
 
 No two SDKs contain exactly the same things, but most combine several of these parts.
 
-| Component | What it does | Example |
-| --- | --- | --- |
-| Client library | Code you import and call | `import Acme from '@acme/api'` |
-| Types and models | Describe requests and responses so editors and compilers can check them | `User`, `CreateInvoiceParams` |
-| Runtime helpers | Auth, retries, timeouts, pagination, serialization, streaming | Auto-paginating iterators |
-| Error types | Map failures to catchable classes | `NotFoundError`, `RateLimitError` |
-| Documentation | README, method reference, changelog | `README.md`, `api.md`, `CHANGELOG.md` |
-| Examples | Runnable snippets for common tasks | "Create your first invoice" |
-| Tools | CLIs, emulators, debuggers, build plugins | A command-line client, a local emulator |
-| Release metadata | Package manifest and version | `package.json`, `pyproject.toml`, `go.mod` |
+| Component        | What it does                                                            | Example                                    |
+| ---------------- | ----------------------------------------------------------------------- | ------------------------------------------ |
+| Client library   | Code you import and call                                                | `import Acme from '@acme/api'`             |
+| Types and models | Describe requests and responses so editors and compilers can check them | `User`, `CreateInvoiceParams`              |
+| Runtime helpers  | Auth, retries, timeouts, pagination, serialization, streaming           | Auto-paginating iterators                  |
+| Error types      | Map failures to catchable classes                                       | `NotFoundError`, `RateLimitError`          |
+| Documentation    | README, method reference, changelog                                     | `README.md`, `api.md`, `CHANGELOG.md`      |
+| Examples         | Runnable snippets for common tasks                                      | "Create your first invoice"                |
+| Tools            | CLIs, emulators, debuggers, build plugins                               | A command-line client, a local emulator    |
+| Release metadata | Package manifest and version                                            | `package.json`, `pyproject.toml`, `go.mod` |
 
 Platform SDKs lean toward the bottom of that table, with compilers, emulators, and build tooling. API SDKs lean toward the top: a client library, its types, and the helpers that make network calls reliable.
 
@@ -29,7 +29,7 @@ Platform SDKs lean toward the bottom of that table, with compilers, emulators, a
 
 ### Platform SDKs
 
-These let you build software *for* a platform. The [Android SDK](https://developer.android.com/studio) and Apple's [iOS SDK in Xcode](https://developer.apple.com/xcode/) include compilers, system libraries, simulators, and debugging tools. You do not call them over a network; you build against them.
+These let you build software _for_ a platform. The [Android SDK](https://developer.android.com/studio) and Apple's [iOS SDK in Xcode](https://developer.apple.com/xcode/) include compilers, system libraries, simulators, and debugging tools. You do not call them over a network; you build against them.
 
 ### API SDKs (client libraries)
 
@@ -83,16 +83,16 @@ The developer never writes a URL, a header, or a retry loop. The `apiKey`, `maxR
 
 Looking at a real repository helps more than any definition. The top level of the Warp TypeScript SDK on its `scalar-generated` branch contains, among other files:
 
-| Path | Purpose |
-| --- | --- |
-| `src/` | The client, resources (one module per API resource), and core runtime |
-| `tests/` | Generated tests |
-| `api.md` | Every method grouped by resource, with request and response types |
-| `README.md` | Installation, authentication, errors, client and request options |
-| `SKILL.md` and `.claude/skills/` | Instructions that help coding agents call the API correctly |
-| `package.json` | Package name (`warp-hr`), exports for ESM and CommonJS |
-| `CHANGELOG.md`, `release-please-config.json` | Versioning and release history |
-| `.github/workflows/` | CI and publishing workflows |
+| Path                                         | Purpose                                                               |
+| -------------------------------------------- | --------------------------------------------------------------------- |
+| `src/`                                       | The client, resources (one module per API resource), and core runtime |
+| `tests/`                                     | Generated tests                                                       |
+| `api.md`                                     | Every method grouped by resource, with request and response types     |
+| `README.md`                                  | Installation, authentication, errors, client and request options      |
+| `SKILL.md` and `.claude/skills/`             | Instructions that help coding agents call the API correctly           |
+| `package.json`                               | Package name (`warp-hr`), exports for ESM and CommonJS                |
+| `CHANGELOG.md`, `release-please-config.json` | Versioning and release history                                        |
+| `.github/workflows/`                         | CI and publishing workflows                                           |
 
 Notice how much of that is not code. Documentation, release configuration, and agent instructions are part of what makes an SDK usable, and they are the parts hand-written SDKs most often skip.
 

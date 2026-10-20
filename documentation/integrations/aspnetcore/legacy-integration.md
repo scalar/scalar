@@ -6,7 +6,6 @@ This guide explains how to integrate API Reference into .NET Framework and .NET 
 
 - An ASP.NET or ASP.NET Core application with OpenAPI support (using `Swashbuckle.AspNetCore.SwaggerGen` or `NSwag.AspNetCore`)
 
-
 ## Step 1: Enable OpenAPI support in your project
 
 ```csharp

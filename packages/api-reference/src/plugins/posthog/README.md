@@ -28,9 +28,9 @@ const configuration = {
 
 ## Configuration
 
-| Option | Type | Required | Description |
-|--------|------|----------|-------------|
-| `apiKey` | `string` | Yes | Your PostHog project API key |
-| `apiHost` | `string` | Yes | The PostHog API host URL |
-| `uiHost` | `string` | No | The PostHog UI host URL (for session recordings, surveys, etc.) |
-| `defaults` | `ConfigDefaults` | No | PostHog defaults version identifier |
+| Option     | Type             | Required | Description                                                     |
+| ---------- | ---------------- | -------- | --------------------------------------------------------------- |
+| `apiKey`   | `string`         | Yes      | Your PostHog project API key                                    |
+| `apiHost`  | `string`         | Yes      | The PostHog API host URL                                        |
+| `uiHost`   | `string`         | No       | The PostHog UI host URL (for session recordings, surveys, etc.) |
+| `defaults` | `ConfigDefaults` | No       | PostHog defaults version identifier                             |

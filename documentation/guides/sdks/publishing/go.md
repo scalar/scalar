@@ -2,7 +2,7 @@
 
 Go modules have no central registry. A module is "published" by tagging a version in its repository, and the [Go module proxy](https://proxy.golang.org/) serves it from there. See the [Go configuration](../configuration/go.md#publish) for module path options.
 
-Because of this, the Go target needs **no registry account, no token, and no secrets**, and `authMethod` does not apply. The `vX.Y.Z` Git tag and GitHub Release cut when you merge the release pull request *are* the published version.
+Because of this, the Go target needs **no registry account, no token, and no secrets**, and `authMethod` does not apply. The `vX.Y.Z` Git tag and GitHub Release cut when you merge the release pull request _are_ the published version.
 
 ## Enable publishing
 

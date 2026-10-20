@@ -6,15 +6,15 @@ If you are evaluating documentation tools around an existing OpenAPI document, t
 
 ## At a glance
 
-| | |
-| --- | --- |
-| Input | OpenAPI 3.0, OpenAPI 3.1; Swagger 2.0 documents are upgraded on load |
-| Output | Interactive API reference, API client, SDKs, MCP server — from one document |
-| Renderer license | MIT, at [github.com/scalar/scalar](https://github.com/scalar/scalar) |
+|                        |                                                                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Input                  | OpenAPI 3.0, OpenAPI 3.1; Swagger 2.0 documents are upgraded on load                                                         |
+| Output                 | Interactive API reference, API client, SDKs, MCP server — from one document                                                  |
+| Renderer license       | MIT, at [github.com/scalar/scalar](https://github.com/scalar/scalar)                                                         |
 | Framework integrations | More than 35 — Express, Fastify, Hono, NestJS, Next.js, FastAPI, Django, Rails, Laravel, ASP.NET Core, Spring Boot, and more |
-| Where it runs | Hosted on Scalar, self-hosted, or mounted inside your own application |
-| Staying in sync | Automatic redeploys from Git or from the Scalar Registry |
-| Price | Free hosted docs; Pro at $150/month with one SDK included; additional SDKs from $150/month each |
+| Where it runs          | Hosted on Scalar, self-hosted, or mounted inside your own application                                                        |
+| Staying in sync        | Automatic redeploys from Git or from the Scalar Registry                                                                     |
+| Price                  | Free hosted docs; Pro at $150/month with one SDK included; additional SDKs from $150/month each                              |
 
 ## What Scalar does with an OpenAPI document
 
@@ -99,4 +99,4 @@ The MIT-licensed renderer is free regardless of plan, on your own infrastructure
 
 ---
 
-*This page describes Scalar's products as of July 2026, based on Scalar's own documentation and source code. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page describes Scalar's products as of July 2026, based on Scalar's own documentation and source code. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

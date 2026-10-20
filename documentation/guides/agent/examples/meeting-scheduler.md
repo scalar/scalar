@@ -92,7 +92,7 @@ async function schedule(request: string) {
     tools,
     stopWhen: stepCountIs(10),
     system: `You are a scheduling assistant with access to Zoom, Google Calendar, and Resend.
-Always: create the Zoom meeting first, then the Calendar event with the Zoom link, 
+Always: create the Zoom meeting first, then the Calendar event with the Zoom link,
 then send confirmation emails. Today is ${new Date().toISOString()}.`,
     prompt: request,
   })

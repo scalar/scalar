@@ -45,11 +45,11 @@ def get_book(book_id: int) -> Book:
 
 Run it with `fastapi dev main.py` and you get three URLs:
 
-| URL | What it is | Controlled by |
-| --- | --- | --- |
+| URL             | What it is           | Controlled by |
+| --------------- | -------------------- | ------------- |
 | `/openapi.json` | The OpenAPI document | `openapi_url` |
-| `/docs` | Swagger UI | `docs_url` |
-| `/redoc` | ReDoc | `redoc_url` |
+| `/docs`         | Swagger UI           | `docs_url`    |
+| `/redoc`        | ReDoc                | `redoc_url`   |
 
 Set any of them to `None` to turn it off. Setting `openapi_url=None` disables the document and both UIs, because the UIs read from it.
 

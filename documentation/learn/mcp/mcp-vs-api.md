@@ -1,6 +1,6 @@
 # MCP vs API: what is the difference?
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 An API is the interface a service exposes so other software can use it, while MCP (the Model Context Protocol) is a standard that lets AI applications discover and call tools, and those tools usually call APIs. So MCP is not an alternative to your API. It is a layer on top of it, designed for a different kind of consumer: a language model working inside a host application such as Claude, ChatGPT, Cursor, or VS Code.
 
@@ -54,20 +54,20 @@ For a deeper introduction, read [what is MCP](/learn/mcp/what-is-mcp).
 
 ## MCP vs API, side by side
 
-| | HTTP API | MCP server |
-| --- | --- | --- |
-| **Primary consumer** | Programs written by developers | Language models inside AI applications |
-| **Who decides what to call** | The developer, at build time | The model, at run time, with user oversight |
-| **How capabilities are discovered** | Documentation and an OpenAPI document, read ahead of time | `tools/list` at run time, read into the model's context |
-| **Wire format** | HTTP methods, paths, status codes, usually JSON bodies | JSON-RPC 2.0 messages such as `tools/call` over stdio or Streamable HTTP |
-| **Unit of functionality** | Endpoint (operation) | Tool, resource, or prompt |
-| **Input contract** | Path, query, header, cookie parameters plus a body | One JSON object validated by the tool's `inputSchema` |
-| **Errors** | HTTP status codes and error bodies | Tool results with `isError: true` that the model can read and act on |
-| **Authentication** | API keys, bearer tokens, OAuth, mTLS, defined per API | OAuth-based framework for remote servers; upstream credentials held by the server, never by the model |
-| **State** | Up to the API design (usually stateless) | Stateless per request since 2026-07-28; state carried in explicit handles |
-| **Cost per call** | Network and compute | Network, compute, and model tokens for tool definitions and results |
-| **Change management** | Versioning and deprecation | Tool lists can change; clients can subscribe to list-changed notifications |
-| **Typical size** | Tens to thousands of endpoints | Best kept small; clients cap tools (VS Code: [128 per request](https://github.com/microsoft/vscode/issues/290356)) |
+|                                     | HTTP API                                                  | MCP server                                                                                                         |
+| ----------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Primary consumer**                | Programs written by developers                            | Language models inside AI applications                                                                             |
+| **Who decides what to call**        | The developer, at build time                              | The model, at run time, with user oversight                                                                        |
+| **How capabilities are discovered** | Documentation and an OpenAPI document, read ahead of time | `tools/list` at run time, read into the model's context                                                            |
+| **Wire format**                     | HTTP methods, paths, status codes, usually JSON bodies    | JSON-RPC 2.0 messages such as `tools/call` over stdio or Streamable HTTP                                           |
+| **Unit of functionality**           | Endpoint (operation)                                      | Tool, resource, or prompt                                                                                          |
+| **Input contract**                  | Path, query, header, cookie parameters plus a body        | One JSON object validated by the tool's `inputSchema`                                                              |
+| **Errors**                          | HTTP status codes and error bodies                        | Tool results with `isError: true` that the model can read and act on                                               |
+| **Authentication**                  | API keys, bearer tokens, OAuth, mTLS, defined per API     | OAuth-based framework for remote servers; upstream credentials held by the server, never by the model              |
+| **State**                           | Up to the API design (usually stateless)                  | Stateless per request since 2026-07-28; state carried in explicit handles                                          |
+| **Cost per call**                   | Network and compute                                       | Network, compute, and model tokens for tool definitions and results                                                |
+| **Change management**               | Versioning and deprecation                                | Tool lists can change; clients can subscribe to list-changed notifications                                         |
+| **Typical size**                    | Tens to thousands of endpoints                            | Best kept small; clients cap tools (VS Code: [128 per request](https://github.com/microsoft/vscode/issues/290356)) |
 
 ## The same task, two ways
 
@@ -203,4 +203,4 @@ Yes. A server can wrap several APIs, and a single tool can combine multiple API 
 
 ---
 
-*MCP details reflect specification revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. Benchmark figures come from Scalar's own March 2026 test and are linked inline.*
+_MCP details reflect specification revision 2026-07-28 as published on modelcontextprotocol.io, checked on 26 September 2026. Benchmark figures come from Scalar's own March 2026 test and are linked inline._

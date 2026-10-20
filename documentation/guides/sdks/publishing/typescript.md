@@ -30,7 +30,7 @@ Skip this section if the package is already on npm.
 
 On npmjs.com, open **Access Tokens → Generate New Token** and create a [granular access token](https://docs.npmjs.com/creating-and-viewing-access-tokens) with:
 
-- **Permissions:** **Read and write (publish and stage)**. The *stage only* variant parks the version awaiting an interactive approval instead of publishing it.
+- **Permissions:** **Read and write (publish and stage)**. The _stage only_ variant parks the version awaiting an interactive approval instead of publishing it.
 - **Bypass 2FA:** on. Account-level or package-level 2FA otherwise answers the publish with a one-time-password prompt no workflow can satisfy.
 - **Packages:** the npm scope for a scoped name, creating that scope or organization first, or **All packages** for an unscoped one. The selector lists only packages and scopes that already exist, so a package that has never been published is not in it.
 

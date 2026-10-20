@@ -1,6 +1,6 @@
 # Scalar vs. Zuplo
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Zuplo is an API gateway where your API traffic flows through their infrastructure. They handle proxying, rate limiting, authentication, and monetization, and every plan also includes a [developer portal](https://zuplo.com/pricing) for documentation, built on their open-source [Zudoku](https://github.com/zuplo/zudoku) framework.
 
@@ -21,12 +21,12 @@ Zuplo and Scalar serve different purposes and can be used together. Keep Zuplo a
 
 The two products are priced on different things, so compare them by what you actually need.
 
-| Plan       | Scalar                                                   | Zuplo                                                                  |
-| ---------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Free       | $0 (up to 3 APIs, 1 editor seat)                         | [$0](https://zuplo.com/pricing) (100K requests/month)                  |
-| Paid       | Pro: $150/month, or $125/month billed yearly (5 seats)   | [Builder](https://zuplo.com/pricing): $25/month, 100K requests included, then $100 per 100K |
-| Higher     | Business: $600/month, or $500/month billed yearly (10 seats) | —                                                                  |
-| Enterprise | Custom pricing                                           | [Enterprise](https://zuplo.com/pricing): from $1,000/month, billed annually |
+| Plan       | Scalar                                                       | Zuplo                                                                                       |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Free       | $0 (up to 3 APIs, 1 editor seat)                             | [$0](https://zuplo.com/pricing) (100K requests/month)                                       |
+| Paid       | Pro: $150/month, or $125/month billed yearly (5 seats)       | [Builder](https://zuplo.com/pricing): $25/month, 100K requests included, then $100 per 100K |
+| Higher     | Business: $600/month, or $500/month billed yearly (10 seats) | —                                                                                           |
+| Enterprise | Custom pricing                                               | [Enterprise](https://zuplo.com/pricing): from $1,000/month, billed annually                 |
 
 - Scalar pricing is based on seats, APIs, and SDKs (a documentation platform), while Zuplo pricing is based on requests (gateway usage).
 - Zuplo includes its developer portal on every plan, including Free, according to its [pricing page](https://zuplo.com/pricing). If a portal on top of the gateway you already pay for is all you need, staying on Zuplo is the cheaper option.
@@ -38,39 +38,39 @@ For detailed pricing information, visit [Scalar Pricing](/pricing) and [Zuplo Pr
 
 The Zuplo column reflects Zuplo's public pricing and docs as of September 2026. A dash means we did not verify the feature either way, not that Zuplo lacks it.
 
-| Feature                      | Scalar                    | Zuplo Developer Portal |
-| ---------------------------- | :-----------------------: | :--------------------: |
-| **Specification Support**    |                           |                        |
-| OpenAPI 3.0                  | ✓                         | ✓                      |
-| OpenAPI 3.1                  | ✓                         | ✓                      |
-| OpenAPI 3.2                  | ✓                         | —                      |
-| **Documentation**            |                           |                        |
-| API Reference                | ✓                         | ✓                      |
-| API Client / Playground      | ✓                         | ✓ ([playground](https://zuplo.com/docs/dev-portal/zudoku/components/playground)) |
-| Unified Search               | ✓                         | —                      |
-| Markdown and MDX Guides      | ✓                         | ✓ ([MDX](https://zuplo.com/docs/dev-portal/overview)) |
-| **Customization**            |                           |                        |
-| Custom Domain                | Pro and up                | ✓ ([pricing](https://zuplo.com/pricing)) |
-| Custom Styling (CSS)         | ✓                         | ✓ (theming)            |
-| Built-in Themes              | 11 themes                 | —                      |
-| **Developer Tools**          |                           |                        |
-| Desktop API Client           | ✓                         | —                      |
-| SDK Generation               | ✓ (7 GA, 6 experimental)  | —                      |
-| Hosted MCP servers           | ✓                         | —                      |
-| Mock Server                  | ✓                         | ✓ ([mock policy](https://zuplo.com/docs/policies/mock-api-inbound)) |
-| Spectral Linting             | ✓                         | —                      |
-| Code Snippet Generation      | 25+ languages             | —                      |
-| **Integrations**             |                           |                        |
-| Git Sync                  | ✓                         | —                      |
-| CLI                          | ✓                         | —                      |
-| Framework Integrations       | many (see below)          | —                      |
-| **Open Source**              |                           |                        |
-| Self-hostable                | ✓ (MIT)                   | ✓ ([Zudoku](https://github.com/zuplo/zudoku), MIT) |
-| **Community**                |                           |                        |
-| GitHub Stars                 | [15.7k](https://github.com/scalar/scalar) | [596](https://github.com/zuplo/zudoku) |
-| npm Downloads (week to Sept 25, 2026) | [1.2M](https://www.npmjs.com/package/@scalar/api-reference) | [52K](https://www.npmjs.com/package/zudoku) |
-| PRs merged (2025)            | [2,075](https://github.com/scalar/scalar/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) | [937](https://github.com/zuplo/zudoku/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) |
-| Discord                      | [discord.gg/scalar](https://discord.gg/scalar) |                        |
+| Feature                               |                                                Scalar                                                 |                                       Zuplo Developer Portal                                       |
+| ------------------------------------- | :---------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
+| **Specification Support**             |                                                                                                       |                                                                                                    |
+| OpenAPI 3.0                           |                                                   ✓                                                   |                                                 ✓                                                  |
+| OpenAPI 3.1                           |                                                   ✓                                                   |                                                 ✓                                                  |
+| OpenAPI 3.2                           |                                                   ✓                                                   |                                                 —                                                  |
+| **Documentation**                     |                                                                                                       |                                                                                                    |
+| API Reference                         |                                                   ✓                                                   |                                                 ✓                                                  |
+| API Client / Playground               |                                                   ✓                                                   |          ✓ ([playground](https://zuplo.com/docs/dev-portal/zudoku/components/playground))          |
+| Unified Search                        |                                                   ✓                                                   |                                                 —                                                  |
+| Markdown and MDX Guides               |                                                   ✓                                                   |                       ✓ ([MDX](https://zuplo.com/docs/dev-portal/overview))                        |
+| **Customization**                     |                                                                                                       |                                                                                                    |
+| Custom Domain                         |                                              Pro and up                                               |                              ✓ ([pricing](https://zuplo.com/pricing))                              |
+| Custom Styling (CSS)                  |                                                   ✓                                                   |                                            ✓ (theming)                                             |
+| Built-in Themes                       |                                               11 themes                                               |                                                 —                                                  |
+| **Developer Tools**                   |                                                                                                       |                                                                                                    |
+| Desktop API Client                    |                                                   ✓                                                   |                                                 —                                                  |
+| SDK Generation                        |                                       ✓ (7 GA, 6 experimental)                                        |                                                 —                                                  |
+| Hosted MCP servers                    |                                                   ✓                                                   |                                                 —                                                  |
+| Mock Server                           |                                                   ✓                                                   |                ✓ ([mock policy](https://zuplo.com/docs/policies/mock-api-inbound))                 |
+| Spectral Linting                      |                                                   ✓                                                   |                                                 —                                                  |
+| Code Snippet Generation               |                                             25+ languages                                             |                                                 —                                                  |
+| **Integrations**                      |                                                                                                       |                                                                                                    |
+| Git Sync                              |                                                   ✓                                                   |                                                 —                                                  |
+| CLI                                   |                                                   ✓                                                   |                                                 —                                                  |
+| Framework Integrations                |                                           many (see below)                                            |                                                 —                                                  |
+| **Open Source**                       |                                                                                                       |                                                                                                    |
+| Self-hostable                         |                                                ✓ (MIT)                                                |                         ✓ ([Zudoku](https://github.com/zuplo/zudoku), MIT)                         |
+| **Community**                         |                                                                                                       |                                                                                                    |
+| GitHub Stars                          |                               [15.7k](https://github.com/scalar/scalar)                               |                               [596](https://github.com/zuplo/zudoku)                               |
+| npm Downloads (week to Sept 25, 2026) |                      [1.2M](https://www.npmjs.com/package/@scalar/api-reference)                      |                            [52K](https://www.npmjs.com/package/zudoku)                             |
+| PRs merged (2025)                     | [2,075](https://github.com/scalar/scalar/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) | [937](https://github.com/zuplo/zudoku/pulls?q=is%3Apr+is%3Amerged+merged%3A2025-01-01..2025-12-31) |
+| Discord                               |                            [discord.gg/scalar](https://discord.gg/scalar)                             |                                                                                                    |
 
 ### SDKs
 
@@ -110,7 +110,7 @@ Scalar provides official integrations for many popular web frameworks, making it
 | Docusaurus    | ✓         |
 | Astro         | ✓         |
 | ASP.NET Core  | ✓         |
-| Aspire   | ✓         |
+| Aspire        | ✓         |
 | FastAPI       | ✓         |
 | Django Ninja  | ✓         |
 | Spring (Java) | ✓         |
@@ -215,6 +215,7 @@ If you have customized your Zuplo developer portal with CSS, you can pass it as 
 ```
 
 Scalar also includes 11 built-in themes that you can use as a starting point:
+
 - `default`, `alternate`, `moon`, `purple`, `solarized`, `bluePlanet`, `saturn`, `kepler`, `mars`, `deepSpace`, `laserwave`
 
 ### Step 6: (Optional) Migrate Markdown Guides
@@ -357,4 +358,4 @@ TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are generally available. C#,
 
 ---
 
-*Zuplo details on this page come from its [pricing page](https://zuplo.com/pricing), [documentation](https://zuplo.com/docs/articles/openapi), and the [Zudoku repository](https://github.com/zuplo/zudoku) as checked on September 26, 2026. Download and pull-request figures come from the npm registry and GitHub search on the same date. Zuplo's plans and features may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Zuplo details on this page come from its [pricing page](https://zuplo.com/pricing), [documentation](https://zuplo.com/docs/articles/openapi), and the [Zudoku repository](https://github.com/zuplo/zudoku) as checked on September 26, 2026. Download and pull-request figures come from the npm registry and GitHub search on the same date. Zuplo's plans and features may change. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

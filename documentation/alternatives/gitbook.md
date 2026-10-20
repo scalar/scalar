@@ -1,6 +1,6 @@
 # Best GitBook alternatives for API documentation (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The best GitBook alternative for API documentation is one that treats your OpenAPI document as the center of the site rather than one block among many. GitBook is a strong knowledge and product docs tool, and its API features are better than many people assume. This page is for teams whose docs are mostly API, and who are wondering whether an API-first platform fits better.
 
@@ -24,15 +24,15 @@ Pair that with a friendly block editor, Git sync, and good search, and many team
 
 ## GitBook alternatives at a glance
 
-| Tool | API-first | SDK generation | Standalone API client | Self-host option | Entry paid price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | Yes | Native | Yes, open source | MIT API reference on any plan | Pro $150/month, 5 editor seats ([pricing](/pricing)) |
-| **Mintlify** | Partly | No | No | Enterprise | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing)) |
-| **ReadMe** | Yes | `api` CLI, TypeScript/JavaScript | No | No | Pro $250/month billed annually ([pricing](https://readme.com/pricing)) |
-| **Fern** | Yes | Native | No | Enterprise | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing)) |
-| **Redocly** | Yes | No | No | Yes | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
-| **Docusaurus** | No, needs a plugin | No | No | Yes, MIT | Free |
-| **GitBook (stay)** | Partly | No | In-docs "Test it" | No | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
+| Tool               | API-first          | SDK generation                   | Standalone API client | Self-host option              | Entry paid price                                                                          |
+| ------------------ | ------------------ | -------------------------------- | --------------------- | ----------------------------- | ----------------------------------------------------------------------------------------- |
+| **Scalar**         | Yes                | Native                           | Yes, open source      | MIT API reference on any plan | Pro $150/month, 5 editor seats ([pricing](/pricing))                                      |
+| **Mintlify**       | Partly             | No                               | No                    | Enterprise                    | Pro $450/month on annual billing ([pricing](https://mintlify.com/pricing))                |
+| **ReadMe**         | Yes                | `api` CLI, TypeScript/JavaScript | No                    | No                            | Pro $250/month billed annually ([pricing](https://readme.com/pricing))                    |
+| **Fern**           | Yes                | Native                           | No                    | Enterprise                    | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing))              |
+| **Redocly**        | Yes                | No                               | No                    | Yes                           | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))                           |
+| **Docusaurus**     | No, needs a plugin | No                               | No                    | Yes, MIT                      | Free                                                                                      |
+| **GitBook (stay)** | Partly             | No                               | In-docs "Test it"     | No                            | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
 
 Prices were checked on each vendor's pricing page on September 26, 2026.
 
@@ -108,14 +108,14 @@ Redocly pairs Redoc-based docs with OpenAPI linting, priced per seat ([pricing](
 
 Moving is mostly about content shape, not content volume. Here is what to expect.
 
-| Area | In GitBook | In Scalar |
-| --- | --- | --- |
-| OpenAPI source | Uploaded file, URL checked every 6 hours, or CLI | File in your Git repository, the [Registry](/products/registry), or a URL |
-| Reference layout | Pages per tag inside a space | A dedicated API reference with every operation and schema |
-| Guides | Block editor, with Git Sync | Markdown and MDX in Git, with Git Sync on Pro |
-| Trying requests | "Test it" on each operation, powered by Scalar | The same client, plus a standalone app |
-| Multiple APIs | One site per product, priced per site | Up to 3, 15 or 25 APIs depending on plan |
-| SDKs | Not available | Generated from the same document |
+| Area             | In GitBook                                       | In Scalar                                                                 |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------------------------------- |
+| OpenAPI source   | Uploaded file, URL checked every 6 hours, or CLI | File in your Git repository, the [Registry](/products/registry), or a URL |
+| Reference layout | Pages per tag inside a space                     | A dedicated API reference with every operation and schema                 |
+| Guides           | Block editor, with Git Sync                      | Markdown and MDX in Git, with Git Sync on Pro                             |
+| Trying requests  | "Test it" on each operation, powered by Scalar   | The same client, plus a standalone app                                    |
+| Multiple APIs    | One site per product, priced per site            | Up to 3, 15 or 25 APIs depending on plan                                  |
+| SDKs             | Not available                                    | Generated from the same document                                          |
 
 The piece that usually takes longest is not the reference, which regenerates from your OpenAPI document in minutes. It is the prose: GitBook-specific blocks such as hints, tabs and embeds need mapping to Scalar components. Plan time for that review, and use it as a chance to prune pages nobody reads.
 
@@ -161,4 +161,4 @@ Yes. GitBook supports [Git Sync with GitHub and GitLab](https://gitbook.com/docs
 
 ---
 
-*This page is based on GitBook's public documentation, blog and pricing page, and on the public pages of every other tool listed, as checked on September 26, 2026. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on GitBook's public documentation, blog and pricing page, and on the public pages of every other tool listed, as checked on September 26, 2026. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

@@ -47,11 +47,11 @@ Passing a factory instead of a finished document is the current recommended form
 
 With that in place:
 
-| URL | What it is |
-| --- | --- |
-| `/api` | Swagger UI |
+| URL         | What it is                   |
+| ----------- | ---------------------------- |
+| `/api`      | Swagger UI                   |
 | `/api-json` | The OpenAPI document as JSON |
-| `/api-yaml` | The same document as YAML |
+| `/api-yaml` | The same document as YAML    |
 
 All three are configurable through the fourth argument to `setup()`, which takes options such as `jsonDocumentUrl`, `yamlDocumentUrl`, `ui` (set it to `false` to serve only the document) and `raw` (choose which formats are exposed). `useGlobalPrefix: true` puts them under your global prefix.
 

@@ -28,10 +28,10 @@ npm add @scalar/openapi-types
 
 ## Versions
 
-* OpenAPI 3.2
-* OpenAPI 3.1
-* OpenAPI 3.0
-* Swagger 2.0
+- OpenAPI 3.2
+- OpenAPI 3.1
+- OpenAPI 3.0
+- Swagger 2.0
 
 ## Usage
 
@@ -96,19 +96,19 @@ Schema discriminators narrow a `SchemaObject` union to the variant whose `type`
 matches the guard, so type-specific properties (such as `properties`, `items`,
 or `minLength`) become accessible without a manual cast.
 
-| Helper                | Matches when…                                          |
-| --------------------- | ------------------------------------------------------ |
-| `isObjectSchema`      | `type === 'object'`                                    |
-| `isArraySchema`       | `type === 'array'`                                     |
-| `isStringSchema`      | `type === 'string'`                                    |
-| `isNumberSchema`      | `type === 'number'`                                    |
-| `isIntegerSchema`     | `type === 'integer'`                                   |
-| `isNumericSchema`     | `type === 'number'` or `type === 'integer'`            |
-| `isBooleanSchema`     | `type === 'boolean'`                                   |
-| `isNullSchema`        | `type === 'null'` (OpenAPI 3.1+)                       |
-| `isMultiTypeSchema`   | `type` is an array of primitive types (OpenAPI 3.1+)   |
-| `isUntypedSchema`     | `type` is not set                                      |
-| `isBooleanJsonSchema` | the schema itself is the literal `true` or `false`     |
+| Helper                | Matches when…                                        |
+| --------------------- | ---------------------------------------------------- |
+| `isObjectSchema`      | `type === 'object'`                                  |
+| `isArraySchema`       | `type === 'array'`                                   |
+| `isStringSchema`      | `type === 'string'`                                  |
+| `isNumberSchema`      | `type === 'number'`                                  |
+| `isIntegerSchema`     | `type === 'integer'`                                 |
+| `isNumericSchema`     | `type === 'number'` or `type === 'integer'`          |
+| `isBooleanSchema`     | `type === 'boolean'`                                 |
+| `isNullSchema`        | `type === 'null'` (OpenAPI 3.1+)                     |
+| `isMultiTypeSchema`   | `type` is an array of primitive types (OpenAPI 3.1+) |
+| `isUntypedSchema`     | `type` is not set                                    |
+| `isBooleanJsonSchema` | the schema itself is the literal `true` or `false`   |
 
 ```ts
 import { isArraySchema, isObjectSchema } from '@scalar/openapi-types/helpers'

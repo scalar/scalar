@@ -1,6 +1,6 @@
 # Scalar vs Stoplight
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Stoplight is a design-first API platform: a visual OpenAPI editor, hosted documentation, style-guide linting, and mock servers, tied together with Git. It also gave the ecosystem three of its most widely used open-source tools, Spectral, Prism, and Elements. If you are choosing where to design and publish your APIs, Stoplight belongs on your list, and so do we.
 
@@ -12,19 +12,19 @@ If you already know you are moving, the [Stoplight migration guide](/resources/m
 
 ## At a glance
 
-| | Scalar | Stoplight |
-| --- | --- | --- |
-| Owner | Scalar (independent) | [SmartBear, since 2023](https://smartbear.com/news/news-releases/smartbear-to-acquire-stoplight/) |
-| Free plan | Yes: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints | [Yes](https://stoplight.io/pricing): 1 project, 1 user |
-| Entry paid plan | $150/month flat, 5 editor seats | [Basic $44/month billed annually](https://stoplight.io/pricing), 3 users |
-| OpenAPI editing | [Scalar editor](https://editor.scalar.com/) plus Git sync | [Visual OpenAPI designer](https://stoplight.io/pricing) plus Git |
-| Docs renderer | MIT, self-hostable on any plan | Hosted platform; [Elements](https://github.com/stoplightio/elements) is Apache-2.0 |
-| Linting | Spectral-compatible rules in the registry | [Shared style guides](https://stoplight.io/pricing) built on [Spectral](https://github.com/stoplightio/spectral) |
-| Mock servers | Open-source mock server and CLI | [Instant mock servers](https://stoplight.io/pricing), built on [Prism](https://github.com/stoplightio/prism) |
-| Standalone API client | Yes, open source | No |
-| SDK generation | Yes | No |
-| Hosted MCP servers | Yes, on Pro | No |
-| Git providers | GitHub sync | [GitHub, GitLab, Azure DevOps, Bitbucket](https://stoplight.io/pricing) |
+|                       | Scalar                                                     | Stoplight                                                                                                        |
+| --------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Owner                 | Scalar (independent)                                       | [SmartBear, since 2023](https://smartbear.com/news/news-releases/smartbear-to-acquire-stoplight/)                |
+| Free plan             | Yes: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints | [Yes](https://stoplight.io/pricing): 1 project, 1 user                                                           |
+| Entry paid plan       | $150/month flat, 5 editor seats                            | [Basic $44/month billed annually](https://stoplight.io/pricing), 3 users                                         |
+| OpenAPI editing       | [Scalar editor](https://editor.scalar.com/) plus Git sync  | [Visual OpenAPI designer](https://stoplight.io/pricing) plus Git                                                 |
+| Docs renderer         | MIT, self-hostable on any plan                             | Hosted platform; [Elements](https://github.com/stoplightio/elements) is Apache-2.0                               |
+| Linting               | Spectral-compatible rules in the registry                  | [Shared style guides](https://stoplight.io/pricing) built on [Spectral](https://github.com/stoplightio/spectral) |
+| Mock servers          | Open-source mock server and CLI                            | [Instant mock servers](https://stoplight.io/pricing), built on [Prism](https://github.com/stoplightio/prism)     |
+| Standalone API client | Yes, open source                                           | No                                                                                                               |
+| SDK generation        | Yes                                                        | No                                                                                                               |
+| Hosted MCP servers    | Yes, on Pro                                                | No                                                                                                               |
+| Git providers         | GitHub sync                                                | [GitHub, GitLab, Azure DevOps, Bitbucket](https://stoplight.io/pricing)                                          |
 
 ## Where Stoplight is stronger
 
@@ -94,16 +94,16 @@ Stoplight is one product in SmartBear's portfolio, alongside Swagger, SoapUI, an
 
 Most Stoplight features have a direct counterpart in Scalar. A few do not, and they are listed honestly.
 
-| Stoplight | Scalar equivalent | Notes |
-| --- | --- | --- |
-| Studio visual designer | [OpenAPI editor](https://editor.scalar.com/) | Code-first editing; less guided for non-developers |
-| Git projects | GitHub sync, or CLI publishing from any CI | GitLab, Bitbucket, and Azure DevOps via CI rather than native sync |
-| Hosted docs | [Scalar Docs](/products/docs) | Markdown and MDX guides plus one or more API references |
-| Elements embed | MIT API reference and framework integrations | Same renderer as the hosted platform |
-| Style guides | Registry rules | Spectral-compatible; custom functions need rework |
-| Prism mocking | [Mock server](/tools/mock-server/getting-started) | Open source; or keep Prism |
-| Workspaces and teams | Namespaces, access groups (Pro), and SSO (Business) | Stoplight's multi-team governance is more elaborate |
-| Not available | API client, SDK generation, hosted MCP | Scalar only |
+| Stoplight              | Scalar equivalent                                   | Notes                                                              |
+| ---------------------- | --------------------------------------------------- | ------------------------------------------------------------------ |
+| Studio visual designer | [OpenAPI editor](https://editor.scalar.com/)        | Code-first editing; less guided for non-developers                 |
+| Git projects           | GitHub sync, or CLI publishing from any CI          | GitLab, Bitbucket, and Azure DevOps via CI rather than native sync |
+| Hosted docs            | [Scalar Docs](/products/docs)                       | Markdown and MDX guides plus one or more API references            |
+| Elements embed         | MIT API reference and framework integrations        | Same renderer as the hosted platform                               |
+| Style guides           | Registry rules                                      | Spectral-compatible; custom functions need rework                  |
+| Prism mocking          | [Mock server](/tools/mock-server/getting-started)   | Open source; or keep Prism                                         |
+| Workspaces and teams   | Namespaces, access groups (Pro), and SSO (Business) | Stoplight's multi-team governance is more elaborate                |
+| Not available          | API client, SDK generation, hosted MCP              | Scalar only                                                        |
 
 The last row is what Scalar adds on top of the design-first loop. The rows above it are why the move is usually straightforward: the underlying OpenAPI files, Spectral rules, and URLs carry across.
 
@@ -111,14 +111,14 @@ The last row is what Scalar adds on top of the design-first loop. The rows above
 
 Both vendors publish their prices, which makes this easy to check.
 
-| | Scalar | Stoplight |
-| --- | --- | --- |
-| Free | $0: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints | [$0](https://stoplight.io/pricing): 1 project, 1 user |
-| Entry | [Pro $150/month](/pricing), or $125/month billed yearly: 5 editor seats, up to 15 APIs, custom domains, Git sync, hosted MCP, 1 SDK up to 100 endpoints | [Basic $44/month billed annually, $56 monthly](https://stoplight.io/pricing): 3 users, unlimited projects |
-| Mid | [Business $600/month](/pricing), or $500/month billed yearly: SSO, subpath hosting, 10 editor seats, up to 25 APIs, SDKs up to 250 endpoints | [Startup $113/month annually, $147 monthly](https://stoplight.io/pricing): 8 users, private projects, custom domains. [Pro Team $362/month annually, $453 monthly](https://stoplight.io/pricing): 15 users, style guides, SSO |
-| Extra seats | Included seats by plan; Enterprise custom | [$11–$27 per user/month](https://stoplight.io/pricing) depending on plan and billing |
-| Enterprise | Custom | [Custom](https://stoplight.io/pricing) |
-| Trial | Free plan, no card | [14-day trial](https://stoplight.io/pricing) on paid plans |
+|             | Scalar                                                                                                                                                  | Stoplight                                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Free        | $0: up to 3 APIs, 1 editor seat, 1 SDK up to 25 endpoints                                                                                               | [$0](https://stoplight.io/pricing): 1 project, 1 user                                                                                                                                                                         |
+| Entry       | [Pro $150/month](/pricing), or $125/month billed yearly: 5 editor seats, up to 15 APIs, custom domains, Git sync, hosted MCP, 1 SDK up to 100 endpoints | [Basic $44/month billed annually, $56 monthly](https://stoplight.io/pricing): 3 users, unlimited projects                                                                                                                     |
+| Mid         | [Business $600/month](/pricing), or $500/month billed yearly: SSO, subpath hosting, 10 editor seats, up to 25 APIs, SDKs up to 250 endpoints            | [Startup $113/month annually, $147 monthly](https://stoplight.io/pricing): 8 users, private projects, custom domains. [Pro Team $362/month annually, $453 monthly](https://stoplight.io/pricing): 15 users, style guides, SSO |
+| Extra seats | Included seats by plan; Enterprise custom                                                                                                               | [$11–$27 per user/month](https://stoplight.io/pricing) depending on plan and billing                                                                                                                                          |
+| Enterprise  | Custom                                                                                                                                                  | [Custom](https://stoplight.io/pricing)                                                                                                                                                                                        |
+| Trial       | Free plan, no card                                                                                                                                      | [14-day trial](https://stoplight.io/pricing) on paid plans                                                                                                                                                                    |
 
 The comparison depends on team size and on what you need past documentation. For one to three people who only need a private designer, Stoplight Basic is cheaper. Once you need custom domains (Stoplight Startup) or SSO (Stoplight Pro Team at $362/month billed annually, versus Scalar Business at $600/month), the numbers move closer, and Scalar's plans also include SDKs and hosted MCP servers that Stoplight does not offer at any price. Run your own numbers; both pricing pages have enough detail to do it.
 
@@ -196,4 +196,4 @@ Both are open-source components that render an OpenAPI document. Elements is Apa
 
 ---
 
-*This comparison is based on Stoplight's public pricing page, open-source repositories, npm releases, and SmartBear's acquisition announcement as of September 2026, and on Scalar's own source. Stoplight is owned by SmartBear and its product direction may change. We have made a genuine effort to be accurate and to state where Stoplight is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This comparison is based on Stoplight's public pricing page, open-source repositories, npm releases, and SmartBear's acquisition announcement as of September 2026, and on Scalar's own source. Stoplight is owned by SmartBear and its product direction may change. We have made a genuine effort to be accurate and to state where Stoplight is better. If you find something wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

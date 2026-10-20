@@ -1,6 +1,6 @@
 # Best Mintlify alternatives (2026)
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 The right Mintlify alternative depends on one question: who owns your documentation? If writers own it, the alternatives are other hosted docs platforms. If engineers own it and it starts from an OpenAPI document, the alternatives look quite different, and that is where Scalar fits.
 
@@ -22,15 +22,15 @@ Mintlify is a very good product with serious momentum; it raised a [$45M Series 
 
 ## Mintlify alternatives at a glance
 
-| Tool | Best for | Renderer | SDK generation | API client | Entry paid price |
-| --- | --- | --- | --- | --- | --- |
-| **Scalar** | OpenAPI-first engineering teams | MIT API reference, hosted docs | Native | Yes, open source | Pro $150/month ([pricing](/pricing)) |
-| **Fern** | Docs plus SDKs, Postman shops | Closed, hosted | Native | No | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing)) |
-| **ReadMe** | API usage analytics | Closed, hosted | `api` CLI for TypeScript/JavaScript | No | Pro $250/month billed annually ([pricing](https://readme.com/pricing)) |
-| **GitBook** | Mixed product and API docs | Closed, hosted | No | In-docs "Test it", powered by Scalar | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
-| **Redocly** | Docs-as-code and API governance | Redoc open source; platform commercial | No | No | Pro $10 per seat/month ([pricing](https://redocly.com/pricing)) |
-| **Docusaurus** | Self-hosted, open-source sites | MIT, self-hosted | No | No | Free |
-| **Bump.sh** | Hosted reference with change history | Hosted | No | No | Basic $50/month ([pricing](https://bump.sh/pricing)) |
+| Tool           | Best for                             | Renderer                               | SDK generation                      | API client                           | Entry paid price                                                                          |
+| -------------- | ------------------------------------ | -------------------------------------- | ----------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| **Scalar**     | OpenAPI-first engineering teams      | MIT API reference, hosted docs         | Native                              | Yes, open source                     | Pro $150/month ([pricing](/pricing))                                                      |
+| **Fern**       | Docs plus SDKs, Postman shops        | Closed, hosted                         | Native                              | No                                   | Free tiers; Enterprise custom ([pricing](https://buildwithfern.com/pricing))              |
+| **ReadMe**     | API usage analytics                  | Closed, hosted                         | `api` CLI for TypeScript/JavaScript | No                                   | Pro $250/month billed annually ([pricing](https://readme.com/pricing))                    |
+| **GitBook**    | Mixed product and API docs           | Closed, hosted                         | No                                  | In-docs "Test it", powered by Scalar | Premium $65 per site/month plus $12 per user ([pricing](https://www.gitbook.com/pricing)) |
+| **Redocly**    | Docs-as-code and API governance      | Redoc open source; platform commercial | No                                  | No                                   | Pro $10 per seat/month ([pricing](https://redocly.com/pricing))                           |
+| **Docusaurus** | Self-hosted, open-source sites       | MIT, self-hosted                       | No                                  | No                                   | Free                                                                                      |
+| **Bump.sh**    | Hosted reference with change history | Hosted                                 | No                                  | No                                   | Basic $50/month ([pricing](https://bump.sh/pricing))                                      |
 
 Prices were checked on each vendor's pricing page on September 26, 2026.
 
@@ -151,4 +151,4 @@ For writer-led docs, large editing teams and heavy localization, Mintlify is oft
 
 ---
 
-*This page is based on Mintlify's public pricing page, documentation and blog, and on the public pages of every other tool listed, as checked on September 26, 2026. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_This page is based on Mintlify's public pricing page, documentation and blog, and on the public pages of every other tool listed, as checked on September 26, 2026. Products in this category change quickly. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

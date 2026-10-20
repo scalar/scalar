@@ -48,12 +48,12 @@ The reference is served from `/api-reference` by default.
 
 ## Options
 
-| Option          | Default            | Description                                                                                     |
-| --------------- | ------------------ | ----------------------------------------------------------------------------------------------- |
+| Option          | Default            | Description                                                                                          |
+| --------------- | ------------------ | ---------------------------------------------------------------------------------------------------- |
 | `configuration` | —                  | Scalar's universal [configuration object](https://scalar.com/products/api-references/configuration). |
-| `pathname`      | `'/api-reference'` | The path the API reference is served from.                                                      |
-| `label`         | `'API Reference'`  | The label of the sidebar entry.                                                                 |
-| `title`         | the `label`        | The title of the API reference page.                                                            |
+| `pathname`      | `'/api-reference'` | The path the API reference is served from.                                                           |
+| `label`         | `'API Reference'`  | The label of the sidebar entry.                                                                      |
+| `title`         | the `label`        | The title of the API reference page.                                                                 |
 
 ## Multiple references
 

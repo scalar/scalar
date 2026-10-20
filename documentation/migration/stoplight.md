@@ -1,6 +1,6 @@
 # How to migrate from Stoplight to Scalar
 
-*Last updated: September 2026*
+_Last updated: September 2026_
 
 Stoplight built a well-loved API design platform: a visual OpenAPI editor, hosted docs, Spectral linting, and Prism mocking. SmartBear [announced it was acquiring Stoplight](https://smartbear.com/news/news-releases/smartbear-to-acquire-stoplight/) on August 22, 2023. Stoplight is still sold today, with a [free plan and paid tiers](https://stoplight.io/pricing), and we have not found an official end-of-life notice from SmartBear. Some in the community have noticed a slowdown, though. [APIs You Won't Hate wrote in October 2025](https://apisyouwonthate.com/newsletter/goodbye-stoplight/) that "work on Stoplight appears to be slowing" as SmartBear folds its features into API Hub.
 
@@ -89,7 +89,7 @@ Whichever approach you pick, once you have got the OpenAPI/Markdown content into
 
 ## Step 3: Scalar Config
 
-Once the project is hooked up to Scalar, the next step is to set up the Scalar config file.  By creating a `scalar.config.json` file we can add the details on where the OpenAPI documents live, and where the guides are sitting.
+Once the project is hooked up to Scalar, the next step is to set up the Scalar config file. By creating a `scalar.config.json` file we can add the details on where the OpenAPI documents live, and where the guides are sitting.
 
 ```json
 {
@@ -320,4 +320,4 @@ Scalar has its own mock server that generates responses from your schemas, which
 
 ---
 
-*Stoplight details on this page come from its [pricing page](https://stoplight.io/pricing), SmartBear's [acquisition announcement](https://smartbear.com/news/news-releases/smartbear-to-acquire-stoplight/), and Stoplight's GitHub repositories as checked on September 26, 2026. We could not find an official statement on Stoplight's long-term future and have said so rather than guess. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it.*
+_Stoplight details on this page come from its [pricing page](https://stoplight.io/pricing), SmartBear's [acquisition announcement](https://smartbear.com/news/news-releases/smartbear-to-acquire-stoplight/), and Stoplight's GitHub repositories as checked on September 26, 2026. We could not find an official statement on Stoplight's long-term future and have said so rather than guess. If something here is wrong or out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will correct it._

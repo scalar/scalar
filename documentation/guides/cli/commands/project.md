@@ -4,18 +4,18 @@
 
 Manage Scalar Docs projects.
 
-| Command | Description |
-| --- | --- |
-| [`scalar project list`](#list) | List projects and their slugs for the current team |
-| [`scalar project get`](#get) | Show project details for the current team |
-| [`scalar project init`](#init) | Initialize a local Scalar Docs project |
-| [`scalar project check-config`](#check-config) | Validate a Scalar configuration file |
-| [`scalar project create`](#create) | Create a Scalar project without a linked GitHub repository |
-| [`scalar project preview`](#preview) | Preview a Scalar Docs project locally |
-| [`scalar project publish`](#publish) | Publish a new build of a Scalar project |
-| [`scalar project rollback`](#rollback) | Roll the live deployment back to a previously deployed build |
-| [`scalar project deployments list`](#deployments-list) | List production deployments for a project |
-| [`scalar project upgrade`](#upgrade) | Upgrade a Scalar Docs configuration |
+| Command                                                | Description                                                  |
+| ------------------------------------------------------ | ------------------------------------------------------------ |
+| [`scalar project list`](#list)                         | List projects and their slugs for the current team           |
+| [`scalar project get`](#get)                           | Show project details for the current team                    |
+| [`scalar project init`](#init)                         | Initialize a local Scalar Docs project                       |
+| [`scalar project check-config`](#check-config)         | Validate a Scalar configuration file                         |
+| [`scalar project create`](#create)                     | Create a Scalar project without a linked GitHub repository   |
+| [`scalar project preview`](#preview)                   | Preview a Scalar Docs project locally                        |
+| [`scalar project publish`](#publish)                   | Publish a new build of a Scalar project                      |
+| [`scalar project rollback`](#rollback)                 | Roll the live deployment back to a previously deployed build |
+| [`scalar project deployments list`](#deployments-list) | List production deployments for a project                    |
+| [`scalar project upgrade`](#upgrade)                   | Upgrade a Scalar Docs configuration                          |
 
 ## list
 
@@ -27,8 +27,8 @@ scalar project list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description                    |
+| -------- | ------------------------------ |
 | `--json` | Print project details as JSON. |
 
 ## get
@@ -41,14 +41,14 @@ scalar project get [options] <slug>
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `slug` | **Required.** Project slug from scalar project list. |
+| Argument | Description                                          |
+| -------- | ---------------------------------------------------- |
+| `slug`   | **Required.** Project slug from scalar project list. |
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option   | Description                    |
+| -------- | ------------------------------ |
 | `--json` | Print project details as JSON. |
 
 ## init
@@ -61,10 +61,10 @@ scalar project init [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option                  | Description                                |
+| ----------------------- | ------------------------------------------ |
 | `-s, --subdomain [url]` | Subdomain for the published documentation. |
-| `--force` | Overwrite existing configuration. |
+| `--force`               | Overwrite existing configuration.          |
 
 ## check-config
 
@@ -76,9 +76,9 @@ scalar project check-config [options] [file]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
-| `file` | Scalar configuration file path (discovered in the current directory if omitted). |
+| Argument | Description                                                                      |
+| -------- | -------------------------------------------------------------------------------- |
+| `file`   | Scalar configuration file path (discovered in the current directory if omitted). |
 
 ## create
 
@@ -90,8 +90,8 @@ scalar project create [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option              | Description   |
+| ------------------- | ------------- |
 | `-n, --name <name>` | Project name. |
 | `-s, --slug <slug>` | Project slug. |
 
@@ -105,18 +105,18 @@ scalar project preview [options] [config]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument | Description                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------- |
 | `config` | Path to the Scalar configuration file (usually `scalar.config.json5` or `scalar.config.json`). |
 
 **Options**
 
-| Option | Description | Default |
-| --- | --- | --- |
-| `-p, --port [port]` | Preferred server port (uses another port if unavailable). | `7970` |
-| `-H, --host [host]` | Host address for the preview server. |  |
-| `-L, --log-level <level>` | Set the log level. One of `debug`, `info`. | `info` |
-| `-N, --no-open` | Do not open the browser automatically. |  |
+| Option                    | Description                                               | Default |
+| ------------------------- | --------------------------------------------------------- | ------- |
+| `-p, --port [port]`       | Preferred server port (uses another port if unavailable). | `7970`  |
+| `-H, --host [host]`       | Host address for the preview server.                      |         |
+| `-L, --log-level <level>` | Set the log level. One of `debug`, `info`.                | `info`  |
+| `-N, --no-open`           | Do not open the browser automatically.                    |         |
 
 ## publish
 
@@ -128,12 +128,12 @@ scalar project publish [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug [slug]` | Project slug from scalar project list. |
-| `-c, --config [config]` | Scalar configuration file path for local publishing. |
-| `-p, --preview` | Publish a preview without replacing the live deployment. |
-| `-g, --github` | Publish from the linked GitHub repository instead of local files. |
+| Option                  | Description                                                       |
+| ----------------------- | ----------------------------------------------------------------- |
+| `-s, --slug [slug]`     | Project slug from scalar project list.                            |
+| `-c, --config [config]` | Scalar configuration file path for local publishing.              |
+| `-p, --preview`         | Publish a preview without replacing the live deployment.          |
+| `-g, --github`          | Publish from the linked GitHub repository instead of local files. |
 
 ## rollback
 
@@ -145,11 +145,11 @@ scalar project rollback [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
-| `-s, --slug [slug]` | Project slug from scalar project list. |
+| Option                  | Description                                                                   |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `-s, --slug [slug]`     | Project slug from scalar project list.                                        |
 | `-t, --to <publishUid>` | Roll back to a specific build id (defaults to the next older deployed build). |
-| `-y, --yes` | Skip the confirmation prompt. |
+| `-y, --yes`             | Skip the confirmation prompt.                                                 |
 
 ## deployments list
 
@@ -161,8 +161,8 @@ scalar project deployments list [options]
 
 **Options**
 
-| Option | Description |
-| --- | --- |
+| Option              | Description                            |
+| ------------------- | -------------------------------------- |
 | `-s, --slug [slug]` | Project slug from scalar project list. |
 
 ## upgrade
@@ -175,6 +175,6 @@ scalar project upgrade [options] [config]
 
 **Arguments**
 
-| Argument | Description |
-| --- | --- |
+| Argument | Description                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------- |
 | `config` | Path to the Scalar configuration file (usually `scalar.config.json5` or `scalar.config.json`). |

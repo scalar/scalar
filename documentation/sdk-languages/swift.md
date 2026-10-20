@@ -65,15 +65,15 @@ OpenAPI Generator has several Swift client generators. According to its [generat
 
 That is a lot of choice, and for Swift today it makes OpenAPI Generator the more mature option. If you need Combine or RxSwift output, Vapor as a transport, or a stable generator you can ship to an App Store audience now, we would point you there.
 
-| | Scalar Swift target (experimental) | OpenAPI Generator `swift6` |
-| --- | --- | --- |
-| Status | Experimental | Stable (`swift5` deprecated) |
-| HTTP client | Generated client | `URLSession` (default), Alamofire, or Vapor |
-| Response style | Set by the generator | `AsyncAwait`, `Combine`, `Result`, `RxSwift`, and more |
-| `oneOf` / `anyOf` / `allOf` | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table |
-| Pagination | Not yet generated | Not among the generator's documented options |
-| Release | Tagged on merge for SwiftPM, no secrets | Your own tagging process |
-| Same config drives other languages | Yes | Separate generator run per language |
+|                                    | Scalar Swift target (experimental)            | OpenAPI Generator `swift6`                             |
+| ---------------------------------- | --------------------------------------------- | ------------------------------------------------------ |
+| Status                             | Experimental                                  | Stable (`swift5` deprecated)                           |
+| HTTP client                        | Generated client                              | `URLSession` (default), Alamofire, or Vapor            |
+| Response style                     | Set by the generator                          | `AsyncAwait`, `Combine`, `Result`, `RxSwift`, and more |
+| `oneOf` / `anyOf` / `allOf`        | Lowered into typed unions; check your preview | Marked unsupported in the generator's feature table    |
+| Pagination                         | Not yet generated                             | Not among the generator's documented options           |
+| Release                            | Tagged on merge for SwiftPM, no secrets       | Your own tagging process                               |
+| Same config drives other languages | Yes                                           | Separate generator run per language                    |
 
 Where Scalar helps is keeping the Swift client in step with the rest: one API change regenerates every target and opens a pull request in each repository. For a closer look at the open source route, read [OpenAPI Generator alternatives](/alternatives/openapi-generator).
 
@@ -122,4 +122,4 @@ Yes, as long as your consumers' Swift Package Manager can reach it, for example 
 
 ---
 
-*OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/swift6) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it.*
+_OpenAPI Generator details are taken from [openapi-generator.tech](https://openapi-generator.tech/docs/generators/swift6) and the [OpenAPITools/openapi-generator repository](https://github.com/OpenAPITools/openapi-generator) as of September 2026 (release 7.25.0). If something here is out of date, please [open an issue](https://github.com/scalar/scalar/issues) and we will fix it._
