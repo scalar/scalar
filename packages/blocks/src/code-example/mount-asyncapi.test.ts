@@ -1,6 +1,5 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { afterEach, describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
 
 import { createCodeExample } from './mount'
 
@@ -11,7 +10,7 @@ afterEach(() => {
 })
 
 describe('mount-asyncapi', () => {
-  it('mounts by operation name, follows server changes, and tears down the block', async () => {
+  it('mounts a payload by operation name and tears down the block', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'events',
@@ -30,19 +29,13 @@ describe('mount-asyncapi', () => {
     document.body.appendChild(element)
     const instance = createCodeExample(element, { store, operationName: 'sendEvent' })
     instances.push(instance)
-    expect(element.textContent).toContain('wss://one.example.com/events')
-    expect(element.textContent).toContain('const payload = 0')
-    const activeDocument = store.workspace.activeDocument
-    if (!activeDocument) throw new Error('Expected document')
-    activeDocument['x-scalar-selected-server'] = 'second'
-    await nextTick()
-    expect(element.textContent).toContain('wss://two.example.com/events')
+    expect(element.querySelector('pre')?.textContent?.trim()).toBe('0')
     instance.destroy()
     instances.pop()
     expect(element.textContent).toBe('')
   })
 
-  it('renders authored samples for non-WebSocket operations and rejects missing operations', async () => {
+  it('renders payloads for non-WebSocket operations and rejects missing operations', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'events',
@@ -50,7 +43,7 @@ describe('mount-asyncapi', () => {
         asyncapi: '3.0.0',
         info: { title: 'Events', version: '1' },
         servers: { broker: { host: 'broker.example.com', protocol: 'mqtt' } },
-        channels: { events: { address: 'events' } },
+        channels: { events: { address: 'events', messages: { event: { examples: [{ payload: 'hello' }] } } } },
         operations: {
           publish: {
             action: 'send',
@@ -63,7 +56,8 @@ describe('mount-asyncapi', () => {
     const element = document.createElement('div')
     document.body.appendChild(element)
     instances.push(createCodeExample(element, { store, operationName: 'publish' }))
-    expect(element.textContent).toContain('mqtt.publish("events", "hello")')
+    expect(element.textContent).toContain('hello')
+    expect(element.textContent).not.toContain('mqtt.publish')
     expect(element.textContent).not.toContain('JavaScript WebSocket')
     expect(() => createCodeExample(element, { store, operationName: 'missing' })).toThrow(
       'AsyncAPI operation not found: missing',

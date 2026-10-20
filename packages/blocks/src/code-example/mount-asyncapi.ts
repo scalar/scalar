@@ -10,7 +10,6 @@ import { getAsyncApiExampleContext } from './helpers/get-asyncapi-example-contex
 export type CreateAsyncApiCodeExampleOptions = {
   store: WorkspaceStore
   operationName: string
-  selectedServer?: string
   darkMode?: boolean
 }
 
@@ -38,9 +37,7 @@ export const createAsyncApiCodeExample = (
             isAsyncApiDocument(activeDocument)
               ? h(AsyncApiCodeExample, {
                   document: activeDocument,
-                  authStore: options.store.auth,
                   operationName: options.operationName,
-                  selectedServer: options.selectedServer,
                 })
               : h('p', { role: 'status' }, 'No AsyncAPI document selected.'),
         }),

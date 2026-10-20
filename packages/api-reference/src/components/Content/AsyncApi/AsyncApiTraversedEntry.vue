@@ -2,10 +2,9 @@
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
-import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type {
   TraversedAsyncApiChannel,
   TraversedEntry,
@@ -20,7 +19,6 @@ import ModelTag from '@/components/Content/Models/ModelTag.vue'
 import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
-import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 
 import Channel from './Channel.vue'
 import SourceModel from './SourceModel.vue'
@@ -28,9 +26,6 @@ import SourceModel from './SourceModel.vue'
 const {
   entries,
   document,
-  clientDocument,
-  authStore,
-  securitySchemes,
   expandedItems,
   options,
   eventBus,
@@ -39,10 +34,6 @@ const {
   {
     entries: TraversedEntry[]
     document: AsyncApiDocument
-    /** Live document containing server selection and variable edits. */
-    clientDocument?: AsyncApiDocument
-    authStore?: AuthStore
-    securitySchemes?: MergedSecuritySchemes
     expandedItems: Record<string, boolean>
     options: Pick<
       ApiReferenceConfigurationRaw,
@@ -115,9 +106,7 @@ const resolvedEntries = computed(() =>
     :expanded="!!expandedItems[entry.id]">
     <Channel
       v-if="isChannel(entry)"
-      :authStore="authStore"
       :channel="entry"
-      :clientDocument="clientDocument"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -127,7 +116,6 @@ const resolvedEntries = computed(() =>
       :level="level"
       :options="options"
       :scrollTargetId="scrollTargetId"
-      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
 
     <Tag
@@ -143,8 +131,6 @@ const resolvedEntries = computed(() =>
       :tag="entry">
       <template v-if="entry.children?.length">
         <AsyncApiTraversedEntry
-          :authStore="authStore"
-          :clientDocument="clientDocument"
           :document="document"
           :entries="entry.children"
           :eventBus="eventBus"
@@ -153,15 +139,12 @@ const resolvedEntries = computed(() =>
           :level="level + 1"
           :options="options"
           :scrollTargetId="scrollTargetId"
-          :securitySchemes="securitySchemes"
           :specificationExtension="specificationExtension" />
       </template>
     </Tag>
 
     <AsyncApiTraversedEntry
       v-else-if="isTagGroup(entry)"
-      :authStore="authStore"
-      :clientDocument="clientDocument"
       :document="document"
       :entries="entry.children ?? []"
       :eventBus="eventBus"
@@ -170,7 +153,6 @@ const resolvedEntries = computed(() =>
       :level="level + 1"
       :options="options"
       :scrollTargetId="scrollTargetId"
-      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
 
     <!-- Models -->
@@ -182,8 +164,6 @@ const resolvedEntries = computed(() =>
       :layout="options.layout"
       :modelsSectionLabel="options.modelsSectionLabel">
       <AsyncApiTraversedEntry
-        :authStore="authStore"
-        :clientDocument="clientDocument"
         :document="document"
         :entries="entry.children ?? []"
         :eventBus="eventBus"
@@ -192,7 +172,6 @@ const resolvedEntries = computed(() =>
         :level="level + 1"
         :options="options"
         :scrollTargetId="scrollTargetId"
-        :securitySchemes="securitySchemes"
         :specificationExtension="specificationExtension" />
     </ModelTag>
 

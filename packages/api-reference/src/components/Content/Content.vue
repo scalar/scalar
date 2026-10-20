@@ -160,7 +160,7 @@ const asyncApiDocument = computed(() =>
   isAsyncApiDocument(document) ? document : undefined,
 )
 
-/** AsyncAPI narrow of the client document, where server selection/variables are persisted. */
+/** Live AsyncAPI document used by server and connection controls. */
 const asyncApiClientDocument = computed(() =>
   isAsyncApiDocument(clientDocument) ? clientDocument : undefined,
 )
@@ -393,8 +393,6 @@ provideDocumentOutline('document')
     <!-- AsyncAPI: render channels grouped by tag, mirroring the sidebar order. -->
     <AsyncApiTraversedEntry
       v-else-if="items.length && asyncApiDocument"
-      :authStore="authStore"
-      :clientDocument="asyncApiClientDocument"
       :document="asyncApiDocument"
       :entries="items"
       :eventBus
@@ -402,7 +400,6 @@ provideDocumentOutline('document')
       :expansion="expansion"
       :options
       :scrollTargetId="scrollTargetId"
-      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
 
     <!-- Render plugins at content.end view -->

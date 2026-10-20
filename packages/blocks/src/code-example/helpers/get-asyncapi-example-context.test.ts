@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { getAsyncApiExampleContext } from './get-asyncapi-example-context'
 
 describe('get-asyncapi-example-context', () => {
-  it('resolves operation traits, message restrictions, and channel server restrictions from a workspace', async () => {
+  it('resolves operation traits and message restrictions from a workspace', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'events',
@@ -51,8 +51,7 @@ describe('get-asyncapi-example-context', () => {
     if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
     const context = getAsyncApiExampleContext(document, 'send')
     expect(context?.messages.map(({ message }) => message.name)).toEqual(['Second'])
-    expect(context?.server?.connectionUrl).toBe('wss://eu.example.com/api/events/demo')
-    expect(context?.samples).toEqual([{ lang: 'python', source: 'send_event()', label: 'SDK' }])
+    expect(context?.operation['x-codeSamples']).toEqual([{ lang: 'python', source: 'send_event()', label: 'SDK' }])
     expect(getAsyncApiExampleContext(document, 'receive')?.messages.map(({ message }) => message.name)).toEqual([
       'First',
       'Second',

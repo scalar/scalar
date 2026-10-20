@@ -4,9 +4,7 @@ import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedAsyncApiMessage,
   TraversedAsyncApiOperation,
@@ -43,9 +41,6 @@ type OperationOptions = AsyncApiSchemaRenderOptions
 const {
   operation,
   document,
-  clientDocument,
-  authStore,
-  securitySchemes,
   eventBus,
   options,
   expandedItems = {},
@@ -53,10 +48,6 @@ const {
   {
     operation: TraversedAsyncApiOperation
     document: AsyncApiDocument
-    /** Live document containing server selection and variable edits. */
-    clientDocument?: AsyncApiDocument
-    authStore?: AuthStore
-    securitySchemes?: MergedSecuritySchemes
     eventBus: WorkspaceEventBus | null
     options?: Partial<OperationOptions>
     /** Map of navigation item id to expanded state, shared with the sidebar. */
@@ -116,6 +107,15 @@ const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
 )
 
+const hasOverview = computed(() =>
+  Boolean(
+    summary.value ||
+    description.value ||
+    resolvedOperation.value?.bindings ||
+    resolvedOperation.value?.externalDocs,
+  ),
+)
+
 /** Only the message children of this operation. */
 const messages = computed(() =>
   filterChildrenByType<TraversedAsyncApiMessage>(
@@ -143,8 +143,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     ref="section"
     :aria-labelledby="headerId"
     class="operation"
-    :class="`operation--${operation.action}`">
-    <div class="operation-header mb-3">
+    :class="[
+      `operation--${operation.action}`,
+      { 'operation--without-overview': !hasOverview },
+    ]">
+    <div class="operation-header">
       <Anchor
         class="narrow:basis-full min-w-0 flex-1"
         @copyAnchorUrl="
@@ -189,7 +192,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </div>
     </div>
 
-    <div class="operation-overview">
+    <div v-if="hasOverview" class="operation-overview">
       <p
         v-if="summary"
         class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
@@ -203,7 +206,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
       <div
         v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
-        class="mt-12 space-y-4">
+        class="space-y-4"
+        :class="{ 'mt-12': summary || description }">
         <Bindings
           :bindings="resolvedOperation?.bindings"
           :options="options"
@@ -215,10 +219,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
     <div class="operation-example flex min-w-0 flex-col gap-6">
       <AsyncApiCodeExample
-        :authStore="authStore"
-        :document="clientDocument ?? document"
-        :operationName="operation.operationName"
-        :securitySchemes="securitySchemes" />
+        :document="document"
+        :operationName="operation.operationName" />
       <OperationMessageExamples
         v-if="replyMessages.length"
         class="w-full"
@@ -230,7 +232,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     <div class="operation-details">
       <SectionHeaderTag
         v-if="messages.length || reply"
-        class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
+        class="text-c-1 mb-2 block! text-base leading-[1.45] font-medium"
+        :class="{ 'mt-12': hasOverview }"
         :level="messagesHeadingLevel">
         Messages
       </SectionHeaderTag>
@@ -275,8 +278,12 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto 1fr;
-  grid-template-areas: 'heading .' 'overview .' 'details example';
+  grid-template-areas: 'heading heading' 'overview example' 'details example';
   column-gap: 48px;
+}
+.operation--without-overview {
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'heading heading' 'details example';
 }
 .operation-overview {
   grid-area: overview;
@@ -291,7 +298,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 .operation-example {
   grid-area: example;
   align-self: start;
-  margin-top: 48px;
 }
 @container references-container (max-width: 900px) {
   .operation {
@@ -299,8 +305,10 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     grid-template-areas: 'heading' 'overview' 'example' 'details';
     row-gap: 16px;
   }
+  .operation--without-overview {
+    grid-template-areas: 'heading' 'example' 'details';
+  }
   .operation-example {
-    margin-top: 0;
     position: static;
     max-height: none;
   }
@@ -308,7 +316,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
 .operation-header {
   grid-area: heading;
-  margin-bottom: 12px;
+  margin-bottom: 24px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -351,18 +359,12 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
 
 .operation-description {
   text-align: left;
-  margin-top: 12px;
 }
 .references-classic .operation {
   margin-top: 48px;
   padding-top: 48px;
 }
 @container references-container (max-width: 900px) {
-  .operation-auth {
-    order: -1;
-    width: 100%;
-    margin-left: 0;
-  }
   .operation {
     margin-top: 48px;
     padding-top: 48px;

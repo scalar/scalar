@@ -44,41 +44,6 @@ const snippet = snippetz().print('node', 'undici', {
 // )
 ```
 
-## Message examples
-
-Generate messaging examples through the dedicated messages entry point. Currently,
-WebSocket with browser JavaScript is supported:
-
-```ts
-import { generateMessageSnippet, type MessageSnippetInput } from '@scalar/snippetz/messages'
-
-const input: MessageSnippetInput = {
-  protocol: 'websocket',
-  language: 'javascript',
-  url: 'wss://events.example.com/updates',
-  action: 'send',
-  payload: { name: 'Ada' },
-  contentType: 'application/json',
-}
-
-const snippet = generateMessageSnippet(input)
-```
-
-`send` waits for the connection to open before sending the payload. `receive`
-listens for messages and includes the example payload in a comment. Directions
-follow the application running the generated code.
-
-Payloads must be JSON-serializable. JSON media types serialize the payload once;
-other media types send strings as-is. Missing payloads and unsupported non-JSON
-payloads produce a placeholder. Optional `query` and `cookies` arrays accept
-`{ name, value }` entries. Query values replace matching URL parameters. Cookies
-generate a `document.cookie` setup step, which must run on the server's HTTP(S)
-origin and cannot set cross-domain or HttpOnly cookies. Header authentication,
-message headers, and reply correlation require application-specific setup.
-
-The generator accepts resolved connection and payload values, so it can be used
-without an AsyncAPI document.
-
 ## API
 
 ### Get all plugins

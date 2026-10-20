@@ -12,6 +12,8 @@ export { generateClientOptions, getCustomClientIds } from './helpers/generate-cl
 export { generateCodeSnippet } from './helpers/generate-code-snippet'
 export { getClients } from './helpers/get-clients'
 export { getCustomCodeSamples } from './helpers/get-custom-code-samples'
+export { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
+export { getMessageExampleContent } from './helpers/get-message-example-content'
 export { getSecrets } from './helpers/get-secrets'
 export type { OperationToHarProps } from './helpers/operation-to-har/operation-to-har'
 export { operationToHar } from './helpers/operation-to-har/operation-to-har'

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getGeneratedPayloadExample } from '@scalar/blocks/code-example'
 import {
   Schema,
   type SchemaOptions,
@@ -14,13 +15,13 @@ import {
   type WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
-import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -30,7 +31,6 @@ import {
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
-import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ExamplePicker } from '@scalar/blocks/code-example'
+import {
+  ExamplePicker,
+  getMessageExampleContent,
+} from '@scalar/blocks/code-example'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -15,8 +18,6 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-
-import { getMessageExampleContent } from './helpers/get-message-example-content'
 
 const {
   examples = [],
@@ -160,17 +161,19 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
     </ScalarCardSection>
     <ScalarCardFooter
       v-if="$slots.footer"
-      class="flex shrink-0 flex-wrap items-center gap-x-2 px-3 py-[7px]">
-      <slot name="footer" />
-      <ExamplePicker
-        v-if="hasMultipleExamples"
-        v-model="selectedKey"
-        :aria-label="translate('schema.examples')"
-        class="-m-1 shrink-0 px-0"
-        :examples="pickerExamples" />
+      class="flex shrink-0 flex-col items-stretch gap-1 px-3 py-[7px]">
+      <div class="flex min-w-0 flex-wrap items-center gap-x-2">
+        <slot name="footer" />
+        <ExamplePicker
+          v-if="hasMultipleExamples"
+          v-model="selectedKey"
+          :aria-label="translate('schema.examples')"
+          class="-m-1 shrink-0 px-0"
+          :examples="pickerExamples" />
+      </div>
       <ScalarMarkdown
         v-if="selected?.example.summary"
-        class="text-c-1 grow text-sm font-semibold [&_*]:m-0"
+        class="text-c-1 text-(length:--scalar-small) [font-weight:var(--scalar-semibold)] [&_*]:m-0"
         :value="selected.example.summary" />
     </ScalarCardFooter>
   </ScalarCard>

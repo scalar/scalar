@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components/button'
 import {
   ScalarCard,
   ScalarCardFooter,
@@ -7,60 +6,33 @@ import {
   ScalarCardSection,
 } from '@scalar/components/card'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
-import {
-  ScalarCombobox,
-  type ScalarComboboxOption,
-} from '@scalar/components/combobox'
 import { ScalarWrappingText } from '@scalar/components/wrapping-text'
-import { ScalarIconCaretDown } from '@scalar/icons'
-import { generateMessageSnippet } from '@scalar/snippetz/messages'
 import type {
   AsyncApiDocument,
   AsyncApiMessageObject,
 } from '@scalar/types/asyncapi/3.1'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
-import type {
-  MergedSecuritySchemes,
-  SecuritySchemeObjectSecret,
-} from '@scalar/workspace-store/request-example'
 import { computed, ref, watch } from 'vue'
 
-import { formatLanguage } from '../helpers/format-language'
 import { getAsyncApiExampleContext } from '../helpers/get-asyncapi-example-context'
-import { getAsyncApiExampleSecurity } from '../helpers/get-asyncapi-example-security'
-import { getSecrets } from '../helpers/get-secrets'
-import { processSecuritySchemes } from '../helpers/operation-to-har/process-security-schemes'
+import { getGeneratedPayloadExample } from '../helpers/get-generated-payload-example'
+import { getMessageExampleContent } from '../helpers/get-message-example-content'
 import ExamplePicker from './ExamplePicker.vue'
 
-const { document, operationName, selectedServer, authStore, securitySchemes } =
-  defineProps<{
-    /** A workspace-resolved AsyncAPI 3.x document. */
-    document: AsyncApiDocument
-    /** Key in document.operations. */
-    operationName: string
-    /** Optional server name, restricted to the operation channel servers. */
-    selectedServer?: string
-    /** Selected credentials shared with the auth controls. */
-    authStore?: AuthStore
-    /** Schemes merged with reference configuration overrides. */
-    securitySchemes?: MergedSecuritySchemes
-  }>()
+const { document, operationName } = defineProps<{
+  /** A workspace-resolved AsyncAPI 3.x document. */
+  document: AsyncApiDocument
+  /** Key in document.operations. */
+  operationName: string
+}>()
 
 type PickerOptions = Record<string, { summary: string }>
 type MessageExample = Exclude<
   NonNullable<AsyncApiMessageObject['examples']>[number],
   { $ref: string }
 > & { key: string }
-type CodeSample = {
-  key: string
-  title: string
-  lang: string
-  source: string | undefined
-}
-
 const context = computed<ReturnType<typeof getAsyncApiExampleContext>>(() =>
-  getAsyncApiExampleContext(document, operationName, selectedServer),
+  getAsyncApiExampleContext(document, operationName),
 )
 const channelPathParts = computed(() =>
   (context.value?.channel?.address ?? operationName).split(/({[^}]+})/),
@@ -68,7 +40,6 @@ const channelPathParts = computed(() =>
 
 const selectedMessage = defineModel<string>('selectedMessage', { default: '' })
 const selectedExample = ref<string>('')
-const selectedSample = ref<string>('')
 const messages = computed<PickerOptions>(() =>
   Object.fromEntries(
     (context.value?.messages ?? []).map(({ name, message }) => [
@@ -85,7 +56,9 @@ const message = computed<AsyncApiMessageObject | undefined>(
 const examples = computed<MessageExample[]>(() =>
   (message.value?.examples ?? []).flatMap((node, index) => {
     const example = getResolvedAsyncApiRef(node)
-    return example ? [{ key: String(index), ...example }] : []
+    return example?.payload !== undefined
+      ? [{ key: String(index), ...example }]
+      : []
   }),
 )
 const exampleOptions = computed<PickerOptions>(() =>
@@ -98,42 +71,6 @@ const exampleOptions = computed<PickerOptions>(() =>
 )
 const example = computed<MessageExample | undefined>(() =>
   examples.value.find(({ key }) => key === selectedExample.value),
-)
-const samples = computed<CodeSample[]>(() => [
-  ...(context.value?.samples ?? []).map((sample, index) => ({
-    ...sample,
-    key: `custom/${index}`,
-    title: sample.label || formatLanguage(sample.lang) || sample.lang,
-  })),
-  ...(context.value?.server
-    ? [
-        {
-          key: 'js/websocket',
-          title: 'JavaScript WebSocket',
-          lang: 'javascript',
-          source: undefined,
-        },
-      ]
-    : []),
-])
-const sampleOptions = computed<PickerOptions>(() =>
-  Object.fromEntries(
-    samples.value.map((sample) => [sample.key, { summary: sample.title }]),
-  ),
-)
-const sample = computed<CodeSample | undefined>(() =>
-  samples.value.find(({ key }) => key === selectedSample.value),
-)
-
-const sampleChoices = computed<ScalarComboboxOption[]>(() =>
-  samples.value.map(({ key, title }) => ({ id: key, label: title })),
-)
-const selectedChoice = computed<ScalarComboboxOption | undefined>(() =>
-  sampleChoices.value.find(({ id }) => id === selectedSample.value),
-)
-
-const sampleLabel = computed<string>(
-  () => `Code sample: ${sample.value?.title ?? 'Select a sample'}`,
 )
 const messageLabel = computed<string>(
   () =>
@@ -164,56 +101,25 @@ watch(
   },
   { immediate: true },
 )
-watch(
-  sampleOptions,
-  (options) => {
-    if (!Object.hasOwn(options, selectedSample.value))
-      selectedSample.value = Object.keys(options)[0] ?? ''
-  },
-  { immediate: true },
-)
-
-const selectedSecurity = computed<SecuritySchemeObjectSecret[]>(() =>
-  getAsyncApiExampleSecurity(
-    document,
-    context.value,
-    authStore,
-    securitySchemes,
+const content = computed(() =>
+  getMessageExampleContent(
+    example.value
+      ? example.value.payload
+      : message.value
+        ? getGeneratedPayloadExample(message.value)
+        : undefined,
+    message.value?.contentType ?? document.defaultContentType,
   ),
 )
-const credentialValues = computed<string[]>(() =>
-  getSecrets(selectedSecurity.value).flatMap((secret) => [
-    secret,
-    encodeURIComponent(secret),
-    new URLSearchParams({ value: secret }).toString().slice(6),
-  ]),
-)
-
-const content = computed<string | undefined>(() => {
-  if (sample.value?.source !== undefined) return sample.value.source
-  const current = context.value
-  if (!current?.server?.connectionUrl || !sample.value) return undefined
-  const auth = processSecuritySchemes(selectedSecurity.value)
-  return generateMessageSnippet({
-    query: auth.queryString,
-    cookies: auth.cookies,
-    protocol: 'websocket',
-    language: 'javascript',
-    url: current.server.connectionUrl,
-    action: current.operation.action,
-    payload: example.value?.payload,
-    contentType: message.value?.contentType ?? document.defaultContentType,
-  })
-})
 </script>
 
 <template>
   <ScalarCard
     class="request-card dark-mode min-w-0"
-    label="Code example">
+    label="Message example">
     <ScalarCardHeader
       class="flex-nowrap items-start gap-3 pr-2.5 [&_.scalar-card-header-title]:flex-1 [&_.scalar-card-header-title]:whitespace-normal [&>div:last-child]:shrink-0">
-      <span class="sr-only">Code example for</span>
+      <span class="sr-only">Message example for</span>
       <span
         class="font-code mr-1.5 uppercase"
         :class="
@@ -235,68 +141,32 @@ const content = computed<string | undefined>(() => {
             :text="part" />
         </template>
       </span>
-      <template #actions>
-        <ScalarCombobox
-          v-if="samples.length > 1"
-          :modelValue="selectedChoice"
-          :options="sampleChoices"
-          placement="bottom-end"
-          teleport
-          @update:modelValue="selectedSample = $event?.id ?? ''">
-          <ScalarButton
-            :aria-label="sampleLabel"
-            class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-0.5 py-0 text-base font-normal"
-            variant="ghost">
-            {{ sample?.title }}
-            <ScalarIconCaretDown
-              class="ui-open:rotate-180 mt-px size-3 transition-transform duration-100"
-              weight="bold" />
-          </ScalarButton>
-        </ScalarCombobox>
-        <span
-          v-else
-          class="text-c-2 flex h-full w-fit items-center px-0.5 py-0 text-base font-normal"
-          >{{ sample?.title }}</span
-        >
-      </template>
     </ScalarCardHeader>
     <ScalarCardSection class="custom-scroll flex flex-1 p-0">
       <div class="flex w-full flex-col">
+        <p
+          v-if="content?.structural"
+          class="text-c-2 px-3 py-2 text-sm">
+          Structure only; not encoded
+        </p>
         <ScalarCodeBlock
-          v-if="content !== undefined"
+          v-if="content"
           class="bg-b-2 h-full"
-          :content="content"
-          :hideCredentials="
-            selectedSample === 'js/websocket' ? credentialValues : []
-          "
-          :lang="sample?.lang"
+          :content="content.content"
+          :lang="content.lang"
           lineNumbers />
         <p
           v-else
           class="text-c-2 p-4"
           role="status">
-          No code sample available. Add an authored sample or a WebSocket
-          server.
+          No message payload example available.
         </p>
       </div>
     </ScalarCardSection>
     <ScalarCardFooter
-      v-if="
-        selectedSample === 'js/websocket' &&
-        (Object.keys(messages).length || examples.length)
-      "
+      v-if="Object.keys(messages).length || examples.length"
       class="bg-b-3 relative flex shrink-0 flex-wrap items-center justify-end gap-2 p-1.5">
       <div class="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-        <ExamplePicker
-          v-if="Object.keys(messages).length > 1"
-          v-model="selectedMessage"
-          :aria-label="messageLabel"
-          :examples="messages" />
-        <span
-          v-else-if="Object.keys(messages).length === 1"
-          class="text-c-2 min-w-0 truncate px-1.5 py-0.75 text-base">
-          {{ messages[selectedMessage]?.summary }}
-        </span>
         <ExamplePicker
           v-if="examples.length > 1"
           v-model="selectedExample"
@@ -307,6 +177,18 @@ const content = computed<string | undefined>(() => {
           class="text-c-2 min-w-0 truncate px-1.5 py-0.75 text-base">
           {{ exampleOptions[selectedExample]?.summary }}
         </span>
+        <div class="ml-auto flex min-w-0 items-center">
+          <ExamplePicker
+            v-if="Object.keys(messages).length > 1"
+            v-model="selectedMessage"
+            :aria-label="messageLabel"
+            :examples="messages" />
+          <span
+            v-else-if="Object.keys(messages).length === 1"
+            class="text-c-2 min-w-0 truncate px-1.5 py-0.75 text-base">
+            {{ messages[selectedMessage]?.summary }}
+          </span>
+        </div>
       </div>
     </ScalarCardFooter>
   </ScalarCard>

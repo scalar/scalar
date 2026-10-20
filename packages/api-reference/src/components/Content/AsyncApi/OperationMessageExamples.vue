@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ExamplePicker } from '@scalar/blocks/code-example'
+import {
+  ExamplePicker,
+  getGeneratedPayloadExample,
+} from '@scalar/blocks/code-example'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, watch } from 'vue'
 
-import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
@@ -78,7 +80,7 @@ const generatedPayload = computed<unknown>(() =>
         :examples="pickerOptions" />
       <span
         v-else
-        class="text-c-2 min-w-0 truncate py-0.75 text-base font-normal"
+        class="text-c-1 min-w-0 truncate py-0.75 text-(length:--scalar-small) [font-weight:var(--scalar-semibold)]"
         >{{ selected.label }}</span
       >
     </template>

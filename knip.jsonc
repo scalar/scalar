@@ -309,13 +309,7 @@
       ]
     },
     "packages/snippetz": {
-      "entry": [
-        "src/index.ts",
-        "src/clients/index.ts",
-        "src/plugins/*/*/index.ts",
-        "src/messages/index.ts",
-        "src/utils/index.ts"
-      ]
+      "entry": ["src/index.ts", "src/clients/index.ts", "src/plugins/*/*/index.ts", "src/utils/index.ts"]
     },
     "packages/ts-to-openapi": {
       "entry": ["src/index.ts"],

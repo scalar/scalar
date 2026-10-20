@@ -3,9 +3,7 @@ import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
-import type { AuthStore } from '@scalar/workspace-store/entities/auth'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
-import type { MergedSecuritySchemes } from '@scalar/workspace-store/request-example'
 import type {
   TraversedAsyncApiChannel,
   TraversedAsyncApiOperation,
@@ -51,9 +49,6 @@ type ParameterListOptions = AsyncApiSchemaRenderOptions &
 const {
   channel,
   document,
-  clientDocument,
-  authStore,
-  securitySchemes,
   layout,
   isCollapsed,
   eventBus,
@@ -64,10 +59,6 @@ const {
   {
     channel: TraversedAsyncApiChannel
     document: AsyncApiDocument
-    /** Live document containing server selection and variable edits. */
-    clientDocument?: AsyncApiDocument
-    authStore?: AuthStore
-    securitySchemes?: MergedSecuritySchemes
     layout: 'classic' | 'modern'
     isCollapsed: boolean
     eventBus: WorkspaceEventBus | null
@@ -204,7 +195,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
     </template>
     <ChannelMetadata
       :address="resolvedChannel?.address"
-      class="mt-4" />
+      class="mt-12" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
       class="mt-4"
@@ -214,7 +205,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
-      class="[&_.parameter-list-title--tree]:border-b-0! [&_.parameter-list-title--tree]:pb-0! [&_.parameter-list-title--tree]:text-base!"
+      class="[&_.parameter-list-title--tree]:text-base!"
       :eventBus="eventBus"
       :expansion="expansion"
       :options="parameterListOptions"
@@ -237,8 +228,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
     <Operation
       v-for="operation in operations"
       :key="operation.id"
-      :authStore="authStore"
-      :clientDocument="clientDocument"
       :document="document"
       :eventBus="eventBus"
       :expandedItems="expandedItems"
@@ -246,7 +235,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :operation="operation"
       :options="options"
       :scrollTargetId="scrollTargetId"
-      :securitySchemes="securitySchemes"
       :specificationExtension="specificationExtension" />
     <ChannelMessages
       :channel="channel"
@@ -310,7 +298,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
               withImages />
             <ChannelMetadata
               :address="resolvedChannel?.address"
-              class="mt-4" />
+              class="mt-12" />
             <Bindings
               :bindings="resolvedChannel?.bindings"
               class="mt-4"
@@ -320,7 +308,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
               :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
             <ParameterList
               v-if="parameters.length"
-              class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+              class="[&_.parameter-list-title--tree]:text-base!"
               :eventBus="eventBus"
               :expansion="expansion"
               :options="parameterListOptions"
@@ -352,8 +340,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
         <Operation
           v-for="operation in operations"
           :key="operation.id"
-          :authStore="authStore"
-          :clientDocument="clientDocument"
           :document="document"
           :eventBus="eventBus"
           :expandedItems="expandedItems"
@@ -361,7 +347,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
           :operation="operation"
           :options="options"
           :scrollTargetId="scrollTargetId"
-          :securitySchemes="securitySchemes"
           :specificationExtension="specificationExtension" />
         <ChannelMessages
           :channel="channel"

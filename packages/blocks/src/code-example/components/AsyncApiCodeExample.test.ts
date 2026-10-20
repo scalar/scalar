@@ -8,7 +8,7 @@ import AsyncApiCodeExample from './AsyncApiCodeExample.vue'
 import ExamplePicker from './ExamplePicker.vue'
 
 describe('AsyncApiCodeExample', () => {
-  it('updates generated code when selecting a message or example and preserves authored samples', async () => {
+  it('renders payloads without connection boilerplate and updates the message and example', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
       name: 'events',
@@ -27,7 +27,15 @@ describe('AsyncApiCodeExample', () => {
                   { name: 'Two', payload: { id: 2 } },
                 ],
               },
-              second: { name: 'Second', examples: [{ name: 'Other', payload: false }] },
+              second: { name: 'Second', payload: { type: 'string' }, examples: [{ name: 'Other', payload: false }] },
+              typing: {
+                name: 'Typing indicator',
+                payload: {
+                  type: 'object',
+                  properties: { type: { const: 'typing' }, userId: { type: 'string' }, active: { type: 'boolean' } },
+                  required: ['type', 'userId', 'active'],
+                },
+              },
             },
           },
         },
@@ -43,9 +51,9 @@ describe('AsyncApiCodeExample', () => {
     const document = store.workspace.activeDocument
     if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
     const wrapper = mount(AsyncApiCodeExample, { props: { document, operationName: 'send' } })
-    expect(wrapper.text()).toContain('client.send_event()')
-    wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', { id: 'js/websocket' })
-    await nextTick()
+    expect(wrapper.text()).not.toContain('client.send_event()')
+    expect(wrapper.text()).not.toContain('WebSocket')
+    expect(wrapper.get('pre').text()).toBe('{\n  "id": 1\n}')
     expect(wrapper.text()).toContain('"id": 1')
     const picker = (label: string): VueWrapper | undefined =>
       wrapper
@@ -57,13 +65,17 @@ describe('AsyncApiCodeExample', () => {
     expect(wrapper.text()).toContain('"id": 2')
     picker('Message')?.vm.$emit('update:modelValue', 'second')
     await nextTick()
-    expect(wrapper.text()).toContain('const payload = false')
+    expect(wrapper.get('pre').text()).toBe('false')
     expect(wrapper.text()).toContain('Other')
     expect(wrapper.find('button[aria-label="Message example: Other"]').exists()).toBe(false)
     expect(wrapper.get('button[aria-label="Message: Second"]').text()).toBe('Second')
-    wrapper.findComponent({ name: 'ScalarCombobox' }).vm.$emit('update:modelValue', { id: 'custom/0' })
+    picker('Message')?.vm.$emit('update:modelValue', 'typing')
     await nextTick()
-    expect(wrapper.text()).toContain('client.send_event()')
+    expect(JSON.parse(wrapper.get('pre').text())).toEqual({ type: 'typing', userId: 'string', active: true })
+    expect(wrapper.text()).not.toContain('No message payload example available')
+    picker('Message')?.vm.$emit('update:modelValue', 'first')
+    await nextTick()
+    expect(JSON.parse(wrapper.get('pre').text())).toEqual({ id: 1 })
     wrapper.unmount()
   })
 })
