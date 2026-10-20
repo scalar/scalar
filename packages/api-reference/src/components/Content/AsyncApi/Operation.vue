@@ -192,7 +192,9 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </div>
     </div>
 
-    <div v-if="hasOverview" class="operation-overview">
+    <div
+      v-if="hasOverview"
+      class="operation-overview">
       <p
         v-if="summary"
         class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
