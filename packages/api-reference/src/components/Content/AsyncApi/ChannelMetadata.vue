@@ -1,38 +1,37 @@
 <script setup lang="ts">
+import { ScalarCopy } from '@scalar/components/copy'
 import { computed } from 'vue'
 
+import OperationPath from '@/components/OperationPath.vue'
 import { useLocalization } from '@/features/localization'
 
-const { address, summary } = defineProps<{
-  address?: string | null
-  summary?: string
-}>()
+const { address } = defineProps<{ address?: string | null }>()
 const { translate } = useLocalization()
-
 const displayAddress = computed(
   (): string => address ?? translate('asyncapi.unknownAddress'),
-)
-const hasSummary = computed((): boolean => Boolean(summary?.trim()))
-const descriptionSpacingClass = computed((): string =>
-  hasSummary.value ? 'mb-2' : 'mb-4',
 )
 </script>
 
 <template>
-  <div
-    class="min-w-0 text-left"
-    :class="descriptionSpacingClass">
-    <dl class="text-c-2 flex flex-wrap items-baseline gap-x-2 leading-[1.625]">
-      <dt>{{ translate('asyncapi.address') }}:</dt>
-      <dd
-        class="font-code min-w-0 [overflow-wrap:anywhere] whitespace-pre-wrap">
-        {{ displayAddress }}
+  <div class="min-w-0 space-y-3 text-left text-sm">
+    <dl class="space-y-3">
+      <dt class="text-c-1 border-b pb-2 text-base leading-[1.45] font-medium">
+        {{ translate('asyncapi.address') }}
+      </dt>
+      <dd class="group/address flex items-center gap-2">
+        <code
+          class="font-code min-w-0 text-sm [overflow-wrap:anywhere] whitespace-pre-wrap">
+          <OperationPath
+            class="text-c-1 [&_em]:text-c-2 font-normal! [&_em]:font-medium [&_em]:not-italic"
+            :path="displayAddress" />
+        </code>
+        <ScalarCopy
+          v-if="address != null"
+          class="m-0 shrink-0 opacity-0 group-hover/address:opacity-100 focus-visible:opacity-100"
+          :content="address">
+          <template #copy>Copy address</template>
+        </ScalarCopy>
       </dd>
     </dl>
-    <p
-      v-if="hasSummary"
-      class="text-c-1 mt-4 [overflow-wrap:anywhere]">
-      {{ summary }}
-    </p>
   </div>
 </template>

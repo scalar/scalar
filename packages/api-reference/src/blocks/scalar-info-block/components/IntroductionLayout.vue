@@ -8,7 +8,6 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
 
-import AsyncApiTags from '@/components/Content/AsyncApi/AsyncApiTags.vue'
 import {
   Section,
   SectionColumn,
@@ -84,19 +83,6 @@ const { level: headingLevel } = useDocumentOutline('document')
                 :info="info" />
             </template>
           </SectionHeader>
-          <dl
-            v-if="showApplicationIdentifier"
-            class="mb-3 flex flex-col gap-1 text-base">
-            <dt class="text-c-2">
-              {{ translate('asyncapi.applicationIdentifier') }}
-            </dt>
-            <dd class="font-code text-c-1 [overflow-wrap:anywhere]">
-              {{ applicationIdentifier }}
-            </dd>
-          </dl>
-          <AsyncApiTags
-            v-if="documentType === 'asyncapi' && 'tags' in info"
-            :tags="info.tags" />
           <SectionColumns>
             <SectionColumn>
               <slot name="download-link" />
@@ -104,6 +90,16 @@ const { level: headingLevel } = useDocumentOutline('document')
                 :description="info?.description"
                 :eventBus="eventBus"
                 :headingSlugGenerator="headingSlugGenerator" />
+              <dl
+                v-if="showApplicationIdentifier"
+                class="text-c-2 mt-6 flex flex-col gap-1 text-sm">
+                <dt class="text-c-1">
+                  {{ translate('asyncapi.applicationIdentifier') }}
+                </dt>
+                <dd class="font-code [overflow-wrap:anywhere]">
+                  {{ applicationIdentifier }}
+                </dd>
+              </dl>
             </SectionColumn>
             <SectionColumn v-if="$slots.aside">
               <div class="sticky-cards">

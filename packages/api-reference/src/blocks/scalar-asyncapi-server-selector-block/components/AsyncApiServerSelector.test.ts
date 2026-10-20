@@ -81,17 +81,14 @@ describe('AsyncApiServerSelector', () => {
     )
     const wrapper = mount(AsyncApiServerSelector, { props: { servers, selectedServer: servers[0]!, eventBus } })
     expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
-      'https://example.com/production-tag',
       'https://example.com/production',
     ])
     await wrapper.setProps({ selectedServer: servers[1]! })
-    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual([
-      'https://example.com/staging-tag',
-      'https://example.com/staging',
-    ])
+    expect(wrapper.findAll('a').map((link) => link.attributes('href'))).toStrictEqual(['https://example.com/staging'])
     expect(wrapper.get('a[href="https://example.com/staging"]').text()).toBe('**staging** guide')
     expect(wrapper.text()).toContain('staging event stream')
     expect(wrapper.text()).toContain('MQTT 5.0')
+    expect(wrapper.text()).not.toContain('Broker')
   })
 
   it('renders the server label', () => {
@@ -222,6 +219,7 @@ describe('AsyncApiServerSelector', () => {
 
     expect(wrapper.text()).toContain('Production broker · mqtt://broker.example.com')
     expect(wrapper.text()).toContain('MQTT 5.0')
+    expect(wrapper.text()).not.toContain('Broker')
     expect(wrapper.text()).toContain('Public event stream')
     expect(wrapper.find('strong').text()).toBe('TLS')
 

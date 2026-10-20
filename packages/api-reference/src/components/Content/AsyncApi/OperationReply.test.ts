@@ -51,13 +51,18 @@ describe('OperationReply', () => {
       template: '<OperationReply v-bind="props" /><OperationReply v-bind="props" />',
     })
     const [first, second] = wrapper.findAllComponents(OperationReply)
-    if (!first || !second) throw new Error('Expected two reply sections')
+    if (!first || !second) {
+      throw new Error('Expected two reply sections')
+    }
     expect(first.text()).toContain('Replies')
     expect(first.text()).not.toContain('The accepted order identifier.')
+    expect(second.text()).not.toContain('The accepted order identifier.')
     const message = first.getComponent(Message)
-    expect(message.attributes('id')).not.toBe(reply.messages[0]!.id)
-    expect(message.attributes('id')).not.toBe(second.getComponent(Message).attributes('id'))
-    await message.get('button.section-accordion-button').trigger('click')
+    expect(message.get('button.collapsible-section-toggle').attributes('id')).not.toBe(reply.messages[0]!.id)
+    expect(message.get('button.collapsible-section-toggle').attributes('id')).not.toBe(
+      second.getComponent(Message).get('button.collapsible-section-toggle').attributes('id'),
+    )
+    await message.get('button.collapsible-section-toggle').trigger('click')
     expect(first.text()).toContain('The accepted order identifier.')
     expect(second.text()).not.toContain('The accepted order identifier.')
     expect(toggled).toStrictEqual([])

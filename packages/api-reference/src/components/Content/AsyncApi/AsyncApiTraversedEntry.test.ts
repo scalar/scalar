@@ -99,13 +99,17 @@ describe('AsyncApiTraversedEntry', () => {
         },
       })
       const document = store.workspace.documents.events
-      if (!isAsyncApiDocument(document)) throw new Error('Expected an AsyncAPI document')
+      if (!isAsyncApiDocument(document)) {
+        throw new Error('Expected an AsyncAPI document')
+      }
       const navigation = traverseAsyncApiDocument('events', document)
       const expandedItems: Record<string, boolean> = {}
       const expand = (entries: TraversedEntry[]): void => {
         for (const entry of entries) {
           expandedItems[entry.id] = true
-          if ('children' in entry && entry.children) expand(entry.children)
+          if ('children' in entry && entry.children) {
+            expand(entry.children)
+          }
         }
       }
       expand(navigation.children ?? [])
@@ -131,18 +135,15 @@ describe('AsyncApiTraversedEntry', () => {
         .filter((url) => url?.startsWith('https://example.com/'))
       expect(urls.sort()).toStrictEqual([
         'https://example.com/channel',
-        // Tag documentation is available in the navigation section and the channel tag details.
-        'https://example.com/channel-tag',
+        // Tag documentation is available in its navigation section.
         'https://example.com/channel-tag',
         // Messages owned by an operation are rendered once, with their documentation.
         'https://example.com/message',
-        'https://example.com/message-tag',
         'https://example.com/model',
         'https://example.com/operation',
-        'https://example.com/operation-tag',
       ])
       expect(wrapper.text()).toContain('**Channel** guide')
-      expect(wrapper.text()).toContain('*Trait tag* guide')
+      expect(wrapper.text()).not.toContain('*Trait tag* guide')
     },
   )
 

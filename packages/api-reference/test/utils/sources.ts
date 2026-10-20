@@ -44,6 +44,21 @@ export const sources = [
     layout: 'classic',
   },
   {
+    title: 'Commerce · Kafka (AsyncAPI)',
+    slug: 'commerce',
+    url: 'examples/asyncapi-design-commerce.json',
+  },
+  {
+    title: 'Fleet · MQTT (AsyncAPI)',
+    slug: 'fleet',
+    url: 'examples/asyncapi-design-fleet.json',
+  },
+  {
+    title: 'Team Chat · WebSockets (AsyncAPI)',
+    slug: 'chat',
+    url: 'examples/asyncapi-design-chat.json',
+  },
+  {
     title: 'AsyncAPI Bindings',
     slug: 'asyncapi-bindings',
     url: 'examples/asyncapi-bindings.yaml',

@@ -9,7 +9,7 @@ import { nextTick } from 'vue'
 import MessageExamples from './MessageExamples.vue'
 
 describe('MessageExamples', () => {
-  it('separates JSON headers from an XML payload and copies each displayed value', () => {
+  it('renders only the payload from an example with headers without a visible section heading', () => {
     const payload = '<event>created</event>\n'
     const wrapper = mount(MessageExamples, {
       props: {
@@ -17,16 +17,12 @@ describe('MessageExamples', () => {
         examples: [{ headers: { trace: 'abc' }, payload }],
       },
     })
-    expect(wrapper.findAllComponents(ScalarCodeBlock).map((block) => block.props('lang'))).toStrictEqual([
-      'json',
-      'xml',
-    ])
-    expect(wrapper.findAllComponents(ScalarCopy).map((copy) => copy.props('content'))).toStrictEqual([
-      '{\n  "trace": "abc"\n}',
-      payload,
-    ])
-    expect(wrapper.text()).toContain('Headers')
-    expect(wrapper.text()).toContain('Payload')
+    expect(wrapper.findAllComponents(ScalarCodeBlock)).toHaveLength(1)
+    expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('xml')
+    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
+    expect(wrapper.text()).not.toContain('Headers')
+    expect(wrapper.text()).not.toContain('Payload')
+    expect(wrapper.text()).not.toContain('trace')
   })
 
   it('updates formatting when the content type changes', async () => {
@@ -41,7 +37,7 @@ describe('MessageExamples', () => {
 
   it('labels generated non-JSON structures without claiming they are encoded', () => {
     const wrapper = mount(MessageExamples, { props: { contentType: 'application/xml', generatedPayload: { id: 1 } } })
-    expect(wrapper.text()).toContain('Payload (structure only; not encoded)')
+    expect(wrapper.text()).toContain('Structure only; not encoded')
     expect(wrapper.getComponent(ScalarCodeBlock).props('lang')).toBe('json')
   })
 
@@ -52,24 +48,19 @@ describe('MessageExamples', () => {
     expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(payload)
   })
 
-  it('keeps header-only examples selectable alongside the generated payload', async () => {
+  it('omits header-only examples and selects the generated payload', async () => {
     const wrapper = mount(MessageExamples, {
       props: {
         examples: [{ name: 'Headers', headers: { trace: 'abc' } }],
         generatedPayload: { id: 42 },
       },
     })
-    const picker = wrapper.getComponent(ExamplePicker)
-    expect(picker.props('examples')).toStrictEqual({
-      '0': { summary: 'Headers' },
-      '1': { summary: 'Generated example' },
-    })
-    picker.vm.$emit('update:modelValue', '1')
-    await nextTick()
+    expect(wrapper.findComponent(ExamplePicker).exists()).toBe(false)
     expect(wrapper.get('pre').text()).toBe(JSON.stringify({ id: 42 }, null, 2))
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(JSON.stringify({ id: 42 }, null, 2))
+    expect(wrapper.text()).not.toContain('Headers')
     await wrapper.setProps({ generatedPayload: undefined })
-    expect(wrapper.get('pre').text()).toBe(JSON.stringify({ trace: 'abc' }, null, 2))
+    expect(wrapper.find('pre').exists()).toBe(false)
+    expect(wrapper.text()).toBe('')
   })
 
   it.each([null, false, 0, ''])('renders a generated %j payload', (generatedPayload) => {

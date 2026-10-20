@@ -39,6 +39,32 @@ afterEach(() => {
 })
 
 describe('Operation', () => {
+  it.each([1, 2])('starts all %i messages collapsed', (count) => {
+    const messages = Array.from({ length: count }, (_, index) => ({
+      type: 'asyncapi-message' as const,
+      id: `message-${index}`,
+      title: `Message ${index}`,
+      messageName: `message${index}`,
+      channelName: 'userSignedUp',
+    }))
+    const document = createDocument({ action: 'receive', channel: { $ref: '#/channels/userSignedUp' } })
+    document.channels = {
+      userSignedUp: {
+        address: 'users',
+        messages: Object.fromEntries(
+          messages.map((message) => [message.messageName, { description: `Details for ${message.title}` }]),
+        ),
+      },
+    }
+    const wrapper = mount(Operation, {
+      props: { operation: createOperation({ children: messages }), document, eventBus: null },
+    })
+    expect(
+      wrapper.findAll('button.collapsible-section-toggle').map((button) => button.attributes('aria-expanded')),
+    ).toStrictEqual(messages.map(() => 'false'))
+    expect(wrapper.text()).not.toContain('Details for Message 0')
+  })
+
   it('renders inherited operation bindings without messages', () => {
     const wrapper = mount(Operation, {
       props: {
@@ -97,7 +123,7 @@ describe('Operation', () => {
     })
 
     expect(wrapper.text()).toContain('On user signed up')
-    expect(wrapper.find('.operation-action').text()).toBe('receive')
+    expect(wrapper.find('.operation-action').text()).toBe('Receive')
   })
 
   it('renders the send action badge', () => {
@@ -110,7 +136,7 @@ describe('Operation', () => {
       },
     })
 
-    expect(wrapper.find('.operation-action').text()).toBe('send')
+    expect(wrapper.find('.operation-action').text()).toBe('Send')
   })
 
   it('renders the operation description (the operation header is not collapsible)', () => {
