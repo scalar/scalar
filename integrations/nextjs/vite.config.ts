@@ -30,5 +30,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
+  plugins: [react(), dts({ insertTypesEntry: true, bundleTypes: true })],
 })

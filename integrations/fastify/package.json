@@ -70,6 +70,7 @@
     "@fastify/basic-auth": "catalog:*",
     "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
+    "@microsoft/api-extractor": "^7.59.4",
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
@@ -77,7 +78,7 @@
     "fastify": "catalog:*",
     "typescript": "^5.9.3",
     "vite": "catalog:*",
-    "vite-plugin-dts": "^4.3.0",
+    "vite-plugin-dts": "^5.1.2",
     "vitest": "catalog:*"
   }
 }

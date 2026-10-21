@@ -95,7 +95,7 @@
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
     "electron": "44.5.1",
-    "electron-vite": "6.0.0-beta.1",
+    "electron-vite": "6.0.0",
     "fake-indexeddb": "catalog:*",
     "vite": "catalog:*",
     "vite-plugin-monaco-editor-esm": "catalog:*"
