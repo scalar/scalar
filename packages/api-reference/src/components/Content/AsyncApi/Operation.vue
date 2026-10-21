@@ -11,6 +11,7 @@ import type {
 import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
 import { SectionHeaderTag } from '@/components/Section'
 import {
   useDocumentOutline,
@@ -135,8 +136,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
             :level="headingLevel">
             {{ headingText }}
           </SectionHeaderTag>
-          <span
-            class="operation-action"
+          <Badge
+            class="operation-action inline-flex shrink-0 items-center gap-1"
             :class="`operation-action--${operation.action}`">
             <component
               :is="
@@ -147,7 +148,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
               aria-hidden="true"
               class="size-3" />
             {{ operation.action === 'send' ? 'Send' : 'Receive' }}
-          </span>
+          </Badge>
         </span>
       </Anchor>
       <div
@@ -235,17 +236,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   color: var(--scalar-color-1);
 }
 
-/* Direction remains readable through both its label and icon. */
-.operation-action {
-  font-size: var(--scalar-micro);
-  font-weight: var(--scalar-semibold);
-  border-radius: 12px;
-  padding: 2px 8px;
-  display: inline-flex;
-  gap: 4px;
-  flex-shrink: 0;
-  align-items: center;
-}
 /*
  * The label is the theme colour on a 12% tint of itself, which in the default light
  * theme leaves send at 4.28:1 and receive at 3.50:1 against their own fill, below the
@@ -262,6 +252,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-blue), transparent 88%);
+  border-color: color-mix(in srgb, var(--scalar-color-blue), transparent 78%);
 }
 .operation-action--receive {
   color: color-mix(
@@ -270,6 +261,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-green), transparent 88%);
+  border-color: color-mix(in srgb, var(--scalar-color-green), transparent 78%);
 }
 
 .operation-description {

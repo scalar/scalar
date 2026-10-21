@@ -19,7 +19,7 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
 <template>
   <div
     v-if="hasLabels"
-    class="async-api-labels">
+    class="async-api-labels flex flex-wrap items-center">
     <template v-if="servers.length">
       <span class="sr-only">{{ translate('asyncapi.servers') }}:</span>
       <Badge
@@ -44,12 +44,6 @@ const hasLabels = computed(() => servers.length > 0 || protocols.length > 0)
 </template>
 
 <style scoped>
-.async-api-labels {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
 /* Protocols read as identifiers, so render them uppercase to set them apart from server names. */
 .async-api-label--protocol {
   text-transform: uppercase;
