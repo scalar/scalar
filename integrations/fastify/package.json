@@ -70,7 +70,7 @@
     "@fastify/basic-auth": "catalog:*",
     "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
-    "@microsoft/api-extractor": "^7.59.4",
+    "@microsoft/api-extractor": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/openapi-types": "workspace:*",

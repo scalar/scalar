@@ -86,7 +86,7 @@ catalogs:
     microdiff: 1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.4.1
-    nanoid: ^6.0.2
+    nanoid: ^5.1.16
     next: ^15.5.28
     neverpanic: 0.0.8
     picomatch: ^4.0.7
@@ -118,6 +118,7 @@ catalogs:
     zod: ^4.6.7
     posthog-js: 1.438.12
     ws: 8.22.0
+    '@microsoft/api-extractor': ^7.59.4
 # pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
 # allowBuilds map: true runs the package's build scripts, false skips them.
 allowBuilds:
