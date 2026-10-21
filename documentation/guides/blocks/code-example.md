@@ -110,3 +110,61 @@ onBeforeUnmount(() => block?.destroy())
 For full control, the same entry point exports the `CodeExample` Vue component and `CodeExampleProps`. Its API differs from the mounting helper: pass a resolved `operation`, `path`, `method`, `clientOptions`, `eventBus`, and `securitySchemes` instead of `store`. Build client options with `generateClientOptions()` and the event bus with `createWorkspaceEventBus()` from `@scalar/workspace-store/events`.
 
 When using the component directly, your host must update the selected props in response to `workspace:update:selected-client` and `workspace:update:selected-example` events. It must also provide the style and teleport wrappers described in [Getting Started](getting-started.md#styles-and-vue-components). Prefer the helper when you want these integrations handled for you.
+
+## AsyncAPI operations
+
+For AsyncAPI 3.x, pass an `operationName` instead of an HTTP `path` and `method`:
+
+```ts
+createCodeExample('#code-example', {
+  store,
+  operationName: 'sendUpdate',
+})
+```
+
+The active workspace document supplies the operation and channel. In Vue, use
+`AsyncApiCodeExample` from `@scalar/blocks/code-example` with `document` and `operationName`
+props. Pass a workspace-resolved document so references can be followed.
+
+Add authored payload examples to channel messages:
+
+```yaml
+asyncapi: 3.1.0
+info:
+  title: Updates
+  version: 1.0.0
+servers:
+  production:
+    host: events.example.com
+    protocol: wss
+channels:
+  updates:
+    address: /updates
+    messages:
+      updated:
+        name: Updated
+        examples:
+          - name: Ada
+            payload: { name: Ada }
+          - name: Grace
+            payload: { name: Grace }
+operations:
+  sendUpdate:
+    action: send
+    channel:
+      $ref: '#/channels/updates'
+```
+
+The card displays the selected message payload, with its example name on the left and
+message picker on the right. Dropdowns appear only when there are multiple choices.
+The message picker preserves the document order and respects the operation's `messages`
+list; an omitted list uses all channel messages, while an empty list uses none.
+
+Authored payload examples take precedence. When none is provided, the block generates
+an example from a supported payload schema. If neither is available, it shows a placeholder.
+JSON payloads are formatted as JSON, while text examples retain their content type.
+Structured examples for non-JSON encodings are labeled as structure only.
+
+The header shows the operation's send/receive direction and channel address, with
+highlighted address variables. The block displays payloads only; it does not generate
+client connection code or open a connection.

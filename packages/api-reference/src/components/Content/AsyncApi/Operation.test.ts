@@ -1,9 +1,17 @@
+import { AsyncApiCodeExample, ExamplePicker } from '@scalar/blocks/code-example'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { TraversedAsyncApiOperation } from '@scalar/workspace-store/schemas/navigation'
+import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
+import MessageExamples from './MessageExamples.vue'
 import Operation from './Operation.vue'
+import OperationMessageExamples from './OperationMessageExamples.vue'
+import OperationReply from './OperationReply.vue'
 
 const OPERATION_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp'
 
@@ -120,6 +128,107 @@ describe('Operation', () => {
     expect(wrapper.get('h1, h2, h3, h4, h5, h6').text()).toBe('Inherited summary')
     expect(wrapper.text().split('Inherited summary').length - 1).toBe(1)
     expect(wrapper.text().includes('Inherited description')).toBe(true)
+  })
+
+  it('selects message payloads in the code example without a duplicate payload card', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'events',
+      document: {
+        asyncapi: '3.1.0',
+        info: { title: 'Events', version: '1' },
+        servers: { production: { host: 'example.com', protocol: 'wss' } },
+        channels: {
+          userSignedUp: {
+            address: '/events',
+            messages: {
+              first: { title: 'First', examples: [{ payload: 'first payload' }] },
+              'second/event': { title: 'Second', examples: [{ payload: 'second payload' }] },
+            },
+          },
+        },
+        operations: {
+          onUserSignedUp: {
+            action: 'receive',
+            channel: { $ref: '#/channels/userSignedUp' },
+            messages: [
+              { $ref: '#/channels/userSignedUp/messages/first' },
+              { $ref: '#/channels/userSignedUp/messages/second~1event' },
+            ],
+          },
+        },
+      },
+    })
+    const document = store.workspace.activeDocument
+    if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
+    const children = ['first', 'second/event'].map((messageName) => ({
+      type: 'asyncapi-message' as const,
+      id: `nav/${messageName}`,
+      title: messageName,
+      messageName,
+      channelName: 'userSignedUp',
+    }))
+    const wrapper = mount(Operation, { props: { document, operation: createOperation({ children }), eventBus: null } })
+    const code = wrapper.getComponent(AsyncApiCodeExample)
+    expect(wrapper.findComponent(OperationMessageExamples).exists()).toBe(false)
+    expect(code.text()).toContain('first payload')
+    code.getComponent(ExamplePicker).vm.$emit('update:modelValue', 'second/event')
+    await nextTick()
+    expect(code.text()).toContain('second payload')
+    expect(code.text()).not.toContain('first payload')
+  })
+
+  it('selects reply examples independently and keeps only schemas in the reply section', async () => {
+    const document = createDocument({
+      action: 'send',
+      channel: { $ref: '#/channels/userSignedUp' },
+      reply: {
+        channel: { $ref: '#/channels/userSignedUp' },
+        messages: [
+          { $ref: '#/channels/userSignedUp/messages/accepted' },
+          { $ref: '#/channels/userSignedUp/messages/rejected' },
+        ],
+      },
+    })
+    document.channels = {
+      userSignedUp: {
+        address: '/events',
+        messages: {
+          request: { title: 'Request', examples: [{ payload: 'request payload' }] },
+          accepted: { title: 'Accepted', payload: { type: 'string' }, examples: [{ payload: 'accepted payload' }] },
+          rejected: { title: 'Rejected', payload: { type: 'string' }, examples: [{ payload: 'rejected payload' }] },
+        },
+      },
+    }
+    document['x-scalar-navigation'] = traverseAsyncApiDocument('test', document)
+    const wrapper = mount(Operation, {
+      props: {
+        document,
+        eventBus: null,
+        operation: createOperation({
+          children: [
+            {
+              type: 'asyncapi-message',
+              id: 'request',
+              title: 'Request',
+              channelName: 'userSignedUp',
+              messageName: 'request',
+            },
+          ],
+        }),
+      },
+    })
+    const panels = wrapper.findAllComponents(OperationMessageExamples)
+    expect(panels).toHaveLength(1)
+    const [reply] = panels
+    expect(reply!.get('pre').text()).toContain('accepted payload')
+    reply!.getComponent(ExamplePicker).vm.$emit('update:modelValue', 'rejected')
+    await nextTick()
+    expect(reply!.get('pre').text()).toContain('rejected payload')
+    const schemas = wrapper.getComponent(OperationReply)
+    await schemas.get('button.collapsible-section-toggle').trigger('click')
+    expect(schemas.text()).toContain('Payload')
+    expect(schemas.findComponent(MessageExamples).exists()).toBe(false)
   })
 
   it.each([1, 2])('starts all %i messages collapsed', (count) => {

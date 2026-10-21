@@ -124,6 +124,22 @@
             },
             "required": ["sequence"]
           },
+          "examples": [
+            {
+              "name": "Message accepted",
+              "payload": {
+                "type": "message.created",
+                "id": "msg_129",
+                "author": {
+                  "id": "user_42",
+                  "displayName": "Sam"
+                },
+                "text": "The new dashboard is ready for review.",
+                "createdAt": "2026-10-20T12:00:00Z",
+                "reactions": []
+              }
+            }
+          ],
           "payload": {
             "type": "object",
             "properties": {
@@ -201,6 +217,17 @@
         "error": {
           "name": "CommandError",
           "title": "Command rejected",
+          "examples": [
+            {
+              "name": "Rate limited",
+              "payload": {
+                "type": "error",
+                "clientId": "draft_128",
+                "code": "rate_limited",
+                "retryAfterSeconds": 5
+              }
+            }
+          ],
           "payload": {
             "type": "object",
             "properties": {
@@ -265,6 +292,19 @@
       "title": "Post to a room",
       "channel": {
         "$ref": "#/channels/conversation"
+      },
+      "reply": {
+        "channel": {
+          "$ref": "#/channels/conversation"
+        },
+        "messages": [
+          {
+            "$ref": "#/channels/conversation/messages/messageCreated"
+          },
+          {
+            "$ref": "#/channels/conversation/messages/error"
+          }
+        ]
       },
       "messages": [
         {

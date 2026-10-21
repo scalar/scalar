@@ -59,6 +59,11 @@ export const sources = [
     url: 'examples/asyncapi-design-chat.json',
   },
   {
+    title: 'AsyncAPI Query Auth',
+    slug: 'asyncapi-query-auth',
+    url: 'examples/asyncapi-query-auth.yaml',
+  },
+  {
     title: 'AsyncAPI Bindings',
     slug: 'asyncapi-bindings',
     url: 'examples/asyncapi-bindings.yaml',

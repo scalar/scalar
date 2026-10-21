@@ -195,7 +195,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
     </template>
     <ChannelMetadata
       :address="resolvedChannel?.address"
-      class="mt-4" />
+      class="mt-12" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
       class="mt-4"
@@ -205,7 +205,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
-      class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+      class="[&_.parameter-list-title--tree]:text-base!"
       :eventBus="eventBus"
       :expansion="expansion"
       :options="parameterListOptions"
@@ -298,7 +298,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
               withImages />
             <ChannelMetadata
               :address="resolvedChannel?.address"
-              class="mt-4" />
+              class="mt-12" />
             <Bindings
               :bindings="resolvedChannel?.bindings"
               class="mt-4"
@@ -308,7 +308,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
               :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
             <ParameterList
               v-if="parameters.length"
-              class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+              class="[&_.parameter-list-title--tree]:text-base!"
               :eventBus="eventBus"
               :expansion="expansion"
               :options="parameterListOptions"

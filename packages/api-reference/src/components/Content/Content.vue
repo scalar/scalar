@@ -160,7 +160,7 @@ const asyncApiDocument = computed(() =>
   isAsyncApiDocument(document) ? document : undefined,
 )
 
-/** AsyncAPI narrow of the client document, where server selection/variables are persisted. */
+/** Live AsyncAPI document used by server and connection controls. */
 const asyncApiClientDocument = computed(() =>
   isAsyncApiDocument(clientDocument) ? clientDocument : undefined,
 )

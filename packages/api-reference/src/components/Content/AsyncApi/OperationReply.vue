@@ -51,9 +51,7 @@ const navigate = (event: MouseEvent, id: string): void => {
           <div
             v-if="reply.channel"
             class="min-w-0">
-            <dt class="text-c-1 mb-2 border-b pb-2 text-base font-medium">
-              Channel
-            </dt>
+            <dt class="text-c-1 mb-2 text-base font-medium">Channel</dt>
             <dd class="text-c-2 min-w-0 break-words">
               <a
                 v-if="reply.channel.id"
@@ -68,7 +66,7 @@ const navigate = (event: MouseEvent, id: string): void => {
           <div
             v-if="reply.address !== undefined"
             class="min-w-0">
-            <dt class="text-c-1 mb-2 border-b pb-2 text-base font-medium">
+            <dt class="text-c-1 mb-2 text-base font-medium">
               {{ reply.dynamicAddress ? 'Dynamic address' : 'Address' }}
             </dt>
             <dd class="text-c-2 min-w-0">
@@ -96,6 +94,7 @@ const navigate = (event: MouseEvent, id: string): void => {
             :document="document"
             :eventBus="eventBus"
             :expansion="expansion"
+            hideExamples
             inline
             :message="message.entry"
             :options="options"

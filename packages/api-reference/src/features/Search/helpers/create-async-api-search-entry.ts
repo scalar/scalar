@@ -1,6 +1,7 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { isAsyncApiJsonSchemaFormat } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { TraversedEntry } from '@scalar/workspace-store/schemas/navigation'
 
 import { pickHeading } from '@/components/Content/AsyncApi/helpers/pick-heading'
@@ -10,7 +11,6 @@ import {
   resolveAsyncApiOperation,
 } from '@/components/Content/AsyncApi/helpers/resolve-async-api-nodes'
 import type { FuseData } from '@/features/Search/types'
-import { isAsyncApiJsonSchemaFormat } from '@/helpers/resolve-async-api-schema'
 
 /** Collect schema fields without treating examples, defaults, or other literal data as schemas. */
 const extractSchemaFields = (roots: unknown[]): { names: string[]; descriptions: string[] } => {

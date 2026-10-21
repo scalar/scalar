@@ -1,8 +1,9 @@
 import { isObject } from '@scalar/helpers/object/is-object'
-import { getAsyncApiSchemaView } from '@scalar/workspace-store/helpers/get-async-api-schema-view'
-import { getBooleanSchema } from '@scalar/workspace-store/helpers/get-boolean-schema'
-import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+
+import type { SchemaObject } from '../schemas/v3.2/strict/openapi-document'
+import { getAsyncApiSchemaView } from './get-async-api-schema-view'
+import { getBooleanSchema } from './get-boolean-schema'
+import { getResolvedAsyncApiRef } from './get-resolved-async-api-ref'
 
 /** Keep non-JSON schema languages out of JSON Schema rendering and traversal. */
 export const isAsyncApiJsonSchemaFormat = (format: unknown): boolean => {

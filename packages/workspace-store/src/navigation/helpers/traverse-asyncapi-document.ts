@@ -236,14 +236,9 @@ const sortOperations = (
   }
 }
 
-/** Sorts message navigation entries alphabetically by display title. */
-const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
-  entries.sort((a, b) => a.title.localeCompare(b.title))
-}
-
 /**
  * Builds message entries beneath a channel or operation.
- * Resolves each message ref, skips hidden messages, and sorts the result by title.
+ * Resolves each message ref and skips hidden messages while preserving the declared order.
  */
 const createMessageEntries = ({
   channelName,
@@ -285,7 +280,6 @@ const createMessageEntries = ({
     ]
   })
 
-  sortMessages(messages)
   return messages
 }
 

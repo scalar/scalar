@@ -1004,9 +1004,10 @@ describe('ApiReference AsyncAPI onServerChange', () => {
             info: { title: 'Events API', version: '1.0.0' },
             servers: {
               production: { host: 'broker.example.com', protocol: 'wss' },
-              development: { host: 'localhost:8080', protocol: 'ws' },
+              development: { host: '{region}.example.com', protocol: 'wss', variables: { region: { default: 'dev' } } },
             },
-            channels: { events: { address: 'events' } },
+            channels: { events: { address: '/events' } },
+            operations: { listen: { action: 'receive', channel: { $ref: '#/channels/events' } } },
           },
         },
       },
@@ -1018,8 +1019,8 @@ describe('ApiReference AsyncAPI onServerChange', () => {
 
     await serverSelector.vm.$emit('update:modelValue', 'development')
 
-    expect(onServerChange).toHaveBeenCalledWith('ws://localhost:8080')
-
+    expect(onServerChange).toHaveBeenCalledWith('wss://dev.example.com')
+    await flushPromises()
     wrapper.unmount()
   })
 
