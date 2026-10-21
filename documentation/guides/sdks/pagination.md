@@ -174,10 +174,7 @@ An integer `limit`, `page_size`, or `pageSize` query parameter, when there is ex
 
 The scheme lands in the starter configuration like any other, so you can rename it, edit it, or set `paginated: false` on a method it should not cover. Once written, the starter configuration is yours and applies to every target as written.
 
-Nothing is inferred when:
-
-- **The run includes the Dart target.** It does not generate pages that fetch the next one yet (Dart's page does not decode its items), so an inferred scheme would gain nothing there.
-- **The document is imported as a Fern project.** A document with `x-fern-*` extensions on its root, a server, or an operation, and no configuration, is read as a Fern project, and its own `x-fern-pagination` markers decide what pages. See [OpenAPI Extensions](openapi-extensions.md#imported-vendor-extensions).
+Nothing is inferred when the document is imported as a Fern project. A document with `x-fern-*` extensions on its root, a server, or an operation, and no configuration, is read as a Fern project, and its own `x-fern-pagination` markers decide what pages. See [OpenAPI Extensions](openapi-extensions.md#imported-vendor-extensions).
 
 ## Scheme reference
 
@@ -199,7 +196,7 @@ Each entry under `request` describes one parameter the SDK sets when it asks for
 | --- | ---------- |
 | `type` | The field's role: `offset`, `pageNumber`, `cursor`, `cursorId`, `cursorUrl`, `limit`, or `pageSize`. |
 | `param` | The wire name of the parameter. Defaults to the entry's key. |
-| `location` | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`; Swift and Rust send a `header` paging parameter as a header, and so do Java and Kotlin when the operation declares that header; most other targets advance it as a query parameter. |
+| `location` | `query` or `body`. Defaults to `paramLocation`, then `query`. The schema also accepts `header`; Swift, Rust, and Dart send a `header` paging parameter as a header, and so do Java and Kotlin when the operation declares that header; most other targets advance it as a query parameter. |
 | `path`, `property` | Where the field sits inside a request body, for body-located paging. |
 | `value` | A literal value to send for this field on every request. |
 | `schema` | The field's schema, which types the parameter in the generated params object. Absent, a cursor role types as a string and the numeric roles as an integer. |
@@ -323,7 +320,7 @@ There is no cursor field: the next request sends an identifier taken from the la
 The response carries a fully-formed URL for the next page rather than a token.
 
 <scalar-callout type="warning" icon="phosphor/regular/warning">
-  Support is uneven and depends on how the URL field is declared. With `location: bodyLink`, Rust, Swift, Ruby, and C++ re-issue the request against the URL, while Java and Kotlin re-send the same operation with the URL's query string, so a cursor carried in the URL's path is not followed. C# treats the first page as the last, and TypeScript, Python, Go, and PHP stop after the first. Left at `location: body` in a `cursorUrl` scheme, the URL is still followed by Ruby and C++, and by Swift when the scheme declares no request cursor parameter; under that same condition Java and Kotlin apply its query string to the same operation. Otherwise it is written into the cursor request parameter, which is not what a URL is for, and a server that ignores that parameter can return the first page again and again. Prefer a `cursor` scheme over a URL where your API offers both.
+  Support is uneven and depends on how the URL field is declared. With `location: bodyLink`, Rust, Swift, Ruby, C++, and Dart re-issue the request against the URL, while Java and Kotlin re-send the same operation with the URL's query string, so a cursor carried in the URL's path is not followed. C# treats the first page as the last, and TypeScript, Python, Go, and PHP stop after the first. Left at `location: body` in a `cursorUrl` scheme, the URL is still followed by Ruby, C++, and Dart, and by Swift when the scheme declares no request cursor parameter; under that same condition Java and Kotlin apply its query string to the same operation. Otherwise it is written into the cursor request parameter, which is not what a URL is for, and a server that ignores that parameter can return the first page again and again. Prefer a `cursor` scheme over a URL where your API offers both.
 </scalar-callout>
 
 ### `fakePage`
@@ -353,9 +350,9 @@ Whatever the caller sent with the first request — headers, query parameters, a
 
 ## What gets generated
 
-In TypeScript, Python, Go, Ruby, and PHP the scheme name becomes the page type, cased for each language: `offsetPage` generates `OffsetPage` in TypeScript, `SyncOffsetPage` and `AsyncOffsetPage` in Python, and so on. Java, Kotlin, and C# name a page class per method, Rust and Swift use a generic page type, and C++ generates a class template per scheme (`offsetPage` generates `OffsetPage<T>`). The Dart target does not generate pages yet. Two schemes that would case to the same name get a numeric suffix, so the name in your configuration is worth choosing deliberately.
+In TypeScript, Python, Go, Ruby, PHP, and Dart the scheme name becomes the page type, cased for each language: `offsetPage` generates `OffsetPage` in TypeScript, `SyncOffsetPage` and `AsyncOffsetPage` in Python, and so on. Java, Kotlin, and C# name a page class per method, Rust and Swift use a generic page type, and C++ generates a class template per scheme (`offsetPage` generates `OffsetPage<T>`). Two schemes that would case to the same name get a numeric suffix, so the name in your configuration is worth choosing deliberately.
 
-Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items). C++ keeps that metadata as each page's whole response body instead, read through `page.body()`.
+Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items). C++ keeps that metadata as each page's whole response body instead, read through `page.body()`, and Dart's page exposes the fields it pages by and reads the rest off the decoded body, `page.json`.
 
 | Target | Walking every item | One page at a time |
 | ------ | ------------------ | ------------------ |
@@ -367,19 +364,19 @@ Alongside the page type, a target generates a params type carrying the scheme's 
 | C# | `await foreach (var item in page.Paginate())` | `page.HasNext()`, `page.Next()` |
 | PHP | `foreach ($page as $item)`, `$page->pagingEachItem()` | `$page->hasNextPage()`, `$page->getNextPage()` |
 | Rust | `let mut pager = ...paginate();` then `pager.next().await` | `Pager::next_page` |
-| Dart | — | Not generated yet |
+| Dart | `await for (final item in client.x.list().autoPaging())` | `page.hasNextPage`, `page.nextPage()`, `page.pages()` |
 | C++ | `for (const auto& item : page.auto_paging())` | `page.items()`, `page.has_next_page()`, `page.next_page()` |
 | Swift | `for try await item in client.x.list(...)` | `.pages`, `firstPage()`, `page.hasNextPage`, `page.nextPage()` |
 
-Your generated README also picks up a `## Pagination` section walking a real paginated operation, on every target but Dart, which renders none until it generates calls. Choose which one with `readme.exampleRequests.pagination`.
+Your generated README also picks up a `## Pagination` section walking a real paginated operation, on every target. Choose which one with `readme.exampleRequests.pagination`.
 
 ## Where fields are read from
 
-Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests. Only Swift's and C++'s pages advance from a `header` cursor, and only C++ follows a `linkHeader` field. A scheme whose only cursor is in a `header` field therefore stops after the first page on every target but Swift and C++, and one whose only cursor is in a `linkHeader` field stops after the first page everywhere but C++. `bodyLink` is followed as a next-page URL by Rust, Swift, Ruby, and C++; Java and Kotlin apply its query string to the same operation.
+Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests. Only Swift's, C++'s, and Dart's pages advance from a `header` cursor, and only C++ and Dart follow a `linkHeader` field. A scheme whose only cursor is in a `header` field therefore stops after the first page on every target but Swift, C++, and Dart, and one whose only cursor is in a `linkHeader` field stops after the first page everywhere but C++ and Dart. `bodyLink` is followed as a next-page URL by Rust, Swift, Ruby, C++, and Dart; Java and Kotlin apply its query string to the same operation.
 
-`itemCursor` is read by every target except Dart; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, Kotlin, and C++. On the other targets a scheme relying on either stops after the first page (Dart generates no paginated calls yet), so prefer a top-level cursor field where your API offers one.
+`itemCursor` is read by every target; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, Kotlin, C++, and Dart. On the other targets a scheme relying on `cursorPath` stops after the first page, so prefer a top-level cursor field where your API offers one.
 
-If your API pages by a `Link` header and you need it followed on a target other than C++, tell us — it is a gap we are tracking, not a design decision.
+If your API pages by a `Link` header and you need it followed on a target other than C++ or Dart, tell us — it is a gap we are tracking, not a design decision.
 
 ## Diagnostics
 

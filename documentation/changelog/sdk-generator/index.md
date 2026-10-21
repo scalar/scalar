@@ -8,6 +8,18 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.36.9 (2026-10-21)
+
+### Configuration handling improvements and code generation refinements
+
+This release improves how the generator handles Scalar configuration files, fixes how CLI samples appear in augmented OpenAPI documents, and refines generated SDK code across multiple languages.
+
+- Configuration files are now converted on every run instead of being cached, so edits to `scalar-sdk.config.yaml` are no longer ignored after the first generation.
+- CLI code samples and install instructions in augmented OpenAPI documents now appear under `CLI` instead of `Shell`, and regenerating replaces old entries cleanly.
+- Generated C++ clients now send user agent headers, handle idempotency keys correctly, and build unions through explicit factory methods.
+- Go SDKs now comma-join array query parameters by default, and v2 SDKs name union arms and enums more clearly based on discriminators or titles.
+- Dart SDKs declare models only when they have a public identity, reducing the number of generated classes and improving the package surface.
+
 ## 0.36.8 (2026-10-19)
 
 ### Improved union handling and refined SDK documentation

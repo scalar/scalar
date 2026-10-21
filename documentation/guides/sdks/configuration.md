@@ -287,7 +287,7 @@ Supported pagination types are `cursor`, `cursorId`, `cursorUrl`, `fakePage`, `o
 | Property | Description |
 | --- | --- |
 | [`nestedFormat`](#nestedformat) | Object/nested query serialization strategy. |
-| [`arrayFormat`](#arrayformat) | Array query serialization strategy. |
+| [`arrayFormat`](#arrayformat) | Array query serialization strategy: `comma` (`ids=1,2`), `repeat` (`ids=1&ids=2`), `indices` (`ids[0]=1&ids[1]=2`) or `brackets` (`ids[]=1&ids[]=2`). When unset, the default depends on the target: TypeScript, Python, Ruby, C# and Go comma-join every list, Dart comma-joins every list except `pipeDelimited`/`spaceDelimited` ones, and Java, Kotlin and C++ follow each parameter's OpenAPI `style`/`explode`. Rust and Swift always follow `style`/`explode`, and PHP's query string ignores this setting. Go applies one format to every list of a request, so a parameter's `explode` does not change it there. |
 
 #### nestedFormat
 
