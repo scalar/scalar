@@ -1030,6 +1030,21 @@ Control how schema properties are ordered in model definitions. Can be set to:
 }
 ```
 
+### urlRouting
+
+Controls whether navigation reads from and writes to the browser URL. Defaults to `true`.
+
+Set `urlRouting: false` when embedding Scalar in a dialog or a page with its own routing. Scalar starts at the configured default API description and keeps navigation in internal state. Selecting sections, scrolling, switching API descriptions, and opening Test Request leave the host URL unchanged.
+
+In this mode, Scalar ignores incoming deep links, URL redirects, and browser Back/Forward navigation. `pathRouting` does not enable URL synchronization when `urlRouting` is `false`. Section links do not restore the selected section when reopened. For multiple API descriptions in `sources`, set `urlRouting: false` on the shared configuration. When using an array of separate configurations, set it on each configuration.
+
+```js
+const configuration = {
+  url: 'https://registry.scalar.com/@scalar/apis/galaxy?format=json',
+  urlRouting: false,
+}
+```
+
 ### pathRouting
 
 **Type:** `{ basePath: string }`
