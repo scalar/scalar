@@ -42,9 +42,9 @@ export const isSidebarFolder = (
     return true
   }
 
-  // 'reference' layout: only non-'operation' and non-'webhook' are groups/folders
+  // Reference operations are leaf links; their message and example details stay in the content.
   if (layout === 'reference') {
-    return item.type !== 'operation' && item.type !== 'webhook'
+    return item.type !== 'operation' && item.type !== 'webhook' && item.type !== 'asyncapi-operation'
   }
 
   // Fallback: not a folder in other cases/layouts

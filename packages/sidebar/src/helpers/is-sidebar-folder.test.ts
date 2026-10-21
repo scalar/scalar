@@ -4,6 +4,26 @@ import { isSidebarFolder } from '@/helpers/is-sidebar-folder'
 import type { Item } from '@/types'
 
 describe('isSidebarFolder', () => {
+  it('renders AsyncAPI operations as leaves even when they contain message data', () => {
+    expect(
+      isSidebarFolder(
+        'reference',
+        {
+          type: 'asyncapi-operation',
+          id: 'send',
+          title: 'Send ping',
+          channelName: 'ping',
+          operationName: 'sendPing',
+          channelAddress: 'ping',
+          action: 'send',
+          children: [{ type: 'asyncapi-message', id: 'ping', title: 'Ping', channelName: 'ping', messageName: 'ping' }],
+        },
+        false,
+        false,
+      ),
+    ).toBe(false)
+  })
+
   describe('client layout', () => {
     it('should return true for document type with empty slot and no children', () => {
       const item = {
