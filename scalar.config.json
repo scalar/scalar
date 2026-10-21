@@ -2278,6 +2278,12 @@
                     "description": "Configure MCP environments, variables, secrets, and limits.",
                     "filepath": "documentation/guides/agent/configuration.md"
                   },
+                  "openapi-extensions": {
+                    "title": "OpenAPI Extensions",
+                    "type": "page",
+                    "description": "The OpenAPI extensions an MCP server reads: tool exposure, download links, credentials, additional headers, access, and the landing page.",
+                    "filepath": "documentation/guides/agent/openapi-extensions.md"
+                  },
                   "custom-domains": {
                     "title": "Custom Domains",
                     "type": "page",

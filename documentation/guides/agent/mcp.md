@@ -73,6 +73,10 @@ Open the API and environment in your MCP server, then use **Configure → MCP To
 | Search | Makes an operation available for lookup without sending an API request. |
 | Execute | Allows an authenticated request to the upstream API. |
 
+## Large responses and files
+
+A tool result has a size limit. When a response is too large to return whole, the MCP server returns the start of it with a note, plus a download link to the whole response. An operation that answers with a file gets a download link instead of its body. A link is valid for 30 minutes and runs the request again each time it is opened. `GET` operations get links by default; mark any other operation that is safe to run again with [`x-scalar-download`](openapi-extensions.md#downloads).
+
 ## API Authentication
 
 Configure authorization separately from tool exposure. Callers can bring API credentials, use a shared stored credential, or sign in through Scalar and use a credential selected for their access group. See [Authentication](authentication/index.md) for the available recipes.
@@ -128,5 +132,5 @@ Hosted MCP servers are part of the Pro, Business, and Enterprise plans. Usage dr
 ## Related
 
 - **Learn:** [Remote MCP servers](/learn/mcp/remote-mcp-servers) · [MCP OAuth](/learn/mcp/mcp-oauth)
-- **Docs:** [MCP authentication](/products/agent/authentication)
+- **Docs:** [MCP authentication](/products/agent/authentication) · [MCP OpenAPI extensions](/products/agent/openapi-extensions)
 - **Product:** [SDK generator](/products/sdk-generator) — give developers a typed client for the same API your agents call
