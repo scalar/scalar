@@ -39,7 +39,7 @@
     "vitest": "catalog:*",
     "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "catalog:*",
-    "wrangler": "^4.84.1"
+    "wrangler": "^4.151.1"
   },
   "scripts": {
     "build": "turbo build",

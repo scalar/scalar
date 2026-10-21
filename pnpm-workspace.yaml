@@ -13,7 +13,7 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 3.0.214
+    '@ai-sdk/vue': 4.0.142
     mermaid: 12.0.0
     '@astrojs/starlight': 0.42.6
     '@fastify/basic-auth': ^6.3.1
@@ -22,7 +22,7 @@ catalogs:
     '@floating-ui/utils': 0.2.12
     '@floating-ui/vue': 2.0.1
     '@faker-js/faker': 10.6.0
-    '@google-cloud/storage': 7.21.0
+    '@google-cloud/storage': 8.4.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
     '@hono/node-server': ^2.1.5
@@ -57,7 +57,7 @@ catalogs:
     '@vueuse/core': 15.0.0
     '@vueuse/integrations': 15.0.0
     'fastify-plugin': ^6.0.1
-    ai: 6.0.214
+    ai: 7.0.142
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
@@ -116,7 +116,7 @@ catalogs:
     vue: ^3.5.44
     yaml: ^2.9.1
     zod: ^4.6.7
-    posthog-js: 1.407.5
+    posthog-js: 1.438.12
     ws: 8.22.0
 # pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
 # allowBuilds map: true runs the package's build scripts, false skips them.
@@ -133,6 +133,7 @@ allowBuilds:
   electron: true
   esbuild: false
   lefthook: true
+  msgpackr-extract: false
   protobufjs: false
   sharp: false
   unrs-resolver: false
