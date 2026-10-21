@@ -7,15 +7,7 @@ import { handleOpenFile } from '../actions/files'
 type TemplateOption = MenuItemConstructorOptions | MenuItem
 
 /** Build the application menu depending on the platform */
-export const buildMenu = ({
-  appWindow,
-  isMac,
-  appName,
-}: {
-  appWindow: BrowserWindow
-  isMac: boolean
-  appName: string
-}) => {
+export const buildMenu = ({ isMac, appName }: { isMac: boolean; appName: string }) => {
   const macAppMenu: TemplateOption = {
     label: appName,
     submenu: [
@@ -84,7 +76,14 @@ export const buildMenu = ({
         // role: 'open',
         label: 'Open…',
         accelerator: 'CmdOrCtrl+O',
-        click: () => handleOpenFile(appWindow),
+        // Use the focused window: on macOS the window that existed when the menu was built
+        // may have been closed and re-created from the dock since.
+        click: () => {
+          const focusedWindow = BrowserWindow.getFocusedWindow()
+          if (focusedWindow) {
+            void handleOpenFile(focusedWindow)
+          }
+        },
       },
       {
         label: 'Close Window',
