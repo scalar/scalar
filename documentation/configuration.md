@@ -1239,7 +1239,7 @@ Whether and when to show the developer tools. By default only shows on `localhos
 
 **Default:** `'localhost'`
 
-To disable the toolbar set:
+To hide the toolbar, SDK generation buttons, and local sidebar promotion, set:
 
 ```javascript
 {

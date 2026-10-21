@@ -988,6 +988,8 @@ describe('sidebar footer call to action', () => {
   type FooterConfiguration = {
     mcp?: { name?: string; url?: string; disabled?: boolean }
     hideClientButton?: boolean
+    showDeveloperTools?: 'never'
+    agent?: { disabled: boolean }
   }
 
   const stubLocation = (href: string) => {
@@ -1055,6 +1057,50 @@ describe('sidebar footer call to action', () => {
 
   afterEach(() => {
     Element.prototype.scrollIntoView = originalScrollIntoView
+  })
+
+  it('hides SDK generation when developer tools are disabled', async () => {
+    const wrapper = await mountFooter({
+      showDeveloperTools: 'never',
+      agent: { disabled: true },
+      mcp: { disabled: true },
+      hideClientButton: true,
+    })
+    expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: false })
+    const button = wrapper.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
+    expect(button).toBeUndefined()
+  })
+
+  it.each([undefined, {}])(
+    'hides the local sidebar promotion with developer tools disabled and MCP %j',
+    async (mcp) => {
+      const wrapper = await mountFooter({ showDeveloperTools: 'never', mcp })
+      expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
+      expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+    },
+  )
+
+  it('updates SDK generation when developer tools visibility changes', async () => {
+    const wrapper = await mountFooter()
+    const hasSdkButton = (): boolean => wrapper.findAll('button').some((button) => button.text() === 'Generate SDK')
+    expect(hasSdkButton()).toBe(true)
+
+    await wrapper.setProps({ configuration: { content: document, showDeveloperTools: 'never' } })
+    await flushPromises()
+    expect(hasSdkButton()).toBe(false)
+
+    await wrapper.setProps({ configuration: { content: document, showDeveloperTools: 'localhost' } })
+    await flushPromises()
+    expect(hasSdkButton()).toBe(true)
+  })
+
+  it('keeps explicitly configured MCP connections when developer tools are disabled', async () => {
+    const wrapper = await mountFooter({
+      showDeveloperTools: 'never',
+      mcp: { name: 'Acme', url: 'https://mcp.acme.io' },
+    })
+    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
   })
 
   it('renders the Explore Scalar button on localhost without an MCP config', async () => {

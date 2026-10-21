@@ -24,6 +24,17 @@ describe('use-generate-sdk', () => {
   })
 
   describe('enabled', () => {
+    it('reacts to the developer tools opt-out', () => {
+      vi.stubGlobal('location', { href: 'http://localhost:5173/' })
+      const disabled = ref(false)
+      const { enabled } = useGenerateSdk({ ...ready, disabled })
+      expect(enabled.value).toBe(true)
+      disabled.value = true
+      expect(enabled.value).toBe(false)
+      disabled.value = false
+      expect(enabled.value).toBe(true)
+    })
+
     it('is only enabled on local URLs by default', () => {
       vi.stubGlobal('location', { href: 'https://docs.example.com/reference' })
       expect(useGenerateSdk(ready).enabled.value).toBe(false)
