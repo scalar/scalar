@@ -221,7 +221,7 @@ export const expandChunkIndex = (document: unknown): boolean => {
 
   // Define own properties so document keys such as `__proto__` remain data, without invoking
   // inherited setters or changing the prototype of any expanded object.
-  const components = Object.fromEntries(
+  const components: Record<string, Record<string, unknown>> = Object.fromEntries(
     Object.entries(index.components).map(([type, names]) => [
       type,
       Object.fromEntries(
@@ -249,17 +249,16 @@ export const expandChunkIndex = (document: unknown): boolean => {
     ]),
   )
 
-  // Inline entries are already available and take precedence over chunk references.
-  const inlineComponents = isObject(document['components']) ? document['components'] : {}
-  document['components'] = Object.fromEntries(
-    [...new Set([...Object.keys(components), ...Object.keys(inlineComponents)])].map((type) => [
-      type,
-      {
-        ...(Object.hasOwn(components, type) ? components[type] : {}),
-        ...(Object.hasOwn(inlineComponents, type) && isObject(inlineComponents[type]) ? inlineComponents[type] : {}),
-      },
-    ]),
-  )
+  // Keep authentication available without fetching a separate security-scheme chunk.
+  const securitySchemes = isObject(document['components']) ? document['components']['securitySchemes'] : undefined
+  if (isObject(securitySchemes)) {
+    components['securitySchemes'] = {
+      ...components['securitySchemes'],
+      ...securitySchemes,
+    }
+  }
+
+  document['components'] = components
   document['paths'] = paths
   delete document[CHUNK_INDEX_KEY]
 
