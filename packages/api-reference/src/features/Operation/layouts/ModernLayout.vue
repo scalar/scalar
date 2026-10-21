@@ -35,7 +35,6 @@ import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
-import OperationScopes from '@/features/Operation/components/OperationScopes.vue'
 import OperationTags from '@/features/Operation/components/OperationTags.vue'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
@@ -238,7 +237,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
           examples on the right, independent of this source order.
         -->
         <div class="operation-details">
-          <OperationScopes :requiredSecurity />
           <OperationParameters
             v-model:selectedContentType="selectedRequestBodyContentType"
             :breadcrumb="[id]"
