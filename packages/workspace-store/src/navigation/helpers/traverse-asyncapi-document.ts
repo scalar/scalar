@@ -146,10 +146,8 @@ const resolveOperationChannel = (
  * Resolves which channel message names an operation references.
  *
  * - `operation.messages === undefined` → every channel message is included.
- * - `operation.messages === []` → no channel messages are included.
- * - Otherwise → the channel messages that the operation explicitly references.
- *
- * Reply messages on the same channel are included as well, so they are not listed again as channel-only messages.
+ * - `operation.messages === []` → only reply messages on the same channel are included.
+ * - Otherwise → the channel messages that the operation or its reply explicitly references.
  */
 const resolveOperationMessageNames = (
   operation: AsyncApiOperationObject,

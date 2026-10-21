@@ -95,7 +95,7 @@ const navigate = (event: MouseEvent, id: string): void => {
             :eventBus="eventBus"
             :expansion="expansion"
             hideExamples
-            inline
+            :inline="!message.nested"
             :message="message.entry"
             :options="options"
             :specificationExtension="specificationExtension" />
