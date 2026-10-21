@@ -9,7 +9,13 @@ import { formatExample } from './helpers/format-example'
 import LinkButton from './LinkButton.vue'
 import { useLocalization } from './localization'
 
-const { examples, example } = defineProps<{
+const {
+  examples,
+  example,
+  align = 'center',
+} = defineProps<{
+  /** Align the popup with its label when centering would overlap adjacent content. */
+  align?: 'center' | 'start'
   examples?: unknown
   example?: unknown
 }>()
@@ -190,7 +196,10 @@ onKeyStroke('Escape', () => {
       <div
         :id="singlePopupId"
         class="property-example-value-list"
-        :class="{ 'flex!': isSingleOpen }">
+        :class="{
+          'flex!': isSingleOpen,
+          'property-example-value-list-start': align === 'start',
+        }">
         <button
           :aria-label="`${translate('common.copyExample')}: ${formatExample(example)}`"
           class="property-example-value group"
@@ -229,7 +238,10 @@ onKeyStroke('Escape', () => {
       <div
         :id="multiplePopupId"
         class="property-example-value-list"
-        :class="{ 'flex!': isMultipleOpen }">
+        :class="{
+          'flex!': isMultipleOpen,
+          'property-example-value-list-start': align === 'start',
+        }">
         <button
           v-for="(ex, key) in normalizedExamples"
           :key="key"
@@ -259,6 +271,7 @@ onKeyStroke('Escape', () => {
   position: relative;
 }
 .property-example:hover:before {
+  pointer-events: none;
   content: '';
   position: absolute;
   top: 0;
@@ -311,6 +324,10 @@ onKeyStroke('Escape', () => {
   gap: 3px;
   display: none;
   @apply z-context;
+}
+.property-example-value-list-start {
+  left: 0;
+  transform: none;
 }
 .property-example:hover .property-example-value-list {
   display: flex;
