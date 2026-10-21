@@ -116,11 +116,18 @@ const hasOverview = computed(() =>
   ),
 )
 
-/** Only the message children of this operation. */
+/** Only the message children of this operation, without the ones listed under Replies. */
 const messages = computed(() =>
   filterChildrenByType<TraversedAsyncApiMessage>(
     operation.children,
     'asyncapi-message',
+  ).filter(
+    (message) =>
+      !replyMessages.value.some(
+        (reply) =>
+          reply.channelName === message.channelName &&
+          reply.messageName === message.messageName,
+      ),
   ),
 )
 

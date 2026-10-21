@@ -148,6 +148,8 @@ const resolveOperationChannel = (
  * - `operation.messages === undefined` → every channel message is included.
  * - `operation.messages === []` → no channel messages are included.
  * - Otherwise → the channel messages that the operation explicitly references.
+ *
+ * Reply messages on the same channel are included as well, so they are not listed again as channel-only messages.
  */
 const resolveOperationMessageNames = (
   operation: AsyncApiOperationObject,
@@ -160,13 +162,10 @@ const resolveOperationMessageNames = (
     return objectKeys(channelMessages)
   }
 
-  if (operation.messages.length === 0) {
-    return []
-  }
-
   const names = new Set<string>()
+  const replyMessages = getResolvedAsyncApiRef(operation.reply)?.messages ?? []
 
-  for (const messageRef of operation.messages) {
+  for (const messageRef of [...operation.messages, ...replyMessages]) {
     if (!('$ref' in messageRef)) {
       continue
     }

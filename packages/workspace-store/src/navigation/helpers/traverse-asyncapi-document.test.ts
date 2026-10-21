@@ -409,6 +409,45 @@ describe('traverseAsyncApiDocument', () => {
     ])
   })
 
+  it('nests reply messages on the same channel under the operation', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Reply API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'reply-fixture',
+      channels: {
+        ping: {
+          address: '/ws',
+          messages: {
+            request: { title: 'Request' },
+            result: { title: 'Result' },
+            failure: { title: 'Failure' },
+            other: { title: 'Other' },
+          },
+        },
+      },
+      operations: {
+        ping: {
+          action: 'receive',
+          channel: { $ref: '#/channels/ping' },
+          messages: [{ $ref: '#/channels/ping/messages/request' }],
+          reply: {
+            channel: { $ref: '#/channels/ping' },
+            messages: [{ $ref: '#/channels/ping/messages/result' }, { $ref: '#/channels/ping/messages/failure' }],
+          },
+        },
+      },
+    } satisfies AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('reply', document, mockOptions)
+    const operation = collectAsyncApiOperations(result.children)[0]
+    const channel = collectAsyncApiChannels(result.children)[0]
+
+    expect(operation?.children?.map((entry) => entry.title)).toStrictEqual(['Request', 'Result', 'Failure'])
+    expect(
+      channel?.children?.filter((entry) => entry.type === 'asyncapi-message').map((entry) => entry.messageName),
+    ).toStrictEqual(['other'])
+  })
+
   it.each([
     {
       channelName: 'events/tenant',

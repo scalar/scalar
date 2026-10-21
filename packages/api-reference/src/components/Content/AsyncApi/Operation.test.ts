@@ -231,6 +231,42 @@ describe('Operation', () => {
     expect(schemas.findComponent(MessageExamples).exists()).toBe(false)
   })
 
+  it('lists reply messages on the same channel only under Replies', () => {
+    const document = createDocument({
+      action: 'receive',
+      channel: { $ref: '#/channels/userSignedUp' },
+      messages: [{ $ref: '#/channels/userSignedUp/messages/request' }],
+      reply: {
+        channel: { $ref: '#/channels/userSignedUp' },
+        messages: [
+          { $ref: '#/channels/userSignedUp/messages/result' },
+          { $ref: '#/channels/userSignedUp/messages/failure' },
+        ],
+      },
+    })
+    document.channels = {
+      userSignedUp: {
+        address: '/ws',
+        messages: {
+          request: { title: 'Request' },
+          result: { title: 'Result' },
+          failure: { title: 'Failure' },
+        },
+      },
+    }
+    const navigation = traverseAsyncApiDocument('test', document)
+    document['x-scalar-navigation'] = navigation
+    const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+    const operation = channel?.children?.find((entry) => entry.type === 'asyncapi-operation')
+    const wrapper = mount(Operation, {
+      props: { document, eventBus: null, operation: operation as TraversedAsyncApiOperation },
+    })
+
+    expect(
+      wrapper.findAllComponents({ name: 'Message' }).map((message) => message.props('message').messageName),
+    ).toStrictEqual(['request', 'result', 'failure'])
+  })
+
   it.each([1, 2])('starts all %i messages collapsed', (count) => {
     const messages = Array.from({ length: count }, (_, index) => ({
       type: 'asyncapi-message' as const,
