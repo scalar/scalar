@@ -43,34 +43,40 @@ Controls whether an operation becomes an MCP tool, and what the tool is called. 
 
 `enabled` resolves per operation, and the first value found wins: the operation's own `x-scalar-expose`, then `x-scalar-ignore` or `x-internal` on the operation, then its tags' `x-scalar-expose`, then the document root's, then the server's default. The other fields come from the operation's own `x-scalar-expose` only.
 
-```yaml
-openapi: 3.1.0
-info:
-  title: Payments API
-  version: 1.0.0
-x-scalar-expose:
-  name: payments
-  description: Create and look up payments.
-  toolMode: direct
-tags:
-  - name: Internal
-    x-scalar-expose: false
-paths:
-  /payments:
-    get:
-      operationId: listPayments
-      summary: List payments
-      x-scalar-expose:
-        name: list_payments
-        description: Lists payments, newest first. Filter by status to narrow the result.
-  /payments/{id}/refunds:
-    post:
-      operationId: refundPayment
-      summary: Refund a payment
-      tags: [Internal]
-      # Exposed despite its tag: the operation's own value wins.
-      x-scalar-expose: true
+```json
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Payments API", "version": "1.0.0" },
+  "x-scalar-expose": {
+    "name": "payments",
+    "description": "Create and look up payments.",
+    "toolMode": "direct"
+  },
+  "tags": [{ "name": "Internal", "x-scalar-expose": false }],
+  "paths": {
+    "/payments": {
+      "get": {
+        "operationId": "listPayments",
+        "summary": "List payments",
+        "x-scalar-expose": {
+          "name": "list_payments",
+          "description": "Lists payments, newest first. Filter by status to narrow the result."
+        }
+      }
+    },
+    "/payments/{id}/refunds": {
+      "post": {
+        "operationId": "refundPayment",
+        "summary": "Refund a payment",
+        "tags": ["Internal"],
+        "x-scalar-expose": true
+      }
+    }
+  }
+}
 ```
+
+`refundPayment` is exposed even though its tag is not: the operation's own `x-scalar-expose` wins.
 
 In a Config, `x-scalar-expose` is accepted in production's Config only. Tools are selected once per server version, for every environment, and a change takes effect on the next version built. Per-environment tool choices are made under **Configure → MCP Tools**; see [Tools](mcp.md#tools).
 
@@ -90,13 +96,18 @@ Running a request again is safe for a `GET`, so a `GET` gets a link by default. 
 
 Set `x-scalar-download: true` on an operation that is safe to run again from a link, such as a `POST` search or report endpoint. It applies to every method except `GET`, which is linked without it.
 
-```yaml
-paths:
-  /reports/search:
-    post:
-      operationId: searchReports
-      summary: Search reports
-      x-scalar-download: true
+```json
+{
+  "paths": {
+    "/reports/search": {
+      "post": {
+        "operationId": "searchReports",
+        "summary": "Search reports",
+        "x-scalar-download": true
+      }
+    }
+  }
+}
 ```
 
 Without it, a response from such an operation that is too large is returned cut short, with a note saying so, and a file it answers with is not linked. A file the API description declares as the response's media type is linked on any method, since nothing runs until the link is opened.
@@ -119,7 +130,7 @@ The Config validator warns about `x-scalar-download` on a `GET`, where it change
 
 ### `x-scalar-secret-*`
 
-These fields on a security scheme in a Config tell the MCP server which credential to send. Each value is a reference, resolved when the call is made. A reference is a whole-value string: quote it in YAML.
+These fields on a security scheme in a Config tell the MCP server which credential to send. Each value is a reference, resolved when the call is made. A reference is the whole value, written as a string.
 
 | Field | Scheme | Sends |
 | --- | --- | --- |
