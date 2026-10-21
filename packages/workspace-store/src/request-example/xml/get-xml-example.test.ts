@@ -370,6 +370,27 @@ describe('get-xml-example', () => {
     expect(serializeXmlExample({ id: 8 }, input, compact).xml).toBe('<root id="8"/>')
   })
 
+  it('bookends dynamic references at their own resource during XML serialization', () => {
+    const input = schema({
+      $id: 'urn:outer',
+      $defs: {
+        item: {
+          $dynamicAnchor: 'item',
+          type: 'object',
+          properties: { id: { type: 'string', xml: { attribute: true } } },
+        },
+      },
+      type: 'object',
+      xml: { name: 'root' },
+      properties: { value: { $id: 'urn:inner', $dynamicRef: '#item' } },
+    })
+
+    expect(serializeXmlExample({ value: { id: 'x' } }, input, { ...compact, openapiVersion: '3.2.0' })).toStrictEqual({
+      xml: '<root><value><id>x</id></value></root>',
+      diagnostics: [],
+    })
+  })
+
   it('keeps dynamic XML item bindings isolated between calls', () => {
     const template = {
       $id: 'urn:template',
