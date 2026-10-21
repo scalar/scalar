@@ -3360,7 +3360,7 @@ describe('resolveAndCopyReferences', () => {
   })
 
   it('keeps maps as objects when every copied key looks like a number', () => {
-    const target: Record<string, any> = {}
+    const target: { components?: { schemas?: unknown } } = {}
 
     resolveAndCopyReferences(
       target,
@@ -3388,15 +3388,15 @@ describe('resolveAndCopyReferences', () => {
       true,
     )
 
-    expect(Array.isArray(target.components.schemas)).toBe(false)
-    expect(target.components.schemas).toEqual({
+    expect(Array.isArray(target.components?.schemas)).toBe(false)
+    expect(target.components?.schemas).toEqual({
       '400': { type: 'object', properties: { message: { type: 'string' } } },
       '404': { type: 'object', properties: { message: { type: 'string' } } },
     })
   })
 
   it('keeps arrays as arrays when copying an item by index', () => {
-    const target: Record<string, any> = {}
+    const target: Record<string, unknown> = {}
 
     resolveAndCopyReferences(
       target,
