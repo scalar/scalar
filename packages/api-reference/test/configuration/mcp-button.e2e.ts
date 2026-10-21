@@ -5,12 +5,23 @@ test.describe('mcpButton', () => {
   // The examples are served from localhost, where the footer pitches Scalar instead of the
   // "Generate MCP" fan-out. That fan-out is only rendered on public hosts now.
   test('shows the Explore Scalar call to action by default on localhost', async ({ page }) => {
-    const example = await serveExample()
+    const example = await serveExample({ showDeveloperTools: 'localhost' })
 
     await page.goto(example)
 
     await expect(page.getByRole('button', { name: 'Generate SDKs & MCP' })).toBeVisible()
     await expect(page.getByText('Generate MCP')).toBeHidden()
+  })
+
+  test('hides SDK generation and the local promotion when developer tools are disabled', async ({ page }) => {
+    const example = await serveExample({ showDeveloperTools: 'never', hideClientButton: true })
+
+    await page.goto(example)
+
+    await expect(page.getByRole('heading', { name: 'Scalar Galaxy', exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Generate SDKs & MCP' })).toHaveCount(0)
+    await expect(page.locator('.generate-sdk-button')).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Open API Client' })).toHaveCount(0)
   })
 
   test('set mcp config', async ({ page }) => {
@@ -39,7 +50,7 @@ test.describe('mcpButton', () => {
   })
 
   test('expands the Explore Scalar card on hover and opens the dialog on click', async ({ page }) => {
-    const example = await serveExample()
+    const example = await serveExample({ showDeveloperTools: 'localhost' })
 
     await page.goto(example)
 
