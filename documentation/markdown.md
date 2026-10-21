@@ -36,3 +36,7 @@ to see more examples.
 
 > Note: Not everything is supported in all places. For example, you can use images in most places, but not in parameter
 > descriptions.
+
+## Mermaid diagrams
+
+Render fenced `mermaid` blocks as interactive diagrams with the optional Mermaid plugin. See the [Mermaid guide](mermaid.md) for setup, examples, and styling.
