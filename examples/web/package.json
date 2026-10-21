@@ -32,7 +32,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "vue": "catalog:*",
-    "vue-router": "^4.3.0"
+    "vue-router": "^5.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",

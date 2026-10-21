@@ -59,10 +59,10 @@
   "devDependencies": {
     "@types/express": "catalog:*",
     "@types/supertest": "catalog:*",
-    "@types/swagger-jsdoc": "^6.0.3",
+    "@types/swagger-jsdoc": "^6.0.4",
     "express": "catalog:*",
     "supertest": "catalog:*",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^6.3.0",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   }

@@ -78,7 +78,7 @@
     "**/*.css"
   ],
   "dependencies": {
-    "@types/hast": "^3.0.4"
+    "@types/hast": "^3.0.5"
   },
   "devDependencies": {
     "@scalar/code-highlight": "workspace:*",
