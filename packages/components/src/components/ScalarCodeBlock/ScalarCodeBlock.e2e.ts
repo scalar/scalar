@@ -27,4 +27,20 @@ test.describe('ScalarCodeBlock', () => {
 
     await snapshot('scrolled')
   })
+
+  test('In Card', async ({ page, snapshot }) => {
+    // Move the mouse over the code to reveal the copy button and its language label. Hovering the
+    // locator would scroll it into view first, and the scroll position is what this test is about
+    const box = await page.locator('.scalar-card-content:has(.scalar-code-block)').boundingBox()
+    await page.mouse.move((box?.x ?? 0) + 20, (box?.y ?? 0) + 20)
+
+    await snapshot()
+
+    // The code block scrolls, not the card, so the copy button stays put in the corner
+    await page
+      .locator('.scalar-code-block .custom-scroll')
+      .evaluate((element) => element.scrollTo({ left: element.scrollWidth }))
+
+    await snapshot('scrolled')
+  })
 })

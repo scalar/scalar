@@ -77,7 +77,12 @@ const shouldVirtualize = computed(() => {
 })
 </script>
 <template>
-  <div class="bg-b-2">
+  <!--
+    The card section is a grid, and a grid item will not shrink below its content by default. Let
+    this wrapper shrink so the code block scrolls itself, rather than stretching to the longest line
+    and making the card scroll, which carries the copy button out of view.
+  -->
+  <div class="bg-b-2 flex min-h-0 min-w-0 flex-col">
     <div
       v-if="resolvedExample?.summary || resolvedExample?.description"
       class="flex flex-col gap-2 px-3 py-3">
