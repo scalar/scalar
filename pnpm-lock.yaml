@@ -1605,6 +1605,9 @@ importers:
       '@scalar/blocks':
         specifier: workspace:*
         version: link:../blocks
+      '@scalar/asyncapi-to-markdown':
+        specifier: workspace:*
+        version: link:../asyncapi-to-markdown
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight

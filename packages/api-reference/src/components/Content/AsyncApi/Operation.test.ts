@@ -342,4 +342,13 @@ describe('Operation', () => {
     expect(wrapper.findComponent({ name: 'Message' }).exists()).toBe(true)
     expect(wrapper.text()).toContain('User signed up')
   })
+
+  it('supports default, custom, and empty actions', () => {
+    const props = { operation: createOperation(), document: createDocument({ action: 'receive' }), eventBus: null }
+    expect(mount(Operation, { props }).text()).toContain('Copy as Markdown')
+    const custom = mount(Operation, { props, slots: { actions: '<button>Custom action</button>' } })
+    expect(custom.text()).toContain('Custom action')
+    expect(custom.text()).not.toContain('Copy as Markdown')
+    expect(mount(Operation, { props, slots: { actions: () => [] } }).text()).not.toContain('Copy as Markdown')
+  })
 })

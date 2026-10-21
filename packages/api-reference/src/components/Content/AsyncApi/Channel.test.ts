@@ -621,4 +621,25 @@ describe('Channel', () => {
     })
     expect(wrapper.text()).not.toContain('Other Channel Messages')
   })
+
+  it.each(['modern', 'classic'] as const)(
+    'supports default, custom, and empty actions while collapsed in %s',
+    (layout) => {
+      const props = { channel: createChannel(), document: createDocument(), layout, isCollapsed: true, eventBus: null }
+      const wrapper = mount(Channel, { props })
+      expect(wrapper.text()).toContain('Copy as Markdown')
+      const copy = wrapper.findAll('button').find((item) => item.text() === 'Copy as Markdown')!
+      expect(copy.element.parentElement?.closest('button')).toBeNull()
+      wrapper.unmount()
+
+      const custom = mount(Channel, { props, slots: { actions: '<button>Custom action</button>' } })
+      expect(custom.text()).toContain('Custom action')
+      expect(custom.text()).not.toContain('Copy as Markdown')
+      custom.unmount()
+
+      const hidden = mount(Channel, { props, slots: { actions: () => [] } })
+      expect(hidden.text()).not.toContain('Copy as Markdown')
+      hidden.unmount()
+    },
+  )
 })

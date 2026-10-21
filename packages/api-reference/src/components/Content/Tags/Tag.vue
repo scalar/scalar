@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 
@@ -6,6 +7,8 @@ import ClassicLayout from './components/ClassicLayout.vue'
 import ModernLayout from './components/ModernLayout.vue'
 
 const { tag, layout, moreThanOneTag } = defineProps<{
+  /** Resolved AsyncAPI document distinguishes real tags from synthetic OpenAPI tags. */
+  asyncApiDocument?: AsyncApiDocument
   tag: TraversedTag
   layout: 'classic' | 'modern'
   moreThanOneTag: boolean
@@ -45,6 +48,7 @@ defineSlots<{
       :layout="layout"
       :moreThanOneTag="moreThanOneTag"
       :nested="nested"
+      :showDefaultTagHeader="!!asyncApiDocument"
       :tag="tag">
       <template
         v-if="$slots.actions"

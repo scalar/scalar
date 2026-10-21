@@ -23,6 +23,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import Bindings from './Bindings.vue'
+import CopyAsyncApiMarkdownButton from './CopyAsyncApiMarkdownButton.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -51,6 +52,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -124,7 +130,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     :class="`operation--${operation.action}`">
     <div class="operation-header mb-3">
       <Anchor
-        class="mr-6"
+        class="narrow:basis-full min-w-0 flex-1"
         @copyAnchorUrl="
           () => eventBus?.emit('copy-url:nav-item', { id: operation.id })
         ">
@@ -153,8 +159,17 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
       </Anchor>
       <div
         v-if="requiredSecurity.state !== 'none'"
-        class="operation-auth ms-auto flex shrink-0 items-center">
+        class="operation-auth flex shrink-0 items-center">
         <SecurityRequirementBadge :requiredSecurity />
+      </div>
+      <div class="ms-auto flex shrink-0 items-center gap-3">
+        <slot
+          v-if="$slots.actions"
+          name="actions" />
+        <CopyAsyncApiMarkdownButton
+          v-else
+          :document
+          :selection="{ operation: operation.operationName }" />
       </div>
     </div>
 

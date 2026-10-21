@@ -122,6 +122,7 @@ const resolvedEntries = computed(() =>
       v-else-if="
         isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
       "
+      :asyncApiDocument="document"
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
