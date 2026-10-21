@@ -1067,7 +1067,7 @@ describe('sidebar footer call to action', () => {
       hideClientButton: true,
     })
     expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: false, client: false })
     const button = wrapper.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
     expect(button).toBeUndefined()
   })
@@ -1077,7 +1077,7 @@ describe('sidebar footer call to action', () => {
     async (mcp) => {
       const wrapper = await mountFooter({ showDeveloperTools: 'never', mcp })
       expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
-      expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+      expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: false, client: true })
     },
   )
 
@@ -1100,7 +1100,7 @@ describe('sidebar footer call to action', () => {
       showDeveloperTools: 'never',
       mcp: { name: 'Acme', url: 'https://mcp.acme.io' },
     })
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+    expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: true, client: false })
   })
 
   it('renders the Explore Scalar button on localhost without an MCP config', async () => {
