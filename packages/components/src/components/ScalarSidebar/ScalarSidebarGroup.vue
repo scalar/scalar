@@ -105,7 +105,7 @@ const handleToggle = (event: MouseEvent) => {
           @click="handleClick">
           <template #indent>
             <ScalarSidebarIndent
-              class="mr-0 -my-2"
+              class="-my-2 mr-0"
               :indent="level"
               :selected />
           </template>

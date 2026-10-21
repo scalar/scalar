@@ -49,10 +49,10 @@ const { cx } = useBindCx()
           'bg-b-2 p-4 shadow-lg rounded-xl',
         )
       ">
-      <div class="min-w-0 flex-1 text-c-1 text-base font-medium">
+      <div class="text-c-1 min-w-0 flex-1 text-base font-medium">
         <slot>You have unsaved changes</slot>
       </div>
-      <div class="flex -m-2 shrink-0">
+      <div class="-m-2 flex shrink-0">
         <ScalarButton
           size="sm"
           variant="ghost"

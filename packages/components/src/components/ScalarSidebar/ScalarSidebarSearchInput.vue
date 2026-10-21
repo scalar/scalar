@@ -16,7 +16,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { onMounted, ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
-import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { ScalarLoading, type LoadingState } from '../ScalarLoading'
 
 const { autofocus } = defineProps<{
   autofocus?: boolean
@@ -70,7 +70,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       size="md" />
     <ScalarIconButton
       v-else-if="model"
-      class="p-px size-4"
+      class="size-4 p-px"
       :icon="ScalarIconX"
       label="Clear Search"
       weight="bold"

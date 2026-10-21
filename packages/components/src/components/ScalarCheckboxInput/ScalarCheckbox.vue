@@ -40,7 +40,7 @@ const props = withDefaults(
         ? 'bg-c-accent text-b-1'
         : props.indeterminate && props.type === 'checkbox'
           ? 'bg-c-accent text-b-1'
-          : 'text-transparent shadow-border',
+          : 'shadow-border text-transparent',
       props.type === 'checkbox' ? 'rounded' : 'rounded-full',
     ]">
     <ScalarIconCheck

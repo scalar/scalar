@@ -11,11 +11,12 @@
 export default {}
 </script>
 <script lang="ts" setup>
-import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
+
+import ScalarCopyBackdrop from '@/components/ScalarCopy/ScalarCopyBackdrop.vue'
 
 import { ScalarCodeBlockCopy } from '../ScalarCodeBlock'
 import type { StandardLanguageKey } from './types'
@@ -131,12 +132,12 @@ const { cx } = useBindCx()
     -->
     <div
       :aria-label="label"
-      class="custom-scroll overflow-x-auto p-2 -outline-offset-2 rounded-[inherit] min-h-0 min-w-0 flex-1"
+      class="custom-scroll min-h-0 min-w-0 flex-1 overflow-x-auto rounded-[inherit] p-2 -outline-offset-2"
       role="group"
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 p-0 border-0 bg-transparent text-nowrap whitespace-pre w-fit"
+        class="m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
@@ -146,7 +147,7 @@ const { cx } = useBindCx()
       class="scalar-code-copy absolute"
       :class="[
         isOneLine
-          ? 'top-1/2 -translate-y-1/2 m-0 right-1'
+          ? 'top-1/2 right-1 m-0 -translate-y-1/2'
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
@@ -159,8 +160,8 @@ const { cx } = useBindCx()
           class="scalar-code-copy-backdrop"
           :class="[
             isOneLine
-              ? '-inset-y-0.75 -right-1 group-hocus-within/code-block:-left-0.5 left-3'
-              : '-right-1.5 -top-1',
+              ? 'group-hocus-within/code-block:-left-0.5 -inset-y-0.75 -right-1 left-3'
+              : '-top-1 -right-1.5',
           ]" />
       </template>
     </ScalarCodeBlockCopy>

@@ -18,5 +18,5 @@
 export default {}
 </script>
 <template>
-  <div class="-mx-0.75 my-0.75 h-border bg-border" />
+  <div class="h-border bg-border -mx-0.75 my-0.75" />
 </template>

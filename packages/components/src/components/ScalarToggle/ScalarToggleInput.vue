@@ -28,7 +28,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
     v-bind="
       stylingAttrsCx('cursor-pointer gap-2 hover:bg-b-2', { 'text-c-1': model })
     ">
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
+    <div class="min-w-0 flex-1 truncate text-left"><slot /></div>
     <ScalarToggle
       v-model="model"
       class="shrink-0"

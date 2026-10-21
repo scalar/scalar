@@ -24,7 +24,7 @@ const { items = 4 } = defineProps<{
     :key="idx"
     class="pointer-events-none">
     <div
-      class="group/button-loading bg-sidebar-c-2/15 rounded-lg animate-pulse h-lh w-full box-content py-px -my-px" />
+      class="group/button-loading bg-sidebar-c-2/15 -my-px box-content h-lh w-full animate-pulse rounded-lg py-px" />
   </ScalarSidebarItem>
 </template>
 <style>

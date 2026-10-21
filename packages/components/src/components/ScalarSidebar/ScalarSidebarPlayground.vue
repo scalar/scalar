@@ -132,15 +132,15 @@ const selected = defineModel<string>('selected')
         '--scalar-sidebar-sticky-offset':
           'calc(var(--scalar-sidebar-padding) + 32px)',
       }">
-      <div class="flex flex-col flex-1 min-h-0 custom-scroll overflow-x-clip">
+      <div class="custom-scroll flex min-h-0 flex-1 flex-col overflow-x-clip">
         <slot name="search">
           <div
-            class="p-(--scalar-sidebar-padding) pb-0 sticky z-1 top-0 bg-sidebar-b-1">
+            class="bg-sidebar-b-1 sticky top-0 z-1 p-(--scalar-sidebar-padding) pb-0">
             <ScalarSidebarSearchInput :placeholder="searchPlaceholder" />
           </div>
         </slot>
         <slot>
-          <div class="flex-1 grid p-3">
+          <div class="grid flex-1 p-3">
             <div class="placeholder">Sidebar content</div>
           </div>
         </slot>
@@ -149,7 +149,7 @@ const selected = defineModel<string>('selected')
         <ScalarSidebarFooter />
       </slot>
     </ScalarSidebar>
-    <div class="flex items-center justify-center flex-1 text-c-2">
+    <div class="text-c-2 flex flex-1 items-center justify-center">
       <template v-if="selected"> {{ selected }} Selected </template>
       <template v-else> Select an item in the sidebar </template>
     </div>

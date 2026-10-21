@@ -54,7 +54,7 @@ defineOptions({ inheritAttrs: false })
       v-bind="$attrs">
       <div>Change workspace</div>
       <ScalarIconCaretRight
-        class="ml-auto text-c-2 -mr-px size-3"
+        class="text-c-2 -mr-px ml-auto size-3"
         weight="bold" />
     </ScalarMenuLink>
 
@@ -72,7 +72,7 @@ defineOptions({ inheritAttrs: false })
             <!-- Group label (only shown if there's a label) -->
             <DropdownMenu.Label
               v-if="group.label"
-              class="px-3 py-1.5 text-xs font-medium text-c-3 select-none">
+              class="text-c-3 px-3 py-1.5 text-xs font-medium select-none">
               {{ group.label }}
             </DropdownMenu.Label>
 
@@ -83,7 +83,7 @@ defineOptions({ inheritAttrs: false })
               :as="ScalarDropdownButton"
               class="group/item flex items-center"
               :value="w.id">
-              <div class="flex h-full items-center gap-1 flex-1 truncate">
+              <div class="flex h-full flex-1 items-center gap-1 truncate">
                 {{ w.label }}
               </div>
               <ScalarListboxCheckbox
@@ -94,7 +94,7 @@ defineOptions({ inheritAttrs: false })
             <!-- Group separator (only between groups, not after the last one) -->
             <DropdownMenu.Separator
               v-if="groupIndex < workspaceOptions.length - 1"
-              class="h-px bg-b-3 my-1.5" />
+              class="bg-b-3 my-1.5 h-px" />
           </template>
         </DropdownMenu.RadioGroup>
 
@@ -103,7 +103,7 @@ defineOptions({ inheritAttrs: false })
           class="flex items-center"
           @click="emit('createWorkspace')">
           <ScalarIconPlus
-            class="bg-b-3 -ml-0.75 rounded p-1 size-5 text-c-3"
+            class="bg-b-3 text-c-3 -ml-0.75 size-5 rounded p-1"
             weight="bold" />
           Create workspace
         </DropdownMenu.Item>
