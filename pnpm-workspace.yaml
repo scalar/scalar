@@ -15,10 +15,10 @@ catalogs:
   '*':
     '@ai-sdk/vue': 3.0.214
     mermaid: 12.0.0
-    '@astrojs/starlight': 0.42.2
-    '@fastify/basic-auth': ^6.3.0
-    '@fastify/http-proxy': ^11.6.0
-    '@fastify/swagger': ^9.8.1
+    '@astrojs/starlight': 0.42.6
+    '@fastify/basic-auth': ^6.3.1
+    '@fastify/http-proxy': ^11.6.4
+    '@fastify/swagger': ^9.9.2
     '@floating-ui/utils': 0.2.12
     '@floating-ui/vue': 2.0.1
     '@faker-js/faker': 10.6.0
@@ -26,21 +26,21 @@ catalogs:
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
     '@hono/node-server': ^2.1.5
-    '@nestjs/cli': '^11.0.14'
-    '@nestjs/common': '^11.1.11'
-    '@nestjs/core': '^11.1.11'
-    '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.14'
-    '@nestjs/schematics': '^11.0.9'
-    '@nestjs/swagger': '^7.3.1'
-    '@nestjs/testing': '^11.1.11'
+    '@nestjs/cli': '^11.0.24'
+    '@nestjs/common': '^11.2.7'
+    '@nestjs/core': '^11.2.7'
+    '@nestjs/platform-express': '^11.2.7'
+    '@nestjs/platform-fastify': '^11.2.7'
+    '@nestjs/schematics': '^11.1.0'
+    '@nestjs/swagger': '^11.4.7'
+    '@nestjs/testing': '^11.2.7'
     '@playwright/test': 1.62.1
     '@scalar/typebox': 0.1.3
     '@tailwindcss/cli': ^4.3.3
     '@scalar/sdk': 0.2.6
     '@tailwindcss/vite': ^4.3.3
     '@tanstack/vue-query': 5.104.3
-    '@types/express': 5.0.3
+    '@types/express': 5.0.6
     '@types/jsdom': 28.0.3
     '@types/mdast': ^4.0.4
     '@types/node': ^24.19.2
@@ -48,7 +48,7 @@ catalogs:
     '@types/react-dom': ^19.3.0
     '@types/react': ^19.3.0
     '@types/semver': 7.8.0
-    '@types/supertest': 6.0.2
+    '@types/supertest': 7.2.1
     '@types/ws': 8.18.2
     '@typescript-eslint/parser': 8.71.2
     '@vitejs/plugin-react': 6.1.2
@@ -56,23 +56,23 @@ catalogs:
     '@vue/test-utils': 2.5.1
     '@vueuse/core': 15.0.0
     '@vueuse/integrations': 15.0.0
-    'fastify-plugin': ^4.5.1
+    'fastify-plugin': ^6.0.1
     ai: 6.0.214
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
     ansis: 4.4.0
-    astro: 7.2.10
+    astro: 7.4.0
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
     commander: 14.0.3
     concurrently: 10.0.6
     cross-env: 10.1.0
-    express: 5.1.0
+    express: 5.3.0
     fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3
-    fastify: ^5.11.2
+    fastify: ^5.12.7
     flatted: ^3.4.4
     fuse.js: ^7.5.0
     hono: ^4.13.13
@@ -87,7 +87,7 @@ catalogs:
     monaco-editor: 0.54.0
     monaco-yaml: 5.4.1
     nanoid: ^6.0.2
-    next: ^15.5.14
+    next: ^15.5.28
     neverpanic: 0.0.8
     picomatch: ^4.0.7
     postcss: ^8.5.30
@@ -99,7 +99,7 @@ catalogs:
     set-cookie-parser: 3.1.3
     semver: 7.8.5
     shx: ^0.4.0
-    supertest: '7.2.2'
+    supertest: '7.3.1'
     tailwindcss: ^4.3.3
     type-fest: ^5.10.0
     truncate-json: 3.0.1
@@ -124,6 +124,7 @@ allowBuilds:
   '@firebase/util': false
   '@nestjs/core': true
   '@parcel/watcher': false
+  '@scarf/scarf': false
   '@swc/core': true
   '@tailwindcss/oxide': true
   core-js: false

@@ -68,11 +68,11 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.57.1",
-    "@sveltejs/package": "^2.5.7",
+    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/package": "^2.5.8",
     "publint": "^0.3.25",
-    "svelte": "^5.55.2",
-    "svelte-check": "^4.4.6",
+    "svelte": "^5.57.2",
+    "svelte-check": "^4.7.6",
     "vitest": "catalog:*"
   },
   "peerDependencies": {

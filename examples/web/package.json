@@ -37,7 +37,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "postcss": "catalog:*",
-    "postcss-nested": "^6.0.1",
+    "postcss-nested": "^9.0.0",
     "vite": "catalog:*"
   }
 }

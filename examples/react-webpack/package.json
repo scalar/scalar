@@ -30,8 +30,8 @@
     "css-loader": "^7.1.5",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.6.2",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0",
-    "webpack-dev-server": "^5.2.6"
+    "webpack": "^5.112.0",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.0.0"
   }
 }

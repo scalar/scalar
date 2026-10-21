@@ -57,7 +57,6 @@
     "@codemirror/lint": "^6.9.7",
     "@codemirror/state": "^6.7.6",
     "@codemirror/view": "^6.43.14",
-    "@lezer/common": "^1.5.3",
     "@lezer/highlight": "^1.2.5",
     "@replit/codemirror-css-color-picker": "^6.3.0",
     "vue": "catalog:*"

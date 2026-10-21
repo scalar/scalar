@@ -160,7 +160,7 @@
     "hono": "catalog:*",
     "jsdom": "catalog:*",
     "posthog-js": "catalog:*",
-    "rollup-plugin-webpack-stats": "^0.2.5",
+    "rollup-plugin-webpack-stats": "^4.0.1",
     "storybook": "10.6.2",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",
