@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
@@ -129,6 +130,45 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
 }
 
 /**
+ * Sets a value in the target document, creating any missing containers with the same shape
+ * they have in the source document.
+ *
+ * We cannot let `setValueAtPath` guess here: it creates an array whenever the next segment
+ * looks like a number, so copying `#/components/schemas/400` first would turn
+ * `components.schemas` into a sparse array instead of a map keyed by schema name.
+ */
+const setValueMirroringSource = (
+  targetDocument: unknown,
+  sourceDocument: unknown,
+  segments: string[],
+  value: unknown,
+): void => {
+  if (segments.length === 0) {
+    throw new Error("Cannot set value at root ('') pointer")
+  }
+
+  segments.forEach((segment) => preventPollution(segment))
+
+  let target = targetDocument as Record<string, unknown>
+  let source = sourceDocument as Record<string, unknown> | undefined
+
+  for (const [index, segment] of segments.entries()) {
+    if (index === segments.length - 1) {
+      target[segment] = value
+      return
+    }
+
+    source = isObject(source) || Array.isArray(source) ? (source[segment] as Record<string, unknown>) : undefined
+
+    if (typeof target[segment] !== 'object' || target[segment] === null) {
+      target[segment] = Array.isArray(source) ? [] : {}
+    }
+
+    target = target[segment] as Record<string, unknown>
+  }
+}
+
+/**
  * Resolves and copies referenced values from a source document to a target document.
  * This function traverses the document and copies referenced values to the target document,
  * while tracking processed references to avoid duplicates. It only processes references
@@ -187,7 +227,7 @@ export const resolveAndCopyReferences = (
     segments.length === 2 && isObject(referencedValue) && Object.keys(documentMetadata).length > 0
       ? { ...referencedValue, ...documentMetadata }
       : referencedValue
-  setValueAtPath(targetDocument, referencePath, copiedValue)
+  setValueMirroringSource(targetDocument, sourceDocument, segments, copiedValue)
 
   // Keep every enclosing base when copying a subtree, so later partial bundles
   // resolve against the same document and schema resources as the original.

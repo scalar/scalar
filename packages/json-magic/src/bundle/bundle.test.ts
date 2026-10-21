@@ -3358,4 +3358,71 @@ describe('resolveAndCopyReferences', () => {
       },
     })
   })
+
+  it('keeps maps as objects when every copied key looks like a number', () => {
+    const target: Record<string, any> = {}
+
+    resolveAndCopyReferences(
+      target,
+      {
+        paths: {
+          '/themes/{slug}': {
+            get: {
+              responses: {
+                '400': { content: { 'application/json': { schema: { $ref: '#/components/schemas/400' } } } },
+                '404': { content: { 'application/json': { schema: { $ref: '#/components/schemas/404' } } } },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            '400': { type: 'object', properties: { message: { type: 'string' } } },
+            '404': { type: 'object', properties: { message: { type: 'string' } } },
+          },
+        },
+      },
+      '/paths/~1themes~1{slug}',
+      '',
+      '',
+      true,
+    )
+
+    expect(Array.isArray(target.components.schemas)).toBe(false)
+    expect(target.components.schemas).toEqual({
+      '400': { type: 'object', properties: { message: { type: 'string' } } },
+      '404': { type: 'object', properties: { message: { type: 'string' } } },
+    })
+  })
+
+  it('keeps arrays as arrays when copying an item by index', () => {
+    const target: Record<string, any> = {}
+
+    resolveAndCopyReferences(
+      target,
+      {
+        paths: {
+          '/': {
+            get: {
+              parameters: [{ $ref: '#/components/parameters/Limit' }],
+            },
+          },
+        },
+        components: {
+          parameters: {
+            Limit: { name: 'limit', in: 'query' },
+          },
+        },
+      },
+      '/paths/~1/get/parameters/0',
+      '',
+      '',
+      true,
+    )
+
+    expect(target).toEqual({
+      paths: { '/': { get: { parameters: [{ $ref: '#/components/parameters/Limit' }] } } },
+      components: { parameters: { Limit: { name: 'limit', in: 'query' } } },
+    })
+  })
 })
