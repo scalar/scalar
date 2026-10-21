@@ -75,7 +75,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0",
     "vitest": "catalog:*"

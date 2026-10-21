@@ -22,7 +22,7 @@
     "version:packages": "node dist/version.js"
   },
   "dependencies": {
-    "@changesets/get-github-info": "^0.7.0",
+    "@changesets/get-github-info": "^0.8.0",
     "@changesets/types": "^6.1.0"
   },
   "devDependencies": {

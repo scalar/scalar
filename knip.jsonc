@@ -2,6 +2,8 @@
   "$schema": "./node_modules/knip/schema.json",
   // Catalog entries from ignored workspaces are falsely reported as unused
   "exclude": ["catalog"],
+  // Keep symbols used inside their declaring module, including types in exported shapes.
+  "ignoreExportsUsedInFile": true,
   "ignoreFiles": [
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",

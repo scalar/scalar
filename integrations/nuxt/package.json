@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^4.0.0",
+    "@nuxt/schema": "4.5.2",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*",
