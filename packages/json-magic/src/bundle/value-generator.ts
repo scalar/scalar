@@ -103,7 +103,7 @@ export const uniqueValueGeneratorFactory = (
   compressedToValue: Record<string, string>,
 ) => {
   // Create a reverse mapping from original values to their compressed forms
-  const valueToCompressed = Object.fromEntries(Object.entries(compressedToValue).map(([key, value]) => [value, key]))
+  const valueToCompressed = new Map(Object.entries(compressedToValue).map(([key, value]) => [value, key]))
 
   return {
     /**
@@ -121,7 +121,7 @@ export const uniqueValueGeneratorFactory = (
      */
     generate: async (value: string) => {
       // Check if we already have a compressed value for this input
-      const cache = valueToCompressed[value]
+      const cache = valueToCompressed.get(value)
       if (cache) {
         return cache
       }
@@ -135,7 +135,7 @@ export const uniqueValueGeneratorFactory = (
       const compressedValue = generatedValue.match(/^\d+$/) ? `a${generatedValue}` : generatedValue
 
       // Store the new mapping in our cache
-      valueToCompressed[value] = compressedValue
+      valueToCompressed.set(value, compressedValue)
 
       return compressedValue
     },
