@@ -9,8 +9,8 @@ export default {
     outDir: 'dist',
     emptyOutDir: true,
     rolldownOptions: {
-      input: ['index.html', 'header.html', 'embedded.html', 'path-routing.html', 'layout-theme.html'].map((page) =>
-        resolve(import.meta.dirname, page),
+      input: ['index.html', 'header.html', 'embedded.html', 'path-routing.html', 'layout-theme.html'].map(
+        (page): string => resolve(import.meta.dirname, page),
       ),
     },
   },

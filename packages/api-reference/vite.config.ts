@@ -22,8 +22,8 @@ export default defineConfig({
     tailwindcss(),
     {
       name: 'playground-path-routing',
-      configureServer(server) {
-        server.middlewares.use((req, _res, next) => {
+      configureServer(server): void {
+        server.middlewares.use((req, _res, next): void => {
           if (/^\/path-routing(?:[/?]|$)/.test(req.url ?? '')) {
             req.url = `/path-routing.html${new URL(req.url ?? '/', 'http://localhost').search}`
           }
