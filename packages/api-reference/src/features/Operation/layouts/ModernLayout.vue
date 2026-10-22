@@ -198,6 +198,10 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <SpecificationExtension
             v-if="!isWebhook"
             :showExtensions="options.showExtensions"
+            :value="document?.paths" />
+          <SpecificationExtension
+            v-if="!isWebhook"
+            :showExtensions="options.showExtensions"
             :value="pathValue" />
 
           <SpecificationExtension

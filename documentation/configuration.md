@@ -714,7 +714,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected OpenAPI extensions on the Paths Object, Path Items, operations, parameters, response headers, and schema fields without writing a plugin. For AsyncAPI, selected extensions also appear on channels, operations, messages, servers, and replies. Trait extensions follow the existing merge rules, including null deletion. Disabled by default.
+Display selected OpenAPI extensions on Paths Object and Path Item values within each operation, as well as operations, parameters, response headers, and schema fields without writing a plugin. For AsyncAPI, selected extensions also appear on channels, operations, messages, servers, and replies. Trait extensions follow the existing merge rules, including null deletion. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js
