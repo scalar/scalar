@@ -17,6 +17,127 @@ import { buildRequestSecurity } from '@/request-example/builder/security/build-r
 import { mergeSecurity } from './merge-security'
 
 describe('mergeSecurity', () => {
+  it('keeps OIDC defaults separate until discovery and prefers the sole configured flow', () => {
+    const auth = createWorkspaceStore().auth
+    const schemes = { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } } as const
+    const config: AuthenticationConfiguration['securitySchemes'] = {
+      oidc: {
+        type: 'openIdConnect',
+        flows: {
+          authorizationCode: {
+            'x-scalar-client-id': 'scalar',
+            selectedScopes: ['openid', 'profile'],
+            'x-usePkce': 'SHA-256',
+          },
+        },
+      },
+    }
+    const before = mergeSecurity(schemes, config, auth, documentSlug).oidc
+    assert(before?.type === 'openIdConnect')
+    expect(before.flows).toBeUndefined()
+    expect(before['x-default-scopes']).toStrictEqual(['openid', 'profile'])
+    expect(before.configuredFlows).toStrictEqual({
+      authorizationCode: {
+        'x-scalar-client-id': 'scalar',
+        selectedScopes: ['openid', 'profile'],
+        'x-usePkce': 'SHA-256',
+      },
+    })
+
+    auth.setAuthSecrets(documentSlug, 'oidc', {
+      type: 'openIdConnect',
+      implicit: { authorizationUrl: 'https://example.com/auth', scopes: { openid: '' } },
+      authorizationCode: {
+        authorizationUrl: 'https://example.com/auth',
+        tokenUrl: 'https://example.com/token',
+        scopes: { openid: '', profile: '' },
+        'x-usePkce': 'SHA-256',
+      },
+    })
+    const after = mergeSecurity(schemes, config, auth, documentSlug).oidc
+    assert(after?.type === 'openIdConnect')
+    expect(Object.keys(after.flows ?? {})).toStrictEqual(['authorizationCode', 'implicit'])
+    expect(after.flows?.authorizationCode?.['x-scalar-secret-client-id']).toBe('scalar')
+    expect(after.flows?.authorizationCode?.authorizationUrl).toBe('https://example.com/auth')
+    expect(after['x-default-scopes']).toStrictEqual(['openid', 'profile'])
+    expect(schemes.oidc).toStrictEqual({ type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' })
+  })
+
+  it('retains discovery order when multiple OIDC flows have configured defaults', () => {
+    const auth = createWorkspaceStore().auth
+    auth.setAuthSecrets(documentSlug, 'oidc', {
+      type: 'openIdConnect',
+      implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} },
+      authorizationCode: {
+        authorizationUrl: 'https://example.com/auth',
+        tokenUrl: 'https://example.com/token',
+        scopes: {},
+      },
+    })
+    const scheme = mergeSecurity(
+      { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } },
+      {
+        oidc: {
+          type: 'openIdConnect',
+          flows: {
+            authorizationCode: { 'x-scalar-client-id': 'scalar' },
+            implicit: { 'x-scalar-client-id': 'scalar' },
+          },
+        },
+      },
+      auth,
+      documentSlug,
+    ).oidc
+    assert(scheme?.type === 'openIdConnect')
+    expect(Object.keys(scheme.flows ?? {})).toStrictEqual(['implicit', 'authorizationCode'])
+  })
+
+  it('does not invent an unsupported configured OIDC flow', () => {
+    const auth = createWorkspaceStore().auth
+    auth.setAuthSecrets(documentSlug, 'oidc', {
+      type: 'openIdConnect',
+      implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} },
+    })
+    const scheme = mergeSecurity(
+      { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } },
+      { oidc: { type: 'openIdConnect', flows: { authorizationCode: { 'x-scalar-client-id': 'scalar' } } } },
+      auth,
+      documentSlug,
+    ).oidc
+    assert(scheme?.type === 'openIdConnect')
+    expect(Object.keys(scheme.flows ?? {})).toStrictEqual(['implicit'])
+  })
+
+  it.each(['edited', ''])('preserves an OIDC client ID override of %j and its reset default', (clientId) => {
+    const auth = createWorkspaceStore().auth
+    auth.setAuthSecrets(documentSlug, 'oidc', {
+      type: 'openIdConnect',
+      authorizationCode: {
+        authorizationUrl: 'https://example.com/auth',
+        tokenUrl: 'https://example.com/token',
+        scopes: {},
+        'x-usePkce': 'no',
+        'x-scalar-secret-client-id': clientId,
+        'x-scalar-secret-cleared-fields': ['x-scalar-secret-client-id'],
+      },
+    })
+    const scheme = mergeSecurity(
+      { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } },
+      {
+        oidc: {
+          type: 'openIdConnect',
+          flows: { authorizationCode: { 'x-scalar-client-id': 'scalar', 'x-usePkce': 'SHA-256' } },
+        },
+      },
+      auth,
+      documentSlug,
+    ).oidc
+    assert(scheme?.type === 'openIdConnect')
+    expect(scheme.flows?.authorizationCode?.['x-scalar-secret-client-id']).toBe(clientId)
+    expect(scheme.flows?.authorizationCode?.['x-scalar-secret-defaults']?.['x-scalar-secret-client-id']).toBe('scalar')
+    expect(scheme.flows?.authorizationCode?.['x-usePkce']).toBe('no')
+  })
+
   const workspaceStore = createWorkspaceStore()
   const authStore = workspaceStore.auth
   const documentSlug = 'test-document'

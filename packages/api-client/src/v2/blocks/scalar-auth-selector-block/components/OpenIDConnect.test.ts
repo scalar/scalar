@@ -25,6 +25,23 @@ vi.mock('@/v2/blocks/scalar-auth-selector-block/helpers/openid-discovery-to-flow
 }))
 
 describe('OpenIDConnect', () => {
+  it('uses configured PKCE when discovery offers an authorization code flow', async () => {
+    const wrapper = mountWithProps({ pkce: 'SHA-256' })
+    const emitted = vi.fn()
+    eventBus.on('auth:update:security-scheme-secrets', emitted)
+    mockFetchOpenIDConnectDiscovery.mockResolvedValue([null, {}])
+    mockOpenIDDiscoveryToFlows.mockReturnValue({ type: 'openIdConnect', authorizationCode: { 'x-usePkce': 'no' } })
+    wrapper.findComponent({ name: 'ScalarButton' }).vm.$emit('click')
+    await nextTick()
+    await waitForLoadingState()
+    expect(emitted).toHaveBeenCalledWith({
+      name: 'OpenIDConnect',
+      overwrite: true,
+      payload: { type: 'openIdConnect', authorizationCode: { 'x-usePkce': 'SHA-256' } },
+    })
+    wrapper.unmount()
+  })
+
   const eventBus = createWorkspaceEventBus()
   const baseEnvironment = {
     uid: 'env-1' as any,
@@ -39,6 +56,7 @@ describe('OpenIDConnect', () => {
     custom: Partial<{
       openIdConnectUrl: string
       proxyUrl: string
+      pkce: 'SHA-256' | 'plain' | 'no'
     }> = {},
   ) =>
     mount(OpenIDConnect, {
@@ -52,6 +70,7 @@ describe('OpenIDConnect', () => {
         scheme: {
           type: 'openIdConnect',
           openIdConnectUrl: custom.openIdConnectUrl ?? 'https://issuer.example.com',
+          configuredFlows: custom.pkce ? { authorizationCode: { 'x-usePkce': custom.pkce } } : undefined,
         },
       },
     })

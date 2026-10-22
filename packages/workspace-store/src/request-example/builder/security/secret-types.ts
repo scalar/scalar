@@ -1,3 +1,5 @@
+import type { SecuritySchemeOpenIdConnect } from '@scalar/types/api-reference'
+
 import type { AuthSecretField } from '@/helpers/auth-secret-fields'
 import type { EncryptionSchemeType, SaslSchemeType } from '@/request-example/builder/security/broker-scheme-types'
 import type {
@@ -94,7 +96,12 @@ export type HttpObjectSecret = HttpObject & XScalarSecretHTTP & XScalarSecretTok
 /** Mutual TLS: the client certificate is presented at the TLS layer, so there is no secret to enter. */
 export type MutualTlsObjectSecret = MutualTlsObject
 export type OAuth2ObjectSecret = Omit<OAuth2Object, 'flows'> & { flows: OAuthFlowsObjectSecret }
-export type OpenIdConnectObjectSecret = OpenIdConnectObject & { flows?: OAuthFlowsObjectSecret }
+export type OpenIdConnectObjectSecret = OpenIdConnectObject & {
+  flows?: OAuthFlowsObjectSecret
+  /** Configuration is kept separate so defaults cannot bypass discovery. */
+  configuredFlows?: SecuritySchemeOpenIdConnect['flows']
+  'x-default-scopes'?: string[]
+}
 
 /**
  * Base shape for AsyncAPI broker-only security schemes. These types live outside the strict
