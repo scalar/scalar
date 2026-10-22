@@ -87,6 +87,11 @@ const guessFromFormat = (
     return '@filename'
   }
 
+  // Empty dates cannot be deserialized by date-typed backends, even when plain strings stay empty.
+  if ('format' in schema && (schema.format === 'date' || schema.format === 'date-time')) {
+    return genericExampleValues[schema.format]!
+  }
+
   // Return format-specific example if we have one and are making up data
   if (makeUpRandomData && 'format' in schema && schema.format) {
     // Some generators emit version-specific UUID formats (for example FastAPI/Pydantic
