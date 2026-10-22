@@ -1,6 +1,7 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getExampleFromBody } from '@scalar/workspace-store/request-example'
 import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
@@ -43,7 +44,7 @@ describe('workspace-events', () => {
       if (!isOpenApiDocument(document)) {
         throw new Error('Missing document')
       }
-      const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/items'])?.post)?.requestBody)
+      const body = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody)
       // A concrete example is created by reset, so this cannot pass on the initial media example.
       expect(getResolvedRef(body?.content['application/json']?.examples?.default)?.value).toStrictEqual({
         name: 'original',
