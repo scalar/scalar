@@ -297,6 +297,7 @@ const { level: headingLevel } = useDocumentOutline(
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
             <SpecificationExtension
+              compact
               :showExtensions="options?.showExtensions"
               :value="resolvedMessage" />
 
@@ -398,6 +399,10 @@ const { level: headingLevel } = useDocumentOutline(
 <style scoped>
 .message {
   scroll-margin-top: var(--refs-viewport-offset);
+}
+/* Expanded messages use their own compact spacing in both layouts. */
+.message :deep(.section.collapsible-section-content) {
+  padding: 0;
 }
 .message-title {
   font-size: var(--scalar-heading-3);

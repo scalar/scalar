@@ -187,6 +187,7 @@ const updateServerVariable = (key: string, value: string) => {
     <AsyncApiDocumentation
       :owner="{ externalDocs: selectedServer?.server.externalDocs }" />
     <SpecificationExtension
+      compact
       :showExtensions="options?.showExtensions"
       :value="selectedServer?.server" />
   </div>
