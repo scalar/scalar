@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import 'vue-sonner/style.css'
+
 import { onMounted, ref } from 'vue'
 import { toast, Toaster } from 'vue-sonner'
 

@@ -116,7 +116,9 @@ test.describe('parameter linking', () => {
     await expect(button).toBeInViewport()
 
     // Should show a success message
-    await expect(await page.getByRole('status').filter({ hasText: 'Copied' })).toBeVisible()
+    await expect(
+      page.getByRole('region', { name: /Notifications/ }).getByText('Copied to the clipboard', { exact: true }),
+    ).toBeVisible()
 
     // Scroll to the top of the page
     await page.evaluate(() => window.scrollTo(0, 0))

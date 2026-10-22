@@ -1,5 +1,6 @@
 import type { FilterFunction } from '@/components/ScalarCombobox/types'
-import type { Option } from '@/components/ScalarListbox/types'
+
+import type { Option } from '../ScalarListbox/types'
 
 export const filterByOptionLabel = (<O extends Option>(query: string, options: O[]): O[] => {
   return query === ''
