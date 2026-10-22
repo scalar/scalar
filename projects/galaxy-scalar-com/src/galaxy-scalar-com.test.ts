@@ -105,7 +105,7 @@ describe('galaxy-scalar-com', () => {
       expect(mockApp.get).toHaveBeenCalledWith('/scalar/*', expect.any(Function))
     })
 
-    it('renders a module import for the branch-built ESM entry point', async () => {
+    it('renders the local document and branch-built ESM entry point', async () => {
       const { Scalar: renderScalar } =
         await vi.importActual<typeof import('@scalar/hono-api-reference')>('@scalar/hono-api-reference')
       vi.mocked(Scalar).mockImplementationOnce(renderScalar)
@@ -115,12 +115,13 @@ describe('galaxy-scalar-com', () => {
       const response = await app.request('/')
       const html = await response.text()
 
+      expect(html).toContain('/openapi.yaml')
       expect(response.status).toBe(200)
       expect(html).toContain('<script type="module">')
       expect(html).toContain("import { createApiReference } from '/scalar/standalone.esm.js'")
     })
 
-    it('renders the published ESM build in production', async () => {
+    it('renders the registry document and published ESM build in production', async () => {
       vi.stubGlobal('GALAXY_IS_PRODUCTION', true)
       vi.resetModules()
 
@@ -135,6 +136,8 @@ describe('galaxy-scalar-com', () => {
         const response = await app.request('/')
         const html = await response.text()
 
+        expect(html).toContain('https://registry.scalar.com/@scalar/apis/galaxy?format=json')
+        expect(html).not.toContain('/openapi.yaml')
         expect(response.status).toBe(200)
         expect(html).toContain('<script type="module">')
         expect(html).toContain(
