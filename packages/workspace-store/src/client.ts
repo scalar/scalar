@@ -81,6 +81,8 @@ type ExtraDocumentConfigurations = Record<
   string,
   {
     fetch: WorkspaceDocumentMetaInput['fetch']
+    /** Keep configured defaults separate from edits made through the overrides proxy. */
+    originalOverrides?: PartialDeep<OpenApiDocument>
   }
 >
 
@@ -121,6 +123,8 @@ export type FileDoc = {
 export type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
   document: Record<string, unknown>
+  /** Base URI for relative references in an in-memory document. */
+  documentSource?: string
 } & WorkspaceDocumentMetaInput
 
 /**
@@ -195,7 +199,7 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('path' in input) {
     return input.path
   }
-  return undefined
+  return 'document' in input ? input.documentSource : undefined
 }
 
 /**
@@ -425,6 +429,8 @@ export type WorkspaceStore = {
    * @returns The original version of the document, or undefined if the document does not exist.
    */
   getOriginalDocument(documentName: string): Record<string, unknown> | null
+  /** Resolve the saved baseline independently of the editable document. */
+  getResolvedOriginalDocument(documentName: string): Promise<WorkspaceDocument | null>
   /**
    * Returns the intermediate version of the specified document.
    *
@@ -1034,6 +1040,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // get a deep clone each so subsequent mutations on either one stay
     // isolated.
     originalDocuments[documentName] = newDocument
+    if (extraDocumentConfigurations[documentName]) {
+      extraDocumentConfigurations[documentName].originalOverrides = deepClone(overrides[documentName])
+    }
     intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
     activeDocument['x-scalar-is-dirty'] = false
@@ -1070,7 +1079,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         // Store the overrides for this document, or an empty object if none are provided
         overrides[name] = input.overrides ?? {}
         // Store extra document configurations that can not be persisted
-        extraDocumentConfigurations[name] = { fetch: input.fetch }
+        extraDocumentConfigurations[name] = { fetch: input.fetch, originalOverrides: deepClone(input.overrides) }
       }
     })
 
@@ -1534,6 +1543,26 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     getEditableDocument,
     getOriginalDocument,
+    async getResolvedOriginalDocument(documentName) {
+      const original = getOriginalDocument(documentName)
+      if (!original) {
+        return null
+      }
+      // Use the normal loader so upgrades, bundled references and external examples follow the
+      // same rules as the editor. The isolated store cannot mutate the saved or active document.
+      const baselineStore = createWorkspaceStore({
+        fetch: workspaceProps?.fetch,
+        fileLoader: workspaceProps?.fileLoader,
+      })
+      const loaded = await baselineStore.addDocument({
+        name: documentName,
+        document: original,
+        documentSource: workspace.documents[documentName]?.['x-scalar-original-source-url'],
+        fetch: extraDocumentConfigurations[documentName]?.fetch,
+        overrides: deepClone(extraDocumentConfigurations[documentName]?.originalOverrides),
+      })
+      return loaded ? (baselineStore.workspace.documents[documentName] ?? null) : null
+    },
     getIntermediateDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
@@ -1772,6 +1801,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(originalDocuments, input.originalDocuments)
       safeAssign(intermediateDocuments, input.intermediateDocuments)
       safeAssign(overrides, input.overrides)
+      for (const [name, documentOverrides] of Object.entries(input.overrides)) {
+        extraDocumentConfigurations[name] = { fetch: undefined, originalOverrides: deepClone(documentOverrides) }
+      }
       safeAssign(workspace, input.meta)
       history.load(input.history)
       auth.load(input.auth)
@@ -1846,7 +1878,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       // ---- Override the configurations and metadata
       overrides[name] = input.overrides ?? {}
-      extraDocumentConfigurations[name] = { fetch: input.fetch }
+      extraDocumentConfigurations[name] = { fetch: input.fetch, originalOverrides: deepClone(input.overrides) }
 
       // ---- Compute the merge between upstream and local edits
       // Two-way merge anchored on the original (last saved) snapshot:

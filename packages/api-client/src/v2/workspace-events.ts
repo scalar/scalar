@@ -334,6 +334,13 @@ export function initializeWorkspaceEventHandlers({
   //------------------------------------------------------------------------------------
   // Operation Request Body Related Event Handlers
   //------------------------------------------------------------------------------------
+  eventBus.on('operation:reset:requestBody', (payload) =>
+    withHook(
+      'operation:reset:requestBody',
+      mutators.value.doc(payload.documentName).operation.resetOperationRequestBody,
+      hooks,
+    )(payload),
+  )
   eventBus.on('operation:update:requestBody:contentType', (payload) =>
     withHook(
       'operation:update:requestBody:contentType',
