@@ -377,7 +377,6 @@ export type ApiReferenceTranslations = {
     description: string
     httpMethod: string
     path: string
-    paths: string
     copyDefault: string
     copyExample: string
     streamItem: string

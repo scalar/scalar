@@ -208,7 +208,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <div class="operation-description">
           <SpecificationExtension
             v-if="!isWebhook"
-            :label="`${translate('common.path')}: ${path}`"
             :showExtensions="options.showExtensions"
             :value="pathValue" />
 

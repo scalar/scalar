@@ -5,13 +5,7 @@ import { computed } from 'vue'
 
 import { usePluginManager } from '@/plugins'
 
-const {
-  value,
-  showExtensions = [],
-  label,
-} = defineProps<{
-  /** Optional label distinguishing the object that owns these extensions. */
-  label?: string
+const { value, showExtensions = [] } = defineProps<{
   /** Explicitly selected keys that may use the default renderer. */
   showExtensions?: string[]
   /**
@@ -66,49 +60,33 @@ const defaultExtensions = computed<Record<string, unknown>>(() =>
       .map((name) => [name, value?.[name]]),
   ),
 )
-/** Keep the optional label hidden when neither renderer has content. */
-const hasExtensions = computed<boolean>(
-  () =>
-    customExtensions.value.length > 0 ||
-    Object.keys(defaultExtensions.value).length > 0,
-)
 </script>
 
 <template>
-  <div
-    v-if="hasExtensions"
-    :aria-label="label"
-    :role="label ? 'group' : undefined">
-    <p
-      v-if="label"
-      class="text-c-2 mb-2 text-sm font-medium">
-      {{ label }}
-    </p>
-    <SpecificationExtensions :extensions="defaultExtensions" />
-    <template v-if="typeof value === 'object' && customExtensions.length">
-      <div class="text-base">
-        <template
-          v-for="(extension, index) in customExtensions"
-          :key="index">
-          <ScalarErrorBoundary>
-            <template v-if="extension.renderer">
-              <!-- Custom rendering -->
-              <component
-                :is="extension.renderer"
-                v-bind="{
-                  [extension.name]: value?.[extension.name],
-                  component: extension.component,
-                }" />
-            </template>
-            <template v-else>
-              <!-- Vue rendering -->
-              <component
-                :is="extension.component"
-                v-bind="{ [extension.name]: value?.[extension.name] }" />
-            </template>
-          </ScalarErrorBoundary>
-        </template>
-      </div>
-    </template>
-  </div>
+  <SpecificationExtensions :extensions="defaultExtensions" />
+  <template v-if="typeof value === 'object' && customExtensions.length">
+    <div class="text-base">
+      <template
+        v-for="(extension, index) in customExtensions"
+        :key="index">
+        <ScalarErrorBoundary>
+          <template v-if="extension.renderer">
+            <!-- Custom rendering -->
+            <component
+              :is="extension.renderer"
+              v-bind="{
+                [extension.name]: value?.[extension.name],
+                component: extension.component,
+              }" />
+          </template>
+          <template v-else>
+            <!-- Vue rendering -->
+            <component
+              :is="extension.component"
+              v-bind="{ [extension.name]: value?.[extension.name] }" />
+          </template>
+        </ScalarErrorBoundary>
+      </template>
+    </div>
+  </template>
 </template>

@@ -697,7 +697,7 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-Paths Object extensions appear once near the introduction. Path Item extensions appear in a labeled block within each operation on that path, in both layouts. Paths without operations have no Path Item extension block. Path Item and operation values remain separate, even when they use the same key.
+Paths Object extensions appear once near the introduction. Path Item extensions appear alongside operation extensions within each operation on that path, in both layouts. Paths without operations have no Path Item extension block. Path Item and operation values remain separate, even when they use the same key.
 
 Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
 Values appear as compact schema-style rows. Arrays show their values without type labels or visible indices, and objects show their property names. Top-level values start expanded; nested collections can be expanded with the disclosure button.

@@ -7,7 +7,6 @@ export const en = {
     description: 'Description',
     httpMethod: 'HTTP Method',
     path: 'Path',
-    paths: 'Paths',
     copyDefault: 'Copy default value',
     copyExample: 'Copy example value',
   },

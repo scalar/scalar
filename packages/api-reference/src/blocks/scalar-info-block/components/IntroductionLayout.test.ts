@@ -23,11 +23,11 @@ describe('IntroductionLayout', () => {
         showExtensions: ['x-origins'],
       },
     })
-    expect(wrapper.findAll('[role="group"][aria-label="Paths"]').length).toBe(1)
+    expect(wrapper.findAll('code').filter((node) => node.text() === '"https://example.com"').length).toBe(1)
     expect(wrapper.text()).toContain('https://example.com')
     expect(wrapper.text()).not.toContain('secret')
     await wrapper.setProps({ showExtensions: [] })
-    expect(wrapper.find('[aria-label="Paths"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('https://example.com')
   })
 
   it('omits AsyncAPI tags from the introduction', () => {
