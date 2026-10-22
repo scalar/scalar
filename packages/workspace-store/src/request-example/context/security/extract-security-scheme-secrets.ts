@@ -1,5 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
+import type { SecuritySchemeOpenIdConnect } from '@scalar/types/api-reference'
 import type { SecurityScheme } from '@scalar/types/entities'
 import type { AuthStore, SecretsOAuthFlows, SecretsOpenIdConnect } from '@scalar/workspace-store/entities/auth'
 import { type AuthSecretField, isSecretFieldCleared } from '@scalar/workspace-store/helpers/auth-secret-fields'
@@ -12,6 +13,7 @@ import type {
   OAuthFlowPassword,
 } from '@scalar/workspace-store/schemas/v3.2/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { PartialDeep } from 'type-fest'
 
 import type {
   ApiKeyObjectSecret,
@@ -26,6 +28,7 @@ import type {
   OAuthFlowImplicitSecret,
   OAuthFlowPasswordSecret,
   OAuthFlowsObjectSecret,
+  OpenIdConnectObjectSecret,
   SaslObjectSecret,
   SecuritySchemeObjectSecret,
   X509ObjectSecret,
@@ -34,7 +37,8 @@ import type {
 import type { OAuthFlowDeviceAuthorization } from '@/schemas/v3.2/strict/oauth-flow'
 
 /** A combined scheme that includes both the auth store secrets and a deep partial of the config auth */
-export type ConfigAuthScheme = SecuritySchemeObject & DeepPartial<SecurityScheme>
+export type ConfigAuthScheme = SecuritySchemeObject &
+  (DeepPartial<Exclude<SecurityScheme, { type: 'openIdConnect' }>> | PartialDeep<SecuritySchemeOpenIdConnect>)
 
 type BrokerSchemeType = SaslObjectSecret['type'] | EncryptionObjectSecret['type'] | 'X509' | 'gssapi'
 type BrokerAuthScheme = {
@@ -369,27 +373,37 @@ export const extractSecuritySchemeSecrets = (
     } satisfies OAuth2ObjectSecret
   }
 
-  // OpenID Connect uses auth-store-only discovered flows, but we expose them in OAuth-like flow format.
+  // Configuration supplies defaults, but only discovery can make an OIDC flow available.
   if (scheme.type === 'openIdConnect') {
+    const { flows: configuredFlows, ...baseScheme } = scheme
     const storeSecrets = secrets?.type === 'openIdConnect' ? secrets : undefined
-    const extracted = extractOAuthFlowSecrets(
-      {
-        implicit: storeSecrets?.implicit,
-        password: storeSecrets?.password,
-        clientCredentials: storeSecrets?.clientCredentials,
-        authorizationCode: storeSecrets?.authorizationCode,
-        deviceAuthorization: storeSecrets?.deviceAuthorization,
-      },
-      storeSecrets,
-      oauth2RedirectUri,
-      // The flows above are the stored flows themselves, so only discovered or input keys are defaults
-      false,
+    const discoveredFlows = {
+      implicit: storeSecrets?.implicit,
+      password: storeSecrets?.password,
+      clientCredentials: storeSecrets?.clientCredentials,
+      authorizationCode: storeSecrets?.authorizationCode,
+      deviceAuthorization: storeSecrets?.deviceAuthorization,
+    }
+    const configuredKeys = objectEntries(configuredFlows ?? {}).filter(([, flow]) => isObject(flow))
+    const preferredFlow = configuredKeys.length === 1 ? configuredKeys[0]?.[0] : undefined
+    const flows = Object.fromEntries(
+      objectEntries(discoveredFlows)
+        .filter(([, flow]) => flow !== undefined)
+        // A sole configured flow is the initial tab; all other discovered flows remain available.
+        .sort(([left], [right]) => Number(right === preferredFlow) - Number(left === preferredFlow))
+        .map(([key, flow]) => [key, { ...configuredFlows?.[key], ...flow }]),
     )
+    const extracted = extractOAuthFlowSecrets(flows, storeSecrets, oauth2RedirectUri, false)
+    // Seed scope defaults even before discovery so selecting an optional scheme keeps them.
+    const configuredScopes = configuredKeys.flatMap(([, flow]) => flow?.selectedScopes ?? [])
+    const defaultScopes = Array.from(new Set([...(scheme['x-default-scopes'] ?? []), ...configuredScopes]))
 
     return {
-      ...scheme,
+      ...baseScheme,
+      ...(configuredFlows ? { configuredFlows } : {}),
       ...(objectEntries(extracted.flows).length ? { flows: extracted.flows } : {}),
-    }
+      ...(defaultScopes.length ? { 'x-default-scopes': defaultScopes } : {}),
+    } satisfies OpenIdConnectObjectSecret
   }
 
   // SASL-style schemes (userPassword, plain, scramSha256, scramSha512): username + password,
