@@ -1,11 +1,12 @@
 import { AsyncApiCodeExample, ExamplePicker } from '@scalar/blocks/code-example'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { traverseAsyncApiDocument } from '@scalar/workspace-store/navigation'
 import type { TraversedAsyncApiOperation } from '@scalar/workspace-store/schemas/navigation'
 import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { enableAutoUnmount, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
 import MessageExamples from './MessageExamples.vue'
@@ -160,7 +161,9 @@ describe('Operation', () => {
       },
     })
     const document = store.workspace.activeDocument
-    if (!isAsyncApiDocument(document)) throw new Error('Expected AsyncAPI')
+    if (!isAsyncApiDocument(document)) {
+      throw new Error('Expected AsyncAPI')
+    }
     const children = ['first', 'second/event'].map((messageName) => ({
       type: 'asyncapi-message' as const,
       id: `nav/${messageName}`,
@@ -278,6 +281,59 @@ describe('Operation', () => {
       expect(replies.map((message) => message.props('inline'))).toStrictEqual(inlineReplies)
     },
   )
+
+  it('reveals a nested reply property when navigation opens the message', async () => {
+    const document = createDocument({
+      action: 'receive',
+      channel: { $ref: '#/channels/userSignedUp' },
+      messages: [],
+      reply: {
+        channel: { $ref: '#/channels/userSignedUp' },
+        messages: [{ $ref: '#/channels/userSignedUp/messages/result' }],
+      },
+    })
+    document.channels = {
+      userSignedUp: {
+        address: '/ws',
+        messages: {
+          result: {
+            title: 'Result',
+            correlationId: { location: '$message.payload#/metadata/trace/id' },
+            payload: {
+              type: 'object',
+              properties: {
+                metadata: {
+                  type: 'object',
+                  properties: {
+                    trace: { type: 'object', properties: { id: { type: 'string' } } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    const navigation = traverseAsyncApiDocument('test', document)
+    document['x-scalar-navigation'] = navigation
+    const channel = navigation.children?.find((entry) => entry.type === 'asyncapi-channel')
+    const operation = channel?.children?.find((entry) => entry.type === 'asyncapi-operation')
+    if (!operation?.children?.[0]) {
+      throw new Error('Expected an operation with a reply message')
+    }
+    const messageId = operation.children[0].id
+    const targetId = `${messageId}.payload.metadata.trace.id`
+    const wrapper = mount(Operation, {
+      props: { document, operation, eventBus: createWorkspaceEventBus(), expandedItems: {} },
+    })
+
+    expect(wrapper.find(`[id="${targetId}"]`).exists()).toBe(false)
+    await wrapper.setProps({ expandedItems: { [messageId]: true }, scrollTargetId: targetId })
+    await vi.waitFor(() => expect(wrapper.get(`[id="${targetId}"]`).text()).toBe('id'))
+    expect(wrapper.get(`[id="${targetId}"]`).attributes('tabindex')).toBe('-1')
+    await wrapper.setProps({ expandedItems: { [messageId]: false } })
+    expect(wrapper.find(`[id="${targetId}"]`).exists()).toBe(false)
+  })
 
   it.each([1, 2])('starts all %i messages collapsed', (count) => {
     const messages = Array.from({ length: count }, (_, index) => ({

@@ -14,13 +14,22 @@ import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-opt
 import type { OperationReply } from './helpers/get-operation-reply'
 import Message from './Message.vue'
 
-const { reply, eventBus, level, document, options } = defineProps<
+const {
+  reply,
+  eventBus,
+  level,
+  document,
+  options,
+  expandedItems = {},
+} = defineProps<
   {
     document: AsyncApiDocument
     options?: Partial<AsyncApiSchemaRenderOptions>
     reply: OperationReply
     eventBus: WorkspaceEventBus | null
     level: HeadingLevel
+    /** Shared navigation expansion state for canonical reply messages. */
+    expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
 
@@ -93,11 +102,13 @@ const navigate = (event: MouseEvent, id: string): void => {
             :class="{ '[&>.collapsible-section]:border-t-0!': index === 0 }"
             :document="document"
             :eventBus="eventBus"
+            :expandedItems="expandedItems"
             :expansion="expansion"
             hideExamples
             :inline="!message.nested"
             :message="message.entry"
             :options="options"
+            :scrollTargetId="scrollTargetId"
             :specificationExtension="specificationExtension" />
           <div
             v-else

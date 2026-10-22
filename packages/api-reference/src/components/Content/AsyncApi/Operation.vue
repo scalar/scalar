@@ -272,10 +272,12 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         class="mt-12"
         :document="document"
         :eventBus="eventBus"
+        :expandedItems="expandedItems"
         :expansion="expansion"
         :level="messagesHeadingLevel"
         :options="options"
         :reply="reply"
+        :scrollTargetId="scrollTargetId"
         :specificationExtension="specificationExtension" />
     </div>
   </section>
