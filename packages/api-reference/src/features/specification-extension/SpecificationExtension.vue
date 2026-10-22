@@ -66,11 +66,17 @@ const defaultExtensions = computed<Record<string, unknown>>(() =>
       .map((name) => [name, value?.[name]]),
   ),
 )
+/** Keep the optional label hidden when neither renderer has content. */
+const hasExtensions = computed<boolean>(
+  () =>
+    customExtensions.value.length > 0 ||
+    Object.keys(defaultExtensions.value).length > 0,
+)
 </script>
 
 <template>
   <div
-    v-if="customExtensions.length || Object.keys(defaultExtensions).length"
+    v-if="hasExtensions"
     :aria-label="label"
     :role="label ? 'group' : undefined">
     <p
