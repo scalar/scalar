@@ -12,6 +12,8 @@ import type {
 import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { Badge } from '@/components/Badge'
 import { SectionHeaderTag } from '@/components/Section'
 import {
@@ -103,12 +105,18 @@ const summary = computed((): string => {
     : value
 })
 
+const { hasExtensions } = useSpecificationExtensions(
+  () => resolvedOperation.value,
+  () => options?.showExtensions,
+)
+
 const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
 )
 
 const hasOverview = computed(() =>
   Boolean(
+    hasExtensions.value ||
     summary.value ||
     description.value ||
     resolvedOperation.value?.bindings ||
@@ -217,7 +225,11 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         withImages />
 
       <div
-        v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+        v-if="
+          hasExtensions ||
+          resolvedOperation?.bindings ||
+          resolvedOperation?.externalDocs
+        "
         class="space-y-4"
         :class="{ 'mt-12': summary || description }">
         <Bindings
@@ -226,6 +238,9 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
           scope="operation" />
         <AsyncApiDocumentation
           :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+        <SpecificationExtension
+          :showExtensions="options?.showExtensions"
+          :value="resolvedOperation" />
       </div>
     </div>
 
