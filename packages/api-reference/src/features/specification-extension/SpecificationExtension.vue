@@ -4,9 +4,15 @@ import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
 
 import { useSpecificationExtensions } from './use-specification-extensions'
 
-const { value, showExtensions = [] } = defineProps<{
+const {
+  value,
+  showExtensions = [],
+  compact = false,
+} = defineProps<{
   /** Explicitly selected keys that may use the default renderer. */
   showExtensions?: string[]
+  /** Use the surrounding panel spacing for default extension values. */
+  compact?: boolean
   /**
    * Any value that can contain specification extensions.
    */
@@ -20,7 +26,9 @@ const { customExtensions, defaultExtensions } = useSpecificationExtensions(
 </script>
 
 <template>
-  <SpecificationExtensions :extensions="defaultExtensions" />
+  <SpecificationExtensions
+    :compact="compact"
+    :extensions="defaultExtensions" />
   <template v-if="typeof value === 'object' && customExtensions.length">
     <div class="text-base">
       <template

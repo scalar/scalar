@@ -7,12 +7,15 @@ const {
   name,
   value,
   depth = 0,
+  compact = false,
   arrayItem = false,
   ancestors = [],
 } = defineProps<{
   name: string
   value: unknown
   depth?: number
+  /** Primitive values can align with the surrounding panel content. */
+  compact?: boolean
   /** Array entries display only their values; keep their names for assistive technology. */
   arrayItem?: boolean
   /** Only ancestors count as cycles; shared sibling values remain independently expandable. */
@@ -56,7 +59,7 @@ const text = computed<string>(() => {
   <div
     class="relative min-w-0 py-0.5"
     :class="{
-      'ps-8': depth === 0,
+      'ps-8': depth === 0 && (!compact || expandable),
       'flex items-baseline gap-x-2': !arrayItem && !expandable,
     }">
     <dt
