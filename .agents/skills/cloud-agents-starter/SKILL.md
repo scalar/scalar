@@ -170,7 +170,7 @@ This codebase does not use feature flags. Configuration is via package options, 
 ## 6. Projects & Examples
 
 - **proxy-scalar-com** (Go): `cd projects/proxy-scalar-com && go run main.go` (port 5051)
-- **Examples** (examples/*): Each has its own `pnpm dev` (e.g. `examples/web`, `examples/react`)
+- **Examples** (examples/*): Each has its own `pnpm dev` (e.g. `examples/react`)
 
 ---
 

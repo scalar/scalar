@@ -1,0 +1,2 @@
+/path-routing /path-routing.html 200
+/path-routing/* /path-routing.html 200

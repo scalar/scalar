@@ -894,49 +894,6 @@ importers:
         specifier: catalog:*
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
 
-  examples/web:
-    dependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../../packages/api-reference
-      '@scalar/components':
-        specifier: workspace:*
-        version: link:../../packages/components
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../../packages/galaxy
-      '@scalar/helpers':
-        specifier: workspace:*
-        version: link:../../packages/helpers
-      '@scalar/schemas':
-        specifier: workspace:*
-        version: link:../../packages/schemas
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../../packages/themes
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
-      vue:
-        specifier: catalog:*
-        version: 3.5.44(typescript@5.9.3)
-      vue-router:
-        specifier: ^5.4.0
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(esbuild@0.28.2)(rolldown@1.2.14)(rollup@4.59.0)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))(vue@3.5.44(typescript@5.9.3))(webpack@5.103.0)
-    devDependencies:
-      '@vitejs/plugin-vue':
-        specifier: catalog:*
-        version: 6.0.10(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))(vue@3.5.44(typescript@5.9.3))
-      postcss:
-        specifier: catalog:*
-        version: 8.5.30
-      postcss-nested:
-        specifier: ^9.0.0
-        version: 9.0.0(postcss@8.5.30)
-      vite:
-        specifier: catalog:*
-        version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
-
   integrations/astro:
     dependencies:
       '@scalar/client-side-rendering':
