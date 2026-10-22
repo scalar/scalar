@@ -9,7 +9,11 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
  */
 export type AsyncApiSchemaRenderOptions = Pick<
   ApiReferenceConfigurationRaw,
-  'orderRequiredPropertiesFirst' | 'orderSchemaPropertiesBy' | 'expandAllSchemaProperties' | 'schemaKeyboardNav'
+  | 'orderRequiredPropertiesFirst'
+  | 'orderSchemaPropertiesBy'
+  | 'expandAllSchemaProperties'
+  | 'schemaKeyboardNav'
+  | 'showExtensions'
 >
 
 /**

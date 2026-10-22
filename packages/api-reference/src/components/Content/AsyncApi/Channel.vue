@@ -21,6 +21,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { useDocumentOutline } from '@/features/document-outline'
 import ParameterList from '@/features/Operation/components/ParameterList.vue'
 
@@ -203,6 +204,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
       scope="channel" />
     <AsyncApiDocumentation
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+    <SpecificationExtension
+      :showExtensions="options?.showExtensions"
+      :value="resolvedChannel" />
     <ParameterList
       v-if="parameters.length"
       class="[&_.parameter-list-title--tree]:text-base!"
@@ -306,6 +310,9 @@ const { level: headingLevel } = useDocumentOutline('channel')
               scope="channel" />
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+            <SpecificationExtension
+              :showExtensions="options?.showExtensions"
+              :value="resolvedChannel" />
             <ParameterList
               v-if="parameters.length"
               class="[&_.parameter-list-title--tree]:text-base!"

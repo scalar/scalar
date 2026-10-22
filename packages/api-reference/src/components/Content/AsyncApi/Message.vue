@@ -20,6 +20,8 @@ import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/n
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -121,6 +123,11 @@ const summary = computed((): string => {
     ? ''
     : value
 })
+
+const { hasExtensions } = useSpecificationExtensions(
+  () => resolvedMessage.value,
+  () => options?.showExtensions,
+)
 
 const description = computed(
   (): string => resolvedMessage.value?.description ?? '',
@@ -256,6 +263,7 @@ const { level: headingLevel } = useDocumentOutline(
         <div class="message-layout">
           <div
             v-if="
+              hasExtensions ||
               summary ||
               description ||
               resolvedMessage?.bindings ||
@@ -284,6 +292,9 @@ const { level: headingLevel } = useDocumentOutline(
               scope="message" />
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
+            <SpecificationExtension
+              :showExtensions="options?.showExtensions"
+              :value="resolvedMessage" />
 
             <div
               v-if="correlationId"
