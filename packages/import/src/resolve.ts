@@ -129,7 +129,7 @@ export async function resolve(
         console.warn(`[@scalar/import] Failed to fetch ${value}`)
       }
     } catch (error) {
-      console.error(`[@scalar/import] Failed to fetch ${value}`, error)
+      console.error('[@scalar/import] Failed to fetch %s', value, error)
     }
   }
 
