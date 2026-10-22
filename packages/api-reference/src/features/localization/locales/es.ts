@@ -7,7 +7,6 @@ export const es = {
     description: 'Descripción',
     httpMethod: 'Método HTTP',
     path: 'Ruta',
-    paths: 'Rutas',
     copyDefault: 'Copiar valor por defecto',
     copyExample: 'Copiar valor de ejemplo',
   },

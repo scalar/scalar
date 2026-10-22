@@ -8,7 +8,6 @@ export const zhTw = {
     description: '描述',
     httpMethod: 'HTTP 方法',
     path: '路徑',
-    paths: '路徑',
     copyDefault: '複製預設值',
     copyExample: '複製範例值',
   },

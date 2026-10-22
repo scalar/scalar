@@ -131,7 +131,6 @@ const { level: headingLevel } = useDocumentOutline('document')
           <SpecificationExtension :value="documentExtensions" />
           <SpecificationExtension :value="infoExtensions" />
           <SpecificationExtension
-            :label="translate('common.paths')"
             :showExtensions
             :value="pathsExtensions" />
         </template>
