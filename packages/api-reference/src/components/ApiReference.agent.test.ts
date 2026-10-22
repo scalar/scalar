@@ -32,13 +32,14 @@ describe('ApiReference.agent', () => {
     await vi.waitFor(() => expect(wrapper.findComponent({ name: 'AgentScalarChatInterface' }).exists()).toBe(true), {
       timeout: 5000,
     })
-    const chat = wrapper.getComponent({ name: 'AgentScalarChatInterface' }).vm
+    // Wrapper proxies can change between lookups; the mounted chat must retain its DOM node.
+    const chat = wrapper.getComponent({ name: 'AgentScalarChatInterface' }).element
 
     await wrapper.getComponent({ name: 'AgentScalarButton' }).get('button').trigger('click')
     await flushPromises()
-    expect(wrapper.getComponent({ name: 'AgentScalarChatInterface' }).vm).toBe(chat)
+    expect(wrapper.getComponent({ name: 'AgentScalarChatInterface' }).element).toBe(chat)
     await wrapper.getComponent({ name: 'AgentScalarButton' }).get('button').trigger('click')
     await flushPromises()
-    expect(wrapper.getComponent({ name: 'AgentScalarChatInterface' }).vm).toBe(chat)
+    expect(wrapper.getComponent({ name: 'AgentScalarChatInterface' }).element).toBe(chat)
   })
 })

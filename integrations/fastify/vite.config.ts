@@ -98,7 +98,7 @@ export default defineConfig({
     // specifiers. See https://github.com/scalar/scalar/issues/9795.
     dts({
       insertTypesEntry: true,
-      rollupTypes: true,
+      bundleTypes: true,
       // Only the entry's public types are published; keep tests and the playground out of the emit.
       exclude: ['**/*.test.ts', 'test/**', 'playground/**'],
     }),

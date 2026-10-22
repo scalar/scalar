@@ -45,7 +45,7 @@ export function codeBlockLinesPlugin() {
         })
 
         // We need to maintain a count of the total lines to allow space for the labels
-        node.properties.style = [`--line-count: ${numLines};`, `--line-digits: ${numLines.toString().length};`]
+        node.properties.style = `--line-count: ${numLines}; --line-digits: ${numLines.toString().length};`
       }
     })
 

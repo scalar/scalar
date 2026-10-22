@@ -248,6 +248,11 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - name: Restore pre-built workspace
         uses: ./.github/actions/restore-build
+      # restore-build only restores dist/, while Nuxt configs extend generated .nuxt files.
+      - name: Prepare Nuxt configs for Knip
+        run: |
+          pnpm --filter @scalar/nuxt exec nuxi prepare
+          pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
       - name: Knip
         run: pnpm lint:knip
 

@@ -53,13 +53,7 @@ import { useLocalization } from '@/v2/features/localization'
 import type { ClientLayout } from '@/v2/types/layout'
 
 type Filter =
-  | 'All'
-  | 'Auth'
-  | 'Variables'
-  | 'Cookies'
-  | 'Headers'
-  | 'Query'
-  | 'Body'
+  'All' | 'Auth' | 'Variables' | 'Cookies' | 'Headers' | 'Query' | 'Body'
 
 export type RequestBlockProps = {
   authMeta: AuthMeta

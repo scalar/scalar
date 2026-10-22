@@ -274,7 +274,7 @@ describe('Operation', () => {
       expect(
         wrapper
           .findAllComponents({ name: 'Message' })
-          .filter((message) => !replies.some((reply) => reply.vm === message.vm))
+          .filter((message) => !replies.some((reply) => reply.element === message.element))
           .map((message) => message.props('message').messageName),
       ).toStrictEqual(expectedMessages)
       expect(replies.map((message) => message.props('message').messageName)).toStrictEqual(['result', 'failure'])
