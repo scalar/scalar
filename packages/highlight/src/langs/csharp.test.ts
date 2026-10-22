@@ -283,4 +283,17 @@ describe('csharp', () => {
     assertHas('base.Run();\n', 'csharp', 'base', 'variable.builtin')
     assertHas('var @class = 1;\n', 'csharp', '@class', 'variable')
   })
+
+  it('scopes the name a declaration binds, but not a returned value or a comparison', () => {
+    const code =
+      'using var client = new HttpClient();\nHttpClient other = new();\nint count;\nreturn total;\nvar big = a > limit;\n'
+    for (const name of ['client', 'other', 'count', 'big']) {
+      assertHas(code, 'csharp', name, 'variable')
+    }
+    const variables = scoped(code, 'csharp')
+      .filter(([, scope]) => scope === 'variable')
+      .map(([text]) => text)
+    expect(variables).not.toContain('total')
+    expect(variables).not.toContain('limit')
+  })
 })

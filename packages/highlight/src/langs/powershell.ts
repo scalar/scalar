@@ -182,7 +182,10 @@ const powershell: Grammar = {
         // to be a lookbehind rather than a consumed separator, because the
         // merged regex picks the leftmost match before it picks the
         // higher-priority rule — eating the space would make `-eq` a parameter.
-        { match: '(?<![\\w)\\]}\'"])-[a-z]\\w*', scope: 'variable.parameter' },
+        // Scoped as a constant, as Bash scopes a flag, so `-Uri` and `--request`
+        // look alike; the parameter scope is kept for the names a script
+        // declares in `param(…)`.
+        { match: '(?<![\\w)\\]}\'"])-[a-z]\\w*', scope: 'constant' },
         { match: `\\b${ID}(?=\\()`, scope: 'function.call' },
 
         // ---- numbers -------------------------------------------------------
