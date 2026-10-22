@@ -1,5 +1,6 @@
 ---
 "@scalar/aspnetcore": minor
+"@scalar/dotnet-shared": minor
 "@scalar/aspire": minor
 "@scalar/azure-functions": minor
 "@scalar/aws-lambda": minor

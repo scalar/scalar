@@ -89,6 +89,14 @@ describe('AuthSelector', () => {
     })
   }
 
+  it('hides OAuth acquisition forms when only the bearer scheme is allowed', async () => {
+    const wrapper = mountWithProps({ allowedSecuritySchemes: ['BearerAuth'] })
+    expect(wrapper.text()).not.toContain('Authorize via')
+    await wrapper.setProps({ allowedSecuritySchemes: undefined })
+    expect(wrapper.text()).toContain('Authorize via')
+    wrapper.unmount()
+  })
+
   it('keeps the original store indexes when filtering saved authentication tabs', async () => {
     const eventBus = createWorkspaceEventBus()
     const listener = vi.fn()
