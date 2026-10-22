@@ -14,6 +14,22 @@ const mockProps = {
 }
 
 describe('IntroductionLayout', () => {
+  it('renders selected Paths Object extensions once and reacts to changes', async () => {
+    const wrapper = mount(IntroductionLayout, {
+      props: {
+        ...mockProps,
+        info: { title: 'Pets', version: '1' },
+        pathsExtensions: { 'x-origins': ['https://example.com'], 'x-hidden': 'secret' },
+        showExtensions: ['x-origins'],
+      },
+    })
+    expect(wrapper.findAll('[role="group"][aria-label="Paths"]').length).toBe(1)
+    expect(wrapper.text()).toContain('https://example.com')
+    expect(wrapper.text()).not.toContain('secret')
+    await wrapper.setProps({ showExtensions: [] })
+    expect(wrapper.find('[aria-label="Paths"]').exists()).toBe(false)
+  })
+
   it('omits AsyncAPI tags from the introduction', () => {
     const wrapper = mount(IntroductionLayout, {
       props: {

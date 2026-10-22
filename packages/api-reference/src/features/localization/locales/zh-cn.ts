@@ -7,6 +7,7 @@ export const zhCn = {
     description: '描述',
     httpMethod: 'HTTP 方法',
     path: '路径',
+    paths: '路径',
     copyDefault: '复制默认值',
     copyExample: '复制示例值',
   },

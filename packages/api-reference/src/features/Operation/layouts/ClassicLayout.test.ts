@@ -105,6 +105,7 @@ const nestedOperation: OperationObject = {
 
 const props: ExtractComponentProps<typeof ClassicLayout> = {
   id: 'create-widget',
+  pathValue: undefined,
   clientOptions: [
     {
       label: 'Shell',
