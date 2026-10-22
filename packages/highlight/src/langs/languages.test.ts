@@ -731,6 +731,22 @@ describe('other languages', () => {
   it('go: scopes a raw string literal', () => {
     assertHas('s := `raw "quoted"`\n', 'go', '`raw "quoted"`', 'string')
   })
+
+  it('go: scopes the names a short declaration or a var binds', () => {
+    const code = 'req, _ := http.NewRequest("GET", url, nil)\nfor i, v := range xs {}\nvar total int\nx = 5\n'
+    for (const name of ['req', 'i', 'v', 'total']) {
+      assertHas(code, 'go', name, 'variable')
+    }
+    expect(scoped(code, 'go').some(([text, scope]) => text === 'x' && scope === 'variable')).toBeFalsy()
+  })
+
+  it('rust: scopes the name a let binds, but not a pattern', () => {
+    const code = 'let client = reqwest::Client::new();\nlet mut count = 0;\nlet Some(x) = opt else { return };\n'
+    assertHas(code, 'rust', 'client', 'variable')
+    assertHas(code, 'rust', 'count', 'variable')
+    assertHas(code, 'rust', 'mut', 'keyword.declaration')
+    expect(scoped(code, 'rust').some(([text, scope]) => text === 'Some' && scope === 'variable')).toBeFalsy()
+  })
 })
 
 /**

@@ -53,6 +53,13 @@ const rust: Grammar = {
           match: '(fn)(\\s+)([A-Za-z_]\\w*)',
           scope: ['keyword.declaration', null, 'function'],
         },
+        // `let client =` and `let mut count =` bind a name. A capitalised word
+        // after `let` is a pattern (`let Some(x) =`), so it is left to the
+        // type rules.
+        {
+          match: '\\b(let)(\\s+)(?:(mut)(\\s+))?((?:r#)?[a-z_]\\w*)',
+          scope: ['keyword.declaration', null, 'keyword.declaration', null, 'variable'],
+        },
         {
           match:
             '\\b(?:fn|let|const|static|struct|enum|trait|impl|type|mod|union|async|move|dyn|pub|crate|unsafe|extern|ref|mut|where)\\b',
