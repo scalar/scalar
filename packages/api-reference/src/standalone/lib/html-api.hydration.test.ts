@@ -11,6 +11,7 @@ import { createApiReference } from './html-api'
 
 afterEach(() => {
   document.body.innerHTML = ''
+  window.history.replaceState({}, '', '/')
 })
 
 // Keep this separate from intentionally mismatched mounts: Vue logs its production hydration error only once.
@@ -59,6 +60,35 @@ describe('html-api hydration', () => {
       reference.destroy()
     }
   })
+  it('selects the browser URL document after hydrating the server default', async () => {
+    const config = {
+      pathRouting: { basePath: '/reference' },
+      sources: ['first', 'second'].map((slug) => ({
+        slug,
+        content: { openapi: '3.1.0', info: { title: `${slug} API`, version: '1.0.0' }, paths: {} },
+      })),
+    }
+    const app = createSSRApp({ render: () => h(ApiReference, { configuration: config }) })
+    app.config.idPrefix = 'scalar-refs'
+    const element = document.createElement('div')
+    element.innerHTML = await renderToString(app)
+    document.body.append(element)
+    const heading = element.querySelector('h1')
+    expect(heading?.textContent).toContain('first API')
+    window.history.replaceState({}, '', '/reference/second')
+
+    const reference = createApiReference(element, config)
+    try {
+      expect(element.querySelector('h1')).toBe(heading)
+      await flushPromises()
+      await nextTick()
+      expect(element.querySelector('h1')?.textContent).toContain('second API')
+      expect(window.location.pathname).toContain('/reference/second')
+    } finally {
+      reference.destroy()
+    }
+  })
+
   it('escapes embedded document state without changing the description', async () => {
     const title = '</script><script id="injected">alert(1)</script>&'
     const config = apiReferenceConfigurationWithSourceSchema({
