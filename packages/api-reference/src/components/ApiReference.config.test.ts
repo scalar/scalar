@@ -299,6 +299,111 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     },
   )
 
+  it.each([
+    { url: 'https://example.com' },
+    { url: 'https://{base_url}', variables: { base_url: { default: 'example.com' } } },
+  ])('selects the replacement server after updating document content to $url', async (server) => {
+    const content = {
+      openapi: '3.1.2',
+      info: { title: 'Hello World', version: '1.0.0' },
+      servers: [{ url: 'https://void.scalar.com' }],
+      paths: { '/': { get: {} } },
+    }
+    const wrapper = mountComponent({ props: { configuration: { content: JSON.stringify(content) } } })
+    await flushPromises()
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe('https://void.scalar.com')
+
+    await wrapper.setProps({ configuration: { content: JSON.stringify({ ...content, servers: [server] }) } })
+    await flushPromises()
+
+    const selector = wrapper.findComponent(ServerSelector)
+    expect(selector.props('selectedServer')?.url).toBe(server.url)
+    if ('variables' in server) {
+      expect(selector.get('input').element.value).toBe('example.com')
+    }
+    await vi.waitFor(() => expect(wrapper.text()).toContain('curl https://example.com/'))
+  })
+
+  it.each([
+    {
+      selected: 'https://second.example.com',
+      urls: ['https://second.example.com', 'https://first.example.com'],
+      expected: 'https://second.example.com',
+    },
+    {
+      selected: 'https://second.example.com',
+      urls: ['https://first.example.com'],
+      expected: 'https://first.example.com',
+    },
+    { selected: '', urls: ['https://replacement.example.com'], expected: null },
+  ])('reconciles the selected server $selected after a document update', async ({ selected, urls, expected }) => {
+    const content = {
+      ...createBasicDocument(),
+      servers: [{ url: 'https://first.example.com' }, { url: 'https://second.example.com' }],
+    }
+    const wrapper = mountComponent({ props: { configuration: { content } } })
+    await flushPromises()
+    wrapper.vm.eventBus.emit('server:update:selected', { url: selected, meta: { type: 'document' } })
+    await flushPromises()
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url ?? null).toBe(selected || null)
+
+    await wrapper.setProps({ configuration: { content: { ...content, servers: urls.map((url) => ({ url })) } } })
+    await flushPromises()
+
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url ?? null).toBe(expected)
+  })
+
+  it('selects a server added after a document update removes all servers', async () => {
+    const content = { ...createBasicDocument(), servers: [{ url: 'https://first.example.com' }] }
+    const wrapper = mountComponent({ props: { configuration: { content } } })
+    await flushPromises()
+
+    await wrapper.setProps({ configuration: { content: { ...content, servers: [] } } })
+    await flushPromises()
+    expect(wrapper.findComponent(ServerSelector).exists()).toBe(false)
+
+    await wrapper.setProps({
+      configuration: { content: { ...content, servers: [{ url: 'https://new.example.com' }] } },
+    })
+    await flushPromises()
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe('https://new.example.com')
+  })
+
+  it('preserves a configured server selection when document servers change', async () => {
+    const servers = [{ url: 'https://configured.example.com' }, { url: 'https://selected.example.com' }]
+    const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument(), servers } } })
+    await flushPromises()
+    wrapper.vm.eventBus.emit('server:update:selected', { url: servers[1]!.url, meta: { type: 'document' } })
+    await flushPromises()
+
+    await wrapper.setProps({
+      configuration: {
+        content: { ...createBasicDocument(), servers: [{ url: 'https://document.example.com' }] },
+        servers,
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(servers[1]!.url)
+  })
+
+  it.each(['/v1', '/v2'])('resolves relative servers before reconciling a document update to %s', async (url) => {
+    const content = { ...createBasicDocument(), servers: [{ url: '/v1' }] }
+    const baseServerURL = 'https://api.example.com'
+    const wrapper = mountComponent({ props: { configuration: { content, baseServerURL } } })
+    await flushPromises()
+
+    await wrapper.setProps({
+      configuration: {
+        content: { ...content, info: { title: 'Updated API', version: '2' }, servers: [{ url }] },
+        baseServerURL,
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.findComponent(ServerSelector).props('selectedServer')?.url).toBe(`${baseServerURL}${url}`)
+  })
+
   it('default configuration values', async () => {
     const wrapper = mountComponent({ props: { configuration: { content: createBasicDocument() } } })
     await flushPromises()

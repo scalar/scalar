@@ -961,11 +961,11 @@ eventBus.on('scroll-to:model-by-name', ({ name }) => {
   }
 })
 
-const addDocument: typeof workspaceStore.addDocument = async (
-  input,
-  navigationOptions,
-) => {
-  const result = await workspaceStore.addDocument(input, navigationOptions)
+const addDocument = async (
+  input: Parameters<typeof workspaceStore.addDocument>[0],
+  config: ApiReferenceConfigurationRaw,
+): Promise<boolean> => {
+  const result = await workspaceStore.addDocument(input, config)
 
   // The selected server lives only on the client store document. The user picks it in the
   // reference, it is never part of the imported source. Reloading the freshly imported document
@@ -1009,6 +1009,30 @@ const addDocument: typeof workspaceStore.addDocument = async (
     history: {},
     meta: {},
   })
+
+  const document = clientStore.workspace.documents[input.name]
+  if (result === true && isOpenApiDocument(document)) {
+    // Configured servers have been applied synchronously by useConfiguredServers. Resolve
+    // relative URLs before comparing them with the selection retained from the previous load.
+    const servers = getServers(document.servers, {
+      baseServerUrl: config.baseServerURL,
+      documentUrl: document['x-scalar-original-source-url'],
+    })
+    const selectedServerUrl = document['x-scalar-selected-server']
+
+    // An empty string is intentional deselection. A removed server is not: select the first
+    // available server so live document edits do not leave the reference and requests blank.
+    if (
+      selectedServerUrl !== '' &&
+      !servers.some((server) => server.url === selectedServerUrl)
+    ) {
+      clientStore.updateDocument(
+        input.name,
+        'x-scalar-selected-server',
+        servers[0]?.url,
+      )
+    }
+  }
   return result
 }
 
@@ -1067,28 +1091,6 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
     )
 
     const document = clientStore.workspace.documents[slug]
-
-    // If the document does not have a selected server we set it to the first server
-    if (
-      result === true &&
-      isOpenApiDocument(document) &&
-      document['x-scalar-selected-server'] === undefined
-    ) {
-      // Set the active server if the document is loaded successfully. Resolve relative servers
-      // against this document's own base URL, not the active document's, so a background preload
-      // does not derive its server from whichever document happens to be active.
-      const servers = getServers(document.servers, {
-        baseServerUrl: config.baseServerURL,
-        documentUrl: normalized.source.url,
-      })
-      if (servers.length > 0) {
-        clientStore.updateDocument(
-          slug,
-          'x-scalar-selected-server',
-          servers[0]!.url,
-        )
-      }
-    }
 
     // Seed the request body editor view from config, unless the document already sets it
     // explicitly via the `x-scalar-default-request-body-view` extension.
