@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import 'vue-sonner/style.css'
-
 import { onMounted, ref } from 'vue'
 import { toast, Toaster } from 'vue-sonner'
 
@@ -36,6 +34,8 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 </template>
 
 <style>
+@import 'vue-sonner/style.css';
+
 /**
 * We need to be explicit to avoid !important. :)
 *
