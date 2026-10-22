@@ -534,6 +534,7 @@ const clientStore = createWorkspaceStore({
 
 /** Keep the first browser render identical to the preloaded server render. */
 const hydrationState = ref<string>()
+const requestedSlug = activeSlug.value
 const hydrationElement = getCurrentInstance()?.vnode.el
 const serializedState =
   typeof Element !== 'undefined' && hydrationElement instanceof Element
@@ -1420,6 +1421,12 @@ onServerPrefetch(async () => {
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
+  if (serializedState) {
+    // Hydrate the server's document first, then honor the document selected by the browser URL.
+    await nextTick()
+    activeSlug.value = requestedSlug
+  }
+
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
