@@ -40,3 +40,6 @@ rollup.config-*.mjs
 /.worktrees/
 /.claude/worktrees/
 /.codex/worktrees/
+
+# Vitest reports and artifacts
+.vitest/
