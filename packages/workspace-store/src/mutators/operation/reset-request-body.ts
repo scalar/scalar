@@ -1,6 +1,11 @@
 import type { WorkspaceStore } from '@/client'
 import type { OperationEvents } from '@/events/definitions/operation'
-import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import {
+  forEachPathItemOperation,
+  getPathItemOperation,
+  getResolvedPathItem,
+  setPathItemOperation,
+} from '@/helpers/for-each-path-item-operation'
 import { getExampleValue } from '@/helpers/get-example-value'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { snapshotSchema } from '@/helpers/snapshot-schema'
@@ -30,12 +35,7 @@ export const resetOperationRequestBody = async (
     return
   }
   const editedValue = getExampleValue(getExample(body, meta.exampleKey, contentType))?.value
-  const original = await store.getResolvedOriginalDocument(documentName)
-  if (!isOpenApiDocument(original)) {
-    return
-  }
-  const originalOperation = getResolvedRef(getPathItemOperation(original.paths?.[meta.path], meta.method))
-  const originalBody = getResolvedRef(originalOperation?.requestBody)
+  const originalBody = await store.getOriginalRequestBody(documentName, meta)
   const originalExample = originalBody && getExample(originalBody, meta.exampleKey, contentType)
   const restored: ExampleObject =
     getExampleValue(originalExample) || originalExample?.externalValue
@@ -53,9 +53,57 @@ export const resetOperationRequestBody = async (
   }
   const media = body.content[contentType]
   const current = getResolvedRef(media?.examples?.[meta.exampleKey])
+  // Preserve incoming aliases too: replacing their target would otherwise reset them as well.
+  if (current) {
+    for (const [otherPath, otherPathItem] of Object.entries(document.paths ?? {})) {
+      forEachPathItemOperation(otherPathItem, (otherMethod, otherOperationInput) => {
+        const otherOperation = getResolvedRef(otherOperationInput)
+        const otherBody = getResolvedRef(otherOperation?.requestBody)
+        if (!otherOperation || !otherBody) {
+          return
+        }
+        const selectedOperation = otherPath === meta.path && otherMethod === meta.method
+        const content = { ...otherBody.content }
+        let changed = false
+        for (const [otherType, otherMedia] of Object.entries(otherBody.content)) {
+          const examples = { ...otherMedia.examples }
+          for (const [key, candidate] of Object.entries(examples)) {
+            if (selectedOperation && otherType === contentType && key === meta.exampleKey) {
+              continue
+            }
+            if (getResolvedRef(candidate) === current) {
+              examples[key] = snapshotSchema(current)
+              changed = true
+              if (selectedOperation && otherMedia.examples) {
+                otherMedia.examples[key] = examples[key]
+              }
+            }
+          }
+          content[otherType] = { ...otherMedia, examples }
+        }
+        if (changed && !selectedOperation && document.paths) {
+          const detachedPath = { ...getResolvedPathItem(document.paths[otherPath]) }
+          delete detachedPath.$ref
+          Reflect.deleteProperty(detachedPath, '$ref-value')
+          if (detachedPath.additionalOperations) {
+            detachedPath.additionalOperations = { ...detachedPath.additionalOperations }
+          }
+          setPathItemOperation(detachedPath, otherMethod, {
+            ...otherOperation,
+            requestBody: { ...otherBody, content },
+          })
+          document.paths[otherPath] = detachedPath
+        }
+      })
+    }
+  }
+  const pathItem = document.paths?.[meta.path]
+  const hasSharedPath = pathItem && '$ref' in pathItem
   const selectedExample = media?.examples?.[meta.exampleKey]
   const hasSharedReference =
-    (operation.requestBody && '$ref' in operation.requestBody) || (selectedExample && '$ref' in selectedExample)
+    hasSharedPath ||
+    (operation.requestBody && '$ref' in operation.requestBody) ||
+    (selectedExample && '$ref' in selectedExample)
   // Keep ordinary examples in place: configured overrides use stable proxies whose nested
   // targets must be updated rather than replaced. Shared references are detached below.
   const example: ExampleObject = current && !hasSharedReference ? current : { ...current }
@@ -73,11 +121,24 @@ export const resetOperationRequestBody = async (
   }
   // Detach the selected body and example from shared references before writing. Resetting one
   // operation must not restore another operation that happens to reference the same component.
-  operation.requestBody = {
+  const restoredBody = {
     ...body,
     content: {
       ...body.content,
       [contentType]: { ...media, examples: { ...media?.examples, [meta.exampleKey]: example } },
     },
+  }
+  if (hasSharedPath && document.paths) {
+    const detachedPath = { ...getResolvedPathItem(pathItem) }
+    delete detachedPath.$ref
+    Reflect.deleteProperty(detachedPath, '$ref-value')
+    // Clone additionalOperations too, since non-standard methods live in that shared map.
+    if (detachedPath.additionalOperations) {
+      detachedPath.additionalOperations = { ...detachedPath.additionalOperations }
+    }
+    setPathItemOperation(detachedPath, meta.method, { ...operation, requestBody: restoredBody })
+    document.paths[meta.path] = detachedPath
+  } else {
+    operation.requestBody = restoredBody
   }
 }

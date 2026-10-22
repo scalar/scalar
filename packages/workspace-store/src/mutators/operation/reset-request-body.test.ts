@@ -1,18 +1,32 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { createWorkspaceStore } from '@/client'
+import { type WorkspaceStore, createWorkspaceStore } from '@/client'
+import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { updateOperationRequestBodyExample } from '@/mutators/operation/body'
 import { resetOperationRequestBody } from '@/mutators/operation/reset-request-body'
 import { getExampleFromBody } from '@/request-example/builder/body/get-request-body-example'
 import { isOpenApiDocument } from '@/schemas/type-guards'
-import type { ExampleObject, MediaTypeObject } from '@/schemas/v3.2/strict/openapi-document'
+import type {
+  ExampleObject,
+  MediaTypeObject,
+  OpenApiDocument,
+  OperationObject,
+} from '@/schemas/v3.2/strict/openapi-document'
 
 const meta = { path: '/items', method: 'post', exampleKey: 'selected' } as const
 const contentType = 'application/json'
 const reset = { documentName: 'api', meta, contentType }
 
-const setup = async (media: MediaTypeObject = { examples: { selected: { value: { name: 'original' } } } }) => {
+const setup = async (
+  media: MediaTypeObject = { examples: { selected: { value: { name: 'original' } } } },
+): Promise<{
+  store: WorkspaceStore
+  document: OpenApiDocument
+  operation: OperationObject
+  read: () => ExampleObject | null
+  edit: (payload: string) => void
+}> => {
   const store = createWorkspaceStore()
   await store.addDocument({
     name: 'api',
@@ -34,7 +48,7 @@ const setup = async (media: MediaTypeObject = { examples: { selected: { value: {
   if (!isOpenApiDocument(document)) {
     throw new Error('Missing document')
   }
-  const operation = getResolvedRef(getResolvedRef(document.paths?.['/items'])?.post)
+  const operation = getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))
   if (!operation) {
     throw new Error('Missing operation')
   }
@@ -101,7 +115,7 @@ describe('reset-request-body', () => {
     }
     updateOperationRequestBodyExample(document, { meta, contentType, payload: 'changed' })
     await resetOperationRequestBody(store, reset)
-    const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/items'])?.post)?.requestBody)
+    const body = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody)
     expect(getExampleFromBody(body!, contentType, 'selected')?.value).toBe('configured')
   })
 
@@ -204,11 +218,107 @@ describe('reset-request-body', () => {
     if (!isOpenApiDocument(document)) {
       throw new Error('Missing document')
     }
+    fetch.mockRejectedValueOnce(new Error('offline after initial load'))
     updateOperationRequestBodyExample(document, { meta, contentType, payload: 'changed' })
     await resetOperationRequestBody(store, reset)
-    const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/items'])?.post)?.requestBody)
+    const body = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody)
     expect(getExampleFromBody(body!, contentType, 'selected')?.value).toStrictEqual({ name: 'remote original' })
-    expect(fetch.mock.calls.length).toBe(2)
+    expect(fetch.mock.calls.length).toBe(1)
+  })
+
+  it('preserves configured defaults across an edited workspace export and reload', async () => {
+    const { store } = await setup({ examples: { selected: { value: 'underlying' } } })
+    await store.addDocument({
+      name: 'api',
+      document: store.getOriginalDocument('api')!,
+      overrides: {
+        paths: {
+          '/items': {
+            post: { requestBody: { content: { [contentType]: { examples: { selected: { value: 'configured' } } } } } },
+          },
+        },
+      },
+    })
+    const document = store.workspace.documents.api
+    updateOperationRequestBodyExample(document!, { meta, contentType, payload: 'unsaved' })
+    const loaded = createWorkspaceStore()
+    loaded.loadWorkspace(store.exportWorkspace())
+    await resetOperationRequestBody(loaded, reset)
+    const reloaded = loaded.workspace.documents.api
+    if (!isOpenApiDocument(reloaded)) {
+      throw new Error('Missing document')
+    }
+    const body = getResolvedRef(getResolvedRef(getPathItemOperation(reloaded.paths?.['/items'], 'post'))?.requestBody)
+    expect(getExampleFromBody(body!, contentType, 'selected')?.value).toBe('configured')
+  })
+
+  it('isolates reset when two paths share a path-item reference', async () => {
+    const { store } = await setup()
+    const original = store.getOriginalDocument('api')!
+    await store.addDocument({
+      name: 'api',
+      document: {
+        ...original,
+        paths: {
+          '/source': original.paths && (original.paths as Record<string, unknown>)['/items'],
+          '/items': { $ref: '#/paths/~1source' },
+          '/other': { $ref: '#/paths/~1source' },
+        },
+      },
+    })
+    const document = store.workspace.documents.api
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Missing document')
+    }
+    updateOperationRequestBodyExample(document, { meta, contentType, payload: 'changed' })
+    await resetOperationRequestBody(store, reset)
+    const selected = getResolvedRef(
+      getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody,
+    )
+    const other = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/other'], 'post'))?.requestBody)
+    expect(getExampleFromBody(selected!, contentType, 'selected')?.value).toStrictEqual({ name: 'original' })
+    expect(getExampleFromBody(other!, contentType, 'selected')?.value).toBe('changed')
+  })
+
+  it('preserves incoming example references when resetting their direct target', async () => {
+    const { store, operation, edit } = await setup({
+      examples: {
+        selected: { value: 'original' },
+        alias: { $ref: '#/paths/~1items/post/requestBody/content/application~1json/examples/selected' },
+      },
+    })
+    edit('changed')
+    await resetOperationRequestBody(store, reset)
+    const body = getResolvedRef(operation.requestBody)!
+    expect(getExampleFromBody(body, contentType, 'selected')?.value).toBe('original')
+    expect(getExampleFromBody(body, contentType, 'alias')?.value).toBe('changed')
+  })
+
+  it('preserves incoming path references when resetting their direct target', async () => {
+    const { store } = await setup()
+    const original = store.getOriginalDocument('api')!
+    await store.addDocument({
+      name: 'api',
+      document: {
+        ...original,
+        paths: {
+          ...(original.paths as Record<string, unknown>),
+          '/alias': { $ref: '#/paths/~1items' },
+        },
+      },
+    })
+    const document = store.workspace.documents.api
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Missing document')
+    }
+    updateOperationRequestBodyExample(document, { meta, contentType, payload: 'changed' })
+    await resetOperationRequestBody(store, reset)
+    const selected = getResolvedRef(
+      getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody,
+    )!
+    const alias = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/alias'], 'post'))?.requestBody)!
+    expect(getExampleFromBody(selected, contentType, 'selected')?.value).toStrictEqual({ name: 'original' })
+    expect(getExampleFromBody(alias, contentType, 'selected')?.value).toBe('changed')
   })
 
   it('leaves typing that occurs during baseline resolution intact', async () => {
@@ -230,7 +340,7 @@ describe('reset-request-body', () => {
     if (!isOpenApiDocument(document)) {
       throw new Error('Missing document')
     }
-    const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/items'])?.post)?.requestBody)
+    const body = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody)
     expect(getExampleFromBody(body!, contentType, 'selected')?.value).toStrictEqual({ name: 'original' })
   })
 })
