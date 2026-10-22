@@ -1,3 +1,5 @@
+/// <reference types="vitest/jsdom" />
+
 import type { ApiReferencePlugin, PluginAuthState } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
@@ -13,6 +15,7 @@ enableAutoUnmount(afterEach)
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
+  jsdom.reconfigure({ url: 'http://localhost:3000/' })
 
   // Mock window.location for all tests
   vi.stubGlobal('location', {

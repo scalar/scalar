@@ -50,6 +50,7 @@ const mountOperationWithConfig = (
     paths: {
       '/users/{userId}': {
         get: {
+          responses: {},
           operationId: 'getUserById',
           summary: 'Get user by ID',
         },
@@ -282,6 +283,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'Get user by ID',
             servers: [
               {
@@ -350,6 +352,7 @@ describe('Operation', () => {
       paths: {
         '/users/{userId}': {
           get: {
+            responses: {},
             summary: 'Get user by ID',
             parameters: [
               {
@@ -407,6 +410,7 @@ describe('Operation', () => {
             },
           ],
           post: {
+            responses: {},
             summary: 'User updated webhook',
           },
         },
@@ -461,6 +465,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'Get user by ID',
             parameters: [
               {
@@ -660,6 +665,7 @@ describe('Operation', () => {
             },
           ],
           get: {
+            responses: {},
             summary: 'List users',
           },
         },
