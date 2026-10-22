@@ -114,14 +114,15 @@ const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
 )
 
-const hasOverview = computed(() =>
+const hasMetadata = computed<boolean>(() =>
   Boolean(
     hasExtensions.value ||
-    summary.value ||
-    description.value ||
     resolvedOperation.value?.bindings ||
     resolvedOperation.value?.externalDocs,
   ),
+)
+const hasOverview = computed<boolean>(() =>
+  Boolean(summary.value || description.value || hasMetadata.value),
 )
 
 /** Only the message children of this operation. */
@@ -225,11 +226,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         withImages />
 
       <div
-        v-if="
-          hasExtensions ||
-          resolvedOperation?.bindings ||
-          resolvedOperation?.externalDocs
-        "
+        v-if="hasMetadata"
         class="space-y-4"
         :class="{ 'mt-12': summary || description }">
         <Bindings

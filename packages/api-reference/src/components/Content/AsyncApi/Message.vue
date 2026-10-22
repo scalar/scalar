@@ -197,6 +197,20 @@ const onCorrelationLink = (event: MouseEvent): void => {
   })
 }
 
+const hasDetails = computed<boolean>(() =>
+  Boolean(
+    hasExtensions.value ||
+    summary.value ||
+    description.value ||
+    resolvedMessage.value?.bindings ||
+    resolvedMessage.value?.externalDocs ||
+    correlationId.value ||
+    headersSchema.value ||
+    payloadSchema.value ||
+    contentType.value,
+  ),
+)
+
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
@@ -262,17 +276,7 @@ const { level: headingLevel } = useDocumentOutline(
       <div class="space-y-4 pt-2 pb-4">
         <div class="message-layout">
           <div
-            v-if="
-              hasExtensions ||
-              summary ||
-              description ||
-              resolvedMessage?.bindings ||
-              resolvedMessage?.externalDocs ||
-              correlationId ||
-              headersSchema ||
-              payloadSchema ||
-              contentType
-            "
+            v-if="hasDetails"
             class="message-schemas min-w-0 space-y-4">
             <p
               v-if="summary"
