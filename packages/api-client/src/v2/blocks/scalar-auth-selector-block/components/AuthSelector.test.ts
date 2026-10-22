@@ -52,6 +52,7 @@ describe('AuthSelector', () => {
       heading: boolean
       hideSingleRequiredScheme: boolean
       createAnySecurityScheme: boolean
+      allowedSecuritySchemes: string[]
       isStatic: boolean
       canDeleteSchemes: boolean
       securityRequirements: any
@@ -87,6 +88,35 @@ describe('AuthSelector', () => {
       },
     })
   }
+
+  it('keeps the original store indexes when filtering saved authentication tabs', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('auth:update:active-index', listener)
+    const wrapper = mountWithProps({
+      eventBus,
+      allowedSecuritySchemes: ['BearerAuth', 'OAuth2Auth'],
+      selectedSecurity: {
+        selectedIndex: 2,
+        selectedSchemes: [{ ApiKeyAuth: [] }, { BearerAuth: [] }, { OAuth2Auth: [] }],
+      },
+    })
+    const table = wrapper.getComponent({ name: 'RequestAuthDataTable' })
+    expect(table.props('activeAuthIndex')).toBe(1)
+    expect(table.props('selectedSchemeIndexes')).toStrictEqual([1, 2])
+    await table.get('[data-testid="auth-tabs"] button').trigger('click')
+    expect(listener).toHaveBeenCalledWith({ index: 1, meta: { type: 'document' } })
+    wrapper.unmount()
+  })
+
+  it('hides saved authentication forms outside the allowlist and restores them when allowed', async () => {
+    const wrapper = mountWithProps({ allowedSecuritySchemes: ['ApiKeyAuth'] })
+    expect(wrapper.find('input').exists()).toBe(false)
+    await wrapper.setProps({ allowedSecuritySchemes: ['BearerAuth'] })
+    expect(wrapper.find('input').exists()).toBe(true)
+    expect(wrapper.props('selectedSecurity')).toStrictEqual({ selectedIndex: 0, selectedSchemes: [{ BearerAuth: [] }] })
+    wrapper.unmount()
+  })
 
   it('hides a sole required reference choice while retaining its credential input', async () => {
     const wrapper = mountWithProps({

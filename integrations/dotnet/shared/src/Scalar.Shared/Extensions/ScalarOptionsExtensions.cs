@@ -164,6 +164,31 @@ public static partial class ScalarOptionsExtensions
         return options;
     }
 
+    /// <summary>Adds a document with authentication overrides merged over the global configuration.</summary>
+    /// <param name="options">The reference options.</param>
+    /// <param name="documentName">The document name.</param>
+    /// <param name="configureDocument">Configures authentication for this document.</param>
+    /// <param name="title">Optional display title.</param>
+    /// <param name="routePattern">Optional route to the API description.</param>
+    /// <param name="isDefault">Whether to select this document initially.</param>
+    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, Action<ScalarDocument> configureDocument, string? title = null, string? routePattern = null, bool isDefault = false) where TOptions : ScalarOptions
+    {
+        var document = new ScalarDocument(documentName, title, routePattern, isDefault);
+        configureDocument(document);
+        options.Documents.Add(document);
+        return options;
+    }
+
+    /// <summary>Restricts visible authentication choices to the supplied scheme names. An empty list hides all choices.</summary>
+    /// <param name="options">The reference or document options.</param>
+    /// <param name="schemeNames">The allowed security scheme names.</param>
+    public static TOptions WithAllowedSecuritySchemes<TOptions>(this TOptions options, params IEnumerable<string> schemeNames) where TOptions : IScalarAuthenticationOptions
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.AllowedSecuritySchemes = [.. schemeNames];
+        return options;
+    }
+
     /// <summary>
     /// Adds multiple OpenAPI documents to the Scalar API Reference using document names.
     /// </summary>
@@ -469,7 +494,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="preferredScheme">The preferred authentication scheme.</param>
     [Obsolete("This method is obsolete and will be removed in a future release. Use AddPreferredSecuritySchemes instead.")]
-    public static TOptions WithPreferredScheme<TOptions>(this TOptions options, string preferredScheme) where TOptions : ScalarOptions
+    public static TOptions WithPreferredScheme<TOptions>(this TOptions options, string preferredScheme) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.PreferredSecuritySchemes = [preferredScheme];
@@ -481,7 +506,7 @@ public static partial class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options">The options to configure.</param>
     /// <param name="preferredSchemes">A collection of preferred security schemes.</param>
-    public static TOptions AddPreferredSecuritySchemes<TOptions>(this TOptions options, params IEnumerable<string> preferredSchemes) where TOptions : ScalarOptions
+    public static TOptions AddPreferredSecuritySchemes<TOptions>(this TOptions options, params IEnumerable<string> preferredSchemes) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         if (options.Authentication.PreferredSecuritySchemes is null)
@@ -504,7 +529,7 @@ public static partial class ScalarOptionsExtensions
     /// Default scopes are pre-selected in the UI when the user initiates an OAuth2 authentication flow.
     /// If the specified security scheme does not exist, a new one will be created.
     /// </remarks>
-    public static TOptions AddDefaultScopes<TOptions>(this TOptions options, string securitySchemeName, params IEnumerable<string> scopes) where TOptions : ScalarOptions
+    public static TOptions AddDefaultScopes<TOptions>(this TOptions options, string securitySchemeName, params IEnumerable<string> scopes) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
@@ -533,7 +558,7 @@ public static partial class ScalarOptionsExtensions
     /// This method configures OAuth2 flows for the specified security scheme.
     /// It's a convenience method that calls <see cref="AddOAuth2Authentication"/> and configures the flows property.
     /// </remarks>
-    public static TOptions AddOAuth2Flows<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarFlows> configureFlows) where TOptions : ScalarOptions
+    public static TOptions AddOAuth2Flows<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarFlows> configureFlows) where TOptions : IScalarAuthenticationOptions
     {
         options.AddOAuth2Authentication(securitySchemeName, scheme =>
         {
@@ -554,7 +579,7 @@ public static partial class ScalarOptionsExtensions
     /// If the security scheme already exists and is an OAuth2 scheme, the existing configuration will be updated.
     /// Otherwise, a new OAuth2 security scheme will be created and added to the authentication options.
     /// </remarks>
-    public static TOptions AddOAuth2Authentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarOAuth2SecurityScheme> configureScheme) where TOptions : ScalarOptions
+    public static TOptions AddOAuth2Authentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarOAuth2SecurityScheme> configureScheme) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
@@ -582,7 +607,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureFlow">An action to configure the flow.</param>
-    public static TOptions AddDeviceAuthorizationFlow<TOptions>(this TOptions options, string securitySchemeName, Action<DeviceAuthorizationFlow> configureFlow) where TOptions : ScalarOptions
+    public static TOptions AddDeviceAuthorizationFlow<TOptions>(this TOptions options, string securitySchemeName, Action<DeviceAuthorizationFlow> configureFlow) where TOptions : IScalarAuthenticationOptions
     {
         return options.AddOAuth2Flows(securitySchemeName, flows => flows.WithDeviceAuthorization(configureFlow));
     }
@@ -593,7 +618,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureFlow">An action to configure the flow.</param>
-    public static TOptions AddClientCredentialsFlow<TOptions>(this TOptions options, string securitySchemeName, Action<ClientCredentialsFlow> configureFlow) where TOptions : ScalarOptions
+    public static TOptions AddClientCredentialsFlow<TOptions>(this TOptions options, string securitySchemeName, Action<ClientCredentialsFlow> configureFlow) where TOptions : IScalarAuthenticationOptions
     {
         return options.AddOAuth2Flows(securitySchemeName, flows =>
         {
@@ -609,7 +634,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureFlow">An action to configure the flow.</param>
-    public static TOptions AddAuthorizationCodeFlow<TOptions>(this TOptions options, string securitySchemeName, Action<AuthorizationCodeFlow> configureFlow) where TOptions : ScalarOptions
+    public static TOptions AddAuthorizationCodeFlow<TOptions>(this TOptions options, string securitySchemeName, Action<AuthorizationCodeFlow> configureFlow) where TOptions : IScalarAuthenticationOptions
     {
         return options.AddOAuth2Flows(securitySchemeName, flows =>
         {
@@ -624,7 +649,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureFlow">An action to configure the implicit flow.</param>
-    public static TOptions AddImplicitFlow<TOptions>(this TOptions options, string securitySchemeName, Action<ImplicitFlow> configureFlow) where TOptions : ScalarOptions
+    public static TOptions AddImplicitFlow<TOptions>(this TOptions options, string securitySchemeName, Action<ImplicitFlow> configureFlow) where TOptions : IScalarAuthenticationOptions
     {
         return options.AddOAuth2Flows(securitySchemeName, flows =>
         {
@@ -639,7 +664,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureFlow">An action to configure the password flow.</param>
-    public static TOptions AddPasswordFlow<TOptions>(this TOptions options, string securitySchemeName, Action<PasswordFlow> configureFlow) where TOptions : ScalarOptions
+    public static TOptions AddPasswordFlow<TOptions>(this TOptions options, string securitySchemeName, Action<PasswordFlow> configureFlow) where TOptions : IScalarAuthenticationOptions
     {
         return options.AddOAuth2Flows(securitySchemeName, flows =>
         {
@@ -654,7 +679,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureScheme">An action to configure the API key authentication.</param>
-    public static TOptions AddApiKeyAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarApiKeySecurityScheme> configureScheme) where TOptions : ScalarOptions
+    public static TOptions AddApiKeyAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarApiKeySecurityScheme> configureScheme) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
@@ -679,7 +704,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The options to configure.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureScheme">An action to configure the HTTP authentication.</param>
-    public static TOptions AddHttpAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarHttpSecurityScheme> configureScheme) where TOptions : ScalarOptions
+    public static TOptions AddHttpAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarHttpSecurityScheme> configureScheme) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
