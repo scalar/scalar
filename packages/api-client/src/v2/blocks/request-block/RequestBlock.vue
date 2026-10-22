@@ -56,6 +56,8 @@ type Filter =
   'All' | 'Auth' | 'Variables' | 'Cookies' | 'Headers' | 'Query' | 'Body'
 
 export type RequestBlockProps = {
+  /** Security scheme names visible in the authentication UI. */
+  allowedSecuritySchemes?: string[]
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
@@ -90,6 +92,7 @@ export type RequestBlockProps = {
 }
 
 const {
+  allowedSecuritySchemes,
   authMeta = { type: 'document' },
   clientOptions,
   environment,
@@ -711,6 +714,7 @@ const filterLabels = computed(() => ({
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :allowedSecuritySchemes
         :createAnySecurityScheme="layout !== 'modal'"
         :defaultOpen="isAuthDefaultOpen"
         :environment

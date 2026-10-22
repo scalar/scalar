@@ -3,6 +3,32 @@ namespace Scalar.AspNetCore.Tests;
 public class ScalarOptionsMapperTests
 {
     [Fact]
+    public void ToConfiguration_PreservesDocumentAuthenticationOverrides()
+    {
+        var options = new ScalarOptions()
+            .AddHttpAuthentication("Basic", scheme => scheme.Username = "global")
+            .AddDocument("public", document => document
+                .AddPreferredSecuritySchemes("OAuth")
+                .AddAuthorizationCodeFlow("OAuth", flow => flow.ClientId = "public-client")
+                .WithAllowedSecuritySchemes("OAuth"))
+            .AddDocument("internal");
+
+        var configuration = options.ToScalarConfiguration();
+        var sources = configuration.Sources.ToArray();
+        sources[0].Authentication!.PreferredSecuritySchemes.Should().Equal("OAuth");
+        sources[0].Authentication!.AllowedSecuritySchemes.Should().Equal("OAuth");
+        sources[0].Authentication!.SecuritySchemes.Should().ContainKey("OAuth");
+        sources[1].Authentication.Should().BeNull();
+        configuration.Authentication!.SecuritySchemes.Should().ContainSingle().Which.Key.Should().Be("Basic");
+
+        var json = System.Text.Json.JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        using var serialized = System.Text.Json.JsonDocument.Parse(json);
+        var documentAuth = serialized.RootElement.GetProperty("sources")[0].GetProperty("authentication");
+        documentAuth.GetProperty("allowedSecuritySchemes")[0].GetString().Should().Be("OAuth");
+        serialized.RootElement.GetProperty("sources")[1].TryGetProperty("authentication", out _).Should().BeFalse();
+    }
+
+    [Fact]
     public void ToConfiguration_ShouldReturnCorrectDefaultConfiguration()
     {
         // Arrange
