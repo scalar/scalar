@@ -29,6 +29,22 @@ const locationMock = {
   toString: () => 'http://localhost:3000/',
 }
 
+/**
+ * Bypass lazy loading for testing purposes.
+ * This simplifies testing by removing asynchronous rendering behavior.
+ */
+vi.mock('./Lazy/Lazy.vue', () => ({
+  default: {
+    name: 'Lazy',
+    props: {
+      id: 'test-id',
+    },
+    setup(_props: unknown, { slots }: { slots: Record<string, () => unknown> }) {
+      return () => slots.default?.()
+    },
+  },
+}))
+
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
@@ -70,22 +86,6 @@ beforeEach(() => {
    * @see https://github.com/jsdom/jsdom/issues/1695
    */
   Element.prototype.scrollIntoView = vi.fn()
-
-  /**
-   * Bypass lazy loading for testing purposes.
-   * This simplifies testing by removing asynchronous rendering behavior.
-   */
-  vi.mock('./Lazy/Lazy.vue', () => ({
-    default: {
-      name: 'Lazy',
-      props: {
-        id: 'test-id',
-      },
-      setup(_props: unknown, { slots }: { slots: Record<string, () => unknown> }) {
-        return () => slots.default?.()
-      },
-    },
-  }))
 })
 
 /** Helper function to mount and track component */

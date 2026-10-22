@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { LS_KEYS, REFERENCE_LS_KEYS, safeLocalStorage } from './local-storage'
 
@@ -29,18 +29,12 @@ describe('local-storage', () => {
   })
 
   describe('safeLocalStorage', () => {
-    const originalWindow = global.window
-    const originalLocalStorage = global.localStorage
-
-    beforeEach(() => {
-      // Reset window and localStorage before each test
-      global.window = originalWindow
-      global.localStorage = originalLocalStorage
+    afterEach(() => {
+      vi.unstubAllGlobals()
     })
 
     it('returns null for all methods when window is undefined', () => {
-      // @ts-expect-error - Testing SSR environment
-      global.window = undefined
+      vi.stubGlobal('window', undefined)
 
       expect(safeLocalStorage().getItem('test')).toBeNull()
       expect(safeLocalStorage().setItem('test', 'value')).toBeNull()
@@ -54,8 +48,7 @@ describe('local-storage', () => {
         removeItem: vi.fn(),
       }
 
-      // @ts-expect-error - Mocking localStorage
-      global.localStorage = mockLocalStorage
+      vi.stubGlobal('localStorage', mockLocalStorage)
 
       safeLocalStorage().getItem('test')
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith('test')

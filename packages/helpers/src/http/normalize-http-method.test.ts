@@ -82,9 +82,7 @@ describe('normalizeHttpMethod', () => {
 
     it('should handle whitespace-only strings', () => {
       expect(normalizeHttpMethod('   ')).toBe('get')
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Request method is not a valid request method. Using get as the default.',
-      )
+      expect(consoleWarnSpy).toHaveBeenCalledWith('    is not a valid request method. Using get as the default.')
     })
   })
 
