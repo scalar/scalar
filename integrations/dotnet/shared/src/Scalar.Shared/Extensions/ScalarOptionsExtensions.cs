@@ -157,24 +157,25 @@ public static partial class ScalarOptionsExtensions
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
     /// If no documents are explicitly added, a default document named 'v1' will be used.
     /// </remarks>
-    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null) where TOptions : ScalarOptions
+    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title, string? routePattern, bool isDefault, string? agentKey) where TOptions : ScalarOptions
     {
-        var agent = agentKey is null ? null : new ScalarAgentOptions { Key = agentKey };
-        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault, agent));
-        return options;
+        // Keep the original signature for already compiled consumers. Optional arguments live on the configurable overload.
+        return options.AddDocument(documentName, title, routePattern, isDefault, agentKey, configureDocument: null);
     }
 
     /// <summary>Adds a document with authentication overrides merged over the global configuration.</summary>
     /// <param name="options">The reference options.</param>
     /// <param name="documentName">The document name.</param>
-    /// <param name="configureDocument">Configures authentication for this document.</param>
     /// <param name="title">Optional display title.</param>
     /// <param name="routePattern">Optional route to the API description.</param>
     /// <param name="isDefault">Whether to select this document initially.</param>
-    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, Action<ScalarDocument> configureDocument, string? title = null, string? routePattern = null, bool isDefault = false) where TOptions : ScalarOptions
+    /// <param name="agentKey">Optional Agent Scalar key for this document.</param>
+    /// <param name="configureDocument">Configures authentication for this document. Use a named argument to preserve positional title calls.</param>
+    public static TOptions AddDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null, Action<ScalarDocument>? configureDocument = null) where TOptions : ScalarOptions
     {
-        var document = new ScalarDocument(documentName, title, routePattern, isDefault);
-        configureDocument(document);
+        var agent = agentKey is null ? null : new ScalarAgentOptions { Key = agentKey };
+        var document = new ScalarDocument(documentName, title, routePattern, isDefault, agent);
+        configureDocument?.Invoke(document);
         options.Documents.Add(document);
         return options;
     }

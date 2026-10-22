@@ -7,7 +7,7 @@ public class ScalarOptionsMapperTests
     {
         var options = new ScalarOptions()
             .AddHttpAuthentication("Basic", scheme => scheme.Username = "global")
-            .AddDocument("public", document => document
+            .AddDocument("public", configureDocument: document => document
                 .AddPreferredSecuritySchemes("OAuth")
                 .AddAuthorizationCodeFlow("OAuth", flow => flow.ClientId = "public-client")
                 .WithAllowedSecuritySchemes("OAuth"))

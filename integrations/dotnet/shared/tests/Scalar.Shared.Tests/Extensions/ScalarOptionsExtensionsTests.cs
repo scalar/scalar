@@ -3,10 +3,18 @@ namespace Scalar.Shared.Tests;
 public class ScalarOptionsExtensionsTests
 {
     [Fact]
+    public void AddDocument_PreservesPositionalNullTitleCalls()
+    {
+        var options = new ScalarOptions().AddDocument("v1", null);
+        options.Documents.Single().Title.Should().BeNull();
+        options.Documents.Single().Authentication.Should().BeNull();
+    }
+
+    [Fact]
     public void AddDocument_ConfiguresAuthenticationWithoutMutatingGlobalOptions()
     {
         var options = new ScalarOptions().AddPreferredSecuritySchemes("Global");
-        options.AddDocument("v1", document => document
+        options.AddDocument("v1", configureDocument: document => document
             .AddPreferredSecuritySchemes("Basic")
             .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
             .WithAllowedSecuritySchemes(), title: "Version 1", routePattern: "/v1.json", isDefault: true);

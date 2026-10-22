@@ -152,10 +152,10 @@ Authentication configured on `ScalarOptions` is shared by all documents. Use the
 app.MapScalarApiReference(options => options
     .AddAuthorizationCodeFlow("OAuth", flow => flow.ClientId = "shared-client")
     .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
-    .AddDocument("public", document => document
+    .AddDocument("public", configureDocument: document => document
         .AddPreferredSecuritySchemes("OAuth")
         .WithAllowedSecuritySchemes("OAuth"))
-    .AddDocument("internal", document => document
+    .AddDocument("internal", configureDocument: document => document
         .AddPreferredSecuritySchemes("Basic")
         .AddHttpAuthentication("Basic", auth => auth.Username = "internal-demo")
         .WithAllowedSecuritySchemes("Basic")));

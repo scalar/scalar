@@ -131,6 +131,17 @@ const authIndicator = computed<{ icon: Icon; text: string } | null>(() => {
   }
 })
 
+/** Excluded schemes must also stay out of secondary forms such as OAuth acquisition. */
+const visibleSecuritySchemes = computed<MergedSecuritySchemes>(() =>
+  allowedSecuritySchemes
+    ? Object.fromEntries(
+        Object.entries(securitySchemes).filter(([name]) =>
+          allowedSecuritySchemes.includes(name),
+        ),
+      )
+    : securitySchemes,
+)
+
 /** All available auth scheme options for the dropdown */
 const availableSchemeOptions = computed(() =>
   getSecuritySchemeOptions(
@@ -185,7 +196,7 @@ const activeSchemeOptions = computed<SecuritySchemeOption[]>(() => {
 })
 
 /** Preserve store indexes when the allowlist hides earlier saved selections. */
-const visibleSchemeIndexes = computed(() =>
+const visibleSchemeIndexes = computed<number[]>(() =>
   activeSchemeOptions.value.map(
     (option) =>
       selectedSecurity?.selectedSchemes.findIndex(
@@ -193,7 +204,7 @@ const visibleSchemeIndexes = computed(() =>
       ) ?? -1,
   ),
 )
-const visibleActiveIndex = computed(() =>
+const visibleActiveIndex = computed<number>(() =>
   visibleSchemeIndexes.value.indexOf(selectedSecurity?.selectedIndex ?? 0),
 )
 
@@ -388,7 +399,7 @@ defineExpose({
       :meta
       :options
       :proxyUrl
-      :securitySchemes
+      :securitySchemes="visibleSecuritySchemes"
       :selectedSchemeIndexes="visibleSchemeIndexes"
       :selectedSchemeOptions="activeSchemeOptions"
       :server />
