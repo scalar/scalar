@@ -37,10 +37,6 @@ const { applicationIdentifier, documentType } = defineProps<{
   externalDocs?: ExternalDocumentationObject
   documentExtensions?: Record<string, unknown>
   infoExtensions?: Record<string, unknown>
-  /** Extensions belonging to the Paths Object, rendered once per document. */
-  pathsExtensions?: Record<string, unknown>
-  /** Selected keys for the default Paths Object extension renderer. */
-  showExtensions?: string[]
   headingSlugGenerator: (heading: Heading) => string
   eventBus: WorkspaceEventBus | null
 }>()
@@ -129,9 +125,6 @@ const { level: headingLevel } = useDocumentOutline('document')
           </SectionColumns>
           <SpecificationExtension :value="documentExtensions" />
           <SpecificationExtension :value="infoExtensions" />
-          <SpecificationExtension
-            :showExtensions
-            :value="pathsExtensions" />
         </template>
       </SectionContent>
       <slot name="after" />
