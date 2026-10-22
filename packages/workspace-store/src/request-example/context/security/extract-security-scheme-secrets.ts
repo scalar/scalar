@@ -395,7 +395,9 @@ export const extractSecuritySchemeSecrets = (
     )
     const extracted = extractOAuthFlowSecrets(flows, storeSecrets, oauth2RedirectUri, false)
     // Seed scope defaults even before discovery so selecting an optional scheme keeps them.
-    const configuredScopes = configuredKeys.flatMap(([, flow]) => flow?.selectedScopes ?? [])
+    const configuredScopes = configuredKeys
+      .filter(([key]) => !storeSecrets || discoveredFlows[key] !== undefined)
+      .flatMap(([, flow]) => flow?.selectedScopes ?? [])
     const defaultScopes = Array.from(new Set([...(scheme['x-default-scopes'] ?? []), ...configuredScopes]))
 
     return {
