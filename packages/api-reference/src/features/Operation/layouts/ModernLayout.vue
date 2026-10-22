@@ -66,12 +66,7 @@ const {
 } = defineProps<
   Omit<
     OperationProps,
-    | 'document'
-    | 'pathValue'
-    | 'server'
-    | 'isCollapsed'
-    | 'securitySchemes'
-    | 'authStore'
+    'document' | 'server' | 'isCollapsed' | 'securitySchemes' | 'authStore'
   > & {
     /** Operation object with path params */
     operation: OperationObject
@@ -211,6 +206,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
         <!-- Description -->
         <div class="operation-description">
+          <SpecificationExtension
+            v-if="!isWebhook"
+            :label="`${translate('common.path')}: ${path}`"
+            :showExtensions="options.showExtensions"
+            :value="pathValue" />
+
           <SpecificationExtension
             :showExtensions="options.showExtensions"
             :value="operationExtensions" />

@@ -292,6 +292,8 @@ provideDocumentOutline('document')
       :info="document?.info"
       :infoExtensions
       :layout="options.layout"
+      :pathsExtensions="openApiDocument?.paths"
+      :showExtensions="options.showExtensions"
       :specificationVersion>
       <template #selectors>
         <!-- Server Selector -->

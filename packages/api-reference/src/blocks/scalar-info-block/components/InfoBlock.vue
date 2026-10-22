@@ -39,6 +39,10 @@ const {
   documentExtensions?: Record<string, unknown>
   /** OpenAPI extension fields at the info object level. */
   infoExtensions?: Record<string, unknown>
+  /** Extensions belonging to the Paths Object, rendered once per document. */
+  pathsExtensions?: Record<string, unknown>
+  /** Selected keys for the default Paths Object extension renderer. */
+  showExtensions?: string[]
   /** The event bus for the handling all events. */
   eventBus: WorkspaceEventBus
   /** Heading id generator for Markdown headings */
@@ -91,6 +95,8 @@ const introCardsSlot = computed(() =>
     :headingSlugGenerator
     :info
     :infoExtensions
+    :pathsExtensions
+    :showExtensions
     :specificationVersion>
     <template #[introCardsSlot]>
       <IntroductionCard :row="layout === 'classic'">

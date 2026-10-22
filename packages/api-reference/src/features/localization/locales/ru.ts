@@ -7,6 +7,7 @@ export const ru = {
     description: 'Описание',
     httpMethod: 'HTTP-метод',
     path: 'Путь',
+    paths: 'Пути',
     copyDefault: 'Скопировать значение по умолчанию',
     copyExample: 'Скопировать пример значения',
   },

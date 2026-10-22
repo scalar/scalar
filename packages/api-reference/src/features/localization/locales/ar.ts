@@ -7,6 +7,7 @@ export const ar = {
     description: 'الوصف',
     httpMethod: 'طريقة HTTP',
     path: 'المسار',
+    paths: 'المسارات',
     copyDefault: 'نسخ القيمة الافتراضية',
     copyExample: 'نسخ القيمة النموذجية',
   },

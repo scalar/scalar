@@ -98,6 +98,22 @@ const mountOperationWithConfig = (
 }
 
 describe('Operation', () => {
+  it.each(['modern', 'classic'] as const)('keeps path and operation extensions separate in %s', (layout) => {
+    const pathValue = { 'x-owner': 'path-team', get: { 'x-owner': 'get-team' }, post: { 'x-owner': 'post-team' } }
+    for (const method of ['get', 'post']) {
+      const wrapper = mountOperationWithConfig({ pathValue, method, options: { layout, showExtensions: ['x-owner'] } })
+      expect(wrapper.find('[role="group"][aria-label="Path: /users/{userId}"]').text()).toContain('path-team')
+      expect(wrapper.text()).toContain(`${method}-team`)
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['modern', 'classic'] as const)('omits unselected path extensions and their label in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({ pathValue: { 'x-private': 'hidden', get: {} }, options: { layout } })
+    expect(wrapper.find('[aria-label="Path: /users/{userId}"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('hidden')
+  })
+
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()

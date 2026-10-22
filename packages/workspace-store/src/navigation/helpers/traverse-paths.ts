@@ -122,6 +122,11 @@ export const traversePaths = ({
 
   // Traverse paths
   Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+    // Extension objects may contain method-shaped keys without defining operations.
+    if (path.startsWith('x-')) {
+      return
+    }
+
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {
