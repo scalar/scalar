@@ -96,16 +96,22 @@ describe('mergeSecurity', () => {
     const auth = createWorkspaceStore().auth
     auth.setAuthSecrets(documentSlug, 'oidc', {
       type: 'openIdConnect',
-      implicit: { authorizationUrl: 'https://example.com/auth', scopes: {} },
+      implicit: { authorizationUrl: 'https://example.com/auth', scopes: { profile: '' } },
     })
     const scheme = mergeSecurity(
       { oidc: { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery' } },
-      { oidc: { type: 'openIdConnect', flows: { authorizationCode: { 'x-scalar-client-id': 'scalar' } } } },
+      {
+        oidc: {
+          type: 'openIdConnect',
+          flows: { authorizationCode: { 'x-scalar-client-id': 'scalar', selectedScopes: ['profile'] } },
+        },
+      },
       auth,
       documentSlug,
     ).oidc
     assert(scheme?.type === 'openIdConnect')
     expect(Object.keys(scheme.flows ?? {})).toStrictEqual(['implicit'])
+    expect(scheme['x-default-scopes']).toBeUndefined()
   })
 
   it.each(['edited', ''])('preserves an OIDC client ID override of %j and its reset default', (clientId) => {
