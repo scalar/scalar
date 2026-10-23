@@ -127,12 +127,22 @@ const renderAlert = (node: Block & { type: 'blockquote' }, c: Ctx): boolean => {
   w.close(w.open('div', ' class="markdown-alert-icon"'))
   const content = w.open('div', ' class="markdown-alert-content"')
   w.text(' ')
-  // Paragraphs are unwrapped into the content, as the current plugin does.
+  // Paragraphs are unwrapped into the content, as the current plugin does. The hast tree keeps a
+  // newline after each block, which renders as the space between unwrapped paragraphs.
+  let afterInline = false
   for (const n of rest) {
+    if (!('position' in n)) {
+      inlines([n as Inline], c)
+      afterInline = true
+      continue
+    }
+    if (afterInline) w.text('\n')
     if (n.type === 'paragraph') inlines(n.children, c)
-    else if ('position' in n) block(n as Block, c, false, false)
-    else inlines([n as Inline], c)
+    else block(n as Block, c, false, false)
+    w.text('\n')
+    afterInline = false
   }
+  if (afterInline) w.text('\n')
   w.close(content)
   w.close(outer)
   w.newline()

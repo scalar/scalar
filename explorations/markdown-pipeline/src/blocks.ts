@@ -157,7 +157,10 @@ export class BlockParser {
   }
 
   parse(input: string): Root {
-    const lines = input.replace(/￿/g, '�').split(/\r\n|\r|\n/)
+    const lines = input
+      .replace(/^\ufeff/, '')
+      .replace(/￿/g, '�')
+      .split(/\r\n|\r|\n/)
     if (lines.at(-1) === '') lines.pop()
     for (const l of lines) this.incorporateLine(l)
     while (this.tip !== this.doc) this.finalize(this.tip, lines.length)
