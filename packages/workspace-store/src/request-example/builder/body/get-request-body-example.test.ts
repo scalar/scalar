@@ -11,7 +11,7 @@ import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body
 
 describe('get-request-body-example', () => {
   it.each(['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'])(
-    'generates formatted dates in %s bodies while preserving other fallbacks',
+    'generates formatted strings in %s bodies while preserving other fallbacks',
     (contentType) => {
       const schema = coerceValue(SchemaObjectSchema, {
         type: 'object',
@@ -20,6 +20,9 @@ describe('get-request-body-example', () => {
           datetime: { type: 'string', format: 'date-time' },
           dates: { type: 'array', items: { type: 'string', format: 'date' } },
           choice: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] },
+          email: { type: 'string', format: 'email' },
+          duration: { type: 'string', format: 'duration' },
+          ids: { type: 'array', items: { type: 'string', format: 'uuid4' } },
           summary: { type: 'string' },
           nullable: { type: ['string', 'null'] },
           temperature: { type: 'integer' },
@@ -31,6 +34,9 @@ describe('get-request-body-example', () => {
           datetime: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
           dates: [expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)],
           choice: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          email: 'hello@example.com',
+          duration: 'P1D',
+          ids: ['919108f7-52d1-4320-9bac-f847db4148a8'],
           summary: '',
           nullable: null,
           temperature: 1,
