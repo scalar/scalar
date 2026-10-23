@@ -1,6 +1,6 @@
 name: Deploy Previews
 
-# Reusable workflow that deploys all PR preview environments (examples, api
+# Reusable workflow that deploys all PR preview environments (api
 # reference, components storybook, api client, galaxy, scalar registry galaxy).
 # Only ever called from pr.yml, and only for same-repo PRs (forks cannot read
 # the deploy secrets). Each job consumes the pre-built `build-output` artifact
@@ -28,8 +28,6 @@ on:
         type: string
         required: true
     outputs:
-      examples-url:
-        value: ${{ jobs.deploy-examples.outputs.preview-url }}
       api-reference-url:
         value: ${{ jobs.deploy-api-reference.outputs.preview-url }}
       components-url:
@@ -56,45 +54,6 @@ env:
   NETLIFY_ALLOW_BUILDS: '--allow-build=esbuild --allow-build=sharp --allow-build=unix-dgram'
 
 jobs:
-  deploy-examples:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-netlify
-    timeout-minutes: 10
-    concurrency:
-      group: deploy-examples-${{ github.ref }}
-      cancel-in-progress: true
-    outputs:
-      preview-url: ${{ steps.set-output.outputs.url }}
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-
-      - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
-
-      # restore-build has already populated every workspace dependency's
-      # dist directory, so this is a single-package build of the examples
-      # wrapper itself (examples/* are not part of the build-output tarball).
-      - name: Build @scalar-examples/web
-        run: pnpm --filter @scalar-examples/web build
-
-      - name: Generate DEPLOY_ID
-        run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
-
-      - name: Deploy to Netlify
-        run: |
-          pnpm dlx ${{ env.NETLIFY_ALLOW_BUILDS }} netlify@${{ env.NETLIFY_CLI_VERSION }} deploy --dir "./examples/web/dist" \
-            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
-            --site ${{ vars.NETLIFY_SITE_ID_PREVIEW }} \
-            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
-            --filter @scalar-examples/web \
-            --alias=${{env.DEPLOY_ID}}
-
-      - name: Set output
-        id: set-output
-        run: echo "url=https://${{ env.DEPLOY_ID }}--scalar-deploy-preview.netlify.app" >> $GITHUB_OUTPUT
-
   deploy-api-reference:
     if: inputs.api_reference_changed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
