@@ -1153,14 +1153,14 @@ describe('sidebar footer call to action', () => {
     expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
   })
 
-  it('renders the API client button in server rendered output without touching window', async () => {
+  it('defers browser-only footer controls until mounting', async () => {
     const app = createSSRApp({
       render: () => h(ApiReference, { configuration: { content: document } }),
     })
 
     const html = await renderToString(app)
 
-    expect(html).toContain('Open API Client')
+    expect(html).not.toContain('Open API Client')
     expect(html).not.toContain('Generate SDKs & MCP')
     expect(html).not.toContain('scalar-mcp-layer')
   })
