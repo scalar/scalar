@@ -4,7 +4,7 @@
  */
 import type { Block, ListItem, Root } from './blocks'
 import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl } from './html'
-import type { Inline, InlineParser } from './inline'
+import { type Inline, type InlineParser, normalizeUri } from './inline'
 
 export type Highlighter = (code: string, lang: string | null) => { html: string; lang?: string } | null | undefined
 
@@ -58,7 +58,7 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
         w.raw(n.value)
         break
       case 'link': {
-        const safe = c.o.unsafe || isSafeUrl(n.url, 'href')
+        const safe = c.o.unsafe || isSafeUrl(n.url, 'href', true)
         const external = safe && !c.o.unsafe && isExternal(n.url) ? ' rel="nofollow" target="_blank"' : ''
         const id = w.open('a', (safe ? attr('href', n.url) : '') + attr('title', n.title) + external)
         inlines(n.children, c)
@@ -66,7 +66,7 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
         break
       }
       case 'image': {
-        const src = isSafeUrl(n.url, 'src') ? attr('src', n.url) : ''
+        const src = isSafeUrl(n.url, 'src', true) ? attr('src', n.url) : ''
         w.open('img', src + attr('alt', n.alt) + attr('title', n.title))
         break
       }
@@ -74,7 +74,7 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
         const entry = c.fn.get(n.identifier) ?? [c.fn.size + 1, 0]
         entry[1]++
         c.fn.set(n.identifier, entry)
-        const safe = encodeURIComponent(n.identifier.toLowerCase())
+        const safe = escapeAttr(normalizeUri(n.identifier.toLowerCase()))
         const suffix = entry[1] > 1 ? `-${entry[1]}` : ''
         const sup = w.open('sup')
         const a = w.open(
@@ -222,7 +222,8 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
       return
     }
     case 'code': {
-      const lang = node.lang
+      // The class takes the first word only, as today: a decoded `&#x0C;` or tab ends it.
+      const lang = node.lang?.split(/[\t\n\f\r ]/)[0] || null
       const highlighted = c.o.highlight?.(node.value, lang)
       const pre = w.open('pre')
       if (highlighted) {
@@ -301,7 +302,7 @@ const footnoteSection = (c: Ctx): void => {
   for (const [identifier, [number, count]] of c.fn) {
     const def = c.root.footnotes.get(identifier)
     if (!def) continue
-    const safe = encodeURIComponent(identifier.toLowerCase())
+    const safe = escapeAttr(normalizeUri(identifier.toLowerCase()))
     const li = w.open('li', ` id="user-content-fn-${safe}"`)
     w.newline()
     const backrefs = (): void => {

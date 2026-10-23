@@ -10,6 +10,8 @@
  * output sees exactly the tree the writer built.
  */
 
+import { COMMON, fromCodePoint, knownEntity } from './entities'
+
 const VOID = new Set([
   'area',
   'base',
@@ -97,10 +99,13 @@ const escapeRawText = (s: string): string => s.replace(/[<>]/g, (c) => (c === '<
 const escapeRawAttr = (s: string): string => s.replace(/["<]/g, (c) => (c === '"' ? '&quot;' : '&lt;'))
 
 const decodeNumeric = (s: string): string =>
-  s.replace(/&#(?:x([0-9a-f]{1,6})|([0-9]{1,7}));?/gi, (_, hex, dec) => {
-    const cp = Number.parseInt(hex ?? dec, hex ? 16 : 10)
-    return cp === 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff) ? '�' : String.fromCodePoint(cp)
-  })
+  s.replace(/&#(?:x([0-9a-f]{1,6})|([0-9]{1,7}));?/gi, (_, hex, dec) =>
+    fromCodePoint(Number.parseInt(hex ?? dec, hex ? 16 : 10)),
+  )
+
+/** Decodes what this module can decode: numeric references and the common names. */
+const decodeKnown = (s: string): string =>
+  decodeNumeric(s).replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m, name) => COMMON[name] ?? m)
 
 /**
  * Whether a URL may be used for `attr`. `raw` is the value as it will be
@@ -110,14 +115,22 @@ const decodeNumeric = (s: string): string =>
  * any `&` before the first `/`, `?` or `#` is rejected: that is where
  * `javascript&colon;` hides a scheme, and no legitimate URL puts one there.
  */
-export const isSafeUrl = (raw: string, attr: string): boolean => {
+export const isSafeUrl = (raw: string, attr: string, markdown = false): boolean => {
   const allowed = PROTOCOLS[attr]
   if (!allowed) return true
-  const url = decodeNumeric(raw.replace(/\uffff/g, '&'))
+  // Markdown URLs are already decoded, except names marked with `REF`; a plain `&` there is a
+  // literal ampersand. In raw HTML every reference is still encoded.
+  const named = markdown ? /\uffff([a-zA-Z][a-zA-Z0-9]*);/g : /&([a-zA-Z][a-zA-Z0-9]*);/g
+  let unknown = false
+  const url = (markdown ? raw : decodeNumeric(raw)).replace(named, (_, name) => {
+    const value = knownEntity(name)
+    if (value === null) unknown = true
+    return value ?? '\u0000'
+  })
   const end = url.search(/[/?#]/)
-  // A named reference before the path could hide a scheme (`javascript&colon;`), and decoding
-  // it would need the entity table, so such a URL is never safe.
-  if (/&[a-zA-Z][a-zA-Z0-9]*;/.test(end === -1 ? url : url.slice(0, end))) return false
+  // A name this module cannot decode, before the path, could hide a scheme
+  // (`javascript&colon;`), so such a URL is never safe.
+  if (unknown && (end === -1 ? url : url.slice(0, end)).includes('\u0000')) return false
   // From here on exactly `hast-util-sanitize`: case-sensitive, nothing trimmed. That rejects
   // ` https:` and `HTTPS:` like today; a browser would accept them, so this only rejects more.
   const colon = url.indexOf(':')
@@ -365,7 +378,8 @@ export class Writer {
     if (this.skip) return
     const top = this.stack.at(-1)
     if (top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)) {
-      this.options.inline(text, this)
+      // Today's pipeline parses the HTML first, so the Markdown sees decoded text (`&lt;` is `<`).
+      this.options.inline(decodeKnown(text), this)
     } else {
       this.reconstruct()
       this.out += escapeRawText(text)

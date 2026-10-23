@@ -3,6 +3,7 @@
  * from commonmark.js), plus GFM strikethrough, autolink literals and footnote
  * calls. Produces mdast-shaped nodes.
  */
+import { decodeEntity } from './entities'
 import { REF } from './html'
 
 export type Inline =
@@ -95,82 +96,9 @@ const EMAIL_AUTOLINK =
   /<([a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*)>/y
 const LINK_LABEL = /\[(?:[^\\[\]]|\\[\s\S]){0,1000}\]/y
 const LINK_TITLE = /"(?:\\[\s\S]|[^\\"\x00])*"|'(?:\\[\s\S]|[^\\'\x00])*'|\((?:\\[\s\S]|[^\\()\x00])*\)/y
-const DEST_BRACES = /<(?:[^<>\n\\\x00]|\\[\s\S])*>/y
+const DEST_BRACES = /<(?:[^<>\n\\\x00]|\\[^\n])*>/y
 const SPNL = /[ \t]*(?:\n[ \t]*)?/y
 const TICKS = /`+/g
-
-/**
- * Named references the parser decodes itself, so heading text and URLs
- * read naturally. Every other valid name is written through for the browser to
- * decode, which renders identically without shipping the 2,125-name table.
- */
-const COMMON: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: '\u00a0',
-  copy: '©',
-  reg: '®',
-  trade: '™',
-  hellip: '…',
-  mdash: '—',
-  ndash: '–',
-  lsquo: '‘',
-  rsquo: '’',
-  ldquo: '“',
-  rdquo: '”',
-  bull: '•',
-  middot: '·',
-  times: '×',
-  divide: '÷',
-  deg: '°',
-  euro: '€',
-  larr: '←',
-  rarr: '→',
-  uarr: '↑',
-  darr: '↓',
-  harr: '↔',
-  le: '≤',
-  ge: '≥',
-  ne: '≠',
-  plusmn: '±',
-  laquo: '«',
-  raquo: '»',
-  sect: '§',
-  para: '¶',
-}
-/**
- * Names HTML decodes even without a trailing `;`. A browser reads `&notit;`
- * as `¬it;`, while CommonMark keeps it literal, so an unknown name starting
- * with one of these is escaped instead of written through, unless it is one of
- * the valid longer names below.
- */
-const LEGACY =
-  'AElig AMP Aacute Acirc Agrave Aring Atilde Auml COPY Ccedil ETH Eacute Ecirc Egrave Euml GT Iacute Icirc Igrave Iuml LT Ntilde Oacute Ocirc Ograve Oslash Otilde Ouml QUOT REG THORN Uacute Ucirc Ugrave Uuml Yacute aacute acirc acute aelig agrave amp aring atilde auml brvbar ccedil cedil cent copy curren deg divide eacute ecirc egrave eth euml frac12 frac14 frac34 gt iacute icirc iexcl igrave iquest iuml laquo lt macr micro middot nbsp not ntilde oacute ocirc ograve ordf ordm oslash otilde ouml para plusmn pound quot raquo reg sect shy sup1 sup2 sup3 szlig thorn times uacute ucirc ugrave uml uuml yacute yen yuml'.split(
-    ' ',
-  )
-const LEGACY_PREFIXED = new Set(
-  'GTGT LTLT ampersand angmsd angmsdaa angmsdab angmsdac angmsdad angmsdae angmsdaf angmsdag angmsdah angst gtcc gtcir gtdot gtlPar gtquest gtrapprox gtrarr gtrdot gtreqless gtreqqless gtrless gtrsim ltcc ltcir ltdot lthree ltimes ltlarr ltquest ltrPar ltri ltrie ltrif notin notinE notindot notinva notinvb notinvc notni notniva notnivb notnivc parallel parsim parsl part times timesb timesbar timesd'.split(
-    ' ',
-  ),
-)
-
-export const decodeEntity = (ref: string): string => {
-  if (ref[1] === '#') {
-    const hex = ref[2] === 'x' || ref[2] === 'X'
-    const cp = Number.parseInt(ref.slice(hex ? 3 : 2, -1), hex ? 16 : 10)
-    return cp === 0 || cp > 0x10ffff || (cp >= 0xd800 && cp <= 0xdfff) ? '\ufffd' : String.fromCodePoint(cp)
-  }
-  const name = ref.slice(1, -1)
-  const common = COMMON[name]
-  if (common) return common
-  if (LEGACY.includes(name) || LEGACY_PREFIXED.has(name) || !LEGACY.some((p) => name.startsWith(p))) {
-    return REF + ref.slice(1)
-  }
-  return ref
-}
 
 const ENTITY_OR_ESCAPE =
   /\\[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]|&(?:#x[a-f0-9]{1,6}|#[0-9]{1,7}|[a-z][a-z0-9]{1,31});/gi
@@ -259,6 +187,10 @@ export class InlineParser {
         return this.addBracket(block.last!, this.pos - 1, false)
       case '!':
         this.pos++
+        // `![^1]` is a `!` followed by a footnote call, as in micromark.
+        if (this.s[this.pos] === '[' && this.s[this.pos + 1] === '^' && this.isFootnoteCall(this.pos)) {
+          return append(block, text('!'))
+        }
         if (this.s[this.pos] === '[') {
           this.pos++
           append(block, text('!['))
@@ -301,6 +233,13 @@ export class InlineParser {
     append(block, link)
     this.pos = end.end
     return true
+  }
+
+  private isFootnoteCall(at: number): boolean {
+    const m = /\[\^([^\]\s]+)\]/y
+    m.lastIndex = at
+    const found = m.exec(this.s)
+    return !!found && this.footnotes.has(normalizeLabel(`[${found[1]}]`))
   }
 
   private parseNewline(block: N): void {
@@ -373,7 +312,13 @@ export class InlineParser {
         return append(block, text('<'))
       }
     }
-    if ((m = this.match(HTML_TAG))) {
+    const start = this.pos
+    // `<![CDATA[` is case-sensitive; the expression above matches it case-insensitively.
+    if ((m = this.match(HTML_TAG)) && m.startsWith('<![') && !m.startsWith('<![CDATA[')) {
+      this.pos = start
+      m = null
+    }
+    if (m) {
       return append(block, this.htmlAsText ? text(m) : { type: 'html', value: m })
     }
     this.pos++

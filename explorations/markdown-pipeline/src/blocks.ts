@@ -115,13 +115,18 @@ const splitRow = (line: string): string[] => {
   // GFM trims spaces and tabs only: a no-break space is cell content.
   let s = line.replace(/^[ \t]+|[ \t]+$/g, '')
   if (s.startsWith('|')) s = s.slice(1)
-  if (s.endsWith('|') && !s.endsWith('\\|')) s = s.slice(0, -1)
+  // A final pipe ends the row unless an odd number of backslashes escapes it.
+  if (s.endsWith('|') && (s.length - 1 - s.slice(0, -1).replace(/\\+$/, '').length) % 2 === 0) s = s.slice(0, -1)
   const cells: string[] = []
   let cell = ''
   for (let i = 0; i < s.length; i++) {
     const c = s[i]
     if (c === '\\' && s[i + 1] === '|') {
       cell += '|'
+      i++
+    } else if (c === '\\' && s[i + 1] === '\\') {
+      // An escaped backslash: the pipe after it is not escaped.
+      cell += '\\\\'
       i++
     } else if (c === '|') {
       cells.push(cell.replace(/^[ \t]+|[ \t]+$/g, ''))
@@ -388,7 +393,13 @@ export class BlockParser {
         }
       }
       // GFM table: a delimiter row turns the paragraph's last line into a header row.
-      if (container.kind === 'paragraph' && (c === '|' || c === ':' || c === '-') && TABLE_DELIM.test(rest)) {
+      // A delimiter row that is also a list item (`- | -`) starts the list, as in micromark.
+      if (
+        container.kind === 'paragraph' &&
+        (c === '|' || c === ':' || c === '-') &&
+        TABLE_DELIM.test(rest) &&
+        !/^[-+*][ \t]+\S/.test(rest)
+      ) {
         const lines = container.content.replace(/\n$/, '').split('\n')
         const header = lines.at(-1)!
         const align = splitRow(rest).map((d) => {
@@ -396,7 +407,10 @@ export class BlockParser {
           const r = d.endsWith(':')
           return l && r ? 'center' : l ? 'left' : r ? 'right' : null
         })
-        if ((header.includes('|') || rest.includes('|')) && splitRow(header).length === align.length) {
+        // micromark needs no pipe when the delimiter row cannot be anything else, but a lone `|`
+        // is a row without cells, so not a header.
+        const head = header.replace(/^[ \t]+|[ \t]+$/g, '')
+        if (head !== '' && head !== '|' && splitRow(header).length === align.length) {
           this.closeUnmatchedBlocks()
           const before = lines.slice(0, -1)
           const table = this.node('table', this.lineNumber - 1)
@@ -431,7 +445,8 @@ export class BlockParser {
         this.footnotes.add(normalizeLabel(`[${m[1]}]`))
         this.advanceNextNonspace()
         this.advanceOffset(m[0].length, false)
-        if (isSpaceOrTab(ln[this.offset])) this.advanceOffset(1, true)
+        // Spaces after the marker are stripped, so they never make an indented code block.
+        while (isSpaceOrTab(ln[this.offset])) this.advanceOffset(1, false)
         return 1
       }
     }

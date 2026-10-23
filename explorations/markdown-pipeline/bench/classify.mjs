@@ -71,6 +71,8 @@ const KNOWN = {
     current.replace(/\s/g, '') === prototype.replace(/\s/g, '') && spaces(current) < spaces(prototype),
   /** An alert followed by a list renders with empty content. */
   'empty alert': ({ current }) => /markdown-alert-content">\n<\/div>/.test(current),
+  /** The current pipeline throws on the input. */
+  'current pipeline throws': ({ current }) => current.startsWith('THREW'),
   /** An alert whose marker stands alone skips its first block of content. */
   'alert skips first block': ({ current, prototype }) => {
     const content = (html) =>
