@@ -1,3 +1,5 @@
+import { Ajv } from 'ajv'
+import addFormats from 'ajv-formats'
 import { describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -530,6 +532,41 @@ describe('getExampleFromSchema', () => {
     )
 
     expect(result).toBe('hello@example.com')
+  })
+
+  it.each([
+    ['date', 'date', '2026-02-30'],
+    ['date-time', 'date-time', '2026-02-30T12:00:00Z'],
+    ['time', 'time', '12:00:00'],
+    ['duration', 'duration', 'one day'],
+    ['email', 'email', 'missing-at-sign'],
+    ['hostname', 'hostname', '-invalid.example'],
+    // ASCII email/hostname and URI examples are valid subsets of their internationalized formats.
+    ['idn-email', 'email', 'missing-at-sign'],
+    ['idn-hostname', 'hostname', '-invalid.example'],
+    ['iri', 'uri', 'https://invalid host'],
+    ['iri-reference', 'uri-reference', 'invalid reference'],
+    ['ipv4', 'ipv4', '192.0.2.999'],
+    ['ipv6', 'ipv6', '2001:db8::gggg'],
+    ['uri', 'uri', 'relative/path'],
+    ['uri-reference', 'uri-reference', 'invalid reference'],
+    ['uri-template', 'uri-template', 'https://example.com/{id'],
+    ['json-pointer', 'json-pointer', '/invalid~2escape'],
+    ['relative-json-pointer', 'relative-json-pointer', '01/nested'],
+    ['regex', 'regex', '['],
+    ['uuid', 'uuid', 'not-a-uuid'],
+    ...[1, 2, 3, 4, 5, 6, 7, 8].map((version) => [`uuid${version}`, 'uuid', 'not-a-uuid']),
+  ])('independently validates the generated %s example', (format, validationFormat, invalid) => {
+    const ajv = new Ajv()
+    addFormats(ajv, { mode: 'full' })
+    const validate = ajv.compile({ type: 'string', format: validationFormat })
+
+    // Reject a malformed string to ensure format validation is active, not just type checking.
+    expect(validate(invalid)).toBe(false)
+    for (const emptyString of [undefined, '', '…']) {
+      const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })
+      expect(validate(result), JSON.stringify(validate.errors)).toBe(true)
+    }
   })
 
   it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
