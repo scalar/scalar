@@ -6,13 +6,31 @@ const BLOCK = new Set(
   ),
 )
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-/** Canonical HTML: decoded entities, sorted attributes, collapsed whitespace, none around block tags. */
+/**
+ * Canonical HTML: decoded entities, sorted attributes, and whitespace collapsed
+ * the way the browser renders it with `white-space: normal`. A run of spaces is
+ * one space; a space right after another collapsible space is dropped, even
+ * across an inline element boundary; spaces at the start and end of a line
+ * (block edges, around `<br>`) are dropped. Two outputs that normalize the same
+ * render the same text; `pre` keeps its whitespace exactly.
+ */
 export const normalize = (html, { dropAttrs = [] } = {}) => {
   let out = ''
+  /** Whether the last rendered character was collapsible space, or a line start. */
+  let space = true
   const walk = (node, pre) => {
     for (const c of node.childNodes ?? []) {
-      if (c.nodeName === '#text') out += pre ? esc(c.value) : esc(c.value).replace(/\s+/g, ' ')
-      else if (c.nodeName === '#comment') out += '<!--' + c.data + '-->'
+      if (c.nodeName === '#text') {
+        if (pre) {
+          out += esc(c.value)
+          space = false
+          continue
+        }
+        let v = esc(c.value).replace(/[ \t\n\r\f]+/g, ' ')
+        if (space && v.startsWith(' ')) v = v.slice(1)
+        if (v) space = v.endsWith(' ')
+        out += v
+      } else if (c.nodeName === '#comment') out += '<!--' + c.data + '-->'
       else if (c.tagName) {
         const tag = c.tagName
         const attrs = c.attrs
@@ -37,6 +55,7 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
           )
           .sort()
           .join('')
+        if (BLOCK.has(tag) || tag === 'br') space = true
         if (BLOCK.has(tag)) out += '\n'
         out += '<' + tag + attrs + '>'
         if (BLOCK.has(tag)) out += '\n'
@@ -44,11 +63,20 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
         if (!['br', 'hr', 'img', 'input', 'source', 'wbr', 'meta', 'link', 'col'].includes(tag)) {
           if (BLOCK.has(tag)) out += '\n'
           out += '</' + tag + '>'
-          if (BLOCK.has(tag)) out += '\n'
+          if (BLOCK.has(tag)) {
+            out += '\n'
+            space = true
+          }
         }
       }
     }
   }
   walk(parseFragment(html), false)
-  return out.replace(/[ \t]*\n[ \t\n]*/g, '\n').trim()
+  return (
+    out
+      // A space at the end of a line (before a block edge or a `<br>`) does not render.
+      .replace(/ ((?:<\/[a-z0-9]+>)*)(?=\n|<br>)/g, '$1')
+      .replace(/[ \t]*\n[ \t\n]*/g, '\n')
+      .trim()
+  )
 }

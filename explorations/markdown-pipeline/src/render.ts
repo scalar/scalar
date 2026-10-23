@@ -287,7 +287,7 @@ const footnoteSection = (c: Ctx): void => {
   w.text('\n')
   const ol = w.open('ol')
   w.text('\n')
-  for (const [identifier, [, count]] of c.fn) {
+  for (const [identifier, [number, count]] of c.fn) {
     const def = c.root.footnotes.get(identifier)
     if (!def) continue
     const safe = encodeURIComponent(identifier.toLowerCase())
@@ -298,7 +298,7 @@ const footnoteSection = (c: Ctx): void => {
         w.text(' ')
         const a = w.open(
           'a',
-          ` href="#user-content-fnref-${safe}${k > 1 ? `-${k}` : ''}" data-footnote-backref="" aria-label="Back to reference ${k}" class="data-footnote-backref"`,
+          ` href="#user-content-fnref-${safe}${k > 1 ? `-${k}` : ''}" data-footnote-backref="" aria-label="Back to reference ${number}${k > 1 ? `-${k}` : ''}" class="data-footnote-backref"`,
         )
         w.text('↩')
         if (k > 1) {

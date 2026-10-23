@@ -28,8 +28,9 @@ const VOID = new Set([
 const RAW_TEXT = new Set(['script', 'style', 'xmp', 'iframe', 'noembed', 'noframes', 'noscript', 'textarea', 'title'])
 const STRIP = new Set(['script', 'style', 'object', 'embed', 'form'])
 const NEEDS_TABLE = new Set(['tbody', 'td', 'th', 'thead', 'tfoot', 'tr'])
+/** Start tags that close an open `<p>` in the HTML parser ("in body" insertion mode), allowed or not. */
 const CLOSES_P = new Set(
-  'address article aside blockquote details div dl fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hr main menu nav ol p pre section summary table ul'.split(
+  'address article aside blockquote center dd details dialog dir div dl dt fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hgroup hr li listing main menu nav ol p plaintext pre search section summary table ul xmp'.split(
     ' ',
   ),
 )
@@ -146,6 +147,8 @@ export class Writer {
   out = ''
   private stack: Frame[] = []
   private nextId = 1
+  /** Generated `<p>` elements by id, to mirror the parser when one was already closed. */
+  private paragraphs = new Map<number, boolean>()
   /**
    * Skipping the contents of a stripped element such as `<script>` or `<form>`.
    * Applies to generated output too: inline `<script>` and `</script>` arrive as
@@ -174,6 +177,7 @@ export class Writer {
       this.out += `<${tag}${attrs}>`
     }
     if (!VOID.has(tag)) this.stack.push({ tag, id, hidden })
+    if (tag === 'p') this.paragraphs.set(id, hidden)
     return id
   }
 
@@ -188,6 +192,20 @@ export class Writer {
   close(id: number): void {
     const at = this.stack.findLastIndex((f) => f.id === id)
     if (at !== -1) this.popTo(at)
+    else if (this.paragraphs.get(id) === false && !this.skip) this.strayEnd('p')
+    this.paragraphs.delete(id)
+  }
+
+  /**
+   * An end tag with nothing to close. The HTML parser turns `</p>` into an empty
+   * paragraph and `</br>` into a line break, so the output does the same.
+   */
+  private strayEnd(tag: string): void {
+    const open = tag === 'p' ? this.stack.findLastIndex((f) => f.tag === 'p' && !f.hidden) : -1
+    // `</p>` closes whichever paragraph is open, and only creates an empty one when none is.
+    if (open !== -1) this.popTo(open)
+    else if (tag === 'p' && this.allowed('p')) this.out += '<p></p>'
+    else if (tag === 'br' && this.allowed('br')) this.out += '<br>'
   }
 
   private popTo(at: number): void {
@@ -241,11 +259,12 @@ export class Writer {
       if (tag === this.skip.tag && !VOID.has(tag)) this.skip.depth++
       return
     }
+    // Before the allowlist: the browser closes the paragraph even for a tag the sanitizer then drops.
+    this.closeP(tag)
     if (!this.allowed(tag)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
       return
     }
-    this.closeP(tag)
     let s = ''
     const seen = new Set<string>()
     const tagAttrs = TAG_ATTRS[tag]
@@ -260,7 +279,6 @@ export class Writer {
           .split(/[ \t\n\f\r]+/)
           .filter(CLASS_RULES[tag]!)
           .join(' ')
-        if (!v) continue
       }
       if (PROTOCOLS[name] && !isSafeUrl(v, name)) continue
       // Not in the schema's protocol list, but every candidate is a URL, so check them like `src`.
@@ -284,6 +302,7 @@ export class Writer {
     }
     const at = this.stack.findLastIndex((f) => f.tag === tag && !f.hidden)
     if (at !== -1) this.popTo(at)
+    else this.strayEnd(tag)
   }
 }
 

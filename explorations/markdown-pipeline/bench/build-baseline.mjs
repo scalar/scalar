@@ -2,7 +2,7 @@ import { rmSync, writeFileSync } from 'node:fs'
 
 import { rolldown } from 'rolldown'
 
-import { BASELINE, CODE_HIGHLIGHT, HERE } from './paths.mjs'
+import { BASELINE, BASELINE_HIGHLIGHTED, CODE_HIGHLIGHT, HERE } from './paths.mjs'
 
 const CH = CODE_HIGHLIGHT
 const stubs = HERE + 'stubs'
@@ -21,4 +21,8 @@ const b = await rolldown({
   plugins: [{ name: 'stub', resolveId: (id) => alias[id] ?? null }],
 })
 await b.write({ file: BASELINE, format: 'es' })
+
+// The same pipeline with its real lowlight highlighter, for comparing highlighted code blocks.
+const h = await rolldown({ input: file, cwd: CH, platform: 'node', logLevel: 'silent' })
+await h.write({ file: BASELINE_HIGHLIGHTED, format: 'es' })
 rmSync(file)
