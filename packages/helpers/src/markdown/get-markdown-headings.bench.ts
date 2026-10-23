@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest'
+import { describe, it } from 'vitest'
 
 import { getMarkdownHeadings } from './get-markdown-headings'
 
@@ -95,19 +95,25 @@ Some more text after the code block.
 }).join('\n')
 
 describe('getMarkdownHeadings — small document (3 headings)', () => {
-  bench('getMarkdownHeadings', () => {
-    getMarkdownHeadings(smallMarkdown)
+  it('getMarkdownHeadings', async ({ bench }) => {
+    await bench('getMarkdownHeadings', () => {
+      getMarkdownHeadings(smallMarkdown)
+    }).run()
   })
 })
 
 describe('getMarkdownHeadings — medium document (14 headings)', () => {
-  bench('getMarkdownHeadings', () => {
-    getMarkdownHeadings(mediumMarkdown)
+  it('getMarkdownHeadings', async ({ bench }) => {
+    await bench('getMarkdownHeadings', () => {
+      getMarkdownHeadings(mediumMarkdown)
+    }).run()
   })
 })
 
 describe('getMarkdownHeadings — large document (50 headings)', () => {
-  bench('getMarkdownHeadings', () => {
-    getMarkdownHeadings(largeMarkdown)
+  it('getMarkdownHeadings', async ({ bench }) => {
+    await bench('getMarkdownHeadings', () => {
+      getMarkdownHeadings(largeMarkdown)
+    }).run()
   })
 })

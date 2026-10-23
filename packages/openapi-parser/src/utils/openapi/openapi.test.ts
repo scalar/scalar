@@ -275,8 +275,8 @@ describe('pipeline', () => {
     expect((result.schema as AnyObject).info.title).toBe('Hello World')
   })
 
-  it('throws an error when dereference fails (global)', () => {
-    expect(async () => {
+  it('throws an error when dereference fails (global)', async () => {
+    await expect(async () => {
       await openapi({
         throwOnError: true,
       })

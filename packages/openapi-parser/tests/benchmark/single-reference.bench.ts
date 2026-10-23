@@ -1,4 +1,4 @@
-import { bench, describe, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { resolveNew } from './utils/resolveNew'
 import { resolveOld } from './utils/resolveOld'
@@ -36,21 +36,24 @@ describe('single reference', () => {
     },
   }
 
-  bench('@apidevtools/swagger-parser', async () => {
-    // Action!
-    const result = await resolveOld(specification)
+  it('compares reference resolution', async ({ bench }) => {
+    await bench.compare(
+      bench('@apidevtools/swagger-parser', async () => {
+        // Action!
+        const result = await resolveOld(specification)
 
-    // Check whether the reference was resolved
-    expect((result as any).paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe(
-      'Hello World!',
+        // Check whether the reference was resolved
+        expect((result as any).paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe(
+          'Hello World!',
+        )
+      }),
+      bench('@scalar/openapi-parser', () => {
+        // Action!
+        const { schema } = resolveNew(specification)
+
+        // Check whether the reference was resolved
+        expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('Hello World!')
+      }),
     )
-  })
-
-  bench('@scalar/openapi-parser', () => {
-    // Action!
-    const { schema } = resolveNew(specification)
-
-    // Check whether the reference was resolved
-    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('Hello World!')
   })
 })

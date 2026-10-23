@@ -2,7 +2,7 @@ import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { describe, expect, it, vi } from 'vitest'
 
-describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
+describe('standalone', { concurrent: false, retry: 3, timeout: 10000 }, () => {
   // Generates the required script tag on the fly:
   //
   // <script id="api-reference" type="application/json">
