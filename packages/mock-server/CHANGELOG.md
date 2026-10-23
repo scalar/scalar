@@ -1,5 +1,15 @@
 # @scalar/mock-server
 
+## 0.20.0
+
+### Minor Changes
+
+- [#10696](https://github.com/scalar/scalar/pull/10696): Upgrade Undici to 8.12.3. JSON Magic, Mock Server, Workspace Store, OpenAPI to Markdown, and Scalar App now require Node.js 22.19.0 or later; Node.js 22.0 through 22.18 are no longer supported. Undici 8 enables HTTP/2 by default.
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.19.0
 
 ### Minor Changes

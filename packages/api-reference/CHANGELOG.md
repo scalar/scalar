@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.76.0
+
+### Minor Changes
+
+- [#10658](https://github.com/scalar/scalar/pull/10658): Add Copy as Markdown buttons for AsyncAPI channels and operations, with customizable action slots for these sections, tags, and introduction.
+- [#10687](https://github.com/scalar/scalar/pull/10687): Display operation-level AsyncAPI message payload examples in a dark code card with message and example selection, plus selectable reply payload examples below it. Keep message and reply schemas in the left column.
+
+  Preserve declared AsyncAPI message order in the documentation and example picker.
+
+- [#10697](https://github.com/scalar/scalar/pull/10697): Add `urlRouting: false` to keep API reference navigation in internal state without reading or changing the host page URL.
+
+### Patch Changes
+
+- [#10711](https://github.com/scalar/scalar/pull/10711): fix: keep the response copy button in view when the code scrolls
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10718](https://github.com/scalar/scalar/pull/10718): Hide SDK generation buttons and the local sidebar promotion when developer tools are disabled, and expose the generate-sdk-button CSS class on the client libraries button.
+- [#10652](https://github.com/scalar/scalar/pull/10652): Display authored AsyncAPI server-variable examples in the shared Example/Examples popup with copy support, including examples from referenced variables.
+
+  Keep the shared examples popup label clickable when hovered and align server-variable popups with their labels to avoid overlapping the sidebar.
+
+- [#10709](https://github.com/scalar/scalar/pull/10709): Move AsyncAPI navigation cards from tags to channel sections, listing each channel's operations beside its details.
+- [#10723](https://github.com/scalar/scalar/pull/10723): List AsyncAPI reply messages that live on the operation's own channel only under Replies, instead of repeating them under Messages or Other Channel Messages.
+- [#10705](https://github.com/scalar/scalar/pull/10705): Remove the duplicate standalone OAuth scope list from operation details. Required scopes remain available in the authentication badge popover.
+- [#10707](https://github.com/scalar/scalar/pull/10707): Match AsyncAPI channel badge placement and spacing to the OpenAPI modern and classic layouts. Use the shared badge component for Send/Receive while preserving their arrows and colors.
+
 ## 1.75.1
 
 ### Patch Changes

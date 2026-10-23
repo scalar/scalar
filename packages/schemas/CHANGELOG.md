@@ -1,5 +1,11 @@
 # @scalar/schemas
 
+## 0.15.0
+
+### Minor Changes
+
+- [#10697](https://github.com/scalar/scalar/pull/10697): Add `urlRouting: false` to keep API reference navigation in internal state without reading or changing the host page URL.
+
 ## 0.14.0
 
 ### Minor Changes

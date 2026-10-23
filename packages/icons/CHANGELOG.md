@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.7.8
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.7.7
 
 ### Patch Changes

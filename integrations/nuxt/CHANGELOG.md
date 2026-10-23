@@ -1,5 +1,12 @@
 # @scalar/nuxt
 
+## 0.6.83
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10721](https://github.com/scalar/scalar/pull/10721): Declare the Nuxt schema dependency used by the module's published types.
+
 ## 0.6.82
 
 ## 0.6.81
