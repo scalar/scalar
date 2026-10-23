@@ -5,7 +5,8 @@
   <a
     class="absolute z-10 inline-flex max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
     style="top: -36px; left: 0"
-    href="/resources/migration/stainless">
+    href="/resources/migration/stainless"
+    data-md-exclude>
     <span class="font-medium">Migrate off Stainless</span>
     <span class="text-c-3" aria-hidden="true">•</span>
     <span class="inline-flex items-center gap-2 text-c-2">
@@ -22,7 +23,7 @@
   </div>
 </div>
 </div>
-<div class="lp-visual">
+<div class="lp-visual" data-md-exclude>
 <div class="lp-flow" data-lp-edges="api>hub,hub>docs,hub>mcp,hub>sdk,docs>dev-docs,docs>claude-code,mcp>claude,mcp>chatgpt,mcp>gemini,sdk>dev-sdk,sdk>copilot" aria-hidden="true">
 <div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" data-reveal="fade" style="--x: 32; --y: 276; --w: 200; --d: 0">
 <div class="lp-chip">
@@ -180,7 +181,7 @@
     <span class="lp-quote-by"><scalar-icon class="lp-quote-logo" src="../assets/remote/logo-partech.svg" aria-label="PAR Technology"></scalar-icon><span>Josh Schoonmaker, SVP of Product</span></span>
   </blockquote>
 </div>
-  <div class="lp-card lp-card--docs" aria-hidden="true">
+  <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
 <div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
 <div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">API + Markdown</span></div>
@@ -345,7 +346,7 @@
   </div>
   <div class="lp-funnel" aria-hidden="true"><div class="lp-funnel-track" data-lp-funnel="true"></div></div>
 </div>
-<div class="lp-vs-side lp-vs-side--scalar">
+<div class="lp-vs-side lp-vs-side--scalar" data-md-exclude>
 <scalar-icon class="lp-wash" src="../assets/prompt-blocks.svg"></scalar-icon>
 <div class="lp-flow lp-flow--card lp-flow--vs" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
 <div class="lp-flow-row" data-lp-node="api" data-reveal="fade" style="--d: 0">
@@ -393,7 +394,7 @@
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.
   </p>
-  <div class="flex gap-2 mb-11">
+  <div class="flex gap-2 mb-11" data-md-exclude>
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
   </div>
@@ -404,7 +405,7 @@
 
 <div class="expander-container">
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
       <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
@@ -422,7 +423,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
       <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
@@ -441,7 +442,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
       <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
@@ -460,7 +461,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="MCP & Agent Preview" class="light-image" src="/agent-static.svg" />
       <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
     </div>
