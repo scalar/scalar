@@ -1,28 +1,23 @@
 /**
- * Swap report for `@scalar/code-highlight`.
+ * Swap report against `@scalar/code-highlight`, which this replaced.
  *
- * Answers the three questions a reviewer actually has before flipping
- * `ScalarCodeBlock` over to this package:
+ * Answers the two questions a reviewer has about what the swap changed:
  *
- * 1. Which languages stop being highlighted?
- * 2. What changes visually on the languages that keep working?
- * 3. What does it cost, or save?
+ * 1. Which languages stopped being highlighted?
+ * 2. What changed visually on the languages that kept working?
  *
- * The tests in `test/compat.test.ts` assert the parts that must not change.
- * This prints the parts that do.
+ * The tests in `src/compat/compat.test.ts` assert the parts that must not
+ * change. This prints the parts that do. The "before" side is the lowlight
+ * output frozen in `test/reference.json`, so the report does not depend on
+ * the old package.
  */
 import '../src/all'
-
-import { syntaxHighlight as referenceHighlight } from '@scalar/code-highlight/code'
 
 import { syntaxHighlight } from '../src/compat/index'
 import { standardLanguages, unsupportedLanguages } from '../src/compat/languages'
 import { colorAgreement, colorPerCharacter } from '../test/colors'
-import { referenceLanguages } from '../test/languages'
+import { referenceSample } from '../test/reference'
 import { samples } from '../test/samples'
-
-const BATCHES = 7
-const MIN_MS = 100
 
 /** Distinct token classes and how many spans carry each. */
 const classHistogram = (html: string): Map<string, number> => {
@@ -32,36 +27,6 @@ const classHistogram = (html: string): Map<string, number> => {
     counts.set(cls, (counts.get(cls) ?? 0) + 1)
   }
   return counts
-}
-
-const median = (values: number[]): number => {
-  const sorted = [...values].sort((a, b) => a - b)
-  return sorted[sorted.length >> 1]!
-}
-
-/** Median bytes/second over several batches, warmed up first. */
-const throughput = (run: () => void, bytes: number): number => {
-  for (let i = 0; i < 20; i++) {
-    run()
-  }
-
-  const rates: number[] = []
-  for (let batch = 0; batch < BATCHES; batch++) {
-    let iterations = 0
-    const start = process.hrtime.bigint()
-    let elapsed = 0n
-    do {
-      run()
-      iterations++
-      elapsed = process.hrtime.bigint() - start
-    } while (elapsed < BigInt(MIN_MS) * 1_000_000n)
-    rates.push((bytes * iterations) / (Number(elapsed) / 1e9))
-  }
-  return median(rates)
-}
-
-const mb = (bytesPerSecond: number): string => {
-  return `${(bytesPerSecond / 1e6).toFixed(1)} MB/s`
 }
 
 // --- 1. language coverage --------------------------------------------------
@@ -89,9 +54,8 @@ let totalCompared = 0
 let totalDiffering = 0
 
 for (const [lang, code] of Object.entries(samples)) {
-  const options = { lang, languages: referenceLanguages }
-  const beforeHtml = referenceHighlight(code, options)
-  const afterHtml = syntaxHighlight(code, options)
+  const beforeHtml = referenceSample(lang, code).html
+  const afterHtml = syntaxHighlight(code, { lang })
 
   const before = classHistogram(beforeHtml)
   const after = classHistogram(afterHtml)
@@ -123,9 +87,8 @@ if (process.argv.includes('--detail')) {
   const drift = new Map<string, { chars: number; examples: Set<string> }>()
 
   for (const [lang, code] of Object.entries(samples)) {
-    const options = { lang, languages: referenceLanguages }
-    const a = colorPerCharacter(referenceHighlight(code, options))
-    const b = colorPerCharacter(syntaxHighlight(code, options))
+    const a = colorPerCharacter(referenceSample(lang, code).html)
+    const b = colorPerCharacter(syntaxHighlight(code, { lang }))
 
     // Walk runs of consecutive differing characters so the examples are words,
     // not letters.
@@ -173,31 +136,3 @@ if (process.argv.includes('--detail')) {
     console.log(`| ${from} | ${to} | ${chars} | ${[...examples].join(', ')} |`)
   }
 }
-
-// --- 3. cost --------------------------------------------------------------
-
-const bytes = Object.values(samples).reduce((total, code) => total + code.length, 0)
-const entries = Object.entries(samples).map(([lang, code]) => ({
-  lang,
-  code,
-  options: { lang, languages: referenceLanguages },
-}))
-
-const beforeRate = throughput(() => {
-  for (const { code, options } of entries) {
-    referenceHighlight(code, options)
-  }
-}, bytes)
-
-const afterRate = throughput(() => {
-  for (const { code, options } of entries) {
-    syntaxHighlight(code, options)
-  }
-}, bytes)
-
-console.log('\n## Throughput, whole corpus, source in and HTML out\n')
-console.log('| pipeline | rate |')
-console.log('| --- | ---: |')
-console.log(`| @scalar/code-highlight (lowlight + rehype) | ${mb(beforeRate)} |`)
-console.log(`| @scalar/highlight/compat | ${mb(afterRate)} |`)
-console.log(`\nspeedup: ${(afterRate / beforeRate).toFixed(1)}×`)

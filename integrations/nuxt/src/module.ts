@@ -115,10 +115,10 @@ export default defineNuxtModule<ModuleOptions>({
     // "failed to resolve" warning in setups where it is not hoisted (such as this
     // repo's playground).
     //
-    // The other CommonJS offenders (cookie, extend, debug, highlight.js) are
-    // handled at the source packages — `cookie` was dropped from @scalar/api-client
-    // and the Markdown/highlight stack is bundled into @scalar/code-highlight — so
-    // no shims are needed here for those.
+    // The other CommonJS offenders (cookie, extend, debug) are handled at the
+    // source packages — `cookie` was dropped from @scalar/api-client and the
+    // Markdown stack is bundled into @scalar/markdown — so no shims are needed
+    // here for those.
     if (existsSync(join(_nuxt.options.rootDir, 'node_modules', '@vercel', 'oidc'))) {
       extendViteConfig((config) => {
         config.optimizeDeps ||= {}
