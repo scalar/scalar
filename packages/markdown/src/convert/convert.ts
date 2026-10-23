@@ -12,6 +12,11 @@ import { unified } from 'unified'
  * package bundles the unified stack. A package that imported `unified` itself
  * would ship a second copy of the same parsers next to this one, which is what
  * the API Reference standalone build used to do.
+ *
+ * The folder is deliberately not called `mdast`. `tsc-alias` resolves bare
+ * imports against `dist/`, so a `dist/mdast` folder turned every `from 'mdast'`
+ * in the emitted declarations into `from '../mdast'`, and the mdast types
+ * (`Node`, `Root`) silently became `any` for every consumer.
  */
 
 const markdownParser = unified().use(remarkParse).use(remarkGfm).freeze()
