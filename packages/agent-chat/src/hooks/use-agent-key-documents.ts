@@ -4,11 +4,11 @@ import { onMounted } from 'vue'
 import { useState } from '@/state/state'
 
 export function useAgentKeyDocuments() {
-  const { api, addDocument, mode, getAgentKey } = useState()
+  const { api, addDocument, mode, getAgentKey, getActiveDocumentJson } = useState()
   const { toast } = useToasts()
 
   onMounted(async () => {
-    if (mode !== 'full' || !getAgentKey) {
+    if (mode !== 'full' || !getAgentKey || getActiveDocumentJson) {
       return
     }
 

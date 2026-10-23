@@ -98,8 +98,9 @@ export const configureApiReference = (app: Hono): void => {
       theme: 'default',
       proxyUrl: 'https://proxy.scalar.com',
       persistAuth: true,
-      // Let Ask AI upload the selected source. A shared agent key would restrict
-      // every source to the key's registry documents instead of the displayed API.
+      agent: {
+        key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
+      },
       // Staging and PR previews render the reference UI built from this branch;
       // production explicitly loads the published ESM build from jsDelivr.
       bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
