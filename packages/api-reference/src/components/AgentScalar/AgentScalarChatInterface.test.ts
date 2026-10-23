@@ -121,7 +121,16 @@ describe('AgentScalarChatInterface', () => {
     const uploads: string[] = []
     const requests: string[] = []
     const chats: { registryDocuments: unknown; messages: { parts: unknown }[] }[] = []
-    const metadata = (slug: string) => ({
+    const metadata = (
+      slug: string,
+    ): {
+      id: string
+      namespace: string
+      slug: string
+      title: string
+      currentVersion: string
+      logoUrl: null
+    } => ({
       id: slug,
       namespace: 'share',
       slug,
@@ -214,7 +223,7 @@ describe('AgentScalarChatInterface', () => {
           ],
         ],
       ])
-      expect(requests.includes('https://api.example.com/vector/registry/documents')).toBe(false)
+      expect(requests).not.toContain('https://api.example.com/vector/registry/documents')
     } finally {
       wrapper.unmount()
     }
