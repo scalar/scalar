@@ -241,8 +241,7 @@ Hosted MCP servers are included on the Pro plan ($150 per month, or $125 per mon
 
 ## When not to pick Scalar
 
-- **The server must run inside your own network.** Scalar runs the server at `mcp.scalar.com`. If policy requires the MCP endpoint in your VPC, deploy generated code or the SDK server above yourself.
-- **You need a custom domain for the MCP endpoint.** Custom domains are [not supported for MCP servers yet](/products/agent/authentication/customer-access); the URL is always on `mcp.scalar.com`.
+- **The server must run inside your own network.** Scalar runs the server on its own infrastructure, at `mcp.scalar.com` or at a [custom domain](/products/agent/custom-domains) you point there. If policy requires the MCP endpoint in your VPC, deploy generated code or the SDK server above yourself.
 - **Your tools are not API operations.** If a tool reads local files, drives a browser, or combines several calls with its own logic, write it with the SDK and host it yourself.
 - **You want free hosting.** Hosted MCP is not on the Free plan. Cloudflare Workers, Vercel Hobby, AWS Lambda, and Cloud Run all have free tiers large enough for a prototype, and the container above runs on any of them.
 - **You do not have an OpenAPI document.** Scalar's server is built from one. You can write a document first, which also gives you docs and SDKs, or start from the SDK.
@@ -272,13 +271,13 @@ No. Cloudflare's own documentation now recommends createMcpHandler for new serve
 </scalar-detail>
 
 <scalar-detail title="Can I use a custom domain for a Scalar-hosted MCP server?">
-Not yet. Scalar-hosted MCP servers are always served from mcp.scalar.com. If a custom domain is a requirement, self-host.
+Yes. Open the server in the Scalar dashboard, enter a subdomain you own such as mcp.example.com, and add the CNAME record the dashboard shows at your DNS provider. Scalar verifies the record and provisions the HTTPS certificate. The custom address serves the same tools, environments, and authorization settings as the mcp.scalar.com address, and OAuth discovery works on the custom host. Apex domains are not supported because the setup requires a CNAME.
 </scalar-detail>
 
 ## Related
 
 - **Learn:** [Remote MCP servers](/learn/mcp/remote-mcp-servers) · [MCP OAuth](/learn/mcp/mcp-oauth) · [How to build an MCP server](/learn/mcp/build-mcp-server) · [MCP server security](/learn/mcp/mcp-server-security)
-- **Docs:** [MCP servers](/products/agent/mcp) · [MCP authentication](/products/agent/authentication)
+- **Docs:** [MCP servers](/products/agent/mcp) · [MCP custom domains](/products/agent/custom-domains) · [MCP authentication](/products/agent/authentication)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from your OpenAPI document, with OAuth built in and nothing to deploy
 
 ---
