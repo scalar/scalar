@@ -23,6 +23,8 @@ export function rehypeAlert() {
       }
 
       const head = node.children[headIndex]
+      // Where the alert content begins, which moves past the head paragraph when it holds only the marker
+      let contentIndex = headIndex
 
       if (head?.type !== 'element' || head.tagName !== 'p') {
         return
@@ -66,7 +68,7 @@ export function rehypeAlert() {
             return
           }
 
-          node.children = node.children.slice(nextIndex)
+          contentIndex = nextIndex
         }
       } else if (
         text.value.charAt(end + 1) === '\n' &&
@@ -81,7 +83,7 @@ export function rehypeAlert() {
 
       // Extract content from paragraphs to avoid wrapping in <p> tags
       const contentChildren = []
-      for (let i = headIndex; i < node.children.length; i++) {
+      for (let i = contentIndex; i < node.children.length; i++) {
         const child = node.children[i]
         if (child?.type === 'element' && child.tagName === 'p' && child.children) {
           contentChildren.push(...child.children)

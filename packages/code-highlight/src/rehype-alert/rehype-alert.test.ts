@@ -1,4 +1,5 @@
 import rehypeStringify from 'rehype-stringify'
+import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
@@ -10,6 +11,7 @@ describe('rehype-alert', () => {
   const process = async (markdown: string) => {
     const file = await unified()
       .use(remarkParse)
+      .use(remarkGfm)
       .use(remarkRehype, { allowDangerousHtml: true })
       .use(rehypeAlert)
       .use(rehypeStringify)
@@ -86,6 +88,43 @@ describe('rehype-alert', () => {
     expect(output).toContain('First line')
     expect(output).toContain('Second line')
     expect(output).toContain('Third line')
+  })
+
+  describe('content in its own block after the marker line', () => {
+    const blocks = [
+      {
+        name: 'a fenced code block',
+        markdown: '> ```sh\n> rm -rf ./build\n> ```',
+        expected: '<pre><code class="language-sh">',
+      },
+      { name: 'a paragraph', markdown: '>\n> A separate paragraph.', expected: 'A separate paragraph.' },
+      { name: 'a list', markdown: '> - first\n> - second', expected: '<li>first</li>' },
+      { name: 'a table', markdown: '> | planet |\n> | --- |\n> | Mars |', expected: '<td>Mars</td>' },
+    ]
+
+    for (const type of ['note', 'tip', 'important', 'warning', 'caution', 'success']) {
+      for (const block of blocks) {
+        it(`keeps ${block.name} in a ${type} alert`, async () => {
+          const output = await process(`> [!${type.toUpperCase()}]\n${block.markdown}`)
+
+          expect(output).toContain(`<div class="markdown-alert markdown-alert-${type}">`)
+          expect(output).toContain(block.expected)
+        })
+      }
+    }
+
+    it('keeps every block, not only the last', async () => {
+      const output = await process('> [!NOTE]\n>\n> First paragraph.\n>\n> ```js\n> const answer = 42\n> ```')
+
+      expect(output).toContain('First paragraph.')
+      expect(output).toContain('const answer = 42')
+    })
+
+    it('does not repeat the marker in the content', async () => {
+      const output = await process('> [!WARNING]\n> ```sh\n> rm -rf ./build\n> ```')
+
+      expect(output).not.toContain('[!WARNING]')
+    })
   })
 
   it('preserves HTML structure in alert content', async () => {
