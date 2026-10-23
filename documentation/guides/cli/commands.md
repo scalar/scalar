@@ -35,6 +35,7 @@ Manage Scalar Docs projects.
 - [`scalar project publish`](commands/project.md#publish): Publish a new build of a Scalar project
 - [`scalar project rollback`](commands/project.md#rollback): Roll the live deployment back to a previously deployed build
 - [`scalar project deployments list`](commands/project.md#deployments-list): List production deployments for a project
+- [`scalar project deployments get`](commands/project.md#deployments-get): Inspect an existing build in the selected team without resubmitting
 - [`scalar project upgrade`](commands/project.md#upgrade): Upgrade a Scalar Docs configuration
 
 ## [scalar registry](commands/registry.md)

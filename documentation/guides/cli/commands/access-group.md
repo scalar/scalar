@@ -27,6 +27,7 @@ scalar access-group list [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## create
 
@@ -49,6 +50,7 @@ scalar access-group create [options] <slug>
 | `--name <name>` | Display name. |
 | `--domain <domains...>` | Allowed email domains. |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -69,6 +71,7 @@ scalar access-group get [options] <slug>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## update
 
@@ -91,6 +94,7 @@ scalar access-group update [options] <slug>
 | `--name <name>` | New display name. |
 | `--new-slug <slug>` | New access group slug. |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## delete
 
@@ -112,6 +116,7 @@ scalar access-group delete [options] <slug>
 | --- | --- |
 | `-y, --yes` | Confirm deletion without prompting. |
 | `--json` | Print the result as JSON (requires --yes). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## domain add
 
@@ -133,6 +138,7 @@ scalar access-group domain add [options] <slug> <domain>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## domain remove
 
@@ -154,3 +160,4 @@ scalar access-group domain remove [options] <slug> <domain>
 | Option | Description |
 | --- | --- |
 | `--json` | Print the result as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
