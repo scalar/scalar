@@ -532,21 +532,81 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
-  it('uses a uuid example for version-specific uuid formats', () => {
-    for (const format of ['uuid', 'uuid1', 'uuid3', 'uuid4', 'uuid5']) {
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
+    for (const emptyString of [undefined, '', '…']) {
       const result = getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          format,
-        }),
-        {
-          emptyString: '…',
-        },
+        coerceValue(SchemaObjectSchema, { type: 'string', format: `uuid${version}` }),
+        { emptyString },
       )
-
-      expect(result).toBe('123e4567-e89b-12d3-a456-426614174000')
+      expect(result).toEqual(
+        expect.stringMatching(
+          new RegExp(`^[0-9a-f]{8}-[0-9a-f]{4}-${version}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`),
+        ),
+      )
     }
   })
+
+  it.each([
+    ['duration', 'P1D'],
+    ['email', 'hello@example.com'],
+    ['idn-email', 'jane.doe@example.com'],
+    ['hostname', 'example.com'],
+    ['idn-hostname', 'example.com'],
+    ['ipv4', '192.0.2.1'],
+    ['ipv6', '2001:db8::1'],
+    ['uri', 'https://example.com'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', '../folder'],
+    ['iri-reference', '/entity/1'],
+    ['uri-template', 'https://example.com/{id}'],
+    ['json-pointer', '/nested/objects'],
+    ['relative-json-pointer', '1/nested/objects'],
+    ['regex', '[a-z]'],
+    ['uuid', '123e4567-e89b-12d3-a456-426614174000'],
+  ])('generates a formatted %s example regardless of the plain string fallback', (format, expected) => {
+    for (const emptyString of [undefined, '', '…']) {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })).toBe(
+        expected,
+      )
+    }
+  })
+
+  it('generates a UTC time including its timezone', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'time' }))
+    expect(result).toEqual(expect.stringMatching(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/))
+  })
+
+  it.each([
+    ['password', '', 'super-secret'],
+    ['binary', '@filename', '@filename'],
+    ['object-id', '', '6592008029c8c3e4dc76256c'],
+    ['custom-format', '', '…'],
+    ['uuid9', '', '…'],
+    ['toString', '', '…'],
+    ['__proto__', '', '…'],
+    ['', '', '…'],
+  ])('preserves fallback behavior for %s', (format, empty, populated) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))).toBe(empty)
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString: '…' }),
+    ).toBe(populated)
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'preserves authored formatted values from %s',
+    (keyword) => {
+      const value = 'author@example.org'
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'email',
+            [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+          }),
+        ),
+      ).toBe(value)
+    },
+  )
 
   it('uses variables as an example value', () => {
     expect(
