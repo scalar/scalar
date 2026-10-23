@@ -3,7 +3,7 @@
  * `Writer`, so the tag allowlist applies to Markdown output as well as raw HTML.
  */
 import type { Block, ListItem, Root } from './blocks'
-import { Writer, escapeAttr, escapeText, isSafeUrl } from './html'
+import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl } from './html'
 import type { Inline, InlineParser } from './inline'
 
 export type Highlighter = (code: string, lang: string | null) => { html: string; lang?: string } | null | undefined
@@ -58,8 +58,9 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
         w.raw(n.value)
         break
       case 'link': {
-        const href = c.o.unsafe || isSafeUrl(n.url, 'href') ? attr('href', n.url) : ''
-        const id = w.open('a', href + attr('title', n.title))
+        const safe = c.o.unsafe || isSafeUrl(n.url, 'href')
+        const external = safe && !c.o.unsafe && isExternal(n.url) ? ' rel="nofollow" target="_blank"' : ''
+        const id = w.open('a', (safe ? attr('href', n.url) : '') + attr('title', n.title) + external)
         inlines(n.children, c)
         w.close(id)
         break

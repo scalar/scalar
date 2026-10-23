@@ -12,6 +12,7 @@ export const OUT = fileURLToPath(new URL('../.out/', import.meta.url))
 mkdirSync(OUT, { recursive: true })
 export const BASELINE = OUT + 'baseline.mjs'
 export const BASELINE_HIGHLIGHTED = OUT + 'baseline-highlighted.mjs'
+export const BASELINE_NO_REPARSE = OUT + 'baseline-no-reparse.mjs'
 export const PROTOTYPE = OUT + 'prototype.mjs'
 export const CORPUS = OUT + 'corpus.json'
 export const GFM_SPEC = OUT + 'gfm-spec.txt'

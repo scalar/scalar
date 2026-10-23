@@ -112,7 +112,8 @@ const acceptsLines = (k: Kind): boolean => k === 'paragraph' || k === 'code' || 
 
 /** Splits a table row into cells on unescaped pipes. */
 const splitRow = (line: string): string[] => {
-  let s = line.trim()
+  // GFM trims spaces and tabs only: a no-break space is cell content.
+  let s = line.replace(/^[ \t]+|[ \t]+$/g, '')
   if (s.startsWith('|')) s = s.slice(1)
   if (s.endsWith('|') && !s.endsWith('\\|')) s = s.slice(0, -1)
   const cells: string[] = []
@@ -123,11 +124,11 @@ const splitRow = (line: string): string[] => {
       cell += '|'
       i++
     } else if (c === '|') {
-      cells.push(cell.trim())
+      cells.push(cell.replace(/^[ \t]+|[ \t]+$/g, ''))
       cell = ''
     } else cell += c
   }
-  cells.push(cell.trim())
+  cells.push(cell.replace(/^[ \t]+|[ \t]+$/g, ''))
   return cells
 }
 

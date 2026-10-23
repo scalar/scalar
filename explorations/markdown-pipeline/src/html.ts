@@ -125,7 +125,17 @@ export const isSafeUrl = (raw: string, attr: string): boolean => {
   return allowed.some((protocol) => colon === protocol.length && url.startsWith(protocol))
 }
 
-const isExternal = (href: string): boolean => /^https?:/i.test(href.replace(/^[\x00-\x20]+/, ''))
+/**
+ * `rehype-external-links`: an absolute URL with an `http` or `https` scheme (case-sensitive, as
+ * there), or a protocol-relative `//` URL. Character references are decoded first, as in hast.
+ */
+export const isExternal = (raw: string): boolean => {
+  const url = decodeNumeric(raw.replace(/\uffff/g, '&')).replace(/&amp;/g, '&')
+  if (/^[a-zA-Z][a-zA-Z\d+\-.]*?:/.test(url) && !/^[a-zA-Z]:\\/.test(url)) {
+    return ['http', 'https'].includes(url.slice(0, url.indexOf(':')))
+  }
+  return url.startsWith('//')
+}
 
 /** Elements the HTML parser reopens after they were closed implicitly ("active formatting elements"). */
 const FORMATTING = new Set([
@@ -216,11 +226,7 @@ export class Writer {
     this.closeP(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     const hidden = !this.allowed(tag)
-    if (!hidden) {
-      if (tag === 'a' && !this.options.unsafe && /\shref="https?:/i.test(attrs))
-        attrs += ' rel="nofollow" target="_blank"'
-      this.out += `<${tag}${attrs}>`
-    }
+    if (!hidden) this.out += `<${tag}${attrs}>`
     if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
     if (tag === 'p') this.paragraphs.set(id, hidden)
     return id
@@ -232,7 +238,7 @@ export class Writer {
     const pending = this.pending
     this.pending = []
     for (const f of pending) {
-      this.out += `<${f.tag}${f.attrs ?? ''}>`
+      if (!f.hidden) this.out += `<${f.tag}${f.attrs ?? ''}>`
       this.stack.push({ ...f, id: this.nextId++ })
     }
   }
@@ -286,7 +292,7 @@ export class Writer {
       const f = this.stack[i]!
       if (!f.hidden) this.out += `</${f.tag}>`
       if (MARKERS.has(f.tag)) implicit.length = 0
-      else if (i > at && !f.hidden && FORMATTING.has(f.tag)) implicit.unshift(f)
+      else if (i > at && FORMATTING.has(f.tag)) implicit.unshift(f)
     }
     if (MARKERS.has(this.stack[at]?.tag ?? '')) this.pending = []
     this.stack.length = at
@@ -347,6 +353,9 @@ export class Writer {
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     if (!this.allowed(tag)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
+      // Today's pipeline parses first and sanitizes after, so a dropped tag still shapes the tree
+      // (`</aside>` closes the paragraph inside it). A hidden frame keeps that, and writes nothing.
+      else if (!VOID.has(tag) && !RAW_TEXT.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: true })
       return
     }
     let s = ''
@@ -384,7 +393,7 @@ export class Writer {
       if (tag === this.skip.tag && --this.skip.depth === 0) this.skip = null
       return
     }
-    const at = this.stack.findLastIndex((f) => f.tag === tag && !f.hidden)
+    const at = this.stack.findLastIndex((f) => f.tag === tag)
     if (at !== -1) return this.popTo(at)
     const waiting = this.pending.findLastIndex((f) => f.tag === tag)
     if (waiting !== -1) this.pending.splice(waiting, 1)
