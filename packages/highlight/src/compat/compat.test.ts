@@ -7,9 +7,10 @@
  * a drop-in has to pass the tests the thing it replaces passes.
  * Second, a differential run against what the lowlight pipeline rendered for
  * the shared sample corpus, because "it compiles and the four tests pass" is
- * not the same as "the page looks the same". That package has since been
- * deleted, so its output is frozen in `test/reference.json`; see
- * `test/reference.ts` for what that means when a sample changes.
+ * not the same as "the page looks the same". That package is no longer used
+ * and is due to be removed, so its output is frozen in `test/reference.json`
+ * rather than imported; see `test/reference.ts` for what that means when a
+ * sample changes.
  *
  * What parity means, precisely:
  *
@@ -346,7 +347,7 @@ describe('colour agreement with code.css', () => {
 
 describe('compat surface', () => {
   it('keeps the standardLanguages key set, so StandardLanguageKey is unchanged', () => {
-    // Compared against the key set the deleted package exported, so a name
+    // Compared against the key set the old package exported, so a name
     // dropped from `standardLanguages` here would narrow `StandardLanguageKey`
     // and fail this test rather than break a consumer's types.
     expect(Object.keys(standardLanguages).sort()).toEqual([...REFERENCE_STANDARD_LANGUAGES].sort())

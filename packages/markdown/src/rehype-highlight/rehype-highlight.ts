@@ -4,6 +4,8 @@ import { toText } from 'hast-util-to-text'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
+import { guessLanguage } from './guess-language'
+
 declare module 'vfile' {
   interface DataMap {
     /**
@@ -25,9 +27,11 @@ type HighlightOptions = {
  * Emits the same `hljs` / `hljs-*` classes the lowlight version did, so
  * `code.css` styles the result without changes.
  *
- * There is no language detection: a fence without a language is left as plain
- * text. highlight.js guessed one, and the guess was often wrong, so an
- * unlabeled block rendering uncoloured is the more honest result.
+ * A fence without a language is highlighted only when `guessLanguage` is sure
+ * what it is (JSON, markup or a curl command), and is plain text otherwise.
+ * highlight.js scored every grammar and nearly always picked one, often the
+ * wrong one, so an unlabeled block rendering uncoloured is the more honest
+ * default.
  *
  * Only registered grammars highlight. This plugin registers none itself, so a
  * page downloads just the grammars its code blocks use: a block whose grammar
@@ -65,20 +69,29 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
         }
       }
 
-      if (!lang) {
+      const code = toText(parent)
+      const target = lang || guessLanguage(code)
+
+      if (!target) {
         return
       }
 
+      // A guess gets the class a labeled fence would have, so `code.css` styles
+      // it the same way and `rehype-remark` writes the language back into the fence.
+      if (!lang) {
+        node.properties.className.push(`language-${target}`)
+      }
+
       try {
-        const children = toHast(toText(parent), lang)
+        const children = toHast(code, target)
 
         if (children === null) {
           file.data.missingLanguages ??= []
-          if (!file.data.missingLanguages.includes(lang)) {
-            file.data.missingLanguages.push(lang)
+          if (!file.data.missingLanguages.includes(target)) {
+            file.data.missingLanguages.push(target)
           }
 
-          file.message(`Cannot highlight as \`${lang}\`, it's not registered`, {
+          file.message(`Cannot highlight as \`${target}\`, it's not registered`, {
             ancestors: [parent, node],
             place: node.position,
             ruleId: 'missing-language',

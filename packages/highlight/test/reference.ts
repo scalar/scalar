@@ -2,12 +2,13 @@
  * What the lowlight pipeline in `@scalar/code-highlight` rendered, frozen.
  *
  * The compat layer exists to replace that package, and the differential tests
- * used to import it and run both pipelines side by side. Once nothing in the
- * repository used it any more it was deleted, so its output was captured here
- * from the last version of it, over the same sample corpus and edge cases.
+ * used to import it and run both pipelines side by side. Nothing in the
+ * repository uses it any more and it is due to be removed, so its output was
+ * captured here, over the same sample corpus and edge cases, and these tests no
+ * longer depend on it.
  *
- * The reference can no longer be regenerated, so each entry carries a hash of
- * the source it was rendered from. Editing a sample in `samples.ts` would
+ * The reference is meant to stay frozen, so each entry carries a hash of the
+ * source it was rendered from. Editing a sample in `samples.ts` would
  * otherwise compare our output for the new source against lowlight's for the
  * old one, which fails in a way that looks like a grammar bug. A stale entry
  * throws instead, and the fix is a deliberate choice: revert the sample, or
@@ -51,9 +52,7 @@ export const REFERENCE_STANDARD_LANGUAGES: readonly string[] = fixture.standardL
 const lookup = (table: Record<string, Rendered>, key: string, code: string): Rendered => {
   const entry = table[key]
   if (!entry) {
-    throw new Error(
-      `No lowlight reference for ${JSON.stringify(key)}. It cannot be regenerated, see test/reference.ts.`,
-    )
+    throw new Error(`No lowlight reference for ${JSON.stringify(key)}. The reference is frozen, see test/reference.ts.`)
   }
   if (entry.hash !== hashSource(code)) {
     throw new Error(

@@ -1,5 +1,5 @@
 /**
- * Swap report against the deleted `@scalar/code-highlight`.
+ * Swap report against `@scalar/code-highlight`, which this replaced.
  *
  * Answers the two questions a reviewer has about what the swap changed:
  *
@@ -8,7 +8,8 @@
  *
  * The tests in `src/compat/compat.test.ts` assert the parts that must not
  * change. This prints the parts that do. The "before" side is the lowlight
- * output frozen in `test/reference.json`, since the package itself is gone.
+ * output frozen in `test/reference.json`, so the report does not depend on
+ * the old package.
  */
 import '../src/all'
 

@@ -7,7 +7,7 @@
 
 Markdown to HTML for Scalar projects: GitHub Flavored Markdown, GitHub alerts, sanitizing, and syntax highlighting through [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight).
 
-This is the Markdown half of the former `@scalar/code-highlight`. The code half lives in `@scalar/highlight/compat`.
+It replaces the Markdown half of `@scalar/code-highlight`. The code half's replacement is `@scalar/highlight/compat`.
 
 ## Installation
 
@@ -29,7 +29,7 @@ Code blocks come out with the same `hljs` / `hljs-*` classes highlight.js uses, 
 import '@scalar/highlight/compat/code.css'
 ```
 
-A fence without a language is left as plain text. There is no language detection.
+A fence without a language is highlighted only when its language is unmistakable: JSON that parses, HTML or XML markup, or a `curl` command. Anything else is left as plain text. There is no general language detection, because guessing wrong is worse than not colouring at all.
 
 ### Loading grammars
 

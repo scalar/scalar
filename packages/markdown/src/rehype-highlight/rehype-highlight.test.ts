@@ -37,6 +37,41 @@ describe('rehypeHighlight', () => {
     expect(html).toContain('<code class="hljs">const answer = 42\n</code>')
   })
 
+  it('highlights a fence without a language when the guess is certain', async () => {
+    await loadLanguage('json')
+    const html = String(render('```\n{"answer": 42}\n```'))
+
+    expect(html).toContain('<code class="hljs language-json">')
+    expect(html).toContain('<span class="hljs-number">42</span>')
+  })
+
+  it('guesses indented code blocks too', async () => {
+    await loadLanguage('html')
+    const html = String(render('Response:\n\n    <div class="answer">42</div>'))
+
+    expect(html).toContain('<code class="hljs language-html">')
+    expect(html).toContain('<span class="hljs-name">div</span>')
+  })
+
+  it('reports a guessed language whose grammar is not loaded yet', async () => {
+    // No other test here loads curl, so it is not registered yet
+    const markdown = '```\ncurl https://example.com\n```'
+    const before = render(markdown)
+
+    expect(String(before)).toContain('<code class="hljs language-curl">curl https://example.com\n</code>')
+    expect(before.data.missingLanguages).toEqual(['curl'])
+
+    await loadLanguage('curl')
+
+    expect(render(markdown).data.missingLanguages).toBeUndefined()
+  })
+
+  it('keeps the language a fence names over a guess', () => {
+    const html = String(render('```text\n{"answer": 42}\n```'))
+
+    expect(html).toContain('<code class="hljs language-text">{"answer": 42}\n</code>')
+  })
+
   it('leaves a fence in an unknown language uncoloured and reports it', () => {
     const file = render('```brainfuck\n+[----->+++<]>+.\n```')
 

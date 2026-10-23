@@ -69,6 +69,11 @@
       "additionalBranchPrefix": "build-tooling"
     },
     {
+      "description": "Packages - Code Highlight",
+      "matchFileNames": ["packages/code-highlight/**"],
+      "additionalBranchPrefix": "code-highlight"
+    },
+    {
       "description": "Packages - Components",
       "matchFileNames": ["packages/components/**"],
       "additionalBranchPrefix": "components"
