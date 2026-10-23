@@ -31,6 +31,34 @@ import '@scalar/highlight/compat/code.css'
 
 A fence without a language is left as plain text. There is no language detection.
 
+### Loading grammars
+
+This package registers no grammars itself, so a page only downloads the languages it shows. A code block whose grammar is not registered renders as plain text. To highlight everything synchronously, register every grammar up front:
+
+```ts
+import { languages, registerLanguage } from '@scalar/highlight/all'
+
+registerLanguage(...languages)
+```
+
+Or load only the languages a document uses, and render again once they arrive:
+
+```ts
+import { loadLanguage } from '@scalar/highlight/lazy'
+import { htmlFromMarkdown } from '@scalar/markdown'
+
+const missing: string[] = []
+let html = htmlFromMarkdown(markdown, { onMissingLanguage: (lang) => missing.push(lang) })
+
+if (missing.length) {
+  // Unknown languages reject, and those blocks simply stay plain text
+  await Promise.allSettled(missing.map((lang) => loadLanguage(lang)))
+  html = htmlFromMarkdown(markdown)
+}
+```
+
+Inside a unified pipeline, `rehypeHighlight` lists the same languages in `file.data.missingLanguages`.
+
 ### Other exports
 
 | export | purpose |
