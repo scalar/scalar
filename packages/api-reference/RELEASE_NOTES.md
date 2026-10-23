@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.76.0 (2026-10-23)
+
+### AsyncAPI message examples and optional URL routing
+
+This release improves AsyncAPI documentation with operation-level payload examples, server-variable examples, and flexible action slots. You can now disable URL synchronization to keep navigation internal when embedding the reference.
+
+- Display AsyncAPI message and reply payload examples in dark code cards with message selection and schema-generated fallbacks
+- Add urlRouting: false to keep API reference navigation internal without changing the host page URL
+- Show server-variable examples in a popup with copy support, including examples from referenced variables
+- Add Copy as Markdown buttons for AsyncAPI channels and operations, with customizable action slots
+- List AsyncAPI operations beside channel details instead of repeating channel navigation at the tag level
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1760)
+
 ## 1.75.1 (2026-10-20)
 
 ### Accessibility improvements and AsyncAPI refinements

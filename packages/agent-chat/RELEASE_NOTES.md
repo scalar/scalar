@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.46 (2026-10-23)
+
+### Polish and bug fixes shipped
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01246)
+
 ## 0.12.45 (2026-10-20)
 
 ### AsyncAPI support in Ask AI
