@@ -164,7 +164,6 @@ scalar document mock [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the Mock Server. |
 
 ## serve
@@ -187,7 +186,6 @@ scalar document serve [options] [file|url]
 | --- | --- |
 | `-c, --config <file>` | JSON file with API Reference configuration. |
 | `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the API Reference server. |
 
 ## share
@@ -236,7 +234,6 @@ scalar document void [options]
 
 | Option | Description |
 | --- | --- |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the request-mirroring server. |
 
 ## lint
