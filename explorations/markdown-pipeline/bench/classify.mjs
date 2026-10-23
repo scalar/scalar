@@ -27,17 +27,26 @@ const noReparse = await import(BASELINE_NO_REPARSE)
  * The difference disappears when the current pipeline skips re-parsing raw HTML fragments for
  * inline Markdown: that step, which parses each fragment alone, is the cause.
  */
+/**
+ * The build without that step also lacks inline Markdown inside raw HTML (that step is how the
+ * current pipeline does it), so structure is compared with inline formatting and its markers removed.
+ */
+const structure = (html) =>
+  html
+    .replace(/<\/?(strong|em|code|del)>/g, '')
+    .replace(/[*_`~]/g, '')
+    .replace(/\s+/g, ' ')
 const fromReparse = (d) => {
   try {
-    return d.diffs.every(
-      (x) =>
-        normalize(
-          noReparse.htmlFromMarkdown(
-            d.markdown,
-            x.options === 'withImages' ? { removeTags: [] } : { removeTags: ['img', 'picture'] },
-          ),
-        ) === x.prototype,
-    )
+    return d.diffs.every((x) => {
+      const variant = normalize(
+        noReparse.htmlFromMarkdown(
+          d.markdown,
+          x.options === 'withImages' ? { removeTags: [] } : { removeTags: ['img', 'picture'] },
+        ),
+      )
+      return variant === x.prototype || structure(variant) === structure(x.prototype)
+    })
   } catch {
     // Without that step, parse5 throws on some inputs, so it is not the cause there.
     return false
@@ -62,6 +71,21 @@ const KNOWN = {
     current.replace(/\s/g, '') === prototype.replace(/\s/g, '') && spaces(current) < spaces(prototype),
   /** An alert followed by a list renders with empty content. */
   'empty alert': ({ current }) => /markdown-alert-content">\n<\/div>/.test(current),
+  /** An alert whose marker stands alone skips its first block of content. */
+  'alert skips first block': ({ current, prototype }) => {
+    const content = (html) =>
+      [...html.matchAll(/markdown-alert-content">([\s\S]*?)<\/div>\n<\/div>/g)].map((m) =>
+        m[1].replace(/<[^>]+>|\s/g, ''),
+      )
+    const a = content(current)
+    const b = content(prototype)
+    return (
+      a.length > 0 &&
+      a.length === b.length &&
+      a.some((x, i) => x !== b[i] && b[i].endsWith(x)) &&
+      a.every((x, i) => b[i].endsWith(x))
+    )
+  },
   /** `rehype-format` puts a space before an inline image that has none in the source. */
   'space before image': ({ current, prototype }) =>
     current.replace(/ (?=<img)/g, '') === prototype.replace(/ (?=<img)/g, '') &&

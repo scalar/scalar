@@ -167,6 +167,18 @@ const SPECIAL = new Set(
 
 type Frame = { tag: string; id: number; hidden: boolean; attrs?: string }
 
+const TABLE_PART_CLOSES: Record<string, string[]> = {
+  td: ['td', 'th'],
+  th: ['td', 'th'],
+  tr: ['tr'],
+  tbody: ['tbody', 'thead', 'tfoot'],
+  thead: ['tbody', 'thead', 'tfoot'],
+  tfoot: ['tbody', 'thead', 'tfoot'],
+}
+
+/** hast maps attribute names to properties case-insensitively, so JSX-style names become HTML ones. */
+const ATTRIBUTE_ALIASES: Record<string, string> = { classname: 'class', htmlfor: 'for' }
+
 export type WriterOptions = {
   tags: Set<string>
   /** Renders text found directly inside `INLINE_MARKDOWN_TAGS` in raw HTML. */
@@ -240,6 +252,33 @@ export class Writer {
     for (const f of pending) {
       if (!f.hidden) this.out += `<${f.tag}${f.attrs ?? ''}>`
       this.stack.push({ ...f, id: this.nextId++ })
+    }
+  }
+
+  /**
+   * A new `<a>` ends the previous one: an open one is closed, and one waiting to be reopened is
+   * forgotten (the parser's adoption agency step for `a`).
+   */
+  private closeLink(): void {
+    this.pending = this.pending.filter((f) => f.tag !== 'a')
+    const at = this.stack.findLastIndex((f) => f.tag === 'a')
+    if (at !== -1 && this.stack.slice(at + 1).every((f) => !MARKERS.has(f.tag))) {
+      this.popTo(at)
+      this.pending = this.pending.filter((f) => f.tag !== 'a')
+    }
+  }
+
+  /**
+   * Table parts may omit their end tags: a cell closes the open cell, a row the open row, and a
+   * section the open section, within the nearest table, as the HTML parser does.
+   */
+  private closeTablePart(tag: string): void {
+    const closes = TABLE_PART_CLOSES[tag]
+    if (!closes) return
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.tag === 'table') return
+      if (closes.includes(f.tag)) return this.popTo(i)
     }
   }
 
@@ -343,6 +382,8 @@ export class Writer {
 
   /** @internal */
   onStart(tag: string, attrs: [string, string | null][]): void {
+    // The HTML parser reads `<image>` as `<img>`.
+    if (tag === 'image') tag = 'img'
     if (this.skip) {
       if (tag === this.skip.tag && !VOID.has(tag)) this.skip.depth++
       return
@@ -350,6 +391,8 @@ export class Writer {
     // Before the allowlist: the browser does this even for a tag the sanitizer then drops.
     this.closeListItem(tag)
     this.closeP(tag)
+    if (tag === 'a') this.closeLink()
+    this.closeTablePart(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     if (!this.allowed(tag)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
@@ -361,7 +404,8 @@ export class Writer {
     let s = ''
     const seen = new Set<string>()
     const tagAttrs = TAG_ATTRS[tag]
-    for (const [name, value] of attrs) {
+    for (const [raw, value] of attrs) {
+      const name = ATTRIBUTE_ALIASES[raw] ?? raw
       if (seen.has(name)) continue
       seen.add(name)
       if (!GLOBAL_ATTRS.has(name) && !tagAttrs?.includes(name)) continue
