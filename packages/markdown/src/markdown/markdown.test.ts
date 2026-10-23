@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { loadLanguage } from '@scalar/highlight/lazy'
+import { describe, expect, it, vi } from 'vitest'
 
 import { htmlFromMarkdown } from './markdown'
 
@@ -90,7 +91,8 @@ describe('htmlFromMarkdown', () => {
     )
   })
 
-  it('highlights fenced code blocks the same way on repeated calls', () => {
+  it('highlights fenced code blocks the same way on repeated calls', async () => {
+    await loadLanguage('sh')
     const markdown = '```sh\ncurl "https://api.tailscale.com/api/v2/tailnet/-/devices"\n```'
 
     const first = htmlFromMarkdown(markdown)
@@ -99,6 +101,34 @@ describe('htmlFromMarkdown', () => {
     expect(second).toEqual(first)
     expect(first).toContain('class="hljs language-sh custom-scroll"')
     expect(first).toContain('<span class="hljs-string">')
+  })
+
+  it('reports the languages it could not highlight yet', async () => {
+    // No other test here loads Python, so it is not registered yet
+    const markdown = '```py\nprint(1)\n```\n\n<pre><code class="language-py">print(2)</code></pre>'
+    const onMissingLanguage = vi.fn()
+
+    const before = htmlFromMarkdown(markdown, { onMissingLanguage })
+
+    expect(before).toContain('<code class="hljs language-py custom-scroll">print(1)\n</code>')
+    // Raw HTML blocks count too, and each language is reported once
+    expect(onMissingLanguage.mock.calls).toEqual([['py']])
+
+    await loadLanguage('py')
+    onMissingLanguage.mockClear()
+
+    const after = htmlFromMarkdown(markdown, { onMissingLanguage })
+
+    expect(after).toContain('<span class="hljs-built_in">print</span>')
+    expect(onMissingLanguage).not.toHaveBeenCalled()
+  })
+
+  it('reports missing languages when a transform bypasses the cached pipeline', () => {
+    const onMissingLanguage = vi.fn()
+
+    htmlFromMarkdown('```not-a-language\nx\n```', { transform: (node) => node, onMissingLanguage })
+
+    expect(onMissingLanguage).toHaveBeenCalledWith('not-a-language')
   })
 
   // HTML Sanitization Tests

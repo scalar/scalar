@@ -1,9 +1,20 @@
 import { type VueWrapper, flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { createSSRApp, h, ref } from 'vue'
+import { renderToString } from 'vue/server-renderer'
+
+import { preloadGrammars } from '@/helpers/load-grammar'
 
 import ScalarCopyButton from '../ScalarCopy/ScalarCopyButton.vue'
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
+
+// Wraps the real loader so tests can count downloads while grammars still load for real
+vi.mock('@scalar/highlight/lazy', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@scalar/highlight/lazy')>()
+  return { ...actual, loadLanguage: vi.fn(actual.loadLanguage) }
+})
+
+const { loadLanguage } = await import('@scalar/highlight/lazy')
 
 const mockWriteText = vi.fn().mockResolvedValue(undefined)
 const mockCopy = vi.fn()
@@ -106,6 +117,9 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
+    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
+    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -148,6 +162,9 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
+    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
+    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -176,6 +193,96 @@ describe('ScalarCodeBlock', () => {
     <span class="hljs-punctuation">}</span>
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code>`)
+  })
+
+  describe('loading grammars on demand', () => {
+    it('starts one download for many blocks in the same language', async () => {
+      // No other test highlights Lua, so its grammar is not loaded yet
+      const blocks = Array.from({ length: 5 }, (_, index) =>
+        mount(ScalarCodeBlock, { props: { content: `local n = ${index}`, lang: 'lua' } }),
+      )
+
+      await vi.waitFor(() => {
+        for (const block of blocks) {
+          expect(block.get('code').html()).toContain('hljs-keyword')
+        }
+      })
+      expect(vi.mocked(loadLanguage).mock.calls.filter(([name]) => name === 'lua')).toHaveLength(1)
+    })
+
+    it('highlights on the first render when the grammar was preloaded', async () => {
+      // No other test highlights Ruby, so only the preload can have loaded it
+      await preloadGrammars(['ruby'])
+
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'puts 1', lang: 'ruby' } })
+
+      expect(wrapper.get('code').html()).toContain('hljs-number')
+    })
+
+    it('stays highlighted when the content changes but the language does not', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'const a = 1', lang: 'javascript' } })
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+
+      await wrapper.setProps({ content: 'const b = 2' })
+
+      // Synchronously, with no plain-text frame in between
+      expect(wrapper.get('code').html()).toContain('hljs-keyword')
+      expect(wrapper.get('code').text()).toBe('const b = 2')
+    })
+
+    it('renders highlighted markup on the server for a grammar that was not loaded', async () => {
+      // No other test highlights Swift, so the server render has to wait for its grammar
+      const html = await renderToString(
+        createSSRApp({ render: () => h(ScalarCodeBlock, { content: 'let x = 1', lang: 'swift' }) }),
+      )
+
+      expect(html).toContain('<span class="hljs-keyword">let</span>')
+    })
+
+    it('does not try to load plain text or unknown languages', async () => {
+      vi.mocked(loadLanguage).mockClear()
+
+      mount(ScalarCodeBlock, { props: { content: 'x', lang: 'plaintext' } })
+      mount(ScalarCodeBlock, { props: { content: 'x', lang: 'not-a-language' } })
+      await flushPromises()
+
+      expect(loadLanguage).not.toHaveBeenCalled()
+    })
+
+    it('renders plain text first and highlights once the grammar has loaded', async () => {
+      // No other test highlights Python, so its grammar is not loaded yet
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'def greet(): pass', lang: 'python' } })
+
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-python">def greet(): pass</code>')
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').text()).toBe('def greet(): pass')
+    })
+
+    it('loads the grammar for an alias', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'fn main() {}', lang: 'rs' } })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').classes()).toContain('language-rs')
+    })
+
+    it('loads the grammar for a language it switches to', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'SELECT 1', lang: 'plaintext' } })
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-plaintext">SELECT 1</code>')
+
+      await wrapper.setProps({ lang: 'sql' })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+    })
+
+    it('leaves a language without a grammar as escaped plain text', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: '<b>bold</b>', lang: 'not-a-language' } })
+      await flushPromises()
+
+      expect(wrapper.get('code').html()).toBe(
+        '<code class="hljs language-not-a-language">&lt;b&gt;bold&lt;/b&gt;</code>',
+      )
+    })
   })
 
   describe('ScalarCodeBlockCopy', () => {

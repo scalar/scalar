@@ -1,18 +1,18 @@
-import { languages, registerLanguage } from '@scalar/highlight/all'
 import { toHast } from '@scalar/highlight/compat'
 import type { Element, Root } from 'hast'
 import { toText } from 'hast-util-to-text'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
-/**
- * Registers every bundled grammar once, when this module loads.
- *
- * A bare `import '@scalar/highlight/all'` would register them too, but a
- * side-effect-only import of an external package is what a library build is
- * allowed to drop. A named import keeps a binding the bundler can see used.
- */
-registerLanguage(...languages)
+declare module 'vfile' {
+  interface DataMap {
+    /**
+     * Languages of the code blocks that rendered as plain text because no
+     * grammar was registered for them, in highlight.js vocabulary.
+     */
+    missingLanguages: string[]
+  }
+}
 
 type HighlightOptions = {
   /** Extra class name(s) to add to highlighted `<code>` elements (optional) */
@@ -27,6 +27,11 @@ type HighlightOptions = {
  *
  * A fence without a language renders as plain text. highlight.js scored every
  * grammar and nearly always picked one, often the wrong one, so we do not guess.
+ *
+ * Only registered grammars highlight. This plugin registers none itself, so a
+ * page downloads just the grammars its code blocks use: a block whose grammar
+ * is missing renders as plain text and its language lands in
+ * `file.data.missingLanguages`, for the caller to load and render again.
  */
 export const rehypeHighlight = (
   options?: Readonly<HighlightOptions> | null | undefined,
@@ -69,6 +74,11 @@ export const rehypeHighlight = (
         const children = toHast(toText(parent), lang)
 
         if (children === null) {
+          file.data.missingLanguages ??= []
+          if (!file.data.missingLanguages.includes(lang)) {
+            file.data.missingLanguages.push(lang)
+          }
+
           file.message(`Cannot highlight as \`${lang}\`, it's not registered`, {
             ancestors: [parent, node],
             place: node.position,
