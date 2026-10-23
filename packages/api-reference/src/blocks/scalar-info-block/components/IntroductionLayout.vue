@@ -108,8 +108,9 @@ const { level: headingLevel } = useDocumentOutline('document')
                 :headingSlugGenerator="headingSlugGenerator" />
               <dl
                 v-if="showApplicationIdentifier"
-                class="text-c-2 mt-6 flex flex-col gap-1 text-sm">
-                <dt class="text-c-1">
+                class="text-c-2 mt-6 space-y-3 text-sm">
+                <dt
+                  class="text-c-1 border-b pb-2 text-base leading-[1.45] font-medium">
                   {{ translate('asyncapi.applicationIdentifier') }}
                 </dt>
                 <dd class="font-code [overflow-wrap:anywhere]">
