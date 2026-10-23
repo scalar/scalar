@@ -21,13 +21,56 @@ describe('get-binding-schema', () => {
     expect(getBindingSchema(protocol, scope, field, { type: 'string' })).toMatchObject({ type: 'string' })
   })
 
-  it('leaves constants, unknown fields, wrong scopes, and unavailable references as source', () => {
-    expect(getBindingSchema('mqtt', 'server', 'sessionExpiryInterval', 60)).toBeUndefined()
-    expect(getBindingSchema('mqtt', 'server', 'clientId', { type: 'string' })).toBeUndefined()
-    expect(getBindingSchema('ws', 'message', 'headers', { type: 'object' })).toBeUndefined()
-    expect(getBindingSchema('custom', 'channel', 'query', { type: 'object' })).toBeUndefined()
-    expect(getBindingSchema('ws', undefined, 'query', { type: 'object' })).toBeUndefined()
-    expect(getBindingSchema('ws', 'channel', 'query', { $ref: '#/missing' })).toBeUndefined()
+  it.each<[string, BindingScope | undefined, string, Record<string, unknown>]>([
+    ['ws', 'operation', 'headers', { type: 'object', properties: { 'X-RateLimit-Limit': { type: 'integer' } } }],
+    ['ws', 'message', 'message', { type: 'object', properties: { eventId: { type: 'string' } } }],
+    ['custom', 'channel', 'query', { properties: { token: { type: 'string' } } }],
+    ['custom', undefined, 'payload', { type: ['string', 'null'] }],
+    ['custom', 'message', 'value', { type: 'string', enum: ['created', 'deleted'] }],
+    ['custom', 'operation', 'batch', { items: { type: 'string' } }],
+    ['custom', 'message', 'choice', { oneOf: [{ type: 'string' }, { type: 'integer' }] }],
+    ['custom', 'message', 'choice', { anyOf: [{ type: 'string' }] }],
+    ['custom', 'message', 'combined', { allOf: [{ properties: { id: { type: 'string' } } }] }],
+  ])('detects schema shapes in %s %s %s', (protocol, scope, field, schema) => {
+    expect(getBindingSchema(protocol, scope, field, schema)).toStrictEqual(schema)
+  })
+
+  it.each([
+    60,
+    false,
+    null,
+    {},
+    { topic: 'offline', message: 'disconnected' },
+    { type: 'record', fields: [] },
+    { type: ['record'] },
+    { type: [] },
+    { properties: { retries: 3 } },
+    { items: ['orders', 'events'] },
+    { oneOf: [] },
+    { oneOf: ['orders', 'events'] },
+    { $ref: '#/missing' },
+    { schemaFormat: 'application/vnd.apache.avro+json', schema: { type: 'record', fields: [] } },
+  ])('keeps ordinary settings and unsupported schemas as source: %j', (value) => {
+    expect(getBindingSchema('custom', 'message', 'settings', value)).toBeUndefined()
+  })
+
+  it('preserves opaque extensions even when they contain schema keywords', () => {
+    expect(getBindingSchema('ws', 'operation', 'x-data', { type: 'object', properties: {} })).toBeUndefined()
+  })
+
+  it('renders explicit JSON Schema wrappers', () => {
+    expect(
+      getBindingSchema('custom', 'message', 'body', {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { type: 'string' },
+      }),
+    ).toStrictEqual({ type: 'string' })
+  })
+
+  it('keeps documented schema positions authoritative for schemas without structural keywords', () => {
+    expect(getBindingSchema('ws', 'channel', 'query', {})).toStrictEqual({})
+    expect(getBindingSchema('kafka', 'message', 'key', { enum: ['created'] })).toStrictEqual({ enum: ['created'] })
+    expect(getBindingSchema('kafka', 'message', 'key', true)).toStrictEqual({ description: 'Accepts any value.' })
     expect(getBindingSchema('kafka', 'message', 'key', { type: 'record', fields: [] })).toBeUndefined()
   })
 
