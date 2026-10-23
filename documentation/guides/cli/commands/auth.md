@@ -23,6 +23,7 @@ scalar auth login [options]
 | Option | Description |
 | --- | --- |
 | `--token <token>` | Personal token for authentication. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## whoami
 
@@ -37,6 +38,7 @@ scalar auth whoami [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Output authentication details as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## logout
 
@@ -45,3 +47,9 @@ Log out of Scalar.
 ```bash
 scalar auth logout [options]
 ```
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |

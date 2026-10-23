@@ -24,8 +24,10 @@ scalar schema delete [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | Schema slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## update
 
@@ -39,11 +41,15 @@ scalar schema update [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `-s, --slug <slug>` | Schema slug. |
 | `-n, --namespace <namespace>` | Team namespace. |
 | `--title <title>` | Schema title. |
 | `--description <description>` | Schema description. |
-| `--isPrivate <isPrivate>` | Access setting (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| `--isPrivate <isPrivate>` | Whole-entry access, including existing versions (true/private or false/public). One of `true`, `false`, `public`, `private`. |
+| `--public` | Make the whole entry public, including existing versions. |
+| `--private` | Make the whole entry private, including existing versions. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## list
 
@@ -59,6 +65,7 @@ scalar schema list [options]
 | --- | --- |
 | `--namespace <namespace>` | Team namespace. |
 | `--json` | Output schema metadata as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -82,6 +89,7 @@ scalar schema get [options] [namespace] [slug]
 | `--version <version>` | Schema version (defaults to latest). |  |
 | `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
 | `-o, --output <file>` | Output file (defaults to stdout). |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## publish
 
@@ -101,13 +109,15 @@ scalar schema publish [options] [file]
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |  |
 | `--slug <slug>` | Shared schema slug. |  |
 | `--title <title>` | Schema title. |  |
 | `--namespace <namespace>` | Scalar team namespace. |  |
 | `--version <version>` | Schema version (for example, 0.1.0). |  |
-| `--private` | Make the shared schema private. | `false` |
+| `--private` | Create a private entry or require an existing private entry. | `false` |
 | `--force` | Overwrite an existing version. | `false` |
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| `--no-input` | Disable prompts and browser launches. |  |

@@ -15,6 +15,7 @@ Manage Scalar Docs projects.
 | [`scalar project publish`](#publish) | Publish a new build of a Scalar project |
 | [`scalar project rollback`](#rollback) | Roll the live deployment back to a previously deployed build |
 | [`scalar project deployments list`](#deployments-list) | List production deployments for a project |
+| [`scalar project deployments get`](#deployments-get) | Inspect an existing build in the selected team without resubmitting |
 | [`scalar project upgrade`](#upgrade) | Upgrade a Scalar Docs configuration |
 
 ## list
@@ -30,6 +31,7 @@ scalar project list [options]
 | Option | Description |
 | --- | --- |
 | `--json` | Print project details as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -50,6 +52,7 @@ scalar project get [options] <slug>
 | Option | Description |
 | --- | --- |
 | `--json` | Print project details as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## init
 
@@ -63,8 +66,10 @@ scalar project init [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `-s, --subdomain [url]` | Subdomain for the published documentation. |
 | `--force` | Overwrite existing configuration. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## check-config
 
@@ -80,6 +85,12 @@ scalar project check-config [options] [file]
 | --- | --- |
 | `file` | Scalar configuration file path (discovered in the current directory if omitted). |
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## create
 
 Create a Scalar project without a linked GitHub repository.
@@ -92,8 +103,10 @@ scalar project create [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `-n, --name <name>` | Project name. |
 | `-s, --slug <slug>` | Project slug. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## preview
 
@@ -117,6 +130,7 @@ scalar project preview [options] [config]
 | `-H, --host [host]` | Host address for the preview server. |  |
 | `-L, --log-level <level>` | Set the log level. One of `debug`, `info`. | `info` |
 | `-N, --no-open` | Do not open the browser automatically. |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## publish
 
@@ -130,10 +144,14 @@ scalar project publish [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `-s, --slug [slug]` | Project slug from scalar project list. |
 | `-c, --config [config]` | Scalar configuration file path for local publishing. |
 | `-p, --preview` | Publish a preview without replacing the live deployment. |
 | `-g, --github` | Publish from the linked GitHub repository instead of local files. |
+| `--no-wait` | Return after acceptance without waiting for deployment. |
+| `--timeout <seconds>` | Maximum deployment wait in seconds (default: 600; cannot combine with --no-wait). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## rollback
 
@@ -147,9 +165,11 @@ scalar project rollback [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `-s, --slug [slug]` | Project slug from scalar project list. |
 | `-t, --to <publishUid>` | Roll back to a specific build id (defaults to the next older deployed build). |
 | `-y, --yes` | Skip the confirmation prompt. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## deployments list
 
@@ -163,7 +183,31 @@ scalar project deployments list [options]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the result as JSON without prompting. |
 | `-s, --slug [slug]` | Project slug from scalar project list. |
+| `--no-input` | Disable prompts and browser launches. |
+
+## deployments get
+
+Inspect an existing build in the selected team without resubmitting.
+
+```bash
+scalar project deployments get [options] <build-id>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `build-id` | **Required.** Accepted build ID, including preview builds. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--wait` | Wait for deployment instead of inspecting once. |
+| `--timeout <seconds>` | Maximum status wait in seconds (default: 30, or 600 with --wait). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## upgrade
 
@@ -178,3 +222,10 @@ scalar project upgrade [options] [config]
 | Argument | Description |
 | --- | --- |
 | `config` | Path to the Scalar configuration file (usually `scalar.config.json5` or `scalar.config.json`). |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--json` | Output the result as JSON without prompting. |
+| `--no-input` | Disable prompts and browser launches. |
