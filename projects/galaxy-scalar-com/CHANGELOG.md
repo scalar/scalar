@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.28
+
+### Patch Changes
+
+- [#10630](https://github.com/scalar/scalar/pull/10630): Load the Galaxy OpenAPI document from the registry in production while keeping the local document for previews.
+
 ## 0.2.27
 
 ### Patch Changes

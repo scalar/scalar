@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 1.76.0
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update declaration tooling while preserving bundled integration types.
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 1.75.1
 
 ## 1.75.0

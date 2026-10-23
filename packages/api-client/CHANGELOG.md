@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 3.23.3
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10652](https://github.com/scalar/scalar/pull/10652): Display authored AsyncAPI server-variable examples in the shared Example/Examples popup with copy support, including examples from referenced variables.
+
+  Keep the shared examples popup label clickable when hovered and align server-variable popups with their labels to avoid overlapping the sidebar.
+
 ## 3.23.2
 
 ### Patch Changes

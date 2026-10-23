@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.43 (2026-10-23)
+
+### Close tabs with keyboard shortcuts and AsyncAPI server-variable examples
+
+The desktop app now closes tabs and windows with Cmd+W (or Ctrl+W on Windows and Linux), matching browser behavior. AsyncAPI server-variable examples are now visible in the API reference.
+
+- Press Cmd+W (or Ctrl+W) to close the active tab in the desktop app. The window closes when only one tab remains.
+- AsyncAPI server-variable examples now appear in the API reference with copy support, including examples from referenced variables.
+- Upgraded to Undici 8.12.3, which enables HTTP/2 by default. This requires Node.js 22.19.0 or later.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1143)
+
 ## 1.1.42 (2026-10-20)
 
 ### Improved OAuth token management

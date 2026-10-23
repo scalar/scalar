@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.46",
+    "date": "2026-10-23",
+    "title": "Polish and bug fixes shipped",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01246",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.45",
     "date": "2026-10-20",
     "title": "AsyncAPI support in Ask AI",

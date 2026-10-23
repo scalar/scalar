@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.4.6
+
+### Patch Changes
+
+- [#10701](https://github.com/scalar/scalar/pull/10701): Preserve descriptions and specification extensions on OAuth2 and Basic security schemes, and preserve extensions on form-data fields when upgrading OpenAPI 2.0 API descriptions.
+
 ## 0.4.5
 
 ### Patch Changes

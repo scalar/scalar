@@ -1,5 +1,12 @@
 # @scalar/use-toasts
 
+## 0.10.6
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Fix the combobox filter declaration importing a private source alias and restore toast styles after upgrading vue-sonner.
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.10.5
 
 ### Patch Changes

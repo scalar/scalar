@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.3.33
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 1.3.32
 
 ## 1.3.31

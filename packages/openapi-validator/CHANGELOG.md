@@ -1,5 +1,11 @@
 # @scalar/openapi-validator
 
+## 0.1.14
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.1.13
 
 ## 0.1.12
