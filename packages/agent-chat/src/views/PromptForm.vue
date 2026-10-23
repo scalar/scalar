@@ -120,7 +120,7 @@ const submitDisabled = computed(() => {
   const isPreview = state.mode === 'preview'
 
   const termsNotAccepted = isPreview && !state.terms.accepted.value
-  const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+  const uploadingTmpDoc = !!uploadTmpDoc.uploadState.value
   const isLoading = isPending.value
 
   return (

@@ -1,7 +1,7 @@
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import { type Context, Hono } from 'hono'
-import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { asyncApiDocument } from './asyncapi-document'
 import { configureApiReference, createApp } from './galaxy-scalar-com'
@@ -108,25 +108,14 @@ describe('galaxy-scalar-com', () => {
           theme: expect.any(String),
           proxyUrl: 'https://proxy.scalar.com',
           persistAuth: true,
+          agent: expect.objectContaining({
+            key: expect.any(String),
+          }),
           // Vitest builds run without the production `--define`, so the branch
           // bundle is served from the local route.
           bundle: '/scalar/standalone.esm.js',
         }),
       )
-    })
-
-    it('uses selected-document uploads instead of a shared registry agent key', () => {
-      configureApiReference(mockApp as Hono)
-
-      const configuration = vi.mocked(Scalar).mock.calls[0]?.[0]
-      assert(configuration && typeof configuration !== 'function')
-      expect(configuration.agent).toBeUndefined()
-      expect(configuration?.sources?.map((source) => source.agent)).toStrictEqual([
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-      ])
     })
 
     it('mounts the reference UI and bundle routes', () => {

@@ -19,10 +19,17 @@ afterEach(() => {
 })
 
 describe('App', () => {
-  it.each(['openapi', 'asyncapi'])(
-    'uploads the current %s description after saved consent instead of restoring stale context',
-    async (format) => {
-      localStorage.setItem('scalar/agent-terms-accepted', 'true')
+  it.each([
+    ['openapi', 'preview'],
+    ['asyncapi', 'preview'],
+    ['openapi', 'full'],
+    ['asyncapi', 'full'],
+  ] as const)(
+    'uploads the current %s description in %s mode instead of restoring stale context',
+    async (format, mode) => {
+      if (mode === 'preview') {
+        localStorage.setItem('scalar/agent-terms-accepted', 'true')
+      }
       localStorage.setItem('scalar-tmp-doc', JSON.stringify({ namespace: 'old', slug: 'old' }))
       const content = JSON.stringify({ [format]: '3.1.0', info: { title: 'Current', version: '1' } })
       const requests: { url: string; body: unknown }[] = []
@@ -32,7 +39,14 @@ describe('App', () => {
           new Response(JSON.stringify({ results: [] }), { status: String(url).includes('/upload/') ? 400 : 200 }),
         )
       })
-      const wrapper = mount(App, { props: { ...props, getActiveDocumentJson: () => content } })
+      const wrapper = mount(App, {
+        props: {
+          ...props,
+          mode,
+          getAgentKey: mode === 'full' ? () => 'key' : undefined,
+          getActiveDocumentJson: () => content,
+        },
+      })
       await flushPromises()
       expect(requests.filter(({ url }) => url.includes('/upload/'))).toStrictEqual([
         {
@@ -42,9 +56,38 @@ describe('App', () => {
       ])
       expect(requests.some(({ url }) => url.includes('/old'))).toBe(false)
       expect(wrapper.text()).toContain('Failed to upload your API description.')
+      await wrapper.get('textarea').setValue('Explain this API')
+      await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+      await flushPromises()
+      expect(requests.some(({ url }) => url.endsWith('/chat'))).toBe(false)
       wrapper.unmount()
     },
   )
+
+  it('loads key documents in full mode when no selected description is provided', async () => {
+    const urls: string[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      urls.push(String(url))
+      return Promise.resolve(new Response(JSON.stringify({ documents: [], results: [] })))
+    })
+    const wrapper = mount(App, { props: { ...props, mode: 'full', getAgentKey: () => 'key' } })
+    await flushPromises()
+    expect(urls).toContain('https://api.example.com/vector/registry/documents')
+    expect(urls.some((url) => url.includes('/upload/'))).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('waits for consent before uploading a selected description in preview mode', async () => {
+    const urls: string[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      urls.push(String(url))
+      return Promise.resolve(new Response(JSON.stringify({ results: [] })))
+    })
+    const wrapper = mount(App, { props: { ...props, getActiveDocumentJson: () => '{}' } })
+    await flushPromises()
+    expect(urls.some((url) => url.includes('/upload/'))).toBe(false)
+    wrapper.unmount()
+  })
 
   it('does not send a prefilled question before the user submits it', async () => {
     localStorage.setItem('scalar/agent-terms-accepted', 'true')

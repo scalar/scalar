@@ -78,7 +78,7 @@ const { uploadTempDocument } = useUploadTmpDocument()
 watch(
   terms.accepted,
   (accepted) => {
-    if (accepted && mode === 'preview' && getActiveDocumentJson) {
+    if ((mode === 'full' || accepted) && getActiveDocumentJson) {
       void uploadTempDocument(getActiveDocumentJson(), true)
     }
   },
