@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.62
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.1.61
 
 ## 0.1.60

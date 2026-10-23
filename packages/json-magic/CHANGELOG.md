@@ -1,5 +1,17 @@
 # @scalar/json-magic
 
+## 0.17.0
+
+### Minor Changes
+
+- [#10696](https://github.com/scalar/scalar/pull/10696): Upgrade Undici to 8.12.3. JSON Magic, Mock Server, Workspace Store, OpenAPI to Markdown, and Scalar App now require Node.js 22.19.0 or later; Node.js 22.0 through 22.18 are no longer supported. Undici 8 enables HTTP/2 by default.
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10715](https://github.com/scalar/scalar/pull/10715): fix: keep maps such as `components.schemas` as objects when partially bundling references whose keys look like numbers (e.g. `#/components/schemas/400`)
+- [#10720](https://github.com/scalar/scalar/pull/10720): Prevent prototype pollution when bundling with unsafe extension keys, isolate URL mappings from inherited or shared objects, and handle prototype property names correctly in the reverse mapping cache.
+
 ## 0.16.1
 
 ### Patch Changes

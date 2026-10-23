@@ -1,5 +1,12 @@
 # @scalar/sidebar
 
+## 0.12.3
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10686](https://github.com/scalar/scalar/pull/10686): Show AsyncAPI operations as sidebar leaf entries and hide individual messages. Message and reply details remain available in the documentation.
+
 ## 0.12.2
 
 ## 0.12.1

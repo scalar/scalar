@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.5.34
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10719](https://github.com/scalar/scalar/pull/10719): Preserve URL format tokens and error details when logging failed imports.
+
 ## 0.5.33
 
 ## 0.5.32

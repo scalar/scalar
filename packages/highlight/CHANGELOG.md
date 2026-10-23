@@ -1,5 +1,29 @@
 # @scalar/highlight
 
+## 0.6.0
+
+### Minor Changes
+
+- [#9939](https://github.com/scalar/scalar/pull/9939): Add a dedicated `curl` grammar, so curl command lines keep the colouring they had under `@scalar/code-highlight`.
+
+  `curl` was mapped to the bash grammar. That is a defensible reading — a curl invocation is a shell command line — but it loses the two tokens a reader actually looks for. `@scalar/code-highlight` ships a bespoke curl grammar, and `code.css` is written against it: `.hljs.language-curl .hljs-literal` and `.hljs.language-curl .hljs-string` both have curl-specific rules. Under bash, `curl` and the request method came out unscoped, so the command name lost its keyword colour and `POST` lost its symbol colour entirely.
+
+  The new grammar mirrors the reference: the command is a keyword, `--request`/`-X` and other flags are literals, the method they carry is a symbol, and `$(…)` inside a double-quoted value reads as a variable. Output now matches the reference class for class.
+
+  This also adds a `symbol` scope to the vocabulary, mapped to `hljs-symbol` in the compat layer — a scope highlight.js has and `code.css` already styles, and the natural home for Ruby symbols and Erlang atoms too.
+
+  A curl sample joins the shared test corpus, so the differential suites compare this grammar against the reference on every run.
+
+### Patch Changes
+
+- [#9939](https://github.com/scalar/scalar/pull/9939): feat(highlight): colour the names declarations bind in Java, C#, Go and Rust, and PowerShell parameters like shell flags
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#9939](https://github.com/scalar/scalar/pull/9939): Fix JavaScript comparisons read as generic calls, and keep compiled grammars when a grammar is registered again
+
+  An identifier followed by `<` read as the start of a generic call, so `count` in `if (count <= max)` and `b` in `b <= 10` were painted as function names. The generic branch now requires a type argument list that closes and is followed by `(`, so `useState<number>(0)` still scopes and a comparison does not.
+
+  `registerLanguage` also evicted a grammar's compiled form whenever it was called, even with the grammar already registered under every one of its names. A caller that registers on every render recompiled on every render, which cost close to twenty times the highlight itself. Registering the same grammar again is now a no-op.
+
 ## 0.5.0
 
 ### Minor Changes

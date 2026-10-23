@@ -1,5 +1,13 @@
 # scalar-app
 
+## 1.1.43
+
+### Patch Changes
+
+- [#10714](https://github.com/scalar/scalar/pull/10714): Make CmdOrCtrl+W in the desktop app close the active tab, and close the window when only one tab is left.
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10696](https://github.com/scalar/scalar/pull/10696): Upgrade Undici to 8.12.3. JSON Magic, Mock Server, Workspace Store, OpenAPI to Markdown, and Scalar App now require Node.js 22.19.0 or later; Node.js 22.0 through 22.18 are no longer supported. Undici 8 enables HTTP/2 by default.
+
 ## 1.1.42
 
 ## 1.1.41
