@@ -11,6 +11,7 @@
     "spec:compare": "node bench/spec-vs.mjs",
     "size": "node bench/size.mjs baseline && node bench/size-proto.mjs && node bench/size-alt.mjs",
     "size:breakdown": "node bench/compose.mjs",
+    "size:real": "node bench/swap/run.mjs && node bench/swap/chunks.mjs",
     "bench": "node bench/bench-proto.mjs",
     "bench:alternatives": "node bench/bench.mjs",
     "parity": "node bench/diff-corpus.mjs",

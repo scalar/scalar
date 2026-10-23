@@ -4,6 +4,8 @@ Can a purpose-built Markdown pipeline beat the unified/remark/rehype stack behin
 
 **Yes.** The prototype in [`src/`](./src) is **8× smaller** and **25–40× faster** on real API descriptions, renders the **same DOM for 99.87%** of 11,224 real descriptions (the rest are bugs in the current pipeline), passes **more** of the CommonMark spec, and survived 300,000 fuzzed inputs with no sanitizer violation. It is also linear on cmark's pathological inputs, where the current pipeline takes up to **139 seconds**.
 
+In the real API Reference bundle, an app that bundles the npm package loads **13% less JavaScript up front** than with #10739 (785 KB instead of 904 KB gzipped), and **18% less** than `main` today. The standalone CDN bundle only gets smaller once the "Copy as Markdown" packages stop using unified too: swapping the renderer alone makes `standalone.js` 1% **larger**, and migrating those packages as well makes it 11% smaller than #10739. See [In the real bundle](#in-the-real-api-reference-bundle).
+
 This is a prototype, not a drop-in yet. [What it would take](#what-it-would-take-to-ship) lists the remaining work.
 
 ## Results
@@ -24,6 +26,34 @@ Bundled and minified with Rolldown, as Vite builds this repo. The highlighter is
 | for reference: markdown-it | 90.2 KB | 44.9 KB | 36.5 KB |
 
 Where the current 332 KB goes (`pnpm size:breakdown`): parse5 29%, micromark + GFM 24%, hast utilities and rehype plugins 16%, mdast utilities 16%, unified/vfile/unist 12%. parse5 is a complete HTML5 parser that is there only to handle raw HTML in descriptions.
+
+### In the real API Reference bundle
+
+The module-level numbers above do not translate one to one, because the unified stack has a second user: the "Copy as Markdown" buttons (`@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown`) use it to turn descriptions back into Markdown. [`bench/swap/run.mjs`](./bench/swap/run.mjs) builds `@scalar/api-reference`'s real standalone config three ways, on `main` and on #10739's branch:
+
+- **as shipped**
+- **prototype**: rendering (`ScalarMarkdown`, the introduction's headings and sections) uses the prototype. Code blocks are highlighted with `@scalar/highlight`, which `ScalarCodeBlock` already ships, and the Copy as Markdown packages keep what they use today.
+- **prototype, no copy**: the Copy as Markdown packages stubbed out as well. This is an upper bound for migrating them, minus whatever their replacement HTML-to-Markdown converter costs.
+
+What an app that bundles the npm package **loads up front**. This is an `es` build of the same entry with code splitting, counting every chunk reachable from the entry by static imports. The Copy as Markdown packages are dynamic `import()`s, so they load only on click.
+
+| up front, gzip | as shipped | prototype | prototype, no copy |
+| --- | ---: | ---: | ---: |
+| `main` | 957.9 KB | **785.7 KB** (−172.2 KB, −18.0%) | 780.3 KB |
+| #10739 | 904.2 KB | **785.3 KB** (−118.9 KB, −13.1%) | 780.3 KB |
+
+The standalone CDN bundle, `standalone.js`. It is UMD, which cannot code-split, so the Copy as Markdown packages are inlined:
+
+| `standalone.js`, gzip | as shipped | prototype | prototype, no copy |
+| --- | ---: | ---: | ---: |
+| `main` | 1,372.3 KB | 1,210.8 KB (−11.8%) | 1,089.1 KB (−20.6%) |
+| #10739 | 1,222.7 KB | 1,235.7 KB (**+1.1%**) | 1,089.1 KB (−10.9%) |
+
+How to read this:
+
+- **For apps bundling the npm package, the saving is immediate.** Rendering is the only up-front user of the unified stack. Swapping it removes about 119 KB gzipped from the initial load relative to #10739. The stack does not disappear: it moves into the on-demand Copy as Markdown chunk.
+- **For `standalone.js`, swapping the renderer alone is a regression** against #10739. #10739 already removed lowlight and the duplicate copy of the stack, and the Copy as Markdown packages keep the rest, so the prototype only adds its own 13 KB. The saving (134 KB gzipped against #10739) arrives only when those packages move off unified as well.
+- Against `main`, part of every saving here is #10739's: dropping lowlight and highlight.js, and dropping the second copy of the stack (`main` has two copies of parse5 and micromark).
 
 ### Speed
 
@@ -133,7 +163,7 @@ In rough order:
 1. **Wire in `@scalar/highlight`.** Pass a `highlight(code, lang)` that returns the highlighted HTML, and port the "guess only when it can be confirmed" detection from #10739's `rehypeHighlight`. The rest of `render.ts` already emits the `hljs language-x custom-scroll` classes.
 2. **Decide on byte-for-byte compatibility.** Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The three bugs above are intended fixes.
 3. **Table insertion modes in the `Writer`.** Insert implied `<tbody>`/`<tr>` and move content that is not allowed inside a table out of it, so the browser builds exactly the written tree. This is fidelity only, about 50 lines.
-4. **The standalone bundle needs one more step.** `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` (the "Copy as Markdown" buttons) use unified for Markdown→mdast, HTML→mdast (`rehype-remark`) and mdast→Markdown (`remark-stringify`). They are dynamic `import()`s, so ESM builds load them only on click and get the full saving right away. The standalone build is UMD, though, which inlines them, so unified, parse5 and micromark stay in `standalone.js` until those two packages move too. The prototype's mdast-shaped tree covers their Markdown→mdast step. HTML→Markdown needs its own small converter, or can stay lazy in a separate chunk if the standalone build moves to ESM.
+4. **Move the Copy as Markdown packages off unified, or `standalone.js` gets bigger.** `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use unified for Markdown→mdast, HTML→mdast (`rehype-remark`) and mdast→Markdown (`remark-stringify`). ESM builds load them only on click, so apps bundling the package save right away. The standalone build is UMD and inlines them, though, so swapping only the renderer makes `standalone.js` 1% larger than #10739 (see [In the real bundle](#in-the-real-api-reference-bundle)). The prototype's mdast-shaped tree covers their Markdown→mdast step. They still need an mdast→Markdown serializer and a small HTML→Markdown converter. Alternatively, ship them as a lazy chunk if the standalone build can load one.
 5. **Security sign-off.** A human review of `html.ts`, the DOMPurify and html5sec vector suites, and the invariant fuzzer from `bench/` kept in CI.
 6. **Packaging.** Make this the implementation inside `@scalar/markdown` (#10739) behind the same exports, and keep the remark-based version as the reference in its tests, the way `@scalar/highlight` freezes lowlight output. Then the usual: types, Knip, changesets.
 
@@ -151,9 +181,12 @@ pnpm spec              # CommonMark and GFM conformance
 pnpm spec:compare      # the same, scored for both pipelines
 pnpm parity            # DOM comparison over 11,224 real descriptions
 pnpm size              # bundle size, both pipelines and the alternatives
+pnpm size:real         # the real API Reference bundle, with and without the prototype
 pnpm bench             # throughput
 pnpm security          # vectors plus 300,000 fuzzed inputs
 pnpm pathological      # cmark's pathological inputs (the current pipeline takes minutes)
 ```
+
+`pnpm size:real` needs the API Reference's dependencies built first (`pnpm --filter "@scalar/api-reference^..." run build` from the repository root). To measure another checkout, such as #10739's branch, run `node bench/swap/run.mjs --repo <path> --label <name>` and `node bench/swap/chunks.mjs main,prototype,prototype-no-copy <name>`.
 
 This directory is outside the pnpm workspace, so it does not affect the build, CI or releases.
