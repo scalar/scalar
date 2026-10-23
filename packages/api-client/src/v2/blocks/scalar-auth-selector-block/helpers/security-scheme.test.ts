@@ -11,6 +11,22 @@ import {
 } from './security-scheme'
 
 describe('security-scheme', () => {
+  it('seeds OIDC scope defaults without replacing an explicitly empty selection', () => {
+    const schemes = {
+      oidc: {
+        type: 'openIdConnect',
+        openIdConnectUrl: 'https://example.com/discovery',
+        'x-default-scopes': ['openid'],
+      },
+    } as const
+    expect(getSecuritySchemeOptions([{}], schemes, [])).toStrictEqual([
+      formatScheme({ name: 'oidc', value: { oidc: ['openid'] } }),
+    ])
+    expect(getSecuritySchemeOptions([{}], schemes, [{ oidc: [] }])).toStrictEqual([
+      formatScheme({ name: 'oidc', value: { oidc: [] } }),
+    ])
+  })
+
   it.each(['authorizationCode', 'implicit', 'clientCredentials'] as const)(
     'keeps one available %s option when scopes change',
     (flow) => {
