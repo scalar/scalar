@@ -687,7 +687,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
+Display selected OpenAPI extensions on the Paths Object, Path Items, operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js
@@ -696,6 +696,8 @@ Scalar.createApiReference('#app', {
   showExtensions: ['x-scopes'],
 })
 ```
+
+Paths Object and Path Item extensions appear alongside operation extensions within each operation, in both layouts. Paths without operations have no Path Item extension block. Path Item and operation values remain separate, even when they use the same key.
 
 Keys must start with `x-`. Selected keys appear in configuration order, using the exact key as the label.
 Values appear as compact schema-style rows. Arrays show their values without type labels or visible indices, and objects show their property names. Top-level values start expanded; nested collections can be expanded with the disclosure button.

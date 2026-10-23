@@ -98,6 +98,56 @@ const mountOperationWithConfig = (
 }
 
 describe('Operation', () => {
+  it.each(['modern', 'classic'] as const)('keeps path and operation extensions separate in %s', (layout) => {
+    const pathValue = { 'x-owner': 'path-team', get: { 'x-owner': 'get-team' }, post: { 'x-owner': 'post-team' } }
+    for (const method of ['get', 'post']) {
+      const wrapper = mountOperationWithConfig({ pathValue, method, options: { layout, showExtensions: ['x-owner'] } })
+      expect(wrapper.text()).toContain('path-team')
+      expect(wrapper.text()).not.toContain('Path: /users/{userId}')
+      expect(wrapper.text()).toContain(`${method}-team`)
+      wrapper.unmount()
+    }
+  })
+
+  it.each(['modern', 'classic'] as const)('omits unselected path extensions in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({ pathValue: { 'x-private': 'hidden', get: {} }, options: { layout } })
+    expect(wrapper.text()).not.toContain('hidden')
+  })
+
+  it.each(['modern', 'classic'] as const)(
+    'renders selected Paths Object extensions in each operation in %s',
+    async (layout) => {
+      const document = coerceValue(OpenAPIDocumentSchema, {
+        openapi: '3.0.1',
+        info: { title: 'Pets', version: '1' },
+        paths: {
+          'x-origins': ['https://example.com'],
+          'x-hidden': 'secret',
+          '/pet': { get: {}, post: {} },
+        },
+      })
+      for (const method of ['get', 'post']) {
+        const wrapper = mountOperationWithConfig({
+          document,
+          path: '/pet',
+          pathValue: document.paths?.['/pet'],
+          method,
+          options: { layout, showExtensions: ['x-origins'] },
+        })
+        expect(wrapper.text()).toContain('https://example.com')
+        expect(wrapper.text()).not.toContain('secret')
+        await wrapper.setProps({ options: { ...wrapper.props('options'), showExtensions: [] } })
+        expect(wrapper.text()).not.toContain('https://example.com')
+        await wrapper.setProps({
+          options: { ...wrapper.props('options'), showExtensions: ['x-origins'] },
+          isWebhook: true,
+        })
+        expect(wrapper.text()).not.toContain('https://example.com')
+        wrapper.unmount()
+      }
+    },
+  )
+
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()
