@@ -58,6 +58,13 @@ describe('get-binding-schema', () => {
     expect(getBindingSchema('ws', 'operation', 'x-data', { type: 'object', properties: {} })).toBeUndefined()
   })
 
+  it('keeps binding-map extensions opaque', () => {
+    const payload = { type: 'object', properties: { id: { type: 'string' } }, customSetting: 'keep' }
+    const entries = getBindingEntries({ 'x-custom': { payload } }, 'message')
+    expect(entries[0]?.fields[0]?.schema).toBeUndefined()
+    expect(JSON.parse(entries[0]?.fields[0]?.content ?? '')).toStrictEqual(payload)
+  })
+
   it('renders explicit JSON Schema wrappers', () => {
     expect(
       getBindingSchema('custom', 'message', 'body', {

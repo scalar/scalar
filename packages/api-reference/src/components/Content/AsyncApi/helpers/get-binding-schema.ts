@@ -52,6 +52,9 @@ export const getBindingSchema = (
   field: string,
   value: unknown,
 ): SchemaObject | undefined => {
+  if (protocol.startsWith('x-') || field.startsWith('x-')) {
+    return undefined
+  }
   const documentedSchema = Boolean(scope && schemaFields[protocol]?.[scope]?.includes(field))
   // Booleans in arbitrary settings are values, but documented schema positions can use them.
   if (typeof value === 'boolean' && documentedSchema) {
@@ -62,7 +65,7 @@ export const getBindingSchema = (
     return undefined
   }
   // Extension data is opaque; unfamiliar fields need positive schema evidence.
-  if (!documentedSchema && (field.startsWith('x-') || !looksLikeSchema(value))) {
+  if (!documentedSchema && !looksLikeSchema(value)) {
     return undefined
   }
   // Avro and other schema languages can use type names the JSON Schema renderer cannot represent.
