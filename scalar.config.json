@@ -1052,14 +1052,14 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
+            "description": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out.",
             "layout": {
               "toc": false,
               "pageTitle": false,
               "feedback": false
             },
             "head": {
-              "title": "Scalar — API Documentation, SDKs, API Client & Registry",
+              "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
               "links": [
                 {
                   "rel": "canonical",
@@ -1086,19 +1086,19 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "property": "og:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "twitter:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "name": "twitter:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "robots",

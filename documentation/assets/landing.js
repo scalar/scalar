@@ -761,6 +761,856 @@ const createLandingChatPlayer = (chat) => {
   return { play, stop: clearTimers }
 }
 
+/* The agent globes in the hero: each a glass ball with the agent's mark
+   and name standing on its equator, turning. The ring is built here from
+   the name's kerned advances, so the word wraps the ball; every globe
+   starts at its own angle. The globes are planets: each travels its own
+   tilted orbit round the copy (the orbit paths are the ellipses in the
+   field's svg, laid out from where the copy and its lines land, and wider
+   than the column where the column is too narrow to clear them), in front
+   of the copy across the front and behind it round the back. A
+   hovered globe holds still and eases its mark to the front (its bubble
+   is CSS). */
+const LANDING_ORB_TURN = 3000
+/* the two orbits: the long radius as a share of half the field's width,
+   the short one as a share of the long (the tilt), and seconds a lap;
+   then each planet's orbit and where it starts (in laps), in the order
+   the globes stand in the markup */
+const LANDING_ORBITS = [
+  { share: 0.93, flat: 0.46, lap: 36 },
+  { share: 1, flat: 0.42, lap: 54 },
+]
+const LANDING_PLANETS = [
+  { orbit: 0, start: 0.05 },
+  { orbit: 1, start: 0.22 },
+  { orbit: 0, start: 0.38 },
+  { orbit: 1, start: 0.88 },
+  { orbit: 0, start: 0.72 },
+  { orbit: 1, start: 0.55 },
+]
+/* how long a pointer rests on a planet before the button flies (a
+   pointer only crossing the planet gets the bubble and no more), then
+   the talk's turns, in ms from the flight: whose bubble, and what it
+   shows (the dots, or which of its lines) */
+const LANDING_TALK_INTENT = 300
+const LANDING_TALK = [
+  [500, 'sun', 'typing'],
+  [1300, 'sun', 0],
+  [2300, 'orb', 'typing'],
+  [2900, 'orb', 1],
+  [3900, 'sun', 'typing'],
+  [4500, 'sun', 1],
+]
+const landingMeasure = document.createElement('canvas').getContext('2d')
+let landingDressCopies = 0
+/* a globe's dressing: a copy of its mark (with gradient ids of its
+   own, as one mark can stand on two globes), a gap and the glyphs
+   of its name round the ring's equator, the word centred on the
+   front; the angles hold whatever size the globe takes, as the type
+   scales with it */
+const dressLandingGlobe = (globe, ring, size) => {
+  const template = document.getElementById(`lp-icon-${globe.dataset.icon}`)
+  const label = globe.dataset.label || ''
+  if (!template) {
+    return false
+  }
+  const suffix = `-o${++landingDressCopies}`
+  const holder = document.createElement('div')
+  holder.innerHTML = template.innerHTML
+    .replace(/id="([^"]+)"/g, `id="$1${suffix}"`)
+    .replace(/url\(#([^)]+)\)/g, `url(#$1${suffix})`)
+  const icon = holder.firstElementChild
+  // the name's metrics, from a probe glyph in the ring's own style
+  const probe = document.createElement('span')
+  probe.className = 'lp-orb-glyph'
+  probe.textContent = 'x'
+  ring.appendChild(probe)
+  const style = getComputedStyle(probe)
+  landingMeasure.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+  const type = Number.parseFloat(style.fontSize)
+  const tracking = Number.parseFloat(style.letterSpacing) || 0
+  probe.remove()
+  // the mark, a gap and the glyphs on a line first, with the kerned
+  // advances the whole word has
+  const iconWidth = type * 1.15
+  const items = [{ node: icon, x: 0, w: iconWidth }]
+  let x = iconWidth + type * 0.32
+  for (let i = 0; i < label.length; i++) {
+    const w = landingMeasure.measureText(label[i]).width + tracking
+    const advance =
+      landingMeasure.measureText(label.slice(0, i + 1)).width -
+      landingMeasure.measureText(label.slice(0, i)).width +
+      tracking
+    const span = document.createElement('span')
+    span.textContent = label[i]
+    items.push({ node: span, x, w })
+    x += advance
+  }
+  const total = x
+  // then round the equator: each item's middle on the ring at the
+  // angle its arc position gives
+  items.forEach(({ node, x: at, w }) => {
+    const item = document.createElement('span')
+    item.className = 'lp-orb-item'
+    const glyph = document.createElement('span')
+    glyph.className = 'lp-orb-glyph'
+    glyph.appendChild(node)
+    item.appendChild(glyph)
+    const angle = ((at + w / 2 - total / 2) / size) * 2 * (180 / Math.PI)
+    item.style.setProperty('--a', `${angle}deg`)
+    ring.appendChild(item)
+  })
+  return true
+}
+const initLandingOrbs = debounce(() => {
+  const fields = [...document.querySelectorAll('.lp-orbs')].filter((field) => field.dataset.lpOrbsBound !== 'true')
+  if (!fields.length) {
+    return
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  fields.forEach((field) => {
+    field.dataset.lpOrbsBound = 'true'
+    const hero = field.parentElement
+    const paths = [...field.querySelectorAll('.lp-orbit')]
+    const orbs = [...field.querySelectorAll('.lp-orb')]
+      .map((orb, index, all) => {
+        const ring = orb.querySelector('.lp-orb-ring')
+        const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
+        if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+          return null
+        }
+        const bubble = orb.querySelector('.lp-orb-bubble')
+        return {
+          orb,
+          ring,
+          size,
+          bubble,
+          // the planet's lines, and Scalar's replies to them
+          lines: bubble ? [...bubble.querySelectorAll('.lp-say')] : [],
+          says: [...orb.querySelectorAll('.lp-orb-says > span')],
+          planet: LANDING_PLANETS[index % LANDING_PLANETS.length],
+          angle: reduceMotion ? 0 : (index * 360) / all.length,
+          target: null,
+          hover: false,
+          lapTime: 0,
+          z: null,
+        }
+      })
+      .filter(Boolean)
+    if (!orbs.length) {
+      return
+    }
+    /* the Scalar globe in the onboard button, dressed like the planets;
+       it shows while a planet talks */
+    const button = hero.querySelector('[data-lp-onboard]')
+    const sun = button?.querySelector('.lp-sun')
+    const sunRing = sun?.querySelector('.lp-orb-ring')
+    let sunSize = sun ? Number.parseFloat(getComputedStyle(sun).getPropertyValue('--s')) : 0
+    const hasSun = Boolean(sunRing && sunSize && dressLandingGlobe(sun, sunRing, sunSize))
+    let sunAngle = 0
+
+    /* The orbits: the sun is the copy's middle. Each orbit's long radius
+       is its share of half the field and the short one its share of
+       that, held back so the largest planet on it never reaches the logo
+       strip at the front nor leaves the field at the back; then, where
+       that would run the planets through the heading, the lede or the
+       buttons, the orbit widens past the column until it clears their
+       boxes (main clips the overflow). The inner orbit stays inside the
+       outer. Laid out again when the field changes size. */
+    let geo = null
+    const layout = () => {
+      const box = field.getBoundingClientRect()
+      const sun = hero.querySelector('.lp-copy')?.getBoundingClientRect() ?? box
+      const foot = hero.querySelector('.lp-hero-foot')?.getBoundingClientRect()
+      const cx = sun.left + sun.width / 2 - box.left
+      const cy = sun.top + sun.height / 2 - box.top
+      // where the planets get clipped: the content box (the page clips
+      // at the sidebar's edge) within the viewport, in the field's frame
+      const clip = field.closest('.page-content')?.getBoundingClientRect()
+      const clipL = Math.max(clip?.left ?? 0, 0) - box.left
+      const clipR = Math.min(clip?.right ?? window.innerWidth, window.innerWidth) - box.left
+      const floor = (foot ? foot.top : box.bottom) - box.top
+      // the lines of the copy, each as its reach from the sun
+      const lines = [...hero.querySelectorAll('.hero > *')].map((el) => {
+        const r = el.getBoundingClientRect()
+        return {
+          a: Math.max(Math.abs(r.left - box.left - cx), Math.abs(r.right - box.left - cx)),
+          b: Math.max(Math.abs(r.top - box.top - cy), Math.abs(r.bottom - box.top - cy)),
+        }
+      })
+      orbs.forEach((o) => {
+        if (o.away) {
+          return
+        }
+        o.size = Number.parseFloat(getComputedStyle(o.orb).getPropertyValue('--s')) || o.size
+        // the bubble's width, for keeping it inside the content box
+        o.bw = o.orb.querySelector('.lp-orb-bubble')?.offsetWidth || 250
+      })
+      const rings = LANDING_ORBITS.map((orbit, index) => {
+        const largest = Math.max(...orbs.filter((o) => o.planet.orbit === index).map((o) => o.size), 0)
+        const reach = largest / 2 + 6
+        const room = Math.min(floor - cy - reach - 2, cy - reach)
+        const span = (orbit.share * box.width) / 2
+        const tallest = Math.max(...lines.map((l) => l.b + reach), 0)
+        let ry = Math.min(orbit.flat * span, room)
+        if (ry <= tallest + 6) {
+          ry = Math.min(room, tallest + 12)
+        }
+        const clear = Math.max(
+          ...lines.map((l) => {
+            const b = l.b + reach
+            return b < ry ? (l.a + reach) / Math.sqrt(1 - (b / ry) ** 2) : (l.a + reach) * 3
+          }),
+          0,
+        )
+        return { rx: Math.max(span, clear * 1.03), ry: Math.max(40, ry) }
+      })
+      for (let i = 1; i < rings.length; i++) {
+        rings[i].rx = Math.max(rings[i].rx, rings[i - 1].rx + 36)
+        if (rings[i].ry < rings[i - 1].ry + 6) {
+          rings[i - 1].ry = rings[i].ry - 6
+        }
+      }
+      geo = { cx, cy, rings, clipL, clipR }
+      const svg = field.querySelector('.lp-orbits')
+      svg?.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`)
+      paths.forEach((path, i) => {
+        const r = rings[i]
+        if (!r) {
+          return
+        }
+        path.setAttribute('cx', cx.toFixed(1))
+        path.setAttribute('cy', cy.toFixed(1))
+        path.setAttribute('rx', r.rx.toFixed(1))
+        path.setAttribute('ry', r.ry.toFixed(1))
+      })
+    }
+    // a planet's place on its orbit: in front of the copy across the
+    // front (the lower half of the ellipse), behind it round the back;
+    // the same size throughout, so its name and bubble read the same
+    // wherever it is. The move is a translate, composited on the
+    // globe's own layer, never a layout; the stacking changes only at
+    // the two crossings
+    const place = (o) => {
+      if (o.away) {
+        return
+      }
+      const r = geo.rings[o.planet.orbit]
+      const orbit = LANDING_ORBITS[o.planet.orbit]
+      const theta = 2 * Math.PI * (o.planet.start + o.lapTime / orbit.lap)
+      const depth = (Math.sin(theta) + 1) / 2
+      const x = geo.cx + r.rx * Math.cos(theta) - o.size / 2
+      const y = geo.cy + r.ry * Math.sin(theta) - o.size / 2
+      o.orb.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
+      const z = o.hover ? '4' : depth >= 0.5 ? '3' : '0'
+      if (o.z !== z) {
+        o.z = z
+        o.orb.style.zIndex = z
+      }
+      // the bubble opens towards the copy, so it never runs off the
+      // content's edge: leftwards from a planet on the right half of
+      // its orbit, rightwards from one on the left; and where the
+      // planet itself is clipped at that edge, the bubble is nudged
+      // back inside. Left alone while hovered, so a shown bubble never
+      // jumps
+      if (o.hover) {
+        return
+      }
+      const west = Math.cos(theta) >= 0
+      if (o.west !== west) {
+        o.west = west
+        o.orb.classList.toggle('lp-orb--left', west)
+      }
+      // the bubble's span before any nudge, from the planet's centre
+      // leftwards or rightwards; the nudge keeps both ends inside, the
+      // far end first where the box is too narrow for both
+      const mid = x + o.size / 2
+      const span = west ? [mid - o.bw, mid] : [mid, mid + o.bw]
+      // written on the bubble itself (a custom property on the planet
+      // would restyle its whole ring), in 4px steps, so a clipped planet
+      // writes it on few frames
+      const shift =
+        Math.round(
+          (west
+            ? Math.max(Math.min(0, geo.clipR - 12 - span[1]), geo.clipL + 12 - span[0])
+            : Math.min(Math.max(0, geo.clipL + 12 - span[0]), geo.clipR - 12 - span[1])) / 4,
+        ) * 4
+      if (o.shift !== shift) {
+        o.shift = shift
+        o.bubble?.style.setProperty('--bubble-shift', `${shift}px`)
+      }
+    }
+    /* The talk. A hovered planet holds its place and its bubble opens;
+       the onboard button flies to the galaxy's centre, becoming the
+       Scalar globe on the way, and the two speak by turns, Scalar's
+       lines in a bubble of its own in the field (over every planet),
+       under the globe. The talk ends the moment the pointer leaves the
+       planet, whichever way, and everything flies back. The globe is
+       still the button, so a copy (from the keyboard) ends the talk on
+       Scalar's side with the paste line. A planet without replies just
+       shows its bubble. */
+    const sunBubble = document.createElement('div')
+    sunBubble.className = 'lp-sun-bubble'
+    sunBubble.innerHTML =
+      '<span class="lp-say is-on"></span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span>'
+    const sunSay = sunBubble.querySelector('.lp-say')
+    // Saturn's ring, in two halves: the back one under the copy, the
+    // front one over it
+    const halos = ['', ' lp-sun-halo--front'].map((kind) => {
+      const halo = document.createElement('div')
+      halo.className = `lp-sun-halo${kind}`
+      halo.innerHTML = '<div class="lp-sun-halo-paint"></div>'
+      return halo
+    })
+    if (hasSun) {
+      field.append(...halos, sunBubble)
+    }
+    let talk = null
+    // a bubble shows the dots, or one of its lines
+    const say = (bubble, lines, what) => {
+      bubble.classList.toggle('is-typing', what === 'typing')
+      if (what !== 'typing') {
+        lines.forEach((line, i) => line.classList.toggle('is-on', i === what))
+      }
+    }
+    // Scalar's bubble under the globe's lower edge at the galaxy's
+    // centre, opening sideways from its middle: away from the planet
+    // first, then towards it, and lower if both would cover the planet
+    // or its bubble (the planet holds still for the talk, so this is
+    // settled once); each way nudged back inside the content box like
+    // the planets' bubbles
+    const placeSun = (keepClear) => {
+      if (!talk || !hasSun || !geo) {
+        return
+      }
+      const mid = geo.cx
+      const top = geo.cy + sunSize * 0.3
+      halos.forEach((halo) => {
+        halo.style.translate = `${mid.toFixed(1)}px ${geo.cy.toFixed(1)}px`
+      })
+      const bw = 250
+      const bh = 66
+      const planetMid = keepClear[0] ? (keepClear[0].l + keepClear[0].r) / 2 : mid
+      const starts = planetMid >= mid ? [mid - bw, mid] : [mid, mid - bw]
+      const inside = (x0) => x0 + Math.round(Math.min(Math.max(0, geo.clipL + 12 - x0), geo.clipR - 12 - (x0 + bw)))
+      const clear = (x, y) => keepClear.every((k) => x + bw <= k.l || x >= k.r || y + bh <= k.t || y >= k.b)
+      // under the globe first, away then towards; then over it (the copy
+      // is hidden meanwhile, so the room above is free); then lower
+      const above = geo.cy - sunSize * 0.3 - bh
+      const spots = [
+        [starts[0], top],
+        [starts[1], top],
+        [starts[0], above],
+        [starts[1], above],
+      ]
+      let [start, y] = spots[0]
+      let x = inside(start)
+      const fit = spots.find(([s0, y0]) => clear(inside(s0), y0))
+      if (fit) {
+        ;[start, y] = fit
+        x = inside(start)
+      } else {
+        y = Math.max(top, ...keepClear.map((k) => k.b))
+      }
+      // a bubble opening leftwards hangs from its right edge, so the
+      // dots and a short line sit by the globe like a full line does
+      sunBubble.style.translate =
+        start === mid - bw
+          ? `calc(${(x + bw).toFixed(1)}px - 100%) ${y.toFixed(1)}px`
+          : `${x.toFixed(1)}px ${y.toFixed(1)}px`
+    }
+    /* the flight: the button leaves the row at its own offsets, so the
+       row is undisturbed, and its box shrinks to the globe's circle as
+       a translate takes it to the galaxy's centre; on the way back it
+       regrows and returns, and once it has landed it is in the row
+       again. The box is set inline both ways (the pill's width is its
+       content's), and a flight that starts mid-return carries on from
+       wherever the pill is */
+    let home = null
+    let landing = 0
+    const row = button?.parentElement
+    const fly = (box, at, start) => {
+      window.clearTimeout(landing)
+      if (!home && start) {
+        // the row holds its box and its items' places meanwhile
+        row.style.width = `${start.rw}px`
+        row.style.height = `${start.rh}px`
+        row.classList.add('is-held')
+        button.style.left = `${start.left}px`
+        button.style.top = `${start.top}px`
+        button.style.width = `${start.w}px`
+        button.style.height = `${start.h}px`
+        button.classList.add('is-flying')
+        // the start box must take before the move (a width that was
+        // auto has nothing to move from): the one layout this forces
+        home = { left: start.left, top: start.top, w: button.offsetWidth, h: button.offsetHeight }
+      }
+      const dx = box.left + geo.cx - (at.left + home.left + sunSize / 2)
+      const dy = box.top + geo.cy - (at.top + home.top + sunSize / 2)
+      button.style.width = `${sunSize}px`
+      button.style.height = `${sunSize}px`
+      button.style.translate = `${dx.toFixed(1)}px ${dy.toFixed(1)}px`
+    }
+    const land = () => {
+      if (!home) {
+        return
+      }
+      button.style.width = `${home.w}px`
+      button.style.height = `${home.h}px`
+      button.style.translate = '0px 0px'
+      landing = window.setTimeout(() => {
+        home = null
+        button.classList.remove('is-flying')
+        for (const prop of ['left', 'top', 'width', 'height', 'translate']) {
+          button.style.removeProperty(prop)
+        }
+        row.classList.remove('is-held')
+        row.style.removeProperty('width')
+        row.style.removeProperty('height')
+      }, 500)
+    }
+    const stopTalk = () => {
+      if (!talk) {
+        return
+      }
+      const { o, focus } = talk
+      window.clearTimeout(talk.intent)
+      talk.timers.forEach((t) => window.clearTimeout(t))
+      talk = null
+      hero.classList.remove('lp-hero--talk')
+      if (focus?.isConnected && document.activeElement === button) {
+        focus.focus({ preventScroll: true })
+      }
+      o.orb.classList.remove('is-talking')
+      o.bubble?.classList.remove('is-typing')
+      sunBubble.classList.remove('is-on')
+      sunBubble.classList.remove('is-typing')
+      if (hasSun) {
+        land()
+      }
+      o.hover = false
+      o.angle = ((o.angle % 360) + 360) % 360
+      o.target = null
+    }
+    const startTalk = (o) => {
+      if (talk?.o === o) {
+        return
+      }
+      stopTalk()
+      if (o.settling) {
+        window.clearTimeout(o.settle)
+        o.settling = false
+        o.ring.style.transition = ''
+        o.angle = o.phase
+        o.ring.style.transform = `rotateY(${o.angle}deg)`
+      }
+      o.hover = true
+      o.target = Math.round(o.angle / 360) * 360
+      talk = { o, timers: [], focus: null, intent: 0 }
+      // the lines back to the start before the bubble shows
+      if (o.bubble) {
+        say(o.bubble, o.lines, 0)
+      }
+      o.orb.classList.add('is-talking')
+      if (!hasSun || !o.says.length) {
+        return
+      }
+      // the flight waits for the pointer to rest on the planet
+      talk.intent = window.setTimeout(() => launch(o), LANDING_TALK_INTENT)
+    }
+    const launch = (o) => {
+      if (talk?.o !== o) {
+        return
+      }
+      // a focus on the copy about to hide (Get Started, the heading's
+      // anchor) moves to the button for the talk, and back after
+      const active = document.activeElement
+      if (active && active !== button && hero.querySelector('.lp-copy')?.contains(active)) {
+        talk.focus = active
+        button.focus({ preventScroll: true })
+      }
+      // every read before the writes, so the handler lays out once
+      const box = field.getBoundingClientRect()
+      const at = button.offsetParent?.getBoundingClientRect() ?? box
+      const start = home
+        ? null
+        : {
+            left: button.offsetLeft,
+            top: button.offsetTop,
+            w: button.offsetWidth,
+            h: button.offsetHeight,
+            rw: row.offsetWidth,
+            rh: row.offsetHeight,
+          }
+      const keepClear = [o.orb, o.bubble].filter(Boolean).map((el) => {
+        const r = el.getBoundingClientRect()
+        return {
+          l: r.left - box.left - 10,
+          r: r.right - box.left + 10,
+          t: r.top - box.top - 10,
+          b: r.bottom - box.top + 10,
+        }
+      })
+      sunSay.textContent = ''
+      say(sunBubble, [], 'typing')
+      // the ring settles with its mark to the front, as a hovered planet's
+      sunAngle = reduceMotion ? 0 : -50
+      sunRing.style.transform = `rotateY(${sunAngle}deg)`
+      placeSun(keepClear)
+      fly(box, at, start)
+      hero.classList.add('lp-hero--talk')
+      talk.timers = LANDING_TALK.map(([at, who, what]) =>
+        window.setTimeout(() => {
+          if (who === 'sun') {
+            if (what !== 'typing') {
+              sunSay.textContent = o.says[what]?.textContent ?? ''
+            }
+            say(sunBubble, [], what)
+            sunBubble.classList.add('is-on')
+          } else if (o.bubble && (what === 'typing' || o.lines[what])) {
+            say(o.bubble, o.lines, what)
+          }
+        }, at),
+      )
+    }
+    // a planet is hovered when the pointer comes to it, not when it
+    // drifts under a pointer parked on the copy: the enter counts only
+    // after a recent move, and a move over the planet counts after
+    // that. A touch has no hover: a tap starts the talk and a tap
+    // anywhere else ends it
+    let lastMove = 0
+    hero.addEventListener(
+      'pointermove',
+      () => {
+        lastMove = performance.now()
+      },
+      { passive: true },
+    )
+    hero.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'touch') {
+        stopTalk()
+      }
+    })
+    orbs.forEach((o) => {
+      o.orb.addEventListener('pointerenter', (event) => {
+        if (event.pointerType === 'touch' || performance.now() - lastMove < 200) {
+          startTalk(o)
+        }
+      })
+      o.orb.addEventListener('pointermove', () => startTalk(o))
+      o.orb.addEventListener('pointerleave', (event) => {
+        if (event.pointerType !== 'touch') {
+          stopTalk()
+        }
+      })
+    })
+    // the keyboard can end a talk, as the copy is hidden meanwhile
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && talk) {
+        stopTalk()
+      }
+    })
+    document.addEventListener('pointerdown', (event) => {
+      if (
+        talk &&
+        event.pointerType === 'touch' &&
+        !talk.o.orb.contains(event.target) &&
+        !button?.contains(event.target)
+      ) {
+        stopTalk()
+      }
+    })
+    if (hasSun) {
+      button.addEventListener('lp-onboard-copied', () => {
+        if (!talk) {
+          return
+        }
+        talk.timers.forEach((t) => window.clearTimeout(t))
+        talk.o.bubble?.classList.remove('is-typing')
+        sunSay.textContent = 'Copied. Paste it to your agent.'
+        say(sunBubble, [], 0)
+        sunBubble.classList.add('is-on')
+      })
+    }
+    orbs.forEach((o) => {
+      o.orb.addEventListener('animationend', (event) => {
+        if (event.animationName === 'lp-orb-pop') {
+          o.orb.classList.add('is-popped')
+        }
+      })
+    })
+    const apply = () => {
+      // a talk in flight was laid out for the old size: it ends
+      stopTalk()
+      if (sun) {
+        sunSize = Number.parseFloat(getComputedStyle(sun).getPropertyValue('--s')) || sunSize
+      }
+      layout()
+      orbs.forEach(place)
+      orbs.forEach((o) => o.orb.classList.add('is-placed'))
+    }
+    apply()
+    new ResizeObserver(apply).observe(field)
+
+    /* The Docs card. As it scrolls into view, the planets it names leave
+       their orbits for its stage: the same elements, moved there and
+       flown from where they were (the stage place is set, the old one
+       put back as a transform, and the transform let go on the CSS
+       transition), their rings settling to the front; then each asks
+       the docs its question, the third line in its bubble. When the
+       card leaves below the viewport they fly back onto their orbits,
+       the same way round, and their laps go on. A talk with one of them
+       ends as they go. */
+    const stage = document.querySelector('[data-lp-stage]')
+    const cast = (stage?.dataset.lpStage ?? '').split(/\s+/).filter(Boolean)
+    const extras = orbs.filter((o) => cast.includes(o.orb.dataset.icon))
+    if (stage && extras.length && stage.dataset.lpStageBound !== 'true') {
+      stage.dataset.lpStageBound = 'true'
+      const STAGE_Z = { claude: '2' }
+      let onStage = false
+      let timers = []
+      // settle() puts the planet in its new place; then() runs once that
+      // has taken (a layout is forced), the only time a transition on
+      // the moved planet or its ring has a value to start from
+      const move = (o, to, index, settle, then) => {
+        const first = o.orb.getBoundingClientRect()
+        window.clearTimeout(o.moving)
+        o.orb.classList.remove('is-moving')
+        o.orb.style.transform = ''
+        o.orb.style.transitionDelay = ''
+        to.appendChild(o.orb)
+        settle()
+        const last = o.orb.getBoundingClientRect()
+        if (reduceMotion) {
+          then()
+          return
+        }
+        const dx = first.left + first.width / 2 - (last.left + last.width / 2)
+        const dy = first.top + first.height / 2 - (last.top + last.height / 2)
+        const k = first.width / last.width
+        o.orb.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})`
+        // the start takes before the transition is switched on
+        o.box = o.orb.getBoundingClientRect()
+        then()
+        o.orb.style.transitionDelay = `${index * 120}ms`
+        o.orb.classList.add('is-moving')
+        o.orb.style.transform = ''
+        o.moving = window.setTimeout(
+          () => {
+            o.orb.classList.remove('is-moving')
+            o.orb.style.transitionDelay = ''
+          },
+          1150 + index * 120,
+        )
+      }
+      const toStage = () => {
+        if (onStage) {
+          return
+        }
+        onStage = true
+        if (talk && extras.includes(talk.o)) {
+          stopTalk()
+        }
+        extras.forEach((o, index) => {
+          o.away = true
+          // the ring finishes its turn, on at the pace it had, and
+          // settles with the mark to the front; one still settling back
+          // from the last visit turns on from wherever it is
+          window.clearTimeout(o.settle)
+          const settling = o.settling
+          o.settling = false
+          const turned = settling ? 0 : ((o.angle % 360) + 360) % 360
+          if (!settling) {
+            o.ring.style.transition = ''
+            o.ring.style.transform = `rotateY(${turned}deg)`
+          }
+          move(
+            o,
+            stage,
+            index,
+            () => {
+              o.orb.style.translate = ''
+              o.orb.style.zIndex = STAGE_Z[o.orb.dataset.icon] ?? '1'
+              o.orb.classList.toggle('lp-orb--left', o.orb.dataset.icon === 'chatgpt')
+              o.orb.classList.remove('is-talking')
+              o.bubble?.classList.remove('is-typing')
+              o.bubble?.style.removeProperty('--bubble-shift')
+              o.shift = undefined
+              o.west = undefined
+              o.z = null
+              if (o.bubble) {
+                say(o.bubble, o.lines, 2)
+              }
+            },
+            () => {
+              const left = 360 - turned
+              // the front, a turn ahead of wherever the ring is
+              o.ringBase = settling ? (o.ringBase ?? 0) + 720 : 360
+              o.ring.style.transition = reduceMotion
+                ? ''
+                : `transform ${Math.round((left / 360) * LANDING_ORB_TURN * 1.3 + 400)}ms cubic-bezier(0.3, 0, 0.15, 1)`
+              o.ring.style.transform = `rotateY(${o.ringBase}deg)`
+              o.angle = 0
+            },
+          )
+          // the question once it has landed
+          const landed = (reduceMotion ? 200 : 1150) + index * 120
+          timers.push(
+            window.setTimeout(() => {
+              if (!reduceMotion) {
+                o.bubble?.classList.add('is-typing')
+              }
+              o.orb.classList.add('is-talking')
+            }, landed),
+          )
+          timers.push(window.setTimeout(() => o.bubble?.classList.remove('is-typing'), landed + 800))
+        })
+      }
+      const toOrbit = () => {
+        if (!onStage) {
+          return
+        }
+        onStage = false
+        timers.forEach((t) => window.clearTimeout(t))
+        timers = []
+        extras.forEach((o, index) => {
+          o.orb.classList.remove('is-talking')
+          o.bubble?.classList.remove('is-typing')
+          move(
+            o,
+            field,
+            index,
+            () => {
+              o.away = false
+              o.orb.classList.remove('lp-orb--left')
+              o.west = undefined
+              o.z = null
+              if (o.bubble) {
+                say(o.bubble, o.lines, 0)
+              }
+              if (geo) {
+                place(o)
+              }
+            },
+            () => {
+              // the ring turns on from the front to a phase of its own, all
+              // three over the same time and so each at its own pace, and
+              // the loop carries them on from there, a third of a turn
+              // apart
+              const phase = 120 * (index + 1)
+              const ms = reduceMotion ? 0 : 1800
+              o.phase = phase % 360
+              window.clearTimeout(o.settle)
+              if (ms) {
+                o.settling = true
+                o.ring.style.transition = `transform ${ms}ms linear`
+                o.ring.style.transform = `rotateY(${(o.ringBase ?? 0) + phase}deg)`
+                o.settle = window.setTimeout(() => {
+                  o.settling = false
+                  o.ring.style.transition = ''
+                  o.angle = o.phase
+                  o.ring.style.transform = `rotateY(${o.angle}deg)`
+                }, ms)
+              } else {
+                o.settling = false
+                o.ring.style.transition = ''
+                o.angle = o.phase
+                o.ring.style.transform = `rotateY(${o.angle}deg)`
+              }
+            },
+          )
+        })
+      }
+      // the planets come once the card has risen into the top part of
+      // the viewport (its top above the 45% line), and go back once it
+      // has dropped below that line; past the top they stay
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              toStage()
+            } else if (entry.boundingClientRect.top > 0) {
+              toOrbit()
+            }
+          })
+        },
+        { rootMargin: '0px 0px -55% 0px', threshold: 0 },
+      ).observe(stage)
+    }
+    orbs.forEach((o) => {
+      o.ring.style.transform = `rotateY(${o.angle}deg)`
+    })
+    if (reduceMotion) {
+      return
+    }
+
+    /* the motion, while the field is on screen and the page visible:
+       every ring turns and every planet moves along its orbit; a hovered
+       globe holds its place and heads for the nearest full turn of its
+       ring instead, the short way round, then carries on when the pointer
+       leaves */
+    let inView = false
+    let frame = 0
+    let last = null
+    const tick = (now) => {
+      frame = 0
+      const dt = last === null ? 0 : Math.min(now - last, 100)
+      last = now
+      orbs.forEach((o) => {
+        if (o.away) {
+          return
+        }
+        // a ring settling back from the stage is on a transition of its own
+        if (!o.settling) {
+          if (o.target === null) {
+            o.angle = (o.angle + (360 * dt) / LANDING_ORB_TURN) % 360
+          } else {
+            const gap = o.target - o.angle
+            o.angle = Math.abs(gap) < 0.05 ? o.target : o.angle + gap * (1 - Math.exp(-dt / 110))
+          }
+          o.ring.style.transform = `rotateY(${o.angle}deg)`
+        }
+        if (geo) {
+          if (!o.hover) {
+            o.lapTime += dt / 1000
+          }
+          place(o)
+        }
+      })
+      if (talk && hasSun && sunAngle !== 0) {
+        sunAngle = Math.abs(sunAngle) < 0.05 ? 0 : sunAngle * Math.exp(-dt / 160)
+        sunRing.style.transform = `rotateY(${sunAngle}deg)`
+      }
+      if (inView && !document.hidden) {
+        frame = requestAnimationFrame(tick)
+      }
+    }
+    const sync = () => {
+      if (inView && !document.hidden) {
+        if (!frame) {
+          last = null
+          frame = requestAnimationFrame(tick)
+        }
+      } else if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          inView = entry.isIntersecting
+        })
+        sync()
+      },
+      { threshold: 0.1 },
+    )
+    observer.observe(field)
+    document.addEventListener('visibilitychange', sync)
+  })
+})
+
 /* Each chat plays every time it scrolls into view. */
 const initLandingChat = debounce(() => {
   const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
@@ -1735,6 +2585,46 @@ const initLandingPrompt = debounce(() => {
 })
 /* lp-funnel:end */
 
+/* "Onboard your agent" in the hero (after vercel.com): the three agent
+   marks come from the icon templates; a click puts the setup prompt from
+   the prompt section on the clipboard, as the text that section's Copy
+   gives, and the button shows its copied state for a moment */
+const initLandingOnboard = () => {
+  document.querySelectorAll('[data-lp-onboard]').forEach((button) => {
+    if (button.dataset.lpOnboardBound === 'true') {
+      return
+    }
+    button.dataset.lpOnboardBound = 'true'
+    button.querySelectorAll('.lp-onboard-agent[data-icon]').forEach((slot) => {
+      const template = document.getElementById(`lp-icon-${slot.dataset.icon}`)
+      if (!template) {
+        return
+      }
+      slot.replaceChildren(template.content.cloneNode(true))
+      // the marks take the text colour, so their gradient defs (and the
+      // ids the globes also clone) are not needed here
+      slot.querySelectorAll('defs').forEach((defs) => defs.remove())
+    })
+    let timer = 0
+    button.addEventListener('click', () => {
+      const text = document.querySelector('#lp-prompts .lp-prompt-text')
+      const prompt = text ? landingPromptText(text) : ''
+      if (!prompt || !navigator.clipboard) {
+        return
+      }
+      navigator.clipboard
+        .writeText(prompt)
+        .then(() => {
+          button.classList.add('is-copied')
+          button.dispatchEvent(new CustomEvent('lp-onboard-copied'))
+          window.clearTimeout(timer)
+          timer = window.setTimeout(() => button.classList.remove('is-copied'), 2200)
+        })
+        .catch(() => {})
+    })
+  })
+}
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
@@ -1742,6 +2632,8 @@ initHeroSdkTabs()
 initHeroScenes()
 initHeroCards()
 initLandingBoxLinks()
+initLandingOrbs()
+initLandingOnboard()
 initLandingChat()
 initLandingFlow()
 initLandingPrompt()
@@ -1761,6 +2653,8 @@ const observer = new MutationObserver((records) => {
   initHeroScenes()
   initHeroCards()
   initLandingBoxLinks()
+  initLandingOrbs()
+  initLandingOnboard()
   initLandingChat()
   initLandingFlow()
   initLandingPrompt()
