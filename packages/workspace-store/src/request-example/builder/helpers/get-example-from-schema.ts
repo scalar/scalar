@@ -21,7 +21,7 @@ const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
  */
 const currentISOString = new Date().toISOString()
 const currentDateString = currentISOString.split('T')[0]!
-const currentTimeString = currentISOString.split('T')[1]!.split('.')[0]!
+const currentTimeString = currentISOString.split('T')[1]!
 
 /**
  * Mapping of OpenAPI string formats to example values.
@@ -30,20 +30,21 @@ const currentTimeString = currentISOString.split('T')[1]!.split('.')[0]!
 const genericExampleValues: Record<string, string> = {
   'date-time': currentISOString,
   'date': currentDateString,
+  'duration': 'P1D',
   'email': 'hello@example.com',
   'hostname': 'example.com',
   // https://tools.ietf.org/html/rfc6531#section-3.3
   'idn-email': 'jane.doe@example.com',
   // https://tools.ietf.org/html/rfc5890#section-2.3.2.3
   'idn-hostname': 'example.com',
-  'ipv4': '127.0.0.1',
-  'ipv6': '51d4:7fab:bfbf:b7d7:b2cb:d4b4:3dad:d998',
-  'iri-reference': '/entitiy/1',
+  'ipv4': '192.0.2.1',
+  'ipv6': '2001:db8::1',
+  'iri-reference': '/entity/1',
   // https://tools.ietf.org/html/rfc3987
   'iri': 'https://example.com/entity/123',
   'json-pointer': '/nested/objects',
   'password': 'super-secret',
-  'regex': '/[a-z]/',
+  'regex': '[a-z]',
   // https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01
   'relative-json-pointer': '1/nested/objects',
   // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
@@ -53,6 +54,15 @@ const genericExampleValues: Record<string, string> = {
   'uri-template': 'https://example.com/{id}',
   'uri': 'https://example.com',
   'uuid': '123e4567-e89b-12d3-a456-426614174000',
+  // Keep the version and variant bits consistent with each requested UUID format.
+  'uuid1': 'c232ab00-9414-11ec-b3c8-9f6bdeced846',
+  'uuid2': '000003e8-9414-21ec-b300-9f6bdeced846',
+  'uuid3': '5df41881-3aed-3515-88a7-2f4a814cf09e',
+  'uuid4': '919108f7-52d1-4320-9bac-f847db4148a8',
+  'uuid5': '2ed6657d-e927-568b-95e1-2665a8aea6a2',
+  'uuid6': '1ec9414c-232a-6b00-b3c8-9f6bdeced846',
+  'uuid7': '017f22e2-79b0-7cc3-98c4-dc0c0c07398f',
+  'uuid8': '2489e9ad-2ee2-8e00-8ec9-32d5f69181c0',
   'object-id': '6592008029c8c3e4dc76256c',
 }
 
@@ -87,13 +97,13 @@ const guessFromFormat = (
     return '@filename'
   }
 
-  // Return format-specific example if we have one and are making up data
-  if (makeUpRandomData && 'format' in schema && schema.format) {
-    // Some generators emit version-specific UUID formats (for example FastAPI/Pydantic
-    // uses uuid1, uuid3, uuid4 and uuid5). Treat them all like a regular uuid.
-    const format = /^uuid[1-8]$/.test(schema.format) ? 'uuid' : schema.format
+  if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
+    // Password and object-id retain their opt-in placeholders; other known formats need valid syntax.
+    if (schema.format === 'password' || schema.format === 'object-id') {
+      return makeUpRandomData ? genericExampleValues[schema.format]! : fallback
+    }
 
-    return genericExampleValues[format] ?? fallback
+    return genericExampleValues[schema.format]!
   }
 
   return fallback
