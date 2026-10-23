@@ -96,6 +96,9 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
+    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
+    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -138,6 +141,9 @@ describe('ScalarCodeBlock', () => {
 
     await flushPromises()
 
+    // The grammar loads on demand, and v-html swaps the <code> element when it arrives
+    await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-'))
+
     // Check the outer elements - the pre element contains v-html with highlighted code
     const pre = wrapper.find('pre')
     expect(pre.element.nodeName.toLowerCase()).toBe('pre')
@@ -166,6 +172,43 @@ describe('ScalarCodeBlock', () => {
     <span class="hljs-punctuation">}</span>
   <span class="hljs-punctuation">}</span>
 <span class="hljs-punctuation">}</span></code>`)
+  })
+
+  describe('loading grammars on demand', () => {
+    it('renders plain text first and highlights once the grammar has loaded', async () => {
+      // No other test highlights Python, so its grammar is not loaded yet
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'def greet(): pass', lang: 'python' } })
+
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-python">def greet(): pass</code>')
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').text()).toBe('def greet(): pass')
+    })
+
+    it('loads the grammar for an alias', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'fn main() {}', lang: 'rs' } })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').classes()).toContain('language-rs')
+    })
+
+    it('loads the grammar for a language it switches to', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: 'SELECT 1', lang: 'plaintext' } })
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-plaintext">SELECT 1</code>')
+
+      await wrapper.setProps({ lang: 'sql' })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+    })
+
+    it('leaves a language without a grammar as escaped plain text', async () => {
+      wrapper = mount(ScalarCodeBlock, { props: { content: '<b>bold</b>', lang: 'not-a-language' } })
+      await flushPromises()
+
+      expect(wrapper.get('code').html()).toBe(
+        '<code class="hljs language-not-a-language">&lt;b&gt;bold&lt;/b&gt;</code>',
+      )
+    })
   })
 
   describe('ScalarCodeBlockCopy', () => {

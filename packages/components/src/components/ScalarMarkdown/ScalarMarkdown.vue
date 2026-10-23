@@ -19,7 +19,9 @@ import {
   type Node,
 } from '@scalar/markdown'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, useTemplateRef } from 'vue'
+import { computed, useTemplateRef, watch } from 'vue'
+
+import { isGrammarLoaded, loadGrammar } from '@/helpers/load-grammar'
 
 import type { ScalarMarkdownProps } from './types'
 import { useMarkdownRenderHooks } from './useMarkdownRenderHooks'
@@ -71,14 +73,32 @@ const transformHeading = (node: Node) => {
   return node
 }
 
-const html = computed(() => {
-  return htmlFromMarkdown(value ?? '', {
+/** The rendered HTML, and the languages of the code blocks that still wait on a grammar */
+const rendered = computed(() => {
+  const missingLanguages: string[] = []
+
+  const html = htmlFromMarkdown(value ?? '', {
     removeTags: withImages ? [] : ['img', 'picture'],
     transform:
       withAnchors && transformType === 'heading' ? transformHeading : transform,
     transformType,
+    onMissingLanguage: (lang) => {
+      missingLanguages.push(lang)
+      // Read so the Markdown renders again once this grammar has loaded
+      isGrammarLoaded(lang)
+    },
   })
+
+  return { html, missingLanguages }
 })
+
+const html = computed(() => rendered.value.html)
+
+watch(
+  () => rendered.value.missingLanguages,
+  (languages) => languages.forEach(loadGrammar),
+  { immediate: true },
+)
 useMarkdownRenderHooks(
   templateRef,
   () => value ?? '',
