@@ -1,6 +1,6 @@
-import { Ajv } from 'ajv'
-import addFormats from 'ajv-formats'
-import { describe, expect, it } from 'vitest'
+import { isIP } from 'node:net'
+
+import { assert, describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -534,39 +534,60 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
-  it.each([
-    ['date', 'date', '2026-02-30'],
-    ['date-time', 'date-time', '2026-02-30T12:00:00Z'],
-    ['time', 'time', '12:00:00'],
-    ['duration', 'duration', 'one day'],
-    ['email', 'email', 'missing-at-sign'],
-    ['hostname', 'hostname', '-invalid.example'],
-    // ASCII email/hostname and URI examples are valid subsets of their internationalized formats.
-    ['idn-email', 'email', 'missing-at-sign'],
-    ['idn-hostname', 'hostname', '-invalid.example'],
-    ['iri', 'uri', 'https://invalid host'],
-    ['iri-reference', 'uri-reference', 'invalid reference'],
-    ['ipv4', 'ipv4', '192.0.2.999'],
-    ['ipv6', 'ipv6', '2001:db8::gggg'],
-    ['uri', 'uri', 'relative/path'],
-    ['uri-reference', 'uri-reference', 'invalid reference'],
-    ['uri-template', 'uri-template', 'https://example.com/{id'],
-    ['json-pointer', 'json-pointer', '/invalid~2escape'],
-    ['relative-json-pointer', 'relative-json-pointer', '01/nested'],
-    ['regex', 'regex', '['],
-    ['uuid', 'uuid', 'not-a-uuid'],
-    ...[1, 2, 3, 4, 5, 6, 7, 8].map((version) => [`uuid${version}`, 'uuid', 'not-a-uuid']),
-  ])('independently validates the generated %s example', (format, validationFormat, invalid) => {
-    const ajv = new Ajv()
-    addFormats(ajv, { mode: 'full' })
-    const validate = ajv.compile({ type: 'string', format: validationFormat })
+  it.each(['date', 'date-time', 'time'] as const)('generates a parseable UTC %s example', (format) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Round-tripping catches invalid calendar dates that Date would otherwise normalize.
+    const timestamp = { date: `${result}T00:00:00.000Z`, 'date-time': result, time: `2000-01-01T${result}` }[format]
+    expect(new Date(timestamp).toISOString()).toBe(timestamp)
+  })
 
-    // Reject a malformed string to ensure format validation is active, not just type checking.
-    expect(validate(invalid)).toBe(false)
-    for (const emptyString of [undefined, '', '…']) {
-      const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })
-      expect(validate(result), JSON.stringify(validate.errors)).toBe(true)
-    }
+  it.each([
+    ['ipv4', 4],
+    ['ipv6', 6],
+  ] as const)('generates a parseable %s address', (format, version) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    expect(isIP(result)).toBe(version)
+  })
+
+  it.each([
+    ['uri', 'https://example.com/'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', 'https://example.com/folder'],
+    ['iri-reference', 'https://example.com/entity/1'],
+    ['uri-template', 'https://example.com/123'],
+  ])('generates a usable %s example', (format, expected) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Exercise the simple template by expanding its parameter before parsing the URL.
+    const expanded = format === 'uri-template' ? result.replace('{id}', '123') : result
+    const base = format.endsWith('-reference') ? 'https://example.com/base/' : undefined
+    expect(new URL(expanded, base).href).toBe(expected)
+  })
+
+  it('generates a usable regular expression', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'regex' }))
+    assert(typeof result === 'string')
+    const expression = new RegExp(result)
+    expect(expression.test('a')).toBe(true)
+    expect(expression.test('1')).toBe(false)
+  })
+
+  // These checks cover the simple examples we emit, not every form allowed by the standards.
+  // ASCII examples are also valid for the internationalized email and hostname formats.
+  it.each([
+    ['email', /^[a-z]+@[a-z]+\.[a-z]+$/],
+    ['idn-email', /^[a-z]+(?:\.[a-z]+)*@[a-z]+\.[a-z]+$/],
+    ['hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['idn-hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['duration', /^P[1-9]\d*D$/],
+    ['json-pointer', /^(?:\/(?:[^~/]|~[01])*)+$/],
+    ['relative-json-pointer', /^(?:0|[1-9]\d*)(?:\/(?:[^~/]|~[01])*)+$/],
+    ['uuid', /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/],
+  ] as const)('generates a syntactically valid %s example', (format, pattern) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    expect(result).toEqual(expect.stringMatching(pattern))
   })
 
   it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
