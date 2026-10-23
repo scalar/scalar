@@ -89,7 +89,12 @@
 </div>
   <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
-<div class="lp-stage" data-lp-stage="chatgpt grok claude"></div>
+<div class="lp-stage" data-lp-stage="chatgpt grok claude">
+<div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+<div class="lp-stage-sun"><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
+<div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+<div class="lp-stage-says"><span class="lp-stage-say lp-stage-say--w">Yes, there is an llms.txt.</span><span class="lp-stage-say lp-stage-say--se">Every page is Markdown too.</span><span class="lp-stage-say lp-stage-say--ne">The auth guide, in the docs.</span><span class="lp-stage-say lp-stage-say--sw">SDKs in six languages.</span><span class="lp-stage-say lp-stage-say--e">A hosted MCP server.</span><span class="lp-stage-say lp-stage-say--nw">All from one OpenAPI document.</span></div>
+</div>
 </div>
   </div>
 </section>
@@ -1043,9 +1048,11 @@
     width: max-content;
     max-width: 250px;
     padding: 12px 16px;
-    border-radius: 20px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    /* a speech bubble: the corner nearest its planet is the tight one,
+       set per placement */
+    border-radius: var(--r-tl, 20px) var(--r-tr, 20px) var(--r-br, 20px) var(--r-bl, 20px);
     background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
-    box-shadow: var(--scalar-shadow-1);
     font-family: var(--scalar-font);
     font-size: 14px;
     line-height: 1.4;
@@ -1068,7 +1075,12 @@
   /* set by the script: the bubble opens towards the copy, and
      --bubble-shift nudges it back inside the content box when its
      planet is clipped at the edge */
+  .lp-orb-bubble {
+    --r-bl: 6px;
+  }
   .lp-orb--left .lp-orb-bubble {
+    --r-bl: 20px;
+    --r-br: 6px;
     left: auto;
     right: 50%;
   }
@@ -1106,21 +1118,15 @@
       width 480ms cubic-bezier(0.22, 1, 0.36, 1),
       height 480ms cubic-bezier(0.22, 1, 0.36, 1);
   }
-  /* the padding stays, so nothing inside shifts when the pill is back
-     in the row */
   .lp-section--hero .lp-hero-cta .lp-onboard.is-flying {
     position: absolute;
     z-index: 2;
-    overflow: hidden;
   }
   /* the row keeps its box and its items' places while the pill is out
      of it (the script sets its size), so Get Started never re-centres */
   .lp-section--hero .lp-hero-cta.is-held {
     justify-content: flex-start;
     align-content: flex-start;
-  }
-  .lp-section--hero.lp-hero--talk .lp-hero-cta .lp-onboard:hover {
-    background: var(--scalar-background-1);
   }
   /* the pill's contents go first and come back last, once the pill is
      a pill again */
@@ -1130,6 +1136,7 @@
   }
   .lp-hero--talk .lp-onboard > :not(.lp-sun) {
     opacity: 0;
+    transition-duration: 120ms;
     transition-delay: 0s;
   }
   /* the copy out of the globe's way, and back when the talk ends */
@@ -1177,66 +1184,119 @@
     outline-offset: 3px;
     border-radius: 50%;
   }
-  /* Saturn: a ring round the Scalar globe at the galaxy's centre, a
-     tilted ellipse in a spectrum that drifts round it, its back half
-     behind the globe and its front half over it: two copies in the
-     field, the front one clipped to its lower half, each a square of
-     conic gradient turning under an elliptical mask with the hole cut
-     out. The script puts them on the centre with the globe's bubble;
-     they come in with the globe and the colours turn only while the
-     globe shows */
+  /* Saturn: a ring round the onboard button, for a talk: it is revealed
+     round the pill in a circular wipe as the pill flies and grows into
+     the wide band round the globe at the galaxy's centre, and wiped away
+     the same way round as it shrinks back; at rest nothing shows. Its back half sits behind the copy and its front
+     half over it (two copies in the field, the front one clipped to its
+     lower half), each an ellipse cut to a band by a mask, over a wipe
+     (a conic mask between two animated angles) over a square of
+     spectrum that turns once round every few seconds. The script keeps
+     them on the pill, and on the centre for a talk; the size, tilt and
+     band move on the same curve as the pill's flight, so the ring grows
+     with the globe and shrinks back round the pill */
   .lp-sun-halo {
-    --w: 390px;
-    --h: 136px;
     position: absolute;
     left: 0;
     top: 0;
     z-index: 0;
-    width: var(--w);
-    height: var(--h);
-    margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
-    rotate: -16deg;
-    opacity: 0;
-    scale: 0.6;
+    /* round the pill: an ellipse 6px beyond its ends and its top and
+       bottom (the script sets the size from the pill), with a trace of
+       tilt, so the band hugs the button all round and only crosses its
+       rounded corners, behind the upper ones and over the lower; the
+       globe's is the wide tilted ellipse */
+    width: var(--hw, 260px);
+    height: var(--hh, 52px);
+    padding: 1.5px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    rotate: -2deg;
+    /* centred by the script's translate (its own half-size is taken off
+       there, before the tilt turns anything) */
     transition:
-      opacity 320ms ease 260ms,
-      scale 560ms cubic-bezier(0.22, 1, 0.36, 1) 260ms;
+      translate 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      padding 480ms cubic-bezier(0.22, 1, 0.36, 1),
+      rotate 480ms cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
-    /* hard edges: the band's sides turn within half a per cent, just
-       enough to keep them smooth */
-    -webkit-mask: radial-gradient(closest-side, transparent 61.5%, #000 62%, #000 95.5%, transparent 96%);
-    mask: radial-gradient(closest-side, transparent 61.5%, #000 62%, #000 95.5%, transparent 96%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
   }
   .lp-sun-halo--front {
     z-index: 2;
     clip-path: inset(50% 0 0 0);
   }
+  /* the wipe: the band shows from --lp-tail round to --lp-head. At rest
+     the two meet and nothing shows. For a talk the script first sets
+     both to the start (still nothing), then the head eases round to
+     reveal the whole band as the ring grows; when the talk ends the tail
+     eases round after it, wiping the band away as the ring shrinks */
+  @property --lp-head {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 360deg;
+  }
+  @property --lp-tail {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+  .lp-sun-halo-reveal {
+    --lp-head: 360deg;
+    --lp-tail: 360deg;
+    position: absolute;
+    inset: 0;
+    -webkit-mask: conic-gradient(from -90deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
+    mask: conic-gradient(from -90deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
+    transition:
+      --lp-head 600ms cubic-bezier(0.45, 0, 0.2, 1),
+      --lp-tail 900ms cubic-bezier(0.45, 0, 0.2, 1);
+  }
   .lp-sun-halo-paint {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: calc(var(--w) * 1.1);
-    height: calc(var(--w) * 1.1);
-    margin: calc(var(--w) * -0.55) 0 0 calc(var(--w) * -0.55);
+    width: 440px;
+    height: 440px;
+    margin: -220px 0 0 -220px;
     background: conic-gradient(from 0deg, #ff6b57, #ffb347, #ffe66d, #6ee7b7, #4fd3ff, #8b6bff, #ff5fa8, #ff6b57);
-    animation: lp-halo-turn 14s linear infinite paused;
+    animation: lp-halo-turn 9s infinite;
   }
+  /* the globe's ring: the band from 65% to the edge of a 374×131
+     ellipse, the proportions of the first one */
   .lp-hero--talk .lp-sun-halo {
-    opacity: 1;
-    scale: 1;
+    width: 374px;
+    height: 131px;
+    padding: 23px 66px;
+    rotate: -16deg;
   }
-  .lp-hero--talk .lp-sun-halo-paint {
-    animation-play-state: running;
+  .lp-hero--talk .lp-sun-halo-reveal {
+    --lp-head: 360deg;
+    --lp-tail: 0deg;
   }
   @keyframes lp-halo-turn {
-    to {
+    0% {
+      transform: rotate(0deg);
+      animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+    }
+    18%,
+    100% {
       transform: rotate(360deg);
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .lp-sun-halo {
-      scale: 1;
-      transition: opacity 240ms ease 260ms;
+      transition: none;
+    }
+    .lp-sun-halo-reveal {
+      transition: none;
     }
     .lp-sun-halo-paint {
       animation: none;
@@ -1252,9 +1312,11 @@
     width: max-content;
     max-width: 250px;
     padding: 12px 16px;
-    border-radius: 20px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    /* a speech bubble: the corner nearest its planet is the tight one,
+       set per placement */
+    border-radius: var(--r-tl, 20px) var(--r-tr, 20px) var(--r-br, 20px) var(--r-bl, 20px);
     background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
-    box-shadow: var(--scalar-shadow-1);
     font-family: var(--scalar-font);
     font-size: 14px;
     line-height: 1.4;
@@ -1270,6 +1332,22 @@
       scale 220ms ease,
       visibility 0s linear 220ms;
     pointer-events: none;
+  }
+  .lp-sun-bubble {
+    --r-tl: 6px;
+  }
+  .lp-sun-bubble--left {
+    --r-tl: 20px;
+    --r-tr: 6px;
+  }
+  .lp-sun-bubble--above {
+    --r-tl: 20px;
+    --r-bl: 6px;
+  }
+  .lp-sun-bubble--left.lp-sun-bubble--above {
+    --r-tr: 20px;
+    --r-bl: 20px;
+    --r-br: 6px;
   }
   .lp-sun-bubble.is-on {
     opacity: 1;
@@ -1400,11 +1478,15 @@
      to the left (its --left class), Grok's down and to the right,
      Claude's down and to the left */
   .lp-stage .lp-orb--grok .lp-orb-bubble {
+    --r-bl: 20px;
+    --r-tl: 6px;
     bottom: auto;
     top: 66%;
     left: 34%;
   }
   .lp-stage .lp-orb--claude .lp-orb-bubble {
+    --r-bl: 20px;
+    --r-tr: 6px;
     bottom: 8%;
     left: auto;
     right: 62%;
@@ -1449,15 +1531,21 @@
     }
     /* on a phone-wide card the bubbles open the other way, into the card */
     .lp-stage .lp-orb--chatgpt .lp-orb-bubble {
+      --r-br: 20px;
+      --r-bl: 6px;
       bottom: 55%;
       left: 40%;
       right: auto;
     }
     .lp-stage .lp-orb--grok .lp-orb-bubble {
+      --r-tl: 20px;
+      --r-tr: 6px;
       left: auto;
       right: 40%;
     }
     .lp-stage .lp-orb--claude .lp-orb-bubble {
+      --r-tr: 20px;
+      --r-tl: 6px;
       left: 6%;
       right: auto;
     }
@@ -1465,6 +1553,204 @@
   @media (prefers-reduced-motion: reduce) {
     .lp-orb.is-moving {
       transition: none;
+    }
+  }
+  /* The card's second act. A few seconds after the questions the Scalar
+     globe rises at the centre with its ring, the three planets shrink
+     and settle into an orbit round it (landing.js moves them), and
+     Scalar's answers come and go round the globe, two or three at a
+     time at fixed spots, each with its tight corner to the globe, after
+     the labels round the orb on x.ai/voice. A planet's size is a
+     registered length, so it can ease between its sizes */
+  @property --s {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 100px;
+  }
+  .lp-stage .lp-orb {
+    transition: --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  /* a planet flying into the card keeps its flight transition as well */
+  .lp-stage .lp-orb.is-moving {
+    transition:
+      transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+      --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-stage.is-orbit .lp-orb--chatgpt {
+    --s: 96px;
+  }
+  .lp-stage.is-orbit .lp-orb--grok {
+    --s: 84px;
+  }
+  .lp-stage.is-orbit .lp-orb--claude {
+    --s: 104px;
+  }
+  /* the globe: the pill's surface as a circle, dressed like the hero's */
+  .lp-stage-sun {
+    --s: 180px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: var(--s);
+    height: var(--s);
+    margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 50%;
+    background: var(--scalar-background-1);
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 400ms ease,
+      scale 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+  .lp-stage-sun .lp-sun {
+    --s: 180px;
+  }
+  .lp-stage.is-sun .lp-stage-sun {
+    opacity: 1;
+    scale: 1;
+  }
+  .lp-stage.is-sun .lp-stage-sun .lp-sun {
+    opacity: 1;
+    transition-delay: 300ms;
+  }
+  /* the ring halves, in the globe's geometry, centred before the tilt */
+  .lp-stage .lp-sun-halo {
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+    width: 374px;
+    height: 131px;
+    padding: 23px 66px;
+    rotate: -16deg;
+    translate: -50% -50%;
+  }
+  .lp-stage .lp-sun-halo--front {
+    z-index: 4;
+  }
+  .lp-stage.is-sun .lp-sun-halo-reveal {
+    --lp-head: 360deg;
+    --lp-tail: 0deg;
+  }
+  /* the answers: six spots round the globe, each bubble shown by the
+     script in turn */
+  .lp-stage-says {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+  }
+  .lp-stage-say {
+    position: absolute;
+    width: max-content;
+    max-width: 230px;
+    padding: 12px 16px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--r-tl, 20px) var(--r-tr, 20px) var(--r-br, 20px) var(--r-bl, 20px);
+    background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
+    font-family: var(--scalar-font);
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--scalar-color-1);
+    opacity: 0;
+    scale: 0.9;
+    transition:
+      opacity 360ms ease,
+      scale 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-stage-say.is-on {
+    opacity: 1;
+    scale: 1;
+  }
+  .lp-stage-say--w {
+    --r-br: 6px;
+    right: calc(50% + 104px);
+    top: calc(50% - 44px);
+  }
+  .lp-stage-say--e {
+    --r-bl: 6px;
+    left: calc(50% + 104px);
+    top: calc(50% - 44px);
+  }
+  .lp-stage-say--nw {
+    --r-br: 6px;
+    right: calc(50% + 36px);
+    bottom: calc(50% + 78px);
+  }
+  .lp-stage-say--ne {
+    --r-bl: 6px;
+    left: calc(50% + 36px);
+    bottom: calc(50% + 78px);
+  }
+  .lp-stage-say--sw {
+    --r-tr: 6px;
+    right: calc(50% + 36px);
+    top: calc(50% + 78px);
+  }
+  .lp-stage-say--se {
+    --r-tl: 6px;
+    left: calc(50% + 36px);
+    top: calc(50% + 78px);
+  }
+  @container lp-card (max-width: 480px) {
+    .lp-stage-sun,
+    .lp-stage-sun .lp-sun {
+      --s: 120px;
+    }
+    .lp-stage .lp-sun-halo {
+      width: 250px;
+      height: 86px;
+      padding: 15px 44px;
+    }
+    .lp-stage.is-orbit .lp-orb--chatgpt {
+      --s: 64px;
+    }
+    .lp-stage.is-orbit .lp-orb--grok {
+      --s: 56px;
+    }
+    .lp-stage.is-orbit .lp-orb--claude {
+      --s: 70px;
+    }
+    /* on a phone-wide card the spots sit closer and the bubbles are
+       narrower, so every one stays inside the content box */
+    .lp-stage-say {
+      max-width: 140px;
+    }
+    .lp-stage-say--w,
+    .lp-stage-say--e {
+      top: calc(50% - 30px);
+    }
+    .lp-stage-say--w {
+      right: calc(50% + 56px);
+    }
+    .lp-stage-say--e {
+      left: calc(50% + 56px);
+    }
+    .lp-stage-say--nw,
+    .lp-stage-say--sw {
+      right: calc(50% + 24px);
+    }
+    .lp-stage-say--ne,
+    .lp-stage-say--se {
+      left: calc(50% + 24px);
+    }
+    .lp-stage-say--nw,
+    .lp-stage-say--ne {
+      bottom: calc(50% + 50px);
+    }
+    .lp-stage-say--sw,
+    .lp-stage-say--se {
+      top: calc(50% + 50px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-stage .lp-orb,
+    .lp-stage .lp-orb.is-moving,
+    .lp-stage-sun,
+    .lp-stage-say {
+      transition: opacity 300ms ease;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1656,8 +1942,13 @@
   }
   .lp-body {
     margin: 0;
+    font-size: 14px;
     line-height: 1.55;
     text-wrap: pretty;
+  }
+  /* the section headings break into even lines */
+  .lp-copy .t-editor__heading {
+    text-wrap: balance;
   }
   .lp .lp-points,
   .lp .lp-grid {
@@ -3785,9 +4076,10 @@
     .lp-sun {
       --s: 120px;
     }
-    .lp-sun-halo {
-      --w: 260px;
-      --h: 90px;
+    .lp-hero--talk .lp-sun-halo {
+      width: 250px;
+      height: 86px;
+      padding: 15px 44px;
     }
     /* the hero keeps filling the first screen (the rule above makes the
        other sections content-high) */

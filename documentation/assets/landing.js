@@ -1056,15 +1056,36 @@ const initLandingOrbs = debounce(() => {
       '<span class="lp-say is-on"></span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span>'
     const sunSay = sunBubble.querySelector('.lp-say')
     // Saturn's ring, in two halves: the back one under the copy, the
-    // front one over it
+    // front one over it. It wraps the pill in the row, and the globe at
+    // the centre for a talk
     const halos = ['', ' lp-sun-halo--front'].map((kind) => {
       const halo = document.createElement('div')
       halo.className = `lp-sun-halo${kind}`
-      halo.innerHTML = '<div class="lp-sun-halo-paint"></div>'
+      halo.innerHTML = '<div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div>'
       return halo
     })
     if (hasSun) {
       field.append(...halos, sunBubble)
+    }
+    // the ring's own half-size comes off in the translate, which runs
+    // before the tilt, so the tilt turns the ring about its centre
+    const placeHalos = (x, y) => {
+      halos.forEach((halo) => {
+        halo.style.translate = `calc(${x.toFixed(1)}px - 50%) calc(${y.toFixed(1)}px - 50%)`
+      })
+    }
+    // on the pill: 6px beyond it on every side
+    const haloHome = () => {
+      if (!hasSun || home) {
+        return
+      }
+      const box = field.getBoundingClientRect()
+      const b = button.getBoundingClientRect()
+      halos.forEach((halo) => {
+        halo.style.setProperty('--hw', `${(b.width + 12).toFixed(1)}px`)
+        halo.style.setProperty('--hh', `${(b.height + 12).toFixed(1)}px`)
+      })
+      placeHalos(b.left + b.width / 2 - box.left, b.top + b.height / 2 - box.top)
     }
     let talk = null
     // a bubble shows the dots, or one of its lines
@@ -1086,9 +1107,7 @@ const initLandingOrbs = debounce(() => {
       }
       const mid = geo.cx
       const top = geo.cy + sunSize * 0.3
-      halos.forEach((halo) => {
-        halo.style.translate = `${mid.toFixed(1)}px ${geo.cy.toFixed(1)}px`
-      })
+      placeHalos(mid, geo.cy)
       const bw = 250
       const bh = 66
       const planetMid = keepClear[0] ? (keepClear[0].l + keepClear[0].r) / 2 : mid
@@ -1113,6 +1132,10 @@ const initLandingOrbs = debounce(() => {
       } else {
         y = Math.max(top, ...keepClear.map((k) => k.b))
       }
+      // the tight corner points at the globe: which side it opens to,
+      // and whether it is above
+      sunBubble.classList.toggle('lp-sun-bubble--left', start === mid - bw)
+      sunBubble.classList.toggle('lp-sun-bubble--above', y < top)
       // a bubble opening leftwards hangs from its right edge, so the
       // dots and a short line sit by the globe like a full line does
       sunBubble.style.translate =
@@ -1168,6 +1191,8 @@ const initLandingOrbs = debounce(() => {
         row.classList.remove('is-held')
         row.style.removeProperty('width')
         row.style.removeProperty('height')
+        // the ring on the pill where it stands in the row again
+        haloHome()
       }, 500)
     }
     const stopTalk = () => {
@@ -1186,12 +1211,17 @@ const initLandingOrbs = debounce(() => {
       o.bubble?.classList.remove('is-typing')
       sunBubble.classList.remove('is-on')
       sunBubble.classList.remove('is-typing')
-      if (hasSun) {
-        land()
-      }
+      // the planet moves on first: nothing below may keep it held
       o.hover = false
       o.angle = ((o.angle % 360) + 360) % 360
       o.target = null
+      if (hasSun && home) {
+        // the pill flew: it lands, and the ring heads for its home
+        land()
+        const box = field.getBoundingClientRect()
+        const at = button.offsetParent?.getBoundingClientRect() ?? box
+        placeHalos(at.left + home.left + home.w / 2 - box.left, at.top + home.top + home.h / 2 - box.top)
+      }
     }
     const startTalk = (o) => {
       if (talk?.o === o) {
@@ -1259,6 +1289,19 @@ const initLandingOrbs = debounce(() => {
       sunRing.style.transform = `rotateY(${sunAngle}deg)`
       placeSun(keepClear)
       fly(box, at, start)
+      // the ring's wipe from its start, so the band is revealed the way
+      // round it will be wiped away: both angles to the start with no
+      // transition (nothing shows either way), then the talk's values
+      halos.forEach((halo) => {
+        const reveal = halo.firstElementChild
+        reveal.style.transition = 'none'
+        reveal.style.setProperty('--lp-head', '0deg')
+        reveal.style.setProperty('--lp-tail', '0deg')
+        o.box = reveal.getBoundingClientRect()
+        reveal.style.transition = ''
+        reveal.style.removeProperty('--lp-head')
+        reveal.style.removeProperty('--lp-tail')
+      })
       hero.classList.add('lp-hero--talk')
       talk.timers = LANDING_TALK.map(([at, who, what]) =>
         window.setTimeout(() => {
@@ -1343,6 +1386,7 @@ const initLandingOrbs = debounce(() => {
     const apply = () => {
       // a talk in flight was laid out for the old size: it ends
       stopTalk()
+      haloHome()
       if (sun) {
         sunSize = Number.parseFloat(getComputedStyle(sun).getPropertyValue('--s')) || sunSize
       }
@@ -1352,6 +1396,17 @@ const initLandingOrbs = debounce(() => {
     }
     apply()
     new ResizeObserver(apply).observe(field)
+    // the orbit's state, for the page's tests
+    field.lpOrbs = () =>
+      orbs.map((o) => ({
+        label: o.orb.dataset.label,
+        hover: o.hover,
+        away: Boolean(o.away),
+        settling: Boolean(o.settling),
+        target: o.target,
+        lapTime: Number(o.lapTime.toFixed(2)),
+        talking: talk?.o === o,
+      }))
 
     /* The Docs card. As it scrolls into view, the planets it names leave
        their orbits for its stage: the same elements, moved there and
@@ -1370,6 +1425,126 @@ const initLandingOrbs = debounce(() => {
       const STAGE_Z = { claude: '2' }
       let onStage = false
       let timers = []
+      /* the second act: the globe, its ring and the answers are in the
+         stage's markup; the globe is dressed like the hero's. Once the
+         questions have been up a few seconds the planets shrink and
+         settle into an orbit round the globe (a loop of its own, the
+         planet's offset from the centre on a translate, like the hero's)
+         and the answers cycle round it */
+      const stageSun = stage.querySelector('.lp-stage-sun .lp-sun')
+      const stageRing = stageSun?.querySelector('.lp-orb-ring')
+      const stageSunSize = stageSun ? Number.parseFloat(getComputedStyle(stageSun).getPropertyValue('--s')) : 0
+      const hasStageSun = Boolean(stageRing && stageSunSize && dressLandingGlobe(stageSun, stageRing, stageSunSize))
+      const stageHalos = [...stage.querySelectorAll('.lp-stage-halo .lp-sun-halo-reveal')]
+      const says = [...stage.querySelectorAll('.lp-stage-say')]
+      let orbitFrame = 0
+      let orbitLast = null
+      let saying = 0
+      const STAGE_LAP = 30
+      const SAY_EVERY = 1400
+      const SAY_FOR = 3300
+      const stopOrbit = () => {
+        if (orbitFrame) {
+          cancelAnimationFrame(orbitFrame)
+          orbitFrame = 0
+        }
+        orbitLast = null
+        stage.classList.remove('is-orbit', 'is-sun')
+        says.forEach((say) => say.classList.remove('is-on'))
+        extras.forEach((o) => {
+          o.orbit = null
+          o.orb.style.removeProperty('left')
+          o.orb.style.removeProperty('top')
+        })
+      }
+      const orbitTick = (now) => {
+        orbitFrame = 0
+        if (!onStage) {
+          return
+        }
+        const dt = orbitLast === null ? 0 : Math.min(now - orbitLast, 100)
+        orbitLast = now
+        const w = stage.clientWidth
+        const h = stage.clientHeight
+        const rx = w * 0.36
+        const ry = rx * 0.42
+        extras.forEach((o) => {
+          const k = o.orbit
+          if (!k) {
+            return
+          }
+          k.t += dt / 1000
+          k.angle += (2 * Math.PI * dt) / 1000 / STAGE_LAP
+          const ex = rx * Math.cos(k.angle)
+          const ey = ry * Math.sin(k.angle)
+          // the first second eases from where the planet stood onto the ring
+          const m = Math.min(k.t / 1, 1)
+          const e = m < 0.5 ? 2 * m * m : 1 - (-2 * m + 2) ** 2 / 2
+          const x = k.x0 + (ex - k.x0) * e
+          const y = k.y0 + (ey - k.y0) * e
+          o.orb.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`
+          const z = Math.sin(k.angle) >= 0 ? '5' : '1'
+          if (o.orb.style.zIndex !== z) {
+            o.orb.style.zIndex = z
+          }
+          k.spin = (k.spin + (360 * dt) / LANDING_ORB_TURN) % 360
+          o.ring.style.transform = `rotateY(${k.spin}deg)`
+        })
+        if (!reduceMotion) {
+          orbitFrame = requestAnimationFrame(orbitTick)
+        }
+      }
+      const startOrbit = () => {
+        if (!onStage) {
+          return
+        }
+        const w = stage.clientWidth
+        const h = stage.clientHeight
+        extras.forEach((o) => {
+          o.orb.classList.remove('is-talking')
+          o.bubble?.classList.remove('is-typing')
+          // the planet's offset from the centre, as it stands
+          const cs = getComputedStyle(o.orb)
+          const x0 = (Number.parseFloat(cs.getPropertyValue('--x')) / 100 - 0.5) * w
+          const y0 = (Number.parseFloat(cs.getPropertyValue('--y')) / 100 - 0.5) * h
+          o.orbit = { x0, y0, t: 0, angle: Math.atan2(y0, x0), spin: 0 }
+          o.orb.style.left = '50%'
+          o.orb.style.top = '50%'
+          o.orb.style.translate = `${x0.toFixed(1)}px ${y0.toFixed(1)}px`
+        })
+        stage.classList.add('is-orbit')
+        orbitLast = null
+        orbitTick(performance.now())
+      }
+      const nextSay = () => {
+        if (!onStage || !says.length) {
+          return
+        }
+        const say = says[saying % says.length]
+        saying++
+        say.classList.add('is-on')
+        timers.push(window.setTimeout(() => say.classList.remove('is-on'), SAY_FOR))
+        timers.push(window.setTimeout(nextSay, SAY_EVERY))
+      }
+      const riseSun = () => {
+        if (!onStage || !hasStageSun) {
+          return
+        }
+        // the ring's wipe from its start, as in the hero
+        stageHalos.forEach((reveal) => {
+          reveal.style.transition = 'none'
+          reveal.style.setProperty('--lp-head', '0deg')
+          reveal.style.setProperty('--lp-tail', '0deg')
+          extras[0].box = reveal.getBoundingClientRect()
+          reveal.style.transition = ''
+          reveal.style.removeProperty('--lp-head')
+          reveal.style.removeProperty('--lp-tail')
+        })
+        stageRing.style.transform = 'rotateY(0deg)'
+        stage.classList.add('is-sun')
+        timers.push(window.setTimeout(startOrbit, 400))
+        timers.push(window.setTimeout(nextSay, 1400))
+      }
       // settle() puts the planet in its new place; then() runs once that
       // has taken (a layout is forced), the only time a transition on
       // the moved planet or its ring has a value to start from
@@ -1409,9 +1584,12 @@ const initLandingOrbs = debounce(() => {
           return
         }
         onStage = true
+        stopOrbit()
         if (talk && extras.includes(talk.o)) {
           stopTalk()
         }
+        // the second act, a few seconds after the last question
+        timers.push(window.setTimeout(riseSun, (reduceMotion ? 200 : 1150) + extras.length * 120 + 800 + 3000))
         extras.forEach((o, index) => {
           o.away = true
           // the ring finishes its turn, on at the pace it had, and
@@ -1474,6 +1652,7 @@ const initLandingOrbs = debounce(() => {
         onStage = false
         timers.forEach((t) => window.clearTimeout(t))
         timers = []
+        stopOrbit()
         extras.forEach((o, index) => {
           o.orb.classList.remove('is-talking')
           o.bubble?.classList.remove('is-typing')
