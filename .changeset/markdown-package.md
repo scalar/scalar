@@ -2,7 +2,7 @@
 '@scalar/markdown': minor
 ---
 
-Add `@scalar/markdown`, the Markdown half of the former `@scalar/code-highlight`
+Add `@scalar/markdown`, a replacement for the Markdown half of `@scalar/code-highlight`
 
 `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode`, `rehypeAlert` and `rehypeHighlight` move here unchanged in name and signature. Code blocks are now highlighted by `@scalar/highlight` rather than lowlight, with the same `hljs` and `hljs-*` classes, so `code.css` keeps styling them.
 

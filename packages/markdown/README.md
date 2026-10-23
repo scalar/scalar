@@ -7,7 +7,7 @@
 
 Markdown to HTML for Scalar projects: GitHub Flavored Markdown, GitHub alerts, sanitizing, and syntax highlighting through [`@scalar/highlight`](https://github.com/scalar/scalar/tree/main/packages/highlight).
 
-This is the Markdown half of the former `@scalar/code-highlight`. The code half lives in `@scalar/highlight/compat`.
+It replaces the Markdown half of `@scalar/code-highlight`. The code half's replacement is `@scalar/highlight/compat`.
 
 ## Installation
 

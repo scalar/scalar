@@ -1,0 +1,1 @@
+export { syntaxHighlight } from './highlight'
