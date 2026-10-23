@@ -29,7 +29,7 @@ Code blocks come out with the same `hljs` / `hljs-*` classes highlight.js uses, 
 import '@scalar/highlight/compat/code.css'
 ```
 
-A fence without a language is left as plain text. There is no language detection.
+A fence without a language is highlighted only when its language is unmistakable: JSON that parses, HTML or XML markup, or a `curl` command. Anything else is left as plain text. There is no general language detection, because guessing wrong is worse than not colouring at all.
 
 ### Other exports
 

@@ -34,6 +34,26 @@ describe('rehypeHighlight', () => {
     expect(html).toContain('<code class="hljs">const answer = 42\n</code>')
   })
 
+  it('highlights a fence without a language when the guess is certain', () => {
+    const html = String(render('```\n{"answer": 42}\n```'))
+
+    expect(html).toContain('<code class="hljs language-json">')
+    expect(html).toContain('<span class="hljs-number">42</span>')
+  })
+
+  it('guesses indented code blocks too', () => {
+    const html = String(render('Response:\n\n    <div class="answer">42</div>'))
+
+    expect(html).toContain('<code class="hljs language-html">')
+    expect(html).toContain('<span class="hljs-name">div</span>')
+  })
+
+  it('keeps the language a fence names over a guess', () => {
+    const html = String(render('```text\n{"answer": 42}\n```'))
+
+    expect(html).toContain('<code class="hljs language-text">{"answer": 42}\n</code>')
+  })
+
   it('leaves a fence in an unknown language uncoloured and reports it', () => {
     const file = render('```brainfuck\n+[----->+++<]>+.\n```')
 
