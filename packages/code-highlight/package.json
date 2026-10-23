@@ -95,7 +95,7 @@
   },
   "devDependencies": {
     "@scalar/themes": "workspace:*",
-    "@types/hast": "^3.0.4",
+    "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
     "vfile": "^6.0.3",
     "vite": "catalog:*"

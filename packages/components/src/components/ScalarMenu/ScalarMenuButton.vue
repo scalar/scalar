@@ -24,7 +24,7 @@ defineSlots<ScalarMenuButtonSlots>()
 </script>
 <template>
   <ScalarHeaderButton
-    class="gap-0.75 px-2 py-1.5 text-c-header-1 hover:bg-b-header-2">
+    class="text-c-header-1 hover:bg-b-header-2 gap-0.75 px-2 py-1.5">
     <div class="h-5 w-auto">
       <slot name="logo">
         <ScalarIcon
@@ -41,7 +41,7 @@ defineSlots<ScalarMenuButtonSlots>()
       <slot name="label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
     </span>
     <ScalarIconCaretDown
-      class="shrink-0 text-c-header-2 group-hover/button:text-c-header-1 size-3.5"
+      class="text-c-header-2 group-hover/button:text-c-header-1 size-3.5 shrink-0"
       :class="open ? 'rotate-180' : ''"
       weight="bold" />
   </ScalarHeaderButton>

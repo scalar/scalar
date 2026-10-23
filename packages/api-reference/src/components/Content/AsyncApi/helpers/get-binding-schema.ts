@@ -1,7 +1,6 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-
-import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 
 /** The same protocol field can have different meanings at each binding location. */
 export type BindingScope = 'server' | 'channel' | 'operation' | 'message'

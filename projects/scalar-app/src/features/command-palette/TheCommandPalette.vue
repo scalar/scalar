@@ -247,8 +247,7 @@ const paletteProps = computed(() => {
   // actually render a document selector, so the other palette components
   // do not get unrelated attribute fall-through on their root element.
   const id = paletteState.activeCommand.value?.id as
-    | keyof CommandPalettePayload
-    | undefined
+    keyof CommandPalettePayload | undefined
   if (id && DOCUMENT_AWARE_COMMAND_IDS.has(id)) {
     base.documents = documentOptions.value
     base.activeDocumentName = activeDocumentName.value

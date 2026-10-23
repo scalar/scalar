@@ -57,6 +57,7 @@ try {
       ipcRenderer.on('customFetch:error', onError)
     },
     customFetchAbort: (streamId) => ipcRenderer.send('customFetchAbort', streamId),
+    closeWindow: () => ipcRenderer.send('closeWindow'),
   })
   exposeInRenderer('electron', true satisfies Window['electron'])
   exposeInRenderer('ipc', {

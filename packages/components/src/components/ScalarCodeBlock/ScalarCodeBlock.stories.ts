@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
 
+import { ScalarCard, ScalarCardHeader, ScalarCardSection } from '../ScalarCard'
 import ScalarCodeBlock from './ScalarCodeBlock.vue'
 
 const contentJs = `import { ApiClientReact } from '@scalar/api-client-react'
@@ -138,6 +139,52 @@ export const SingleLine: Story = {
     template: `
 <div class="flex flex-col h-dvh w-dvw p-2">
   <ScalarCodeBlock v-bind="args" />
+</div>
+    `,
+  }),
+}
+
+/**
+ * A long response body inside a card, laid out like the example responses in the API reference.
+ * The card section is a grid, so the wrapper needs `min-w-0` and `min-h-0` to let the code block
+ * scroll itself. Without them the card scrolls instead and carries the copy button out of view.
+ */
+export const InCard: Story = {
+  args: {
+    content: {
+      data: [
+        {
+          id: 'parallel/fast',
+          provider: 'parallel',
+          description: 'Parallel fast, under one second, with a description long enough to scroll',
+          pricing: { per_1k_requests_usd: 1, included_results: 10, per_1k_extra_result_usd: 1 },
+        },
+        {
+          id: 'parallel/slow',
+          provider: 'parallel',
+          description: 'Parallel slow, a few seconds, with a description long enough to scroll',
+          pricing: { per_1k_requests_usd: 2, included_results: 10, per_1k_extra_result_usd: 2 },
+        },
+      ],
+    },
+    lang: 'json',
+    class: 'bg-b-2',
+  },
+  render: (args) => ({
+    components: { ScalarCard, ScalarCardHeader, ScalarCardSection, ScalarCodeBlock },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="p-2">
+  <ScalarCard class="h-60 w-120">
+    <ScalarCardHeader>200</ScalarCardHeader>
+    <ScalarCardSection class="grid flex-1">
+      <div class="bg-b-2 flex min-h-0 min-w-0 flex-col">
+        <ScalarCodeBlock v-bind="args" />
+      </div>
+    </ScalarCardSection>
+  </ScalarCard>
 </div>
     `,
   }),

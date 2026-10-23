@@ -63,7 +63,7 @@ watch(clipboardCopied, (v) => (copied.value = v))
     @click="model && copy(model)">
     <template #aside>
       <ScalarCopyButton
-        class="z-1 bg-b-1 hover:bg-b-1.5 dark:bg-b-2 dark:hover:bg-b-2"
+        class="bg-b-1 hover:bg-b-1.5 dark:bg-b-2 dark:hover:bg-b-2 z-1"
         :copied="copied || clipboardCopied"
         placement="left"
         @click.stop="model && copy(model)">

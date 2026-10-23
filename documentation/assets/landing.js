@@ -75,7 +75,6 @@ const initDraggableElements = debounce(() => {
     document.addEventListener('mousemove', (t) => {
       updateLightPosition(t.clientX, t.clientY), updateDragPosition(t)
     })
-  console.log(`Initialized ${draggables.length} draggable elements`)
 })
 
 /* Footer Animation */
@@ -118,8 +117,6 @@ const initFooterAnimation = debounce(() => {
       setFooterAnimationActive(item)
     })
   })
-
-  console.log(`Initialized ${items.length} footer animation elements`)
 })
 
 /* Slide Gallery */
@@ -184,7 +181,6 @@ const initGallery = debounce(() => {
   )
 
   slides.forEach((slide) => observer.observe(slide))
-  console.log(`Initialized ${slides.length} gallery elements`)
 })
 
 /* Hero SDK language tabs (per glass card, so every scene's card works) */
@@ -194,7 +190,6 @@ const initHeroSdkTabs = debounce(() => {
     return
   }
 
-  let bound = 0
   cards.forEach((card) => {
     const buttons = card.querySelectorAll('.hero-glass-tabs button[data-sdk-lang]')
     const panels = card.querySelectorAll('.hero-glass-codewrap[data-sdk-lang]')
@@ -222,13 +217,8 @@ const initHeroSdkTabs = debounce(() => {
         panels.forEach((panel) => panel.classList.toggle('is-hidden', panel !== target))
         target.scrollTop = 0
       })
-      bound += 1
     })
   })
-
-  if (bound) {
-    console.log(`Initialized ${bound} SDK tab elements`)
-  }
 })
 
 /* Hero scene switcher (Profound SDK / Zoom API). Inactive scene panels are
@@ -295,8 +285,6 @@ const initHeroScenes = debounce(() => {
 
   const active = strip.querySelector('button.active[data-hero-scene]') || buttons[0]
   showScene(active.dataset.heroScene)
-
-  console.log(`Initialized ${buttons.length} hero scene tabs`)
 })
 
 /* Hero cards: hover affordance, and a view-transitioned popup on click.
@@ -478,7 +466,6 @@ const initHeroCards = debounce(() => {
     })
   }
 
-  let bound = 0
   cells.forEach((cell) => {
     if (cell.dataset.heroCardBound === 'true') {
       return
@@ -508,12 +495,7 @@ const initHeroCards = debounce(() => {
         openCard(cell)
       }
     })
-    bound += 1
   })
-
-  if (bound) {
-    console.log(`Initialized ${bound} hero cards`)
-  }
 })
 
 /* Landing boxes: a click on a product box in the hero drawing scrolls to
@@ -541,8 +523,6 @@ const initLandingBoxLinks = debounce(() => {
       window.scrollTo({ top, behavior: reduceMotion.matches ? 'auto' : 'smooth' })
     })
   })
-
-  console.log(`Initialized ${boxes.length} landing section links`)
 })
 
 /* MCP chat: plays the conversation (prompt, thinking, tool steps, reply,
@@ -820,8 +800,6 @@ const initLandingChat = debounce(() => {
     )
     observer.observe(chat)
   })
-
-  console.log(`Initialized ${chats.length} landing chats`)
 })
 
 /* Hero flow: packets travel the connectors from Acme's API to the Scalar
@@ -1177,8 +1155,6 @@ const initLandingFlow = debounce(() => {
     observer.observe(flow)
     landingFlowSyncs.set(flow, sync)
   })
-
-  console.log(`Initialized ${flows.length} landing flows`)
 })
 
 /* Code windows: the language tabs swap the sample underneath and the
@@ -1205,8 +1181,6 @@ const initLandingWinTabs = debounce(() => {
       })
     })
   })
-
-  console.log(`Initialized ${wins.length} landing code windows`)
 })
 
 /* Docs windows: in each pair, the last window hovered stays in front */
@@ -1227,8 +1201,6 @@ const initLandingDocsWindows = debounce(() => {
       })
     })
   })
-
-  console.log(`Initialized ${pairs.length} landing docs window pairs`)
 })
 
 /* lp-funnel:start */
@@ -1393,8 +1365,6 @@ const initLandingFunnel = debounce(() => {
       track.appendChild(item)
     })
   })
-
-  console.log(`Initialized ${tracks.length} landing funnels`)
 })
 
 /* The prompt as text, read off the box's markup so the clipboard gets
@@ -1762,8 +1732,6 @@ const initLandingPrompt = debounce(() => {
         .catch(() => {})
     })
   })
-
-  console.log(`Initialized ${boxes.length} landing prompt boxes`)
 })
 /* lp-funnel:end */
 

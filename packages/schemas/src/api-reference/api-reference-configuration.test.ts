@@ -8,6 +8,10 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([undefined, true, false])('preserves urlRouting %s through configuration normalization', (urlRouting) => {
+    expect(apiReferenceConfigurationWithSourceSchema({ urlRouting, url: '/openapi.json' }).urlRouting).toBe(urlRouting)
+  })
+
   it('preserves selected extensions through runtime configuration normalization', () => {
     expect(coerce(apiReferenceConfigurationSchema, {}).showExtensions).toBeUndefined()
     expect(

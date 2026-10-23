@@ -54,7 +54,7 @@ const { cx } = useBindCx()
     <ScalarSidebarButton
       is="div"
       v-if="$slots.default"
-      class="text-sm/4 py-1.75 font-bold"
+      class="py-1.75 text-sm/4 font-bold"
       disabled
       :icon="icon"
       :indent="level">
@@ -86,6 +86,6 @@ const { cx } = useBindCx()
 
 /* Only one spacer between sections */
 .group\/sidebar-section:has(+ .group\/sidebar-section) > .group\/spacer-after {
-  @apply h-0 -mb-px;
+  @apply -mb-px h-0;
 }
 </style>

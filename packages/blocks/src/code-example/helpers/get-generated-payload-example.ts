@@ -1,10 +1,9 @@
 import { isObject } from '@scalar/helpers/object/is-object'
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
-
-import { getAsyncApiMessagePayloadSchema } from '@/helpers/get-async-api-message-payload-schema'
 
 /** An allOf containing a false schema cannot have a valid example. */
 const hasFalseAllOfMember = (source: unknown, seen = new Set<unknown>()): boolean => {
@@ -34,7 +33,8 @@ export const getGeneratedPayloadExample = (message: AsyncApiMessageObject): unkn
     return undefined
   }
 
-  const schema = getAsyncApiMessagePayloadSchema(message)
+  const resolved = resolveAsyncApiSchema(message.payload)
+  const schema = resolved?.kind === 'schema' ? resolved.schema : undefined
   if (!schema || hasFalseAllOfMember(schema)) {
     return undefined
   }

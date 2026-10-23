@@ -16,7 +16,7 @@ export default {}
   <fieldset class="flex min-w-0 flex-col gap-3">
     <!-- Legend and flexbox have some issues -->
     <legend class="contents">
-      <span class="text-base font-medium text-c-1">
+      <span class="text-c-1 text-base font-medium">
         <slot name="label" />
       </span>
     </legend>

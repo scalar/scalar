@@ -12,7 +12,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { type Ref, computed, ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 
 import { DEFAULT_DELAY, DEFAULT_OFFSET } from './constants'
 import type { ScalarTooltipProps } from './types'
@@ -61,7 +61,7 @@ useTooltip({
 
   padding: var(--scalar-tooltip-padding-y) var(--scalar-tooltip-padding-x);
 
-  @apply z-tooltip text-c-tooltip text-xs/4 font-normal break-words max-w-xs;
+  @apply z-tooltip text-c-tooltip max-w-xs text-xs/4 font-normal break-words;
 }
 
 /**
@@ -100,7 +100,7 @@ useTooltip({
   content: '';
   inset: 0;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  @apply absolute rounded-lg bg-b-tooltip -z-1 backdrop-blur shadow;
+  @apply bg-b-tooltip absolute -z-1 rounded-lg shadow backdrop-blur;
 }
 
 /* Leave the gap on the target-facing side so the other edges stay flush */

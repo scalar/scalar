@@ -19,7 +19,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
-import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { ScalarLoading, type LoadingState } from '../ScalarLoading'
 
 defineProps<{
   loader?: LoadingState

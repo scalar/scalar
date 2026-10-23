@@ -14,13 +14,22 @@ import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-opt
 import type { OperationReply } from './helpers/get-operation-reply'
 import Message from './Message.vue'
 
-const { reply, eventBus, level, document, options } = defineProps<
+const {
+  reply,
+  eventBus,
+  level,
+  document,
+  options,
+  expandedItems = {},
+} = defineProps<
   {
     document: AsyncApiDocument
     options?: Partial<AsyncApiSchemaRenderOptions>
     reply: OperationReply
     eventBus: WorkspaceEventBus | null
     level: HeadingLevel
+    /** Shared navigation expansion state for canonical reply messages. */
+    expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
 
@@ -51,9 +60,7 @@ const navigate = (event: MouseEvent, id: string): void => {
           <div
             v-if="reply.channel"
             class="min-w-0">
-            <dt class="text-c-1 mb-2 border-b pb-2 text-base font-medium">
-              Channel
-            </dt>
+            <dt class="text-c-1 mb-2 text-base font-medium">Channel</dt>
             <dd class="text-c-2 min-w-0 break-words">
               <a
                 v-if="reply.channel.id"
@@ -68,7 +75,7 @@ const navigate = (event: MouseEvent, id: string): void => {
           <div
             v-if="reply.address !== undefined"
             class="min-w-0">
-            <dt class="text-c-1 mb-2 border-b pb-2 text-base font-medium">
+            <dt class="text-c-1 mb-2 text-base font-medium">
               {{ reply.dynamicAddress ? 'Dynamic address' : 'Address' }}
             </dt>
             <dd class="text-c-2 min-w-0">
@@ -95,10 +102,13 @@ const navigate = (event: MouseEvent, id: string): void => {
             :class="{ '[&>.collapsible-section]:border-t-0!': index === 0 }"
             :document="document"
             :eventBus="eventBus"
+            :expandedItems="expandedItems"
             :expansion="expansion"
-            inline
+            hideExamples
+            :inline="!message.nested"
             :message="message.entry"
             :options="options"
+            :scrollTargetId="scrollTargetId"
             :specificationExtension="specificationExtension" />
           <div
             v-else

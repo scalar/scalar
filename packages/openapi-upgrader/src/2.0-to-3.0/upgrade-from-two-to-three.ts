@@ -580,6 +580,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     for (const [key, securityScheme] of Object.entries(document.securityDefinitions)) {
       if (typeof securityScheme === 'object') {
+        const metadata = Object.fromEntries(
+          Object.entries(securityScheme).filter(([key]) => key === 'description' || key.startsWith('x-')),
+        )
+
         if ('type' in securityScheme && securityScheme.type === 'oauth2') {
           const { flow, authorizationUrl, tokenUrl, scopes } = securityScheme as {
             type: 'oauth2'
@@ -599,6 +603,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           ) {
             Object.assign(document.components.securitySchemes, {
               [key]: {
+                ...metadata,
                 type: 'oauth2',
                 flows: {
                   [upgradeFlow(flow || 'implicit')]: Object.assign(
@@ -620,6 +625,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           ) {
             Object.assign(document.components.securitySchemes, {
               [key]: {
+                ...metadata,
                 type: 'http',
                 scheme: 'basic',
               },
@@ -1002,8 +1008,13 @@ function migrateFormDataParameter(
       if (formContent?.schema && typeof formContent.schema === 'object' && 'properties' in formContent.schema) {
         for (const param of parameters) {
           if (param.name && formContent.schema.properties) {
+            const remainingProperties = structuredClone(param)
+            const schema = transformItemsObject(remainingProperties)
+
             formContent.schema.properties[param.name] = {
-              ...transformItemsObject(structuredClone(param)),
+              ...schema,
+              // Keep field extensions after consuming recognized schema keywords such as x-nullable.
+              ...Object.fromEntries(Object.entries(remainingProperties).filter(([key]) => key.startsWith('x-'))),
               // Only carry the description over when it exists, so a parameter without one does not
               // end up with an explicit `description: undefined` on its schema.
               ...(param.description !== undefined ? { description: param.description } : {}),

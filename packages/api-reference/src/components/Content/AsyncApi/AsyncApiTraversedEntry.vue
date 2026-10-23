@@ -4,6 +4,7 @@ import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type {
   TraversedAsyncApiChannel,
   TraversedEntry,
@@ -18,7 +19,6 @@ import ModelTag from '@/components/Content/Models/ModelTag.vue'
 import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
-import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 
 import Channel from './Channel.vue'
 import SourceModel from './SourceModel.vue'
@@ -122,6 +122,7 @@ const resolvedEntries = computed(() =>
       v-else-if="
         isTag(entry) || (isTagGroup(entry) && options.layout === 'classic')
       "
+      :asyncApiDocument="document"
       :eventBus="eventBus"
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"

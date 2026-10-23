@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getGeneratedPayloadExample } from '@scalar/blocks/code-example'
 import {
   Schema,
   type SchemaOptions,
@@ -14,13 +15,13 @@ import {
   type WorkspaceEventBus,
 } from '@scalar/workspace-store/events'
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
-import { resolveAsyncApiSchema } from '@/helpers/resolve-async-api-schema'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -30,7 +31,6 @@ import {
   type AsyncApiSchemaRenderOptions,
 } from './helpers/async-api-render-options'
 import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
-import { getGeneratedPayloadExample } from './helpers/get-generated-payload-example'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
@@ -47,6 +47,7 @@ const {
   expandedItems = {},
   parent = 'operation',
   inline = false,
+  hideExamples = false,
   scrollTargetId = '',
   expansion,
 } = defineProps<
@@ -55,6 +56,8 @@ const {
     parent?: 'channel' | 'operation'
     /** Render another occurrence without duplicating navigation anchors or sidebar state. */
     inline?: boolean
+    /** Operation examples are displayed together in the right column. */
+    hideExamples?: boolean
     message: TraversedAsyncApiMessage
     document: AsyncApiDocument
     eventBus: WorkspaceEventBus | null
@@ -366,6 +369,7 @@ const { level: headingLevel } = useDocumentOutline(
             </div>
           </div>
           <MessageExamples
+            v-if="!hideExamples"
             class="message-examples"
             :contentType="contentType"
             :examples="resolvedMessage?.examples"
@@ -399,8 +403,6 @@ const { level: headingLevel } = useDocumentOutline(
   font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
-  padding-bottom: 8px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   margin-bottom: 8px;
 }
 .message-layout {

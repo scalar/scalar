@@ -23,7 +23,12 @@ defineSlots<{
       as="div"
       class="section-accordion">
       <!-- Preserve the original header formatting context when no actions are supplied. -->
-      <div :class="$slots.actions ? 'flex items-start gap-3' : 'contents'">
+      <div
+        :class="
+          $slots.actions
+            ? 'narrow:flex-col narrow:items-stretch flex items-start gap-3'
+            : 'contents'
+        ">
         <DisclosureButton
           class="section-accordion-button"
           :class="{ 'min-w-0 flex-1': $slots.actions }"
@@ -37,7 +42,7 @@ defineSlots<{
         </DisclosureButton>
         <div
           v-if="$slots.actions"
-          class="flex shrink-0 items-center gap-3">
+          class="narrow:self-end flex shrink-0 items-center gap-3">
           <slot name="actions" />
         </div>
       </div>

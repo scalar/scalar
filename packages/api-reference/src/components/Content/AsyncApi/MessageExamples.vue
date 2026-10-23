@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { ExamplePicker } from '@scalar/blocks/code-example'
+import {
+  ExamplePicker,
+  getMessageExampleContent,
+} from '@scalar/blocks/code-example'
 import {
   ScalarCard,
+  ScalarCardFooter,
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
@@ -14,8 +18,6 @@ import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-reso
 import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
-
-import { getMessageExampleContent } from './helpers/get-message-example-content'
 
 const {
   examples = [],
@@ -96,14 +98,15 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
 
 <template>
   <ScalarCard
-    v-if="block"
+    v-if="block || $slots.footer"
     class="min-w-0 self-start text-base"
     :label="translate('schema.examples')">
     <ScalarCardHeader
       v-if="
-        hasMultipleExamples ||
-        selected?.example.name ||
-        selected?.example.summary
+        !$slots.footer &&
+        (hasMultipleExamples ||
+          selected?.example.name ||
+          selected?.example.summary)
       "
       class="text-c-2 px-3 py-[7px] font-normal [&_.scalar-card-header-title]:whitespace-normal">
       <div
@@ -124,12 +127,14 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         #actions>
         <ExamplePicker
           v-model="selectedKey"
-          :aria-label="translate('schema.examples')"
+          :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
           class="-m-1 shrink-0 px-0"
           :examples="pickerExamples" />
       </template>
     </ScalarCardHeader>
-    <ScalarCardSection class="flex-col">
+    <ScalarCardSection
+      v-if="block"
+      class="flex-col">
       <div
         v-if="block.structural"
         class="text-c-2 px-3 py-2 text-sm">
@@ -149,5 +154,27 @@ const hasMultipleExamples = computed(() => availableExamples.value.length > 1)
         :lang="block.lang"
         :prettyPrintedContent="block.content" />
     </ScalarCardSection>
+    <ScalarCardSection
+      v-else
+      class="text-c-2 p-3 text-sm">
+      No payload example available.
+    </ScalarCardSection>
+    <ScalarCardFooter
+      v-if="$slots.footer"
+      class="flex shrink-0 flex-col items-stretch gap-1 px-3 py-[7px]">
+      <div class="flex min-w-0 flex-wrap items-center gap-x-2">
+        <slot name="footer" />
+        <ExamplePicker
+          v-if="hasMultipleExamples"
+          v-model="selectedKey"
+          :aria-label="`${translate('schema.examples')}: ${selected?.label ?? ''}`"
+          class="-m-1 shrink-0 px-0"
+          :examples="pickerExamples" />
+      </div>
+      <ScalarMarkdown
+        v-if="selected?.example.summary"
+        class="text-c-1 text-(length:--scalar-small) [font-weight:var(--scalar-semibold)] [&_*]:m-0"
+        :value="selected.example.summary" />
+    </ScalarCardFooter>
   </ScalarCard>
 </template>

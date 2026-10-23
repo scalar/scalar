@@ -183,7 +183,6 @@ const initEnterpriseContactForm = () => {
       true,
     )
     document.documentElement.dataset.enterpriseLoopsListener = 'true'
-    console.log('Initialized enterprise contact form submit listener')
   }
 
   if (document.documentElement.dataset.enterpriseResetListener !== 'true') {

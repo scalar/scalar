@@ -24,6 +24,7 @@ export default {}
 
 <script lang="ts" setup>
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
+import { SchemaPropertyExamples } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AsyncApiServerEntry } from '@scalar/workspace-store/channel-example'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -57,7 +58,10 @@ const serverVariables = computed(() => {
 
   return Object.fromEntries(
     Object.entries(variables).flatMap(
-      ([name, variable]): [string, ServerVariableObject][] => {
+      ([name, variable]): [
+        string,
+        ServerVariableObject & { examples?: string[] },
+      ][] => {
         const resolved = getResolvedAsyncApiRef(variable)
         if (!resolved) return []
         return [
@@ -67,6 +71,9 @@ const serverVariables = computed(() => {
               default: resolved.default ?? '',
               enum: resolved.enum,
               description: resolved.description,
+              ...(resolved.examples?.length
+                ? { examples: resolved.examples }
+                : {}),
             },
           ],
         ]
@@ -74,6 +81,13 @@ const serverVariables = computed(() => {
     ),
   )
 })
+
+/** Only provide hints for authored examples; examples never replace defaults. */
+const variableExamples = computed(() =>
+  Object.entries(serverVariables.value ?? {}).filter(
+    ([, variable]) => variable.examples?.length,
+  ),
+)
 
 const serverSummary = computed(() => selectedServer?.server.summary?.trim())
 
@@ -132,7 +146,18 @@ const updateServerVariable = (key: string, value: string) => {
   <ServerVariablesForm
     layout="reference"
     :variables="serverVariables"
-    @update:variable="updateServerVariable" />
+    @update:variable="updateServerVariable">
+    <template
+      v-for="[name, variable] in variableExamples"
+      :key="name"
+      #[`hint-${name}`]>
+      <div class="flex">
+        <SchemaPropertyExamples
+          align="start"
+          :examples="variable.examples" />
+      </div>
+    </template>
+  </ServerVariablesForm>
 
   <div
     v-if="hasServerDetails"

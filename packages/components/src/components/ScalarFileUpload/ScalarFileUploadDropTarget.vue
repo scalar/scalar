@@ -25,7 +25,7 @@ const { cx } = useBindCx()
       )
     ">
     <div
-      class="pointer-events-none flex size-full items-center justify-center gap-1 rounded-md p-1 text-c-2">
+      class="text-c-2 pointer-events-none flex size-full items-center justify-center gap-1 rounded-md p-1">
       <ScalarIconUploadSimple class="size-4" />
       <span class="font-medium"><slot>Drop to upload</slot></span>
     </div>

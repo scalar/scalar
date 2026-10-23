@@ -13,6 +13,8 @@ import { computed, useId } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import {
   Section,
+  SectionColumn,
+  SectionColumns,
   SectionContainer,
   SectionContainerAccordion,
   SectionContent,
@@ -27,6 +29,7 @@ import AsyncApiLabels from './AsyncApiLabels.vue'
 import Bindings from './Bindings.vue'
 import ChannelMessages from './ChannelMessages.vue'
 import ChannelMetadata from './ChannelMetadata.vue'
+import CopyAsyncApiMarkdownButton from './CopyAsyncApiMarkdownButton.vue'
 import { adaptAsyncApiParameters } from './helpers/adapt-async-api-parameters'
 import {
   resolveSchemaRenderOptions,
@@ -37,6 +40,7 @@ import { getChannelServerLabels } from './helpers/get-async-api-labels'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiChannel } from './helpers/resolve-async-api-nodes'
 import Operation from './Operation.vue'
+import OperationsList from './OperationsList.vue'
 
 /** Subset of the configuration the shared `ParameterList` renderer needs. */
 type ParameterListOptions = AsyncApiSchemaRenderOptions &
@@ -69,6 +73,11 @@ const {
     level?: number
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
 
 const headerId = useId()
 
@@ -150,19 +159,21 @@ const { level: headingLevel } = useDocumentOutline('channel')
     ">
     <template #title>
       <SectionHeader class="channel-name">
-        <Anchor
-          @copyAnchorUrl="
-            () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
-          ">
-          <SectionHeaderTag :level="headingLevel">
-            {{ headingText }}
-          </SectionHeaderTag>
-        </Anchor>
+        <div class="flex flex-wrap items-baseline gap-[9px]">
+          <Anchor
+            @copyAnchorUrl="
+              () => eventBus?.emit('copy-url:nav-item', { id: channel.id })
+            ">
+            <SectionHeaderTag :level="headingLevel">
+              {{ headingText }}
+            </SectionHeaderTag>
+          </Anchor>
+          <AsyncApiLabels
+            class="gap-[9px] leading-[1.15] font-normal"
+            :protocols="labels.protocols"
+            :servers="labels.servers" />
+        </div>
       </SectionHeader>
-      <AsyncApiLabels
-        class="channel-labels"
-        :protocols="labels.protocols"
-        :servers="labels.servers" />
       <p
         v-if="summary"
         class="text-c-1 mt-4 mb-2 text-left">
@@ -173,9 +184,18 @@ const { level: headingLevel } = useDocumentOutline('channel')
         :value="description"
         withImages />
     </template>
+    <template #actions>
+      <slot
+        v-if="$slots.actions"
+        name="actions" />
+      <CopyAsyncApiMarkdownButton
+        v-else
+        :document
+        :selection="{ channel: channel.channelName }" />
+    </template>
     <ChannelMetadata
       :address="resolvedChannel?.address"
-      class="mt-4" />
+      class="mt-12" />
     <Bindings
       :bindings="resolvedChannel?.bindings"
       class="mt-4"
@@ -185,7 +205,7 @@ const { level: headingLevel } = useDocumentOutline('channel')
       :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
     <ParameterList
       v-if="parameters.length"
-      class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
+      class="[&_.parameter-list-title--tree]:text-base!"
       :eventBus="eventBus"
       :expansion="expansion"
       :options="parameterListOptions"
@@ -238,6 +258,10 @@ const { level: headingLevel } = useDocumentOutline('channel')
       @intersecting="
         () => eventBus?.emit('intersecting:nav-item', { id: channel.id })
       ">
+      <AsyncApiLabels
+        class="gap-1"
+        :protocols="labels.protocols"
+        :servers="labels.servers" />
       <SectionHeader>
         <Anchor
           @copyAnchorUrl="
@@ -249,52 +273,70 @@ const { level: headingLevel } = useDocumentOutline('channel')
             {{ headingText }}
           </SectionHeaderTag>
         </Anchor>
+        <template #links>
+          <div class="flex flex-wrap items-start justify-end gap-3">
+            <slot
+              v-if="$slots.actions"
+              name="actions" />
+            <CopyAsyncApiMarkdownButton
+              v-else
+              :document
+              :selection="{ channel: channel.channelName }" />
+          </div>
+        </template>
       </SectionHeader>
       <SectionContent>
-        <AsyncApiLabels
-          class="channel-labels"
-          :protocols="labels.protocols"
-          :servers="labels.servers" />
-        <p
-          v-if="summary"
-          class="text-c-1 mt-4 mb-2 text-left">
-          {{ summary }}
-        </p>
-        <ScalarMarkdown
-          :value="description"
-          withImages />
-        <ChannelMetadata
-          :address="resolvedChannel?.address"
-          class="mt-4" />
-        <Bindings
-          :bindings="resolvedChannel?.bindings"
-          class="mt-4"
-          :options="options"
-          scope="channel" />
-        <AsyncApiDocumentation
-          :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
-        <ParameterList
-          v-if="parameters.length"
-          class="[&_.parameter-list-title--tree]:pb-2! [&_.parameter-list-title--tree]:text-base!"
-          :eventBus="eventBus"
-          :expansion="expansion"
-          :options="parameterListOptions"
-          :parameters="parameters"
-          :scrollTargetId="scrollTargetId"
-          :specificationExtension="specificationExtension">
-          <template #title>Parameters</template>
-          <template #parameter-details="{ parameter }">
-            <div
-              v-if="parameter.location"
-              class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
-              Location:
-              <code
-                class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
-                >{{ parameter.location }}</code
-              >
-            </div>
-          </template>
-        </ParameterList>
+        <SectionColumns>
+          <SectionColumn>
+            <p
+              v-if="summary"
+              class="text-c-1 mt-4 mb-2 text-left">
+              {{ summary }}
+            </p>
+            <ScalarMarkdown
+              :value="description"
+              withImages />
+            <ChannelMetadata
+              :address="resolvedChannel?.address"
+              class="mt-12" />
+            <Bindings
+              :bindings="resolvedChannel?.bindings"
+              class="mt-4"
+              :options="options"
+              scope="channel" />
+            <AsyncApiDocumentation
+              :owner="{ externalDocs: resolvedChannel?.externalDocs }" />
+            <ParameterList
+              v-if="parameters.length"
+              class="[&_.parameter-list-title--tree]:text-base!"
+              :eventBus="eventBus"
+              :expansion="expansion"
+              :options="parameterListOptions"
+              :parameters="parameters"
+              :scrollTargetId="scrollTargetId"
+              :specificationExtension="specificationExtension">
+              <template #title>Parameters</template>
+              <template #parameter-details="{ parameter }">
+                <div
+                  v-if="parameter.location"
+                  class="text-c-2 mb-2 font-sans text-(length:--scalar-small) leading-[1.625]">
+                  Location:
+                  <code
+                    class="bg-b-2 shadow-border font-code rounded box-decoration-clone px-0.75 text-(length:--scalar-micro) break-all"
+                    >{{ parameter.location }}</code
+                  >
+                </div>
+              </template>
+            </ParameterList>
+          </SectionColumn>
+          <SectionColumn v-if="operations.length">
+            <OperationsList
+              :channelTitle="headingText"
+              :document="document"
+              :eventBus="eventBus"
+              :operations="operations" />
+          </SectionColumn>
+        </SectionColumns>
         <Operation
           v-for="operation in operations"
           :key="operation.id"
@@ -326,9 +368,6 @@ const { level: headingLevel } = useDocumentOutline('channel')
 }
 .channel-section.channel-section-nested {
   padding-inline: 0;
-}
-.channel-labels {
-  margin-bottom: 8px;
 }
 .channel-description {
   padding-bottom: 4px;

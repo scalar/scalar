@@ -181,16 +181,16 @@ describe('traverseAsyncApiDocument', () => {
     expect(channels[0]?.children).toStrictEqual([
       {
         type: 'asyncapi-message',
-        id: 'events/channel/events/message/a',
-        title: 'Apple',
-        messageName: 'a',
+        id: 'events/channel/events/message/z',
+        title: 'Zebra',
+        messageName: 'z',
         channelName: 'events',
       },
       {
         type: 'asyncapi-message',
-        id: 'events/channel/events/message/z',
-        title: 'Zebra',
-        messageName: 'z',
+        id: 'events/channel/events/message/a',
+        title: 'Apple',
+        messageName: 'a',
         channelName: 'events',
       },
     ])
@@ -407,6 +407,113 @@ describe('traverseAsyncApiDocument', () => {
         title: 'Event A',
       }),
     ])
+  })
+
+  it('nests reply messages on the same channel under the operation', () => {
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Reply API', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'reply-fixture',
+      channels: {
+        ping: {
+          address: '/ws',
+          messages: {
+            request: { title: 'Request' },
+            result: { title: 'Result' },
+            failure: { title: 'Failure' },
+            other: { title: 'Other' },
+          },
+        },
+      },
+      operations: {
+        ping: {
+          action: 'receive',
+          channel: { $ref: '#/channels/ping' },
+          messages: [{ $ref: '#/channels/ping/messages/request' }],
+          reply: {
+            channel: { $ref: '#/channels/ping' },
+            messages: [{ $ref: '#/channels/ping/messages/result' }, { $ref: '#/channels/ping/messages/failure' }],
+          },
+        },
+      },
+    } satisfies AsyncApiDocument
+
+    const result = traverseAsyncApiDocument('reply', document, mockOptions)
+    const operation = collectAsyncApiOperations(result.children)[0]
+    const channel = collectAsyncApiChannels(result.children)[0]
+
+    expect(operation?.children?.map((entry) => entry.title)).toStrictEqual(['Request', 'Result', 'Failure'])
+    expect(
+      channel?.children?.filter((entry) => entry.type === 'asyncapi-message').map((entry) => entry.messageName),
+    ).toStrictEqual(['other'])
+  })
+
+  it.each([
+    { scenario: 'referenced reply', hidden: false, separate: false, referenced: true },
+    { scenario: 'hidden operation', hidden: true, separate: false, referenced: false },
+    { scenario: 'separate reply channel', hidden: false, separate: true, referenced: false },
+  ])('preserves reply ownership with a $scenario', ({ hidden, separate, referenced }) => {
+    const reply = {
+      channel: { $ref: separate ? '#/channels/responses' : '#/channels/ping' },
+      messages: [{ $ref: separate ? '#/channels/responses/messages/result' : '#/channels/ping/messages/result' }],
+    }
+    const document = {
+      asyncapi: '3.0.0',
+      info: { title: 'Reply ownership', version: '1.0.0' },
+      'x-scalar-original-document-hash': 'reply-ownership',
+      channels: {
+        ping: {
+          address: '/ws',
+          messages: {
+            request: { title: 'Request' },
+            result: { title: 'Local result' },
+            other: { title: 'Other' },
+          },
+        },
+        ...(separate ? { responses: { address: '/responses', messages: { result: { title: 'Reply result' } } } } : {}),
+      },
+      operations: {
+        ping: {
+          action: 'receive',
+          channel: { $ref: '#/channels/ping' },
+          messages: [{ $ref: '#/channels/ping/messages/request' }],
+          ...(hidden ? { 'x-internal': true } : {}),
+          reply: referenced ? { $ref: '#/components/replies/ping', '$ref-value': reply } : reply,
+        },
+        visible: {
+          action: 'send',
+          channel: { $ref: '#/channels/ping' },
+          messages: [{ $ref: '#/channels/ping/messages/other' }],
+        },
+      },
+      components: { replies: { ping: reply } },
+    } satisfies AsyncApiDocument
+
+    const navigation = traverseAsyncApiDocument('reply', document, mockOptions)
+    const operations = collectAsyncApiOperations(navigation.children)
+    const ping = operations.find((operation) => operation.operationName === 'ping')
+    expect(operations.map((operation) => operation.operationName)).toStrictEqual(
+      hidden ? ['visible'] : ['ping', 'visible'],
+    )
+    const expectedMessages = separate ? ['request'] : ['request', 'result']
+    expect(
+      ping?.children?.filter((entry) => entry.type === 'asyncapi-message').map((message) => message.messageName),
+    ).toStrictEqual(hidden ? undefined : expectedMessages)
+    expect(
+      collectAsyncApiChannels(navigation.children).map((channel) => ({
+        channel: channel.channelName,
+        messages: channel.children
+          ?.filter((entry) => entry.type === 'asyncapi-message')
+          .map((message) => message.messageName),
+      })),
+    ).toStrictEqual(
+      separate
+        ? [
+            { channel: 'responses', messages: ['result'] },
+            { channel: 'ping', messages: ['result'] },
+          ]
+        : [{ channel: 'ping', messages: [] }],
+    )
   })
 
   it.each([
@@ -665,7 +772,7 @@ describe('traverseAsyncApiDocument', () => {
   })
 
   it.each([
-    { messages: undefined, expected: ['eventA', 'eventB'] },
+    { messages: undefined, expected: ['eventB', 'eventA'] },
     { messages: [], expected: [] },
     { messages: [{ $ref: '#/channels/events/messages/eventA' }], expected: ['eventA'] },
   ])('shows only unclaimed messages in the channel catalog: $expected', ({ messages, expected }) => {
@@ -684,7 +791,7 @@ describe('traverseAsyncApiDocument', () => {
     )
 
     expect(catalog?.map((message) => message.messageName)).toStrictEqual(
-      ['eventA', 'eventB'].filter((name) => !expected.includes(name)),
+      ['eventB', 'eventA'].filter((name) => !expected.includes(name)),
     )
     expect(operation?.children?.map((message) => message.title) ?? []).toStrictEqual(
       expected.map((name) => (name === 'eventA' ? 'A' : 'B')),
@@ -723,7 +830,27 @@ describe('traverseAsyncApiDocument', () => {
     ).toStrictEqual(['c'])
   })
 
-  it('renders tagged message-only channels, resolves references, sorts titles, and skips hidden entries', () => {
+  it.each([undefined, ['a', 'z']])('preserves declared operation message order %j', (names) => {
+    const document = {
+      asyncapi: '3.1.0',
+      info: { title: 'Events', version: '1' },
+      'x-scalar-original-document-hash': '',
+      channels: { events: { messages: { z: { title: 'Zebra' }, a: { title: 'Apple' } } } },
+      operations: {
+        receive: {
+          action: 'receive',
+          channel: { $ref: '#/channels/events' },
+          ...(names ? { messages: names.map((name) => ({ $ref: `#/channels/events/messages/${name}` })) } : {}),
+        },
+      },
+    } satisfies AsyncApiDocument
+    const navigation = traverseAsyncApiDocument('events', document)
+    expect(collectAsyncApiMessages(navigation.children).map(({ messageName }) => messageName)).toStrictEqual(
+      names ?? ['z', 'a'],
+    )
+  })
+
+  it('renders tagged message-only channels, resolves references, preserves message order, and skips hidden entries', () => {
     const document = {
       asyncapi: '3.1.0',
       info: { title: 'Catalog', version: '1.0.0' },
@@ -754,8 +881,8 @@ describe('traverseAsyncApiDocument', () => {
     expect(
       collectAsyncApiMessages(result.children).map(({ id, title, messageName }) => ({ id, title, messageName })),
     ).toStrictEqual([
-      { id: 'catalog/tag/events/channel/events/message/first', title: 'Alpha', messageName: 'first' },
       { id: 'catalog/tag/events/channel/events/message/last', title: 'Zebra', messageName: 'last' },
+      { id: 'catalog/tag/events/channel/events/message/first', title: 'Alpha', messageName: 'first' },
     ])
   })
 

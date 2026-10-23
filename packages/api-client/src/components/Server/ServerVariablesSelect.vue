@@ -13,6 +13,8 @@ const props = defineProps<{
   enum: string[]
   value: string
   controls: string | undefined
+  /** Read-only context associated with the select button. */
+  describedBy?: string
 }>()
 
 const emit = defineEmits<{
@@ -36,6 +38,7 @@ const selected = computed<ScalarListboxOption | undefined>({
     :options="options">
     <ScalarButton
       :aria-controls="controls"
+      :aria-describedby="describedBy"
       class="group/button h-8 gap-1.5 p-1.5 text-base font-normal"
       variant="ghost">
       <span :class="{ 'text-c-1': value }">

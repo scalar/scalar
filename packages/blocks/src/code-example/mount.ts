@@ -10,10 +10,11 @@ import { EXTERNAL_EXAMPLES } from '@scalar/workspace-store/helpers/use-external-
 import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { createApp, h, reactive } from 'vue'
+import { type App, createApp, h, reactive } from 'vue'
 
 import CodeExample, { type CodeExampleProps } from './components/CodeExample.vue'
 import { generateClientOptions } from './helpers/generate-client-options'
+import { type CreateAsyncApiCodeExampleOptions, createAsyncApiCodeExample } from './mount-asyncapi'
 
 export type CreateCodeExampleOptions = {
   /** Localized status text shown when the selected example has no linked code sample. */
@@ -77,7 +78,12 @@ const getWrapperClass = (darkMode: boolean | undefined): string => {
  * The consumer creates and controls their own workspace store,
  * then passes it in along with the path and method to render.
  */
-export const createCodeExample = (el: HTMLElement | string, options: CreateCodeExampleOptions) => {
+export const createCodeExample = (
+  el: HTMLElement | string,
+  options: CreateCodeExampleOptions | CreateAsyncApiCodeExampleOptions,
+): { app: App; destroy: () => void } => {
+  if ('operationName' in options) return createAsyncApiCodeExample(el, options)
+
   const element = typeof el === 'string' ? document.querySelector(el) : el
   if (!element) {
     throw new Error(`Element not found: ${el}`)

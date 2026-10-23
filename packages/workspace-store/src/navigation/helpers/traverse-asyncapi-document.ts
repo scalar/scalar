@@ -146,8 +146,8 @@ const resolveOperationChannel = (
  * Resolves which channel message names an operation references.
  *
  * - `operation.messages === undefined` → every channel message is included.
- * - `operation.messages === []` → no channel messages are included.
- * - Otherwise → the channel messages that the operation explicitly references.
+ * - `operation.messages === []` → only reply messages on the same channel are included.
+ * - Otherwise → the channel messages that the operation or its reply explicitly references.
  */
 const resolveOperationMessageNames = (
   operation: AsyncApiOperationObject,
@@ -160,13 +160,10 @@ const resolveOperationMessageNames = (
     return objectKeys(channelMessages)
   }
 
-  if (operation.messages.length === 0) {
-    return []
-  }
-
   const names = new Set<string>()
+  const replyMessages = getResolvedAsyncApiRef(operation.reply)?.messages ?? []
 
-  for (const messageRef of operation.messages) {
+  for (const messageRef of [...operation.messages, ...replyMessages]) {
     if (!('$ref' in messageRef)) {
       continue
     }
@@ -236,14 +233,9 @@ const sortOperations = (
   }
 }
 
-/** Sorts message navigation entries alphabetically by display title. */
-const sortMessages = (entries: TraversedAsyncApiMessage[]): void => {
-  entries.sort((a, b) => a.title.localeCompare(b.title))
-}
-
 /**
  * Builds message entries beneath a channel or operation.
- * Resolves each message ref, skips hidden messages, and sorts the result by title.
+ * Resolves each message ref and skips hidden messages while preserving the declared order.
  */
 const createMessageEntries = ({
   channelName,
@@ -285,7 +277,6 @@ const createMessageEntries = ({
     ]
   })
 
-  sortMessages(messages)
   return messages
 }
 

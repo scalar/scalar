@@ -1,3 +1,5 @@
+import { format } from 'node:util'
+
 import { renderApiReference } from '@scalar/client-side-rendering'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -14,6 +16,45 @@ const globalFetchSpy = vi.spyOn(global, 'fetch').mockImplementation(vi.fn())
 describe('resolve', () => {
   beforeEach(() => {
     globalFetchSpy.mockClear()
+  })
+
+  it.each(['%d', '%s', '%c', '%j', 'ordinary'])('preserves %s in failed-fetch logs', async (token) => {
+    const url = `https://example.com/${token}`
+    const error = new Error('Connection failed')
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    try {
+      const result = await resolve(url, { fetch: vi.fn().mockRejectedValue(error) })
+
+      expect(result).toBeUndefined()
+      expect(errorSpy.mock.calls.map((args) => format(...args))).toStrictEqual([
+        `[@scalar/import] Failed to fetch ${url} ${format(error)}`,
+      ])
+    } finally {
+      errorSpy.mockRestore()
+    }
+  })
+
+  it('preserves URL format tokens when page configuration parsing fails', async () => {
+    const url = 'https://example.com/%d'
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+
+    try {
+      const result = await resolve(url, {
+        fetch: vi
+          .fn()
+          .mockResolvedValue(createFetchResponse('<script id="api-reference" data-configuration="{broken}"></script>')),
+      })
+
+      expect(result).toBeUndefined()
+      expect(errorSpy.mock.calls.length).toBe(1)
+      const args = errorSpy.mock.calls[0] ?? []
+      const error = args.at(-1)
+      expect(error).toBeInstanceOf(SyntaxError)
+      expect(format(...args)).toBe(`[@scalar/import] Failed to fetch ${url} ${format(error)}`)
+    } finally {
+      errorSpy.mockRestore()
+    }
   })
 
   it('returns JSON urls', async () => {

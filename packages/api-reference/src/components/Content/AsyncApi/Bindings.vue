@@ -27,7 +27,10 @@ const entries = computed(() => getBindingEntries(bindings, scope))
     v-if="entries.length"
     class="min-w-0 space-y-3 text-sm">
     <div
-      class="bindings-heading text-c-1 border-b pb-2 text-base leading-[1.45] font-medium">
+      class="bindings-heading text-c-1 text-base leading-[1.45] font-medium"
+      :class="{
+        'border-b pb-2': scope === 'operation' || scope === 'channel',
+      }">
       Bindings
     </div>
     <div

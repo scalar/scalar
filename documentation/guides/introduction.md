@@ -23,7 +23,6 @@
 </div>
 </div>
 <div class="lp-visual">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400&amp;display=swap" />
 <div class="lp-flow" data-lp-edges="api>hub,hub>docs,hub>mcp,hub>sdk,docs>dev-docs,docs>claude-code,mcp>claude,mcp>chatgpt,mcp>gemini,sdk>dev-sdk,sdk>copilot" aria-hidden="true">
 <div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" data-reveal="fade" style="--x: 32; --y: 276; --w: 200; --d: 0">
 <div class="lp-chip">
@@ -324,7 +323,7 @@
 </div>
 </div>
 </div>
-<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Opus 5 <span>High</span></span></div></div>
+<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Ultra</span></div></div>
 </div>
 </div>
 <div class="lp-flow-row">
@@ -1604,7 +1603,7 @@
   /* The MCP card's window is a small chat window, after the one on
      equals.com: 470 wide, a 32px title bar with the lights and a 12px
      grey title, 14px prompts in bubbles on the right, 13px grey thinking
-     and tool lines, a 15px serif reply, and a bordered composer. It keeps
+     and tool lines, a 15px reply, and a bordered composer. It keeps
      its composer whatever the card's height: the messages give.
      landing.js plays the conversation (.is-armed and the is-* states)
      each time the MCP card becomes the scene; without motion, or without
@@ -1650,7 +1649,6 @@
     gap: 12px;
   }
   .lp-chat-line {
-    font-family: "Source Serif 4", ui-serif, Georgia, serif;
     font-size: 15px;
     line-height: 1.5;
   }
@@ -1919,8 +1917,6 @@
   .lp-chat-model {
     font-size: 12px;
     line-height: 24px;
-  }
-  .lp-chat-model span {
     color: var(--scalar-color-3);
   }
   .lp-chat-send {

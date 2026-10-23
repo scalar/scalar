@@ -46,7 +46,7 @@ const { stylingAttrsCx, otherAttrs } = useBindCx()
       :indeterminate="props.indeterminate && props.type === 'checkbox'"
       :selected="model"
       :type="props.type" />
-    <div class="flex-1 text-left min-w-0 truncate"><slot /></div>
+    <div class="min-w-0 flex-1 truncate text-left"><slot /></div>
     <input
       ref="inputEl"
       v-model="model"

@@ -27,6 +27,7 @@ import {
   DEFAULT_TEAM_WORKSPACE_NAME,
   DEFAULT_TEAM_WORKSPACE_SLUG,
 } from '@/features/app/app-state'
+import { closeActiveTabOrWindow } from '@/features/app/helpers/close-active-tab-or-window'
 import { filterWorkspacesByTeam } from '@/features/app/helpers/filter-workspaces'
 import { groupWorkspacesByTeam } from '@/features/app/helpers/group-workspaces'
 import type { useCommandPaletteState } from '@/features/command-palette/hooks/use-command-palette-state'
@@ -78,6 +79,18 @@ const { namespaces, isLoading: isNamespacesLoading } = useRegistryNamespaces()
 
 /** Whether the app is running on electron */
 const isDesktop = window.electron === true
+
+if (isDesktop) {
+  // "Close Tab" menu item (CmdOrCtrl+W)
+  window.ipc.addEventListener('closeTab', () =>
+    closeActiveTabOrWindow({
+      tabCount: app.tabs.state.value.length,
+      activeTabIndex: app.tabs.activeTabIndex.value,
+      eventBus: app.eventBus,
+      closeWindow: window.api.closeWindow,
+    }),
+  )
+}
 
 //--------------------------------------------------
 // Team

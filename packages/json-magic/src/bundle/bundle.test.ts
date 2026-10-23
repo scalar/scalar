@@ -235,32 +235,73 @@ describe('bundle', () => {
     expect(nested.external.$ref).toBe('https://keep.test/schema#value')
   })
 
-  it.each(['mappings', '__proto__'])(
-    'does not mutate inherited URL mappings through %s',
-    async (externalDocumentsMappingsKey) => {
-      const inheritedMappings = { stale: 'https://example.test/unused.json' }
-      const prototype =
-        externalDocumentsMappingsKey === '__proto__'
-          ? inheritedMappings
-          : { [externalDocumentsMappingsKey]: inheritedMappings }
-      const input = Object.assign(Object.create(prototype), {
-        remote: { $ref: 'https://example.test/preserved.json' },
-      })
-
-      await bundle(input, {
-        plugins: [],
-        treeShake: true,
-        urlMap: true,
-        externalDocumentsMappingsKey,
-        preserveReference: (): boolean => true,
-      })
-
-      expect(inheritedMappings).toStrictEqual({ stale: 'https://example.test/unused.json' })
-      expect(Object.getPrototypeOf(input)).toBe(prototype)
-      expect(Object.getOwnPropertyDescriptor(input, externalDocumentsMappingsKey)?.value).toStrictEqual({})
-      expect(input.remote.$ref).toBe('https://example.test/preserved.json')
+  it.each(['__proto__', 'constructor', 'prototype'])(
+    'rejects dangerous extension keys before reserving cache entries: %s',
+    async (key) => {
+      const uri = 'https://example.test/alert293.json'
+      const hash = getHash(uri)
+      for (const option of ['externalDocumentsMappingsKey', 'externalDocumentsKey']) {
+        for (const urlMap of [true, false]) {
+          const input = { remote: { $ref: uri } }
+          try {
+            await expect(
+              bundle(input, {
+                plugins: [],
+                treeShake: true,
+                cache: new Map([[uri, Promise.resolve({ ok: true, data: { type: 'string' }, raw: '' })]]),
+                [option]: key,
+                urlMap,
+              }),
+            ).rejects.toThrow(`Prototype pollution key detected: "${key}"`)
+            expect(Object.getOwnPropertyDescriptor(Object.prototype, hash)).toBeUndefined()
+            expect(Object.getOwnPropertyDescriptor(Object, hash)).toBeUndefined()
+            expect(input).toStrictEqual({ remote: { $ref: uri } })
+          } finally {
+            Reflect.deleteProperty(Object.prototype, hash)
+            Reflect.deleteProperty(Object, hash)
+          }
+        }
+      }
     },
   )
+
+  it.each([true, false])('does not mutate borrowed URL mappings (inherited: %s)', async (inherited) => {
+    const uri = 'https://example.test/alert293.json'
+    const mappings = { stale: 'https://example.test/unused.json' }
+    const input = inherited ? Object.create({ 'x-ext-urls': mappings }) : { 'x-ext-urls': mappings }
+
+    await bundle(input, {
+      plugins: [],
+      treeShake: true,
+      cache: new Map([[uri, Promise.resolve({ ok: true, data: { type: 'string' }, raw: '' })]]),
+      urlMap: true,
+    })
+
+    expect(mappings).toStrictEqual({ stale: 'https://example.test/unused.json' })
+    expect(Object.getOwnPropertyDescriptor(input, 'x-ext-urls')?.value).toStrictEqual({
+      ...(inherited ? {} : mappings),
+      [getHash(uri)]: uri,
+    })
+  })
+
+  it('does not mutate inherited URL mappings when preserving references', async () => {
+    const mappings = { stale: 'https://example.test/unused.json' }
+    const input = Object.assign(Object.create({ mappings }), {
+      remote: { $ref: 'https://example.test/preserved.json' },
+    })
+
+    await bundle(input, {
+      plugins: [],
+      treeShake: true,
+      urlMap: true,
+      externalDocumentsMappingsKey: 'mappings',
+      preserveReference: (): boolean => true,
+    })
+
+    expect(mappings).toStrictEqual({ stale: 'https://example.test/unused.json' })
+    expect(Object.getOwnPropertyDescriptor(input, 'mappings')?.value).toStrictEqual({})
+    expect(input.remote.$ref).toBe('https://example.test/preserved.json')
+  })
 
   it.each([undefined, 'https://example.com/api.json'])(
     'preserves references across embedded schema scopes without root identity (origin: %s)',
@@ -3356,6 +3397,73 @@ describe('resolveAndCopyReferences', () => {
           User: { type: 'object', properties: { name: { type: 'string' } } },
         },
       },
+    })
+  })
+
+  it('keeps maps as objects when every copied key looks like a number', () => {
+    const target: { components?: { schemas?: unknown } } = {}
+
+    resolveAndCopyReferences(
+      target,
+      {
+        paths: {
+          '/themes/{slug}': {
+            get: {
+              responses: {
+                '400': { content: { 'application/json': { schema: { $ref: '#/components/schemas/400' } } } },
+                '404': { content: { 'application/json': { schema: { $ref: '#/components/schemas/404' } } } },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            '400': { type: 'object', properties: { message: { type: 'string' } } },
+            '404': { type: 'object', properties: { message: { type: 'string' } } },
+          },
+        },
+      },
+      '/paths/~1themes~1{slug}',
+      '',
+      '',
+      true,
+    )
+
+    expect(Array.isArray(target.components?.schemas)).toBe(false)
+    expect(target.components?.schemas).toEqual({
+      '400': { type: 'object', properties: { message: { type: 'string' } } },
+      '404': { type: 'object', properties: { message: { type: 'string' } } },
+    })
+  })
+
+  it('keeps arrays as arrays when copying an item by index', () => {
+    const target: Record<string, unknown> = {}
+
+    resolveAndCopyReferences(
+      target,
+      {
+        paths: {
+          '/': {
+            get: {
+              parameters: [{ $ref: '#/components/parameters/Limit' }],
+            },
+          },
+        },
+        components: {
+          parameters: {
+            Limit: { name: 'limit', in: 'query' },
+          },
+        },
+      },
+      '/paths/~1/get/parameters/0',
+      '',
+      '',
+      true,
+    )
+
+    expect(target).toEqual({
+      paths: { '/': { get: { parameters: [{ $ref: '#/components/parameters/Limit' }] } } },
+      components: { parameters: { Limit: { name: 'limit', in: 'query' } } },
     })
   })
 })

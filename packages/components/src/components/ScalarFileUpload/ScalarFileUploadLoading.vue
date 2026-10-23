@@ -12,7 +12,7 @@ export default {}
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-import { type LoadingState, ScalarLoading } from '../ScalarLoading'
+import { ScalarLoading, type LoadingState } from '../ScalarLoading'
 
 defineProps<{
   loader: LoadingState

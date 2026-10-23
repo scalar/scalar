@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
@@ -129,6 +130,45 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
 }
 
 /**
+ * Sets a value in the target document, creating any missing containers with the same shape
+ * they have in the source document.
+ *
+ * We cannot let `setValueAtPath` guess here: it creates an array whenever the next segment
+ * looks like a number, so copying `#/components/schemas/400` first would turn
+ * `components.schemas` into a sparse array instead of a map keyed by schema name.
+ */
+const setValueMirroringSource = (
+  targetDocument: unknown,
+  sourceDocument: unknown,
+  segments: string[],
+  value: unknown,
+): void => {
+  if (segments.length === 0) {
+    throw new Error("Cannot set value at root ('') pointer")
+  }
+
+  segments.forEach((segment) => preventPollution(segment))
+
+  let target = targetDocument as Record<string, unknown>
+  let source = sourceDocument as Record<string, unknown> | undefined
+
+  for (const [index, segment] of segments.entries()) {
+    if (index === segments.length - 1) {
+      target[segment] = value
+      return
+    }
+
+    source = isObject(source) || Array.isArray(source) ? (source[segment] as Record<string, unknown>) : undefined
+
+    if (typeof target[segment] !== 'object' || target[segment] === null) {
+      target[segment] = Array.isArray(source) ? [] : {}
+    }
+
+    target = target[segment] as Record<string, unknown>
+  }
+}
+
+/**
  * Resolves and copies referenced values from a source document to a target document.
  * This function traverses the document and copies referenced values to the target document,
  * while tracking processed references to avoid duplicates. It only processes references
@@ -187,7 +227,7 @@ export const resolveAndCopyReferences = (
     segments.length === 2 && isObject(referencedValue) && Object.keys(documentMetadata).length > 0
       ? { ...referencedValue, ...documentMetadata }
       : referencedValue
-  setValueAtPath(targetDocument, referencePath, copiedValue)
+  setValueMirroringSource(targetDocument, sourceDocument, segments, copiedValue)
 
   // Keep every enclosing base when copying a subtree, so later partial bundles
   // resolve against the same document and schema resources as the original.
@@ -544,6 +584,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   config.externalDocumentsKey = config.externalDocumentsKey ?? extensions.externalDocuments
   config.externalDocumentsMappingsKey = config.externalDocumentsMappingsKey ?? extensions.externalDocumentsMappings
 
+  // Reject unsafe storage keys before cache indexing or loaders can mutate the document.
+  preventPollution(config.externalDocumentsKey)
+  preventPollution(config.externalDocumentsMappingsKey)
+
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -633,14 +677,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       : pointer
   }
 
-  // Create the cache to store the compressed values to their map values
-  if (documentRoot[config.externalDocumentsMappingsKey] === undefined) {
-    documentRoot[config.externalDocumentsMappingsKey] = {}
-  }
-  const { generate } = uniqueValueGeneratorFactory(
-    config.compress ?? getHash,
-    documentRoot[config.externalDocumentsMappingsKey],
-  )
+  // Copy only owned mappings so writes cannot reach an inherited or shared object.
+  const existingMappings = Object.hasOwn(documentRoot, config.externalDocumentsMappingsKey)
+    ? documentRoot[config.externalDocumentsMappingsKey]
+    : undefined
+  const mappings = isObject(existingMappings)
+    ? Object.fromEntries(
+        Object.entries(existingMappings).filter((entry): entry is [string, string] => typeof entry[1] === 'string'),
+      )
+    : {}
+  Object.defineProperty(documentRoot, config.externalDocumentsMappingsKey, {
+    value: mappings,
+    enumerable: true,
+    configurable: true,
+    writable: true,
+  })
+  const { generate } = uniqueValueGeneratorFactory(config.compress ?? getHash, mappings)
 
   // Index supplied and previously bundled documents before resolving canonical identities.
   const storedDocuments = documentRoot[config.externalDocumentsKey]
@@ -953,8 +1005,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // Do not expose reservations for resources that were never included in the output.
   if (config.preserveReference) {
     const documents = documentRoot[config.externalDocumentsKey]
-    // The configurable mapping key can resolve to an inherited object. Build an
-    // owned replacement instead of deleting properties on that borrowed object.
     const mappings = Object.fromEntries(
       Object.entries(documentRoot[config.externalDocumentsMappingsKey]).filter(
         ([key]) => isObject(documents) && Object.hasOwn(documents, key),

@@ -16,15 +16,15 @@ export default {}
 <script setup lang="ts">
 import { getSideAxis } from '@floating-ui/utils'
 import {
-  type MiddlewareData,
   autoUpdate,
   flip,
   offset as offsetMiddleware,
   shift,
   size,
   useFloating,
+  type MiddlewareData,
 } from '@floating-ui/vue'
-import { type Ref, computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, type Ref } from 'vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
@@ -172,7 +172,7 @@ defineExpose({
     :to="typeof teleport === 'string' ? teleport : undefined">
     <div
       ref="floatingRef"
-      class="relative z-context"
+      class="z-context relative"
       :style="floatingStyles">
       <slot
         :data="middlewareData"

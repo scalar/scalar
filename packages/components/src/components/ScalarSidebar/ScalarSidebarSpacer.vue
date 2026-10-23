@@ -23,7 +23,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('flex px-2 h-1')">
+  <div v-bind="cx('flex shrink-0 px-2 h-1')">
     <ScalarSidebarIndent :indent="indent" />
   </div>
 </template>

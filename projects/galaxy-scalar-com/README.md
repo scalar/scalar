@@ -9,3 +9,5 @@ The same Pages worker serves the OpenAPI mock and the Galaxy AsyncAPI WebSocket 
 Connect to `/ws/v1/planets/4/events?api_key=demo` (using `wss` in production or `ws` locally) to receive the document's first planet event example immediately. The user, system, and celestial-body event channels work the same way; `v2` is also supported. Mock authentication accepts a non-empty `api_key` query parameter or bearer token.
 
 Each subscription receives one sample on connection. Samples are independent of REST mutations; this is not a live broadcast service or a simulation of cross-channel request/reply behavior. The existing Cloudflare Pages deployment needs no additional service or bindings.
+
+Production loads the published API reference JavaScript from the CDN and the Galaxy OpenAPI document from the [registry](https://registry.scalar.com/@scalar/apis/galaxy?format=json). Staging and PR previews use the branch-built JavaScript and local `/openapi.yaml` document.

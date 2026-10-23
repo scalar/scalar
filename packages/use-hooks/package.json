@@ -52,7 +52,7 @@
     "@scalar/validation": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.4",
-    "tailwind-merge": "3.5.0",
+    "tailwind-merge": "3.7.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

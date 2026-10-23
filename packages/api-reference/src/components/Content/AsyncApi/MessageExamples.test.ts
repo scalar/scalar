@@ -92,6 +92,7 @@ describe('MessageExamples', () => {
       },
     })
     const picker = wrapper.getComponent(ExamplePicker)
+    expect(wrapper.get('button[aria-label="Examples: Example 3"]').text()).toContain('Example 3')
     expect(picker.props('examples')).toStrictEqual({
       '0': { summary: 'Example 3' },
       '1': { summary: 'Example 3' },

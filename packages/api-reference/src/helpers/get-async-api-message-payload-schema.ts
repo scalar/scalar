@@ -1,7 +1,6 @@
 import type { AsyncApiMessageObject } from '@scalar/types/asyncapi/3.1'
+import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-
-import { resolveAsyncApiSchema } from './resolve-async-api-schema'
 
 /** Resolve only schemas understood by the shared JSON Schema renderer and its helpers. */
 export const unwrapAsyncApiSchema = (value: unknown): SchemaObject | undefined => {

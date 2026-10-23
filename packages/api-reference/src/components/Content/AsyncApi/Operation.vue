@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { AsyncApiCodeExample } from '@scalar/blocks/code-example'
 import type { SchemaRenderingProps } from '@scalar/blocks/schema'
 import { ScalarMarkdown } from '@scalar/components/markdown'
 import { ScalarIconArrowDownLeft, ScalarIconArrowUpRight } from '@scalar/icons'
@@ -11,6 +12,7 @@ import type {
 import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
 import { SectionHeaderTag } from '@/components/Section'
 import {
   useDocumentOutline,
@@ -22,6 +24,7 @@ import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
 import Bindings from './Bindings.vue'
+import CopyAsyncApiMarkdownButton from './CopyAsyncApiMarkdownButton.vue'
 import type { AsyncApiSchemaRenderOptions } from './helpers/async-api-render-options'
 import { filterChildrenByType } from './helpers/filter-children-by-type'
 import { getAsyncApiRequiredSecurity } from './helpers/get-async-api-required-security'
@@ -29,6 +32,7 @@ import { getOperationReply } from './helpers/get-operation-reply'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiOperation } from './helpers/resolve-async-api-nodes'
 import Message from './Message.vue'
+import OperationMessageExamples from './OperationMessageExamples.vue'
 import OperationReply from './OperationReply.vue'
 
 /** Subset of the configuration the nested `Message`/`Schema` renderers need. */
@@ -50,6 +54,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+defineSlots<{
+  /** Replaces the default Markdown action; an empty slot hides it. */
+  actions?: () => unknown
+}>()
 
 const headerId = useId()
 const section = useTemplateRef<HTMLElement>('section')
@@ -98,8 +107,17 @@ const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
 )
 
+const hasOverview = computed(() =>
+  Boolean(
+    summary.value ||
+    description.value ||
+    resolvedOperation.value?.bindings ||
+    resolvedOperation.value?.externalDocs,
+  ),
+)
+
 /** Only the message children of this operation. */
-const messages = computed(() =>
+const operationMessages = computed(() =>
   filterChildrenByType<TraversedAsyncApiMessage>(
     operation.children,
     'asyncapi-message',
@@ -107,7 +125,22 @@ const messages = computed(() =>
 )
 
 const reply = computed(() =>
-  getOperationReply(document, resolvedOperation.value),
+  getOperationReply(document, resolvedOperation.value, operationMessages.value),
+)
+
+/** Operation messages, minus the reply messages that render under Replies. */
+const messages = computed(() =>
+  operationMessages.value.filter(
+    (message) =>
+      !reply.value?.messages.some(
+        ({ entry, nested }) => nested && entry?.id === message.id,
+      ),
+  ),
+)
+
+const replyMessages = computed(
+  () =>
+    reply.value?.messages.flatMap(({ entry }) => (entry ? [entry] : [])) ?? [],
 )
 
 const { level: headingLevel } = useDocumentOutline('asyncApiOperation')
@@ -120,10 +153,13 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     ref="section"
     :aria-labelledby="headerId"
     class="operation"
-    :class="`operation--${operation.action}`">
-    <div class="operation-header mb-3">
+    :class="[
+      `operation--${operation.action}`,
+      { 'operation--without-overview': !hasOverview },
+    ]">
+    <div class="operation-header">
       <Anchor
-        class="mr-6"
+        class="narrow:basis-full min-w-0 flex-1"
         @copyAnchorUrl="
           () => eventBus?.emit('copy-url:nav-item', { id: operation.id })
         ">
@@ -135,8 +171,8 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
             :level="headingLevel">
             {{ headingText }}
           </SectionHeaderTag>
-          <span
-            class="operation-action"
+          <Badge
+            class="operation-action inline-flex shrink-0 items-center gap-1"
             :class="`operation-action--${operation.action}`">
             <component
               :is="
@@ -147,70 +183,103 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
               aria-hidden="true"
               class="size-3" />
             {{ operation.action === 'send' ? 'Send' : 'Receive' }}
-          </span>
+          </Badge>
         </span>
       </Anchor>
       <div
         v-if="requiredSecurity.state !== 'none'"
-        class="operation-auth ms-auto flex shrink-0 items-center">
+        class="operation-auth flex shrink-0 items-center">
         <SecurityRequirementBadge :requiredSecurity />
+      </div>
+      <div class="ms-auto flex shrink-0 items-center gap-3">
+        <slot
+          v-if="$slots.actions"
+          name="actions" />
+        <CopyAsyncApiMarkdownButton
+          v-else
+          :document
+          :selection="{ operation: operation.operationName }" />
       </div>
     </div>
 
-    <p
-      v-if="summary"
-      class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
-      {{ summary }}
-    </p>
-    <ScalarMarkdown
-      v-if="description"
-      class="operation-description"
-      :value="description"
-      withImages />
-
     <div
-      v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
-      class="mt-12 space-y-4">
-      <Bindings
-        :bindings="resolvedOperation?.bindings"
-        :options="options"
-        scope="operation" />
-      <AsyncApiDocumentation
-        :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+      v-if="hasOverview"
+      class="operation-overview">
+      <p
+        v-if="summary"
+        class="operation-summary text-c-1 mb-2 [overflow-wrap:anywhere]">
+        {{ summary }}
+      </p>
+      <ScalarMarkdown
+        v-if="description"
+        class="operation-description"
+        :value="description"
+        withImages />
+
+      <div
+        v-if="resolvedOperation?.bindings || resolvedOperation?.externalDocs"
+        class="space-y-4"
+        :class="{ 'mt-12': summary || description }">
+        <Bindings
+          :bindings="resolvedOperation?.bindings"
+          :options="options"
+          scope="operation" />
+        <AsyncApiDocumentation
+          :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
+      </div>
     </div>
 
-    <SectionHeaderTag
-      v-if="messages.length || reply"
-      class="text-c-1 mt-12 mb-2 block! text-base leading-[1.45] font-medium"
-      :level="messagesHeadingLevel">
-      Messages
-    </SectionHeaderTag>
-    <Message
-      v-for="message in messages"
-      :key="message.id"
-      :document="document"
-      :eventBus="eventBus"
-      :expandedItems="expandedItems"
-      :expansion="expansion"
-      :message="message"
-      :options="options"
-      :scrollTargetId="scrollTargetId"
-      :specificationExtension="specificationExtension" />
-    <p
-      v-if="reply && !messages.length"
-      class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
-      No messages listed for this operation.
-    </p>
-    <OperationReply
-      v-if="reply"
-      class="mt-12"
-      :document="document"
-      :eventBus="eventBus"
-      :expansion="expansion"
-      :level="messagesHeadingLevel"
-      :options="options"
-      :reply="reply"
-      :specificationExtension="specificationExtension" />
+    <div class="operation-example flex min-w-0 flex-col gap-6">
+      <AsyncApiCodeExample
+        :document="document"
+        :operationName="operation.operationName" />
+      <OperationMessageExamples
+        v-if="replyMessages.length"
+        class="w-full"
+        :document="document"
+        :messages="replyMessages"
+        pickerLabel="Reply message example" />
+    </div>
+
+    <div class="operation-details">
+      <SectionHeaderTag
+        v-if="messages.length || reply"
+        class="text-c-1 mb-2 block! text-base leading-[1.45] font-medium"
+        :class="{ 'mt-12': hasOverview }"
+        :level="messagesHeadingLevel">
+        Messages
+      </SectionHeaderTag>
+
+      <Message
+        v-for="message in messages"
+        :key="message.id"
+        :document="document"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
+        :expansion="expansion"
+        hideExamples
+        :message="message"
+        :options="options"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
+      <p
+        v-if="reply && !messages.length"
+        class="text-c-2 rounded-lg border border-dashed px-4 py-3 text-sm">
+        No messages listed for this operation.
+      </p>
+      <OperationReply
+        v-if="reply"
+        class="mt-12"
+        :document="document"
+        :eventBus="eventBus"
+        :expandedItems="expandedItems"
+        :expansion="expansion"
+        :level="messagesHeadingLevel"
+        :options="options"
+        :reply="reply"
+        :scrollTargetId="scrollTargetId"
+        :specificationExtension="specificationExtension" />
+    </div>
   </section>
 </template>
 
@@ -220,9 +289,48 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   margin-top: 90px;
   padding-top: 90px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: 'heading heading' 'overview example' 'details example';
+  column-gap: 48px;
+}
+.operation--without-overview {
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'heading heading' 'details example';
+}
+.operation-overview {
+  grid-area: overview;
+  min-width: 0;
+}
+.operation-details {
+  grid-area: details;
+  min-width: 0;
+  /* Message schemas use the available column width for their responsive layout. */
+  container: references-container / inline-size;
+}
+.operation-example {
+  grid-area: example;
+  align-self: start;
+}
+@container references-container (max-width: 900px) {
+  .operation {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'heading' 'overview' 'example' 'details';
+    row-gap: 16px;
+  }
+  .operation--without-overview {
+    grid-template-areas: 'heading' 'example' 'details';
+  }
+  .operation-example {
+    position: static;
+    max-height: none;
+  }
 }
 
 .operation-header {
+  grid-area: heading;
+  margin-bottom: 24px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -235,17 +343,6 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
   color: var(--scalar-color-1);
 }
 
-/* Direction remains readable through both its label and icon. */
-.operation-action {
-  font-size: var(--scalar-micro);
-  font-weight: var(--scalar-semibold);
-  border-radius: 12px;
-  padding: 2px 8px;
-  display: inline-flex;
-  gap: 4px;
-  flex-shrink: 0;
-  align-items: center;
-}
 /*
  * The label is the theme colour on a 12% tint of itself, which in the default light
  * theme leaves send at 4.28:1 and receive at 3.50:1 against their own fill, below the
@@ -262,6 +359,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-blue), transparent 88%);
+  border-color: color-mix(in srgb, var(--scalar-color-blue), transparent 78%);
 }
 .operation-action--receive {
   color: color-mix(
@@ -270,32 +368,20 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
     var(--scalar-color-1) 28%
   );
   background: color-mix(in srgb, var(--scalar-color-green), transparent 88%);
+  border-color: color-mix(in srgb, var(--scalar-color-green), transparent 78%);
 }
 
 .operation-description {
   text-align: left;
-  margin-top: 12px;
 }
 .references-classic .operation {
   margin-top: 48px;
   padding-top: 48px;
 }
 @container references-container (max-width: 900px) {
-  .operation-auth {
-    order: -1;
-    width: 100%;
-    margin-left: 0;
-  }
   .operation {
     margin-top: 48px;
     padding-top: 48px;
-  }
-}
-/* Match the message columns, including their 48px gutter. */
-@container references-container (min-width: 900px) {
-  .operation-summary,
-  .operation-description {
-    width: calc((100% - 48px) / 2);
   }
 }
 </style>

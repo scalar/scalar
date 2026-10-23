@@ -25,6 +25,8 @@ type UseGenerateSdkOptions = {
   hasDocument: MaybeRefOrGetter<boolean>
   /** Whether the active document already lists SDK installation instructions. Hides every button. */
   hasSdk: MaybeRefOrGetter<boolean>
+  /** Hide every SDK generation entry point when developer tools are disabled. */
+  disabled?: MaybeRefOrGetter<boolean>
   /** Override the local-only check (e.g. for tests or docs config) */
   enabled?: ComputedRef<boolean>
 }
@@ -42,7 +44,9 @@ export const useGenerateSdk = (options: UseGenerateSdkOptions): GenerateSdkConte
   const isLocal = options.enabled ?? computed(() => typeof window !== 'undefined' && isLocalUrl(window.location.href))
 
   // Offering to generate an SDK only makes sense for a loaded document that does not ship one yet
-  const enabled = computed(() => isLocal.value && toValue(options.hasDocument) && !toValue(options.hasSdk))
+  const enabled = computed(
+    () => !toValue(options.disabled) && isLocal.value && toValue(options.hasDocument) && !toValue(options.hasSdk),
+  )
 
   const dialog = useModal()
 

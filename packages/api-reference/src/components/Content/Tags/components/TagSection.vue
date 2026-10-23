@@ -6,7 +6,6 @@ import type { TraversedTag } from '@scalar/workspace-store/schemas/navigation'
 import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import ChannelsList from '@/components/Content/AsyncApi/ChannelsList.vue'
 import { LinkList } from '@/components/LinkList'
 import { OperationsList } from '@/components/OperationsList'
 import {
@@ -46,7 +45,7 @@ const { translate } = useLocalization()
 
 /**
  * AsyncAPI tags carry `asyncapi-channel` children instead of `operation`/`webhook`,
- * so they get a dedicated channel list rather than the (empty) operations card.
+ * so their operations cards live in the individual channel sections.
  */
 const hasChannels = computed(
   () =>
@@ -94,13 +93,8 @@ const hasChannels = computed(
             :value="tag?.description ?? ''"
             withImages />
         </SectionColumn>
-        <SectionColumn>
-          <ChannelsList
-            v-if="hasChannels"
-            :eventBus="eventBus"
-            :tag="tag" />
+        <SectionColumn v-if="!hasChannels">
           <OperationsList
-            v-else
             :eventBus="eventBus"
             :tag="tag" />
         </SectionColumn>

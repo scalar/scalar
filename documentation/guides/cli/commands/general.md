@@ -42,6 +42,13 @@ Upgrade the Scalar CLI to the latest version.
 scalar upgrade [options]
 ```
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--check` | Show installed and available versions without installing. |
+| `--json` | Show the version check as JSON without installing. |
+
 ## context
 
 Print every command, argument, and option as JSON for AI agents.

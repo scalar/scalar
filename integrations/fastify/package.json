@@ -70,14 +70,15 @@
     "@fastify/basic-auth": "catalog:*",
     "@fastify/http-proxy": "catalog:*",
     "@fastify/swagger": "catalog:*",
+    "@microsoft/api-extractor": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "catalog:*",
-    "vite-plugin-dts": "^4.3.0",
+    "vite-plugin-dts": "^5.1.2",
     "vitest": "catalog:*"
   }
 }

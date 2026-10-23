@@ -84,7 +84,7 @@ app.on('open-url', async (_, appLink: string) => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  const mainWindow = createWindow({ isDev: !isProductionMode })
+  createWindow({ isDev: !isProductionMode })
 
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
@@ -113,11 +113,15 @@ app.whenReady().then(() => {
     abortMap.delete(abortId)
   })
 
+  // Close the window that sent the request, e.g. when the last tab is closed with CmdOrCtrl+W
+  ipcMain.on('closeWindow', (event) => {
+    BrowserWindow.fromWebContents(event.sender)?.close()
+  })
+
   // Menu
   buildMenu({
     isMac: process.platform === 'darwin',
     appName: app.name,
-    appWindow: mainWindow,
   })
 
   // Block all permission requests (b,ut for notifications)

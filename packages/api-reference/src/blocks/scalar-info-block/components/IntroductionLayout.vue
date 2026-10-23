@@ -41,6 +41,13 @@ const { applicationIdentifier, documentType } = defineProps<{
   eventBus: WorkspaceEventBus | null
 }>()
 
+defineSlots<{
+  'actions'?: () => unknown
+  'download-link'?: () => unknown
+  'aside'?: () => unknown
+  'after'?: () => unknown
+}>()
+
 const showApplicationIdentifier = computed<boolean>(
   () => documentType === 'asyncapi' && Boolean(applicationIdentifier),
 )
@@ -78,9 +85,18 @@ const { level: headingLevel } = useDocumentOutline('document')
               {{ info?.title }}
             </SectionHeaderTag>
             <template #links>
-              <InfoLinks
-                :externalDocs="externalDocs"
-                :info="info" />
+              <!-- Keep the original links layout when no custom actions are supplied. -->
+              <div
+                :class="
+                  $slots.actions
+                    ? 'flex flex-wrap items-start justify-end gap-3'
+                    : 'contents'
+                ">
+                <InfoLinks
+                  :externalDocs="externalDocs"
+                  :info="info" />
+                <slot name="actions" />
+              </div>
             </template>
           </SectionHeader>
           <SectionColumns>
