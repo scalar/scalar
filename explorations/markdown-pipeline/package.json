@@ -1,0 +1,30 @@
+{
+  "name": "@scalar-internal/markdown-pipeline-exploration",
+  "private": true,
+  "description": "Prototype Markdown pipeline and the harness comparing it with @scalar/code-highlight",
+  "type": "module",
+  "scripts": {
+    "setup": "node bench/corpus.mjs && node bench/build.mjs",
+    "build": "node bench/build.mjs",
+    "test": "vitest run",
+    "spec": "node bench/spec.mjs",
+    "spec:compare": "node bench/spec-vs.mjs",
+    "size": "node bench/size.mjs baseline && node bench/size-proto.mjs && node bench/size-alt.mjs",
+    "size:breakdown": "node bench/compose.mjs",
+    "bench": "node bench/bench-proto.mjs",
+    "bench:alternatives": "node bench/bench.mjs",
+    "parity": "node bench/diff-corpus.mjs",
+    "security": "node bench/attack.mjs 300000",
+    "pathological": "node --stack-size=4000 bench/patho.mjs 30000"
+  },
+  "devDependencies": {
+    "commonmark-spec": "0.31.2",
+    "markdown-it": "14.3.3",
+    "marked": "14.1.4",
+    "micromark": "4.0.0",
+    "micromark-extension-gfm": "3.0.0",
+    "parse5": "7.3.0",
+    "rolldown": "1.2.14",
+    "vitest": "4.1.12"
+  }
+}
