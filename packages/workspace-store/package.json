@@ -177,6 +177,8 @@
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
+    "ajv": "catalog:*",
+    "ajv-formats": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",

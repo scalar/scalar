@@ -3321,6 +3321,12 @@ importers:
       '@google-cloud/storage':
         specifier: catalog:*
         version: 8.4.0(supports-color@10.2.2)
+      ajv:
+        specifier: catalog:*
+        version: 8.20.0
+      ajv-formats:
+        specifier: catalog:*
+        version: 3.0.1(ajv@8.20.0)
       fake-indexeddb:
         specifier: catalog:*
         version: 6.2.5
