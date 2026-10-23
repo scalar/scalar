@@ -8,12 +8,21 @@ import type {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { useTemplateRef } from 'vue'
 
+import { SpecificationExtension } from '@/features/specification-extension'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import ClassicLayout from './components/ClassicLayout.vue'
 import ModernLayout from './components/ModernLayout.vue'
 
-const { schema, isCollapsed, id, options, eventBus, document } = defineProps<
+const {
+  specificationExtension = SpecificationExtension,
+  schema,
+  isCollapsed,
+  id,
+  options,
+  eventBus,
+  document,
+} = defineProps<
   {
     id: string
     name: string

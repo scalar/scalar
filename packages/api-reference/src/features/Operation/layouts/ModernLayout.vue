@@ -44,8 +44,10 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { getXKeysFromObject } from '@/features/specification-extension'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import {
+  getXKeysFromObject,
+  SpecificationExtension,
+} from '@/features/specification-extension'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 

@@ -9,9 +9,15 @@ import {
   type OpenApiDocument,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { type Component, defineComponent } from 'vue'
+
+import { PLUGIN_MANAGER_SYMBOL } from '@/plugins/hooks/usePluginManager'
+import { createPluginManager } from '@/plugins/plugin-manager'
 
 import Operation from './Operation.vue'
+
+vi.unmock('@/plugins/hooks/usePluginManager')
 
 type ExtractComponentProps<TComponent> = TComponent extends new () => { $props: infer P } ? P : never
 
@@ -24,6 +30,8 @@ const workspaceStore = createWorkspaceStore()
  */
 const mountOperationWithConfig = (
   overrides: {
+    specificationExtension?: Component
+    plugins?: Parameters<typeof createPluginManager>[0]['plugins']
     slots?: { actions?: string }
     path?: string
     method?: string
@@ -66,6 +74,7 @@ const mountOperationWithConfig = (
   })
 
   const props: ExtractComponentProps<typeof Operation> = {
+    specificationExtension: overrides.specificationExtension,
     id: 'test-operation',
     method: (overrides.method || 'get') as any,
     securitySchemes: {},
@@ -87,6 +96,7 @@ const mountOperationWithConfig = (
     props: props,
     slots: overrides.slots,
     global: {
+      provide: { [PLUGIN_MANAGER_SYMBOL]: createPluginManager({ plugins: overrides.plugins ?? [] }) },
       stubs: {
         RouterLink: {
           name: 'RouterLink',
@@ -101,6 +111,61 @@ describe('Operation', () => {
   beforeEach(() => {
     enableConsoleWarn()
     enableConsoleError()
+  })
+
+  const extensionPath = {
+    get: {
+      responses: { '200': { description: 'Success' } },
+      parameters: [
+        {
+          name: 'userId',
+          in: 'query',
+          schema: { type: 'string' },
+          'x-owner': 'selected-team',
+          'x-hidden': 'hidden-team',
+        },
+      ],
+    },
+  }
+
+  it.each(['modern', 'classic'] as const)('renders selected parameter extensions by default in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+    })
+
+    expect(wrapper.text()).toContain('selected-team')
+    expect(wrapper.text()).not.toContain('hidden-team')
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('uses configured extension plugins by default in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+      plugins: [
+        () => ({
+          name: 'owner',
+          extensions: [{ name: 'x-owner', component: { render: () => 'Plugin owner' } }],
+        }),
+      ],
+    })
+
+    expect(wrapper.text()).toContain('Plugin owner')
+    expect(wrapper.text()).not.toContain('selected-team')
+    wrapper.unmount()
+  })
+
+  it.each(['modern', 'classic'] as const)('preserves explicit extension renderer overrides in %s', (layout) => {
+    const wrapper = mountOperationWithConfig({
+      options: { layout, showExtensions: ['x-owner'] },
+      pathValue: extensionPath,
+      specificationExtension: defineComponent({ render: () => 'Custom owner' }),
+    })
+
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('selected-team')
+    wrapper.unmount()
   })
 
   it.each(['modern', 'classic'] as const)('keeps the default copy action in the %s layout', (layout) => {

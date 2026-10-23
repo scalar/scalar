@@ -101,7 +101,6 @@ import {
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import { SpecificationExtension } from '@/features/specification-extension'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
@@ -2094,7 +2093,6 @@ const sidebarCta = computed((): SidebarCta => {
           :items="sidebarItems"
           :options="runtimeConfig"
           :scrollTargetId="scrollTargetId"
-          :specificationExtension="SpecificationExtension"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "

@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import { provideLocalization } from '@/features/localization'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 import RequestBody from './RequestBody.vue'
 
