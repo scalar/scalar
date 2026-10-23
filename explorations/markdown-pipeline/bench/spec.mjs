@@ -37,7 +37,7 @@ const run = (name, examples) => {
       got = 'THREW ' + e.message
     }
     const opts = ex.ext ? { dropAttrs: ['class'] } : {}
-    const ok = normalize(got, opts) === normalize(ex.html, opts)
+    const ok = normalize(got.trimEnd(), opts) === normalize(ex.html.trimEnd(), opts)
     bySection[ex.section] ??= [0, 0]
     bySection[ex.section][1]++
     if (ok) {

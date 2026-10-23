@@ -42,7 +42,7 @@ const PLAIN_PARAGRAPH =
 export const htmlFromMarkdown = (markdown: string, options?: HtmlFromMarkdownOptions): string => {
   const removeTags = options?.removeTags ?? []
   const allowTags = options?.allowTags ?? []
-  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) return `<p>${markdown}</p>\n`
+  if (!options?.transform && !removeTags.includes('p') && PLAIN_PARAGRAPH.test(markdown)) return `<p>${markdown}</p>`
 
   const key = `${removeTags.join(',')}|${allowTags.join(',')}`
   let tags = tagCache.get(key)

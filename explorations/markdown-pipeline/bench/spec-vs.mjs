@@ -50,9 +50,9 @@ for (const [name, ex] of [
   const onlyBase = []
   for (const e of ex) {
     const o = e.ext ? { dropAttrs: ['class'] } : {}
-    const exp = normalize(e.html, o)
-    const bo = normalize(String(base.processSync(e.md)), o)
-    const po = normalize(htmlFromMarkdown(e.md, { unsafe: true }), o)
+    const exp = normalize(e.html.trimEnd(), o)
+    const bo = normalize(String(base.processSync(e.md)).trimEnd(), o)
+    const po = normalize(htmlFromMarkdown(e.md, { unsafe: true }).trimEnd(), o)
     if (bo === exp) b++
     if (po === exp) p++
     if (bo === po) agree++

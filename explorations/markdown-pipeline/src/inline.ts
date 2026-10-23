@@ -241,6 +241,7 @@ export class InlineParser {
 
   private parseInline(block: N): void {
     const c = this.s[this.pos]!
+    if (MAY_START_LITERAL.test(c) && this.parseLiteral(block)) return
     switch (c) {
       case '\n':
         return this.parseNewline(block)
@@ -273,10 +274,33 @@ export class InlineParser {
         return append(block, text(m ? decodeEntity(m) : (this.pos++, '&')))
       }
       default: {
+        const start = this.pos
         const m = this.match(MAIN)
-        append(block, text(m ?? (this.pos++, c)))
+        if (!m) return append(block, text((this.pos++, c)))
+        // Stop the run where an autolink literal could start, so it is tried there.
+        const cut = literalCandidate(this.s, start + 1, this.pos)
+        if (cut !== -1) this.pos = cut
+        append(block, text(this.s.slice(start, this.pos)))
       }
     }
+  }
+
+  /**
+   * GFM autolink literals at the tokenizer level, ported from
+   * `micromark-extension-gfm-autolink-literal`: they are tried before
+   * emphasis, escapes and entities, so a `*` or `\\` inside a URL stays part
+   * of it. None start inside an open `[` label, as in micromark.
+   */
+  private parseLiteral(block: N): boolean {
+    if (this.brackets) return false
+    const end = literalAt(this.s, this.pos)
+    if (!end) return false
+    const value = this.s.slice(this.pos, end.end)
+    const link: N = { type: 'link', url: normalizeUri(end.prefix + value), title: null }
+    append(link, text(value))
+    append(block, link)
+    this.pos = end.end
+    return true
   }
 
   private parseNewline(block: N): void {
@@ -648,53 +672,244 @@ export class InlineParser {
   }
 }
 
-/** GFM autolink literals, applied to text outside links. */
-const LITERAL =
-  /(?<![\p{L}\p{N}_/])(?:(?:https?:\/\/|www\.)[\p{L}\p{N}_-]+(?:\.[\p{L}\p{N}_-]+)*[^\s<]*|[\w.+-]+@[\w-]+(?:\.[\w-]+)+(?:[\w-]*)?)/giu
+const isAsciiAlpha = (c: string | undefined): boolean => c !== undefined && /[A-Za-z]/.test(c)
+const isAsciiAlnum = (c: string | undefined): boolean => c !== undefined && /[A-Za-z0-9]/.test(c)
+const isAtext = (c: string | undefined): boolean => c !== undefined && /[+\-._A-Za-z0-9]/.test(c)
+/** Ends a URL: end of input, a space or line ending, or Unicode whitespace. */
+const isBreak = (c: string | undefined): boolean => c === undefined || /\s/.test(c)
+const isUnicodePunct = (c: string | undefined): boolean => c !== undefined && /[\p{P}\p{S}]/u.test(c)
+const isControl = (c: string | undefined): boolean => c !== undefined && (c.charCodeAt(0) < 32 || c === '\x7f')
 
-const trimLiteral = (url: string): string => {
-  // Trailing punctuation is not part of the link; a `)` stays only if balanced.
+const MAY_START_LITERAL = /[+\-._A-Za-z0-9]/
+const PREVIOUS_WWW = /[(*_[\]~ \t\n\r]/
+
+/** Whether the rest from `i` is trailing punctuation that is not part of a URL. */
+const isTrail = (s: string, i: number): boolean => {
   for (;;) {
-    const last = url.at(-1)
-    if (last && /[?!.,:*_~'"]/.test(last)) url = url.slice(0, -1)
-    else if (last === ')') {
-      const open = url.split('(').length - 1
-      const close = url.split(')').length - 1
-      if (close > open) url = url.slice(0, -1)
-      else break
-    } else if (last === ';') {
-      const m = /[&\uffff][a-z0-9]+;$/i.exec(url)
-      url = m ? url.slice(0, m.index) : url.slice(0, -1)
-    } else break
+    const c = s[i]
+    if (c === '<' || isBreak(c)) return true
+    if (c !== undefined && '!"\')*,.:;?_~'.includes(c)) {
+      i++
+    } else if (c === '&') {
+      i++
+      if (!isAsciiAlpha(s[i])) return false
+      while (isAsciiAlpha(s[i])) i++
+      if (s[i] !== ';') return false
+      i++
+    } else if (c === ']') {
+      i++
+      const d = s[i]
+      if (d === '(' || d === '[' || isBreak(d)) return true
+    } else return false
   }
-  return url
+}
+
+const domainEnd = (s: string, i: number): number => {
+  let underscore = false
+  let underscoreBefore = false
+  let seen = false
+  for (;;) {
+    const c = s[i]
+    if (c === '.' || c === '_') {
+      if (isTrail(s, i)) break
+      if (c === '_') underscore = true
+      else {
+        underscoreBefore = underscore
+        underscore = false
+      }
+      i++
+      continue
+    }
+    if (isBreak(c) || (c !== '-' && isUnicodePunct(c))) break
+    seen = true
+    i++
+  }
+  return underscoreBefore || underscore || !seen ? -1 : i
+}
+
+const pathEnd = (s: string, i: number): number => {
+  let open = 0
+  let close = 0
+  for (;;) {
+    const c = s[i]
+    if (c === '(') {
+      open++
+      i++
+    } else if (c === ')' && close < open) {
+      close++
+      i++
+    } else if (c !== undefined && '!"&\')*,.:;<?]_~'.includes(c)) {
+      if (isTrail(s, i)) return i
+      if (c === ')') close++
+      i++
+    } else if (isBreak(c)) return i
+    else i++
+  }
+}
+
+/** The end of a `www.`, `http(s)://` or email literal starting at `i`, and the prefix its URL needs. */
+const literalAt = (s: string, i: number): { end: number; prefix: string } | null => {
+  const prev = s[i - 1]
+  const c = s[i]!
+  // Email: tried first at every character, as in micromark.
+  if (isAtext(c) && prev !== '/' && !isAtext(prev)) {
+    let j = i
+    while (isAtext(s[j])) j++
+    if (s[j] === '@') {
+      j++
+      let data = false
+      let dot = false
+      for (;;) {
+        const d = s[j]
+        if (d === '.' && isAsciiAlnum(s[j + 1])) {
+          dot = true
+          j++
+        } else if (d === '-' || d === '_' || isAsciiAlnum(d)) {
+          data = true
+          j++
+        } else break
+      }
+      if (data && dot && isAsciiAlpha(s[j - 1])) return { end: j, prefix: 'mailto:' }
+    }
+  }
+  if ((c === 'h' || c === 'H') && !isAsciiAlpha(prev)) {
+    const m = /^https?:\/\//i.exec(s.slice(i, i + 8))
+    if (m) {
+      const after = i + m[0].length
+      const d = s[after]
+      if (!isBreak(d) && !isControl(d) && !isUnicodePunct(d)) {
+        const domain = domainEnd(s, after)
+        if (domain !== -1) return { end: pathEnd(s, domain), prefix: '' }
+      }
+    }
+  }
+  if (
+    (c === 'w' || c === 'W') &&
+    (prev === undefined || PREVIOUS_WWW.test(prev)) &&
+    /^www\./i.test(s.slice(i, i + 4)) &&
+    s[i + 4] !== undefined
+  ) {
+    const domain = domainEnd(s, i)
+    if (domain !== -1) return { end: pathEnd(s, domain), prefix: 'http://' }
+  }
+  return null
+}
+
+/** The first position in `s[from, to)` where a literal could start, or -1. Cheap enough for every text run. */
+const literalCandidate = (s: string, from: number, to: number): number => {
+  const run = s.slice(from, to)
+  if (!/[@:.]/.test(run)) return -1
+  for (let i = from; i < to; i++) {
+    const c = s[i]!
+    if (!MAY_START_LITERAL.test(c)) continue
+    const prev = s[i - 1]
+    const email = prev !== '/' && !isAtext(prev)
+    const http = (c === 'h' || c === 'H') && !isAsciiAlpha(prev)
+    const www = (c === 'w' || c === 'W') && PREVIOUS_WWW.test(prev ?? ' ')
+    if ((email || http || www) && literalAt(s, i)) return i
+  }
+  return -1
+}
+
+/**
+ * The second half of GFM autolink literals, ported from
+ * `mdast-util-gfm-autolink-literal`: a find-and-replace over text outside
+ * links, for literals the tokenizer did not take.
+ */
+const FIND_URL = /(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi
+const FIND_EMAIL = /([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/g
+
+const previousOk = (input: string, index: number, email: boolean): boolean => {
+  const c = input[index - 1]
+  return (index === 0 || /\s/.test(c!) || isUnicodePunct(c)) && (!email || c !== '/')
+}
+
+const isCorrectDomain = (domain: string): boolean => {
+  const parts = domain.split('.')
+  const bad = (p: string | undefined) => p !== undefined && p !== '' && (/_/.test(p) || !/[a-zA-Z\d]/.test(p))
+  return parts.length >= 2 && !bad(parts.at(-1)) && !bad(parts.at(-2))
+}
+
+const splitUrl = (url: string): [string, string | undefined] => {
+  const trailExec = /[!"&'),.:;<>?\]}]+$/.exec(url)
+  if (!trailExec) return [url, undefined]
+  url = url.slice(0, trailExec.index)
+  let trail = trailExec[0]
+  let closingParenIndex = trail.indexOf(')')
+  const openingParens = url.split('(').length - 1
+  let closingParens = url.split(')').length - 1
+  while (closingParenIndex !== -1 && openingParens > closingParens) {
+    url += trail.slice(0, closingParenIndex + 1)
+    trail = trail.slice(closingParenIndex + 1)
+    closingParenIndex = trail.indexOf(')')
+    closingParens++
+  }
+  return [url, trail]
+}
+
+type Replace = (m: RegExpExecArray) => Inline[] | false
+
+const findUrl: Replace = (m) => {
+  if (!previousOk(m.input, m.index, false)) return false
+  let [, protocol, domain, path] = m as unknown as [string, string, string, string]
+  let prefix = ''
+  if (/^w/i.test(protocol)) {
+    domain = protocol + domain
+    protocol = ''
+    prefix = 'http://'
+  }
+  if (!isCorrectDomain(domain)) return false
+  const [url, trail] = splitUrl(domain + path)
+  if (!url) return false
+  const link: Inline = {
+    type: 'link',
+    url: normalizeUri(prefix + protocol + url),
+    title: null,
+    children: [{ type: 'text', value: protocol + url }],
+  }
+  return trail ? [link, { type: 'text', value: trail }] : [link]
+}
+
+const findEmail: Replace = (m) => {
+  const [, atext, label] = m as unknown as [string, string, string]
+  if (!previousOk(m.input, m.index, true) || /[-\d_]$/.test(label)) return false
+  return [
+    {
+      type: 'link',
+      url: normalizeUri(`mailto:${atext}@${label}`),
+      title: null,
+      children: [{ type: 'text', value: `${atext}@${label}` }],
+    },
+  ]
+}
+
+/** `mdast-util-find-and-replace` on one text value: a rejected match is retried one character later. */
+const findAndReplace = (value: string, find: RegExp, replace: Replace): Inline[] => {
+  const out: Inline[] = []
+  let start = 0
+  find.lastIndex = 0
+  let m: RegExpExecArray | null
+  while ((m = find.exec(value))) {
+    const result = replace(m)
+    if (result === false) {
+      find.lastIndex = m.index + 1
+      continue
+    }
+    if (m.index !== start) out.push({ type: 'text', value: value.slice(start, m.index) })
+    out.push(...result)
+    start = m.index + m[0].length
+    find.lastIndex = start
+  }
+  if (start < value.length) out.push({ type: 'text', value: value.slice(start) })
+  return out
 }
 
 const linkLiterals = (value: string, out: Inline[]): void => {
-  if (!/[.@:]/.test(value)) {
-    out.push({ type: 'text', value })
-    return
+  const urls = /[wW:]/.test(value) ? findAndReplace(value, FIND_URL, findUrl) : [{ type: 'text' as const, value }]
+  for (const node of urls) {
+    if (node.type === 'text' && node.value.includes('@')) out.push(...findAndReplace(node.value, FIND_EMAIL, findEmail))
+    else out.push(node)
   }
-  let last = 0
-  for (const m of value.matchAll(LITERAL)) {
-    let url = m[0]
-    const isEmail = !/^(?:https?:\/\/|www\.)/i.test(url)
-    if (isEmail) {
-      if (/[-_]$/.test(url)) continue
-      url = url.replace(/\.+$/, '')
-    } else {
-      url = trimLiteral(url)
-      // The domain needs a dot, and no underscore in its last two labels.
-      const domain = url.replace(/^(?:https?:\/\/)?/i, '').split(/[/?#]/)[0]!
-      if (/^www\./i.test(url) && !domain.includes('.', 4)) continue
-      if (/_[^.]*\.[^.]*$|_[^.]*$/.test(domain)) continue
-    }
-    if (m.index > last) out.push({ type: 'text', value: value.slice(last, m.index) })
-    const href = isEmail ? `mailto:${url}` : /^www\./i.test(url) ? `http://${url}` : url
-    out.push({ type: 'link', url: normalizeUri(href), title: null, children: [{ type: 'text', value: url }] })
-    last = m.index + url.length
-  }
-  if (last < value.length) out.push({ type: 'text', value: value.slice(last) })
 }
 
 const plain = (nodes: Inline[]): string =>

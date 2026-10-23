@@ -72,10 +72,20 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
     }
   }
   walk(parseFragment(html), false)
+  let prev
+  do {
+    prev = out
+    out = out
+      // A space just inside an inline element's edge renders like one just outside it.
+      .replace(/(<(?!\/)(?!br|img|input|hr)[a-z0-9]+(?: [^>]*)?>) /g, ' $1')
+      .replace(/ (<\/[a-z0-9]+>)/g, '$1 ')
+      .replace(/ {2,}/g, ' ')
+  } while (out !== prev)
   return (
     out
-      // A space at the end of a line (before a block edge or a `<br>`) does not render.
-      .replace(/ ((?:<\/[a-z0-9]+>)*)(?=\n|<br>)/g, '$1')
+      // A space at the end of a line (before a block edge or a `<br>`) does not render, even with
+      // empty elements in between. Images and inputs render, so a space before them stays.
+      .replace(/ ((?:<(?!img|input)[^>]+>)*)(?=\n|<br>)/g, '$1')
       .replace(/[ \t]*\n[ \t\n]*/g, '\n')
       .trim()
   )

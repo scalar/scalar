@@ -113,21 +113,49 @@ const decodeNumeric = (s: string): string =>
 export const isSafeUrl = (raw: string, attr: string): boolean => {
   const allowed = PROTOCOLS[attr]
   if (!allowed) return true
-  // Browsers strip tabs and newlines anywhere, and C0 controls and spaces at the ends.
-  const url = decodeNumeric(raw.replace(/￿/g, '&'))
-    .replace(/[\t\n\r]/g, '')
-    .replace(/^[\x00-\x20]+|[\x00-\x20]+$/g, '')
-  const colon = url.indexOf(':')
+  const url = decodeNumeric(raw.replace(/\uffff/g, '&'))
   const end = url.search(/[/?#]/)
-  const head = end === -1 ? url : url.slice(0, end)
-  if (head.includes('&')) return false
-  if (colon === -1 || (end !== -1 && end < colon)) return true
-  return allowed.includes(url.slice(0, colon).toLowerCase())
+  // A named reference before the path could hide a scheme (`javascript&colon;`), and decoding
+  // it would need the entity table, so such a URL is never safe.
+  if (/&[a-zA-Z][a-zA-Z0-9]*;/.test(end === -1 ? url : url.slice(0, end))) return false
+  // From here on exactly `hast-util-sanitize`: case-sensitive, nothing trimmed. That rejects
+  // ` https:` and `HTTPS:` like today; a browser would accept them, so this only rejects more.
+  const colon = url.indexOf(':')
+  if (colon < 0 || (end !== -1 && colon > end)) return true
+  return allowed.some((protocol) => colon === protocol.length && url.startsWith(protocol))
 }
 
 const isExternal = (href: string): boolean => /^https?:/i.test(href.replace(/^[\x00-\x20]+/, ''))
 
-type Frame = { tag: string; id: number; hidden: boolean }
+/** Elements the HTML parser reopens after they were closed implicitly ("active formatting elements"). */
+const FORMATTING = new Set([
+  'a',
+  'b',
+  'big',
+  'code',
+  'em',
+  'font',
+  'i',
+  'nobr',
+  's',
+  'small',
+  'strike',
+  'strong',
+  'tt',
+  'u',
+])
+/** Formatting opened inside one of these is never reopened outside it (the parser's "markers"). */
+const MARKERS = new Set(['applet', 'caption', 'marquee', 'object', 'table', 'td', 'template', 'th'])
+/** Start tags that do not reopen formatting elements before they are inserted. */
+const NO_RECONSTRUCT = new Set([...CLOSES_P, 'caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
+/** The parser's "special" elements, which stop the search for an `<li>`, `<dd>` or `<dt>` to close. */
+const SPECIAL = new Set(
+  'address applet area article aside base basefont bgsound blockquote body br button caption center col colgroup dd details dir div dl dt embed fieldset figcaption figure footer form frame frameset h1 h2 h3 h4 h5 h6 head header hgroup hr html iframe img input keygen li link listing main marquee menu meta nav noembed noframes noscript object ol p param plaintext pre script search section select source style summary table tbody td template textarea tfoot th thead title tr track ul wbr xmp'.split(
+    ' ',
+  ),
+)
+
+type Frame = { tag: string; id: number; hidden: boolean; attrs?: string }
 
 export type WriterOptions = {
   tags: Set<string>
@@ -149,6 +177,10 @@ export class Writer {
   private nextId = 1
   /** Generated `<p>` elements by id, to mirror the parser when one was already closed. */
   private paragraphs = new Map<number, boolean>()
+  /** Formatting elements closed implicitly, to reopen before the next content, as the parser does. */
+  private pending: Frame[] = []
+  /** A block separator, written only if more output follows, as `mdast-util-to-hast` does at the root. */
+  private separator = false
   /**
    * Skipping the contents of a stripped element such as `<script>` or `<form>`.
    * Applies to generated output too: inline `<script>` and `</script>` arrive as
@@ -165,20 +197,56 @@ export class Writer {
     return !NEEDS_TABLE.has(tag) || this.stack.some((f) => f.tag === 'table' && !f.hidden)
   }
 
+  /** A newline after a block. Deferred, because a character after the last block would reopen formatting elements. */
+  newline(): void {
+    this.separator = true
+  }
+
+  private flush(): void {
+    if (!this.separator) return
+    this.separator = false
+    this.text('\n')
+  }
+
   /** Opens a generated element. `attrs` is already serialized and safe. Returns its id for `close`. */
   open(tag: string, attrs = ''): number {
+    this.flush()
     const id = this.nextId++
     if (this.skip) return id
     this.closeP(tag)
+    if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     const hidden = !this.allowed(tag)
     if (!hidden) {
       if (tag === 'a' && !this.options.unsafe && /\shref="https?:/i.test(attrs))
         attrs += ' rel="nofollow" target="_blank"'
       this.out += `<${tag}${attrs}>`
     }
-    if (!VOID.has(tag)) this.stack.push({ tag, id, hidden })
+    if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
     if (tag === 'p') this.paragraphs.set(id, hidden)
     return id
+  }
+
+  /** Reopens formatting elements that were closed implicitly ("reconstruct the active formatting elements"). */
+  private reconstruct(): void {
+    if (this.pending.length === 0) return
+    const pending = this.pending
+    this.pending = []
+    for (const f of pending) {
+      this.out += `<${f.tag}${f.attrs ?? ''}>`
+      this.stack.push({ ...f, id: this.nextId++ })
+    }
+  }
+
+  /** `<li>` closes an open `<li>`, and `<dd>` or `<dt>` an open `<dd>` or `<dt>`, unless a special element is in between. */
+  private closeListItem(tag: string): void {
+    const targets = tag === 'li' ? ['li'] : tag === 'dd' || tag === 'dt' ? ['dd', 'dt'] : null
+    if (!targets) return
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const f = this.stack[i]!
+      if (f.hidden) continue
+      if (targets.includes(f.tag)) return this.popTo(i)
+      if (SPECIAL.has(f.tag) && f.tag !== 'address' && f.tag !== 'div' && f.tag !== 'p') return
+    }
   }
 
   /** A block start closes an open `<p>`, as the HTML parser would when it reads the output. */
@@ -190,9 +258,12 @@ export class Writer {
 
   /** Closes a generated element, and anything raw HTML left open inside it. */
   close(id: number): void {
+    this.flush()
     const at = this.stack.findLastIndex((f) => f.id === id)
     if (at !== -1) this.popTo(at)
     else if (this.paragraphs.get(id) === false && !this.skip) this.strayEnd('p')
+    // Its own end tag: a formatting element waiting to be reopened is dropped instead.
+    this.pending = this.pending.filter((f) => f.id !== id)
     this.paragraphs.delete(id)
   }
 
@@ -210,26 +281,36 @@ export class Writer {
 
   private popTo(at: number): void {
     if (this.skip && at < this.skip.at) this.skip = null
+    const implicit: Frame[] = []
     for (let i = this.stack.length - 1; i >= at; i--) {
       const f = this.stack[i]!
       if (!f.hidden) this.out += `</${f.tag}>`
+      if (MARKERS.has(f.tag)) implicit.length = 0
+      else if (i > at && !f.hidden && FORMATTING.has(f.tag)) implicit.unshift(f)
     }
+    if (MARKERS.has(this.stack[at]?.tag ?? '')) this.pending = []
     this.stack.length = at
+    this.pending.push(...implicit)
   }
 
   text(escaped: string): void {
-    if (!this.skip) this.out += escaped
+    this.flush()
+    if (this.skip) return
+    if (escaped) this.reconstruct()
+    this.out += escaped
   }
 
   /** Closes everything still open, so the output can never leak out of its container. */
   finish(): string {
     if (this.options.unsafe) this.stack.length = 0
     this.popTo(0)
+    this.pending = []
     return this.out
   }
 
   /** Sanitizes and writes a raw HTML fragment. */
   raw(html: string): void {
+    this.flush()
     if (this.options.unsafe) this.out += html
     else tokenize(html, this)
   }
@@ -241,6 +322,7 @@ export class Writer {
     if (top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)) {
       this.options.inline(text, this)
     } else {
+      this.reconstruct()
       this.out += escapeRawText(text)
     }
   }
@@ -259,8 +341,10 @@ export class Writer {
       if (tag === this.skip.tag && !VOID.has(tag)) this.skip.depth++
       return
     }
-    // Before the allowlist: the browser closes the paragraph even for a tag the sanitizer then drops.
+    // Before the allowlist: the browser does this even for a tag the sanitizer then drops.
+    this.closeListItem(tag)
     this.closeP(tag)
+    if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     if (!this.allowed(tag)) {
       if (STRIP.has(tag) && !VOID.has(tag)) this.skip = { tag, depth: 1, at: this.stack.length }
       return
@@ -291,7 +375,7 @@ export class Writer {
       if (href && s.includes(' href=') && isExternal(href)) s += ' rel="nofollow" target="_blank"'
     }
     this.out += `<${tag}${s}>`
-    if (!VOID.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: false })
+    if (!VOID.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: false, attrs: s })
   }
 
   /** @internal */
@@ -301,7 +385,9 @@ export class Writer {
       return
     }
     const at = this.stack.findLastIndex((f) => f.tag === tag && !f.hidden)
-    if (at !== -1) this.popTo(at)
+    if (at !== -1) return this.popTo(at)
+    const waiting = this.pending.findLastIndex((f) => f.tag === tag)
+    if (waiting !== -1) this.pending.splice(waiting, 1)
     else this.strayEnd(tag)
   }
 }

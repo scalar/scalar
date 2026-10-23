@@ -52,7 +52,7 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
       }
       case 'break':
         w.open('br')
-        w.text('\n')
+        w.newline()
         break
       case 'html':
         w.raw(n.value)
@@ -134,7 +134,7 @@ const renderAlert = (node: Block & { type: 'blockquote' }, c: Ctx): boolean => {
   }
   w.close(content)
   w.close(outer)
-  w.text('\n')
+  w.newline()
   return true
 }
 
@@ -142,11 +142,11 @@ const listItem = (item: ListItem, c: Ctx, tight: boolean): void => {
   const { w } = c
   const li = w.open('li', item.checked === null ? '' : ' class="task-list-item"')
   let first = true
-  if (!tight) w.text('\n')
+  if (!tight) w.newline()
   for (const child of item.children) {
     const task = first && item.checked !== null && child.type === 'paragraph'
     if (child.type === 'paragraph' && tight) {
-      if (!first) w.text('\n')
+      if (!first) w.newline()
       if (task) {
         w.open('input', item.checked ? ' type="checkbox" checked disabled' : ' type="checkbox" disabled')
         w.text(' ')
@@ -158,15 +158,15 @@ const listItem = (item: ListItem, c: Ctx, tight: boolean): void => {
       w.text(' ')
       inlines(child.children, c)
       w.close(p)
-      w.text('\n')
+      w.newline()
     } else {
-      if (tight && !first) w.text('\n')
+      if (tight && !first) w.newline()
       block(child, c, false, tight)
     }
     first = false
   }
   w.close(li)
-  w.text('\n')
+  w.newline()
 }
 
 const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
@@ -176,7 +176,7 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
       const p = w.open('p')
       inlines(node.children, c)
       w.close(p)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'heading': {
@@ -184,30 +184,30 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
       const h = w.open(`h${node.depth}`, typeof id === 'string' ? attr('id', id) : '')
       inlines(node.children, c)
       w.close(h)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'thematicBreak':
       w.open('hr')
-      w.text('\n')
+      w.newline()
       return
     case 'blockquote': {
       if (atRoot && renderAlert(node, c)) return
       const q = w.open('blockquote')
-      w.text('\n')
+      w.newline()
       for (const child of node.children) block(child, c, false, false)
       w.close(q)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'list': {
       const task = node.children.some((i) => i.checked !== null)
       const start = node.ordered && node.start !== 1 ? ` start="${node.start}"` : ''
       const l = w.open(node.ordered ? 'ol' : 'ul', start + (task ? ' class="contains-task-list"' : ''))
-      w.text('\n')
+      w.newline()
       for (const item of node.children) listItem(item, c, !node.spread)
       w.close(l)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'code': {
@@ -225,31 +225,31 @@ const block = (node: Block, c: Ctx, atRoot: boolean, tight: boolean): void => {
         w.close(code)
       }
       w.close(pre)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'html':
       w.raw(node.value)
-      w.text('\n')
+      w.newline()
       return
     case 'table': {
       const [head, ...body] = node.children
       const t = w.open('table')
-      w.text('\n')
+      w.newline()
       const thead = w.open('thead')
-      w.text('\n')
+      w.newline()
       tableRow(head!, 'th', node.align, c)
       w.close(thead)
-      w.text('\n')
+      w.newline()
       if (body.length) {
         const tbody = w.open('tbody')
-        w.text('\n')
+        w.newline()
         for (const row of body) tableRow(row, 'td', node.align, c)
         w.close(tbody)
-        w.text('\n')
+        w.newline()
       }
       w.close(t)
-      w.text('\n')
+      w.newline()
       return
     }
     case 'footnoteDefinition':
@@ -266,15 +266,15 @@ const tableRow = (
 ): void => {
   const { w } = c
   const tr = w.open('tr')
-  w.text('\n')
+  w.newline()
   row.children.forEach((col, i) => {
     const id = w.open(cell, attr('align', align[i]))
     inlines(col.children, c)
     w.close(id)
-    w.text('\n')
+    w.newline()
   })
   w.close(tr)
-  w.text('\n')
+  w.newline()
 }
 
 const footnoteSection = (c: Ctx): void => {
@@ -284,15 +284,15 @@ const footnoteSection = (c: Ctx): void => {
   const h2 = w.open('h2', ' class="sr-only" id="footnote-label"')
   w.text('Footnotes')
   w.close(h2)
-  w.text('\n')
+  w.newline()
   const ol = w.open('ol')
-  w.text('\n')
+  w.newline()
   for (const [identifier, [number, count]] of c.fn) {
     const def = c.root.footnotes.get(identifier)
     if (!def) continue
     const safe = encodeURIComponent(identifier.toLowerCase())
     const li = w.open('li', ` id="user-content-fn-${safe}"`)
-    w.text('\n')
+    w.newline()
     const backrefs = (): void => {
       for (let k = 1; k <= count; k++) {
         w.text(' ')
@@ -316,17 +316,17 @@ const footnoteSection = (c: Ctx): void => {
         inlines(child.children, c)
         backrefs()
         w.close(p)
-        w.text('\n')
+        w.newline()
       } else block(child, c, false, false)
     })
     if (last?.type !== 'paragraph') backrefs()
     w.close(li)
-    w.text('\n')
+    w.newline()
   }
   w.close(ol)
-  w.text('\n')
+  w.newline()
   w.close(section)
-  w.text('\n')
+  w.newline()
 }
 
 export const render = (root: Root, o: RenderOptions): string => {
