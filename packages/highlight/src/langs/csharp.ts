@@ -126,6 +126,12 @@ const csharp: Grammar = {
             '\\b(?:if|else|for|foreach|while|do|switch|case|default|break|continue|return|goto|throw|try|catch|finally|yield|await|lock|when|from|select|orderby|join|into)\\b',
           scope: 'keyword.control',
         },
+        // `var client = …` binds a name; matched before `var` alone so the name
+        // is not left to the rules below.
+        {
+          match: `\\b(var)([ \\t]+)(${ID})(?=[ \\t]*[=;])`,
+          scope: ['keyword.declaration', null, 'variable'],
+        },
         {
           match:
             '\\b(?:class|struct|interface|enum|record|delegate|namespace|var|const|readonly|volatile|static|public|private|protected|internal|abstract|sealed|virtual|override|partial|async|event|extern|unsafe|fixed|implicit|explicit|operator|params|ref|out|where|get|set|init|required|global)\\b',
@@ -160,18 +166,17 @@ const csharp: Grammar = {
           scope: 'type',
         },
 
-        // A definition, told from a call by the return type (or the access
-        // modifier of a constructor) sitting in front of it.
+        // A name sitting after a type (or the access modifier of a
+        // constructor) is being declared, and what follows says what it is:
+        // `(` a method, `{` or `=>` a property or expression-bodied member,
+        // scoped as a member so it looks the same as it does at `obj.Name`,
+        // and `=` or `;` a variable, `HttpClient client = …`, `int count;`. One
+        // rule with three endings, because each extra rule with these
+        // lookbehinds costs a pass at every position. A name after a spaced
+        // `>` is a comparison, `t = a > b;`, so the variable ending skips it.
         {
-          match: `${NOT_AFTER}${ID}(?=[ \\t]*(?:${GENERIC})?[ \\t]*\\()`,
-          scope: 'function',
-        },
-        // A property or expression-bodied member: same shape, but `{` or `=>`
-        // where a method has its parameter list. Scoped as a member so it looks
-        // the same at its declaration as it does at `obj.Name`.
-        {
-          match: `${NOT_AFTER}${ID}(?=[ \\t]*(?:\\{|=>))`,
-          scope: 'variable.member',
+          match: `${NOT_AFTER}(?:(${ID})(?=[ \\t]*(?:${GENERIC})?[ \\t]*\\()|(${ID})(?=[ \\t]*(?:\\{|=>))|(?<![ \\t]>[ \\t])(${ID})(?=[ \\t]*(?:=(?![=>])|;)))`,
+          scope: ['function', 'variable.member', 'variable'],
         },
         {
           match: `\\b${ID}(?=[ \\t]*(?:${GENERIC})?[ \\t]*\\()`,

@@ -1,8 +1,27 @@
 <script lang="ts">
+import { languages, registerLanguage } from '@scalar/highlight/all'
+
+/**
+ * Registers every bundled grammar, once per module rather than once per block.
+ *
+ * `@scalar/highlight/all` already registers them when it is evaluated, so a
+ * bare `import '@scalar/highlight/all'` reads like enough. It is not: that is a
+ * side-effect-only import of an external package, and the library build drops
+ * it from the emitted module. Storybook hid this because it compiles from
+ * source, while the API reference consumes `dist` and lost highlighting
+ * entirely — every block fell back to escaped, unscoped text.
+ *
+ * Registering from a named import keeps a binding the bundler can see used, so
+ * the module survives. It lives in this block rather than in `<script setup>`
+ * because setup runs for every instance, and a page of API reference renders
+ * hundreds of code blocks.
+ */
+registerLanguage(...languages)
+
 /**
  * Scalar Code Block component
  *
- * Renders syntax-highlighted code using highlight.js.
+ * Renders syntax-highlighted code using @scalar/highlight.
  * Supports line numbers, credential masking, and an optional copy button.
  *
  * @example
@@ -11,8 +30,8 @@
 export default {}
 </script>
 <script lang="ts" setup>
-import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
+import { syntaxHighlight } from '@scalar/highlight/compat'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useId } from 'vue'
 
@@ -42,7 +61,7 @@ type BaseProps = {
 }
 
 /**
- * Uses highlight.js for syntax highlighting
+ * Uses @scalar/highlight for syntax highlighting
  *
  * Requires at least one of content or prettyPrintedContent
  */
@@ -84,7 +103,6 @@ const prettyContent = computed(
 const highlightedCode = computed(() => {
   const html = syntaxHighlight(prettyContent.value, {
     lang: lang.trim(),
-    languages: standardLanguages,
     lineNumbers: lineNumbers,
     maskCredentials: hideCredentials,
   })

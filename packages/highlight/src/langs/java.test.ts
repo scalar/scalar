@@ -244,6 +244,19 @@ describe('java', () => {
     assertHas('enum Status { DRAFT }\n', 'java', 'DRAFT', 'constant')
   })
 
+  it('scopes the name a declaration binds, but not a returned value or a comparison', () => {
+    const code =
+      'OkHttpClient client = new OkHttpClient();\nList<String> names = List.of();\nint count;\nfor (Item item : items) {}\nreturn total;\nboolean big = a > limit;\n'
+    for (const name of ['client', 'names', 'count', 'item', 'big']) {
+      assertHas(code, 'java', name, 'variable')
+    }
+    const variables = scoped(code, 'java')
+      .filter(([, scope]) => scope === 'variable')
+      .map(([text]) => text)
+    expect(variables).not.toContain('total')
+    expect(variables).not.toContain('limit')
+  })
+
   it('handles every numeric literal form', () => {
     for (const literal of ['72', '30_000L', '0.0825d', '.5f', '1e-9', '0xFF_FF', '0b1010_0011']) {
       assertHas(`int x = ${literal};\n`, 'java', literal, 'number')

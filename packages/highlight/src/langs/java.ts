@@ -115,18 +115,25 @@ const java: Grammar = {
 
         // A declaration is a name that follows a type, which in Java always
         // ends in an identifier character, a `>` or a `]`: `int run(`,
-        // `Money priceOf(`, `List<T> items(`, `String[] main(`. The exclusions
-        // are the tokens that end the same way but introduce a *call*: `->` for
-        // a lambda body, and the keywords that can sit directly before one.
+        // `Money priceOf(`, `List<T> items(`, `String[] main(`. Followed by
+        // `(` it names a method; followed by `=`, `;` or a for-each `:` it
+        // names a variable: `Request request = …`, `int count;`,
+        // `for (Item item :`. One rule with two endings, because a second rule
+        // with the same lookbehinds costs a pass at every position.
         //
-        // The reading it gets wrong: a `>` comparison against a call looks
-        // exactly like a generic return type, so `if (a[i] > f(x))` and
-        // `if (list.size() > max(a, b))` scope the call as a definition. A
-        // subscript is safe — `if (xs[i]) run();` has a `)` before the space,
-        // which the lookbehind class does not accept.
+        // The exclusions are the tokens that end the same way but come before
+        // a call or a bare value: `->` for a lambda body, the keywords that can
+        // sit directly before one (`return total;`, `case READY:`), and a `>`
+        // with a space before it, which is a comparison rather than the end of
+        // `List<String>`, so `if (a > f(x))` and `t = a > b;` stay as they are.
+        //
+        // The reading it still gets wrong: a comparison spaced on one side only,
+        // `if (a> f(x))`, scopes the call as a definition. A subscript is safe —
+        // `if (xs[i]) run();` has a `)` before the space, which the lookbehind
+        // class does not accept.
         {
-          match: `(?<=[\\w$>\\]])(?<!->)(?<!\\b(?:return|new|throw|else|yield|assert|do))([ \\t]+)(${ID})(?=[ \\t]*\\()`,
-          scope: [null, 'function'],
+          match: `(?<=[\\w$>\\]])(?<![ \\t]>)(?<!->)(?<!\\b(?:return|new|throw|else|yield|assert|do|case|break|continue))([ \\t]+)(?:(${ID})(?=[ \\t]*\\()|(${ID})(?=[ \\t]*(?:=(?!=)|;|:(?!:))))`,
+          scope: [null, 'function', 'variable'],
         },
 
         // SCREAMING_CASE reads as a constant — which also covers enum members —
