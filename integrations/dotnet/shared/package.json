@@ -15,7 +15,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "vitest --run"
+    "test": "vitest --run --config ../../../vitest.config.ts"
   },
   "devDependencies": {
     "@scalar/snippetz": "workspace:*"
