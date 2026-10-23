@@ -379,6 +379,36 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 - `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
+- `allowedSecuritySchemes`: Optional array of scheme names to show in authentication choices and forms. Omit to show all schemes; `[]` hides all choices. When provided, generic authentication creation is hidden. An AND combination is hidden if any member is excluded. This is a visibility setting: it does not change credentials sent with requests, saved selections, or server authorization.
+
+Individual `sources` can override `authentication`. These overrides merge recursively with the shared authentication configuration; document values win and arrays replace shared arrays:
+
+```js
+Scalar.createApiReference('#app', {
+  authentication: {
+    securitySchemes: { Basic: { username: 'demo' } },
+  },
+  sources: [
+    {
+      url: '/public.json',
+      authentication: {
+        preferredSecurityScheme: 'OAuth',
+        allowedSecuritySchemes: ['OAuth'],
+      },
+    },
+    {
+      url: '/internal.json',
+      authentication: {
+        preferredSecurityScheme: 'Basic',
+        allowedSecuritySchemes: ['Basic'],
+      },
+    },
+  ],
+})
+```
+
+Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
+
 
 ### baseServerURL
 

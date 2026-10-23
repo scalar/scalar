@@ -3,6 +3,34 @@ namespace Scalar.Shared.Tests;
 public class ScalarOptionsExtensionsTests
 {
     [Fact]
+    public void AddDocument_PreservesPositionalNullTitleCalls()
+    {
+        var options = new ScalarOptions().AddDocument("v1", null);
+        options.Documents.Single().Title.Should().BeNull();
+        options.Documents.Single().Authentication.Should().BeNull();
+    }
+
+    [Fact]
+    public void AddDocument_ConfiguresAuthenticationWithoutMutatingGlobalOptions()
+    {
+        var options = new ScalarOptions().AddPreferredSecuritySchemes("Global");
+        options.AddDocument("v1", configureDocument: document => document
+            .AddPreferredSecuritySchemes("Basic")
+            .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
+            .WithAllowedSecuritySchemes(), title: "Version 1", routePattern: "/v1.json", isDefault: true);
+
+        options.Authentication!.PreferredSecuritySchemes.Should().Equal("Global");
+        var document = options.Documents.Single();
+        document.Title.Should().Be("Version 1");
+        document.RoutePattern.Should().Be("/v1.json");
+        document.IsDefault.Should().BeTrue();
+        document.Authentication!.PreferredSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.AllowedSecuritySchemes.Should().BeEmpty();
+        document.Authentication.SecuritySchemes!["Basic"].Should().BeOfType<ScalarHttpSecurityScheme>()
+            .Which.Username.Should().Be("demo");
+    }
+
+    [Fact]
     public void Extensions_ShouldSetPropertiesCorrectly()
     {
         // Arrange
