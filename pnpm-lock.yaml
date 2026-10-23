@@ -344,9 +344,6 @@ catalogs:
     github-slugger:
       specifier: 2.0.0
       version: 2.0.0
-    highlight.js:
-      specifier: ^11.12.0
-      version: 11.12.0
     hono:
       specifier: ^4.13.13
       version: 4.13.13
@@ -1677,9 +1674,6 @@ importers:
       '@scalar/blocks':
         specifier: workspace:*
         version: link:../blocks
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
@@ -1692,6 +1686,9 @@ importers:
       '@scalar/localization':
         specifier: workspace:*
         version: link:../localization
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -2087,70 +2084,6 @@ importers:
         specifier: catalog:*
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
 
-  packages/code-highlight:
-    dependencies:
-      hast-util-to-text:
-        specifier: ^4.0.2
-        version: 4.0.2
-      highlight.js:
-        specifier: catalog:*
-        version: 11.12.0
-      lowlight:
-        specifier: ^3.3.0
-        version: 3.3.0
-      rehype-external-links:
-        specifier: ^3.0.0
-        version: 3.0.0
-      rehype-format:
-        specifier: ^5.0.1
-        version: 5.0.1
-      rehype-parse:
-        specifier: ^9.0.1
-        version: 9.0.1
-      rehype-raw:
-        specifier: ^7.0.0
-        version: 7.0.0
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
-      rehype-stringify:
-        specifier: ^10.0.1
-        version: 10.0.1
-      remark-gfm:
-        specifier: ^4.0.1
-        version: 4.0.1(supports-color@10.2.2)
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0(supports-color@10.2.2)
-      remark-rehype:
-        specifier: ^11.1.2
-        version: 11.1.2
-      remark-stringify:
-        specifier: ^11.0.0
-        version: 11.0.0
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
-      unist-util-visit:
-        specifier: ^5.1.0
-        version: 5.1.0
-    devDependencies:
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../themes
-      '@types/hast':
-        specifier: ^3.0.5
-        version: 3.0.5
-      '@types/mdast':
-        specifier: ^4.0.4
-        version: 4.0.4
-      vfile:
-        specifier: ^6.0.3
-        version: 6.0.3
-      vite:
-        specifier: catalog:*
-        version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0)
-
   packages/components:
     dependencies:
       '@floating-ui/utils':
@@ -2165,9 +2098,6 @@ importers:
       '@headlessui/vue':
         specifier: catalog:*
         version: 1.7.23(vue@3.5.44(typescript@5.9.3))
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
@@ -2177,6 +2107,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -2322,12 +2255,6 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5
     devDependencies:
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
-      highlight.js:
-        specifier: catalog:*
-        version: 11.12.0
       rolldown:
         specifier: catalog:*
         version: 1.2.14
@@ -2456,6 +2383,64 @@ importers:
       vitest:
         specifier: catalog:*
         version: 4.1.12(@opentelemetry/api@1.9.1)(@types/node@24.19.2)(jsdom@29.0.1(@noble/hashes@1.8.0))(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))
+
+  packages/markdown:
+    dependencies:
+      '@scalar/highlight':
+        specifier: workspace:*
+        version: link:../highlight
+      hast-util-to-text:
+        specifier: ^4.0.2
+        version: 4.0.2
+      rehype-external-links:
+        specifier: ^3.0.0
+        version: 3.0.0
+      rehype-format:
+        specifier: ^5.0.1
+        version: 5.0.1
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
+      rehype-raw:
+        specifier: ^7.0.0
+        version: 7.0.0
+      rehype-sanitize:
+        specifier: ^6.0.0
+        version: 6.0.0
+      rehype-stringify:
+        specifier: ^10.0.1
+        version: 10.0.1
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1(supports-color@10.2.2)
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0(supports-color@10.2.2)
+      remark-rehype:
+        specifier: ^11.1.2
+        version: 11.1.2
+      remark-stringify:
+        specifier: ^11.0.0
+        version: 11.0.0
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
+      unist-util-visit:
+        specifier: ^5.1.0
+        version: 5.1.0
+    devDependencies:
+      '@types/hast':
+        specifier: ^3.0.5
+        version: 3.0.5
+      '@types/mdast':
+        specifier: ^4.0.4
+        version: 4.0.4
+      vfile:
+        specifier: ^6.0.3
+        version: 6.0.3
+      vite:
+        specifier: catalog:*
+        version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/mermaid-plugin:
     dependencies:
@@ -2684,15 +2669,15 @@ importers:
 
   packages/openapi-to-markdown:
     dependencies:
-      '@scalar/code-highlight':
-        specifier: workspace:*
-        version: link:../code-highlight
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/markdown':
+        specifier: workspace:*
+        version: link:../markdown
       '@scalar/openapi-upgrader':
         specifier: workspace:*
         version: link:../openapi-upgrader
@@ -2727,6 +2712,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/highlight':
+        specifier: workspace:*
+        version: link:../highlight
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -14111,14 +14099,6 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  highlight.js@11.11.1:
-    resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
-    engines: {node: '>=12.0.0'}
-
-  highlight.js@11.12.0:
-    resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
-    engines: {node: '>=12.0.0'}
-
   history@4.10.1:
     resolution: {integrity: sha512-36nwAD620w12kuzPAsyINPWJqlNbij+hpK1k9XRloDtym8mxzGYl2c17LnV6IAGB2Dmg4tEa7G7DlawS0+qjew==}
 
@@ -15528,9 +15508,6 @@ packages:
   lowercase-keys@3.0.0:
     resolution: {integrity: sha512-ozCC6gdQ+glXOQsveKD0YsDy8DSQFjDTz4zyzEHNV5+JP5D62LmfDZ6o1cycFx9ouG940M5dE8C8CTewdj2YWQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  lowlight@3.3.0:
-    resolution: {integrity: sha512-0JNhgFoPvP6U6lE/UdVsSq99tn6DhjjpAj5MxG49ewd2mOBVtwWYIT8ClyABhq198aXXODMU6Ox8DrGy/CpTZQ==}
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
@@ -34691,10 +34668,6 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  highlight.js@11.11.1: {}
-
-  highlight.js@11.12.0: {}
-
   history@4.10.1:
     dependencies:
       '@babel/runtime': 7.26.0
@@ -36288,12 +36261,6 @@ snapshots:
       tslib: 2.8.1
 
   lowercase-keys@3.0.0: {}
-
-  lowlight@3.3.0:
-    dependencies:
-      '@types/hast': 3.0.5
-      devlop: 1.1.0
-      highlight.js: 11.11.1
 
   lru-cache@10.4.3: {}
 
@@ -40133,7 +40100,7 @@ snapshots:
   rehype-external-links@3.0.0:
     dependencies:
       '@types/hast': 3.0.5
-      '@ungap/structured-clone': 1.2.0
+      '@ungap/structured-clone': 1.4.0
       hast-util-is-element: 3.0.0
       is-absolute-url: 4.0.1
       space-separated-tokens: 2.0.2

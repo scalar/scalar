@@ -1,5 +1,0 @@
-export { syntaxHighlight } from './code'
-export { lowlightLanguageMappings } from './constants'
-export { basicLanguages, jsonYamlLanguages, standardLanguages } from './languages'
-export { type Node, htmlFromMarkdown, isHeading, textFromNode } from './markdown'
-export { rehypeHighlight } from './rehype-highlight'

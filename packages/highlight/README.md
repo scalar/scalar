@@ -69,7 +69,8 @@ own chunk. The initial chunk with the loader and no languages is 5.0 KB.
 | `@scalar/highlight/langs/<name>` | One grammar |
 | `@scalar/highlight/lazy` | `loadLanguage`, for code splitting |
 | `@scalar/highlight/all` | Every language, registered. For build-time rendering |
-| `@scalar/highlight/compat` | Drop-in `syntaxHighlight` for `@scalar/code-highlight` |
+| `@scalar/highlight/compat` | Drop-in `syntaxHighlight` for the former `@scalar/code-highlight` |
+| `@scalar/highlight/compat/code.css` | The stylesheet for the `hljs-*` classes `compat` emits |
 
 ### Rendering somewhere other than HTML
 
@@ -246,58 +247,54 @@ reconstruct the source exactly, that scopes come from the shared vocabulary, and
 tokenizing every truncated prefix terminates and stays consistent — which is what an editor
 does on every keystroke.
 
-## Replacing `@scalar/code-highlight`
+## Migrating from `@scalar/code-highlight`
+
+`@scalar/code-highlight` is deprecated and no longer in this repository. It was two packages
+wearing one name, and each half has a new home:
+
+| export | now |
+| --- | --- |
+| `syntaxHighlight`, `standardLanguages`, `lowlightLanguageMappings` | `@scalar/highlight/compat` |
+| `css/code.css` | `@scalar/highlight/compat/code.css` |
+| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | [`@scalar/markdown`](https://github.com/scalar/scalar/tree/main/packages/markdown) |
+| `rehypeHighlight`, `rehypeAlert` | [`@scalar/markdown`](https://github.com/scalar/scalar/tree/main/packages/markdown) |
+| `basicLanguages`, `jsonYamlLanguages` | **removed** — grammars are registered, not passed in |
 
 `@scalar/highlight/compat` is a drop-in `syntaxHighlight`. Same signature, same
 `<pre><code class="hljs language-x">` envelope, same `hljs-*` token classes — so
-[`code.css`](https://github.com/scalar/scalar/blob/main/packages/code-highlight/src/css/code.css)
-keeps working unchanged and `ScalarCodeBlock` needs one import line changed:
+[`code.css`](src/compat/code.css) styles it unchanged:
 
 ```diff
 -import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight';
-+import '@scalar/highlight/all';
+-import '@scalar/code-highlight/css/code.css';
++import { languages, registerLanguage } from '@scalar/highlight/all';
 +import { standardLanguages, syntaxHighlight } from '@scalar/highlight/compat';
++import '@scalar/highlight/compat/code.css';
++
++registerLanguage(...languages);
 ```
 
 `standardLanguages` is re-exported with the same key set, so `StandardLanguageKey` is
-unchanged and the component's props keep their types.
-
-### What it covers, and what it does not
-
-`@scalar/code-highlight` is two packages wearing one name. The compat layer replaces the
-first half only:
-
-| export | status |
-| --- | --- |
-| `syntaxHighlight` | covered |
-| `standardLanguages` | key-compatible; 49 of 50 names have a grammar |
-| `basicLanguages`, `jsonYamlLanguages` | **not covered** — never exported here |
-| `lowlightLanguageMappings` | covered |
-| `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | **not covered** |
-| `rehypeHighlight`, `rehypeAlert` | **not covered** |
-
-The Markdown half is a remark/rehype pipeline — GFM, sanitization, GitHub alerts, external
-links — that has nothing to do with tokenizing code, and it is not something this library
-should grow. A swap keeps `@scalar/code-highlight` as a dependency for
-`ScalarMarkdown` and drops it from `ScalarCodeBlock`.
+unchanged and the component's props keep their types. The `languages` option is accepted
+and ignored, since the registry already knows every grammar.
 
 The one `standardLanguages` name with no grammar — `plaintext` — renders as escaped,
-unhighlighted code, which is exactly what the lowlight pipeline already does for a language
-it cannot resolve. `curl` resolves to the Bash grammar, since a curl invocation is a shell
-command line; the `language-curl` class `code.css` targets is unaffected, because that
-class comes from the name the caller asked for.
+unhighlighted code, which is exactly what the lowlight pipeline did for a language it could
+not resolve. `curl` has a grammar of its own that mirrors the bespoke one the old package
+shipped.
 
 ### Verifying it
 
-[`src/compat/compat.test.ts`](src/compat/compat.test.ts) runs the real lowlight pipeline —
-imported straight from [`@scalar/code-highlight`](../code-highlight) — beside ours over the
-shared sample corpus, and asserts that the rendered text, the `<code>` envelope and the line
-elements match exactly. It also ports the four assertions `@scalar/code-highlight` ships
-today. Because the comparison runs against the workspace package rather than a copy of it,
-a change on either side shows up here.
+[`src/compat/compat.test.ts`](src/compat/compat.test.ts) compares ours against what the
+lowlight pipeline rendered for the shared sample corpus, and asserts that the rendered text,
+the `<code>` envelope and the line elements match exactly. It also ports the four
+assertions `@scalar/code-highlight` shipped. The lowlight output was captured from the last
+version of that package into [`test/reference.json`](test/reference.json) before it was
+deleted, so it cannot be regenerated; [`test/reference.ts`](test/reference.ts) explains what
+to do when a sample changes.
 
 Colour is the part that does *not* match exactly, and `pnpm compat:report --detail`
-quantifies it: across the whole 42-sample corpus 68.6% of visible characters keep the colour
+quantifies it: across the whole corpus 68.4% of visible characters keep the colour
 `code.css` gives them, and 82% across the thirteen languages the corpus started with. The
 rest is our finer scope vocabulary showing through — f-string interiors scoped as code
 rather than string, docstrings as comments rather than strings, punctuation given its own
@@ -306,7 +303,8 @@ header values, `#` comments and status numbers unstyled. Each round of grammars 
 own floor — the whole corpus, the twenty-six samples before the latest round, and the
 original thirteen — so a new language cannot dilute a regression in an older one.
 
-For the same three languages `ScalarCodeBlock` shows most often:
+For the same three languages `ScalarCodeBlock` shows most often, measured before the old
+package was removed:
 
 | | gzipped |
 | --- | ---: |
@@ -354,7 +352,7 @@ From the repository root:
 ```bash
 pnpm install
 pnpm vitest packages/highlight --run       # the suite
-pnpm --filter @scalar/highlight build      # tsc, plus a copy of style.css
+pnpm --filter @scalar/highlight build      # tsc, plus a copy of both stylesheets
 pnpm --filter @scalar/highlight types:check
 ```
 
@@ -363,12 +361,11 @@ From this directory:
 ```bash
 pnpm bench          # throughput per language, for comparing a branch against main
 pnpm size           # bundle size per entry point and per language
-pnpm compat:report  # @scalar/code-highlight swap report; --detail for colour drift
+pnpm compat:report  # colour drift against the old lowlight output; --detail for the breakdown
 ```
 
-The published package ships zero dependencies. `rolldown` measures bundle size and
-`highlight.js` supplies the reference grammars the compat tests differ against; both are
-devDependencies and neither reaches consumers.
+The published package ships zero runtime dependencies. `rolldown` measures bundle size; it
+is a devDependency and never reaches consumers.
 
 Repository-wide conventions live in the root [`AGENTS.md`](../../AGENTS.md).
 

@@ -39,9 +39,6 @@ export default defineConfig({
     alias: { '@': resolve(import.meta.dirname, './src') },
     dedupe: ['vue'],
   },
-  server: {
-    port: 9000,
-  },
   build: {
     outDir: './dist',
     minify: false,
@@ -51,16 +48,19 @@ export default defineConfig({
       entry,
     },
     rolldownOptions: {
-      // Bundle all dependencies into the output.
+      // Bundle every dependency except the highlighter into the output.
       //
-      // This package depends on the unified/remark/rehype/micromark/lowlight
-      // stack, which transitively pulls in CommonJS-only modules (`extend` via
-      // `unified`, `debug` via `micromark`) plus `highlight.js` (which uses
-      // `require()`). Externalizing them ships raw CJS to consumers, which
-      // breaks Vite dev under pnpm's strict node_modules layout
-      // (`exports is not defined`). By bundling, Rolldown converts the CJS to
-      // ESM at build time so consumers only ever see self-contained ESM.
-      external: [],
+      // This package depends on the unified/remark/rehype/micromark stack,
+      // which transitively pulls in CommonJS-only modules (`extend` via
+      // `unified`, `debug` via `micromark`). Externalizing them ships raw CJS
+      // to consumers, which breaks Vite dev under pnpm's strict node_modules
+      // layout (`exports is not defined`). By bundling, Rolldown converts the
+      // CJS to ESM at build time so consumers only ever see self-contained ESM.
+      //
+      // `@scalar/highlight` is plain ESM and stays external, so a page that
+      // renders both Markdown and `ScalarCodeBlock` loads one copy of the
+      // grammars rather than two.
+      external: [/^@scalar\/highlight(\/|$)/],
       output: {
         // Map each entry to the dist layout the `exports` map expects
         // (e.g. `code/index` -> `dist/code/index.js`).

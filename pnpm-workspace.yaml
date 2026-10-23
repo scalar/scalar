@@ -78,7 +78,6 @@ catalogs:
     hono: ^4.13.13
     get-port-please: 3.2.0
     github-slugger: 2.0.0
-    highlight.js: ^11.12.0
     js-base64: ^3.9.4
     jsdom: 29.0.1
     jsonc-parser: 3.3.1

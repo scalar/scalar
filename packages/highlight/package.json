@@ -22,7 +22,7 @@
   },
   "scripts": {
     "bench": "tsx bench/bench.ts",
-    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp src/style.css dist/style.css",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && shx cp src/style.css dist/style.css && shx cp src/compat/code.css dist/compat/code.css",
     "compat:report": "tsx bench/compat-report.ts",
     "size": "tsx bench/size.ts",
     "test": "vitest --run",
@@ -47,6 +47,11 @@
       "import": "./dist/compat/index.js",
       "types": "./dist/compat/index.d.ts",
       "default": "./dist/compat/index.js"
+    },
+    "./compat/code.css": {
+      "import": "./dist/compat/code.css",
+      "require": "./dist/compat/code.css",
+      "default": "./dist/compat/code.css"
     },
     "./core": {
       "import": "./dist/core/index.js",
@@ -81,8 +86,6 @@
     "@types/hast": "^3.0.5"
   },
   "devDependencies": {
-    "@scalar/code-highlight": "workspace:*",
-    "highlight.js": "catalog:*",
     "rolldown": "catalog:*",
     "vitest": "catalog:*"
   }

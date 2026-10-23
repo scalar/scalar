@@ -51,9 +51,9 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/markdown": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/workspace-store": "workspace:*",
     "rehype-parse": "^9.0.1",
@@ -67,6 +67,7 @@
   "devDependencies": {
     "@scalar/components": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/highlight": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/mdast": "catalog:*",

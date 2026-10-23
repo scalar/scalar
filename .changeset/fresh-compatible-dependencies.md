@@ -4,7 +4,6 @@
 '@scalar/api-reference': patch
 '@scalar/asyncapi-validator': patch
 '@scalar/blocks': patch
-'@scalar/code-highlight': patch
 '@scalar/components': patch
 '@scalar/draggable': patch
 '@scalar/fastify-api-reference': patch

@@ -13,10 +13,8 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
-import { standardLanguages } from '@/languages'
-import { rehypeAlert } from '@/rehype-alert'
-import { rehypeHighlight } from '@/rehype-highlight'
-import { getSharedLowlight } from '@/rehype-highlight/shared-lowlight'
+import { rehypeAlert } from '../rehype-alert'
+import { rehypeHighlight } from '../rehype-highlight'
 
 type Options = {
   transform?: (node: Node) => Node
@@ -173,10 +171,6 @@ const createProcessor = (tagNames: string[], transform: Options['transform'], tr
     })
     // Syntax highlighting
     .use(rehypeHighlight, {
-      // Reuse the grammar registry instead of rebuilding it for every pipeline
-      lowlight: getSharedLowlight(standardLanguages),
-      // Enable auto detection
-      detect: true,
       // Adds Scalar's custom scrollbar styling to highlighted code blocks
       className: 'custom-scroll',
     })

@@ -5,11 +5,11 @@
  * `packages/code-highlight/src/code/highlight.test.ts` makes today, ported
  * verbatim (renamed to drop the `should` prefix this repo does not use) —
  * a drop-in has to pass the tests the thing it replaces passes.
- * Second, a differential run against the real lowlight pipeline — imported
- * straight from `@scalar/code-highlight`, so the comparison tracks the
- * package we are replacing rather than a snapshot of it — over the shared
- * sample corpus, because "it compiles and the four tests pass" is not the
- * same as "the page looks the same".
+ * Second, a differential run against what the lowlight pipeline rendered for
+ * the shared sample corpus, because "it compiles and the four tests pass" is
+ * not the same as "the page looks the same". That package has since been
+ * deleted, so its output is frozen in `test/reference.json`; see
+ * `test/reference.ts` for what that means when a sample changes.
  *
  * What parity means, precisely:
  *
@@ -20,18 +20,20 @@
  * What parity deliberately does *not* mean: the same spans. Our scope
  * vocabulary is not highlight.js's, and matching its token boundaries exactly
  * would mean reimplementing its grammars. Colour differences are reported by
- * `pnpm compat:report` rather than asserted.
+ * `pnpm compat:report` and held to a floor rather than asserted exactly.
  */
 import { describe, expect, it } from 'vitest'
 
 import '../all'
 
-import { syntaxHighlight as referenceHighlight } from '@scalar/code-highlight/code'
-import { standardLanguages as referenceStandardLanguages } from '@scalar/code-highlight/languages'
-
 import { colorAgreement } from '../../test/colors'
 import { textFromHtml } from '../../test/html'
-import { referenceLanguages } from '../../test/languages'
+import {
+  REFERENCE_LANGUAGES,
+  REFERENCE_STANDARD_LANGUAGES,
+  referenceEdgeCase,
+  referenceSample,
+} from '../../test/reference'
 import { samples } from '../../test/samples'
 import { STYLED_CLASSES } from '../../test/styled'
 import { hljsClass } from './hljs'
@@ -58,7 +60,7 @@ const classesOf = (html: string): Set<string> => {
 // --- the tests @scalar/code-highlight ships today --------------------------
 
 describe('syntaxHighlight — ported from @scalar/code-highlight', () => {
-  const defaultOptions = { lang: 'javascript', languages: referenceLanguages }
+  const defaultOptions = { lang: 'javascript' }
 
   const codeExample = `
     fetch('https://galaxy.scalar.com/planets', {
@@ -119,9 +121,9 @@ const corpus: [string, string][] = Object.entries(samples)
 describe('parity with the lowlight pipeline', () => {
   for (const [lang, code] of corpus) {
     describe(lang, () => {
-      const options = { lang, languages: referenceLanguages }
-      const before = referenceHighlight(code, options)
-      const after = syntaxHighlight(code, options)
+      const reference = referenceSample(lang, code)
+      const before = reference.html
+      const after = syntaxHighlight(code, { lang })
 
       it('renders the same text', () => {
         expect(textFromHtml(after)).toBe(textFromHtml(before))
@@ -132,23 +134,16 @@ describe('parity with the lowlight pipeline', () => {
       })
 
       it('renders the same lines, with the same gutter variables', () => {
-        const beforeLines = referenceHighlight(code, {
-          ...options,
-          lineNumbers: true,
-        })
-        const afterLines = syntaxHighlight(code, {
-          ...options,
-          lineNumbers: true,
-        })
+        const afterLines = syntaxHighlight(code, { lang, lineNumbers: true })
 
-        expect(envelope(afterLines)).toBe(envelope(beforeLines))
-        expect(lineTexts(afterLines)).toEqual(lineTexts(beforeLines))
+        expect(envelope(afterLines)).toBe(reference.lineEnvelope)
+        expect(lineTexts(afterLines)).toEqual(reference.lineTexts)
       })
 
       it('only emits classes highlight.js also emits', () => {
         // Every class we produce has to be one `code.css` already styles,
         // otherwise a token silently loses its colour after the swap.
-        const known = new Set(Object.values(classesOf(referenceHighlight(code, options))))
+        const known = new Set(Object.values(classesOf(before)))
         const styled = new Set([...known, ...STYLED_CLASSES])
 
         const unexpected = [...classesOf(after)].filter((c) => !styled.has(c))
@@ -184,21 +179,17 @@ describe('parity on edge cases', () => {
   ]
 
   for (const [name, lang, code] of cases) {
-    const options = { lang, languages: referenceLanguages }
+    const reference = referenceEdgeCase(name, code)
 
     it(`${name}: same text`, () => {
-      expect(textFromHtml(syntaxHighlight(code, options))).toBe(textFromHtml(referenceHighlight(code, options)))
+      expect(textFromHtml(syntaxHighlight(code, { lang }))).toBe(textFromHtml(reference.html))
     })
 
     it(`${name}: same envelope and lines`, () => {
-      const before = referenceHighlight(code, {
-        ...options,
-        lineNumbers: true,
-      })
-      const after = syntaxHighlight(code, { ...options, lineNumbers: true })
+      const after = syntaxHighlight(code, { lang, lineNumbers: true })
 
-      expect(envelope(after)).toBe(envelope(before))
-      expect(lineTexts(after)).toEqual(lineTexts(before))
+      expect(envelope(after)).toBe(reference.lineEnvelope)
+      expect(lineTexts(after)).toEqual(reference.lineTexts)
     })
   }
 
@@ -257,7 +248,7 @@ describe('colour agreement with code.css', () => {
   const ORIGINAL_FLOOR = 0.8
 
   /** Languages with no reference grammar, and so nothing to differ against. */
-  const hasReference = (lang: string): boolean => lang in referenceLanguages
+  const hasReference = (lang: string): boolean => REFERENCE_LANGUAGES.has(lang)
 
   /**
    * Pinned, because the exclusion above is otherwise a way to raise the
@@ -321,8 +312,7 @@ describe('colour agreement with code.css', () => {
       if (!langs(lang)) {
         continue
       }
-      const options = { lang, languages: referenceLanguages }
-      const result = colorAgreement(referenceHighlight(code, options), syntaxHighlight(code, options))
+      const result = colorAgreement(referenceSample(lang, code).html, syntaxHighlight(code, { lang }))
       compared += result.compared
       differing += result.differing
     }
@@ -356,10 +346,10 @@ describe('colour agreement with code.css', () => {
 
 describe('compat surface', () => {
   it('keeps the standardLanguages key set, so StandardLanguageKey is unchanged', () => {
-    // Compared against the real export rather than a copy of it. A language
-    // added to `@scalar/code-highlight` upstream would otherwise drop out of
-    // `StandardLanguageKey` silently, with this test still green.
-    expect(Object.keys(standardLanguages).sort()).toEqual(Object.keys(referenceStandardLanguages).sort())
+    // Compared against the key set the deleted package exported, so a name
+    // dropped from `standardLanguages` here would narrow `StandardLanguageKey`
+    // and fail this test rather than break a consumer's types.
+    expect(Object.keys(standardLanguages).sort()).toEqual([...REFERENCE_STANDARD_LANGUAGES].sort())
   })
 
   it('reports exactly which standard languages have no grammar', () => {
