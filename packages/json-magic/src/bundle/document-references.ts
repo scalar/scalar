@@ -3,6 +3,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
+import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
@@ -53,6 +54,7 @@ export const documentReferences = (
   canonicalizeIds = false,
   shouldVisit: (node: object) => boolean = () => true,
   hasSchemaIdentity: (node: object) => boolean = () => true,
+  decodeFragments = false,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
@@ -138,6 +140,7 @@ export const documentReferences = (
     resolve: (ref, base) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = (() => {
+        if (!decodeFragments) return authoredFragment
         try {
           return decodeURIComponent(authoredFragment)
         } catch {
@@ -146,7 +149,11 @@ export const documentReferences = (
         }
       })()
       const uri = prefix ? resolveReferencePath(base, prefix) : base
-      const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
+      const pointer = fragment.startsWith('/')
+        ? decodeFragments
+          ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment)
+          : getSegmentsFromPath(fragment)
+        : []
       const bundled =
         (!prefix || resources.get(uri)?.path.length === 0) && pointer[0] === externalDocumentsKey
           ? bundledResources.get(pointer[1])

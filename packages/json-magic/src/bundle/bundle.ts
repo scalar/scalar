@@ -741,6 +741,7 @@ export const bundleDocument = async (
     config.preserveReference !== undefined,
     (node) => traversal.location(node)?.context !== 'data',
     (node) => config.traversal !== 'document' || traversal.location(node)?.context === 'schema',
+    diagnostics !== undefined,
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
@@ -1101,7 +1102,10 @@ export const bundleDocument = async (
         }
 
         // Validate chunk targets separately so their internal references keep the referring origin.
-        const targetReferences = isChunk && diagnostics ? documentReferences(config.externalDocumentsKey) : references
+        const targetReferences =
+          isChunk && diagnostics
+            ? documentReferences(config.externalDocumentsKey, undefined, false, undefined, undefined, true)
+            : references
         if (isChunk && diagnostics) {
           targetReferences.register(result.data, resolvedPath, [config.externalDocumentsKey, compressedPath])
         }
