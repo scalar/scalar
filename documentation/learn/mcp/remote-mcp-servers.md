@@ -271,7 +271,7 @@ A few details that relate to the topics above:
 - **Small, fixed tool surface.** Instead of one tool per endpoint, Scalar exposes a small set of tools that look up operation details when needed. Our [context window benchmark](/blog/posts/2026-03-05-agent-scalar) explains why that matters for large APIs.
 - **OAuth since 17 March 2026.** Installations are private by default. Team members connect with a personal access token or OAuth, and people outside your team can sign in with OAuth via [access groups](/products/agent/authentication/customer-access). The unauthenticated response is a standard `401` with a `resource_metadata` link, as described in [MCP OAuth](/learn/mcp/mcp-oauth).
 - **Upstream credentials stay server-side.** You either store one credential on the installation or let each caller pass their own through a nominated header. See [Authentication](/products/agent/authentication).
-- **Current limitation:** custom domains are not supported for MCP servers yet, so the URL is always on `mcp.scalar.com`.
+- **Your own domain.** Serve the same server from a subdomain you control, such as `https://mcp.example.com/`, by adding a CNAME record. OAuth discovery works on the custom host, so clients sign in through your address. See [MCP custom domains](/products/agent/custom-domains).
 
 Connecting from Claude Code uses the command from our docs:
 
@@ -314,7 +314,7 @@ Send an unauthenticated POST with curl and confirm you get a 401 with a WWW-Auth
 ## Related
 
 - **Learn:** [How to host an MCP server](/learn/mcp/host-mcp-server) · [What is MCP?](/learn/mcp/what-is-mcp) · [MCP OAuth](/learn/mcp/mcp-oauth) · [MCP server examples](/learn/mcp/mcp-server-examples) · [OpenAPI to MCP server](/learn/mcp/openapi-to-mcp-server)
-- **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with MCP & Agent](/products/agent/getting-started)
+- **Docs:** [MCP servers](/products/agent/mcp) · [Getting started with MCP & Agent](/products/agent/getting-started) · [MCP custom domains](/products/agent/custom-domains)
 - **Product:** [Scalar MCP](/products/agent/mcp) — hosted MCP servers from your OpenAPI document, with OAuth built in
 
 *Specification details refer to MCP revision 2026-07-28. Client configuration formats and third-party server URLs were checked against each vendor's documentation on 26 September 2026. If something has changed, tell us and we will update this page.*
