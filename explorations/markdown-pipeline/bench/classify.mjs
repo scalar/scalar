@@ -88,9 +88,11 @@ const KNOWN = {
     )
   },
   /** `rehype-format` puts a space before an inline image that has none in the source. */
-  'space before image': ({ current, prototype }) =>
-    current.replace(/ (?=<img)/g, '') === prototype.replace(/ (?=<img)/g, '') &&
-    count(current, / <img/g) > count(prototype, / <img/g),
+  'space before image': ({ current, prototype }) => {
+    // The normalizer moves edge spaces outward, so the inserted space can end up on either side.
+    const tight = (html) => html.replace(/\s*(<img[^>]*>)\s*/g, '$1')
+    return tight(current) === tight(prototype) && count(current, /\s<img/g) > count(prototype, /\s<img/g)
+  },
 }
 /** An unclosed `<object>` or `<form>` makes the current pipeline strip everything after it. */
 const swallowed = (d) =>
@@ -101,10 +103,29 @@ const swallowed = (d) =>
  * and the prototype parses it like the reference. Checked on unsanitized output, so the
  * difference is in parsing, not in sanitizing.
  */
+const CHECKBOX = /<input [^>]*type="checkbox">/g
+const collapse = (html) => html.replace(/\s+/g, ' ').replace(/ ?(<\/?(li|p|ul|ol)\b[^>]*>) ?/g, '$1')
+/** GFM task items written back as the text commonmark.js keeps them as (the normalizer sorts attributes). */
+const untask = (html) =>
+  collapse(
+    html
+      .replace(/<input checked="" disabled="" type="checkbox">/g, '[x] ')
+      .replace(/<input disabled="" type="checkbox">/g, '[ ] ')
+      .replace(/ class="(contains-task-list|task-list-item)"/g, ''),
+  )
 const followsReference = (markdown) => {
   try {
-    const ref = reference(markdown)
-    return prototypeParse(markdown) === ref && currentParse(markdown) !== ref
+    // `[¡` is punctuation like `[!`, so nothing else changes, but no parser makes an alert of it.
+    const input = markdown.replaceAll('[!', '[¡')
+    const ref = reference(input)
+    const current = currentParse(input)
+    const prototype = prototypeParse(input)
+    // Equal task counts: a task the prototype alone detects must not pass for a parsing deviation.
+    return (
+      untask(prototype) === collapse(ref) &&
+      untask(current) !== collapse(ref) &&
+      count(current, CHECKBOX) === count(prototype, CHECKBOX)
+    )
   } catch {
     return false
   }

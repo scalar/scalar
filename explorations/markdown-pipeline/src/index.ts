@@ -77,7 +77,7 @@ const inlineInHtml = (text: string): Inline[] | null => {
 }
 
 export const textFromNode = (node: Node): string => {
-  if (node.type === 'text') return ((node as { value: string }).value ?? '').replace(/￿/g, '&')
+  if (node.type === 'text') return (node as { value: string }).value ?? ''
   const children = (node as { children?: Node[] }).children
   return Array.isArray(children) ? children.map(textFromNode).join('') : ''
 }

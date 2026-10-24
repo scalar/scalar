@@ -4,13 +4,13 @@
  * calls. Produces mdast-shaped nodes.
  */
 import { decodeEntity } from './entities'
-import { REF } from './html'
 
 export type Inline =
   | { type: 'text'; value: string }
   | { type: 'emphasis' | 'strong' | 'delete'; children: Inline[] }
   | { type: 'inlineCode'; value: string }
-  | { type: 'break' }
+  /** `trailing` marks a break made by trailing spaces, which may follow a task marker; a backslash break may not. */
+  | { type: 'break'; trailing?: true }
   | { type: 'html'; value: string }
   | { type: 'link'; url: string; title: string | null; children: Inline[] }
   | { type: 'image'; url: string; title: string | null; alt: string }
@@ -81,6 +81,8 @@ const text = (value: string): N => ({ type: 'text', value })
 const ESCAPABLE = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]/
 const PUNCT = /[!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~\p{P}\p{S}]/u
 const WHITESPACE = /\s/
+/** The attention markers micromark knows with GFM on: emphasis and strikethrough. */
+const MARKERS = '*_~'
 const MAIN = /[^\n`[\]\\!<&*_~]+/y
 const ENTITY = /&(?:#x[a-f0-9]{1,6}|#[0-9]{1,7}|[a-z][a-z0-9]{1,31});/iy
 const TAGNAME = '[A-Za-z][A-Za-z0-9-]*'
@@ -167,6 +169,18 @@ export class InlineParser {
     return m[0]
   }
 
+  /** The end of the run of email characters at `i`; cached, as runs are asked about left to right. */
+  private atextRun = { start: -1, end: -1 }
+  private atextEnd(i: number): number {
+    const run = this.atextRun
+    if (i < run.start || i >= run.end) {
+      run.start = i
+      run.end = i
+      while (isAtext(this.s[run.end])) run.end++
+    }
+    return run.end
+  }
+
   private parseInline(block: N): void {
     const c = this.s[this.pos]!
     if (MAY_START_LITERAL.test(c) && this.parseLiteral(block)) return
@@ -210,7 +224,7 @@ export class InlineParser {
         const m = this.match(MAIN)
         if (!m) return append(block, text((this.pos++, c)))
         // Stop the run where an autolink literal could start, so it is tried there.
-        const cut = literalCandidate(this.s, start + 1, this.pos)
+        const cut = literalCandidate(this.s, start + 1, this.pos, this.s[this.atextEnd(this.pos)] === '@')
         if (cut !== -1) this.pos = cut
         append(block, text(this.s.slice(start, this.pos)))
       }
@@ -248,7 +262,7 @@ export class InlineParser {
     if (last?.type === 'text' && last.value!.endsWith(' ')) {
       const hard = last.value!.endsWith('  ')
       last.value = last.value!.replace(/ +$/, '')
-      append(block, hard ? { type: 'break' } : text('\n'))
+      append(block, hard ? { type: 'break', value: '  ' } : text('\n'))
     } else append(block, text('\n'))
     while (this.s[this.pos] === ' ' || this.s[this.pos] === '\t') this.pos++
   }
@@ -341,8 +355,11 @@ export class InlineParser {
     const aP = PUNCT.test(after)
     const bW = WHITESPACE.test(b)
     const bP = PUNCT.test(b)
-    const left = !aW && (!aP || bW || bP)
-    const right = !bW && (!bP || aW || aP)
+    // Like micromark, an emphasis run next to another marker run (`**_x_**y`) flanks on that
+    // side whatever comes after it; commonmark.js does not. Strikethrough runs do not do this.
+    const marker = cc !== '~'
+    const left = (!aW && (!aP || bW || bP)) || (marker && MARKERS.includes(after))
+    const right = (!bW && (!bP || aW || aP)) || (marker && MARKERS.includes(b))
     if (cc === '_') return { num, open: left && (!right || bP), close: right && (!left || aP) }
     return { num, open: left, close: right }
   }
@@ -740,10 +757,13 @@ const literalAt = (s: string, i: number): { end: number; prefix: string } | null
   return null
 }
 
-/** The first position in `s[from, to)` where a literal could start, or -1. Cheap enough for every text run. */
-const literalCandidate = (s: string, from: number, to: number): number => {
-  const run = s.slice(from, to)
-  if (!/[@:.]/.test(run)) return -1
+/**
+ * The first position in `s[from, to)` where a literal could start, or -1. Cheap enough for every
+ * text run. A literal can reach past the run: `atAfter` says an email `@` follows its last
+ * email characters (`user_id@` is cut at `_`), and `http://` or `www.` ends within a few characters.
+ */
+const literalCandidate = (s: string, from: number, to: number, atAfter: boolean): number => {
+  if (!atAfter && !/[@:.]/.test(s.slice(from, to + 6))) return -1
   for (let i = from; i < to; i++) {
     const c = s[i]!
     if (!MAY_START_LITERAL.test(c)) continue
@@ -911,7 +931,7 @@ const toMdast = (parent: N, literals: boolean, depth = 0): Inline[] => {
         out.push({ type: c.type, value: c.value! })
         break
       case 'break':
-        out.push({ type: 'break' })
+        out.push(c.value ? { type: 'break', trailing: true } : { type: 'break' })
         break
       case 'footnoteReference':
         out.push({ type: 'footnoteReference', identifier: c.identifier!, label: c.value! })

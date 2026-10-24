@@ -167,10 +167,7 @@ export class BlockParser {
   }
 
   parse(input: string): Root {
-    const lines = input
-      .replace(/^\ufeff/, '')
-      .replace(/￿/g, '�')
-      .split(/\r\n|\r|\n/)
+    const lines = input.replace(/^\ufeff/, '').split(/\r\n|\r|\n/)
     if (lines.at(-1) === '') lines.pop()
     for (const l of lines) this.incorporateLine(l)
     while (this.tip !== this.doc) this.finalize(this.tip, lines.length)
@@ -661,9 +658,12 @@ export class BlockParser {
           let checked: boolean | null = null
           const first = children[0]
           const head = first?.type === 'paragraph' ? first.children[0] : undefined
-          // A task marker needs whitespace after it and content after that.
-          const m = head?.type === 'text' ? /^\[([ \txX])\][ \t\n]+/.exec(head.value) : null
-          if (head?.type === 'text' && m && (head.value.length > m[0].length || first!.children.length > 1)) {
+          // A task marker needs whitespace after it and content after that. Trailing spaces
+          // before a line ending count as that whitespace, though they became a hard break.
+          const m = head?.type === 'text' ? /^\[([ \txX])\](?:[ \t\n]+|$)/.exec(head.value) : null
+          const next = first?.type === 'paragraph' ? first.children[1] : undefined
+          const spaced = m?.[0].length !== 3 || (next?.type === 'break' && next.trailing === true)
+          if (head?.type === 'text' && m && spaced && (head.value.length > m[0].length || first!.children.length > 1)) {
             checked = m[1] === 'x' || m[1] === 'X'
             head.value = head.value.slice(m[0].length)
             if (!head.value) (first as { children: Inline[] }).children.shift()

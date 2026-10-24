@@ -10,7 +10,7 @@
  * output sees exactly the tree the writer built.
  */
 
-import { COMMON, fromCodePoint, knownEntity } from './entities'
+import { decodeHtml } from './entities'
 
 const VOID = new Set([
   'area',
@@ -85,54 +85,26 @@ const PROTOCOLS: Record<string, string[]> = {
   src: ['http', 'https'],
 }
 
-/** Marks an `&` that starts a character reference the browser should decode. */
-export const REF = '￿'
-
 export const escapeText = (s: string): string =>
-  s.replace(/[&<>￿]/g, (c) => (c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&'))
+  s.replace(/[&<>]/g, (c) => (c === '&' ? '&amp;' : c === '<' ? '&lt;' : '&gt;'))
 
 export const escapeAttr = (s: string): string =>
-  s.replace(/[&"<￿]/g, (c) => (c === '&' ? '&amp;' : c === '"' ? '&quot;' : c === '<' ? '&lt;' : '&'))
+  s.replace(/[&"<]/g, (c) => (c === '&' ? '&amp;' : c === '"' ? '&quot;' : '&lt;'))
 
 /** Raw HTML keeps its character references: the browser decodes them exactly like parse5 does today. */
 const escapeRawText = (s: string): string => s.replace(/[<>]/g, (c) => (c === '<' ? '&lt;' : '&gt;'))
 const escapeRawAttr = (s: string): string => s.replace(/["<]/g, (c) => (c === '"' ? '&quot;' : '&lt;'))
 
-const decodeNumeric = (s: string): string =>
-  s.replace(/&#(?:x([0-9a-f]{1,6})|([0-9]{1,7}));?/gi, (_, hex, dec) =>
-    fromCodePoint(Number.parseInt(hex ?? dec, hex ? 16 : 10)),
-  )
-
-/** Decodes what this module can decode: numeric references and the common names. */
-const decodeKnown = (s: string): string =>
-  decodeNumeric(s).replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m, name) => COMMON[name] ?? m)
-
 /**
- * Whether a URL may be used for `attr`. `raw` is the value as it will be
- * written, so character references are still encoded.
- *
- * Named references are not decoded here (that would need the entity table), so
- * any `&` before the first `/`, `?` or `#` is rejected: that is where
- * `javascript&colon;` hides a scheme, and no legitimate URL puts one there.
+ * Whether a URL may be used for `attr`, exactly as `hast-util-sanitize` decides: case-sensitive,
+ * nothing trimmed. That rejects ` https:` and `HTTPS:` like today; a browser would accept them,
+ * so this only rejects more. A Markdown URL is already decoded; a raw one is decoded here first.
  */
 export const isSafeUrl = (raw: string, attr: string, markdown = false): boolean => {
   const allowed = PROTOCOLS[attr]
   if (!allowed) return true
-  // Markdown URLs are already decoded, except names marked with `REF`; a plain `&` there is a
-  // literal ampersand. In raw HTML every reference is still encoded.
-  const named = markdown ? /\uffff([a-zA-Z][a-zA-Z0-9]*);/g : /&([a-zA-Z][a-zA-Z0-9]*);/g
-  let unknown = false
-  const url = (markdown ? raw : decodeNumeric(raw)).replace(named, (_, name) => {
-    const value = knownEntity(name)
-    if (value === null) unknown = true
-    return value ?? '\u0000'
-  })
+  const url = markdown ? raw : decodeHtml(raw, true)
   const end = url.search(/[/?#]/)
-  // A name this module cannot decode, before the path, could hide a scheme
-  // (`javascript&colon;`), so such a URL is never safe.
-  if (unknown && (end === -1 ? url : url.slice(0, end)).includes('\u0000')) return false
-  // From here on exactly `hast-util-sanitize`: case-sensitive, nothing trimmed. That rejects
-  // ` https:` and `HTTPS:` like today; a browser would accept them, so this only rejects more.
   const colon = url.indexOf(':')
   if (colon < 0 || (end !== -1 && colon > end)) return true
   return allowed.some((protocol) => colon === protocol.length && url.startsWith(protocol))
@@ -140,10 +112,10 @@ export const isSafeUrl = (raw: string, attr: string, markdown = false): boolean 
 
 /**
  * `rehype-external-links`: an absolute URL with an `http` or `https` scheme (case-sensitive, as
- * there), or a protocol-relative `//` URL. Character references are decoded first, as in hast.
+ * there), or a protocol-relative `//` URL. A raw URL is decoded first, as in hast.
  */
-export const isExternal = (raw: string): boolean => {
-  const url = decodeNumeric(raw.replace(/\uffff/g, '&')).replace(/&amp;/g, '&')
+export const isExternal = (raw: string, markdown = false): boolean => {
+  const url = markdown ? raw : decodeHtml(raw, true)
   if (/^[a-zA-Z][a-zA-Z\d+\-.]*?:/.test(url) && !/^[a-zA-Z]:\\/.test(url)) {
     return ['http', 'https'].includes(url.slice(0, url.indexOf(':')))
   }
@@ -178,6 +150,23 @@ const SPECIAL = new Set(
   ),
 )
 
+/** What stops the parser's search for an element "in scope" (foreign content is never allowed, so its boundaries do not occur). */
+const SCOPE = new Set(['applet', 'caption', 'html', 'marquee', 'object', 'table', 'td', 'template', 'th'])
+const LIST_ITEM_SCOPE = new Set([...SCOPE, 'ol', 'ul'])
+const BUTTON_SCOPE = new Set([...SCOPE, 'button'])
+const TABLE_SCOPE = new Set(['html', 'table', 'template'])
+/** End tags that close an element of the same name in scope; any other end tag stops at a special element. */
+const SCOPED_ENDS = new Set(
+  'address applet article aside blockquote button center dd details dialog dir div dl dt fieldset figcaption figure footer form header hgroup listing main marquee menu nav object ol pre search section summary ul'.split(
+    ' ',
+  ),
+)
+const TABLE_ENDS = new Set(['caption', 'colgroup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
+const HEADINGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+/** Start tags the parser ignores in the body: no element is created for them. */
+const IGNORED_IN_BODY = new Set(['body', 'head', 'html', 'frame'])
+const TABLE_ONLY = new Set(['caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
+
 type Frame = { tag: string; id: number; hidden: boolean; attrs?: string }
 
 const TABLE_PART_CLOSES: Record<string, string[]> = {
@@ -206,6 +195,23 @@ export type WriterOptions = {
  * HTML block and closed in another wraps the Markdown between them, just as
  * when the whole document is parsed as one HTML stream.
  */
+/** Elements the parser puts in `<head>` when they come first, so they do not start the body. */
+const HEAD = new Set([
+  'base',
+  'basefont',
+  'bgsound',
+  'head',
+  'html',
+  'link',
+  'meta',
+  'noframes',
+  'noscript',
+  'script',
+  'style',
+  'template',
+  'title',
+])
+
 export class Writer {
   out = ''
   private stack: Frame[] = []
@@ -223,6 +229,13 @@ export class Writer {
    * tag, or when the element that contained the stripped one closes.
    */
   private skip: { tag: string; depth: number; at: number } | null = null
+  /**
+   * Whether the parser would be in the body yet. Until then (only comments, whitespace and head
+   * elements such as `<style>` so far) it ignores a stray `</p>` or `</br>`.
+   */
+  private body = false
+  /** Raw text not yet written: the parser joins text across tokens that create no node (`a</b>b`). */
+  private pendingText = ''
 
   constructor(private readonly options: WriterOptions) {}
 
@@ -248,6 +261,7 @@ export class Writer {
     this.flush()
     const id = this.nextId++
     if (this.skip) return id
+    this.body = true
     this.closeP(tag)
     if (!NO_RECONSTRUCT.has(tag)) this.reconstruct()
     const hidden = !this.allowed(tag)
@@ -314,12 +328,23 @@ export class Writer {
     if (at !== -1 && this.stack.slice(at + 1).every((f) => f.hidden || !CLOSES_P.has(f.tag))) this.popTo(at)
   }
 
-  /** Closes a generated element, and anything raw HTML left open inside it. */
+  /**
+   * Closes a generated element. Its end tag works as in the HTML parser: it closes the nearest
+   * element of that name in scope, which may be a raw one, or nothing, when raw HTML left a
+   * boundary such as `<table>` open inside it. Anything else still open closes with it.
+   */
   close(id: number): void {
     this.flush()
     const at = this.stack.findLastIndex((f) => f.id === id)
-    if (at !== -1) this.popTo(at)
-    else if (this.paragraphs.get(id) === false && !this.skip) this.strayEnd('p')
+    if (this.skip) {
+      // A stripped element whose end tag never comes ends with its container, unlike today.
+      if (at !== -1) this.popTo(at)
+    } else if (at !== -1 || this.paragraphs.get(id) === false) {
+      const tag = at === -1 ? 'p' : this.stack[at]!.tag
+      const target = this.endTarget(tag)
+      if (target !== -1) this.popTo(target)
+      else this.strayEnd(tag)
+    }
     // Its own end tag: a formatting element waiting to be reopened is dropped instead.
     this.pending = this.pending.filter((f) => f.id !== id)
     this.paragraphs.delete(id)
@@ -330,11 +355,29 @@ export class Writer {
    * paragraph and `</br>` into a line break, so the output does the same.
    */
   private strayEnd(tag: string): void {
-    const open = tag === 'p' ? this.stack.findLastIndex((f) => f.tag === 'p' && !f.hidden) : -1
-    // `</p>` closes whichever paragraph is open, and only creates an empty one when none is.
-    if (open !== -1) this.popTo(open)
-    else if (tag === 'p' && this.allowed('p')) this.out += '<p></p>'
+    if (!this.body) return
+    if (tag === 'p' && this.allowed('p')) this.out += '<p></p>'
     else if (tag === 'br' && this.allowed('br')) this.out += '<br>'
+  }
+
+  /** The stack index an end tag closes to, as the HTML parser decides, or -1 when it closes nothing. */
+  private endTarget(tag: string): number {
+    const scope =
+      tag === 'li'
+        ? LIST_ITEM_SCOPE
+        : tag === 'p'
+          ? BUTTON_SCOPE
+          : TABLE_ENDS.has(tag)
+            ? TABLE_SCOPE
+            : SCOPED_ENDS.has(tag) || HEADINGS.has(tag) || FORMATTING.has(tag)
+              ? SCOPE
+              : SPECIAL
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const open = this.stack[i]!.tag
+      if (open === tag || (HEADINGS.has(tag) && HEADINGS.has(open))) return i
+      if (scope.has(open)) return -1
+    }
+    return -1
   }
 
   private popTo(at: number): void {
@@ -355,6 +398,7 @@ export class Writer {
     this.flush()
     if (this.skip) return
     if (escaped) this.reconstruct()
+    if (/[^\t\n\f\r ]/.test(escaped)) this.body = true
     this.out += escaped
   }
 
@@ -370,22 +414,38 @@ export class Writer {
   raw(html: string): void {
     this.flush()
     if (this.options.unsafe) this.out += html
-    else tokenize(html, this)
+    else {
+      tokenize(html, this)
+      this.writeText()
+    }
   }
 
   /** @internal Called by the tokenizer. */
   onText(text: string): void {
-    if (this.skip) return
+    if (!this.skip) this.pendingText += text
+  }
+
+  /** @internal A comment, doctype or processing instruction: a node of its own, so text does not join across it. */
+  onComment(): void {
+    this.writeText()
+  }
+
+  private writeText(): void {
+    const text = this.pendingText
+    if (!text) return
+    this.pendingText = ''
+    if (/[^\t\n\f\r ]/.test(text)) this.body = true
     const top = this.stack.at(-1)
     // Today's pipeline parses the HTML first, so the Markdown sees decoded text (`&lt;` is `<`).
     const markdown = top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)
-    if (markdown && this.options.inline(decodeKnown(text), this)) return
+    if (markdown && this.options.inline(decodeHtml(text), this)) return
     this.reconstruct()
     this.out += escapeRawText(text)
   }
 
   /** @internal */
   onRawText(tag: string, text: string): void {
+    this.writeText()
     if (this.skip) return
     // Only reachable when the caller allowed a raw-text tag such as `script`.
     if (this.options.tags.has(tag)) this.out += text
@@ -400,6 +460,9 @@ export class Writer {
       if (tag === this.skip.tag && !VOID.has(tag)) this.skip.depth++
       return
     }
+    if (!HEAD.has(tag)) this.body = true
+    if (IGNORED_IN_BODY.has(tag) || (TABLE_ONLY.has(tag) && !this.stack.some((f) => f.tag === 'table'))) return
+    this.writeText()
     // Before the allowlist: the browser does this even for a tag the sanitizer then drops.
     this.closeListItem(tag)
     this.closeP(tag)
@@ -449,11 +512,16 @@ export class Writer {
       if (tag === this.skip.tag && --this.skip.depth === 0) this.skip = null
       return
     }
-    const at = this.stack.findLastIndex((f) => f.tag === tag)
-    if (at !== -1) return this.popTo(at)
+    const at = this.endTarget(tag)
+    if (at !== -1) {
+      this.writeText()
+      return this.popTo(at)
+    }
+    // A formatting element that was closed implicitly is forgotten, and no node is created.
     const waiting = this.pending.findLastIndex((f) => f.tag === tag)
-    if (waiting !== -1) this.pending.splice(waiting, 1)
-    else this.strayEnd(tag)
+    if (waiting !== -1) return void this.pending.splice(waiting, 1)
+    if (tag === 'p' || tag === 'br') this.writeText()
+    this.strayEnd(tag)
   }
 }
 
@@ -489,19 +557,24 @@ export const tokenize = (s: string, w: Writer): void => {
         const end = s.indexOf('>', i)
         i = end === -1 ? n : end + 1
       }
+      w.onComment()
       continue
     }
     if (c === 63 /* ? */) {
       const end = s.indexOf('>', i)
       i = end === -1 ? n : end + 1
+      w.onComment()
       continue
     }
     const isEnd = c === 47 /* / */
     const nameStart = isEnd ? i + 2 : i + 1
     const first = s.charCodeAt(nameStart)
     if (!((first >= 65 && first <= 90) || (first >= 97 && first <= 122))) {
-      if (isEnd && first === 62 /* </> */) {
-        i = nameStart + 1
+      if (isEnd) {
+        // `</>` is dropped, and `</` before anything else but a letter starts a bogus comment.
+        const close = s.indexOf('>', nameStart)
+        i = first === 62 /* > */ ? nameStart + 1 : close === -1 ? n : close + 1
+        if (first !== 62) w.onComment()
         continue
       }
       w.onText('<')

@@ -59,7 +59,7 @@ const inlines = (nodes: Inline[], c: Ctx): void => {
         break
       case 'link': {
         const safe = c.o.unsafe || isSafeUrl(n.url, 'href', true)
-        const external = safe && !c.o.unsafe && isExternal(n.url) ? ' rel="nofollow" target="_blank"' : ''
+        const external = safe && !c.o.unsafe && isExternal(n.url, true) ? ' rel="nofollow" target="_blank"' : ''
         const id = w.open('a', (safe ? attr('href', n.url) : '') + attr('title', n.title) + external)
         inlines(n.children, c)
         w.close(id)
@@ -299,13 +299,16 @@ const footnoteSection = (c: Ctx): void => {
   w.newline()
   const ol = w.open('ol')
   w.newline()
-  for (const [identifier, [number, count]] of c.fn) {
+  // Entries added while rendering a definition (a call inside it) are visited too, like `footnoteOrder`.
+  for (const [identifier, [number]] of c.fn) {
     const def = c.root.footnotes.get(identifier)
     if (!def) continue
     const safe = escapeAttr(normalizeUri(identifier.toLowerCase()))
     const li = w.open('li', ` id="user-content-fn-${safe}"`)
     w.newline()
     const backrefs = (): void => {
+      // Read after the content: a call inside the definition itself counts too.
+      const count = c.fn.get(identifier)![1]
       for (let k = 1; k <= count; k++) {
         w.text(' ')
         const a = w.open(

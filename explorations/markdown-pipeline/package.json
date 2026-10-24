@@ -18,6 +18,9 @@
     "security": "node bench/attack.mjs 300000",
     "pathological": "node --stack-size=4000 bench/patho.mjs 30000"
   },
+  "dependencies": {
+    "decode-named-character-reference": "1.0.2"
+  },
   "devDependencies": {
     "commonmark": "0.31.2",
     "commonmark-spec": "0.31.2",

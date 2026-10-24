@@ -1,66 +1,17 @@
 /**
- * Character references, without the HTML entity table: numeric references and a few common names
- * are decoded here, and every other valid name is written through for the browser to decode.
+ * Character references. Named ones are decoded with `decode-named-character-reference`, the
+ * decoder micromark uses today: in a browser it asks the DOM, so no entity table is shipped.
  */
-import { REF } from './html'
+import { decodeNamedCharacterReference } from 'decode-named-character-reference'
 
 /**
- * Named references the parser decodes itself, so heading text and URLs
- * read naturally. Every other valid name is written through for the browser to
- * decode, which renders identically without shipping the 2,125-name table.
+ * Names HTML decodes even without a trailing `;`, and as a prefix of a longer name: a browser
+ * reads `&notit;` as `¬it;`. Only needed where raw HTML is decoded here rather than by the browser.
  */
-export const COMMON: Record<string, string> = {
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: '\u00a0',
-  copy: '©',
-  reg: '®',
-  trade: '™',
-  hellip: '…',
-  mdash: '—',
-  ndash: '–',
-  lsquo: '‘',
-  rsquo: '’',
-  ldquo: '“',
-  rdquo: '”',
-  bull: '•',
-  middot: '·',
-  times: '×',
-  divide: '÷',
-  deg: '°',
-  euro: '€',
-  larr: '←',
-  rarr: '→',
-  uarr: '↑',
-  darr: '↓',
-  harr: '↔',
-  le: '≤',
-  ge: '≥',
-  ne: '≠',
-  plusmn: '±',
-  laquo: '«',
-  raquo: '»',
-  sect: '§',
-  para: '¶',
-}
-/**
- * Names HTML decodes even without a trailing `;`. A browser reads `&notit;`
- * as `¬it;`, while CommonMark keeps it literal, so an unknown name starting
- * with one of these is escaped instead of written through, unless it is one of
- * the valid longer names below.
- */
-export const LEGACY =
+const LEGACY =
   'AElig AMP Aacute Acirc Agrave Aring Atilde Auml COPY Ccedil ETH Eacute Ecirc Egrave Euml GT Iacute Icirc Igrave Iuml LT Ntilde Oacute Ocirc Ograve Oslash Otilde Ouml QUOT REG THORN Uacute Ucirc Ugrave Uuml Yacute aacute acirc acute aelig agrave amp aring atilde auml brvbar ccedil cedil cent copy curren deg divide eacute ecirc egrave eth euml frac12 frac14 frac34 gt iacute icirc iexcl igrave iquest iuml laquo lt macr micro middot nbsp not ntilde oacute ocirc ograve ordf ordm oslash otilde ouml para plusmn pound quot raquo reg sect shy sup1 sup2 sup3 szlig thorn times uacute ucirc ugrave uml uuml yacute yen yuml'.split(
     ' ',
   )
-export const LEGACY_PREFIXED = new Set(
-  'GTGT LTLT ampersand angmsd angmsdaa angmsdab angmsdac angmsdad angmsdae angmsdaf angmsdag angmsdah angst gtcc gtcir gtdot gtlPar gtquest gtrapprox gtrarr gtrdot gtreqless gtreqqless gtrless gtrsim ltcc ltcir ltdot lthree ltimes ltlarr ltquest ltrPar ltri ltrie ltrif notin notinE notindot notinva notinvb notinvc notni notniva notnivb notnivc parallel parsim parsl part times timesb timesbar timesd'.split(
-    ' ',
-  ),
-)
 
 /** micromark's rule: controls, surrogates, noncharacters and out-of-range code points become U+FFFD. */
 export const fromCodePoint = (cp: number): string =>
@@ -73,32 +24,42 @@ export const fromCodePoint = (cp: number): string =>
   (cp & 65_535) === 65_535 ||
   (cp & 65_535) === 65_534 ||
   cp > 1_114_111
-    ? '\ufffd'
+    ? '�'
     : String.fromCodePoint(cp)
 
-/**
- * A reference in Markdown text. Numeric ones and common names decode here; other names are kept
- * for the browser behind the `REF` marker, unless HTML would read them differently from
- * CommonMark (`&notit;`), in which case they stay literal.
- */
+/** A reference in Markdown text, decoded as micromark does; an unknown name stays literal. */
 export const decodeEntity = (ref: string): string => {
   if (ref[1] === '#') {
     const hex = ref[2] === 'x' || ref[2] === 'X'
     return fromCodePoint(Number.parseInt(ref.slice(hex ? 3 : 2, -1), hex ? 16 : 10))
   }
-  const name = ref.slice(1, -1)
-  const common = COMMON[name]
-  if (common) return common
-  if (LEGACY.includes(name) || LEGACY_PREFIXED.has(name) || !LEGACY.some((p) => name.startsWith(p))) {
-    return REF + ref.slice(1)
-  }
-  return ref
+  return decodeNamedCharacterReference(ref.slice(1, -1)) || ref
 }
 
+/** What the HTML parser makes of `&#128;` to `&#159;`: the windows-1252 characters. */
+const WINDOWS_1252 = '€\x81‚ƒ„…†‡ˆ‰Š‹Œ\x8dŽ\x8f\x90‘’“”•–—˜™š›œ\x9džŸ'
+
+const HTML_REFERENCE = /&(?:#(?:[xX]([0-9a-fA-F]+)|([0-9]+));?|([a-zA-Z][a-zA-Z0-9]*)(;?))/g
+
 /**
- * What a named reference decodes to, as far as a URL check needs: the character for common
- * names, a stand-in for the Latin-1 legacy names (never ASCII, so never part of a scheme), and
- * `null` when it is not known here.
+ * Character references in raw HTML, decoded as the HTML parser does. In an attribute value, a
+ * legacy name followed by an alphanumeric or `=` stays literal (`?a=1&copy=2`).
  */
-export const knownEntity = (name: string): string | null =>
-  COMMON[name] ?? (LEGACY.includes(name) || LEGACY_PREFIXED.has(name) ? '\u00ff' : null)
+export const decodeHtml = (s: string, attribute = false): string =>
+  s.replace(HTML_REFERENCE, (m, hex, dec, name, semi, at: number) => {
+    if (name === undefined) {
+      const cp = Number.parseInt(hex ?? dec, hex ? 16 : 10)
+      if (cp === 0 || cp > 0x10_ff_ff || (cp >= 0xd8_00 && cp <= 0xdf_ff)) return '�'
+      return cp >= 0x80 && cp <= 0x9f ? WINDOWS_1252[cp - 0x80]! : String.fromCodePoint(cp)
+    }
+    if (semi) {
+      const value = decodeNamedCharacterReference(name)
+      if (value) return value
+    }
+    // The longest legacy name the reference starts with, if any.
+    const legacy = LEGACY.reduce((best, l) => (name.startsWith(l) && l.length > best.length ? l : best), '')
+    if (!legacy) return m
+    const rest = m.slice(1 + legacy.length)
+    if (attribute && /^[a-zA-Z0-9=]/.test(rest || s.slice(at + m.length, at + m.length + 1))) return m
+    return decodeNamedCharacterReference(legacy) + rest
+  })
