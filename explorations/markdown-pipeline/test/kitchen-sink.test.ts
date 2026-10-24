@@ -103,6 +103,9 @@ const KNOWN_DIFFERENCES: Record<string, { reason: string; check: (html: string) 
   },
 }
 
+/** Sections the current `splitContent` changes, because it re-serializes them. */
+const RESPLIT_BUGS = ['Tables', 'Whitespace-only lines in lists', 'Literals next to non-ASCII text']
+
 const render = (p: Pipeline, markdown: string, option: string) =>
   normalize(p.htmlFromMarkdown(markdown, OPTIONS[option]!(p)))
 
@@ -133,7 +136,7 @@ describe('kitchen sink', () => {
   )
 
   it('extracts the same headings and sections', () => {
-    const others = sections.filter(({ name }) => name !== 'Tables').map((s) => s.markdown)
+    const others = sections.filter(({ name }) => !RESPLIT_BUGS.includes(name)).map((s) => s.markdown)
     for (const markdown of [others.join('\n\n'), ...others, ...samples.map((s) => s.value)]) {
       expect(prototype.getHeadings(markdown)).toEqual(current.getHeadings(markdown))
       expect(prototype.splitContent(markdown).map((s) => normalize(current.htmlFromMarkdown(s)))).toEqual(
@@ -192,10 +195,12 @@ describe('kitchen sink', () => {
     expect(fenced(after).map((b) => b.className)).toEqual(fenced(before).map((b) => b.className))
   })
 
-  it('fixes a bug in the current pipeline: splitContent keeps tables as written', () => {
-    // The current pipeline re-serializes each section, which pads a table with an over-long
-    // row to an extra, empty column. Slicing the source renders the section unchanged.
-    const { markdown } = sections.find((s) => s.name === 'Tables')!
+  it.each(RESPLIT_BUGS)('fixes a bug in the current pipeline: splitContent keeps %s as written', (name) => {
+    // The current pipeline re-serializes each section, which pads a table with an over-long row
+    // to an extra, empty column, drops a whitespace-only line that keeps a list tight, and
+    // rewrites `**_x_**` as `***x***` (strong inside emphasis, where it was the other way round).
+    // Slicing the source renders the section unchanged.
+    const { markdown } = sections.find((s) => s.name === name)!
     const unsplit = normalize(current.htmlFromMarkdown(markdown))
     const split = (p: Pipeline) => normalize(current.htmlFromMarkdown(p.splitContent(markdown).join('\n\n')))
     expect(split(pipelines.prototype)).toBe(unsplit)

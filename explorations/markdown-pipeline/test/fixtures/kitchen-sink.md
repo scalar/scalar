@@ -392,6 +392,45 @@ Markdown *inside* details, after a blank line.
 
 <xmp>xmp</xmp>
 
+<!-- section: Whitespace-only lines in lists -->
+
+- Item with a nested list
+  - Nested
+  
+  The blank line above holds two spaces, so it is taken into the nested list.
+
+- Next item
+- Last item
+
+  
+After a blank line and a line of spaces, the list above is loose.
+
+> - Quoted list
+>
+>
+> Two quoted blank lines make it loose too.
+
+<!-- section: Lone tag on a lazy line -->
+
+* Prerequisites: a paid account.<br>
+**Scopes:** `account:read:admin`<br>
+<br>
+**Rate limit:** `Light`
+
+<!-- section: Uncommon character references -->
+
+## Caf&eacute; &rarr; &alpha; &notin; &Auml; &ThickSpace;guide
+
+Text with &eacute;, &rarr;, &#150;, &notit; and &bogus;.
+
+<p>Raw text with &eacute;, &#150;, &notit;, &copy2024 and `code`.</p>
+
+<!-- section: Literals next to non-ASCII text -->
+
+联系support_team@example.com 或访问https://example.com/docs。
+
+caféuser_id@example.com and **_strong emphasis_**right after.
+
 <!-- section: Mixed document -->
 
 # Introduction
