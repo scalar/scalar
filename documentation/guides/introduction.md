@@ -82,9 +82,9 @@
   </scalar-heading>
   <p class="lp-body">Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from the same source, so an agent gets your API right the first time instead of guessing at it.</p>
   <ul class="lp-points">
-    <li><b>Markdown for every page</b><span>Every page is served as Markdown as well as HTML, with <code>llms.txt</code> and a Docs MCP endpoint generated for you.</span></li>
-    <li><b>Your domain, your theme</b><span>Custom domains, your own theme, and access groups for partner portals.</span></li>
-    <li><b>Open source at the core</b><span>The MIT-licensed API reference has 15.7k GitHub stars and is the default docs UI in eight frameworks.</span></li>
+    <li>Every page is served as Markdown as well as HTML, with <code>llms.txt</code> and a Docs MCP endpoint generated for you.</li>
+    <li>Your own domain and theme, with access groups for partner portals.</li>
+    <li>Open source at the core: the MIT-licensed API reference has 15.7k GitHub stars and is the default docs UI in eight frameworks.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
@@ -108,9 +108,9 @@
   </scalar-heading>
   <p class="lp-body">Your customers' coding agents write the integration now. Scalar generates typed, idiomatic SDKs from your OpenAPI document and opens every release as a pull request, so the code an agent writes against your API compiles the first time.</p>
   <ul class="lp-points">
-    <li><b>Six languages and a CLI</b><span>TypeScript, Python, Go, Java, Kotlin, and Ruby, plus a CLI, with six more languages as experimental targets.</span></li>
-    <li><b>Published where developers look</b><span>npm, PyPI, Go modules, Maven Central, RubyGems, and more, each release with a changelog.</span></li>
-    <li><b>Migrating from Stainless?</b><span>Upload your <code>stainless.yml</code> as is. Resources, methods, and package names carry across, so existing call sites keep working.</span></li>
+    <li>Six languages and a CLI: TypeScript, Python, Go, Java, Kotlin, and Ruby, with six more as experimental targets.</li>
+    <li>Published where developers look: npm, PyPI, Go modules, Maven Central, RubyGems, and more, each release with a changelog.</li>
+    <li>Migrating from Stainless? Upload your <code>stainless.yml</code> as is: resources, methods, and package names carry across, so existing call sites keep working.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--sdk" aria-hidden="true" data-md-exclude>
@@ -191,47 +191,18 @@
   </scalar-heading>
   <p class="lp-body">Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, so people can use your product from inside their agent today. All of that needs a server. It is not yours to run.</p>
   <ul class="lp-points">
-    <li><b>Any MCP client, one line to connect</b><span>Claude, ChatGPT, Cursor, Claude Code, and anything that speaks remote MCP: <code>claude mcp add --transport http acme https://mcp.acme.com</code></span></li>
-    <li><b>You choose the tools</b><span>Expose the operations you choose and decide what each one may do. Not all 400 endpoints belong in an agent's hands.</span></li>
-    <li><b>Small context, any size of API</b><span>A fixed set of tools fetches operation details just in time, about 0.2% of a context window however many endpoints you have.</span></li>
+    <li>Any MCP client connects with one line: Claude, ChatGPT, Cursor, Claude Code, and anything that speaks remote MCP.</li>
+    <li>You choose the tools: expose the operations you want and decide what each may do, because not all 400 endpoints belong in an agent&#8217;s hands.</li>
+    <li>A fixed set of tools fetches operation details just in time, about 0.2% of a context window however many endpoints you have.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--mcp" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
-<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
-<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
-<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
-<div class="lp-win lp-win--app lp-chat">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">Missing planet images<scalar-icon src="phosphor/regular/caret-down"></scalar-icon></span></div>
-<div class="lp-chat-messages">
-<div class="lp-chat-turn">
-<div class="lp-chat-prompt">Which planets in the Galaxy API are still missing an image?</div>
-<div class="lp-chat-response">
-<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 3s"><span class="lp-chat-think-sizer">Thought for 3s</span><span class="lp-chat-think-text" data-text="Thought for 3s">Thought for 3s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Searched operations for <span class="lp-chat-code">planet image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Called <span class="lp-chat-code">GET /planets</span></span></div></div></div></div>
-<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
-<div class="lp-chat-line">Kepler-22b is the only planet without an image. The other eleven all have one.</div>
-</div>
-</div>
-<div class="lp-chat-turn">
-<div class="lp-chat-prompt">Upload the Kepler-22b render to it</div>
-<div class="lp-chat-response">
-<div class="lp-chat-thinking is-done"><span class="lp-chat-working"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span><span class="lp-chat-think" data-running="Thinking…" data-done="Thought for 2s"><span class="lp-chat-think-sizer">Thought for 2s</span><span class="lp-chat-think-text" data-text="Thought for 2s">Thought for 2s</span></span></div>
-<div class="lp-chat-tool is-done"><div class="lp-chat-summary"><span class="lp-chat-think" data-running="Using Scalar MCP" data-done="Used Scalar MCP"><span class="lp-chat-think-sizer">Using Scalar MCP</span><span class="lp-chat-think-text" data-text="Used Scalar MCP">Used Scalar MCP</span></span><span class="lp-chat-chevron"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3l2.5 2.5L6.5 3"/></svg></span></div><div class="lp-chat-steps"><div class="lp-chat-steps-inner"><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Called <span class="lp-chat-code">POST /planets/kepler-22b/image</span></span></div><div class="lp-chat-step"><svg class="lp-chat-step-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="3" fill="currentColor"/><path fill="var(--scalar-background-1)" transform="translate(5 5) scale(0.359)" d="M22.65.05c.4 0 .8.3.8.8v8.8l6-6.2c.3-.4.9-.4 1.1 0l4.6 4.6c.3.3.4.8 0 1v.1l-6 6.2h8.5c.5 0 .8.3.8.8v6.6c0 .5-.3.8-.8.8h-8.6l6.1 6.2c.3.3.4.8 0 1.1l-4.6 4.7c-.2.3-.8.4-1 0l-6-6.2v8.8c0 .5-.4.8-.9.8h-6.4c-.5 0-.8-.3-.8-.8v-4.6c0-1.4.6-2.8 1.5-3.9l8.4-8.5c.9-1 .9-2.5 0-3.4l-8.3-8.5c-1-1-1.6-2.4-1.6-3.8V.85c0-.5.3-.8.8-.8h6.4zm-13.4 3.4h.2l14 14.4c1 1 1 2.5 0 3.4l-14 14.4c-.2.4-.8.4-1 0l-4.8-4.6c-.3-.3-.4-.7 0-1l6-6.4h-8.3c-.5 0-.8-.3-.8-.8v-6.6c0-.5.3-.8.8-.8h8.6l-6.2-6.2a1 1 0 010-1.1l4.5-4.7c.3-.3.8-.3 1 0z"/></svg><span>Checked the response</span></div></div></div></div>
-<span class="lp-chat-spark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757"/></svg></span>
-<div class="lp-chat-line">Done. The API returned 201 Created, so Kepler-22b has its render now.</div>
-<div class="lp-chat-line">Want me to add the TRAPPIST-1e one next?</div>
-</div>
-</div>
-</div>
-<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/key-return"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model">Ultra</span></div></div>
-</div>
-</div>
-<div class="lp-flow-row">
-<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Claude</span>
-<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">ChatGPT</span>
-<span class="lp-flow-label" data-lp-node="end2" data-lp-parent="hub" data-reveal="fade" style="--d: 760">Gemini</span>
-</div>
+<div class="lp-stage lp-stage--mcp" data-lp-stage-mcp>
+<div class="lp-thread-row lp-thread-row--user" data-lp-thread="user"><div class="lp-thread-bubble">Which planets in the Galaxy API are still missing an image?</div></div>
+<div class="lp-thread-row" data-lp-thread="agent1"><div class="lp-thread-avatar" data-lp-thread-slot="a"></div><div class="lp-thread-group"><div class="lp-thread-bubble"><span class="lp-thread-text">Let me look that up in the Galaxy API.</span></div><div class="lp-thread-chip"><span class="lp-thread-chip-mark" aria-hidden="true"></span>Asking Scalar MCP for the planet operations</div></div></div>
+<div class="lp-thread-row" data-lp-thread="scalar"><div class="lp-thread-avatar" data-lp-thread-slot="b"></div><div class="lp-thread-bubble"><span class="lp-thread-text">GET /planets lists them, each with an image field. Twelve planets, one image empty.</span></div></div>
+<div class="lp-thread-row" data-lp-thread="agent2"><div class="lp-thread-avatar" data-lp-thread-slot="c"></div><div class="lp-thread-bubble"><span class="lp-thread-text">Kepler-22b is the only planet without an image. The other eleven all have one.</span></div></div>
 </div>
 </div>
   </div>
@@ -255,9 +226,9 @@
   <scalar-heading level="2" slug="observability" class="c">And the whole time, you can see what's happening.</scalar-heading>
   <p class="lp-body">Agents are users now, and you should see them the way you see everyone else. Scalar counts every tool call and every docs page view, so you know how agents use your product before a customer tells you.</p>
   <ul class="lp-points">
-    <li><b>Per-tool and per-client metrics</b><span>Volume, error rate, and latency for every tool, plus who is calling and how often, exportable as CSV.</span></li>
-    <li><b>Docs analytics without tracking</b><span>Page views counted on Scalar's servers. No cookies, no IP addresses, no third-party scripts.</span></li>
-    <li><b>Metrics, not payloads</b><span>Tool arguments and responses are never stored, so your users' data stays theirs.</span></li>
+    <li>Volume, error rate, and latency for every tool, plus who is calling and how often, exportable as CSV.</li>
+    <li>Docs analytics without tracking: page views counted on Scalar&#8217;s servers, with no cookies, IP addresses, or third-party scripts.</li>
+    <li>Metrics, not payloads: tool arguments and responses are never stored, so your users&#8217; data stays theirs.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--obs" aria-hidden="true" data-md-exclude>
@@ -1032,9 +1003,43 @@
   /* the ring: the mark and the name in the text colour, on a globe the
      size the pill ends at (the sun, bigger than any planet round it),
      centred on it; it shows once the pill is mostly a circle */
+  /* The globe's paint: ChatGPT's ball, the pale tint under the same
+     sheen and shade as every planet (a rainbow of the brand's colours
+     was tried and dropped as corny); the mark and the name in ChatGPT's
+     ink on it. One property each, so the scheme can change in one place */
+  .lp-section {
+    --lp-sun-paint:
+      radial-gradient(70% 60% at 50% 104%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 70%),
+      radial-gradient(
+        closest-side at 50% 50%,
+        color-mix(in oklab, #f8f8f8 90%, white) 40%,
+        #f8f8f8 80%,
+        color-mix(in oklab, #f8f8f8 88%, black) 100%
+      );
+    --lp-sun-shade:
+      inset 4px 16px 18px -12px rgba(0, 0, 0, 0.45),
+      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
+  }
+  /* on the pill the paint fades in over its surface as it rounds off,
+     once its label has gone, and out again before the label returns */
+  .lp-onboard::before {
+    content: "";
+    position: absolute;
+    inset: calc(-1 * var(--scalar-border-width));
+    border-radius: inherit;
+    background: var(--lp-sun-paint);
+    box-shadow: var(--lp-sun-shade);
+    opacity: 0;
+    transition: opacity 240ms ease;
+    pointer-events: none;
+  }
+  .lp-hero--talk .lp-onboard::before {
+    opacity: 1;
+    transition-delay: 180ms;
+  }
   .lp-sun {
     --s: 180px;
-    --ink: var(--scalar-color-1);
+    --ink: #0d0d0d;
     --type: calc(var(--s) * 0.12);
     position: absolute;
     left: 50%;
@@ -1306,7 +1311,8 @@
      where their laps went on without them. The card does not clip, so
      the flights and the bubbles are whole */
   .lp-card.lp-card--docs,
-  .lp-card.lp-card--sdk {
+  .lp-card.lp-card--sdk,
+  .lp-card.lp-card--mcp {
     overflow: visible;
   }
   .lp-stage {
@@ -1470,18 +1476,23 @@
      The group stacks nothing of its own, so the planets still pass
      between the ring's halves */
   .lp-stage-globe {
+    /* the globe's size, the ring's with it: a stage sets it, and a move
+       between stages eases it (landing.js starts it from the old one) */
+    --s: 180px;
     position: absolute;
     left: calc(var(--sx, 50) * 1%);
     top: calc(var(--sy, 50) * 1%);
     width: 0;
     height: 0;
+    transition: --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .lp-stage-globe.is-moving {
-    transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition:
+      transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+      --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   /* the globe: the pill's surface as a circle, dressed like the hero's */
   .lp-stage-sun {
-    --s: 180px;
     position: absolute;
     left: 0;
     top: 0;
@@ -1489,9 +1500,10 @@
     width: var(--s);
     height: var(--s);
     margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border: var(--scalar-border-width) solid transparent;
     border-radius: 50%;
-    background: var(--scalar-background-1);
+    background: var(--lp-sun-paint);
+    box-shadow: var(--lp-sun-shade);
     opacity: 0;
     scale: 0.6;
     transition:
@@ -1500,7 +1512,7 @@
     pointer-events: none;
   }
   .lp-stage-sun .lp-sun {
-    --s: 180px;
+    --s: inherit;
   }
   .lp-stage.is-sun .lp-stage-sun {
     opacity: 1;
@@ -1515,11 +1527,14 @@
     left: 0;
     top: 0;
     z-index: 2;
-    width: 374px;
-    height: 131px;
-    padding: 23px 66px;
+    /* the 374×131 band of a 180px globe, in its proportions, so the
+       ring follows the globe's size frame by frame */
+    width: calc(var(--s) * 2.078);
+    height: calc(var(--s) * 0.728);
+    padding: calc(var(--s) * 0.128) calc(var(--s) * 0.367);
     rotate: -16deg;
     translate: -50% -50%;
+    transition: none;
   }
   .lp-stage .lp-sun-halo--front {
     z-index: 4;
@@ -1593,14 +1608,8 @@
     top: calc(50% + 78px);
   }
   @container lp-card (max-width: 480px) {
-    .lp-stage-sun,
-    .lp-stage-sun .lp-sun {
+    .lp-stage-globe {
       --s: 120px;
-    }
-    .lp-stage .lp-sun-halo {
-      width: 250px;
-      height: 86px;
-      padding: 15px 44px;
     }
     .lp-stage.is-orbit .lp-orb--chatgpt {
       --s: 64px;
@@ -1751,6 +1760,166 @@
       left: calc(var(--sx) * 1% + 74px);
       top: 50%;
       max-width: 130px;
+    }
+  }
+  /* The MCP card: a message thread after the chat on x.ai/voice, no
+     window round it. A box of fixed height with the thread centred in
+     it, so each new row comes up from below and the earlier ones glide
+     up to make room (landing.js moves them from their old places); the
+     user's prompt right-aligned, the agent's messages with the guest
+     planet as the profile photo at its latest message, Scalar's with the
+     globe as its own. Borderless pale bubbles at most 82% wide, a 12px
+     tool chip, the assistants' lines streaming in word by word, the
+     oldest rows stepping back. */
+  .lp-stage.lp-stage--mcp {
+    --lp-thread-gutter: 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 400px;
+    padding: 8px 4px 8px 0;
+    aspect-ratio: auto;
+  }
+  .lp-thread-row {
+    position: relative;
+    display: none;
+    justify-content: flex-start;
+    padding-left: var(--lp-thread-gutter);
+    transition:
+      transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 420ms ease;
+  }
+  .lp-thread-row.is-shown {
+    display: flex;
+  }
+  .lp-thread-row--user {
+    justify-content: flex-end;
+    padding-left: 0;
+  }
+  /* the photo's seat at the row's foot: the planet or the globe stands
+     centred in it (the globe's ring reaches past it, over the gutter
+     and under the bubble) */
+  .lp-thread-avatar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 48px;
+    height: 48px;
+  }
+  .lp-stage.lp-stage--mcp .lp-orb {
+    --x: 50;
+    --y: 50;
+    --s: 48px;
+  }
+  .lp-stage--mcp .lp-stage-globe {
+    --s: 48px;
+  }
+  .lp-thread-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    max-width: 82%;
+  }
+  .lp-thread-bubble {
+    position: relative;
+    z-index: 5;
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 82%;
+    padding: 12px 18px;
+    border-radius: 20px;
+    background: var(--scalar-background-2);
+    font-family: var(--scalar-font);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
+    transition: opacity 600ms ease;
+  }
+  .lp-thread-group .lp-thread-bubble {
+    max-width: 100%;
+  }
+  /* the tool note under a message, after the chip on x.ai/voice: a beat
+     after its bubble */
+  .lp-thread-chip {
+    position: relative;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 6px 14px 6px 10px;
+    border-radius: 999px;
+    background: var(--scalar-background-2);
+    font-family: var(--scalar-font);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--scalar-color-2);
+    opacity: 0;
+    transition: opacity 360ms ease 500ms;
+  }
+  .lp-thread-row.is-shown .lp-thread-chip {
+    opacity: 1;
+  }
+  .lp-thread-chip-mark {
+    display: inline-flex;
+    flex: none;
+    width: 12px;
+    height: 12px;
+  }
+  .lp-thread-chip-mark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* the assistants' lines stream in a word at a time, each clearing
+     from a blur (the script sets each word's delay) */
+  .lp-thread-w {
+    opacity: 0;
+    filter: blur(4px);
+    transition:
+      opacity 320ms ease,
+      filter 320ms ease;
+  }
+  .lp-thread-row.is-shown .lp-thread-w {
+    opacity: 1;
+    filter: blur(0);
+  }
+  /* all but the two latest rows step back */
+  .lp-thread-row.is-past .lp-thread-bubble,
+  .lp-thread-row.is-shown.is-past .lp-thread-chip {
+    opacity: 0.55;
+    transition-delay: 0s;
+  }
+  @container lp-card (max-width: 480px) {
+    .lp-stage.lp-stage--mcp {
+      --lp-thread-gutter: 56px;
+      height: 380px;
+    }
+    .lp-thread-avatar {
+      width: 44px;
+      height: 44px;
+    }
+    .lp-stage.lp-stage--mcp .lp-orb,
+    .lp-stage--mcp .lp-stage-globe {
+      --s: 44px;
+    }
+    .lp-thread-group,
+    .lp-thread-bubble {
+      max-width: 88%;
+    }
+    .lp-thread-bubble {
+      padding: 10px 14px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-thread-row,
+    .lp-thread-w {
+      transition: none;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1974,8 +2143,31 @@
   .lp .lp-points {
     margin-top: 4px;
   }
+  /* the product points: one sentence each with a check in front, no
+     rules between, after the feature lists on x.ai/voice */
+  .lp .lp-points li {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 5px 0;
+    border-top: 0;
+    font-size: 14px;
+    color: var(--scalar-color-1);
+  }
+  .lp .lp-points li::before {
+    content: "";
+    /* the theme hides a list item's ::before; this one is the check */
+    display: block;
+    flex: none;
+    width: 14px;
+    height: 14px;
+    margin-top: 3px;
+    background: var(--scalar-color-3);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
   .lp .lp-points li:last-child {
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-bottom: 0;
   }
   .lp-points b,
   .lp-grid b {

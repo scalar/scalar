@@ -1457,7 +1457,7 @@ const initLandingOrbs = debounce(() => {
       let sayGen = 0
       // the SDK card below borrows the globe and a planet: whether it has
       // them, and how to take them back at once (bound further down)
-      const lent = { on: false, reset: () => {}, leave: () => {} }
+      const lent = { on: false, reset: () => {}, check: () => {} }
       const STAGE_LAP = 30
       const SAY_EVERY = 1400
       const SAY_FOR = 3300
@@ -1791,7 +1791,7 @@ const initLandingOrbs = debounce(() => {
          where the Docs card's second act has not begun, to its spot and
          its question (and that act follows). Reached before the globe has
          risen there, the globe rises here instead, and sets again as it
-         goes. */
+         goes. The MCP card below borrows both again in turn. */
       const sdk = document.querySelector('[data-lp-stage-sdk]')
       const sunRow = sdk?.querySelector('[data-lp-sdk-sun]')
       const planetRow = sdk?.querySelector('[data-lp-sdk-planet]')
@@ -1800,12 +1800,33 @@ const initLandingOrbs = debounce(() => {
       const sdkSay = sdkBubble?.querySelector('.lp-say')
       if (sdk && sunRow && planetRow && globe && hasStageSun && sdkSay && sdk.dataset.lpStageBound !== 'true') {
         sdk.dataset.lpStageBound = 'true'
-        // the globe group moves like a planet
+        // the globe group moves like a planet; its size is each stage's,
+        // eased from the old one on a move: set inline for the start,
+        // let go once that has taken
         const globeO = { orb: globe, moving: 0, box: null }
+        const moveGlobe = (to, settle) => {
+          const from = getComputedStyle(globe).getPropertyValue('--s')
+          move(
+            globeO,
+            to,
+            0,
+            () => {
+              globe.style.setProperty('--s', from)
+              settle()
+            },
+            () => globe.style.removeProperty('--s'),
+          )
+        }
+        // whether the stage the globe stands on shows it, ring out
+        const globeShown = () => Boolean(globe.closest('.lp-stage')?.classList.contains('is-sun'))
         let guest = null
         let lastGuest = null
         let sdkTimers = []
         let globeBack = 0
+        // the MCP card below borrows both again: its hold, bound further
+        // down (off: let go at once; left: the globe has left it; check:
+        // after a scroll, give them up if below the line)
+        const next = { on: false, off: () => {}, left: () => {}, check: () => {} }
         // the talk, from the planet's landing: who, and the dots or a line
         const SDK_TALK = [
           [300, 'orb', 'typing'],
@@ -1822,23 +1843,28 @@ const initLandingOrbs = debounce(() => {
           sdkTimers = []
           sdkBubble.classList.remove('is-on', 'is-typing')
         }
-        const toSdk = () => {
-          if (lent.on || !onStage) {
-            return
-          }
-          lent.on = true
-          // the answers pause while the globe is away
-          sayGen++
-          says.forEach((s) => s.classList.remove('is-on'))
+        // a planet's stand on a card below: at its row's spot, nothing of
+        // the hero's or the Docs stage's left on it
+        const standBelow = (o, z) => {
+          o.orb.style.removeProperty('left')
+          o.orb.style.removeProperty('top')
+          o.orb.style.translate = ''
+          o.orb.style.zIndex = z
+          o.orb.classList.remove('is-talking', 'lp-orb--left')
+          o.bubble?.classList.remove('is-typing')
+          o.bubble?.style.removeProperty('--bubble-shift')
+          o.shift = undefined
+          o.z = null
+        }
+        // the globe and the planet to this card's rows, from wherever they
+        // are, and the talk once the planet has landed
+        const takeToSdk = (o) => {
           window.clearTimeout(globeBack)
-          if (stage.classList.contains('is-sun')) {
-            move(
-              globeO,
-              sunRow,
-              0,
-              () => sdk.classList.add('is-sun'),
-              () => {},
-            )
+          if (globeShown()) {
+            moveGlobe(sunRow, () => {
+              next.left()
+              sdk.classList.add('is-sun')
+            })
           } else {
             // nothing to fly: it rises here, as it would have there
             sunRow.appendChild(globe)
@@ -1846,33 +1872,18 @@ const initLandingOrbs = debounce(() => {
             stageRing.style.transform = 'rotateY(0deg)'
             sdk.classList.add('is-sun')
           }
-          // the planet below: any but the last one
-          const pool = extras.filter((o) => o !== lastGuest)
-          const o = pool[Math.floor(Math.random() * pool.length)]
-          guest = o
-          lastGuest = o
-          o.sdk = true
           move(
             o,
             planetRow,
             1,
             () => {
-              o.orb.style.removeProperty('left')
-              o.orb.style.removeProperty('top')
-              o.orb.style.translate = ''
-              o.orb.style.zIndex = '6'
-              o.orb.classList.remove('is-talking', 'lp-orb--left')
-              o.bubble?.classList.remove('is-typing')
-              o.bubble?.style.removeProperty('--bubble-shift')
-              o.shift = undefined
-              o.z = null
+              standBelow(o, '6')
               if (o.bubble) {
                 say(o.bubble, o.lines, 3)
               }
             },
             faceFront(o),
           )
-          // the talk, once it has landed
           const landed = (reduceMotion ? 200 : 1150) + 120
           talkOff()
           sdkSay.textContent = ''
@@ -1891,11 +1902,28 @@ const initLandingOrbs = debounce(() => {
             }, landed + at),
           )
         }
+        const toSdk = () => {
+          if (lent.on || !onStage) {
+            return
+          }
+          lent.on = true
+          // the answers pause while the globe is away
+          sayGen++
+          says.forEach((s) => s.classList.remove('is-on'))
+          // the planet below: any but the last one
+          const pool = extras.filter((o) => o !== lastGuest)
+          const o = pool[Math.floor(Math.random() * pool.length)]
+          guest = o
+          lastGuest = o
+          o.sdk = true
+          takeToSdk(o)
+        }
         const fromSdk = () => {
           if (!lent.on) {
             return
           }
           lent.on = false
+          next.off()
           talkOff()
           const o = guest
           guest = null
@@ -1904,18 +1932,16 @@ const initLandingOrbs = debounce(() => {
           o.bubble?.classList.remove('is-typing')
           if (stage.classList.contains('is-sun')) {
             // the globe flies back to the centre, and the answers go on
-            move(
-              globeO,
-              stage,
-              0,
-              () => sdk.classList.remove('is-sun'),
-              () => {},
-            )
+            moveGlobe(stage, () => {
+              sdk.classList.remove('is-sun')
+              next.left()
+            })
             const gen = ++sayGen
             timers.push(window.setTimeout(() => nextSay(gen), 1200))
           } else {
-            // it sets here, and rises there once the planet has asked
+            // it sets where it is, and rises there once the planet has asked
             sdk.classList.remove('is-sun')
+            next.left()
             globeBack = window.setTimeout(() => stage.appendChild(globe), 1000)
             timers.push(window.setTimeout(riseSun, 4000))
           }
@@ -1963,9 +1989,11 @@ const initLandingOrbs = debounce(() => {
             return
           }
           lent.on = false
+          next.off()
           talkOff()
           window.clearTimeout(globeBack)
           sdk.classList.remove('is-sun')
+          next.left()
           stage.appendChild(globe)
           if (guest) {
             guest.sdk = false
@@ -1986,31 +2014,199 @@ const initLandingOrbs = debounce(() => {
           },
           { rootMargin: '0px 0px -55% 0px', threshold: 0 },
         ).observe(sdk)
-        lent.leave = () => {
-          if (lent.on && sdk.getBoundingClientRect().top > window.innerHeight * 0.45) {
+        lent.check = () => {
+          const line = window.innerHeight * 0.45
+          const top = sdk.getBoundingClientRect().top
+          if (lent.on && top > line) {
             fromSdk()
+          } else {
+            if (!lent.on && top <= line) {
+              toSdk()
+            }
+            next.check()
           }
         }
         // the card's state, for the page's tests
         sdk.lpSdk = () => ({ on: lent.on, guest: guest?.orb.dataset.icon ?? null })
+
+        /* The MCP card, below again: a message thread, no window, after
+           the chat on x.ai/voice. The rows come on one by one, each up
+           from below while the earlier ones glide up (a FLIP on their
+           transforms), the assistants' lines streaming in by the word.
+           The SDK card's guest comes on (or straight from the Docs card,
+           on a jump) to sit as the agent's profile photo by its first
+           message; the globe comes on to sit by Scalar's reply; the
+           planet moves down to the agent's answer. When the card drops
+           below the viewport's middle both go back to the SDK card and
+           its talk plays again. */
+        const mcp = document.querySelector('[data-lp-stage-mcp]')
+        const slot = (name) => mcp?.querySelector(`[data-lp-thread-slot="${name}"]`)
+        const row = (name) => mcp?.querySelector(`[data-lp-thread="${name}"]`)
+        const seats = { a: slot('a'), b: slot('b'), c: slot('c') }
+        const rows = { user: row('user'), agent1: row('agent1'), scalar: row('scalar'), agent2: row('agent2') }
+        if (
+          mcp &&
+          Object.values(seats).every(Boolean) &&
+          Object.values(rows).every(Boolean) &&
+          mcp.dataset.lpStageBound !== 'true'
+        ) {
+          mcp.dataset.lpStageBound = 'true'
+          const mark = mcp.querySelector('.lp-thread-chip-mark')
+          const icon = document.getElementById('lp-icon-scalar')
+          if (mark && icon) {
+            mark.innerHTML = icon.innerHTML
+          }
+          // the streamed lines, a span a word, each a beat after the last
+          mcp.querySelectorAll('.lp-thread-text').forEach((text) => {
+            const words = text.textContent.trim().split(/\s+/)
+            text.textContent = ''
+            words.forEach((word, i) => {
+              const span = document.createElement('span')
+              span.className = 'lp-thread-w'
+              span.textContent = word
+              span.style.transitionDelay = `${i * 34}ms`
+              text.appendChild(span)
+              if (i < words.length - 1) {
+                text.appendChild(document.createTextNode(' '))
+              }
+            })
+          })
+          const order = [rows.user, rows.agent1, rows.scalar, rows.agent2]
+          let mcpTimers = []
+          const quiet = () => {
+            mcpTimers.forEach((t) => window.clearTimeout(t))
+            mcpTimers = []
+            order.forEach((r) => {
+              r.classList.remove('is-shown', 'is-past')
+              r.style.transition = ''
+              r.style.transform = ''
+              r.style.opacity = ''
+            })
+          }
+          // a row comes on: up from below, the others to their new places
+          // from their old ones; all but the two latest step back
+          const reveal = (r) => {
+            const shown = order.filter((other) => other.classList.contains('is-shown'))
+            const before = new Map(shown.map((other) => [other, other.getBoundingClientRect().top]))
+            r.classList.add('is-shown')
+            if (!reduceMotion) {
+              r.style.transition = 'none'
+              r.style.opacity = '0'
+              r.style.transform = 'translateY(14px)'
+              shown.forEach((other) => {
+                other.style.transition = 'none'
+                other.style.transform = `translateY(${(before.get(other) - other.getBoundingClientRect().top).toFixed(1)}px)`
+              })
+              // the starts take before the moves are switched on
+              globeO.box = r.getBoundingClientRect()
+              for (const el of [r, ...shown]) {
+                el.style.transition = ''
+                el.style.transform = ''
+                el.style.opacity = ''
+              }
+            }
+            const all = order.filter((other) => other.classList.contains('is-shown'))
+            all.forEach((other, i) => other.classList.toggle('is-past', i < all.length - 2))
+          }
+          next.off = () => {
+            next.on = false
+            quiet()
+          }
+          next.left = () => mcp.classList.remove('is-sun')
+          // a planet into a seat of the thread, centred, ring to the front
+          const seat = (o, at) => move(o, at, 0, () => standBelow(o, '3'), faceFront(o))
+          const toMcp = () => {
+            if (next.on) {
+              return
+            }
+            // on a jump the SDK card has not had them yet: it takes them
+            // first, so there is a guest, and they come on from there
+            if (!lent.on) {
+              toSdk()
+            }
+            if (!lent.on || !guest) {
+              return
+            }
+            next.on = true
+            talkOff()
+            quiet()
+            const o = guest
+            const at = (ms, fn) => mcpTimers.push(window.setTimeout(fn, ms))
+            at(300, () => reveal(rows.user))
+            at(1500, () => {
+              reveal(rows.agent1)
+              seat(o, seats.a)
+            })
+            at(3300, () => {
+              reveal(rows.scalar)
+              moveGlobe(seats.b, () => {
+                sdk.classList.remove('is-sun')
+                mcp.classList.add('is-sun')
+              })
+            })
+            at(5800, () => {
+              reveal(rows.agent2)
+              seat(o, seats.c)
+            })
+          }
+          const fromMcp = () => {
+            if (!next.on) {
+              return
+            }
+            next.off()
+            if (!lent.on || !guest) {
+              return
+            }
+            takeToSdk(guest)
+          }
+          new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  toMcp()
+                } else if (entry.boundingClientRect.top > 0) {
+                  fromMcp()
+                }
+              })
+            },
+            { rootMargin: '0px 0px -55% 0px', threshold: 0 },
+          ).observe(mcp)
+          next.check = () => {
+            const line = window.innerHeight * 0.45
+            const top = mcp.getBoundingClientRect().top
+            if (next.on && top > line) {
+              fromMcp()
+            } else if (!next.on && top <= line) {
+              toMcp()
+            }
+          }
+          // the card's state, for the page's tests
+          mcp.lpMcp = () => ({ on: next.on, shown: order.filter((r) => r.classList.contains('is-shown')).length })
+        }
       }
       // a jump of the page (an anchor, a scroll to the top) can take a
-      // card from above the viewport to below it with no moment in
-      // between for its observer to see: after a scroll, a card below
-      // the middle of the viewport gives up what it holds
+      // card from one side of the viewport to the other with no moment
+      // in between for its observer to see: after a scroll, a card
+      // below the middle of the viewport gives up what it holds, and one
+      // above it takes what it is owed
       let scrolled = 0
       window.addEventListener(
         'scroll',
         () => {
-          if (scrolled || (!onStage && !lent.on)) {
+          if (scrolled) {
             return
           }
           scrolled = requestAnimationFrame(() => {
             scrolled = 0
-            if (onStage && stage.getBoundingClientRect().top > window.innerHeight * 0.45) {
+            const line = window.innerHeight * 0.45
+            const top = stage.getBoundingClientRect().top
+            if (onStage && top > line) {
               toOrbit()
             } else {
-              lent.leave()
+              if (!onStage && top <= line) {
+                toStage()
+              }
+              lent.check()
             }
           })
         },
