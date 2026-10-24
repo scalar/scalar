@@ -4,15 +4,15 @@
  */
 import type { Block, ListItem, Root } from './blocks'
 import { Writer, escapeAttr, escapeText, isExternal, isSafeUrl } from './html'
-import { type Inline, type InlineParser, normalizeUri } from './inline'
+import { type Inline, normalizeUri } from './inline'
 
 export type Highlighter = (code: string, lang: string | null) => { html: string; lang?: string } | null | undefined
 
 export type RenderOptions = {
   tags: Set<string>
   highlight?: Highlighter
-  /** Parses text found inside raw HTML tags such as `<p>`. */
-  inlineInHtml: InlineParser
+  /** Parses text found inside raw HTML tags such as `<p>`, or returns `null` to keep it as text. */
+  inlineInHtml: (text: string) => Inline[] | null
   unsafe?: boolean
 }
 
@@ -347,10 +347,13 @@ export const render = (root: Root, o: RenderOptions): string => {
     tags: o.tags,
     unsafe: o.unsafe,
     inline: (text, w) => {
+      const nodes = o.inlineInHtml(text)
+      if (!nodes) return false
       const prev = c.w
       c.w = w
-      inlines(o.inlineInHtml.parse(text), c)
+      inlines(nodes, c)
       c.w = prev
+      return true
     },
   })
   for (const node of root.children) block(node, c, true, false)

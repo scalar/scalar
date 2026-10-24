@@ -6,6 +6,7 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 
 import { normalize } from './normalize.mjs'
 import { BASELINE_NO_REPARSE, CODE_HIGHLIGHT, OUT, PROTOTYPE } from './paths.mjs'
@@ -57,8 +58,6 @@ const reference = (md) => normalize(new HtmlRenderer().render(new Parser().parse
 const currentParse = (md) => normalize(String(remark.processSync(md)).trimEnd())
 const prototypeParse = (md) => normalize(prototype.htmlFromMarkdown(md, { unsafe: true }).trimEnd())
 
-const label = process.argv[2]
-const run = JSON.parse(readFileSync(`${OUT}${label}-diffs.json`, 'utf8'))
 const EMPTIED =
   /<(a|span|b|strong|i|em|code|font|div|p|sup|sub|u|li|td|th|kbd|var|s|del|ins|q|small|big|abbr|dd|dt|summary|h[1-6])\b[^>]*><\/\1>/g
 const count = (s, re) => (s.match(re) ?? []).length
@@ -110,29 +109,33 @@ const followsReference = (markdown) => {
     return false
   }
 }
-const buckets = Object.fromEntries(
-  [
-    ...Object.keys(KNOWN),
-    'content after <object>/<form> lost',
-    're-parsed raw HTML',
-    'micromark deviates from CommonMark',
-    'other',
-  ].map((k) => [k, []]),
-)
-for (const d of run.different) {
-  const k =
-    Object.keys(KNOWN).find((name) => d.diffs.every((x) => KNOWN[name](x))) ??
-    (swallowed(d)
-      ? 'content after <object>/<form> lost'
-      : fromReparse(d)
-        ? 're-parsed raw HTML'
-        : followsReference(d.markdown)
-          ? 'micromark deviates from CommonMark'
-          : 'other')
-  buckets[k].push(d)
+export const BUCKETS = [
+  ...Object.keys(KNOWN),
+  'content after <object>/<form> lost',
+  're-parsed raw HTML',
+  'micromark deviates from CommonMark',
+  'other',
+]
+
+/** The bucket of one difference, as produced by the differential runner. */
+export const bucketOf = (d) =>
+  Object.keys(KNOWN).find((name) => d.diffs.every((x) => KNOWN[name](x))) ??
+  (swallowed(d)
+    ? 'content after <object>/<form> lost'
+    : fromReparse(d)
+      ? 're-parsed raw HTML'
+      : followsReference(d.markdown)
+        ? 'micromark deviates from CommonMark'
+        : 'other')
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const label = process.argv[2]
+  const run = JSON.parse(readFileSync(`${OUT}${label}-diffs.json`, 'utf8'))
+  const buckets = Object.fromEntries(BUCKETS.map((k) => [k, []]))
+  for (const d of run.different) buckets[bucketOf(d)].push(d)
+  console.log(
+    `${label}: ${run.total} inputs, ${run.identical} identical, ${run.different.length} different, ${run.threw.length} threw, ${run.timeouts.length} timed out`,
+  )
+  for (const [k, list] of Object.entries(buckets)) console.log(`  ${k.padEnd(16)} ${list.length}`)
+  writeFileSync(`${OUT}${label}-other-diffs.json`, JSON.stringify({ different: buckets.other }))
 }
-console.log(
-  `${label}: ${run.total} inputs, ${run.identical} identical, ${run.different.length} different, ${run.threw.length} threw, ${run.timeouts.length} timed out`,
-)
-for (const [k, list] of Object.entries(buckets)) console.log(`  ${k.padEnd(16)} ${list.length}`)
-writeFileSync(`${OUT}${label}-other-diffs.json`, JSON.stringify({ different: buckets.other }))

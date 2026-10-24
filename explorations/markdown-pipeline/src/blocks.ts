@@ -157,6 +157,11 @@ export class BlockParser {
   readonly footnotes = new Set<string>()
   private inline = new InlineParser(this.refs, this.footnotes)
 
+  /** `htmlAsText`: raw HTML in the input is literal text, for Markdown found inside raw HTML. */
+  constructor(options?: { htmlAsText?: boolean }) {
+    this.inline.htmlAsText = options?.htmlAsText ?? false
+  }
+
   private node(kind: Kind, line: number): B {
     return { kind, parent: null, children: [], open: true, startLine: line, endLine: line, content: '' }
   }

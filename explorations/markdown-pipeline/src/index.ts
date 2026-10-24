@@ -55,9 +55,25 @@ export const htmlFromMarkdown = (markdown: string, options?: HtmlFromMarkdownOpt
   const root = parser.parse(markdown)
   const { transform, transformType } = options ?? {}
   if (transform && transformType) visit(root, transformType, transform)
-  const inlineInHtml = new InlineParser(parser.refs, parser.footnotes)
-  inlineInHtml.htmlAsText = true
   return render(root, { tags, highlight: options?.highlight, inlineInHtml, unsafe: options?.unsafe })
+}
+
+/**
+ * Markdown inside raw HTML tags such as `<p>`, as the current pipeline treats it: the text is a
+ * document of its own (its own references, raw HTML as text), and only a single paragraph
+ * counts. The whitespace around it is kept, where the current pipeline trims it away.
+ */
+const inlineInHtml = (text: string): Inline[] | null => {
+  const root = new BlockParser({ htmlAsText: true }).parse(text)
+  const only = root.children[0]
+  if (root.children.length !== 1 || only?.type !== 'paragraph') return null
+  const lead = /^[ \t\r\n]*/.exec(text)![0]
+  const trail = /[ \t\r\n]*$/.exec(text)![0]
+  return [
+    ...(lead ? [{ type: 'text' as const, value: lead }] : []),
+    ...only.children,
+    ...(trail && trail !== text ? [{ type: 'text' as const, value: trail }] : []),
+  ]
 }
 
 export const textFromNode = (node: Node): string => {

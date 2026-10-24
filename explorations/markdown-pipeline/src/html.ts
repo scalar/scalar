@@ -195,7 +195,7 @@ const ATTRIBUTE_ALIASES: Record<string, string> = { classname: 'class', htmlfor:
 export type WriterOptions = {
   tags: Set<string>
   /** Renders text found directly inside `INLINE_MARKDOWN_TAGS` in raw HTML. */
-  inline: (text: string, w: Writer) => void
+  inline: (text: string, w: Writer) => boolean
   /** Test only: write raw HTML through untouched, to check parsing against the CommonMark spec. */
   unsafe?: boolean
 }
@@ -377,13 +377,11 @@ export class Writer {
   onText(text: string): void {
     if (this.skip) return
     const top = this.stack.at(-1)
-    if (top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)) {
-      // Today's pipeline parses the HTML first, so the Markdown sees decoded text (`&lt;` is `<`).
-      this.options.inline(decodeKnown(text), this)
-    } else {
-      this.reconstruct()
-      this.out += escapeRawText(text)
-    }
+    // Today's pipeline parses the HTML first, so the Markdown sees decoded text (`&lt;` is `<`).
+    const markdown = top && !top.hidden && INLINE_MARKDOWN_TAGS.has(top.tag) && /[`*_[~]/.test(text)
+    if (markdown && this.options.inline(decodeKnown(text), this)) return
+    this.reconstruct()
+    this.out += escapeRawText(text)
   }
 
   /** @internal */
