@@ -24,6 +24,9 @@
 <template id="lp-icon-replit"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.878 7.761H3.482A1.469 1.469 0 012 6.304V1.457C2 .644 2.67 0 3.482 0h6.913c.827 0 1.483.658 1.483 1.457v6.304zM20.882 16.215h-8.995V7.75h8.995c.87 0 1.588.717 1.588 1.586v5.294c0 .885-.717 1.586-1.588 1.586zM10.395 24H3.482C2.67 24 2 23.343 2 22.546v-4.853c0-.797.67-1.454 1.482-1.454h8.396v6.307c0 .797-.67 1.454-1.483 1.454z" fill="#FD5402"></path></svg></template>
 <template id="lp-icon-amp"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.087 23.18L12.03 24l-2.097-7.823-5.738 5.738-2.251-2.251 5.718-5.719-7.769-2.082.82-3.057 11.294 3.08 3.08 11.295z" fill="#F34E3F"></path><path d="M19.505 18.762l-3.057.82-2.564-9.573-9.572-2.564.819-3.057 11.295 3.079 3.08 11.295z" fill="#F34E3F"></path><path d="M23.893 14.374l-3.057.82-2.565-9.572L8.7 3.057 9.52 0l11.295 3.08 3.079 11.294z" fill="#F34E3F"></path></svg></template>
 <template id="lp-icon-t3"><svg fill="currentColor" viewBox="15.5309 37 94.3941 56.96" xmlns="http://www.w3.org/2000/svg"><path d="M33.4509 93V47.56H15.5309V37H64.3309V47.56H46.4109V93H33.4509ZM86.7253 93.96C82.832 93.96 78.9653 93.4533 75.1253 92.44C71.2853 91.3733 68.032 89.88 65.3653 87.96L70.4053 78.04C72.5386 79.5867 75.0186 80.8133 77.8453 81.72C80.672 82.6267 83.5253 83.08 86.4053 83.08C89.6586 83.08 92.2186 82.44 94.0853 81.16C95.952 79.88 96.8853 78.12 96.8853 75.88C96.8853 73.7467 96.0586 72.0667 94.4053 70.84C92.752 69.6133 90.0853 69 86.4053 69H80.4853V60.44L96.0853 42.76L97.5253 47.4H68.1653V37H107.365V45.4L91.8453 63.08L85.2853 59.32H89.0453C95.9253 59.32 101.125 60.8667 104.645 63.96C108.165 67.0533 109.925 71.0267 109.925 75.88C109.925 79.0267 109.099 81.9867 107.445 84.76C105.792 87.48 103.259 89.6933 99.8453 91.4C96.432 93.1067 92.0586 93.96 86.7253 93.96Z"></path></svg></template>
+<template id="lp-icon-docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H3z"/><path d="M21 5.5A1.5 1.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></template>
+<template id="lp-icon-mcp"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.688 2.343a2.588 2.588 0 00-3.61 0l-9.626 9.44a.863.863 0 01-1.203 0 .823.823 0 010-1.18l9.626-9.44a4.313 4.313 0 016.016 0 4.116 4.116 0 011.204 3.54 4.3 4.3 0 013.609 1.18l.05.05a4.115 4.115 0 010 5.9l-8.706 8.537a.274.274 0 000 .393l1.788 1.754a.823.823 0 010 1.18.863.863 0 01-1.203 0l-1.788-1.753a1.92 1.92 0 010-2.754l8.706-8.538a2.47 2.47 0 000-3.54l-.05-.049a2.588 2.588 0 00-3.607-.003l-7.172 7.034-.002.002-.098.097a.863.863 0 01-1.204 0 .823.823 0 010-1.18l7.273-7.133a2.47 2.47 0 00-.003-3.537z"></path><path d="M14.485 4.703a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a4.115 4.115 0 000 5.9 4.314 4.314 0 006.016 0l7.12-6.982a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a2.588 2.588 0 01-3.61 0 2.47 2.47 0 010-3.54l7.12-6.982z"></path></svg></template>
+<template id="lp-icon-sdk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/></svg></template>
 <template id="lp-icon-scalar"><svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></template>
 <div class="lp-copy">
 <div class="hero relative flex flex-col gap-3">
@@ -82,9 +85,9 @@
   </scalar-heading>
   <p class="lp-body">Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from the same source, so an agent gets your API right the first time instead of guessing at it.</p>
   <ul class="lp-points">
-    <li>Every page is served as Markdown as well as HTML, with <code>llms.txt</code> and a Docs MCP endpoint generated for you.</li>
-    <li>Your own domain and theme, with access groups for partner portals.</li>
-    <li>Open source at the core: the MIT-licensed API reference has 15.7k GitHub stars and is the default docs UI in eight frameworks.</li>
+    <li>Every page in Markdown and HTML, with <code>llms.txt</code> and a Docs MCP endpoint built in.</li>
+    <li>Your domain, your theme, and access groups for partner portals.</li>
+    <li>Open source at the core, with 15.7k GitHub stars and eight framework integrations.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
@@ -108,9 +111,9 @@
   </scalar-heading>
   <p class="lp-body">Your customers' coding agents write the integration now. Scalar generates typed, idiomatic SDKs from your OpenAPI document and opens every release as a pull request, so the code an agent writes against your API compiles the first time.</p>
   <ul class="lp-points">
-    <li>Six languages and a CLI: TypeScript, Python, Go, Java, Kotlin, and Ruby, with six more as experimental targets.</li>
-    <li>Published where developers look: npm, PyPI, Go modules, Maven Central, RubyGems, and more, each release with a changelog.</li>
-    <li>Migrating from Stainless? Upload your <code>stainless.yml</code> as is: resources, methods, and package names carry across, so existing call sites keep working.</li>
+    <li>TypeScript, Python, Go, Java, Kotlin, and Ruby, plus a CLI and six experimental languages.</li>
+    <li>Published to npm, PyPI, Go modules, Maven Central, and RubyGems, each release with a changelog.</li>
+    <li>Moving from Stainless? Upload your <code>stainless.yml</code> as is and existing call sites keep working.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--sdk" aria-hidden="true" data-md-exclude>
@@ -191,9 +194,9 @@
   </scalar-heading>
   <p class="lp-body">Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, so people can use your product from inside their agent today. All of that needs a server. It is not yours to run.</p>
   <ul class="lp-points">
-    <li>Any MCP client connects with one line: Claude, ChatGPT, Cursor, Claude Code, and anything that speaks remote MCP.</li>
-    <li>You choose the tools: expose the operations you want and decide what each may do, because not all 400 endpoints belong in an agent&#8217;s hands.</li>
-    <li>A fixed set of tools fetches operation details just in time, about 0.2% of a context window however many endpoints you have.</li>
+    <li>One line connects Claude, ChatGPT, Cursor, Claude Code, or any remote MCP client.</li>
+    <li>You choose which operations become tools and what each may do.</li>
+    <li>A fixed set of tools loads details just in time, about 0.2% of a context window at any API size.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--mcp" aria-hidden="true" data-md-exclude>
@@ -207,16 +210,104 @@
 </div>
   </div>
 </section>
-<section class="lp-section lp-section--band lp-section--panel" id="lp-hosting">
-<div class="lp-band-head">
+<section class="lp-section lp-section--band lp-section--host" id="lp-hosting">
+<div class="lp-band-head lp-band-head--centre">
   <span class="lp-kicker lp-band-kicker">Hosting</span>
   <scalar-heading level="2" slug="we-run-the-infrastructure" class="c">We run the infrastructure. You run your API.</scalar-heading>
-  <p class="lp-body">An MCP server is a production service. It has to stay up, authenticate every caller, absorb agent traffic, and track a protocol that changes every few months. Scalar runs all of that at <code>mcp.yourcompany.com</code>. You keep shipping your API.</p>
+  <p class="lp-lede">An MCP server is a production service: it has to stay up, authenticate every caller, absorb agent traffic, and track a protocol that changes every few months. Scalar runs all of that at <code>mcp.yourcompany.com</code>. You keep shipping your API.</p>
 </div>
-<ul class="lp-grid">
-  <li><b>Hosting on your domain</b><span>A managed endpoint at a subdomain you own, HTTPS included. Nothing to deploy, nothing to patch.</span></li>
-  <li><b>Auth and access</b><span>OAuth for outside callers, gated by access groups. Personal tokens for your team. Rate limits at the edge. Your upstream credentials never reach the agent.</span></li>
-  <li><b>Keeps up with the protocol</b><span>The MCP spec revs every few months, and clients change how they connect and authenticate. Scalar runs the server, so there is nothing on your side to update.</span></li>
+<div class="lp-visual lp-visual--host" aria-hidden="true" data-md-exclude>
+<div class="lp-flow" data-lp-edges="api>hub,hub>dev-docs,hub>claude-code,hub>dev-sdk,hub>copilot,hub>claude,hub>chatgpt,hub>gemini">
+<div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" style="--x: 24; --y: 276; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--openapi" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.285 13.5H2.007l.003.077.009.15.004.063.014.171.004.039a8.813 8.813 0 0 0 .387 1.871c0 .004.002.007.003.011l.058.173.016.044a10.063 10.063 0 0 0 .08.216l.048.124a4.619 4.619 0 0 0 .078.189l.052.117.031.07.066.14.022.046.079.16.012.024c.03.059.061.117.093.175l.004.008.02.036 4.508-2.715.017-.01a3.606 3.606 0 0 1-.33-1.179Z" fill="#93D500"/><path d="m8.582 15.923-.013.013-3.717 3.717.057.053.105.094.055.048.127.107.034.029a8.31 8.31 0 0 0 .324.254l.006.004c.224.168.456.325.695.47l.025.016c.045.027.09.054.137.08l.084.048.08.045c.048.026.096.053.145.078a8.427 8.427 0 0 0 .431.21l.132-.32 1.87-4.54.007-.017a3.62 3.62 0 0 1-.584-.389Z" fill="#4D5A31"/><path d="M8.195 15.553a3.238 3.238 0 0 1-.212-.262 3.65 3.65 0 0 1-.2-.296L3.27 17.713c.069.116.141.228.215.338l.007.012.003.005.007.01v.002l.019.026.001.002c.079.116.16.23.242.342l.006.007.005.007.11.142.015.019c.038.049.077.097.117.145l.028.034a10.29 10.29 0 0 0 .155.181l.094.105.053.058.024.026.07.075.028.03.125.127 3.723-3.723a3.21 3.21 0 0 1-.122-.13Z" fill="#6BA43A"/><path d="M13.13 15.921a3.662 3.662 0 0 1-.124.096l.009.016 2.714 4.506a8.206 8.206 0 0 0 1.134-.886l-3.718-3.717-.015-.015Z" fill="#4D5A31"/><path d="m15.335 20.576-.092-.153-2.534-4.206a3.578 3.578 0 0 1-.316.167 3.6 3.6 0 0 1-2.567.2c-.057-.017-.113-.04-.169-.06-.056-.02-.113-.037-.168-.06L7.62 21.003l-.073.178-.063.152.014.006.016.006.004.002c.044.018.089.033.133.05.056.022.11.044.167.065l.085.032a8.912 8.912 0 0 0 1.88.442l.075.008.142.016.036.003.174.014.06.004.153.01.094.003.122.004a10.28 10.28 0 0 0 .217.003 8.877 8.877 0 0 0 1.495-.126l.154-.028.088-.017.09-.02c.05-.01.1-.02.15-.032l.028-.007a8.885 8.885 0 0 0 2.124-.791l.13-.074.157-.088.107-.06.001-.001.002-.001h.001l.001-.001.002-.001.006-.004.034-.02-.091-.153Zm-6.75-10.21a4.17 4.17 0 0 1 .123-.097l-.009-.015-2.714-4.506c-.126.082-.25.167-.372.256a8.933 8.933 0 0 0-.762.629L8.57 10.35l.015.015Z" fill="#93D500"/><path d="M4.594 6.88c-.043.043-.083.087-.124.13l-.123.128a8.875 8.875 0 0 0-.753.933l-.032.046-.076.112a6.38 6.38 0 0 0-.104.16 8.833 8.833 0 0 0-1.375 4.397l-.005.178-.003.179h5.266c0-.06.005-.119.008-.179s.004-.119.01-.178a3.572 3.572 0 0 1 .794-1.917c.038-.046.08-.09.12-.133.04-.044.077-.09.12-.133L4.594 6.881Zm10.864-1.306c-.007-.005-.014-.01-.021-.013a7.255 7.255 0 0 0-.14-.083l-.082-.047-.082-.046a27.998 27.998 0 0 0-.143-.077l-.023-.012a8.866 8.866 0 0 0-.95-.426l-.024-.01a8.908 8.908 0 0 0-1.987-.498l-.074-.01-.075-.008a6.585 6.585 0 0 0-.143-.016l-.04-.004a14.02 14.02 0 0 0-.17-.014l-.066-.004-.146-.009a3.121 3.121 0 0 0-.078-.003v5.278c.27.028.54.086.8.174l3.884-3.884a8.66 8.66 0 0 0-.44-.288Z" fill="#4D5A31"/><path d="M10.679 4.29c-.06.001-.12.001-.179.003a8.86 8.86 0 0 0-1.113.115l-.024.004-.155.029-.087.016a5.71 5.71 0 0 0-.24.052l-.028.006a8.918 8.918 0 0 0-2.125.792l-.13.074a10.34 10.34 0 0 0-.156.087c-.038.023-.077.043-.115.066h-.002a.099.099 0 0 1-.008.005l-.03.017v.001l.093.153 2.625 4.359a3.846 3.846 0 0 1 .316-.167 3.576 3.576 0 0 1 1.536-.35V4.285c-.06 0-.119.003-.178.004Z" fill="#6BA43A"/><path d="M19.704 12.708a9.926 9.926 0 0 0-.05-.61l-.002-.014-.001-.007a9.571 9.571 0 0 0-.027-.201v-.006a8.88 8.88 0 0 0-.273-1.245l-.002-.008-.059-.19-.008-.025a10.987 10.987 0 0 0-.057-.17l-.016-.046-.054-.147c-.009-.024-.017-.047-.027-.07a4.804 4.804 0 0 0-.086-.216l-.04-.094c-.016-.04-.034-.08-.052-.12l-.03-.068a15.234 15.234 0 0 0-.066-.142l-.021-.043a7.015 7.015 0 0 0-.08-.162l-.012-.022c-.03-.06-.061-.119-.093-.177l-.003-.006a8.906 8.906 0 0 0-.504-.818l-3.886 3.886c.088.26.146.529.174.8h5.278c0-.027-.002-.054-.003-.08Z" fill="#4D5A31"/><path d="M14.45 13.143c0 .06-.006.119-.01.179-.002.06-.003.119-.01.178a3.573 3.573 0 0 1-.793 1.918c-.037.046-.08.088-.12.133-.04.044-.077.09-.12.132l3.723 3.723c.043-.043.082-.086.124-.13l.123-.128c.276-.299.528-.61.754-.935l.027-.039.082-.12.07-.108.034-.052a8.83 8.83 0 0 0 1.377-4.573c.002-.059.003-.118.003-.178H14.45Z" fill="#6BA43A"/><path d="M21.279 2.722a2.467 2.467 0 0 0-3.953 2.84l-5.374 5.373a2.467 2.467 0 1 0 1.114 1.113l5.373-5.373a2.466 2.466 0 0 0 2.84-3.953Z" fill="#424143"/></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Your API</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>openapi.yaml</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node lp-node--hub" data-lp-node="hub" style="--x: 560; --y: 276; --w: 480">
+<div class="lp-stage lp-stage--host is-sun" data-lp-stage-host>
+<div class="lp-stage-globe lp-stage-globe--host">
+<div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+<div class="lp-stage-sun"><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
+<div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+</div>
+<div class="lp-orb lp-orb--product lp-orb--docs" data-label="Docs" data-icon="docs"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div></div></div>
+<div class="lp-orb lp-orb--product lp-orb--mcp" data-label="MCP" data-icon="mcp"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div></div></div>
+<div class="lp-orb lp-orb--product lp-orb--sdk" data-label="SDKs" data-icon="sdk"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div></div></div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="dev-docs" data-lp-parent="hub" data-lp-flip="GET /users|GET /keys|POST /keys" style="--x: 952; --y: 60; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>API consumer</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude-code" data-lp-parent="hub" data-lp-flip="GET /auth.md|GET /keys.md|GET /faq.md" style="--x: 952; --y: 132; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude Code</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="dev-sdk" data-lp-parent="hub" data-lp-flip="npm i acme|bun i acme|gem i acme" style="--x: 952; --y: 204; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>SDK user</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="copilot" data-lp-parent="hub" data-lp-flip="users.list()|keys.list()|orders.pay()" style="--x: 952; --y: 276; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--copilot" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.533 1.829A2.528 2.528 0 0015.11 0h-.737a2.531 2.531 0 00-2.484 2.087l-1.263 6.937.314-1.08a2.528 2.528 0 012.424-1.833h4.284l1.797.706 1.731-.706h-.505a2.528 2.528 0 01-2.423-1.829l-.715-2.453z" fill="url(#lobe-icons-copilot-0-_R_0_)" transform="translate(0 1)"></path><path d="M6.726 20.16A2.528 2.528 0 009.152 22h1.566c1.37 0 2.49-1.1 2.525-2.48l.17-6.69-.357 1.228a2.528 2.528 0 01-2.423 1.83h-4.32l-1.54-.842-1.667.843h.497c1.124 0 2.113.75 2.426 1.84l.697 2.432z" fill="url(#lobe-icons-copilot-1-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-2-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-3-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-4-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-5-_R_0_)" transform="translate(0 1)"></path><defs><radialGradient cx="85.44%" cy="100.653%" fx="85.44%" fy="100.653%" gradientTransform="scale(-.8553 -1) rotate(50.927 2.041 -1.946)" id="lobe-icons-copilot-0-_R_0_" r="105.116%"><stop offset="9.6%" stop-color="#00AEFF"></stop><stop offset="77.3%" stop-color="#2253CE"></stop><stop offset="100%" stop-color="#0736C4"></stop></radialGradient><radialGradient cx="18.143%" cy="32.928%" fx="18.143%" fy="32.928%" gradientTransform="scale(.8897 1) rotate(52.069 .193 .352)" id="lobe-icons-copilot-1-_R_0_" r="95.612%"><stop offset="0%" stop-color="#FFB657"></stop><stop offset="63.4%" stop-color="#FF5F3D"></stop><stop offset="92.3%" stop-color="#C02B3C"></stop></radialGradient><radialGradient cx="82.987%" cy="-9.792%" fx="82.987%" fy="-9.792%" gradientTransform="scale(-1 -.9441) rotate(-70.872 .142 1.17)" id="lobe-icons-copilot-4-_R_0_" r="140.622%"><stop offset="6.6%" stop-color="#8C48FF"></stop><stop offset="50%" stop-color="#F2598A"></stop><stop offset="89.6%" stop-color="#FFB152"></stop></radialGradient><linearGradient id="lobe-icons-copilot-2-_R_0_" x1="39.465%" x2="46.884%" y1="12.117%" y2="103.774%"><stop offset="15.6%" stop-color="#0D91E1"></stop><stop offset="48.7%" stop-color="#52B471"></stop><stop offset="65.2%" stop-color="#98BD42"></stop><stop offset="93.7%" stop-color="#FFC800"></stop></linearGradient><linearGradient id="lobe-icons-copilot-3-_R_0_" x1="45.949%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#3DCBFF"></stop><stop offset="24.7%" stop-color="#0588F7" stop-opacity="0"></stop></linearGradient><linearGradient id="lobe-icons-copilot-5-_R_0_" x1="83.507%" x2="83.453%" y1="-6.106%" y2="21.131%"><stop offset="5.8%" stop-color="#F8ADFA"></stop><stop offset="70.8%" stop-color="#A86EDD" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Copilot</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude" data-lp-parent="hub" data-lp-flip="tools/list|list_users|get_order" style="--x: 952; --y: 348; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="chatgpt" data-lp-parent="hub" data-lp-flip="tools/call|new_order|get_prompt" style="--x: 952; --y: 420; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--chatgpt" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>ChatGPT</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="gemini" data-lp-parent="hub" data-lp-flip="get_orders|get_schema|do_refund" style="--x: 952; --y: 492; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--gemini" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="#3186FF"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-0-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-1-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-2-_R_0_)"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-0-_R_0_" x1="7" x2="11" y1="15.5" y2="12"><stop stop-color="#08B962"></stop><stop offset="1" stop-color="#08B962" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-1-_R_0_" x1="8" x2="11.5" y1="5.5" y2="11"><stop stop-color="#F94543"></stop><stop offset="1" stop-color="#F94543" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-2-_R_0_" x1="3.5" x2="17.5" y1="13.5" y2="12"><stop stop-color="#FABC12"></stop><stop offset=".46" stop-color="#FABC12" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Gemini</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<ul class="lp-points lp-points--row">
+  <li>A managed endpoint on a subdomain you own, HTTPS included, nothing to deploy or patch.</li>
+  <li>OAuth and access groups for outside callers, personal tokens for your team, rate limits at the edge.</li>
+  <li>The MCP spec revs every few months; Scalar runs the server, so nothing on your side needs updating.</li>
 </ul>
 <p class="lp-band-foot">You wrote the API once. We keep it reachable as the world around it moves. Where MCP goes, we go: MCP apps, prompts, and resources are next.</p>
 </section>
@@ -226,9 +317,9 @@
   <scalar-heading level="2" slug="observability" class="c">And the whole time, you can see what's happening.</scalar-heading>
   <p class="lp-body">Agents are users now, and you should see them the way you see everyone else. Scalar counts every tool call and every docs page view, so you know how agents use your product before a customer tells you.</p>
   <ul class="lp-points">
-    <li>Volume, error rate, and latency for every tool, plus who is calling and how often, exportable as CSV.</li>
-    <li>Docs analytics without tracking: page views counted on Scalar&#8217;s servers, with no cookies, IP addresses, or third-party scripts.</li>
-    <li>Metrics, not payloads: tool arguments and responses are never stored, so your users&#8217; data stays theirs.</li>
+    <li>Volume, errors, and latency per tool and per client, exportable as CSV.</li>
+    <li>Docs page views counted server-side, with no cookies, IPs, or third-party scripts.</li>
+    <li>Tool arguments and responses are never stored, so your users&#8217; data stays theirs.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--obs" aria-hidden="true" data-md-exclude>
@@ -1152,6 +1243,16 @@
     margin: -220px 0 0 -220px;
     background: conic-gradient(from 0deg, #ff6b57, #ffb347, #ffe66d, #6ee7b7, #4fd3ff, #8b6bff, #ff5fa8, #ff6b57);
     animation: lp-halo-turn 9s infinite;
+    /* still while its ring is hidden (and while the hosting scene is off
+       screen): a turning paint costs a restyle every frame */
+    animation-play-state: paused;
+  }
+  .lp-hero--talk .lp-sun-halo-paint,
+  .lp-stage.is-sun .lp-sun-halo-paint {
+    animation-play-state: running;
+  }
+  .lp-stage.is-sun.is-off .lp-sun-halo-paint {
+    animation-play-state: paused;
   }
   /* the globe's ring: the band from 65% to the edge of a 374×131
      ellipse, the proportions of the first one */
@@ -1922,6 +2023,111 @@
       transition: none;
     }
   }
+  /* The hosting band: no panel; the head centred like the hero's; then
+     the scene: Your API at the left, the Scalar globe at the centre (a
+     globe of its own, there from the start) with the three products as
+     planets on an orbit round it (landing.js runs the orbit while the
+     scene is on screen) and the lines fanning out to the agents and
+     developers at the right (the flow's connectors, with its packets);
+     then the features as checks in a row */
+  .lp-section--band.lp-section--host {
+    align-items: center;
+    gap: 36px;
+    padding: 80px 0 64px;
+  }
+  .lp-band-head.lp-band-head--centre {
+    align-items: center;
+    max-width: 680px;
+    text-align: center;
+    text-wrap: balance;
+  }
+  .lp-band-head--centre .t-editor__heading {
+    justify-content: center;
+  }
+  .lp-visual.lp-visual--host {
+    --lp-pad: 0px;
+    min-height: 0;
+    max-height: none;
+    margin-top: 0;
+    padding: 0;
+    overflow: visible;
+    border-radius: 0;
+    background: none;
+  }
+  /* the hub is the orbit's box, which the lines meet at its sides */
+  .lp-stage.lp-stage--host {
+    --sx: 50;
+    --sy: 50;
+    position: relative;
+    width: calc(480 * var(--lp-u));
+    height: calc(300 * var(--lp-u));
+    aspect-ratio: auto;
+  }
+  .lp-stage--host .lp-stage-globe {
+    --s: calc(160 * var(--lp-u));
+  }
+  /* the products as planets: the section colours under the shared
+     sheen, the mark and the name white on them; they stand at the
+     centre and the script carries them round */
+  .lp-stage.lp-stage--host .lp-orb {
+    --x: 50;
+    --y: 50;
+    --s: calc(104 * var(--lp-u));
+    /* the product names large on their rings, to be read at a glance */
+    --type: calc(var(--s) * 0.19);
+    --ink: #fff;
+    opacity: 0;
+    scale: 0.6;
+    transition:
+      opacity 400ms ease,
+      scale 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-stage.lp-stage--host.is-orbit .lp-orb {
+    opacity: 1;
+    scale: 1;
+  }
+  .lp-orb--docs {
+    --tint: var(--scalar-color-blue);
+  }
+  .lp-orb--mcp {
+    --tint: var(--scalar-color-orange);
+  }
+  .lp-orb--sdk {
+    --tint: var(--scalar-color-purple);
+  }
+  .lp .lp-points--row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 32px;
+    width: 100%;
+    max-width: 1100px;
+  }
+  @media screen and (max-width: 840px) {
+    /* on a phone the scene takes the hero scene's tree (the API, the
+       orbit the full width, the agents three abreast under it); the
+       orbit's box is stretched, as the tree centres its items */
+    .lp-visual.lp-visual--host {
+      padding: 0;
+      overflow: visible;
+    }
+    .lp-visual.lp-visual--host .lp-node--hub {
+      width: 100%;
+      justify-self: stretch;
+    }
+    .lp-stage.lp-stage--host {
+      width: 100%;
+      height: 260px;
+    }
+    .lp-stage--host .lp-stage-globe {
+      --s: 130px;
+    }
+    .lp-stage.lp-stage--host .lp-orb {
+      --s: 80px;
+    }
+    .lp .lp-points--row {
+      grid-template-columns: 1fr;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .lp-orb.is-placed {
       animation: none;
@@ -1982,6 +2188,9 @@
     .lp-trusted-viewport:hover .lp-trusted-track {
       animation-play-state: paused;
     }
+  }
+  .lp-trusted.is-off .lp-trusted-track {
+    animation-play-state: paused;
   }
   @keyframes lp-trusted-slide {
     to {
@@ -2146,10 +2355,11 @@
   /* the product points: one sentence each with a check in front, no
      rules between, after the feature lists on x.ai/voice */
   .lp .lp-points li {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 5px 0;
+    /* a block, so the sentence runs on inline round its code; the check
+       hangs in the padding */
+    display: block;
+    position: relative;
+    padding: 5px 0 5px 24px;
     border-top: 0;
     font-size: 14px;
     color: var(--scalar-color-1);
@@ -2158,10 +2368,11 @@
     content: "";
     /* the theme hides a list item's ::before; this one is the check */
     display: block;
-    flex: none;
+    position: absolute;
+    left: 0;
+    top: 8px;
     width: 14px;
     height: 14px;
-    margin-top: 3px;
     background: var(--scalar-color-3);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
@@ -4093,6 +4304,11 @@
     animation-delay: calc(var(--lp-funnel-time) * -1 * var(--p, 0));
     will-change: transform, opacity;
   }
+  /* off screen the turn stops (landing.js sets the class): the compositor
+     would still tick sixteen animations for nobody */
+  .lp-funnel-track.is-paused .lp-funnel-item {
+    animation-play-state: paused;
+  }
   .lp-funnel-card {
     padding: 10px 14px;
     border-radius: 12px;
@@ -4109,80 +4325,159 @@
   .dark-mode .lp-funnel-card {
     background: var(--scalar-background-2);
   }
+  /* The turn, in literal lengths: a keyframe with var() inside it runs
+     on the main thread, which cost every frame on the whole page; these
+     are the same numbers worked out once, for the 190px radius and the
+     96px one below 560px, so the compositor can run them */
   @keyframes lp-funnel {
-    0% { transform: translate3d(calc(var(--lp-fr) * 1), calc(var(--lp-fh) * -0.5), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(1); opacity: 0; }
-    1.39% { transform: translate3d(calc(var(--lp-fr) * 0.955), calc(var(--lp-fh) * -0.486), calc(var(--lp-fr) * 0.218)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.991); opacity: 0.28; }
-    2.78% { transform: translate3d(calc(var(--lp-fr) * 0.847), calc(var(--lp-fh) * -0.472), calc(var(--lp-fr) * 0.416)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.983); opacity: 0.56; }
-    4.17% { transform: translate3d(calc(var(--lp-fr) * 0.684), calc(var(--lp-fh) * -0.458), calc(var(--lp-fr) * 0.582)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.974); opacity: 0.83; }
-    5.56% { transform: translate3d(calc(var(--lp-fr) * 0.478), calc(var(--lp-fh) * -0.444), calc(var(--lp-fr) * 0.704)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.966); opacity: 1; }
-    6.94% { transform: translate3d(calc(var(--lp-fr) * 0.245), calc(var(--lp-fh) * -0.431), calc(var(--lp-fr) * 0.777)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.957); opacity: 1; }
-    8.33% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.417), calc(var(--lp-fr) * 0.795)) rotateY(-50deg) rotateZ(0deg) scale(0.948); opacity: 1; }
-    9.72% { transform: translate3d(calc(var(--lp-fr) * -0.239), calc(var(--lp-fh) * -0.403), calc(var(--lp-fr) * 0.759)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.94); opacity: 1; }
-    11.11% { transform: translate3d(calc(var(--lp-fr) * -0.457), calc(var(--lp-fh) * -0.389), calc(var(--lp-fr) * 0.672)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.931); opacity: 1; }
-    12.5% { transform: translate3d(calc(var(--lp-fr) * -0.638), calc(var(--lp-fh) * -0.375), calc(var(--lp-fr) * 0.542)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.922); opacity: 1; }
-    13.89% { transform: translate3d(calc(var(--lp-fr) * -0.772), calc(var(--lp-fh) * -0.361), calc(var(--lp-fr) * 0.379)) rotateY(-25deg) rotateZ(6.1deg) scale(0.914); opacity: 1; }
-    15.28% { transform: translate3d(calc(var(--lp-fr) * -0.851), calc(var(--lp-fh) * -0.347), calc(var(--lp-fr) * 0.194)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.905); opacity: 1; }
-    16.67% { transform: translate3d(calc(var(--lp-fr) * -0.87), calc(var(--lp-fh) * -0.333), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.897); opacity: 1; }
-    18.06% { transform: translate3d(calc(var(--lp-fr) * -0.83), calc(var(--lp-fh) * -0.319), calc(var(--lp-fr) * -0.189)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.888); opacity: 1; }
-    19.44% { transform: translate3d(calc(var(--lp-fr) * -0.735), calc(var(--lp-fh) * -0.306), calc(var(--lp-fr) * -0.361)) rotateY(25deg) rotateZ(6.1deg) scale(0.879); opacity: 1; }
-    20.83% { transform: translate3d(calc(var(--lp-fr) * -0.592), calc(var(--lp-fh) * -0.292), calc(var(--lp-fr) * -0.503)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.871); opacity: 1; }
-    22.22% { transform: translate3d(calc(var(--lp-fr) * -0.413), calc(var(--lp-fh) * -0.278), calc(var(--lp-fr) * -0.609)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.862); opacity: 1; }
-    23.61% { transform: translate3d(calc(var(--lp-fr) * -0.211), calc(var(--lp-fh) * -0.264), calc(var(--lp-fr) * -0.67)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.854); opacity: 1; }
-    25% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.25), calc(var(--lp-fr) * -0.684)) rotateY(50deg) rotateZ(0deg) scale(0.845); opacity: 1; }
-    26.39% { transform: translate3d(calc(var(--lp-fr) * 0.206), calc(var(--lp-fh) * -0.236), calc(var(--lp-fr) * -0.652)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.836); opacity: 1; }
-    27.78% { transform: translate3d(calc(var(--lp-fr) * 0.392), calc(var(--lp-fh) * -0.222), calc(var(--lp-fr) * -0.577)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.828); opacity: 1; }
-    29.17% { transform: translate3d(calc(var(--lp-fr) * 0.546), calc(var(--lp-fh) * -0.208), calc(var(--lp-fr) * -0.464)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.819); opacity: 1; }
-    30.56% { transform: translate3d(calc(var(--lp-fr) * 0.66), calc(var(--lp-fh) * -0.194), calc(var(--lp-fr) * -0.324)) rotateY(25deg) rotateZ(-6.1deg) scale(0.811); opacity: 1; }
-    31.94% { transform: translate3d(calc(var(--lp-fr) * 0.725), calc(var(--lp-fh) * -0.181), calc(var(--lp-fr) * -0.165)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.802); opacity: 1; }
-    33.33% { transform: translate3d(calc(var(--lp-fr) * 0.74), calc(var(--lp-fh) * -0.167), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.793); opacity: 1; }
-    34.72% { transform: translate3d(calc(var(--lp-fr) * 0.704), calc(var(--lp-fh) * -0.153), calc(var(--lp-fr) * 0.16)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.785); opacity: 1; }
-    36.11% { transform: translate3d(calc(var(--lp-fr) * 0.622), calc(var(--lp-fh) * -0.139), calc(var(--lp-fr) * 0.305)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.776); opacity: 1; }
-    37.5% { transform: translate3d(calc(var(--lp-fr) * 0.5), calc(var(--lp-fh) * -0.125), calc(var(--lp-fr) * 0.425)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.768); opacity: 1; }
-    38.89% { transform: translate3d(calc(var(--lp-fr) * 0.348), calc(var(--lp-fh) * -0.111), calc(var(--lp-fr) * 0.513)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.759); opacity: 1; }
-    40.28% { transform: translate3d(calc(var(--lp-fr) * 0.178), calc(var(--lp-fh) * -0.097), calc(var(--lp-fr) * 0.563)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.75); opacity: 1; }
-    41.67% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * -0.083), calc(var(--lp-fr) * 0.574)) rotateY(-50deg) rotateZ(0deg) scale(0.742); opacity: 1; }
-    43.06% { transform: translate3d(calc(var(--lp-fr) * -0.172), calc(var(--lp-fh) * -0.069), calc(var(--lp-fr) * 0.545)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.733); opacity: 1; }
-    44.44% { transform: translate3d(calc(var(--lp-fr) * -0.327), calc(var(--lp-fh) * -0.056), calc(var(--lp-fr) * 0.481)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.724); opacity: 1; }
-    45.83% { transform: translate3d(calc(var(--lp-fr) * -0.454), calc(var(--lp-fh) * -0.042), calc(var(--lp-fr) * 0.386)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.716); opacity: 1; }
-    47.22% { transform: translate3d(calc(var(--lp-fr) * -0.547), calc(var(--lp-fh) * -0.028), calc(var(--lp-fr) * 0.268)) rotateY(-25deg) rotateZ(6.1deg) scale(0.707); opacity: 1; }
-    48.61% { transform: translate3d(calc(var(--lp-fr) * -0.6), calc(var(--lp-fh) * -0.014), calc(var(--lp-fr) * 0.137)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.699); opacity: 1; }
-    50% { transform: translate3d(calc(var(--lp-fr) * -0.61), calc(var(--lp-fh) * 0), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.69); opacity: 1; }
-    51.39% { transform: translate3d(calc(var(--lp-fr) * -0.579), calc(var(--lp-fh) * 0.014), calc(var(--lp-fr) * -0.132)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.681); opacity: 1; }
-    52.78% { transform: translate3d(calc(var(--lp-fr) * -0.51), calc(var(--lp-fh) * 0.028), calc(var(--lp-fr) * -0.25)) rotateY(25deg) rotateZ(6.1deg) scale(0.673); opacity: 1; }
-    54.17% { transform: translate3d(calc(var(--lp-fr) * -0.408), calc(var(--lp-fh) * 0.042), calc(var(--lp-fr) * -0.347)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.664); opacity: 1; }
-    55.56% { transform: translate3d(calc(var(--lp-fr) * -0.283), calc(var(--lp-fh) * 0.056), calc(var(--lp-fr) * -0.417)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.656); opacity: 1; }
-    56.94% { transform: translate3d(calc(var(--lp-fr) * -0.144), calc(var(--lp-fh) * 0.069), calc(var(--lp-fr) * -0.456)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.647); opacity: 1; }
-    58.33% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.083), calc(var(--lp-fr) * -0.463)) rotateY(50deg) rotateZ(0deg) scale(0.638); opacity: 1; }
-    59.72% { transform: translate3d(calc(var(--lp-fr) * 0.138), calc(var(--lp-fh) * 0.097), calc(var(--lp-fr) * -0.439)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.63); opacity: 1; }
-    61.11% { transform: translate3d(calc(var(--lp-fr) * 0.262), calc(var(--lp-fh) * 0.111), calc(var(--lp-fr) * -0.385)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.621); opacity: 1; }
-    62.5% { transform: translate3d(calc(var(--lp-fr) * 0.362), calc(var(--lp-fh) * 0.125), calc(var(--lp-fr) * -0.308)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.613); opacity: 1; }
-    63.89% { transform: translate3d(calc(var(--lp-fr) * 0.434), calc(var(--lp-fh) * 0.139), calc(var(--lp-fr) * -0.213)) rotateY(25deg) rotateZ(-6.1deg) scale(0.604); opacity: 1; }
-    65.28% { transform: translate3d(calc(var(--lp-fr) * 0.474), calc(var(--lp-fh) * 0.153), calc(var(--lp-fr) * -0.108)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.595); opacity: 1; }
-    66.67% { transform: translate3d(calc(var(--lp-fr) * 0.48), calc(var(--lp-fh) * 0.167), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.587); opacity: 1; }
-    68.06% { transform: translate3d(calc(var(--lp-fr) * 0.453), calc(var(--lp-fh) * 0.181), calc(var(--lp-fr) * 0.103)) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.578); opacity: 1; }
-    69.44% { transform: translate3d(calc(var(--lp-fr) * 0.397), calc(var(--lp-fh) * 0.194), calc(var(--lp-fr) * 0.195)) rotateY(-25deg) rotateZ(-6.1deg) scale(0.569); opacity: 1; }
-    70.83% { transform: translate3d(calc(var(--lp-fr) * 0.316), calc(var(--lp-fh) * 0.208), calc(var(--lp-fr) * 0.269)) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.561); opacity: 1; }
-    72.22% { transform: translate3d(calc(var(--lp-fr) * 0.218), calc(var(--lp-fh) * 0.222), calc(var(--lp-fr) * 0.321)) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.552); opacity: 1; }
-    73.61% { transform: translate3d(calc(var(--lp-fr) * 0.11), calc(var(--lp-fh) * 0.236), calc(var(--lp-fr) * 0.35)) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.544); opacity: 1; }
-    75% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.25), calc(var(--lp-fr) * 0.353)) rotateY(-50deg) rotateZ(0deg) scale(0.535); opacity: 1; }
-    76.39% { transform: translate3d(calc(var(--lp-fr) * -0.105), calc(var(--lp-fh) * 0.264), calc(var(--lp-fr) * 0.332)) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.526); opacity: 1; }
-    77.78% { transform: translate3d(calc(var(--lp-fr) * -0.197), calc(var(--lp-fh) * 0.278), calc(var(--lp-fr) * 0.29)) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.518); opacity: 1; }
-    79.17% { transform: translate3d(calc(var(--lp-fr) * -0.27), calc(var(--lp-fh) * 0.292), calc(var(--lp-fr) * 0.23)) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.509); opacity: 1; }
-    80.56% { transform: translate3d(calc(var(--lp-fr) * -0.322), calc(var(--lp-fh) * 0.306), calc(var(--lp-fr) * 0.158)) rotateY(-25deg) rotateZ(6.1deg) scale(0.501); opacity: 1; }
-    81.94% { transform: translate3d(calc(var(--lp-fr) * -0.349), calc(var(--lp-fh) * 0.319), calc(var(--lp-fr) * 0.079)) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.492); opacity: 1; }
-    83.33% { transform: translate3d(calc(var(--lp-fr) * -0.35), calc(var(--lp-fh) * 0.333), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(7deg) scale(0.483); opacity: 1; }
-    84.72% { transform: translate3d(calc(var(--lp-fr) * -0.328), calc(var(--lp-fh) * 0.347), calc(var(--lp-fr) * -0.075)) rotateY(12.9deg) rotateZ(6.8deg) scale(0.475); opacity: 1; }
-    86.11% { transform: translate3d(calc(var(--lp-fr) * -0.284), calc(var(--lp-fh) * 0.361), calc(var(--lp-fr) * -0.14)) rotateY(25deg) rotateZ(6.1deg) scale(0.466); opacity: 1; }
-    87.5% { transform: translate3d(calc(var(--lp-fr) * -0.225), calc(var(--lp-fh) * 0.375), calc(var(--lp-fr) * -0.191)) rotateY(35.4deg) rotateZ(4.9deg) scale(0.458); opacity: 1; }
-    88.89% { transform: translate3d(calc(var(--lp-fr) * -0.153), calc(var(--lp-fh) * 0.389), calc(var(--lp-fr) * -0.226)) rotateY(43.3deg) rotateZ(3.5deg) scale(0.449); opacity: 0.93; }
-    90.28% { transform: translate3d(calc(var(--lp-fr) * -0.077), calc(var(--lp-fh) * 0.403), calc(var(--lp-fr) * -0.243)) rotateY(48.3deg) rotateZ(1.8deg) scale(0.44); opacity: 0.81; }
-    91.67% { transform: translate3d(calc(var(--lp-fr) * 0), calc(var(--lp-fh) * 0.417), calc(var(--lp-fr) * -0.242)) rotateY(50deg) rotateZ(0deg) scale(0.432); opacity: 0.69; }
-    93.06% { transform: translate3d(calc(var(--lp-fr) * 0.071), calc(var(--lp-fh) * 0.431), calc(var(--lp-fr) * -0.225)) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.423); opacity: 0.58; }
-    94.44% { transform: translate3d(calc(var(--lp-fr) * 0.132), calc(var(--lp-fh) * 0.444), calc(var(--lp-fr) * -0.194)) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.414); opacity: 0.46; }
-    95.83% { transform: translate3d(calc(var(--lp-fr) * 0.179), calc(var(--lp-fh) * 0.458), calc(var(--lp-fr) * -0.152)) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.406); opacity: 0.35; }
-    97.22% { transform: translate3d(calc(var(--lp-fr) * 0.209), calc(var(--lp-fh) * 0.472), calc(var(--lp-fr) * -0.103)) rotateY(25deg) rotateZ(-6.1deg) scale(0.397); opacity: 0.23; }
-    98.61% { transform: translate3d(calc(var(--lp-fr) * 0.223), calc(var(--lp-fh) * 0.486), calc(var(--lp-fr) * -0.051)) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.389); opacity: 0.12; }
-    100% { transform: translate3d(calc(var(--lp-fr) * 0.22), calc(var(--lp-fh) * 0.5), calc(var(--lp-fr) * 0)) rotateY(0deg) rotateZ(-7deg) scale(0.38); opacity: 0; }
+    0% { transform: translate3d(190px, -200px, 0px) rotateY(0deg) rotateZ(-7deg) scale(1); opacity: 0; }
+    1.39% { transform: translate3d(181.45px, -194.4px, 41.42px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.991); opacity: 0.28; }
+    2.78% { transform: translate3d(160.93px, -188.8px, 79.04px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.983); opacity: 0.56; }
+    4.17% { transform: translate3d(129.96px, -183.2px, 110.58px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.974); opacity: 0.83; }
+    5.56% { transform: translate3d(90.82px, -177.6px, 133.76px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.966); opacity: 1; }
+    6.94% { transform: translate3d(46.55px, -172.4px, 147.63px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.957); opacity: 1; }
+    8.33% { transform: translate3d(0px, -166.8px, 151.05px) rotateY(-50deg) rotateZ(0deg) scale(0.948); opacity: 1; }
+    9.72% { transform: translate3d(-45.41px, -161.2px, 144.21px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.94); opacity: 1; }
+    11.11% { transform: translate3d(-86.83px, -155.6px, 127.68px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.931); opacity: 1; }
+    12.5% { transform: translate3d(-121.22px, -150px, 102.98px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.922); opacity: 1; }
+    13.89% { transform: translate3d(-146.68px, -144.4px, 72.01px) rotateY(-25deg) rotateZ(6.1deg) scale(0.914); opacity: 1; }
+    15.28% { transform: translate3d(-161.69px, -138.8px, 36.86px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.905); opacity: 1; }
+    16.67% { transform: translate3d(-165.3px, -133.2px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.897); opacity: 1; }
+    18.06% { transform: translate3d(-157.7px, -127.6px, -35.91px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.888); opacity: 1; }
+    19.44% { transform: translate3d(-139.65px, -122.4px, -68.59px) rotateY(25deg) rotateZ(6.1deg) scale(0.879); opacity: 1; }
+    20.83% { transform: translate3d(-112.48px, -116.8px, -95.57px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.871); opacity: 1; }
+    22.22% { transform: translate3d(-78.47px, -111.2px, -115.71px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.862); opacity: 1; }
+    23.61% { transform: translate3d(-40.09px, -105.6px, -127.3px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.854); opacity: 1; }
+    25% { transform: translate3d(0px, -100px, -129.96px) rotateY(50deg) rotateZ(0deg) scale(0.845); opacity: 1; }
+    26.39% { transform: translate3d(39.14px, -94.4px, -123.88px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.836); opacity: 1; }
+    27.78% { transform: translate3d(74.48px, -88.8px, -109.63px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.828); opacity: 1; }
+    29.17% { transform: translate3d(103.74px, -83.2px, -88.16px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.819); opacity: 1; }
+    30.56% { transform: translate3d(125.4px, -77.6px, -61.56px) rotateY(25deg) rotateZ(-6.1deg) scale(0.811); opacity: 1; }
+    31.94% { transform: translate3d(137.75px, -72.4px, -31.35px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.802); opacity: 1; }
+    33.33% { transform: translate3d(140.6px, -66.8px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.793); opacity: 1; }
+    34.72% { transform: translate3d(133.76px, -61.2px, 30.4px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.785); opacity: 1; }
+    36.11% { transform: translate3d(118.18px, -55.6px, 57.95px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.776); opacity: 1; }
+    37.5% { transform: translate3d(95px, -50px, 80.75px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.768); opacity: 1; }
+    38.89% { transform: translate3d(66.12px, -44.4px, 97.47px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.759); opacity: 1; }
+    40.28% { transform: translate3d(33.82px, -38.8px, 106.97px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.75); opacity: 1; }
+    41.67% { transform: translate3d(0px, -33.2px, 109.06px) rotateY(-50deg) rotateZ(0deg) scale(0.742); opacity: 1; }
+    43.06% { transform: translate3d(-32.68px, -27.6px, 103.55px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.733); opacity: 1; }
+    44.44% { transform: translate3d(-62.13px, -22.4px, 91.39px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.724); opacity: 1; }
+    45.83% { transform: translate3d(-86.26px, -16.8px, 73.34px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.716); opacity: 1; }
+    47.22% { transform: translate3d(-103.93px, -11.2px, 50.92px) rotateY(-25deg) rotateZ(6.1deg) scale(0.707); opacity: 1; }
+    48.61% { transform: translate3d(-114px, -5.6px, 26.03px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.699); opacity: 1; }
+    50% { transform: translate3d(-115.9px, 0px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.69); opacity: 1; }
+    51.39% { transform: translate3d(-110.01px, 5.6px, -25.08px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.681); opacity: 1; }
+    52.78% { transform: translate3d(-96.9px, 11.2px, -47.5px) rotateY(25deg) rotateZ(6.1deg) scale(0.673); opacity: 1; }
+    54.17% { transform: translate3d(-77.52px, 16.8px, -65.93px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.664); opacity: 1; }
+    55.56% { transform: translate3d(-53.77px, 22.4px, -79.23px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.656); opacity: 1; }
+    56.94% { transform: translate3d(-27.36px, 27.6px, -86.64px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.647); opacity: 1; }
+    58.33% { transform: translate3d(0px, 33.2px, -87.97px) rotateY(50deg) rotateZ(0deg) scale(0.638); opacity: 1; }
+    59.72% { transform: translate3d(26.22px, 38.8px, -83.41px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.63); opacity: 1; }
+    61.11% { transform: translate3d(49.78px, 44.4px, -73.15px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.621); opacity: 1; }
+    62.5% { transform: translate3d(68.78px, 50px, -58.52px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.613); opacity: 1; }
+    63.89% { transform: translate3d(82.46px, 55.6px, -40.47px) rotateY(25deg) rotateZ(-6.1deg) scale(0.604); opacity: 1; }
+    65.28% { transform: translate3d(90.06px, 61.2px, -20.52px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.595); opacity: 1; }
+    66.67% { transform: translate3d(91.2px, 66.8px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.587); opacity: 1; }
+    68.06% { transform: translate3d(86.07px, 72.4px, 19.57px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.578); opacity: 1; }
+    69.44% { transform: translate3d(75.43px, 77.6px, 37.05px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.569); opacity: 1; }
+    70.83% { transform: translate3d(60.04px, 83.2px, 51.11px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.561); opacity: 1; }
+    72.22% { transform: translate3d(41.42px, 88.8px, 60.99px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.552); opacity: 1; }
+    73.61% { transform: translate3d(20.9px, 94.4px, 66.5px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.544); opacity: 1; }
+    75% { transform: translate3d(0px, 100px, 67.07px) rotateY(-50deg) rotateZ(0deg) scale(0.535); opacity: 1; }
+    76.39% { transform: translate3d(-19.95px, 105.6px, 63.08px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.526); opacity: 1; }
+    77.78% { transform: translate3d(-37.43px, 111.2px, 55.1px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.518); opacity: 1; }
+    79.17% { transform: translate3d(-51.3px, 116.8px, 43.7px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.509); opacity: 1; }
+    80.56% { transform: translate3d(-61.18px, 122.4px, 30.02px) rotateY(-25deg) rotateZ(6.1deg) scale(0.501); opacity: 1; }
+    81.94% { transform: translate3d(-66.31px, 127.6px, 15.01px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.492); opacity: 1; }
+    83.33% { transform: translate3d(-66.5px, 133.2px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.483); opacity: 1; }
+    84.72% { transform: translate3d(-62.32px, 138.8px, -14.25px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.475); opacity: 1; }
+    86.11% { transform: translate3d(-53.96px, 144.4px, -26.6px) rotateY(25deg) rotateZ(6.1deg) scale(0.466); opacity: 1; }
+    87.5% { transform: translate3d(-42.75px, 150px, -36.29px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.458); opacity: 1; }
+    88.89% { transform: translate3d(-29.07px, 155.6px, -42.94px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.449); opacity: 0.93; }
+    90.28% { transform: translate3d(-14.63px, 161.2px, -46.17px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.44); opacity: 0.81; }
+    91.67% { transform: translate3d(0px, 166.8px, -45.98px) rotateY(50deg) rotateZ(0deg) scale(0.432); opacity: 0.69; }
+    93.06% { transform: translate3d(13.49px, 172.4px, -42.75px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.423); opacity: 0.58; }
+    94.44% { transform: translate3d(25.08px, 177.6px, -36.86px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.414); opacity: 0.46; }
+    95.83% { transform: translate3d(34.01px, 183.2px, -28.88px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.406); opacity: 0.35; }
+    97.22% { transform: translate3d(39.71px, 188.8px, -19.57px) rotateY(25deg) rotateZ(-6.1deg) scale(0.397); opacity: 0.23; }
+    98.61% { transform: translate3d(42.37px, 194.4px, -9.69px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.389); opacity: 0.12; }
+    100% { transform: translate3d(41.8px, 200px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.38); opacity: 0; }
+  }
+  @keyframes lp-funnel-s {
+    0% { transform: translate3d(96px, -200px, 0px) rotateY(0deg) rotateZ(-7deg) scale(1); opacity: 0; }
+    1.39% { transform: translate3d(91.68px, -194.4px, 20.93px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.991); opacity: 0.28; }
+    2.78% { transform: translate3d(81.31px, -188.8px, 39.94px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.983); opacity: 0.56; }
+    4.17% { transform: translate3d(65.66px, -183.2px, 55.87px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.974); opacity: 0.83; }
+    5.56% { transform: translate3d(45.89px, -177.6px, 67.58px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.966); opacity: 1; }
+    6.94% { transform: translate3d(23.52px, -172.4px, 74.59px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.957); opacity: 1; }
+    8.33% { transform: translate3d(0px, -166.8px, 76.32px) rotateY(-50deg) rotateZ(0deg) scale(0.948); opacity: 1; }
+    9.72% { transform: translate3d(-22.94px, -161.2px, 72.86px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.94); opacity: 1; }
+    11.11% { transform: translate3d(-43.87px, -155.6px, 64.51px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.931); opacity: 1; }
+    12.5% { transform: translate3d(-61.25px, -150px, 52.03px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.922); opacity: 1; }
+    13.89% { transform: translate3d(-74.11px, -144.4px, 36.38px) rotateY(-25deg) rotateZ(6.1deg) scale(0.914); opacity: 1; }
+    15.28% { transform: translate3d(-81.7px, -138.8px, 18.62px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.905); opacity: 1; }
+    16.67% { transform: translate3d(-83.52px, -133.2px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.897); opacity: 1; }
+    18.06% { transform: translate3d(-79.68px, -127.6px, -18.14px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.888); opacity: 1; }
+    19.44% { transform: translate3d(-70.56px, -122.4px, -34.66px) rotateY(25deg) rotateZ(6.1deg) scale(0.879); opacity: 1; }
+    20.83% { transform: translate3d(-56.83px, -116.8px, -48.29px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.871); opacity: 1; }
+    22.22% { transform: translate3d(-39.65px, -111.2px, -58.46px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.862); opacity: 1; }
+    23.61% { transform: translate3d(-20.26px, -105.6px, -64.32px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.854); opacity: 1; }
+    25% { transform: translate3d(0px, -100px, -65.66px) rotateY(50deg) rotateZ(0deg) scale(0.845); opacity: 1; }
+    26.39% { transform: translate3d(19.78px, -94.4px, -62.59px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.836); opacity: 1; }
+    27.78% { transform: translate3d(37.63px, -88.8px, -55.39px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.828); opacity: 1; }
+    29.17% { transform: translate3d(52.42px, -83.2px, -44.54px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.819); opacity: 1; }
+    30.56% { transform: translate3d(63.36px, -77.6px, -31.1px) rotateY(25deg) rotateZ(-6.1deg) scale(0.811); opacity: 1; }
+    31.94% { transform: translate3d(69.6px, -72.4px, -15.84px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.802); opacity: 1; }
+    33.33% { transform: translate3d(71.04px, -66.8px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.793); opacity: 1; }
+    34.72% { transform: translate3d(67.58px, -61.2px, 15.36px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.785); opacity: 1; }
+    36.11% { transform: translate3d(59.71px, -55.6px, 29.28px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.776); opacity: 1; }
+    37.5% { transform: translate3d(48px, -50px, 40.8px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.768); opacity: 1; }
+    38.89% { transform: translate3d(33.41px, -44.4px, 49.25px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.759); opacity: 1; }
+    40.28% { transform: translate3d(17.09px, -38.8px, 54.05px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.75); opacity: 1; }
+    41.67% { transform: translate3d(0px, -33.2px, 55.1px) rotateY(-50deg) rotateZ(0deg) scale(0.742); opacity: 1; }
+    43.06% { transform: translate3d(-16.51px, -27.6px, 52.32px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.733); opacity: 1; }
+    44.44% { transform: translate3d(-31.39px, -22.4px, 46.18px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.724); opacity: 1; }
+    45.83% { transform: translate3d(-43.58px, -16.8px, 37.06px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.716); opacity: 1; }
+    47.22% { transform: translate3d(-52.51px, -11.2px, 25.73px) rotateY(-25deg) rotateZ(6.1deg) scale(0.707); opacity: 1; }
+    48.61% { transform: translate3d(-57.6px, -5.6px, 13.15px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.699); opacity: 1; }
+    50% { transform: translate3d(-58.56px, 0px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.69); opacity: 1; }
+    51.39% { transform: translate3d(-55.58px, 5.6px, -12.67px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.681); opacity: 1; }
+    52.78% { transform: translate3d(-48.96px, 11.2px, -24px) rotateY(25deg) rotateZ(6.1deg) scale(0.673); opacity: 1; }
+    54.17% { transform: translate3d(-39.17px, 16.8px, -33.31px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.664); opacity: 1; }
+    55.56% { transform: translate3d(-27.17px, 22.4px, -40.03px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.656); opacity: 1; }
+    56.94% { transform: translate3d(-13.82px, 27.6px, -43.78px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.647); opacity: 1; }
+    58.33% { transform: translate3d(0px, 33.2px, -44.45px) rotateY(50deg) rotateZ(0deg) scale(0.638); opacity: 1; }
+    59.72% { transform: translate3d(13.25px, 38.8px, -42.14px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.63); opacity: 1; }
+    61.11% { transform: translate3d(25.15px, 44.4px, -36.96px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.621); opacity: 1; }
+    62.5% { transform: translate3d(34.75px, 50px, -29.57px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.613); opacity: 1; }
+    63.89% { transform: translate3d(41.66px, 55.6px, -20.45px) rotateY(25deg) rotateZ(-6.1deg) scale(0.604); opacity: 1; }
+    65.28% { transform: translate3d(45.5px, 61.2px, -10.37px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.595); opacity: 1; }
+    66.67% { transform: translate3d(46.08px, 66.8px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.587); opacity: 1; }
+    68.06% { transform: translate3d(43.49px, 72.4px, 9.89px) rotateY(-12.9deg) rotateZ(-6.8deg) scale(0.578); opacity: 1; }
+    69.44% { transform: translate3d(38.11px, 77.6px, 18.72px) rotateY(-25deg) rotateZ(-6.1deg) scale(0.569); opacity: 1; }
+    70.83% { transform: translate3d(30.34px, 83.2px, 25.82px) rotateY(-35.4deg) rotateZ(-4.9deg) scale(0.561); opacity: 1; }
+    72.22% { transform: translate3d(20.93px, 88.8px, 30.82px) rotateY(-43.3deg) rotateZ(-3.5deg) scale(0.552); opacity: 1; }
+    73.61% { transform: translate3d(10.56px, 94.4px, 33.6px) rotateY(-48.3deg) rotateZ(-1.8deg) scale(0.544); opacity: 1; }
+    75% { transform: translate3d(0px, 100px, 33.89px) rotateY(-50deg) rotateZ(0deg) scale(0.535); opacity: 1; }
+    76.39% { transform: translate3d(-10.08px, 105.6px, 31.87px) rotateY(-48.3deg) rotateZ(1.8deg) scale(0.526); opacity: 1; }
+    77.78% { transform: translate3d(-18.91px, 111.2px, 27.84px) rotateY(-43.3deg) rotateZ(3.5deg) scale(0.518); opacity: 1; }
+    79.17% { transform: translate3d(-25.92px, 116.8px, 22.08px) rotateY(-35.4deg) rotateZ(4.9deg) scale(0.509); opacity: 1; }
+    80.56% { transform: translate3d(-30.91px, 122.4px, 15.17px) rotateY(-25deg) rotateZ(6.1deg) scale(0.501); opacity: 1; }
+    81.94% { transform: translate3d(-33.5px, 127.6px, 7.58px) rotateY(-12.9deg) rotateZ(6.8deg) scale(0.492); opacity: 1; }
+    83.33% { transform: translate3d(-33.6px, 133.2px, 0px) rotateY(0deg) rotateZ(7deg) scale(0.483); opacity: 1; }
+    84.72% { transform: translate3d(-31.49px, 138.8px, -7.2px) rotateY(12.9deg) rotateZ(6.8deg) scale(0.475); opacity: 1; }
+    86.11% { transform: translate3d(-27.26px, 144.4px, -13.44px) rotateY(25deg) rotateZ(6.1deg) scale(0.466); opacity: 1; }
+    87.5% { transform: translate3d(-21.6px, 150px, -18.34px) rotateY(35.4deg) rotateZ(4.9deg) scale(0.458); opacity: 1; }
+    88.89% { transform: translate3d(-14.69px, 155.6px, -21.7px) rotateY(43.3deg) rotateZ(3.5deg) scale(0.449); opacity: 0.93; }
+    90.28% { transform: translate3d(-7.39px, 161.2px, -23.33px) rotateY(48.3deg) rotateZ(1.8deg) scale(0.44); opacity: 0.81; }
+    91.67% { transform: translate3d(0px, 166.8px, -23.23px) rotateY(50deg) rotateZ(0deg) scale(0.432); opacity: 0.69; }
+    93.06% { transform: translate3d(6.82px, 172.4px, -21.6px) rotateY(48.3deg) rotateZ(-1.8deg) scale(0.423); opacity: 0.58; }
+    94.44% { transform: translate3d(12.67px, 177.6px, -18.62px) rotateY(43.3deg) rotateZ(-3.5deg) scale(0.414); opacity: 0.46; }
+    95.83% { transform: translate3d(17.18px, 183.2px, -14.59px) rotateY(35.4deg) rotateZ(-4.9deg) scale(0.406); opacity: 0.35; }
+    97.22% { transform: translate3d(20.06px, 188.8px, -9.89px) rotateY(25deg) rotateZ(-6.1deg) scale(0.397); opacity: 0.23; }
+    98.61% { transform: translate3d(21.41px, 194.4px, -4.9px) rotateY(12.9deg) rotateZ(-6.8deg) scale(0.389); opacity: 0.12; }
+    100% { transform: translate3d(21.12px, 200px, 0px) rotateY(0deg) rotateZ(-7deg) scale(0.38); opacity: 0; }
   }
   /* with less motion the cards hold the pose they start the cycle in */
   @media (prefers-reduced-motion: reduce) {
@@ -4210,6 +4505,9 @@
     }
     .lp-funnel {
       --lp-fr: 96px;
+    }
+    .lp-funnel-item {
+      animation-name: lp-funnel-s;
     }
     .lp-flow--vs {
       gap: 44px;

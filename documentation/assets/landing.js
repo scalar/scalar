@@ -1453,6 +1453,7 @@ const initLandingOrbs = debounce(() => {
       const says = [...stage.querySelectorAll('.lp-stage-say')]
       let orbitFrame = 0
       let orbitLast = null
+      let stageSeen = true
       let saying = 0
       let sayGen = 0
       // the SDK card below borrows the globe and a planet: whether it has
@@ -1478,6 +1479,12 @@ const initLandingOrbs = debounce(() => {
       const orbitTick = (now) => {
         orbitFrame = 0
         if (!onStage) {
+          return
+        }
+        // asleep while the card is off screen or the page hidden; the
+        // observer below wakes it where it left off
+        if (!stageSeen || document.hidden) {
+          orbitLast = null
           return
         }
         const dt = orbitLast === null ? 0 : Math.min(now - orbitLast, 100)
@@ -1778,6 +1785,22 @@ const initLandingOrbs = debounce(() => {
         },
         { rootMargin: '0px 0px -55% 0px', threshold: 0 },
       ).observe(stage)
+      const wakeOrbit = () => {
+        if (stageSeen && !document.hidden && onStage && stage.classList.contains('is-orbit') && !orbitFrame) {
+          orbitLast = null
+          orbitTick(performance.now())
+        }
+      }
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            stageSeen = entry.isIntersecting
+          })
+          wakeOrbit()
+        },
+        { threshold: 0 },
+      ).observe(stage)
+      document.addEventListener('visibilitychange', wakeOrbit)
 
       /* The SDK card, below. As it scrolls into view the globe, with its
          ring, leaves the Docs card for the top of this one and one of the
@@ -2183,6 +2206,104 @@ const initLandingOrbs = debounce(() => {
           // the card's state, for the page's tests
           mcp.lpMcp = () => ({ on: next.on, shown: order.filter((r) => r.classList.contains('is-shown')).length })
         }
+
+        /* The hosting band's scene, below that: a globe of its own at the
+           centre of the orbit box, there from the start, and the three
+           products, planets of their own, rising and going round it with
+           their rings turning while the scene is on screen (the loop
+           sleeps off screen and wakes where it left off); the flow's
+           lines run from Your API into the box and out to the agents. */
+        const host = document.querySelector('[data-lp-stage-host]')
+        const hostSun = host?.querySelector('.lp-stage-sun .lp-sun')
+        const hostRing = hostSun?.querySelector('.lp-orb-ring')
+        const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
+        const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
+        const wares = host
+          ? [...host.querySelectorAll('.lp-orb--product')]
+              .map((orb) => {
+                const ring = orb.querySelector('.lp-orb-ring')
+                const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
+                if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+                  return null
+                }
+                // the name a second time on the far side, so it reads
+                // whichever way the ring is turned
+                ;[...ring.querySelectorAll('.lp-orb-item')].forEach((item) => {
+                  const twin = item.cloneNode(true)
+                  twin.style.setProperty('--a', `${Number.parseFloat(item.style.getPropertyValue('--a')) + 180}deg`)
+                  ring.appendChild(twin)
+                })
+                return { orb, ring, spin: 0, angle: 0 }
+              })
+              .filter(Boolean)
+          : []
+        if (host && hasHostSun && wares.length && host.dataset.lpStageBound !== 'true') {
+          host.dataset.lpStageBound = 'true'
+          hostRing.style.transform = 'rotateY(0deg)'
+          // a slow lap, and the rings at half the hero's pace
+          const HOST_LAP = 36
+          let hostOn = false
+          let hostSeen = false
+          let hostFrame = 0
+          let hostLast = null
+          const hostTick = (now) => {
+            hostFrame = 0
+            if (!hostOn || !hostSeen || document.hidden) {
+              hostLast = null
+              return
+            }
+            const dt = hostLast === null ? 0 : Math.min(now - hostLast, 100)
+            hostLast = now
+            const rx = host.clientWidth * 0.4
+            const ry = host.clientHeight * 0.34
+            wares.forEach((w) => {
+              w.angle += (2 * Math.PI * dt) / 1000 / HOST_LAP
+              w.orb.style.translate = `${(rx * Math.cos(w.angle)).toFixed(1)}px ${(ry * Math.sin(w.angle)).toFixed(1)}px`
+              const z = Math.sin(w.angle) >= 0 ? '5' : '1'
+              if (w.orb.style.zIndex !== z) {
+                w.orb.style.zIndex = z
+              }
+              w.spin = (w.spin + (360 * dt) / (LANDING_ORB_TURN * 2)) % 360
+              w.ring.style.transform = `rotateY(${w.spin}deg)`
+            })
+            if (!reduceMotion) {
+              hostFrame = requestAnimationFrame(hostTick)
+            }
+          }
+          const wakeHost = () => {
+            if (hostOn && hostSeen && !document.hidden && !hostFrame) {
+              hostLast = null
+              hostTick(performance.now())
+            }
+          }
+          // the planets rise the first time the scene shows, and go round
+          // whenever it is on screen
+          new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                hostSeen = entry.isIntersecting
+                host.classList.toggle('is-off', !hostSeen)
+              })
+              if (hostSeen && !hostOn) {
+                hostOn = true
+                wares.forEach((w, i) => {
+                  w.angle = (i * 2 * Math.PI) / wares.length + Math.PI / 2
+                })
+                host.classList.add('is-orbit')
+              }
+              wakeHost()
+            },
+            { threshold: 0 },
+          ).observe(host)
+          document.addEventListener('visibilitychange', wakeHost)
+          // the band's state, for the page's tests
+          host.lpHost = () => ({
+            on: hostOn,
+            seen: hostSeen,
+            orbit: host.classList.contains('is-orbit'),
+            running: Boolean(hostFrame),
+          })
+        }
       }
       // a jump of the page (an anchor, a scroll to the top) can take a
       // card from one side of the viewport to the other with no moment
@@ -2283,6 +2404,16 @@ const initLandingOrbs = debounce(() => {
     )
     observer.observe(field)
     document.addEventListener('visibilitychange', sync)
+    // the logo wall slides only while it is on screen
+    const wall = hero.querySelector('.lp-trusted')
+    if (wall) {
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => wall.classList.toggle('is-off', !entry.isIntersecting))
+        },
+        { threshold: 0 },
+      ).observe(wall)
+    }
   })
 })
 
@@ -2889,6 +3020,13 @@ const initLandingFunnel = debounce(() => {
       item.appendChild(text)
       track.appendChild(item)
     })
+    // the turn runs only while the funnel is on screen
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => track.classList.toggle('is-paused', !entry.isIntersecting))
+      },
+      { threshold: 0 },
+    ).observe(track)
   })
 })
 
