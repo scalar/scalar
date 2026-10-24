@@ -862,6 +862,28 @@ const dressLandingGlobe = (globe, ring, size) => {
   })
   return true
 }
+/* The Saturn ring's paint turns only while its band shows (the CSS keys
+   it to the talk and the stages); a reveal whose wipe angles are still in
+   transition is marked too, so the band keeps turning while it is wiped
+   away. One listener for every ring on the page */
+const landingWipes = new WeakMap()
+const trackLandingWipe = (event) => {
+  const reveal = event.target
+  if (!(reveal instanceof Element) || !reveal.classList.contains('lp-sun-halo-reveal')) {
+    return
+  }
+  const running = landingWipes.get(reveal) ?? new Set()
+  landingWipes.set(reveal, running)
+  if (event.type === 'transitionrun') {
+    running.add(event.propertyName)
+  } else {
+    running.delete(event.propertyName)
+  }
+  reveal.classList.toggle('is-wiping', running.size > 0)
+}
+for (const type of ['transitionrun', 'transitionend', 'transitioncancel']) {
+  document.addEventListener(type, trackLandingWipe)
+}
 const initLandingOrbs = debounce(() => {
   const fields = [...document.querySelectorAll('.lp-orbs')].filter((field) => field.dataset.lpOrbsBound !== 'true')
   if (!fields.length) {
@@ -1490,7 +1512,6 @@ const initLandingOrbs = debounce(() => {
         const dt = orbitLast === null ? 0 : Math.min(now - orbitLast, 100)
         orbitLast = now
         const w = stage.clientWidth
-        const h = stage.clientHeight
         const rx = w * 0.36
         const ry = rx * 0.42
         extras.forEach((o) => {
@@ -1599,46 +1620,60 @@ const initLandingOrbs = debounce(() => {
       // settle() puts the planet in its new place; then() runs once that
       // has taken (a layout is forced), the only time a transition on
       // the moved planet or its ring has a value to start from
-      const move = (o, to, index, settle, then) => {
-        const first = o.orb.getBoundingClientRect()
-        window.clearTimeout(o.moving)
-        o.orb.classList.remove('is-moving')
-        o.orb.style.transform = ''
-        o.orb.style.transitionDelay = ''
-        to.appendChild(o.orb)
-        settle()
-        const last = o.orb.getBoundingClientRect()
+      // Several planets move as one batch, every read before the writes
+      // that follow it, so the batch lays out three times rather than
+      // three times a planet (the planets stand absolutely, so moving one
+      // never shifts another and the numbers are the same)
+      const moveAll = (list) => {
+        list.forEach((m) => {
+          m.first = m.o.orb.getBoundingClientRect()
+        })
+        list.forEach(({ o, to, settle }) => {
+          window.clearTimeout(o.moving)
+          o.orb.classList.remove('is-moving')
+          o.orb.style.transform = ''
+          o.orb.style.transitionDelay = ''
+          to.appendChild(o.orb)
+          settle()
+        })
+        list.forEach((m) => {
+          m.last = m.o.orb.getBoundingClientRect()
+        })
         if (reduceMotion) {
-          then()
+          list.forEach((m) => m.then())
           return
         }
-        const dx = first.left + first.width / 2 - (last.left + last.width / 2)
-        const dy = first.top + first.height / 2 - (last.top + last.height / 2)
-        const k = last.width ? first.width / last.width : 1
-        o.orb.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})`
-        // the start takes before the transition is switched on
-        o.box = o.orb.getBoundingClientRect()
-        then()
-        o.orb.style.transitionDelay = `${index * 120}ms`
-        o.orb.classList.add('is-moving')
-        o.orb.style.transform = ''
-        o.moving = window.setTimeout(
-          () => {
-            o.orb.classList.remove('is-moving')
-            o.orb.style.transitionDelay = ''
-          },
-          1150 + index * 120,
-        )
+        list.forEach(({ o, first, last }) => {
+          const dx = first.left + first.width / 2 - (last.left + last.width / 2)
+          const dy = first.top + first.height / 2 - (last.top + last.height / 2)
+          const k = last.width ? first.width / last.width : 1
+          o.orb.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})`
+        })
+        // the starts take before the transitions are switched on
+        list[0].o.box = list[0].o.orb.getBoundingClientRect()
+        list.forEach(({ o, index, then }) => {
+          then()
+          o.orb.style.transitionDelay = `${index * 120}ms`
+          o.orb.classList.add('is-moving')
+          o.orb.style.transform = ''
+          o.moving = window.setTimeout(
+            () => {
+              o.orb.classList.remove('is-moving')
+              o.orb.style.transitionDelay = ''
+            },
+            1150 + index * 120,
+          )
+        })
       }
+      const move = (o, to, index, settle, then) => moveAll([{ o, to, index, settle, then }])
       // a planet's ring finishes its turn to the front, on at the pace
       // it had, from wherever it is as rendered (a turn still settling
       // back from the last visit just carries on from where it got to):
       // pinned now, turned by the function returned once the planet is
       // in its new place
-      const faceFront = (o) => {
+      const faceFront = (o, turned = ringAngle(o.ring)) => {
         window.clearTimeout(o.settle)
         o.settling = false
-        const turned = ringAngle(o.ring)
         o.ring.style.transition = ''
         o.ring.style.transform = `rotateY(${turned.toFixed(1)}deg)`
         return () => {
@@ -1700,9 +1735,15 @@ const initLandingOrbs = debounce(() => {
         }
         // the second act, a few seconds after the last question
         timers.push(window.setTimeout(riseSun, (reduceMotion ? 200 : 1150) + extras.length * 120 + 800 + 3000))
-        extras.forEach((o, index) => {
+        extras.forEach((o) => {
           o.away = true
-          move(o, stage, index, () => standOnStage(o), faceFront(o))
+        })
+        // every ring's angle before any ring is pinned, then the three
+        // flights as one batch
+        const turned = extras.map((o) => ringAngle(o.ring))
+        const fronts = extras.map((o, index) => faceFront(o, turned[index]))
+        moveAll(extras.map((o, index) => ({ o, to: stage, index, settle: () => standOnStage(o), then: fronts[index] })))
+        extras.forEach((o, index) => {
           askOnStage(o, (reduceMotion ? 200 : 1150) + index * 120)
         })
       }
@@ -1716,14 +1757,16 @@ const initLandingOrbs = debounce(() => {
         timers.forEach((t) => window.clearTimeout(t))
         timers = []
         stopOrbit()
-        extras.forEach((o, index) => {
+        extras.forEach((o) => {
           o.orb.classList.remove('is-talking')
           o.bubble?.classList.remove('is-typing')
-          move(
+        })
+        moveAll(
+          extras.map((o, index) => ({
             o,
-            field,
+            to: field,
             index,
-            () => {
+            settle: () => {
               o.away = false
               o.orb.classList.remove('lp-orb--left')
               o.west = undefined
@@ -1735,39 +1778,43 @@ const initLandingOrbs = debounce(() => {
                 place(o)
               }
             },
-            () => {
-              // the ring turns on from where it is (the card's orbit left
-              // it anywhere) by an amount of its own, all three over the
-              // same time, and the loop carries them on from there, a
-              // quarter turn apart; at most two thirds of a turn, so no
-              // ring spins up
-              const from = ringAngle(o.ring)
-              const phase = 60 + index * 90
-              const ms = reduceMotion ? 0 : 1800
-              o.phase = (from + phase) % 360
-              window.clearTimeout(o.settle)
+            then: () => {},
+          })),
+        )
+        // the rings turn on from where they are (the card's orbit left
+        // them anywhere) by an amount of their own, all three over the
+        // same time, and the loop carries them on from there, a quarter
+        // turn apart; at most two thirds of a turn, so no ring spins up.
+        // Every angle is read before any ring is written, and the pins
+        // take in one layout before the turns
+        const ms = reduceMotion ? 0 : 1800
+        const from = extras.map((o) => ringAngle(o.ring))
+        extras.forEach((o, index) => {
+          o.phase = (from[index] + 60 + index * 90) % 360
+          window.clearTimeout(o.settle)
+          o.ring.style.transition = ''
+          o.ring.style.transform = `rotateY(${from[index].toFixed(1)}deg)`
+        })
+        if (ms) {
+          extras[0].box = extras[0].ring.getBoundingClientRect()
+        }
+        extras.forEach((o, index) => {
+          if (ms) {
+            o.settling = true
+            o.ring.style.transition = `transform ${ms}ms linear`
+            o.ring.style.transform = `rotateY(${from[index] + 60 + index * 90}deg)`
+            o.settle = window.setTimeout(() => {
+              o.settling = false
               o.ring.style.transition = ''
-              o.ring.style.transform = `rotateY(${from.toFixed(1)}deg)`
-              if (ms) {
-                // the start takes before the turn is switched on
-                o.box = o.ring.getBoundingClientRect()
-                o.settling = true
-                o.ring.style.transition = `transform ${ms}ms linear`
-                o.ring.style.transform = `rotateY(${from + phase}deg)`
-                o.settle = window.setTimeout(() => {
-                  o.settling = false
-                  o.ring.style.transition = ''
-                  o.angle = o.phase
-                  o.ring.style.transform = `rotateY(${o.angle}deg)`
-                }, ms)
-              } else {
-                o.settling = false
-                o.ring.style.transition = ''
-                o.angle = o.phase
-                o.ring.style.transform = `rotateY(${o.angle}deg)`
-              }
-            },
-          )
+              o.angle = o.phase
+              o.ring.style.transform = `rotateY(${o.angle}deg)`
+            }, ms)
+          } else {
+            o.settling = false
+            o.ring.style.transition = ''
+            o.angle = o.phase
+            o.ring.style.transform = `rotateY(${o.angle}deg)`
+          }
         })
       }
       // the planets come once the card has risen into the top part of
@@ -2490,7 +2537,11 @@ const drawLandingFlowEdges = (flow) => {
   // the hairlines in the cards end in a dot at each label
   const withDots = flow.classList.contains('lp-flow--card')
   const box = flow.getBoundingClientRect()
-  svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`)
+  const viewBox = `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`
+  // every measurement first, then only the attributes that changed: a
+  // resize observer firing with nothing moved writes nothing, and a real
+  // resize lays out once
+  const edges = []
   // where a chip's words end: the wider of its name and its subtitle
   const textEnd = (node) => {
     const spans = node.querySelectorAll('.lp-chip-label > span, .lp-chip-sub-face--main > span')
@@ -2529,6 +2580,13 @@ const drawLandingFlowEdges = (flow) => {
       const mid = (y0 + y1) / 2
       d = `M ${f(x0)} ${f(y0)} C ${f(x0)} ${f(mid)}, ${f(x1)} ${f(mid)}, ${f(x1)} ${f(y1)}`
     }
+    const atLabel = from.dataset.lpNode === 'hub' ? [x1, y1] : [x0, y0]
+    edges.push({ key, from, d, cx: f(atLabel[0]), cy: f(atLabel[1]) })
+  })
+  if (svg.getAttribute('viewBox') !== viewBox) {
+    svg.setAttribute('viewBox', viewBox)
+  }
+  edges.forEach(({ key, from, d, cx, cy }) => {
     let path = svg.querySelector(`[data-lp-edge="${key}"]`)
     if (!path) {
       path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
@@ -2540,7 +2598,9 @@ const drawLandingFlowEdges = (flow) => {
       path.style.setProperty('--d', String((Number.parseFloat(from.style.getPropertyValue('--d')) || 0) + 200))
       svg.appendChild(path)
     }
-    path.setAttribute('d', d)
+    if (path.getAttribute('d') !== d) {
+      path.setAttribute('d', d)
+    }
     if (!withDots) {
       return
     }
@@ -2553,9 +2613,12 @@ const drawLandingFlowEdges = (flow) => {
       svg.appendChild(dot)
     }
     // the dot sits at whichever end is a label, not the window
-    const atLabel = from.dataset.lpNode === 'hub' ? [x1, y1] : [x0, y0]
-    dot.setAttribute('cx', f(atLabel[0]))
-    dot.setAttribute('cy', f(atLabel[1]))
+    if (dot.getAttribute('cx') !== cx) {
+      dot.setAttribute('cx', cx)
+    }
+    if (dot.getAttribute('cy') !== cy) {
+      dot.setAttribute('cy', cy)
+    }
   })
 }
 
@@ -2585,16 +2648,6 @@ const createLandingFlowPlayer = (flow) => {
       fn()
     }, ms)
     timers.add(id)
-  }
-
-  const bounce = (key) => {
-    const target = nodes.get(key)?.querySelector('.lp-chip, .lp-hub')
-    if (!target) {
-      return
-    }
-    target.classList.remove('is-bounce')
-    void target.offsetWidth
-    target.classList.add('is-bounce')
   }
 
   const FLIP_HOLD = 1700
@@ -2632,25 +2685,34 @@ const createLandingFlowPlayer = (flow) => {
      and setting off the rest of its round alongside newer ones */
   const STALE = 1000
 
+  // every packet's point is read before any is written, so a frame
+  // measures the paths once; arrivals (which may send more) come last
   const tick = () => {
     const now = performance.now()
-    packets.forEach((packet) => {
+    const steps = [...packets].map((packet) => {
       if (now - packet.start - packet.duration > STALE) {
+        return { packet, stale: true }
+      }
+      const t = Math.min(1, (now - packet.start) / packet.duration)
+      return { packet, t, point: packet.edge.path.getPointAtLength(t * packet.length) }
+    })
+    const arrived = []
+    steps.forEach(({ packet, stale, t, point }) => {
+      if (stale) {
         packets.delete(packet)
         packet.el.remove()
         return
       }
-      const t = Math.min(1, (now - packet.start) / packet.duration)
-      const point = packet.edge.path.getPointAtLength(t * packet.length)
       packet.el.setAttribute('cx', point.x)
       packet.el.setAttribute('cy', point.y)
       packet.el.style.opacity = Math.min(1, (now - packet.start) / 90)
       if (t >= 1) {
         packets.delete(packet)
         packet.el.remove()
-        packet.onArrive()
+        arrived.push(packet)
       }
     })
+    arrived.forEach((packet) => packet.onArrive())
     frame = packets.size ? requestAnimationFrame(tick) : 0
   }
 
@@ -2687,7 +2749,6 @@ const createLandingFlowPlayer = (flow) => {
     pick(ends, ends.length > 2 ? 2 : 1).forEach((leaf, j) => {
       after(j * 110, () => {
         send(`${from}>${leaf}`, () => {
-          bounce(leaf)
           flip(leaf)
         })
       })
@@ -2696,10 +2757,8 @@ const createLandingFlowPlayer = (flow) => {
 
   const round = () => {
     version = (version % 9) + 1
-    bounce('api')
     flip('api')
     send('api>hub', () => {
-      bounce('hub')
       if (!products.length) {
         fanOut('hub')
         return
@@ -2707,7 +2766,6 @@ const createLandingFlowPlayer = (flow) => {
       products.forEach((product, i) => {
         after(i * 90, () => {
           send(`hub>${product}`, () => {
-            bounce(product)
             flip(product)
             fanOut(product)
           })
