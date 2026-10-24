@@ -2,9 +2,11 @@
 
 Can a purpose-built Markdown pipeline beat the unified/remark/rehype stack behind `htmlFromMarkdown` (`@scalar/code-highlight`, moving to `@scalar/markdown` in #10739) on **bundle size and speed**, without giving up rendering parity or safety?
 
-**Yes.** The prototype in [`src/`](./src) is **8× smaller** and **25–40× faster** on real API descriptions, renders the **same DOM for 99.87%** of 11,224 real descriptions (the rest are bugs in the current pipeline), passes **more** of the CommonMark spec, and survived 300,000 fuzzed inputs with no sanitizer violation. It is also linear on cmark's pathological inputs, where the current pipeline takes up to **139 seconds**.
+**Yes.** The prototype in [`src/`](./src) is **6.6× smaller** (gzipped) and **30–37× faster** on real API descriptions. It renders the **same DOM for 99.64% of 463,780 real API descriptions** (every description in APIs.guru), and **every** remaining difference is a bug in the current pipeline: a link that cannot be clicked, a lost space, a dropped alert, broken text. It passes **more** of the CommonMark spec, and survived 300,000 fuzzed inputs with no sanitizer violation. It is also linear on cmark's pathological inputs, where the current pipeline takes up to **two minutes**.
 
-In the real API Reference bundle, an app that bundles the npm package loads **13% less JavaScript up front** than with #10739 (785 KB instead of 904 KB gzipped), and **18% less** than `main` today. The standalone CDN bundle only gets smaller once the "Copy as Markdown" packages stop using unified too: swapping the renderer alone makes `standalone.js` 1% **larger**, and migrating those packages as well makes it 11% smaller than #10739. See [In the real bundle](#in-the-real-api-reference-bundle).
+[Did anything change?](#rendering-parity-did-anything-change) covers every corpus and test suite this was checked against, including screenshots.
+
+In the real API Reference bundle, an app that bundles the npm package loads **13% less JavaScript up front** than with #10739 (about 788 KB instead of 904 KB gzipped), and **18% less** than `main` today. The standalone CDN bundle only gets smaller once the "Copy as Markdown" packages stop using unified too: swapping the renderer alone makes `standalone.js` 1% **larger**, and migrating those packages as well makes it 11% smaller than #10739. See [In the real bundle](#in-the-real-api-reference-bundle).
 
 This is a prototype, not a drop-in yet. [What it would take](#what-it-would-take-to-ship) lists the remaining work.
 
@@ -16,14 +18,14 @@ All numbers below come from the scripts in [`bench/`](./bench). Speed numbers ar
 
 Bundled and minified with Rolldown, as Vite builds this repo. The highlighter is stubbed out on both sides, because `@scalar/highlight` is shared with `ScalarCodeBlock` either way.
 
-| | minified | gzip | brotli |
-| --- | ---: | ---: | ---: |
-| current: `htmlFromMarkdown` | 331.9 KB | 102.7 KB | 85.0 KB |
-| current: `htmlFromMarkdown` + `getHeadings` + `splitContent` | 339.5 KB | 104.8 KB | 86.8 KB |
-| **prototype: same full API** | **37.2 KB** | **13.3 KB** | **12.0 KB** |
-| for reference: marked (no sanitizer, no raw-HTML handling) | 34.3 KB | 10.5 KB | 9.6 KB |
-| for reference: micromark + GFM, HTML out, no sanitizer | 72.8 KB | 19.9 KB | 17.6 KB |
-| for reference: markdown-it | 90.2 KB | 44.9 KB | 36.5 KB |
+|                                                              |    minified |        gzip |      brotli |
+| ------------------------------------------------------------ | ----------: | ----------: | ----------: |
+| current: `htmlFromMarkdown`                                  |    331.9 KB |    102.7 KB |     85.0 KB |
+| current: `htmlFromMarkdown` + `getHeadings` + `splitContent` |    339.5 KB |    104.8 KB |     86.8 KB |
+| **prototype: same full API**                                 | **45.9 KB** | **15.9 KB** | **14.5 KB** |
+| for reference: marked (no sanitizer, no raw-HTML handling)   |     34.3 KB |     10.5 KB |      9.6 KB |
+| for reference: micromark + GFM, HTML out, no sanitizer       |     72.8 KB |     19.9 KB |     17.6 KB |
+| for reference: markdown-it                                   |     90.2 KB |     44.9 KB |     36.5 KB |
 
 Where the current 332 KB goes (`pnpm size:breakdown`): parse5 29%, micromark + GFM 24%, hast utilities and rehype plugins 16%, mdast utilities 16%, unified/vfile/unist 12%. parse5 is a complete HTML5 parser that is there only to handle raw HTML in descriptions.
 
@@ -37,79 +39,105 @@ The module-level numbers above do not translate one to one, because the unified 
 
 What an app that bundles the npm package **loads up front**. This is an `es` build of the same entry with code splitting, counting every chunk reachable from the entry by static imports. The Copy as Markdown packages are dynamic `import()`s, so they load only on click.
 
-| up front, gzip | as shipped | prototype | prototype, no copy |
-| --- | ---: | ---: | ---: |
-| `main` | 957.9 KB | **785.7 KB** (−172.2 KB, −18.0%) | 780.3 KB |
-| #10739 | 904.2 KB | **785.3 KB** (−118.9 KB, −13.1%) | 780.3 KB |
+| up front, gzip | as shipped |                        prototype | prototype, no copy |
+| -------------- | ---------: | -------------------------------: | -----------------: |
+| `main`         |   957.9 KB | **788.8 KB** (−169.1 KB, −17.7%) |           783.4 KB |
+| #10739         |   904.2 KB |  **≈788 KB** (≈ −116 KB, −12.8%) |            ≈783 KB |
 
 The standalone CDN bundle, `standalone.js`. It is UMD, which cannot code-split, so the Copy as Markdown packages are inlined:
 
-| `standalone.js`, gzip | as shipped | prototype | prototype, no copy |
-| --- | ---: | ---: | ---: |
-| `main` | 1,372.3 KB | 1,210.8 KB (−11.8%) | 1,089.1 KB (−20.6%) |
-| #10739 | 1,222.7 KB | 1,235.7 KB (**+1.1%**) | 1,089.1 KB (−10.9%) |
+| `standalone.js`, gzip | as shipped |             prototype |  prototype, no copy |
+| --------------------- | ---------: | --------------------: | ------------------: |
+| `main`                | 1,372.3 KB |   1,213.8 KB (−11.6%) | 1,091.8 KB (−20.4%) |
+| #10739                | 1,222.7 KB | ≈1,239 KB (**+1.3%**) |  ≈1,092 KB (−10.7%) |
+
+The `main` rows are measured with the current prototype. #10739's branch was measured with an earlier version, 2.6 KB gzipped smaller (the parity work below added it), so its prototype columns are that measurement plus 2.6–3.1 KB.
 
 How to read this:
 
 - **For apps bundling the npm package, the saving is immediate.** Rendering is the only up-front user of the unified stack. Swapping it removes about 119 KB gzipped from the initial load relative to #10739. The stack does not disappear: it moves into the on-demand Copy as Markdown chunk.
-- **For `standalone.js`, swapping the renderer alone is a regression** against #10739. #10739 already removed lowlight and the duplicate copy of the stack, and the Copy as Markdown packages keep the rest, so the prototype only adds its own 13 KB. The saving (134 KB gzipped against #10739) arrives only when those packages move off unified as well.
+- **For `standalone.js`, swapping the renderer alone is a regression** against #10739. #10739 already removed lowlight and the duplicate copy of the stack, and the Copy as Markdown packages keep the rest, so the prototype only adds its own 16 KB. The saving (134 KB gzipped against #10739) arrives only when those packages move off unified as well.
 - Against `main`, part of every saving here is #10739's: dropping lowlight and highlight.js, and dropping the second copy of the stack (`main` has two copies of parse5 and micromark).
 
 ### Speed
 
 Every `description` in the Stripe and GitHub API descriptions, rendered the way `ScalarMarkdown` does (`removeTags: ['img', 'picture']`). "Slow path" excludes the plain one-line strings that both implementations short-circuit with the same `PLAIN_PARAGRAPH` check (58–65% of descriptions).
 
-| input | current | prototype | marked |
-| --- | ---: | ---: | ---: |
-| Stripe, all 12,805 descriptions | 2,107 ms | 53 ms | 84 ms |
-| GitHub, all 14,826 descriptions | 2,208 ms | 49 ms | 96 ms |
-| Stripe slow path, 2,337 unique | 1,088 ms | 28 ms | 26 ms |
-| GitHub slow path, 1,944 unique | 1,521 ms | 33 ms | 43 ms |
+| input                           |  current | prototype | marked |
+| ------------------------------- | -------: | --------: | -----: |
+| input                           |  current | prototype | marked |
+| ---                             |     ---: |      ---: |   ---: |
+| Stripe, all 12,805 descriptions | 2,084 ms |     65 ms |  99 ms |
+| GitHub, all 14,826 descriptions | 1,987 ms |     54 ms | 107 ms |
+| Stripe slow path, 2,337 unique  | 1,021 ms |     33 ms |  27 ms |
+| GitHub slow path, 1,944 unique  | 1,518 ms |     48 ms |  44 ms |
 
-Rendering every description of a Stripe-sized API costs about **2 s of main-thread time today**, and about **50 ms** with the prototype.
+Rendering every description of a Stripe-sized API costs about **2 s of main-thread time today**, and about **60 ms** with the prototype.
+
+The parity work below first doubled the prototype's time: GFM email autolinks were looked for at every word, with a regular expression per character. Each inline string now checks once whether it contains an `@`, `http(s)://` or `www.` at all, which brought it back to the first version's speed.
 
 ### Adversarial input
 
 cmark's pathological test cases, about 100 KB each (`pnpm pathological`):
 
-| case | current | prototype |
-| --- | ---: | ---: |
-| mismatched `*a_` openers and closers | 138,847 ms | 65 ms |
-| `[ (](` repeated | 71,852 ms | 64 ms |
-| `[ a_` link openers and emphasis closers | 48,252 ms | 27 ms |
-| unclosed `<!--` | 50,401 ms | 35 ms |
-| nested `*a **a` strong/emphasis | 28,367 ms | 36 ms |
-| 1,000 nested lists (1 MB) | 48,837 ms | 368 ms |
-| 6,667 nested block quotes | stack overflow | 3 ms |
+| case                                     |        current | prototype |
+| ---------------------------------------- | -------------: | --------: |
+| mismatched `*a_` openers and closers     |     119,994 ms |     57 ms |
+| `[ (](` repeated                         |      65,647 ms |     98 ms |
+| `[ a_` link openers and emphasis closers |      53,754 ms |     61 ms |
+| unclosed `<!--`                          |      48,587 ms |     47 ms |
+| `*a` openers and closers, multiples of 3 |      20,163 ms |     27 ms |
+| 1,000 nested lists (1 MB)                |      38,710 ms |    358 ms |
+| 6,667 nested block quotes                | stack overflow |      3 ms |
 
 An API description is untrusted input, so today a hostile or merely broken one can freeze the page, or the server when rendering server-side. The prototype bounds this with the limits cmark uses: link-destination parentheses nest at most 32 deep (the spec allows a limit), containers nest at most 100 deep, inlines at most 64 deep, and failed searches for closing backticks and `-->` are remembered so they are not repeated.
 
-### Rendering parity
+### Rendering parity: did anything change?
 
-`pnpm parity` renders every unique description (11,224) with both pipelines, parses both outputs with parse5, and compares the canonical DOM.
+Every corpus and suite below renders through both pipelines. [`bench/differential.mjs`](./bench/differential.mjs) parses both outputs with parse5 and compares the DOM after collapsing whitespace the way CSS does (`white-space: normal`). [`bench/classify.mjs`](./bench/classify.mjs) then sorts each difference into a known cause, and [`bench/minimize.mjs`](./bench/minimize.mjs) shrinks anything unexplained to a minimal input.
 
-| corpus | identical DOM |
-| --- | ---: |
-| Stripe | 5,523 / 5,529 |
-| GitHub | 5,574 / 5,583 |
-| Galaxy | 112 / 112 |
+| corpus                                                                                                                                             |    inputs |    identical DOM |                                                                  unexplained |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- | --------: | ---------------: | ---------------------------------------------------------------------------: |
+| APIs.guru: every `description` in 2,529 public APIs                                                                                                |   463,780 | 462,115 (99.64%) |                                                                        **0** |
+| Stripe, GitHub and Galaxy descriptions                                                                                                             |    11,224 |  11,216 (99.93%) |                                                                        **0** |
+| Markdown files: this repository and its `node_modules` (READMEs, changelogs, docs)                                                                 |     4,772 |   4,657 (97.59%) |                                                                        **0** |
+| Test fixtures of markdown-it, marked, cmark, cmark-gfm, commonmark.js, remark-gfm and mdast utilities                                              |     1,419 |   1,381 (97.32%) |                                                                        **0** |
+| CommonMark and GFM spec examples                                                                                                                   |       676 |              674 | **0**: neither pipeline passes the 2 that differ, or only the prototype does |
+| Fuzzed documents from a grammar of every construct (`pnpm corpora`)                                                                                |    25,000 |   13,403 (53.6%) |                                                                     738 (3%) |
+| [Kitchen sink](./test/kitchen-sink.test.ts): 42 sections × 5 option sets, `ScalarMarkdown`'s visual-test samples, headings, sections, highlighting | 276 tests |         all pass |                                                                        **0** |
 
-Eight of the 15 differences are bugs in the **current** pipeline that the prototype does not have. The other seven only move whitespace around a `<br>`:
+Every difference in a real corpus is one of these, and each is a bug in the current pipeline that the prototype does not have:
 
-- **Lost spaces next to inline code.** Stripe's `<p>Creates a new <code>OnboardingLink</code> object … redirect_url …</p>` renders as "OnboardingLink**object**". The `_` in `redirect_url` triggers the inline-Markdown re-parse of raw `<p>` text, and that re-parse trims the text's leading space. Five Stripe descriptions are affected, for example "Issuing**Authorization**".
-- **Alerts lose their content.** `> [!NOTE]` followed by a list renders an empty alert. Three GitHub descriptions lose their notes this way.
-- The remaining seven differ only in whitespace next to a `<br>`, which renders the same.
+| cause                                                                                                                                                         | APIs.guru | Markdown files | fixtures | what it looks like today                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------: | -------------: | -------: | ---------------------------------------------------------------------- |
+| **Emptied element.** A raw tag whose attributes contain a Markdown marker (`<a href="…_x…" target="_blank">`) is closed at once, and its text falls out of it |     1,485 |             83 |        4 | links that cannot be clicked, mostly AWS                               |
+| **Lost space.** Re-parsing raw `<p>` text trims the space next to an inline element                                                                           |       135 |              1 |        7 | "OnboardingLink**object**"                                             |
+| **Broken unquoted attributes.** micromark does not recognize `<a href=https://…>` as HTML                                                                     |        31 |                |          | the raw tag shown as text, with a second link inside it                |
+| **Raw HTML re-parsed alone.** Each HTML block with a marker is re-parsed as its own fragment, which closes its open elements at the block's end               |        11 |             15 |       18 | `<details>` closed before its body; a panel's `<pre>` moved outside it |
+| **Content after `<object>` or `<form>` lost**                                                                                                                 |         1 |              3 |          | the rest of the document disappears                                    |
+| **Empty alert.** `> [!NOTE]` followed by a list                                                                                                               |           |             11 |          | the alert renders without content                                      |
+| **Alert skips its first block**                                                                                                                               |           |              2 |          | the first sentence of a note is dropped                                |
+| **Space before an image**, inserted by `rehype-format`                                                                                                        |         2 |                |        2 | invisible with images removed                                          |
+| **The current pipeline throws**                                                                                                                               |           |                |        1 | a `TypeError`                                                          |
+| micromark deviates from CommonMark on an edge case in another library's fixtures (`&#x20;` in an info string, `[link](url ((title))`)                         |           |                |        6 | the prototype follows the spec                                         |
 
-A third bug turned up while probing: `<details><summary>**x**</summary>`, a blank line, then the body. The current pipeline closes `<details>` before the body, because it re-parses each raw HTML fragment on its own. The prototype keeps one open-element stack across the document, so the body stays inside.
+Where micromark's behavior is a deliberate reading or a harmless quirk rather than broken output, the prototype copies it, so nothing changes. That covers list looseness with whitespace-only blank lines (an editor's indentation on an empty line keeps a list tight), a lone tag such as `<br>` on a lazy line ending a list item (Zoom's descriptions rely on it), emphasis next to another marker run (`**_x_**y`), an email after non-ASCII text (`联系support@example.com`), footnote calls inside definitions, trailing lines of spaces in indented code, and heading text with any named reference (`Caf&eacute;` is "Café" in the sidebar and slug).
+
+**The screenshots agree.** [`bench/visual.mjs`](./bench/visual.mjs) renders both outputs as `ScalarMarkdown` does, with the real theme, component and code styles, in Chromium, and compares screenshots byte for byte. It checks the comparison above in both directions:
+
+- **Identical DOM looks identical.** 9,028 documents whose DOM matched (3,000 from APIs.guru, 4,654 Markdown files, 1,374 fixtures) render the same. The first run found two that did not, both hidden by the normalizer, and both now fixed in the prototype and the normalizer. One was indented code ending in lines of spaces: micromark keeps one empty line, and the normalizer had collapsed newlines inside `<pre>`. The other was a raw `<th>` left holding only whitespace after its image was removed; Scalar's styles hide `th:empty`, so it showed as an empty header row. What remains is 6 pairs with identical layout: 4 differ by one pixel, which is sub-pixel rasterization of table borders that any whitespace text node triggers, and 2 differ only in PNG encoding.
+- **Different DOM is visible.** Of the 1,817 documents whose DOM differs, 1,784 look different, every one in a bucket above. The other 33 do not render differently, such as a space before a removed image or an emptied element with no text. [`bench/visual-crop.mjs`](./bench/visual-crop.mjs) cuts each pair down to the rows that differ, side by side.
+
+**The fuzz residue** (738 of 25,000 generated documents, minimized) is synthetic HTML that real descriptions do not contain: `<td>` outside any table, which the current pipeline's fragment re-parse still treats as a cell; a table right after a block quote that ends in a table; lists that a blockquote's paragraph "interrupts" in micromark. None reproduce in any real corpus.
 
 ### CommonMark and GFM conformance
 
 `pnpm spec` and `pnpm spec:compare`, comparing normalized DOM as the spec's own test runner does:
 
-| | current pipeline | prototype |
-| --- | ---: | ---: |
-| CommonMark 0.31.2 (652 examples) | 629 | **647** |
-| GFM extension examples (24) | 22 | 22 |
+|                                  | current pipeline | prototype |
+| -------------------------------- | ---------------: | --------: |
+| CommonMark 0.31.2 (652 examples) |              629 |   **647** |
+| GFM extension examples (24)      |               22 |        22 |
 
 No example passes on the current pipeline and fails on the prototype. The five CommonMark examples the prototype fails are bare URLs, which GFM autolinks on purpose (remark-gfm does the same). URLs are compared after percent-decoding, because the prototype leaves character references in URLs for the browser to decode rather than percent-encoding them; see [Entities](#how-it-works).
 
@@ -124,36 +152,48 @@ The prototype replaces parse5 + rehype-sanitize with its own tokenizer and write
 - tags balance strictly, so server-rendered output cannot close its container
 - re-parsing is a fixed point
 
-**Result: no violations.** One gap was found and fixed during testing: `srcset` was not scheme-checked. Browsers never run script from image candidates, and the current pipeline passes `javascript:` through `srcset` too, so the prototype is now stricter than today.
+**Result: no violations.** Of the 132 vectors, 9 trip non-security checks: 7 are the table restructuring described below, and 2 are `<pre>\n\n</pre>`, whose "re-parse is a fixed point" check fails because parse5's serializer does not restore the newline the HTML parser drops after `<pre>` (a harness artifact). One gap was found and fixed during testing: `srcset` was not scheme-checked. Browsers never run script from image candidates, and the current pipeline passes `javascript:` through `srcset` too, so the prototype is now stricter than today.
 
 The only remaining check that fails is "the browser builds exactly the tree the writer wrote". Raw `<table>` HTML with unexpected content (a `<div>` straight inside `<table>`, `<td>` without `<tr>`) gets foster-parented or gets implied `<tbody>`/`<tr>` from the browser's parser. Every element still passes the checks above. This is a fidelity gap, and it is safe because none of the allowlisted tags has a raw-text content model, so no rearrangement can turn text into markup.
 
 An independent agent review of the sanitizer was cut off before it reproduced anything. Its leads (fast path, undecoded `href` in the external-link check, table parts, `noscript` under both scripting modes, `class` on generated elements) are covered by the vectors above. Before shipping, this still deserves a human security review and the existing XSS test suites (DOMPurify's, html5sec).
 
-### The existing test suite
+### The existing test suites
 
 The current pipeline's own tests (`markdown.test.ts`, `getHeadings.test.ts`, `splitContent.test.ts`, `rehype-alert.test.ts`) are copied into [`test/`](./test) unchanged except for the import. 84 of 92 pass. The 8 failures are expected:
 
 - 5 compare exact `rehype-format` whitespace (a leading `\n`, indentation) or `&#x3C;` against `&lt;`. The DOM is identical.
 - 3 expect `hljs` classes. The prototype has a `highlight` hook, but no highlighter is wired in here.
 
+The test suites of the packages that render Markdown also ran unchanged with the prototype in place of `@scalar/code-highlight`'s Markdown functions ([`bench/swap/tests.mjs`](./bench/swap/tests.mjs), `pnpm test:consumers`). Code blocks went through code-highlight's own `rehypeHighlight` in both runs, so only the Markdown differs. A deliberately broken shim fails 16 api-reference tests, which shows the swap is live.
+
+| package                       |                current |              prototype |
+| ----------------------------- | ---------------------: | ---------------------: |
+| `@scalar/components`          |             594 passed |             594 passed |
+| `@scalar/api-reference`       | 2,079 passed, 1 failed | 2,079 passed, 1 failed |
+| `@scalar/openapi-to-markdown` |             316 passed |   315 passed, 1 failed |
+
+The api-reference failure is `dist.test.ts`, which needs a built `dist/` and fails either way. The openapi-to-markdown test pins the lost-space bug: it expects `<p>**Hello** <em>world</em></p>` to become `**Hello***world*`, and the prototype keeps the space (`**Hello** *world*`).
+
 ## How it works
 
-Five files, no runtime dependencies:
+Six files, and one dependency that micromark uses today too (`decode-named-character-reference`):
 
-| file | what it does |
-| --- | --- |
-| [`blocks.ts`](./src/blocks.ts) | CommonMark's line-by-line block algorithm, ported from commonmark.js, plus GFM tables, task list items and footnote definitions |
-| [`inline.ts`](./src/inline.ts) | Delimiter-run emphasis and the bracket algorithm from commonmark.js, plus GFM strikethrough, autolink literals and footnote calls |
-| [`html.ts`](./src/html.ts) | A small HTML tokenizer, the `hast-util-sanitize` GitHub schema the current pipeline uses (plus Scalar's `class` rule), and the `Writer` |
-| [`render.ts`](./src/render.ts) | The tree to HTML, including GitHub alerts and footnotes with the same markup as today |
-| [`index.ts`](./src/index.ts) | `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading` and `textFromNode`, with today's signatures |
+| file                               | what it does                                                                                                                            |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [`blocks.ts`](./src/blocks.ts)     | CommonMark's line-by-line block algorithm, ported from commonmark.js, plus GFM tables, task list items and footnote definitions         |
+| [`inline.ts`](./src/inline.ts)     | Delimiter-run emphasis and the bracket algorithm from commonmark.js, plus GFM strikethrough, autolink literals and footnote calls       |
+| [`html.ts`](./src/html.ts)         | A small HTML tokenizer, the `hast-util-sanitize` GitHub schema the current pipeline uses (plus Scalar's `class` rule), and the `Writer` |
+| [`render.ts`](./src/render.ts)     | The tree to HTML, including GitHub alerts and footnotes with the same markup as today                                                   |
+| [`entities.ts`](./src/entities.ts) | Character references: Markdown's rules for Markdown text, the HTML parser's rules for raw HTML                                          |
+| [`index.ts`](./src/index.ts)       | `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading` and `textFromNode`, with today's signatures                              |
 
 Four decisions account for most of the size and speed:
 
 - **No intermediate HTML tree.** The parser produces mdast-shaped nodes, so `transform` callbacks such as heading anchors and `textFromNode` keep working. The renderer writes HTML straight from those nodes, with no hast, no parse5 and no unified/vfile.
 - **Sanitizing is serialization.** Generated elements and raw HTML tokens all go through one `Writer`. It never copies markup through: it re-emits each tag from its own token, drops anything outside the allowlist, escapes text, and keeps **one open-element stack for the whole document**. That stack is what makes `<details>` opened in one HTML block and closed in another wrap the Markdown between them, and what guarantees balanced output. Safety does not depend on tokenizing input exactly like a browser, only on the output being unambiguous, which holds because none of the allowlisted tags has a raw-text content model.
-- **Entities.** The 2,125-name HTML entity table is most of markdown-it's size. The prototype decodes numeric references and about 35 common names itself, and writes every other named reference through for the browser to decode. That gives the same DOM, because the browser decodes exactly as parse5 does today. The one place CommonMark and HTML disagree is an unknown name that starts with a legacy name (`&notit;` is literal in CommonMark, `¬it;` in HTML), and a 146-name list covers that case. Because named references are not decoded in URLs, any `&` before a URL's first `/`, `?` or `#` makes the URL unsafe. That is where `javascript&colon;` hides a scheme, and no legitimate URL puts one there.
+- **Entities without the table.** The 2,125-name HTML entity table is most of markdown-it's size. Named references are decoded with `decode-named-character-reference`, which is what micromark uses today: in a browser it asks the DOM (a detached element's `innerHTML`, names restricted to letters and digits), so no table ships, and in Node it uses the table. Markdown text follows micromark's rules; raw HTML follows the HTML parser's, including legacy names without `;` (`&copy2024` is `©2024`), the attribute exception (`?a=1&copy=2` stays literal) and windows-1252 for `&#128;`–`&#159;`. URL checks decode exactly as the browser will before checking the scheme.
+- **One HTML stream, as the browser builds it.** Generated and raw elements share one open-element stack, and end tags follow the parser's scope rules: an end tag closes the nearest element of that name in scope, a generated `</li>` is ignored while raw HTML left a `<table>` open inside it, text joins across tags that create no node, and table parts outside a table are dropped. This is what makes raw HTML spanning several blocks behave as written.
 - **`splitContent` slices the source by line** instead of re-serializing an AST, so no Markdown stringifier ships.
 
 ## What it would take to ship
@@ -161,13 +201,20 @@ Four decisions account for most of the size and speed:
 In rough order:
 
 1. **Wire in `@scalar/highlight`.** Pass a `highlight(code, lang)` that returns the highlighted HTML, and port the "guess only when it can be confirmed" detection from #10739's `rehypeHighlight`. The rest of `render.ts` already emits the `hljs language-x custom-scroll` classes.
-2. **Decide on byte-for-byte compatibility.** Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The three bugs above are intended fixes.
+2. **Decide on byte-for-byte compatibility.** Output is DOM-equivalent, not string-equal: there is no `rehype-format` indentation and no leading `\n`. Tests that compare exact strings (in this package and in snapshot tests elsewhere) need to compare DOM or be updated, and visual snapshots need a review pass. The differences listed under [Did anything change?](#rendering-parity-did-anything-change) are intended fixes.
 3. **Table insertion modes in the `Writer`.** Insert implied `<tbody>`/`<tr>` and move content that is not allowed inside a table out of it, so the browser builds exactly the written tree. This is fidelity only, about 50 lines.
 4. **Move the Copy as Markdown packages off unified, or `standalone.js` gets bigger.** `@scalar/openapi-to-markdown` and `@scalar/asyncapi-to-markdown` use unified for Markdown→mdast, HTML→mdast (`rehype-remark`) and mdast→Markdown (`remark-stringify`). ESM builds load them only on click, so apps bundling the package save right away. The standalone build is UMD and inlines them, though, so swapping only the renderer makes `standalone.js` 1% larger than #10739 (see [In the real bundle](#in-the-real-api-reference-bundle)). The prototype's mdast-shaped tree covers their Markdown→mdast step. They still need an mdast→Markdown serializer and a small HTML→Markdown converter. Alternatively, ship them as a lazy chunk if the standalone build can load one.
 5. **Security sign-off.** A human review of `html.ts`, the DOMPurify and html5sec vector suites, and the invariant fuzzer from `bench/` kept in CI.
 6. **Packaging.** Make this the implementation inside `@scalar/markdown` (#10739) behind the same exports, and keep the remark-based version as the reference in its tests, the way `@scalar/highlight` freezes lowlight output. Then the usual: types, Knip, changesets.
 
-Known gaps that did not show up in the corpus: GFM's `ftp://` autolink literal is not supported (micromark does not support it either), and `textFromNode` returns uncommon named references undecoded (`&eacute;` stays as written in heading text).
+### What is left
+
+None of these appear in any real corpus above:
+
+- **The fragment re-parse is not reproduced.** The current pipeline re-parses each raw HTML block that contains a Markdown marker on its own, which closes its open elements at the block's end. The prototype keeps one stream, as the author wrote it. That is the fix behind `<details>` and the documentation's SDK panel, but it means a raw `<td>` outside any table gets no inline Markdown, where the re-parse (which parses fragments as if inside a template) still gives it some.
+- **micromark quirks not copied:** a GFM table directly after a block quote that ends in a table is not a table in micromark; an empty or non-`1.` list item at the start of a block quote that interrupts a paragraph is a paragraph in micromark (`|\n> 2) x`). The prototype follows the spec.
+- **Table fidelity.** See [Security](#security): the writer does not insert implied `<tbody>`/`<tr>` or foster-parent, the browser does.
+- GFM's `ftp://` autolink literal is not supported (micromark does not support it either).
 
 ## Reproducing
 
@@ -180,6 +227,11 @@ pnpm test              # the current pipeline's own test suite against the proto
 pnpm spec              # CommonMark and GFM conformance
 pnpm spec:compare      # the same, scored for both pipelines
 pnpm parity            # DOM comparison over 11,224 real descriptions
+pnpm corpora           # download APIs.guru and the library fixtures, collect Markdown files, generate the fuzz corpus
+pnpm gamut             # differential run and classification over every corpus
+pnpm minimize          # shrink unexplained fuzz differences to minimal inputs
+pnpm visual            # screenshots of both pipelines' output, compared byte for byte
+pnpm test:consumers    # components, api-reference and openapi-to-markdown suites with the prototype
 pnpm size              # bundle size, both pipelines and the alternatives
 pnpm size:real         # the real API Reference bundle, with and without the prototype
 pnpm bench             # throughput
