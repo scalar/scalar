@@ -1,5 +1,15 @@
 export const en = {
   schema: {
+    conditionalConstraints: 'Conditional constraints',
+    constraintIf: 'If this schema matches',
+    constraintThen: 'Then apply',
+    constraintElse: 'Otherwise apply',
+    containsMatchingItems: 'Matching items: {minimum}–{maximum}',
+    containsConstraint: 'Contains at least one matching item',
+    dependencyConstraint: 'When {name} is present',
+    requiredProperties: 'Required properties: {names}',
+    noAdditionalConstraint: 'No additional constraint.',
+
     noAllowedValues: 'No values satisfy this enum constraint.',
     example: 'Example',
     examples: 'Examples',

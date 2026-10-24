@@ -1,5 +1,15 @@
 export const fr = {
   schema: {
+    conditionalConstraints: 'Contraintes conditionnelles',
+    constraintIf: 'Si ce schéma correspond',
+    constraintThen: 'Alors appliquer',
+    constraintElse: 'Sinon appliquer',
+    containsMatchingItems: 'Éléments correspondants : {minimum}–{maximum}',
+    containsConstraint: 'Contient au moins un élément correspondant',
+    dependencyConstraint: 'Lorsque {name} est présent',
+    requiredProperties: 'Propriétés obligatoires : {names}',
+    noAdditionalConstraint: 'Aucune contrainte supplémentaire.',
+
     variants: 'Variantes',
     discriminatorValue: 'Valeur du discriminateur',
     noAllowedValues: 'Aucune valeur ne satisfait cette contrainte enum.',

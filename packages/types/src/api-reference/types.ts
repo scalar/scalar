@@ -476,6 +476,15 @@ export type ApiReferenceTranslations = {
     variants: string
     discriminatorValue: string
     noAllowedValues: string
+    conditionalConstraints: string
+    constraintIf: string
+    constraintThen: string
+    constraintElse: string
+    containsMatchingItems: string
+    containsConstraint: string
+    dependencyConstraint: string
+    requiredProperties: string
+    noAdditionalConstraint: string
     emptyObject: string
     showAdditionalProperties: string
     showOneMoreProperty: string
