@@ -46,6 +46,8 @@ type B = {
   rows?: string[]
   align?: (string | null)[]
   label?: string
+  /** A list that took in two or more line endings after its content, which makes it loose in micromark. */
+  looseTail?: boolean
 }
 
 export type Block =
@@ -152,6 +154,11 @@ export class BlockParser {
   private blank = false
   private partiallyConsumedTab = false
   private allClosed = true
+  private lines: string[] = []
+  /** Set while a container (list, block quote, footnote) starts, which takes the line into the list it closes. */
+  private startingContainer = false
+  private done = false
+  private unterminated = false
   private lastMatched: B = this.doc
   readonly refs: Refs = new Map()
   readonly footnotes = new Set<string>()
@@ -168,8 +175,11 @@ export class BlockParser {
 
   parse(input: string): Root {
     const lines = input.replace(/^\ufeff/, '').split(/\r\n|\r|\n/)
-    if (lines.at(-1) === '') lines.pop()
+    this.unterminated = lines.at(-1) !== ''
+    if (!this.unterminated) lines.pop()
+    this.lines = lines
     for (const l of lines) this.incorporateLine(l)
+    this.done = true
     while (this.tip !== this.doc) this.finalize(this.tip, lines.length)
     this.finalize(this.doc, lines.length)
     const footnotes = new Map()
@@ -239,7 +249,9 @@ export class BlockParser {
   }
 
   private addChild(kind: Kind): B {
+    this.startingContainer = kind === 'list' || kind === 'blockquote' || kind === 'footnoteDefinition'
     while (!canContain(this.tip.kind, kind)) this.finalize(this.tip, this.lineNumber - 1)
+    this.startingContainer = false
     const b = this.node(kind, this.lineNumber)
     b.parent = this.tip
     this.tip.children.push(b)
@@ -371,16 +383,19 @@ export class BlockParser {
       // HTML block
       if (c === '<') {
         for (let t = 1; t <= 7; t++) {
-          if (
-            HTML_OPEN[t]!.test(rest) &&
-            (t < 7 ||
-              (container.kind !== 'paragraph' && !(!this.allClosed && !this.blank && this.tip.kind === 'paragraph')))
-          ) {
-            this.closeUnmatchedBlocks()
-            const b = this.addChild('html')
-            b.htmlType = t
-            return 2
-          }
+          // The last kind cannot interrupt a paragraph.
+          if (!HTML_OPEN[t]!.test(rest) || (t === 7 && container.kind === 'paragraph')) continue
+          const lazy = !this.allClosed && !this.blank && this.tip.kind === 'paragraph'
+          const last = this.lineNumber === this.lines.length && this.unterminated
+          if (t === 7 && lazy && !last) {
+            // micromark does not take it as a lazy line either: the paragraph ends, and the block
+            // goes into the paragraph's container, which closes on a line that does not continue it.
+            this.finalize(this.tip, this.lineNumber - 1)
+            this.allClosed = true
+          } else this.closeUnmatchedBlocks()
+          const b = this.addChild('html')
+          b.htmlType = t
+          return 2
         }
       }
       // Setext heading
@@ -610,12 +625,25 @@ export class BlockParser {
           b.endLine = b.startLine + lines.length - 1
         }
         break
+      // Both take in the blank lines after them, so they end where their content does.
       case 'listItem':
+      case 'footnoteDefinition':
         b.endLine = b.children.at(-1)?.endLine ?? b.startLine
         break
-      case 'list':
+      case 'list': {
         b.endLine = b.children.at(-1)!.endLine
+        // As in micromark, a list runs on to the last blank line after it that has a container
+        // prefix (indentation, `>`), or to the line that starts another container in the same
+        // parent. Taking in two or more line endings makes it loose, and its parent does not see
+        // those blank lines (`- a\n  - b\n  \n  c` stays tight, `- a\n\n  \nc` is loose).
+        const next = this.done ? this.lines.length + 1 : this.lineNumber
+        let last = b.endLine
+        for (let n = last + 1; n < next; n++) if (this.lines[n - 1] !== '') last = n
+        if (this.startingContainer && parent !== this.doc) last = next
+        b.looseTail = last - b.endLine >= 2
+        b.endLine = Math.min(last, next - 1)
         break
+      }
     }
     this.tip = parent ?? this.doc
   }
@@ -682,7 +710,7 @@ export class BlockParser {
           }
         })
         // A list is loose when blank lines separate its items or the children of any item.
-        let spread = items.some((it) => it.spread)
+        let spread = b.looseTail === true || items.some((it) => it.spread)
         for (let j = 0; j + 1 < b.children.length; j++) {
           if (b.children[j]!.endLine !== b.children[j + 1]!.startLine - 1) spread = true
         }

@@ -32,18 +32,22 @@ const noReparse = await import(BASELINE_NO_REPARSE)
  * The build without that step also lacks inline Markdown inside raw HTML (that step is how the
  * current pipeline does it), so structure is compared with inline formatting and its markers removed.
  */
+/** Without the spaces `rehype-format` adds around images, which mix into many other differences. */
+const tightImages = (html) => html.replace(/\s*(<img[^>]*>)\s*/g, '$1')
 const structure = (html) =>
   html
-    .replace(/<\/?(strong|em|code|del)>/g, '')
-    .replace(/[*_`~]/g, '')
+    .replace(/<\/?(strong|em|code|del)>|<br>/g, '')
+    .replace(/[*_`~\\]/g, '')
     .replace(/\s+/g, ' ')
 const fromReparse = (d) => {
   try {
     return d.diffs.every((x) => {
-      const variant = normalize(
-        noReparse.htmlFromMarkdown(
-          d.markdown,
-          x.options === 'withImages' ? { removeTags: [] } : { removeTags: ['img', 'picture'] },
+      const variant = tightImages(
+        normalize(
+          noReparse.htmlFromMarkdown(
+            d.markdown,
+            x.options === 'withImages' ? { removeTags: [] } : { removeTags: ['img', 'picture'] },
+          ),
         ),
       )
       return variant === x.prototype || structure(variant) === structure(x.prototype)
@@ -94,6 +98,16 @@ const KNOWN = {
     return tight(current) === tight(prototype) && count(current, /\s<img/g) > count(prototype, /\s<img/g)
   },
 }
+/**
+ * micromark makes a list loose when the document ends in two blank lines, the last not empty
+ * (`- a\n\n `). Only `<p>` elements differ.
+ */
+const unwrapped = (html) => html.replace(/<\/?p>/g, '').replace(/\s+/g, ' ')
+const trailingBlankLoose = (d) =>
+  /(\n[ \t>]*){2,}$/.test(d.markdown) &&
+  d.diffs.every(
+    (x) => unwrapped(x.current) === unwrapped(x.prototype) && count(x.current, /<p>/g) > count(x.prototype, /<p>/g),
+  )
 /** An unclosed `<object>` or `<form>` makes the current pipeline strip everything after it. */
 const swallowed = (d) =>
   /<(object|form)\b/i.test(d.markdown) &&
@@ -124,7 +138,8 @@ const followsReference = (markdown) => {
     return (
       untask(prototype) === collapse(ref) &&
       untask(current) !== collapse(ref) &&
-      count(current, CHECKBOX) === count(prototype, CHECKBOX)
+      // …unless the list itself is what micromark missed.
+      (count(current, CHECKBOX) === count(prototype, CHECKBOX) || count(current, /<li/g) < count(prototype, /<li/g))
     )
   } catch {
     return false
@@ -133,21 +148,36 @@ const followsReference = (markdown) => {
 export const BUCKETS = [
   ...Object.keys(KNOWN),
   'content after <object>/<form> lost',
+  'loose list from trailing blank lines',
   're-parsed raw HTML',
   'micromark deviates from CommonMark',
   'other',
 ]
 
+const withoutImageSpaces = (d) => {
+  const diffs = d.diffs
+    .map((x) => ({ ...x, current: tightImages(x.current), prototype: tightImages(x.prototype) }))
+    .filter((x) => x.current !== x.prototype)
+  return { ...d, diffs }
+}
+
 /** The bucket of one difference, as produced by the differential runner. */
-export const bucketOf = (d) =>
+export const bucketOf = (d) => {
+  const rest = withoutImageSpaces(d)
+  if (rest.diffs.length === 0) return 'space before image'
+  return bucketOfRest(rest)
+}
+/** Explanations that need the whole difference, tried in order after the known bugs. */
+const CHECKS = [
+  ['content after <object>/<form> lost', swallowed],
+  ['loose list from trailing blank lines', trailingBlankLoose],
+  ['re-parsed raw HTML', fromReparse],
+  ['micromark deviates from CommonMark', (d) => followsReference(d.markdown)],
+]
+const bucketOfRest = (d) =>
   Object.keys(KNOWN).find((name) => d.diffs.every((x) => KNOWN[name](x))) ??
-  (swallowed(d)
-    ? 'content after <object>/<form> lost'
-    : fromReparse(d)
-      ? 're-parsed raw HTML'
-      : followsReference(d.markdown)
-        ? 'micromark deviates from CommonMark'
-        : 'other')
+  CHECKS.find(([, check]) => check(d))?.[0] ??
+  'other'
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const label = process.argv[2]

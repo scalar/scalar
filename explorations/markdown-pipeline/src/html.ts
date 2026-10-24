@@ -216,8 +216,8 @@ export class Writer {
   out = ''
   private stack: Frame[] = []
   private nextId = 1
-  /** Generated `<p>` elements by id, to mirror the parser when one was already closed. */
-  private paragraphs = new Map<number, boolean>()
+  /** The tags of open generated elements by id: their end tags act by name, even once raw HTML closed them. */
+  private generated = new Map<number, string>()
   /** Formatting elements closed implicitly, to reopen before the next content, as the parser does. */
   private pending: Frame[] = []
   /** A block separator, written only if more output follows, as `mdast-util-to-hast` does at the root. */
@@ -267,7 +267,7 @@ export class Writer {
     const hidden = !this.allowed(tag)
     if (!hidden) this.out += `<${tag}${attrs}>`
     if (!VOID.has(tag)) this.stack.push({ tag, id, hidden, attrs })
-    if (tag === 'p') this.paragraphs.set(id, hidden)
+    if (!VOID.has(tag)) this.generated.set(id, tag)
     return id
   }
 
@@ -329,25 +329,27 @@ export class Writer {
   }
 
   /**
-   * Closes a generated element. Its end tag works as in the HTML parser: it closes the nearest
-   * element of that name in scope, which may be a raw one, or nothing, when raw HTML left a
+   * Closes a generated element. Its end tag works as in the HTML parser, by name: it closes the
+   * nearest element of that name in scope, which may be a raw one, or nothing, when raw HTML left a
    * boundary such as `<table>` open inside it. Anything else still open closes with it.
    */
   close(id: number): void {
     this.flush()
     const at = this.stack.findLastIndex((f) => f.id === id)
+    const tag = this.generated.get(id)
+    this.generated.delete(id)
+    const waiting = this.pending.findIndex((f) => f.id === id)
     if (this.skip) {
       // A stripped element whose end tag never comes ends with its container, unlike today.
       if (at !== -1) this.popTo(at)
-    } else if (at !== -1 || this.paragraphs.get(id) === false) {
-      const tag = at === -1 ? 'p' : this.stack[at]!.tag
+    } else if (waiting !== -1) {
+      // A formatting element closed implicitly and waiting to be reopened is forgotten instead.
+      this.pending.splice(waiting, 1)
+    } else if (tag !== undefined) {
       const target = this.endTarget(tag)
       if (target !== -1) this.popTo(target)
       else this.strayEnd(tag)
     }
-    // Its own end tag: a formatting element waiting to be reopened is dropped instead.
-    this.pending = this.pending.filter((f) => f.id !== id)
-    this.paragraphs.delete(id)
   }
 
   /**
