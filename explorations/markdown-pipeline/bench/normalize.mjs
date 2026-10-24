@@ -13,7 +13,13 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, 
  * across an inline element boundary; spaces at the start and end of a line
  * (block edges, around `<br>`) are dropped. Two outputs that normalize the same
  * render the same text; `pre` keeps its whitespace exactly.
+ *
+ * A `<th>` with only whitespace in it stays apart from an empty one: Scalar's
+ * styles hide `th:empty`, so the two render differently.
  */
+/** `pre` text is hidden from the whitespace passes behind these, and restored at the end. */
+const PRE = { ' ': '\u0001', '\n': '\u0002', '\t': '\u0003', '\r': '\u0004', '\f': '\u0005' }
+const UNPRE = Object.fromEntries(Object.entries(PRE).map(([k, v]) => [v, k]))
 export const normalize = (html, { dropAttrs = [] } = {}) => {
   let out = ''
   /** Whether the last rendered character was collapsible space, or a line start. */
@@ -22,7 +28,7 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
     for (const c of node.childNodes ?? []) {
       if (c.nodeName === '#text') {
         if (pre) {
-          out += esc(c.value)
+          out += esc(c.value).replace(/[ \n\t\r\f]/g, (ch) => PRE[ch])
           space = false
           continue
         }
@@ -59,6 +65,14 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
         if (BLOCK.has(tag)) out += '\n'
         out += '<' + tag + attrs + '>'
         if (BLOCK.has(tag)) out += '\n'
+        const kids = c.childNodes ?? []
+        if (
+          tag === 'th' &&
+          kids.length > 0 &&
+          kids.every((k) => k.nodeName === '#text' && !/[^ \t\n\r\f]/.test(k.value))
+        ) {
+          out += '<!--whitespace only-->'
+        }
         walk(c.tagName === 'template' ? c.content : c, pre || tag === 'pre')
         if (!['br', 'hr', 'img', 'input', 'source', 'wbr', 'meta', 'link', 'col'].includes(tag)) {
           if (BLOCK.has(tag)) out += '\n'
@@ -88,5 +102,6 @@ export const normalize = (html, { dropAttrs = [] } = {}) => {
       .replace(/ ((?:<(?!img|input)[^>]+>)*)(?=\n|<br>)/g, '$1')
       .replace(/[ \t]*\n[ \t\n]*/g, '\n')
       .trim()
+      .replace(/[\u0001-\u0005]/g, (ch) => UNPRE[ch])
   )
 }

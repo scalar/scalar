@@ -167,7 +167,8 @@ const HEADINGS = new Set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 const IGNORED_IN_BODY = new Set(['body', 'head', 'html', 'frame'])
 const TABLE_ONLY = new Set(['caption', 'col', 'colgroup', 'tbody', 'td', 'tfoot', 'th', 'thead', 'tr'])
 
-type Frame = { tag: string; id: number; hidden: boolean; attrs?: string }
+/** `start`: where a raw `<th>`'s content begins in the output. */
+type Frame = { tag: string; id: number; hidden: boolean; attrs?: string; start?: number }
 
 const TABLE_PART_CLOSES: Record<string, string[]> = {
   td: ['td', 'th'],
@@ -387,6 +388,11 @@ export class Writer {
     const implicit: Frame[] = []
     for (let i = this.stack.length - 1; i >= at; i--) {
       const f = this.stack[i]!
+      // Today's output loses whitespace that is all a header cell holds (once an image in it is
+      // removed, say), and Scalar's styles hide `th:empty`, so it has to go here too.
+      if (f.tag === 'th' && f.start !== undefined && !/[^ \t\n\r\f]/.test(this.out.slice(f.start))) {
+        this.out = this.out.slice(0, f.start)
+      }
       if (!f.hidden) this.out += `</${f.tag}>`
       if (MARKERS.has(f.tag)) implicit.length = 0
       else if (i > at && FORMATTING.has(f.tag)) implicit.unshift(f)
@@ -505,7 +511,7 @@ export class Writer {
       if (href && s.includes(' href=') && isExternal(href)) s += ' rel="nofollow" target="_blank"'
     }
     this.out += `<${tag}${s}>`
-    if (!VOID.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: false, attrs: s })
+    if (!VOID.has(tag)) this.stack.push({ tag, id: this.nextId++, hidden: false, attrs: s, start: this.out.length })
   }
 
   /** @internal */

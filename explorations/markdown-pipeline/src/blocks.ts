@@ -48,6 +48,9 @@ type B = {
   label?: string
   /** A list that took in two or more line endings after its content, which makes it loose in micromark. */
   looseTail?: boolean
+  /** Indented code: lines so far, and the last one indented by four columns or more. */
+  codeLines?: number
+  lastDeep?: number
 }
 
 export type Block =
@@ -285,7 +288,9 @@ export class BlockParser {
         const l = b.list!
         if (this.blank) {
           if (b.children.length === 0) return 1
-          this.advanceNextNonspace()
+          // Only the item's own indentation, as in micromark: the rest can still continue indented code.
+          if (this.indent >= l.markerOffset + l.padding) this.advanceOffset(l.markerOffset + l.padding, true)
+          else this.advanceNextNonspace()
         } else if (this.indent >= l.markerOffset + l.padding) {
           this.advanceOffset(l.markerOffset + l.padding, true)
         } else return 1
@@ -319,9 +324,14 @@ export class BlockParser {
           }
           return 0
         }
-        if (this.indent >= CODE_INDENT) this.advanceOffset(CODE_INDENT, true)
-        else if (this.blank) this.advanceNextNonspace()
-        else return 1
+        if (this.indent >= CODE_INDENT) {
+          b.codeLines = (b.codeLines ?? 1) + 1
+          b.lastDeep = b.codeLines - 1
+          this.advanceOffset(CODE_INDENT, true)
+        } else if (this.blank) {
+          b.codeLines = (b.codeLines ?? 1) + 1
+          this.advanceNextNonspace()
+        } else return 1
         return 0
       case 'html':
         return this.blank && (b.htmlType === 6 || b.htmlType === 7) ? 1 : 0
@@ -619,10 +629,17 @@ export class BlockParser {
         break
       case 'code':
         if (!b.fenced) {
-          const lines = b.content.split('\n')
-          while (lines.length && /^[ \t]*$/.test(lines.at(-1)!)) lines.pop()
-          b.content = lines.join('\n') + '\n'
-          b.endLine = b.startLine + lines.length - 1
+          // As in micromark, the code runs to its last line indented by four columns, even a
+          // line of only spaces, and only the final line ending is dropped. commonmark.js drops
+          // every trailing blank line instead, so micromark shows one more empty line.
+          const last = b.lastDeep ?? 0
+          const value = b.content
+            .split('\n')
+            .slice(0, last + 1)
+            .join('\n')
+            .replace(/\n$/, '')
+          b.content = value + '\n'
+          b.endLine = b.startLine + last
         }
         break
       // Both take in the blank lines after them, so they end where their content does.

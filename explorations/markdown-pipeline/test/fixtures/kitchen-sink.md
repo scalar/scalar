@@ -410,6 +410,26 @@ After a blank line and a line of spaces, the list above is loose.
 >
 > Two quoted blank lines make it loose too.
 
+<!-- section: Indented code with whitespace-only lines -->
+
+Installation:
+
+    npm install --save some-package
+    
+    
+
+The two lines of spaces above keep one empty line at the end of the code.
+
+<!-- section: Raw table header holding only an image -->
+
+<table>
+<thead><tr>
+  <th><img alt="Logo" src="https://example.com/logo.png" width="100"> 
+  <th><img alt="Chat" src="https://example.com/chat.png" width="100">
+</tr></thead>
+<tbody><tr><td>Docs</td><td>Chat</td></tr></tbody>
+</table>
+
 <!-- section: Lone tag on a lazy line -->
 
 * Prerequisites: a paid account.<br>
