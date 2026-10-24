@@ -1480,7 +1480,7 @@ const initLandingOrbs = debounce(() => {
       let sayGen = 0
       // the SDK card below borrows the globe and a planet: whether it has
       // them, and how to take them back at once (bound further down)
-      const lent = { on: false, reset: () => {}, check: () => {} }
+      const lent = { on: false, reset: () => () => {}, check: () => {} }
       const STAGE_LAP = 30
       const SAY_EVERY = 1400
       const SAY_FOR = 3300
@@ -1492,10 +1492,12 @@ const initLandingOrbs = debounce(() => {
         orbitLast = null
         stage.classList.remove('is-orbit', 'is-sun')
         says.forEach((say) => say.classList.remove('is-on'))
+        // the orbit's left/top stay until the planet has been measured
+        // for whatever flight comes next (its settle drops them):
+        // dropped here, a planet was measured where it was not drawn and
+        // jumped before it flew
         extras.forEach((o) => {
           o.orbit = null
-          o.orb.style.removeProperty('left')
-          o.orb.style.removeProperty('top')
         })
       }
       const orbitTick = (now) => {
@@ -1752,14 +1754,31 @@ const initLandingOrbs = debounce(() => {
           return
         }
         onStage = false
-        // whatever the SDK card has comes along from where it is
-        lent.reset()
+        // whatever the SDK and MCP cards have comes along from where it
+        // is; the MCP thread is put away once the planets have been
+        // measured for the flight (a hidden row has no box to fly from)
+        const putAway = lent.reset()
         timers.forEach((t) => window.clearTimeout(t))
         timers = []
         stopOrbit()
         extras.forEach((o) => {
           o.orb.classList.remove('is-talking')
           o.bubble?.classList.remove('is-typing')
+        })
+        // the rings turn on from where they are (the card's orbit left
+        // them anywhere) by an amount of their own, all three over the
+        // same time, and the loop carries them on from there, a quarter
+        // turn apart; at most two thirds of a turn, so no ring spins up.
+        // Every angle is read and pinned before the planets move (moving
+        // a planet cancels a turn in progress, which would snap its ring
+        // to the turn's end), and the turns start once they have landed
+        const ms = reduceMotion ? 0 : 1800
+        const from = extras.map((o) => ringAngle(o.ring))
+        extras.forEach((o, index) => {
+          o.phase = (from[index] + 60 + index * 90) % 360
+          window.clearTimeout(o.settle)
+          o.ring.style.transition = ''
+          o.ring.style.transform = `rotateY(${from[index].toFixed(1)}deg)`
         })
         moveAll(
           extras.map((o, index) => ({
@@ -1768,6 +1787,8 @@ const initLandingOrbs = debounce(() => {
             index,
             settle: () => {
               o.away = false
+              o.orb.style.removeProperty('left')
+              o.orb.style.removeProperty('top')
               o.orb.classList.remove('lp-orb--left')
               o.west = undefined
               o.z = null
@@ -1781,23 +1802,8 @@ const initLandingOrbs = debounce(() => {
             then: () => {},
           })),
         )
-        // the rings turn on from where they are (the card's orbit left
-        // them anywhere) by an amount of their own, all three over the
-        // same time, and the loop carries them on from there, a quarter
-        // turn apart; at most two thirds of a turn, so no ring spins up.
-        // Every angle is read before any ring is written, and the pins
-        // take in one layout before the turns
-        const ms = reduceMotion ? 0 : 1800
-        const from = extras.map((o) => ringAngle(o.ring))
-        extras.forEach((o, index) => {
-          o.phase = (from[index] + 60 + index * 90) % 360
-          window.clearTimeout(o.settle)
-          o.ring.style.transition = ''
-          o.ring.style.transform = `rotateY(${from[index].toFixed(1)}deg)`
-        })
-        if (ms) {
-          extras[0].box = extras[0].ring.getBoundingClientRect()
-        }
+        putAway()
+        // (the flights' last read has already taken the pins)
         extras.forEach((o, index) => {
           if (ms) {
             o.settling = true
@@ -1874,17 +1880,59 @@ const initLandingOrbs = debounce(() => {
         // eased from the old one on a move: set inline for the start,
         // let go once that has taken
         const globeO = { orb: globe, moving: 0, box: null }
+        // Moving the group cancels every transition and animation in it,
+        // so what is in flight is carried across: its size, the rise or a
+        // wipe part way (the face's fade and scale, the ring's wipe angles)
+        // and the ring paint's turn. The values as they stand are set
+        // inline for the landing and let go once it has taken, to carry on
+        // from there to the new stage's values (with no delay, as they are
+        // under way already)
+        const globeSun = globe.querySelector('.lp-stage-sun')
+        const globeFace = globeSun?.querySelector('.lp-sun')
+        const globePaints = [...globe.querySelectorAll('.lp-sun-halo-paint')]
+        const inFlight = [
+          [globeSun, ['opacity', 'scale']],
+          [globeFace, ['opacity']],
+          ...stageHalos.map((reveal) => [reveal, ['--lp-head', '--lp-tail']]),
+        ].filter(([el]) => el)
+        const paintTurn = (paint) => paint.getAnimations().find((a) => a.animationName === 'lp-halo-turn')
         const moveGlobe = (to, settle) => {
           const from = getComputedStyle(globe).getPropertyValue('--s')
+          const carried = inFlight.map(([el, props]) => {
+            const cs = getComputedStyle(el)
+            return { el, values: props.map((prop) => [prop, cs.getPropertyValue(prop)]) }
+          })
+          const turns = globePaints.map((paint) => paintTurn(paint)?.currentTime ?? null)
           move(
             globeO,
             to,
             0,
             () => {
               globe.style.setProperty('--s', from)
+              carried.forEach(({ el, values }) => {
+                el.style.transition = 'none'
+                values.forEach(([prop, value]) => el.style.setProperty(prop, value))
+              })
               settle()
             },
-            () => globe.style.removeProperty('--s'),
+            () => {
+              globe.style.removeProperty('--s')
+              carried.forEach(({ el, values }) => {
+                el.style.transition = ''
+                el.style.transitionDelay = '0s'
+                values.forEach(([prop]) => el.style.removeProperty(prop))
+              })
+              // the carried values start their transitions with no delay;
+              // the delay is the stylesheet's again for the next change
+              globeO.box = globe.getBoundingClientRect()
+              carried.forEach(({ el }) => el.style.removeProperty('transition-delay'))
+              globePaints.forEach((paint, i) => {
+                const turn = paintTurn(paint)
+                if (turn && turns[i] !== null) {
+                  turn.currentTime = turns[i]
+                }
+              })
+            },
           )
         }
         // whether the stage the globe stands on shows it, ring out
@@ -1892,7 +1940,6 @@ const initLandingOrbs = debounce(() => {
         let guest = null
         let lastGuest = null
         let sdkTimers = []
-        let globeBack = 0
         // the MCP card below borrows both again: its hold, bound further
         // down (off: let go at once; left: the globe has left it; check:
         // after a scroll, give them up if below the line)
@@ -1929,7 +1976,6 @@ const initLandingOrbs = debounce(() => {
         // the globe and the planet to this card's rows, from wherever they
         // are, and the talk once the planet has landed
         const takeToSdk = (o) => {
-          window.clearTimeout(globeBack)
           if (globeShown()) {
             moveGlobe(sunRow, () => {
               next.left()
@@ -1993,30 +2039,47 @@ const initLandingOrbs = debounce(() => {
             return
           }
           lent.on = false
-          next.off()
           talkOff()
           const o = guest
           guest = null
-          o.sdk = false
           o.orb.classList.remove('is-talking')
           o.bubble?.classList.remove('is-typing')
-          if (stage.classList.contains('is-sun')) {
+          if (stage.classList.contains('is-orbit')) {
             // the globe flies back to the centre, and the answers go on
             moveGlobe(stage, () => {
               sdk.classList.remove('is-sun')
               next.left()
             })
-            const gen = ++sayGen
-            timers.push(window.setTimeout(() => nextSay(gen), 1200))
           } else {
-            // it sets where it is, and rises there once the planet has asked
-            sdk.classList.remove('is-sun')
-            next.left()
-            globeBack = window.setTimeout(() => stage.appendChild(globe), 1000)
-            timers.push(window.setTimeout(riseSun, 4000))
+            // the Docs card's second act had not reached its orbit when the
+            // globe came down (not begun, or risen but not yet going
+            // round): on the way back up the card goes straight to how
+            // that act ends, the globe flying home with its ring out and
+            // the planets standing there easing onto the orbit round it
+            // (the guest is still marked lent, so the orbit leaves it to
+            // the flight below, which takes it onto the ring). Any
+            // question, rise or orbit still pending there is dropped
+            timers.forEach((t) => window.clearTimeout(t))
+            timers = []
+            moveGlobe(stage, () => {
+              sdk.classList.remove('is-sun')
+              next.left()
+              stage.classList.add('is-sun')
+            })
+            startOrbit()
           }
+          o.sdk = false
+          const gen = ++sayGen
+          timers.push(window.setTimeout(() => nextSay(gen), 1200))
           if (stage.classList.contains('is-orbit')) {
-            // onto the ring, where its lap has got to
+            // onto the ring, where its lap has got to, its ring spinning on
+            // from where it is: read and pinned before the move, which
+            // would cancel a turn still in progress
+            const spin = ringAngle(o.ring)
+            window.clearTimeout(o.settle)
+            o.settling = false
+            o.ring.style.transition = ''
+            o.ring.style.transform = `rotateY(${spin.toFixed(1)}deg)`
             move(
               o,
               stage,
@@ -2030,38 +2093,38 @@ const initLandingOrbs = debounce(() => {
                 const x0 = (Number.parseFloat(cs.getPropertyValue('--x')) / 100 - 0.5) * w
                 const y0 = (Number.parseFloat(cs.getPropertyValue('--y')) / 100 - 0.5) * h
                 const k = o.orbit ?? { x0, y0, t: 1, angle: Math.atan2(y0, x0), spin: 0 }
-                k.t = 1
+                // where the loop would have it: on the ring, or, with
+                // reduced motion (the loop never moves), where it stands,
+                // like the other two
+                k.t = reduceMotion ? 0 : 1
+                k.spin = spin
                 o.orbit = k
                 o.orb.style.left = '50%'
                 o.orb.style.top = '50%'
-                o.orb.style.translate = `${(rx * Math.cos(k.angle)).toFixed(1)}px ${(ry * Math.sin(k.angle)).toFixed(1)}px`
+                const tx = reduceMotion ? k.x0 : rx * Math.cos(k.angle)
+                const ty = reduceMotion ? k.y0 : ry * Math.sin(k.angle)
+                o.orb.style.translate = `${tx.toFixed(1)}px ${ty.toFixed(1)}px`
                 o.orb.style.zIndex = Math.sin(k.angle) >= 0 ? '5' : '1'
                 o.orb.classList.remove('lp-orb--left')
               },
-              () => {
-                // the ring spins on from where it is
-                window.clearTimeout(o.settle)
-                o.settling = false
-                o.orbit.spin = ringAngle(o.ring)
-                o.ring.style.transition = ''
-                o.ring.style.transform = `rotateY(${o.orbit.spin.toFixed(1)}deg)`
-              },
+              () => {},
             )
           } else {
             move(o, stage, 1, () => standOnStage(o), faceFront(o))
             askOnStage(o, (reduceMotion ? 200 : 1150) + 120)
           }
+          // the thread goes last: until the flights have measured them,
+          // the globe and the planet may still sit in its rows
+          next.off()
         }
         // the Docs card taking its planets home takes these too, as they
         // are: no flight back to it first
         lent.reset = () => {
           if (!lent.on) {
-            return
+            return () => {}
           }
           lent.on = false
-          next.off()
           talkOff()
-          window.clearTimeout(globeBack)
           sdk.classList.remove('is-sun')
           next.left()
           stage.appendChild(globe)
@@ -2071,6 +2134,8 @@ const initLandingOrbs = debounce(() => {
             guest.bubble?.classList.remove('is-typing')
             guest = null
           }
+          // the thread goes once the caller has measured the planets
+          return () => next.off()
         }
         new IntersectionObserver(
           (entries) => {
@@ -2223,11 +2288,12 @@ const initLandingOrbs = debounce(() => {
             if (!next.on) {
               return
             }
-            next.off()
-            if (!lent.on || !guest) {
-              return
+            // the flights measure the globe and the planet in their seats
+            // first; the thread is put away after
+            if (lent.on && guest) {
+              takeToSdk(guest)
             }
-            takeToSdk(guest)
+            next.off()
           }
           new IntersectionObserver(
             (entries) => {
