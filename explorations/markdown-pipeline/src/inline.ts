@@ -140,6 +140,7 @@ export class InlineParser {
    */
   private noTicks = new Map<number, number>()
   private noCommentAfter = -1
+  private literals: Literals | null = null
   /** Raw HTML is literal text when inline Markdown runs inside raw HTML. */
   htmlAsText = false
 
@@ -150,6 +151,10 @@ export class InlineParser {
 
   parse(content: string): Inline[] {
     this.s = content
+    const email = content.includes('@')
+    const http = /https?:\/\//i.test(content)
+    const www = /www\./i.test(content)
+    this.literals = email || http || www ? { email, http, www } : null
     this.pos = 0
     this.delims = null
     this.brackets = null
@@ -183,7 +188,7 @@ export class InlineParser {
 
   private parseInline(block: N): void {
     const c = this.s[this.pos]!
-    if (MAY_START_LITERAL.test(c) && this.parseLiteral(block)) return
+    if (this.literals && isAtext(c) && this.parseLiteral(block)) return
     switch (c) {
       case '\n':
         return this.parseNewline(block)
@@ -224,7 +229,9 @@ export class InlineParser {
         const m = this.match(MAIN)
         if (!m) return append(block, text((this.pos++, c)))
         // Stop the run where an autolink literal could start, so it is tried there.
-        const cut = literalCandidate(this.s, start + 1, this.pos, this.s[this.atextEnd(this.pos)] === '@')
+        const cut = this.literals
+          ? literalCandidate(this.s, start + 1, this.pos, this.literals, this.s[this.atextEnd(this.pos)] === '@')
+          : -1
         if (cut !== -1) this.pos = cut
         append(block, text(this.s.slice(start, this.pos)))
       }
@@ -239,7 +246,7 @@ export class InlineParser {
    */
   private parseLiteral(block: N): boolean {
     if (this.brackets) return false
-    const end = literalAt(this.s, this.pos)
+    const end = literalAt(this.s, this.pos, this.literals!)
     if (!end) return false
     const value = this.s.slice(this.pos, end.end)
     const link: N = { type: 'link', url: normalizeUri(end.prefix + value), title: null }
@@ -634,15 +641,23 @@ export class InlineParser {
   }
 }
 
-const isAsciiAlpha = (c: string | undefined): boolean => c !== undefined && /[A-Za-z]/.test(c)
-const isAsciiAlnum = (c: string | undefined): boolean => c !== undefined && /[A-Za-z0-9]/.test(c)
-const isAtext = (c: string | undefined): boolean => c !== undefined && /[+\-._A-Za-z0-9]/.test(c)
+// Character codes rather than regular expressions: these run for nearly every character of text.
+const isAsciiAlpha = (c: string | undefined): boolean => {
+  const n = c === undefined ? 0 : c.charCodeAt(0) | 32
+  return n >= 97 && n <= 122
+}
+const isAsciiAlnum = (c: string | undefined): boolean => {
+  const n = c === undefined ? 0 : c.charCodeAt(0)
+  return (n >= 48 && n <= 57) || isAsciiAlpha(c)
+}
+const isAtext = (c: string | undefined): boolean => c === '+' || c === '-' || c === '.' || c === '_' || isAsciiAlnum(c)
 /** Ends a URL: end of input, a space or line ending, or Unicode whitespace. */
 const isBreak = (c: string | undefined): boolean => c === undefined || /\s/.test(c)
 const isUnicodePunct = (c: string | undefined): boolean => c !== undefined && /[\p{P}\p{S}]/u.test(c)
 const isControl = (c: string | undefined): boolean => c !== undefined && (c.charCodeAt(0) < 32 || c === '\x7f')
 
-const MAY_START_LITERAL = /[+\-._A-Za-z0-9]/
+/** Which kinds of literal the text can contain at all, so the rest is not searched for them. */
+type Literals = { email: boolean; http: boolean; www: boolean }
 const PREVIOUS_WWW = /[(*_[\]~ \t\n\r]/
 
 /** Whether the rest from `i` is trailing punctuation that is not part of a URL. */
@@ -710,11 +725,11 @@ const pathEnd = (s: string, i: number): number => {
 }
 
 /** The end of a `www.`, `http(s)://` or email literal starting at `i`, and the prefix its URL needs. */
-const literalAt = (s: string, i: number): { end: number; prefix: string } | null => {
+const literalAt = (s: string, i: number, kinds: Literals): { end: number; prefix: string } | null => {
   const prev = s[i - 1]
   const c = s[i]!
   // Email: tried first at every character, as in micromark.
-  if (isAtext(c) && prev !== '/' && !isAtext(prev)) {
+  if (kinds.email && isAtext(c) && prev !== '/' && !isAtext(prev)) {
     let j = i
     while (isAtext(s[j])) j++
     if (s[j] === '@') {
@@ -734,7 +749,7 @@ const literalAt = (s: string, i: number): { end: number; prefix: string } | null
       if (data && dot && isAsciiAlpha(s[j - 1])) return { end: j, prefix: 'mailto:' }
     }
   }
-  if ((c === 'h' || c === 'H') && !isAsciiAlpha(prev)) {
+  if (kinds.http && (c === 'h' || c === 'H') && !isAsciiAlpha(prev)) {
     const m = /^https?:\/\//i.exec(s.slice(i, i + 8))
     if (m) {
       const after = i + m[0].length
@@ -746,6 +761,7 @@ const literalAt = (s: string, i: number): { end: number; prefix: string } | null
     }
   }
   if (
+    kinds.www &&
     (c === 'w' || c === 'W') &&
     (prev === undefined || PREVIOUS_WWW.test(prev)) &&
     /^www\./i.test(s.slice(i, i + 4)) &&
@@ -762,16 +778,16 @@ const literalAt = (s: string, i: number): { end: number; prefix: string } | null
  * text run. A literal can reach past the run: `atAfter` says an email `@` follows its last
  * email characters (`user_id@` is cut at `_`), and `http://` or `www.` ends within a few characters.
  */
-const literalCandidate = (s: string, from: number, to: number, atAfter: boolean): number => {
+const literalCandidate = (s: string, from: number, to: number, kinds: Literals, atAfter: boolean): number => {
   if (!atAfter && !/[@:.]/.test(s.slice(from, to + 6))) return -1
   for (let i = from; i < to; i++) {
     const c = s[i]!
-    if (!MAY_START_LITERAL.test(c)) continue
+    if (!isAtext(c)) continue
     const prev = s[i - 1]
-    const email = prev !== '/' && !isAtext(prev)
-    const http = (c === 'h' || c === 'H') && !isAsciiAlpha(prev)
-    const www = (c === 'w' || c === 'W') && PREVIOUS_WWW.test(prev ?? ' ')
-    if ((email || http || www) && literalAt(s, i)) return i
+    const email = kinds.email && prev !== '/' && !isAtext(prev)
+    const http = kinds.http && (c === 'h' || c === 'H') && !isAsciiAlpha(prev)
+    const www = kinds.www && (c === 'w' || c === 'W') && PREVIOUS_WWW.test(prev ?? ' ')
+    if ((email || http || www) && literalAt(s, i, kinds)) return i
   }
   return -1
 }

@@ -36,7 +36,7 @@ const noReparse = await import(BASELINE_NO_REPARSE)
 const tightImages = (html) => html.replace(/\s*(<img[^>]*>)\s*/g, '$1')
 const structure = (html) =>
   html
-    .replace(/<\/?(strong|em|code|del)>|<br>/g, '')
+    .replace(/<\/?(strong|em|code|del|a|sup|img)\b[^>]*>|<br>/g, '')
     .replace(/[*_`~\\]/g, '')
     .replace(/\s+/g, ' ')
 const fromReparse = (d) => {
@@ -98,16 +98,6 @@ const KNOWN = {
     return tight(current) === tight(prototype) && count(current, /\s<img/g) > count(prototype, /\s<img/g)
   },
 }
-/**
- * micromark makes a list loose when the document ends in two blank lines, the last not empty
- * (`- a\n\n `). Only `<p>` elements differ.
- */
-const unwrapped = (html) => html.replace(/<\/?p>/g, '').replace(/\s+/g, ' ')
-const trailingBlankLoose = (d) =>
-  /(\n[ \t>]*){2,}$/.test(d.markdown) &&
-  d.diffs.every(
-    (x) => unwrapped(x.current) === unwrapped(x.prototype) && count(x.current, /<p>/g) > count(x.prototype, /<p>/g),
-  )
 /** An unclosed `<object>` or `<form>` makes the current pipeline strip everything after it. */
 const swallowed = (d) =>
   /<(object|form)\b/i.test(d.markdown) &&
@@ -148,7 +138,6 @@ const followsReference = (markdown) => {
 export const BUCKETS = [
   ...Object.keys(KNOWN),
   'content after <object>/<form> lost',
-  'loose list from trailing blank lines',
   're-parsed raw HTML',
   'micromark deviates from CommonMark',
   'other',
@@ -170,7 +159,6 @@ export const bucketOf = (d) => {
 /** Explanations that need the whole difference, tried in order after the known bugs. */
 const CHECKS = [
   ['content after <object>/<form> lost', swallowed],
-  ['loose list from trailing blank lines', trailingBlankLoose],
   ['re-parsed raw HTML', fromReparse],
   ['micromark deviates from CommonMark', (d) => followsReference(d.markdown)],
 ]
