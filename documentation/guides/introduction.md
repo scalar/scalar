@@ -83,11 +83,11 @@
   <scalar-heading level="2" slug="scalar-docs" class="c">
     First, an agent has to understand your product.
   </scalar-heading>
-  <p class="lp-body">Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from the same source, so an agent gets your API right the first time instead of guessing at it.</p>
+  <p class="lp-body">Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from one source, so agents get your API right the first time.</p>
   <ul class="lp-points">
-    <li>Every page in Markdown and HTML, with <code>llms.txt</code> and a Docs MCP endpoint built in.</li>
-    <li>Your domain, your theme, and access groups for partner portals.</li>
-    <li>Open source at the core, with 15.7k GitHub stars and eight framework integrations.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/file-md" aria-hidden="true"></scalar-icon>Every page in Markdown, plus <code>llms.txt</code> and a Docs MCP endpoint.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/globe-simple" aria-hidden="true"></scalar-icon>Your domain, your theme, and access groups for partner portals.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/github-logo" aria-hidden="true"></scalar-icon>An open source core with 15.7k GitHub stars and eight framework integrations.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
@@ -109,11 +109,11 @@
   <scalar-heading level="2" slug="scalar-sdk-generation" class="c">
     Then a developer's agent builds on it.
   </scalar-heading>
-  <p class="lp-body">Your customers' coding agents write the integration now. Scalar generates typed, idiomatic SDKs from your OpenAPI document and opens every release as a pull request, so the code an agent writes against your API compiles the first time.</p>
+  <p class="lp-body">Your customers' coding agents write the integration now. Scalar generates typed SDKs from your OpenAPI document, one pull request per release, so an agent's code compiles the first time.</p>
   <ul class="lp-points">
-    <li>TypeScript, Python, Go, Java, Kotlin, and Ruby, plus a CLI and six experimental languages.</li>
-    <li>Published to npm, PyPI, Go modules, Maven Central, and RubyGems, each release with a changelog.</li>
-    <li>Moving from Stainless? Upload your <code>stainless.yml</code> as is and existing call sites keep working.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/code" aria-hidden="true"></scalar-icon>TypeScript, Python, Go, Java, Kotlin, and Ruby, plus a CLI.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/package" aria-hidden="true"></scalar-icon>Published to npm, PyPI, Go modules, Maven Central, and RubyGems, with changelogs.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/upload-simple" aria-hidden="true"></scalar-icon>Upload your <code>stainless.yml</code> as is and existing call sites keep working.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--sdk" aria-hidden="true" data-md-exclude>
@@ -192,11 +192,12 @@
   <scalar-heading level="2" slug="scalar-mcp-agent" class="c">
     Then users' agents act on it directly&nbsp;— no code at all.
   </scalar-heading>
-  <p class="lp-body">Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, so people can use your product from inside their agent today. All of that needs a server. It is not yours to run.</p>
+  <p class="lp-body">Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, which is not yours to run.</p>
   <ul class="lp-points">
-    <li>One line connects Claude, ChatGPT, Cursor, Claude Code, or any remote MCP client.</li>
-    <li>You choose which operations become tools and what each may do.</li>
-    <li>A fixed set of tools loads details just in time, about 0.2% of a context window at any API size.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/plugs-connected" aria-hidden="true"></scalar-icon>One line connects any remote MCP client to the operations you choose.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/gauge" aria-hidden="true"></scalar-icon>Any API fits in a fixed tool set, about 0.2% of context.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/cloud-check" aria-hidden="true"></scalar-icon>Hosted on your own subdomain with OAuth, rate limits, and nothing to deploy.</li>
+    <li><scalar-icon class="lp-point-icon" src="phosphor/regular/chart-bar" aria-hidden="true"></scalar-icon>Call counts, errors, and latency per tool and client, with arguments never stored.</li>
   </ul>
 </div>
   <div class="lp-card lp-card--mcp" aria-hidden="true" data-md-exclude>
@@ -212,9 +213,8 @@
 </section>
 <section class="lp-section lp-section--band lp-section--host" id="lp-hosting">
 <div class="lp-band-head lp-band-head--centre">
-  <span class="lp-kicker lp-band-kicker">Hosting</span>
   <scalar-heading level="2" slug="we-run-the-infrastructure" class="c">We run the infrastructure. You run your API.</scalar-heading>
-  <p class="lp-lede">An MCP server is a production service: it has to stay up, authenticate every caller, absorb agent traffic, and track a protocol that changes every few months. Scalar runs all of that at <code>mcp.yourcompany.com</code>. You keep shipping your API.</p>
+  <p class="lp-lede">An MCP server is a production service. It must stay up, authenticate callers, absorb agent traffic, and track a protocol that changes every few months. Scalar runs yours at <code>mcp.yourcompany.com</code> and goes where MCP goes. You keep shipping your API.</p>
 </div>
 <div class="lp-visual lp-visual--host" aria-hidden="true" data-md-exclude>
 <div class="lp-flow" data-lp-edges="api>hub,hub>dev-docs,hub>claude-code,hub>dev-sdk,hub>copilot,hub>claude,hub>chatgpt,hub>gemini">
@@ -304,60 +304,6 @@
 </div>
 </div>
 </div>
-<ul class="lp-points lp-points--row">
-  <li>A managed endpoint on a subdomain you own, HTTPS included, nothing to deploy or patch.</li>
-  <li>OAuth and access groups for outside callers, personal tokens for your team, rate limits at the edge.</li>
-  <li>The MCP spec revs every few months; Scalar runs the server, so nothing on your side needs updating.</li>
-</ul>
-<p class="lp-band-foot">You wrote the API once. We keep it reachable as the world around it moves. Where MCP goes, we go: MCP apps, prompts, and resources are next.</p>
-</section>
-<section class="lp-section lp-section--obs" id="lp-observability">
-<div class="lp-copy">
-  <span class="lp-kicker" style="color: var(--scalar-color-green)">Observability</span>
-  <scalar-heading level="2" slug="observability" class="c">And the whole time, you can see what's happening.</scalar-heading>
-  <p class="lp-body">Agents are users now, and you should see them the way you see everyone else. Scalar counts every tool call and every docs page view, so you know how agents use your product before a customer tells you.</p>
-  <ul class="lp-points">
-    <li>Volume, errors, and latency per tool and per client, exportable as CSV.</li>
-    <li>Docs page views counted server-side, with no cookies, IPs, or third-party scripts.</li>
-    <li>Tool arguments and responses are never stored, so your users&#8217; data stays theirs.</li>
-  </ul>
-</div>
-  <div class="lp-card lp-card--obs" aria-hidden="true" data-md-exclude>
-<div class="lp-card-screen">
-<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
-<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">Agent traffic</span></div>
-<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
-<div class="lp-win lp-win--app lp-win--code lp-metrics">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title">payments · mcp.acme.com · Last 7 days</span></div>
-<div class="lp-metrics-kpis">
-<div><span class="lp-metrics-k">Tool calls</span><span class="lp-metrics-v">48.2k</span></div>
-<div><span class="lp-metrics-k">Consumers</span><span class="lp-metrics-v">1,284</span></div>
-<div><span class="lp-metrics-k">p50 latency</span><span class="lp-metrics-v">142 ms</span></div>
-<div><span class="lp-metrics-k">Error rate</span><span class="lp-metrics-v">0.40%</span></div>
-</div>
-<div class="lp-metrics-table">
-<div class="lp-metrics-row lp-metrics-head"><span>Tool</span><span>Calls</span><span>Errors</span><span>p50</span></div>
-<div class="lp-metrics-row"><span>get_order</span><span>21.9k</span><span>0.20%</span><span>118 ms</span></div>
-<div class="lp-metrics-row"><span>list_orders</span><span>12.7k</span><span>0.10%</span><span>164 ms</span></div>
-<div class="lp-metrics-row"><span>create_refund</span><span>6.1k</span><span>1.3%</span><span>302 ms</span></div>
-<div class="lp-metrics-row"><span>get_customer</span><span>5.0k</span><span>0.30%</span><span>96 ms</span></div>
-<div class="lp-metrics-row"><span>update_order</span><span>2.5k</span><span>0.90%</span><span>233 ms</span></div>
-</div>
-<div class="lp-metrics-table lp-metrics-table--clients">
-<div class="lp-metrics-row lp-metrics-head"><span>Client</span><span>Calls</span><span>Top tool</span><span>Last seen</span></div>
-<div class="lp-metrics-row"><span>Claude</span><span>27.6k</span><span class="lp-metrics-tool">get_order</span><span>2m ago</span></div>
-<div class="lp-metrics-row"><span>ChatGPT</span><span>13.9k</span><span class="lp-metrics-tool">list_orders</span><span>9m ago</span></div>
-<div class="lp-metrics-row"><span>Cursor</span><span>6.7k</span><span class="lp-metrics-tool">get_customer</span><span>1h ago</span></div>
-</div>
-</div>
-</div>
-<div class="lp-flow-row">
-<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Dashboard</span>
-<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">CSV export</span>
-</div>
-</div>
-</div>
-  </div>
 </section>
 <!-- lp-vs:start -->
 <section class="lp-section lp-section--vs" id="lp-prompts">
@@ -2102,13 +2048,6 @@
   .lp-orb--sdk {
     --tint: var(--scalar-color-purple);
   }
-  .lp .lp-points--row {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 0 32px;
-    width: 100%;
-    max-width: 1100px;
-  }
   @media screen and (max-width: 840px) {
     /* on a phone the scene takes the hero scene's tree (the API, the
        orbit the full width, the agents three abreast under it); the
@@ -2130,9 +2069,6 @@
     }
     .lp-stage.lp-stage--host .lp-orb {
       --s: 80px;
-    }
-    .lp .lp-points--row {
-      grid-template-columns: 1fr;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -2359,30 +2295,29 @@
   .lp .lp-points {
     margin-top: 4px;
   }
-  /* the product points: one sentence each with a check in front, no
-     rules between, after the feature lists on x.ai/voice */
+  /* the product points: one sentence each with its own icon in front,
+     no rules between, after the feature lists on x.ai/voice */
   .lp .lp-points li {
-    /* a block, so the sentence runs on inline round its code; the check
+    /* a block, so the sentence runs on inline round its code; the icon
        hangs in the padding */
     display: block;
     position: relative;
-    padding: 5px 0 5px 24px;
+    padding: 5px 0 5px 26px;
     border-top: 0;
     font-size: 14px;
+    line-height: 1.45;
     color: var(--scalar-color-1);
   }
-  .lp .lp-points li::before {
-    content: "";
-    /* the theme hides a list item's ::before; this one is the check */
-    display: block;
+  .lp .lp-points li > .lp-point-icon {
+    /* the build inlines the icon as an svg; it sits centred on the first
+       line (the top padding, then half a line less half the icon), not
+       on the whole sentence */
     position: absolute;
     left: 0;
-    top: 8px;
-    width: 14px;
-    height: 14px;
-    background: var(--scalar-color-3);
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 8.5l3.2 3.2L13 5'/%3E%3C/svg%3E") center / contain no-repeat;
+    top: calc(5px + (1.45em - 16px) / 2);
+    width: 16px;
+    height: 16px;
+    color: var(--scalar-color-3);
   }
   .lp .lp-points li:last-child {
     border-bottom: 0;
@@ -2440,9 +2375,6 @@
   .lp-band-head .t-editor__heading {
     margin-top: 0;
   }
-  .lp-band-kicker {
-    color: var(--scalar-color-2);
-  }
   .lp .lp-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2453,88 +2385,8 @@
     gap: 4px;
     padding: 14px 0 8px;
   }
-  .lp-band-foot {
-    max-width: 640px;
-    margin: 0;
-    font-size: var(--scalar-font-size-3);
-    line-height: 1.5;
-    color: var(--scalar-color-2);
-    text-wrap: pretty;
-  }
   .lp .lp-band-actions {
     margin-top: 0;
-  }
-  .lp-section--obs {
-    --lp-accent: var(--scalar-color-green);
-  }
-  /* The observability screen: the dashboard's numbers for one server,
-     the totals, then the tools and the clients, in the code window's
-     frame */
-  .lp-metrics {
-    font-size: 12px;
-    line-height: 16px;
-  }
-  .lp-metrics .lp-app-title {
-    font-family: var(--scalar-font-code);
-  }
-  .lp-metrics-kpis {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-  .lp-metrics-kpis > div {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    padding: 10px 12px;
-  }
-  .lp-metrics-kpis > div + div {
-    border-left: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-  .lp-metrics-k {
-    font-size: 11px;
-    color: var(--scalar-color-3);
-  }
-  .lp-metrics-v {
-    font-size: 16px;
-    line-height: 20px;
-    font-weight: var(--scalar-semibold);
-    font-variant-numeric: tabular-nums;
-  }
-  .lp-metrics-table {
-    padding: 6px 0 8px;
-  }
-  .lp-metrics-table + .lp-metrics-table {
-    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-  .lp-metrics-row {
-    display: grid;
-    grid-template-columns: minmax(0, 1.7fr) repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    padding: 4px 12px;
-    font-variant-numeric: tabular-nums;
-  }
-  .lp-metrics-row span + span {
-    text-align: right;
-  }
-  .lp-metrics-row:not(.lp-metrics-head) span:first-child,
-  .lp-metrics-row:not(.lp-metrics-head) span.lp-metrics-tool {
-    font-family: var(--scalar-font-code);
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .lp-metrics-head {
-    font-size: 11px;
-    color: var(--scalar-color-3);
-  }
-  /* the consumers table names a tool in its third column, so that column
-     gets the room and reads left to right like the first */
-  .lp-metrics-table--clients .lp-metrics-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1.3fr) minmax(0, 0.9fr);
-  }
-  .lp-metrics-table--clients .lp-metrics-row span:nth-child(3) {
-    text-align: left;
   }
   /* The product card: the section's right column, top to bottom, with the
      product's flow on it. An inline-size container, so the window inside
@@ -4665,16 +4517,6 @@
     }
     .lp-section--panel {
       padding: 32px 24px;
-    }
-    .lp-metrics-kpis {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .lp-metrics-kpis > div:nth-child(3) {
-      border-left: 0;
-      border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-    }
-    .lp-metrics-kpis > div:nth-child(4) {
-      border-top: var(--scalar-border-width) solid var(--scalar-border-color);
     }
   }
 </style>
