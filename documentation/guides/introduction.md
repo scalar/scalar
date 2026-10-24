@@ -2,11 +2,11 @@
 <section class="lp-section lp-section--hero">
 <div class="lp-orbs" aria-hidden="true" data-md-exclude>
 <svg class="lp-orbits" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><ellipse class="lp-orbit" /><ellipse class="lp-orbit" /></svg>
-<div class="lp-orb lp-orb--chatgpt" data-label="ChatGPT" data-icon="chatgpt"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Found the endpoint in your docs. Calling it now.</span><span class="lp-say">200 OK. Matches the docs, field for field.</span><span class="lp-say">Is there an llms.txt for this API?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Go ahead. What you read is the version you&#8217;re calling.</span><span>Your API next? Click me, the prompt is ready.</span></div></div></div>
-<div class="lp-orb lp-orb--claude" data-label="Claude" data-icon="claude"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Your Markdown says this needs a customer id. Adding it.</span><span class="lp-say">Then what I read is what I call. Nothing drifts.</span><span class="lp-say">Which page covers authentication?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>So does the SDK. Both come from one OpenAPI document.</span><span>Want this for yours? Click me, I&#8217;ll hand you the prompt.</span></div></div></div>
+<div class="lp-orb lp-orb--chatgpt" data-label="ChatGPT" data-icon="chatgpt"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Found the endpoint in your docs. Calling it now.</span><span class="lp-say">200 OK. Matches the docs, field for field.</span><span class="lp-say">Is there an llms.txt for this API?</span><span class="lp-say">Writing the integration now. Is there a TypeScript SDK?</span><span class="lp-say">Installing. Will it compile first try, or do I iterate?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Go ahead. What you read is the version you&#8217;re calling.</span><span>Your API next? Click me, the prompt is ready.</span><span>On npm. Typed, from the OpenAPI document.</span><span>It will. Second tries are a human tradition.</span></div></div></div>
+<div class="lp-orb lp-orb--claude" data-label="Claude" data-icon="claude"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Your Markdown says this needs a customer id. Adding it.</span><span class="lp-say">Then what I read is what I call. Nothing drifts.</span><span class="lp-say">Which page covers authentication?</span><span class="lp-say">Before I write a line, is this SDK current with the API?</span><span class="lp-say">Could the types still drift from the docs?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>So does the SDK. Both come from one OpenAPI document.</span><span>Want this for yours? Click me, I&#8217;ll hand you the prompt.</span><span>It is. Every API change comes through as a pull request.</span><span>Same OpenAPI document. They would have to drift together.</span></div></div></div>
 <div class="lp-orb lp-orb--gemini" data-label="Gemini" data-icon="gemini"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Read the llms.txt. Which API should I start with?</span><span class="lp-say">Payments, then. Reading the auth guide first.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Any of them. The llms.txt lists every page as Markdown.</span><span>Your docs next? Click me, then hand your agent the prompt.</span></div></div></div>
 <div class="lp-orb lp-orb--opencode" data-label="OpenCode" data-icon="opencode"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Running your SDK&#8217;s tests from the terminal.</span><span class="lp-say">All green. The types match the docs, nothing to patch.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Carry on. I built that SDK from the OpenAPI document.</span><span>One prompt does this for your API. Click me to copy it.</span></div></div></div>
-<div class="lp-orb lp-orb--grok" data-label="Grok" data-icon="grok"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Read your Markdown. Calling the API, no guessing.</span><span class="lp-say">Count away. Just don&#8217;t go reading what I send.</span><span class="lp-say">Can I read this page as Markdown?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Through the MCP server, I take it. I count every call.</span><span>Never stored. Click me, one prompt sets this up for you.</span></div></div></div>
+<div class="lp-orb lp-orb--grok" data-label="Grok" data-icon="grok"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Read your Markdown. Calling the API, no guessing.</span><span class="lp-say">Count away. Just don&#8217;t go reading what I send.</span><span class="lp-say">Can I read this page as Markdown?</span><span class="lp-say">Wrote against your Stainless SDK last week. Still good?</span><span class="lp-say">So what changed?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Through the MCP server, I take it. I count every call.</span><span>Never stored. Click me, one prompt sets this up for you.</span><span>Yes. Same resources, same methods, same package name.</span><span>The generator. You were not supposed to notice.</span></div></div></div>
 <div class="lp-orb lp-orb--t3" data-label="T3 Code" data-icon="t3"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Pulled your docs as Markdown. Wiring the SDK in.</span><span class="lp-say">Installed. Pinned the version, so nothing moves on me.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>It&#8217;s on npm. Docs and SDK change together, never apart.</span><span>Click me: one prompt, and your agent sets this up.</span></div></div></div>
 </div>
 <template id="lp-icon-chatgpt"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></template>
@@ -90,9 +90,11 @@
   <div class="lp-card lp-card--docs" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
 <div class="lp-stage" data-lp-stage="chatgpt grok claude">
+<div class="lp-stage-globe">
 <div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
 <div class="lp-stage-sun"><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
 <div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+</div>
 <div class="lp-stage-says"><span class="lp-stage-say lp-stage-say--w">Yes, there is an llms.txt.</span><span class="lp-stage-say lp-stage-say--se">Every page is Markdown too.</span><span class="lp-stage-say lp-stage-say--ne">The auth guide, in the docs.</span><span class="lp-stage-say lp-stage-say--sw">SDKs in six languages.</span><span class="lp-stage-say lp-stage-say--e">A hosted MCP server.</span><span class="lp-stage-say lp-stage-say--nw">All from one OpenAPI document.</span></div>
 </div>
 </div>
@@ -113,11 +115,11 @@
 </div>
   <div class="lp-card lp-card--sdk" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
-<div class="lp-flow lp-flow--card" data-lp-edges="api>hub,hub>end0,hub>end1">
-<div class="lp-flow-row"><span class="lp-flow-label" data-lp-node="api" data-reveal="fade" style="--d: 0">openapi.json</span></div>
-<div class="lp-node--win" data-lp-node="hub" data-reveal="fade" style="--d: 200">
+<div class="lp-stage lp-stage--sdk" data-lp-stage-sdk>
+<div class="lp-stage-row lp-stage-row--sun" data-lp-sdk-sun>
+<div class="lp-sun-bubble"><span class="lp-say is-on"></span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div>
+</div>
 <div class="lp-win lp-win--app lp-win--code">
-<div class="lp-app-bar"><span class="lp-app-lights"><i></i><i></i><i></i></span><span class="lp-app-title"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="lp-win-brand" aria-hidden="true" viewBox="0 0 340 55"><path d="M0 36.685V21.349a7.02 7.02 0 0 1 2.906-5.69l19.742-14.25A7.44 7.44 0 0 1 27.004 0h.062c1.623 0 3.193.508 4.501 1.452l19.684 14.207a7.02 7.02 0 0 1 2.906 5.69v12.302a7.01 7.01 0 0 1-2.907 5.689L31.527 53.562A7.6 7.6 0 0 1 27.078 55a7.64 7.64 0 0 1-4.465-1.44c-2.581-1.859-6.732-4.855-6.732-4.855V29.777c0-.249.28-.393.482-.248l10.538 7.605a.3.3 0 0 0 .355 0l13.005-9.386a.306.306 0 0 0 0-.496l-13.005-9.386a.3.3 0 0 0-.355 0L.482 36.933A.304.304 0 0 1 0 36.685m157.241-20.243q5.11 0 8.943 2.305 3.834 2.303 5.963 6.42 2.162 4.082 2.162 9.482t-2.162 9.482q-2.13 4.083-5.963 6.387-3.833 2.272-8.943 2.272-5.077 0-8.943-2.272-3.834-2.304-5.995-6.387-2.13-4.083-2.13-9.482 0-5.4 2.13-9.483 2.161-4.115 5.995-6.42 3.866-2.304 8.943-2.304m57.038 0q5.11 0 8.944 2.305 3.832 2.303 5.962 6.42 2.162 4.082 2.162 9.482t-2.162 9.482q-2.13 4.083-5.962 6.387-3.834 2.272-8.944 2.272-5.077 0-8.943-2.272-3.833-2.304-5.995-6.387-2.13-4.083-2.129-9.482 0-5.4 2.129-9.483 2.162-4.115 5.995-6.42 3.865-2.304 8.943-2.304m29.044 21.203q0 3.82 1.834 5.795 1.867 1.975 5.143 1.975 2.196 0 3.899-.89 1.703-.887 2.686-2.764.983-1.91.983-4.873V17.232h8.288V52h-8.124v-5.41q-1.318 2.21-3.112 3.664-3.014 2.436-7.535 2.436-3.604 0-6.388-1.547-2.785-1.58-4.357-4.642-1.573-3.096-1.573-7.54v-21.73h8.256zM340 51.999h-8.124v-5.3h-.066q-1.081 2.01-2.686 3.358a10.7 10.7 0 0 1-3.571 1.976q-1.965.658-4.226.658-4.488 0-7.895-2.27-3.374-2.274-5.242-6.356-1.834-4.082-1.834-9.482 0-5.334 1.867-9.416t5.242-6.355q3.374-2.271 7.797-2.271 2.26-.001 4.193.625 1.965.593 3.538 1.844t2.686 3.16h.066V2.944H340zM99.777 2.944q5.373 0 9.271 1.91 3.93 1.91 6.027 5.433 2.129 3.522 2.129 8.329 0 4.84-2.162 8.363t-6.126 5.465q-3.931 1.91-9.303 1.91h-9.829v17.648h-8.647V2.943zm36.938 13.96q.852 0 1.507.033.688.033 1.18.099v7.375a28 28 0 0 0-1.54-.165 27 27 0 0 0-2.359-.099q-1.933 0-3.538.922-1.572.89-2.522 2.7-.918 1.811-.918 4.543V52h-8.255V17.232h7.961v5.762h.098q.95-2.996 2.981-4.544 2.064-1.547 5.405-1.547m59.758-7.276h-3.178q-2.097 0-2.981.89-.885.888-.885 3.028v3.687h7.044v6.684h-7.044v28.083h-8.288V23.917h-6.224v-6.684h6.224v-5.07q0-2.998 1.212-5.038 1.212-2.073 3.538-3.127 2.36-1.054 5.766-1.054h4.816zm93.78 6.914q3.636 0 6.421 1.58 2.784 1.547 4.357 4.61 1.572 3.06 1.572 7.54v21.728h-8.288V31.588q0-3.819-1.835-5.796-1.801-1.974-5.143-1.974-2.162 0-3.866.889-1.703.889-2.719 2.765-.982 1.878-.982 4.873V52h-8.256V17.232h8.125v5.384c.87-1.467 1.901-2.686 3.079-3.639q3.047-2.436 7.535-2.436m-133.012 6.848q-2.653 0-4.619 1.383-1.965 1.35-3.047 3.885-1.048 2.502-1.048 5.992t1.048 5.992q1.082 2.502 3.047 3.852t4.619 1.35q2.655 0 4.586-1.35 1.966-1.35 3.014-3.852 1.081-2.535 1.081-5.992 0-3.49-1.081-5.992-1.048-2.535-3.014-3.885-1.931-1.383-4.586-1.383m57.038 0q-2.653 0-4.619 1.383-1.966 1.35-3.046 3.885-1.049 2.502-1.049 5.992t1.049 5.992q1.08 2.502 3.046 3.852t4.619 1.35 4.586-1.35q1.966-1.35 3.015-3.852 1.08-2.535 1.081-5.992 0-3.49-1.081-5.992-1.05-2.535-3.015-3.885-1.933-1.383-4.586-1.383m108.981.033q-2.523 0-4.455 1.317-1.934 1.284-3.014 3.786-1.081 2.47-1.081 6.058 0 3.589 1.081 6.091t3.014 3.786 4.455 1.284q2.72 0 4.717-1.35 1.999-1.381 3.112-3.884 1.114-2.535 1.114-5.927 0-3.39-1.114-5.893-1.113-2.502-3.112-3.885-1.998-1.383-4.717-1.383m-233.476 3.49h9.5q2.916 0 5.014-.988 2.128-1.02 3.242-2.864 1.147-1.876 1.147-4.445 0-2.568-1.147-4.38-1.114-1.841-3.242-2.831-2.097-1.02-5.014-1.02h-9.5z"/></svg><span class="lp-win-repo">profound-sdk-typescript</span></span></div>
 <div class="lp-win-tabs"><button type="button" class="is-active" data-lp-tab="ts" data-lp-repo="profound-sdk-typescript" tabindex="-1">TypeScript</button><button type="button" data-lp-tab="py" data-lp-repo="profound-sdk-python" tabindex="-1">Python</button><button type="button" data-lp-tab="go" data-lp-repo="profound-sdk-go" tabindex="-1">Go</button><button type="button" data-lp-tab="cli" data-lp-repo="profound-cli" tabindex="-1">CLI</button></div>
 <div class="lp-win-code is-active" data-lp-code="ts">
 <span class="lp-win-line"><span class="lp-win-k">import</span> Profound <span class="lp-win-k">from</span> <span class="lp-win-s">'@profoundai/client'</span></span>
@@ -176,11 +178,7 @@
 <span class="lp-win-line">Profound&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;0.42</span>
 </div>
 </div>
-</div>
-<div class="lp-flow-row">
-<span class="lp-flow-label" data-lp-node="end0" data-lp-parent="hub" data-reveal="fade" style="--d: 600">Developers</span>
-<span class="lp-flow-label" data-lp-node="end1" data-lp-parent="hub" data-reveal="fade" style="--d: 680">Agents</span>
-</div>
+<div class="lp-stage-row lp-stage-row--planet" data-lp-sdk-planet></div>
 </div>
 </div>
   </div>
@@ -298,130 +296,6 @@
 </div>
 </div>
   </div>
-</section>
-<section class="lp-section lp-section--band" id="lp-registry">
-<div class="lp-band-head">
-  <span class="lp-kicker lp-band-kicker">Registry</span>
-  <scalar-heading level="2" slug="one-document-keeps-the-story-straight" class="c">One document keeps the story straight.</scalar-heading>
-  <p class="lp-body">Change your OpenAPI document and the docs, SDKs, and MCP tools update together. Preview the change, publish it, pin a version. An agent never reads one version of your API and calls another. Nothing drifts.</p>
-</div>
-<ul class="lp-grid">
-  <li><b>Publish from Git or the CLI</b><span><code>scalar registry publish</code> from GitHub Actions, GitLab CI, or your terminal, with every change linted before it lands.</span></li>
-  <li><b>Preview before you publish</b><span>A preview deployment on every docs pull request, staging environments for MCP servers, and SDK builds you promote when ready.</span></li>
-  <li><b>Versioned end to end</b><span>Docs, SDK releases, and MCP servers each carry a version clients can pin.</span></li>
-</ul>
-<div class="lp-actions lp-band-actions">
-  <a class="lp-action t-editor__anchor" data-scalar-type="page-link" href="/products/registry" aria-label="Learn more about Scalar Registry">Learn more &rarr;</a>
-</div>
-<div class="lp-visual">
-<div class="lp-flow" data-lp-edges="api>hub,hub>docs,hub>mcp,hub>sdk,docs>dev-docs,docs>claude-code,mcp>claude,mcp>chatgpt,mcp>gemini,sdk>dev-sdk,sdk>copilot" aria-hidden="true">
-<div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" data-reveal="fade" style="--x: 32; --y: 276; --w: 200; --d: 0">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--openapi" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.285 13.5H2.007l.003.077.009.15.004.063.014.171.004.039a8.813 8.813 0 0 0 .387 1.871c0 .004.002.007.003.011l.058.173.016.044a10.063 10.063 0 0 0 .08.216l.048.124a4.619 4.619 0 0 0 .078.189l.052.117.031.07.066.14.022.046.079.16.012.024c.03.059.061.117.093.175l.004.008.02.036 4.508-2.715.017-.01a3.606 3.606 0 0 1-.33-1.179Z" fill="#93D500"/><path d="m8.582 15.923-.013.013-3.717 3.717.057.053.105.094.055.048.127.107.034.029a8.31 8.31 0 0 0 .324.254l.006.004c.224.168.456.325.695.47l.025.016c.045.027.09.054.137.08l.084.048.08.045c.048.026.096.053.145.078a8.427 8.427 0 0 0 .431.21l.132-.32 1.87-4.54.007-.017a3.62 3.62 0 0 1-.584-.389Z" fill="#4D5A31"/><path d="M8.195 15.553a3.238 3.238 0 0 1-.212-.262 3.65 3.65 0 0 1-.2-.296L3.27 17.713c.069.116.141.228.215.338l.007.012.003.005.007.01v.002l.019.026.001.002c.079.116.16.23.242.342l.006.007.005.007.11.142.015.019c.038.049.077.097.117.145l.028.034a10.29 10.29 0 0 0 .155.181l.094.105.053.058.024.026.07.075.028.03.125.127 3.723-3.723a3.21 3.21 0 0 1-.122-.13Z" fill="#6BA43A"/><path d="M13.13 15.921a3.662 3.662 0 0 1-.124.096l.009.016 2.714 4.506a8.206 8.206 0 0 0 1.134-.886l-3.718-3.717-.015-.015Z" fill="#4D5A31"/><path d="m15.335 20.576-.092-.153-2.534-4.206a3.578 3.578 0 0 1-.316.167 3.6 3.6 0 0 1-2.567.2c-.057-.017-.113-.04-.169-.06-.056-.02-.113-.037-.168-.06L7.62 21.003l-.073.178-.063.152.014.006.016.006.004.002c.044.018.089.033.133.05.056.022.11.044.167.065l.085.032a8.912 8.912 0 0 0 1.88.442l.075.008.142.016.036.003.174.014.06.004.153.01.094.003.122.004a10.28 10.28 0 0 0 .217.003 8.877 8.877 0 0 0 1.495-.126l.154-.028.088-.017.09-.02c.05-.01.1-.02.15-.032l.028-.007a8.885 8.885 0 0 0 2.124-.791l.13-.074.157-.088.107-.06.001-.001.002-.001h.001l.001-.001.002-.001.006-.004.034-.02-.091-.153Zm-6.75-10.21a4.17 4.17 0 0 1 .123-.097l-.009-.015-2.714-4.506c-.126.082-.25.167-.372.256a8.933 8.933 0 0 0-.762.629L8.57 10.35l.015.015Z" fill="#93D500"/><path d="M4.594 6.88c-.043.043-.083.087-.124.13l-.123.128a8.875 8.875 0 0 0-.753.933l-.032.046-.076.112a6.38 6.38 0 0 0-.104.16 8.833 8.833 0 0 0-1.375 4.397l-.005.178-.003.179h5.266c0-.06.005-.119.008-.179s.004-.119.01-.178a3.572 3.572 0 0 1 .794-1.917c.038-.046.08-.09.12-.133.04-.044.077-.09.12-.133L4.594 6.881Zm10.864-1.306c-.007-.005-.014-.01-.021-.013a7.255 7.255 0 0 0-.14-.083l-.082-.047-.082-.046a27.998 27.998 0 0 0-.143-.077l-.023-.012a8.866 8.866 0 0 0-.95-.426l-.024-.01a8.908 8.908 0 0 0-1.987-.498l-.074-.01-.075-.008a6.585 6.585 0 0 0-.143-.016l-.04-.004a14.02 14.02 0 0 0-.17-.014l-.066-.004-.146-.009a3.121 3.121 0 0 0-.078-.003v5.278c.27.028.54.086.8.174l3.884-3.884a8.66 8.66 0 0 0-.44-.288Z" fill="#4D5A31"/><path d="M10.679 4.29c-.06.001-.12.001-.179.003a8.86 8.86 0 0 0-1.113.115l-.024.004-.155.029-.087.016a5.71 5.71 0 0 0-.24.052l-.028.006a8.918 8.918 0 0 0-2.125.792l-.13.074a10.34 10.34 0 0 0-.156.087c-.038.023-.077.043-.115.066h-.002a.099.099 0 0 1-.008.005l-.03.017v.001l.093.153 2.625 4.359a3.846 3.846 0 0 1 .316-.167 3.576 3.576 0 0 1 1.536-.35V4.285c-.06 0-.119.003-.178.004Z" fill="#6BA43A"/><path d="M19.704 12.708a9.926 9.926 0 0 0-.05-.61l-.002-.014-.001-.007a9.571 9.571 0 0 0-.027-.201v-.006a8.88 8.88 0 0 0-.273-1.245l-.002-.008-.059-.19-.008-.025a10.987 10.987 0 0 0-.057-.17l-.016-.046-.054-.147c-.009-.024-.017-.047-.027-.07a4.804 4.804 0 0 0-.086-.216l-.04-.094c-.016-.04-.034-.08-.052-.12l-.03-.068a15.234 15.234 0 0 0-.066-.142l-.021-.043a7.015 7.015 0 0 0-.08-.162l-.012-.022c-.03-.06-.061-.119-.093-.177l-.003-.006a8.906 8.906 0 0 0-.504-.818l-3.886 3.886c.088.26.146.529.174.8h5.278c0-.027-.002-.054-.003-.08Z" fill="#4D5A31"/><path d="M14.45 13.143c0 .06-.006.119-.01.179-.002.06-.003.119-.01.178a3.573 3.573 0 0 1-.793 1.918c-.037.046-.08.088-.12.133-.04.044-.077.09-.12.132l3.723 3.723c.043-.043.082-.086.124-.13l.123-.128c.276-.299.528-.61.754-.935l.027-.039.082-.12.07-.108.034-.052a8.83 8.83 0 0 0 1.377-4.573c.002-.059.003-.118.003-.178H14.45Z" fill="#6BA43A"/><path d="M21.279 2.722a2.467 2.467 0 0 0-3.953 2.84l-5.374 5.373a2.467 2.467 0 1 0 1.114 1.113l5.373-5.373a2.466 2.466 0 0 0 2.84-3.953Z" fill="#424143"/></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Your API</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>openapi.yaml</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node lp-node--hub" data-lp-node="hub" data-reveal="fade" style="--x: 424; --y: 276; --d: 240">
-<div class="lp-hub"><svg class="lp-hub-logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 175.5 48" fill="currentColor"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z" /><path d="M79.43 16.38c-.13-1.22-.68-2.17-1.65-2.85-.96-.68-2.2-1.02-3.74-1.02-1.08 0-2 .16-2.78.49-.77.33-1.36.77-1.77 1.32s-.62 1.19-.63 1.91c0 .6.13 1.11.4 1.55.28.44.66.81 1.13 1.12.47.3 1 .55 1.58.75.58.2 1.16.38 1.74.52l2.68.67c1.08.25 2.12.59 3.11 1.02 1 .43 1.9.97 2.69 1.62.8.65 1.43 1.44 1.9 2.36.46.92.7 2 .7 3.24 0 1.67-.43 3.15-1.28 4.42-.86 1.26-2.09 2.25-3.71 2.97-1.61.71-3.56 1.06-5.84 1.06s-4.15-.34-5.79-1.03c-1.63-.69-2.9-1.69-3.82-3.01-.91-1.32-1.4-2.93-1.48-4.83h5.09c.07.99.38 1.82.92 2.48.54.66 1.24 1.15 2.11 1.48.87.33 1.85.49 2.93.49s2.11-.17 2.96-.5c.86-.34 1.52-.82 2.01-1.42.48-.61.73-1.33.74-2.15 0-.74-.23-1.36-.66-1.84-.43-.49-1.03-.9-1.8-1.23-.76-.33-1.65-.63-2.68-.89l-3.25-.84c-2.35-.6-4.21-1.52-5.58-2.75-1.36-1.24-2.04-2.88-2.04-4.92 0-1.68.46-3.16 1.37-4.42.92-1.26 2.17-2.25 3.75-2.94 1.58-.71 3.37-1.06 5.37-1.06s3.8.35 5.33 1.06c1.53.7 2.74 1.67 3.61 2.91.87 1.24 1.32 2.66 1.35 4.27h-4.98zm18.32 21.13c-2.14 0-3.97-.47-5.51-1.41-1.52-.94-2.7-2.24-3.53-3.89-.82-1.66-1.23-3.58-1.23-5.75s.42-4.1 1.26-5.76c.84-1.67 2.02-2.98 3.54-3.9 1.53-.94 3.35-1.41 5.44-1.41 1.74 0 3.28.32 4.62.96 1.35.63 2.42 1.53 3.22 2.69.8 1.15 1.26 2.5 1.37 4.04h-4.83c-.2-1.03-.66-1.89-1.39-2.58-.73-.7-1.7-1.05-2.91-1.05-1.03 0-1.94.28-2.72.84-.78.55-1.39 1.34-1.83 2.37-.43 1.03-.64 2.27-.64 3.71s.21 2.71.64 3.77c.43 1.04 1.03 1.85 1.8 2.41.78.56 1.7.84 2.75.84.74 0 1.41-.14 1.99-.42.59-.29 1.09-.7 1.49-1.24.4-.54.67-1.19.82-1.97h4.83c-.12 1.52-.57 2.86-1.34 4.03-.77 1.16-1.82 2.07-3.15 2.73-1.33.65-2.89.98-4.69.98zm18.7.01c-1.36 0-2.58-.24-3.67-.73a6.008 6.008 0 01-2.57-2.18c-.62-.96-.93-2.14-.93-3.54 0-1.21.22-2.21.67-3a5.29 5.29 0 011.83-1.9c.77-.47 1.64-.83 2.61-1.07.98-.25 1.99-.43 3.03-.54 1.26-.13 2.27-.25 3.05-.35.78-.11 1.35-.28 1.7-.5.36-.23.54-.59.54-1.07v-.08c0-1.05-.31-1.86-.93-2.44-.62-.58-1.52-.86-2.69-.86-1.24 0-2.22.27-2.94.81-.72.54-1.2 1.18-1.45 1.91l-4.71-.67c.37-1.3.99-2.39 1.84-3.26.86-.88 1.9-1.54 3.14-1.98 1.24-.45 2.6-.67 4.1-.67 1.03 0 2.06.12 3.08.36s1.96.64 2.8 1.2c.85.55 1.52 1.3 2.04 2.25s.78 2.13.78 3.56v14.34h-4.85v-2.94h-.17c-.31.59-.74 1.15-1.3 1.67-.55.51-1.24.93-2.08 1.24-.83.31-1.8.46-2.91.46zm1.31-3.71c1.01 0 1.89-.2 2.64-.6.74-.41 1.32-.95 1.72-1.62.41-.67.61-1.4.61-2.19v-2.52c-.16.13-.43.25-.81.36-.37.11-.79.21-1.26.29-.46.08-.93.16-1.38.22-.46.07-.85.12-1.19.17-.75.1-1.43.27-2.02.5-.59.23-1.06.56-1.41.98-.34.41-.52.94-.52 1.59 0 .93.34 1.63 1.02 2.11.68.47 1.54.71 2.59.71zM137.1 8.53v28.56h-5.05V8.53h5.05zm10.57 28.99c-1.36 0-2.58-.24-3.67-.73a6.008 6.008 0 01-2.57-2.18c-.62-.96-.93-2.14-.93-3.54 0-1.21.22-2.21.67-3a5.29 5.29 0 011.83-1.9c.77-.47 1.64-.83 2.61-1.07.98-.25 1.99-.43 3.03-.54 1.26-.13 2.27-.25 3.05-.35.78-.11 1.35-.28 1.7-.5.36-.23.54-.59.54-1.07v-.08c0-1.05-.31-1.86-.93-2.44-.62-.58-1.52-.86-2.69-.86-1.24 0-2.22.27-2.94.81-.72.54-1.2 1.18-1.45 1.91l-4.71-.67c.37-1.3.99-2.39 1.84-3.26.86-.88 1.9-1.54 3.14-1.98 1.24-.45 2.6-.67 4.1-.67 1.03 0 2.06.12 3.08.36s1.96.64 2.8 1.2c.85.55 1.52 1.3 2.04 2.25s.78 2.13.78 3.56v14.34h-4.85v-2.94h-.17c-.31.59-.74 1.15-1.3 1.67-.55.51-1.24.93-2.08 1.24-.83.31-1.8.46-2.91.46zm1.31-3.71c1.01 0 1.89-.2 2.64-.6.74-.41 1.32-.95 1.72-1.62.41-.67.61-1.4.61-2.19v-2.52c-.16.13-.43.25-.81.36-.37.11-.79.21-1.26.29-.46.08-.93.16-1.38.22-.46.07-.85.12-1.19.17-.75.1-1.43.27-2.02.5-.59.23-1.06.56-1.41.98-.34.41-.52.94-.52 1.59 0 .93.34 1.63 1.02 2.11.68.47 1.54.71 2.59.71zm14.29 3.28V15.67h4.9v3.57h.22c.39-1.24 1.06-2.19 2.01-2.86.96-.68 2.05-1.02 3.28-1.02.28 0 .59.01.93.04.35.02.65.05.88.1v4.64c-.21-.07-.55-.14-1.02-.2-.46-.07-.9-.1-1.33-.1-.92 0-1.75.2-2.48.6-.73.39-1.3.93-1.72 1.63-.42.7-.63 1.5-.63 2.41v12.59h-5.05z" /></svg></div>
-</div>
-<div class="lp-node lp-lane" data-reveal="fade" style="--x: 616; --y: 44; --w: 200; --d: 560">Understands</div>
-<div class="lp-node lp-lane" data-reveal="fade" style="--x: 616; --y: 232; --w: 200; --d: 640">Builds</div>
-<div class="lp-node lp-lane" data-reveal="fade" style="--x: 616; --y: 420; --w: 200; --d: 720">Acts</div>
-<a class="lp-node" data-lp-node="docs" href="#lp-docs" data-lp-target="docs" data-lp-flip="Built {v}|Docs rebuilt" data-reveal="fade" style="--x: 616; --y: 88; --w: 200; --d: 640">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-blue)"><scalar-icon src="phosphor/regular/book-open"></scalar-icon></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Docs</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Markdown, llms.txt</span></span></div>
-</div>
-</div>
-</a>
-<a class="lp-node" data-lp-node="mcp" href="#lp-mcp" data-lp-target="mcp" data-lp-flip="Server live|Tools synced" data-reveal="fade" style="--x: 616; --y: 464; --w: 200; --d: 800">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-orange)"><svg class="lp-mark lp-mark--mcp" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.688 2.343a2.588 2.588 0 00-3.61 0l-9.626 9.44a.863.863 0 01-1.203 0 .823.823 0 010-1.18l9.626-9.44a4.313 4.313 0 016.016 0 4.116 4.116 0 011.204 3.54 4.3 4.3 0 013.609 1.18l.05.05a4.115 4.115 0 010 5.9l-8.706 8.537a.274.274 0 000 .393l1.788 1.754a.823.823 0 010 1.18.863.863 0 01-1.203 0l-1.788-1.753a1.92 1.92 0 010-2.754l8.706-8.538a2.47 2.47 0 000-3.54l-.05-.049a2.588 2.588 0 00-3.607-.003l-7.172 7.034-.002.002-.098.097a.863.863 0 01-1.204 0 .823.823 0 010-1.18l7.273-7.133a2.47 2.47 0 00-.003-3.537z"></path><path d="M14.485 4.703a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a4.115 4.115 0 000 5.9 4.314 4.314 0 006.016 0l7.12-6.982a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a2.588 2.588 0 01-3.61 0 2.47 2.47 0 010-3.54l7.12-6.982z"></path></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>MCPs</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Hosted agent tools</span></span></div>
-</div>
-</div>
-</a>
-<a class="lp-node" data-lp-node="sdk" href="#lp-sdk" data-lp-target="sdk" data-lp-flip="Built {v}|6 SDKs built" data-reveal="fade" style="--x: 616; --y: 276; --w: 200; --d: 720">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile lp-chip-tile--product" style="--lp-face: var(--scalar-color-purple)"><scalar-icon src="phosphor/regular/package"></scalar-icon></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>SDKs</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>6 languages + CLI</span></span></div>
-</div>
-</div>
-</a>
-<div class="lp-node" data-lp-node="dev-docs" data-lp-parent="docs" data-lp-flip="GET /users|GET /keys|POST /keys" data-reveal="fade" style="--x: 948; --y: 56; --w: 200; --d: 1100">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Developer</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>API consumer</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="claude-code" data-lp-parent="docs" data-lp-flip="GET /auth.md|GET /keys.md|GET /faq.md" data-reveal="fade" style="--x: 948; --y: 120; --w: 200; --d: 1160">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Claude Code</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="claude" data-lp-parent="mcp" data-lp-flip="tools/list|list_users|get_order" data-reveal="fade" style="--x: 948; --y: 400; --w: 200; --d: 1340">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Claude</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="chatgpt" data-lp-parent="mcp" data-lp-flip="tools/call|new_order|get_prompt" data-reveal="fade" style="--x: 948; --y: 464; --w: 200; --d: 1400">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--chatgpt" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>ChatGPT</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="gemini" data-lp-parent="mcp" data-lp-flip="get_orders|get_schema|do_refund" data-reveal="fade" style="--x: 948; --y: 528; --w: 200; --d: 1460">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--gemini" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="#3186FF"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-0-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-1-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-2-_R_0_)"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-0-_R_0_" x1="7" x2="11" y1="15.5" y2="12"><stop stop-color="#08B962"></stop><stop offset="1" stop-color="#08B962" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-1-_R_0_" x1="8" x2="11.5" y1="5.5" y2="11"><stop stop-color="#F94543"></stop><stop offset="1" stop-color="#F94543" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-2-_R_0_" x1="3.5" x2="17.5" y1="13.5" y2="12"><stop stop-color="#FABC12"></stop><stop offset=".46" stop-color="#FABC12" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Gemini</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="dev-sdk" data-lp-parent="sdk" data-lp-flip="npm i acme|bun i acme|gem i acme" data-reveal="fade" style="--x: 948; --y: 244; --w: 200; --d: 1220">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Developer</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>SDK user</span></span></div>
-</div>
-</div>
-</div>
-<div class="lp-node" data-lp-node="copilot" data-lp-parent="sdk" data-lp-flip="users.list()|keys.list()|orders.pay()" data-reveal="fade" style="--x: 948; --y: 308; --w: 200; --d: 1280">
-<div class="lp-chip">
-<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--copilot" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.533 1.829A2.528 2.528 0 0015.11 0h-.737a2.531 2.531 0 00-2.484 2.087l-1.263 6.937.314-1.08a2.528 2.528 0 012.424-1.833h4.284l1.797.706 1.731-.706h-.505a2.528 2.528 0 01-2.423-1.829l-.715-2.453z" fill="url(#lobe-icons-copilot-0-_R_0_)" transform="translate(0 1)"></path><path d="M6.726 20.16A2.528 2.528 0 009.152 22h1.566c1.37 0 2.49-1.1 2.525-2.48l.17-6.69-.357 1.228a2.528 2.528 0 01-2.423 1.83h-4.32l-1.54-.842-1.667.843h.497c1.124 0 2.113.75 2.426 1.84l.697 2.432z" fill="url(#lobe-icons-copilot-1-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-2-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-3-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-4-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-5-_R_0_)" transform="translate(0 1)"></path><defs><radialGradient cx="85.44%" cy="100.653%" fx="85.44%" fy="100.653%" gradientTransform="scale(-.8553 -1) rotate(50.927 2.041 -1.946)" id="lobe-icons-copilot-0-_R_0_" r="105.116%"><stop offset="9.6%" stop-color="#00AEFF"></stop><stop offset="77.3%" stop-color="#2253CE"></stop><stop offset="100%" stop-color="#0736C4"></stop></radialGradient><radialGradient cx="18.143%" cy="32.928%" fx="18.143%" fy="32.928%" gradientTransform="scale(.8897 1) rotate(52.069 .193 .352)" id="lobe-icons-copilot-1-_R_0_" r="95.612%"><stop offset="0%" stop-color="#FFB657"></stop><stop offset="63.4%" stop-color="#FF5F3D"></stop><stop offset="92.3%" stop-color="#C02B3C"></stop></radialGradient><radialGradient cx="82.987%" cy="-9.792%" fx="82.987%" fy="-9.792%" gradientTransform="scale(-1 -.9441) rotate(-70.872 .142 1.17)" id="lobe-icons-copilot-4-_R_0_" r="140.622%"><stop offset="6.6%" stop-color="#8C48FF"></stop><stop offset="50%" stop-color="#F2598A"></stop><stop offset="89.6%" stop-color="#FFB152"></stop></radialGradient><linearGradient id="lobe-icons-copilot-2-_R_0_" x1="39.465%" x2="46.884%" y1="12.117%" y2="103.774%"><stop offset="15.6%" stop-color="#0D91E1"></stop><stop offset="48.7%" stop-color="#52B471"></stop><stop offset="65.2%" stop-color="#98BD42"></stop><stop offset="93.7%" stop-color="#FFC800"></stop></linearGradient><linearGradient id="lobe-icons-copilot-3-_R_0_" x1="45.949%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#3DCBFF"></stop><stop offset="24.7%" stop-color="#0588F7" stop-opacity="0"></stop></linearGradient><linearGradient id="lobe-icons-copilot-5-_R_0_" x1="83.507%" x2="83.453%" y1="-6.106%" y2="21.131%"><stop offset="5.8%" stop-color="#F8ADFA"></stop><stop offset="70.8%" stop-color="#A86EDD" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
-<div class="lp-chip-body">
-<div class="lp-chip-label"><span>Copilot</span></div>
-<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
-</div>
-</div>
-</div>
-</div>
-</div>
 </section>
 <!-- lp-vs:start -->
 <section class="lp-section lp-section--vs" id="lp-prompts">
@@ -1025,7 +899,8 @@
     white-space: pre;
     font-family: var(--scalar-font);
     font-size: var(--type);
-    font-weight: var(--scalar-medium);
+    /* the theme's semibold is 500, too light on a ball: 600, no more */
+    font-weight: 600;
     letter-spacing: -0.01em;
     line-height: 1;
     color: var(--ink);
@@ -1248,13 +1123,17 @@
     inherits: false;
     initial-value: 0deg;
   }
+  /* the wipe starts at the band's top, which is behind the globe, and
+     runs clockwise: the band comes out from behind the globe on the
+     right, round the front, and up the left, the upper left last; the
+     tail wipes it away the same way round */
   .lp-sun-halo-reveal {
     --lp-head: 360deg;
     --lp-tail: 360deg;
     position: absolute;
     inset: 0;
-    -webkit-mask: conic-gradient(from -90deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
-    mask: conic-gradient(from -90deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
+    -webkit-mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
+    mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
     transition:
       --lp-head 600ms cubic-bezier(0.45, 0, 0.2, 1),
       --lp-tail 900ms cubic-bezier(0.45, 0, 0.2, 1);
@@ -1426,7 +1305,8 @@
      the card leaves below the viewport they fly back onto their orbits,
      where their laps went on without them. The card does not clip, so
      the flights and the bubbles are whole */
-  .lp-card.lp-card--docs {
+  .lp-card.lp-card--docs,
+  .lp-card.lp-card--sdk {
     overflow: visible;
   }
   .lp-stage {
@@ -1585,12 +1465,26 @@
   .lp-stage.is-orbit .lp-orb--claude {
     --s: 104px;
   }
+  /* the globe and its ring halves travel as one (the SDK card borrows
+     them): a point at the stage's --sx/--sy, the centre of the three.
+     The group stacks nothing of its own, so the planets still pass
+     between the ring's halves */
+  .lp-stage-globe {
+    position: absolute;
+    left: calc(var(--sx, 50) * 1%);
+    top: calc(var(--sy, 50) * 1%);
+    width: 0;
+    height: 0;
+  }
+  .lp-stage-globe.is-moving {
+    transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
   /* the globe: the pill's surface as a circle, dressed like the hero's */
   .lp-stage-sun {
     --s: 180px;
     position: absolute;
-    left: 50%;
-    top: 50%;
+    left: 0;
+    top: 0;
     z-index: 3;
     width: var(--s);
     height: var(--s);
@@ -1618,8 +1512,8 @@
   }
   /* the ring halves, in the globe's geometry, centred before the tilt */
   .lp-stage .lp-sun-halo {
-    left: 50%;
-    top: 50%;
+    left: 0;
+    top: 0;
     z-index: 2;
     width: 374px;
     height: 131px;
@@ -1630,9 +1524,13 @@
   .lp-stage .lp-sun-halo--front {
     z-index: 4;
   }
+  /* the wipe waits for the globe to be solid, since its first degrees
+     are behind the globe: shown through a globe still fading in they
+     were a sliver at its top */
   .lp-stage.is-sun .lp-sun-halo-reveal {
     --lp-head: 360deg;
     --lp-tail: 0deg;
+    transition-delay: 300ms;
   }
   /* the answers: six spots round the globe, each bubble shown by the
      script in turn */
@@ -1748,9 +1646,111 @@
   @media (prefers-reduced-motion: reduce) {
     .lp-stage .lp-orb,
     .lp-stage .lp-orb.is-moving,
+    .lp-stage-globe.is-moving,
     .lp-stage-sun,
     .lp-stage-say {
       transition: opacity 300ms ease;
+    }
+  }
+  /* The SDK card: the globe's row, the SDK's code window and the
+     planet's row, layered where the flow's openapi.json label, the
+     window and its Developers/Agents labels were. The globe stands
+     behind the panel, its lower part under the panel's top edge; the
+     planet stands in front of the panel's lower right corner. As the
+     card scrolls into view the globe, ring and all, leaves the Docs
+     card for the top row and one of the three planets, picked at
+     random, follows to the bottom one (landing.js moves both); then the
+     two speak by turns, the planet's lines in its own bubble to its
+     left over the code, Scalar's in the row's bubble to the globe's
+     right. Each stands at its row's --sx/--sy or --x/--y */
+  .lp-stage.lp-stage--sdk {
+    --sx: 34;
+    --sy: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 24px 0 16px;
+    aspect-ratio: auto;
+  }
+  .lp-stage-row {
+    position: relative;
+    width: 100%;
+  }
+  /* the globe's row runs on under the panel */
+  .lp-stage-row--sun {
+    height: 140px;
+    margin-bottom: -50px;
+  }
+  /* the planet's row starts over the panel's foot */
+  .lp-stage-row--planet {
+    height: 100px;
+    margin-top: -60px;
+  }
+  /* the panel over the globe and its ring (z 2 to 4), under the planet
+     (z 6) and the bubbles */
+  .lp-stage--sdk .lp-win {
+    z-index: 5;
+  }
+  /* no title bar on this panel: the language tabs are its top row */
+  .lp-stage--sdk .lp-win-tabs {
+    border-top: 0;
+  }
+  .lp-stage.lp-stage--sdk .lp-orb {
+    --x: 86;
+    --y: 50;
+    --s: 130px;
+  }
+  /* the planet's bubble beside it, level with its middle, the tight
+     corner at the planet, frosted over the code */
+  .lp-stage.lp-stage--sdk .lp-orb .lp-orb-bubble {
+    --r-tl: 20px;
+    --r-tr: 20px;
+    --r-bl: 20px;
+    --r-br: 6px;
+    left: auto;
+    right: 88%;
+    top: auto;
+    bottom: 50%;
+    translate: 0 50%;
+    max-width: 200px;
+  }
+  /* Scalar's bubble past the ring's right tip (the globe stands left so
+     the ring shows over the panel), a little above the globe's middle so
+     it clears the panel; a spot of its own rather than the hero script's */
+  .lp-stage--sdk .lp-sun-bubble {
+    --r-tl: 20px;
+    --r-bl: 6px;
+    z-index: 6;
+    left: calc(var(--sx) * 1% + 190px);
+    top: 40%;
+    translate: 0 -50%;
+    max-width: 160px;
+  }
+  @container lp-card (max-width: 480px) {
+    .lp-stage.lp-stage--sdk {
+      --sx: 36;
+    }
+    .lp-stage-row--sun {
+      height: 100px;
+      margin-bottom: -40px;
+    }
+    .lp-stage-row--planet {
+      height: 70px;
+      margin-top: -40px;
+    }
+    .lp-stage.lp-stage--sdk .lp-orb {
+      --s: 100px;
+    }
+    .lp-stage.lp-stage--sdk .lp-orb .lp-orb-bubble {
+      max-width: 140px;
+    }
+    .lp-stage--sdk .lp-sun-bubble {
+      left: calc(var(--sx) * 1% + 74px);
+      top: 50%;
+      max-width: 130px;
     }
   }
   @media (prefers-reduced-motion: reduce) {

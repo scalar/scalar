@@ -1292,12 +1292,16 @@ const initLandingOrbs = debounce(() => {
       // the ring's wipe from its start, so the band is revealed the way
       // round it will be wiped away: both angles to the start with no
       // transition (nothing shows either way), then the talk's values
-      halos.forEach((halo) => {
-        const reveal = halo.firstElementChild
+      const reveals = halos.map((halo) => halo.firstElementChild)
+      reveals.forEach((reveal) => {
         reveal.style.transition = 'none'
         reveal.style.setProperty('--lp-head', '0deg')
         reveal.style.setProperty('--lp-tail', '0deg')
-        o.box = reveal.getBoundingClientRect()
+      })
+      // both starts take in one layout: forcing one after letting the
+      // other go would start the other's wipe early, on the wrong values
+      o.box = reveals[0].getBoundingClientRect()
+      reveals.forEach((reveal) => {
         reveal.style.transition = ''
         reveal.style.removeProperty('--lp-head')
         reveal.style.removeProperty('--lp-tail')
@@ -1403,6 +1407,7 @@ const initLandingOrbs = debounce(() => {
         hover: o.hover,
         away: Boolean(o.away),
         settling: Boolean(o.settling),
+        lent: Boolean(o.sdk),
         target: o.target,
         lapTime: Number(o.lapTime.toFixed(2)),
         talking: talk?.o === o,
@@ -1425,6 +1430,15 @@ const initLandingOrbs = debounce(() => {
       const STAGE_Z = { claude: '2' }
       let onStage = false
       let timers = []
+      // a ring's angle as rendered, in [0, 360), transition or not
+      const ringAngle = (ring) => {
+        const m = getComputedStyle(ring).transform
+        if (!m.startsWith('matrix3d')) {
+          return 0
+        }
+        const n = m.slice(9, -1).split(',').map(Number)
+        return ((((Math.atan2(n[8], n[0]) * 180) / Math.PI) % 360) + 360) % 360
+      }
       /* the second act: the globe, its ring and the answers are in the
          stage's markup; the globe is dressed like the hero's. Once the
          questions have been up a few seconds the planets shrink and
@@ -1440,6 +1454,10 @@ const initLandingOrbs = debounce(() => {
       let orbitFrame = 0
       let orbitLast = null
       let saying = 0
+      let sayGen = 0
+      // the SDK card below borrows the globe and a planet: whether it has
+      // them, and how to take them back at once (bound further down)
+      const lent = { on: false, reset: () => {}, leave: () => {} }
       const STAGE_LAP = 30
       const SAY_EVERY = 1400
       const SAY_FOR = 3300
@@ -1475,6 +1493,11 @@ const initLandingOrbs = debounce(() => {
           }
           k.t += dt / 1000
           k.angle += (2 * Math.PI * dt) / 1000 / STAGE_LAP
+          // a planet lent to the SDK card keeps its place on the ring in
+          // mind, and nothing else
+          if (o.sdk) {
+            return
+          }
           const ex = rx * Math.cos(k.angle)
           const ey = ry * Math.sin(k.angle)
           // the first second eases from where the planet stood onto the ring
@@ -1501,13 +1524,20 @@ const initLandingOrbs = debounce(() => {
         const w = stage.clientWidth
         const h = stage.clientHeight
         extras.forEach((o) => {
+          if (o.sdk) {
+            return
+          }
           o.orb.classList.remove('is-talking')
           o.bubble?.classList.remove('is-typing')
           // the planet's offset from the centre, as it stands
           const cs = getComputedStyle(o.orb)
           const x0 = (Number.parseFloat(cs.getPropertyValue('--x')) / 100 - 0.5) * w
           const y0 = (Number.parseFloat(cs.getPropertyValue('--y')) / 100 - 0.5) * h
-          o.orbit = { x0, y0, t: 0, angle: Math.atan2(y0, x0), spin: 0 }
+          // the ring spins on from where it is, on the loop's own writes:
+          // a transition left from its turn to the front would swallow them
+          const spin = ringAngle(o.ring)
+          o.ring.style.transition = ''
+          o.orbit = { x0, y0, t: 0, angle: Math.atan2(y0, x0), spin }
           o.orb.style.left = '50%'
           o.orb.style.top = '50%'
           o.orb.style.translate = `${x0.toFixed(1)}px ${y0.toFixed(1)}px`
@@ -1516,34 +1546,48 @@ const initLandingOrbs = debounce(() => {
         orbitLast = null
         orbitTick(performance.now())
       }
-      const nextSay = () => {
-        if (!onStage || !says.length) {
+      // a chain of answers; a newer chain (the globe back from the SDK
+      // card) retires the old one by its number
+      const nextSay = (gen) => {
+        if (!onStage || !says.length || gen !== sayGen) {
           return
         }
         const say = says[saying % says.length]
         saying++
         say.classList.add('is-on')
         timers.push(window.setTimeout(() => say.classList.remove('is-on'), SAY_FOR))
-        timers.push(window.setTimeout(nextSay, SAY_EVERY))
+        timers.push(window.setTimeout(() => nextSay(gen), SAY_EVERY))
       }
-      const riseSun = () => {
-        if (!onStage || !hasStageSun) {
-          return
-        }
-        // the ring's wipe from its start, as in the hero
+      // the ring's wipe from its start, as in the hero: both angles to
+      // the start with no transition, then let go to the stage's values
+      const primeReveals = () => {
         stageHalos.forEach((reveal) => {
           reveal.style.transition = 'none'
           reveal.style.setProperty('--lp-head', '0deg')
           reveal.style.setProperty('--lp-tail', '0deg')
-          extras[0].box = reveal.getBoundingClientRect()
+        })
+        // both starts take in one layout, then the values are let go
+        // together, so each wipe starts on the stage's class with its
+        // delay (forcing one after letting the other go started that
+        // one's wipe early, on the base values)
+        extras[0].box = stageHalos[0].getBoundingClientRect()
+        stageHalos.forEach((reveal) => {
           reveal.style.transition = ''
           reveal.style.removeProperty('--lp-head')
           reveal.style.removeProperty('--lp-tail')
         })
+      }
+      // once: not while the SDK card has the globe, nor again
+      const riseSun = () => {
+        if (!onStage || !hasStageSun || lent.on || stage.classList.contains('is-sun')) {
+          return
+        }
+        primeReveals()
         stageRing.style.transform = 'rotateY(0deg)'
         stage.classList.add('is-sun')
         timers.push(window.setTimeout(startOrbit, 400))
-        timers.push(window.setTimeout(nextSay, 1400))
+        const gen = ++sayGen
+        timers.push(window.setTimeout(() => nextSay(gen), 1400))
       }
       // settle() puts the planet in its new place; then() runs once that
       // has taken (a layout is forced), the only time a transition on
@@ -1563,7 +1607,7 @@ const initLandingOrbs = debounce(() => {
         }
         const dx = first.left + first.width / 2 - (last.left + last.width / 2)
         const dy = first.top + first.height / 2 - (last.top + last.height / 2)
-        const k = first.width / last.width
+        const k = last.width ? first.width / last.width : 1
         o.orb.style.transform = `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${k.toFixed(4)})`
         // the start takes before the transition is switched on
         o.box = o.orb.getBoundingClientRect()
@@ -1579,6 +1623,65 @@ const initLandingOrbs = debounce(() => {
           1150 + index * 120,
         )
       }
+      // a planet's ring finishes its turn to the front, on at the pace
+      // it had, from wherever it is as rendered (a turn still settling
+      // back from the last visit just carries on from where it got to):
+      // pinned now, turned by the function returned once the planet is
+      // in its new place
+      const faceFront = (o) => {
+        window.clearTimeout(o.settle)
+        o.settling = false
+        const turned = ringAngle(o.ring)
+        o.ring.style.transition = ''
+        o.ring.style.transform = `rotateY(${turned.toFixed(1)}deg)`
+        return () => {
+          const left = turned < 0.5 ? 0 : 360 - turned
+          o.ring.style.transition =
+            reduceMotion || !left
+              ? ''
+              : `transform ${Math.round((left / 360) * LANDING_ORB_TURN * 1.3 + 400)}ms cubic-bezier(0.3, 0, 0.15, 1)`
+          o.ring.style.transform = left ? 'rotateY(360deg)' : 'rotateY(0deg)'
+          o.angle = 0
+        }
+      }
+      // a planet at its spot on the Docs stage, its question ready
+      const standOnStage = (o) => {
+        o.orb.style.removeProperty('left')
+        o.orb.style.removeProperty('top')
+        o.orb.style.translate = ''
+        o.orb.style.zIndex = STAGE_Z[o.orb.dataset.icon] ?? '1'
+        o.orb.classList.toggle('lp-orb--left', o.orb.dataset.icon === 'chatgpt')
+        o.orb.classList.remove('is-talking')
+        o.bubble?.classList.remove('is-typing')
+        o.bubble?.style.removeProperty('--bubble-shift')
+        o.shift = undefined
+        o.west = undefined
+        o.z = null
+        if (o.bubble) {
+          say(o.bubble, o.lines, 2)
+        }
+      }
+      // and asks it once it has landed, unless lent away meanwhile
+      const askOnStage = (o, landed) => {
+        timers.push(
+          window.setTimeout(() => {
+            if (o.sdk) {
+              return
+            }
+            if (!reduceMotion) {
+              o.bubble?.classList.add('is-typing')
+            }
+            o.orb.classList.add('is-talking')
+          }, landed),
+        )
+        timers.push(
+          window.setTimeout(() => {
+            if (!o.sdk) {
+              o.bubble?.classList.remove('is-typing')
+            }
+          }, landed + 800),
+        )
+      }
       const toStage = () => {
         if (onStage) {
           return
@@ -1592,57 +1695,8 @@ const initLandingOrbs = debounce(() => {
         timers.push(window.setTimeout(riseSun, (reduceMotion ? 200 : 1150) + extras.length * 120 + 800 + 3000))
         extras.forEach((o, index) => {
           o.away = true
-          // the ring finishes its turn, on at the pace it had, and
-          // settles with the mark to the front; one still settling back
-          // from the last visit turns on from wherever it is
-          window.clearTimeout(o.settle)
-          const settling = o.settling
-          o.settling = false
-          const turned = settling ? 0 : ((o.angle % 360) + 360) % 360
-          if (!settling) {
-            o.ring.style.transition = ''
-            o.ring.style.transform = `rotateY(${turned}deg)`
-          }
-          move(
-            o,
-            stage,
-            index,
-            () => {
-              o.orb.style.translate = ''
-              o.orb.style.zIndex = STAGE_Z[o.orb.dataset.icon] ?? '1'
-              o.orb.classList.toggle('lp-orb--left', o.orb.dataset.icon === 'chatgpt')
-              o.orb.classList.remove('is-talking')
-              o.bubble?.classList.remove('is-typing')
-              o.bubble?.style.removeProperty('--bubble-shift')
-              o.shift = undefined
-              o.west = undefined
-              o.z = null
-              if (o.bubble) {
-                say(o.bubble, o.lines, 2)
-              }
-            },
-            () => {
-              const left = 360 - turned
-              // the front, a turn ahead of wherever the ring is
-              o.ringBase = settling ? (o.ringBase ?? 0) + 720 : 360
-              o.ring.style.transition = reduceMotion
-                ? ''
-                : `transform ${Math.round((left / 360) * LANDING_ORB_TURN * 1.3 + 400)}ms cubic-bezier(0.3, 0, 0.15, 1)`
-              o.ring.style.transform = `rotateY(${o.ringBase}deg)`
-              o.angle = 0
-            },
-          )
-          // the question once it has landed
-          const landed = (reduceMotion ? 200 : 1150) + index * 120
-          timers.push(
-            window.setTimeout(() => {
-              if (!reduceMotion) {
-                o.bubble?.classList.add('is-typing')
-              }
-              o.orb.classList.add('is-talking')
-            }, landed),
-          )
-          timers.push(window.setTimeout(() => o.bubble?.classList.remove('is-typing'), landed + 800))
+          move(o, stage, index, () => standOnStage(o), faceFront(o))
+          askOnStage(o, (reduceMotion ? 200 : 1150) + index * 120)
         })
       }
       const toOrbit = () => {
@@ -1650,6 +1704,8 @@ const initLandingOrbs = debounce(() => {
           return
         }
         onStage = false
+        // whatever the SDK card has comes along from where it is
+        lent.reset()
         timers.forEach((t) => window.clearTimeout(t))
         timers = []
         stopOrbit()
@@ -1673,18 +1729,24 @@ const initLandingOrbs = debounce(() => {
               }
             },
             () => {
-              // the ring turns on from the front to a phase of its own, all
-              // three over the same time and so each at its own pace, and
-              // the loop carries them on from there, a third of a turn
-              // apart
-              const phase = 120 * (index + 1)
+              // the ring turns on from where it is (the card's orbit left
+              // it anywhere) by an amount of its own, all three over the
+              // same time, and the loop carries them on from there, a
+              // quarter turn apart; at most two thirds of a turn, so no
+              // ring spins up
+              const from = ringAngle(o.ring)
+              const phase = 60 + index * 90
               const ms = reduceMotion ? 0 : 1800
-              o.phase = phase % 360
+              o.phase = (from + phase) % 360
               window.clearTimeout(o.settle)
+              o.ring.style.transition = ''
+              o.ring.style.transform = `rotateY(${from.toFixed(1)}deg)`
               if (ms) {
+                // the start takes before the turn is switched on
+                o.box = o.ring.getBoundingClientRect()
                 o.settling = true
                 o.ring.style.transition = `transform ${ms}ms linear`
-                o.ring.style.transform = `rotateY(${(o.ringBase ?? 0) + phase}deg)`
+                o.ring.style.transform = `rotateY(${from + phase}deg)`
                 o.settle = window.setTimeout(() => {
                   o.settling = false
                   o.ring.style.transition = ''
@@ -1716,6 +1778,244 @@ const initLandingOrbs = debounce(() => {
         },
         { rootMargin: '0px 0px -55% 0px', threshold: 0 },
       ).observe(stage)
+
+      /* The SDK card, below. As it scrolls into view the globe, with its
+         ring, leaves the Docs card for the top of this one and one of the
+         three planets, picked at random (a different one each time),
+         follows to stand below it, its ring finishing its turn to the
+         front as on the Docs stage. Then the two speak by turns, the
+         planet from its bubble and Scalar from the card's own, the dots
+         between, the last line of each staying. When the card drops below
+         the viewport's middle both go back: the globe to the Docs card's
+         centre, the planet onto the orbit where its lap has got to, or,
+         where the Docs card's second act has not begun, to its spot and
+         its question (and that act follows). Reached before the globe has
+         risen there, the globe rises here instead, and sets again as it
+         goes. */
+      const sdk = document.querySelector('[data-lp-stage-sdk]')
+      const sunRow = sdk?.querySelector('[data-lp-sdk-sun]')
+      const planetRow = sdk?.querySelector('[data-lp-sdk-planet]')
+      const globe = stage.querySelector('.lp-stage-globe')
+      const sdkBubble = sdk?.querySelector('.lp-sun-bubble')
+      const sdkSay = sdkBubble?.querySelector('.lp-say')
+      if (sdk && sunRow && planetRow && globe && hasStageSun && sdkSay && sdk.dataset.lpStageBound !== 'true') {
+        sdk.dataset.lpStageBound = 'true'
+        // the globe group moves like a planet
+        const globeO = { orb: globe, moving: 0, box: null }
+        let guest = null
+        let lastGuest = null
+        let sdkTimers = []
+        let globeBack = 0
+        // the talk, from the planet's landing: who, and the dots or a line
+        const SDK_TALK = [
+          [300, 'orb', 'typing'],
+          [1100, 'orb', 3],
+          [1900, 'sun', 'typing'],
+          [2700, 'sun', 2],
+          [4000, 'orb', 'typing'],
+          [4800, 'orb', 4],
+          [5600, 'sun', 'typing'],
+          [6400, 'sun', 3],
+        ]
+        const talkOff = () => {
+          sdkTimers.forEach((t) => window.clearTimeout(t))
+          sdkTimers = []
+          sdkBubble.classList.remove('is-on', 'is-typing')
+        }
+        const toSdk = () => {
+          if (lent.on || !onStage) {
+            return
+          }
+          lent.on = true
+          // the answers pause while the globe is away
+          sayGen++
+          says.forEach((s) => s.classList.remove('is-on'))
+          window.clearTimeout(globeBack)
+          if (stage.classList.contains('is-sun')) {
+            move(
+              globeO,
+              sunRow,
+              0,
+              () => sdk.classList.add('is-sun'),
+              () => {},
+            )
+          } else {
+            // nothing to fly: it rises here, as it would have there
+            sunRow.appendChild(globe)
+            primeReveals()
+            stageRing.style.transform = 'rotateY(0deg)'
+            sdk.classList.add('is-sun')
+          }
+          // the planet below: any but the last one
+          const pool = extras.filter((o) => o !== lastGuest)
+          const o = pool[Math.floor(Math.random() * pool.length)]
+          guest = o
+          lastGuest = o
+          o.sdk = true
+          move(
+            o,
+            planetRow,
+            1,
+            () => {
+              o.orb.style.removeProperty('left')
+              o.orb.style.removeProperty('top')
+              o.orb.style.translate = ''
+              o.orb.style.zIndex = '6'
+              o.orb.classList.remove('is-talking', 'lp-orb--left')
+              o.bubble?.classList.remove('is-typing')
+              o.bubble?.style.removeProperty('--bubble-shift')
+              o.shift = undefined
+              o.z = null
+              if (o.bubble) {
+                say(o.bubble, o.lines, 3)
+              }
+            },
+            faceFront(o),
+          )
+          // the talk, once it has landed
+          const landed = (reduceMotion ? 200 : 1150) + 120
+          talkOff()
+          sdkSay.textContent = ''
+          sdkTimers = SDK_TALK.map(([at, who, what]) =>
+            window.setTimeout(() => {
+              if (who === 'sun') {
+                if (what !== 'typing') {
+                  sdkSay.textContent = o.says[what]?.textContent ?? ''
+                }
+                say(sdkBubble, [], what)
+                sdkBubble.classList.add('is-on')
+              } else if (o.bubble && (what === 'typing' || o.lines[what])) {
+                say(o.bubble, o.lines, what)
+                o.orb.classList.add('is-talking')
+              }
+            }, landed + at),
+          )
+        }
+        const fromSdk = () => {
+          if (!lent.on) {
+            return
+          }
+          lent.on = false
+          talkOff()
+          const o = guest
+          guest = null
+          o.sdk = false
+          o.orb.classList.remove('is-talking')
+          o.bubble?.classList.remove('is-typing')
+          if (stage.classList.contains('is-sun')) {
+            // the globe flies back to the centre, and the answers go on
+            move(
+              globeO,
+              stage,
+              0,
+              () => sdk.classList.remove('is-sun'),
+              () => {},
+            )
+            const gen = ++sayGen
+            timers.push(window.setTimeout(() => nextSay(gen), 1200))
+          } else {
+            // it sets here, and rises there once the planet has asked
+            sdk.classList.remove('is-sun')
+            globeBack = window.setTimeout(() => stage.appendChild(globe), 1000)
+            timers.push(window.setTimeout(riseSun, 4000))
+          }
+          if (stage.classList.contains('is-orbit')) {
+            // onto the ring, where its lap has got to
+            move(
+              o,
+              stage,
+              1,
+              () => {
+                const w = stage.clientWidth
+                const h = stage.clientHeight
+                const rx = w * 0.36
+                const ry = rx * 0.42
+                const cs = getComputedStyle(o.orb)
+                const x0 = (Number.parseFloat(cs.getPropertyValue('--x')) / 100 - 0.5) * w
+                const y0 = (Number.parseFloat(cs.getPropertyValue('--y')) / 100 - 0.5) * h
+                const k = o.orbit ?? { x0, y0, t: 1, angle: Math.atan2(y0, x0), spin: 0 }
+                k.t = 1
+                o.orbit = k
+                o.orb.style.left = '50%'
+                o.orb.style.top = '50%'
+                o.orb.style.translate = `${(rx * Math.cos(k.angle)).toFixed(1)}px ${(ry * Math.sin(k.angle)).toFixed(1)}px`
+                o.orb.style.zIndex = Math.sin(k.angle) >= 0 ? '5' : '1'
+                o.orb.classList.remove('lp-orb--left')
+              },
+              () => {
+                // the ring spins on from where it is
+                window.clearTimeout(o.settle)
+                o.settling = false
+                o.orbit.spin = ringAngle(o.ring)
+                o.ring.style.transition = ''
+                o.ring.style.transform = `rotateY(${o.orbit.spin.toFixed(1)}deg)`
+              },
+            )
+          } else {
+            move(o, stage, 1, () => standOnStage(o), faceFront(o))
+            askOnStage(o, (reduceMotion ? 200 : 1150) + 120)
+          }
+        }
+        // the Docs card taking its planets home takes these too, as they
+        // are: no flight back to it first
+        lent.reset = () => {
+          if (!lent.on) {
+            return
+          }
+          lent.on = false
+          talkOff()
+          window.clearTimeout(globeBack)
+          sdk.classList.remove('is-sun')
+          stage.appendChild(globe)
+          if (guest) {
+            guest.sdk = false
+            guest.orb.classList.remove('is-talking')
+            guest.bubble?.classList.remove('is-typing')
+            guest = null
+          }
+        }
+        new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                toSdk()
+              } else if (entry.boundingClientRect.top > 0) {
+                fromSdk()
+              }
+            })
+          },
+          { rootMargin: '0px 0px -55% 0px', threshold: 0 },
+        ).observe(sdk)
+        lent.leave = () => {
+          if (lent.on && sdk.getBoundingClientRect().top > window.innerHeight * 0.45) {
+            fromSdk()
+          }
+        }
+        // the card's state, for the page's tests
+        sdk.lpSdk = () => ({ on: lent.on, guest: guest?.orb.dataset.icon ?? null })
+      }
+      // a jump of the page (an anchor, a scroll to the top) can take a
+      // card from above the viewport to below it with no moment in
+      // between for its observer to see: after a scroll, a card below
+      // the middle of the viewport gives up what it holds
+      let scrolled = 0
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (scrolled || (!onStage && !lent.on)) {
+            return
+          }
+          scrolled = requestAnimationFrame(() => {
+            scrolled = 0
+            if (onStage && stage.getBoundingClientRect().top > window.innerHeight * 0.45) {
+              toOrbit()
+            } else {
+              lent.leave()
+            }
+          })
+        },
+        { passive: true },
+      )
     }
     orbs.forEach((o) => {
       o.ring.style.transform = `rotateY(${o.angle}deg)`
