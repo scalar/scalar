@@ -231,7 +231,7 @@
 <div class="lp-stage lp-stage--host is-sun" data-lp-stage-host>
 <div class="lp-stage-globe lp-stage-globe--host">
 <div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
-<div class="lp-stage-sun"><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
+<div class="lp-stage-sun" data-lp-anchor><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
 <div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
 </div>
 <div class="lp-orb lp-orb--product lp-orb--docs" data-label="Docs" data-icon="docs"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div></div></div>
@@ -826,20 +826,10 @@
       inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
   }
   /* the brand's own colours as the paint, where the mark has them, each
-     lit from below like the rest: Gemini is the icon's blue with its
-     red, green and yellow pinned to the rim where the icon has them
-     (red at the top, green bottom-left, yellow off the left edge), a
-     short solid core and a long fade each, so the middle stays blue
-     under the mark and the name; Claude a peach glow along the bottom
-     under a coral that deepens to the rim; OpenCode lemon along the
-     bottom under amber; T3 Code a pink glow under magenta */
-  .lp-orb--gemini .lp-orb-ball {
-    --lp-ball-paint:
-      radial-gradient(60% 46% at 36% 0%, #f94543 0 12%, rgba(249, 69, 67, 0) 100%),
-      radial-gradient(56% 50% at 16% 90%, #08b962 0 14%, rgba(8, 185, 98, 0) 100%),
-      radial-gradient(34% 44% at 0% 50%, #fabc12 0 12%, rgba(250, 188, 18, 0) 100%),
-      radial-gradient(closest-side at 50% 50%, #4592ff 34%, #3186ff 76%, #1f66d6 100%);
-  }
+     lit from below like the rest (Gemini keeps the plain blue of its
+     tint): Claude a peach glow along the bottom under a coral that
+     deepens to the rim; OpenCode lemon along the bottom under amber; T3
+     Code a pink glow under magenta */
   .lp-orb--claude .lp-orb-ball,
   .lp-orb--claude-code .lp-orb-ball {
     --lp-ball-paint:
@@ -1043,22 +1033,15 @@
   /* the ring: the mark and the name in the text colour, on a globe the
      size the pill ends at (the sun, bigger than any planet round it),
      centred on it; it shows once the pill is mostly a circle */
-  /* The globe's paint: ChatGPT's ball, the pale tint under the same
-     sheen and shade as every planet (a rainbow of the brand's colours
-     was tried and dropped as corny); the mark and the name in ChatGPT's
-     ink on it. One property each, so the scheme can change in one place */
+  /* The globe's face: flat, the page's own surface inside the page's
+     border, no sheen or shade (a ball like the planets', pale and then
+     dark, was tried before it); the mark and the name in the page's
+     ink, so the theme's dark mode follows on its own. One property each,
+     so the scheme can change in one place */
   .lp-section {
-    --lp-sun-paint:
-      radial-gradient(70% 60% at 50% 104%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 70%),
-      radial-gradient(
-        closest-side at 50% 50%,
-        color-mix(in oklab, #f8f8f8 90%, white) 40%,
-        #f8f8f8 80%,
-        color-mix(in oklab, #f8f8f8 88%, black) 100%
-      );
-    --lp-sun-shade:
-      inset 4px 16px 18px -12px rgba(0, 0, 0, 0.45),
-      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
+    --lp-sun-paint: var(--scalar-background-1);
+    --lp-sun-shade: none;
+    --lp-sun-border: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   /* on the pill the paint fades in over its surface as it rounds off,
      once its label has gone, and out again before the label returns */
@@ -1066,6 +1049,7 @@
     content: "";
     position: absolute;
     inset: calc(-1 * var(--scalar-border-width));
+    border: var(--lp-sun-border);
     border-radius: inherit;
     background: var(--lp-sun-paint);
     box-shadow: var(--lp-sun-shade);
@@ -1079,7 +1063,7 @@
   }
   .lp-sun {
     --s: 180px;
-    --ink: #0d0d0d;
+    --ink: var(--scalar-color-1);
     --type: calc(var(--s) * 0.12);
     position: absolute;
     left: 50%;
@@ -1190,7 +1174,18 @@
     width: 440px;
     height: 440px;
     margin: -220px 0 0 -220px;
-    background: conic-gradient(from 0deg, #ff6b57, #ffb347, #ffe66d, #6ee7b7, #4fd3ff, #8b6bff, #ff5fa8, #ff6b57);
+    /* the brand's six colours round the band, so the ring follows the
+       theme (and its dark mode) rather than a palette of its own */
+    background: conic-gradient(
+      from 0deg,
+      var(--scalar-color-red),
+      var(--scalar-color-orange),
+      var(--scalar-color-yellow),
+      var(--scalar-color-green),
+      var(--scalar-color-blue),
+      var(--scalar-color-purple),
+      var(--scalar-color-red)
+    );
     animation: lp-halo-turn 9s infinite;
     /* still while its ring is hidden (and while the hosting scene is off
        screen): a turning paint costs a restyle every frame. While the band
@@ -1554,7 +1549,7 @@
     width: var(--s);
     height: var(--s);
     margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
-    border: var(--scalar-border-width) solid transparent;
+    border: var(--lp-sun-border);
     border-radius: 50%;
     background: var(--lp-sun-paint);
     box-shadow: var(--lp-sun-shade);
@@ -1778,19 +1773,24 @@
     top: auto;
     bottom: 50%;
     translate: 0 50%;
-    max-width: 200px;
+    max-width: 260px;
   }
-  /* Scalar's bubble past the ring's right tip (the globe stands left so
-     the ring shows over the panel), a little above the globe's middle so
-     it clears the panel; a spot of its own rather than the hero script's */
+  /* Scalar's bubble hangs from the stage's right edge and grows left
+     towards the ring's right tip (the globe stands left so the ring shows
+     over the panel), a little above the globe's middle so it clears the
+     panel; a spot of its own rather than the hero script's */
   .lp-stage--sdk .lp-sun-bubble {
     --r-tl: 20px;
     --r-bl: 6px;
     z-index: 6;
-    left: calc(var(--sx) * 1% + 190px);
-    top: 40%;
+    left: auto;
+    right: 0;
+    top: 36%;
     translate: 0 -50%;
-    max-width: 160px;
+    /* as wide as the room right of the globe allows, up to 230px: the
+       globe's centre is at --sx, its disc reaches 60px past that in the
+       narrow card (90px in the wide one, with room to spare) */
+    max-width: min(230px, calc((100 - var(--sx)) * 1% - 64px));
   }
   @container lp-card (max-width: 480px) {
     .lp-stage.lp-stage--sdk {
@@ -1798,7 +1798,9 @@
     }
     .lp-stage-row--sun {
       height: 100px;
-      margin-bottom: -40px;
+      /* a little more room under the globe's row: Scalar's bubble runs
+         to four lines in the narrow card and must clear the window */
+      margin-bottom: -28px;
     }
     .lp-stage-row--planet {
       height: 70px;
@@ -1808,12 +1810,10 @@
       --s: 100px;
     }
     .lp-stage.lp-stage--sdk .lp-orb .lp-orb-bubble {
-      max-width: 140px;
+      max-width: 190px;
     }
     .lp-stage--sdk .lp-sun-bubble {
-      left: calc(var(--sx) * 1% + 74px);
-      top: 50%;
-      max-width: 130px;
+      top: 30%;
     }
   }
   /* The MCP card: a message thread after the chat on x.ai/voice, no
@@ -2007,7 +2007,7 @@
     border-radius: 0;
     background: none;
   }
-  /* the hub is the orbit's box, which the lines meet at its sides */
+  /* the hub is the orbit's box; the lines meet the globe inside it */
   .lp-stage.lp-stage--host {
     --sx: 50;
     --sy: 50;
@@ -2018,6 +2018,12 @@
   }
   .lp-stage--host .lp-stage-globe {
     --s: calc(160 * var(--lp-u));
+  }
+  /* no spectrum loop of its own here: the flow's script turns the paint
+     once each time a packet comes in, so the ring lies still between
+     packets (and costs nothing at rest) */
+  .lp-stage--host .lp-sun-halo-paint {
+    animation: none;
   }
   /* the products as planets: the section colours under the shared
      sheen, the mark and the name white on them; they stand at the

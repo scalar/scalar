@@ -2615,13 +2615,20 @@ const drawLandingFlowEdges = (flow) => {
   }
   const f = (n) => n.toFixed(1)
   const sideways = getComputedStyle(flow).getPropertyValue('--lp-flow-dir').trim() === 'row'
+  // a node may name the part of it the lines meet (the hosting scene's
+  // globe, inside its orbit's box): a line runs a little way in under
+  // it, so a packet goes in under the globe and comes out from under it
+  const INSET = 12
+  const anchorOf = (node) => node.querySelector('[data-lp-anchor]') ?? node
   keys.forEach((key) => {
     const [from, to] = key.split('>').map((name) => flow.querySelector(`[data-lp-node="${name}"]`))
     if (!from || !to) {
       return
     }
-    const a = from.getBoundingClientRect()
-    const b = to.getBoundingClientRect()
+    const fromAnchor = anchorOf(from)
+    const toAnchor = anchorOf(to)
+    const a = fromAnchor.getBoundingClientRect()
+    const b = toAnchor.getBoundingClientRect()
     let x0
     let y0
     let x1
@@ -2629,9 +2636,12 @@ const drawLandingFlowEdges = (flow) => {
     let d
     if (sideways) {
       const tile = to.querySelector('.lp-chip-icon')
-      x0 = (textEnd(from) ?? a.right) - box.left + LINE_GAP
+      x0 = fromAnchor === from ? (textEnd(from) ?? a.right) - box.left + LINE_GAP : a.right - box.left - INSET
       y0 = a.top + a.height / 2 - box.top
-      x1 = (tile ? tile.getBoundingClientRect().left : b.left) - box.left - LINE_GAP
+      x1 =
+        toAnchor === to
+          ? (tile ? tile.getBoundingClientRect().left : b.left) - box.left - LINE_GAP
+          : b.left - box.left + INSET
       y1 = b.top + b.height / 2 - box.top
       const mid = (x0 + x1) / 2
       d =
@@ -2640,9 +2650,9 @@ const drawLandingFlowEdges = (flow) => {
           : `M ${f(x0)} ${f(y0)} C ${f(mid)} ${f(y0)}, ${f(mid)} ${f(y1)}, ${f(x1)} ${f(y1)}`
     } else {
       x0 = a.left + a.width / 2 - box.left
-      y0 = a.bottom - box.top + 6
+      y0 = fromAnchor === from ? a.bottom - box.top + 6 : a.bottom - box.top - INSET
       x1 = b.left + b.width / 2 - box.left
-      y1 = b.top - box.top - 6
+      y1 = toAnchor === to ? b.top - box.top - 6 : b.top - box.top + INSET
       const mid = (y0 + y1) / 2
       d = `M ${f(x0)} ${f(y0)} C ${f(x0)} ${f(mid)}, ${f(x1)} ${f(mid)}, ${f(x1)} ${f(y1)}`
     }
@@ -2699,9 +2709,17 @@ const createLandingFlowPlayer = (flow) => {
   if (!layers.length || !nodes.has('api') || !nodes.has('hub')) {
     return null
   }
+  /* The hosting scene's hub is Scalar's globe. A packet going in under it
+     sets its ring's spectrum turning, and once the turn is done packets
+     go out from under it to everything on the right at once; the round
+     is longer for it. The paint there has no loop of its own (the sheet
+     turns it off), so the ring lies still between packets */
+  const hubPaints = [...(nodes.get('hub')?.querySelectorAll('[data-lp-stage-host] .lp-sun-halo-paint') ?? [])]
+  const beats = hubPaints.length > 0
+  let beatGen = 0
 
   const SPEED = 640 // scene units per second
-  const PERIOD = 3600
+  const PERIOD = beats ? 5200 : 3600
   const SVG_NS = 'http://www.w3.org/2000/svg'
   const timers = new Set()
   const packets = new Set()
@@ -2800,6 +2818,34 @@ const createLandingFlowPlayer = (flow) => {
     }
   }
 
+  /* the spectrum's turn from the top: the ring paint's keyframes (the
+     turn of lp-halo-turn, the first 18% of its 9s, with its easing), run
+     once here. A turn still going when a packet lands is left to finish
+     rather than started again, so the spectrum never jumps. Settles when
+     the turn ends, on the turn's own clock: after a stalled frame the
+     packets still wait for the ring, not for a timer */
+  const TURN_MS = 1620
+  const TURN_EASE = 'cubic-bezier(0.45, 0, 0.2, 1)'
+  const turns = new Map()
+  const beat = () =>
+    Promise.all(
+      hubPaints.map((paint) => {
+        const going = turns.get(paint)
+        if (going && going.playState === 'running') {
+          return going.finished
+        }
+        const turn = paint.animate(
+          [{ transform: 'rotate(0deg)', easing: TURN_EASE }, { transform: 'rotate(360deg)' }],
+          { duration: TURN_MS },
+        )
+        turns.set(paint, turn)
+        return turn.finished
+      }),
+    ).then(
+      () => true,
+      () => false,
+    )
+
   const pick = (list, count) => {
     const pool = [...list]
     const out = []
@@ -2825,6 +2871,22 @@ const createLandingFlowPlayer = (flow) => {
     version = (version % 9) + 1
     flip('api')
     send('api>hub', () => {
+      if (beats) {
+        const gen = ++beatGen
+        beat().then(() => {
+          // stopped since (the flow out of view, the page hidden), or a
+          // later round's packet already in: no burst from this one
+          if (!running || gen !== beatGen) {
+            return
+          }
+          leaves('hub').forEach((leaf) => {
+            send(`hub>${leaf}`, () => {
+              flip(leaf)
+            })
+          })
+        })
+        return
+      }
       if (!products.length) {
         fanOut('hub')
         return
@@ -2893,7 +2955,9 @@ const initLandingFlow = debounce(() => {
       drawLandingFlowEdges(flow)
       const observer = new ResizeObserver(() => drawLandingFlowEdges(flow))
       observer.observe(flow)
-      flow.querySelectorAll('[data-lp-node], .lp-chip-body').forEach((el) => observer.observe(el))
+      // the anchors too: the hosting scene's disc eases its size after the
+      // hub box has already changed, and the lines follow it
+      flow.querySelectorAll('[data-lp-node], .lp-chip-body, [data-lp-anchor]').forEach((el) => observer.observe(el))
       document.fonts?.ready.then(() => drawLandingFlowEdges(flow))
     }
     if (reduceMotion) {
