@@ -171,8 +171,8 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
-  # Electron runtime update, released September 29, 2026
-  - electron@44.5.1
+  # Electron runtime update, released September 29, 2026 || 44.9.1
+  - electron@44.5.1 || 44.9.1
   # Security patches for the October 2026 Undici advisories.
   - undici@7.30.1
   # Explicitly reviewed Undici 8 upgrade.
