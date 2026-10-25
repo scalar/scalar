@@ -862,6 +862,643 @@ const dressLandingGlobe = (globe, ring, size) => {
   })
   return true
 }
+/* Planet faces (an experiment; not on the landing page yet).
+
+   While a planet talks, the glyphs of its name leave the ball's equator
+   and settle on an arc across its lower face, a smile, two eyes open
+   above them, and the whole head turns towards the pointer.
+
+   Everything stands on the sphere. The name is already a ring of glyphs
+   round the ball (dressLandingGlobe puts one .lp-orb-item per glyph on
+   the ring, the mark first, each at its angle in --a: rotateY(a)
+   translateZ(--s / 2), facing out). A face feature is the same thing at
+   a latitude too: rotateY(lon) rotateX(-lat) translateZ(--s / 2)
+   rotateZ(roll), so the radius is the host's own --s and follows it. So
+   the smile is each glyph sliding over the sphere from its place on the
+   equator to its place on the arc, rolling into the curve on the way,
+   and the eyes are two more such features. All of them sit in one face
+   box inside the ring, and the look is that box turning: a yaw and a
+   pitch towards the pointer, which foreshortens the features like a
+   head turning, while the eyes themselves stay straight.
+
+   The brand's mark has a part in the face too: a nose between the eyes
+   and the smile, the two eyes themselves (two copies of it, in the
+   ink), the lead of the smile (the lockup as it stands on the ring,
+   bent), or gone.
+
+   One controller per page: it keeps the pointer, the frame and the
+   settings for every face. Attach a face to a dressed globe after
+   dressing it; set(true) for a talk, set(false) after. Transforms and
+   opacity only (a clip while a mark-eye opens); every read of layout
+   comes before any write; the frame runs only while something moves. */
+const createPlanetFaces = (options = {}) => {
+  const DEFAULTS = {
+    // what the mark does: 'nose', 'eyes', 'smile' (it leads the name
+    // round the arc) or 'hide'. A planet whose mark makes a poor eye
+    // (a wordmark) opts out with data-mark-eyes="false" and keeps pills
+    mark: 'nose',
+    // the pupils: 'pill' (upright capsule) or 'dot'; their width, how
+    // tall a pill is (times its width), and, when the eyes are the
+    // mark, the mark's size; then their distance from the middle and
+    // their height, each as a share of the ball's radius (up is negative)
+    eyeShape: 'pill',
+    eye: 0.18,
+    eyeTall: 1.7,
+    eyeMark: 0.34,
+    eyeX: 0.3,
+    eyeY: -0.2,
+    // the smile: the circle the glyphs stand on and its lowest point,
+    // as shares of the radius
+    mouthR: 0.5,
+    mouthY: 0.55,
+    // a short name is spaced out to this arc, a long one scaled down
+    // to that (degrees)
+    minSpan: 75,
+    maxSpan: 150,
+    // where the nose lands, as a share of the radius
+    noseY: 0.1,
+    // the face's expression: 'happy' (the smile), 'straight' (the name
+    // on a line) or 'thinking' (the mouth pulled to one side, one eye
+    // narrowed, the head tilted); a change tweens over expressMs
+    expression: 'happy',
+    expressMs: 340,
+    // how far the head turns towards the pointer (degrees, at most);
+    // past about 25 the far end of a long smile reaches the rim, and a
+    // look up is held short so the eyes stay clear of the bubble
+    turn: 24,
+    turnUp: 4,
+    blink: true,
+    // without a pointer the head looks about on its own
+    wander: true,
+    inMs: 700,
+    outMs: 520,
+    reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  }
+  const settings = { ...DEFAULTS, ...(options.settings ?? {}) }
+  /* an expression: how the mouth lies, how open each eye is, and the
+     head's tilt (degrees, a roll). The mouth is the name: 'smile' puts
+     it on the smile's circle, 'flat' on a line, 'hmm' on a line that
+     rises to one side, shifted that way */
+  const EXPRESSIONS = {
+    happy: { mouth: 'smile', lids: [1, 1], tilt: 0 },
+    straight: { mouth: 'flat', lids: [1, 1], tilt: 0 },
+    thinking: { mouth: 'hmm', lids: [0.5, 1], tilt: -6 },
+  }
+  const faces = new Set()
+  let pointer = null
+  let frame = 0
+  let last = null
+  let copies = 0
+
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+  const clamp01 = (v) => clamp(v, 0, 1)
+  const easeInOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2)
+  // a soft overshoot on the way in: the smile dips a touch past and settles
+  const easeBack = (p) => 1 + 2.1 * (p - 1) ** 3 + 1.1 * (p - 1) ** 2
+  const RAD = 180 / Math.PI
+
+  /* the frame: runs while a face moves, sleeps otherwise; a pointer
+     move, a blink's timer, a change of settings or a talk wakes it */
+  const awake = () => {
+    for (const face of faces) {
+      if (!face.rest) {
+        return true
+      }
+    }
+    return false
+  }
+  const wake = () => {
+    if (!frame && !document.hidden) {
+      last = null
+      frame = requestAnimationFrame(tick)
+    }
+  }
+  const tick = (now) => {
+    frame = 0
+    const dt = last === null ? 16 : Math.min(now - last, 100)
+    last = now
+    // every read before any write, so a frame flushes style once
+    faces.forEach((face) => {
+      if (!face.orb.isConnected) {
+        // its planet left the page
+        faces.delete(face)
+      } else if (pointer && !face.rest) {
+        face.rect = face.orb.getBoundingClientRect()
+      }
+    })
+    let busy = false
+    faces.forEach((face) => {
+      if (face.frame(now, dt)) {
+        busy = true
+      }
+    })
+    if (busy && !document.hidden) {
+      frame = requestAnimationFrame(tick)
+    }
+  }
+  const nudge = () => {
+    if (awake()) {
+      wake()
+    }
+  }
+  // a finger lifts without leaving, so it never sets the look
+  const onMove = (event) => {
+    if (event.pointerType === 'touch') {
+      return
+    }
+    pointer = { x: event.clientX, y: event.clientY }
+    nudge()
+  }
+  const onLeave = () => {
+    pointer = null
+    nudge()
+  }
+  const onUp = (event) => {
+    if (event.pointerType !== 'mouse') {
+      pointer = null
+      nudge()
+    }
+  }
+  window.addEventListener('pointermove', onMove, { passive: true })
+  window.addEventListener('pointerup', onUp, { passive: true })
+  window.addEventListener('pointercancel', onUp, { passive: true })
+  document.documentElement.addEventListener('mouseleave', onLeave)
+  document.addEventListener('visibilitychange', nudge)
+
+  /* a copy of the mark for an eye, its gradient ids made its own */
+  const copyMark = (svg) => {
+    const suffix = `-e${++copies}`
+    const holder = document.createElement('span')
+    holder.className = 'lp-eye-mark'
+    holder.innerHTML = svg.outerHTML
+      .replace(/id="([^"]+)"/g, `id="$1${suffix}"`)
+      .replace(/url\(#([^)]+)\)/g, `url(#$1${suffix})`)
+    return holder
+  }
+  /* a feature's place on the sphere: longitude and latitude (radians)
+     from where it should appear on the face when the head is straight,
+     x to the right and y down, as shares of the radius */
+  const onSphere = (x, y) => {
+    const lat = Math.asin(clamp(y, -0.96, 0.96))
+    const lon = Math.asin(clamp(x / Math.cos(lat), -0.96, 0.96))
+    return { lon, lat }
+  }
+  const place = (lon, lat, roll = 0) =>
+    `rotateY(${(lon * RAD).toFixed(3)}deg) rotateX(${(-lat * RAD).toFixed(3)}deg) translateZ(calc(var(--s) / 2))${roll ? ` rotateZ(${(roll * RAD).toFixed(3)}deg)` : ''}`
+
+  const createFace = (orb, ring) => {
+    const items = [...ring.querySelectorAll('.lp-orb-item')].map((item) => ({
+      el: item,
+      glyph: item.firstElementChild,
+      a: (Number.parseFloat(item.style.getPropertyValue('--a')) * Math.PI) / 180,
+      lon: 0,
+      lat: 0,
+      roll: 0,
+      scale: 1,
+    }))
+    const mark = items[0]
+    const letters = items.slice(1)
+    const markSvg = mark?.glyph.querySelector('svg')
+    // the face box: one box in the ring holding the glyphs (moved in)
+    // and the eyes; the look turns it. Each eye is a zero-size box on
+    // the sphere, a lid (the blink), a pupil holding a capsule of two
+    // round caps and a bar, and a copy of the mark for when the eyes
+    // are the mark
+    const box = document.createElement('div')
+    box.className = 'lp-face'
+    items.forEach((item) => box.appendChild(item.el))
+    const eyes = [-1, 1].map((side) => {
+      const eye = document.createElement('div')
+      eye.className = 'lp-eye'
+      const lid = document.createElement('div')
+      lid.className = 'lp-eye-lid'
+      const pupil = document.createElement('div')
+      pupil.className = 'lp-eye-pupil'
+      const capA = document.createElement('i')
+      capA.className = 'lp-eye-cap'
+      const bar = document.createElement('i')
+      bar.className = 'lp-eye-bar'
+      const capB = document.createElement('i')
+      capB.className = 'lp-eye-cap'
+      pupil.append(capA, bar, capB)
+      let markEl = null
+      if (markSvg) {
+        markEl = copyMark(markSvg)
+        pupil.appendChild(markEl)
+      }
+      lid.appendChild(pupil)
+      eye.appendChild(lid)
+      box.appendChild(eye)
+      return { side, el: eye, lid, pupil, capA, bar, capB, markEl }
+    })
+    ring.appendChild(box)
+
+    const face = {
+      orb,
+      ring,
+      box,
+      rect: null,
+      arc: letters,
+      nose: { lon: 0, lat: 0 },
+      marks: false,
+      expression: settings.expression,
+      // the expression's targets, the ones before, and the tween between
+      goal: null,
+      prior: null,
+      x: 1,
+      xStart: 0,
+      lids: [1, 1],
+      tilt: 0,
+      e: 0,
+      to: 0,
+      from: 0,
+      start: 0,
+      dur: 0,
+      rest: true,
+      // what the last frame wrote, to skip the writes nothing changed
+      written: -1,
+      blinkWritten: 1,
+      xWritten: -1,
+      dirty: true,
+      // the look, smoothed, and the head's own wander
+      gx: 0,
+      gy: 0,
+      seed: Math.random() * 1000,
+      nextBlink: 0,
+      blinkAt: -1e9,
+      blinkTimer: 0,
+    }
+
+    /* the face's geometry: each glyph's arc position on the equator
+       (its angle, which is its arc length over the radius) becomes its
+       position on the smile's circle, the word centred at the bottom,
+       and that becomes a place on the sphere; a short word is spaced
+       out to the least arc, a long one scaled down to the most. The
+       eyes and the nose get their places on the sphere too, and the
+       eyes their shape, all in terms of the host's --s */
+    const layout = () => {
+      face.dirty = true
+      const r = settings.mouthR
+      const yc = settings.mouthY - r
+      face.marks = settings.mark === 'eyes' && Boolean(markSvg) && orb.dataset.markEyes !== 'false'
+      box.style.setProperty('--lp-eye-d', `calc(var(--s) * ${(settings.eye / 2).toFixed(4)})`)
+      box.style.setProperty('--lp-eye-mark', `calc(var(--s) * ${(settings.eyeMark / 2).toFixed(4)})`)
+      box.classList.toggle('is-marks', face.marks)
+      const tall = settings.eyeShape === 'pill' ? settings.eyeTall : 1
+      // the caps sit half the bar apart: the bar is (tall - 1) pupil
+      // widths, a pupil width is eye * --s / 2
+      const half = (settings.eye * (tall - 1)) / 4
+      eyes.forEach((eye) => {
+        const { lon, lat } = onSphere(eye.side * settings.eyeX, settings.eyeY)
+        eye.el.style.transform = place(lon, lat)
+        eye.capA.style.transform = `translateY(calc(var(--s) * ${(-half).toFixed(4)}))`
+        eye.capB.style.transform = `translateY(calc(var(--s) * ${half.toFixed(4)}))`
+        eye.bar.style.transform = `scaleY(${(tall - 1).toFixed(3)})`
+      })
+      face.nose = onSphere(0, settings.noseY)
+      face.arc = settings.mark === 'smile' && mark ? [mark, ...letters] : letters
+      face.goal = aim(face.expression)
+      face.prior = face.goal
+      face.x = 1
+    }
+
+    /* where the mouth's glyphs, the lids and the tilt go for an
+       expression. Each glyph's arc position on the equator (its angle,
+       which is its arc length over the radius) becomes its position
+       along the mouth, the word centred; on the smile a short word is
+       spaced out to the least arc and a long one scaled down to the
+       most, on a line a long word is scaled to fit the face */
+    const aim = (name) => {
+      const expr = EXPRESSIONS[name] ?? EXPRESSIONS.happy
+      const arc = face.arc
+      const r = settings.mouthR
+      const yc = settings.mouthY - r
+      const out = { items: [], lids: expr.lids, tilt: expr.tilt }
+      if (!arc.length) {
+        return out
+      }
+      const pos = arc.map((l) => l.a)
+      const first = pos[0]
+      const final = pos[pos.length - 1]
+      const centre = (first + final) / 2
+      const step = arc.length > 1 ? (final - first) / (arc.length - 1) : 0
+      const extent = final - first + step
+      let offsets = pos.map((p) => p - centre)
+      let scale = 1
+      if (expr.mouth === 'smile') {
+        const span = extent / r
+        const min = (settings.minSpan * Math.PI) / 180
+        const max = (settings.maxSpan * Math.PI) / 180
+        if (span < min && extent > 0) {
+          offsets = offsets.map((q) => (q * (min * r)) / extent)
+        } else if (span > max) {
+          scale = max / span
+          offsets = offsets.map((q) => q * scale)
+        }
+        out.items = offsets.map((q) => {
+          const psi = q / r
+          return { ...onSphere(r * Math.sin(psi), yc + r * Math.cos(psi)), roll: -psi, scale }
+        })
+        return out
+      }
+      // a line across the lower face, held short of the rim (shorter
+      // still when it sits to one side)
+      const width = expr.mouth === 'hmm' ? 0.88 : 0.98
+      if (extent > width) {
+        scale = width / extent
+        offsets = offsets.map((q) => q * scale)
+      }
+      const flatY = settings.mouthY - 0.1
+      if (expr.mouth === 'flat') {
+        out.items = offsets.map((q) => ({ ...onSphere(q, flatY), roll: 0, scale }))
+        return out
+      }
+      // 'hmm': the line rises to the right and sits a little that way
+      const slope = -0.24
+      const shift = 0.07
+      const roll = Math.atan(slope)
+      out.items = offsets.map((q) => {
+        const x = q * Math.cos(roll) + shift
+        return { ...onSphere(x, flatY + 0.02 + slope * (x - shift)), roll, scale }
+      })
+      return out
+    }
+
+    /* another expression, tweened from wherever the face is now */
+    face.express = (name, animate = true) => {
+      if (!EXPRESSIONS[name] || name === face.expression) {
+        return
+      }
+      face.expression = name
+      const cur = current()
+      face.goal = aim(name)
+      if (animate && !settings.reduceMotion && settings.expressMs > 0) {
+        face.prior = cur
+        face.x = 0
+        face.xStart = performance.now()
+      } else {
+        face.prior = face.goal
+        face.x = 1
+      }
+      face.dirty = true
+      wake()
+    }
+    /* the targets as they stand now, between the prior and the goal */
+    const current = () => {
+      const k = easeInOut(face.x)
+      const mix = (a, b) => a + (b - a) * k
+      return {
+        items: face.goal.items.map((g, i) => {
+          const o = face.prior.items[i] ?? g
+          return {
+            lon: mix(o.lon, g.lon),
+            lat: mix(o.lat, g.lat),
+            roll: mix(o.roll, g.roll),
+            scale: mix(o.scale, g.scale),
+          }
+        }),
+        lids: [mix(face.prior.lids[0], face.goal.lids[0]), mix(face.prior.lids[1], face.goal.lids[1])],
+        tilt: mix(face.prior.tilt, face.goal.tilt),
+      }
+    }
+
+    const restore = () => {
+      items.forEach(({ el, glyph }) => {
+        el.style.transform = ''
+        glyph.style.transform = ''
+        glyph.style.opacity = ''
+      })
+      box.style.transform = ''
+      box.classList.remove('is-on')
+      window.clearTimeout(face.blinkTimer)
+      face.rest = true
+    }
+
+    face.set = (on) => {
+      const to = on ? 1 : 0
+      if (face.to === to) {
+        return
+      }
+      face.to = to
+      face.from = face.e
+      face.start = performance.now()
+      face.dur = on ? settings.inMs : settings.outMs
+      window.clearTimeout(face.blinkTimer)
+      if (on) {
+        box.classList.add('is-on')
+        face.rest = false
+        face.nextBlink = face.start + 1800 + Math.random() * 1600
+      }
+      wake()
+    }
+    // the radius is the host's --s, so a new size needs no measuring;
+    // kept for a host that wants to say so
+    face.resize = () => {
+      layout()
+      wake()
+    }
+    face.layout = () => {
+      layout()
+      wake()
+    }
+    face.detach = () => {
+      restore()
+      items.forEach((item) => ring.appendChild(item.el))
+      box.remove()
+      faces.delete(face)
+    }
+
+    face.frame = (now, dt) => {
+      // the morph
+      if (face.e !== face.to) {
+        if (settings.reduceMotion || face.dur <= 0) {
+          face.e = face.to
+        } else {
+          const p = clamp01((now - face.start) / face.dur)
+          const k = face.to > face.from ? easeBack(p) : easeInOut(p)
+          face.e = p >= 1 ? face.to : face.from + (face.to - face.from) * k
+        }
+      }
+      const e = face.e
+      if (e <= 0 && face.to === 0) {
+        if (!face.rest) {
+          restore()
+        }
+        return false
+      }
+      const on = clamp01(e)
+      // the expression's tween
+      if (face.x < 1) {
+        const p = clamp01((now - face.xStart) / settings.expressMs)
+        face.x = p >= 1 ? 1 : p
+      }
+      if (face.x < 1 || face.dirty) {
+        const stand = current()
+        stand.items.forEach((t, i) => {
+          const l = face.arc[i]
+          l.lon = t.lon
+          l.lat = t.lat
+          l.roll = t.roll
+          l.scale = t.scale
+        })
+        face.lids = stand.lids
+        face.tilt = stand.tilt
+      }
+
+      // where to look: the pointer, from the ball's centre, saturating a
+      // few radii out; or, with no pointer, a slow wander; eased so a
+      // jump of the pointer is a glance, not a snap
+      let tx = 0
+      let ty = 0
+      if (pointer && face.rect) {
+        const R = face.rect.width / 2
+        const dx = pointer.x - (face.rect.left + R)
+        const dy = pointer.y - (face.rect.top + R)
+        const dist = Math.hypot(dx, dy)
+        if (dist > 0.5) {
+          const k = dist / (dist + 2.5 * R)
+          tx = (dx / dist) * k
+          ty = (dy / dist) * k
+        }
+      } else if (settings.wander && !settings.reduceMotion) {
+        const t = now / 1000 + face.seed
+        tx = 0.55 * Math.sin(t * 0.71) * Math.cos(t * 0.23)
+        ty = 0.4 * Math.sin(t * 0.47 + 1.3)
+      }
+      const looking = Math.abs(tx - face.gx) > 0.0005 || Math.abs(ty - face.gy) > 0.0005
+      if (looking) {
+        const ease = 1 - Math.exp(-dt / 80)
+        face.gx += (tx - face.gx) * ease
+        face.gy += (ty - face.gy) * ease
+      } else {
+        face.gx = tx
+        face.gy = ty
+      }
+      // the head turns towards the look: yaw to the side, pitch up or
+      // down (a positive rotateX lifts the front, so the pitch is signed
+      // the other way; a look up is held short), both held back while
+      // the face is still forming
+      const yaw = face.gx * settings.turn * on
+      const pitch = Math.max(face.gy * settings.turn, -settings.turnUp) * on
+      box.style.transform = `rotateX(${(-pitch).toFixed(3)}deg) rotateY(${yaw.toFixed(3)}deg) rotateZ(${(face.tilt * on).toFixed(3)}deg)`
+
+      // a blink now and then, once the face is there
+      let blink = 1
+      let midBlink = false
+      if (settings.blink && !settings.reduceMotion && face.to === 1 && e >= 0.95) {
+        if (now >= face.nextBlink) {
+          face.blinkAt = now
+          face.nextBlink = now + 2600 + Math.random() * 3200
+        }
+        const bp = (now - face.blinkAt) / 150
+        if (bp >= 0 && bp < 1) {
+          blink = 1 - 0.94 * Math.sin(Math.PI * bp)
+          midBlink = true
+        }
+      }
+
+      // the features move with the morph and the blink only; a frame
+      // that changed neither writes nothing here
+      const same = e === face.written && blink === face.blinkWritten && face.x === face.xWritten && !face.dirty
+      face.written = e
+      face.blinkWritten = blink
+      face.xWritten = face.x
+      face.dirty = false
+      if (!same) {
+        // the glyphs slide over the sphere from the equator to the arc,
+        // rolling into the curve on the way
+        face.arc.forEach((l) => {
+          const lon = l.a + (l.lon - l.a) * e
+          l.el.style.transform = place(lon, l.lat * e, l.roll * e)
+          l.glyph.style.opacity = ''
+          l.glyph.style.transform =
+            l.scale !== 1 ? `translate(-50%, -50%) scale(${(1 + (l.scale - 1) * on).toFixed(3)})` : ''
+        })
+        // the mark: down the sphere as a nose, or gone by the time the
+        // eyes open (as the smile's lead it went round with the glyphs)
+        if (mark && settings.mark !== 'smile') {
+          if (settings.mark === 'nose') {
+            mark.el.style.transform = place(mark.a * (1 - e), face.nose.lat * e)
+            mark.glyph.style.transform = `translate(-50%, -50%) scale(${(1 - 0.2 * on).toFixed(3)})`
+            mark.glyph.style.opacity = ''
+          } else {
+            const k = clamp01(1 - e / 0.45)
+            mark.el.style.transform = ''
+            mark.glyph.style.opacity = k.toFixed(3)
+            mark.glyph.style.transform = `translate(-50%, -50%) scale(${(0.6 + 0.4 * k).toFixed(3)})`
+          }
+        }
+        // the eyes open once the smile is mostly there: a pill as a lid
+        // (scaled from a line), a mark by a clip from its middle, so it
+        // is never squashed; they stay where they are and look straight
+        // ahead, the head does the turning
+        const open = clamp01((e - 0.5) / 0.35)
+        eyes.forEach((eye, i) => {
+          const v = open * blink * face.lids[i]
+          if (face.marks && eye.markEl) {
+            eye.lid.style.transform = ''
+            eye.pupil.style.transform = ''
+            eye.markEl.style.clipPath = `inset(${(50 * (1 - v)).toFixed(1)}% 0)`
+          } else {
+            if (eye.markEl) {
+              eye.markEl.style.clipPath = ''
+            }
+            eye.lid.style.transform = `scaleY(${v.toFixed(3)})`
+            eye.pupil.style.transform = `scale(${(0.5 + 0.5 * open).toFixed(3)})`
+          }
+        })
+      }
+
+      // still moving? Otherwise the frame sleeps: a pointer move or a
+      // change wakes it, and the next blink by its timer
+      const wandering = !pointer && settings.wander && !settings.reduceMotion
+      const moving = e !== face.to || looking || wandering || midBlink || face.x < 1
+      if (!moving && settings.blink && !settings.reduceMotion && face.to === 1) {
+        window.clearTimeout(face.blinkTimer)
+        face.blinkTimer = window.setTimeout(wake, Math.max(0, face.nextBlink - now))
+      }
+      return moving
+    }
+
+    layout()
+    return face
+  }
+
+  return {
+    settings,
+    attach: (orb, ring) => {
+      const face = createFace(orb, ring)
+      faces.add(face)
+      return face
+    },
+    /* new settings for every face; the geometry follows at once */
+    update: (next) => {
+      const expression = next.expression
+      Object.assign(settings, next)
+      faces.forEach((face) => {
+        if (expression) {
+          face.express(expression)
+        }
+        face.layout()
+      })
+    },
+    pointer: (x, y) => {
+      pointer = x === null ? null : { x, y }
+      nudge()
+    },
+    destroy: () => {
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
+      document.documentElement.removeEventListener('mouseleave', onLeave)
+      document.removeEventListener('visibilitychange', nudge)
+      ;[...faces].forEach((face) => face.detach())
+      cancelAnimationFrame(frame)
+      frame = 0
+    },
+  }
+}
+let landingFaces = null
 /* The Saturn ring's paint turns only while its band shows (the CSS keys
    it to the talk and the stages); a reveal whose wipe angles are still in
    transition is marked too, so the band keeps turning while it is wiped
@@ -917,12 +1554,19 @@ const initLandingOrbs = debounce(() => {
           hover: false,
           lapTime: 0,
           z: null,
+          face: null,
         }
       })
       .filter(Boolean)
     if (!orbs.length) {
       return
     }
+    // the faces: while a planet talks its name bends into a mouth, two
+    // eyes open and the head turns to the pointer (createPlanetFaces)
+    landingFaces ??= createPlanetFaces({ settings: { reduceMotion } })
+    orbs.forEach((o) => {
+      o.face = landingFaces.attach(o.orb, o.ring)
+    })
     /* the Scalar globe in the onboard button, dressed like the planets;
        it shows while a planet talks */
     const button = hero.querySelector('[data-lp-onboard]')
@@ -1110,12 +1754,22 @@ const initLandingOrbs = debounce(() => {
       placeHalos(b.left + b.width / 2 - box.left, b.top + b.height / 2 - box.top)
     }
     let talk = null
-    // a bubble shows the dots, or one of its lines
+    const owners = new Map(orbs.map((o) => [o.bubble, o]))
+    // a bubble shows the dots, or one of its lines; a planet's face
+    // follows its turn: thinking over the dots, happy as it speaks
     const say = (bubble, lines, what) => {
       bubble.classList.toggle('is-typing', what === 'typing')
       if (what !== 'typing') {
         lines.forEach((line, i) => line.classList.toggle('is-on', i === what))
       }
+      owners.get(bubble)?.face?.express(what === 'typing' ? 'thinking' : 'happy')
+    }
+    /* a planet talks: its bubble shows and its face forms; the stages
+       and the SDK card go through this too, so a face follows every
+       talk */
+    const setTalking = (o, on) => {
+      o.orb.classList.toggle('is-talking', on)
+      o.face?.set(on)
     }
     // Scalar's bubble under the globe's lower edge at the galaxy's
     // centre, opening sideways from its middle: away from the planet
@@ -1229,14 +1883,18 @@ const initLandingOrbs = debounce(() => {
       if (focus?.isConnected && document.activeElement === button) {
         focus.focus({ preventScroll: true })
       }
-      o.orb.classList.remove('is-talking')
+      setTalking(o, false)
       o.bubble?.classList.remove('is-typing')
       sunBubble.classList.remove('is-on')
       sunBubble.classList.remove('is-typing')
       // the planet moves on first: nothing below may keep it held
       o.hover = false
       o.angle = ((o.angle % 360) + 360) % 360
-      o.target = null
+      // the ring holds where it stands until the face has unwound (the
+      // loop lets it go), so the face does not slide off round the rim
+      if (o.target !== null) {
+        o.target = o.angle
+      }
       if (hasSun && home) {
         // the pill flew: it lands, and the ring heads for its home
         land()
@@ -1264,7 +1922,7 @@ const initLandingOrbs = debounce(() => {
       if (o.bubble) {
         say(o.bubble, o.lines, 0)
       }
-      o.orb.classList.add('is-talking')
+      setTalking(o, true)
       if (!hasSun || !o.says.length) {
         return
       }
@@ -1337,6 +1995,8 @@ const initLandingOrbs = debounce(() => {
             }
             say(sunBubble, [], what)
             sunBubble.classList.add('is-on')
+            // the planet listens
+            o.face?.express('straight')
           } else if (o.bubble && (what === 'typing' || o.lines[what])) {
             say(o.bubble, o.lines, what)
           }
@@ -1557,7 +2217,7 @@ const initLandingOrbs = debounce(() => {
           if (o.sdk) {
             return
           }
-          o.orb.classList.remove('is-talking')
+          setTalking(o, false)
           o.bubble?.classList.remove('is-typing')
           // the planet's offset from the centre, as it stands
           const cs = getComputedStyle(o.orb)
@@ -1695,7 +2355,7 @@ const initLandingOrbs = debounce(() => {
         o.orb.style.translate = ''
         o.orb.style.zIndex = STAGE_Z[o.orb.dataset.icon] ?? '1'
         o.orb.classList.toggle('lp-orb--left', o.orb.dataset.icon === 'chatgpt')
-        o.orb.classList.remove('is-talking')
+        setTalking(o, false)
         o.bubble?.classList.remove('is-typing')
         o.bubble?.style.removeProperty('--bubble-shift')
         o.shift = undefined
@@ -1715,7 +2375,7 @@ const initLandingOrbs = debounce(() => {
             if (!reduceMotion) {
               o.bubble?.classList.add('is-typing')
             }
-            o.orb.classList.add('is-talking')
+            setTalking(o, true)
           }, landed),
         )
         timers.push(
@@ -1762,7 +2422,7 @@ const initLandingOrbs = debounce(() => {
         timers = []
         stopOrbit()
         extras.forEach((o) => {
-          o.orb.classList.remove('is-talking')
+          setTalking(o, false)
           o.bubble?.classList.remove('is-typing')
         })
         // the rings turn on from where they are (the card's orbit left
@@ -1967,7 +2627,8 @@ const initLandingOrbs = debounce(() => {
           o.orb.style.removeProperty('top')
           o.orb.style.translate = ''
           o.orb.style.zIndex = z
-          o.orb.classList.remove('is-talking', 'lp-orb--left')
+          setTalking(o, false)
+          o.orb.classList.remove('lp-orb--left')
           o.bubble?.classList.remove('is-typing')
           o.bubble?.style.removeProperty('--bubble-shift')
           o.shift = undefined
@@ -2011,9 +2672,11 @@ const initLandingOrbs = debounce(() => {
                 }
                 say(sdkBubble, [], what)
                 sdkBubble.classList.add('is-on')
+                // the planet listens
+                o.face?.express('straight')
               } else if (o.bubble && (what === 'typing' || o.lines[what])) {
                 say(o.bubble, o.lines, what)
-                o.orb.classList.add('is-talking')
+                setTalking(o, true)
               }
             }, landed + at),
           )
@@ -2042,7 +2705,7 @@ const initLandingOrbs = debounce(() => {
           talkOff()
           const o = guest
           guest = null
-          o.orb.classList.remove('is-talking')
+          setTalking(o, false)
           o.bubble?.classList.remove('is-typing')
           if (stage.classList.contains('is-orbit')) {
             // the globe flies back to the centre, and the answers go on
@@ -2130,7 +2793,7 @@ const initLandingOrbs = debounce(() => {
           stage.appendChild(globe)
           if (guest) {
             guest.sdk = false
-            guest.orb.classList.remove('is-talking')
+            setTalking(guest, false)
             guest.bubble?.classList.remove('is-typing')
             guest = null
           }
@@ -2467,6 +3130,11 @@ const initLandingOrbs = debounce(() => {
       const dt = last === null ? 0 : Math.min(now - last, 100)
       last = now
       orbs.forEach((o) => {
+        // the ring holds the front until the face has unwound, then
+        // turns on (a planet taken away lets go at once)
+        if (o.target !== null && !o.hover && (o.away || (o.face?.rest ?? true))) {
+          o.target = null
+        }
         if (o.away) {
           return
         }
@@ -2501,9 +3169,15 @@ const initLandingOrbs = debounce(() => {
           last = null
           frame = requestAnimationFrame(tick)
         }
-      } else if (frame) {
-        cancelAnimationFrame(frame)
-        frame = 0
+      } else {
+        if (frame) {
+          cancelAnimationFrame(frame)
+          frame = 0
+        }
+        // a talk does not go on unseen: its face would keep a frame running
+        if (!inView && talk) {
+          stopTalk()
+        }
       }
     }
     const observer = new IntersectionObserver(

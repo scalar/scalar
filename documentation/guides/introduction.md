@@ -913,6 +913,78 @@
   .lp-orb-glyph svg [fill] {
     fill: currentColor;
   }
+  /* Planet faces: a face box inside the ring holds the name's glyphs and
+     two eyes, every one of them a zero-size box placed on the sphere by
+     face.js and moved by transforms only, so a frame of the look is
+     compositing work and never layout. A pupil is an upright capsule
+     built from two round caps and a bar between them (a dot when the bar
+     is scaled away), or a copy of the brand's mark, in the planet's ink
+     (the colour its mark and name take). Sizes are the host's --s. */
+  .lp-face {
+    --lp-eye-d: calc(var(--s) * 0.09);
+    --lp-eye-mark: calc(var(--s) * 0.17);
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+  .lp-eye {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+    backface-visibility: hidden;
+    pointer-events: none;
+  }
+  .lp-face.is-on .lp-eye {
+    visibility: visible;
+  }
+  .lp-eye-lid,
+  .lp-eye-pupil {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+  }
+  .lp-eye-cap,
+  .lp-eye-bar {
+    position: absolute;
+    left: calc(var(--lp-eye-d) / -2);
+    top: calc(var(--lp-eye-d) / -2);
+    width: var(--lp-eye-d);
+    height: var(--lp-eye-d);
+    background: var(--ink);
+  }
+  .lp-eye-cap {
+    border-radius: 50%;
+  }
+  /* the mark as an eye: the capsule gives way to a copy of the mark */
+  .lp-eye-mark {
+    display: none;
+    position: absolute;
+    left: calc(var(--lp-eye-mark) / -2);
+    top: calc(var(--lp-eye-mark) / -2);
+    width: var(--lp-eye-mark);
+    height: var(--lp-eye-mark);
+    color: var(--ink);
+  }
+  .lp-eye-mark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .lp-eye-mark svg [fill] {
+    fill: currentColor;
+  }
+  .lp-face.is-marks .lp-eye-cap,
+  .lp-face.is-marks .lp-eye-bar {
+    display: none;
+  }
+  .lp-face.is-marks .lp-eye-mark {
+    display: block;
+  }
   /* the bubble, over the ball's top edge, opening away from the copy */
   .lp-orb-bubble {
     position: absolute;
