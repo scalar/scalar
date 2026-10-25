@@ -889,8 +889,12 @@ const dressLandingGlobe = (globe, ring, size) => {
    One controller per page: it keeps the pointer, the frame and the
    settings for every face. Attach a face to a dressed globe after
    dressing it; set(true) for a talk, set(false) after. Transforms and
-   opacity only (a clip while a mark-eye opens); every read of layout
-   comes before any write; the frame runs only while something moves. */
+   opacity only (a clip while a mark-eye opens). The look is the face
+   box's rotate property and the expression's tilt its transform, so a
+   settled face with no pointer hands its wander to the compositor and
+   the main thread rests. Layout is read in the pointer and scroll
+   events, before a frame's writes; the frame runs only while something
+   moves. */
 const createPlanetFaces = (options = {}) => {
   const DEFAULTS = {
     // what the mark does: 'nose', 'eyes', 'smile' (it leads the name
@@ -948,6 +952,7 @@ const createPlanetFaces = (options = {}) => {
   let pointer = null
   let frame = 0
   let last = null
+  const recent = []
   let copies = 0
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
@@ -956,12 +961,96 @@ const createPlanetFaces = (options = {}) => {
   // a soft overshoot on the way in: the smile dips a touch past and settles
   const easeBack = (p) => 1 + 2.1 * (p - 1) ** 3 + 1.1 * (p - 1) ** 2
   const RAD = 180 / Math.PI
+  /* the wander: where a face with no pointer looks at a time, as the
+     look's x and y */
+  const wanderAt = (seed, ms) => {
+    const t = ms / 1000 + seed
+    return [0.55 * Math.sin(t * 0.71) * Math.cos(t * 0.23), 0.4 * Math.sin(t * 0.47 + 1.3)]
+  }
+  /* the head's turn, rotateX(-pitch) rotateY(yaw), as one axis and
+     angle for the rotate property (the product of the two half-angle
+     quaternions); the transform keeps the tilt, which rotate composes
+     outside of, so the matrix is the old transform's exactly */
+  const lookRotate = (yaw, pitch) => {
+    // the old transform wrote its angles to three places, so these start
+    // from the same numbers
+    const a = (Number((-pitch).toFixed(3)) * Math.PI) / 360
+    const b = (Number(yaw.toFixed(3)) * Math.PI) / 360
+    const x = Math.sin(a) * Math.cos(b)
+    const y = Math.cos(a) * Math.sin(b)
+    const z = Math.sin(a) * Math.sin(b)
+    const s = Math.hypot(x, y, z)
+    if (s < 1e-7) {
+      return '1 0 0 0deg'
+    }
+    const angle = 2 * Math.atan2(s, Math.cos(a) * Math.cos(b)) * RAD
+    return `${(x / s).toFixed(9)} ${(y / s).toFixed(9)} ${(z / s).toFixed(9)} ${angle.toFixed(7)}deg`
+  }
+  const lookAngles = (gx, gy, on) => [gx * settings.turn * on, Math.max(gy * settings.turn, -settings.turnUp) * on]
+  /* a settled face's wander on the compositor: the same curve sampled
+     every 100 ms for twenty seconds (linear steps stay within a fiftieth
+     of a degree of it), delayed by the look's own easing, from this
+     frame; the frame starts the next stretch when one ends */
+  const WANDER_SPAN = 20000
+  const WANDER_STEP = 100
+  const WANDER_LAG = 80
+  const startWander = (face, now) => {
+    const keyframes = []
+    for (let ms = 0; ms <= WANDER_SPAN; ms += WANDER_STEP) {
+      const [gx, gy] = wanderAt(face.seed, now + ms - WANDER_LAG)
+      const [yaw, pitch] = lookAngles(gx, gy, 1)
+      keyframes.push({ offset: ms / WANDER_SPAN, rotate: lookRotate(yaw, pitch) })
+    }
+    const anim = face.box.animate(keyframes, { duration: WANDER_SPAN, fill: 'forwards' })
+    anim.startTime = now
+    anim.onfinish = wake
+    face.wanderAnim = anim
+  }
+  /* a pill's blink on the compositor: its lid closes and opens on the
+     frame's curve (1 - 0.94 sin(pi p) over 150 ms, sampled every 7.5 ms)
+     from where it stands, then holds open until the next blink replaces
+     it (an animation that ends costs main-thread frames of its own). The
+     frame drops the hold whenever it writes the eyes, and finishes a
+     blink itself when the lids are moving (an expression's tween) */
+  const BLINK_MS = 150
+  const BLINK_HOLD = 6000
+  const BLINK = Array.from({ length: 21 }, (_, i) => 1 - 0.94 * Math.sin((Math.PI * i) / 20))
+  const blinkLids = (face) => {
+    face.eyes.forEach((eye, i) => {
+      const v = clamp01((face.e - 0.5) / 0.35) * face.lids[i]
+      eye.blink?.cancel()
+      const keyframes = BLINK.map((k, j) => ({
+        offset: (j * BLINK_MS) / 20 / BLINK_HOLD,
+        transform: `scaleY(${(v * k).toFixed(3)})`,
+      }))
+      keyframes.push({ offset: 1, transform: `scaleY(${v.toFixed(3)})` })
+      eye.blink = eye.lid.animate(keyframes, { duration: BLINK_HOLD })
+      eye.blink.startTime = face.blinkAt
+    })
+  }
+  const blinking = (face) => face.eyes.some((eye) => eye.blink && eye.blink.currentTime < BLINK_MS)
+  const dropBlinks = (face) => {
+    face.eyes.forEach((eye) => {
+      eye.blink?.cancel()
+      eye.blink = null
+    })
+  }
+  const stopWander = (face, now, dt) => {
+    face.wanderAnim.cancel()
+    face.wanderAnim = null
+    // the look carries on from where the wander had it a frame ago, as
+    // this frame eases it one more step
+    const [gx, gy] = wanderAt(face.seed, now - WANDER_LAG - dt)
+    face.gx = gx
+    face.gy = gy
+    face.rotateWritten = ''
+  }
 
   /* the frame: runs while a face moves, sleeps otherwise; a pointer
      move, a blink's timer, a change of settings or a talk wakes it */
   const awake = () => {
     for (const face of faces) {
-      if (!face.rest) {
+      if (!face.rest && face.visible) {
         return true
       }
     }
@@ -975,17 +1064,63 @@ const createPlanetFaces = (options = {}) => {
   }
   const tick = (now) => {
     frame = 0
-    const dt = last === null ? 16 : Math.min(now - last, 100)
+    // a frame after a sleep steps as the frames before it did when the
+    // look was moving all along, on the compositor
+    const woke = last === null
+    let dt = 16
+    if (last !== null) {
+      dt = Math.min(now - last, 100)
+      recent.push(dt)
+      if (recent.length > 8) {
+        recent.shift()
+      }
+    } else if (recent.length && [...faces].some((face) => face.wanderAnim)) {
+      // the shortest of the last few, so one long frame does not count
+      dt = Math.min(...recent)
+    }
     last = now
-    // every read before any write, so a frame flushes style once
+    // the planets' places come from the pointer and scroll events and a
+    // read after each frame, when layout is clean; a frame reads one
+    // itself (a forced style pass, before any write) only when it has
+    // none, or for a face out of view, whose frames are rare
+    let follow = false
     faces.forEach((face) => {
       if (!face.orb.isConnected) {
         // its planet left the page
         faces.delete(face)
-      } else if (pointer && !face.rest) {
-        face.rect = face.orb.getBoundingClientRect()
+        byOrb.delete(face.orb)
+        inView.unobserve(face.orb)
+      } else {
+        if ((face.far || !face.visible) && face.to === 1 && (face.e !== face.to || now - face.start < face.dur)) {
+          // the flags are from the observer's last notice: check them
+          // before a morph is skipped, or shown whole on its way back in
+          const r = face.orb.getBoundingClientRect()
+          face.far =
+            r.bottom < -innerHeight / 2 ||
+            r.top > innerHeight * 1.5 ||
+            r.right < -innerWidth / 2 ||
+            r.left > innerWidth * 1.5
+          if (!face.far && face.e === 1 && now - face.start < face.dur) {
+            // it formed at once while far, but is back before its morph
+            // would have ended: the clock takes it from there
+            face.e = face.from
+          }
+        }
+        if (pointer && !face.rest) {
+          // a frame after a sleep reads an old place too: the planet may
+          // have moved while nothing ran
+          if (!face.rect || (!face.visible && now - face.rectAt > 400) || (woke && now - face.rectAt > 100)) {
+            face.rect = face.orb.getBoundingClientRect()
+            face.rectAt = now
+          }
+          follow ||= face.visible
+        }
       }
     })
+    if (follow && !refreshing) {
+      refreshing = true
+      after.port2.postMessage(0)
+    }
     let busy = false
     faces.forEach((face) => {
       if (face.frame(now, dt)) {
@@ -1001,13 +1136,69 @@ const createPlanetFaces = (options = {}) => {
       wake()
     }
   }
+  /* the talking planets' places, read in the input and scroll events:
+     they run before the frame's animation callbacks, while style is
+     usually still clean, so the read seldom costs a style pass */
+  const measure = () => {
+    const at = performance.now()
+    faces.forEach((face) => {
+      if (!face.rest && face.visible && face.orb.isConnected) {
+        face.rect = face.orb.getBoundingClientRect()
+        face.rectAt = at
+      }
+    })
+  }
+  // the places read again once a frame is done and layout is clean; a
+  // planet that moved wakes the frame, so its head follows it
+  let refreshing = false
+  const after = new MessageChannel()
+  after.port1.onmessage = () => {
+    refreshing = false
+    const before = new Map([...faces].map((face) => [face, face.rect]))
+    measure()
+    for (const face of faces) {
+      const was = before.get(face)
+      const rect = face.rect
+      if (
+        was &&
+        rect &&
+        was !== rect &&
+        (Math.abs(was.left - rect.left) > 0.5 ||
+          Math.abs(was.top - rect.top) > 0.5 ||
+          Math.abs(was.width - rect.width) > 0.5)
+      ) {
+        wake()
+        break
+      }
+    }
+  }
   // a finger lifts without leaving, so it never sets the look
   const onMove = (event) => {
     if (event.pointerType === 'touch') {
       return
     }
     pointer = { x: event.clientX, y: event.clientY }
-    nudge()
+    if (awake()) {
+      measure()
+      wake()
+    }
+  }
+  // a scroll keeps the places fresh; the heads re-aim at the next frame
+  // that runs anyway, as they always did
+  const onScroll = () => {
+    if (pointer && awake()) {
+      measure()
+    }
+    // a face that formed at once far out of view may be scrolled back
+    // in before its morph would have ended: the frame checks, before it
+    // paints
+    const at = performance.now()
+    for (const face of faces) {
+      if (!face.visible && face.to === 1 && face.e === 1 && at - face.start < face.dur) {
+        wake()
+        break
+      }
+    }
   }
   const onLeave = () => {
     pointer = null
@@ -1019,7 +1210,55 @@ const createPlanetFaces = (options = {}) => {
       nudge()
     }
   }
+  /* a face out of view does not form, look about, blink or tween to a
+     new expression: nobody would see it, and each would cost frames */
+  const byOrb = new Map()
+  const inView = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const face = byOrb.get(entry.target)
+      if (!face) {
+        return
+      }
+      face.visible = entry.isIntersecting
+      // far enough out that a frame cannot bring it in before the next
+      // notice: half a viewport beyond any edge
+      const root = entry.rootBounds
+      const r = entry.boundingClientRect
+      face.far =
+        !face.visible &&
+        Boolean(root) &&
+        (r.bottom < root.top - root.height / 2 ||
+          r.top > root.bottom + root.height / 2 ||
+          r.right < root.left - root.width / 2 ||
+          r.left > root.right + root.width / 2)
+      if (face.rest) {
+        return
+      }
+      window.clearTimeout(face.blinkTimer)
+      if (face.visible) {
+        // its place as the observer saw it, fresh and free
+        face.rect = entry.boundingClientRect
+        face.rectAt = performance.now()
+        if (face.to === 1 && face.e === 1 && performance.now() - face.start < face.dur) {
+          // it formed at once out of view, but its morph would still be
+          // running: the clock takes it from there
+          face.e = face.from
+          wake()
+        }
+        if (face.to === 1) {
+          // the next blink a little while after it comes into view, and
+          // that blink wakes the frame, as a blink always did
+          face.nextBlink = performance.now() + 900 + Math.random() * 1600
+          face.blinkTimer = window.setTimeout(wake, face.nextBlink - performance.now())
+        }
+      } else if (!pointer) {
+        // its wander goes to the compositor at once
+        wake()
+      }
+    })
+  })
   window.addEventListener('pointermove', onMove, { passive: true })
+  window.addEventListener('scroll', onScroll, { passive: true, capture: true })
   window.addEventListener('pointerup', onUp, { passive: true })
   window.addEventListener('pointercancel', onUp, { passive: true })
   document.documentElement.addEventListener('mouseleave', onLeave)
@@ -1097,6 +1336,7 @@ const createPlanetFaces = (options = {}) => {
       orb,
       ring,
       box,
+      eyes,
       rect: null,
       arc: letters,
       nose: { lon: 0, lat: 0 },
@@ -1127,6 +1367,14 @@ const createPlanetFaces = (options = {}) => {
       nextBlink: 0,
       blinkAt: -1e9,
       blinkTimer: 0,
+      rectAt: 0,
+      visible: true,
+      far: false,
+      // the compositor's wander, and what the frame last wrote
+      wanderAnim: null,
+      wanderFrom: null,
+      rotateWritten: '',
+      tiltWritten: '',
     }
 
     /* the face's geometry: each glyph's arc position on the equator
@@ -1138,8 +1386,6 @@ const createPlanetFaces = (options = {}) => {
        eyes their shape, all in terms of the host's --s */
     const layout = () => {
       face.dirty = true
-      const r = settings.mouthR
-      const yc = settings.mouthY - r
       face.marks = settings.mark === 'eyes' && Boolean(markSvg) && orb.dataset.markEyes !== 'false'
       box.style.setProperty('--lp-eye-d', `calc(var(--s) * ${(settings.eye / 2).toFixed(4)})`)
       box.style.setProperty('--lp-eye-mark', `calc(var(--s) * ${(settings.eyeMark / 2).toFixed(4)})`)
@@ -1230,9 +1476,11 @@ const createPlanetFaces = (options = {}) => {
         return
       }
       face.expression = name
+      // the lids move with the tween now: the frame finishes any blink
+      dropBlinks(face)
       const cur = current()
       face.goal = aim(name)
-      if (animate && !settings.reduceMotion && settings.expressMs > 0) {
+      if (animate && face.visible && !settings.reduceMotion && settings.expressMs > 0) {
         face.prior = cur
         face.x = 0
         face.xStart = performance.now()
@@ -1268,7 +1516,14 @@ const createPlanetFaces = (options = {}) => {
         glyph.style.transform = ''
         glyph.style.opacity = ''
       })
+      face.wanderAnim?.cancel()
+      face.wanderAnim = null
+      face.wanderFrom = null
+      dropBlinks(face)
       box.style.transform = ''
+      box.style.rotate = ''
+      face.rotateWritten = ''
+      face.tiltWritten = ''
       box.classList.remove('is-on')
       window.clearTimeout(face.blinkTimer)
       face.rest = true
@@ -1278,6 +1533,11 @@ const createPlanetFaces = (options = {}) => {
       const to = on ? 1 : 0
       if (face.to === to) {
         return
+      }
+      if (face.to === 1 && face.e === 1 && performance.now() - face.start < face.dur) {
+        // it formed at once out of view: it turns back from where its
+        // morph would be
+        face.e = face.from + (1 - face.from) * easeBack(clamp01((performance.now() - face.start) / face.dur))
       }
       face.to = to
       face.from = face.e
@@ -1306,12 +1566,16 @@ const createPlanetFaces = (options = {}) => {
       items.forEach((item) => ring.appendChild(item.el))
       box.remove()
       faces.delete(face)
+      byOrb.delete(orb)
+      inView.unobserve(orb)
     }
 
     face.frame = (now, dt) => {
-      // the morph
+      // the morph; a face forming far out of view goes straight to where
+      // it is going (one unwinding always unwinds: it may be on its way
+      // back into view)
       if (face.e !== face.to) {
-        if (settings.reduceMotion || face.dur <= 0) {
+        if (settings.reduceMotion || face.dur <= 0 || (face.far && face.to === 1)) {
           face.e = face.to
         } else {
           const p = clamp01((now - face.start) / face.dur)
@@ -1347,64 +1611,104 @@ const createPlanetFaces = (options = {}) => {
 
       // where to look: the pointer, from the ball's centre, saturating a
       // few radii out; or, with no pointer, a slow wander; eased so a
-      // jump of the pointer is a glance, not a snap
-      let tx = 0
-      let ty = 0
-      if (pointer && face.rect) {
-        const R = face.rect.width / 2
-        const dx = pointer.x - (face.rect.left + R)
-        const dy = pointer.y - (face.rect.top + R)
-        const dist = Math.hypot(dx, dy)
-        if (dist > 0.5) {
-          const k = dist / (dist + 2.5 * R)
-          tx = (dx / dist) * k
-          ty = (dy / dist) * k
+      // jump of the pointer is a glance, not a snap. A settled face with
+      // no pointer wanders on the compositor instead (startWander)
+      const wandering = !pointer && settings.wander && !settings.reduceMotion
+      // the compositor takes over once the look has eased onto the wander
+      // (half a second, six of its time constants), so a pointer leaving
+      // still glides back into it
+      if (!wandering) {
+        face.wanderFrom = null
+      } else if (face.wanderFrom === null) {
+        face.wanderFrom = now
+      }
+      // out of view it hands over at once (nobody sees a glide) and keeps
+      // wandering there, which costs the main thread nothing
+      const settled = wandering && face.to === 1 && e === 1
+      const free = settled && (!face.visible || now - face.wanderFrom >= 500)
+      if (face.wanderAnim && (!settled || face.wanderAnim.playState === 'finished')) {
+        stopWander(face, now, dt)
+      }
+      if (free && !face.wanderAnim) {
+        startWander(face, now)
+      }
+      let looking = false
+      if (!face.wanderAnim) {
+        let tx = 0
+        let ty = 0
+        if (pointer && face.rect) {
+          const R = face.rect.width / 2
+          const dx = pointer.x - (face.rect.left + R)
+          const dy = pointer.y - (face.rect.top + R)
+          const dist = Math.hypot(dx, dy)
+          if (dist > 0.5) {
+            const k = dist / (dist + 2.5 * R)
+            tx = (dx / dist) * k
+            ty = (dy / dist) * k
+          }
+        } else if (settings.wander && !settings.reduceMotion) {
+          ;[tx, ty] = wanderAt(face.seed, now)
         }
-      } else if (settings.wander && !settings.reduceMotion) {
-        const t = now / 1000 + face.seed
-        tx = 0.55 * Math.sin(t * 0.71) * Math.cos(t * 0.23)
-        ty = 0.4 * Math.sin(t * 0.47 + 1.3)
+        // out of view the look snaps to its target on frames that run
+        // anyway, and keeps nothing awake
+        looking = face.visible && (Math.abs(tx - face.gx) > 0.0005 || Math.abs(ty - face.gy) > 0.0005)
+        if (looking) {
+          const ease = 1 - Math.exp(-dt / 80)
+          face.gx += (tx - face.gx) * ease
+          face.gy += (ty - face.gy) * ease
+        } else {
+          face.gx = tx
+          face.gy = ty
+        }
+        // the head turns towards the look: yaw to the side, pitch up or
+        // down (a positive rotateX lifts the front, so the pitch is
+        // signed the other way; a look up is held short), both held back
+        // while the face is still forming
+        const [yaw, pitch] = lookAngles(face.gx, face.gy, on)
+        const rotate = lookRotate(yaw, pitch)
+        if (rotate !== face.rotateWritten) {
+          box.style.rotate = rotate
+          face.rotateWritten = rotate
+        }
       }
-      const looking = Math.abs(tx - face.gx) > 0.0005 || Math.abs(ty - face.gy) > 0.0005
-      if (looking) {
-        const ease = 1 - Math.exp(-dt / 80)
-        face.gx += (tx - face.gx) * ease
-        face.gy += (ty - face.gy) * ease
-      } else {
-        face.gx = tx
-        face.gy = ty
+      const tilt = `rotateZ(${(face.tilt * on).toFixed(3)}deg)`
+      if (tilt !== face.tiltWritten) {
+        box.style.transform = tilt
+        face.tiltWritten = tilt
       }
-      // the head turns towards the look: yaw to the side, pitch up or
-      // down (a positive rotateX lifts the front, so the pitch is signed
-      // the other way; a look up is held short), both held back while
-      // the face is still forming
-      const yaw = face.gx * settings.turn * on
-      const pitch = Math.max(face.gy * settings.turn, -settings.turnUp) * on
-      box.style.transform = `rotateX(${(-pitch).toFixed(3)}deg) rotateY(${yaw.toFixed(3)}deg) rotateZ(${(face.tilt * on).toFixed(3)}deg)`
 
-      // a blink now and then, once the face is there
+      // a blink now and then, once the face is there: pills on the
+      // compositor (blinkLids), a mark-eye by the frame
       let blink = 1
       let midBlink = false
-      if (settings.blink && !settings.reduceMotion && face.to === 1 && e >= 0.95) {
+      if (settings.blink && !settings.reduceMotion && face.visible && face.to === 1 && e >= 0.95) {
         if (now >= face.nextBlink) {
           face.blinkAt = now
           face.nextBlink = now + 2600 + Math.random() * 3200
+          if (!face.marks && face.x >= 1) {
+            blinkLids(face)
+          }
         }
-        const bp = (now - face.blinkAt) / 150
-        if (bp >= 0 && bp < 1) {
+        const bp = (now - face.blinkAt) / BLINK_MS
+        if ((face.marks || !blinking(face)) && bp >= 0 && bp < 1) {
           blink = 1 - 0.94 * Math.sin(Math.PI * bp)
           midBlink = true
         }
+      } else if (blinking(face)) {
+        // a blink stops the moment it may not run, as it always did
+        dropBlinks(face)
+        face.blinkWritten = -1
       }
 
       // the features move with the morph and the blink only; a frame
       // that changed neither writes nothing here
-      const same = e === face.written && blink === face.blinkWritten && face.x === face.xWritten && !face.dirty
+      const shapeSame = e === face.written && face.x === face.xWritten && !face.dirty
+      const eyesSame = shapeSame && blink === face.blinkWritten
       face.written = e
       face.blinkWritten = blink
       face.xWritten = face.x
       face.dirty = false
-      if (!same) {
+      if (!shapeSame) {
         // the glyphs slide over the sphere from the equator to the arc,
         // rolling into the curve on the way
         face.arc.forEach((l) => {
@@ -1428,6 +1732,8 @@ const createPlanetFaces = (options = {}) => {
             mark.glyph.style.transform = `translate(-50%, -50%) scale(${(0.6 + 0.4 * k).toFixed(3)})`
           }
         }
+      }
+      if (!eyesSame) {
         // the eyes open once the smile is mostly there: a pill as a lid
         // (scaled from a line), a mark by a clip from its middle, so it
         // is never squashed; they stay where they are and look straight
@@ -1436,12 +1742,22 @@ const createPlanetFaces = (options = {}) => {
         eyes.forEach((eye, i) => {
           const v = open * blink * face.lids[i]
           if (face.marks && eye.markEl) {
+            if (eye.blink) {
+              // a pill's blink or hold would scale the mark
+              eye.blink.cancel()
+              eye.blink = null
+            }
             eye.lid.style.transform = ''
             eye.pupil.style.transform = ''
             eye.markEl.style.clipPath = `inset(${(50 * (1 - v)).toFixed(1)}% 0)`
           } else {
             if (eye.markEl) {
               eye.markEl.style.clipPath = ''
+            }
+            if (eye.blink && eye.blink.currentTime >= BLINK_MS) {
+              // the blink is over: its hold would mask this write
+              eye.blink.cancel()
+              eye.blink = null
             }
             eye.lid.style.transform = `scaleY(${v.toFixed(3)})`
             eye.pupil.style.transform = `scale(${(0.5 + 0.5 * open).toFixed(3)})`
@@ -1451,9 +1767,9 @@ const createPlanetFaces = (options = {}) => {
 
       // still moving? Otherwise the frame sleeps: a pointer move or a
       // change wakes it, and the next blink by its timer
-      const wandering = !pointer && settings.wander && !settings.reduceMotion
-      const moving = e !== face.to || looking || wandering || midBlink || face.x < 1
-      if (!moving && settings.blink && !settings.reduceMotion && face.to === 1) {
+      const moving =
+        e !== face.to || looking || (wandering && face.visible && !face.wanderAnim) || midBlink || face.x < 1
+      if (!moving && settings.blink && !settings.reduceMotion && face.visible && face.to === 1) {
         window.clearTimeout(face.blinkTimer)
         face.blinkTimer = window.setTimeout(wake, Math.max(0, face.nextBlink - now))
       }
@@ -1469,6 +1785,8 @@ const createPlanetFaces = (options = {}) => {
     attach: (orb, ring) => {
       const face = createFace(orb, ring)
       faces.add(face)
+      byOrb.set(orb, face)
+      inView.observe(orb)
       return face
     },
     /* new settings for every face; the geometry follows at once */
@@ -1476,6 +1794,10 @@ const createPlanetFaces = (options = {}) => {
       const expression = next.expression
       Object.assign(settings, next)
       faces.forEach((face) => {
+        if (face.wanderAnim && ('turn' in next || 'turnUp' in next)) {
+          // baked into the running wander: the next frame bakes it again
+          stopWander(face, performance.now(), recent.length ? Math.min(...recent) : 16)
+        }
         if (expression) {
           face.express(expression)
         }
@@ -1488,11 +1810,14 @@ const createPlanetFaces = (options = {}) => {
     },
     destroy: () => {
       window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('scroll', onScroll, { capture: true })
       window.removeEventListener('pointerup', onUp)
       window.removeEventListener('pointercancel', onUp)
       document.documentElement.removeEventListener('mouseleave', onLeave)
       document.removeEventListener('visibilitychange', nudge)
       ;[...faces].forEach((face) => face.detach())
+      inView.disconnect()
+      after.port1.close()
       cancelAnimationFrame(frame)
       frame = 0
     },
