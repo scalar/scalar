@@ -1718,6 +1718,13 @@
       transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
       --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
   }
+  /* into the MCP card's answer seat, which the thinking box's fold lifts
+     as the planet flies: the flight takes the fold's time and curve, so
+     the two cancel and the planet goes straight to the seat */
+  .lp-stage--mcp .lp-thread-avatar .lp-orb.is-moving {
+    transition-duration: 450ms;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
   .lp-stage.is-orbit .lp-orb--chatgpt {
     --s: 96px;
   }
@@ -2172,6 +2179,9 @@
     box-sizing: border-box;
     width: 100%;
     font-family: var(--scalar-font);
+    /* the head-to-box gap folds with the box, on its curve, so nothing
+       under the head jumps as the fold starts */
+    transition: gap 450ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .lp-think-head {
     display: flex;
@@ -2203,6 +2213,10 @@
   }
   .lp-thread-row.is-done.is-open .lp-think-caret {
     transform: none;
+  }
+  /* folded, the globe's ring is out of sight: its paint holds still */
+  .lp-thread-row.is-done:not(.is-open) .lp-sun-halo-paint {
+    animation-play-state: paused;
   }
   /* folded, nothing of the box's room is left under the head */
   .lp-thread-row.is-done:not(.is-open) .lp-think {
@@ -2387,8 +2401,36 @@
       font-size: 12px;
     }
   }
+  /* narrower phones wrap the transcript to more lines, so the window
+     grows in steps to hold the open box over the composer (measured at
+     375, 360, 340 and 320px wide screens) */
+  @container lp-card (max-width: 320px) {
+    .lp-stage.lp-stage--mcp {
+      height: 750px;
+    }
+    .lp-stage--mcp .lp-win--chat {
+      height: 710px;
+    }
+  }
+  @container lp-card (max-width: 290px) {
+    .lp-stage.lp-stage--mcp {
+      height: 830px;
+    }
+    .lp-stage--mcp .lp-win--chat {
+      height: 790px;
+    }
+  }
+  @container lp-card (max-width: 270px) {
+    .lp-stage.lp-stage--mcp {
+      height: 930px;
+    }
+    .lp-stage--mcp .lp-win--chat {
+      height: 890px;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .lp-thread-row,
+    .lp-think,
     .lp-thread-w,
     .lp-think-body,
     .lp-think-box,

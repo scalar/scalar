@@ -1646,7 +1646,7 @@ const createPlanetFaces = (options = {}) => {
     const scaled = loops.map((pts) => pts.map(([x, y]) => [(x - cx) * s, (y - cy) * s]))
     let seq = scaled[0]
     scaled.slice(1).forEach((loop) => {
-      let best = Infinity
+      let best = Number.POSITIVE_INFINITY
       let bi = 0
       let bj = 0
       seq.forEach((p, i) => {
@@ -3820,15 +3820,19 @@ const initLandingOrbs = debounce(() => {
             head.setAttribute('aria-expanded', String(open))
           })
           // a row comes on: up from below, the others to their new places
-          // from their old ones
-          const reveal = (r) => {
+          // from their old ones. A row a planet is flying into comes on in
+          // place (rise false): faded, it would fade the planet with it,
+          // and its words stream in anyway
+          const reveal = (r, rise = true) => {
             const shown = order.filter((other) => other.classList.contains('is-shown'))
             const before = new Map(shown.map((other) => [other, other.getBoundingClientRect().top]))
             r.classList.add('is-shown')
             if (!reduceMotion) {
               r.style.transition = 'none'
-              r.style.opacity = '0'
-              r.style.transform = 'translateY(14px)'
+              if (rise) {
+                r.style.opacity = '0'
+                r.style.transform = 'translateY(14px)'
+              }
               shown.forEach((other) => {
                 other.style.transition = 'none'
                 other.style.transform = `translateY(${(before.get(other) - other.getBoundingClientRect().top).toFixed(1)}px)`
@@ -3892,12 +3896,14 @@ const initLandingOrbs = debounce(() => {
             at(5900, () => lines[2].classList.add('is-shown'))
             at(6900, () => lines[3].classList.add('is-shown'))
             // done: the box folds away (the globe stays in it, clipped)
-            // and the answer comes up with the planet beside it; the
-            // planet's flight measures its start before the fold has
-            // moved anything
+            // and the answer comes up with the planet under it. The
+            // planet's flight is measured before the fold has moved
+            // anything and takes the fold's own time and curve (the
+            // stylesheet), so as the seat rises with the fold the flight's
+            // offset shrinks with it and the planet goes straight there
             at(8300, () => {
               rows.think.classList.add('is-done')
-              reveal(rows.agent2)
+              reveal(rows.agent2, false)
               seat(o, seats.c)
             })
           }
@@ -4044,30 +4050,30 @@ const initLandingOrbs = debounce(() => {
       // card from one side of the viewport to the other with no moment
       // in between for its observer to see: after a scroll, a card
       // below the middle of the viewport gives up what it holds, and one
-      // above it takes what it is owed
+      // above it takes what it is owed. The page can also be scrolled
+      // before any of this is bound (a link to a card, a reload, the way
+      // back) with no scroll after it, so the same check runs once now
       let scrolled = 0
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (scrolled) {
-            return
-          }
-          scrolled = requestAnimationFrame(() => {
-            scrolled = 0
-            const line = window.innerHeight * 0.45
-            const top = stage.getBoundingClientRect().top
-            if (onStage && top > line) {
-              toOrbit()
-            } else {
-              if (!onStage && top <= line) {
-                toStage()
-              }
-              lent.check()
+      const onJump = () => {
+        if (scrolled) {
+          return
+        }
+        scrolled = requestAnimationFrame(() => {
+          scrolled = 0
+          const line = window.innerHeight * 0.45
+          const top = stage.getBoundingClientRect().top
+          if (onStage && top > line) {
+            toOrbit()
+          } else {
+            if (!onStage && top <= line) {
+              toStage()
             }
-          })
-        },
-        { passive: true },
-      )
+            lent.check()
+          }
+        })
+      }
+      window.addEventListener('scroll', onJump, { passive: true })
+      onJump()
     }
     orbs.forEach((o) => {
       o.ring.style.transform = `rotateY(${o.angle}deg)`
