@@ -36,11 +36,11 @@
   <p class="lp-lede">From an agent's first read of your docs to its millionth production call, Scalar is the layer in between: hosted, observed, and kept in sync from one OpenAPI document.</p>
   <div class="lp-hero-cta flex gap-2">
     <a class="t-editor__button lp-pill" href="https://dashboard.scalar.com/register">Get Started</a>
-    <button type="button" class="lp-pill lp-onboard" data-lp-onboard aria-label="Onboard your agent: copy the Scalar setup prompt"><span class="lp-onboard-agents" aria-hidden="true"><span class="lp-onboard-agent" data-icon="claude"></span><span class="lp-onboard-agent" data-icon="chatgpt"></span><span class="lp-onboard-agent" data-icon="cursor"></span></span><span class="lp-onboard-text" aria-live="polite"><span class="lp-onboard-rest">Onboard your agent</span><span class="lp-onboard-done">Paste to your agent</span></span><span class="lp-onboard-icon" aria-hidden="true"><scalar-icon class="lp-onboard-copy" src="phosphor/regular/copy"></scalar-icon><scalar-icon class="lp-onboard-check" src="phosphor/regular/check"></scalar-icon></span><span class="lp-sun" aria-hidden="true" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></button>
+    <button type="button" class="lp-pill lp-onboard" data-lp-onboard data-md-exclude aria-label="Onboard your agent: copy the Scalar setup prompt"><span class="lp-onboard-agents" aria-hidden="true"><span class="lp-onboard-agent" data-icon="claude"></span><span class="lp-onboard-agent" data-icon="chatgpt"></span><span class="lp-onboard-agent" data-icon="cursor"></span></span><span class="lp-onboard-text" aria-live="polite"><span class="lp-onboard-rest">Onboard your agent</span><span class="lp-onboard-done">Paste to your agent</span></span><span class="lp-onboard-icon" aria-hidden="true"><scalar-icon class="lp-onboard-copy" src="phosphor/regular/copy"></scalar-icon><scalar-icon class="lp-onboard-check" src="phosphor/regular/check"></scalar-icon></span><span class="lp-sun" aria-hidden="true" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></button>
   </div>
 </div>
 </div>
-<div class="lp-hero-foot">
+<div class="lp-hero-foot" data-md-exclude>
   <div class="lp-trusted">
     <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
     <div class="lp-trusted-track">
@@ -384,7 +384,7 @@
       <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
     <div class="relative">
-      <div class="expander-hover-sticker">
+      <div class="expander-hover-sticker" data-md-exclude>
         <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
       </div>
       <div class="expander-hover-title">API Docs</div>
@@ -402,7 +402,7 @@
       <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
     <div class="relative">
-      <div class="expander-hover-sticker">
+      <div class="expander-hover-sticker" data-md-exclude>
         <object class="sticker-clip-sdk" width="145" height="145"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
       </div>
@@ -421,7 +421,7 @@
       <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
     <div class="relative">
-      <div class="expander-hover-sticker">
+      <div class="expander-hover-sticker" data-md-exclude>
       <object class="sticker-clip-registry" width="136" height="186"
           data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
       </div>
@@ -440,7 +440,7 @@
       <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
     </div>
     <div class="relative">
-      <div class="expander-hover-sticker">
+      <div class="expander-hover-sticker" data-md-exclude>
         <object class="sticker-clip-agent" width="139" height="162" data="/agent-scalar-sticker-static.svg"></object>
       </div>
       <div class="expander-hover-title">MCP & Agent</div>
@@ -453,7 +453,7 @@
     </div>
   </div>
 </div>
-<div class="sticker-filter-effect">
+<div class="sticker-filter-effect" data-md-exclude>
   <scalar-icon src="../assets/remote/cdn-031ac82fbf.svg"></scalar-icon>
 </div>
 
