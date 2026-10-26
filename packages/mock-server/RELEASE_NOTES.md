@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.20.0 (2026-10-23)
+
+### Updated to Undici 8 with HTTP/2 enabled by default
+
+This release upgrades the underlying HTTP client to Undici 8, which enables HTTP/2 by default for faster request handling. The minimum Node.js version is now 22.19.0.
+
+- HTTP/2 is now enabled by default through the Undici 8 upgrade, improving request performance.
+- Minimum Node.js version raised to 22.19.0. Node.js 22.0 through 22.18 are no longer supported.
+- Updated dependencies while maintaining existing APIs and five-day release-age policy.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0200)
+
 ## 0.19.0 (2026-10-20)
 
 ### Unified OpenAPI and AsyncAPI mocking in a single factory

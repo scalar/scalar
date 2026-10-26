@@ -38,10 +38,11 @@ scalar document bundle [options] [file|url]
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file, or - for YAML on stdout (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
+| `-o, --output <file>` | Output file, or - for stdout in the input format (required for URLs and non-interactive use; otherwise confirms overwriting the input file). |
 | `--treeShake` | Remove unused components from the bundled output. |
 | `--urlMap` | Generate a map of resolved URLs in the bundled output. |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## split
 
@@ -62,6 +63,7 @@ scalar document split [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <path>` | Output directory for the split description and referenced files. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## join
 
@@ -83,6 +85,7 @@ scalar document join [options] <files...>
 | --- | --- |
 | `-o, --output <file>` | Output file for the joined description (required). |
 | `-p, --prefix-components-with-path-value <path>` | Dot-separated path to extract a prefix value from each input file for component names. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## format
 
@@ -96,13 +99,14 @@ scalar document format [options] [file|url]
 
 | Argument | Description |
 | --- | --- |
-| `file\|url` | File or URL to format. |
+| `file\|url` | File or URL to format, or - to read JSON or YAML from stdin. |
 
 **Options**
 
 | Option | Description |
 | --- | --- |
-| `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
+| `-o, --output <file>` | Output file, or - for stdout in the input format (required for URLs; defaults to stdout in the input format for stdin, otherwise overwrites the input file). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## convert
 
@@ -124,6 +128,7 @@ scalar document convert [options] [file|url]
 | --- | --- |
 | `-o, --output <file>` | Output file (defaults to stdout). |
 | `--merge-operations` | Merge operations with shared path+method combinations. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## markdown
 
@@ -144,6 +149,7 @@ scalar document markdown [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <file>` | Output file (defaults to stdout). |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## mock
 
@@ -164,8 +170,8 @@ scalar document mock [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the Mock Server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## serve
 
@@ -187,8 +193,8 @@ scalar document serve [options] [file|url]
 | --- | --- |
 | `-c, --config <file>` | JSON file with API Reference configuration. |
 | `-w, --watch` | Watch the file or URL for changes. |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the API Reference server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## share
 
@@ -209,6 +215,7 @@ scalar document share [options] [file]
 | Option | Description |
 | --- | --- |
 | `-t, --token <token>` | Token to update an existing public sandbox. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## validate
 
@@ -224,6 +231,12 @@ scalar document validate [options] [file|url]
 | --- | --- |
 | `file\|url` | File or URL to validate. |
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## void
 
 Mirror HTTP requests with a local server.
@@ -236,8 +249,8 @@ scalar document void [options]
 
 | Option | Description |
 | --- | --- |
-| `-o, --once` | Start the server, then stop it after two seconds. |
 | `-p, --port <port>` | HTTP port for the request-mirroring server. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## lint
 
@@ -263,6 +276,7 @@ scalar document lint [options] [file|url]
 | `-o, --output <file>` | Write the report to a file instead of stdout. |  |
 | `--generate-ignore-file` | Record current findings in the ignore baseline. |  |
 | `--ignore-file <file>` | Ignore baseline path (Scalar file takes priority over Redocly fallback in the current directory). |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## upgrade
 
@@ -283,3 +297,4 @@ scalar document upgrade [options] [file|url]
 | Option | Description |
 | --- | --- |
 | `-o, --output <file>` | Output file (required for URLs; otherwise overwrites the input file). |
+| `--no-input` | Disable prompts and browser launches. |

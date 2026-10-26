@@ -3,6 +3,18 @@ import { describe, expect, it } from 'vitest'
 import { generateUniqueValue, uniqueValueGeneratorFactory } from './value-generator'
 
 describe('generateUniqueHash', () => {
+  it.each(['__proto__', 'constructor', 'toString'])(
+    'generates and caches values matching inherited property names: %s',
+    async (value) => {
+      const mappings: Record<string, string> = {}
+      const generator = uniqueValueGeneratorFactory(() => 'safe', mappings)
+
+      expect(await generator.generate(value)).toBe('safe')
+      expect(await generator.generate(value)).toBe('safe')
+      expect(mappings).toStrictEqual({ safe: value })
+    },
+  )
+
   it.each(['__proto__', 'constructor'])('rejects colliding prototype key %s without mutating the map', async (key) => {
     const map = {}
     await expect(generateUniqueValue(() => key, 'input', map)).rejects.toBe('Can not generate unique compressed values')

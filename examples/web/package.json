@@ -32,12 +32,12 @@
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "vue": "catalog:*",
-    "vue-router": "^4.3.0"
+    "vue-router": "^5.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "catalog:*",
     "postcss": "catalog:*",
-    "postcss-nested": "^6.0.1",
+    "postcss-nested": "^9.0.0",
     "vite": "catalog:*"
   }
 }

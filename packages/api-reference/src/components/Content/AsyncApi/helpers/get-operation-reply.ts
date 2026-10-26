@@ -22,7 +22,7 @@ export type OperationReply = {
   address?: string
   dynamicAddress: boolean
   description?: string
-  messages: (ReplyLink & { entry?: TraversedAsyncApiMessage })[]
+  messages: (ReplyLink & { entry?: TraversedAsyncApiMessage; nested?: boolean })[]
 }
 
 const findEntry = (
@@ -45,6 +45,7 @@ const findEntry = (
 export const getOperationReply = (
   document: AsyncApiDocument,
   operation: AsyncApiOperationObject | undefined,
+  operationMessages: TraversedAsyncApiMessage[] = [],
 ): OperationReply | undefined => {
   const reply = getResolvedRef(operation?.reply)
   if (!reply) {
@@ -82,8 +83,13 @@ export const getOperationReply = (
     if (message && isHidden(message as XInternal & XScalarIgnore)) {
       return []
     }
+    // Reply messages on the operation's own channel are nested under the operation, so they keep their anchor here.
+    const ownEntry = operation?.messages?.some(({ $ref }) => $ref === reference.$ref)
+      ? undefined
+      : operationMessages.find((candidate) => candidate.channelName === channelName && candidate.messageName === name)
     const entry =
-      name && channelName
+      ownEntry ??
+      (name && channelName
         ? findEntry(
             entries,
             (candidate) =>
@@ -91,7 +97,7 @@ export const getOperationReply = (
               candidate.channelName === channelName &&
               candidate.messageName === name,
           )
-        : undefined
+        : undefined)
     // Navigation also suppresses messages exclusively owned by hidden operations.
     if (navigation && channelEntry && name && channel?.messages?.[name] && !entry) {
       return []
@@ -101,6 +107,7 @@ export const getOperationReply = (
         title: pickHeading(message?.title, message?.name, name ?? reference.$ref),
         id: entry?.id,
         entry: entry?.type === 'asyncapi-message' ? entry : undefined,
+        nested: Boolean(ownEntry),
       },
     ]
   })

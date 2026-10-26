@@ -13,118 +13,119 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 3.0.214
+    '@ai-sdk/vue': 4.0.142
     mermaid: 12.0.0
-    '@astrojs/starlight': 0.42.2
-    '@fastify/basic-auth': ^6.3.0
-    '@fastify/http-proxy': ^11.6.0
-    '@fastify/swagger': ^9.8.1
-    '@floating-ui/utils': 0.2.10
-    '@floating-ui/vue': 1.1.9
+    '@astrojs/starlight': 0.42.6
+    '@fastify/basic-auth': ^6.3.1
+    '@fastify/http-proxy': ^11.6.4
+    '@fastify/swagger': ^9.9.2
+    '@floating-ui/utils': 0.2.12
+    '@floating-ui/vue': 2.0.1
     '@faker-js/faker': 10.6.0
-    '@google-cloud/storage': 7.21.0
+    '@google-cloud/storage': 8.4.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@hono/node-server': ^2.1.1
-    '@modelcontextprotocol/sdk': 1.26.0
-    '@nestjs/cli': '^11.0.14'
-    '@nestjs/common': '^11.1.11'
-    '@nestjs/core': '^11.1.11'
-    '@nestjs/platform-express': '^11.1.11'
-    '@nestjs/platform-fastify': '^11.1.14'
-    '@nestjs/schematics': '^11.0.9'
-    '@nestjs/swagger': '^7.3.1'
-    '@nestjs/testing': '^11.1.11'
+    '@hono/node-server': ^2.1.5
+    '@nestjs/cli': '^11.0.24'
+    '@nestjs/common': '^11.2.7'
+    '@nestjs/core': '^11.2.7'
+    '@nestjs/platform-express': '^11.2.7'
+    '@nestjs/platform-fastify': '^11.2.7'
+    '@nestjs/schematics': '^11.1.0'
+    '@nestjs/swagger': '^11.4.7'
+    '@nestjs/testing': '^11.2.7'
     '@playwright/test': 1.62.1
     '@scalar/typebox': 0.1.3
     '@tailwindcss/cli': ^4.3.3
     '@scalar/sdk': 0.2.6
     '@tailwindcss/vite': ^4.3.3
-    '@tanstack/vue-query': 5.100.5
-    '@types/express': 5.0.3
-    '@types/jsdom': 28.0.1
+    '@tanstack/vue-query': 5.104.3
+    '@types/express': 5.0.6
+    '@types/jsdom': 28.0.3
     '@types/mdast': ^4.0.4
-    '@types/node': ^24.1.0
-    '@types/picomatch': 4.0.2
-    '@types/react-dom': ^19.2.3
-    '@types/react': ^19.2.7
-    '@types/semver': 7.5.8
-    '@types/supertest': 6.0.2
-    '@types/ws': 8.18.1
-    '@typescript-eslint/parser': 8.71.0
-    '@vitejs/plugin-react': 6.0.1
-    '@vitejs/plugin-vue': ^6.0.8
-    '@vue/test-utils': 2.4.11
-    '@vueuse/core': 13.9.0
-    '@vueuse/integrations': 13.9.0
-    'fastify-plugin': ^4.5.1
-    ai: 6.0.214
+    '@types/node': ^24.19.2
+    '@types/picomatch': 4.0.3
+    '@types/react-dom': ^19.3.0
+    '@types/react': ^19.3.0
+    '@types/semver': 7.8.0
+    '@types/supertest': 7.2.1
+    '@types/ws': 8.18.2
+    '@typescript-eslint/parser': 8.71.2
+    '@vitejs/plugin-react': 6.1.2
+    '@vitejs/plugin-vue': ^6.0.10
+    '@vue/test-utils': 2.5.1
+    '@vueuse/core': 15.0.0
+    '@vueuse/integrations': 15.0.0
+    'fastify-plugin': ^6.0.1
+    ai: 7.0.142
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
-    ansis: 4.1.0
-    astro: 7.2.10
+    ansis: 4.4.0
+    astro: 7.4.0
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
-    commander: 13.1.0
-    concurrently: 9.1.2
+    commander: 14.0.3
+    concurrently: 10.0.6
     cross-env: 10.1.0
-    express: 5.1.0
+    express: 5.3.0
     fake-indexeddb: 6.2.5
     fast-glob: ^3.3.3
-    fastify: ^5.11.2
-    flatted: ^3.4.0
+    fastify: ^5.12.7
+    flatted: ^3.4.4
     fuse.js: ^7.5.0
-    hono: ^4.13.8
+    hono: ^4.13.13
     get-port-please: 3.2.0
     github-slugger: 2.0.0
-    highlight.js: ^11.11.1
-    js-base64: ^3.9.2
-    jsdom: 27.4.0
+    highlight.js: ^11.12.0
+    js-base64: ^3.9.4
+    jsdom: 29.0.1
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
-    microdiff: ^1.5.0
+    microdiff: 1.5.0
     monaco-editor: 0.54.0
     monaco-yaml: 5.4.1
-    nanoid: ^5.1.6
-    next: ^15.5.14
+    nanoid: ^5.1.16
+    next: ^15.5.28
     neverpanic: 0.0.8
-    picomatch: ^4.0.4
-    postcss: ^8.4.38
+    picomatch: ^4.0.7
+    postcss: ^8.5.30
     quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17
-    react-dom: ^19.2.3
-    react: ^19.2.3
-    rolldown: 1.1.5
-    set-cookie-parser: 3.1.0
-    semver: 7.7.2
+    react-dom: ^19.3.1
+    react: ^19.3.1
+    rolldown: 1.2.14
+    set-cookie-parser: 3.1.3
+    semver: 7.8.5
     shx: ^0.4.0
-    supertest: '7.2.2'
+    supertest: '7.3.1'
     tailwindcss: ^4.3.3
-    type-fest: ^5.8.0
+    type-fest: ^5.10.0
     truncate-json: 3.0.1
-    tsx: 4.19.4
+    tsx: 4.23.15
     undici: 8.12.3
-    vite-plugin-monaco-editor-esm: 2.0.2
+    vite-plugin-monaco-editor-esm: 2.0.3
     vite-ssg: 28.3.0
-    vite-svg-loader: 5.1.1
+    vite-svg-loader: 5.1.3
     vite-plugin-css-injected-by-js: ^5.0.2
-    vite: 8.1.5
-    vitest: 4.1.10
-    vue-router: 5.0.4
-    vue-tsc: ^3.3.8
-    vue: ^3.5.40
-    yaml: ^2.9.0
-    zod: ^4.4.3
-    posthog-js: 1.407.5
-    ws: 8.21.3
+    vite: 8.3.4
+    vitest: 4.1.12
+    vue-router: 5.4.0
+    vue-tsc: 3.3.11
+    vue: ^3.5.44
+    yaml: ^2.9.1
+    zod: ^4.6.7
+    posthog-js: 1.438.12
+    ws: 8.22.0
+    '@microsoft/api-extractor': ^7.59.4
 # pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
 # allowBuilds map: true runs the package's build scripts, false skips them.
 allowBuilds:
   '@firebase/util': false
   '@nestjs/core': true
   '@parcel/watcher': false
+  '@scarf/scarf': false
   '@swc/core': true
   '@tailwindcss/oxide': true
   core-js: false
@@ -133,6 +134,7 @@ allowBuilds:
   electron: true
   esbuild: false
   lefthook: true
+  msgpackr-extract: false
   protobufjs: false
   sharp: false
   unrs-resolver: false
@@ -146,7 +148,7 @@ overrides:
   lodash: 4.18.1
   # Keep Mermaid's transitive Lodash ES dependency on the patched release.
   lodash-es: 4.18.1
-  property-information: 7.1.0
+  property-information: 7.2.0
   # Keep existing transitive consumers on the patched v7 release.
   undici@<8: 7.30.1
   undici@>=8: catalog:*

@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.29.15",
+  "version": "0.29.16",
   "engines": {
     "node": ">=22"
   },
@@ -62,7 +62,7 @@
     "yaml": "catalog:*"
   },
   "devDependencies": {
-    "@apidevtools/swagger-parser": "10.1.0",
+    "@apidevtools/swagger-parser": "13.1.0",
     "@types/node": "catalog:*",
     "just-diff": "^6.0.2",
     "vite": "catalog:*"

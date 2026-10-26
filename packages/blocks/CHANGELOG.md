@@ -1,5 +1,20 @@
 # @scalar/blocks
 
+## 0.6.0
+
+### Minor Changes
+
+- [#10687](https://github.com/scalar/scalar/pull/10687): Display operation-level AsyncAPI message payload examples in a dark code card with message and example selection, plus selectable reply payload examples below it. Keep message and reply schemas in the left column.
+
+  Preserve declared AsyncAPI message order in the documentation and example picker.
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10652](https://github.com/scalar/scalar/pull/10652): Display authored AsyncAPI server-variable examples in the shared Example/Examples popup with copy support, including examples from referenced variables.
+
+  Keep the shared examples popup label clickable when hovered and align server-variable popups with their labels to avoid overlapping the sidebar.
+
 ## 0.5.4
 
 ### Patch Changes

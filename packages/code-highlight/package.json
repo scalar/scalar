@@ -16,7 +16,7 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.4.10",
+  "version": "0.4.11",
   "engines": {
     "node": ">=22"
   },
@@ -95,7 +95,7 @@
   },
   "devDependencies": {
     "@scalar/themes": "workspace:*",
-    "@types/hast": "^3.0.4",
+    "@types/hast": "^3.0.5",
     "@types/mdast": "^4.0.4",
     "vfile": "^6.0.3",
     "vite": "catalog:*"

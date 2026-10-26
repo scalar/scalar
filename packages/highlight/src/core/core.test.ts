@@ -448,6 +448,29 @@ describe('registry', () => {
     expect(resolveGrammar('sw')).toBe(resolveGrammar('swap'))
   })
 
+  it('keeps the compiled grammar when the same grammar is registered again', () => {
+    // A component that registers in its setup does this on every mount, and
+    // recompiling each time cost far more than the highlight itself.
+    registerLanguage(tiny)
+    const compiled = resolveGrammar('tiny')
+    registerLanguage(tiny)
+    expect(resolveGrammar('tiny')).toBe(compiled)
+    expect(resolveGrammar('t')).toBe(compiled)
+  })
+
+  it('still replaces an alias another grammar took over in the meantime', () => {
+    const owner: Grammar = { name: 'owner', aliases: ['shared'], states: { root: { rules: [] } } }
+    const thief: Grammar = { name: 'thief', aliases: ['shared'], states: { root: { rules: [] } } }
+
+    registerLanguage(owner)
+    registerLanguage(thief)
+    expect(resolveGrammar('shared').name).toBe('thief')
+    // `owner` is registered under its own name already, but not under every
+    // alias, so this is not a no-op.
+    registerLanguage(owner)
+    expect(resolveGrammar('shared').name).toBe('owner')
+  })
+
   it('drops an alias the replacing grammar no longer claims', () => {
     registerLanguage({
       name: 'shrink',

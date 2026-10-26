@@ -15,6 +15,7 @@ Most "MCP server generators" hand you a code project. You then own a runtime, se
 
 - **OAuth built in.** Since March 2026, people outside your team can sign in to an MCP server through OAuth, gated by email or domain with access groups. Team members connect with a Personal Access Token. [How MCP OAuth works](/blog/posts/2026-03-25-scalar-mcp-oauth).
 - **Your credentials stay on the server.** Store a shared upstream credential, choose credentials per access group, or let callers bring their own. Agents never receive the keys you store.
+- **Your own domain.** Serve the server from a subdomain you control, such as `mcp.example.com`, with a single CNAME record. OAuth sign-in works on the custom address too. See [custom domains](custom-domains.md).
 - **Built by the team behind Scalar's open-source API tooling.** The MIT-licensed [Scalar API Reference](/products/api-references) has 15.7k GitHub stars and is documented on Microsoft Learn for ASP.NET Core.
 
 ## Small context, any size of API

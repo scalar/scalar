@@ -54,7 +54,7 @@ Every target with a linked repository gets its release machinery committed along
 | ---- | ------- | ------------ |
 | `.github/workflows/sdk-ci.yml` | `push`, `pull_request` | Installs dependencies and builds the SDK so every change is checked. |
 | `.github/workflows/release-please.yml` | `push` to the default branch | Cuts the tag and GitHub Release when a release pull request merges, publishes from its inline `publish` job, and syncs the release back to `scalar-next`. |
-| `.github/workflows/release-title-edit.yml` | `pull_request` | Runs the `Release PR version` check and turns an edited release-pull-request title into the `Release-As` commit Scalar re-renders the pull request from. |
+| `.github/workflows/release-title-edit.yml` | `pull_request` | Runs the `Release PR version` check, which holds a retitled release pull request pending until Scalar has re-rendered it at the new version. |
 | `.github/workflows/sdk-release.yml` | `workflow_dispatch` | Manually re-publishes an existing tag. Only generated when the target publishes at release time. |
 | `release-please-config.json`, `.release-please-manifest.json` | — | release-please's configuration and version state. The manifest is seeded once and then owned by your repository. |
 | `VERSIONING.md` | — | Documents the branch model, how to pick an exact version, and the repository prerequisites. |
@@ -118,7 +118,7 @@ To ship an exact version instead, **edit the release pull request title**:
 release: 1.0.0
 ```
 
-The `Release PR version` check goes red while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The release pull request title is the one place to set the version: there is no version override in the dashboard or in the SDK configuration.
+The `Release PR version` check stays pending while the title and the committed version disagree, Scalar re-renders the pull request at your version, and the check goes green. Wait for green before merging. The release pull request title is the one place to set the version: there is no version override in the dashboard or in the SDK configuration.
 
 Every release gets a `vX.Y.Z` tag, a GitHub Release, and an entry in the repository's `CHANGELOG.md`, so your release history lives in your repo next to the code. The generated `VERSIONING.md` documents all of this for your maintainers.
 

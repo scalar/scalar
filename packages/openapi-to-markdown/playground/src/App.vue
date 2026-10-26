@@ -23,8 +23,8 @@ const busy = ref<boolean>(false)
 const error = ref<string>('')
 const copied = ref<boolean>(false)
 let pending: AbortController | undefined
-const example = computed<(typeof documents)[number]>(
-  () => documents.find((entry) => entry.id === documentId.value)!,
+const example = computed<(typeof documents)[number]>(() =>
+  documents.find((entry) => entry.id === documentId.value)!,
 )
 const pages = computed<(Page & { index: number })[]>(
   () =>

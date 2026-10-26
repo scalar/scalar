@@ -1,5 +1,21 @@
 # @scalar/workspace-store
 
+## 0.69.0
+
+### Minor Changes
+
+- [#10696](https://github.com/scalar/scalar/pull/10696): Upgrade Undici to 8.12.3. JSON Magic, Mock Server, Workspace Store, OpenAPI to Markdown, and Scalar App now require Node.js 22.19.0 or later; Node.js 22.0 through 22.18 are no longer supported. Undici 8 enables HTTP/2 by default.
+
+### Patch Changes
+
+- [#10687](https://github.com/scalar/scalar/pull/10687): Display operation-level AsyncAPI message payload examples in a dark code card with message and example selection, plus selectable reply payload examples below it. Keep message and reply schemas in the left column.
+
+  Preserve declared AsyncAPI message order in the documentation and example picker.
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+- [#10702](https://github.com/scalar/scalar/pull/10702): Preserve security schemes when expanding a compact chunk index, allowing authentication definitions to load with the initial document. Existing security schemes take precedence over chunk references with the same name.
+- [#10723](https://github.com/scalar/scalar/pull/10723): List AsyncAPI reply messages that live on the operation's own channel only under Replies, instead of repeating them under Messages or Other Channel Messages.
+
 ## 0.68.5
 
 ### Patch Changes

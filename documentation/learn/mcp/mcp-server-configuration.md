@@ -218,6 +218,7 @@ With a Scalar-hosted server, the client-side configuration shrinks to a URL, bec
 - **Which API and which operations.** You pick the OpenAPI document and choose per operation whether the model can search it, execute it, or neither. See [MCP tools](/products/agent/mcp).
 - **Upstream authentication.** Store one credential on the installation (global auth), have callers pass their own in a header you nominate (passthrough), or have them sign in with your API's own OAuth authorization server (OAuth passthrough). See [authentication](/products/agent/authentication).
 - **Who can connect.** Private by default; open to your team, to an access group of external emails or domains through OAuth, or to the public.
+- **Which address clients use.** The default is on `mcp.scalar.com`. You can also serve the server from a subdomain you own, such as `https://mcp.example.com/`, by adding a CNAME record. See [MCP custom domains](/products/agent/custom-domains).
 
 The client entry is then the installation URL, `https://mcp.scalar.com/mcp/YOUR_INSTALL_ID`, in whichever format your client uses. The [getting started guide](/products/agent/getting-started) shows where to find it. For a private installation, add it without headers and sign in when the client prompts. In Claude Code:
 

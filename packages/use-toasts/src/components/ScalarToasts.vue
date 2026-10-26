@@ -34,6 +34,8 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 </template>
 
 <style>
+@import 'vue-sonner/style.css';
+
 /**
 * We need to be explicit to avoid !important. :)
 *

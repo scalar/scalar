@@ -1,5 +1,15 @@
 # @scalar/types
 
+## 0.25.0
+
+### Minor Changes
+
+- [#10697](https://github.com/scalar/scalar/pull/10697): Add `urlRouting: false` to keep API reference navigation in internal state without reading or changing the host page URL.
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.24.0
 
 ### Minor Changes

@@ -14,6 +14,15 @@ const cache = new Map<string, CompiledGrammar>()
 export const registerLanguage = (...grammars: Grammar[]): void => {
   for (const grammar of grammars) {
     const name = grammar.name.toLowerCase()
+    const keys = [name, ...(grammar.aliases ?? [])].map((key) => key.toLowerCase())
+
+    // Registering the same grammar again changes nothing, so it keeps its
+    // compiled form. Evicting it here made a caller that registers on every
+    // render — a component's setup, say — recompile on every call, which is
+    // close to twenty times the cost of the highlight itself.
+    if (keys.every((key) => sources.get(key) === grammar)) {
+      continue
+    }
 
     // Re-registering replaces a language outright, so retire every name the
     // previous grammar answered to before claiming the new one's. Evicting only
@@ -30,10 +39,9 @@ export const registerLanguage = (...grammars: Grammar[]): void => {
       }
     }
 
-    for (const key of [name, ...(grammar.aliases ?? [])]) {
-      const lower = key.toLowerCase()
-      sources.set(lower, grammar)
-      cache.delete(lower)
+    for (const key of keys) {
+      sources.set(key, grammar)
+      cache.delete(key)
     }
   }
 }

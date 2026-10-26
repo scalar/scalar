@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.12
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update declaration tooling while preserving bundled integration types.
+
 ## 0.12.11
 
 ## 0.12.10

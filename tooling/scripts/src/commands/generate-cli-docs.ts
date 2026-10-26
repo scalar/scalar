@@ -63,7 +63,7 @@ const contextCommandSchema: z.ZodType<ContextCommand> = z.lazy(() =>
 )
 
 /** The subset of `scalar context` output the docs are rendered from */
-export const cliContextSchema = z.object({
+const cliContextSchema = z.object({
   version: z.string(),
   commands: z.array(contextCommandSchema),
 })

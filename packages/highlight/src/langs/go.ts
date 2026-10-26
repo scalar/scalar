@@ -38,6 +38,10 @@ const go: Grammar = {
           scope: ['keyword.declaration', null, 'namespace'],
         },
         {
+          match: '\\b(var)(\\s+)([A-Za-z_]\\w*)',
+          scope: ['keyword.declaration', null, 'variable'],
+        },
+        {
           match: '\\b(?:func|var|const|type|struct|interface|map|chan|package)\\b',
           scope: 'keyword.declaration',
         },
@@ -80,6 +84,10 @@ const go: Grammar = {
           scope: ['punctuation', 'variable.member'],
         },
 
+        // The names a short declaration binds: `res, err := …`, `for i, v :=`.
+        // Each name looks ahead over the rest of the list to the `:=`; the list
+        // is capped at eight names so a long argument list stays linear.
+        { match: '\\b[A-Za-z_]\\w*\\b(?=(?:\\s*,\\s*[A-Za-z_]\\w*){0,7}\\s*:=)', scope: 'variable' },
         { match: '\\b[A-Z][A-Z0-9_]+\\b', scope: 'constant' },
         { match: '\\b[A-Z][A-Za-z0-9_]*\\b', scope: 'type' },
         { match: '\\b[a-z_]\\w*(?=\\s*\\()', scope: 'function.call' },

@@ -192,7 +192,7 @@ describe('powershell', () => {
 
   it('separates a comparison operator from a parameter and from a command name', () => {
     assertHas(SAMPLE, 'powershell', '-notmatch', 'keyword.operator')
-    assertHas(SAMPLE, 'powershell', '-Recurse', 'variable.parameter')
+    assertHas(SAMPLE, 'powershell', '-Recurse', 'constant')
     // `Get-ChildItem` must stay whole rather than splitting at its hyphen.
     assertHas(SAMPLE, 'powershell', 'Get-ChildItem', 'function.call')
   })

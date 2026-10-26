@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.32.1",
+  "version": "0.33.0",
   "engines": {
     "node": ">=22"
   },
@@ -236,6 +236,7 @@
     "@headlessui/vue": "catalog:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/helpers": "workspace:*",
+    "@scalar/highlight": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
@@ -243,13 +244,13 @@
     "cva": "1.0.0-beta.4",
     "radix-vue": "catalog:*",
     "vue": "catalog:*",
-    "vue-component-type-helpers": "^3.2.6"
+    "vue-component-type-helpers": "^3.3.13"
   },
   "devDependencies": {
     "@playwright/test": "catalog:*",
-    "@storybook/addon-docs": "10.5.10",
-    "@storybook/addon-links": "10.5.10",
-    "@storybook/vue3-vite": "10.5.10",
+    "@storybook/addon-docs": "10.6.2",
+    "@storybook/addon-links": "10.6.2",
+    "@storybook/vue3-vite": "10.6.2",
     "@tailwindcss/cli": "catalog:*",
     "@tailwindcss/vite": "catalog:*",
     "@types/jsdom": "catalog:*",
@@ -258,7 +259,7 @@
     "@vue/test-utils": "catalog:*",
     "concurrently": "catalog:*",
     "jsdom": "catalog:*",
-    "storybook": "10.5.10",
+    "storybook": "10.6.2",
     "svglint": "^4.2.1",
     "tailwindcss": "catalog:*",
     "vite": "catalog:*",

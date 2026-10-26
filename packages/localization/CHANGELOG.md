@@ -1,5 +1,11 @@
 # @scalar/localization
 
+## 0.2.9
+
+### Patch Changes
+
+- [#10721](https://github.com/scalar/scalar/pull/10721): Update compatible dependencies while retaining the existing Node.js support and five-day release-age policy.
+
 ## 0.2.8
 
 ## 0.2.7

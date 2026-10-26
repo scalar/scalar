@@ -20,6 +20,12 @@ Open CLI documentation in your browser.
 scalar readme [options] [command]
 ```
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## readme generate
 
 Generate the CLI README from the command tree.
@@ -33,6 +39,7 @@ scalar readme generate [options]
 | Option | Description |
 | --- | --- |
 | `-o, --output [file]` | Path where the documentation file will be written. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## upgrade
 
@@ -42,6 +49,14 @@ Upgrade the Scalar CLI to the latest version.
 scalar upgrade [options]
 ```
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--check` | Show installed and available versions without installing. |
+| `--json` | Show the version check as JSON without installing. |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## context
 
 Print every command, argument, and option as JSON for AI agents.
@@ -49,6 +64,12 @@ Print every command, argument, and option as JSON for AI agents.
 ```bash
 scalar context [options]
 ```
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## completion
 
@@ -63,3 +84,9 @@ scalar completion [options] <shell>
 | Argument | Description |
 | --- | --- |
 | `shell` | **Required.** Shell to configure. One of `bash`, `zsh`, `fish`. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--no-input` | Disable prompts and browser launches. |

@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.12.11",
+  "version": "0.12.12",
   "engines": {
     "node": ">=22"
   },
@@ -63,6 +63,7 @@
     "@scalar/client-side-rendering": "workspace:*"
   },
   "devDependencies": {
+    "@microsoft/api-extractor": "catalog:*",
     "@types/node": "catalog:*",
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
@@ -71,7 +72,7 @@
     "react": "catalog:*",
     "react-dom": "catalog:*",
     "vite": "catalog:*",
-    "vite-plugin-dts": "^4.3.0",
+    "vite-plugin-dts": "^5.1.2",
     "vitest": "catalog:*"
   },
   "peerDependencies": {

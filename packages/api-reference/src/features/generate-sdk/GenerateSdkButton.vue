@@ -28,7 +28,7 @@ const { translate } = useLocalization()
   <ScalarButton
     v-if="context?.enabled.value && variant === 'card'"
     aria-haspopup="dialog"
-    class="text-c-1 px-3 py-1"
+    class="generate-sdk-button generate-sdk-button--card text-c-1 px-3 py-1"
     size="sm"
     variant="gradient"
     @click.stop="context.open()">
@@ -45,7 +45,8 @@ const { translate } = useLocalization()
   </button>
 </template>
 <style scoped>
-.generate-sdk-button {
+/* Keep the card styling in ScalarButton without increasing specificity for the other variants. */
+.generate-sdk-button:not(:where(.generate-sdk-button--card)) {
   appearance: none;
   border: none;
   background: transparent;

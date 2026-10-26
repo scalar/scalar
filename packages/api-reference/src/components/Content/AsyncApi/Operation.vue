@@ -117,7 +117,7 @@ const hasOverview = computed(() =>
 )
 
 /** Only the message children of this operation. */
-const messages = computed(() =>
+const operationMessages = computed(() =>
   filterChildrenByType<TraversedAsyncApiMessage>(
     operation.children,
     'asyncapi-message',
@@ -125,7 +125,17 @@ const messages = computed(() =>
 )
 
 const reply = computed(() =>
-  getOperationReply(document, resolvedOperation.value),
+  getOperationReply(document, resolvedOperation.value, operationMessages.value),
+)
+
+/** Operation messages, minus the reply messages that render under Replies. */
+const messages = computed(() =>
+  operationMessages.value.filter(
+    (message) =>
+      !reply.value?.messages.some(
+        ({ entry, nested }) => nested && entry?.id === message.id,
+      ),
+  ),
 )
 
 const replyMessages = computed(
@@ -262,10 +272,12 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         class="mt-12"
         :document="document"
         :eventBus="eventBus"
+        :expandedItems="expandedItems"
         :expansion="expansion"
         :level="messagesHeadingLevel"
         :options="options"
         :reply="reply"
+        :scrollTargetId="scrollTargetId"
         :specificationExtension="specificationExtension" />
     </div>
   </section>

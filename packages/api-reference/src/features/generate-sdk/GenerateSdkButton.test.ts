@@ -31,6 +31,12 @@ describe('GenerateSdkButton', () => {
     expect(button.attributes('aria-haspopup')).toBe('dialog')
   })
 
+  it.each(['card', 'toolbar', 'footer'] as const)('exposes the custom CSS hook for the %s variant', (variant) => {
+    const wrapper = mountButton(createContext(), variant)
+    expect(wrapper.get('button').element.matches('.generate-sdk-button')).toBe(true)
+    wrapper.unmount()
+  })
+
   it('renders nothing when the reference is not running locally', () => {
     const wrapper = mountButton(createContext(false))
 

@@ -320,7 +320,7 @@
   </div>
   <div class="lp-funnel" aria-hidden="true"><div class="lp-funnel-track" data-lp-funnel="true"></div></div>
 </div>
-<div class="lp-vs-side lp-vs-side--scalar">
+<div class="lp-vs-side lp-vs-side--scalar" data-md-exclude>
 <scalar-icon class="lp-wash" src="../assets/prompt-blocks.svg"></scalar-icon>
 <div class="lp-flow lp-flow--card lp-flow--vs" data-lp-edges="api>hub,hub>end0,hub>end1,hub>end2">
 <div class="lp-flow-row" data-lp-node="api" data-reveal="fade" style="--d: 0">
@@ -368,7 +368,7 @@
     Start with your OpenAPI document. Docs, SDKs, and a hosted MCP server all
     follow from it.
   </p>
-  <div class="flex gap-2 mb-11">
+  <div class="flex gap-2 mb-11" data-md-exclude>
     <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
     <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Talk to Us</a>
   </div>
@@ -379,7 +379,7 @@
 
 <div class="expander-container">
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
       <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
     </div>
@@ -397,7 +397,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
       <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
     </div>
@@ -416,7 +416,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
       <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
     </div>
@@ -435,7 +435,7 @@
     </div>
   </div>
   <div class="expander-hover">
-    <div class="expander-hover-preview">
+    <div class="expander-hover-preview" data-md-exclude>
       <img alt="MCP & Agent Preview" class="light-image" src="/agent-static.svg" />
       <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
     </div>

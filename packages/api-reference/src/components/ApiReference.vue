@@ -160,7 +160,7 @@ defineSlots<{
   'sidebar-start'?(): { breadcrumb: string }
   'sidebar-end'?(): { breadcrumb: string }
   'editor-placeholder'?(): { breadcrumb: string }
-  footer?(): { breadcrumb: string }
+  'footer'?(): { breadcrumb: string }
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -1479,6 +1479,7 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
  * uses to swap the client libraries for SDK installation instructions).
  */
 const generateSdk = useGenerateSdk({
+  disabled: () => mergedConfig.value.showDeveloperTools === 'never',
   hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
 })
@@ -1862,6 +1863,9 @@ const sidebarCta = computed((): SidebarCta => {
 
   // Localhost is where we pitch Scalar (this replaces the old "Generate MCP" fan-out)
   if (isLocalhost.value) {
+    if (mergedConfig.value.showDeveloperTools === 'never') {
+      return hideClientButton ? null : 'client'
+    }
     return 'explore'
   }
 

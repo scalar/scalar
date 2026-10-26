@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.7.7",
+  "version": "0.7.8",
   "engines": {
     "node": ">=22"
   },
@@ -50,7 +50,7 @@
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@types/node": "catalog:*",
-    "chalk": "^5.6.2",
+    "chalk": "^6.0.1",
     "vue": "catalog:*"
   },
   "devDependencies": {

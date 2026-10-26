@@ -71,6 +71,14 @@ const NOT_KEY = '(?!\\??:)'
 const TAG = '[A-Z][\\w.]*|[a-z][\\w-]*(?:[.:][\\w-]+)*'
 
 /**
+ * What follows the `<` of a type argument list that leads into a call:
+ * `number>(` in `useState<number>(0)`. Stops at an assignment or an unmatched
+ * bracket; balanced function and object types are allowed, but the scan cannot
+ * escape into a function body.
+ */
+const GENERIC_CALL_REST = '(?:[^;=(){}\\n]|=>|\\([^(){}\\n]{0,128}\\)|\\{[^{}()\\n]{0,128}\\}){1,512}>[ \\t]*\\('
+
+/**
  * What follows a name that is assigned a function: `= () =>`, `= async x =>`,
  * `= function`, and the generic `= <T,>(x: T) =>`. The parameter list cannot
  * nest parentheses, which covers real code and keeps the scan bounded.
@@ -219,7 +227,12 @@ const javascript: Grammar = {
         // Requiring no space before the colon keeps `cond ? a : b` out.
         { match: `\\b${ID}(?=\\??:)`, scope: 'property' },
         { match: `\\b${ID}(?=\\s*=>)`, scope: 'variable.parameter' },
-        { match: `\\b${ID}(?=[ \\t]*[(<]|\`)`, scope: 'function.call' },
+        { match: `\\b${ID}(?=[ \\t]*\\(|\`)`, scope: 'function.call' },
+        // A generic call such as `useState<number>(0)`. The argument list has to
+        // close and be followed by `(`, so a comparison like `count <= max` is
+        // not mistaken for a call. The body mirrors the generic-call scan in
+        // `nesting`, which bounds it so a long line cannot make it quadratic.
+        { match: `\\b${ID}(?=[ \\t]*<${GENERIC_CALL_REST})`, scope: 'function.call' },
 
         {
           // Bare `=` goes last so `=>`, `==`, `===` and the compound forms all
@@ -337,7 +350,7 @@ const javascript: Grammar = {
         // assignment or an unmatched closing parenthesis or brace. Balanced function/object
         // types are allowed, but the scan cannot escape into the function body.
         {
-          match: '<(?=(?:[^;=(){}\\n]|=>|\\([^(){}\\n]{0,128}\\)|\\{[^{}()\\n]{0,128}\\}){1,512}>[ \\t]*\\()',
+          match: `<(?=${GENERIC_CALL_REST})`,
           scope: 'punctuation.bracket',
           push: 'type-angle',
         },
