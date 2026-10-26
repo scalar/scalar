@@ -2,12 +2,12 @@
 <section class="lp-section lp-section--hero">
 <div class="lp-orbs" aria-hidden="true" data-md-exclude>
 <svg class="lp-orbits" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><ellipse class="lp-orbit" /><ellipse class="lp-orbit" /></svg>
-<div class="lp-orb lp-orb--chatgpt" data-label="ChatGPT" data-icon="chatgpt"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Found the endpoint in your docs. Calling it now.</span><span class="lp-say">200 OK. Matches the docs, field for field.</span><span class="lp-say">Is there an llms.txt for this API?</span><span class="lp-say">Writing the integration now. Is there a TypeScript SDK?</span><span class="lp-say">Installing. Will it compile first try, or do I iterate?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Go ahead. What you read is the version you&#8217;re calling.</span><span>Your API next? Click me, the prompt is ready.</span><span>On npm. Typed, from the OpenAPI document.</span><span>It will. Second tries are a human tradition.</span></div></div></div>
-<div class="lp-orb lp-orb--claude" data-label="Claude" data-icon="claude"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Your Markdown says this needs a customer id. Adding it.</span><span class="lp-say">Then what I read is what I call. Nothing drifts.</span><span class="lp-say">Which page covers authentication?</span><span class="lp-say">Before I write a line, is this SDK current with the API?</span><span class="lp-say">Could the types still drift from the docs?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>So does the SDK. Both come from one OpenAPI document.</span><span>Want this for yours? Click me, I&#8217;ll hand you the prompt.</span><span>It is. Every API change comes through as a pull request.</span><span>Same OpenAPI document. They would have to drift together.</span></div></div></div>
-<div class="lp-orb lp-orb--gemini" data-label="Gemini" data-icon="gemini"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Read the llms.txt. Which API should I start with?</span><span class="lp-say">Payments, then. Reading the auth guide first.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Any of them. The llms.txt lists every page as Markdown.</span><span>Your docs next? Click me, then hand your agent the prompt.</span></div></div></div>
-<div class="lp-orb lp-orb--opencode" data-label="OpenCode" data-icon="opencode"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Running your SDK&#8217;s tests from the terminal.</span><span class="lp-say">All green. The types match the docs, nothing to patch.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Carry on. I built that SDK from the OpenAPI document.</span><span>One prompt does this for your API. Click me to copy it.</span></div></div></div>
-<div class="lp-orb lp-orb--grok" data-label="Grok" data-icon="grok"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Read your Markdown. Calling the API, no guessing.</span><span class="lp-say">Count away. Just don&#8217;t go reading what I send.</span><span class="lp-say">Can I read this page as Markdown?</span><span class="lp-say">Wrote against your Stainless SDK last week. Still good?</span><span class="lp-say">So what changed?</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>Through the MCP server, I take it. I count every call.</span><span>Never stored. Click me, one prompt sets this up for you.</span><span>Yes. Same resources, same methods, same package name.</span><span>The generator. You were not supposed to notice.</span></div></div></div>
-<div class="lp-orb lp-orb--t3" data-label="Code" data-icon="t3"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Pulled your docs as Markdown. Wiring the SDK in.</span><span class="lp-say">Installed. Pinned the version, so nothing moves on me.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>It&#8217;s on npm. Docs and SDK change together, never apart.</span><span>Click me: one prompt, and your agent sets this up.</span></div></div></div>
+<div class="lp-orb lp-orb--chatgpt" data-label="ChatGPT" data-icon="chatgpt"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Searching your reference for creating a customer.</span><span class="lp-say">Calling it with an email and a name.</span><span class="lp-say">Loading llms-full.txt, then the auth guide.</span><span class="lp-say">Checking the docs for a TypeScript client.</span><span class="lp-say">Installing @profoundai/client. Writing the first call.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>POST /v1/customers. Required: email, name.</span><span>201 Created. Location: /v1/customers/cus_8f2.</span><span>sdks.md: 200 OK.</span><span>metrics, category_id, start_date, end_date.</span></div></div></div>
+<div class="lp-orb lp-orb--claude" data-label="Claude" data-icon="claude"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Reading orders.md for the pagination rules.</span><span class="lp-say">Pages by next_cursor. Following it to the last page.</span><span class="lp-say">Searching the Docs MCP for webhooks.</span><span class="lp-say">Checking @profoundai/client against openapi.json.</span><span class="lp-say">Matches the client. Writing the reports.visibility call.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>orders.md: 200 OK, text/markdown.</span><span>200 OK, page 5 of 5. next_cursor: null.</span><span>openapi.json: 200 OK.</span><span>Returns info and data[].</span></div></div></div>
+<div class="lp-orb lp-orb--gemini" data-label="Gemini" data-icon="gemini"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Fetching llms.txt to pick an API.</span><span class="lp-say">Starting with Payments. Reading authentication.md.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>llms.txt: 200 OK. Three APIs listed.</span><span>authentication.md: 200 OK, 2.4 KB.</span></div></div></div>
+<div class="lp-orb lp-orb--opencode" data-label="OpenCode" data-icon="opencode"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Running the SDK&#8217;s smoke tests against the mock server.</span><span class="lp-say">All green. Trying the 404 case by hand.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>48 requests served, 0 validation errors.</span><span>GET /v1/orders/nope: 404 Not Found.</span></div></div></div>
+<div class="lp-orb lp-orb--grok" data-label="Grok" data-icon="grok"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Connected to your MCP server. Calling GET /v1/invoices.</span><span class="lp-say">Seven unpaid. Calling GET /v1/invoices/{id} for each.</span><span class="lp-say">Got a 429. Reading errors.md for retries.</span><span class="lp-say">Updated @profoundai/client. Reading the changelog.</span><span class="lp-say">No renames. All 14 call sites resolve. Running the tests.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>200 OK. 31 invoices, 140 ms.</span><span>7 calls, 200 OK each, 610 ms total.</span><span>changelog.md: 200 OK.</span><span>Mock server: 14 calls, all 200.</span></div></div></div>
+<div class="lp-orb lp-orb--t3" data-label="Code" data-icon="t3"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"></div><div class="lp-orb-ring"></div></div><div class="lp-orb-bubble"><span class="lp-say is-on">Reading quickstart.md for the install step.</span><span class="lp-say">Installed 2.3.0, pinned. Trying one call on the mock.</span><span class="lp-typing" aria-hidden="true"><i></i><i></i><i></i></span></div><div class="lp-orb-says" hidden><span>quickstart.md: 200 OK, 1.8 KB.</span><span>GET /v1/me: 200 OK, 52 ms.</span></div></div></div>
 </div>
 <template id="lp-icon-chatgpt"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></template>
 <template id="lp-icon-claude"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></template>
@@ -98,7 +98,7 @@
 <div class="lp-stage-sun"><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
 <div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
 </div>
-<div class="lp-stage-says"><span class="lp-stage-say lp-stage-say--w">Yes, there is an llms.txt.</span><span class="lp-stage-say lp-stage-say--se">Every page is Markdown too.</span><span class="lp-stage-say lp-stage-say--ne">The auth guide, in the docs.</span><span class="lp-stage-say lp-stage-say--sw">SDKs in six languages.</span><span class="lp-stage-say lp-stage-say--e">A hosted MCP server.</span><span class="lp-stage-say lp-stage-say--nw">All from one OpenAPI document.</span></div>
+<div class="lp-stage-says"><span class="lp-stage-say lp-stage-say--sw">openapi.json: 48 operations.</span><span class="lp-stage-say lp-stage-say--e">auth.md: 200 OK.</span><span class="lp-stage-say lp-stage-say--nw">pagination.md: 200 OK.</span><span class="lp-stage-say lp-stage-say--w">errors.md: 200 OK.</span><span class="lp-stage-say lp-stage-say--se">llms-full.txt: 200 OK.</span><span class="lp-stage-say lp-stage-say--ne">Docs MCP: 2 webhook pages.</span></div>
 </div>
 </div>
   </div>
@@ -203,10 +203,15 @@
   <div class="lp-card lp-card--mcp" aria-hidden="true" data-md-exclude>
 <div class="lp-card-screen">
 <div class="lp-stage lp-stage--mcp" data-lp-stage-mcp>
-<div class="lp-thread-row lp-thread-row--user" data-lp-thread="user"><div class="lp-thread-bubble">Which planets in the Galaxy API are still missing an image?</div></div>
-<div class="lp-thread-row" data-lp-thread="agent1"><div class="lp-thread-avatar" data-lp-thread-slot="a"></div><div class="lp-thread-group"><div class="lp-thread-bubble"><span class="lp-thread-text">Let me look that up in the Galaxy API.</span></div><div class="lp-thread-chip"><span class="lp-thread-chip-mark" aria-hidden="true"></span>Asking Scalar MCP for the planet operations</div></div></div>
-<div class="lp-thread-row" data-lp-thread="scalar"><div class="lp-thread-avatar" data-lp-thread-slot="b"></div><div class="lp-thread-bubble"><span class="lp-thread-text">GET /planets lists them, each with an image field. Twelve planets, one image empty.</span></div></div>
-<div class="lp-thread-row" data-lp-thread="agent2"><div class="lp-thread-avatar" data-lp-thread-slot="c"></div><div class="lp-thread-bubble"><span class="lp-thread-text">Kepler-22b is the only planet without an image. The other eleven all have one.</span></div></div>
+<div class="lp-win lp-win--chat">
+<div class="lp-thread">
+<div class="lp-thread-row lp-thread-row--user" data-lp-thread="user"><div class="lp-thread-bubble">Retry this month&#8217;s failed renewals with each customer&#8217;s backup card and tell me what&#8217;s still unpaid.</div></div>
+<div class="lp-thread-row" data-lp-thread="agent1"><p class="lp-thread-text">I&#8217;ll list this month&#8217;s failed renewals, check each customer for a backup card, retry the charge where there is one, and report what&#8217;s still unpaid.</p></div>
+<div class="lp-thread-row" data-lp-thread="think"><div class="lp-think"><button type="button" class="lp-think-head" tabindex="-1" aria-expanded="false"><span class="lp-think-label">Thinking</span><span class="lp-think-label lp-think-label--done">Thought for 6s</span><svg class="lp-think-caret" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="lp-think-body"><div class="lp-think-fold"><div class="lp-think-box"><div class="lp-think-convo"><div class="lp-think-seat lp-think-seat--a" data-lp-thread-slot="a"></div><div class="lp-think-seat lp-think-seat--b" data-lp-thread-slot="b"></div><div class="lp-think-bubble" data-lp-think="1">GET /v1/invoices?status=failed</div><div class="lp-think-bubble lp-think-bubble--scalar" data-lp-think="2">200 OK. 23 invoices, 17 with a backup card.</div><div class="lp-think-bubble" data-lp-think="3">POST /v1/invoices/{id}/pay for those 17.</div><div class="lp-think-bubble lp-think-bubble--scalar" data-lp-think="4">17 calls: 16 paid, 1 declined.</div></div></div></div></div></div></div>
+<div class="lp-thread-row lp-thread-row--answer" data-lp-thread="agent2"><p class="lp-thread-text">16 of the 23 are paid. Seven are still unpaid: six have no backup card on file, and one was declined again.</p><div class="lp-thread-avatar" data-lp-thread-slot="c"></div></div>
+</div>
+<div class="lp-chat-composer"><div class="lp-chat-field"><span class="lp-chat-placeholder">Write a message…</span><span class="lp-chat-return"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span><span class="lp-chat-send"><scalar-icon src="phosphor/regular/arrow-up"></scalar-icon></span></div><div class="lp-chat-controls"><div class="lp-chat-left"><scalar-icon src="phosphor/regular/plus"></scalar-icon><scalar-icon src="phosphor/regular/microphone"></scalar-icon><scalar-icon src="phosphor/regular/caret-down"></scalar-icon></div><span class="lp-chat-model"><span class="lp-chat-model-name">Fable 5.1</span> <span class="lp-chat-model-mode">Ultracode</span></span></div></div>
+</div>
 </div>
 </div>
   </div>
@@ -358,13 +363,6 @@
 </div>
 
 <div class="cta flex flex-col gap-3 small-test">
-  <ul class="lp-trust" aria-label="Security and compliance">
-    <li><scalar-icon src="phosphor/regular/shield-check"></scalar-icon>SOC 2 Type 1</li>
-    <li><scalar-icon src="phosphor/regular/key"></scalar-icon>SSO / SAML</li>
-    <li><scalar-icon src="phosphor/regular/seal-check"></scalar-icon>Enterprise SLAs</li>
-    <li><scalar-icon src="phosphor/regular/git-branch"></scalar-icon>Self-hostable core</li>
-    <li><a class="t-editor__anchor" href="https://trust.scalar.com" target="_blank" rel="noopener noreferrer">Trust Center &rarr;</a></li>
-  </ul>
   <scalar-heading level="2" class="text-balance" slug="ready-for-agents">Make your API ready for the agents that are already looking for it.</scalar-heading>
   <p>
     Start with your OpenAPI document. Docs, SDKs, and a hosted MCP server all
@@ -377,6 +375,86 @@
   <a class="expander-hover-link" href="https://discord.gg/scalar" target="_blank" aria-label="Join Scalar community on Discord">Community →</a>
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
   <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Support →</a>
+</div>
+
+<div class="expander-container">
+  <div class="expander-hover">
+    <div class="expander-hover-preview">
+      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
+      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
+    </div>
+    <div class="relative">
+      <div class="expander-hover-sticker">
+        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
+      </div>
+      <div class="expander-hover-title">API Docs</div>
+      <div class="expander">
+        <div class="expander-content">
+          Write beautiful documentation with Markdown, MDX, OpenAPI, AsyncAPI, and two-way Git sync.
+        </div>
+      </div>
+      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about API Docs">Learn More</a>
+    </div>
+  </div>
+  <div class="expander-hover">
+    <div class="expander-hover-preview">
+      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
+      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
+    </div>
+    <div class="relative">
+      <div class="expander-hover-sticker">
+        <object class="sticker-clip-sdk" width="145" height="145"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
+      </div>
+      <div class="expander-hover-title">SDKs</div>
+      <div class="expander">
+        <div class="expander-content">
+          Bring your OpenAPI document and get type-safe client libraries for TypeScript, Python and more.
+        </div>
+      </div>
+      <a class="expander-hover-link" href="/products/sdk-generator" aria-label="Learn more about SDKs">Learn More</a>
+    </div>
+  </div>
+  <div class="expander-hover">
+    <div class="expander-hover-preview">
+      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
+      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
+    </div>
+    <div class="relative">
+      <div class="expander-hover-sticker">
+      <object class="sticker-clip-registry" width="136" height="186"
+          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
+      </div>
+      <div class="expander-hover-title">API Registry</div>
+      <div class="expander">
+        <div class="expander-content">
+          Managing & versioning OpenAPI Documents with a deep Git integration.
+        </div>
+      </div>
+      <a class="expander-hover-link" href="/products/registry" aria-label="Learn more about API Registry">Learn More</a>
+    </div>
+  </div>
+  <div class="expander-hover">
+    <div class="expander-hover-preview">
+      <img alt="MCP & Agent Preview" class="light-image" src="/agent-static.svg" />
+      <img alt="MCP & Agent Preview" class="dark-image" src="/agent-static-dark.svg" />
+    </div>
+    <div class="relative">
+      <div class="expander-hover-sticker">
+        <object class="sticker-clip-agent" width="139" height="162" data="/agent-scalar-sticker-static.svg"></object>
+      </div>
+      <div class="expander-hover-title">MCP & Agent</div>
+      <div class="expander">
+        <div class="expander-content">
+          OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.
+        </div>
+      </div>
+      <a class="expander-hover-link" href="/products/agent" aria-label="Learn more about MCP & Agent">Learn More</a>
+    </div>
+  </div>
+</div>
+<div class="sticker-filter-effect">
+  <scalar-icon src="../assets/remote/cdn-031ac82fbf.svg"></scalar-icon>
 </div>
 
 <style>
@@ -1708,6 +1786,12 @@
     left: calc(50% + 104px);
     top: calc(50% - 44px);
   }
+  /* the two level with the globe have the least room: never wider than
+     what is left between their spot and the card's edge */
+  .lp-stage-say--w,
+  .lp-stage-say--e {
+    max-width: min(230px, calc(50% - 104px));
+  }
   .lp-stage-say--nw {
     --r-br: 6px;
     right: calc(50% + 36px);
@@ -1749,6 +1833,7 @@
     .lp-stage-say--w,
     .lp-stage-say--e {
       top: calc(50% - 30px);
+      max-width: min(140px, calc(50% - 56px));
     }
     .lp-stage-say--w {
       right: calc(50% + 56px);
@@ -1855,14 +1940,14 @@
     --r-tl: 20px;
     --r-bl: 6px;
     z-index: 6;
-    left: auto;
-    right: 0;
+    /* beside the globe, its tight corner at the disc: from 12px past the
+       disc's edge (the centre is at --sx, the disc reaches 90px past it;
+       60px in the narrow card) up to 230px wide, 8px short of the edge */
+    left: calc(var(--sx) * 1% + 102px);
+    right: auto;
     top: 36%;
     translate: 0 -50%;
-    /* as wide as the room right of the globe allows, up to 230px: the
-       globe's centre is at --sx, its disc reaches 60px past that in the
-       narrow card (90px in the wide one, with room to spare) */
-    max-width: min(230px, calc((100 - var(--sx)) * 1% - 64px));
+    max-width: min(230px, calc((100 - var(--sx)) * 1% - 110px));
   }
   @container lp-card (max-width: 480px) {
     .lp-stage.lp-stage--sdk {
@@ -1886,34 +1971,79 @@
     }
     .lp-stage--sdk .lp-sun-bubble {
       top: 30%;
+      left: calc(var(--sx) * 1% + 72px);
+      max-width: min(230px, calc((100 - var(--sx)) * 1% - 80px));
     }
   }
-  /* The MCP card: a message thread after the chat on x.ai/voice, no
-     window round it. A box of fixed height with the thread centred in
-     it, so each new row comes up from below and the earlier ones glide
-     up to make room (landing.js moves them from their old places); the
-     user's prompt right-aligned, the agent's messages with the guest
-     planet as the profile photo at its latest message, Scalar's with the
-     globe as its own. Borderless pale bubbles at most 82% wide, a 12px
-     tool chip, the assistants' lines streaming in word by word, the
-     oldest rows stepping back. */
+  /* The MCP card: a chat transcript, after Claude's, in a window like
+     the SDK card's (the same width, border, radius and shadow). The
+     window is a box of fixed height with the transcript centred in it,
+     so each new row comes up from below and the earlier ones glide up
+     to make room (landing.js moves them from their old places): the
+     user's prompt in a bubble on the right; the agent's lines as plain
+     text, streaming in word by word; between them the thinking block: a
+     head line (Thinking, the caret after it) and under it a bordered box
+     where the guest planet and the globe sit at either side and trade a
+     few bubbles of calls and results; done, the box folds away under the
+     head (the globe with it) and the answer comes up, the planet
+     standing under it. */
   .lp-stage.lp-stage--mcp {
-    --lp-thread-gutter: 64px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 8px;
     box-sizing: border-box;
     width: 100%;
-    height: 400px;
-    padding: 8px 4px 8px 0;
+    height: 600px;
+    padding: 0;
     aspect-ratio: auto;
+  }
+  /* the window (its base rule comes later, so these are the stronger
+     selector): the transcript from the top, the composer at the foot,
+     tall enough for the open exchange; it clips nothing, as the planets
+     fly in and out of it */
+  .lp-stage--mcp .lp-win--chat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    height: 560px;
+    padding: 0;
+    overflow: visible;
+  }
+  .lp-thread {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    box-sizing: border-box;
+    padding: 20px 20px 8px;
+    /* the transcript scrolls if the box is opened again once it is all
+       there; no bar for it, and the wheel reaches it */
+    overflow: hidden auto;
+    scrollbar-width: none;
+    pointer-events: auto;
+  }
+  .lp-thread::-webkit-scrollbar {
+    display: none;
+  }
+  /* the composer from the old chat window, pushed to the foot; its
+     model label names the guest's model (landing.js sets it) and the
+     mode in a quieter grey */
+  .lp-win--chat .lp-chat-composer {
+    margin-top: auto;
+  }
+  .lp-chat-model-name {
+    color: var(--scalar-color-1);
+  }
+  .lp-chat-model-mode {
+    margin-left: 4px;
+    color: var(--scalar-color-2);
   }
   .lp-thread-row {
     position: relative;
     display: none;
     justify-content: flex-start;
-    padding-left: var(--lp-thread-gutter);
     transition:
       transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
       opacity 420ms ease;
@@ -1923,17 +2053,19 @@
   }
   .lp-thread-row--user {
     justify-content: flex-end;
-    padding-left: 0;
   }
-  /* the photo's seat at the row's foot: the planet or the globe stands
-     centred in it (the globe's ring reaches past it, over the gutter
-     and under the bubble) */
+  /* the answer, and the planet's seat under it, at the left */
+  .lp-thread-row--answer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
   .lp-thread-avatar {
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    position: relative;
     width: 48px;
     height: 48px;
+    /* its ring reaches past the seat: in from the edge by that much */
+    margin-left: 6px;
   }
   .lp-stage.lp-stage--mcp .lp-orb {
     --x: 50;
@@ -1943,19 +2075,12 @@
   .lp-stage--mcp .lp-stage-globe {
     --s: 48px;
   }
-  .lp-thread-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    max-width: 82%;
-  }
   .lp-thread-bubble {
     position: relative;
     z-index: 5;
     box-sizing: border-box;
     width: fit-content;
-    max-width: 82%;
+    max-width: 88%;
     padding: 12px 18px;
     border-radius: 20px;
     background: var(--scalar-background-2);
@@ -1963,47 +2088,191 @@
     font-size: 14px;
     line-height: 1.5;
     color: var(--scalar-color-1);
-    transition: opacity 600ms ease;
   }
-  .lp-thread-group .lp-thread-bubble {
-    max-width: 100%;
-  }
-  /* the tool note under a message, after the chip on x.ai/voice: a beat
-     after its bubble */
-  .lp-thread-chip {
+  /* the agent's lines: plain text, no bubble; the answer close under
+     the folded head */
+  .lp-thread-row > .lp-thread-text {
     position: relative;
     z-index: 5;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
     max-width: 100%;
-    box-sizing: border-box;
-    padding: 6px 14px 6px 10px;
-    border-radius: 999px;
-    background: var(--scalar-background-2);
+    margin: 0;
+    padding: 6px 0;
     font-family: var(--scalar-font);
-    font-size: 12px;
-    line-height: 16px;
-    color: var(--scalar-color-2);
-    opacity: 0;
-    transition: opacity 360ms ease 500ms;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
   }
-  .lp-thread-row.is-shown .lp-thread-chip {
+  .lp-thread-row--answer > .lp-thread-text {
+    padding-top: 0;
+  }
+  /* the thinking block: the head line, then the box */
+  .lp-think {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    font-family: var(--scalar-font);
+  }
+  .lp-think-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    appearance: none;
+    font: inherit;
+    font-size: 13px;
+    line-height: 1;
+    text-align: left;
+    color: var(--scalar-color-2);
+  }
+  /* once the exchange is done the head is a button: the box opens and
+     closes again under it */
+  .lp-thread-row.is-done .lp-think-head {
+    pointer-events: auto;
+    cursor: pointer;
+  }
+  .lp-thread-row.is-done.is-open .lp-think-body {
+    grid-template-rows: 1fr;
+  }
+  .lp-thread-row.is-done.is-open .lp-think-box {
     opacity: 1;
   }
-  .lp-thread-chip-mark {
-    display: inline-flex;
+  .lp-thread-row.is-done.is-open .lp-think-caret {
+    transform: none;
+  }
+  /* folded, nothing of the box's room is left under the head */
+  .lp-thread-row.is-done:not(.is-open) .lp-think {
+    gap: 0;
+  }
+  .lp-think-label {
+    position: relative;
+    overflow: hidden;
+    padding: 2px 0;
+  }
+  /* a sheen sweeps the word while the agent is at work: a band of the
+     card's own colour over the text, on a transform */
+  .lp-think-label::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, var(--scalar-background-1) 45% 55%, transparent);
+    opacity: 0.85;
+    transform: translateX(-100%);
+    animation: lp-think-sheen 1.6s linear infinite;
+  }
+  @keyframes lp-think-sheen {
+    to {
+      transform: translateX(100%);
+    }
+  }
+  .lp-think-label--done,
+  .lp-thread-row.is-done .lp-think-label:not(.lp-think-label--done) {
+    display: none;
+  }
+  .lp-thread-row.is-done .lp-think-label--done {
+    display: inline-block;
+  }
+  .lp-think-label--done::after {
+    content: none;
+  }
+  /* the caret right after the word */
+  .lp-think-caret {
     flex: none;
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+    transition: transform 300ms ease;
   }
-  .lp-thread-chip-mark svg {
-    display: block;
-    width: 100%;
-    height: 100%;
+  .lp-thread-row.is-done .lp-think-caret {
+    transform: rotate(-90deg);
   }
-  /* the assistants' lines stream in a word at a time, each clearing
-     from a blur (the script sets each word's delay) */
+  /* the box, folded away once the exchange is done: the row to no
+     height, the box clipped inside it, fading first */
+  .lp-think-body {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-thread-row.is-done .lp-think-body {
+    grid-template-rows: 0fr;
+  }
+  .lp-think-fold {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .lp-think-box {
+    position: relative;
+    box-sizing: border-box;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    background: var(--scalar-background-1);
+    transition: opacity 250ms ease;
+  }
+  .lp-thread-row.is-done .lp-think-box {
+    opacity: 0;
+  }
+  .lp-think-convo {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 58px;
+  }
+  /* the two seats, either side of the bubbles, level with their middle;
+     the rings reach past the seats, inside the box */
+  .lp-think-seat {
+    position: absolute;
+    top: 50%;
+    width: 32px;
+    height: 32px;
+    translate: 0 -50%;
+  }
+  .lp-think-seat--a {
+    left: 14px;
+  }
+  .lp-think-seat--b {
+    right: 14px;
+  }
+  .lp-stage.lp-stage--mcp .lp-think-seat .lp-orb,
+  .lp-stage--mcp .lp-think-seat .lp-stage-globe {
+    --s: 32px;
+  }
+  /* the exchange: the agent's bubbles at the left by the planet, Scalar's
+     at the right by the globe, the tight corner towards the speaker;
+     each rises into place as the script shows it */
+  .lp-think-bubble {
+    box-sizing: border-box;
+    width: fit-content;
+    max-width: 88%;
+    padding: 9px 13px;
+    border-radius: 16px 16px 16px 5px;
+    background: var(--scalar-background-2);
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--scalar-color-1);
+    overflow-wrap: anywhere;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 360ms ease,
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-think-bubble--scalar {
+    margin-left: auto;
+    border-radius: 16px 16px 5px 16px;
+  }
+  .lp-think-bubble.is-shown {
+    opacity: 1;
+    transform: none;
+  }
+  /* the agent's plain lines stream in a word at a time, each clearing
+     from a blur (the script sets each word's delay), once their row is on */
   .lp-thread-w {
     opacity: 0;
     filter: blur(4px);
@@ -2011,41 +2280,67 @@
       opacity 320ms ease,
       filter 320ms ease;
   }
-  .lp-thread-row.is-shown .lp-thread-w {
+  .lp-thread-row.is-shown > .lp-thread-text .lp-thread-w {
     opacity: 1;
     filter: blur(0);
   }
-  /* all but the two latest rows step back */
-  .lp-thread-row.is-past .lp-thread-bubble,
-  .lp-thread-row.is-shown.is-past .lp-thread-chip {
-    opacity: 0.55;
-    transition-delay: 0s;
-  }
   @container lp-card (max-width: 480px) {
     .lp-stage.lp-stage--mcp {
-      --lp-thread-gutter: 56px;
-      height: 380px;
+      height: 690px;
+    }
+    .lp-stage--mcp .lp-win--chat {
+      height: 650px;
+    }
+    .lp-thread {
+      padding: 16px 16px 8px;
     }
     .lp-thread-avatar {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
     }
     .lp-stage.lp-stage--mcp .lp-orb,
     .lp-stage--mcp .lp-stage-globe {
-      --s: 44px;
-    }
-    .lp-thread-group,
-    .lp-thread-bubble {
-      max-width: 88%;
+      --s: 40px;
     }
     .lp-thread-bubble {
+      max-width: 94%;
       padding: 10px 14px;
+    }
+    .lp-think-convo {
+      gap: 6px;
+      padding: 10px 44px;
+    }
+    .lp-think-seat {
+      width: 28px;
+      height: 28px;
+    }
+    .lp-think-seat--a {
+      left: 12px;
+    }
+    .lp-think-seat--b {
+      right: 12px;
+    }
+    .lp-stage.lp-stage--mcp .lp-think-seat .lp-orb,
+    .lp-stage--mcp .lp-think-seat .lp-stage-globe {
+      --s: 28px;
+    }
+    .lp-think-bubble {
+      max-width: 94%;
+      padding: 8px 11px;
+      font-size: 12px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .lp-thread-row,
-    .lp-thread-w {
+    .lp-thread-w,
+    .lp-think-body,
+    .lp-think-box,
+    .lp-think-bubble,
+    .lp-think-caret {
       transition: none;
+    }
+    .lp-think-label::after {
+      animation: none;
     }
   }
   /* The hosting band: no panel; the head centred like the hero's; then
@@ -2370,35 +2665,37 @@
   .lp .lp-grid li::marker {
     content: none;
   }
+  /* the product points: one sentence each with its own icon in front,
+     in one bordered box with a rule between each */
   .lp .lp-points {
     margin-top: 4px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
   }
-  /* the product points: one sentence each with its own icon in front,
-     no rules between, after the feature lists on x.ai/voice */
   .lp .lp-points li {
     /* a block, so the sentence runs on inline round its code; the icon
        hangs in the padding */
     display: block;
     position: relative;
-    padding: 5px 0 5px 26px;
+    padding: 12px 16px 12px 44px;
     border-top: 0;
     font-size: 14px;
     line-height: 1.45;
     color: var(--scalar-color-1);
+  }
+  .lp .lp-points li + li {
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .lp .lp-points li > .lp-point-icon {
     /* the build inlines the icon as an svg; it sits centred on the first
        line (the top padding, then half a line less half the icon), not
        on the whole sentence */
     position: absolute;
-    left: 0;
-    top: calc(5px + (1.45em - 16px) / 2);
+    left: 16px;
+    top: calc(12px + (1.45em - 16px) / 2);
     width: 16px;
     height: 16px;
-    color: var(--scalar-color-3);
-  }
-  .lp .lp-points li:last-child {
-    border-bottom: 0;
+    color: var(--scalar-color-1);
   }
   .lp-points b,
   .lp-grid b {
@@ -3712,37 +4009,6 @@
     padding: 80px 0;
     margin-top: 0 !important;
   }
-  /* what the enterprise buyer checks for, in one quiet row over the
-     closing heading */
-  .cta .lp-trust {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 20px;
-    /* one row across the content column, wider than the closing copy;
-       narrower windows wrap it */
-    width: max-content;
-    max-width: calc(100dvw - var(--scalar-sidebar-width, 0px) - 60px);
-    margin: 0 0 8px;
-    padding: 0;
-    list-style: none;
-    font-size: var(--scalar-font-size-3);
-    color: var(--scalar-color-2);
-  }
-  .cta .lp-trust li {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin: 0;
-    white-space: nowrap;
-  }
-  .cta .lp-trust li::marker {
-    content: none;
-  }
-  .cta .lp-trust svg {
-    width: 15px;
-    height: 15px;
-    color: var(--scalar-color-3);
-  }
   .small-test {
     max-width: 440px;
     text-wrap: balance;
@@ -4535,13 +4801,16 @@
       grid-area: 5 / 3;
     }
     .lp-visual [data-lp-node="gemini"] {
-      grid-area: 6 / 3;
+      grid-area: 5 / 2;
     }
+    /* one Developer is enough here: the SDK user goes, and the rest
+       stand in two rows of three (landing.js draws no line to it and
+       sends it no packets) */
     .lp-visual [data-lp-node="dev-sdk"] {
-      grid-area: 4 / 2;
+      display: none;
     }
     .lp-visual [data-lp-node="copilot"] {
-      grid-area: 5 / 2;
+      grid-area: 4 / 2;
     }
     /* the tree has no room for the lane verbs */
     .lp-visual .lp-lane {
@@ -4595,6 +4864,123 @@
     }
     .lp-section--panel {
       padding: 32px 24px;
+    }
+  }
+  /* The closing grid: the four products with their peel stickers, back
+     under the closing links (the sticker sheet is included after it) */
+  .expander {
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    opacity: 0;
+    transition: grid-template-rows 0.25s, opacity 0.25s ease-in-out;
+  }
+  .expander-content {
+    min-height: 0;
+    margin-bottom: 12px;
+    margin-top: 6px;
+    line-height: 1.45;
+    font-size: 14px;
+  }
+  .expander-hover {
+    height: 370px;
+    position: relative;
+  }
+  .expander-hover:hover .expander {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows 0.5s, opacity 0.5s ease-in-out;
+  }
+  .expander.expanded .expander-content {
+    visibility: visible;
+  }
+  .expander-hover-title {
+    font-size: 20px;
+    font-weight: var(--scalar-semibold);
+    margin-top: 24px;
+  }
+  .expander-hover:hover .expander-hover-link {
+    --font-color: var(--scalar-color-1);
+  }
+  .expander-hover-preview {
+    position: absolute;
+    left: -120px;
+    top: -220px;
+    width: 1100px;
+    mask-image: radial-gradient(circle at top left, black 25%, transparent 40%);
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    transform: rotate(1deg) translate3d(-10px, -10px, 0);
+    max-height: 500px;
+    overflow: hidden;
+  }
+  .expander-hover .relative {
+    z-index: 1;
+  }
+  .expander-hover:hover .expander-hover-preview {
+    opacity: 1;
+    transform: rotate(2deg) translate3d(0, 0, 0);
+    transition: all 0.3s ease-in-out 0.2s;
+  }
+  .expander-hover-preview img {
+    margin-left: 0;
+    mask-image: linear-gradient(black, transparent);
+    width: 100%;
+  }
+  .expander-hover-sticker {
+    height: 143px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-left: -12px;
+    transition: transform 0.3s ease-in-out;
+    justify-content: flex-start;
+  }
+  .expander-hover-sticker object {
+    pointer-events: none;
+  }
+  .expander-hover-sticker img {
+    max-height: initial;
+    margin-left: initial;
+  }
+  .expander-hover:hover .expander-hover-sticker {
+    transform: rotate(-3deg);
+  }
+  .expander-container {
+    display: flex;
+    gap: 44px;
+  }
+  .sticker-clip-sdk {
+    clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
+  }
+  .sticker-clip-registry {
+    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 22.4116 15.3613 21.4204L71.0986 1.13334Z")
+  }
+  .sticker-clip-docs {
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  /* Outline of the Agent Scalar speech-bubble sticker (139x162). */
+  .sticker-clip-agent {
+    clip-path: path("M128.27 0C134.19 0 139 4.8 139 10.73V134.6c0 5.93-4.8 10.73-10.73 10.73H22.72L7.46 160.3A4.39 4.39 0 0 1 0 157.17V128.3h.17V10.73C.17 4.81 4.97 0 10.9 0z");
+  }
+  @media screen and (max-width: 1000px) {
+    .expander-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      row-gap: 0;
+    }
+    .expander-hover {
+      width: auto;
+    }
+    .expander-hover .expander {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+    .expander .expander-content {
+      visibility: visible;
     }
   }
 </style>

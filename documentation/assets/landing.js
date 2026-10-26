@@ -2451,7 +2451,7 @@ const initLandingOrbs = debounce(() => {
          questions have been up a few seconds the planets shrink and
          settle into an orbit round the globe (a loop of its own, the
          planet's offset from the centre on a translate, like the hero's)
-         and the answers cycle round it */
+         and its answers come up round it, the last three to stay */
       const stageSun = stage.querySelector('.lp-stage-sun .lp-sun')
       const stageRing = stageSun?.querySelector('.lp-orb-ring')
       const stageSunSize = stageSun ? Number.parseFloat(getComputedStyle(stageSun).getPropertyValue('--s')) : 0
@@ -2561,17 +2561,29 @@ const initLandingOrbs = debounce(() => {
         orbitLast = null
         orbitTick(performance.now())
       }
-      // a chain of answers; a newer chain (the globe back from the SDK
-      // card) retires the old one by its number
+      // a chain of answers: one short round, and the last three (one for
+      // each planet's action) stay on, so the talk settles rather than
+      // going on for ever. A newer chain (the globe back from the SDK
+      // card) retires the old one by its number and carries on from where
+      // the round had got to, or puts the settled three back up
+      const SAY_KEEP = 3
       const nextSay = (gen) => {
         if (!onStage || !says.length || gen !== sayGen) {
           return
         }
-        const say = says[saying % says.length]
+        if (saying >= says.length) {
+          says.slice(-SAY_KEEP).forEach((say) => say.classList.add('is-on'))
+          return
+        }
+        const say = says[saying]
         saying++
         say.classList.add('is-on')
-        timers.push(window.setTimeout(() => say.classList.remove('is-on'), SAY_FOR))
-        timers.push(window.setTimeout(() => nextSay(gen), SAY_EVERY))
+        if (saying <= says.length - SAY_KEEP) {
+          timers.push(window.setTimeout(() => say.classList.remove('is-on'), SAY_FOR))
+        }
+        if (saying < says.length) {
+          timers.push(window.setTimeout(() => nextSay(gen), SAY_EVERY))
+        }
       }
       // the ring's wipe from its start, as in the hero: both angles to
       // the start with no transition, then let go to the stage's values
@@ -2601,6 +2613,8 @@ const initLandingOrbs = debounce(() => {
         stageRing.style.transform = 'rotateY(0deg)'
         stage.classList.add('is-sun')
         timers.push(window.setTimeout(startOrbit, 400))
+        // the round from its start: the planets have just arrived again
+        saying = 0
         const gen = ++sayGen
         timers.push(window.setTimeout(() => nextSay(gen), 1400))
       }
@@ -3152,33 +3166,40 @@ const initLandingOrbs = debounce(() => {
         // the card's state, for the page's tests
         sdk.lpSdk = () => ({ on: lent.on, guest: guest?.orb.dataset.icon ?? null })
 
-        /* The MCP card, below again: a message thread, no window, after
-           the chat on x.ai/voice. The rows come on one by one, each up
-           from below while the earlier ones glide up (a FLIP on their
-           transforms), the assistants' lines streaming in by the word.
-           The SDK card's guest comes on (or straight from the Docs card,
-           on a jump) to sit as the agent's profile photo by its first
-           message; the globe comes on to sit by Scalar's reply; the
-           planet moves down to the agent's answer. When the card drops
-           below the viewport's middle both go back to the SDK card and
-           its talk plays again. */
+        /* The MCP card, below again: a chat transcript, after Claude's.
+           The rows come on one by one, each up from below while the
+           earlier ones glide up (a FLIP on their transforms), the agent's
+           lines streaming in by the word: the user's bubble, the agent's
+           opening line as plain text, then a thinking block: a head
+           line and a bordered box where the SDK card's guest (it comes on
+           from there, or straight from the Docs card on a jump) and the
+           globe sit at either side and trade a few bubbles of calls and
+           results; the box then folds away under the head, the globe
+           with it, as the planet moves down to the answer, plain text
+           again. When the card drops below the viewport's middle both go
+           back to the SDK card and its talk plays again. */
         const mcp = document.querySelector('[data-lp-stage-mcp]')
         const slot = (name) => mcp?.querySelector(`[data-lp-thread-slot="${name}"]`)
         const row = (name) => mcp?.querySelector(`[data-lp-thread="${name}"]`)
         const seats = { a: slot('a'), b: slot('b'), c: slot('c') }
-        const rows = { user: row('user'), agent1: row('agent1'), scalar: row('scalar'), agent2: row('agent2') }
+        const rows = { user: row('user'), agent1: row('agent1'), think: row('think'), agent2: row('agent2') }
+        const lines = [1, 2, 3, 4].map((n) => mcp?.querySelector(`[data-lp-think="${n}"]`))
+        // the composer's model label, per guest: the model, then the mode
+        const MODELS = {
+          claude: ['Fable 5.1', 'Ultracode'],
+          chatgpt: ['GPT-6', 'Sol'],
+          grok: ['Grok 4.7', 'Heavy'],
+        }
+        const modelName = mcp?.querySelector('.lp-chat-model-name')
+        const modelMode = mcp?.querySelector('.lp-chat-model-mode')
         if (
           mcp &&
           Object.values(seats).every(Boolean) &&
           Object.values(rows).every(Boolean) &&
+          lines.every(Boolean) &&
           mcp.dataset.lpStageBound !== 'true'
         ) {
           mcp.dataset.lpStageBound = 'true'
-          const mark = mcp.querySelector('.lp-thread-chip-mark')
-          const icon = document.getElementById('lp-icon-scalar')
-          if (mark && icon) {
-            mark.innerHTML = icon.innerHTML
-          }
           // the streamed lines, a span a word, each a beat after the last
           mcp.querySelectorAll('.lp-thread-text').forEach((text) => {
             const words = text.textContent.trim().split(/\s+/)
@@ -3194,20 +3215,31 @@ const initLandingOrbs = debounce(() => {
               }
             })
           })
-          const order = [rows.user, rows.agent1, rows.scalar, rows.agent2]
+          const order = [rows.user, rows.agent1, rows.think, rows.agent2]
+          const head = rows.think.querySelector('.lp-think-head')
           let mcpTimers = []
           const quiet = () => {
             mcpTimers.forEach((t) => window.clearTimeout(t))
             mcpTimers = []
             order.forEach((r) => {
-              r.classList.remove('is-shown', 'is-past')
+              r.classList.remove('is-shown', 'is-done', 'is-open')
               r.style.transition = ''
               r.style.transform = ''
               r.style.opacity = ''
             })
+            lines.forEach((line) => line.classList.remove('is-shown'))
+            head?.setAttribute('aria-expanded', 'false')
           }
+          // once the exchange is done its head opens and closes the box
+          head?.addEventListener('click', () => {
+            if (!rows.think.classList.contains('is-done')) {
+              return
+            }
+            const open = rows.think.classList.toggle('is-open')
+            head.setAttribute('aria-expanded', String(open))
+          })
           // a row comes on: up from below, the others to their new places
-          // from their old ones; all but the two latest step back
+          // from their old ones
           const reveal = (r) => {
             const shown = order.filter((other) => other.classList.contains('is-shown'))
             const before = new Map(shown.map((other) => [other, other.getBoundingClientRect().top]))
@@ -3228,15 +3260,13 @@ const initLandingOrbs = debounce(() => {
                 el.style.opacity = ''
               }
             }
-            const all = order.filter((other) => other.classList.contains('is-shown'))
-            all.forEach((other, i) => other.classList.toggle('is-past', i < all.length - 2))
           }
           next.off = () => {
             next.on = false
             quiet()
           }
           next.left = () => mcp.classList.remove('is-sun')
-          // a planet into a seat of the thread, centred, ring to the front
+          // a planet into a seat of the transcript, centred, ring to the front
           const seat = (o, at) => move(o, at, 0, () => standBelow(o, '3'), faceFront(o))
           const toMcp = () => {
             if (next.on) {
@@ -3254,20 +3284,38 @@ const initLandingOrbs = debounce(() => {
             talkOff()
             quiet()
             const o = guest
+            const [name, mode] = MODELS[o.orb.dataset.icon] ?? []
+            if (modelName && modelMode && name) {
+              modelName.textContent = name
+              modelMode.textContent = mode
+            }
             const at = (ms, fn) => mcpTimers.push(window.setTimeout(fn, ms))
             at(300, () => reveal(rows.user))
-            at(1500, () => {
-              reveal(rows.agent1)
+            at(1500, () => reveal(rows.agent1))
+            // the block opens and both come to their seats in it
+            at(2600, () => {
+              reveal(rows.think)
               seat(o, seats.a)
-            })
-            at(3300, () => {
-              reveal(rows.scalar)
               moveGlobe(seats.b, () => {
                 sdk.classList.remove('is-sun')
                 mcp.classList.add('is-sun')
               })
             })
-            at(5800, () => {
+            // the exchange, once both have landed: the planet's face forms
+            // for it (its own bubble stays shut: the bubbles are the box's)
+            at(3900, () => {
+              lines[0].classList.add('is-shown')
+              o.face?.set(true)
+            })
+            at(4900, () => lines[1].classList.add('is-shown'))
+            at(5900, () => lines[2].classList.add('is-shown'))
+            at(6900, () => lines[3].classList.add('is-shown'))
+            // done: the box folds away (the globe stays in it, clipped)
+            // and the answer comes up with the planet beside it; the
+            // planet's flight measures its start before the fold has
+            // moved anything
+            at(8300, () => {
+              rows.think.classList.add('is-done')
               reveal(rows.agent2)
               seat(o, seats.c)
             })
@@ -3277,7 +3325,7 @@ const initLandingOrbs = debounce(() => {
               return
             }
             // the flights measure the globe and the planet in their seats
-            // first; the thread is put away after
+            // first; the transcript is put away after
             if (lent.on && guest) {
               takeToSdk(guest)
             }
@@ -3305,7 +3353,12 @@ const initLandingOrbs = debounce(() => {
             }
           }
           // the card's state, for the page's tests
-          mcp.lpMcp = () => ({ on: next.on, shown: order.filter((r) => r.classList.contains('is-shown')).length })
+          mcp.lpMcp = () => ({
+            on: next.on,
+            shown: order.filter((r) => r.classList.contains('is-shown')).length,
+            done: rows.think.classList.contains('is-done'),
+            lines: lines.filter((line) => line.classList.contains('is-shown')).length,
+          })
         }
 
         /* The hosting band's scene, below that: a globe of its own at the
@@ -3624,6 +3677,11 @@ const drawLandingFlowEdges = (flow) => {
     if (!from || !to) {
       return
     }
+    // an end the layout hides (a chip dropped on phones) takes no line
+    if (!from.getClientRects().length || !to.getClientRects().length) {
+      edges.push({ key, hidden: true })
+      return
+    }
     const fromAnchor = anchorOf(from)
     const toAnchor = anchorOf(to)
     const a = fromAnchor.getBoundingClientRect()
@@ -3661,8 +3719,20 @@ const drawLandingFlowEdges = (flow) => {
   if (svg.getAttribute('viewBox') !== viewBox) {
     svg.setAttribute('viewBox', viewBox)
   }
-  edges.forEach(({ key, from, d, cx, cy }) => {
+  edges.forEach(({ key, from, d, cx, cy, hidden }) => {
     let path = svg.querySelector(`[data-lp-edge="${key}"]`)
+    // hidden rather than removed, so it is there again (revealed) when
+    // the layout shows its end
+    const shown = hidden ? 'none' : ''
+    const dotNow = svg.querySelector(`[data-lp-dot="${key}"]`)
+    for (const el of [path, dotNow]) {
+      if (el && el.style.display !== shown) {
+        el.style.display = shown
+      }
+    }
+    if (hidden) {
+      return
+    }
     if (!path) {
       path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       path.setAttribute('class', 'lp-flow-line')
@@ -3703,8 +3773,11 @@ const createLandingFlowPlayer = (flow) => {
   const nodes = new Map()
   flow.querySelectorAll('[data-lp-node]').forEach((node) => nodes.set(node.dataset.lpNode, node))
   const products = [...nodes.values()].filter((node) => node.dataset.lpTarget).map((node) => node.dataset.lpNode)
+  // the ends a packet can go to: the ones the layout shows
   const leaves = (product) =>
-    [...nodes.values()].filter((node) => node.dataset.lpParent === product).map((node) => node.dataset.lpNode)
+    [...nodes.values()]
+      .filter((node) => node.dataset.lpParent === product && node.getClientRects().length)
+      .map((node) => node.dataset.lpNode)
   if (!layers.length || !nodes.has('api') || !nodes.has('hub')) {
     return null
   }
