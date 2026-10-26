@@ -1,7 +1,7 @@
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
-import { bench, describe } from 'vitest'
+import { describe, it } from 'vitest'
 
 import Schema from './Schema.vue'
 
@@ -101,20 +101,28 @@ describe('schema-tree', () => {
     const enums = asSchema(largeEnum(40))
     const composed = asSchema(compositionHeavy())
 
-    bench('depth 5, collapsed', () => {
-      mountSchema(deep).unmount()
+    it('depth 5, collapsed', async ({ bench }) => {
+      await bench('depth 5, collapsed', () => {
+        mountSchema(deep).unmount()
+      }).run()
     })
 
-    bench('60 flat properties', () => {
-      mountSchema(wide).unmount()
+    it('60 flat properties', async ({ bench }) => {
+      await bench('60 flat properties', () => {
+        mountSchema(wide).unmount()
+      }).run()
     })
 
-    bench('40-value enum', () => {
-      mountSchema(enums).unmount()
+    it('40-value enum', async ({ bench }) => {
+      await bench('40-value enum', () => {
+        mountSchema(enums).unmount()
+      }).run()
     })
 
-    bench('allOf over oneOf over anyOf', () => {
-      mountSchema(composed).unmount()
+    it('allOf over oneOf over anyOf', async ({ bench }) => {
+      await bench('allOf over oneOf over anyOf', () => {
+        mountSchema(composed).unmount()
+      }).run()
     })
   })
 
@@ -129,12 +137,16 @@ describe('schema-tree', () => {
      * cost of the option and the cost of the action can be compared directly
      * rather than in the abstract.
      */
-    bench('depth 5, expanded at mount', () => {
-      mountSchema(deep, { expandAllSchemaProperties: true }).unmount()
+    it('depth 5, expanded at mount', async ({ bench }) => {
+      await bench('depth 5, expanded at mount', () => {
+        mountSchema(deep, { expandAllSchemaProperties: true }).unmount()
+      }).run()
     })
 
-    bench('depth 5, collapsed at mount', () => {
-      mountSchema(deep, { expandAllSchemaProperties: false }).unmount()
+    it('depth 5, collapsed at mount', async ({ bench }) => {
+      await bench('depth 5, collapsed at mount', () => {
+        mountSchema(deep, { expandAllSchemaProperties: false }).unmount()
+      }).run()
     })
   })
 
@@ -149,16 +161,20 @@ describe('schema-tree', () => {
      * mount, keeps the two moving together: if a change renders many more rows,
      * this gets slower even though the query itself is cheap.
      */
-    bench('count rendered rows, depth 5 collapsed', () => {
-      const wrapper = mountSchema(deep)
-      wrapper.element.querySelectorAll('.property').length
-      wrapper.unmount()
+    it('count rendered rows, depth 5 collapsed', async ({ bench }) => {
+      await bench('count rendered rows, depth 5 collapsed', () => {
+        const wrapper = mountSchema(deep)
+        wrapper.element.querySelectorAll('.property').length
+        wrapper.unmount()
+      }).run()
     })
 
-    bench('count rendered rows, 60 flat properties', () => {
-      const wrapper = mountSchema(wide)
-      wrapper.element.querySelectorAll('.property').length
-      wrapper.unmount()
+    it('count rendered rows, 60 flat properties', async ({ bench }) => {
+      await bench('count rendered rows, 60 flat properties', () => {
+        const wrapper = mountSchema(wide)
+        wrapper.element.querySelectorAll('.property').length
+        wrapper.unmount()
+      }).run()
     })
   })
 })
