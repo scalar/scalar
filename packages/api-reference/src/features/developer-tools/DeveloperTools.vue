@@ -80,15 +80,17 @@ const SHELL_TOGGLE_CLASSES =
 
 /**
  * Escape anywhere in the shell bar closes the open panel, the way it does from inside the panel.
- * Controls that use Escape themselves (the Developer Tools card) mark it handled first.
+ * Controls that use Escape themselves (the Developer Tools card) mark it handled first. Only the
+ * shell bar listens at all, so the content bar of a hosted reference carries no listener.
  */
 const closePanelOnEscape = (event: KeyboardEvent): void => {
-  if (variant !== 'shell' || !activePanel || event.defaultPrevented) {
+  if (event.key !== 'Escape' || !activePanel || event.defaultPrevented) {
     return
   }
   event.preventDefault()
   emit('togglePanel', activePanel)
 }
+const onKeydown = variant === 'shell' ? closePanelOnEscape : undefined
 
 /** The shell's Deploy names the framework serving the reference, or the API in general */
 const deployLabel = computed<string>(() => {
@@ -130,8 +132,8 @@ const showDeveloperTools = computed<boolean>(() => {
     :aria-label="translate('developerTools.title')"
     :class="toolbarClasses"
     :data-scalar-scroll-header="variant === 'shell' || undefined"
-    :role="variant === 'shell' ? 'region' : undefined"
-    @keydown.escape="closePanelOnEscape">
+    :onKeydown="onKeydown"
+    :role="variant === 'shell' ? 'region' : undefined">
     <!-- The header stays the only root node on purpose: a comment beside it would turn the root
          into a fragment, and the parent's `class` would no longer fall through to it. -->
     <!-- The shell bar is sticky, so scroll targeting measures it like any other pinned header -->
