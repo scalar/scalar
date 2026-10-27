@@ -4,6 +4,19 @@ import { describe, expect, it } from 'vitest'
 import { validate } from './validate'
 
 describe('validate', () => {
+  it('validates a JSON document with a leading UTF-8 BOM', async () => {
+    const document = JSON.stringify({
+      openapi: '3.1.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: {},
+    })
+
+    const result = await validate(`\uFEFF${document}`)
+
+    expect(result.errors).toStrictEqual([])
+    expect(result.valid).toBe(true)
+  })
+
   it('reports missing external references inside a custom operation named example', async () => {
     const result = await validate({
       openapi: '3.2.1',
