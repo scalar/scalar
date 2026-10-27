@@ -1440,8 +1440,14 @@ describe('localhost shell', () => {
 
     const html = await renderToString(app)
 
+    // Skip the fragment's leading comment markers with plain string search, not a backtracking regex
+    let markup = html
+    while (markup.startsWith('<!--')) {
+      markup = markup.slice(markup.indexOf('-->') + 3)
+    }
+
     // The root `<div>` carries nothing but its style scope
-    expect(html).toMatch(/^(?:<!--.*?-->)*<div(?: data-v-[a-z0-9]+)?><!--/)
+    expect(markup).toMatch(/^<div(?: data-v-[a-z0-9]+)?><!--/)
     expect(html).not.toContain('references-shell')
   })
 })
