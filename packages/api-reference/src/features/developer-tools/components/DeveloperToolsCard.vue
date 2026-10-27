@@ -41,7 +41,10 @@ const titleId = useId()
       <span
         aria-hidden="true"
         class="developer-tools-card-wash pointer-events-none absolute inset-x-0 top-0" />
-      <slot name="hero" />
+      <!-- The artwork's own tilt stays on the artwork, so the entrance only has to scale and lift this wrapper -->
+      <span class="developer-tools-card-hero flex origin-bottom">
+        <slot name="hero" />
+      </span>
     </div>
 
     <div class="flex flex-col gap-2 px-8 pt-2 text-center">
@@ -99,5 +102,25 @@ const titleId = useId()
     black,
     transparent 80%
   );
+}
+
+/* The artwork pops in like the Generate SDK card's stickers, each time a card opens */
+.developer-tools-card-hero {
+  animation: developer-tools-card-pop 360ms cubic-bezier(0.34, 1.3, 0.4, 1) both;
+}
+@keyframes developer-tools-card-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .developer-tools-card-hero {
+    animation: none;
+  }
 }
 </style>
