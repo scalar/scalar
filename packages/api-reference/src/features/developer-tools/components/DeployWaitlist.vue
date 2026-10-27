@@ -16,7 +16,6 @@ import { useLoadingState } from '@scalar/components/loading'
 import {
   ScalarIconArrowLeft,
   ScalarIconCpu,
-  ScalarIconDatabase,
   ScalarIconGitBranch,
   ScalarIconMoon,
 } from '@scalar/icons'
@@ -59,11 +58,6 @@ const HOSTING_FEATURES = [
     icon: ScalarIconGitBranch,
     title: 'developerTools.hostingDeploysTitle',
     description: 'developerTools.hostingDeploysDescription',
-  },
-  {
-    icon: ScalarIconDatabase,
-    title: 'developerTools.hostingPostgresTitle',
-    description: 'developerTools.hostingPostgresDescription',
   },
 ] as const satisfies ReadonlyArray<{
   icon: ScalarIconComponent

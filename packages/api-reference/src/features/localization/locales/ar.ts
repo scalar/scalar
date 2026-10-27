@@ -197,8 +197,6 @@ export const ar = {
     hostingIdleDescription: 'يُحتسب بالثانية لما يعمل فقط. لا رسوم على الطلبات.',
     hostingDeploysTitle: 'نشر مع كل push',
     hostingDeploysDescription: 'معاينات لطلبات السحب، وسجلات ومقاييس، وشبكة خاصة إلى خدماتك الأخرى.',
-    hostingPostgresTitle: 'Postgres من Neon',
-    hostingPostgresDescription: 'بنقرة واحدة.',
     hostingPlans:
       'ثم 1 دولار شهريًا على Free · Hobby بـ 5 دولارات شهريًا مع 5 دولارات من الاستخدام · Pro بـ 20 دولارًا شهريًا',
     hostingSeePlans: 'عرض الخطط',

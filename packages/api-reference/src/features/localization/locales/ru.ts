@@ -202,8 +202,6 @@ export const ru = {
     hostingIdleDescription: 'Посекундная оплата за то, что работает. Без платы за запросы.',
     hostingDeploysTitle: 'Деплой при каждом push',
     hostingDeploysDescription: 'Превью для pull request, логи и метрики и приватная сеть к другим вашим сервисам.',
-    hostingPostgresTitle: 'Postgres от Neon',
-    hostingPostgresDescription: 'В один клик.',
     hostingPlans: 'Далее 1 $/мес. на Free · Hobby 5 $/мес. с 5 $ использования · Pro 20 $/мес.',
     hostingSeePlans: 'Тарифы',
   },

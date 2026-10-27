@@ -202,8 +202,6 @@ export const en = {
     hostingDeploysTitle: 'Deploys on every push',
     hostingDeploysDescription:
       'Previews for pull requests, logs and metrics, and private networking to your other services.',
-    hostingPostgresTitle: 'Postgres from Neon',
-    hostingPostgresDescription: 'In one click.',
     hostingPlans: 'Then $1/mo on Free · Hobby $5/mo with $5 of usage included · Pro $20/mo',
     hostingSeePlans: 'See plans',
   },

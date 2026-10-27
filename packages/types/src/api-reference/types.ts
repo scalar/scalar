@@ -631,8 +631,6 @@ export type ApiReferenceTranslations = {
     hostingIdleDescription: string
     hostingDeploysTitle: string
     hostingDeploysDescription: string
-    hostingPostgresTitle: string
-    hostingPostgresDescription: string
     hostingPlans: string
     hostingSeePlans: string
   }
