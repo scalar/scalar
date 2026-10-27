@@ -188,6 +188,7 @@ const reset = async (): Promise<void> => {
 <template>
   <DeveloperToolsCard
     :description="translate('developerTools.deployApiDescription')"
+    :divided="false"
     :title
     @close="emit('close')">
     <template #hero>
@@ -285,13 +286,14 @@ const reset = async (): Promise<void> => {
             <span class="text-c-1 text-base leading-6 font-bold">
               {{ translate(feature.title) }}
             </span>
-            <span class="text-c-2 text-sm">
+            <span class="text-c-2 text-sm leading-relaxed">
               {{ translate(feature.description) }}
             </span>
           </span>
         </li>
       </ul>
-      <p class="text-c-2 m-0 mt-5 text-center text-xs text-balance">
+      <p
+        class="text-c-2 m-0 mt-5 text-center text-xs leading-relaxed text-balance">
         {{ translate('developerTools.hostingPlans') }} ·
         <a
           class="text-c-1 underline"

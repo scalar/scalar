@@ -248,47 +248,9 @@ const titleTag = computed(() =>
           </component>
         </div>
 
-        <hr class="border-border mx-8 mt-5 border-0 border-t" />
-
-        <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
-        <ul
-          class="m-0 flex list-none flex-col gap-4 px-8 py-5"
-          role="list">
-          <li class="flex items-start gap-3">
-            <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
-            <span class="text-c-1 flex h-6 shrink-0 items-center">
-              <ScalarIconPackage
-                class="size-5"
-                weight="regular" />
-            </span>
-            <span class="flex flex-col gap-0.5">
-              <span class="text-c-1 text-base leading-6 font-bold">
-                {{ translate('exploreScalar.generateTitle') }}
-              </span>
-              <span class="text-c-2 text-sm">
-                {{ translate('exploreScalar.generateDescription') }}
-              </span>
-            </span>
-          </li>
-          <li class="flex items-start gap-3">
-            <span class="text-c-1 flex h-6 shrink-0 items-center">
-              <ScalarIconGlobe
-                class="size-5"
-                weight="regular" />
-            </span>
-            <span class="flex flex-col gap-0.5">
-              <span class="text-c-1 text-base leading-6 font-bold">
-                {{ translate('exploreScalar.platformTitle') }}
-              </span>
-              <span class="text-c-2 text-sm">
-                {{ translate('exploreScalar.platformDescription') }}
-              </span>
-            </span>
-          </li>
-        </ul>
-
-        <!-- Sign-up comes first in the DOM so the dialog's initial focus lands on the primary action -->
-        <div class="flex flex-col gap-1 px-8 pt-1 pb-6">
+        <!-- The actions sit right under the heading, before the feature rows. Sign-up comes first in the
+             DOM so the dialog's initial focus lands on the primary action. -->
+        <div class="flex flex-col gap-1 px-8 pt-5">
           <!-- The spinner hides the label, so the name is pinned while loading (the button is still announced as busy) -->
           <ScalarButton
             :is="signUpHref ? 'a' : 'button'"
@@ -354,6 +316,45 @@ const titleTag = computed(() =>
             </ScalarTooltip>
           </div>
         </div>
+
+        <hr class="border-border mx-8 mt-6 border-0 border-t" />
+
+        <!-- WebKit drops the list role from a list-style: none list, so the role is explicit to keep "list, 2 items" -->
+        <ul
+          class="m-0 flex list-none flex-col gap-4 px-8 pt-6 pb-6"
+          role="list">
+          <li class="flex items-start gap-3">
+            <!-- The icon shares the title's line box, so it sits on the title and the description hangs below -->
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconPackage
+                class="size-5"
+                weight="regular" />
+            </span>
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.generateTitle') }}
+              </span>
+              <span class="text-c-2 text-sm leading-relaxed">
+                {{ translate('exploreScalar.generateDescription') }}
+              </span>
+            </span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-c-1 flex h-6 shrink-0 items-center">
+              <ScalarIconGlobe
+                class="size-5"
+                weight="regular" />
+            </span>
+            <span class="flex flex-col gap-0.5">
+              <span class="text-c-1 text-base leading-6 font-bold">
+                {{ translate('exploreScalar.platformTitle') }}
+              </span>
+              <span class="text-c-2 text-sm leading-relaxed">
+                {{ translate('exploreScalar.platformDescription') }}
+              </span>
+            </span>
+          </li>
+        </ul>
       </div>
 
       <!-- Booking step: the Cal.com calendar for a call with Marc, rendered inline -->

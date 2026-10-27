@@ -97,7 +97,7 @@ const upload = async (): Promise<void> => {
         @click="upload">
         {{ translate('developerTools.uploadDocument') }}
       </ScalarButton>
-      <p class="text-c-2 m-0 text-center text-sm text-balance">
+      <p class="text-c-2 m-0 text-center text-sm leading-relaxed text-balance">
         {{ translate('developerTools.temporaryLinkExpiration') }}
       </p>
     </div>

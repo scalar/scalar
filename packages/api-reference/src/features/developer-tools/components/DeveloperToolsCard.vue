@@ -9,9 +9,15 @@ import { useId } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 
-const { title, description } = defineProps<{
+const {
+  title,
+  description,
+  divided = true,
+} = defineProps<{
   title: string
   description?: string
+  /** A divider between the heading and the content; Deploy goes straight into its sign-up */
+  divided?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -46,12 +52,14 @@ const titleId = useId()
       </h2>
       <p
         v-if="description"
-        class="text-c-2 m-0 text-sm text-balance">
+        class="text-c-2 m-0 text-sm leading-relaxed text-balance">
         {{ description }}
       </p>
     </div>
 
-    <hr class="border-border mx-8 mt-5 border-0 border-t" />
+    <hr
+      v-if="divided"
+      class="border-border mx-8 mt-5 border-0 border-t" />
 
     <div class="px-8 pt-5 pb-6">
       <slot :titleId />
