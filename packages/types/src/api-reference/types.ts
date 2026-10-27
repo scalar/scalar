@@ -613,6 +613,28 @@ export type ApiReferenceTranslations = {
     mcpServers: string
     unableToExportDocument: string
     unknownError: string
+    waitlistEmail: string
+    waitlistPlaceholder: string
+    joinWaitlist: string
+    waitlistSuccess: string
+    waitlistError: string
+    waitlistRateLimit: string
+    waitlistBack: string
+    deployApiButton: string
+    deployFrameworkButton: string
+    deployApiTitle: string
+    deployFrameworkTitle: string
+    deployApiDescription: string
+    hostingStartsTitle: string
+    hostingStartsDescription: string
+    hostingIdleTitle: string
+    hostingIdleDescription: string
+    hostingDeploysTitle: string
+    hostingDeploysDescription: string
+    hostingPostgresTitle: string
+    hostingPostgresDescription: string
+    hostingPlans: string
+    hostingSeePlans: string
   }
   exploreScalar: {
     /** The sidebar call to action that opens the dialog */

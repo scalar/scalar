@@ -319,7 +319,7 @@ describe('ApiReference Configuration Tests', { timeout: 15_000 }, () => {
     // hideSearch: undefined -> false
     expect(searchButton.exists()).toBe(true)
 
-    // hideClientButton: undefined -> false
+    // hideClientButton: undefined -> false, but the localhost shell keeps the sidebar footer empty
     expect(clientButton.exists()).toBe(false)
 
     // defaultOpenAllTags: undefined -> false

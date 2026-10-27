@@ -21,7 +21,13 @@ import { DEMO_CALL_URL, MARC_X_DM_URL } from '../constants'
 import ExploreScalarStickers from './ExploreScalarStickers.vue'
 import StickerMarc from './stickers/StickerMarc.vue'
 
-const { externalUrls, url, workspace, state } = defineProps<{
+const {
+  externalUrls,
+  url,
+  workspace,
+  state,
+  presentation = 'dialog',
+} = defineProps<{
   /** Shape-compatible with useModal(); every close path (X, Escape, backdrop) goes through state.hide() */
   state: ModalState
   externalUrls: ExternalUrls
@@ -31,6 +37,11 @@ const { externalUrls, url, workspace, state } = defineProps<{
   usesViewTransition: boolean
   /** True while the hero stickers take part in the morph (the card was expanded when it opened, or it is closing) */
   morphStickers: boolean
+  /**
+   * `dialog` is the modal Generate SDK opens. `panel` renders the same content inline,
+   * for the localhost shell's side panel, which owns the surrounding focus and Escape handling.
+   */
+  presentation?: 'dialog' | 'panel'
 }>()
 
 const { translate } = useLocalization()
@@ -168,22 +179,46 @@ const showDemo = async (): Promise<void> => {
   }
 }
 
+/** The demo call button, which gets focus back when Back leaves the booking step */
+const demoEl = ref<{ $el?: HTMLElement }>()
+
 const showOverview = (): void => {
   void changeStep('overview')
+  // Back unmounts with the booking step, so focus would otherwise fall to the page
+  void nextTick(() => demoEl.value?.$el?.focus())
 }
+
+/** The modal wraps the content as a dialog; the side panel only needs a plain element around it */
+const wrapper = computed(() =>
+  presentation === 'dialog'
+    ? {
+        is: ScalarModal,
+        props: {
+          bodyClass: '!p-0 overflow-y-auto',
+          maxWidth: step.value === 'demo' ? '960px' : '540px',
+          size: 'lg' as const,
+          state,
+        },
+      }
+    : { is: 'div', props: {} },
+)
+
+/** DialogTitle names the dialog, and only works inside one; the panel gets the same heading as an h2 */
+const titleTag = computed(() =>
+  presentation === 'dialog' ? DialogTitle : 'h2',
+)
 </script>
 
 <template>
-  <ScalarModal
-    bodyClass="!p-0 overflow-y-auto"
+  <component
+    :is="wrapper.is"
+    v-bind="wrapper.props"
     class="explore-scalar-modal"
     :class="{
       'explore-scalar-modal--vt': usesViewTransition,
       'explore-scalar-modal--stickers': morphStickers,
-    }"
-    :maxWidth="step === 'demo' ? '960px' : '540px'"
-    size="lg"
-    :state="state">
+      'explore-scalar-modal--panel': presentation === 'panel',
+    }">
     <div
       ref="panelEl"
       class="explore-scalar-panel bg-b-1 text-c-1 relative flex flex-col">
@@ -205,11 +240,12 @@ const showOverview = (): void => {
         </div>
 
         <div class="px-8 pt-2 text-center">
-          <DialogTitle
-            as="h2"
+          <!-- Both render an h2 (DialogTitle's default element) -->
+          <component
+            :is="titleTag"
             class="text-c-1 m-0 text-xl leading-snug font-bold tracking-tight text-balance">
             {{ translate('exploreScalar.title') }}
-          </DialogTitle>
+          </component>
         </div>
 
         <hr class="border-border mx-8 mt-5 border-0 border-t" />
@@ -276,6 +312,7 @@ const showOverview = (): void => {
                inside the pill but beside the button in the markup: a link inside a button is invalid. -->
           <div class="bg-b-2 hover:bg-b-3 relative flex h-10 rounded-full">
             <ScalarButton
+              ref="demoEl"
               class="text-c-1 hover:text-c-1 active:text-c-1 h-10 flex-1 rounded-full bg-transparent px-12 text-base font-medium hover:bg-transparent active:bg-transparent"
               variant="ghost"
               @blur="hideMarc"
@@ -334,11 +371,11 @@ const showOverview = (): void => {
           <ScalarIconArrowLeft class="size-4 rtl:-scale-x-100" />
         </button>
         <!-- The calendar speaks for itself, so the title only names the dialog for assistive technology -->
-        <DialogTitle
-          as="h2"
+        <component
+          :is="titleTag"
           class="sr-only">
           {{ translate('exploreScalar.bookDemo') }}
-        </DialogTitle>
+        </component>
         <!-- Cal.com mounts its booking iframe in here -->
         <div
           ref="calEl"
@@ -368,7 +405,7 @@ const showOverview = (): void => {
         <ScalarIconX class="size-4" />
       </button>
     </div>
-  </ScalarModal>
+  </component>
 </template>
 
 <!-- The dialog is portaled to <body>, outside this component's scope, so these rules are global and prefixed by the Dialog root class -->
