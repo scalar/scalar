@@ -862,7 +862,7 @@ const dressLandingGlobe = (globe, ring, size) => {
   })
   return true
 }
-/* Planet faces (an experiment; not on the landing page yet).
+/* Planet faces.
 
    While a planet talks, the glyphs of its name leave the ball's equator
    and settle on an arc across its lower face, a smile, two eyes open
@@ -884,7 +884,12 @@ const dressLandingGlobe = (globe, ring, size) => {
    The brand's mark has a part in the face too: a nose between the eyes
    and the smile, the two eyes themselves (two copies of it, in the
    ink), the lead of the smile (the lockup as it stands on the ring,
-   bent), or gone.
+   bent), or gone. And with body: 'shape' (an experiment) the ball
+   itself becomes the mark while the face is on: the mark's silhouette,
+   traced once (or baked ahead of time), clips the ball's skin, morphing
+   from the disc on the face's own curve; the ball carries is-shaped
+   while it is off the disc, so the stylesheet can shade a shape (a
+   filter) differently from the disc (its own shadows).
 
    One controller per page: it keeps the pointer, the frame and the
    settings for every face. Attach a face to a dressed globe after
@@ -936,6 +941,30 @@ const createPlanetFaces = (options = {}) => {
     wander: true,
     inMs: 700,
     outMs: 520,
+    // the ball itself: 'ball' keeps the disc; 'shape' lets the mark's
+    // silhouette take it over while the face is on (the mark drawn
+    // filled, its holes filled and its gaps bridged, then softened: a
+    // bump or a tip for each of the mark's, none of its detail).
+    // shapeClose is the notch it bridges and shapeRound the tip it
+    // rounds, each a radius as a share of the mark's size (more than a
+    // little rounding erodes a thin ray away); shapeSoft how many waves
+    // round the outline survive after that (60: smooth sides, round
+    // tips); shapeSize scales it (1 keeps the disc's area); shapeMix
+    // how far from the disc it goes. A planet overrides the first four
+    // with data-shape-close, -round, -soft and -size, takes its shape
+    // from a template lp-shape-<icon> when the page has one, and keeps
+    // the disc with data-shape="false"; so does a host with no
+    // .lp-orb-skin
+    body: 'ball',
+    // the shapes baked ahead of time, by the planet's icon (the lab's
+    // exportShapes() writes them): when given, nothing is traced on the
+    // page, and a planet missing from them keeps its disc
+    shapes: null,
+    shapeClose: 0.02,
+    shapeRound: 0.015,
+    shapeSoft: 60,
+    shapeSize: 1,
+    shapeMix: 1,
     reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
   }
   const settings = { ...DEFAULTS, ...(options.settings ?? {}) }
@@ -956,6 +985,12 @@ const createPlanetFaces = (options = {}) => {
   let copies = 0
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
+  // the mark's shape is traced while the page is idle, one planet at a
+  // time, so it never costs a frame (Safari has no idle callback: a
+  // timer stands in)
+  const idle = (fn) =>
+    window.requestIdleCallback ? window.requestIdleCallback(fn, { timeout: 3000 }) : window.setTimeout(fn, 300)
+  const cancelIdle = (id) => (window.cancelIdleCallback ? window.cancelIdleCallback(id) : window.clearTimeout(id))
   const clamp01 = (v) => clamp(v, 0, 1)
   const easeInOut = (p) => (p < 0.5 ? 4 * p * p * p : 1 - (-2 * p + 2) ** 3 / 2)
   // a soft overshoot on the way in: the smile dips a touch past and settles
@@ -1264,6 +1299,419 @@ const createPlanetFaces = (options = {}) => {
   document.documentElement.addEventListener('mouseleave', onLeave)
   document.addEventListener('visibilitychange', nudge)
 
+  /* the mark's silhouette, for a ball that takes its shape. The mark is
+     drawn filled on a small canvas and stroked wide, which bridges any
+     gap narrower than the closing radius; the outside is flooded from
+     the border, so what is left is the mark with its holes filled; its
+     edge is traced, the stroke's width taken back off, and the outline
+     resampled to even steps and kept as a Fourier series, so a softer
+     copy is the same series with fewer of its waves. A mark in pieces (a
+     wordmark) keeps each piece as a series of its own */
+  // enough points that a ray's sides are curves, not facets, and enough
+  // waves kept that the softening has died away before the series ends
+  // (cut off early, a series ripples along every edge)
+  const SHAPE_N = 400
+  const SHAPE_PX = 384
+  const SHAPE_FIT = 0.56
+  const SHAPE_WAVES = 160
+  // the skin's box is this many planets wide, so a tip has room past
+  // the disc (the stylesheet's inset on .lp-orb-ball must agree)
+  const SHAPE_BOX = 1.5
+  const floodOutside = (mask) => {
+    const W = SHAPE_PX
+    const seen = new Uint8Array(mask.length)
+    const stack = []
+    const push = (i) => {
+      if (!seen[i] && !mask[i]) {
+        seen[i] = 1
+        stack.push(i)
+      }
+    }
+    for (let x = 0; x < W; x++) {
+      push(x)
+      push((W - 1) * W + x)
+    }
+    for (let y = 0; y < W; y++) {
+      push(y * W)
+      push(y * W + W - 1)
+    }
+    while (stack.length) {
+      const i = stack.pop()
+      const x = i % W
+      if (x > 0) {
+        push(i - 1)
+      }
+      if (x < W - 1) {
+        push(i + 1)
+      }
+      if (i >= W) {
+        push(i - W)
+      }
+      if (i < mask.length - W) {
+        push(i + W)
+      }
+    }
+    for (let i = 0; i < mask.length; i++) {
+      mask[i] = seen[i] ? 0 : 1
+    }
+  }
+  /* the edges between a filled pixel and an empty one, chained into
+     loops with the filled side always to the same hand; the vertices
+     are the pixel corners */
+  const outline = (mask) => {
+    const W = SHAPE_PX
+    const V = W + 1
+    const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= W ? 0 : mask[y * W + x])
+    const next = new Map()
+    const add = (a, b) => {
+      const list = next.get(a)
+      if (list) {
+        list.push(b)
+      } else {
+        next.set(a, [b])
+      }
+    }
+    for (let y = 0; y < W; y++) {
+      for (let x = 0; x < W; x++) {
+        if (!mask[y * W + x]) {
+          continue
+        }
+        if (!at(x, y - 1)) {
+          add(y * V + x, y * V + x + 1)
+        }
+        if (!at(x + 1, y)) {
+          add(y * V + x + 1, (y + 1) * V + x + 1)
+        }
+        if (!at(x, y + 1)) {
+          add((y + 1) * V + x + 1, (y + 1) * V + x)
+        }
+        if (!at(x - 1, y)) {
+          add((y + 1) * V + x, y * V + x)
+        }
+      }
+    }
+    const loops = []
+    next.forEach((_, start) => {
+      let list = next.get(start)
+      if (!list || !list.length) {
+        return
+      }
+      const loop = []
+      let v = start
+      while (true) {
+        list = next.get(v)
+        if (!list || !list.length) {
+          break
+        }
+        loop.push([v % V, Math.floor(v / V)])
+        v = list.pop()
+        if (v === start) {
+          break
+        }
+      }
+      if (loop.length > 2) {
+        loops.push(loop)
+      }
+    })
+    return loops
+  }
+  const area = (pts) => {
+    let a = 0
+    for (let i = 0; i < pts.length; i++) {
+      const [x0, y0] = pts[i]
+      const [x1, y1] = pts[(i + 1) % pts.length]
+      a += x0 * y1 - x1 * y0
+    }
+    return a / 2
+  }
+  /* the loops worth keeping: the biggest and any other at least a
+     twentieth of it (a wordmark is more than one piece), biggest first */
+  const loopsOf = (loops) => {
+    const sized = loops
+      .map((loop) => ({ loop, a: Math.abs(area(loop)) }))
+      .filter((l) => l.a > 0)
+      .sort((p, q) => q.a - p.a)
+    if (!sized.length) {
+      return null
+    }
+    return sized.filter((l) => l.a >= sized[0].a / 20).map((l) => l.loop)
+  }
+  const perimeter = (loop) => {
+    let total = 0
+    for (let i = 0; i < loop.length; i++) {
+      const a = loop[i]
+      const b = loop[(i + 1) % loop.length]
+      total += Math.hypot(b[0] - a[0], b[1] - a[1])
+    }
+    return total
+  }
+  const resample = (loop, n) => {
+    const along = [0]
+    for (let i = 0; i < loop.length; i++) {
+      const a = loop[i]
+      const b = loop[(i + 1) % loop.length]
+      along.push(along[i] + Math.hypot(b[0] - a[0], b[1] - a[1]))
+    }
+    const total = along[loop.length]
+    const out = []
+    let j = 0
+    for (let k = 0; k < n; k++) {
+      const s = (total * k) / n
+      while (j + 1 < loop.length && along[j + 1] <= s) {
+        j++
+      }
+      const a = loop[j]
+      const b = loop[(j + 1) % loop.length]
+      const seg = along[j + 1] - along[j]
+      const t = seg > 0 ? (s - along[j]) / seg : 0
+      out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t])
+    }
+    return out
+  }
+  const series = (pts) => {
+    const n = pts.length
+    const waves = Math.min(SHAPE_WAVES, Math.floor(n / 2) - 1)
+    const re = new Float64Array(2 * waves + 1)
+    const im = new Float64Array(2 * waves + 1)
+    for (let k = -waves; k <= waves; k++) {
+      let sr = 0
+      let si = 0
+      for (let j = 0; j < n; j++) {
+        const a = (-2 * Math.PI * k * j) / n
+        const [x, y] = pts[j]
+        sr += x * Math.cos(a) - y * Math.sin(a)
+        si += x * Math.sin(a) + y * Math.cos(a)
+      }
+      re[k + waves] = sr / n
+      im[k + waves] = si / n
+    }
+    return { re, im, n, waves }
+  }
+  const traceMark = (svg, closeK, roundK) => {
+    const view = (svg.getAttribute('viewBox') || '')
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number)
+    const [vx, vy, vw, vh] = view.length === 4 && view.every((n) => Number.isFinite(n)) ? view : [0, 0, 24, 24]
+    const canvas = document.createElement('canvas')
+    canvas.width = SHAPE_PX
+    canvas.height = SHAPE_PX
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })
+    if (!ctx) {
+      return null
+    }
+    const f = (SHAPE_PX * SHAPE_FIT) / Math.max(vw, vh)
+    const r = Math.max(0, closeK) * SHAPE_PX * SHAPE_FIT
+    const round = Math.max(0, roundK) * SHAPE_PX * SHAPE_FIT
+    ctx.setTransform(f, 0, 0, f, SHAPE_PX / 2 - (vx + vw / 2) * f, SHAPE_PX / 2 - (vy + vh / 2) * f)
+    ctx.fillStyle = '#000'
+    ctx.strokeStyle = '#000'
+    ctx.lineJoin = 'round'
+    ctx.lineCap = 'round'
+    let drew = false
+    svg.querySelectorAll('path').forEach((el) => {
+      const d = el.getAttribute('d')
+      if (!d || el.closest('defs, clipPath, mask')) {
+        return
+      }
+      const path = new Path2D(d)
+      const own = (name, fallback) => el.getAttribute(name) ?? svg.getAttribute(name) ?? fallback
+      const fill = own('fill', '#000')
+      const stroke = own('stroke', 'none')
+      const width = Number.parseFloat(own('stroke-width', '1')) || 1
+      ctx.save()
+      const move = /translate\(\s*([-\d.]+)[\s,]+([-\d.]+)/.exec(el.getAttribute('transform') || '')
+      if (move) {
+        ctx.translate(Number(move[1]), Number(move[2]))
+      }
+      if (fill !== 'none') {
+        ctx.fill(path, own('fill-rule', 'nonzero') === 'evenodd' ? 'evenodd' : 'nonzero')
+        drew = true
+      }
+      // the stroke is in the mark's units: the closing radius over the
+      // scale (a width of nothing is not a width canvas takes)
+      const wide = (stroke !== 'none' ? width : 0) + (2 * r) / f
+      if (wide > 0) {
+        ctx.lineWidth = wide
+        ctx.stroke(path)
+        drew = true
+      }
+      ctx.restore()
+    })
+    if (!drew) {
+      return null
+    }
+    const read = () => {
+      const data = ctx.getImageData(0, 0, SHAPE_PX, SHAPE_PX).data
+      const mask = new Uint8Array(SHAPE_PX * SHAPE_PX)
+      for (let i = 0; i < mask.length; i++) {
+        mask[i] = data[i * 4 + 3] > 127 ? 1 : 0
+      }
+      return mask
+    }
+    // the outlines drawn again, grown by a stroke round them or shrunk
+    // by one taken out of them, and traced again
+    const redraw = (loops, grow) => {
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.clearRect(0, 0, SHAPE_PX, SHAPE_PX)
+      const closed = new Path2D()
+      loops.forEach((loop) => {
+        loop.forEach(([x, y], i) => (i ? closed.lineTo(x, y) : closed.moveTo(x, y)))
+        closed.closePath()
+      })
+      ctx.fill(closed)
+      if (grow) {
+        ctx.globalCompositeOperation = grow > 0 ? 'source-over' : 'destination-out'
+        ctx.lineWidth = 2 * Math.abs(grow)
+        ctx.stroke(closed)
+        ctx.globalCompositeOperation = 'source-over'
+      }
+      return loopsOf(outline(read()))
+    }
+    const mask = read()
+    floodOutside(mask)
+    let loops = loopsOf(outline(mask))
+    if (loops && r > 0) {
+      // the stroke's width off again: what it bridged stays bridged
+      loops = redraw(loops, -r)
+    }
+    if (loops && round > 0) {
+      // the tips rounded: anything thinner than the radius goes, and
+      // what is left grows back by as much
+      loops = redraw(loops, -round)
+      if (loops) {
+        loops = redraw(loops, round)
+      }
+    }
+    if (!loops) {
+      return null
+    }
+    // the points shared out by length, each piece getting a few at least
+    const lengths = loops.map(perimeter)
+    const total = lengths.reduce((sum, l) => sum + l, 0)
+    return loops.map((loop, i) => series(resample(loop, Math.max(24, Math.round((SHAPE_N * lengths[i]) / total)))))
+  }
+  /* the shape at a softness: each piece's series summed with every wave
+     past the soft one weighted down, all of them centred on their area
+     and scaled to the disc's (times size), in radii, and joined into one
+     outline: each further piece spliced into the first at the closest
+     pair of points, there and back along one line, which adds no area.
+     For the morph, each point also keeps where it stands on the disc and
+     how far it goes from there */
+  const shapeAt = (pieces, soft, size) => {
+    const loops = pieces.map((ser) => {
+      const pts = []
+      for (let j = 0; j < ser.n; j++) {
+        let x = 0
+        let y = 0
+        for (let k = -ser.waves; k <= ser.waves; k++) {
+          const w = Math.exp(-((k / Math.max(soft, 0.5)) ** 2))
+          if (w < 1e-4) {
+            continue
+          }
+          const a = (2 * Math.PI * k * j) / ser.n
+          const cr = ser.re[k + ser.waves]
+          const ci = ser.im[k + ser.waves]
+          x += w * (cr * Math.cos(a) - ci * Math.sin(a))
+          y += w * (cr * Math.sin(a) + ci * Math.cos(a))
+        }
+        pts.push([x, y])
+      }
+      return pts
+    })
+    let total = 0
+    let cx = 0
+    let cy = 0
+    loops.forEach((pts) => {
+      total += area(pts)
+      for (let i = 0; i < pts.length; i++) {
+        const [x0, y0] = pts[i]
+        const [x1, y1] = pts[(i + 1) % pts.length]
+        const c = x0 * y1 - x1 * y0
+        cx += (x0 + x1) * c
+        cy += (y0 + y1) * c
+      }
+    })
+    if (!total) {
+      return null
+    }
+    cx /= 6 * total
+    cy /= 6 * total
+    // the disc's area times size, held inside the skin's box with the
+    // morph's overshoot (easeBack peaks near 1.045) and a little to spare,
+    // so no ray is ever cut flat at the box's edge
+    let reach = 0
+    loops.forEach((pts) => pts.forEach(([x, y]) => (reach = Math.max(reach, Math.abs(x - cx), Math.abs(y - cy)))))
+    const s = Math.min(size * Math.sqrt(Math.PI / Math.abs(total)), (SHAPE_BOX * 0.98) / 1.05 / (reach || 1))
+    const scaled = loops.map((pts) => pts.map(([x, y]) => [(x - cx) * s, (y - cy) * s]))
+    let seq = scaled[0]
+    scaled.slice(1).forEach((loop) => {
+      let best = Number.POSITIVE_INFINITY
+      let bi = 0
+      let bj = 0
+      seq.forEach((p, i) => {
+        loop.forEach((q, j) => {
+          const d = (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2
+          if (d < best) {
+            best = d
+            bi = i
+            bj = j
+          }
+        })
+      })
+      seq = [...seq.slice(0, bi + 1), ...loop.slice(bj), ...loop.slice(0, bj), loop[bj], seq[bi], ...seq.slice(bi + 1)]
+    })
+    return seq.map(([x, y]) => {
+      const r = Math.hypot(x, y) || 1
+      return { cx: x / r, cy: y / r, dx: x - x / r, dy: y - y / r }
+    })
+  }
+  const clipAt = (poly, m) => {
+    const k = 50 / SHAPE_BOX
+    let s = ''
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i]
+      s += `${i ? ',' : ''}${(50 + k * (p.cx + p.dx * m)).toFixed(2)}% ${(50 + k * (p.cy + p.dy * m)).toFixed(2)}%`
+    }
+    return `polygon(${s})`
+  }
+
+  /* a baked shape: points in thousandths of the radius, the first one
+     whole and each after it as a step from the one before ("x,y dx,dy
+     ..."), which keeps the string short; read into the morph's points */
+  const fromBaked = (text) => {
+    let x = 0
+    let y = 0
+    const out = []
+    text
+      .trim()
+      .split(/\s+/)
+      .forEach((pair) => {
+        const [a, b] = pair.split(',').map(Number)
+        x += a
+        y += b
+        const px = x / 1000
+        const py = y / 1000
+        const r = Math.hypot(px, py) || 1
+        out.push({ cx: px / r, cy: py / r, dx: px - px / r, dy: py - py / r })
+      })
+    return out.length > 2 ? out : null
+  }
+  const toBaked = (poly) => {
+    let x = 0
+    let y = 0
+    return poly
+      .map((p) => {
+        const px = Math.round((p.cx + p.dx) * 1000)
+        const py = Math.round((p.cy + p.dy) * 1000)
+        const step = `${px - x},${py - y}`
+        x = px
+        y = py
+        return step
+      })
+      .join(' ')
+  }
+
   /* a copy of the mark for an eye, its gradient ids made its own */
   const copyMark = (svg) => {
     const suffix = `-e${++copies}`
@@ -1298,6 +1746,15 @@ const createPlanetFaces = (options = {}) => {
     const mark = items[0]
     const letters = items.slice(1)
     const markSvg = mark?.glyph.querySelector('svg')
+    // the ball's skin, when the host has one: the layer the shape clips;
+    // and the shape's source, a template of its own or the mark
+    const skin = orb.querySelector('.lp-orb-skin')
+    const shapeSvg = document.getElementById(`lp-shape-${orb.dataset.icon}`)?.content?.firstElementChild ?? markSvg
+    // a planet's own values for the shape, over the settings
+    const shapeSetting = (key) => {
+      const own = Number.parseFloat(orb.dataset[key] ?? '')
+      return Number.isFinite(own) ? own : settings[key]
+    }
     // the face box: one box in the ring holding the glyphs (moved in)
     // and the eyes; the look turns it. Each eye is a zero-size box on
     // the sphere, a lid (the blink), a pupil holding a capsule of two
@@ -1341,6 +1798,14 @@ const createPlanetFaces = (options = {}) => {
       arc: letters,
       nose: { lon: 0, lat: 0 },
       marks: false,
+      // the mark's outline as a series, and the shape the ball takes, each
+      // with the settings it was made for, and the idle task making them
+      series: null,
+      seriesClose: null,
+      poly: null,
+      polyKey: null,
+      shapeTask: 0,
+      shaped: false,
       expression: settings.expression,
       // the expression's targets, the ones before, and the tween between
       goal: null,
@@ -1403,9 +1868,69 @@ const createPlanetFaces = (options = {}) => {
       })
       face.nose = onSphere(0, settings.noseY)
       face.arc = settings.mark === 'smile' && mark ? [mark, ...letters] : letters
+      if (!wantsShape()) {
+        face.poly = null
+        face.polyKey = null
+        unshape()
+      } else if (face.polyKey !== shapeKey() && settings.shapes) {
+        prepareShape()
+      } else if (face.polyKey !== shapeKey() && !face.shapeTask) {
+        // the shape it has stays until the new one is ready
+        face.shapeTask = idle(prepareShape)
+      }
       face.goal = aim(face.expression)
       face.prior = face.goal
       face.x = 1
+    }
+
+    /* the ball's shape: traced from the mark (or its own template) and
+       softened, made in an idle moment after attach or a change of
+       settings, or at once when a talk starts before that */
+    // back to the plain disc: no clip, no shaped class
+    const unshape = () => {
+      if (skin) {
+        skin.style.clipPath = ''
+        skin.parentElement.classList.remove('is-shaped')
+      }
+      face.shaped = false
+    }
+    const baked = () => settings.shapes?.[orb.dataset.icon]
+    const wantsShape = () =>
+      settings.body === 'shape' &&
+      Boolean(skin) &&
+      orb.dataset.shape !== 'false' &&
+      (settings.shapes ? Boolean(baked()) : Boolean(shapeSvg))
+    const shapeKey = () =>
+      settings.shapes
+        ? `baked:${baked()?.length}`
+        : ['shapeClose', 'shapeRound', 'shapeSoft', 'shapeSize'].map(shapeSetting).join(':')
+    const prepareShape = () => {
+      face.shapeTask = 0
+      if (!wantsShape() || face.polyKey === shapeKey()) {
+        return
+      }
+      if (settings.shapes) {
+        // baked: read, nothing traced
+        face.poly = fromBaked(baked())
+        face.polyKey = shapeKey()
+        face.dirty = true
+        if (!face.rest) {
+          wake()
+        }
+        return
+      }
+      const traced = `${shapeSetting('shapeClose')}:${shapeSetting('shapeRound')}`
+      if (!face.series || face.seriesClose !== traced) {
+        face.series = traceMark(shapeSvg, shapeSetting('shapeClose'), shapeSetting('shapeRound'))
+        face.seriesClose = traced
+      }
+      face.poly = face.series ? shapeAt(face.series, shapeSetting('shapeSoft'), shapeSetting('shapeSize')) : null
+      face.polyKey = shapeKey()
+      // a face already on takes the new shape at its next frame
+      face.dirty = true
+      if (!face.rest) {
+        wake()
+      }
     }
 
     /* where the mouth's glyphs, the lids and the tilt go for an
@@ -1522,11 +2047,18 @@ const createPlanetFaces = (options = {}) => {
       dropBlinks(face)
       box.style.transform = ''
       box.style.rotate = ''
+      unshape()
       face.rotateWritten = ''
       face.tiltWritten = ''
       box.classList.remove('is-on')
       window.clearTimeout(face.blinkTimer)
       face.rest = true
+      // nothing the last talk wrote stands now: the next talk's first
+      // frame writes it all again (a talk that forms at once, under
+      // reduced motion, would otherwise match the memo and write nothing)
+      face.written = -1
+      face.xWritten = -1
+      face.blinkWritten = -1
     }
 
     face.set = (on) => {
@@ -1538,6 +2070,11 @@ const createPlanetFaces = (options = {}) => {
         // it formed at once out of view: it turns back from where its
         // morph would be
         face.e = face.from + (1 - face.from) * easeBack(clamp01((performance.now() - face.start) / face.dur))
+      }
+      if (on && wantsShape() && face.polyKey !== shapeKey()) {
+        // a talk before the idle moment came: the shape is made now
+        cancelIdle(face.shapeTask)
+        prepareShape()
       }
       face.to = to
       face.from = face.e
@@ -1562,6 +2099,8 @@ const createPlanetFaces = (options = {}) => {
       wake()
     }
     face.detach = () => {
+      cancelIdle(face.shapeTask)
+      face.shapeTask = 0
       restore()
       items.forEach((item) => ring.appendChild(item.el))
       box.remove()
@@ -1709,6 +2248,17 @@ const createPlanetFaces = (options = {}) => {
       face.xWritten = face.x
       face.dirty = false
       if (!shapeSame) {
+        // the ball: the disc gives way to the mark's shape as the face
+        // forms, on the same curve, and back
+        if (face.poly) {
+          // shaped only while it is off the disc: the stylesheet gives a
+          // shaped ball its filter, the plain disc its own shadows
+          if (e > 0 !== face.shaped) {
+            skin.parentElement.classList.toggle('is-shaped', e > 0)
+            face.shaped = e > 0
+          }
+          skin.style.clipPath = e > 0 ? clipAt(face.poly, settings.shapeMix * e) : ''
+        }
         // the glyphs slide over the sphere from the equator to the arc,
         // rolling into the curve on the way
         face.arc.forEach((l) => {
@@ -1726,10 +2276,11 @@ const createPlanetFaces = (options = {}) => {
             mark.glyph.style.transform = `translate(-50%, -50%) scale(${(1 - 0.2 * on).toFixed(3)})`
             mark.glyph.style.opacity = ''
           } else {
+            // a fade, at its own size (Cameron: no scaling on the way out)
             const k = clamp01(1 - e / 0.45)
             mark.el.style.transform = ''
             mark.glyph.style.opacity = k.toFixed(3)
-            mark.glyph.style.transform = `translate(-50%, -50%) scale(${(0.6 + 0.4 * k).toFixed(3)})`
+            mark.glyph.style.transform = ''
           }
         }
       }
@@ -1789,6 +2340,16 @@ const createPlanetFaces = (options = {}) => {
       inView.observe(orb)
       return face
     },
+    /* every face's shape as it stands, baked for settings.shapes */
+    exportShapes: () => {
+      const out = {}
+      faces.forEach((face) => {
+        if (face.poly) {
+          out[face.orb.dataset.icon] = toBaked(face.poly)
+        }
+      })
+      return out
+    },
     /* new settings for every face; the geometry follows at once */
     update: (next) => {
       const expression = next.expression
@@ -1822,6 +2383,22 @@ const createPlanetFaces = (options = {}) => {
       frame = 0
     },
   }
+}
+/* The planets' shapes, baked ahead of time so the page traces nothing:
+   createPlanetFaces with body: 'shape' and no shapes given traces each
+   mark itself, and its exportShapes() writes them out as these, points
+   in thousandths of the radius, each a step from the last. T3 Code has
+   none, a wordmark makes no planet, so it keeps its disc */
+const LANDING_SHAPES = {
+  chatgpt:
+    '-246,-1018 18,-2 20,-1 21,-1 20,0 21,0 21,0 21,1 20,1 19,2 18,3 17,3 17,5 15,5 15,6 15,6 14,7 15,6 14,7 14,7 13,8 13,8 13,8 13,8 13,8 12,9 12,8 14,8 15,5 17,3 18,0 17,-2 18,-3 17,-4 18,-3 19,-3 19,-1 21,0 20,0 20,1 19,2 18,3 18,3 17,4 17,4 16,5 16,5 15,6 15,7 14,7 14,6 14,7 13,8 14,7 13,8 13,8 13,8 12,8 11,10 10,11 10,11 10,12 10,11 10,10 11,11 10,11 9,11 9,12 9,12 9,12 9,12 8,13 7,14 7,14 7,14 6,15 6,15 5,16 4,16 5,17 3,18 4,17 3,18 2,19 1,20 0,21 0,20 0,21 -1,20 -2,19 -2,18 -1,18 3,16 5,14 8,13 9,12 9,12 10,11 9,12 9,12 8,13 8,13 7,13 9,13 8,13 8,13 7,14 6,15 6,15 5,15 5,16 5,16 5,16 4,17 4,17 3,18 2,19 3,18 2,18 0,19 -1,18 -3,18 -3,18 -2,18 -4,17 -3,18 -4,17 -4,17 -5,15 -6,16 -6,14 -6,15 -7,15 -7,14 -7,14 -8,13 -8,12 -9,13 -8,12 -9,13 -9,11 -10,11 -11,10 -10,11 -11,10 -10,12 -9,11 -10,11 -11,10 -13,8 -13,8 -13,8 -13,8 -13,8 -14,7 -14,7 -14,6 -15,6 -15,6 -16,6 -14,7 -11,10 -8,13 -5,16 -4,16 -4,17 -6,15 -6,15 -7,14 -7,14 -7,14 -8,13 -9,12 -8,13 -9,12 -8,13 -9,12 -8,13 -9,11 -10,11 -11,10 -12,10 -11,10 -11,9 -12,10 -11,9 -12,9 -12,9 -12,9 -13,8 -14,7 -15,6 -15,6 -14,7 -15,6 -14,7 -15,6 -16,4 -17,5 -17,3 -19,3 -19,2 -18,2 -19,3 -18,2 -19,0 -18,-1 -18,-3 -18,-3 -18,-3 -17,-3 -18,-3 -17,-4 -17,-5 -15,-5 -15,-6 -15,-6 -14,-7 -14,-7 -14,-7 -14,-7 -14,-7 -13,-8 -12,-9 -11,-9 -12,-10 -12,-9 -13,-7 -15,-7 -17,-3 -18,-1 -18,2 -17,3 -17,5 -17,3 -19,3 -19,1 -21,0 -21,0 -20,0 -20,-1 -19,-3 -17,-3 -17,-4 -17,-5 -16,-5 -15,-5 -16,-5 -16,-5 -15,-6 -15,-6 -14,-7 -14,-7 -14,-7 -12,-9 -12,-8 -12,-10 -12,-9 -11,-10 -12,-9 -12,-9 -11,-9 -11,-11 -10,-11 -9,-11 -10,-11 -10,-12 -9,-11 -9,-13 -8,-12 -8,-14 -7,-13 -8,-13 -8,-14 -7,-14 -6,-14 -6,-15 -5,-16 -6,-15 -4,-17 -4,-16 -4,-18 -3,-18 -2,-19 -1,-19 -1,-21 0,-21 0,-21 1,-20 1,-20 2,-19 1,-18 0,-16 -3,-16 -7,-13 -8,-13 -8,-13 -9,-12 -10,-11 -9,-12 -9,-11 -9,-12 -10,-12 -8,-12 -8,-13 -7,-14 -7,-14 -7,-14 -7,-15 -6,-15 -5,-15 -5,-16 -5,-17 -4,-16 -4,-17 -3,-18 -3,-18 -2,-18 -2,-19 -1,-18 1,-18 3,-18 2,-19 2,-19 3,-18 4,-17 4,-17 5,-16 4,-17 5,-16 6,-15 6,-14 7,-14 7,-15 7,-14 7,-13 7,-14 8,-14 8,-13 8,-12 9,-12 10,-11 10,-11 10,-11 11,-10 11,-10 11,-10 12,-9 11,-10 11,-10 12,-9 12,-8 13,-8 14,-8 13,-7 14,-8 14,-7 14,-7 15,-6 14,-6 14,-7 12,-9 10,-11 7,-14 6,-15 6,-15 5,-16 6,-15 6,-15 6,-14 8,-14 7,-14 7,-14 8,-13 8,-13 9,-12 9,-11 10,-12 10,-11 9,-11 10,-11 10,-11 11,-11 11,-9 13,-8 12,-9 13,-8 12,-9 13,-8 12,-9 14,-7 14,-7 15,-6 15,-6 15,-6 14,-7 15,-6 15,-6 16,-5 16,-4',
+  claude:
+    '-688,-1314 47,-11 50,5 43,20 35,30 28,39 23,44 21,46 20,45 21,46 21,46 21,45 22,45 22,45 22,44 22,45 23,44 22,44 22,45 23,43 24,42 28,36 32,23 34,4 29,-20 20,-40 12,-53 8,-58 6,-60 6,-61 5,-62 5,-62 5,-61 8,-59 10,-56 14,-53 19,-47 27,-38 35,-25 40,-8 39,11 31,29 19,43 7,53 -1,57 -7,58 -9,57 -10,56 -11,56 -9,57 -9,57 -7,56 -1,53 10,43 24,25 34,2 35,-17 34,-30 30,-35 30,-37 30,-36 31,-36 31,-36 30,-36 31,-36 31,-35 31,-35 33,-34 35,-31 40,-25 44,-13 45,1 41,17 32,31 21,40 9,47 -3,50 -13,48 -21,44 -27,40 -28,37 -30,38 -29,37 -29,38 -28,38 -29,38 -28,38 -28,39 -28,39 -27,38 -24,40 -15,40 0,38 21,29 37,14 49,0 53,-7 54,-11 56,-10 57,-10 57,-9 56,-11 56,-10 58,-7 59,-1 55,7 43,19 25,32 3,38 -18,37 -34,28 -46,21 -51,16 -53,13 -53,13 -55,12 -56,11 -56,10 -52,14 -43,19 -23,27 2,30 29,24 47,15 58,9 61,5 62,5 60,6 57,10 51,15 45,22 38,27 28,33 14,38 -6,38 -25,32 -40,22 -50,13 -54,2 -56,-5 -55,-10 -54,-12 -54,-13 -54,-13 -53,-13 -54,-13 -54,-11 -52,-7 -47,1 -36,14 -16,27 5,33 22,34 30,34 34,32 34,32 35,32 35,32 35,32 34,31 35,32 35,32 34,32 33,33 30,35 22,37 7,35 -12,27 -29,12 -39,-6 -40,-19 -40,-25 -39,-28 -38,-27 -39,-27 -38,-21 -38,-9 -31,10 -18,27 0,38 14,42 21,42 24,42 21,44 12,47 -1,46 -19,38 -36,22 -44,3 -43,-14 -37,-28 -30,-35 -28,-40 -26,-40 -26,-40 -27,-40 -28,-39 -28,-39 -27,-39 -28,-39 -27,-39 -27,-39 -29,-34 -33,-20 -35,1 -28,25 -18,43 -10,56 -6,60 -6,61 -6,61 -6,60 -6,60 -6,61 -6,61 -9,58 -15,50 -26,39 -36,23 -41,6 -39,-13 -30,-30 -17,-44 -5,-52 5,-55 9,-56 10,-56 10,-56 10,-57 10,-57 12,-55 11,-54 10,-54 2,-52 -9,-44 -23,-26 -33,-4 -35,17 -33,30 -29,37 -29,38 -28,38 -28,39 -28,38 -28,39 -29,38 -29,37 -30,37 -32,35 -32,33 -34,33 -35,32 -37,26 -41,14 -40,-3 -28,-22 -9,-35 9,-41 21,-40 28,-38 29,-37 31,-36 30,-37 30,-37 29,-37 28,-38 29,-38 28,-38 26,-40 19,-40 6,-38 -12,-31 -28,-17 -40,1 -41,15 -41,24 -40,26 -39,28 -39,28 -39,27 -40,26 -42,25 -44,22 -47,19 -49,11 -50,-1 -42,-15 -26,-30 -6,-38 15,-38 28,-35 36,-30 39,-28 40,-26 41,-26 41,-25 42,-24 43,-24 44,-23 43,-23 43,-24 41,-25 42,-26 39,-26 36,-28 25,-32 7,-32 -17,-28 -39,-19 -55,-10 -62,-4 -64,-2 -64,-3 -63,-4 -64,-3 -64,-2 -64,-2 -63,-4 -63,-3 -62,-5 -58,-8 -51,-16 -38,-25 -20,-33 2,-35 25,-28 42,-16 53,-5 60,2 61,3 63,4 63,3 64,3 63,3 63,4 62,5 62,4 60,4 56,1 47,-7 32,-19 11,-29 -11,-34 -27,-32 -36,-29 -40,-27 -40,-26 -41,-26 -40,-26 -40,-27 -39,-27 -39,-28 -39,-28 -39,-28 -38,-27 -39,-28 -39,-28 -38,-29 -37,-29 -34,-33 -26,-38 -15,-46 1,-49 16,-43 32,-31 43,-15 47,2 46,14 42,23 39,27 39,28 38,29 38,28 38,30 37,29 37,29 37,30 38,27 39,22 39,10 34,-9 21,-27 4,-41 -11,-44 -19,-45 -24,-42 -24,-42 -26,-42 -25,-41 -25,-41 -25,-42 -24,-43 -24,-42 -23,-44 -20,-45 -16,-47 -5,-49 6,-47 19,-43 29,-35',
+  gemini:
+    '-31,-1321 20,-6 22,0 19,5 15,12 11,15 8,19 8,19 7,20 6,20 6,20 7,21 6,20 7,19 8,20 7,19 7,19 7,20 8,19 8,19 9,17 8,18 9,18 9,18 9,18 9,17 9,18 9,18 9,17 10,17 10,16 10,16 10,17 11,16 11,16 11,15 11,16 12,15 11,15 12,15 12,14 12,15 12,15 11,16 11,15 12,15 12,14 13,13 14,14 13,14 13,13 13,13 14,13 13,13 14,13 13,13 14,13 14,14 13,13 14,12 14,13 15,11 16,12 15,11 15,12 15,11 16,11 15,11 16,12 15,11 15,11 16,11 17,10 16,10 17,10 16,10 18,9 17,9 18,9 18,9 18,9 17,9 18,9 18,8 19,9 19,7 19,8 19,7 19,8 19,7 20,7 20,7 20,7 19,6 20,7 20,7 20,7 19,7 19,8 16,10 12,15 6,20 0,21 -6,20 -11,15 -16,11 -18,8 -20,7 -19,7 -20,7 -21,6 -20,6 -21,6 -20,6 -20,7 -19,8 -19,8 -19,7 -18,8 -19,8 -18,9 -18,9 -18,9 -17,9 -18,8 -18,9 -18,9 -17,9 -17,10 -17,10 -16,10 -17,10 -17,10 -16,10 -16,11 -15,12 -15,11 -16,11 -15,11 -15,12 -15,12 -15,11 -16,11 -15,11 -15,12 -14,13 -13,13 -14,13 -13,13 -14,13 -13,13 -14,14 -13,13 -13,14 -13,13 -13,14 -13,14 -13,13 -13,14 -13,14 -12,14 -12,15 -11,15 -12,15 -11,15 -12,16 -10,15 -11,16 -12,15 -10,16 -10,17 -10,17 -11,16 -11,15 -11,16 -10,16 -10,17 -9,18 -9,18 -9,17 -8,18 -9,18 -9,18 -9,18 -8,18 -8,19 -7,19 -8,19 -7,19 -8,19 -7,19 -8,20 -6,20 -6,20 -7,21 -6,20 -7,19 -7,20 -8,19 -11,16 -14,11 -20,6 -22,0 -19,-5 -15,-12 -11,-15 -8,-19 -8,-19 -7,-20 -6,-20 -6,-20 -6,-21 -6,-21 -7,-20 -7,-19 -7,-19 -8,-19 -8,-19 -8,-19 -8,-18 -8,-18 -9,-18 -9,-18 -9,-18 -9,-17 -9,-18 -9,-18 -9,-18 -9,-17 -10,-16 -10,-17 -10,-16 -10,-17 -11,-16 -10,-16 -11,-16 -11,-16 -11,-16 -11,-15 -13,-14 -12,-14 -11,-16 -11,-15 -12,-16 -12,-14 -12,-14 -13,-14 -13,-13 -14,-14 -13,-13 -13,-14 -13,-13 -14,-13 -13,-13 -14,-13 -13,-13 -14,-13 -14,-13 -14,-13 -14,-12 -15,-12 -16,-11 -15,-11 -15,-12 -15,-12 -15,-11 -16,-11 -15,-11 -15,-12 -16,-11 -16,-10 -16,-10 -17,-11 -16,-10 -17,-10 -17,-9 -17,-10 -16,-11 -17,-10 -17,-9 -18,-9 -18,-8 -18,-9 -19,-7 -19,-8 -18,-8 -19,-9 -18,-8 -19,-8 -19,-7 -19,-8 -19,-7 -20,-7 -20,-7 -20,-6 -21,-6 -20,-7 -19,-7 -19,-8 -16,-10 -12,-15 -6,-19 0,-22 6,-20 11,-15 16,-11 18,-8 20,-7 19,-7 20,-7 20,-7 20,-6 20,-7 19,-7 20,-7 20,-7 19,-7 19,-8 19,-7 19,-8 19,-8 18,-9 18,-9 17,-8 18,-9 18,-9 18,-9 17,-9 17,-10 17,-9 16,-11 17,-10 17,-10 16,-10 16,-11 15,-11 15,-12 16,-11 15,-11 15,-12 15,-12 15,-11 16,-11 15,-11 15,-12 14,-13 13,-13 14,-13 13,-13 14,-13 13,-13 14,-14 13,-13 13,-14 13,-13 13,-14 13,-14 13,-13 13,-14 12,-14 11,-16 12,-15 11,-15 13,-14 12,-15 11,-15 11,-16 11,-16 11,-15 12,-15 12,-15 10,-16 10,-16 10,-17 11,-16 10,-17 9,-17 9,-18 9,-18 9,-17 8,-18 9,-18 9,-18 9,-18 8,-18 8,-19 7,-19 8,-19 7,-19 8,-19 7,-19 8,-20 6,-20 6,-20 7,-21 6,-19 7,-20 7,-20 8,-19 11,-16',
+  opencode:
+    '-775,-984 13,-5 16,-2 18,0 17,0 18,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 18,0 18,0 17,0 18,0 18,0 18,0 18,0 17,0 17,1 15,3 12,6 8,10 5,13 1,16 1,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 0,18 0,17 0,18 0,18 0,18 0,18 -1,17 -3,15 -5,12 -9,9 -13,5 -16,2 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -18,0 -18,0 -17,0 -18,0 -18,0 -18,0 -18,0 -17,0 -17,-1 -15,-3 -12,-6 -8,-10 -5,-13 -1,-16 -1,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 0,-18 0,-17 0,-18 0,-18 0,-18 0,-18 1,-17 3,-15 5,-12',
+  grok: '-80,-972 19,-3 19,-1 21,0 21,0 20,0 20,1 19,2 18,3 18,3 19,2 19,2 18,3 17,4 17,4 17,4 17,4 17,4 16,5 16,5 16,5 15,6 16,5 15,6 15,6 15,6 15,6 15,6 15,6 14,7 14,7 14,7 14,7 13,8 12,8 13,9 13,8 13,8 13,8 13,7 14,8 14,6 16,6 17,3 20,2 20,1 21,0 21,-1 20,-1 18,-3 16,-4 15,-6 15,-7 14,-6 14,-7 13,-8 12,-9 11,-11 10,-11 10,-11 10,-11 11,-9 12,-9 13,-8 14,-6 15,-2 15,2 13,8 8,12 4,16 1,17 -3,18 -5,16 -5,15 -6,15 -6,15 -5,16 -4,17 -4,17 -4,17 -4,17 -4,17 -4,17 -3,18 -1,20 0,21 -1,21 0,20 0,21 0,21 0,21 0,21 0,21 0,21 0,21 1,21 0,21 1,19 3,19 4,17 4,17 3,17 4,18 3,18 3,18 3,18 3,18 3,18 3,18 3,18 3,18 3,18 1,19 1,21 0,20 0,21 0,21 0,21 0,21 0,21 -2,19 -2,19 -4,17 -3,18 -3,18 -4,17 -3,18 -4,17 -3,18 -4,17 -4,16 -5,17 -5,16 -5,16 -5,16 -5,16 -5,16 -5,16 -6,15 -6,15 -7,14 -7,14 -7,14 -8,13 -8,12 -9,13 -8,13 -9,12 -8,13 -8,12 -9,13 -8,13 -9,12 -9,12 -10,11 -9,11 -10,12 -8,12 -9,12 -10,12 -9,12 -10,11 -10,10 -12,10 -11,10 -11,10 -10,10 -11,11 -11,9 -12,9 -12,9 -12,10 -12,9 -12,8 -13,9 -13,8 -13,8 -12,8 -13,8 -13,9 -13,8 -12,8 -14,8 -13,7 -14,8 -14,7 -14,7 -14,6 -15,7 -15,5 -16,6 -16,4 -16,5 -16,5 -16,6 -15,5 -16,6 -16,4 -17,4 -18,3 -18,3 -18,4 -18,3 -18,2 -18,3 -18,4 -18,2 -20,2 -20,0 -21,0 -21,0 -21,0 -20,0 -20,-2 -18,-2 -18,-4 -18,-3 -18,-2 -18,-3 -17,-4 -17,-4 -17,-4 -17,-5 -17,-4 -16,-4 -16,-5 -16,-6 -15,-6 -15,-6 -14,-6 -15,-6 -15,-6 -15,-7 -14,-7 -14,-7 -14,-7 -13,-7 -14,-7 -14,-7 -15,-7 -14,-7 -13,-7 -13,-9 -12,-8 -13,-9 -12,-8 -13,-9 -13,-8 -13,-7 -14,-7 -16,-6 -16,-4 -18,-3 -20,-2 -20,0 -21,0 -20,1 -19,2 -17,3 -17,5 -16,5 -15,6 -15,6 -16,4 -16,0 -15,-3 -12,-9 -8,-13 -3,-16 0,-18 2,-18 5,-16 5,-16 6,-15 5,-16 4,-16 4,-18 2,-19 0,-20 1,-21 0,-21 0,-21 -1,-20 -1,-20 -3,-18 -4,-17 -4,-17 -5,-17 -5,-16 -5,-15 -6,-15 -6,-15 -6,-15 -6,-15 -6,-15 -5,-16 -5,-17 -3,-17 -4,-18 -3,-17 -4,-17 -3,-18 -4,-17 -3,-18 -3,-18 -2,-19 -1,-20 0,-21 0,-21 0,-21 0,-21 0,-21 0,-21 0,-20 2,-20 2,-19 3,-17 3,-18 3,-19 3,-18 3,-17 3,-18 3,-18 4,-17 5,-17 5,-15 6,-16 5,-15 5,-17 5,-16 5,-16 5,-15 6,-15 7,-15 6,-15 7,-14 7,-14 7,-13 8,-13 9,-13 8,-13 7,-13 8,-13 9,-13 8,-12 9,-13 9,-12 10,-11 9,-11 9,-12 9,-12 9,-12 10,-12 9,-12 10,-11 10,-10 12,-10 11,-10 11,-10 10,-11 10,-11 10,-10 12,-10 12,-9 12,-9 11,-9 12,-9 13,-9 12,-9 11,-9 13,-9 12,-8 12,-9 13,-8 14,-8 14,-7 14,-6 14,-7 14,-7 14,-7 14,-8 14,-6 14,-7 16,-5 16,-5 16,-5 16,-5 17,-4 16,-5 17,-4 17,-4 16,-5 17,-4 17,-4 17,-4 17,-4 17,-4 19,-2 18,-3 18,-3',
 }
 let landingFaces = null
 /* The Saturn ring's paint turns only while its band shows (the CSS keys
@@ -1888,7 +2465,11 @@ const initLandingOrbs = debounce(() => {
     }
     // the faces: while a planet talks its name bends into a mouth, two
     // eyes open and the head turns to the pointer (createPlanetFaces)
-    landingFaces ??= createPlanetFaces({ settings: { reduceMotion } })
+    // and the ball takes the shape of its mark (an experiment: the mark
+    // leaves the ring and the face stands on the shape instead)
+    landingFaces ??= createPlanetFaces({
+      settings: { reduceMotion, body: 'shape', mark: 'hide', shapes: LANDING_SHAPES },
+    })
     orbs.forEach((o) => {
       o.face = landingFaces.attach(o.orb, o.ring)
     })
@@ -3239,15 +3820,19 @@ const initLandingOrbs = debounce(() => {
             head.setAttribute('aria-expanded', String(open))
           })
           // a row comes on: up from below, the others to their new places
-          // from their old ones
-          const reveal = (r) => {
+          // from their old ones. A row a planet is flying into comes on in
+          // place (rise false): faded, it would fade the planet with it,
+          // and its words stream in anyway
+          const reveal = (r, rise = true) => {
             const shown = order.filter((other) => other.classList.contains('is-shown'))
             const before = new Map(shown.map((other) => [other, other.getBoundingClientRect().top]))
             r.classList.add('is-shown')
             if (!reduceMotion) {
               r.style.transition = 'none'
-              r.style.opacity = '0'
-              r.style.transform = 'translateY(14px)'
+              if (rise) {
+                r.style.opacity = '0'
+                r.style.transform = 'translateY(14px)'
+              }
               shown.forEach((other) => {
                 other.style.transition = 'none'
                 other.style.transform = `translateY(${(before.get(other) - other.getBoundingClientRect().top).toFixed(1)}px)`
@@ -3311,12 +3896,14 @@ const initLandingOrbs = debounce(() => {
             at(5900, () => lines[2].classList.add('is-shown'))
             at(6900, () => lines[3].classList.add('is-shown'))
             // done: the box folds away (the globe stays in it, clipped)
-            // and the answer comes up with the planet beside it; the
-            // planet's flight measures its start before the fold has
-            // moved anything
+            // and the answer comes up with the planet under it. The
+            // planet's flight is measured before the fold has moved
+            // anything and takes the fold's own time and curve (the
+            // stylesheet), so as the seat rises with the fold the flight's
+            // offset shrinks with it and the planet goes straight there
             at(8300, () => {
               rows.think.classList.add('is-done')
-              reveal(rows.agent2)
+              reveal(rows.agent2, false)
               seat(o, seats.c)
             })
           }
@@ -3463,30 +4050,30 @@ const initLandingOrbs = debounce(() => {
       // card from one side of the viewport to the other with no moment
       // in between for its observer to see: after a scroll, a card
       // below the middle of the viewport gives up what it holds, and one
-      // above it takes what it is owed
+      // above it takes what it is owed. The page can also be scrolled
+      // before any of this is bound (a link to a card, a reload, the way
+      // back) with no scroll after it, so the same check runs once now
       let scrolled = 0
-      window.addEventListener(
-        'scroll',
-        () => {
-          if (scrolled) {
-            return
-          }
-          scrolled = requestAnimationFrame(() => {
-            scrolled = 0
-            const line = window.innerHeight * 0.45
-            const top = stage.getBoundingClientRect().top
-            if (onStage && top > line) {
-              toOrbit()
-            } else {
-              if (!onStage && top <= line) {
-                toStage()
-              }
-              lent.check()
+      const onJump = () => {
+        if (scrolled) {
+          return
+        }
+        scrolled = requestAnimationFrame(() => {
+          scrolled = 0
+          const line = window.innerHeight * 0.45
+          const top = stage.getBoundingClientRect().top
+          if (onStage && top > line) {
+            toOrbit()
+          } else {
+            if (!onStage && top <= line) {
+              toStage()
             }
-          })
-        },
-        { passive: true },
-      )
+            lent.check()
+          }
+        })
+      }
+      window.addEventListener('scroll', onJump, { passive: true })
+      onJump()
     }
     orbs.forEach((o) => {
       o.ring.style.transform = `rotateY(${o.angle}deg)`
