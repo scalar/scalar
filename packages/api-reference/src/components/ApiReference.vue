@@ -2810,7 +2810,9 @@ const sidebarCta = computed((): SidebarCta => {
 
   /*
    * The agent drawer is modal: it covers the toolbar and the panel like it covers the content
-   * toolbar of a hosted reference, and starts at the sidebar's edge, which the gutter moved.
+   * toolbar of a hosted reference, and starts at the sidebar's edge, which the gutter moved. It
+   * also runs to the card's end edge: the strip it leaves on a hosted reference would show the
+   * toolbar's last button cut in half here, which reads as the toolbar sitting on the drawer.
    */
   /* Doubled classes: the drawer's own narrow-screen rule still matches at exactly 1000px */
   .references-shell :deep(.agent-scalar-overlay.agent-scalar-overlay),
@@ -2819,6 +2821,7 @@ const sidebarCta = computed((): SidebarCta => {
   }
   .references-shell :deep(.agent-scalar) {
     left: calc(var(--refs-shell-gutter) + var(--refs-sidebar-width));
+    right: var(--refs-shell-gutter);
   }
 
   @layer scalar-config {
