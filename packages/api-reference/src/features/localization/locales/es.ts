@@ -202,6 +202,8 @@ export const es = {
     hostingDeploysTitle: 'Despliega en cada push',
     hostingDeploysDescription:
       'Previsualizaciones para pull requests, logs y métricas, y red privada hacia tus otros servicios.',
+    hostingScaleTitle: 'Escala prácticamente infinita',
+    hostingScaleDescription: 'Aguanta cualquier volumen de tráfico, sin un techo que tengas que prever.',
     hostingPlans: 'Después 1 $/mes en Free · Hobby 5 $/mes con 5 $ de uso incluido · Pro 20 $/mes',
     hostingSeePlans: 'Ver planes',
   },

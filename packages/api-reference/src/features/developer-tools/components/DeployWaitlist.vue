@@ -17,6 +17,7 @@ import {
   ScalarIconArrowLeft,
   ScalarIconCpu,
   ScalarIconGitBranch,
+  ScalarIconInfinity,
   ScalarIconMoon,
 } from '@scalar/icons'
 import type { ScalarIconComponent } from '@scalar/icons/types'
@@ -58,6 +59,11 @@ const HOSTING_FEATURES = [
     icon: ScalarIconGitBranch,
     title: 'developerTools.hostingDeploysTitle',
     description: 'developerTools.hostingDeploysDescription',
+  },
+  {
+    icon: ScalarIconInfinity,
+    title: 'developerTools.hostingScaleTitle',
+    description: 'developerTools.hostingScaleDescription',
   },
 ] as const satisfies ReadonlyArray<{
   icon: ScalarIconComponent

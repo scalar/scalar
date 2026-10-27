@@ -197,6 +197,8 @@ export const zhCn = {
     hostingIdleDescription: '按秒计费，只为运行的部分付费。无请求费用。',
     hostingDeploysTitle: '每次推送自动部署',
     hostingDeploysDescription: '拉取请求预览、日志和指标，以及到其他服务的私有网络。',
+    hostingScaleTitle: '几乎无限的扩展能力',
+    hostingScaleDescription: '无论流量多大都能应对，无需为上限做规划。',
     hostingPlans: '之后 Free 每月 1 美元 · Hobby 每月 5 美元含 5 美元用量 · Pro 每月 20 美元',
     hostingSeePlans: '查看套餐',
   },

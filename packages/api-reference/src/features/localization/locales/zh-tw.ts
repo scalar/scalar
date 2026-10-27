@@ -198,6 +198,8 @@ export const zhTw = {
     hostingIdleDescription: '按秒計費，只為執行的部分付費。無請求費用。',
     hostingDeploysTitle: '每次推送自動部署',
     hostingDeploysDescription: '拉取請求預覽、日誌與指標，以及通往其他服務的私有網路。',
+    hostingScaleTitle: '幾乎無限的擴展能力',
+    hostingScaleDescription: '無論流量多大都能應對，無需為上限做規劃。',
     hostingPlans: '之後 Free 每月 1 美元 · Hobby 每月 5 美元含 5 美元用量 · Pro 每月 20 美元',
     hostingSeePlans: '查看方案',
   },

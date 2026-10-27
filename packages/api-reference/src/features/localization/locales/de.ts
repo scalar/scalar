@@ -203,6 +203,8 @@ export const de = {
     hostingDeploysTitle: 'Deployt bei jedem Push',
     hostingDeploysDescription:
       'Vorschauen für Pull Requests, Logs und Metriken sowie privates Netzwerk zu deinen anderen Diensten.',
+    hostingScaleTitle: 'Praktisch unbegrenzt skalierbar',
+    hostingScaleDescription: 'Hält mit beliebig viel Traffic Schritt, ohne dass du eine Obergrenze einplanen musst.',
     hostingPlans: 'Danach 1 $/Monat im Free-Tarif · Hobby 5 $/Monat inkl. 5 $ Nutzung · Pro 20 $/Monat',
     hostingSeePlans: 'Tarife ansehen',
   },

@@ -202,6 +202,8 @@ export const ru = {
     hostingIdleDescription: 'Посекундная оплата за то, что работает. Без платы за запросы.',
     hostingDeploysTitle: 'Деплой при каждом push',
     hostingDeploysDescription: 'Превью для pull request, логи и метрики и приватная сеть к другим вашим сервисам.',
+    hostingScaleTitle: 'Практически бесконечное масштабирование',
+    hostingScaleDescription: 'Выдерживает любой объём трафика, и нет потолка, о котором нужно думать заранее.',
     hostingPlans: 'Далее 1 $/мес. на Free · Hobby 5 $/мес. с 5 $ использования · Pro 20 $/мес.',
     hostingSeePlans: 'Тарифы',
   },
