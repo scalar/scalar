@@ -1073,6 +1073,26 @@
                   "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/og/hero-og-v1.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/og/hero-og-v1.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "twitter:image",
                   "content": "https://cdn.scalar.com/images/twitter-image.png"
                 },
