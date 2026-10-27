@@ -1052,14 +1052,14 @@
             "type": "page",
             "filepath": "documentation/guides/introduction.md",
             "title": "Introduction",
-            "description": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves.",
+            "description": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out.",
             "layout": {
               "toc": false,
               "pageTitle": false,
               "feedback": false
             },
             "head": {
-              "title": "Scalar — API Documentation, SDKs, API Client & Registry",
+              "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
               "links": [
                 {
                   "rel": "canonical",
@@ -1071,6 +1071,26 @@
                   "property": "og:image",
                   "name": "og:image",
                   "content": "https://api.scalar.com/cdn/images/IlMnm9Mxy-SabmLxE_i0L/8O99z8O2xzEypGxOzuZYo.png"
+                },
+                {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
                 },
                 {
                   "name": "twitter:image",
@@ -1086,19 +1106,19 @@
                 },
                 {
                   "property": "og:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "property": "og:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "twitter:title",
-                  "content": "Scalar — API Documentation, SDKs, API Client & Registry"
+                  "content": "Scalar — API Documentation, SDKs & Hosted MCP Servers"
                 },
                 {
                   "name": "twitter:description",
-                  "content": "Create beautiful docs, SDKs and secure MCP servers from your API. Scalar keeps every interface in sync as your API evolves."
+                  "content": "Scalar is the infrastructure layer between an API and the agents that use it. One OpenAPI document in; docs, SDKs, and a hosted MCP server out."
                 },
                 {
                   "name": "robots",
@@ -2725,6 +2745,30 @@
                         {
                           "name": "description",
                           "content": "Add auto-paginating helpers to your SDK: declare offset, page-number, or cursor schemes in configuration or your OpenAPI document, and bind them to methods."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "webhooks": {
+                    "filepath": "documentation/guides/sdks/webhooks.md",
+                    "type": "page",
+                    "title": "Webhooks",
+                    "description": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/webhooks"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks."
                         },
                         {
                           "name": "robots",

@@ -30,16 +30,18 @@ scalar registry publish [options] [file]
 
 | Option | Description | Default |
 | --- | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |  |
 | `--slug <slug>` | Scalar Registry entry slug (defaults to a slug generated from the title). |  |
 | `--namespace <namespace>` | Scalar team namespace. |  |
 | `--version <version>` | API description version (for example, 0.1.0). |  |
-| `--private` | Make the API description private. | `false` |
+| `--private` | Create a private entry or require an existing private entry. | `false` |
 | `--no-current` | Keep the existing current version. |  |
 | `--force` | Overwrite an existing version. | `false` |
 | `--bundle` | Bundle all external references before uploading. |  |
 | `--treeShake` | Remove unused components from the bundled document. |  |
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
+| `--no-input` | Disable prompts and browser launches. |  |
 
 ## update
 
@@ -60,8 +62,12 @@ scalar registry update [options] [namespace] [slug]
 
 | Option | Description |
 | --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
 | `--title <title>` | API description title. |
 | `--description <description>` | API description summary. |
+| `--public` | Make the whole entry public, including existing versions. |
+| `--private` | Make the whole entry private, including existing versions. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## delete
 
@@ -78,6 +84,13 @@ scalar registry delete [options] [namespace] [slug]
 | `namespace` | Team namespace. |
 | `slug` | API description slug. |
 
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `--json` | Output the mutation result as JSON without prompting. |
+| `--no-input` | Disable prompts and browser launches. |
+
 ## list
 
 List Scalar Registry API descriptions in a team namespace.
@@ -92,6 +105,7 @@ scalar registry list [options]
 | --- | --- |
 | `--namespace <namespace>` | Team namespace. |
 | `--json` | Output Scalar Registry API metadata as JSON. |
+| `--no-input` | Disable prompts and browser launches. |
 
 ## get
 
@@ -115,3 +129,4 @@ scalar registry get [options] [namespace] [slug]
 | `--version <version>` | API description version (defaults to latest). |  |
 | `--format <format>` | Output format. One of `json`, `yaml`. | `json` |
 | `-o, --output <file>` | Output file (defaults to stdout). |  |
+| `--no-input` | Disable prompts and browser launches. |  |
