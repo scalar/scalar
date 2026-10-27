@@ -1074,11 +1074,11 @@
                 },
                 {
                   "property": "og:video",
-                  "content": "https://cdn.scalar.com/og/hero-og-v1.mp4"
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
                 },
                 {
                   "property": "og:video:secure_url",
-                  "content": "https://cdn.scalar.com/og/hero-og-v1.mp4"
+                  "content": "https://cdn.scalar.com/marketing/landing/home-og-video.mp4"
                 },
                 {
                   "property": "og:video:type",
