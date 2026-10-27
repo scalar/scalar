@@ -2733,6 +2733,30 @@
                       ]
                     }
                   },
+                  "webhooks": {
+                    "filepath": "documentation/guides/sdks/webhooks.md",
+                    "type": "page",
+                    "title": "Webhooks",
+                    "description": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/webhooks"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
                   "openapi-extensions": {
                     "filepath": "documentation/guides/sdks/openapi-extensions.md",
                     "type": "page",
