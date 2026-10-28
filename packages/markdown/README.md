@@ -41,6 +41,11 @@ A fence without a language is highlighted only when its language is unmistakable
 | `isHeading`, `textFromNode` | Helpers for `transform` callbacks |
 | `rehypeAlert` | rehype plugin for GitHub alerts (`> [!NOTE]`) |
 | `rehypeHighlight` | rehype plugin for syntax highlighting |
+| `parseMarkdown` | GitHub Flavored Markdown string to an mdast tree |
+| `mdastFromHtml` | HTML fragment to a sanitized mdast tree |
+| `createMarkdownSerializer` | Build a reusable mdast to GitHub Flavored Markdown serializer, with `remark-stringify` options |
+
+`parseMarkdown`, `mdastFromHtml` and `createMarkdownSerializer` exist so packages that work on Markdown trees can share the unified stack this package bundles, rather than shipping a second copy of it.
 
 ## Community
 
