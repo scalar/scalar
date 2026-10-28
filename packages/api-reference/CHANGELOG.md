@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.76.2
+
+### Patch Changes
+
+- [#10740](https://github.com/scalar/scalar/pull/10740): Detect schemas in custom AsyncAPI binding fields, including WebSocket operation headers and message schemas, and render their properties instead of expandable raw JSON.
+- [#10763](https://github.com/scalar/scalar/pull/10763): feat(api-reference): give the localhost playground a developer toolbar with a side panel for its tools
+
+  On localhost, the developer toolbar becomes a sticky bar above the reference, which renders as a bordered card. Configure, Share, Deploy and Generate SDK open in a side panel beside the card; Deploy is now a waitlist sign-up for hosting on Scalar. The Generate SDK buttons in the client libraries card and the request examples, and the sidebar's "Generate SDKs & MCP" card and API client button, no longer show on localhost. Hosted references are unchanged.
+
+- [#10740](https://github.com/scalar/scalar/pull/10740): Match the AsyncAPI application identifier heading to channel metadata headings with a full-column divider.
+
 ## 1.76.1
 
 ### Patch Changes
