@@ -625,14 +625,12 @@ export type ApiReferenceTranslations = {
     deployApiTitle: string
     deployFrameworkTitle: string
     deployApiDescription: string
-    hostingStartsTitle: string
-    hostingStartsDescription: string
+    hostingScaleTitle: string
+    hostingScaleDescription: string
     hostingIdleTitle: string
     hostingIdleDescription: string
     hostingDeploysTitle: string
     hostingDeploysDescription: string
-    hostingScaleTitle: string
-    hostingScaleDescription: string
     hostingPlans: string
     hostingSeePlans: string
   }

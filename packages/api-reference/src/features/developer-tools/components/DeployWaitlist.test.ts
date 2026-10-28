@@ -118,10 +118,9 @@ describe('DeployWaitlist', () => {
       expect(wrapper.get('h2').text()).toBe('Deploy your FastAPI app on Scalar')
       const rows = wrapper.get('ul[role="list"]').findAll(':scope > li')
       expect(rows.map((row) => row.find('.font-bold').text())).toEqual([
-        'Starts with 1 vCPU · 0.5 GB',
+        'Scales with your traffic',
         'Sleeps when idle, $0',
         'Deploys on every push',
-        'Effectively infinite scale',
       ])
       const plans = wrapper.get('a[href="https://scalar.com/pricing"]')
       expect(plans.attributes('target')).toBe('_blank')
@@ -138,7 +137,7 @@ describe('DeployWaitlist', () => {
       const wrapper = mount(DeployWaitlist)
 
       expect(wrapper.get('h2').text()).toBe('Deploy your API on Scalar')
-      expect(wrapper.get('ul[role="list"]').findAll(':scope > li')).toHaveLength(4)
+      expect(wrapper.get('ul[role="list"]').findAll(':scope > li')).toHaveLength(3)
       expect(wrapper.find('a[href="https://scalar.com/pricing"]').exists()).toBe(true)
     })
   })
