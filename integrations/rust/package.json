@@ -22,7 +22,7 @@
     "actix-web",
     "warp"
   ],
-  "version": "0.2.17",
+  "version": "0.2.18",
   "private": true,
   "engines": {
     "node": ">=22"

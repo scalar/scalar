@@ -1,5 +1,7 @@
 # @scalar/server-side-rendering
 
+## 0.1.63
+
 ## 0.1.62
 
 ### Patch Changes

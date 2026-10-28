@@ -11,7 +11,7 @@
     "directory": "packages/server-side-rendering"
   },
   "keywords": [],
-  "version": "0.1.62",
+  "version": "0.1.63",
   "engines": {
     "node": ">=22"
   },
