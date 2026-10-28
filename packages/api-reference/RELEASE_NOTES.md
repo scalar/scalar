@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.76.1 (2026-10-28)
+
+### Developer toolbar with side panel for localhost
+
+When running on localhost, the API reference now displays with a sticky developer toolbar and renders tools in a side panel instead of dropdowns. The interface presents as a bordered card on a backdrop, making development workflows more accessible.
+
+- Added a sticky toolbar above the reference on localhost with Configure, Share, Generate SDK, and Deploy buttons
+- Tools now open in a side panel beside the reference card instead of dropdown overlays
+- Introduced Deploy waitlist for API hosting on Scalar, with framework detection for FastAPI, Hono, Express, and others
+- Reference renders as a bordered card on localhost while maintaining full page scrolling
+- Consolidated Generate SDK into the toolbar, removing redundant buttons from client libraries and request examples
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1761)
+
 ## 1.76.0 (2026-10-23)
 
 ### AsyncAPI message examples and optional URL routing
