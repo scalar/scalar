@@ -1870,20 +1870,6 @@ const isShell = computed(
 )
 
 /**
- * Only the shell adds attributes to the root, so a hosted reference renders the same `<div>` as
- * before. The shell follows the reference's text direction, so the toolbar, the card and the panel
- * mirror together.
- */
-const shellAttrs = computed(() =>
-  isShell.value
-    ? {
-        class: 'scalar-app references-shell',
-        dir: apiReferenceLocalization.direction.value,
-      }
-    : {},
-)
-
-/**
  * The shell's side panel shows one developer tool at a time beside the card, which narrows to make
  * room for it. Only the toolbar's breakpoint has that room: narrower screens hide the toolbar, keep
  * the dialog for Generate SDK, and close the panel when the window shrinks past it.
@@ -2004,6 +1990,21 @@ const isShellPanelShown = computed(
     ShellPanelComponent.value !== undefined &&
     hasShellPanel.value &&
     shellPanel.active.value !== undefined,
+)
+
+/**
+ * Only the shell adds attributes to the root, so a hosted reference renders the same `<div>` as
+ * before. The shell follows the reference's text direction, so the toolbar, the card and the panel
+ * mirror together. `data-shell-panel` marks the narrower card, which the agent drawer stays inside.
+ */
+const shellAttrs = computed(() =>
+  isShell.value
+    ? {
+        'class': 'scalar-app references-shell',
+        'dir': apiReferenceLocalization.direction.value,
+        'data-shell-panel': isShellPanelShown.value ? '' : undefined,
+      }
+    : {},
 )
 
 /** The reference card, which the reading position and the focus fallback look into */
@@ -2179,7 +2180,6 @@ const sidebarCta = computed((): SidebarCta => {
         class="references-developer-tools references-shell-toolbar"
         :configuration="mergedConfig"
         :externalUrls="mergedConfig.externalUrls"
-        :inert="agent.showAgent.value"
         :panelId="shellPanel.id"
         variant="shell"
         :workspace="
@@ -2197,7 +2197,6 @@ const sidebarCta = computed((): SidebarCta => {
         :documentKey="workspaceStore.workspace['x-scalar-active-document']"
         :externalUrls="mergedConfig.externalUrls"
         :focusRequest="shellPanel.focusRequest.value"
-        :inert="agent.showAgent.value"
         :integration="mergedConfig._integration"
         :panel="shellPanel.active.value"
         :url="documentUrl"
@@ -2809,19 +2808,42 @@ const sidebarCta = computed((): SidebarCta => {
   }
 
   /*
-   * The agent drawer is modal: it covers the toolbar and the panel like it covers the content
-   * toolbar of a hosted reference, and starts at the sidebar's edge, which the gutter moved. It
-   * also runs to the card's end edge: the strip it leaves on a hosted reference would show the
-   * toolbar's last button cut in half here, which reads as the toolbar sitting on the drawer.
+   * The agent drawer flies out from under the sidebar and stays inside the card, the way it does
+   * across the window on a hosted reference. The drawer and its backdrop keep their own stacking,
+   * below the sidebar, the frame, the panel and the toolbar: the sidebar hides the drawer's shadow
+   * and its slide-in, and the frame keeps the card's rounded corners and border on top.
+   *
+   * Both follow the card's visible edges instead of the window's: below the toolbar, above the
+   * bottom gutter, and inside the end gutter (or the open panel). The drawer starts at the
+   * sidebar's edge and stops 48px short of the card's end, as it stops short of the window's edge
+   * on a hosted reference, where the backdrop shows through.
+   *
+   * Doubled classes: the drawer's own narrow-screen rules still match at exactly 1000px.
    */
-  /* Doubled classes: the drawer's own narrow-screen rule still matches at exactly 1000px */
   .references-shell :deep(.agent-scalar-overlay.agent-scalar-overlay),
   .references-shell :deep(.agent-scalar.agent-scalar) {
-    z-index: 30;
+    --refs-shell-agent-end: var(--refs-shell-gutter);
+    z-index: 10;
   }
-  .references-shell :deep(.agent-scalar) {
-    left: calc(var(--refs-shell-gutter) + var(--refs-sidebar-width));
-    right: var(--refs-shell-gutter);
+  .references-shell[data-shell-panel]
+    :deep(.agent-scalar-overlay.agent-scalar-overlay),
+  .references-shell[data-shell-panel] :deep(.agent-scalar.agent-scalar) {
+    --refs-shell-agent-end: calc(
+      var(--refs-shell-gutter) * 2 + var(--refs-shell-panel-width)
+    );
+  }
+  .references-shell :deep(.agent-scalar-overlay.agent-scalar-overlay) {
+    inset: var(--refs-shell-top) var(--refs-shell-agent-end)
+      var(--refs-shell-gutter) var(--refs-shell-gutter);
+  }
+  .references-shell :deep(.agent-scalar.agent-scalar) {
+    inset: var(--refs-shell-top) calc(var(--refs-shell-agent-end) + 48px)
+      var(--refs-shell-gutter)
+      calc(var(--refs-shell-gutter) + var(--refs-sidebar-width));
+  }
+  /* The classic layout has no sidebar, and its unitless 0 width would make the sum above invalid */
+  .references-shell :deep(.references-classic .agent-scalar.agent-scalar) {
+    left: var(--refs-shell-gutter);
   }
 
   @layer scalar-config {
