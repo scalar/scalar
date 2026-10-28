@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.76.2 (2026-10-28)
+
+### AsyncAPI metadata improvements and localhost developer toolbar
+
+This release improves AsyncAPI documentation rendering and introduces a new developer toolbar for localhost environments.
+
+- Schemas in AsyncAPI binding fields like WebSocket headers and message schemas now render as structured properties instead of raw JSON.
+- AsyncAPI application identifier headings now match channel metadata styling with consistent dividers.
+- On localhost, a new developer toolbar appears above the reference with a side panel for Configure, Share, Deploy, and Generate SDK tools.
+- The localhost Deploy tool now shows a waitlist sign-up for Scalar hosting instead of the full deployment flow.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1762)
+
 ## 1.76.1 (2026-10-28)
 
 ### Developer toolbar with side panel for localhost

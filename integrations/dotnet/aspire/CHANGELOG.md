@@ -1,5 +1,11 @@
 # @scalar/aspire
 
+## 0.12.5
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.2
+
 ## 0.12.4
 
 ### Bundled API Reference
