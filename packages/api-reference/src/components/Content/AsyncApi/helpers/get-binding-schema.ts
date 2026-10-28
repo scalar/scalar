@@ -17,24 +17,59 @@ const schemaFields: Record<string, Partial<Record<BindingScope, readonly string[
   http: { operation: ['query'], message: ['headers'] },
 }
 
-/** Only interpret documented schema fields; arbitrary protocol objects remain JSON. */
+const schemaTypes = new Set(['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'])
+
+/** A rendering heuristic for schemas in custom fields, not schema validation. */
+const looksLikeSchema = (value: Record<string, unknown>): boolean => {
+  if ('schemaFormat' in value) {
+    return isObject(value.schema) || typeof value.schema === 'boolean'
+  }
+  if ('type' in value) {
+    return typeof value.type === 'string'
+      ? schemaTypes.has(value.type)
+      : Array.isArray(value.type) && value.type.length > 0 && value.type.every((type) => schemaTypes.has(type))
+  }
+  if (isObject(value.properties)) {
+    return Object.values(value.properties).every((property) => isObject(property) || typeof property === 'boolean')
+  }
+  if (isObject(value.items) || typeof value.items === 'boolean') {
+    return true
+  }
+  return ['allOf', 'anyOf', 'oneOf'].some((keyword) => {
+    const members = value[keyword]
+    return (
+      Array.isArray(members) &&
+      members.length > 0 &&
+      members.every((member) => isObject(member) || typeof member === 'boolean')
+    )
+  })
+}
+
+/** Use protocol metadata first, then recognize schema shapes in unlisted binding fields. */
 export const getBindingSchema = (
   protocol: string,
   scope: BindingScope | undefined,
   field: string,
   value: unknown,
 ): SchemaObject | undefined => {
-  if (!scope || !schemaFields[protocol]?.[scope]?.includes(field) || !isObject(value)) {
+  if (protocol.startsWith('x-') || field.startsWith('x-')) {
     return undefined
   }
-  // Unresolved references and Avro keys must remain readable as source.
-  if (
-    '$ref' in value ||
-    (protocol === 'kafka' &&
-      field === 'key' &&
-      typeof value.type === 'string' &&
-      !['null', 'boolean', 'object', 'array', 'number', 'integer', 'string'].includes(value.type))
-  ) {
+  const documentedSchema = Boolean(scope && schemaFields[protocol]?.[scope]?.includes(field))
+  // Booleans in arbitrary settings are values, but documented schema positions can use them.
+  if (typeof value === 'boolean' && documentedSchema) {
+    const resolved = resolveAsyncApiSchema(value)
+    return resolved?.kind === 'schema' ? resolved.schema : undefined
+  }
+  if (!isObject(value) || '$ref' in value) {
+    return undefined
+  }
+  // Extension data is opaque; unfamiliar fields need positive schema evidence.
+  if (!documentedSchema && !looksLikeSchema(value)) {
+    return undefined
+  }
+  // Avro and other schema languages can use type names the JSON Schema renderer cannot represent.
+  if (typeof value.type === 'string' && !schemaTypes.has(value.type)) {
     return undefined
   }
   const resolved = resolveAsyncApiSchema(value)
