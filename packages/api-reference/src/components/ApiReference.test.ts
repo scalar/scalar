@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
 import ApiReference from '@/components/ApiReference.vue'
+import { DeveloperTools } from '@/features/developer-tools'
 import { authStorage } from '@/helpers/storage'
 
 enableAutoUnmount(afterEach)
@@ -31,6 +32,26 @@ beforeEach(() => {
     toString: () => 'http://localhost:3000/',
   })
 })
+
+const stubLocation = (href: string) => {
+  const url = new URL(href)
+  vi.stubGlobal('location', {
+    href,
+    origin: url.origin,
+    protocol: url.protocol,
+    host: url.host,
+    hostname: url.hostname,
+    port: url.port,
+    pathname: url.pathname,
+    search: '',
+    hash: '',
+    ancestorOrigins: {} as DOMStringList,
+    assign: vi.fn(),
+    reload: vi.fn(),
+    replace: vi.fn(),
+    toString: () => href,
+  })
+}
 
 describe('multiple configurations', () => {
   it.each([
@@ -992,27 +1013,7 @@ describe('sidebar footer call to action', () => {
     agent?: { disabled: boolean }
   }
 
-  const stubLocation = (href: string) => {
-    const url = new URL(href)
-    vi.stubGlobal('location', {
-      href,
-      origin: url.origin,
-      protocol: url.protocol,
-      host: url.host,
-      hostname: url.hostname,
-      port: url.port,
-      pathname: url.pathname,
-      search: '',
-      hash: '',
-      ancestorOrigins: {} as DOMStringList,
-      assign: vi.fn(),
-      reload: vi.fn(),
-      replace: vi.fn(),
-      toString: () => href,
-    })
-  }
-
-  /** Mounts, then waits for `onMounted` and the async Explore chunk to settle */
+  /** Mounts, then waits for `onMounted` and the async chunks to settle */
   const mountFooter = async (configuration: FooterConfiguration = {}) => {
     const wrapper = mount(ApiReference, {
       attachTo: window.document.body,
@@ -1024,11 +1025,11 @@ describe('sidebar footer call to action', () => {
     return wrapper
   }
 
+  /** What the sidebar footer offers. A "Generate SDKs & MCP" card would show up as `generate` */
   const footerOf = (wrapper: ReturnType<typeof mount>) => {
     const footer = wrapper.find('.darklight-reference')
-    const explore = footer.find('button[aria-haspopup="dialog"]')
     return {
-      explore: explore.exists() ? explore.text() : undefined,
+      generate: footer.text().includes('Generate SDK'),
       mcpRows: footer.find('.scalar-mcp-layer').exists(),
       client: footer.text().includes('Open API Client'),
     }
@@ -1041,7 +1042,7 @@ describe('sidebar footer call to action', () => {
     // Pending scroll retries from earlier tests find this attached mount
     Element.prototype.scrollIntoView = vi.fn()
     // Load the Explore chunk once, so the async component resolves within a microtask in every test
-    await import('@/features/explore-scalar')
+    await import('@/features/explore-scalar/components/ExploreScalarModal.vue')
 
     // Headless UI's Dialog observes the panel size, and jsdom has no ResizeObserver; the file-level
     // `vi.unstubAllGlobals()` removes this stub again
@@ -1067,7 +1068,7 @@ describe('sidebar footer call to action', () => {
       hideClientButton: true,
     })
     expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
-    expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toStrictEqual({ generate: false, mcpRows: false, client: false })
     const button = wrapper.findAll('button').find((candidate) => candidate.text() === 'Generate SDK')
     expect(button).toBeUndefined()
   })
@@ -1077,7 +1078,7 @@ describe('sidebar footer call to action', () => {
     async (mcp) => {
       const wrapper = await mountFooter({ showDeveloperTools: 'never', mcp })
       expect(wrapper.find('.api-reference-toolbar').exists()).toBe(false)
-      expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: false, client: true })
+      expect(footerOf(wrapper)).toStrictEqual({ generate: false, mcpRows: false, client: true })
     },
   )
 
@@ -1100,57 +1101,64 @@ describe('sidebar footer call to action', () => {
       showDeveloperTools: 'never',
       mcp: { name: 'Acme', url: 'https://mcp.acme.io' },
     })
-    expect(footerOf(wrapper)).toStrictEqual({ explore: undefined, mcpRows: true, client: false })
+    expect(footerOf(wrapper)).toStrictEqual({ generate: false, mcpRows: true, client: false })
   })
 
-  it('renders the Explore Scalar button on localhost without an MCP config', async () => {
+  // The localhost shell keeps its tools in the developer toolbar, so the sidebar footer offers nothing
+  it('renders nothing in the localhost shell without an MCP config', async () => {
     const wrapper = await mountFooter()
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: false })
   })
 
-  it('renders the Explore Scalar button on localhost when mcp is an empty object', async () => {
+  it('renders nothing in the localhost shell when mcp is an empty object', async () => {
     const wrapper = await mountFooter({ mcp: {} })
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: false })
   })
 
-  it('renders the Explore Scalar button on localhost even when hideClientButton is true', async () => {
+  it('renders nothing on localhost when hideClientButton is true', async () => {
     const wrapper = await mountFooter({ hideClientButton: true })
 
-    expect(footerOf(wrapper)).toEqual({ explore: 'Generate SDKs & MCP', mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: false })
   })
 
   it('keeps the MCP rows on localhost when an MCP name or url is configured', async () => {
     const wrapper = await mountFooter({ mcp: { name: 'Acme', url: 'https://mcp.acme.io' } })
 
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: true, client: false })
   })
 
-  it('renders the API client button on localhost when mcp is disabled', async () => {
+  it('renders nothing in the localhost shell when mcp is disabled', async () => {
     const wrapper = await mountFooter({ mcp: { disabled: true } })
 
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: false })
+  })
+
+  it('renders the API client button on localhost with developer tools disabled', async () => {
+    const wrapper = await mountFooter({ showDeveloperTools: 'never', mcp: { disabled: true } })
+
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: true })
   })
 
   it('renders nothing on localhost when mcp is disabled and hideClientButton is true', async () => {
     const wrapper = await mountFooter({ mcp: { disabled: true }, hideClientButton: true })
 
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: false })
   })
 
   it('renders the API client button on a public host', async () => {
     stubLocation('https://docs.acme.io/')
     const wrapper = await mountFooter()
 
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: false, client: true })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: false, client: true })
   })
 
   it('renders the MCP rows on a public host when mcp is configured', async () => {
     stubLocation('https://docs.acme.io/')
     const wrapper = await mountFooter({ mcp: {} })
 
-    expect(footerOf(wrapper)).toEqual({ explore: undefined, mcpRows: true, client: false })
+    expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: true, client: false })
   })
 
   it('renders the API client button in server rendered output without touching window', async () => {
@@ -1163,5 +1171,283 @@ describe('sidebar footer call to action', () => {
     expect(html).toContain('Open API Client')
     expect(html).not.toContain('Generate SDKs & MCP')
     expect(html).not.toContain('scalar-mcp-layer')
+  })
+})
+
+describe('localhost shell', () => {
+  const document = {
+    openapi: '3.1.0',
+    info: { title: 'Shell API', version: '1.0.0' },
+    paths: {},
+  }
+
+  type ShellConfiguration = {
+    showDeveloperTools?: 'localhost' | 'always' | 'never'
+    urlRouting?: false
+    _integration?: 'fastapi' | 'docusaurus'
+  }
+
+  /** jsdom has no scrollIntoView, so the stub is installed per test and removed again afterwards */
+  const originalScrollIntoView = Element.prototype.scrollIntoView
+
+  beforeEach(async () => {
+    Element.prototype.scrollIntoView = vi.fn()
+    // Load the Explore chunk once, so the async component resolves within a microtask in every test
+    await import('@/features/explore-scalar/components/ExploreScalarModal.vue')
+
+    // Headless UI's Dialog observes the panel size, and jsdom has no ResizeObserver
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        disconnect = vi.fn()
+        observe = vi.fn()
+        unobserve = vi.fn()
+      },
+    )
+  })
+
+  afterEach(() => {
+    Element.prototype.scrollIntoView = originalScrollIntoView
+  })
+
+  /** Mounts, then waits for `onMounted` (where the host is resolved) and the async chunks to settle */
+  const mountReference = async (configuration: ShellConfiguration = {}) => {
+    const wrapper = mount(ApiReference, {
+      attachTo: window.document.body,
+      props: { configuration: { content: document, ...configuration } },
+    })
+    await flushPromises()
+    await flushPromises()
+    await flushPromises()
+    return wrapper
+  }
+
+  /** Where the developer toolbar rendered: above the whole reference, inside the content column, or not at all */
+  const toolbarPlacement = (wrapper: ReturnType<typeof mount>): 'shell' | 'content' | 'none' => {
+    if (!wrapper.find('.api-reference-toolbar').exists()) {
+      return 'none'
+    }
+    return wrapper.find('main .api-reference-toolbar').exists() ? 'content' : 'shell'
+  }
+
+  /**
+   * The component root is the layout's parent. `wrapper.element` cannot stand in for it: the dev
+   * build keeps the leading template comment, which turns the root into a fragment.
+   */
+  const shellOf = (wrapper: ReturnType<typeof mount>) => ({
+    root: wrapper.find('.references-layout').element.parentElement?.getAttribute('class') ?? null,
+    card: wrapper.find('.references-layout').classes().includes('references-shell-card'),
+    frame: wrapper.find('.references-shell-frame').exists(),
+    toolbar: toolbarPlacement(wrapper),
+  })
+
+  it('wraps the reference in the shell on localhost', async () => {
+    const wrapper = await mountReference()
+
+    expect(shellOf(wrapper)).toStrictEqual({
+      root: 'scalar-app references-shell',
+      card: true,
+      frame: true,
+      toolbar: 'shell',
+    })
+    expect(wrapper.find('.references-shell-toolbar').attributes('data-scalar-scroll-header')).toBe('true')
+  })
+
+  it('leaves a public host untouched', async () => {
+    stubLocation('https://docs.acme.io/')
+    // jsdom refuses history writes for a cross-origin URL, which would abort the document load
+    const wrapper = await mountReference({ urlRouting: false })
+
+    // The document loaded, so the content toolbar was considered, and stayed hidden off localhost
+    expect(wrapper.findComponent(DeveloperTools).exists()).toBe(true)
+    expect(shellOf(wrapper)).toStrictEqual({ root: null, card: false, frame: false, toolbar: 'none' })
+  })
+
+  it('keeps the toolbar in the content column on a public host that always shows it', async () => {
+    stubLocation('https://docs.acme.io/')
+    // jsdom refuses history writes for a cross-origin URL, which would abort the document load
+    const wrapper = await mountReference({ showDeveloperTools: 'always', urlRouting: false })
+
+    expect(shellOf(wrapper)).toStrictEqual({ root: null, card: false, frame: false, toolbar: 'content' })
+    expect(wrapper.find('.api-reference-toolbar').attributes('data-scalar-scroll-header')).toBeUndefined()
+  })
+
+  it('renders the plain layout on localhost when developer tools are disabled', async () => {
+    const wrapper = await mountReference({ showDeveloperTools: 'never' })
+
+    expect(shellOf(wrapper)).toStrictEqual({ root: null, card: false, frame: false, toolbar: 'none' })
+  })
+
+  it('follows the developer tools setting while mounted', async () => {
+    const wrapper = await mountReference()
+    expect(shellOf(wrapper).toolbar).toBe('shell')
+
+    await wrapper.setProps({ configuration: { content: document, showDeveloperTools: 'never' } })
+    await flushPromises()
+    expect(shellOf(wrapper)).toStrictEqual({ root: null, card: false, frame: false, toolbar: 'none' })
+
+    await wrapper.setProps({ configuration: { content: document, showDeveloperTools: 'localhost' } })
+    await flushPromises()
+    expect(shellOf(wrapper).toolbar).toBe('shell')
+  })
+
+  describe('side panel', () => {
+    beforeEach(async () => {
+      // Load the panel chunk once, so the async component resolves within a microtask in every test
+      await import('@/features/developer-tools/DeveloperToolsPanel.vue')
+    })
+
+    /** The panel needs the toolbar's breakpoint, and jsdom has no matchMedia, so the width is stubbed */
+    const stubViewport = (wide: boolean) =>
+      vi.stubGlobal('matchMedia', (query: string) => ({
+        matches: wide && query === '(min-width: 1000px)',
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }))
+
+    const toolbarButton = (wrapper: ReturnType<typeof mount>, name: string) => {
+      const button = wrapper
+        .get('.references-shell-toolbar')
+        .findAll('button')
+        .find((candidate) => candidate.text() === name)
+      if (!button) {
+        throw new Error(`No toolbar button named ${name}`)
+      }
+      return button
+    }
+
+    /** The panel is fetched on demand, so a click needs a few ticks before it renders */
+    const click = async (button: ReturnType<ReturnType<typeof mount>['get']>) => {
+      await button.trigger('click')
+      await flushPromises()
+      await flushPromises()
+    }
+
+    it('opens the picked tool beside the card and closes it again', async () => {
+      stubViewport(true)
+      const wrapper = await mountReference()
+      const configure = toolbarButton(wrapper, 'Configure')
+
+      expect(configure.attributes('aria-expanded')).toBe('false')
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+
+      await click(configure)
+
+      const panel = wrapper.get('aside.references-shell-panel')
+      expect(panel.attributes('aria-label')).toBe('Configure')
+      expect(panel.text()).toContain('Scalar Configuration')
+      expect(configure.attributes('aria-expanded')).toBe('true')
+      expect(configure.attributes('aria-controls')).toBe(panel.attributes('id'))
+      // The panel replaces the dropdown, so nothing else opens
+      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+
+      await click(toolbarButton(wrapper, 'Share'))
+      expect(wrapper.get('.references-shell-panel').attributes('aria-label')).toBe('Share')
+      expect(configure.attributes('aria-expanded')).toBe('false')
+
+      await click(toolbarButton(wrapper, 'Share'))
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+    })
+
+    it('closes with Escape and gives focus back to the button that opened it', async () => {
+      stubViewport(true)
+      const wrapper = await mountReference()
+      const deploy = toolbarButton(wrapper, 'Deploy API')
+      ;(deploy.element as HTMLElement).focus()
+
+      await click(deploy)
+      const panel = wrapper.get('.references-shell-panel')
+      const control = panel.findAll('button').at(-1)!
+      ;(control.element as HTMLElement).focus()
+      await control.trigger('keydown', { key: 'Escape' })
+      await flushPromises()
+
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+      expect(window.document.activeElement).toBe(deploy.element)
+    })
+
+    it('closes with Escape from the toolbar too, since the panel has no close button of its own', async () => {
+      stubViewport(true)
+      const wrapper = await mountReference()
+      const configure = toolbarButton(wrapper, 'Configure')
+
+      await click(configure)
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(true)
+
+      await configure.trigger('keydown', { key: 'Escape' })
+      await flushPromises()
+
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+      expect(configure.attributes('aria-expanded')).toBe('false')
+    })
+
+    it.each([
+      [undefined, 'Deploy API'],
+      ['docusaurus', 'Deploy API'],
+      ['fastapi', 'Deploy FastAPI'],
+    ] as const)('labels Deploy for the %s integration', async (integration, label) => {
+      stubViewport(true)
+      const wrapper = await mountReference(integration ? { _integration: integration } : {})
+
+      expect(toolbarButton(wrapper, label).exists()).toBe(true)
+    })
+
+    it('shows Generate SDK in the panel instead of the dialog', async () => {
+      stubViewport(true)
+      const wrapper = await mountReference()
+      const generate = toolbarButton(wrapper, 'Generate SDK')
+
+      // A disclosure for the panel, not a popup
+      expect(generate.attributes('aria-haspopup')).toBeUndefined()
+
+      await click(generate)
+
+      const panel = wrapper.get('.references-shell-panel')
+      expect(panel.attributes('aria-label')).toBe('Generate SDK')
+      expect(panel.get('h2').text()).toBe('Everything your API needs, from one OpenAPI document')
+      expect(generate.attributes('aria-expanded')).toBe('true')
+      expect(window.document.querySelector('[role="dialog"]')).toBeNull()
+
+      // Its own close button closes the panel
+      await panel.get('button[aria-label="Close"]').trigger('click')
+      await flushPromises()
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+    })
+
+    it('keeps the dialog for Generate SDK on narrow screens', async () => {
+      stubViewport(false)
+      const wrapper = await mountReference()
+      const generate = toolbarButton(wrapper, 'Generate SDK')
+
+      expect(generate.attributes('aria-haspopup')).toBe('dialog')
+
+      await click(generate)
+
+      expect(wrapper.find('.references-shell-panel').exists()).toBe(false)
+      expect(window.document.querySelector('[role="dialog"]')).not.toBeNull()
+    })
+  })
+
+  it('renders the plain layout on the server, so hydration starts from the same markup', async () => {
+    const app = createSSRApp({
+      render: () => h(ApiReference, { configuration: { content: document } }),
+    })
+
+    const html = await renderToString(app)
+
+    // Skip the fragment's leading comment markers with plain string search, not a backtracking regex
+    let markup = html
+    while (markup.startsWith('<!--')) {
+      markup = markup.slice(markup.indexOf('-->') + 3)
+    }
+
+    // The root `<div>` carries nothing but its style scope
+    expect(markup).toMatch(/^<div(?: data-v-[a-z0-9]+)?><!--/)
+    expect(html).not.toContain('references-shell')
   })
 })

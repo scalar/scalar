@@ -8,6 +8,17 @@ const version = PACKAGE_VERSION
 if (version && typeof window !== 'undefined') {
   console.info(`@scalar/api-reference@${version}`)
 }
+
+/**
+ * Numbers the localhost shell's side panels, so every reference on a page gets its own panel id.
+ * A plain counter rather than `useId()`: that would take an id from the shared sequence on every
+ * host, and shift the ids of everything rendered after the reference.
+ */
+let shellPanelCount = 0
+const createShellPanelId = (): string => {
+  shellPanelCount += 1
+  return `scalar-shell-panel-${shellPanelCount}`
+}
 </script>
 
 <script setup lang="ts">
@@ -64,7 +75,7 @@ import {
   isAsyncApiDocument,
   isOpenApiDocument,
 } from '@scalar/workspace-store/schemas/type-guards'
-import { useScrollLock } from '@vueuse/core'
+import { useMediaQuery, useScrollLock } from '@vueuse/core'
 import {
   computed,
   defineAsyncComponent,
@@ -76,8 +87,10 @@ import {
   provide,
   ref,
   useId,
+  shallowRef,
   useTemplateRef,
   watch,
+  type Component,
 } from 'vue'
 
 import {
@@ -91,6 +104,10 @@ import Content from '@/components/Content/Content.vue'
 import CrawlerNav from '@/components/CrawlerNav.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { DeveloperTools } from '@/features/developer-tools'
+import {
+  useShellPanel,
+  type ShellPanel,
+} from '@/features/developer-tools/use-shell-panel'
 import {
   GENERATE_SDK_CONTEXT_SYMBOL,
   useGenerateSdk,
@@ -1473,17 +1490,17 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
 // Generate SDK
 
 /**
- * Lets every "Generate SDK" button (developer tools, client libraries, request examples) open the
- * same Explore Scalar dialog. Only enabled while the reference runs on a local URL, an OpenAPI
- * document has loaded, and that document does not already list its own SDKs (the same rule Content
- * uses to swap the client libraries for SDK installation instructions).
+ * Lets the developer toolbar's "Generate SDK" open the Explore Scalar content. Only enabled while
+ * the reference runs on a local URL, an OpenAPI document has loaded, and that document does not
+ * already list its own SDKs (the same rule Content uses to swap the client libraries for SDK
+ * installation instructions).
  */
 const generateSdk = useGenerateSdk({
   disabled: () => mergedConfig.value.showDeveloperTools === 'never',
   hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
 })
-provide(GENERATE_SDK_CONTEXT_SYMBOL, generateSdk)
+// Provided further down, next to the localhost shell's side panel it can open instead
 
 /** Only mounted while Generate SDK is offered, so public hosts never fetch the dialog chunk */
 const GenerateSdkDialog = defineAsyncComponent(
@@ -1494,12 +1511,6 @@ const AgentScalarDrawer = defineAsyncComponent(
   () => import('@/components/AgentScalar/AgentScalarDrawer.vue'),
 )
 
-/** Only rendered on localhost, so public hosts never fetch the Explore Scalar chunk */
-const ExploreScalarButton = defineAsyncComponent(() =>
-  import('@/features/explore-scalar').then(
-    (module) => module.ExploreScalarButton,
-  ),
-)
 const hasOpenedAgent = ref(false)
 
 // Keep the conversation mounted so closing and reopening preserves its state.
@@ -1845,28 +1856,300 @@ onMounted(() => {
   isLocalhost.value = isLocalUrl(window.location.href)
 })
 
-type SidebarCta = 'mcp' | 'explore' | 'client' | null
+/**
+ * Localhost only: the developer toolbar leaves the content column for a sticky bar above the whole
+ * reference, and the reference renders as a bordered card on a tinted backdrop.
+ *
+ * Gated on the host itself rather than on `showDeveloperTools`, so a hosted reference never gets
+ * the shell, not even with `showDeveloperTools: 'always'` (its toolbar stays in the content column).
+ * `isLocalhost` resolves after mount, so the server and the hydrating client both render the plain
+ * layout and the shell appears before the first paint of a client-only mount.
+ */
+const isShell = computed(
+  () => isLocalhost.value && mergedConfig.value.showDeveloperTools !== 'never',
+)
+
+/**
+ * The shell's side panel shows one developer tool at a time beside the card, which narrows to make
+ * room for it. Only the toolbar's breakpoint has that room: narrower screens hide the toolbar, keep
+ * the dialog for Generate SDK, and close the panel when the window shrinks past it.
+ */
+const shellPanel = useShellPanel(createShellPanelId())
+const isWideViewport = useMediaQuery('(min-width: 1000px)')
+/**
+ * Set when the panel's chunk fails to load. The shell then behaves as if it had no room for a panel:
+ * toggles stay closed and Generate SDK opens its dialog.
+ */
+const shellPanelFailed = ref(false)
+const hasShellPanel = computed(
+  () => isShell.value && isWideViewport.value && !shellPanelFailed.value,
+)
+
+/** Whether focus was last inside the panel, kept by its focusin and focusout */
+const shellPanelHadFocus = ref(false)
+const onShellPanelFocusOut = (event: FocusEvent): void => {
+  // Focus dropped to nowhere (a hidden control) still counts as the panel's
+  if (event.relatedTarget !== null) {
+    shellPanelHadFocus.value = false
+  }
+}
+
+/** Whether focus is in the panel, which then hands it back to the trigger when the panel goes away */
+const isFocusInShellPanel = (): boolean =>
+  document.getElementById(shellPanel.id)?.contains(document.activeElement) ??
+  false
+
+/**
+ * Closes the panel from outside it (the window narrowed, its tool stopped applying). Focus inside it
+ * goes back to the trigger, or to the content when the trigger is hidden with the toolbar, so
+ * keyboard users carry on from the reference rather than the top of the page.
+ */
+const closeShellPanelFromOutside = (): void => {
+  // Narrowing the window hides the panel before this runs, and the browser then drops focus to the
+  // body, so focus that was last inside the panel counts too
+  const hadFocus =
+    isFocusInShellPanel() ||
+    (shellPanelHadFocus.value && document.activeElement === document.body)
+  shellPanelHadFocus.value = false
+  shellPanel.close({ restoreFocus: hadFocus })
+
+  const active = document.activeElement
+  const backOnTrigger =
+    active instanceof HTMLElement &&
+    active !== document.body &&
+    active.checkVisibility?.() !== false
+
+  if (hadFocus && !backOnTrigger) {
+    const content = referenceLayout.value?.querySelector<HTMLElement>(
+      '.references-rendered',
+    )
+    if (content) {
+      content.setAttribute('tabindex', '-1')
+      content.focus({ preventScroll: true })
+      content.addEventListener(
+        'blur',
+        () => content.removeAttribute('tabindex'),
+        { once: true },
+      )
+    }
+  }
+}
+
+watch(hasShellPanel, (available) => {
+  if (!available) {
+    closeShellPanelFromOutside()
+  }
+})
+
+/**
+ * A panel only makes sense while its tool does: sharing, deploying and Generate SDK need a document,
+ * and Generate SDK only applies to an OpenAPI document without SDKs of its own.
+ */
+watch(
+  () =>
+    shellPanel.active.value === 'sdk'
+      ? generateSdk.enabled.value
+      : shellPanel.active.value === 'share' ||
+          shellPanel.active.value === 'deploy'
+        ? Boolean(workspaceStore.workspace.activeDocument)
+        : true,
+  (available) => {
+    if (!available) {
+      closeShellPanelFromOutside()
+    }
+  },
+)
+
+/**
+ * The panel's component, fetched once the shell is active, so a hosted reference never loads it.
+ * Held as a resolved component (not an async wrapper) so a panel renders in the same tick it opens,
+ * which lets the reading position below be measured around that change.
+ */
+const ShellPanelComponent = shallowRef<Component>()
+let shellPanelChunk: Promise<void> | undefined
+const loadShellPanel = (): Promise<void> =>
+  (shellPanelChunk ??=
+    import('@/features/developer-tools/DeveloperToolsPanel.vue')
+      .then((module) => {
+        ShellPanelComponent.value = module.default
+      })
+      .catch((error: unknown) => {
+        // Browsers cache a failed import, so retrying cannot help: the shell drops the panel instead
+        shellPanelFailed.value = true
+        console.error(error)
+      }))
+
+watch(isShell, (shell) => {
+  if (shell) {
+    void loadShellPanel()
+  }
+})
+
+const isShellPanelShown = computed(
+  () =>
+    ShellPanelComponent.value !== undefined &&
+    hasShellPanel.value &&
+    shellPanel.active.value !== undefined,
+)
+
+/**
+ * Only the shell adds attributes to the root, so a hosted reference renders the same `<div>` as
+ * before. The shell follows the reference's text direction, so the toolbar, the card and the panel
+ * mirror together. `data-shell-panel` marks the narrower card, which the agent drawer stays inside.
+ */
+const shellAttrs = computed(() =>
+  isShell.value
+    ? {
+        'class': 'scalar-app references-shell',
+        'dir': apiReferenceLocalization.direction.value,
+        'data-shell-panel': isShellPanelShown.value ? '' : undefined,
+      }
+    : {},
+)
+
+/** The reference card, which the reading position and the focus fallback look into */
+const referenceLayout = useTemplateRef<HTMLElement>('documentEl')
+
+/**
+ * The element the reader is looking at: the first piece of content that starts at or just below the
+ * toolbar, in the left column where people read. Scanning down from the toolbar finds it even when
+ * the line itself crosses padding or a container whose inside reflows. Sticky boxes (the example
+ * column, for one) stay put while the page scrolls, so they never anchor anything. When nothing
+ * qualifies, the section the sidebar marks as current anchors instead.
+ */
+const findReadingAnchor = (): Element | null => {
+  const content = referenceLayout.value?.querySelector('.references-rendered')
+  const toolbar = document.querySelector('.references-shell-toolbar')
+  if (!content || !toolbar) {
+    return null
+  }
+
+  const area = content.getBoundingClientRect()
+  const line = Math.max(area.top, toolbar.getBoundingClientRect().bottom)
+
+  const isPinned = (element: Element): boolean => {
+    for (
+      let current: Element | null = element;
+      current && current !== content;
+      current = current.parentElement
+    ) {
+      const { position } = getComputedStyle(current)
+      if (position === 'sticky' || position === 'fixed') {
+        return true
+      }
+    }
+    return false
+  }
+
+  for (let y = line + 4; y < line + 240; y += 12) {
+    for (const fraction of [0.05, 0.15, 0.3]) {
+      const hit = document.elementFromPoint(
+        area.left + area.width * fraction,
+        y,
+      )
+      if (!hit || hit === content || !content.contains(hit)) {
+        continue
+      }
+      const { top, height } = hit.getBoundingClientRect()
+      if (top >= line - 4 && height > 0 && height < 240 && !isPinned(hit)) {
+        return hit
+      }
+    }
+  }
+
+  const selectedId = sidebarState.selectedItem.value
+  const section = selectedId ? document.getElementById(selectedId) : null
+  return section && content.contains(section) ? section : null
+}
+
+/**
+ * Opening or closing the panel changes the card's width, and the content reflows with it (operations
+ * switch between one and two columns around 900px). Keep what the reader was looking at in place, so
+ * the page does not jump to another operation and the address bar keeps pointing at the same one.
+ * Runs before the panel renders, measures, then corrects the scroll once the new layout is in.
+ */
+watch(
+  isShellPanelShown,
+  () => {
+    const anchor = findReadingAnchor()
+    if (!anchor) {
+      return
+    }
+
+    const before = anchor.getBoundingClientRect().top
+    void nextTick(() => {
+      if (!anchor.isConnected) {
+        return
+      }
+      const shift = anchor.getBoundingClientRect().top - before
+      if (Math.abs(shift) >= 1) {
+        window.scrollBy({ top: shift, behavior: 'instant' })
+      }
+    })
+  },
+  { flush: 'pre' },
+)
+
+/** Opens or closes a panel from the toolbar; nothing to open when the panel could not load */
+const toggleShellPanel = (panel: ShellPanel): void => {
+  if (!hasShellPanel.value) {
+    return
+  }
+  void loadShellPanel()
+  shellPanel.toggle(panel)
+}
+
+/**
+ * Wide localhost screens show the Explore Scalar content in the shell's side panel instead of the
+ * dialog. Focus follows it there, unless the button sits in the toolbar right above the panel.
+ */
+const openGenerateSdk = (): void => {
+  if (!hasShellPanel.value) {
+    generateSdk.open()
+    return
+  }
+
+  const fromToolbar =
+    document.activeElement?.closest('.references-shell-toolbar') != null
+  void loadShellPanel()
+  shellPanel.toggle('sdk', { focus: !fromToolbar })
+}
+
+provide(GENERATE_SDK_CONTEXT_SYMBOL, {
+  ...generateSdk,
+  open: openGenerateSdk,
+  panel: {
+    id: shellPanel.id,
+    active: hasShellPanel,
+    expanded: computed(() => shellPanel.active.value === 'sdk'),
+  },
+})
+
+type SidebarCta = 'mcp' | 'client' | null
 
 /** Exactly one footer call to action may render, so the choice lives in a single computed */
 const sidebarCta = computed((): SidebarCta => {
   const { mcp, hideClientButton } = mergedConfig.value
 
-  // mcp.disabled is the existing opt-out for the localhost promotion; it keeps working
+  // An MCP server configured on purpose keeps the connect rows, in the localhost shell too
+  if (!mcp?.disabled && (mcp?.name || mcp?.url)) {
+    return 'mcp'
+  }
+
+  // The localhost shell keeps its tools in the developer toolbar, so the sidebar offers nothing:
+  // no API client button, and no "Generate MCP" fan-out for `mcp: {}`
+  if (isShell.value) {
+    return null
+  }
+
+  // mcp.disabled is the existing opt-out for the MCP fan-out; it keeps working
   if (mcp?.disabled) {
     return hideClientButton ? null : 'client'
   }
 
-  // An MCP server configured on purpose keeps the connect rows, on localhost too
-  if (mcp?.name || mcp?.url) {
-    return 'mcp'
-  }
-
-  // Localhost is where we pitch Scalar (this replaces the old "Generate MCP" fan-out)
+  // Localhost with developer tools disabled renders like a hosted reference, minus the fan-out
   if (isLocalhost.value) {
-    if (mergedConfig.value.showDeveloperTools === 'never') {
-      return hideClientButton ? null : 'client'
-    }
-    return 'explore'
+    return hideClientButton ? null : 'client'
   }
 
   // `mcp: {}` off localhost keeps today's "Generate MCP" fan-out
@@ -1880,13 +2163,54 @@ const sidebarCta = computed((): SidebarCta => {
 
 <template>
   <!-- SingleApiReference -->
-  <div>
+  <div v-bind="shellAttrs">
     <!-- Inject any custom CSS directly into a style tag -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
       :is="'style'"
       v-html="styleContent" />
     <!-- eslint-enable vue/no-v-text-v-html-on-component -->
+    <!-- Localhost only, in a single conditional so a hosted root gains one placeholder at most -->
+    <template v-if="isShell">
+      <!-- The developer toolbar as a sticky bar above the whole reference. It renders before the
+           document loads, so the card does not shift down when it arrives. -->
+      <DeveloperTools
+        v-model:overrides="configurationOverrides"
+        :activePanel="shellPanel.active.value"
+        class="references-developer-tools references-shell-toolbar"
+        :configuration="mergedConfig"
+        :externalUrls="mergedConfig.externalUrls"
+        :panelId="shellPanel.id"
+        variant="shell"
+        :workspace="
+          workspaceStore.workspace.activeDocument ? workspaceStore : undefined
+        "
+        @togglePanel="toggleShellPanel" />
+      <!-- The side panel beside the card, for the tool picked in the toolbar -->
+      <component
+        :is="ShellPanelComponent"
+        v-if="isShellPanelShown"
+        :id="shellPanel.id"
+        v-model:overrides="configurationOverrides"
+        class="references-shell-panel"
+        :configuration="mergedConfig"
+        :documentKey="workspaceStore.workspace['x-scalar-active-document']"
+        :externalUrls="mergedConfig.externalUrls"
+        :focusRequest="shellPanel.focusRequest.value"
+        :integration="mergedConfig._integration"
+        :panel="shellPanel.active.value"
+        :url="documentUrl"
+        :workspace="
+          workspaceStore.workspace.activeDocument ? workspaceStore : undefined
+        "
+        @close="shellPanel.close({ restoreFocus: true })"
+        @focusin="shellPanelHadFocus = true"
+        @focusout="onShellPanelFocusOut" />
+      <!-- The card's rounded frame, stuck to the viewport while the page scrolls -->
+      <div
+        aria-hidden="true"
+        class="references-shell-frame" />
+    </template>
     <div
       ref="documentEl"
       class="scalar-app scalar-api-reference references-layout"
@@ -1898,12 +2222,13 @@ const sidebarCta = computed((): SidebarCta => {
           'references-sidebar': mergedConfig.showSidebar,
           'references-sidebar-mobile-open': isSidebarOpen,
           'references-classic': mergedConfig.layout === 'classic',
+          'references-shell-card': isShell,
         },
         $attrs.class,
       ]"
       :dir="apiReferenceLocalization.direction.value"
       :lang="documentLang">
-      <!-- The Explore Scalar dialog every Generate SDK button opens -->
+      <!-- The Explore Scalar dialog Generate SDK opens where the side panel has no room -->
       <GenerateSdkDialog
         v-if="generateSdk.enabled.value"
         :externalUrls="mergedConfig.externalUrls"
@@ -2020,11 +2345,6 @@ const sidebarCta = computed((): SidebarCta => {
                     :externalUrls="mergedConfig.externalUrls"
                     :url="documentUrl"
                     :workspace="workspaceStore" />
-                  <ExploreScalarButton
-                    v-if="sidebarCta === 'explore'"
-                    :externalUrls="mergedConfig.externalUrls"
-                    :url="documentUrl"
-                    :workspace="workspaceStore" />
                   <template #description>
                     <a
                       class="no-underline hover:underline"
@@ -2106,7 +2426,7 @@ const sidebarCta = computed((): SidebarCta => {
             <div ref="documentStartRef" />
 
             <DeveloperTools
-              v-if="workspaceStore.workspace.activeDocument"
+              v-if="!isShell && workspaceStore.workspace.activeDocument"
               v-model:overrides="configurationOverrides"
               class="references-developer-tools"
               :configuration="mergedConfig"
@@ -2349,6 +2669,220 @@ const sidebarCta = computed((): SidebarCta => {
 
   .references-rendered {
     position: static;
+  }
+}
+
+/* ----------------------------------------------------- */
+/* Localhost Shell */
+
+/*
+ * Localhost only (see `isShell` in the script). The toolbar leaves the content column for a sticky
+ * bar above the whole reference, which becomes a bordered card on a tinted backdrop, with an
+ * optional side panel next to it. The page keeps scrolling as a whole: the card grows with the
+ * document, and only the toolbar, the sidebar, the frame around the card and the panel stick.
+ *
+ * The root is a grid: the toolbar on top, the card in the first column, and the panel in a second
+ * column that only takes room while a panel is open, so the card narrows to make space for it.
+ *
+ * Scoped to the breakpoint that shows the toolbar, so narrow viewports keep the plain layout.
+ */
+@media (width >= 1000px) {
+  .references-shell {
+    /* The toolbar reads this for its height, so the offsets below always match what it renders */
+    --refs-shell-toolbar-height: 48px;
+    /* Breathing room between the card and the viewport edge, and between the card and the panel */
+    --refs-shell-gutter: 8px;
+    /* Where the card starts: below an embedding page's own sticky header and the toolbar */
+    --refs-shell-top: calc(
+      var(--scalar-custom-header-height, 0px) + var(--refs-shell-toolbar-height)
+    );
+    /* How tall the frame and the panel are while they stick: the viewport below the toolbar */
+    --refs-shell-stuck-height: calc(
+      100dvh - var(--refs-shell-top) - var(--refs-shell-gutter)
+    );
+    --refs-shell-panel-width: clamp(320px, 28vw, 400px);
+    --refs-shell-backdrop: var(--scalar-background-2);
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: var(--refs-shell-toolbar-height) auto;
+    padding: 0 var(--refs-shell-gutter) var(--refs-shell-gutter);
+    background: var(--refs-shell-backdrop);
+  }
+
+  /* Darker than the card rather than lighter, so it still reads as a backdrop */
+  .dark-mode .references-shell {
+    --refs-shell-backdrop: color-mix(
+      in srgb,
+      var(--scalar-background-1) 25%,
+      black 75%
+    );
+  }
+
+  .references-shell-toolbar {
+    /*
+     * A sticky grid item only sticks within its own grid area, so the toolbar spans the whole grid
+     * and sits at the top of it, while the first row keeps its height free.
+     */
+    grid-area: 1 / 1 / -1 / -1;
+    align-self: start;
+    position: sticky;
+    /* Below an embedding page's own sticky header, like the sidebar */
+    top: var(--scalar-custom-header-height, 0px);
+    /* Above the frame and the panel, so its buttons sit on top of the backdrop the frame paints */
+    z-index: 20;
+    background: var(--refs-shell-backdrop);
+  }
+
+  .references-shell-card {
+    grid-area: 2 / 1;
+    /* Fill the viewport below the toolbar, so a short document still ends at the frame */
+    min-height: var(--refs-shell-stuck-height);
+  }
+
+  /*
+   * The frame sits on the card and sticks to the viewport, so the rounded corners stay in view while
+   * the page scrolls underneath. Its shadow paints the backdrop outside the rounded rectangle: over
+   * the card's own square corners, the sticky sidebar, and whatever has scrolled past the bottom
+   * edge. The clip keeps that shadow within a gutter of the frame (none above it, where the toolbar
+   * is), so it never covers an embedding page's header or footer.
+   *
+   * It sticks within the card's grid area, so it follows the card's end when the page has more
+   * content after the reference. Above the sidebar and the context bar, below the panel and toolbar.
+   */
+  .references-shell-frame {
+    grid-area: 2 / 1;
+    align-self: start;
+    position: sticky;
+    top: var(--refs-shell-top);
+    z-index: 15;
+    height: var(--refs-shell-stuck-height);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    box-shadow: 0 0 0 100vmax var(--refs-shell-backdrop);
+    clip-path: inset(
+      0 calc(-1 * var(--refs-shell-gutter)) calc(-1 * var(--refs-shell-gutter))
+    );
+    pointer-events: none;
+  }
+
+  /*
+   * The open side panel: its own column, so the card narrows next to it, and sticky like the frame.
+   * Below the toolbar, which it slides under when the card ends before the page does. Dropdowns
+   * inside it are teleported, so they still open above the toolbar.
+   */
+  .references-shell-panel {
+    grid-area: 2 / 2;
+    align-self: start;
+    position: sticky;
+    top: var(--refs-shell-top);
+    z-index: 16;
+    width: var(--refs-shell-panel-width);
+    /* As tall as the frame, so every panel's card ends at the same bottom edge as the reference */
+    height: var(--refs-shell-stuck-height);
+    margin-inline-start: var(--refs-shell-gutter);
+    transform-origin: top center;
+    animation: refs-shell-panel-in 180ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /*
+   * Keyboard focus scrolls a control to the top edge when moving up the page, where the toolbar
+   * would cover it. Sections already leave that room through their own scroll margin, and so do
+   * deep-link targets (anything with an id), which keep theirs. Only the content needs it: the
+   * sidebar scrolls on its own, below the toolbar.
+   */
+  .references-shell-card
+    .references-rendered
+    :deep(
+      :is(
+        a[href],
+        button,
+        input,
+        select,
+        textarea,
+        summary,
+        [tabindex]:not([tabindex='-1'])
+      ):not([id])
+    ) {
+    scroll-margin-top: calc(var(--refs-header-height) + 8px);
+  }
+
+  /*
+   * The agent drawer flies out from under the sidebar and stays inside the card, the way it does
+   * across the window on a hosted reference. The drawer and its backdrop keep their own stacking,
+   * below the sidebar, the frame, the panel and the toolbar: the sidebar hides the drawer's shadow
+   * and its slide-in, and the frame keeps the card's rounded corners and border on top.
+   *
+   * Both follow the card's visible edges instead of the window's: below the toolbar, above the
+   * bottom gutter, and inside the end gutter (or the open panel). The drawer starts at the
+   * sidebar's edge and stops 48px short of the card's end, as it stops short of the window's edge
+   * on a hosted reference, where the backdrop shows through.
+   *
+   * Doubled classes: the drawer's own narrow-screen rules still match at exactly 1000px.
+   */
+  .references-shell :deep(.agent-scalar-overlay.agent-scalar-overlay),
+  .references-shell :deep(.agent-scalar.agent-scalar) {
+    --refs-shell-agent-end: var(--refs-shell-gutter);
+    z-index: 10;
+  }
+  .references-shell[data-shell-panel]
+    :deep(.agent-scalar-overlay.agent-scalar-overlay),
+  .references-shell[data-shell-panel] :deep(.agent-scalar.agent-scalar) {
+    --refs-shell-agent-end: calc(
+      var(--refs-shell-gutter) * 2 + var(--refs-shell-panel-width)
+    );
+  }
+  .references-shell :deep(.agent-scalar-overlay.agent-scalar-overlay) {
+    inset: var(--refs-shell-top) var(--refs-shell-agent-end)
+      var(--refs-shell-gutter) var(--refs-shell-gutter);
+  }
+  .references-shell :deep(.agent-scalar.agent-scalar) {
+    inset: var(--refs-shell-top) calc(var(--refs-shell-agent-end) + 48px)
+      var(--refs-shell-gutter)
+      calc(var(--refs-shell-gutter) + var(--refs-sidebar-width));
+  }
+  /* The classic layout has no sidebar, and its unitless 0 width would make the sum above invalid */
+  .references-shell :deep(.references-classic .agent-scalar.agent-scalar) {
+    left: var(--refs-shell-gutter);
+  }
+
+  @layer scalar-config {
+    .scalar-api-reference.references-shell-card {
+      /* The sticky toolbar is one more header that the sidebar and scroll offsets sit below */
+      --refs-header-height: calc(
+        var(--scalar-custom-header-height, 0px) +
+          var(--scalar-header-height, 0px) + var(--refs-shell-toolbar-height)
+      );
+      /*
+       * Stop at the card's bottom edge. A sidebar as tall as the viewport would be pushed up under
+       * the toolbar once the card's bottom gutter scrolls into view.
+       */
+      --refs-sidebar-height: calc(
+        var(--full-height, 100dvh) - var(--refs-header-height) -
+          var(--refs-shell-gutter) - var(--scalar-border-width)
+      );
+    }
+  }
+}
+
+/* The panel only exists at the toolbar's breakpoint; the script closes it below that */
+@media (width < 1000px) {
+  .references-shell-panel {
+    display: none;
+  }
+}
+
+/* Scales in place rather than sliding, so it never pokes past the viewport edge or needs mirroring */
+@keyframes refs-shell-panel-in {
+  from {
+    opacity: 0;
+    scale: 0.985;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .references-shell-panel {
+    animation: none;
   }
 }
 </style>
