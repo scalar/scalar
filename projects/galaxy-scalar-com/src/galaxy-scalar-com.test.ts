@@ -1,7 +1,7 @@
 import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import { type Context, Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { asyncApiDocument } from './asyncapi-document'
 import { configureApiReference, createApp } from './galaxy-scalar-com'
@@ -73,10 +73,30 @@ describe('galaxy-scalar-com', () => {
   })
 
   describe('configureApiReference', () => {
+    /**
+     * The route hands Scalar a resolver so the configuration is built per request. Call it with a
+     * request-shaped context to read the configuration a visitor would get.
+     */
+    const resolveConfiguration = (request = new Request('https://galaxy.example/')): Record<string, unknown> => {
+      const resolver = vi.mocked(Scalar).mock.calls[0]?.[0]
+      if (typeof resolver !== 'function') {
+        throw new Error('Expected Scalar to receive a configuration resolver')
+      }
+      return resolver({ req: { raw: request } } as Context) as Record<string, unknown>
+    }
+
+    /** Build a request that carries the time zone Cloudflare geolocated for the visitor. */
+    const requestFrom = (timeZone: string): Request =>
+      Object.assign(new Request('https://galaxy.example/'), { cf: { timezone: timeZone } })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
     it('configures Scalar with the expected options', () => {
       configureApiReference(mockApp as Hono)
 
-      expect(Scalar).toHaveBeenCalledWith(
+      expect(resolveConfiguration()).toEqual(
         expect.objectContaining({
           pageTitle: 'Scalar Galaxy',
           sources: expect.arrayContaining([
@@ -167,10 +187,52 @@ describe('galaxy-scalar-com', () => {
       },
     )
 
+    it.each([
+      ['2026-10-01T00:00:00Z', 'halloween'],
+      ['2026-10-31T23:59:59Z', 'halloween'],
+      ['2026-09-30T23:59:59Z', 'default'],
+      ['2026-11-01T00:00:00Z', 'default'],
+    ])('picks the theme for the current date (%s uses %s)', (isoDate, theme) => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date(isoDate))
+      configureApiReference(mockApp as Hono)
+
+      expect(resolveConfiguration().theme).toBe(theme)
+    })
+
+    it('picks the theme in the visitor time zone', () => {
+      // 03:00 UTC on November 1 is still Halloween evening in New York.
+      vi.useFakeTimers({ toFake: ['Date'] })
+      vi.setSystemTime(new Date('2026-11-01T03:00:00Z'))
+      configureApiReference(mockApp as Hono)
+
+      expect(resolveConfiguration().theme).toBe('default')
+      expect(resolveConfiguration(requestFrom('America/New_York')).theme).toBe('halloween')
+    })
+
+    it('renders the seasonal theme into the page', async () => {
+      vi.useFakeTimers({ toFake: ['Date'] })
+      const { Scalar: renderScalar } =
+        await vi.importActual<typeof import('@scalar/hono-api-reference')>('@scalar/hono-api-reference')
+      vi.mocked(Scalar).mockImplementationOnce(renderScalar)
+      const app = new Hono()
+      configureApiReference(app)
+
+      // The same route flips theme as the date changes, so a long-lived worker stays current.
+      vi.setSystemTime(new Date('2026-10-15T12:00:00Z'))
+      const duringHalloween = await (await app.request('/')).text()
+      vi.setSystemTime(new Date('2026-11-15T12:00:00Z'))
+      const afterHalloween = await (await app.request('/')).text()
+
+      expect(duringHalloween).toContain('"theme": "halloween"')
+      expect(afterHalloween).toContain('"theme": "default"')
+      expect(afterHalloween).not.toContain('"theme": "halloween"')
+    })
+
     it('includes the AsyncAPI document as a source', () => {
       configureApiReference(mockApp as Hono)
 
-      const config = vi.mocked(Scalar).mock.calls[0]?.[0] as { sources?: Array<{ title?: string; url?: string }> }
+      const config = resolveConfiguration() as { sources?: Array<{ title?: string; url?: string }> }
       const asyncApiSource = config.sources?.find((source) => source.title === 'Scalar Galaxy Events (AsyncAPI)')
 
       expect(asyncApiSource?.url).toBe('/asyncapi.json')
