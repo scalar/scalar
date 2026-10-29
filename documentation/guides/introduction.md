@@ -1120,6 +1120,26 @@
   .lp-face.is-marks .lp-eye-mark {
     display: block;
   }
+  /* two shapes narrow where the eyes and the mouth go (Claude's rays,
+     Gemini's points): while the planet talks its face box holds its
+     features on a smaller sphere, so the smile and the eyes stay inside
+     the shape; the box shrinks as the face forms and grows back as it
+     unwinds, with the talk (the look and the tilt are the box's rotate
+     and transform, which a uniform scale leaves as they are). Gemini's
+     pupils are scaled back up, or they would be the smallest eyes here */
+  .lp-orb--claude .lp-face,
+  .lp-orb--gemini .lp-face {
+    transition: scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-orb--claude.is-talking .lp-face {
+    scale: 0.76;
+  }
+  .lp-orb--gemini.is-talking .lp-face {
+    scale: 0.62;
+  }
+  .lp-orb--gemini .lp-eye-pupil {
+    scale: 1.6;
+  }
   /* the bubble, over the ball's top edge, opening away from the copy */
   .lp-orb-bubble {
     position: absolute;
