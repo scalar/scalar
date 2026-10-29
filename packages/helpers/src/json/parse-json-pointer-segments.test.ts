@@ -20,4 +20,10 @@ describe('parse-json-pointer-segments', () => {
 
     expect(result).toEqual(['components', 'schemas', 'foo~bar'])
   })
+
+  it('decodes a percent-encoded hash from a URI fragment', () => {
+    const result = parseJsonPointerSegments('/paths/~1items%23list')
+
+    expect(result).toEqual(['paths', '/items#list'])
+  })
 })

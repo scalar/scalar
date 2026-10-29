@@ -1847,6 +1847,59 @@ describe('create-workspace-store', () => {
     expect(customFetch).toHaveBeenNthCalledWith(2, `${url}/path`, { headers: undefined })
   })
 
+  it('resolves a path item reference whose pointer percent-encodes a hash in another file', async () => {
+    // RFC 6901 section 6 asks for `#` to be percent-encoded inside a URI fragment.
+    // See https://github.com/scalar/scalar/issues/10778
+    server.get('/openapi.json', () => ({
+      openapi: '3.1.0',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/items#list': { $ref: 'paths/items-list.json#/paths/~1items%23list' },
+        '/items': { $ref: 'paths/items.json#/paths/~1items' },
+      },
+    }))
+
+    server.get('/paths/items-list.json', () => ({
+      openapi: '3.1.0',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/items#list': {
+          get: { summary: 'List items', responses: { '200': { description: 'ok' } } },
+        },
+      },
+    }))
+
+    server.get('/paths/items.json', () => ({
+      openapi: '3.1.0',
+      info: { title: 't', version: '1' },
+      paths: {
+        '/items': {
+          post: { summary: 'Create item', responses: { '201': { description: 'created' } } },
+        },
+      },
+    }))
+
+    await server.listen({ port })
+
+    const client = createWorkspaceStore()
+
+    await client.addDocument({
+      name: 'default',
+      url: `${url}/openapi.json`,
+    })
+
+    const document = getOpenApiDocument(client, 'default')
+
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/items'], 'post'))?.summary).toBe('Create item')
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/items#list'], 'get'))?.summary).toBe('List items')
+
+    const operations = document?.['x-scalar-navigation']?.children
+      ?.filter((entry) => entry.type === 'operation')
+      .map((entry) => entry.title)
+
+    expect(operations).toEqual(['List items', 'Create item'])
+  })
+
   it('uses workspace fetcher to resolve documents if not specified per document', async () => {
     server.get('/', () => {
       return {

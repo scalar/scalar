@@ -453,6 +453,40 @@ describe('bundle', () => {
       },
     )
 
+    it('keeps a referenced path item whose pointer percent-encodes a hash when tree shaking', async () => {
+      // See https://github.com/scalar/scalar/issues/10778
+      server.get('/items-list.json', () => ({
+        paths: { '/items#list': { get: { summary: 'List items' } } },
+      }))
+
+      await server.listen({ port: 0 })
+      url = `http://localhost:${(server.server.address() as AddressInfo).port}`
+
+      const input = {
+        paths: {
+          '/items#list': { $ref: `${url}/items-list.json#/paths/~1items%23list` },
+        },
+      }
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: true,
+      })
+
+      const hash = getHash(`${url}/items-list.json`)
+
+      expect(input).toEqual({
+        paths: {
+          '/items#list': { $ref: `#/x-ext/${hash}/paths/~1items%23list` },
+        },
+        'x-ext': {
+          [hash]: {
+            paths: { '/items#list': { get: { summary: 'List items' } } },
+          },
+        },
+      })
+    })
+
     it('bundles external references when the remote JSON is prefixed with a UTF-8 BOM', async () => {
       const external = {
         prop: 'from bom payload',

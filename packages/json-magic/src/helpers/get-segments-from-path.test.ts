@@ -14,4 +14,10 @@ describe('getSegmentsFromPath', () => {
 
     expect(result).toEqual(['paths', '/test'])
   })
+
+  it('decodes a percent-encoded hash from a URI fragment', () => {
+    const result = getSegmentsFromPath('/paths/~1items%23list')
+
+    expect(result).toEqual(['paths', '/items#list'])
+  })
 })
