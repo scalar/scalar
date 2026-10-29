@@ -7,6 +7,7 @@ import { createMockServer } from '@scalar/mock-server'
 import { Hono } from 'hono'
 
 import { asyncApiDocument } from './asyncapi-document'
+import { getSeasonalTheme } from './seasonal-theme'
 import { upgradeWebSocket } from './upgrade-websocket'
 
 /**
@@ -62,6 +63,18 @@ const isProductionBuild = typeof GALAXY_IS_PRODUCTION !== 'undefined' && GALAXY_
 type AssetsBinding = { ASSETS: { fetch: (request: Request) => Promise<Response> } }
 
 /**
+ * The visitor's IANA time zone, as Cloudflare geolocates it from their IP address.
+ *
+ * Cloudflare attaches it to the incoming request as `request.cf.timezone`. It is missing in local
+ * tests and in any runtime outside Cloudflare, where the caller falls back to UTC.
+ */
+const getVisitorTimeZone = (request: Request): string | undefined => {
+  const timeZone = (request as Request & { cf?: { timezone?: unknown } }).cf?.timezone
+
+  return typeof timeZone === 'string' && timeZone !== '' ? timeZone : undefined
+}
+
+/**
  * Mount the Scalar API reference UI at the root path.
  *
  * Production loads the published Galaxy document from the registry. Previews
@@ -75,7 +88,12 @@ export const configureApiReference = (app: Hono): void => {
 
   app.get(
     '/',
-    Scalar({
+    // The configuration is resolved per request so the seasonal theme follows today's date.
+    // The worker renders this HTML on every request without cache headers, and Cloudflare does
+    // not cache worker responses by default, so the server always sees the current day. Doing it
+    // here also keeps the page a plain serialized configuration, with no extra script that would
+    // have to pick the theme in the browser.
+    Scalar((c) => ({
       pageTitle: 'Scalar Galaxy',
       sources: [
         {
@@ -95,7 +113,9 @@ export const configureApiReference = (app: Hono): void => {
           url: PETSTORE_URL_2_0,
         },
       ],
-      theme: 'default',
+      // Read the date in the visitor's own time zone, so a date-only window like Halloween
+      // starts and ends at their local midnight rather than at UTC midnight.
+      theme: getSeasonalTheme(new Date(), { timeZone: getVisitorTimeZone(c.req.raw) }),
       proxyUrl: 'https://proxy.scalar.com',
       persistAuth: true,
       agent: {
@@ -104,6 +124,6 @@ export const configureApiReference = (app: Hono): void => {
       // Staging and PR previews render the reference UI built from this branch;
       // production explicitly loads the published ESM build from jsDelivr.
       bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
-    }),
+    })),
   )
 }
