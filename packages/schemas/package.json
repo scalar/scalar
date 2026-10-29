@@ -49,10 +49,10 @@
   ],
   "dependencies": {
     "@scalar/helpers": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/validation": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/types": "workspace:*",
     "vitest": "catalog:*"
   }
 }
