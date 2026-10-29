@@ -322,11 +322,11 @@ Choose one target or a dozen. Generation begins immediately, and each target get
 
   <scalar-step id="step-sample" title="Read the code before committing to anything">
 
-Every target gets a preview repository, provisioned automatically. Browse the generated code, the `api.md` reference, and the README before you wire up a repository of your own. The SDK studio puts each target's generated reference and a getting-started sample next to the configuration that produced them.
+Every target gets a preview repository, provisioned automatically. Browse the generated code, the `api.md` reference, and the README before you wire up a repository of your own. The SDK studio shows each target's generated reference next to the configuration that produced it, with a link to its preview repository.
 
 <scalar-image
   src="/sdks/sdk-studio.png"
-  alt="The SDK studio showing a generated TypeScript SDK's operations, installation command, and getting-started sample next to its configuration"
+  alt="The SDK studio showing a generated TypeScript SDK's operations, installation command, and configuration, with its preview repository ready to view"
   size="full">
 </scalar-image>
 
@@ -337,8 +337,8 @@ Every target gets a preview repository, provisioned automatically. Browse the ge
 Connect the repository where the SDK should live. Scalar authors commits through a GitHub App installation, never a personal token. Every build pushes generated output to `scalar-generated`, merges it with your custom code on `scalar-next`, and keeps a release pull request open against the branch you nominate.
 
 <scalar-image
-  src="/sdks/sdk-connect-git.png"
-  alt="The Sync your SDK through Git dialog, which connects a GitHub repository to a target"
+  src="/sdks/sdk-git-pipeline.png"
+  alt="The build pipeline for a linked TypeScript target, from scalar-generated through scalar-next and an open release pull request into main"
   size="full">
 </scalar-image>
 
