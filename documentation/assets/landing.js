@@ -4169,6 +4169,196 @@ const initLandingOrbs = debounce(() => {
   })
 })
 
+/* The welcome committee under the footer: five of the landing planets
+   (documentation/footer.html, the band's styles in styles.css) wait
+   below the fold and rise when the page is scrolled to its very end,
+   left to right into an arch, each face forming as its planet lands and
+   each planet then saying hello in a small bubble of its own. They stand
+   round a point on the AI chat bar scalar.com floats over the bottom of
+   every page, centred on it (on a page without one, on the band) and
+   scaled down where the band is narrower than the cluster. They sink
+   back down when the page leaves its end, so the committee is there
+   again for the next arrival. The footer is drawn anew on every page the
+   site moves to, so a band whose footer has gone lets go of its
+   listeners and faces at the next scroll or resize */
+/* from a planet's turn in the rise: when its face forms (near the top
+   of its spring) and when its hello pops (as it settles) */
+const FOOTER_PLANETS_FORM = 420
+const FOOTER_PLANETS_HELLO = 640
+/* the cluster's width at full size, bubbles included, with its margins
+   (the stylesheet's --fp-span: the planets' --x and sizes lay it out) */
+const FOOTER_PLANETS_SPAN = 632
+/* the hellos, dealt out anew each time. A bubble has the hundred pixels
+   to the next planet's, less on a scaled-down stage where the type
+   holds its size, so the wider ones are dealt at full size only */
+const FOOTER_PLANETS_HELLOS = ['Hi!', 'Hello!', 'Hey!', 'Hiya!', 'Heyo!', 'Yo!', 'Hallo!']
+const FOOTER_PLANETS_HELLOS_WIDE = ['Howdy!', 'Hey hey!', 'Hi hi!']
+const initFooterPlanets = debounce(() => {
+  const bands = [...document.querySelectorAll('.docs-footer-band')].filter((band) => band.dataset.fpBound !== 'true')
+  if (!bands.length) {
+    return
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  bands.forEach((band) => {
+    band.dataset.fpBound = 'true'
+    // the marks the globes dress in: templates like the landing page's,
+    // made from the band's hidden copies on a page that has none yet
+    band.querySelectorAll('.fp-marks > svg').forEach((svg) => {
+      const id = `lp-icon-${svg.dataset.icon}`
+      if (document.getElementById(id)) {
+        return
+      }
+      const mark = document.createElement('template')
+      mark.id = id
+      mark.innerHTML = svg.outerHTML
+      band.appendChild(mark)
+    })
+    const stage = band.querySelector('.fp-stage')
+    const planets = [...band.querySelectorAll('.fp-planet')]
+      .map((orb) => {
+        const ring = orb.querySelector('.lp-orb-ring')
+        const style = getComputedStyle(orb)
+        const size = Number.parseFloat(style.getPropertyValue('--s'))
+        if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+          return null
+        }
+        // its hello: a bubble over its top edge, placed by the planet's
+        // own --x, --y and --s; the left half of the arch opens to the
+        // left, away from the taller neighbour
+        const hi = document.createElement('span')
+        hi.className = 'fp-hi'
+        for (const name of ['--x', '--y', '--s']) {
+          hi.style.setProperty(name, style.getPropertyValue(name))
+        }
+        hi.classList.toggle('is-left', Number.parseFloat(style.getPropertyValue('--x')) < 0)
+        // its turn in the rise, so its face and its hello follow its landing
+        return { orb, ring, hi, face: null, delay: Number.parseFloat(style.getPropertyValue('--d')) || 0 }
+      })
+      .filter(Boolean)
+    if (!stage || !planets.length) {
+      return
+    }
+    // the hellos after every planet, so each stands over all of them
+    planets.forEach((planet) => stage.appendChild(planet.hi))
+    landingFaces ??= createPlanetFaces({
+      settings: { reduceMotion, body: 'shape', mark: 'hide', shapes: LANDING_SHAPES },
+    })
+    planets.forEach((planet) => {
+      planet.face = landingFaces.attach(planet.orb, planet.ring)
+    })
+
+    let timers = []
+    const later = (fn, ms) => {
+      timers.push(window.setTimeout(fn, ms))
+    }
+    const clear = () => {
+      timers.forEach((id) => window.clearTimeout(id))
+      timers = []
+    }
+    /* the hellos dealt out: one each, no two the same */
+    const deal = (scale) => {
+      const deck = [...FOOTER_PLANETS_HELLOS, ...(scale < 1 ? [] : FOOTER_PLANETS_HELLOS_WIDE)]
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[deck[i], deck[j]] = [deck[j], deck[i]]
+      }
+      return deck
+    }
+    /* the chat bar's input, when the page has one */
+    const bar = () =>
+      document.querySelector('.chat-widget .chat-composer-input') ?? document.querySelector('.chat-widget')
+    /* the stage's place: centred on the bar, scaled down to fit a band
+       narrower than the cluster and kept inside it, and lifted clear of
+       a bar that reaches into the band */
+    const place = () => {
+      const box = band.getBoundingClientRect()
+      const scale = Math.min(1, (box.width - 32) / FOOTER_PLANETS_SPAN)
+      const half = (FOOTER_PLANETS_SPAN * scale) / 2
+      // the band's bottom padding is the bar's room: the stage stands
+      // above it, so a bar is in the way only past that
+      const clear = Number.parseFloat(getComputedStyle(band).paddingBottom) || 0
+      let x = box.width / 2
+      let lift = 0
+      const rect = bar()?.getBoundingClientRect()
+      if (rect?.width && rect.height) {
+        x = rect.left + rect.width / 2 - box.left
+        lift = Math.max(0, box.bottom - clear - rect.top)
+      }
+      x = Math.min(Math.max(x, half + 16), box.width - half - 16)
+      band.style.setProperty('--fp-x', `${x.toFixed(1)}px`)
+      band.style.setProperty('--fp-lift', `${lift.toFixed(1)}px`)
+      band.style.setProperty('--fp-scale', scale.toFixed(3))
+      return scale
+    }
+    let up = false
+    const show = () => {
+      const hellos = deal(place())
+      planets.forEach((planet, index) => {
+        planet.hi.textContent = hellos[index % hellos.length]
+      })
+      band.classList.add('is-up')
+      if (reduceMotion) {
+        planets.forEach((planet) => {
+          planet.face.set(true)
+          planet.hi.classList.add('is-on')
+        })
+        return
+      }
+      planets.forEach((planet) => {
+        later(() => planet.face.set(true), FOOTER_PLANETS_FORM + planet.delay)
+        later(() => planet.hi.classList.add('is-on'), FOOTER_PLANETS_HELLO + planet.delay)
+      })
+    }
+    const hide = () => {
+      clear()
+      band.classList.remove('is-up')
+      planets.forEach((planet) => {
+        planet.hi.classList.remove('is-on')
+        planet.face.set(false)
+      })
+    }
+    /* how far the page still has to go to its end */
+    const left = () => {
+      const page = document.scrollingElement ?? document.documentElement
+      return page.scrollHeight - window.innerHeight - window.scrollY
+    }
+    const check = () => {
+      if (!band.isConnected) {
+        release()
+        return
+      }
+      const remaining = left()
+      if (!up && remaining <= 1) {
+        up = true
+        show()
+      } else if (up && remaining > 24) {
+        up = false
+        hide()
+      }
+    }
+    const onResize = () => {
+      check()
+      if (up) {
+        place()
+      }
+    }
+    // the page's height changes as it loads and when the site moves on
+    const grown = new ResizeObserver(() => check())
+    const release = () => {
+      window.removeEventListener('scroll', check)
+      window.removeEventListener('resize', onResize)
+      grown.disconnect()
+      clear()
+      planets.forEach((planet) => planet.face.detach())
+    }
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', onResize)
+    grown.observe(document.body)
+    check()
+  })
+})
+
 /* Each chat plays every time it scrolls into view. */
 const initLandingChat = debounce(() => {
   const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
@@ -5293,6 +5483,7 @@ initHeroScenes()
 initHeroCards()
 initLandingBoxLinks()
 initLandingOrbs()
+initFooterPlanets()
 initLandingOnboard()
 initLandingChat()
 initLandingFlow()
@@ -5314,6 +5505,7 @@ const observer = new MutationObserver((records) => {
   initHeroCards()
   initLandingBoxLinks()
   initLandingOrbs()
+  initFooterPlanets()
   initLandingOnboard()
   initLandingChat()
   initLandingFlow()

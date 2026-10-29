@@ -139,7 +139,8 @@
 .docs-global-footer.introduction.footer {
   background: var(--scalar-background-2);
   border-radius: var(--scalar-radius-lg);
-  margin: 0 auto 68px;
+  /* the room under it (for the AI chat bar) is the footer band's now */
+  margin: 0 auto;
   overflow: hidden;
   padding-bottom: 200px;
   padding-inline: 20px;
@@ -318,6 +319,471 @@
 @media screen and (max-width: 600px) {
   .docs-global-footer .footer-links {
     grid-template-columns: 1fr;
+  }
+}
+
+/* The welcome committee under the footer.
+
+   Five of the landing page's planets (the AI agents, at the size they
+   have in the hero, with the faces and the mark shapes they take while
+   they talk there) wait below the fold and rise when the page is
+   scrolled to its very end, left to right into an arch over the AI chat
+   bar that scalar.com floats over the bottom of every page, each saying
+   hello in a bubble of its own. The band is the room they stand in,
+   480px under the footer with the arch standing 86px over the bar, and
+   its bottom padding the room the bar needs (48px tall, 20px up); it
+   clips at its edges, so a planet waiting below the fold never
+   lengthens the page. landing.js
+   (initFooterPlanets) pops them, dresses the globes, attaches the faces,
+   makes the hellos and centres the stage on the bar. The ball, ring,
+   glyph and face rules are the landing page's
+   (documentation/guides/introduction.md), scoped to the band, with the
+   brand paints of these five planets: keep the two in step. */
+.docs-footer-band {
+  --fp-clear: 68px;
+  /* how high over the bar's room the arch stands */
+  --fp-stand: 86px;
+  /* the cluster at full size, bubbles included, with its margins (the
+     width is FOOTER_PLANETS_SPAN in landing.js too) */
+  --fp-span: 632px;
+  position: relative;
+  height: 480px;
+  padding-bottom: var(--fp-clear);
+  overflow: hidden;
+  overflow: visible clip;
+}
+
+/* the stage: a point just over the bar the planets stand round, centred
+   on the bar (--fp-x is the bar's middle in the band, or the band's own
+   when there is none), lifted clear of a bar that reaches into the band,
+   and scaled down by the script where the band is narrower than the
+   cluster */
+.docs-footer-band .fp-stage {
+  position: absolute;
+  left: var(--fp-x, 50%);
+  bottom: calc(var(--fp-clear) + var(--fp-lift, 0px) + var(--fp-stand));
+  width: 0;
+  height: 0;
+  scale: var(--fp-scale, 1);
+  pointer-events: none;
+  transition: left 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docs-footer-band.is-up .fp-stage {
+  pointer-events: auto;
+}
+
+/* a planet stands at --x from the stage, its bottom --y up, on its own
+   layer (--z: the middle of the arch in front). It waits below the fold,
+   the whole of it (a shape reaches a quarter past the box), and springs
+   up into its place in its turn (--d), then sinks back down when the
+   page leaves its end. The ball, ring and face inside are sized by --s
+   like the landing page's */
+.docs-footer-band .fp-planet {
+  --s: 100px;
+  --x: 0px;
+  --y: 0px;
+  --z: 1;
+  --ink: #fff;
+  --tint: #f8f8f8;
+  --type: calc(var(--s) * 0.135);
+  --fp-rise: calc(var(--fp-clear) + var(--fp-stand) + 10px + var(--y) + var(--s) * 1.25);
+  position: absolute;
+  left: calc(var(--x) - var(--s) / 2);
+  bottom: var(--y);
+  z-index: var(--z);
+  width: var(--s);
+  height: var(--s);
+  opacity: 0;
+  translate: 0 var(--fp-rise);
+  transition:
+    translate 420ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 0s linear 420ms;
+}
+
+.docs-footer-band.is-up .fp-planet {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    translate 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms),
+    opacity 0s linear var(--d, 0ms);
+}
+
+/* the five, an arch a hundred pixels apart (the shapes touch), left to
+   right; the sizes are the hero's */
+.docs-footer-band .fp-planet--chatgpt {
+  --s: 104px;
+  --x: -200px;
+  --y: 0px;
+  --z: 1;
+  --d: 0ms;
+  --ink: #0d0d0d;
+}
+
+.docs-footer-band .fp-planet--claude {
+  --s: 116px;
+  --x: -100px;
+  --y: 42px;
+  --z: 2;
+  --d: 120ms;
+  --tint: #f0582a;
+}
+
+.docs-footer-band .fp-planet--gemini {
+  --s: 96px;
+  --x: 0px;
+  --y: 68px;
+  --z: 3;
+  --d: 240ms;
+  --tint: #2d6bff;
+}
+
+.docs-footer-band .fp-planet--opencode {
+  --s: 100px;
+  --x: 100px;
+  --y: 50px;
+  --z: 2;
+  --d: 360ms;
+  --tint: #ffb020;
+  --ink: #0d0d0d;
+}
+
+.docs-footer-band .fp-planet--grok {
+  --s: 100px;
+  --x: 200px;
+  --y: 2px;
+  --z: 1;
+  --d: 480ms;
+  --ink: #fff;
+}
+
+.docs-footer-band .lp-orb-globe {
+  position: absolute;
+  inset: 0;
+  perspective: calc(var(--s) * 5);
+}
+
+.docs-footer-band .lp-ball-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* the ball: a glass ball lit from below, its paint on a skin inside a
+   box half again as wide as the planet (room for a shape's rays) */
+.docs-footer-band .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(
+    calc(var(--s) / 2) at 50% 50%,
+    color-mix(in oklab, var(--tint) 90%, white) 40%,
+    var(--tint) 80%,
+    color-mix(in oklab, var(--tint) 88%, black) 100%
+  );
+  --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.45), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
+  position: absolute;
+  inset: calc(var(--s) * -0.25);
+  pointer-events: none;
+}
+
+.docs-footer-band .lp-orb-skin {
+  position: absolute;
+  inset: calc(var(--s) * 0.25);
+  border-radius: 50%;
+  background: var(--lp-ball-light), var(--lp-ball-paint);
+  box-shadow: var(--lp-ball-shade);
+}
+
+/* shaped (the face on, the ball in its mark's shape): the skin fills
+   the wide box, the faces' module clips it, and the shading comes from
+   a filter on its alpha, so it follows the shape's edge */
+.docs-footer-band .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade);
+}
+
+.docs-footer-band .lp-orb-ball.is-shaped .lp-orb-skin {
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.docs-footer-band .fp-planet--claude .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffb27a 0 16%,
+      rgba(255, 178, 122, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f36a40 36%, #f0582a 76%, #d04b20 100%);
+}
+
+.docs-footer-band .fp-planet--opencode .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffe56b 0 16%,
+      rgba(255, 229, 107, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%, #e8900a 100%);
+}
+
+.docs-footer-band .fp-planet--grok .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #4a4a50 55%, #2a2a2f 88%, #141417 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(255, 255, 255, 0.35), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.docs-footer-band .fp-planet--grok .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade-dark);
+}
+
+.docs-footer-band .fp-planet--chatgpt .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #f8f8f8 72%, #f0f0f0 92%, #e2e2e2 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(28, 32, 36, 0.6), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035);
+}
+
+.docs-footer-band .fp-planet--chatgpt .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade-glass);
+}
+
+/* the ring: the mark and every glyph of the name on the ball's
+   equator, facing out */
+.docs-footer-band .lp-orb-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.docs-footer-band .lp-orb-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotateY(var(--a)) translateZ(calc(var(--s) / 2));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.docs-footer-band .lp-orb-glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  white-space: pre;
+  font-family: var(--scalar-font);
+  font-size: var(--type);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+  backface-visibility: hidden;
+}
+
+.docs-footer-band .lp-orb-glyph svg {
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.docs-footer-band .lp-orb-glyph svg [fill] {
+  fill: currentColor;
+}
+
+/* the face: the name's glyphs and two eyes in one box on the sphere,
+   placed and turned by the faces' module through transforms only */
+.docs-footer-band .lp-face {
+  --lp-eye-d: calc(var(--s) * 0.09);
+  --lp-eye-mark: calc(var(--s) * 0.17);
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.docs-footer-band .lp-eye {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.docs-footer-band .lp-face.is-on .lp-eye {
+  visibility: visible;
+}
+
+.docs-footer-band .lp-eye-lid,
+.docs-footer-band .lp-eye-pupil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.docs-footer-band .lp-eye-cap,
+.docs-footer-band .lp-eye-bar {
+  position: absolute;
+  left: calc(var(--lp-eye-d) / -2);
+  top: calc(var(--lp-eye-d) / -2);
+  width: var(--lp-eye-d);
+  height: var(--lp-eye-d);
+  background: var(--ink);
+}
+
+.docs-footer-band .lp-eye-cap {
+  border-radius: 50%;
+}
+
+.docs-footer-band .lp-eye-mark {
+  display: none;
+  position: absolute;
+  left: calc(var(--lp-eye-mark) / -2);
+  top: calc(var(--lp-eye-mark) / -2);
+  width: var(--lp-eye-mark);
+  height: var(--lp-eye-mark);
+  color: var(--ink);
+}
+
+.docs-footer-band .lp-eye-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.docs-footer-band .lp-eye-mark svg [fill] {
+  fill: currentColor;
+}
+
+.docs-footer-band .lp-face.is-marks .lp-eye-cap,
+.docs-footer-band .lp-face.is-marks .lp-eye-bar {
+  display: none;
+}
+
+.docs-footer-band .lp-face.is-marks .lp-eye-mark {
+  display: block;
+}
+
+/* two shapes narrow where the eyes and the mouth go (Claude's rays,
+   Gemini's points): their face box holds its features on a smaller
+   sphere while the face is on, so the smile and the eyes stay inside
+   the shape; the box shrinks as the face forms and grows back as it
+   unwinds (the look and the tilt are the box's rotate and transform,
+   which a uniform scale leaves as they are) */
+.docs-footer-band .fp-planet--claude .lp-face,
+.docs-footer-band .fp-planet--gemini .lp-face {
+  transition: scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docs-footer-band .fp-planet--claude .lp-face.is-on {
+  scale: 0.76;
+}
+
+.docs-footer-band .fp-planet--gemini .lp-face.is-on {
+  scale: 0.62;
+}
+
+/* the smaller face would leave Gemini's eyes the smallest of the five:
+   its pupils are scaled back up about their own centres (the blink is
+   the lid's, the look the face box's, neither touched by this) */
+.docs-footer-band .fp-planet--gemini .lp-eye-pupil {
+  scale: 1.6;
+}
+
+/* each planet's hello: a small bubble over its top edge with the tight
+   corner at the planet, opening away from its taller neighbour (the
+   left two to the left, the rest to the right), made by the script
+   after the planets so it stands over every one of them; it pops in
+   once its planet has landed. On a scaled-down stage the type holds a
+   readable size */
+.docs-footer-band .fp-hi {
+  position: absolute;
+  left: calc(var(--x) + var(--s) * 0.14);
+  bottom: calc(var(--y) + var(--s) * 0.82);
+  z-index: 5;
+  padding: 0.5em 0.85em;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 1em 1em 1em 0.3em;
+  background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
+  font-family: var(--scalar-font);
+  font-size: max(14px, calc(11px / var(--fp-scale, 1)));
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--scalar-color-1);
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 6px;
+  scale: 0.6;
+  transform-origin: bottom left;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease,
+    scale 160ms ease,
+    visibility 0s linear 160ms;
+}
+
+.docs-footer-band .fp-hi.is-left {
+  left: auto;
+  right: calc(var(--s) * 0.14 - var(--x));
+  border-radius: 1em 1em 0.3em 1em;
+  transform-origin: bottom right;
+}
+
+.docs-footer-band .fp-hi.is-on {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  scale: 1;
+  transition:
+    opacity 180ms ease,
+    translate 360ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    scale 360ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    visibility 0s linear 0s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* a narrow page: the stage is scaled down by the script, the band gives
+   back some of its room */
+@media screen and (max-width: 640px) {
+  .docs-footer-band {
+    --fp-stand: 46px;
+    height: 330px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-footer-band .fp-planet,
+  .docs-footer-band.is-up .fp-planet {
+    translate: 0 0;
+    transition: opacity 200ms ease;
+  }
+
+  .docs-footer-band .fp-hi,
+  .docs-footer-band .fp-hi.is-on,
+  .docs-footer-band .fp-stage {
+    transition: none;
   }
 }
 
