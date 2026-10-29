@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.26.0
+
+### Minor Changes
+
+- [#10781](https://github.com/scalar/scalar/pull/10781): feat: add a Halloween theme preset with a moonlit sky, bats, and pumpkin accents
+
 ## 0.25.2
 
 ### Patch Changes

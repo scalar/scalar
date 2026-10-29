@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.76.3
+
+### Patch Changes
+
+- [#10775](https://github.com/scalar/scalar/pull/10775): fix: name downloaded documents after the document title when no slug is configured
+
 ## 1.76.2
 
 ### Patch Changes

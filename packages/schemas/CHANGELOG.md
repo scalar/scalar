@@ -1,5 +1,15 @@
 # @scalar/schemas
 
+## 0.16.0
+
+### Minor Changes
+
+- [#10781](https://github.com/scalar/scalar/pull/10781): feat: add a Halloween theme preset with a moonlit sky, bats, and pumpkin accents
+
+### Patch Changes
+
+- [#10767](https://github.com/scalar/scalar/pull/10767): Declare `@scalar/types` as a dependency, since the API reference configuration schema imports it at runtime and installs without hoisting failed to resolve it.
+
 ## 0.15.0
 
 ### Minor Changes

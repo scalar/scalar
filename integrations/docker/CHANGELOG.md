@@ -1,5 +1,7 @@
 # @scalarapi/docker-api-reference
 
+## 0.6.20
+
 ## 0.6.19
 
 ### Bundled API Reference
