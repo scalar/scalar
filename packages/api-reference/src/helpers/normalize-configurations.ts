@@ -17,6 +17,12 @@ import {
 export type NormalizedConfiguration = {
   title: string
   slug: string
+  /**
+   * Whether the slug is a positional placeholder (`api-1`, `api-2`, …) because neither `slug` nor `title`
+   * was configured. Consumers that show the slug to users, like the download filename, can prefer the
+   * document title instead.
+   */
+  isSlugGenerated: boolean
   config: ApiReferenceConfigurationRaw
   default: boolean
   agent: ApiReferenceConfigurationWithSource['agent']
@@ -72,11 +78,12 @@ export const normalizeConfigurations = (
     .map((source, index) => addSlugAndTitle(source, index, slug))
     /** Separate the configuration and sources by slug */
     .forEach((c) => {
-      const { url, content, ...config } = c
+      const { url, content, isSlugGenerated, ...config } = c
       normalized[c.slug] = {
         config,
         title: c.title,
         slug: c.slug,
+        isSlugGenerated,
         default: !!c?.default,
         agent: c.agent,
         source: content ? { content: normalizeContent(content) ?? {} } : { url },
@@ -111,13 +118,14 @@ const addSlugAndTitle = (
   source: ConfigWithRequiredSource,
   index = 0,
   slug: (v: string) => string,
-): ConfigWithRequiredSource & { slug: string; title: string } => {
+): ConfigWithRequiredSource & { slug: string; title: string; isSlugGenerated: boolean } => {
   // Case 1: Title exists, generate slug from it
   if (source.title) {
     return {
       ...source,
       slug: source.slug || slug(source.title),
       title: source.title,
+      isSlugGenerated: false,
     }
   }
 
@@ -127,6 +135,7 @@ const addSlugAndTitle = (
       ...source,
       slug: slug(source.slug),
       title: source.slug,
+      isSlugGenerated: false,
     }
   }
 
@@ -135,5 +144,6 @@ const addSlugAndTitle = (
     ...source,
     slug: `api-${index + 1}`,
     title: `API #${index + 1}`,
+    isSlugGenerated: true,
   }
 }
