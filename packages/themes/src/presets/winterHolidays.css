@@ -1,0 +1,292 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* Fresh snow with candy-cane red */
+  --scalar-color-1: #1d2a26;
+  --scalar-color-2: #4c5a55;
+  --scalar-color-3: #7d8a85;
+  --scalar-color-accent: #b8222b;
+
+  --scalar-background-1: #fdfcf8;
+  --scalar-background-2: #f3f1ea;
+  --scalar-background-3: #e6e2d6;
+  --scalar-background-accent: #b8222b12;
+
+  --scalar-border-color: #e4dfd2;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A long winter night under the evergreens */
+  --scalar-color-1: #f2f7f4;
+  --scalar-color-2: #b3c2bc;
+  --scalar-color-3: #7c8c86;
+  --scalar-color-accent: #ff6b6b;
+
+  --scalar-background-1: #0e1614;
+  --scalar-background-2: #16201d;
+  --scalar-background-3: #23302c;
+  --scalar-background-accent: #ff6b6b1f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #0b1210;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #1f6b3a;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #185a30;
+
+  --scalar-color-green: #1f6b3a;
+  --scalar-color-red: #b3202a;
+  --scalar-color-yellow: #855f00;
+  --scalar-color-blue: #1e5b9e;
+  --scalar-color-orange: #a9470e;
+  --scalar-color-purple: #6b3aa8;
+  --scalar-color-query: #8a2f6b;
+
+  --scalar-scrollbar-color: #4c5a5533;
+  --scalar-scrollbar-color-active: #4c5a5566;
+}
+.dark-mode {
+  --scalar-button-1: #f4c95d;
+  --scalar-button-1-color: #0e1614;
+  --scalar-button-1-hover: #f8d77f;
+
+  /* Pine needles, holly berries, gold tinsel, fresh ice, a warm fire and sugar plums */
+  --scalar-color-green: #7ddc8f;
+  --scalar-color-red: #ff7a7a;
+  --scalar-color-yellow: #f4c95d;
+  --scalar-color-blue: #9cc9ff;
+  --scalar-color-orange: #ffa45c;
+  --scalar-color-purple: #c7a6ff;
+  --scalar-color-query: #e9a6ff;
+
+  --scalar-scrollbar-color: #9cc9ff33;
+  --scalar-scrollbar-color-active: #9cc9ff66;
+}
+
+/* Radius: soft, like a snowdrift */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-red), transparent 70%);
+}
+
+/* Headings catch the glow of the lights */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 18px #f4c95d33;
+}
+
+/*
+ * Hero section flare: string lights along the top, falling snow, and New Year fireworks.
+ * The flare sits behind the content, so its parent needs its own stacking
+ * context or the page background would paint over it.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  z-index: -1;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 15% 0%, #1f6b4a55, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 0%, #7a1f3a44, transparent 70%), linear-gradient(#0d2420, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 85% 0%, #ffd6d633, transparent 70%), linear-gradient(#e6f1fb, transparent);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/* The string lights: a sagging wire with red, gold and green bulbs, tiled across the top */
+.section-flare-item:nth-of-type(1) {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 4Q60 28 120 4' fill='none' stroke='%232b3a35' stroke-width='1.5'/%3E%3Cg fill='%233a4a44'%3E%3Crect x='28' y='11' width='4' height='4' rx='1'/%3E%3Crect x='58' y='14' width='4' height='4' rx='1'/%3E%3Crect x='88' y='11' width='4' height='4' rx='1'/%3E%3C/g%3E%3Cellipse cx='30' cy='20' rx='3.4' ry='5' fill='%23ff4d5e'/%3E%3Cellipse cx='60' cy='23' rx='3.4' ry='5' fill='%23ffd166'/%3E%3Cellipse cx='90' cy='20' rx='3.4' ry='5' fill='%235ee08a'/%3E%3C/svg%3E")
+    0 0 / 120px 40px repeat-x;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 4Q60 28 120 4' fill='none' stroke='%234a5a52' stroke-width='1.5'/%3E%3Cg fill='%234a5a52'%3E%3Crect x='28' y='11' width='4' height='4' rx='1'/%3E%3Crect x='58' y='14' width='4' height='4' rx='1'/%3E%3Crect x='88' y='11' width='4' height='4' rx='1'/%3E%3C/g%3E%3Cellipse cx='30' cy='20' rx='3.4' ry='5' fill='%23e0303f'/%3E%3Cellipse cx='60' cy='23' rx='3.4' ry='5' fill='%23e8a90c'/%3E%3Cellipse cx='90' cy='20' rx='3.4' ry='5' fill='%2321a35a'/%3E%3C/svg%3E");
+}
+
+/* The glow around the bulbs, in two groups that twinkle out of step */
+.section-flare-item:nth-of-type(2),
+.section-flare-item:nth-of-type(3) {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-size: 120px 40px;
+  background-repeat: repeat-x;
+  animation: scalar-holidays-twinkle 2.4s ease-in-out infinite alternate;
+}
+.section-flare-item:nth-of-type(2) {
+  background-image:
+    radial-gradient(circle at 30px 20px, #ff4d5e99, transparent 12px),
+    radial-gradient(circle at 90px 20px, #5ee08a99, transparent 12px);
+}
+.section-flare-item:nth-of-type(3) {
+  background-image: radial-gradient(circle at 60px 23px, #ffd16699, transparent 12px);
+  animation-delay: -1.2s;
+}
+.light-mode .section-flare-item:nth-of-type(2),
+.light-mode .section-flare-item:nth-of-type(3) {
+  --glow-max: 0.6;
+}
+
+/* The snow, in two layers that fall at different speeds */
+.section-flare-item:nth-of-type(4),
+.section-flare-item:nth-of-type(5) {
+  inset: 0;
+  --snow: #f2f7f4;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent 95%);
+  mask-image: linear-gradient(#000 40%, transparent 95%);
+  animation: scalar-holidays-snow 14s linear infinite;
+}
+.section-flare-item:nth-of-type(4) {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, var(--snow), transparent),
+    radial-gradient(1.5px 1.5px at 90px 110px, var(--snow), transparent),
+    radial-gradient(2px 2px at 160px 60px, var(--snow), transparent),
+    radial-gradient(1.5px 1.5px at 230px 160px, var(--snow), transparent),
+    radial-gradient(2px 2px at 270px 20px, var(--snow), transparent);
+  background-size: 300px 200px;
+  opacity: 0.7;
+  --snow-fall: 200px;
+}
+.section-flare-item:nth-of-type(5) {
+  background-image:
+    radial-gradient(3px 3px at 60px 80px, var(--snow), transparent),
+    radial-gradient(2.5px 2.5px at 210px 20px, var(--snow), transparent),
+    radial-gradient(3px 3px at 330px 190px, var(--snow), transparent);
+  background-size: 400px 260px;
+  opacity: 0.85;
+  --snow-fall: 260px;
+  animation-duration: 10s;
+}
+.light-mode .section-flare-item:nth-of-type(4),
+.light-mode .section-flare-item:nth-of-type(5) {
+  --snow: #a9c1d9;
+}
+
+/* The fireworks, ringing in the New Year */
+.section-flare-item:nth-of-type(6),
+.section-flare-item:nth-of-type(7) {
+  width: 72px;
+  height: 72px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' stroke='%23f4c95d' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M0-14V-34M0 14V34M-14 0H-34M14 0H34M10-10 24-24M-10 10-24 24M-10-10-24-24M10 10 24 24'/%3E%3Cg fill='%23ff7a7a' stroke='none'%3E%3Ccircle cy='-42' r='3'/%3E%3Ccircle cy='42' r='3'/%3E%3Ccircle cx='-42' r='3'/%3E%3Ccircle cx='42' r='3'/%3E%3C/g%3E%3Cg fill='%23fff3c4' stroke='none'%3E%3Ccircle cx='30' cy='-30' r='2.5'/%3E%3Ccircle cx='-30' cy='30' r='2.5'/%3E%3Ccircle cx='-30' cy='-30' r='2.5'/%3E%3Ccircle cx='30' cy='30' r='2.5'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-holidays-burst 4s ease-out infinite;
+}
+.section-flare-item:nth-of-type(6) {
+  top: 42px;
+  right: 9%;
+}
+.section-flare-item:nth-of-type(7) {
+  top: 36px;
+  right: calc(9% + 140px);
+  scale: 0.6;
+  animation-delay: -2s;
+}
+.light-mode .section-flare-item:nth-of-type(6),
+.light-mode .section-flare-item:nth-of-type(7) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' stroke='%23d99a0b' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M0-14V-34M0 14V34M-14 0H-34M14 0H34M10-10 24-24M-10 10-24 24M-10-10-24-24M10 10 24 24'/%3E%3Cg fill='%23d0303a' stroke='none'%3E%3Ccircle cy='-42' r='3'/%3E%3Ccircle cy='42' r='3'/%3E%3Ccircle cx='-42' r='3'/%3E%3Ccircle cx='42' r='3'/%3E%3C/g%3E%3Cg fill='%231f6b3a' stroke='none'%3E%3Ccircle cx='30' cy='-30' r='2.5'/%3E%3Ccircle cx='-30' cy='30' r='2.5'/%3E%3Ccircle cx='-30' cy='-30' r='2.5'/%3E%3Ccircle cx='30' cy='30' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@keyframes scalar-holidays-twinkle {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    /* Light mode dims the peak, because a lit bulb reads much brighter on snow than on the night sky */
+    opacity: var(--glow-max, 1);
+  }
+}
+@keyframes scalar-holidays-snow {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 var(--snow-fall);
+  }
+}
+@keyframes scalar-holidays-burst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* On small screens the sticky header covers the top of the sky, and a second firework would crowd the title */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(7) {
+    display: none;
+  }
+}
+
+/* Keep the decorations still when motion is unwelcome, with the fireworks frozen mid-burst */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item {
+    animation: none !important;
+  }
+}
+
+/* P3 color support */
+@supports (color: color(display-p3 1 1 1)) {
+  .dark-mode {
+    --scalar-color-accent: color(display-p3 1 0.43 0.43 / 1);
+  }
+}
