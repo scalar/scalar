@@ -1269,6 +1269,22 @@
     --lp-sun-paint: var(--scalar-background-1);
     --lp-sun-shade: none;
     --lp-sun-border: var(--scalar-border-width) solid var(--scalar-border-color);
+    /* the ring's blues, as display-p3 channels: the faint inner rings,
+       the broad bright one, the outer one and the thin line at the edge;
+       the sheen turning over them lightens them (shades them in the dark
+       scheme), so it never shows on the page's colour between them */
+    --lp-ring-c: 0.24 0.27 0.9;
+    --lp-ring-b: 0.13 0.2 0.96;
+    --lp-ring-a: 0.17 0.3 0.97;
+    --lp-ring-f: 0.24 0.4 1;
+    --lp-ring-sheen: #fff;
+  }
+  .dark-mode .lp-section {
+    --lp-ring-c: 0.2 0.2 0.7;
+    --lp-ring-b: 0.2 0.3 1;
+    --lp-ring-a: 0.22 0.36 1;
+    --lp-ring-f: 0.42 0.55 1;
+    --lp-ring-sheen: #000;
   }
   /* on the pill the paint fades in over its surface as it rounds off,
      once its label has gone, and out again before the label returns */
@@ -1321,11 +1337,12 @@
      the same way round as it shrinks back; at rest nothing shows. Its back half sits behind the copy and its front
      half over it (two copies in the field, the front one clipped to its
      lower half), each an ellipse cut to a band by a mask, over a wipe
-     (a conic mask between two animated angles) over a square of
-     spectrum that turns once round every few seconds. The script keeps
-     them on the pill, and on the centre for a talk; the size, tilt and
-     band move on the same curve as the pill's flight, so the ring grows
-     with the globe and shrinks back round the pill */
+     (a conic mask between two animated angles) over the ring's lines,
+     under a square of sheen that turns once round every few seconds.
+     The script keeps them on the pill, and on the centre for a talk;
+     the size, tilt and band move on the same curve as the pill's
+     flight, so the ring grows with the globe and shrinks back round the
+     pill */
   .lp-sun-halo {
     position: absolute;
     left: 0;
@@ -1388,6 +1405,63 @@
     --lp-tail: 360deg;
     position: absolute;
     inset: 0;
+    /* the ring's lines, after Saturn's: faint inner rings, the broad
+       bright one, a dark division, the outer one with its gap and a thin
+       line at the edge, each a blue at its density over the page's own
+       colour (so the band is solid, as it was, and its two halves never
+       show a seam where they overlap), with grain laid over them. The
+       ellipse is the band's own, so the lines follow it at any size */
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 160px 160px,
+      radial-gradient(
+        farthest-side,
+        color(display-p3 var(--lp-ring-c) / 0.31) 64% 64.64%,
+        color(display-p3 var(--lp-ring-c) / 0.07) 64.82% 65.53%,
+        color(display-p3 var(--lp-ring-c) / 0.03) 65.71% 66.24%,
+        color(display-p3 var(--lp-ring-c) / 0.34) 66.42% 67.15%,
+        color(display-p3 var(--lp-ring-c) / 0.42) 67.33% 67.69%,
+        color(display-p3 var(--lp-ring-c) / 0.11) 67.87% 68.57%,
+        color(display-p3 var(--lp-ring-c) / 0.37) 68.75% 69.67%,
+        color(display-p3 var(--lp-ring-c) / 0.4) 69.85% 70.21%,
+        color(display-p3 var(--lp-ring-c) / 0.12) 70.39% 70.74%,
+        color(display-p3 var(--lp-ring-c) / 0.35) 70.92% 71.29%,
+        color(display-p3 var(--lp-ring-c) / 0.46) 71.47% 72.15%,
+        color(display-p3 var(--lp-ring-c) / 0.1) 72.33% 72.91%,
+        color(display-p3 var(--lp-ring-b) / 0.72) 73.09% 73.53%,
+        color(display-p3 var(--lp-ring-b) / 0.33) 73.71% 74.15%,
+        color(display-p3 var(--lp-ring-b) / 0.76) 74.33% 74.71%,
+        color(display-p3 var(--lp-ring-b) / 1) 74.89% 75.28%,
+        color(display-p3 var(--lp-ring-b) / 0.69) 75.46% 75.82%,
+        color(display-p3 var(--lp-ring-b) / 1) 76% 76.65%,
+        color(display-p3 var(--lp-ring-b) / 0.61) 76.83% 77.13%,
+        color(display-p3 var(--lp-ring-b) / 1) 77.31% 77.97%,
+        color(display-p3 var(--lp-ring-b) / 0.6) 78.15% 78.89%,
+        color(display-p3 var(--lp-ring-b) / 1) 79.07% 79.77%,
+        color(display-p3 var(--lp-ring-b) / 0.72) 79.95% 80.8%,
+        color(display-p3 var(--lp-ring-b) / 1) 80.98% 81.35%,
+        color(display-p3 var(--lp-ring-b) / 0.73) 81.53% 82.09%,
+        color(display-p3 var(--lp-ring-b) / 1) 82.27% 82.59%,
+        color(display-p3 var(--lp-ring-b) / 0.67) 82.77% 83.29%,
+        color(display-p3 var(--lp-ring-b) / 1) 83.47% 84.06%,
+        color(display-p3 var(--lp-ring-b) / 0.64) 84.24% 84.99%,
+        color(display-p3 var(--lp-ring-b) / 1) 85.17% 86.59%,
+        color(display-p3 var(--lp-ring-a) / 0.11) 86.77% 87.67%,
+        color(display-p3 var(--lp-ring-a) / 0.32) 87.85% 88.1%,
+        color(display-p3 var(--lp-ring-a) / 0.03) 88.28% 89.11%,
+        color(display-p3 var(--lp-ring-a) / 0.83) 89.29% 90.13%,
+        color(display-p3 var(--lp-ring-a) / 0.42) 90.31% 91.06%,
+        color(display-p3 var(--lp-ring-a) / 0.83) 91.24% 92.06%,
+        color(display-p3 var(--lp-ring-a) / 0.45) 92.24% 92.71%,
+        color(display-p3 var(--lp-ring-a) / 0.83) 92.89% 93.71%,
+        color(display-p3 var(--lp-ring-a) / 0.42) 93.89% 94.91%,
+        color(display-p3 var(--lp-ring-a) / 0.84) 95.09% 95.41%,
+        color(display-p3 var(--lp-ring-a) / 0.05) 95.59% 95.88%,
+        color(display-p3 var(--lp-ring-a) / 0.45) 96.06% 97.39%,
+        color(display-p3 var(--lp-ring-a) / 0.05) 97.57% 98.65%,
+        color(display-p3 var(--lp-ring-f) / 0.85) 98.83% 100%
+      );
+    background-color: var(--scalar-background-1);
+    background-blend-mode: overlay, normal;
     -webkit-mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
     mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
     transition:
@@ -1401,17 +1475,16 @@
     width: 440px;
     height: 440px;
     margin: -220px 0 0 -220px;
-    /* the brand's six colours round the band, so the ring follows the
-       theme (and its dark mode) rather than a palette of its own */
+    /* a sheen over the lines: a light arc and a fainter one opposite,
+       so a turn of the paint reads as the ring turning; between turns it
+       holds still, one side of the ring lit and the other in shade */
     background: conic-gradient(
       from 0deg,
-      var(--scalar-color-red),
-      var(--scalar-color-orange),
-      var(--scalar-color-yellow),
-      var(--scalar-color-green),
-      var(--scalar-color-blue),
-      var(--scalar-color-purple),
-      var(--scalar-color-red)
+      transparent,
+      color-mix(in srgb, var(--lp-ring-sheen) 30%, transparent) 50deg,
+      transparent 120deg 160deg,
+      color-mix(in srgb, var(--lp-ring-sheen) 15%, transparent) 230deg,
+      transparent 300deg
     );
     animation: lp-halo-turn 9s infinite;
     /* still while its ring is hidden (and while the hosting scene is off
@@ -2505,7 +2578,7 @@
   .lp-stage--host .lp-stage-globe {
     --s: calc(160 * var(--lp-u));
   }
-  /* no spectrum loop of its own here: the flow's script turns the paint
+  /* no sheen loop of its own here: the flow's script turns the paint
      once each time a packet comes in, so the ring lies still between
      packets (and costs nothing at rest) */
   .lp-stage--host .lp-sun-halo-paint {

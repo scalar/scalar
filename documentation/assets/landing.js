@@ -4559,7 +4559,7 @@ const createLandingFlowPlayer = (flow) => {
     return null
   }
   /* The hosting scene's hub is Scalar's globe. A packet going in under it
-     sets its ring's spectrum turning, and once the turn is done packets
+     sets its ring's sheen turning, and once the turn is done packets
      go out from under it to everything on the right at once; the round
      is longer for it. The paint there has no loop of its own (the sheet
      turns it off), so the ring lies still between packets */
@@ -4667,10 +4667,10 @@ const createLandingFlowPlayer = (flow) => {
     }
   }
 
-  /* the spectrum's turn from the top: the ring paint's keyframes (the
+  /* the sheen's turn from the top: the ring paint's keyframes (the
      turn of lp-halo-turn, the first 18% of its 9s, with its easing), run
      once here. A turn still going when a packet lands is left to finish
-     rather than started again, so the spectrum never jumps. Settles when
+     rather than started again, so the sheen never jumps. Settles when
      the turn ends, on the turn's own clock: after a stalled frame the
      packets still wait for the ring, not for a timer */
   const TURN_MS = 1620
