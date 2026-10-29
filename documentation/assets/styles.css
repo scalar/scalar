@@ -470,8 +470,9 @@
   overflow: hidden;
 }
 
-/* the ball: a glass ball lit from below, its paint on a skin inside a
-   box half again as wide as the planet (room for a shape's rays) */
+/* the ball: lit from below, one colour out to its edge, its paint on a
+   skin inside a box half again as wide as the planet (room for a
+   shape's rays) */
 .docs-footer-band .lp-orb-ball {
   --lp-ball-light: radial-gradient(
     calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
@@ -481,20 +482,26 @@
   --lp-ball-paint: radial-gradient(
     calc(var(--s) / 2) at 50% 50%,
     color-mix(in oklab, var(--tint) 90%, white) 40%,
-    var(--tint) 80%,
-    color-mix(in oklab, var(--tint) 88%, black) 100%
+    var(--tint) 80%
   );
-  --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.45), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
+  --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.14), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.1);
   position: absolute;
   inset: calc(var(--s) * -0.25);
   pointer-events: none;
 }
 
+/* the planets' grain, as on the landing page: grey noise laid over the
+   paint with overlay, centred on the disc so a shape does not move it */
 .docs-footer-band .lp-orb-skin {
+  --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   position: absolute;
   inset: calc(var(--s) * 0.25);
   border-radius: 50%;
-  background: var(--lp-ball-light), var(--lp-ball-paint);
+  background:
+    var(--lp-grain-ball) 50% 50% / 160px 160px,
+    var(--lp-ball-light),
+    var(--lp-ball-paint);
+  background-blend-mode: overlay, normal, normal, normal;
   box-shadow: var(--lp-ball-shade);
 }
 
@@ -518,7 +525,7 @@
       #ffb27a 0 16%,
       rgba(255, 178, 122, 0) 100%
     ),
-    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f36a40 36%, #f0582a 76%, #d04b20 100%);
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f36a40 36%, #f0582a 76%);
 }
 
 .docs-footer-band .fp-planet--opencode .lp-orb-ball {
@@ -528,7 +535,7 @@
       #ffe56b 0 16%,
       rgba(255, 229, 107, 0) 100%
     ),
-    radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%, #e8900a 100%);
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%);
 }
 
 .docs-footer-band .fp-planet--grok .lp-orb-ball {
@@ -537,9 +544,9 @@
     rgba(255, 255, 255, 0.22),
     rgba(255, 255, 255, 0) 70%
   );
-  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #4a4a50 55%, #2a2a2f 88%, #141417 100%);
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #4a4a50 55%, #3a3a40 100%);
   --lp-ball-shade:
-    inset 4px 16px 18px -12px rgba(255, 255, 255, 0.35), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.5),
+    inset 4px 16px 18px -12px rgba(255, 255, 255, 0.1), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.15),
     inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
@@ -553,9 +560,9 @@
     rgba(255, 255, 255, 0.9),
     rgba(255, 255, 255, 0) 70%
   );
-  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #f8f8f8 72%, #f0f0f0 92%, #e2e2e2 100%);
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #f8f8f8 72%, #f4f4f4 100%);
   --lp-ball-shade:
-    inset 4px 16px 18px -12px rgba(28, 32, 36, 0.6), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.12),
+    inset 4px 16px 18px -12px rgba(28, 32, 36, 0.18), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.04),
     inset 0 0 0 1px rgba(0, 0, 0, 0.035);
 }
 
