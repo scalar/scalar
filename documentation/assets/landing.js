@@ -772,6 +772,30 @@ const createLandingChatPlayer = (chat) => {
    hovered globe holds still and eases its mark to the front (its bubble
    is CSS). */
 const LANDING_ORB_TURN = 3000
+/* The grain a planet is painted with runs round it as it turns.
+
+   The ball is a flat disc, so the grain on it would otherwise lie still
+   while the name goes round, and a planet whose surface never moves is
+   a drawing of a ball rather than a ball. Putting the grain on the ring
+   as a shell of little sphere pieces is the true answer and costs far
+   too much: pieces carrying a picture, inside a ring whose transform
+   changes every frame, took the home page from 120 frames a second to
+   46, at any count down to six a planet. So the grain travels across
+   the disc instead, at the speed the surface facing us moves, which is
+   the planet's whole circumference in one turn. It does not slow into
+   the edges the way a real surface does; at this size, against noise
+   with no feature in it to follow, what reads is that the surface is
+   moving at all. One tile of grain is 160px, so a tile goes by in that
+   share of a turn. */
+const LANDING_GRAIN_TILE = 160
+const landingGrainTurn = (globe, size) => {
+  if (size && globe.querySelector('.lp-orb-ball')) {
+    globe.style.setProperty(
+      '--lp-grain-turn',
+      `${Math.round((LANDING_ORB_TURN * LANDING_GRAIN_TILE) / (Math.PI * size))}ms`,
+    )
+  }
+}
 /* the two orbits: the long radius as a share of half the field's width,
    the short one as a share of the long (the tilt), and seconds a lap;
    then each planet's orbit and where it starts (in laps), in the order
@@ -814,6 +838,7 @@ const dressLandingGlobe = (globe, ring, size) => {
   if (!template) {
     return false
   }
+  landingGrainTurn(globe, size)
   const suffix = `-o${++landingDressCopies}`
   const holder = document.createElement('div')
   holder.innerHTML = template.innerHTML
@@ -2516,6 +2541,9 @@ const initLandingOrbs = debounce(() => {
           return
         }
         o.size = Number.parseFloat(getComputedStyle(o.orb).getPropertyValue('--s')) || o.size
+        // a planet that has taken a new size turns its grain at a new
+        // pace: the surface still covers its circumference in one turn
+        landingGrainTurn(o.orb, o.size)
         // the bubble's width, for keeping it inside the content box
         o.bw = o.orb.querySelector('.lp-orb-bubble')?.offsetWidth || 250
       })
@@ -5542,15 +5570,16 @@ const CUST_HAND_ROLL = 24
    The mark is repeated round the ball, the way a ball is branded, so
    whichever way one comes to rest a copy is facing you. */
 /* how far above the floor we are looking at it from: the lean of the
-   ball's axle out of the screen, which the stylesheet carries as the
-   axis of the cage's turn. Keep the two in step. */
-const CUST_TILT = 58
+   ball's axle out of the screen. The stylesheet turns the cage about
+   this axle and takes it from here, so there is one number, not two
+   that can drift apart */
+const CUST_TILT = 52
 const CUST_COPIES = 3
 /* how far round the ball one copy of the mark reaches, in radii of
    arc, and how finely it is cut up: about 11 degrees across and 20
    down, which is fine enough that no edge of it reads as a straight
    line at these sizes */
-const CUST_MARK = 1.5
+const CUST_MARK = 1.3
 const CUST_LON_STEP = (11 * Math.PI) / 180
 const CUST_LAT_STEP = (20 * Math.PI) / 180
 const CUST_BLEED = 0.7
@@ -5568,6 +5597,9 @@ const dressCustomerBall = (ball, size) => {
   const ratio = seen && seen[2] && seen[3] ? seen[2] / seen[3] : 1
   const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
   const r = size / 2
+  // the axle the cage turns about, for the stylesheet
+  const lean = (CUST_TILT * Math.PI) / 180
+  ball.style.setProperty('--cust-axis', `0, ${Math.sin(lean).toFixed(4)}, ${(-Math.cos(lean)).toFixed(4)}`)
 
   // a point on the sphere, in the ball's own axes: x right, y DOWN,
   // z towards the eye, and longitude 0 facing the eye
@@ -6223,6 +6255,9 @@ const initCustomerBalls = debounce(() => {
     const start = () => {
       measure()
       started = true
+      // only now is there a place for them: until this they would show
+      // stacked in the field's corner
+      field.classList.add('is-ready')
       if (reduceMotion) {
         settle()
         return

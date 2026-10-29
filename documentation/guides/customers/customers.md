@@ -1,17 +1,18 @@
 <div class="cust-hero">
 <div class="cust-field" aria-hidden="true" data-md-exclude>
+<div class="cust-ground"></div>
 <div class="cust-floor"></div>
-<div class="cust-ball cust-ball--bobcat" data-icon="bobcat"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--warp cust-ball--dark" data-icon="warp"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--clerk" data-icon="clerk"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--zoom" data-icon="zoom"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--lufthansa cust-ball--dark" data-icon="lufthansa"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--thomson-reuters" data-icon="thomson-reuters"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--tailscale cust-ball--dark" data-icon="tailscale"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--later" data-icon="later"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--profound cust-ball--dark" data-icon="profound"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--partech" data-icon="partech"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
-<div class="cust-ball cust-ball--dedalus" data-icon="dedalus"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div></div>
+<div class="cust-ball cust-ball--bobcat" data-icon="bobcat"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--warp cust-ball--dark" data-icon="warp"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--clerk" data-icon="clerk"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--zoom" data-icon="zoom"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--lufthansa cust-ball--dark" data-icon="lufthansa"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--thomson-reuters" data-icon="thomson-reuters"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--tailscale cust-ball--dark" data-icon="tailscale"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--later" data-icon="later"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--profound cust-ball--dark" data-icon="profound"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--partech" data-icon="partech"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
+<div class="cust-ball cust-ball--dedalus" data-icon="dedalus"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
 </div>
 <div class="cust-copy">
 <div class="hero relative flex flex-col gap-3">
@@ -19,7 +20,8 @@
     Trusted by the world's best API teams.
   </scalar-heading>
   <p class="lp-lede">
-    Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world.
+    Powering Docs, MCP servers &amp; SDKs for the most ambitious API companies in the world, all kept in
+    sync from one OpenAPI document.
   </p>
   <div class="lp-hero-cta flex gap-2">
     <a class="t-editor__button lp-pill" href="https://dashboard.scalar.com/register">Get Started</a>
@@ -45,19 +47,18 @@
 <template id="lp-icon-dedalus"><svg xmlns="http://www.w3.org/2000/svg" viewBox="106 78 1264 1264" fill="none"><path d="M1122.47 309.002C1123.92 308.948 1125.16 310.079 1125.32 311.532L1125.81 316.432H1125.75C1128.28 341.574 1125.81 365.801 1121.23 390.189C1116.38 414.416 1108.74 438.267 1098.35 461.04C1077.78 506.695 1046.56 548.043 1008.76 581.53C1004.08 585.783 999.341 589.928 994.388 593.858L987.012 599.781L979.797 605.219C970.106 612.433 960.685 619.917 950.671 626.754L935.758 637.145C930.751 640.59 925.581 643.82 920.467 647.158C910.345 653.996 899.793 660.133 889.241 666.324C846.925 691.09 801.593 710.741 757.607 727.808L692.194 753.273C670.605 761.78 649.177 770.394 627.804 779.277C617.09 783.638 606.591 788.429 595.878 792.897L587.91 796.29L580.804 799.628L573.696 802.966L566.752 806.734C548.232 816.748 530.68 828.915 514.26 842.967C481.311 870.963 453.315 906.227 429.249 944.56C405.453 983 385.103 1024.99 369.382 1068.28L367.659 1073.07C367.175 1074.42 365.774 1075.17 364.429 1074.9L356.515 1073.29C355.061 1073.02 354.092 1071.67 354.253 1070.16L354.791 1065.26C357.321 1040.93 362.437 1017.56 368.951 994.252C375.304 970.94 383.702 948.059 393.501 925.662C413.421 881.138 439.91 838.176 475.658 801.835C493.479 783.692 513.452 767.217 535.472 753.381L543.763 748.267L552.323 743.582L560.938 738.898L568.959 734.914C579.673 729.638 590.333 724.2 601.154 719.247C644.279 698.789 688.641 680.484 731.927 663.202C753.623 654.48 774.674 645.65 795.455 636.498C816.183 627.346 836.211 617.332 856.131 606.834C865.983 601.343 875.889 596.066 885.634 590.252C890.533 587.399 895.433 584.599 900.278 581.638L914.761 572.593C924.505 566.724 934.035 560.317 943.618 554.126L950.832 549.442L957.508 544.759L964.237 540.128L970.752 535.283C1005.59 509.226 1036.17 477.407 1060.23 440.366C1072.34 421.9 1082.68 402.034 1091.35 381.307C1095.71 370.916 1099.53 360.255 1102.76 349.38C1106.16 338.612 1108.9 327.253 1110.84 316.539L1111.75 311.371C1112.02 310.025 1113.15 309.056 1114.55 309.002H1122.47ZM1026.7 903.424C1027.78 902.616 1029.34 902.67 1030.37 903.639L1034.78 907.73C1035.86 908.699 1036.02 910.315 1035.16 911.499L1032.84 914.729H1032.9C1007.54 949.832 975.72 979.066 940.187 1003.94C904.654 1028.54 864.383 1048.25 821.259 1058.64C800.154 1063.91 778.887 1067.52 757.567 1070.21C736.248 1072.64 714.874 1074.2 693.608 1074.52C650.969 1075.01 608.598 1072.26 566.712 1063.43L562.782 1062.62C561.382 1062.35 560.413 1061.01 560.521 1059.61L561.005 1053.52C561.113 1052.12 562.243 1051.05 563.589 1050.89L567.681 1050.56C609.136 1047.06 650.43 1043.35 691.078 1038.29C711.429 1035.87 731.564 1032.69 751.592 1029.4C771.566 1025.74 791.378 1021.92 810.76 1016.97C848.823 1007.55 885.379 991.933 920.805 972.659C956.069 953.331 990.417 930.612 1023.37 905.954L1026.7 903.424ZM1112.37 592.452C1113.07 591.375 1114.36 590.837 1115.6 591.214L1121.15 592.883C1122.44 593.26 1123.3 594.552 1123.19 595.897L1122.76 600.366H1122.87C1120.55 623.247 1114.15 644.513 1105.86 665.402C1097.46 686.184 1086.85 706.212 1074.31 725.001C1061.66 743.737 1047.23 761.503 1030.91 777.493C1022.78 785.515 1014.22 793.106 1005.34 800.32C996.458 807.481 987.359 813.995 978.045 820.456C940.628 845.706 899.441 865.034 856.586 877.471C835.158 883.716 813.354 888.238 791.334 890.93C780.351 892.276 769.261 893.191 758.225 893.406C747.08 893.729 736.205 893.567 724.791 892.275L720.43 891.791C719.03 891.629 717.953 890.499 717.899 889.1L717.631 882.908C717.577 881.562 718.438 880.378 719.729 880.001L724.145 878.816C744.28 873.486 764.577 867.08 784.12 860.135C803.771 853.19 822.937 845.329 841.673 836.931C879.09 819.918 914.624 799.944 947.519 776.578C964.047 764.841 979.606 752.404 994.411 739.106C1001.79 732.377 1008.95 725.432 1016.05 718.379C1023 711.165 1030 703.897 1036.62 696.306C1063.43 666.157 1087.77 632.4 1109.84 596.544L1112.37 592.452Z" fill="#fff"/></svg></template>
 
 <a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
+  <div class="featured-story-media" aria-hidden="true">
+    <img src="/warp-branding.png" alt="" />
+  </div>
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
-    <h2 class="featured-story-title">Accelerating Warp's <span class="nowrap">AI-Native</span> HR Platform with Scalar</h2>
     <div class="featured-story-logos" aria-label="Warp and Scalar">
       <scalar-icon class="featured-story-logo-warp" src="../../assets/logos/warp.svg"></scalar-icon>
       <span class="featured-story-logo-separator" aria-hidden="true">×</span>
-      <img class="featured-story-logo-scalar featured-story-logo-scalar-light" src="/brand/scalar-wordmark-light.svg" alt="Scalar" />
-      <img class="featured-story-logo-scalar featured-story-logo-scalar-dark" src="/brand/scalar-wordmark-dark.svg" alt="" aria-hidden="true" />
+      <img class="featured-story-logo-scalar" src="/brand/scalar-wordmark-dark.svg" alt="Scalar" />
     </div>
+    <h2 class="featured-story-title">Accelerating Warp's <span class="nowrap">AI-Native</span> HR Platform with Scalar</h2>
     <span class="featured-story-cta">Read the story →</span>
-  </div>
-  <div class="featured-story-media" aria-hidden="true">
-    <img src="/warp-branding.png" alt="" />
   </div>
 </a>
 
@@ -65,253 +66,67 @@
 
 These teams use Scalar Docs to give developers a direct, dependable path from reading about an API to making the first request.
 
-<section class="customer-sticker-grid" aria-label="Scalar Docs customers">
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-bobcat" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-1"
-        data-company-sticker
-        data-company-sticker-id-prefix="bobcat-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/bobcat-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/bobcat-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer">Bobcat</a>
-    </p>
-    <p class="customer-sticker-description">Manufacturer of farm and construction equipment</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-thomson-reuters" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-2"
-        data-company-sticker
-        data-company-sticker-id-prefix="thomson-reuters-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/thomson-reuters-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span
-          class="company-team-sticker-interactive"
-          data-company-sticker-src="/thomson-reuters-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer">Thomson Reuters</a>
-    </p>
-    <p class="customer-sticker-description">Software and decision tools for legal and accounting</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-clerk" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-3"
-        data-company-sticker
-        data-company-sticker-id-prefix="clerk-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/clerk-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/clerk-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer">Clerk</a>
-    </p>
-    <p class="customer-sticker-description">Authentication and user management for the modern web</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-lufthansa" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-5"
-        data-company-sticker
-        data-company-sticker-id-prefix="lufthansa-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/lufthansa-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/lufthansa-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer">Lufthansa</a>
-    </p>
-    <p class="customer-sticker-description">Flight status, schedules, offers, and partner travel APIs</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-partech" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-9"
-        data-company-sticker
-        data-company-sticker-id-prefix="partech-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/partech-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/partech-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://developers.partech.com" target="_blank" rel="noopener noreferrer">PAR</a>
-    </p>
-    <p class="customer-sticker-description">Software and solutions for restaurant and retail brands</p>
-    <p class="customer-sticker-story">
-      <a class="t-editor__anchor" href="/customers/partech">Read the PAR story →</a>
-    </p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-zoom" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-7"
-        data-company-sticker
-        data-company-sticker-id-prefix="zoom-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/zoom-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/zoom-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer">Zoom</a>
-    </p>
-    <p class="customer-sticker-description">Video communications and collaboration platform</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-tailscale" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-8"
-        data-company-sticker
-        data-company-sticker-id-prefix="tailscale-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/tailscale-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/tailscale-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer">Tailscale</a>
-    </p>
-    <p class="customer-sticker-description">Secure, identity-based networking for teams and devices</p>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-later" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-4"
-        data-company-sticker
-        data-company-sticker-id-prefix="later-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/later-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/later-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">
-      <a class="t-editor__anchor" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer">Later</a>
-    </p>
-    <p class="customer-sticker-description">Social media management for creators and brands</p>
-  </article>
-</section>
+<div class="cust-rows" role="list" aria-label="Scalar Docs customers">
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Bobcat"><scalar-icon class="cust-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></span>
+    <span class="cust-row-use">developer.bobcat.com</span>
+    <a class="cust-row-out" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer" aria-label="Bobcat: developer.bobcat.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Thomson Reuters"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></span>
+    <span class="cust-row-use">developers.thomsonreuters.com</span>
+    <a class="cust-row-out" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer" aria-label="Thomson Reuters: developers.thomsonreuters.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Clerk"><scalar-icon class="cust-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></span>
+    <span class="cust-row-use">clerk.com/docs</span>
+    <a class="cust-row-out" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer" aria-label="Clerk: clerk.com/docs"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Lufthansa"><scalar-icon class="cust-logo" src="../../assets/logos/lufthansa.svg"></scalar-icon></span>
+    <span class="cust-row-use">developer.lufthansa.com</span>
+    <a class="cust-row-out" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer" aria-label="Lufthansa: developer.lufthansa.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="PAR"><scalar-icon class="cust-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></span>
+    <span class="cust-row-use">developers.partech.com</span>
+    <a class="cust-row-out" href="/customers/partech" aria-label="PAR: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Zoom"><scalar-icon class="cust-logo" src="../../assets/logos/zoom.svg"></scalar-icon></span>
+    <span class="cust-row-use">developers.zoom.us</span>
+    <a class="cust-row-out" href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer" aria-label="Zoom: developers.zoom.us"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Tailscale"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></span>
+    <span class="cust-row-use">tailscale.com/api</span>
+    <a class="cust-row-out" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer" aria-label="Tailscale: tailscale.com/api"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Later"><scalar-icon class="cust-logo" src="../../assets/logos/later.svg"></scalar-icon></span>
+    <span class="cust-row-use">docs.reporting.api.later.com</span>
+    <a class="cust-row-out" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer" aria-label="Later: docs.reporting.api.later.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+  </div>
+</div>
 
 ## Scalar SDKs
 
 These teams use Scalar SDKs to turn their APIs into polished client libraries.
 
-<section class="customer-sticker-grid" aria-label="Scalar SDK customers">
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-warp" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-6"
-        data-company-sticker
-        data-company-sticker-id-prefix="warp-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/warp-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/warp-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">Warp</p>
-    <p class="customer-sticker-description">AI-native payroll, benefits, and compliance for growing teams</p>
-    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub">Go</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub">TypeScript</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub">Python</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub">CLI</a>
-    </div>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-profound" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-10"
-        data-company-sticker
-        data-company-sticker-id-prefix="profound-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/profound-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/profound-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">Profound</p>
-    <p class="customer-sticker-description">Analytics for how brands show up in AI search answers</p>
-    <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-typescript-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound TypeScript SDK on GitHub">TypeScript</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-python-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Python SDK on GitHub">Python</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/cooper-square-technologies/profound-rust-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Rust SDK on GitHub">Rust</a>
-    </div>
-  </article>
-  <article class="customer-sticker-item">
-    <div class="company-team-member-image customer-sticker-stage customer-sticker-stage-dedalus" aria-hidden="true">
-      <div
-        class="company-team-sticker sticker-11"
-        data-company-sticker
-        data-company-sticker-id-prefix="dedalus-customer-sticker">
-        <img
-          class="company-team-sticker-static"
-          src="/dedalus-sticker-static.svg"
-          alt=""
-          decoding="async"
-          loading="lazy" />
-        <span class="company-team-sticker-interactive" data-company-sticker-src="/dedalus-sticker.svg"></span>
-      </div>
-    </div>
-    <p class="customer-sticker-name">Dedalus Labs</p>
-    <p class="customer-sticker-description">Fast, isolated compute infrastructure for AI agents</p>
-        <div class="customer-sdk-targets" role="list" aria-label="Generated SDKs">
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-typescript" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs TypeScript SDK on GitHub">TypeScript</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-python" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Python SDK on GitHub">Python</a>
-      <a class="customer-sdk-target rounded-full bg-b-2 hover:bg-b-3 px-2 py-1 text-xs leading-none text-c-1 no-underline" href="https://github.com/dedalus-labs/dedalus-go" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Go SDK on GitHub">Go</a>
-    </div>
-  </article>
-</section>
-
-<div class="company-sticker-filter-effect sticker-filter-effect" aria-hidden="true">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
+<div class="cust-rows" role="list" aria-label="Scalar SDK customers">
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Warp"><scalar-icon class="cust-logo" src="../../assets/logos/warp.svg"></scalar-icon></span>
+    <span class="cust-row-use cust-row-use--sdk"><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub">Go</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub">TypeScript</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub">Python</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub">CLI</a></span>
+    <a class="cust-row-out" href="/customers/warp" aria-label="Warp: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo" role="img" aria-label="Profound"><scalar-icon class="cust-logo" src="../../assets/logos/profound.svg"></scalar-icon></span>
+    <span class="cust-row-use cust-row-use--sdk"><a class="cust-sdk t-editor__anchor" href="https://github.com/cooper-square-technologies/profound-typescript-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound TypeScript SDK on GitHub">TypeScript</a><a class="cust-sdk t-editor__anchor" href="https://github.com/cooper-square-technologies/profound-python-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Python SDK on GitHub">Python</a><a class="cust-sdk t-editor__anchor" href="https://github.com/cooper-square-technologies/profound-rust-sdk" target="_blank" rel="noopener noreferrer" aria-label="Profound Rust SDK on GitHub">Rust</a></span>
+  </div>
+  <div class="cust-row">
+    <span class="cust-row-logo cust-row-logo--mark"><scalar-icon class="cust-logo" src="../../assets/logos/dedalus.svg"></scalar-icon><span class="cust-row-name">Dedalus Labs</span></span>
+    <span class="cust-row-use cust-row-use--sdk"><a class="cust-sdk t-editor__anchor" href="https://github.com/dedalus-labs/dedalus-typescript" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs TypeScript SDK on GitHub">TypeScript</a><a class="cust-sdk t-editor__anchor" href="https://github.com/dedalus-labs/dedalus-python" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Python SDK on GitHub">Python</a><a class="cust-sdk t-editor__anchor" href="https://github.com/dedalus-labs/dedalus-go" target="_blank" rel="noopener noreferrer" aria-label="Dedalus Labs Go SDK on GitHub">Go</a></span>
+  </div>
 </div>
 
 <style>
@@ -356,13 +171,15 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     /* a screen, never more than 640px, so the row of balls along the
        bottom edge is there before any scroll; the room under the copy
        is the balls' */
-    min-height: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
-    /* The home page leaves 24px under its hero copy and 104px more for
-       the logo strip; the balls take that room here. The 21px on top of
-       that is the third line of lede this page's shorter subhead does
-       not use, and it is what puts this heading on the same line as the
-       home page's rather than half a line lower. */
-    padding: 48px 0 149px;
+    /* The hero ends where the home page's does: its planets bottom out
+       around 600px down and its logo strip starts at 608, so the floor
+       the balls settle on is the same line. */
+    min-height: min(calc(90dvh - var(--scalar-header-height, 48px)), 560px);
+    /* and the room under the copy is what is left after that, which
+       still centres this heading on the same line as the home page's
+       (the copy is one line of lede shorter than the home page's, so
+       the two boxes are not the same, only their headings) */
+    padding: 48px 0 68px;
   }
   .cust-copy {
     position: relative;
@@ -386,6 +203,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   /* the heading is a flex row (it holds its anchor button) */
   .cust-hero .hero .t-editor__heading {
     justify-content: center;
+  }
+  /* The heading is centred, so the button that appears beside it on
+     hover (the one that copies a link to it) pushes the words off
+     centre as it comes and goes. The headings further down the page are
+     ranged left and keep theirs. */
+  .cust-copy .t-editor__heading .notify-container {
+    display: none;
   }
   .cust-hero .hero > .flex {
     justify-content: center;
@@ -540,6 +364,48 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     overflow: clip;
     pointer-events: none;
   }
+  /* The ground the hairline is the near edge of. A grid of small dots is
+     laid out flat and tipped away from the reader, so the rows crowd
+     together and the dots shrink as they go back, the way a floor does.
+     Perspective and tilt together put the far edge about 120px above
+     the line; the mask thins the dots out well before that, so the
+     field has dissolved a hundred-odd pixels under the buttons rather
+     than ending on an edge. It is painted once and never moves. */
+  .cust-ground {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    perspective: 335px;
+    perspective-origin: 50% 100%;
+  }
+  .cust-ground::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(
+        circle at center,
+        color-mix(in srgb, var(--scalar-color-3) 80%, transparent) 0 1.4px,
+        transparent 2px
+      ),
+      radial-gradient(
+        circle at center,
+        color-mix(in srgb, var(--scalar-color-3) 80%, transparent) 0 1.4px,
+        transparent 2px
+      );
+    /* the second lattice sits in the gaps of the first, which keeps the
+       columns from lining up into rays as they converge */
+    background-position:
+      50% 100%,
+      calc(50% + 15px) calc(100% - 15px);
+    background-size: 30px 30px;
+    transform: rotateX(54deg);
+    transform-origin: 50% 100%;
+    -webkit-mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / 0.8) 24%, rgb(0 0 0 / 0.28) 56%, transparent 84%);
+    mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / 0.8) 24%, rgb(0 0 0 / 0.28) 56%, transparent 84%);
+  }
   /* the floor: the hairline the balls settle on, drawn like every other
      border on the page */
   .cust-floor {
@@ -556,6 +422,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   .cust-ball {
     --ink: #fff;
     --tint: #f8f8f8;
+    /* nothing is drawn until the script has a place for it, or the
+       whole set shows stacked in the corner for a moment on load */
+    opacity: 0;
+    /* a tile of grey noise round mid-grey, the same one the home page's
+       planets carry, laid over the whole ball with overlay so white
+       stays white and the colours take the grain */
+    --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     position: absolute;
     /* the room the ball's surface turns in: seven times the ball across,
        deep enough that a piece near the front is not blown up past the
@@ -573,6 +446,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     user-select: none;
     will-change: translate;
   }
+  .cust-field.is-ready .cust-ball {
+    opacity: 1;
+  }
   .cust-ball.is-held {
     z-index: 3;
     cursor: grabbing;
@@ -585,6 +461,8 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
      light is the room's, so it stays where it is however the ball
      rolls, and only the mark between the layers turns. */
   .cust-ball-paint {
+    /* the light (the white sheen along the bottom) is shared by every
+       ball; a brand replaces only the paint under it */
     --lp-ball-light: radial-gradient(
       calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
       rgba(255, 255, 255, 0.45),
@@ -593,12 +471,13 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     --lp-ball-paint: radial-gradient(
       calc(var(--s) / 2) at 50% 50%,
       color-mix(in oklab, var(--tint) 90%, white) 40%,
-      var(--tint) 80%,
-      color-mix(in oklab, var(--tint) 88%, black) 100%
+      var(--tint) 80%
     );
+    /* the shading, kept faint: a crescent along the top, a darker edge
+       at the bottom */
     --lp-ball-shade:
-      inset 4px 16px 18px -12px rgba(0, 0, 0, 0.45),
-      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.35);
+      inset 4px 16px 18px -12px rgba(0, 0, 0, 0.14),
+      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.1);
     position: absolute;
     inset: 0;
     border-radius: 50%;
@@ -614,6 +493,18 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     box-shadow: var(--lp-ball-shade);
     pointer-events: none;
   }
+  /* the grain lies in the surface, so it falls on the mark as well as
+     on the paint: it blends with the ball under it, and the ball's own
+     perspective keeps that blending inside the one ball rather than
+     letting it reach the balls behind */
+  .cust-ball-grain {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--lp-grain-ball) 50% 50% / 160px 160px;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
   /* a dark ball: the body lifted off black, the rim catching light at
      the top instead of shading */
   .cust-ball--dark .cust-ball-paint,
@@ -625,13 +516,12 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     );
     --lp-ball-paint: radial-gradient(
       calc(var(--s) / 2) at 50% 50%,
-      color-mix(in oklab, var(--tint) 55%, #8b8b93) 52%,
-      color-mix(in oklab, var(--tint) 80%, #4a4a52) 86%,
-      var(--tint) 100%
+      color-mix(in oklab, var(--tint) 45%, #8b8b93) 55%,
+      color-mix(in oklab, var(--tint) 75%, #4a4a52) 100%
     );
     --lp-ball-shade:
-      inset 4px 16px 18px -12px rgba(255, 255, 255, 0.35),
-      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.5),
+      inset 4px 16px 18px -12px rgba(255, 255, 255, 0.1),
+      inset 0 -5px 8px -5px rgba(0, 0, 0, 0.15),
       inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   }
   /* The mark, lying on the ball's surface rather than stuck to its
@@ -651,7 +541,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     position: absolute;
     inset: 0;
     transform-style: preserve-3d;
-    transform: rotate3d(0, 0.8480, -0.5299, var(--roll, 0deg));
+    /* the axle itself comes from landing.js as --cust-axis, so the lean
+       is one number rather than two that can drift apart */
+    transform: rotate3d(var(--cust-axis, 0, 0.788, -0.6157), var(--roll, 0deg));
     pointer-events: none;
     will-change: transform;
   }
@@ -720,64 +612,82 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   .ign-logo__fill {
     fill: var(--scalar-color-1);
   }
+  /* The story runs the full width as a banner, with the copy on a card
+     that laps over its lower edge. Both sit in the one grid cell and
+     the card is the later one, so it stands over the picture. */
+  /* The story is one full-width picture with the words set straight on
+     it, the way Notion runs its customer cards: the lockup at the head,
+     the headline and the way in at the foot. A scrim at each end holds
+     them clear of the picture without flattening what is between. */
   .featured-story-card {
+    /* the picture reaches past the column by exactly the inset of the
+       words, so the headline on it ranges with the headings under it;
+       where there is no gutter to reach into, it simply does not */
+    --featured-story-inset: 40px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    min-height: 320px;
-    margin: 48px 0;
+    grid-template-areas: 'stack';
+    width: calc(100% + 2 * var(--featured-story-inset));
+    margin: 48px calc(-1 * var(--featured-story-inset));
     overflow: hidden;
-    color: var(--scalar-color-1);
+    color: #fff;
     text-decoration: none;
     background: var(--scalar-background-2);
     border-radius: var(--scalar-radius-xl);
   }
   .featured-story-card:hover {
-    color: var(--scalar-color-1);
+    color: #fff;
     text-decoration: none;
   }
   .featured-story-card:focus-visible {
     outline: 2px solid var(--scalar-color-accent);
     outline-offset: 4px;
   }
+  /* the picture keeps its own 16:9 up to a ceiling, past which it crops
+     rather than growing into a wall */
+  .featured-story-media {
+    position: relative;
+    grid-area: stack;
+    aspect-ratio: 16 / 9;
+    max-height: 440px;
+  }
+  .featured-story-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .featured-story-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, rgb(0 0 0 / 0.74) 0%, rgb(0 0 0 / 0.6) 18%, rgb(0 0 0 / 0.3) 32%, rgb(0 0 0 / 0) 52%),
+      linear-gradient(to top, rgb(0 0 0 / 0.88) 0%, rgb(0 0 0 / 0.68) 18%, rgb(0 0 0 / 0.3) 40%, rgb(0 0 0 / 0) 62%);
+  }
   .featured-story-copy {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 320px;
-    padding: 64px 48px;
-    text-align: center;
+    align-items: flex-start;
+    grid-area: stack;
+    padding: 36px var(--featured-story-inset);
+    text-align: left;
   }
   .featured-story-eyebrow {
-    margin: 0 0 24px;
-    color: var(--scalar-color-2);
+    margin: 0;
+    color: rgb(255 255 255 / 0.76);
     font-size: var(--scalar-small);
     font-weight: var(--scalar-regular);
     line-height: var(--scalar-line-height-3);
-  }
-  /* The narrow copy column otherwise splits "AI-Native" across lines at its hyphen. */
-  .featured-story-title .nowrap {
-    white-space: nowrap;
-  }
-  .featured-story-card .featured-story-title {
-    display: block;
-    max-width: 380px;
-    margin: 0;
-    text-wrap: balance;
-    color: var(--scalar-color-1);
-    font-size: var(--scalar-heading-2);
-    font-weight: var(--scalar-bold);
-    letter-spacing: 0;
-    line-height: var(--scalar-line-height-2);
   }
   .featured-story-logos {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
     gap: 10px 14px;
-    margin-top: 26px;
-    color: var(--scalar-color-1);
+    margin-top: 14px;
+    color: #fff;
   }
   /* width:auto sizes the mark from its viewBox, but flex was free to shrink that to
      nothing once the copy column narrowed, so the logo vanished. */
@@ -788,287 +698,189 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     flex-shrink: 0;
   }
   .featured-story-logo-separator {
-    color: var(--scalar-color-1);
+    color: rgb(255 255 255 / 0.6);
     font-size: var(--scalar-small);
     font-weight: var(--scalar-regular);
     line-height: var(--scalar-line-height-5);
   }
+  /* the wordmark ships as two fixed-ink files and the words always sit
+     on a darkened picture, so this one takes the white-ink file in both
+     themes rather than following the page */
   .featured-story-logo-scalar {
     width: auto;
     height: 26px;
   }
-  /* The wordmark ships as two fixed-ink files, so swap them with the theme. */
-  .featured-story-logo-scalar-dark {
-    display: none;
+  /* The narrow copy column otherwise splits "AI-Native" across lines at its hyphen. */
+  .featured-story-title .nowrap {
+    white-space: nowrap;
   }
-  .dark-mode .featured-story-logo-scalar-light {
-    display: none;
-  }
-  .dark-mode .featured-story-logo-scalar-dark {
+  /* margin-top: auto drops the headline and the cue to the foot of the
+     picture, whatever height it happens to take */
+  .featured-story-card .featured-story-title {
     display: block;
+    max-width: 560px;
+    margin: auto 0 0;
+    text-wrap: balance;
+    color: #fff;
+    font-size: var(--scalar-heading-2);
+    font-weight: var(--scalar-bold);
+    letter-spacing: 0;
+    line-height: var(--scalar-line-height-2);
   }
   /* The card is one big link, so the cue is styled text rather than a nested anchor. */
   .featured-story-cta {
-    margin-top: 26px;
-    color: var(--scalar-color-2);
+    margin-top: 14px;
+    color: rgb(255 255 255 / 0.82);
     font-size: var(--scalar-small);
     font-weight: var(--scalar-semibold);
     line-height: var(--scalar-line-height-3);
   }
   .featured-story-card:hover .featured-story-cta {
-    color: var(--scalar-color-1);
+    color: #fff;
   }
-  .featured-story-media {
-    min-height: 320px;
-    background: var(--scalar-background-2);
-  }
-  .featured-story-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  /* Even 1fr tracks, laid out the way the team grid on /company is. Fixed tracks
-     spread with justify-content leave a gulf down the middle once the row drops to
-     two columns; sharing the width and letting each sticker sit at the head of its
-     track keeps the spacing even at any count. */
-  .customer-sticker-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+  /* The customers, laid out the way the open roles are on the company
+     page: a row each, ruled off from the next, with the company's own
+     logo at the left, what they run on Scalar beside it, and the way
+     out at the end for the ones we can link to. */
+  .cust-rows {
     margin: 24px 0 56px;
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   }
-  .customer-sticker-item {
-    display: flex;
-    min-width: 0;
-    flex-direction: column;
-    margin-bottom: 36px;
-  }
-  .company-team-member-image {
-    --company-team-member-background-dark: color-mix(in srgb, var(--company-team-member-background), black 7%);
-    /* The company page nudges its stickers a pixel left to sit inside a wider stage.
-       Here the stage is the sticker's own size, so it stays centred. */
-    --company-team-sticker-offset-x: 0px;
-    --company-team-gradient-center-x: 50%;
-    /* Ratios of the stage's half-width rather than the 82px/95px the 190px design was
-       drawn at, so the halo stays inscribed once a narrow column shrinks the stage. */
-    --company-team-gradient-inner-radius: 86.32%;
-    --company-team-gradient-outer-radius: 100%;
+  .cust-row {
     position: relative;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-    margin-bottom: 8px;
-    background: radial-gradient(
-      circle closest-side at var(--company-team-gradient-center-x) 50%,
-      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1)),
-      color-mix(in srgb, var(--scalar-background-2), var(--scalar-background-1))
-        var(--company-team-gradient-inner-radius),
-      var(--company-team-member-background-dark) var(--company-team-gradient-inner-radius),
-      var(--company-team-member-background-dark) var(--company-team-gradient-outer-radius),
-      transparent var(--company-team-gradient-outer-radius),
-      transparent
-    );
-    border-radius: 0;
+    display: grid;
+    grid-template-columns: minmax(0, calc((100% - 12px) / 2)) minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   }
-  /* The sticker artwork is drawn for 190px, so the stage is capped rather than
-     stretched to the wider column this page gives it. */
-  .customer-sticker-stage {
-    max-width: 190px;
-  }
-  .customer-sticker-stage-bobcat {
-    --company-team-member-background: #ff3600;
-  }
-  .customer-sticker-stage-thomson-reuters {
-    --company-team-member-background: #d64000;
-  }
-  .customer-sticker-stage-clerk {
-    --company-team-member-background: #6c47ff;
-  }
-  .customer-sticker-stage-later {
-    --company-team-member-background: #5124c1;
-  }
-  .customer-sticker-stage-lufthansa {
-    --company-team-member-background: #05164d;
-  }
-  .customer-sticker-stage-partech {
-    --company-team-member-background: #6864d1;
-  }
-  .customer-sticker-stage-warp {
-    --company-team-member-background: #000000;
-  }
-  .customer-sticker-stage-profound {
-    --company-team-member-background: #08090a;
-  }
-  .customer-sticker-stage-dedalus {
-    --company-team-member-background: #3b2e7e;
-  }
-  .customer-sticker-stage-zoom {
-    --company-team-member-background: #0b5cff;
-  }
-  .customer-sticker-stage-tailscale {
-    --company-team-member-background: #1f1e1e;
-  }
-  .company-team-sticker {
-    --flap-width: 1254px;
-    --company-sticker-flap-light-height: calc(var(--sticker-peelback-hover) + var(--sticker-p));
-    --company-sticker-light-x: 50%;
-    --company-sticker-light-y: 50%;
-    --sticker-p: 40px;
-    --sticker-peelback-hover: 20%;
-    --sticker-peelback-active: 36%;
-    --sticker-start: calc(-1 * var(--sticker-p));
-    --sticker-end: calc(100% + var(--sticker-p));
-    --sticker-rotate: 0deg;
+  /* the row lights up as one, which the link at its end does by
+     reaching across the whole of it */
+  .cust-row:has(.cust-row-out:hover)::before,
+  .cust-row:has(.cust-row-out:focus-visible)::before {
+    content: '';
     position: absolute;
-    top: 50%;
-    right: auto;
-    bottom: auto;
-    left: calc(var(--company-team-gradient-center-x) + var(--company-team-sticker-offset-x));
-    display: block;
-    width: 100%;
-    max-width: 190px;
-    height: auto;
-    aspect-ratio: 1;
-    cursor: grab;
-    clip-path: none;
-    overflow: hidden;
-    transform: translate(-50%, -50%) translateZ(0);
+    top: -0.5px;
+    left: -12px;
+    width: calc(100% + 24px);
+    height: calc(100% + 1px);
+    background: var(--scalar-background-2);
+    border-radius: var(--scalar-radius);
   }
-  .customer-sticker-grid .company-team-sticker .sticker-container {
-    transform: rotate(var(--sticker-rotate));
-    transform-origin: center;
+  .cust-row:has(.cust-row-out:focus-visible)::before {
+    outline: 2px solid var(--scalar-color-accent);
   }
-  .customer-sticker-grid .company-team-sticker .sticker-lighting svg,
-  .customer-sticker-grid .company-team-sticker .shadow svg,
-  .customer-sticker-grid .company-team-sticker .flap svg {
-    transform: none !important;
-  }
-  .company-team-sticker-interactive > svg {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    overflow: visible !important;
-  }
-  .company-team-sticker .sticker-lighting,
-  .company-team-sticker .flap-lighting {
-    filter: none;
-  }
-  .company-team-sticker .sticker-container:hover .flap {
-    filter: brightness(1.3);
-  }
-  .company-team-sticker:active {
-    cursor: grabbing;
-  }
-  .company-team-sticker-static {
-    display: none;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    transform: rotate(var(--sticker-rotate, 0deg));
-    transform-origin: center;
-  }
-  .company-team-sticker-interactive {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100%;
-    max-height: 100%;
-    overflow: visible !important;
-  }
-  .company-stickers-static .company-team-sticker-interactive {
-    display: none !important;
-  }
-  .company-stickers-static .company-team-sticker {
-    cursor: default;
-  }
-  .company-stickers-static .company-team-sticker-static {
-    display: block;
-  }
-  .company-sticker-filter-effect {
-    position: absolute;
-    width: 0;
-    height: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  .customer-sticker-name,
-  .customer-sticker-description,
-  .customer-sticker-story {
-    max-width: 190px;
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
-  .customer-sticker-name {
-    color: var(--scalar-color-1);
-    font-size: var(--scalar-heading-3);
-    font-weight: var(--scalar-bold);
-    line-height: var(--scalar-line-height-2);
-  }
-  /* Every description is written to fit three lines at 190px, and reserves three
-     whether or not it fills them, so the rows beneath line up across the grid. */
-  .customer-sticker-description {
-    min-height: 3lh;
-    color: var(--scalar-color-3);
-    font-size: var(--scalar-font-size-2);
-    line-height: var(--scalar-line-height-2);
-  }
-  /* The Generated SDKs row the story pages carry, as pills rather than marks: the
-     column is 190px wide, and a language reads faster than a glyph at this size.
-     Every pill links to that language's own generated repository. */
-  .customer-sdk-targets {
+  .cust-row-logo {
+    position: relative;
     display: flex;
-    max-width: 190px;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    color: var(--scalar-color-1);
+  }
+  .cust-logo {
+    display: block;
+    width: auto;
+    height: 20px;
+    max-width: 100%;
+  }
+  /* the stacked lockup wants the room its second line takes */
+  .cust-row-logo svg[viewBox='0 0 1601 533'] {
+    height: 28px;
+  }
+  /* Later's shadow hangs below the word, so the box stands taller for the
+     word itself to read at the height of the others */
+  .cust-row-logo svg[viewBox='16 188 501 150'] {
+    height: 29px;
+  }
+  /* Clerk's upper arc fades, as it does on the home page */
+  .cust-row-logo svg[viewBox='0 0 441 128'] path:last-of-type {
+    opacity: 0.4;
+  }
+  /* the few with no wordmark of their own show their mark and their
+     name instead */
+  .cust-row-logo--mark .cust-logo {
+    height: 22px;
+    flex: none;
+  }
+  .cust-row-name {
+    font-size: var(--scalar-heading-3);
+    font-weight: var(--scalar-semibold);
+    line-height: var(--scalar-line-height-2);
+    white-space: nowrap;
+  }
+  .cust-row-use {
+    position: relative;
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
-    margin-top: 10px;
+    gap: 6px 10px;
+    min-width: 0;
+    color: var(--scalar-color-3);
+    font-size: var(--scalar-heading-3);
+    line-height: var(--scalar-line-height-2);
+    overflow-wrap: anywhere;
   }
-  .customer-sdk-target {
-    display: inline-flex;
-    align-items: center;
+  /* the languages we generate for them, each one its repository, each
+     written the way an open role is on the company page */
+  .cust-row-use--sdk {
+    gap: 6px 16px;
   }
-  .customer-sdk-target:hover {
-    text-decoration: none;
+  .cust-sdk {
+    position: relative;
+    z-index: 1;
+    color: var(--scalar-color-1);
+    font-weight: var(--scalar-semibold);
   }
-  .customer-sdk-target:focus-visible {
+  .cust-sdk:focus-visible {
+    border-radius: var(--scalar-radius);
     outline: 2px solid var(--scalar-color-accent);
     outline-offset: 2px;
   }
-  /* Only PAR carries a story link, so it sits under the description rather than
-     changing the shape of every other card. */
-  .customer-sticker-story {
-    margin-top: 8px;
-    font-size: var(--scalar-small);
-    font-weight: var(--scalar-semibold);
-    line-height: var(--scalar-line-height-3);
+  /* the link at the end of the row covers the row, so anywhere in it
+     takes you there; the links inside it stand above that */
+  .cust-row-out {
+    /* it takes no position of its own, so the box below reaches for the
+       row instead and covers whatever height the row happens to be */
+    display: inline-flex;
+    align-items: center;
+    color: var(--scalar-color-3);
+    text-decoration: none;
   }
-  .customer-sticker-name .t-editor__anchor:focus-visible,
-  .customer-sticker-story .t-editor__anchor:focus-visible {
-    border-radius: var(--scalar-radius);
-    outline: 2px solid var(--scalar-color-accent);
-    outline-offset: 3px;
+  .cust-row-out::after {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
-  @media (max-width: 1279px) {
-    .customer-sticker-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .cust-row-out:hover {
+    color: var(--scalar-color-1);
+    text-decoration: none;
   }
-  @media (max-width: 760px) {
-    .customer-sticker-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 40px 12px;
-    }
-    .customer-sticker-item {
-      margin-bottom: 0;
+  /* the row's hover wash is positioned, so the arrow has to be too, or
+     it is painted over; the link itself stays unpositioned so the box
+     that covers the row still reaches for the row */
+  .cust-row-out scalar-icon,
+  .cust-row-out svg {
+    position: relative;
+  }
+  .cust-row-out svg {
+    width: 16px;
+    height: 16px;
+  }
+  /* the page's gutter is down to 24px by the time the window is this
+     narrow, so the picture reaches no further than that */
+  @media (max-width: 800px) {
+    .featured-story-card {
+      --featured-story-inset: 24px;
     }
   }
   @media (max-width: 720px) {
+    /* the copy is taller here (the heading wraps and the buttons
+       stack), and the heap is no shorter for it, so it takes more of
+       the room under the copy */
     .cust-hero {
-      padding-bottom: 104px;
+      padding-bottom: 152px;
     }
     .cust-hero .lp-hero-cta {
       width: 100%;
@@ -1077,19 +889,19 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
       flex: 1 1 auto;
       justify-content: center;
     }
+    /* a phone has no room for the card to sit inside the picture, so the
+       two stack and the card laps over the last of it instead */
+    /* a phone wants the picture upright, so the words have room at each
+       end without crowding what is between them */
     .featured-story-card {
-      grid-template-columns: 1fr;
-      margin: 40px 0;
-    }
-    .featured-story-copy {
-      min-height: auto;
-      padding: 56px 24px;
-    }
-    .featured-story-card .featured-story-title {
-      max-width: 340px;
+      margin: 40px calc(-1 * var(--featured-story-inset));
     }
     .featured-story-media {
-      min-height: 220px;
+      aspect-ratio: 1 / 1;
+      max-height: none;
+    }
+    .featured-story-copy {
+      padding: 24px var(--featured-story-inset);
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -1098,24 +910,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     }
     .cust-hero .lp-onboard.is-copied .lp-onboard-done {
       animation: none;
-    }
-  }
-  @media (hover: none), (pointer: coarse) {
-    .company-team-sticker-interactive {
-      display: none !important;
-    }
-    .company-team-sticker-static {
-      display: block;
-    }
-    .company-team-member-image .company-team-sticker {
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      transform: none;
-    }
-    .company-sticker-filter-effect {
-      display: none;
     }
   }
 </style>
