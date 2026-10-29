@@ -122,6 +122,7 @@ import { SpecificationExtension } from '@/features/specification-extension'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
+import { getDownloadFilename } from '@/helpers/get-download-filename'
 import { hasDocumentChanges } from '@/helpers/has-document-changes'
 import {
   getIdFromUrl,
@@ -1603,7 +1604,14 @@ eventBus.on('ui:download:document', ({ format }) => {
     return
   }
 
-  void downloadDocument(document, activeSlug.value ?? 'openapi', format)
+  const activeConfiguration = configList.value[activeSlug.value]
+  const filename = getDownloadFilename({
+    slug: activeConfiguration?.slug,
+    isSlugGenerated: activeConfiguration?.isSlugGenerated,
+    title: workspaceStore.workspace.activeDocument?.info?.title,
+  })
+
+  void downloadDocument(document, filename, format)
 })
 
 // ---------------------------------------------------------------------------
