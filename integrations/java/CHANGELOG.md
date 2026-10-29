@@ -2,6 +2,10 @@
 
 ## 0.6.86
 
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.3
+
 ## 0.6.85
 
 ### Bundled API Reference
