@@ -1178,7 +1178,8 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": true,
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
