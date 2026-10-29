@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import ScalarMarkdown from './ScalarMarkdown.vue'
 
@@ -131,5 +131,25 @@ describe('ScalarMarkdown', () => {
     expect(wrapper.find('p').exists()).toBe(true)
     expect(wrapper.find('code').exists()).toBe(true)
     expect(wrapper.find('code').text()).toBe('Foobar')
+  })
+
+  describe('loading grammars on demand', () => {
+    it('renders a code block plain first and highlights it once the grammar has loaded', async () => {
+      // No other test here highlights Go, so its grammar is not loaded yet
+      const wrapper = mount(ScalarMarkdown, { props: { value: '```go\nfunc main() {}\n```' } })
+
+      expect(wrapper.get('code').html()).toBe('<code class="hljs language-go custom-scroll">func main() {}\n</code>')
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+      expect(wrapper.get('code').text()).toBe('func main() {}')
+    })
+
+    it('loads the grammar for a code block in new content', async () => {
+      const wrapper = mount(ScalarMarkdown, { props: { value: 'No code yet' } })
+
+      await wrapper.setProps({ value: '```kotlin\nval answer = 42\n```' })
+
+      await vi.waitFor(() => expect(wrapper.get('code').html()).toContain('hljs-keyword'))
+    })
   })
 })
