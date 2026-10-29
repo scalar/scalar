@@ -1178,17 +1178,13 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": true,
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
             "head": {
               "title": "Scalar Customers — Trusted by the World's Best API Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/company.js"
-                }
-              ],
               "links": [
                 {
                   "rel": "canonical",
