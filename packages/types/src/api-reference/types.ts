@@ -313,6 +313,7 @@ export type BaseConfiguration = {
     | 'fastify'
     | 'mars'
     | 'laserwave'
+    | 'halloween'
     | 'none'
   /** Integration type identifier */
   _integration?:

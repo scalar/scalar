@@ -1,0 +1,303 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* Candlelit parchment by day */
+  --scalar-color-1: #2b2034;
+  --scalar-color-2: #5e5068;
+  --scalar-color-3: #8a7d93;
+  --scalar-color-accent: #b04608;
+
+  --scalar-background-1: #fffaf3;
+  --scalar-background-2: #f7efe3;
+  --scalar-background-3: #ecdfcc;
+  --scalar-background-accent: #b0460814;
+
+  --scalar-border-color: #e9dcc8;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* Midnight aubergine with a pumpkin glow */
+  --scalar-color-1: #f6f0ff;
+  --scalar-color-2: #bcb1cc;
+  --scalar-color-3: #857a96;
+  --scalar-color-accent: #ff8a3d;
+
+  --scalar-background-1: #15111d;
+  --scalar-background-2: #1f1829;
+  --scalar-background-3: #30263f;
+  --scalar-background-accent: #ff8a3d1f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #120e19;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #b04608;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #953a06;
+
+  --scalar-color-green: #2c7034;
+  --scalar-color-red: #b81f3c;
+  --scalar-color-yellow: #8a5d00;
+  --scalar-color-blue: #3b4fb0;
+  --scalar-color-orange: #b04608;
+  --scalar-color-purple: #7034b8;
+  --scalar-color-query: #8a3fa8;
+
+  --scalar-scrollbar-color: #5e506833;
+  --scalar-scrollbar-color-active: #5e506866;
+}
+.dark-mode {
+  --scalar-button-1: #ff8a3d;
+  --scalar-button-1-color: #15111d;
+  --scalar-button-1-hover: #ffa15f;
+
+  /* Slime, blood moon, candle flame, ghost light, pumpkin, potion */
+  --scalar-color-green: #a3e86b;
+  --scalar-color-red: #ff6b81;
+  --scalar-color-yellow: #ffd166;
+  --scalar-color-blue: #9fb4ff;
+  --scalar-color-orange: #ff8a3d;
+  --scalar-color-purple: #c79bff;
+  --scalar-color-query: #e0a3ff;
+
+  --scalar-scrollbar-color: #c79bff33;
+  --scalar-scrollbar-color-active: #c79bff66;
+}
+
+/* Radius: a little rounder, like a pumpkin */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-orange), transparent 70%);
+}
+
+/* Headings glow like a jack-o'-lantern */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 18px #ff8a3d40;
+}
+
+/*
+ * Hero section flare: a night sky with a moon, bats, and a dangling spider.
+ * The flare sits behind the content, so its parent needs its own stacking
+ * context or the page background would paint over it.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  z-index: -1;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 0%, #5b2a7a99, transparent 70%), linear-gradient(#2a1740, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 0%, #ffb36b55, transparent 70%), linear-gradient(#f6e3ff, transparent);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/* The moon */
+.section-flare-item:nth-of-type(1) {
+  top: 16px;
+  right: 9%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 35%, #00000014 0 7px, transparent 8px),
+    radial-gradient(circle at 62% 62%, #00000014 0 10px, transparent 11px),
+    radial-gradient(circle at 66% 28%, #00000010 0 5px, transparent 6px),
+    radial-gradient(circle at 35% 35%, #fff6d6, #f5d77a 70%, #e8b94c);
+  box-shadow:
+    0 0 40px 6px #f5d77a55,
+    0 0 120px 30px #f5d77a1f;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  box-shadow:
+    0 0 40px 6px #ffb36b66,
+    0 0 120px 30px #ffb36b33;
+}
+
+/* The bats */
+.section-flare-item:nth-of-type(2),
+.section-flare-item:nth-of-type(3),
+.section-flare-item:nth-of-type(4) {
+  width: 60px;
+  height: 28px;
+  background-color: var(--scalar-halloween-bat, #0a0710);
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 46'%3E%3Cpath d='M50 13 47 5l-2.5 9.5C38 11 25 3 1 7c9 6 11 14 9 23 6-4 12-3 16 2 4-4 10-3 13 2 3-3 7-2 9 4l2 5 2-5c2-6 6-7 9-4 3-5 9-6 13-2 4-5 10-6 16-2-2-9 0-17 9-23-24-4-37 4-43.5 7.5L53 5z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 46'%3E%3Cpath d='M50 13 47 5l-2.5 9.5C38 11 25 3 1 7c9 6 11 14 9 23 6-4 12-3 16 2 4-4 10-3 13 2 3-3 7-2 9 4l2 5 2-5c2-6 6-7 9-4 3-5 9-6 13-2 4-5 10-6 16-2-2-9 0-17 9-23-24-4-37 4-43.5 7.5L53 5z'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-halloween-flutter 6s ease-in-out infinite;
+}
+.dark-mode .section-flare-item:nth-of-type(2),
+.dark-mode .section-flare-item:nth-of-type(3),
+.dark-mode .section-flare-item:nth-of-type(4) {
+  --scalar-halloween-bat: #b293d4;
+}
+.light-mode .section-flare-item:nth-of-type(2),
+.light-mode .section-flare-item:nth-of-type(3),
+.light-mode .section-flare-item:nth-of-type(4) {
+  --scalar-halloween-bat: #4a3558;
+}
+.section-flare-item:nth-of-type(2) {
+  top: 24px;
+  right: calc(9% + 100px);
+  opacity: 0.9;
+}
+.section-flare-item:nth-of-type(3) {
+  top: 70px;
+  right: calc(9% + 190px);
+  scale: 0.7;
+  opacity: 0.7;
+  animation-delay: -2s;
+  animation-duration: 7s;
+}
+.section-flare-item:nth-of-type(4) {
+  top: 36px;
+  right: calc(9% + 250px);
+  scale: 0.55;
+  opacity: 0.6;
+  animation-delay: -4s;
+  animation-duration: 8s;
+}
+
+/* The stars (dark mode only, the sun is out in light mode) */
+.section-flare-item:nth-of-type(5) {
+  inset: 0;
+  --star: #f6f0ff;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px, var(--star), transparent),
+    radial-gradient(1px 1px at 80px 120px, var(--star), transparent),
+    radial-gradient(1.5px 1.5px at 150px 60px, var(--star), transparent),
+    radial-gradient(1px 1px at 210px 170px, var(--star), transparent),
+    radial-gradient(1px 1px at 260px 20px, var(--star), transparent);
+  background-size: 280px 200px;
+  opacity: 0.5;
+  -webkit-mask-image: linear-gradient(#000, transparent 80%);
+  mask-image: linear-gradient(#000, transparent 80%);
+  animation: scalar-halloween-twinkle 5s ease-in-out infinite alternate;
+}
+.light-mode .section-flare-item:nth-of-type(5) {
+  display: none;
+}
+
+/* The spider, dangling from its thread */
+.section-flare-item:nth-of-type(6) {
+  top: 0;
+  left: calc(50% - 10px);
+  width: 20px;
+  height: 120px;
+  transform-origin: top center;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%234a3558' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M10 10 3 5M10 10 2 10M10 10 3 15M10 10 5 18M10 10 17 5M10 10 18 10M10 10 17 15M10 10 15 18'/%3E%3Ccircle cx='10' cy='10' r='3.6' fill='%234a3558' stroke='none'/%3E%3Ccircle cx='10' cy='6' r='2.4' fill='%234a3558' stroke='none'/%3E%3C/svg%3E")
+    bottom center / 20px 20px no-repeat,
+    linear-gradient(#4a355888, #4a355888) top center / 1px calc(100% - 14px) no-repeat;
+  animation: scalar-halloween-dangle 5s ease-in-out infinite;
+}
+.dark-mode .section-flare-item:nth-of-type(6) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%23b9a3d0' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M10 10 3 5M10 10 2 10M10 10 3 15M10 10 5 18M10 10 17 5M10 10 18 10M10 10 17 15M10 10 15 18'/%3E%3Ccircle cx='10' cy='10' r='3.6' fill='%23b9a3d0' stroke='none'/%3E%3Ccircle cx='10' cy='6' r='2.4' fill='%23b9a3d0' stroke='none'/%3E%3C/svg%3E")
+    bottom center / 20px 20px no-repeat,
+    linear-gradient(#b9a3d066, #b9a3d066) top center / 1px calc(100% - 14px) no-repeat;
+}
+
+@keyframes scalar-halloween-flutter {
+  0%,
+  100% {
+    transform: translate(0, 0) scaleY(1);
+  }
+  25% {
+    transform: translate(-6px, -8px) scaleY(0.75);
+  }
+  50% {
+    transform: translate(-12px, 2px) scaleY(1);
+  }
+  75% {
+    transform: translate(-4px, 6px) scaleY(0.8);
+  }
+}
+@keyframes scalar-halloween-twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+@keyframes scalar-halloween-dangle {
+  0%,
+  100% {
+    transform: rotate(-3deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(3deg) scaleY(1.25);
+  }
+}
+
+/* On small screens the sticky header covers the top of the sky, and most critters would crowd the title */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(3),
+  .section-flare-item:nth-of-type(4),
+  .section-flare-item:nth-of-type(6) {
+    display: none;
+  }
+}
+
+/* Nobody likes a spider that will not stop moving */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item {
+    animation: none !important;
+  }
+}
+
+/* P3 color support */
+@supports (color: color(display-p3 1 1 1)) {
+  .dark-mode {
+    --scalar-color-accent: color(display-p3 1 0.56 0.27 / 1);
+    --scalar-color-orange: color(display-p3 1 0.56 0.27 / 1);
+    --scalar-button-1: color(display-p3 1 0.56 0.27 / 1);
+  }
+}
