@@ -320,12 +320,12 @@ There is no cursor field: the next request sends an identifier taken from the la
 The response carries a fully-formed URL for the next page rather than a token.
 
 <scalar-callout type="warning" icon="phosphor/regular/warning">
-  Support is uneven and depends on how the URL field is declared. With `location: bodyLink`, Rust, Swift, Ruby, C++, and Dart re-issue the request against the URL, while Java and Kotlin re-send the same operation with the URL's query string, so a cursor carried in the URL's path is not followed. C# treats the first page as the last, and TypeScript, Python, Go, and PHP stop after the first. Left at `location: body` in a `cursorUrl` scheme, the URL is still followed by Ruby, C++, and Dart, and by Swift when the scheme declares no request cursor parameter; under that same condition Java and Kotlin apply its query string to the same operation. Otherwise it is written into the cursor request parameter, which is not what a URL is for, and a server that ignores that parameter can return the first page again and again. Prefer a `cursor` scheme over a URL where your API offers both.
+  Support is uneven and depends on how the URL field is declared. With `location: bodyLink`, Rust, Swift, Ruby, C++, Dart, and PHP re-issue the request against the URL, while Java and Kotlin re-send the same operation with the URL's query string, so a cursor carried in the URL's path is not followed. C# treats the first page as the last, and TypeScript, Python, and Go stop after the first. Left at `location: body` in a `cursorUrl` scheme, the URL is still followed by Ruby, C++, Dart, and PHP, and by Swift when the scheme declares no request cursor parameter; under that same condition Java and Kotlin apply its query string to the same operation. Otherwise it is written into the cursor request parameter, which is not what a URL is for, and a server that ignores that parameter can return the first page again and again. Prefer a `cursor` scheme over a URL where your API offers both.
 </scalar-callout>
 
 ### `fakePage`
 
-The operation returns the whole collection in one response. There is no next page, but the result is still wrapped in a page type so callers iterate collections uniformly across your SDK. C++ is the exception: it returns the response as it is.
+The operation returns the whole collection in one response. There is no next page, but the result is still wrapped in a page type so callers iterate collections uniformly across your SDK.
 
 ```json
 {
@@ -352,7 +352,7 @@ Whatever the caller sent with the first request — headers, query parameters, a
 
 In TypeScript, Python, Go, Ruby, PHP, and Dart the scheme name becomes the page type, cased for each language: `offsetPage` generates `OffsetPage` in TypeScript, `SyncOffsetPage` and `AsyncOffsetPage` in Python, and so on. Java, Kotlin, and C# name a page class per method, Rust and Swift use a generic page type, and C++ generates a class template per scheme (`offsetPage` generates `OffsetPage<T>`). Two schemes that would case to the same name get a numeric suffix, so the name in your configuration is worth choosing deliberately.
 
-Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items). C++ keeps that metadata as each page's whole response body instead, read through `page.body()`, and Dart's page exposes the fields it pages by and reads the rest off the decoded body, `page.json`.
+Alongside the page type, a target generates a params type carrying the scheme's request fields (so a paginated method accepts `offset` and `size` as normal arguments) and a response type carrying its response fields (so page metadata such as `total` stays accessible next to the items). C++ gives each page class an accessor per boolean, integer, number or plain-string field the scheme declares in the response body (`page.total()`, `page.has_more()`, each a `std::optional`) and keeps the rest of the response body in `page.body()`, and Dart's page exposes the fields it pages by and reads the rest off the decoded body, `page.json`.
 
 | Target | Walking every item | One page at a time |
 | ------ | ------------------ | ------------------ |
@@ -372,11 +372,11 @@ Your generated README also picks up a `## Pagination` section walking a real pag
 
 ## Where fields are read from
 
-Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests. Only Swift's, C++'s, and Dart's pages advance from a `header` cursor, and only C++ and Dart follow a `linkHeader` field. A scheme whose only cursor is in a `header` field therefore stops after the first page on every target but Swift, C++, and Dart, and one whose only cursor is in a `linkHeader` field stops after the first page everywhere but C++ and Dart. `bodyLink` is followed as a next-page URL by Rust, Swift, Ruby, C++, and Dart; Java and Kotlin apply its query string to the same operation.
+Generated pages read their fields out of the **response body**. A field declared with `location: header` or `linkHeader` is carried through the compiled output and the generated manifests. Only Swift's, C++'s, Dart's, and PHP's pages advance from a `header` cursor, and only C++, Dart, and PHP follow a `linkHeader` field. A scheme whose only cursor is in a `header` field therefore stops after the first page on every target but Swift, C++, Dart, and PHP, and one whose only cursor is in a `linkHeader` field stops after the first page everywhere but C++, Dart, and PHP. `bodyLink` is followed as a next-page URL by Rust, Swift, Ruby, C++, Dart, and PHP; Java and Kotlin apply its query string to the same operation.
 
-`itemCursor` is read by every target; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, Kotlin, C++, and Dart. On the other targets a scheme relying on `cursorPath` stops after the first page, so prefer a top-level cursor field where your API offers one.
+`itemCursor` is read by every target; `cursorPath` is read by TypeScript, Python, Swift, Ruby, Java, Kotlin, C++, Dart, and PHP. On the other targets a scheme relying on `cursorPath` stops after the first page, so prefer a top-level cursor field where your API offers one.
 
-If your API pages by a `Link` header and you need it followed on a target other than C++ or Dart, tell us — it is a gap we are tracking, not a design decision.
+If your API pages by a `Link` header and you need it followed on a target other than C++, Dart, or PHP, tell us — it is a gap we are tracking, not a design decision.
 
 ## Diagnostics
 
