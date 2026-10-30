@@ -123,6 +123,7 @@ export const baseConfigurationSchema = z.object({
       'mars',
       'laserwave',
       'halloween',
+      'programmersDay',
       'none',
     ])
     .optional()
