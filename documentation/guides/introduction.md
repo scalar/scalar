@@ -932,8 +932,11 @@
     border-radius: 50%;
     background: var(--lp-ball-light), var(--lp-ball-paint);
     box-shadow: var(--lp-ball-shade);
-    /* the grain over it blends with the ball alone, never with the
-       planet behind */
+  }
+  /* the travelling grain blends with the ball alone, never with the
+     planet behind; it belongs with the layer below, to the planets that
+     carry one */
+  .lp-orb .lp-orb-skin {
     isolation: isolate;
   }
   /* The grain travels round the ball as the ball turns: the surface
@@ -947,8 +950,15 @@
      background-position takes a list, a list shorter than the layers
      repeats itself, and a three-value list on a four-layer ball sent
      one of the paint's gradients travelling with the grain and
-     snapping back every turn. One layer cannot be miscounted. */
-  .lp-orb-skin::after {
+     snapping back every turn. One layer cannot be miscounted.
+
+     Only a planet that turns: the welcome committee under the footer
+     is built from the same parts (its styles are in styles.css, and
+     this page's styles reach it as they reach everything on the page)
+     but stands where it lands, with its grain on its skin and still.
+     Unscoped, this layer laid a second, travelling grain over those
+     planets on the home page alone. */
+  .lp-orb .lp-orb-skin::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -969,7 +979,7 @@
     animation-play-state: paused;
   }
   @media (prefers-reduced-motion: reduce) {
-    .lp-orb-skin::after {
+    .lp-orb .lp-orb-skin::after {
       animation: none;
     }
   }

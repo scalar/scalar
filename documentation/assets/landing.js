@@ -786,14 +786,13 @@ const LANDING_ORB_TURN = 3000
    the edges the way a real surface does; at this size, against noise
    with no feature in it to follow, what reads is that the surface is
    moving at all. One tile of grain is 160px, so a tile goes by in that
-   share of a turn. */
+   share of a turn. A scene that turns its rings at a pace of its own
+   passes that pace in, so the surface keeps step with the name there
+   too. */
 const LANDING_GRAIN_TILE = 160
-const landingGrainTurn = (globe, size) => {
+const landingGrainTurn = (globe, size, turn = LANDING_ORB_TURN) => {
   if (size && globe.querySelector('.lp-orb-ball')) {
-    globe.style.setProperty(
-      '--lp-grain-turn',
-      `${Math.round((LANDING_ORB_TURN * LANDING_GRAIN_TILE) / (Math.PI * size))}ms`,
-    )
+    globe.style.setProperty('--lp-grain-turn', `${Math.round((turn * LANDING_GRAIN_TILE) / (Math.PI * size))}ms`)
   }
 }
 /* the two orbits: the long radius as a share of half the field's width,
@@ -832,13 +831,13 @@ let landingDressCopies = 0
    of its name round the ring's equator, the word centred on the
    front; the angles hold whatever size the globe takes, as the type
    scales with it */
-const dressLandingGlobe = (globe, ring, size) => {
+const dressLandingGlobe = (globe, ring, size, turn = LANDING_ORB_TURN) => {
   const template = document.getElementById(`lp-icon-${globe.dataset.icon}`)
   const label = globe.dataset.label || ''
   if (!template) {
     return false
   }
-  landingGrainTurn(globe, size)
+  landingGrainTurn(globe, size, turn)
   const suffix = `-o${++landingDressCopies}`
   const holder = document.createElement('div')
   holder.innerHTML = template.innerHTML
@@ -3987,12 +3986,16 @@ const initLandingOrbs = debounce(() => {
         const hostRing = hostSun?.querySelector('.lp-orb-ring')
         const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
         const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
+        /* the rings here turn at half the hero's pace, a calmer scene;
+           the grain is painted at that pace too, so a planet's surface
+           travels with its name rather than twice round it */
+        const HOST_ORB_TURN = LANDING_ORB_TURN * 2
         const wares = host
           ? [...host.querySelectorAll('.lp-orb--product')]
               .map((orb) => {
                 const ring = orb.querySelector('.lp-orb-ring')
                 const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
-                if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+                if (!ring || !size || !dressLandingGlobe(orb, ring, size, HOST_ORB_TURN)) {
                   return null
                 }
                 // the name a second time on the far side, so it reads
@@ -4009,7 +4012,7 @@ const initLandingOrbs = debounce(() => {
         if (host && hasHostSun && wares.length && host.dataset.lpStageBound !== 'true') {
           host.dataset.lpStageBound = 'true'
           hostRing.style.transform = 'rotateY(0deg)'
-          // a slow lap, and the rings at half the hero's pace
+          // a slow lap round the globe
           const HOST_LAP = 36
           let hostOn = false
           let hostSeen = false
@@ -4032,7 +4035,7 @@ const initLandingOrbs = debounce(() => {
               if (w.orb.style.zIndex !== z) {
                 w.orb.style.zIndex = z
               }
-              w.spin = (w.spin + (360 * dt) / (LANDING_ORB_TURN * 2)) % 360
+              w.spin = (w.spin + (360 * dt) / HOST_ORB_TURN) % 360
               w.ring.style.transform = `rotateY(${w.spin}deg)`
             })
             if (!reduceMotion) {
@@ -4065,6 +4068,15 @@ const initLandingOrbs = debounce(() => {
             { threshold: 0 },
           ).observe(host)
           document.addEventListener('visibilitychange', wakeHost)
+          // the planets take their size from the scene's width, so a
+          // planet that has taken a new size turns its grain at a new
+          // pace: the surface still covers its circumference in one turn
+          new ResizeObserver(() => {
+            wares.forEach((w) => {
+              const size = Number.parseFloat(getComputedStyle(w.orb).getPropertyValue('--s'))
+              landingGrainTurn(w.orb, size, HOST_ORB_TURN)
+            })
+          }).observe(host)
           // the band's state, for the page's tests
           host.lpHost = () => ({
             on: hostOn,
