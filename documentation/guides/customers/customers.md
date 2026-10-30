@@ -627,7 +627,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     display: grid;
     grid-template-areas: 'stack';
     width: calc(100% + 2 * var(--featured-story-inset));
-    margin: 48px calc(-1 * var(--featured-story-inset));
+    /* a good gap over the card: the hero's heap of logo balls ends
+       close to the fold, and the card crowded it */
+    margin: 148px calc(-1 * var(--featured-story-inset)) 48px;
     overflow: hidden;
     color: #fff;
     text-decoration: none;
