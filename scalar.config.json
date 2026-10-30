@@ -1205,6 +1205,26 @@
                   "content": "Trusted by the world's best API teams."
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "robots",
                   "content": "index, follow"
                 }
