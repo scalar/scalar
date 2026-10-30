@@ -159,7 +159,20 @@ export const getSecuritySchemeOptions = (
   /** Allows adding authentication which is not in the document */
   canAddNewAuth = false,
   labels: Pick<ApiClientTranslations, 'authSelector' | 'authOptions'> = en,
+  allowedSecuritySchemes?: string[],
 ): SecuritySchemeOption[] | SecuritySchemeGroup[] => {
+  if (allowedSecuritySchemes) {
+    const isAllowed = (requirement: SecurityRequirementObject): boolean =>
+      Object.keys(requirement).every((name) => allowedSecuritySchemes.includes(name))
+    return getSecuritySchemeOptions(
+      security.filter(isAllowed),
+      Object.fromEntries(Object.entries(securitySchemes).filter(([name]) => allowedSecuritySchemes.includes(name))),
+      selectedSchemes.filter(isAllowed),
+      false,
+      labels,
+    )
+  }
+
   const selectedByRequirement = new Map(
     selectedSchemes.map((selectedScheme) => [requirementSignature(selectedScheme), selectedScheme]),
   )

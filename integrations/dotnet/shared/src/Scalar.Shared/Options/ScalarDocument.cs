@@ -21,4 +21,8 @@ namespace Scalar.AspNetCore;
 /// <param name="IsDefault">Indicates whether this document is the default document.</param>
 /// <param name="Agent">Optional Agent Scalar options for this document (e.g. API key).</param>
 /// <param name="DocumentType">The type of the document (default: <see cref="DocumentType.OpenApi"/>).</param>
-public sealed record ScalarDocument(string Name, string? Title = null, string? RoutePattern = null, bool IsDefault = false, ScalarAgentOptions? Agent = null, DocumentType DocumentType = DocumentType.OpenApi);
+public sealed record ScalarDocument(string Name, string? Title = null, string? RoutePattern = null, bool IsDefault = false, ScalarAgentOptions? Agent = null, DocumentType DocumentType = DocumentType.OpenApi) : IScalarAuthenticationOptions
+{
+    /// <summary>Authentication overrides merged with the global authentication configuration.</summary>
+    public ScalarAuthenticationOptions? Authentication { get; set; }
+}

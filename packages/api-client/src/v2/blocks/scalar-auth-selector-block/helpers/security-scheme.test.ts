@@ -11,6 +11,25 @@ import {
 } from './security-scheme'
 
 describe('security-scheme', () => {
+  it('restricts required, available and saved choices without weakening AND requirements', () => {
+    const schemes: NonNullable<ComponentsObject['securitySchemes']> = {
+      Basic: { type: 'http', scheme: 'basic' },
+      Bearer: { type: 'http', scheme: 'bearer' },
+    }
+    expect(
+      getSecuritySchemeOptions(
+        [{ Basic: [], Bearer: [] }, { Bearer: [] }],
+        schemes,
+        [{ Bearer: [] }],
+        true,
+        undefined,
+        ['Basic'],
+      ),
+    ).toStrictEqual([formatScheme({ name: 'Basic', value: { Basic: [] } })])
+    expect(getSecuritySchemeOptions([{ Basic: [] }], schemes, [{ Basic: [] }], true, undefined, [])).toStrictEqual([])
+    expect(Object.keys(schemes)).toStrictEqual(['Basic', 'Bearer'])
+  })
+
   it.each(['authorizationCode', 'implicit', 'clientCredentials'] as const)(
     'keeps one available %s option when scopes change',
     (flow) => {

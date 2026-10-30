@@ -59,4 +59,11 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Restricts visible authentication choices and forms to these scheme names.
+   * Omit to show all schemes; an empty array hides all choices, including generic creation.
+   * This does not change authentication sent with requests or API security requirements.
+   */
+  allowedSecuritySchemes?: string[]
 }
