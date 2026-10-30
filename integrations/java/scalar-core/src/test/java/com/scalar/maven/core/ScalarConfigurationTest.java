@@ -3,6 +3,7 @@ package com.scalar.maven.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.enums.*;
 import com.scalar.maven.core.internal.ScalarConfiguration;
@@ -10,6 +11,7 @@ import com.scalar.maven.core.internal.ScalarConfigurationMapper;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -185,6 +187,30 @@ public class ScalarConfigurationTest {
         // Defaults follow the universal configuration
         assertTrue(json.contains("\"defaultOpenFirstTag\":true"));
         assertTrue(json.contains("\"expandAllSchemaProperties\":false"));
+    }
+
+    @Test
+    public void testLocalizationSerialization() throws JsonProcessingException {
+        ScalarProperties properties = new ScalarProperties();
+        ScalarLocalizationOptions localization = new ScalarLocalizationOptions();
+        localization.setLocale("zh-CN");
+        localization.setDirection("ltr");
+        localization.setTranslations(Map.of("operation", Map.of("testRequest", "Try it")));
+        properties.setLocalization(localization);
+
+        ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+        String json = new ObjectMapper().writeValueAsString(config);
+
+        assertTrue(json.contains(
+                "\"localization\":{\"locale\":\"zh-CN\",\"direction\":\"ltr\",\"translations\":{\"operation\":{\"testRequest\":\"Try it\"}}}"));
+    }
+
+    @Test
+    public void testLocalizationOmittedByDefault() throws JsonProcessingException {
+        ScalarConfiguration config = ScalarConfigurationMapper.map(new ScalarProperties());
+        String json = new ObjectMapper().writeValueAsString(config);
+
+        assertFalse(json.contains("\"localization\""));
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.scalar.maven.core;
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
@@ -251,6 +252,12 @@ public class ScalarProperties {
      * users can connect the API Reference to MCP-compatible tools.
      */
     private ScalarMcpOptions mcp;
+
+    /**
+     * Controls the localization of the API Reference UI, for example the
+     * locale used for the built-in translations.
+     */
+    private ScalarLocalizationOptions localization;
 
     // Primary enum properties (no suffix)
 
@@ -666,6 +673,14 @@ public class ScalarProperties {
 
     public void setMcp(ScalarMcpOptions mcp) {
         this.mcp = mcp;
+    }
+
+    public ScalarLocalizationOptions getLocalization() {
+        return localization;
+    }
+
+    public void setLocalization(ScalarLocalizationOptions localization) {
+        this.localization = localization;
     }
 }
 
