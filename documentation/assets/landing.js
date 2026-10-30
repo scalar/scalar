@@ -4376,7 +4376,7 @@ const initEnterpriseRing = debounce(() => {
  * flips them and not a coincidence of timing. They land once.
  */
 /** where the head sits along the light, as a share of its length */
-const ENT_HEAD_AT = 0.86
+const ENT_HEAD_AT = 0.88
 /** how long a card takes to turn over and settle */
 const ENT_SPIN_MS = 1500
 /** how far left of a card the head has to get before it counts again */

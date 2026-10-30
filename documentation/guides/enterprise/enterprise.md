@@ -698,108 +698,127 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
 
   /* ------------------------------------------------------------------
-     The figures, and the light crossing them.
+     The figures, and the ring crossing them.
 
-     Not a picture of a comet in a box of its own — a wash of light
-     that crosses this part of the page, far wider than the column and
-     blurred past the point of having a shape, so it reads as light in
-     the room rather than an illustration sitting above the words. It
-     passes over the paragraph it starts under, over the cards, and
-     out across the heading below — light falling on them rather than
-     a backdrop behind them, which is also what makes it read as the
-     thing turning the cards over as it reaches each one. It is soft
-     enough, and thin enough, that what is underneath stays legible.
+     Scalar's ring, straightened out: the same paint as the one round
+     the planet in the hero — the brand's colours with the page's own
+     colour laid over them in ringlets, and grain over both — but run
+     along a straight band instead of round an ellipse. The ringlets
+     are the hero's: the outer stops of that same gradient — the ones
+     its band actually shows, the inner ones being hidden under the
+     globe — mirrored about the middle of this band so it reads the
+     same from either edge inwards.
 
-     Only its sideways travel is clipped, so it can spill into the
-     text above and below but can never widen the page.
+     It fades out to nothing on the left, and on the right it ends at
+     a planet: the page's own surface inside the page's border, the
+     way the hero draws its globe. The band stops at the middle of
+     that circle, so it goes behind it rather than across it.
+
+     The whole thing crosses the section while it is on screen, over
+     the cards and the words rather than behind them, and each card
+     turns over as the planet reaches it.
      ------------------------------------------------------------------ */
   .ent-sky {
-    /* the head's colour: the brand red carried towards the purple, so
-       it is a magenta rather than a flat red */
-    --ent-hot: color-mix(in srgb, var(--scalar-color-red) 55%, var(--scalar-color-purple));
-    /* how strong the light gets. It passes under the numbers and the
-       words around them, so it is a tint rather than a fill: any more
-       and the small grey labels stop being readable on top of it. */
-    --ent-glow: 0.55;
+    /* the grain the hero's ring is painted with, so the two match */
+    --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    /* how far along the band the planet sits */
+    --ent-head: 88%;
+    /* the planet at the head of it */
+    --ent-ball: 150px;
     position: relative;
     margin: 104px 0 112px;
     overflow-x: clip;
     overflow-y: visible;
   }
-  /* the light itself: a long soft body with a brighter head, both of
-     them far enough out of focus to have no edge anywhere */
   .ent-comet {
     position: absolute;
     top: 50%;
     left: 0;
-    /* over the words and over the cards: the light falls on them */
+    /* over the words and over the cards: the ring passes in front */
     z-index: 2;
-    width: min(1560px, 132%);
-    height: 380px;
+    width: min(960px, 80%);
+    height: 80px;
     /* parked off the left, and invisible, until the band is seen */
     translate: -150% -50%;
     opacity: 0;
     pointer-events: none;
   }
-  /* the body: the spectrum along its length, bluest at the far end
-     and hottest at the head */
+  /* the band. It stops at the middle of the planet, which is drawn
+     over the top of it, so the ring disappears behind it. */
   .ent-comet::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      color-mix(in srgb, var(--scalar-color-blue) 38%, transparent) 22%,
-      color-mix(in srgb, var(--scalar-color-blue) 86%, transparent) 46%,
-      var(--scalar-color-purple) 72%,
-      var(--ent-hot) 94%,
-      color-mix(in srgb, var(--ent-hot) 80%, #fff) 100%
-    );
-    -webkit-mask:
-      radial-gradient(
-        78% 50% at 86% 50%,
-        #000 0 10%,
-        rgba(0, 0, 0, 0.76) 38%,
-        rgba(0, 0, 0, 0.38) 66%,
-        rgba(0, 0, 0, 0.1) 86%,
-        transparent 100%
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: calc(100% - var(--ent-head));
+    background:
+      var(--lp-grain) 0 0 / 160px 160px,
+      linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 0.00% 3.66%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 4.22% 7.59%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 8.16% 12.31%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 12.88% 13.78%,
+        color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 14.34% 15.34%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 15.91% 19.09%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 19.66% 22.22%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 22.78% 24.25%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 24.81% 27.38%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 27.94% 30.28%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 30.84% 33.47%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 34.03% 36.63%,
+        color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 37.19% 37.97%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 38.53% 41.34%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 41.91% 46.34%,
+        color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 46.91% 49.25%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 49.81% 51.66%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 48.34% 50.19%,
+        color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 50.75% 53.09%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 53.66% 58.09%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 58.66% 61.47%,
+        color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 62.03% 62.81%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 63.38% 65.97%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 66.53% 69.16%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 69.72% 72.06%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 72.62% 75.19%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 75.75% 77.22%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 77.78% 80.34%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 80.91% 84.09%,
+        color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 84.66% 85.66%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 86.22% 87.12%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 87.69% 91.84%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 92.41% 95.78%,
+        color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 96.34% 100.00%
       ),
-      /* the ellipse is anchored near the right edge, so on that side it
-         would run straight off the box; this takes it out first */
-      linear-gradient(to right, #000 0 80%, transparent 98%);
-    -webkit-mask-composite: source-in;
-    mask:
-      radial-gradient(
-        78% 50% at 86% 50%,
-        #000 0 10%,
-        rgba(0, 0, 0, 0.76) 38%,
-        rgba(0, 0, 0, 0.38) 66%,
-        rgba(0, 0, 0, 0.1) 86%,
-        transparent 100%
-      ),
-      linear-gradient(to right, #000 0 80%, transparent 98%);
-    mask-composite: intersect;
-    filter: blur(64px);
+      linear-gradient(
+        to right,
+        var(--scalar-color-purple) 0%,
+        var(--scalar-color-blue) 24%,
+        var(--scalar-color-green) 48%,
+        var(--scalar-color-yellow) 70%,
+        var(--scalar-color-orange) 88%,
+        var(--scalar-color-red) 100%
+      );
+    background-blend-mode: overlay, normal, normal;
+    /* nothing at the far end, everything by the time it reaches the
+       planet: the ring trails away rather than starting somewhere */
+    -webkit-mask: linear-gradient(to right, transparent 0%, #000 58%);
+    mask: linear-gradient(to right, transparent 0%, #000 58%);
   }
-  /* the head: a bloom, with no hard point in it */
+  /* the planet: the page's own surface inside the page's border */
   .ent-comet::after {
     content: '';
     position: absolute;
     top: 50%;
-    left: 86%;
-    width: 440px;
+    left: var(--ent-head);
+    width: var(--ent-ball);
     aspect-ratio: 1;
     translate: -50% -50%;
-    background: radial-gradient(
-      closest-side circle,
-      color-mix(in srgb, #fff 62%, var(--ent-hot)) 0 8%,
-      color-mix(in srgb, var(--ent-hot) 72%, transparent) 20%,
-      color-mix(in srgb, var(--ent-hot) 34%, transparent) 40%,
-      color-mix(in srgb, var(--scalar-color-purple) 14%, transparent) 64%,
-      transparent 84%
-    );
-    filter: blur(42px);
+    box-sizing: border-box;
+    background: var(--scalar-background-1);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 50%;
   }
   .ent-sky.is-flying .ent-comet {
     animation: ent-comet-fly 11s linear infinite;
@@ -811,10 +830,10 @@ Validate contracts early so exploration and testing stay tied to the same API de
       opacity: 0;
     }
     5% {
-      opacity: var(--ent-glow);
+      opacity: 1;
     }
     28% {
-      opacity: var(--ent-glow);
+      opacity: 1;
     }
     35% {
       translate: 210% -50%;
@@ -922,23 +941,19 @@ Validate contracts early so exploration and testing stay tied to the same API de
       max-width: none;
       height: 96px;
     }
+    .ent-sky {
+      --ent-ball: 104px;
+    }
     .ent-comet {
-      height: 320px;
-    }
-    .ent-comet::before {
-      filter: blur(46px);
-    }
-    .ent-comet::after {
-      width: 300px;
-      filter: blur(32px);
+      height: 72px;
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .ent-comet {
       animation: none;
       /* at rest, across the page, rather than parked off the edge */
-      translate: 30% -50%;
-      opacity: var(--ent-glow);
+      translate: 18% -50%;
+      opacity: 1;
     }
     /* no spin: the cards are simply face up */
     .ent-figures.is-armed .ent-flip {
