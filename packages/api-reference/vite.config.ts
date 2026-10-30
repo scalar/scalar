@@ -17,7 +17,21 @@ const entryPaths = await findEntryPoints()
 const entry = createLibEntry(entryPaths, import.meta.dirname)
 
 export default defineConfig({
-  plugins: [vue(), tailwindcss()],
+  plugins: [
+    vue(),
+    tailwindcss(),
+    {
+      name: 'playground-path-routing',
+      configureServer(server): void {
+        server.middlewares.use((req, _res, next): void => {
+          if (/^\/path-routing(?:[/?]|$)/.test(req.url ?? '')) {
+            req.url = `/path-routing.html${new URL(req.url ?? '/', 'http://localhost').search}`
+          }
+          next()
+        })
+      },
+    },
+  ],
   define: {
     'process.env.NODE_ENV': '"production"',
     'PACKAGE_VERSION': `"${version}"`,
