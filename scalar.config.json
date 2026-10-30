@@ -1264,6 +1264,26 @@
                   "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "robots",
                   "content": "index, follow"
                 }
