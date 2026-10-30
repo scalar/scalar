@@ -201,7 +201,7 @@ Rendered as the alias's `@deprecated` JSDoc tag, typically pointing callers at t
 
 **Type:** `"speakeasy"`
 
-Experimental and not yet complete: generates an extra module of deprecated wrapper functions that mirror a Speakeasy SDK's public surface and forward to the generated SDK, so code written against a Speakeasy SDK keeps compiling. The wrapper module does not yet reproduce every part of a Speakeasy SDK's surface. `speakeasy` generates standalone functions returning a functional `Result` in `src/compat/speakeasy.ts`, plus subpath modules laid out like a Speakeasy SDK (`src/funcs/`, `src/sdk/`, `src/models/`, `src/lib/`, `src/types/` and `src/core.ts`). Omit to generate nothing extra.
+Experimental: may change in a later release. Not yet complete: generates an extra module of deprecated wrapper functions that mirror a Speakeasy SDK's public surface and forward to the generated SDK, so code written against a Speakeasy SDK keeps compiling. The wrapper module does not yet reproduce every part of a Speakeasy SDK's surface. `speakeasy` generates standalone functions returning a functional `Result` in `src/compat/speakeasy.ts`, plus subpath modules laid out like a Speakeasy SDK (`src/funcs/`, `src/sdk/`, `src/models/`, `src/lib/`, `src/types/` and `src/core.ts`). Omit to generate nothing extra.
 
 ## skip
 

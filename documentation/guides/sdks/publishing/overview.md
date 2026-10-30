@@ -60,7 +60,7 @@ Every target with a linked repository gets its release machinery committed along
 | `VERSIONING.md` | — | Documents the branch model, how to pick an exact version, and the repository prerequisites. |
 
 > [!NOTE]
-> Tag-served ecosystems (Swift Package Manager, Packagist) have nothing to upload, so they get no `publish` job and no `sdk-release.yml`. For those, the `vX.Y.Z` tag and GitHub Release *are* the publish. Go versions are tags as well, but Go still gets a release workflow, which uploads nothing and warms the public module proxy after the tag. See [Package Registries](registries.md).
+> Swift Package Manager is tag-served: it has nothing to upload, so it gets no `publish` job and no `sdk-release.yml`, and the `vX.Y.Z` tag and GitHub Release *are* the publish. Go and Packagist versions are tags as well, but both still get a release workflow, which uploads nothing: Go's warms the public module proxy after the tag, and PHP's validates `composer.json` and notifies Packagist. See [Package Registries](registries.md).
 
 ## Enable publishing
 
@@ -92,6 +92,29 @@ You can enable publishing two ways. Both set the same thing.
 The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, PHP, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
+
+## Package metadata
+
+Every generated package manifest links the same pages, so each registry's package page shows them:
+
+| Link | Where it comes from |
+| --- | --- |
+| Homepage | `organization.homepage`; when unset, `organization.docs`, then the source repository. `pyproject.toml` leaves the fallback out, since its Documentation and Source rows already link both. The pubspec does too when it has a `repository`; without one, the docs site is its `homepage`, because `dart pub publish` warns about a pubspec with neither. |
+| Documentation | `organization.docs`. |
+| Source repository | The target's `destinations.production.repo` (Rust's `options.package_repository` overrides it). An `owner/name` is read as a GitHub repository. |
+| Issue tracker | `<repository>/issues`, only when the source repository is a GitHub repository root (`owner/name`). |
+| Changelog | The `CHANGELOG.md` release-please writes on the production repository's default branch, only when `destinations.production.repo` is a GitHub repository root. It follows the production destination even when Rust's `options.package_repository` points the source link elsewhere. |
+
+Only absolute `http` or `https` URLs are linked. Each target writes the links its manifest has fields for: `package.json` `homepage`, `repository` and `bugs`; the `pyproject.toml` `[project.urls]` table; the gemspec `homepage` and `*_uri` metadata; Composer `homepage` and `support`; Cargo `homepage`, `repository` and `documentation`; NuGet `PackageProjectUrl` and `RepositoryUrl`; the Maven POM `url`, `scm` and `issueManagement`; and the pubspec `homepage`, `repository`, `issue_tracker` and `documentation`. The CLI's Homebrew formula uses `organization.homepage` when `publish.homebrew.homepage` is unset. Go modules and Swift packages have no manifest fields for these links, and the C++ target ships a CMake project rather than a registry manifest, so it gets none either.
+
+`settings.keywords` lists up to five search keywords for every registry that takes them (`package.json`, `pyproject.toml`, Composer, Cargo, pubspec `topics`, NuGet `PackageTags`). One list serves every registry, so each keyword must meet the strictest of their rules: 2 to 20 lowercase ASCII letters, digits and `-`, starting with a letter, ending with a letter or digit, with no `--`. A config that breaks these rules fails validation.
+
+```json
+{
+  "organization": { "name": "acme", "homepage": "https://acme.example", "docs": "https://docs.acme.example" },
+  "settings": { "keywords": ["payments", "rest-api"] }
+}
+```
 
 ## Package name availability
 
