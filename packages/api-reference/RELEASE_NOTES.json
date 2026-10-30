@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.76.4",
+    "date": "2026-10-30",
+    "title": "Hosting waitlist sign-ups now capture server framework",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The Deploy card in localhost developer tools now sends the server framework name when users sign up for hosting, helping us understand which integrations are most popular."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1764",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.76.3",
     "date": "2026-10-29",
     "title": "Downloaded OpenAPI documents now use meaningful filenames",

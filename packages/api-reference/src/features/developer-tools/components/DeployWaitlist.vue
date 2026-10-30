@@ -8,7 +8,9 @@
  * names it in the title. Either way, what hosting includes sits below the sign-up.
  *
  * Submits to the Loops newsletter form the marketing site uses, with the same `Hosting` user group
- * and the same one-minute local rate limit, so both places behave alike.
+ * and the same one-minute local rate limit, so both places behave alike. When a server framework is
+ * known, its name goes along as the contact's `framework` property, so we can see what people on the
+ * waitlist are running.
  */
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
@@ -139,6 +141,8 @@ const submit = async (): Promise<void> => {
         userGroup: 'Hosting',
         mailingLists: '',
         email: email.value,
+        // Loops stores any extra field as a contact property of the same name
+        ...(framework.value ? { framework: framework.value.name } : {}),
       }).toString(),
     })
 

@@ -9,6 +9,14 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.76.4 (2026-10-30)
+
+### Hosting waitlist sign-ups now capture server framework
+
+The Deploy card in localhost developer tools now sends the server framework name when users sign up for hosting, helping us understand which integrations are most popular.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1764)
+
 ## 1.76.3 (2026-10-29)
 
 ### Downloaded OpenAPI documents now use meaningful filenames

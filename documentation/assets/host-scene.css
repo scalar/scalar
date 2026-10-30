@@ -6,8 +6,9 @@
  * the same picture without the rest of that page's styles. Generated
  * from introduction.md; see the script beside it in the scratchpad.
  *
- * The home page still carries its own copy inline. This file is only
- * loaded where that copy is not, so the two never both apply.
+ * The home page still carries its own copy inline, so a change to the
+ * scene's look there has to be brought over here as well. This file is
+ * only loaded where that copy is not, so the two never both apply.
  */
 
 /* A planet's size is a registered length, so that landing.js can read
@@ -38,9 +39,9 @@
 }
 
 /* a globe waits unseen until the script has placed it, then pops;
-     each has its size and its turn in the pop. It sits at the field's
-     origin and the script moves it with translate, on a layer of its
-     own, so the orbit is compositing work, never layout or paint */
+   each has its size and its turn in the pop. It sits at the field's
+   origin and the script moves it with translate, on a layer of its
+   own, so the orbit is compositing work, never layout or paint */
 .lp-orb {
   --ink: #fff;
   --tint: #f8f8f8;
@@ -77,9 +78,9 @@
 
 .lp-orb-ball {
   /* the light (the white sheen along the bottom) is shared by every
-       ball; a brand replaces only the paint under it. Both are placed
-       from the disc's centre in --s, so they are the disc's in either
-       box the skin takes (the disc, or the wide box of a shape) */
+     ball; a brand replaces only the paint under it. Both are placed
+     from the disc's centre in --s, so they are the disc's in either
+     box the skin takes (the disc, or the wide box of a shape) */
   --lp-ball-light: radial-gradient(
     calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
     rgba(255, 255, 255, 0.45),
@@ -91,44 +92,55 @@
     var(--tint) 80%
   );
   /* the disc's shading, kept faint: a crescent along the top, a
-       darker edge at the bottom */
+     darker edge at the bottom */
   --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.14), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.1);
   position: absolute;
   /* half again as wide as the planet, room for a shape's rays
-       (SHAPE_BOX in the faces' module) */
+     (SHAPE_BOX in the faces' module) */
   inset: calc(var(--s) * -0.25);
   /* the planet's own box is what the pointer meets */
   pointer-events: none;
 }
 
 /* at rest the skin is the disc, shaded by its own inset shadows; the
-     grain over its paint is centred on the disc, so it holds still when
-     the skin takes the wide box of a shape (blend modes for the most
-     layers a brand's paint has) */
+   grain over its paint is centred on the disc, so it holds still when
+   the skin takes the wide box of a shape (blend modes for the most
+   layers a brand's paint has) */
 .lp-orb-skin {
   position: absolute;
   inset: calc(var(--s) * 0.25);
   border-radius: 50%;
   background: var(--lp-ball-light), var(--lp-ball-paint);
   box-shadow: var(--lp-ball-shade);
-  /* the grain over it blends with the ball alone, never with the
-       planet behind */
+}
+
+/* the travelling grain blends with the ball alone, never with the
+   planet behind; it belongs with the layer below, to the planets that
+   carry one */
+.lp-orb .lp-orb-skin {
   isolation: isolate;
 }
 
 /* The grain travels round the ball as the ball turns: the surface
-     facing us covers the planet's whole circumference in one turn, so a
-     tile of grain goes by in that share of it (landing.js works the
-     time out from the planet's size). Only the grain moves; the light
-     and the paint under it hold still, as a room's light does.
+   facing us covers the planet's whole circumference in one turn, so a
+   tile of grain goes by in that share of it (landing.js works the
+   time out from the planet's size). Only the grain moves; the light
+   and the paint under it hold still, as a room's light does.
 
-     It has a layer of its own rather than riding on the skin's
-     background, because a brand's paint may be one gradient or two:
-     background-position takes a list, a list shorter than the layers
-     repeats itself, and a three-value list on a four-layer ball sent
-     one of the paint's gradients travelling with the grain and
-     snapping back every turn. One layer cannot be miscounted. */
-.lp-orb-skin::after {
+   It has a layer of its own rather than riding on the skin's
+   background, because a brand's paint may be one gradient or two:
+   background-position takes a list, a list shorter than the layers
+   repeats itself, and a three-value list on a four-layer ball sent
+   one of the paint's gradients travelling with the grain and
+   snapping back every turn. One layer cannot be miscounted.
+
+   Only a planet that turns: the welcome committee under the footer
+   is built from the same parts (its styles are in styles.css, and
+   this page's styles reach it as they reach everything on the page)
+   but stands where it lands, with its grain on its skin and still.
+   Unscoped, this layer laid a second, travelling grain over those
+   planets on the home page alone. */
+.lp-orb .lp-orb-skin::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -140,23 +152,23 @@
 }
 
 /* a planet that is talking holds its surface still, the way it holds
-     its place on the orbit */
+   its place on the orbit */
 .lp-orb.is-talking .lp-orb-skin::after {
   animation-play-state: paused;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-orb-skin::after {
+  .lp-orb .lp-orb-skin::after {
     animation: none;
   }
 }
 
 /* shaped (a planet talking, its ball taking its mark's shape): the
-     skin fills the wide box and the faces' module clips it, and the
-     same shadows come from a filter on the skin's alpha (the
-     .lp-ball-filters in the page), so they follow the shape's edge. Only
-     a shaped ball is filtered: a filter re-runs whenever the ball
-     repaints, which a disc does when it flies or grows */
+   skin fills the wide box and the faces' module clips it, and the
+   same shadows come from a filter on the skin's alpha (the
+   .lp-ball-filters in the page), so they follow the shape's edge. Only
+   a shaped ball is filtered: a filter re-runs whenever the ball
+   repaints, which a disc does when it flies or grows */
 .lp-orb-ball.is-shaped {
   filter: url(#lp-ball-shade);
 }
@@ -168,10 +180,10 @@
 }
 
 /* the brand's own colours as the paint, where the mark has them, each
-     lit from below like the rest (Gemini keeps the plain blue of its
-     tint): Claude a peach glow along the bottom under coral; OpenCode
-     lemon along the bottom under amber; T3 Code a pink glow under
-     magenta */
+   lit from below like the rest (Gemini keeps the plain blue of its
+   tint): Claude a peach glow along the bottom under coral; OpenCode
+   lemon along the bottom under amber; T3 Code a pink glow under
+   magenta */
 .lp-orb--claude .lp-orb-ball,
 .lp-orb--claude-code .lp-orb-ball {
   --lp-ball-paint:
@@ -238,8 +250,8 @@
 }
 
 /* the ring: the mark and every glyph of the name stand on the ball's
-     equator at their own angle, facing out, so the name wraps the ball
-     and foreshortens into the edges; landing.js turns the ring */
+   equator at their own angle, facing out, so the name wraps the ball
+   and foreshortens into the edges; landing.js turns the ring */
 .lp-orb-ring {
   position: absolute;
   inset: 0;
@@ -285,8 +297,8 @@
 }
 
 /* the frosting only while the bubble shows: a backdrop blur on every
-     bubble, shown or not, had the compositor blurring the moving field
-     five times a frame */
+   bubble, shown or not, had the compositor blurring the moving field
+   five times a frame */
 .lp-orb.is-talking .lp-orb-bubble {
   opacity: 1;
   visibility: visible;
@@ -298,7 +310,7 @@
 }
 
 /* the pill's contents go first and come back last, once the pill is
-     a pill again */
+   a pill again */
 .lp-onboard > :not(.lp-sun) {
   flex: none;
   transition: opacity 200ms ease 300ms;
@@ -336,27 +348,27 @@
 }
 
 /* Saturn: a ring round the onboard button, for a talk: it is revealed
-     round the pill in a circular wipe as the pill flies and grows into
-     the wide band round the globe at the galaxy's centre, and wiped away
-     the same way round as it shrinks back; at rest nothing shows. Its back half sits behind the copy and its front
-     half over it (two copies in the field, the front one clipped to its
-     lower half), each an ellipse cut to a band by a mask, over a wipe
-     (a conic mask between two animated angles) over the ring's lines,
-     under a square of sheen that turns once round every few seconds.
-     The script keeps them on the pill, and on the centre for a talk;
-     the size, tilt and band move on the same curve as the pill's
-     flight, so the ring grows with the globe and shrinks back round the
-     pill */
+   round the pill in a circular wipe as the pill flies and grows into
+   the wide band round the globe at the galaxy's centre, and wiped away
+   the same way round as it shrinks back; at rest nothing shows. Its back half sits behind the copy and its front
+   half over it (two copies in the field, the front one clipped to its
+   lower half), each an ellipse cut to a band by a mask, over a wipe
+   (a conic mask between two animated angles) over the ring's lines,
+   under a square of sheen that turns once round every few seconds.
+   The script keeps them on the pill, and on the centre for a talk;
+   the size, tilt and band move on the same curve as the pill's
+   flight, so the ring grows with the globe and shrinks back round the
+   pill */
 .lp-sun-halo {
   position: absolute;
   left: 0;
   top: 0;
   z-index: 0;
   /* round the pill: an ellipse 6px beyond its ends and its top and
-       bottom (the script sets the size from the pill), with a trace of
-       tilt, so the band hugs the button all round and only crosses its
-       rounded corners, behind the upper ones and over the lower; the
-       globe's is the wide tilted ellipse */
+     bottom (the script sets the size from the pill), with a trace of
+     tilt, so the band hugs the button all round and only crosses its
+     rounded corners, behind the upper ones and over the lower; the
+     globe's is the wide tilted ellipse */
   width: var(--hw, 260px);
   height: var(--hh, 52px);
   padding: 1.5px;
@@ -364,7 +376,7 @@
   border-radius: 50%;
   rotate: -2deg;
   /* centred by the script's translate (its own half-size is taken off
-       there, before the tilt turns anything) */
+     there, before the tilt turns anything) */
   transition:
     translate 480ms cubic-bezier(0.22, 1, 0.36, 1),
     width 480ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -388,24 +400,24 @@
 }
 
 /* the wipe starts at the band's top, which is behind the globe, and
-     runs clockwise: the band comes out from behind the globe on the
-     right, round the front, and up the left, the upper left last; the
-     tail wipes it away the same way round */
+   runs clockwise: the band comes out from behind the globe on the
+   right, round the front, and up the left, the upper left last; the
+   tail wipes it away the same way round */
 .lp-sun-halo-reveal {
   --lp-head: 360deg;
   --lp-tail: 360deg;
   position: absolute;
   inset: 0;
   /* The ring's lines, after Saturn's: faint inner rings, the broad
-       bright one, a dark division, the outer one with its gap and a thin
-       line at the edge, with grain laid over them. The brand's colours
-       run round the band underneath, and the lines are cut out of the
-       page's own colour over them: where a line was, the page's colour
-       is held back and the colour beneath comes through; where the gaps
-       are, the page's colour closes over it. Drawing it that way rather
-       than painting coloured lines keeps the band solid, so its two
-       halves never show a seam where they overlap. The ellipse is the
-       band's own, so the lines follow it at any size. */
+     bright one, a dark division, the outer one with its gap and a thin
+     line at the edge, with grain laid over them. The brand's colours
+     run round the band underneath, and the lines are cut out of the
+     page's own colour over them: where a line was, the page's colour
+     is held back and the colour beneath comes through; where the gaps
+     are, the page's colour closes over it. Drawing it that way rather
+     than painting coloured lines keeps the band solid, so its two
+     halves never show a seam where they overlap. The ellipse is the
+     band's own, so the lines follow it at any size. */
   background:
     var(--lp-grain) 0 0 / 160px 160px,
     radial-gradient(
@@ -491,8 +503,8 @@
   height: 440px;
   margin: -220px 0 0 -220px;
   /* a sheen over the lines: a light arc and a fainter one opposite,
-       so a turn of the paint reads as the ring turning; between turns it
-       holds still, one side of the ring lit and the other in shade */
+     so a turn of the paint reads as the ring turning; between turns it
+     holds still, one side of the ring lit and the other in shade */
   background: conic-gradient(
     from 0deg,
     transparent,
@@ -503,10 +515,10 @@
   );
   animation: lp-halo-turn 9s infinite;
   /* still while its ring is hidden (and while the hosting scene is off
-       screen): a turning paint costs a restyle every frame. While the band
-       is still being wiped in or out it turns (landing.js marks the
-       reveal while either angle is in transition), so a wipe-away that
-       starts mid-turn finishes turning */
+     screen): a turning paint costs a restyle every frame. While the band
+     is still being wiped in or out it turns (landing.js marks the
+     reveal while either angle is in transition), so a wipe-away that
+     starts mid-turn finishes turning */
   animation-play-state: paused;
 }
 
@@ -521,7 +533,7 @@
 }
 
 /* the globe's ring: the band from 65% to the edge of a 374×131
-     ellipse, the proportions of the first one */
+   ellipse, the proportions of the first one */
 .lp-hero--talk .lp-sun-halo {
   width: 374px;
   height: 131px;
@@ -547,7 +559,7 @@
 }
 
 /* Scalar's bubble, in the field over every planet, under the globe's
-     lower edge and opening to the right; the script puts it in place */
+   lower edge and opening to the right; the script puts it in place */
 .lp-sun-bubble {
   position: absolute;
   left: 0;
@@ -558,7 +570,7 @@
   padding: 12px 16px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   /* a speech bubble: the corner nearest its planet is the tight one,
-       set per placement */
+     set per placement */
   border-radius: var(--r-tl, 20px) var(--r-tr, 20px) var(--r-br, 20px) var(--r-bl, 20px);
   background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
   font-family: var(--scalar-font);
@@ -611,7 +623,7 @@
 }
 
 /* the pop is once: after it the globe is simply shown, so a move
-     between the orbit and the stage does not play it again */
+   between the orbit and the stage does not play it again */
 .lp-orb.is-popped {
   opacity: 1;
   animation: none;
@@ -636,8 +648,8 @@
 }
 
 /* the bubbles as in the hero (14px, the same box); ChatGPT's up and
-     to the left (its --left class), Grok's down and to the right,
-     Claude's down and to the left */
+   to the left (its --left class), Grok's down and to the right,
+   Claude's down and to the left */
 .lp-stage .lp-orb--grok .lp-orb-bubble {
   --r-bl: 20px;
   --r-tl: 6px;
@@ -672,8 +684,8 @@
 }
 
 /* into the MCP card's answer seat, which the thinking box's fold lifts
-     as the planet flies: the flight takes the fold's time and curve, so
-     the two cancel and the planet goes straight to the seat */
+   as the planet flies: the flight takes the fold's time and curve, so
+   the two cancel and the planet goes straight to the seat */
 .lp-stage--mcp .lp-thread-avatar .lp-orb.is-moving {
   transition-duration: 450ms;
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
@@ -692,12 +704,12 @@
 }
 
 /* the globe and its ring halves travel as one (the SDK card borrows
-     them): a point at the stage's --sx/--sy, the centre of the three.
-     The group stacks nothing of its own, so the planets still pass
-     between the ring's halves */
+   them): a point at the stage's --sx/--sy, the centre of the three.
+   The group stacks nothing of its own, so the planets still pass
+   between the ring's halves */
 .lp-stage-globe {
   /* the globe's size, the ring's with it: a stage sets it, and a move
-       between stages eases it (landing.js starts it from the old one) */
+     between stages eases it (landing.js starts it from the old one) */
   --s: 180px;
   position: absolute;
   left: calc(var(--sx, 50) * 1%);
@@ -754,7 +766,7 @@
   top: 0;
   z-index: 2;
   /* the 374×131 band of a 180px globe, in its proportions, so the
-       ring follows the globe's size frame by frame */
+     ring follows the globe's size frame by frame */
   width: calc(var(--s) * 2.078);
   height: calc(var(--s) * 0.728);
   padding: calc(var(--s) * 0.128) calc(var(--s) * 0.367);
@@ -768,8 +780,8 @@
 }
 
 /* the wipe waits for the globe to be solid, since its first degrees
-     are behind the globe: shown through a globe still fading in they
-     were a sliver at its top */
+   are behind the globe: shown through a globe still fading in they
+   were a sliver at its top */
 .lp-stage.is-sun .lp-sun-halo-reveal {
   --lp-head: 360deg;
   --lp-tail: 0deg;
@@ -787,16 +799,16 @@
 }
 
 /* The SDK card: the globe's row, the SDK's code window and the
-     planet's row, layered where the flow's openapi.json label, the
-     window and its Developers/Agents labels were. The globe stands
-     behind the panel, its lower part under the panel's top edge; the
-     planet stands in front of the panel's lower right corner. As the
-     card scrolls into view the globe, ring and all, leaves the Docs
-     card for the top row and one of the three planets, picked at
-     random, follows to the bottom one (landing.js moves both); then the
-     two speak by turns, the planet's lines in its own bubble to its
-     left over the code, Scalar's in the row's bubble to the globe's
-     right. Each stands at its row's --sx/--sy or --x/--y */
+   planet's row, layered where the flow's openapi.json label, the
+   window and its Developers/Agents labels were. The globe stands
+   behind the panel, its lower part under the panel's top edge; the
+   planet stands in front of the panel's lower right corner. As the
+   card scrolls into view the globe, ring and all, leaves the Docs
+   card for the top row and one of the three planets, picked at
+   random, follows to the bottom one (landing.js moves both); then the
+   two speak by turns, the planet's lines in its own bubble to its
+   left over the code, Scalar's in the row's bubble to the globe's
+   right. Each stands at its row's --sx/--sy or --x/--y */
 .lp-stage.lp-stage--sdk {
   --sx: 34;
   --sy: 50;
@@ -817,7 +829,7 @@
 }
 
 /* the planet's bubble beside it, level with its middle, the tight
-     corner at the planet, frosted over the code */
+   corner at the planet, frosted over the code */
 .lp-stage.lp-stage--sdk .lp-orb .lp-orb-bubble {
   --r-tl: 20px;
   --r-tr: 20px;
@@ -832,16 +844,16 @@
 }
 
 /* Scalar's bubble hangs from the stage's right edge and grows left
-     towards the ring's right tip (the globe stands left so the ring shows
-     over the panel), a little above the globe's middle so it clears the
-     panel; a spot of its own rather than the hero script's */
+   towards the ring's right tip (the globe stands left so the ring shows
+   over the panel), a little above the globe's middle so it clears the
+   panel; a spot of its own rather than the hero script's */
 .lp-stage--sdk .lp-sun-bubble {
   --r-tl: 20px;
   --r-bl: 6px;
   z-index: 6;
   /* beside the globe, its tight corner at the disc: from 12px past the
-       disc's edge (the centre is at --sx, the disc reaches 90px past it;
-       60px in the narrow card) up to 230px wide, 8px short of the edge */
+     disc's edge (the centre is at --sx, the disc reaches 90px past it;
+     60px in the narrow card) up to 230px wide, 8px short of the edge */
   left: calc(var(--sx) * 1% + 102px);
   right: auto;
   top: 36%;
@@ -850,17 +862,17 @@
 }
 
 /* The MCP card: a chat transcript, after Claude's, in a window like
-     the SDK card's (the same width, border, radius and shadow). The
-     window is a box of fixed height with the transcript centred in it,
-     so each new row comes up from below and the earlier ones glide up
-     to make room (landing.js moves them from their old places): the
-     user's prompt in a bubble on the right; the agent's lines as plain
-     text, streaming in word by word; between them the thinking block: a
-     head line (Thinking, the caret after it) and under it a bordered box
-     where the guest planet and the globe sit at either side and trade a
-     few bubbles of calls and results; done, the box folds away under the
-     head (the globe with it) and the answer comes up, the planet
-     standing under it. */
+   the SDK card's (the same width, border, radius and shadow). The
+   window is a box of fixed height with the transcript centred in it,
+   so each new row comes up from below and the earlier ones glide up
+   to make room (landing.js moves them from their old places): the
+   user's prompt in a bubble on the right; the agent's lines as plain
+   text, streaming in word by word; between them the thinking block: a
+   head line (Thinking, the caret after it) and under it a bordered box
+   where the guest planet and the globe sit at either side and trade a
+   few bubbles of calls and results; done, the box folds away under the
+   head (the globe with it) and the answer comes up, the planet
+   standing under it. */
 .lp-stage.lp-stage--mcp {
   display: flex;
   align-items: center;
@@ -918,15 +930,15 @@
 }
 
 /* no sheen loop of its own here: the flow's script turns the paint
-     once each time a packet comes in, so the ring lies still between
-     packets (and costs nothing at rest) */
+   once each time a packet comes in, so the ring lies still between
+   packets (and costs nothing at rest) */
 .lp-stage--host .lp-sun-halo-paint {
   animation: none;
 }
 
 /* the products as planets: the section colours under the shared
-     sheen, the mark and the name white on them; they stand at the
-     centre and the script carries them round */
+   sheen, the mark and the name white on them; they stand at the
+   centre and the script carries them round */
 .lp-stage.lp-stage--host .lp-orb {
   --x: 50;
   --y: 50;
@@ -960,8 +972,8 @@
 
 @media screen and (max-width: 840px) {
   /* on a phone the scene takes the hero scene's tree (the API, the
-       orbit the full width, the agents three abreast under it); the
-       orbit's box is stretched, as the tree centres its items */
+     orbit the full width, the agents three abreast under it); the
+     orbit's box is stretched, as the tree centres its items */
   .lp-visual.lp-visual--host {
     padding: 0;
     overflow: visible;
@@ -990,22 +1002,22 @@
 }
 
 /* Hero scene ----------------------------------------------------------
-     The panel under the hero copy shows the flow, after the capability
-     pages on lightspark.com: Acme's OpenAPI document comes in at the
-     left, reaches the Scalar hub, fans out into the three products, and
-     each product fans out again into the people and agents that use it.
-     Everything is laid out on a 1180x552 scene, one scene unit being
-     --lp-u, so the whole thing fits the panel on one screen. The chips
-     are HTML (em-sized from that unit); landing.js draws the connectors
-     from where they land and sends packets along them. */
+   The panel under the hero copy shows the flow, after the capability
+   pages on lightspark.com: Acme's OpenAPI document comes in at the
+   left, reaches the Scalar hub, fans out into the three products, and
+   each product fans out again into the people and agents that use it.
+   Everything is laid out on a 1180x552 scene, one scene unit being
+   --lp-u, so the whole thing fits the panel on one screen. The chips
+   are HTML (em-sized from that unit); landing.js draws the connectors
+   from where they land and sends packets along them. */
 .lp-visual {
   /* never under 0.66px a unit: a narrow column scrolls the scene
-       sideways instead of shrinking it past reading size */
+     sideways instead of shrinking it past reading size */
   --lp-u: max(min(100cqw / 1180, 100cqh / 552), 0.66px);
   --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
   --lp-oy: calc((100cqh - 552 * var(--lp-u)) / 2);
   /* room above and below the scene (the scene's box, which the
-       container units measure, is the content box inside it) */
+     container units measure, is the content box inside it) */
   --lp-pad: 60px;
   position: relative;
   box-sizing: content-box;
@@ -1062,7 +1074,7 @@
 }
 
 /* each node sits at --x/--y in scene units, by its left edge, centred
-     on the line, as wide as its column (--w); the hub by its centre */
+   on the line, as wide as its column (--w); the hub by its centre */
 .lp-node {
   position: absolute;
   left: calc(var(--x) * var(--lp-u));
@@ -1096,11 +1108,11 @@ a.lp-node:focus-visible {
 }
 
 /* The chip: a 36 tile, then the name and a detail under it, with no
-     box of its own: the connectors run from the end of the text to the
-     next tile. The tile scales with the scene; the type is the theme's
-     14px whatever the scene scales to (a short window makes the scene
-     small), which is why the chip has no padding and may run past its
-     column: the lines are measured from the words, not the column. */
+   box of its own: the connectors run from the end of the text to the
+   next tile. The tile scales with the scene; the type is the theme's
+   14px whatever the scene scales to (a short window makes the scene
+   small), which is why the chip has no padding and may run past its
+   column: the lines are measured from the words, not the column. */
 .lp-chip {
   display: flex;
   align-items: center;
@@ -1121,7 +1133,7 @@ a.lp-node:focus-visible {
 }
 
 /* the tile is just the mark, no backing, every brand drawn in the ink
-     colour (the product glyphs in their section's colour below) */
+   colour (the product glyphs in their section's colour below) */
 .lp-chip-tile {
   display: flex;
   align-items: center;
@@ -1180,8 +1192,8 @@ a.lp-node:focus-visible {
 }
 
 /* When a packet lands, the subtitle flips over to say what arrived
-     (in mono), holds, and flips back.
-     Both faces share one grid cell, so the chip keeps its width. */
+   (in mono), holds, and flips back.
+   Both faces share one grid cell, so the chip keeps its width. */
 .lp-chip-sub {
   display: grid;
   perspective: 240px;
@@ -1288,7 +1300,7 @@ a.lp-node:focus-visible {
     padding: 15px 44px;
   }
   /* the hero keeps filling the first screen (the rule above makes the
-       other sections content-high) */
+     other sections content-high) */
   .lp-section--hero {
     display: flex;
     min-height: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
@@ -1299,7 +1311,7 @@ a.lp-node:focus-visible {
     max-width: none;
   }
   /* the flow keeps a readable size under the hero copy and scrolls
-       sideways when the column is narrower than it (swipe to explore) */
+     sideways when the column is narrower than it (swipe to explore) */
   .lp-visual {
     --lp-u: max(100cqw / 1180, 0.74px);
     --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
@@ -1317,7 +1329,7 @@ a.lp-node:focus-visible {
     margin-left: var(--lp-ox);
   }
   /* an explicit width, or the minimum height would set the width
-       through the aspect ratio */
+     through the aspect ratio */
   .lp-card {
     width: 100%;
     margin-top: 24px;
