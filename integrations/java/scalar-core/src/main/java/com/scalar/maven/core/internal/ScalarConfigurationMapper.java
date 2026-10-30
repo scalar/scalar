@@ -68,6 +68,7 @@ public class ScalarConfigurationMapper {
         config.setExpandAllSchemaProperties(properties.isExpandAllSchemaProperties());
         config.setDefaultOpenFirstTag(properties.isDefaultOpenFirstTag());
         config.setMcp(properties.getMcp());
+        config.setLocalization(properties.getLocalization());
 
         return config;
     }
