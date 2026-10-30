@@ -14,6 +14,7 @@ import moonTheme from './presets/moon.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
+import valentinesDayTheme from './presets/valentinesDay.css?inline'
 
 export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
 
@@ -36,6 +37,7 @@ export {
   purpleTheme,
   saturnTheme,
   solarizedTheme,
+  valentinesDayTheme,
 }
 
 /** Theme definition for Scalar platform themes. Matches user provided theme definitions. */
@@ -73,6 +75,7 @@ export const themeIds = [
   'mars',
   'laserwave',
   'halloween',
+  'valentinesDay',
   'none',
 ] as const
 
@@ -96,6 +99,7 @@ export const themeLabels = {
   deepSpace: 'Deep Space',
   laserwave: 'Laserwave',
   halloween: 'Halloween',
+  valentinesDay: "Valentine's Day",
   none: 'None',
 } as const satisfies Record<ThemeId, string>
 
@@ -191,6 +195,13 @@ export const presets = {
     description: 'Spooky season Scalar theme with a moonlit sky, bats, and pumpkin accents',
     theme: halloweenTheme,
     slug: 'halloween',
+  },
+  valentinesDay: {
+    uid: 'w7TBtSmZLmS7E-QeZ6TQ0',
+    name: "Valentine's Day",
+    description: "Valentine's Day Scalar theme with a garland of hearts, floating hearts, and Cupid's arrow",
+    theme: valentinesDayTheme,
+    slug: 'valentines-day',
   },
   elysiajs: {
     uid: 'nEVZkRmCylPkT0o9YJa7y',
