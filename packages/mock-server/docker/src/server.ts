@@ -44,7 +44,10 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   const endpoint = format === 'json' ? '/openapi.json' : '/openapi.yaml'
   const contentType = format === 'json' ? 'application/json' : 'application/yaml; charset=UTF-8'
 
-  // Serve the API document at the appropriate endpoint for the API Reference
+  // Serve the API document at the appropriate endpoint for the API Reference.
+  // For an OpenAPI document this never answers: `createMockServer` already registered the same
+  // paths, and Hono uses the first match. It is still needed for AsyncAPI documents, where the
+  // library only serves `/asyncapi.json` and `/asyncapi.yaml` and `/scalar` loads the document from here.
   app.get(endpoint, (c) => {
     c.header('Content-Type', contentType)
     return c.text(document)
