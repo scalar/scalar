@@ -86,20 +86,35 @@ Scalar covers the API lifecycle: the versioned registry with breaking-change det
 
 <div class="ent-sky container-full" data-md-exclude>
   <span class="ent-comet" aria-hidden="true"></span>
-  <dl class="ent-figures">
-    <div class="ent-figure">
-      <dt>1M+</dt>
-      <dd>Developers use Scalar</dd>
+  <div class="ent-figures" role="list">
+    <div class="ent-figure" role="listitem">
+      <div class="ent-flip">
+        <div class="ent-face ent-face--back" aria-hidden="true"></div>
+        <div class="ent-face ent-face--front">
+          <b class="ent-figure-value">5M+</b>
+          <span class="ent-figure-label">Developers use Scalar</span>
+        </div>
+      </div>
     </div>
-    <div class="ent-figure">
-      <dt>50k+</dt>
-      <dd>APIs on Scalar</dd>
+    <div class="ent-figure" role="listitem">
+      <div class="ent-flip">
+        <div class="ent-face ent-face--back" aria-hidden="true"></div>
+        <div class="ent-face ent-face--front">
+          <b class="ent-figure-value">110k+</b>
+          <span class="ent-figure-label">APIs on Scalar</span>
+        </div>
+      </div>
     </div>
-    <div class="ent-figure">
-      <dt>10MM+</dt>
-      <dd>OSS installs</dd>
+    <div class="ent-figure" role="listitem">
+      <div class="ent-flip">
+        <div class="ent-face ent-face--back" aria-hidden="true"></div>
+        <div class="ent-face ent-face--front">
+          <b class="ent-figure-value">35MM+</b>
+          <span class="ent-figure-label">Monthly OSS installs</span>
+        </div>
+      </div>
     </div>
-  </dl>
+  </div>
 </div>
 
 <div class="enterprise-features-copy">
@@ -131,9 +146,9 @@ Validate contracts early so exploration and testing stay tied to the same API de
     We're committed to enabling developers and companies to practice the highest
     of API industry standards.
   </p>
-  <div class="flex gap-2 mb-11">
-    <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
-    <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get Started</a>
+  <div class="cta-actions flex gap-2 mb-11">
+    <a class="t-editor__button ent-pill" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
+    <a class="t-editor__button ent-pill" href="https://dashboard.scalar.com/register">Get Started</a>
   </div>
 </div>
 
@@ -676,226 +691,258 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
   .enterprise-features {
     padding: 100px 0;
+    /* The light crossing this section is drawn on a layer of its own,
+       over everything in here and nothing outside it. */
+    position: relative;
+    isolation: isolate;
   }
 
   /* ------------------------------------------------------------------
-     The figures, under a comet.
+     The figures, and the light crossing them.
 
-     The comet crosses the page itself — there is no panel behind it,
-     so it has to be made the way the ring in the hero is made, and
-     for the same reason: the brand's colours underneath, the page's
-     own colour cut out of them in fine lines over the top, and grain
-     over both. Where a line was, the page shows through; the lines
-     are the texture and the colours are only ever seen between them.
-     That is what gives it a body rather than a smear, and it reads on
-     a white page and a black one without changing.
+     Not a picture of a comet in a box of its own — a wash of light
+     that crosses this part of the page, far wider than the column and
+     blurred past the point of having a shape, so it reads as light in
+     the room rather than an illustration sitting above the words. It
+     passes over the paragraph it starts under, over the cards, and
+     out across the heading below — light falling on them rather than
+     a backdrop behind them, which is also what makes it read as the
+     thing turning the cards over as it reaches each one. It is soft
+     enough, and thin enough, that what is underneath stays legible.
 
-     Three layers make the shape: the tail, a teardrop anchored at the
-     head so it tapers away behind; a bloom around the head; and the
-     core itself. Both waits are on the band being seen — the numbers
-     rise once, the comet crosses while it is in view and stops when
-     it is not.
+     Only its sideways travel is clipped, so it can spill into the
+     text above and below but can never widen the page.
      ------------------------------------------------------------------ */
   .ent-sky {
-    --ent-sky-h: 260px;
     /* the head's colour: the brand red carried towards the purple, so
-       it is a magenta rather than a flat red disc */
+       it is a magenta rather than a flat red */
     --ent-hot: color-mix(in srgb, var(--scalar-color-red) 55%, var(--scalar-color-purple));
+    /* how strong the light gets. It passes under the numbers and the
+       words around them, so it is a tint rather than a fill: any more
+       and the small grey labels stop being readable on top of it. */
+    --ent-glow: 0.55;
     position: relative;
-    height: var(--ent-sky-h);
-    margin: 72px 0 88px;
-    /* the comet starts and ends off the page, and may not widen it */
-    overflow: clip;
+    margin: 104px 0 112px;
+    overflow-x: clip;
+    overflow-y: visible;
   }
-  /* The comet is two soft shapes rather than a drawing: a blurred
-     streak for the tail and a blurred bloom for the head. Nothing in
-     it has an edge — the blur is what makes it read as light rather
-     than as a painted stripe, and it is what lets the same thing sit
-     on a white page and a black one.
-
-     The element itself paints nothing; it only carries the position,
-     so the two halves can be blurred by different amounts. The tail
-     is soft enough to be abstract, the head sharp enough to be a
-     point of light. */
+  /* the light itself: a long soft body with a brighter head, both of
+     them far enough out of focus to have no edge anywhere */
   .ent-comet {
     position: absolute;
-    top: 36%;
+    top: 50%;
     left: 0;
-    width: min(700px, 58%);
-    height: 86px;
+    /* over the words and over the cards: the light falls on them */
+    z-index: 2;
+    width: min(1560px, 132%);
+    height: 380px;
     /* parked off the left, and invisible, until the band is seen */
-    translate: -170% -50%;
+    translate: -150% -50%;
     opacity: 0;
+    pointer-events: none;
   }
-  /* the tail: the spectrum along its length, bluest at the far end and
-     hottest at the head, with slow wisps through it that the blur
-     turns into movement rather than lines */
+  /* the body: the spectrum along its length, bluest at the far end
+     and hottest at the head */
   .ent-comet::before {
     content: '';
     position: absolute;
     inset: 0;
-    background:
-      repeating-linear-gradient(
-        177.5deg,
-        transparent 0 8px,
-        color-mix(in srgb, var(--scalar-background-1) 42%, transparent) 8px 13px
-      ),
-      linear-gradient(
-        to right,
-        transparent 0%,
-        color-mix(in srgb, var(--scalar-color-blue) 45%, transparent) 20%,
-        var(--scalar-color-blue) 44%,
-        var(--scalar-color-purple) 70%,
-        var(--ent-hot) 92%,
-        color-mix(in srgb, var(--ent-hot) 82%, #fff) 100%
-      );
-    /* a teardrop: densest behind the head, thinning the whole way back */
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      color-mix(in srgb, var(--scalar-color-blue) 38%, transparent) 22%,
+      color-mix(in srgb, var(--scalar-color-blue) 86%, transparent) 46%,
+      var(--scalar-color-purple) 72%,
+      var(--ent-hot) 94%,
+      color-mix(in srgb, var(--ent-hot) 80%, #fff) 100%
+    );
     -webkit-mask:
       radial-gradient(
-        80% 50% at 88% 50%,
-        #000 0 8%,
-        rgba(0, 0, 0, 0.78) 36%,
-        rgba(0, 0, 0, 0.4) 64%,
+        78% 50% at 86% 50%,
+        #000 0 10%,
+        rgba(0, 0, 0, 0.76) 38%,
+        rgba(0, 0, 0, 0.38) 66%,
         rgba(0, 0, 0, 0.1) 86%,
         transparent 100%
       ),
       /* the ellipse is anchored near the right edge, so on that side it
-         would run straight off the box; this takes it out first and
-         leaves the head as the leading point */
-      linear-gradient(to right, #000 0 82%, transparent 98%);
+         would run straight off the box; this takes it out first */
+      linear-gradient(to right, #000 0 80%, transparent 98%);
     -webkit-mask-composite: source-in;
     mask:
       radial-gradient(
-        80% 50% at 88% 50%,
-        #000 0 8%,
-        rgba(0, 0, 0, 0.78) 36%,
-        rgba(0, 0, 0, 0.4) 64%,
+        78% 50% at 86% 50%,
+        #000 0 10%,
+        rgba(0, 0, 0, 0.76) 38%,
+        rgba(0, 0, 0, 0.38) 66%,
         rgba(0, 0, 0, 0.1) 86%,
         transparent 100%
       ),
-      linear-gradient(to right, #000 0 82%, transparent 98%);
+      linear-gradient(to right, #000 0 80%, transparent 98%);
     mask-composite: intersect;
-    filter: blur(11px);
+    filter: blur(64px);
   }
-  /* the head: a bloom with a point of light at the middle of it */
+  /* the head: a bloom, with no hard point in it */
   .ent-comet::after {
     content: '';
     position: absolute;
     top: 50%;
-    left: 88%;
-    width: 200px;
+    left: 86%;
+    width: 440px;
     aspect-ratio: 1;
     translate: -50% -50%;
     background: radial-gradient(
       closest-side circle,
-      #fff 0 6%,
-      color-mix(in srgb, #fff 80%, var(--ent-hot)) 12%,
-      color-mix(in srgb, var(--ent-hot) 52%, transparent) 24%,
-      color-mix(in srgb, var(--ent-hot) 18%, transparent) 46%,
-      color-mix(in srgb, var(--scalar-color-purple) 7%, transparent) 68%,
-      transparent 86%
+      color-mix(in srgb, #fff 62%, var(--ent-hot)) 0 8%,
+      color-mix(in srgb, var(--ent-hot) 72%, transparent) 20%,
+      color-mix(in srgb, var(--ent-hot) 34%, transparent) 40%,
+      color-mix(in srgb, var(--scalar-color-purple) 14%, transparent) 64%,
+      transparent 84%
     );
-    filter: blur(4px);
+    filter: blur(42px);
   }
   .ent-sky.is-flying .ent-comet {
-    animation: ent-comet-fly 9s linear infinite;
+    animation: ent-comet-fly 11s linear infinite;
   }
   /* it crosses, then the page is quiet a while before the next one */
   @keyframes ent-comet-fly {
     0% {
-      translate: -170% -50%;
+      translate: -150% -50%;
       opacity: 0;
     }
-    4% {
-      opacity: 1;
+    5% {
+      opacity: var(--ent-glow);
     }
-    26% {
-      opacity: 1;
+    28% {
+      opacity: var(--ent-glow);
     }
-    32% {
-      translate: 250% -50%;
+    35% {
+      translate: 210% -50%;
       opacity: 0;
     }
     100% {
-      translate: 250% -50%;
+      translate: 210% -50%;
       opacity: 0;
     }
   }
+  /* Three blank cards that the light turns over. Each one is two
+     faced — an empty back and the number on the front — and it spins
+     about its upright axis several times before settling face up, the
+     way a thing struck from the left does, because that is the way
+     the light is travelling.
+
+     The spin is not on a timer: landing.js watches where the head of
+     the light actually is and turns each card as it reaches it, so
+     the light is what flips them rather than something that merely
+     happens at the same moment. The first pass turns them from blank
+     to their number; every pass after that spins them from the number
+     back to the number, so the light always has an effect but nothing
+     is ever hidden again.
+
+     The turn itself is run from landing.js rather than from here, so
+     that it can start from whichever face is showing. The cards are
+     face up in the stylesheet: without the script there is nothing to
+     turn them, and three blank cards would be worse than three still
+     ones. */
   .ent-figures {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
     display: flex;
     justify-content: center;
-    gap: clamp(24px, 7vw, 96px);
+    gap: 16px;
     margin: 0;
-    padding: 0 32px 24px;
+    padding: 0 32px;
   }
   .ent-figure {
-    /* each one rises as the band comes into view, a beat after the last */
-    translate: 0 12px;
-    opacity: 0;
-    transition:
-      translate 600ms cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 600ms ease;
-    text-align: center;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 260px;
+    height: 116px;
+    /* how deep the turn looks; without this it is a flat squash */
+    perspective: 900px;
   }
-  .ent-sky.is-seen .ent-figure {
-    translate: 0 0;
-    opacity: 1;
+  .ent-flip {
+    position: relative;
+    height: 100%;
+    transform-style: preserve-3d;
   }
-  .ent-sky.is-seen .ent-figure:nth-child(2) {
-    transition-delay: 110ms;
+  /* landing.js turns this face down before the first pass; until then,
+     and without the script at all, the number is the side showing */
+  .ent-figures.is-armed .ent-flip {
+    transform: rotateY(180deg);
   }
-  .ent-sky.is-seen .ent-figure:nth-child(3) {
-    transition-delay: 220ms;
+  .ent-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+    background: var(--scalar-background-1);
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-lg);
+    /* each face is only ever seen from its own side */
+    backface-visibility: hidden;
   }
-  .ent-figure dt {
+  .ent-face--back {
+    transform: rotateY(180deg);
+  }
+  .ent-figure-value {
     font-weight: var(--scalar-bold);
-    font-size: clamp(28px, 4.2vw, 44px);
-    line-height: 1.1;
+    /* the same size as the page's own headings */
+    font-size: 24px;
+    line-height: 1.2;
     color: var(--scalar-color-1);
     letter-spacing: -0.02em;
   }
-  .ent-figure dd {
-    margin: 6px 0 0;
+  .ent-figure-label {
     font-size: var(--scalar-font-size-4);
-    color: var(--scalar-color-2);
+    /* the muted colour does not hold up over the light; size carries
+       the hierarchy here instead */
+    color: var(--scalar-color-1);
+    text-align: center;
+    text-wrap: balance;
   }
   @media screen and (max-width: 600px) {
     .ent-sky {
-      --ent-sky-h: 340px;
-      margin: 52px 0 64px;
+      margin: 72px 0 80px;
     }
-    /* the three stack, so they want the room the comet was using */
+    /* the three stack, so the light sits across all of them */
     .ent-figures {
       flex-direction: column;
-      gap: 20px;
-      padding-bottom: 16px;
+      align-items: center;
+      gap: 12px;
+    }
+    .ent-figure {
+      /* stacked, the flex axis is the vertical one, and a basis of
+         zero would win over the height and collapse the cards */
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: none;
+      height: 96px;
     }
     .ent-comet {
-      top: 20%;
-      height: 62px;
+      height: 320px;
     }
     .ent-comet::before {
-      filter: blur(8px);
+      filter: blur(46px);
     }
     .ent-comet::after {
-      width: 140px;
+      width: 300px;
+      filter: blur(32px);
     }
   }
   @media (prefers-reduced-motion: reduce) {
     .ent-comet {
       animation: none;
-      /* at rest, across the band, rather than parked off the edge */
-      translate: 42% -50%;
-      opacity: 1;
+      /* at rest, across the page, rather than parked off the edge */
+      translate: 30% -50%;
+      opacity: var(--ent-glow);
     }
-    .ent-figure {
-      transition: none;
-      translate: 0 0;
-      opacity: 1;
+    /* no spin: the cards are simply face up */
+    .ent-figures.is-armed .ent-flip {
+      transform: none;
     }
   }
     .resources-cta-container {
@@ -1365,9 +1412,45 @@ Validate contracts early so exploration and testing stay tied to the same API de
     display: flex;
     gap: 44px;
   }
+  /* The closing call to action, centred like the hero's, with the
+     same pills rather than the theme's square buttons. */
   .cta {
     padding: 80px 0;
     margin-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .cta > p {
+    max-width: 460px;
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .cta .t-editor__heading {
+    justify-content: center;
+  }
+  /* centred, so the anchor button that appears beside the heading on
+     hover would shift the words as it comes and goes */
+  .cta .t-editor__heading .notify-container {
+    display: none;
+  }
+  .cta-actions {
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* no margin: the theme's button carries one, which drops the second
+     pill below the first */
+  .cta-actions .ent-pill {
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border-radius: 999px;
+    justify-content: center;
   }
   .mb-11 {
     margin-bottom: 44px;

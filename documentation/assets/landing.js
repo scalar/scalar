@@ -4366,25 +4366,95 @@ const initEnterpriseRing = debounce(() => {
   hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
 })
 
-/* The band of figures on the enterprise page. The numbers rise the
-   first time the band is seen, and the comet crosses it only while it
-   is on screen — there is no sense in a comet nobody is looking at. */
+/* The light crossing the enterprise page's figures.
+ *
+ * It only crosses while the band is on screen — there is no sense in
+ * it crossing where nobody is looking. The three cards start blank
+ * and face down, and each one turns over as the head of the light
+ * reaches it: the watcher below follows where the head actually is
+ * rather than running the turns off a timer, so it is the light that
+ * flips them and not a coincidence of timing. They land once.
+ */
+/** where the head sits along the light, as a share of its length */
+const ENT_HEAD_AT = 0.86
+/** how long a card takes to turn over and settle */
+const ENT_SPIN_MS = 1500
+/** how far left of a card the head has to get before it counts again */
+const ENT_REARM = 40
+
 const initEnterpriseSky = debounce(() => {
   ;[...document.querySelectorAll('.ent-sky')]
     .filter((sky) => sky.dataset.entSkyBound !== 'true')
     .forEach((sky) => {
       sky.dataset.entSkyBound = 'true'
+      const comet = sky.querySelector('.ent-comet')
+      const figures = sky.querySelector('.ent-figures')
+      const cards = [...sky.querySelectorAll('.ent-figure')]
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+      let watching = 0
+
+      /* Four turns, landing face up. The first one starts from the
+         blank side, since that is what is showing; every one after it
+         starts from the number, because the number has been seen and
+         hiding it again would be a step backwards. */
+      const turn = (card) => {
+        const flip = card.querySelector('.ent-flip')
+        const from = card.dataset.entLanded === 'true' ? 0 : 180
+        card.entTurn?.cancel()
+        card.entTurn = flip.animate([{ transform: `rotateY(${from}deg)` }, { transform: 'rotateY(1440deg)' }], {
+          duration: ENT_SPIN_MS,
+          easing: 'cubic-bezier(0.16, 0.84, 0.3, 1)',
+          fill: 'forwards',
+        })
+        card.dataset.entLanded = 'true'
+      }
+
+      // a card turns as the head reaches its middle, and is ready to
+      // turn again once the head is back behind it on the next pass
+      const watch = () => {
+        watching = 0
+        if (comet) {
+          const box = comet.getBoundingClientRect()
+          const head = box.left + box.width * ENT_HEAD_AT
+          cards.forEach((card) => {
+            const r = card.getBoundingClientRect()
+            if (head >= r.left + r.width / 2) {
+              if (card.dataset.entPassed !== 'true') {
+                card.dataset.entPassed = 'true'
+                turn(card)
+              }
+            } else if (head < r.left - ENT_REARM) {
+              card.dataset.entPassed = 'false'
+            }
+          })
+        }
+        if (sky.classList.contains('is-flying')) {
+          watching = requestAnimationFrame(watch)
+        }
+      }
+
       new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             sky.classList.toggle('is-flying', entry.isIntersecting)
             if (entry.isIntersecting) {
               sky.classList.add('is-seen')
+              if (!watching && !reduceMotion.matches) {
+                watching = requestAnimationFrame(watch)
+              }
             }
           })
         },
         { threshold: 0 },
       ).observe(sky)
+
+      // The cards are face up in the stylesheet, so that a page with
+      // no script shows the numbers rather than three blanks. Turning
+      // them face down is the script's first job — and not one it does
+      // at all where motion is unwanted.
+      if (figures && !reduceMotion.matches) {
+        figures.classList.add('is-armed')
+      }
     })
 })
 
