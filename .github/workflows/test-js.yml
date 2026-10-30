@@ -36,25 +36,74 @@ jobs:
         run: |
           pnpm exec tsc --project .github/actions/update-contributors/tsconfig.json
           pnpm vitest .github/actions/update-contributors --run
+      # Packages are spread across shards by their rough test duration, so the
+      # few slow suites never pile up on one shard. Every shard runs the same
+      # deterministic greedy assignment (heaviest package to the lightest
+      # shard) and keeps only its own packages.
+      #
+      # `--only` skips the `^build` dependencies: restore-build already put
+      # every dist/ in place, and letting turbo rebuild them on a cache miss
+      # used to cost each shard a minute or more.
       - name: Run tests
         run: |
-          dirs=()
+          # Rough test durations in seconds, measured in CI. Only the suites
+          # that dominate the run are listed; everything else counts as 5.
+          # Update these when a suite grows or shrinks a lot.
+          declare -A weights=(
+            [api-reference]=160
+            [api-client]=140
+            [components]=110
+            [blocks]=110
+            [workspace-store]=60
+            [mock-server]=50
+            [helpers]=50
+            [sidebar]=45
+            [openapi-types]=40
+            [openapi-validator]=40
+            [asyncapi-to-markdown]=35
+            [openapi-parser]=35
+            [highlight]=35
+            [schemas]=35
+            [server-side-rendering]=35
+            [openapi-to-markdown]=30
+            [pre-post-request-scripts]=30
+            [agent-chat]=30
+            [snippetz]=25
+            [oas-utils]=15
+            [json-magic]=10
+          )
+          shard_total=${{ matrix.shard-total }}
+          shard_index=${{ matrix.shard-index }}
+
+          entries=()
           for dir in packages/*/; do
             if grep -q '"test"' "${dir}package.json" 2>/dev/null; then
-              dirs+=("$dir")
+              name=$(basename "$dir")
+              entries+=("${weights[$name]:-5} ${dir%/}")
             fi
           done
+
+          totals=()
+          for (( s = 0; s < shard_total; s++ )); do totals[s]=0; done
+
           args=()
-          for i in "${!dirs[@]}"; do
-            if (( i % ${{ matrix.shard-total }} == ${{ matrix.shard-index }} - 1 )); then
-              args+=(--filter "./${dirs[$i]%/}")
+          while read -r weight dir; do
+            lightest=0
+            for (( s = 1; s < shard_total; s++ )); do
+              if (( totals[s] < totals[lightest] )); then lightest=$s; fi
+            done
+            totals[lightest]=$(( totals[lightest] + weight ))
+            if (( lightest == shard_index - 1 )); then
+              args+=(--filter "./${dir}")
             fi
-          done
+          done < <(printf '%s\n' "${entries[@]}" | sort -k1,1nr -k2,2)
+
+          echo "Estimated shard weights: ${totals[*]}"
           if [ ${#args[@]} -eq 0 ]; then
             echo "No packages assigned to this shard, skipping."
             exit 0
           fi
-          pnpm turbo "${args[@]}" test
+          pnpm turbo "${args[@]}" --only test
 
   # pnpm workspaces under projects/* with a `test` script. Excludes
   # projects/proxy-scalar-com (Go) — those run in test-proxy-server.
@@ -81,4 +130,6 @@ jobs:
             echo "No projects with a pnpm test script (excluding Go proxy), skipping."
             exit 0
           fi
-          pnpm turbo "${args[@]}" test
+          # `--only`: the packages these projects depend on are already
+          # restored from the build artifact, so do not rebuild them.
+          pnpm turbo "${args[@]}" --only test

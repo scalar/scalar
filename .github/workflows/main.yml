@@ -154,12 +154,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - name: Setup Node
-        uses: ./.github/actions/setup-node
-      - name: Install dependencies
-        run: pnpm install
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      # `--only` skips the `build` dependencies of types:check: restore-build
+      # already put every package dist/ in place, and turbo used to rebuild
+      # whatever missed its cache before it could start checking types.
       - name: Check types
-        run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
+        run: pnpm turbo ${{ env.TURBO_FLAGS }} --only types:check
 
   # test-packages (sharded) and test-projects live in test-js.yml so the shell
   # loops cannot drift between pr.yml and main.yml.
@@ -187,7 +188,7 @@ jobs:
       - name: Restore pre-built workspace
         uses: ./.github/actions/restore-build
       - name: Run tests
-        run: pnpm turbo --filter './integrations/**' test
+        run: pnpm turbo --filter './integrations/**' --only test
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
 
