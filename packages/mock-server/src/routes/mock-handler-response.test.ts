@@ -27,6 +27,32 @@ describe('mock-handler-response', () => {
     expect(await response.text()).toBe('')
   })
 
+  it('keeps deprecated schemas when the handler falls back to a generated XML body', async () => {
+    const operation = {
+      'x-handler': 'return undefined;',
+      responses: {
+        '200': {
+          description: 'OK',
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                deprecated: true,
+                xml: { name: 'model' },
+                properties: { id: { type: 'string', example: 'ft-1' } },
+              },
+            },
+          },
+        },
+      },
+    } as OpenAPIV3_1.OperationObject
+    const app = new Hono().get('/', (c) => mockHandlerResponse(c, operation))
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
+    expect(await response.text()).toBe('<?xml version="1.0" encoding="UTF-8"?>\n<model>\n  <id>ft-1</id>\n</model>')
+  })
+
   it.each([
     [{ serializedValue: '{"id":1}' }, undefined, '{"id":1}'],
     [{ serializedValue: '"hello"' }, { type: 'string' }, '"hello"'],
