@@ -140,7 +140,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 
 
-<div class="cta flex flex-col gap-3 small-test">
+<div class="cta container-full flex flex-col gap-3 small-test">
   <scalar-heading level="2" class="text-balance" slug="what-are-you-waiting-for">Ready to Modernize your API Lifecycle?</scalar-heading>
   <p>
     We're committed to enabling developers and companies to practice the highest
@@ -150,6 +150,104 @@ Validate contracts early so exploration and testing stay tied to the same API de
     <a class="t-editor__button ent-pill" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
     <a class="t-editor__button ent-pill" href="https://dashboard.scalar.com/register">Get Started</a>
   </div>
+
+<!-- The marks the scene's planets wear. landing.js finds each one by
+     id when it dresses a globe, so they have to be in the page. -->
+<template id="lp-icon-docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H3z"/><path d="M21 5.5A1.5 1.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></template>
+<template id="lp-icon-mcp"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.688 2.343a2.588 2.588 0 00-3.61 0l-9.626 9.44a.863.863 0 01-1.203 0 .823.823 0 010-1.18l9.626-9.44a4.313 4.313 0 016.016 0 4.116 4.116 0 011.204 3.54 4.3 4.3 0 013.609 1.18l.05.05a4.115 4.115 0 010 5.9l-8.706 8.537a.274.274 0 000 .393l1.788 1.754a.823.823 0 010 1.18.863.863 0 01-1.203 0l-1.788-1.753a1.92 1.92 0 010-2.754l8.706-8.538a2.47 2.47 0 000-3.54l-.05-.049a2.588 2.588 0 00-3.607-.003l-7.172 7.034-.002.002-.098.097a.863.863 0 01-1.204 0 .823.823 0 010-1.18l7.273-7.133a2.47 2.47 0 00-.003-3.537z"></path><path d="M14.485 4.703a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a4.115 4.115 0 000 5.9 4.314 4.314 0 006.016 0l7.12-6.982a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a2.588 2.588 0 01-3.61 0 2.47 2.47 0 010-3.54l7.12-6.982z"></path></svg></template>
+<template id="lp-icon-scalar"><svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></template>
+<template id="lp-icon-sdk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/></svg></template>
+
+<div class="lp-visual lp-visual--host" aria-hidden="true" data-md-exclude>
+<div class="lp-flow" data-lp-edges="api>hub,hub>dev-docs,hub>claude-code,hub>dev-sdk,hub>copilot,hub>claude,hub>chatgpt,hub>gemini">
+<div class="lp-node" data-lp-node="api" data-lp-flip="push {v}" style="--x: 24; --y: 276; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--openapi" aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.285 13.5H2.007l.003.077.009.15.004.063.014.171.004.039a8.813 8.813 0 0 0 .387 1.871c0 .004.002.007.003.011l.058.173.016.044a10.063 10.063 0 0 0 .08.216l.048.124a4.619 4.619 0 0 0 .078.189l.052.117.031.07.066.14.022.046.079.16.012.024c.03.059.061.117.093.175l.004.008.02.036 4.508-2.715.017-.01a3.606 3.606 0 0 1-.33-1.179Z" fill="#93D500"/><path d="m8.582 15.923-.013.013-3.717 3.717.057.053.105.094.055.048.127.107.034.029a8.31 8.31 0 0 0 .324.254l.006.004c.224.168.456.325.695.47l.025.016c.045.027.09.054.137.08l.084.048.08.045c.048.026.096.053.145.078a8.427 8.427 0 0 0 .431.21l.132-.32 1.87-4.54.007-.017a3.62 3.62 0 0 1-.584-.389Z" fill="#4D5A31"/><path d="M8.195 15.553a3.238 3.238 0 0 1-.212-.262 3.65 3.65 0 0 1-.2-.296L3.27 17.713c.069.116.141.228.215.338l.007.012.003.005.007.01v.002l.019.026.001.002c.079.116.16.23.242.342l.006.007.005.007.11.142.015.019c.038.049.077.097.117.145l.028.034a10.29 10.29 0 0 0 .155.181l.094.105.053.058.024.026.07.075.028.03.125.127 3.723-3.723a3.21 3.21 0 0 1-.122-.13Z" fill="#6BA43A"/><path d="M13.13 15.921a3.662 3.662 0 0 1-.124.096l.009.016 2.714 4.506a8.206 8.206 0 0 0 1.134-.886l-3.718-3.717-.015-.015Z" fill="#4D5A31"/><path d="m15.335 20.576-.092-.153-2.534-4.206a3.578 3.578 0 0 1-.316.167 3.6 3.6 0 0 1-2.567.2c-.057-.017-.113-.04-.169-.06-.056-.02-.113-.037-.168-.06L7.62 21.003l-.073.178-.063.152.014.006.016.006.004.002c.044.018.089.033.133.05.056.022.11.044.167.065l.085.032a8.912 8.912 0 0 0 1.88.442l.075.008.142.016.036.003.174.014.06.004.153.01.094.003.122.004a10.28 10.28 0 0 0 .217.003 8.877 8.877 0 0 0 1.495-.126l.154-.028.088-.017.09-.02c.05-.01.1-.02.15-.032l.028-.007a8.885 8.885 0 0 0 2.124-.791l.13-.074.157-.088.107-.06.001-.001.002-.001h.001l.001-.001.002-.001.006-.004.034-.02-.091-.153Zm-6.75-10.21a4.17 4.17 0 0 1 .123-.097l-.009-.015-2.714-4.506c-.126.082-.25.167-.372.256a8.933 8.933 0 0 0-.762.629L8.57 10.35l.015.015Z" fill="#93D500"/><path d="M4.594 6.88c-.043.043-.083.087-.124.13l-.123.128a8.875 8.875 0 0 0-.753.933l-.032.046-.076.112a6.38 6.38 0 0 0-.104.16 8.833 8.833 0 0 0-1.375 4.397l-.005.178-.003.179h5.266c0-.06.005-.119.008-.179s.004-.119.01-.178a3.572 3.572 0 0 1 .794-1.917c.038-.046.08-.09.12-.133.04-.044.077-.09.12-.133L4.594 6.881Zm10.864-1.306c-.007-.005-.014-.01-.021-.013a7.255 7.255 0 0 0-.14-.083l-.082-.047-.082-.046a27.998 27.998 0 0 0-.143-.077l-.023-.012a8.866 8.866 0 0 0-.95-.426l-.024-.01a8.908 8.908 0 0 0-1.987-.498l-.074-.01-.075-.008a6.585 6.585 0 0 0-.143-.016l-.04-.004a14.02 14.02 0 0 0-.17-.014l-.066-.004-.146-.009a3.121 3.121 0 0 0-.078-.003v5.278c.27.028.54.086.8.174l3.884-3.884a8.66 8.66 0 0 0-.44-.288Z" fill="#4D5A31"/><path d="M10.679 4.29c-.06.001-.12.001-.179.003a8.86 8.86 0 0 0-1.113.115l-.024.004-.155.029-.087.016a5.71 5.71 0 0 0-.24.052l-.028.006a8.918 8.918 0 0 0-2.125.792l-.13.074a10.34 10.34 0 0 0-.156.087c-.038.023-.077.043-.115.066h-.002a.099.099 0 0 1-.008.005l-.03.017v.001l.093.153 2.625 4.359a3.846 3.846 0 0 1 .316-.167 3.576 3.576 0 0 1 1.536-.35V4.285c-.06 0-.119.003-.178.004Z" fill="#6BA43A"/><path d="M19.704 12.708a9.926 9.926 0 0 0-.05-.61l-.002-.014-.001-.007a9.571 9.571 0 0 0-.027-.201v-.006a8.88 8.88 0 0 0-.273-1.245l-.002-.008-.059-.19-.008-.025a10.987 10.987 0 0 0-.057-.17l-.016-.046-.054-.147c-.009-.024-.017-.047-.027-.07a4.804 4.804 0 0 0-.086-.216l-.04-.094c-.016-.04-.034-.08-.052-.12l-.03-.068a15.234 15.234 0 0 0-.066-.142l-.021-.043a7.015 7.015 0 0 0-.08-.162l-.012-.022c-.03-.06-.061-.119-.093-.177l-.003-.006a8.906 8.906 0 0 0-.504-.818l-3.886 3.886c.088.26.146.529.174.8h5.278c0-.027-.002-.054-.003-.08Z" fill="#4D5A31"/><path d="M14.45 13.143c0 .06-.006.119-.01.179-.002.06-.003.119-.01.178a3.573 3.573 0 0 1-.793 1.918c-.037.046-.08.088-.12.133-.04.044-.077.09-.12.132l3.723 3.723c.043-.043.082-.086.124-.13l.123-.128c.276-.299.528-.61.754-.935l.027-.039.082-.12.07-.108.034-.052a8.83 8.83 0 0 0 1.377-4.573c.002-.059.003-.118.003-.178H14.45Z" fill="#6BA43A"/><path d="M21.279 2.722a2.467 2.467 0 0 0-3.953 2.84l-5.374 5.373a2.467 2.467 0 1 0 1.114 1.113l5.373-5.373a2.466 2.466 0 0 0 2.84-3.953Z" fill="#424143"/></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Your API</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>openapi.yaml</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node lp-node--hub" data-lp-node="hub" style="--x: 560; --y: 276; --w: 480">
+<div class="lp-stage lp-stage--host is-sun" data-lp-stage-host>
+<div class="lp-stage-globe lp-stage-globe--host">
+<div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+<div class="lp-stage-sun" data-lp-anchor><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
+<div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
+</div>
+<div class="lp-orb lp-orb--product lp-orb--docs" data-label="Docs" data-icon="docs"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
+<div class="lp-orb lp-orb--product lp-orb--mcp" data-label="MCP" data-icon="mcp"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
+<div class="lp-orb lp-orb--product lp-orb--sdk" data-label="SDKs" data-icon="sdk"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="dev-docs" data-lp-parent="hub" data-lp-flip="GET /users|GET /keys|POST /keys" style="--x: 952; --y: 60; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>API consumer</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude-code" data-lp-parent="hub" data-lp-flip="GET /auth.md|GET /keys.md|GET /faq.md" style="--x: 952; --y: 132; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude Code</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="dev-sdk" data-lp-parent="hub" data-lp-flip="npm i acme|bun i acme|gem i acme" style="--x: 952; --y: 204; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><scalar-icon src="phosphor/regular/user"></scalar-icon></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Developer</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>SDK user</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="copilot" data-lp-parent="hub" data-lp-flip="users.list()|keys.list()|orders.pay()" style="--x: 952; --y: 276; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--copilot" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.533 1.829A2.528 2.528 0 0015.11 0h-.737a2.531 2.531 0 00-2.484 2.087l-1.263 6.937.314-1.08a2.528 2.528 0 012.424-1.833h4.284l1.797.706 1.731-.706h-.505a2.528 2.528 0 01-2.423-1.829l-.715-2.453z" fill="url(#lobe-icons-copilot-0-_R_0_)" transform="translate(0 1)"></path><path d="M6.726 20.16A2.528 2.528 0 009.152 22h1.566c1.37 0 2.49-1.1 2.525-2.48l.17-6.69-.357 1.228a2.528 2.528 0 01-2.423 1.83h-4.32l-1.54-.842-1.667.843h.497c1.124 0 2.113.75 2.426 1.84l.697 2.432z" fill="url(#lobe-icons-copilot-1-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-2-_R_0_)" transform="translate(0 1)"></path><path d="M15 0H6.252c-2.5 0-4 3.331-5 6.662-1.184 3.947-2.734 9.225 1.75 9.225H6.78c1.13 0 2.12-.753 2.43-1.847.657-2.317 1.809-6.359 2.713-9.436.46-1.563.842-2.906 1.43-3.742A1.97 1.97 0 0115 0" fill="url(#lobe-icons-copilot-3-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-4-_R_0_)" transform="translate(0 1)"></path><path d="M9 22h8.749c2.5 0 4-3.332 5-6.663 1.184-3.948 2.734-9.227-1.75-9.227H17.22c-1.129 0-2.12.754-2.43 1.848a1149.2 1149.2 0 01-2.713 9.437c-.46 1.564-.842 2.907-1.43 3.743A1.97 1.97 0 019 22" fill="url(#lobe-icons-copilot-5-_R_0_)" transform="translate(0 1)"></path><defs><radialGradient cx="85.44%" cy="100.653%" fx="85.44%" fy="100.653%" gradientTransform="scale(-.8553 -1) rotate(50.927 2.041 -1.946)" id="lobe-icons-copilot-0-_R_0_" r="105.116%"><stop offset="9.6%" stop-color="#00AEFF"></stop><stop offset="77.3%" stop-color="#2253CE"></stop><stop offset="100%" stop-color="#0736C4"></stop></radialGradient><radialGradient cx="18.143%" cy="32.928%" fx="18.143%" fy="32.928%" gradientTransform="scale(.8897 1) rotate(52.069 .193 .352)" id="lobe-icons-copilot-1-_R_0_" r="95.612%"><stop offset="0%" stop-color="#FFB657"></stop><stop offset="63.4%" stop-color="#FF5F3D"></stop><stop offset="92.3%" stop-color="#C02B3C"></stop></radialGradient><radialGradient cx="82.987%" cy="-9.792%" fx="82.987%" fy="-9.792%" gradientTransform="scale(-1 -.9441) rotate(-70.872 .142 1.17)" id="lobe-icons-copilot-4-_R_0_" r="140.622%"><stop offset="6.6%" stop-color="#8C48FF"></stop><stop offset="50%" stop-color="#F2598A"></stop><stop offset="89.6%" stop-color="#FFB152"></stop></radialGradient><linearGradient id="lobe-icons-copilot-2-_R_0_" x1="39.465%" x2="46.884%" y1="12.117%" y2="103.774%"><stop offset="15.6%" stop-color="#0D91E1"></stop><stop offset="48.7%" stop-color="#52B471"></stop><stop offset="65.2%" stop-color="#98BD42"></stop><stop offset="93.7%" stop-color="#FFC800"></stop></linearGradient><linearGradient id="lobe-icons-copilot-3-_R_0_" x1="45.949%" x2="50%" y1="0%" y2="100%"><stop offset="0%" stop-color="#3DCBFF"></stop><stop offset="24.7%" stop-color="#0588F7" stop-opacity="0"></stop></linearGradient><linearGradient id="lobe-icons-copilot-5-_R_0_" x1="83.507%" x2="83.453%" y1="-6.106%" y2="21.131%"><stop offset="5.8%" stop-color="#F8ADFA"></stop><stop offset="70.8%" stop-color="#A86EDD" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Copilot</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>Coding agent</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="claude" data-lp-parent="hub" data-lp-flip="tools/list|list_users|get_order" style="--x: 952; --y: 348; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--claude" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Claude</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="chatgpt" data-lp-parent="hub" data-lp-flip="tools/call|new_order|get_prompt" style="--x: 952; --y: 420; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--chatgpt" aria-hidden="true" fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>ChatGPT</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+<div class="lp-node" data-lp-node="gemini" data-lp-parent="hub" data-lp-flip="get_orders|get_schema|do_refund" style="--x: 952; --y: 492; --w: 200">
+<div class="lp-chip">
+<div class="lp-chip-icon"><span class="lp-chip-tile"><svg class="lp-mark lp-mark--gemini" aria-hidden="true" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="#3186FF"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-0-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-1-_R_0_)"></path><path d="M20.616 10.835a14.147 14.147 0 01-4.45-3.001 14.111 14.111 0 01-3.678-6.452.503.503 0 00-.975 0 14.134 14.134 0 01-3.679 6.452 14.155 14.155 0 01-4.45 3.001c-.65.28-1.318.505-2.002.678a.502.502 0 000 .975c.684.172 1.35.397 2.002.677a14.147 14.147 0 014.45 3.001 14.112 14.112 0 013.679 6.453.502.502 0 00.975 0c.172-.685.397-1.351.677-2.003a14.145 14.145 0 013.001-4.45 14.113 14.113 0 016.453-3.678.503.503 0 000-.975 13.245 13.245 0 01-2.003-.678z" fill="url(#lobe-icons-gemini-2-_R_0_)"></path><defs><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-0-_R_0_" x1="7" x2="11" y1="15.5" y2="12"><stop stop-color="#08B962"></stop><stop offset="1" stop-color="#08B962" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-1-_R_0_" x1="8" x2="11.5" y1="5.5" y2="11"><stop stop-color="#F94543"></stop><stop offset="1" stop-color="#F94543" stop-opacity="0"></stop></linearGradient><linearGradient gradientUnits="userSpaceOnUse" id="lobe-icons-gemini-2-_R_0_" x1="3.5" x2="17.5" y1="13.5" y2="12"><stop stop-color="#FABC12"></stop><stop offset=".46" stop-color="#FABC12" stop-opacity="0"></stop></linearGradient></defs></svg></span></div>
+<div class="lp-chip-body">
+<div class="lp-chip-label"><span>Gemini</span></div>
+<div class="lp-chip-sub"><span class="lp-chip-sub-face lp-chip-sub-face--main"><span>MCP client</span></span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
 </div>
 
 
@@ -1436,6 +1534,24 @@ Validate contracts early so exploration and testing stay tied to the same API de
     flex-direction: column;
     align-items: center;
     text-align: center;
+    /* the prose column caps its children at 680; the scene below needs
+       the whole content area, and container-full cannot give it one
+       while that cap still applies */
+    max-width: none;
+    position: relative;
+  }
+  /* The rule above it, the same one the first section draws under the
+     hero. The section itself is wider than the prose so the scene can
+     be, so the rule is drawn at the prose's width rather than the
+     section's, and lines up with the one above. */
+  .cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    width: min(960px, 100%);
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .cta > p {
     max-width: 460px;
@@ -1449,6 +1565,15 @@ Validate contracts early so exploration and testing stay tied to the same API de
      hover would shift the words as it comes and goes */
   .cta .t-editor__heading .notify-container {
     display: none;
+  }
+  /* The scene is laid out for a wide box. The call to action breaks
+     out of the prose column so it can have one, and the scene is held
+     to the width it has on the home page. */
+  .cta .lp-visual--host {
+    align-self: center;
+    width: 100%;
+    max-width: 1028px;
+    margin: 16px 0 0;
   }
   .cta-actions {
     align-items: center;

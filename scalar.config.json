@@ -1267,6 +1267,11 @@
                   "name": "robots",
                   "content": "index, follow"
                 }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
+                }
               ]
             },
             "layout": {

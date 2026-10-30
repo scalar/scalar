@@ -1,0 +1,1384 @@
+/* The hosting scene, shared with the home page.
+ *
+ * These are the rules the scene's markup and landing.js need — the
+ * flow and its nodes, the chips, the stage, the planets and their
+ * rings — lifted out of the home page so the enterprise page can show
+ * the same picture without the rest of that page's styles. Generated
+ * from introduction.md; see the script beside it in the scratchpad.
+ *
+ * The home page still carries its own copy inline. This file is only
+ * loaded where that copy is not, so the two never both apply.
+ */
+
+/* A planet's size is a registered length, so that landing.js can read
+   it as a number — unregistered, it comes back as the calc() that
+   wrote it, and the scene never starts. */
+@property --s {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 100px;
+}
+
+/* The properties the scene reads. The home page sets these on its
+   sections; here they are scoped to the scene itself, so nothing else
+   on the page picks them up. */
+.lp-visual--host {
+  --lp-sun-paint: var(--scalar-background-1);
+  --lp-sun-shade: none;
+  --lp-sun-border: var(--scalar-border-width) solid var(--scalar-border-color);
+  --lp-ring-sheen: #fff;
+  --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --lp-ink: var(--scalar-color-1);
+  --lp-bg-1-5: color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2));
+}
+
+.dark-mode .lp-visual--host {
+  --lp-ring-sheen: #000;
+}
+
+/* a globe waits unseen until the script has placed it, then pops;
+     each has its size and its turn in the pop. It sits at the field's
+     origin and the script moves it with translate, on a layer of its
+     own, so the orbit is compositing work, never layout or paint */
+.lp-orb {
+  --ink: #fff;
+  --tint: #f8f8f8;
+  --type: calc(var(--s) * 0.135);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: var(--s);
+  height: var(--s);
+  pointer-events: auto;
+  opacity: 0;
+  will-change: transform, translate;
+}
+
+.lp-orb.is-placed {
+  animation: lp-orb-pop 800ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms) both;
+}
+
+.lp-orb:hover {
+  z-index: 4;
+}
+
+.lp-orb-body {
+  position: absolute;
+  inset: 0;
+}
+
+.lp-orb-globe {
+  position: absolute;
+  inset: 0;
+  perspective: calc(var(--s) * 5);
+}
+
+.lp-orb-ball {
+  /* the light (the white sheen along the bottom) is shared by every
+       ball; a brand replaces only the paint under it. Both are placed
+       from the disc's centre in --s, so they are the disc's in either
+       box the skin takes (the disc, or the wide box of a shape) */
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(
+    calc(var(--s) / 2) at 50% 50%,
+    color-mix(in oklab, var(--tint) 90%, white) 40%,
+    var(--tint) 80%
+  );
+  /* the disc's shading, kept faint: a crescent along the top, a
+       darker edge at the bottom */
+  --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.14), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  /* half again as wide as the planet, room for a shape's rays
+       (SHAPE_BOX in the faces' module) */
+  inset: calc(var(--s) * -0.25);
+  /* the planet's own box is what the pointer meets */
+  pointer-events: none;
+}
+
+/* at rest the skin is the disc, shaded by its own inset shadows; the
+     grain over its paint is centred on the disc, so it holds still when
+     the skin takes the wide box of a shape (blend modes for the most
+     layers a brand's paint has) */
+.lp-orb-skin {
+  position: absolute;
+  inset: calc(var(--s) * 0.25);
+  border-radius: 50%;
+  background: var(--lp-ball-light), var(--lp-ball-paint);
+  box-shadow: var(--lp-ball-shade);
+  /* the grain over it blends with the ball alone, never with the
+       planet behind */
+  isolation: isolate;
+}
+
+/* The grain travels round the ball as the ball turns: the surface
+     facing us covers the planet's whole circumference in one turn, so a
+     tile of grain goes by in that share of it (landing.js works the
+     time out from the planet's size). Only the grain moves; the light
+     and the paint under it hold still, as a room's light does.
+
+     It has a layer of its own rather than riding on the skin's
+     background, because a brand's paint may be one gradient or two:
+     background-position takes a list, a list shorter than the layers
+     repeats itself, and a three-value list on a four-layer ball sent
+     one of the paint's gradients travelling with the grain and
+     snapping back every turn. One layer cannot be miscounted. */
+.lp-orb-skin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--lp-grain-ball) 0 0 / 160px 160px;
+  /* overlay, so white stays white and the colours take the grain */
+  mix-blend-mode: overlay;
+  animation: lp-grain-roll var(--lp-grain-turn, 1300ms) linear infinite;
+}
+
+/* a planet that is talking holds its surface still, the way it holds
+     its place on the orbit */
+.lp-orb.is-talking .lp-orb-skin::after {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-orb-skin::after {
+    animation: none;
+  }
+}
+
+/* shaped (a planet talking, its ball taking its mark's shape): the
+     skin fills the wide box and the faces' module clips it, and the
+     same shadows come from a filter on the skin's alpha (the
+     .lp-ball-filters in the page), so they follow the shape's edge. Only
+     a shaped ball is filtered: a filter re-runs whenever the ball
+     repaints, which a disc does when it flies or grows */
+.lp-orb-ball.is-shaped {
+  filter: url(#lp-ball-shade);
+}
+
+.lp-orb-ball.is-shaped .lp-orb-skin {
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* the brand's own colours as the paint, where the mark has them, each
+     lit from below like the rest (Gemini keeps the plain blue of its
+     tint): Claude a peach glow along the bottom under coral; OpenCode
+     lemon along the bottom under amber; T3 Code a pink glow under
+     magenta */
+.lp-orb--claude .lp-orb-ball,
+.lp-orb--claude-code .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffb27a 0 16%,
+      rgba(255, 178, 122, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f36a40 36%, #f0582a 76%);
+}
+
+.lp-orb--opencode .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffe56b 0 16%,
+      rgba(255, 229, 107, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%);
+}
+
+.lp-orb--t3 .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ff8ad0 0 16%,
+      rgba(255, 138, 208, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f052ae 36%, #e5399b 76%);
+}
+
+.lp-orb--grok .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #4a4a50 55%, #3a3a40 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(255, 255, 255, 0.1), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.lp-orb--grok .lp-orb-ball.is-shaped {
+  filter: url(#lp-ball-shade-dark);
+}
+
+.lp-orb--chatgpt .lp-orb-ball,
+.lp-orb--codex .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #f8f8f8 72%, #f4f4f4 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(28, 32, 36, 0.18), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035);
+}
+
+.lp-orb--chatgpt .lp-orb-ball.is-shaped,
+.lp-orb--codex .lp-orb-ball.is-shaped {
+  filter: url(#lp-ball-shade-glass);
+}
+
+/* the ring: the mark and every glyph of the name stand on the ball's
+     equator at their own angle, facing out, so the name wraps the ball
+     and foreshortens into the edges; landing.js turns the ring */
+.lp-orb-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.lp-orb-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotateY(var(--a)) translateZ(calc(var(--s) / 2));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.lp-orb-glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  white-space: pre;
+  font-family: var(--scalar-font);
+  font-size: var(--type);
+  /* the theme's semibold is 500, too light on a ball: 600, no more */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+  backface-visibility: hidden;
+}
+
+.lp-orb-glyph svg {
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+/* the mark takes the ink, whatever colour or gradient it carries */
+.lp-orb-glyph svg [fill] {
+  fill: currentColor;
+}
+
+/* the frosting only while the bubble shows: a backdrop blur on every
+     bubble, shown or not, had the compositor blurring the moving field
+     five times a frame */
+.lp-orb.is-talking .lp-orb-bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  scale: 1;
+  transition-delay: 0s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* the pill's contents go first and come back last, once the pill is
+     a pill again */
+.lp-onboard > :not(.lp-sun) {
+  flex: none;
+  transition: opacity 200ms ease 300ms;
+}
+
+.lp-sun {
+  --s: 180px;
+  --ink: var(--scalar-color-1);
+  --type: calc(var(--s) * 0.12);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.lp-sun .lp-orb-globe,
+.lp-sun .lp-orb-ring {
+  display: block;
+}
+
+.lp-hero--talk .lp-sun {
+  opacity: 1;
+  transition-delay: 240ms;
+}
+
+.lp-hero--talk .lp-onboard:focus-visible .lp-sun {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+
+/* Saturn: a ring round the onboard button, for a talk: it is revealed
+     round the pill in a circular wipe as the pill flies and grows into
+     the wide band round the globe at the galaxy's centre, and wiped away
+     the same way round as it shrinks back; at rest nothing shows. Its back half sits behind the copy and its front
+     half over it (two copies in the field, the front one clipped to its
+     lower half), each an ellipse cut to a band by a mask, over a wipe
+     (a conic mask between two animated angles) over the ring's lines,
+     under a square of sheen that turns once round every few seconds.
+     The script keeps them on the pill, and on the centre for a talk;
+     the size, tilt and band move on the same curve as the pill's
+     flight, so the ring grows with the globe and shrinks back round the
+     pill */
+.lp-sun-halo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  /* round the pill: an ellipse 6px beyond its ends and its top and
+       bottom (the script sets the size from the pill), with a trace of
+       tilt, so the band hugs the button all round and only crosses its
+       rounded corners, behind the upper ones and over the lower; the
+       globe's is the wide tilted ellipse */
+  width: var(--hw, 260px);
+  height: var(--hh, 52px);
+  padding: 1.5px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  rotate: -2deg;
+  /* centred by the script's translate (its own half-size is taken off
+       there, before the tilt turns anything) */
+  transition:
+    translate 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    width 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    padding 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    rotate 480ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+.lp-sun-halo--front {
+  z-index: 2;
+  clip-path: inset(50% 0 0 0);
+}
+
+/* the wipe starts at the band's top, which is behind the globe, and
+     runs clockwise: the band comes out from behind the globe on the
+     right, round the front, and up the left, the upper left last; the
+     tail wipes it away the same way round */
+.lp-sun-halo-reveal {
+  --lp-head: 360deg;
+  --lp-tail: 360deg;
+  position: absolute;
+  inset: 0;
+  /* The ring's lines, after Saturn's: faint inner rings, the broad
+       bright one, a dark division, the outer one with its gap and a thin
+       line at the edge, with grain laid over them. The brand's colours
+       run round the band underneath, and the lines are cut out of the
+       page's own colour over them: where a line was, the page's colour
+       is held back and the colour beneath comes through; where the gaps
+       are, the page's colour closes over it. Drawing it that way rather
+       than painting coloured lines keeps the band solid, so its two
+       halves never show a seam where they overlap. The ellipse is the
+       band's own, so the lines follow it at any size. */
+  background:
+    var(--lp-grain) 0 0 / 160px 160px,
+    radial-gradient(
+      farthest-side,
+      color-mix(in srgb, var(--scalar-background-1) 69%, transparent) 64% 64.64%,
+      color-mix(in srgb, var(--scalar-background-1) 93%, transparent) 64.82% 65.53%,
+      color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 65.71% 66.24%,
+      color-mix(in srgb, var(--scalar-background-1) 66%, transparent) 66.42% 67.15%,
+      color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 67.33% 67.69%,
+      color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 67.87% 68.57%,
+      color-mix(in srgb, var(--scalar-background-1) 63%, transparent) 68.75% 69.67%,
+      color-mix(in srgb, var(--scalar-background-1) 60%, transparent) 69.85% 70.21%,
+      color-mix(in srgb, var(--scalar-background-1) 88%, transparent) 70.39% 70.74%,
+      color-mix(in srgb, var(--scalar-background-1) 65%, transparent) 70.92% 71.29%,
+      color-mix(in srgb, var(--scalar-background-1) 54%, transparent) 71.47% 72.15%,
+      color-mix(in srgb, var(--scalar-background-1) 90%, transparent) 72.33% 72.91%,
+      color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 73.09% 73.53%,
+      color-mix(in srgb, var(--scalar-background-1) 67%, transparent) 73.71% 74.15%,
+      color-mix(in srgb, var(--scalar-background-1) 24%, transparent) 74.33% 74.71%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 74.89% 75.28%,
+      color-mix(in srgb, var(--scalar-background-1) 31%, transparent) 75.46% 75.82%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 76% 76.65%,
+      color-mix(in srgb, var(--scalar-background-1) 39%, transparent) 76.83% 77.13%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 77.31% 77.97%,
+      color-mix(in srgb, var(--scalar-background-1) 40%, transparent) 78.15% 78.89%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 79.07% 79.77%,
+      color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 79.95% 80.8%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 80.98% 81.35%,
+      color-mix(in srgb, var(--scalar-background-1) 27%, transparent) 81.53% 82.09%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 82.27% 82.59%,
+      color-mix(in srgb, var(--scalar-background-1) 33%, transparent) 82.77% 83.29%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 83.47% 84.06%,
+      color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 84.24% 84.99%,
+      color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 85.17% 86.59%,
+      color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 86.77% 87.67%,
+      color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 87.85% 88.1%,
+      color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 88.28% 89.11%,
+      color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 89.29% 90.13%,
+      color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 90.31% 91.06%,
+      color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 91.24% 92.06%,
+      color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 92.24% 92.71%,
+      color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 92.89% 93.71%,
+      color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 93.89% 94.91%,
+      color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 95.09% 95.41%,
+      color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 95.59% 95.88%,
+      color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 96.06% 97.39%,
+      color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 97.57% 98.65%,
+      color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 98.83% 100%
+    ),
+    conic-gradient(
+      from 0deg,
+      var(--scalar-color-red),
+      var(--scalar-color-orange),
+      var(--scalar-color-yellow),
+      var(--scalar-color-green),
+      var(--scalar-color-blue),
+      var(--scalar-color-purple),
+      var(--scalar-color-red)
+    );
+  background-blend-mode: overlay, normal, normal;
+  -webkit-mask: conic-gradient(
+    from 0deg,
+    transparent 0deg var(--lp-tail),
+    #000 var(--lp-tail) var(--lp-head),
+    transparent var(--lp-head) 360deg
+  );
+  mask: conic-gradient(
+    from 0deg,
+    transparent 0deg var(--lp-tail),
+    #000 var(--lp-tail) var(--lp-head),
+    transparent var(--lp-head) 360deg
+  );
+  transition:
+    --lp-head 600ms cubic-bezier(0.45, 0, 0.2, 1),
+    --lp-tail 900ms cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.lp-sun-halo-paint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 440px;
+  height: 440px;
+  margin: -220px 0 0 -220px;
+  /* a sheen over the lines: a light arc and a fainter one opposite,
+       so a turn of the paint reads as the ring turning; between turns it
+       holds still, one side of the ring lit and the other in shade */
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    color-mix(in srgb, var(--lp-ring-sheen) 30%, transparent) 50deg,
+    transparent 120deg 160deg,
+    color-mix(in srgb, var(--lp-ring-sheen) 15%, transparent) 230deg,
+    transparent 300deg
+  );
+  animation: lp-halo-turn 9s infinite;
+  /* still while its ring is hidden (and while the hosting scene is off
+       screen): a turning paint costs a restyle every frame. While the band
+       is still being wiped in or out it turns (landing.js marks the
+       reveal while either angle is in transition), so a wipe-away that
+       starts mid-turn finishes turning */
+  animation-play-state: paused;
+}
+
+.lp-hero--talk .lp-sun-halo-paint,
+.lp-stage.is-sun .lp-sun-halo-paint,
+.lp-sun-halo-reveal.is-wiping .lp-sun-halo-paint {
+  animation-play-state: running;
+}
+
+.lp-stage.is-sun.is-off .lp-sun-halo-paint {
+  animation-play-state: paused;
+}
+
+/* the globe's ring: the band from 65% to the edge of a 374×131
+     ellipse, the proportions of the first one */
+.lp-hero--talk .lp-sun-halo {
+  width: 374px;
+  height: 131px;
+  padding: 23px 66px;
+  rotate: -16deg;
+}
+
+.lp-hero--talk .lp-sun-halo-reveal {
+  --lp-head: 360deg;
+  --lp-tail: 0deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-sun-halo {
+    transition: none;
+  }
+  .lp-sun-halo-reveal {
+    transition: none;
+  }
+  .lp-sun-halo-paint {
+    animation: none;
+  }
+}
+
+/* Scalar's bubble, in the field over every planet, under the globe's
+     lower edge and opening to the right; the script puts it in place */
+.lp-sun-bubble {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  width: max-content;
+  max-width: 250px;
+  padding: 12px 16px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  /* a speech bubble: the corner nearest its planet is the tight one,
+       set per placement */
+  border-radius: var(--r-tl, 20px) var(--r-tr, 20px) var(--r-br, 20px) var(--r-bl, 20px);
+  background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
+  font-family: var(--scalar-font);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--scalar-color-1);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  scale: 0.96;
+  transition:
+    opacity 220ms ease,
+    transform 220ms ease,
+    scale 220ms ease,
+    visibility 0s linear 220ms;
+  pointer-events: none;
+}
+
+.lp-sun-bubble {
+  --r-tl: 6px;
+}
+
+.lp-sun-bubble.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  scale: 1;
+  transition-delay: 0s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.lp-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+}
+
+.lp-stage .lp-orb {
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  pointer-events: none;
+}
+
+/* a planet on the move, either way */
+.lp-orb.is-moving {
+  transition: transform 1100ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* the pop is once: after it the globe is simply shown, so a move
+     between the orbit and the stage does not play it again */
+.lp-orb.is-popped {
+  opacity: 1;
+  animation: none;
+}
+
+.lp-stage .lp-orb--chatgpt {
+  --x: 36;
+  --y: 34;
+  --s: 200px;
+}
+
+.lp-stage .lp-orb--grok {
+  --x: 70;
+  --y: 30;
+  --s: 160px;
+}
+
+.lp-stage .lp-orb--claude {
+  --x: 52;
+  --y: 70;
+  --s: 250px;
+}
+
+/* the bubbles as in the hero (14px, the same box); ChatGPT's up and
+     to the left (its --left class), Grok's down and to the right,
+     Claude's down and to the left */
+.lp-stage .lp-orb--grok .lp-orb-bubble {
+  --r-bl: 20px;
+  --r-tl: 6px;
+  bottom: auto;
+  top: 66%;
+  left: 34%;
+}
+
+.lp-stage .lp-orb--claude .lp-orb-bubble {
+  --r-bl: 20px;
+  --r-tr: 6px;
+  bottom: 8%;
+  left: auto;
+  right: 62%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-orb.is-moving {
+    transition: none;
+  }
+}
+
+.lp-stage .lp-orb {
+  transition: --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* a planet flying into the card keeps its flight transition as well */
+.lp-stage .lp-orb.is-moving {
+  transition:
+    transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* into the MCP card's answer seat, which the thinking box's fold lifts
+     as the planet flies: the flight takes the fold's time and curve, so
+     the two cancel and the planet goes straight to the seat */
+.lp-stage--mcp .lp-thread-avatar .lp-orb.is-moving {
+  transition-duration: 450ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-stage.is-orbit .lp-orb--chatgpt {
+  --s: 96px;
+}
+
+.lp-stage.is-orbit .lp-orb--grok {
+  --s: 84px;
+}
+
+.lp-stage.is-orbit .lp-orb--claude {
+  --s: 104px;
+}
+
+/* the globe and its ring halves travel as one (the SDK card borrows
+     them): a point at the stage's --sx/--sy, the centre of the three.
+     The group stacks nothing of its own, so the planets still pass
+     between the ring's halves */
+.lp-stage-globe {
+  /* the globe's size, the ring's with it: a stage sets it, and a move
+       between stages eases it (landing.js starts it from the old one) */
+  --s: 180px;
+  position: absolute;
+  left: calc(var(--sx, 50) * 1%);
+  top: calc(var(--sy, 50) * 1%);
+  width: 0;
+  height: 0;
+  transition: --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-stage-globe.is-moving {
+  transition:
+    transform 1100ms cubic-bezier(0.22, 1, 0.36, 1),
+    --s 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* the globe: the pill's surface as a circle, dressed like the hero's */
+.lp-stage-sun {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  width: var(--s);
+  height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border: var(--lp-sun-border);
+  border-radius: 50%;
+  background: var(--lp-sun-paint);
+  box-shadow: var(--lp-sun-shade);
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 400ms ease,
+    scale 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.lp-stage-sun .lp-sun {
+  --s: inherit;
+}
+
+.lp-stage.is-sun .lp-stage-sun {
+  opacity: 1;
+  scale: 1;
+}
+
+.lp-stage.is-sun .lp-stage-sun .lp-sun {
+  opacity: 1;
+  transition-delay: 300ms;
+}
+
+/* the ring halves, in the globe's geometry, centred before the tilt */
+.lp-stage .lp-sun-halo {
+  left: 0;
+  top: 0;
+  z-index: 2;
+  /* the 374×131 band of a 180px globe, in its proportions, so the
+       ring follows the globe's size frame by frame */
+  width: calc(var(--s) * 2.078);
+  height: calc(var(--s) * 0.728);
+  padding: calc(var(--s) * 0.128) calc(var(--s) * 0.367);
+  rotate: -16deg;
+  translate: -50% -50%;
+  transition: none;
+}
+
+.lp-stage .lp-sun-halo--front {
+  z-index: 4;
+}
+
+/* the wipe waits for the globe to be solid, since its first degrees
+     are behind the globe: shown through a globe still fading in they
+     were a sliver at its top */
+.lp-stage.is-sun .lp-sun-halo-reveal {
+  --lp-head: 360deg;
+  --lp-tail: 0deg;
+  transition-delay: 300ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-stage .lp-orb,
+  .lp-stage .lp-orb.is-moving,
+  .lp-stage-globe.is-moving,
+  .lp-stage-sun,
+  .lp-stage-say {
+    transition: opacity 300ms ease;
+  }
+}
+
+/* The SDK card: the globe's row, the SDK's code window and the
+     planet's row, layered where the flow's openapi.json label, the
+     window and its Developers/Agents labels were. The globe stands
+     behind the panel, its lower part under the panel's top edge; the
+     planet stands in front of the panel's lower right corner. As the
+     card scrolls into view the globe, ring and all, leaves the Docs
+     card for the top row and one of the three planets, picked at
+     random, follows to the bottom one (landing.js moves both); then the
+     two speak by turns, the planet's lines in its own bubble to its
+     left over the code, Scalar's in the row's bubble to the globe's
+     right. Each stands at its row's --sx/--sy or --x/--y */
+.lp-stage.lp-stage--sdk {
+  --sx: 34;
+  --sy: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 24px 0 16px;
+  aspect-ratio: auto;
+}
+
+.lp-stage.lp-stage--sdk .lp-orb {
+  --x: 86;
+  --y: 50;
+  --s: 130px;
+}
+
+/* the planet's bubble beside it, level with its middle, the tight
+     corner at the planet, frosted over the code */
+.lp-stage.lp-stage--sdk .lp-orb .lp-orb-bubble {
+  --r-tl: 20px;
+  --r-tr: 20px;
+  --r-bl: 20px;
+  --r-br: 6px;
+  left: auto;
+  right: 88%;
+  top: auto;
+  bottom: 50%;
+  translate: 0 50%;
+  max-width: 260px;
+}
+
+/* Scalar's bubble hangs from the stage's right edge and grows left
+     towards the ring's right tip (the globe stands left so the ring shows
+     over the panel), a little above the globe's middle so it clears the
+     panel; a spot of its own rather than the hero script's */
+.lp-stage--sdk .lp-sun-bubble {
+  --r-tl: 20px;
+  --r-bl: 6px;
+  z-index: 6;
+  /* beside the globe, its tight corner at the disc: from 12px past the
+       disc's edge (the centre is at --sx, the disc reaches 90px past it;
+       60px in the narrow card) up to 230px wide, 8px short of the edge */
+  left: calc(var(--sx) * 1% + 102px);
+  right: auto;
+  top: 36%;
+  translate: 0 -50%;
+  max-width: min(230px, calc((100 - var(--sx)) * 1% - 110px));
+}
+
+/* The MCP card: a chat transcript, after Claude's, in a window like
+     the SDK card's (the same width, border, radius and shadow). The
+     window is a box of fixed height with the transcript centred in it,
+     so each new row comes up from below and the earlier ones glide up
+     to make room (landing.js moves them from their old places): the
+     user's prompt in a bubble on the right; the agent's lines as plain
+     text, streaming in word by word; between them the thinking block: a
+     head line (Thinking, the caret after it) and under it a bordered box
+     where the guest planet and the globe sit at either side and trade a
+     few bubbles of calls and results; done, the box folds away under the
+     head (the globe with it) and the answer comes up, the planet
+     standing under it. */
+.lp-stage.lp-stage--mcp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 600px;
+  padding: 0;
+  aspect-ratio: auto;
+}
+
+.lp-stage.lp-stage--mcp .lp-orb {
+  --x: 50;
+  --y: 50;
+  --s: 48px;
+}
+
+.lp-stage--mcp .lp-stage-globe {
+  --s: 48px;
+}
+
+/* folded, the globe's ring is out of sight: its paint holds still */
+.lp-thread-row.is-done:not(.is-open) .lp-sun-halo-paint {
+  animation-play-state: paused;
+}
+
+.lp-stage.lp-stage--mcp .lp-think-seat .lp-orb,
+.lp-stage--mcp .lp-think-seat .lp-stage-globe {
+  --s: 32px;
+}
+
+.lp-visual.lp-visual--host {
+  --lp-pad: 0px;
+  min-height: 0;
+  max-height: none;
+  margin-top: 0;
+  padding: 0;
+  overflow: visible;
+  border-radius: 0;
+  background: none;
+}
+
+/* the hub is the orbit's box; the lines meet the globe inside it */
+.lp-stage.lp-stage--host {
+  --sx: 50;
+  --sy: 50;
+  position: relative;
+  width: calc(480 * var(--lp-u));
+  height: calc(300 * var(--lp-u));
+  aspect-ratio: auto;
+}
+
+.lp-stage--host .lp-stage-globe {
+  --s: calc(160 * var(--lp-u));
+}
+
+/* no sheen loop of its own here: the flow's script turns the paint
+     once each time a packet comes in, so the ring lies still between
+     packets (and costs nothing at rest) */
+.lp-stage--host .lp-sun-halo-paint {
+  animation: none;
+}
+
+/* the products as planets: the section colours under the shared
+     sheen, the mark and the name white on them; they stand at the
+     centre and the script carries them round */
+.lp-stage.lp-stage--host .lp-orb {
+  --x: 50;
+  --y: 50;
+  --s: calc(104 * var(--lp-u));
+  /* the product names large on their rings, to be read at a glance */
+  --type: calc(var(--s) * 0.19);
+  --ink: #fff;
+  opacity: 0;
+  scale: 0.6;
+  transition:
+    opacity 400ms ease,
+    scale 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.lp-stage.lp-stage--host.is-orbit .lp-orb {
+  opacity: 1;
+  scale: 1;
+}
+
+.lp-orb--docs {
+  --tint: var(--scalar-color-blue);
+}
+
+.lp-orb--mcp {
+  --tint: var(--scalar-color-orange);
+}
+
+.lp-orb--sdk {
+  --tint: var(--scalar-color-purple);
+}
+
+@media screen and (max-width: 840px) {
+  /* on a phone the scene takes the hero scene's tree (the API, the
+       orbit the full width, the agents three abreast under it); the
+       orbit's box is stretched, as the tree centres its items */
+  .lp-visual.lp-visual--host {
+    padding: 0;
+    overflow: visible;
+  }
+  .lp-visual.lp-visual--host .lp-node--hub {
+    width: 100%;
+    justify-self: stretch;
+  }
+  .lp-stage.lp-stage--host {
+    width: 100%;
+    height: 260px;
+  }
+  .lp-stage--host .lp-stage-globe {
+    --s: 130px;
+  }
+  .lp-stage.lp-stage--host .lp-orb {
+    --s: 80px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-orb.is-placed {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Hero scene ----------------------------------------------------------
+     The panel under the hero copy shows the flow, after the capability
+     pages on lightspark.com: Acme's OpenAPI document comes in at the
+     left, reaches the Scalar hub, fans out into the three products, and
+     each product fans out again into the people and agents that use it.
+     Everything is laid out on a 1180x552 scene, one scene unit being
+     --lp-u, so the whole thing fits the panel on one screen. The chips
+     are HTML (em-sized from that unit); landing.js draws the connectors
+     from where they land and sends packets along them. */
+.lp-visual {
+  /* never under 0.66px a unit: a narrow column scrolls the scene
+       sideways instead of shrinking it past reading size */
+  --lp-u: max(min(100cqw / 1180, 100cqh / 552), 0.66px);
+  --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+  --lp-oy: calc((100cqh - 552 * var(--lp-u)) / 2);
+  /* room above and below the scene (the scene's box, which the
+       container units measure, is the content box inside it) */
+  --lp-pad: 60px;
+  position: relative;
+  box-sizing: content-box;
+  width: 100%;
+  padding: var(--lp-pad) 0;
+  aspect-ratio: 1180 / 552;
+  min-height: 400px;
+  /* never past the first screen, but never too small to read */
+  max-height: max(400px, calc(100dvh - 412px - 2 * var(--lp-pad)));
+  margin-top: 24px;
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  border-radius: var(--scalar-radius-lg);
+  background: var(--lp-bg-1-5);
+  container-type: size;
+}
+
+.lp-visual::-webkit-scrollbar {
+  display: none;
+}
+
+/* in the registry band the band's gap spaces the scene */
+.lp-section--band .lp-visual {
+  margin-top: 0;
+}
+
+.lp-flow {
+  /* which way the connectors run, for landing.js */
+  --lp-flow-dir: row;
+  position: absolute;
+  left: var(--lp-ox);
+  /* absolute children measure from the padding edge */
+  top: calc(var(--lp-pad) + var(--lp-oy));
+  width: calc(1180 * var(--lp-u));
+  height: calc(552 * var(--lp-u));
+  font-size: var(--lp-u);
+}
+
+.lp-flow-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* the connectors are hairlines, like the borders elsewhere */
+.lp-flow-line {
+  fill: none;
+  stroke: var(--scalar-border-color);
+  stroke-width: var(--scalar-border-width);
+  vector-effect: non-scaling-stroke;
+}
+
+/* each node sits at --x/--y in scene units, by its left edge, centred
+     on the line, as wide as its column (--w); the hub by its centre */
+.lp-node {
+  position: absolute;
+  left: calc(var(--x) * var(--lp-u));
+  top: calc(var(--y) * var(--lp-u));
+  width: calc(var(--w) * var(--lp-u));
+  transform: translateY(-50%);
+  z-index: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.lp-node--hub {
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+a.lp-node {
+  --font-visited: none;
+  cursor: pointer;
+}
+
+a.lp-node:hover,
+a.lp-node:focus-visible {
+  text-decoration: none;
+}
+
+a.lp-node:focus-visible {
+  outline: 2px solid var(--scalar-color-accent);
+  outline-offset: 4px;
+  border-radius: var(--scalar-radius-lg);
+}
+
+/* The chip: a 36 tile, then the name and a detail under it, with no
+     box of its own: the connectors run from the end of the text to the
+     next tile. The tile scales with the scene; the type is the theme's
+     14px whatever the scene scales to (a short window makes the scene
+     small), which is why the chip has no padding and may run past its
+     column: the lines are measured from the words, not the column. */
+.lp-chip {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: 8px;
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-font-size-3, 14px);
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--scalar-color-1);
+}
+
+.lp-chip-icon {
+  display: flex;
+  flex-shrink: 0;
+  width: calc(36 * var(--lp-u));
+  height: calc(36 * var(--lp-u));
+}
+
+/* the tile is just the mark, no backing, every brand drawn in the ink
+     colour (the product glyphs in their section's colour below) */
+.lp-chip-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--scalar-color-1);
+}
+
+.lp-mark {
+  width: 72%;
+  height: 72%;
+}
+
+.lp-mark,
+.lp-mark * {
+  fill: currentColor;
+}
+
+/* the OpenAPI ring carries padding in its artwork, so it gets more room */
+.lp-mark--openapi {
+  width: 86%;
+  height: 86%;
+}
+
+.lp-chip-tile--product .lp-mark {
+  width: 72%;
+  height: 72%;
+}
+
+.lp-chip-tile svg.t-editor__icon {
+  width: 80%;
+  height: 80%;
+}
+
+.lp-chip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125em;
+  min-width: 0;
+}
+
+.lp-chip-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-1);
+}
+
+.lp-chip-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  color: var(--scalar-color-2);
+}
+
+/* When a packet lands, the subtitle flips over to say what arrived
+     (in mono), holds, and flips back.
+     Both faces share one grid cell, so the chip keeps its width. */
+.lp-chip-sub {
+  display: grid;
+  perspective: 240px;
+  /* regular whatever the chip is (the product chips are links) */
+  font-weight: var(--scalar-regular);
+}
+
+.lp-chip-sub-face {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  backface-visibility: hidden;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--main,
+.lp-chip-sub.is-out .lp-chip-sub-face--alt {
+  animation: lp-flip-out 240ms ease-in both;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--alt,
+.lp-chip-sub.is-out .lp-chip-sub-face--main {
+  animation: lp-flip-in 320ms 200ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+
+.lp-chip-sub.is-in .lp-chip-sub-face--alt,
+.lp-chip-sub.is-out .lp-chip-sub-face--main {
+  opacity: 0;
+}
+
+/* the hairline ends in a dot at the label */
+.lp-flow-dot {
+  fill: var(--lp-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-chip,
+  .lp-chip-sub-face {
+    transition: none;
+    animation: none;
+  }
+  .lp-chat-working svg,
+  .lp-chat-spark svg {
+    animation: none;
+  }
+  .lp-chat-think-text {
+    transition: none;
+    transform: none;
+    filter: none;
+  }
+  /* Without motion, lay the logos out in rows so every one is visible */
+  .lp-trusted-viewport {
+    mask-image: none;
+  }
+  .lp-trusted-track {
+    animation: none;
+    flex: auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    row-gap: 12px;
+    width: auto;
+  }
+  .lp-trusted-track[aria-hidden] {
+    display: none;
+  }
+}
+
+.lp-flow--vs .lp-flow-line {
+  stroke: color-mix(in srgb, var(--scalar-color-1) 45%, transparent);
+}
+
+@media screen and (max-width: 1100px) {
+  .lp {
+    width: 100%;
+  }
+  .lp-section {
+    display: block;
+    min-height: 0;
+    padding: 40px 0;
+  }
+  /* smaller planets on a phone, on the same orbits */
+  .lp-orb--chatgpt {
+    --s: 80px;
+  }
+  .lp-orb--claude {
+    --s: 88px;
+  }
+  .lp-orb--gemini {
+    --s: 72px;
+  }
+  .lp-orb--opencode,
+  .lp-orb--grok {
+    --s: 76px;
+  }
+  .lp-orb--t3 {
+    --s: 70px;
+  }
+  .lp-sun {
+    --s: 120px;
+  }
+  .lp-hero--talk .lp-sun-halo {
+    width: 250px;
+    height: 86px;
+    padding: 15px 44px;
+  }
+  /* the hero keeps filling the first screen (the rule above makes the
+       other sections content-high) */
+  .lp-section--hero {
+    display: flex;
+    min-height: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+    padding-top: 48px;
+  }
+  .lp-section--hero .lp-copy,
+  .lp-hero-foot {
+    max-width: none;
+  }
+  /* the flow keeps a readable size under the hero copy and scrolls
+       sideways when the column is narrower than it (swipe to explore) */
+  .lp-visual {
+    --lp-u: max(100cqw / 1180, 0.74px);
+    --lp-ox: max(0px, (100cqw - 1180 * var(--lp-u)) / 2);
+    --lp-oy: 0px;
+    aspect-ratio: auto;
+    height: calc(552 * var(--lp-u));
+    min-height: 0;
+    max-height: none;
+    margin-top: 40px;
+    container-type: inline-size;
+  }
+  .lp-flow {
+    position: relative;
+    top: 0;
+    margin-left: var(--lp-ox);
+  }
+  /* an explicit width, or the minimum height would set the width
+       through the aspect ratio */
+  .lp-card {
+    width: 100%;
+    margin-top: 24px;
+  }
+  .lp-trusted-item {
+    padding-right: 36px;
+  }
+  .lp-trusted-item .lp-trusted-logo {
+    height: 18px;
+  }
+  .lp-trusted-item-tr .lp-trusted-logo {
+    height: 24px;
+  }
+}
+
+@keyframes lp-orb-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes lp-grain-roll {
+  to {
+    background-position: 160px 0;
+  }
+}
+
+@keyframes lp-halo-turn {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+  }
+  18%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes lp-flip-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-45%) rotateX(75deg);
+  }
+}
+
+@keyframes lp-flip-in {
+  from {
+    opacity: 0;
+    transform: translateY(45%) rotateX(-75deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

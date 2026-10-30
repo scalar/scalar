@@ -3975,104 +3975,6 @@ const initLandingOrbs = debounce(() => {
             lines: lines.filter((line) => line.classList.contains('is-shown')).length,
           })
         }
-
-        /* The hosting band's scene, below that: a globe of its own at the
-           centre of the orbit box, there from the start, and the three
-           products, planets of their own, rising and going round it with
-           their rings turning while the scene is on screen (the loop
-           sleeps off screen and wakes where it left off); the flow's
-           lines run from Your API into the box and out to the agents. */
-        const host = document.querySelector('[data-lp-stage-host]')
-        const hostSun = host?.querySelector('.lp-stage-sun .lp-sun')
-        const hostRing = hostSun?.querySelector('.lp-orb-ring')
-        const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
-        const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
-        const wares = host
-          ? [...host.querySelectorAll('.lp-orb--product')]
-              .map((orb) => {
-                const ring = orb.querySelector('.lp-orb-ring')
-                const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
-                if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
-                  return null
-                }
-                // the name a second time on the far side, so it reads
-                // whichever way the ring is turned
-                ;[...ring.querySelectorAll('.lp-orb-item')].forEach((item) => {
-                  const twin = item.cloneNode(true)
-                  twin.style.setProperty('--a', `${Number.parseFloat(item.style.getPropertyValue('--a')) + 180}deg`)
-                  ring.appendChild(twin)
-                })
-                return { orb, ring, spin: 0, angle: 0 }
-              })
-              .filter(Boolean)
-          : []
-        if (host && hasHostSun && wares.length && host.dataset.lpStageBound !== 'true') {
-          host.dataset.lpStageBound = 'true'
-          hostRing.style.transform = 'rotateY(0deg)'
-          // a slow lap, and the rings at half the hero's pace
-          const HOST_LAP = 36
-          let hostOn = false
-          let hostSeen = false
-          let hostFrame = 0
-          let hostLast = null
-          const hostTick = (now) => {
-            hostFrame = 0
-            if (!hostOn || !hostSeen || document.hidden) {
-              hostLast = null
-              return
-            }
-            const dt = hostLast === null ? 0 : Math.min(now - hostLast, 100)
-            hostLast = now
-            const rx = host.clientWidth * 0.4
-            const ry = host.clientHeight * 0.34
-            wares.forEach((w) => {
-              w.angle += (2 * Math.PI * dt) / 1000 / HOST_LAP
-              w.orb.style.translate = `${(rx * Math.cos(w.angle)).toFixed(1)}px ${(ry * Math.sin(w.angle)).toFixed(1)}px`
-              const z = Math.sin(w.angle) >= 0 ? '5' : '1'
-              if (w.orb.style.zIndex !== z) {
-                w.orb.style.zIndex = z
-              }
-              w.spin = (w.spin + (360 * dt) / (LANDING_ORB_TURN * 2)) % 360
-              w.ring.style.transform = `rotateY(${w.spin}deg)`
-            })
-            if (!reduceMotion) {
-              hostFrame = requestAnimationFrame(hostTick)
-            }
-          }
-          const wakeHost = () => {
-            if (hostOn && hostSeen && !document.hidden && !hostFrame) {
-              hostLast = null
-              hostTick(performance.now())
-            }
-          }
-          // the planets rise the first time the scene shows, and go round
-          // whenever it is on screen
-          new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                hostSeen = entry.isIntersecting
-                host.classList.toggle('is-off', !hostSeen)
-              })
-              if (hostSeen && !hostOn) {
-                hostOn = true
-                wares.forEach((w, i) => {
-                  w.angle = (i * 2 * Math.PI) / wares.length + Math.PI / 2
-                })
-                host.classList.add('is-orbit')
-              }
-              wakeHost()
-            },
-            { threshold: 0 },
-          ).observe(host)
-          document.addEventListener('visibilitychange', wakeHost)
-          // the band's state, for the page's tests
-          host.lpHost = () => ({
-            on: hostOn,
-            seen: hostSeen,
-            orbit: host.classList.contains('is-orbit'),
-            running: Boolean(hostFrame),
-          })
-        }
       }
       // a jump of the page (an anchor, a scroll to the top) can take a
       // card from one side of the viewport to the other with no moment
@@ -4456,6 +4358,123 @@ const initEnterpriseSky = debounce(() => {
         figures.classList.add('is-armed')
       }
     })
+})
+
+/* The hosting scene: a globe at the centre of the orbit box, there
+   from the start, and three products — planets of their own — rising
+   and going round it with their rings turning while the scene is on
+   screen. It used to live inside the home page's hero setup, which
+   meant it only ran on a page that had that hero; it looks the scene
+   up by itself, so it is an init of its own and any page that has the
+   markup gets it. */
+const initLandingHostStage = debounce(() => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  /* The hosting band's scene: a globe of its own at the centre of the
+       orbit box, there from the start, and the three products, planets
+       of their own, rising and going round it with their rings turning
+       while the scene is on screen (the loop sleeps off screen and
+       wakes where it left off); the flow's lines run from Your API into
+       the box and out to the agents. */
+  const host = document.querySelector('[data-lp-stage-host]')
+  /* Dressing a globe adds a few thousand elements, and adding them
+       is itself a mutation, which brings this init straight back round
+       — so the guard has to be here, before any dressing, and not
+       beside the work it protects. Without it the scene dresses itself
+       again on every pass and the page ends up with several times the
+       elements it needs. */
+  if (!host || host.dataset.lpStageBound === 'true') {
+    return
+  }
+  const hostSun = host?.querySelector('.lp-stage-sun .lp-sun')
+  const hostRing = hostSun?.querySelector('.lp-orb-ring')
+  const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
+  const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
+  const wares = host
+    ? [...host.querySelectorAll('.lp-orb--product')]
+        .map((orb) => {
+          const ring = orb.querySelector('.lp-orb-ring')
+          const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
+          if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+            return null
+          }
+          // the name a second time on the far side, so it reads
+          // whichever way the ring is turned
+          ;[...ring.querySelectorAll('.lp-orb-item')].forEach((item) => {
+            const twin = item.cloneNode(true)
+            twin.style.setProperty('--a', `${Number.parseFloat(item.style.getPropertyValue('--a')) + 180}deg`)
+            ring.appendChild(twin)
+          })
+          return { orb, ring, spin: 0, angle: 0 }
+        })
+        .filter(Boolean)
+    : []
+  if (hasHostSun && wares.length) {
+    host.dataset.lpStageBound = 'true'
+    hostRing.style.transform = 'rotateY(0deg)'
+    // a slow lap, and the rings at half the hero's pace
+    const HOST_LAP = 36
+    let hostOn = false
+    let hostSeen = false
+    let hostFrame = 0
+    let hostLast = null
+    const hostTick = (now) => {
+      hostFrame = 0
+      if (!hostOn || !hostSeen || document.hidden) {
+        hostLast = null
+        return
+      }
+      const dt = hostLast === null ? 0 : Math.min(now - hostLast, 100)
+      hostLast = now
+      const rx = host.clientWidth * 0.4
+      const ry = host.clientHeight * 0.34
+      wares.forEach((w) => {
+        w.angle += (2 * Math.PI * dt) / 1000 / HOST_LAP
+        w.orb.style.translate = `${(rx * Math.cos(w.angle)).toFixed(1)}px ${(ry * Math.sin(w.angle)).toFixed(1)}px`
+        const z = Math.sin(w.angle) >= 0 ? '5' : '1'
+        if (w.orb.style.zIndex !== z) {
+          w.orb.style.zIndex = z
+        }
+        w.spin = (w.spin + (360 * dt) / (LANDING_ORB_TURN * 2)) % 360
+        w.ring.style.transform = `rotateY(${w.spin}deg)`
+      })
+      if (!reduceMotion) {
+        hostFrame = requestAnimationFrame(hostTick)
+      }
+    }
+    const wakeHost = () => {
+      if (hostOn && hostSeen && !document.hidden && !hostFrame) {
+        hostLast = null
+        hostTick(performance.now())
+      }
+    }
+    // the planets rise the first time the scene shows, and go round
+    // whenever it is on screen
+    new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          hostSeen = entry.isIntersecting
+          host.classList.toggle('is-off', !hostSeen)
+        })
+        if (hostSeen && !hostOn) {
+          hostOn = true
+          wares.forEach((w, i) => {
+            w.angle = (i * 2 * Math.PI) / wares.length + Math.PI / 2
+          })
+          host.classList.add('is-orbit')
+        }
+        wakeHost()
+      },
+      { threshold: 0 },
+    ).observe(host)
+    document.addEventListener('visibilitychange', wakeHost)
+    // the band's state, for the page's tests
+    host.lpHost = () => ({
+      on: hostOn,
+      seen: hostSeen,
+      orbit: host.classList.contains('is-orbit'),
+      running: Boolean(hostFrame),
+    })
+  }
 })
 
 /* The customer logo sliders (the home page's hero, the enterprise
@@ -6636,6 +6655,7 @@ initLandingWinTabs()
 initLandingDocsWindows()
 initTrustedWalls()
 initEnterpriseRing()
+initLandingHostStage()
 initEnterpriseSky()
 
 const observer = new MutationObserver((records) => {
@@ -6662,6 +6682,7 @@ const observer = new MutationObserver((records) => {
   initLandingDocsWindows()
   initTrustedWalls()
   initEnterpriseRing()
+  initLandingHostStage()
   initEnterpriseSky()
 })
 
