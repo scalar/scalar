@@ -41,7 +41,9 @@ env:
 
 jobs:
   build:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    # Every other JS job waits on this one, and a PR's first push builds with
+    # an empty turbo cache, so the extra cores pay for themselves here.
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
