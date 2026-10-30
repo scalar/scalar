@@ -67,6 +67,13 @@ const CELEBRATIONS: readonly Celebration[] = [
     start: { month: 10, day: 1 },
     end: { month: 10, day: 31 },
   },
+  {
+    // The National Hot Dog and Sausage Council sets it as the third Wednesday of July, so the
+    // date changes every year (July 15 in 2026, July 21 in 2027).
+    name: 'National Hot Dog Day',
+    theme: 'hotDogDay',
+    on: { month: 7, weekday: 3, nth: 3 },
+  },
 ]
 
 /** The theme used outside every celebration. */
@@ -156,6 +163,7 @@ const isCelebrating = (today: LocalDate, celebration: Celebration): boolean => {
  * @example
  * getSeasonalTheme(new Date('2026-10-15T12:00:00Z')) // 'halloween'
  * getSeasonalTheme(new Date('2026-11-01T03:00:00Z'), { timeZone: 'America/New_York' }) // 'halloween'
+ * getSeasonalTheme(new Date('2026-07-15T12:00:00Z')) // 'hotDogDay'
  */
 export const getSeasonalTheme = (
   date: Date,

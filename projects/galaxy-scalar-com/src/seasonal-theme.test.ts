@@ -78,6 +78,48 @@ describe('seasonal-theme', () => {
       expect(getSeasonalTheme(new Date('2026-05-15T12:00:00Z'), { celebrations })).toBe('moon')
     })
 
+    describe('National Hot Dog Day', () => {
+      // The third Wednesday of July, which lands on a different date every year.
+      it.each([
+        ['2026', '2026-07-15T12:00:00Z'],
+        ['2027', '2027-07-21T12:00:00Z'],
+        ['2028', '2028-07-19T12:00:00Z'],
+      ])('uses the Hot Dog Day theme on the third Wednesday of July %s', (_, isoDate) => {
+        expect(getSeasonalTheme(new Date(isoDate))).toBe('hotDogDay')
+      })
+
+      it('lasts the whole day', () => {
+        expect(getSeasonalTheme(new Date('2026-07-15T00:00:00Z'))).toBe('hotDogDay')
+        expect(getSeasonalTheme(new Date('2026-07-15T23:59:59Z'))).toBe('hotDogDay')
+      })
+
+      it.each([
+        ['the day before', '2026-07-14T23:59:59Z'],
+        ['the day after', '2026-07-16T00:00:00Z'],
+        ['the second Wednesday of July', '2026-07-08T12:00:00Z'],
+        ['the fourth Wednesday of July', '2026-07-22T12:00:00Z'],
+        ['the third Wednesday of another month', '2026-06-17T12:00:00Z'],
+      ])('falls back to the default theme on %s', (_, isoDate) => {
+        expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
+      })
+
+      it('starts at local midnight in time zones ahead of UTC', () => {
+        // 15:30 UTC on July 14 is already 00:30 on July 15 in Tokyo.
+        const tokyoJustAfterMidnight = new Date('2026-07-14T15:30:00Z')
+
+        expect(getSeasonalTheme(tokyoJustAfterMidnight)).toBe('default')
+        expect(getSeasonalTheme(tokyoJustAfterMidnight, { timeZone: 'Asia/Tokyo' })).toBe('hotDogDay')
+      })
+
+      it('keeps going until local midnight in time zones behind UTC', () => {
+        // 02:00 UTC on July 16 is still 19:00 on July 15 in Los Angeles.
+        const losAngelesEvening = new Date('2026-07-16T02:00:00Z')
+
+        expect(getSeasonalTheme(losAngelesEvening)).toBe('default')
+        expect(getSeasonalTheme(losAngelesEvening, { timeZone: 'America/Los_Angeles' })).toBe('hotDogDay')
+      })
+    })
+
     describe('with an nth weekday celebration', () => {
       it('reads the year in the visitor time zone', () => {
         // The first Friday of January is January 1 in 2027 but January 2 in 2026. At 12:00 UTC on
