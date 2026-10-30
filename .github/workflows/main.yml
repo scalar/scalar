@@ -159,8 +159,36 @@ jobs:
       # `--only` skips the `build` dependencies of types:check: restore-build
       # already put every package dist/ in place, and turbo used to rebuild
       # whatever missed its cache before it could start checking types.
+      #
+      # `--cache=local:` turns the turbo cache off for this run, and it must
+      # stay off. With `--only`, a task's hash no longer covers the packages
+      # it depends on, so a cached pass would be replayed even after an
+      # upstream package changed its types.
       - name: Check types
-        run: pnpm turbo ${{ env.TURBO_FLAGS }} --only types:check
+        run: |
+          pnpm turbo ${{ env.TURBO_FLAGS }} --only --cache=local: types:check
+
+  # Builds the examples, projects and tooling that the build job leaves out
+  # (it only builds packages and integrations). They depend on those packages,
+  # so this restores their dist/ and builds just the apps on top. Without it,
+  # an example or scalar-app that no longer builds would only fail after merge.
+  # The cache stays off for the same reason as in the types job above.
+  build-apps:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Build examples, projects and tooling
+        run: >-
+          pnpm turbo --only --cache=local:
+          --filter './examples/**'
+          --filter './projects/*'
+          --filter '!./projects/proxy-scalar-com'
+          --filter './tooling/**'
+          build
 
   # test-packages (sharded) and test-projects live in test-js.yml so the shell
   # loops cannot drift between pr.yml and main.yml.
@@ -317,6 +345,7 @@ jobs:
     needs:
       [
         build,
+        build-apps,
         test-server-side-rendering,
         test-js,
         test-integrations,
