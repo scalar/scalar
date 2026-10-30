@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
 import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
 
@@ -7,6 +8,37 @@ import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
 // ---------------------------------------------------------------------------
 
 describe('lazy-bus', () => {
+  it('scrolls to an anchor in the supplied shadow root instead of a duplicate document id', async () => {
+    const host = document.createElement('div')
+    const root = host.attachShadow({ mode: 'open' })
+    const target = document.createElement('section')
+    const outside = document.createElement('section')
+    target.id = outside.id = 'shadow-navigation-target'
+    target.tabIndex = -1
+    const scroll = vi.fn()
+    const outsideScroll = vi.fn()
+    target.scrollIntoView = scroll
+    outside.scrollIntoView = outsideScroll
+    root.append(target)
+    document.body.append(host, outside)
+
+    try {
+      scrollToLazy(
+        target.id,
+        () => {},
+        (id) => ({ id }),
+        root,
+      )
+      await nextTick()
+      expect(scroll).toHaveBeenCalled()
+      expect(outsideScroll).not.toHaveBeenCalled()
+      expect(root.activeElement).toBe(target)
+    } finally {
+      host.remove()
+      outside.remove()
+    }
+  })
+
   /**
    * A navigation tree holding one operation, so `getEntryById` answers for the
    * operation id and nothing else — the shape every anchor below has to reach.
@@ -109,6 +141,21 @@ describe('lazy-bus', () => {
     }
     expect(getStickyHeaderOffset(target)).toBe(expected)
   })
+  it('measures sticky headers inside the target shadow root', () => {
+    const host = document.createElement('div')
+    const root = host.attachShadow({ mode: 'open' })
+    const target = document.createElement('h2')
+    const header = document.createElement('nav')
+    header.dataset.scalarScrollHeader = ''
+    header.style.position = 'sticky'
+    root.append(header, target)
+    document.body.append(host)
+    vi.spyOn(target, 'getBoundingClientRect').mockReturnValue(new DOMRect(200, 0, 400, 30))
+    vi.spyOn(header, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 800, 48))
+
+    expect(getStickyHeaderOffset(target)).toBe(48)
+  })
+
   it('counts the breadcrumb bar below a custom host header', () => {
     const target = document.createElement('h2')
     target.style.scrollMarginTop = '64px'
