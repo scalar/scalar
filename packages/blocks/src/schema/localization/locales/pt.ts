@@ -1,5 +1,15 @@
 export const pt = {
   schema: {
+    conditionalConstraints: 'Restrições condicionais',
+    constraintIf: 'Se este esquema corresponder',
+    constraintThen: 'Então aplicar',
+    constraintElse: 'Caso contrário aplicar',
+    containsMatchingItems: 'Itens correspondentes: {minimum}–{maximum}',
+    containsConstraint: 'Contém pelo menos um item correspondente',
+    dependencyConstraint: 'Quando {name} está presente',
+    requiredProperties: 'Propriedades obrigatórias: {names}',
+    noAdditionalConstraint: 'Nenhuma restrição adicional.',
+
     variants: 'Variantes',
     discriminatorValue: 'Valor do discriminador',
     noAllowedValues: 'Nenhum valor satisfaz esta restrição enum.',

@@ -1,5 +1,15 @@
 export const ru = {
   schema: {
+    conditionalConstraints: 'Условные ограничения',
+    constraintIf: 'Если соответствует этой схеме',
+    constraintThen: 'Тогда применить',
+    constraintElse: 'Иначе применить',
+    containsMatchingItems: 'Соответствующие элементы: {minimum}–{maximum}',
+    containsConstraint: 'Содержит хотя бы один соответствующий элемент',
+    dependencyConstraint: 'Когда присутствует {name}',
+    requiredProperties: 'Обязательные свойства: {names}',
+    noAdditionalConstraint: 'Нет дополнительных ограничений.',
+
     variants: 'Варианты',
     discriminatorValue: 'Значение дискриминатора',
     noAllowedValues: 'Ни одно значение не удовлетворяет этому ограничению enum.',
