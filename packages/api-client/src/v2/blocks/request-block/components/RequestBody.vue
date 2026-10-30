@@ -11,7 +11,10 @@ import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { objectEntries } from '@scalar/helpers/object/object-entries'
-import { ScalarIconMagicWand } from '@scalar/icons'
+import {
+  ScalarIconArrowCounterClockwise,
+  ScalarIconMagicWand,
+} from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import {
   getExampleValue,
@@ -81,6 +84,7 @@ const {
 }>()
 
 const emits = defineEmits<{
+  (e: 'reset', payload: { contentType: string }): void
   (e: 'update:contentType', payload: { value: string }): void
   /** We use this event to update raw values */
   (
@@ -478,15 +482,25 @@ const canGenerateExample = computed(() =>
           </ScalarButton>
         </ScalarListbox>
         <div class="flex items-center gap-1">
+          <ScalarIconButton
+            v-if="selectedContentType !== 'none'"
+            aria-label="Restore original body"
+            :icon="ScalarIconArrowCounterClockwise"
+            label="Restore original body"
+            size="sm"
+            tooltip
+            @click.stop="
+              emits('reset', { contentType: selectedContentType })
+            " />
           <!--
             Generates a new example from the schema so the auto-generated fields stay reachable
             even once the document ships custom examples.
           -->
           <ScalarIconButton
             v-if="canGenerateExample"
-            aria-label="Generate example from schema"
+            aria-label="Create example from schema"
             :icon="ScalarIconMagicWand"
-            label="Generate example from schema"
+            label="Create example from schema"
             size="sm"
             tooltip
             @click.stop="
