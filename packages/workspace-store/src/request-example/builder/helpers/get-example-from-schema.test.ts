@@ -2722,6 +2722,61 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual([])
     })
 
+    it('keeps the required properties of a truncated object', () => {
+      // A strict decoder rejects an object missing a required key, so an empty stand-in is not enough.
+      const leaf = {
+        type: 'object',
+        required: ['field', 'operator', 'values', 'count'],
+        properties: {
+          field: { type: 'string', enum: ['price_id', 'item_id'] },
+          operator: { type: 'string', const: 'includes' },
+          values: { type: 'array', items: { type: 'string' } },
+          count: { type: 'integer', default: 3 },
+          note: { type: 'string', const: 'optional, so left out' },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ field: 'price_id', operator: 'includes', values: [], count: 3 })
+    })
+
+    it('keeps only the required keys of a required child object', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        properties: {
+          child: {
+            type: 'object',
+            required: ['id'],
+            properties: { id: { type: 'string', const: 'kept' }, extra: { type: 'string', const: 'dropped' } },
+          },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'kept' } })
+    })
+
+    it('terminates on an object that requires itself', () => {
+      const node: Record<string, unknown> = { type: 'object', required: ['self'] }
+      node.properties = { self: node }
+
+      expect(truncate(node)).toStrictEqual({ self: {} })
+    })
+
+    it('leaves out required properties the full walk would leave out', () => {
+      const leaf = {
+        type: 'object',
+        required: ['id', 'secret', 'old'],
+        properties: {
+          id: { type: 'string', const: 'kept' },
+          secret: { type: 'string', const: 'hidden', writeOnly: true },
+          old: { type: 'string', const: 'retired', deprecated: true },
+        },
+      }
+
+      expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept' })
+      expect(truncate(leaf, { mode: 'read', includeDeprecated: true })).toStrictEqual({ id: 'kept', old: 'retired' })
+    })
+
     it('keeps the sentinel when the schema declares no shape', () => {
       expect(truncate({ description: 'anything goes' })).toBe('[Max Depth Exceeded]')
     })
