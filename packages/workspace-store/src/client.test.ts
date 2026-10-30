@@ -3320,6 +3320,41 @@ describe('create-workspace-store', () => {
       expect(mockFetch).toHaveBeenCalledWith('examples/openapi.json', { headers: undefined })
     })
 
+    it('resolves external refs of a relative url against the page', async () => {
+      vi.stubGlobal('window', { location: { href: 'https://example.com/docs/' } })
+
+      const store = createWorkspaceStore()
+
+      const responses: Record<string, unknown> = {
+        'examples/openapi.json': {
+          openapi: '3.1.0',
+          info: { title: 'Relative API', version: '1.0.0' },
+          components: { schemas: { Item: { $ref: 'schemas/item.json' } } },
+        },
+        'https://example.com/docs/examples/schemas/item.json': { type: 'object' },
+      }
+      const mockFetch = vi
+        .fn()
+        .mockImplementation((input: string) =>
+          Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(responses[input])) }),
+        )
+
+      await store.addDocument({
+        name: 'relative-doc',
+        url: 'examples/openapi.json',
+        fetch: mockFetch,
+      })
+
+      vi.unstubAllGlobals()
+
+      expect(mockFetch).toHaveBeenCalledWith('https://example.com/docs/examples/schemas/item.json', {
+        headers: undefined,
+      })
+      expect(getOpenApiDocument(store, 'relative-doc')?.components?.schemas?.Item).toMatchObject({
+        '$ref-value': { type: 'object' },
+      })
+    })
+
     it('logs different errors for different failure conditions', async () => {
       const store = createWorkspaceStore()
 
