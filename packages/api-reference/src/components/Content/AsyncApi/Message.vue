@@ -20,6 +20,8 @@ import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/n
 import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { useDocumentOutline } from '@/features/document-outline'
 import { createAsyncApiSchemaAdapter } from '@/helpers/create-async-api-schema-adapter'
 import { useIntersection } from '@/hooks/use-intersection'
@@ -122,6 +124,11 @@ const summary = computed((): string => {
     : value
 })
 
+const { hasExtensions } = useSpecificationExtensions(
+  () => resolvedMessage.value,
+  () => options?.showExtensions,
+)
+
 const description = computed(
   (): string => resolvedMessage.value?.description ?? '',
 )
@@ -190,6 +197,20 @@ const onCorrelationLink = (event: MouseEvent): void => {
   })
 }
 
+const hasDetails = computed<boolean>(() =>
+  Boolean(
+    hasExtensions.value ||
+    summary.value ||
+    description.value ||
+    resolvedMessage.value?.bindings ||
+    resolvedMessage.value?.externalDocs ||
+    correlationId.value ||
+    headersSchema.value ||
+    payloadSchema.value ||
+    contentType.value,
+  ),
+)
+
 /** Fill in defaults so the shared Schema renderer always receives a complete options object. */
 const schemaOptions = computed<SchemaOptions>(() => ({
   hideReadOnly: false,
@@ -255,16 +276,7 @@ const { level: headingLevel } = useDocumentOutline(
       <div class="space-y-4 pt-2 pb-4">
         <div class="message-layout">
           <div
-            v-if="
-              summary ||
-              description ||
-              resolvedMessage?.bindings ||
-              resolvedMessage?.externalDocs ||
-              correlationId ||
-              headersSchema ||
-              payloadSchema ||
-              contentType
-            "
+            v-if="hasDetails"
             class="message-schemas min-w-0 space-y-4">
             <p
               v-if="summary"
@@ -284,6 +296,10 @@ const { level: headingLevel } = useDocumentOutline(
               scope="message" />
             <AsyncApiDocumentation
               :owner="{ externalDocs: resolvedMessage?.externalDocs }" />
+            <SpecificationExtension
+              compact
+              :showExtensions="options?.showExtensions"
+              :value="resolvedMessage" />
 
             <div
               v-if="correlationId"
@@ -383,6 +399,10 @@ const { level: headingLevel } = useDocumentOutline(
 <style scoped>
 .message {
   scroll-margin-top: var(--refs-viewport-offset);
+}
+/* Expanded messages use their own compact spacing in both layouts. */
+.message :deep(.section.collapsible-section-content) {
+  padding: 0;
 }
 .message-title {
   font-size: var(--scalar-heading-3);

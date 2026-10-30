@@ -6,6 +6,7 @@ import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 
 import OperationPath from '@/components/OperationPath.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { SectionHeaderTag } from '@/components/Section'
 import type { HeadingLevel } from '@/features/document-outline'
 import { useNavigationHref } from '@/hooks/use-navigation-href'
@@ -93,6 +94,9 @@ const navigate = (event: MouseEvent, id: string): void => {
           class="text-c-2 mt-1 text-sm"
           :value="reply.description" />
       </div>
+      <SpecificationExtension
+        :showExtensions="options?.showExtensions"
+        :value="reply.source" />
       <div v-if="reply.messages.length">
         <template
           v-for="(message, index) in reply.messages"
