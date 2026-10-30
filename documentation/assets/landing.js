@@ -4366,6 +4366,28 @@ const initEnterpriseRing = debounce(() => {
   hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
 })
 
+/* The band of figures on the enterprise page. The numbers rise the
+   first time the band is seen, and the comet crosses it only while it
+   is on screen — there is no sense in a comet nobody is looking at. */
+const initEnterpriseSky = debounce(() => {
+  ;[...document.querySelectorAll('.ent-sky')]
+    .filter((sky) => sky.dataset.entSkyBound !== 'true')
+    .forEach((sky) => {
+      sky.dataset.entSkyBound = 'true'
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            sky.classList.toggle('is-flying', entry.isIntersecting)
+            if (entry.isIntersecting) {
+              sky.classList.add('is-seen')
+            }
+          })
+        },
+        { threshold: 0 },
+      ).observe(sky)
+    })
+})
+
 /* The customer logo sliders (the home page's hero, the enterprise
    page's) run only while they are on screen. */
 const initTrustedWalls = debounce(() => {
@@ -6544,6 +6566,7 @@ initLandingWinTabs()
 initLandingDocsWindows()
 initTrustedWalls()
 initEnterpriseRing()
+initEnterpriseSky()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -6569,6 +6592,7 @@ const observer = new MutationObserver((records) => {
   initLandingDocsWindows()
   initTrustedWalls()
   initEnterpriseRing()
+  initEnterpriseSky()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

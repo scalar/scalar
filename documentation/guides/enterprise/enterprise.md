@@ -61,7 +61,7 @@
   </div>
 </div>
 
-<div class="enterprise-features border-t flex">
+<div class="enterprise-features border-t">
 <div class="enterprise-features-copy">
 
 ## Built for modern API teams, ready for enterprise scale
@@ -82,6 +82,27 @@ Apply style guides, publishing rules, and access boundaries without creating a c
 
 Scalar covers the API lifecycle: the versioned registry with breaking-change detection, linting and governance in Git and CI, the API reference and developer portal, SDKs, the API client, and hosted MCP servers, all from one OpenAPI document. The hosted MCP server is the runtime piece: it proxies AI agent calls to your API, rate limits them, and reports consumption per installation. Traffic from your applications, partners, and SDK users does not pass through Scalar, and Scalar does not do monetization. Those stay with your API gateway, which imports the same OpenAPI document Scalar governs, so routes, docs, SDKs, and agent tools never describe different APIs. [API management vs API gateway](/learn/api-management/api-management-vs-api-gateway) explains the split.
 
+</div>
+
+<div class="ent-sky container-full" data-md-exclude>
+  <span class="ent-comet" aria-hidden="true"></span>
+  <dl class="ent-figures">
+    <div class="ent-figure">
+      <dt>1M+</dt>
+      <dd>Developers use Scalar</dd>
+    </div>
+    <div class="ent-figure">
+      <dt>50k+</dt>
+      <dd>APIs on Scalar</dd>
+    </div>
+    <div class="ent-figure">
+      <dt>10MM+</dt>
+      <dd>OSS installs</dd>
+    </div>
+  </dl>
+</div>
+
+<div class="enterprise-features-copy">
 
 <h2 class="mt-10 t-editor__heading"> Govern and scale APIs across the organization</h2>
 
@@ -100,22 +121,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
 <h3 class="flex items-center icon-text gap-2 font-bold min-h-8 mt-6"><scalar-icon src="phosphor/bold/shield-check"></scalar-icon>Enterprise security, access, and operations</h3>
 
 **SSO / SAML** for corporate identity. **Role-based access** across workspaces and APIs. **Audit trails** alongside Git history. **Self-hosting** with an MIT-licensed core when data must stay in your perimeter. **Privacy-conscious docs hosting** with no third-party analytics or tracking cookies, and first-party page view analytics that never store IP addresses ([Docs privacy](../docs/privacy.md)). **MCP guardrails** so you choose which endpoints become agent tools, set search vs execute modes, and apply API auth per installation ([MCP](../agent/mcp.md)).
-</div>
-<div class="enterprise-stats border-l sticky h-fit flex flex-col gap-3">
-
-<div class="bg-b-2 p-3 rounded-lg">
-  <b class="text-xl font-bold">1M+</b>
-  <p class="text-c-2 mt-2">Developers Use Scalar</p>
-</div>
-<div class="bg-b-2 p-3 rounded-lg"> 
-  <b class="text-xl font-bold">50k+</b>
-  <p class="text-c-2 mt-2">APIs on Scalar</p>
-</div>
-<div class="bg-b-2 p-3 rounded-lg">
-  <b class="text-xl font-bold">10MM+</b>
-  <p class="text-c-2 mt-2">OSS Installs</p>
-</div>
-
 </div>
 </div>
 
@@ -664,21 +669,234 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .t-editor__anchor {
     --font-visited: none;
   }
+  /* one centred column of prose, with the band of figures across it */
   .enterprise-features-copy {
     max-width: 680px;
-  }
-  .enterprise-stats {
-    padding-left: 20px;
-    margin-left: 20px;
-    top: 60px;
-  }
-  @media screen and (max-width: 1280px) {
-    .enterprise-features .enterprise-stats {
-      display: none;
-    }
+    margin-inline: auto;
   }
   .enterprise-features {
     padding: 100px 0;
+  }
+
+  /* ------------------------------------------------------------------
+     The figures, under a comet.
+
+     The comet crosses the page itself — there is no panel behind it,
+     so it has to be made the way the ring in the hero is made, and
+     for the same reason: the brand's colours underneath, the page's
+     own colour cut out of them in fine lines over the top, and grain
+     over both. Where a line was, the page shows through; the lines
+     are the texture and the colours are only ever seen between them.
+     That is what gives it a body rather than a smear, and it reads on
+     a white page and a black one without changing.
+
+     Three layers make the shape: the tail, a teardrop anchored at the
+     head so it tapers away behind; a bloom around the head; and the
+     core itself. Both waits are on the band being seen — the numbers
+     rise once, the comet crosses while it is in view and stops when
+     it is not.
+     ------------------------------------------------------------------ */
+  .ent-sky {
+    --ent-sky-h: 260px;
+    /* the head's colour: the brand red carried towards the purple, so
+       it is a magenta rather than a flat red disc */
+    --ent-hot: color-mix(in srgb, var(--scalar-color-red) 55%, var(--scalar-color-purple));
+    position: relative;
+    height: var(--ent-sky-h);
+    margin: 72px 0 88px;
+    /* the comet starts and ends off the page, and may not widen it */
+    overflow: clip;
+  }
+  /* The comet is two soft shapes rather than a drawing: a blurred
+     streak for the tail and a blurred bloom for the head. Nothing in
+     it has an edge — the blur is what makes it read as light rather
+     than as a painted stripe, and it is what lets the same thing sit
+     on a white page and a black one.
+
+     The element itself paints nothing; it only carries the position,
+     so the two halves can be blurred by different amounts. The tail
+     is soft enough to be abstract, the head sharp enough to be a
+     point of light. */
+  .ent-comet {
+    position: absolute;
+    top: 36%;
+    left: 0;
+    width: min(700px, 58%);
+    height: 86px;
+    /* parked off the left, and invisible, until the band is seen */
+    translate: -170% -50%;
+    opacity: 0;
+  }
+  /* the tail: the spectrum along its length, bluest at the far end and
+     hottest at the head, with slow wisps through it that the blur
+     turns into movement rather than lines */
+  .ent-comet::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        177.5deg,
+        transparent 0 8px,
+        color-mix(in srgb, var(--scalar-background-1) 42%, transparent) 8px 13px
+      ),
+      linear-gradient(
+        to right,
+        transparent 0%,
+        color-mix(in srgb, var(--scalar-color-blue) 45%, transparent) 20%,
+        var(--scalar-color-blue) 44%,
+        var(--scalar-color-purple) 70%,
+        var(--ent-hot) 92%,
+        color-mix(in srgb, var(--ent-hot) 82%, #fff) 100%
+      );
+    /* a teardrop: densest behind the head, thinning the whole way back */
+    -webkit-mask:
+      radial-gradient(
+        80% 50% at 88% 50%,
+        #000 0 8%,
+        rgba(0, 0, 0, 0.78) 36%,
+        rgba(0, 0, 0, 0.4) 64%,
+        rgba(0, 0, 0, 0.1) 86%,
+        transparent 100%
+      ),
+      /* the ellipse is anchored near the right edge, so on that side it
+         would run straight off the box; this takes it out first and
+         leaves the head as the leading point */
+      linear-gradient(to right, #000 0 82%, transparent 98%);
+    -webkit-mask-composite: source-in;
+    mask:
+      radial-gradient(
+        80% 50% at 88% 50%,
+        #000 0 8%,
+        rgba(0, 0, 0, 0.78) 36%,
+        rgba(0, 0, 0, 0.4) 64%,
+        rgba(0, 0, 0, 0.1) 86%,
+        transparent 100%
+      ),
+      linear-gradient(to right, #000 0 82%, transparent 98%);
+    mask-composite: intersect;
+    filter: blur(11px);
+  }
+  /* the head: a bloom with a point of light at the middle of it */
+  .ent-comet::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 88%;
+    width: 200px;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: radial-gradient(
+      closest-side circle,
+      #fff 0 6%,
+      color-mix(in srgb, #fff 80%, var(--ent-hot)) 12%,
+      color-mix(in srgb, var(--ent-hot) 52%, transparent) 24%,
+      color-mix(in srgb, var(--ent-hot) 18%, transparent) 46%,
+      color-mix(in srgb, var(--scalar-color-purple) 7%, transparent) 68%,
+      transparent 86%
+    );
+    filter: blur(4px);
+  }
+  .ent-sky.is-flying .ent-comet {
+    animation: ent-comet-fly 9s linear infinite;
+  }
+  /* it crosses, then the page is quiet a while before the next one */
+  @keyframes ent-comet-fly {
+    0% {
+      translate: -170% -50%;
+      opacity: 0;
+    }
+    4% {
+      opacity: 1;
+    }
+    26% {
+      opacity: 1;
+    }
+    32% {
+      translate: 250% -50%;
+      opacity: 0;
+    }
+    100% {
+      translate: 250% -50%;
+      opacity: 0;
+    }
+  }
+  .ent-figures {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    gap: clamp(24px, 7vw, 96px);
+    margin: 0;
+    padding: 0 32px 24px;
+  }
+  .ent-figure {
+    /* each one rises as the band comes into view, a beat after the last */
+    translate: 0 12px;
+    opacity: 0;
+    transition:
+      translate 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 600ms ease;
+    text-align: center;
+  }
+  .ent-sky.is-seen .ent-figure {
+    translate: 0 0;
+    opacity: 1;
+  }
+  .ent-sky.is-seen .ent-figure:nth-child(2) {
+    transition-delay: 110ms;
+  }
+  .ent-sky.is-seen .ent-figure:nth-child(3) {
+    transition-delay: 220ms;
+  }
+  .ent-figure dt {
+    font-weight: var(--scalar-bold);
+    font-size: clamp(28px, 4.2vw, 44px);
+    line-height: 1.1;
+    color: var(--scalar-color-1);
+    letter-spacing: -0.02em;
+  }
+  .ent-figure dd {
+    margin: 6px 0 0;
+    font-size: var(--scalar-font-size-4);
+    color: var(--scalar-color-2);
+  }
+  @media screen and (max-width: 600px) {
+    .ent-sky {
+      --ent-sky-h: 340px;
+      margin: 52px 0 64px;
+    }
+    /* the three stack, so they want the room the comet was using */
+    .ent-figures {
+      flex-direction: column;
+      gap: 20px;
+      padding-bottom: 16px;
+    }
+    .ent-comet {
+      top: 20%;
+      height: 62px;
+    }
+    .ent-comet::before {
+      filter: blur(8px);
+    }
+    .ent-comet::after {
+      width: 140px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ent-comet {
+      animation: none;
+      /* at rest, across the band, rather than parked off the edge */
+      translate: 42% -50%;
+      opacity: 1;
+    }
+    .ent-figure {
+      transition: none;
+      translate: 0 0;
+      opacity: 1;
+    }
   }
     .resources-cta-container {
       border-radius: var(--scalar-radius-lg);
