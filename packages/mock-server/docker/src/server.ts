@@ -8,6 +8,8 @@ interface ServerConfig {
   origin?: string
   format: 'json' | 'yaml'
   port?: number
+  /** Reject requests that violate the API description with `422`. Defaults to the library's `true`. */
+  validateRequest?: boolean
 }
 
 export async function startMockServer(config: ServerConfig): Promise<void> {
@@ -17,9 +19,19 @@ export async function startMockServer(config: ServerConfig): Promise<void> {
   console.log('Starting mock server...')
   console.log()
 
+  if (config.validateRequest === false) {
+    // Say so up front: with validation off, a malformed request gets a mock response instead of a
+    // `422`, which is easy to mistake for the request being correct.
+    console.log(
+      'Request validation is disabled: requests that violate the API description get a mock response, not a 422.',
+    )
+    console.log()
+  }
+
   const app = await createMockServer({
     document,
     origin: config.origin,
+    validateRequest: config.validateRequest,
     upgradeWebSocket,
     logger: (line) => console.log(line),
     onMessage: ({ channel, direction, payload }) =>
