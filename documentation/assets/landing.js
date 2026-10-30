@@ -772,6 +772,30 @@ const createLandingChatPlayer = (chat) => {
    hovered globe holds still and eases its mark to the front (its bubble
    is CSS). */
 const LANDING_ORB_TURN = 3000
+/* The grain a planet is painted with runs round it as it turns.
+
+   The ball is a flat disc, so the grain on it would otherwise lie still
+   while the name goes round, and a planet whose surface never moves is
+   a drawing of a ball rather than a ball. Putting the grain on the ring
+   as a shell of little sphere pieces is the true answer and costs far
+   too much: pieces carrying a picture, inside a ring whose transform
+   changes every frame, took the home page from 120 frames a second to
+   46, at any count down to six a planet. So the grain travels across
+   the disc instead, at the speed the surface facing us moves, which is
+   the planet's whole circumference in one turn. It does not slow into
+   the edges the way a real surface does; at this size, against noise
+   with no feature in it to follow, what reads is that the surface is
+   moving at all. One tile of grain is 160px, so a tile goes by in that
+   share of a turn. */
+const LANDING_GRAIN_TILE = 160
+const landingGrainTurn = (globe, size) => {
+  if (size && globe.querySelector('.lp-orb-ball')) {
+    globe.style.setProperty(
+      '--lp-grain-turn',
+      `${Math.round((LANDING_ORB_TURN * LANDING_GRAIN_TILE) / (Math.PI * size))}ms`,
+    )
+  }
+}
 /* the two orbits: the long radius as a share of half the field's width,
    the short one as a share of the long (the tilt), and seconds a lap;
    then each planet's orbit and where it starts (in laps), in the order
@@ -814,6 +838,7 @@ const dressLandingGlobe = (globe, ring, size) => {
   if (!template) {
     return false
   }
+  landingGrainTurn(globe, size)
   const suffix = `-o${++landingDressCopies}`
   const holder = document.createElement('div')
   holder.innerHTML = template.innerHTML
@@ -2516,6 +2541,9 @@ const initLandingOrbs = debounce(() => {
           return
         }
         o.size = Number.parseFloat(getComputedStyle(o.orb).getPropertyValue('--s')) || o.size
+        // a planet that has taken a new size turns its grain at a new
+        // pace: the surface still covers its circumference in one turn
+        landingGrainTurn(o.orb, o.size)
         // the bubble's width, for keeping it inside the content box
         o.bw = o.orb.querySelector('.lp-orb-bubble')?.offsetWidth || 250
       })
@@ -5439,6 +5467,843 @@ const initLandingPrompt = debounce(() => {
    marks come from the icon templates; a click puts the setup prompt from
    the prompt section on the clipboard, as the text that section's Copy
    gives, and the button shows its copied state for a moment */
+/* The customers page's hero: every customer as a ball of its own.
+
+   The marks from the grids below, each on a glass ball like the home
+   page's planets, tipped in over the fold one after another and left to
+   heap up on a hairline floor.
+
+   The balls are a small world with its own physics: gravity, the floor
+   and the field's two edges, and the balls themselves, which collide
+   and have enough grip on one another to hold a heap. A ball rolls the
+   way a ball does, turning about the axle through it, so its mark turns
+   with it; the paint under the mark is lit from the room and stays
+   where it is. A pointer can pick one up and throw it, and the rest get
+   out of its way. Once everything has come to rest the frame loop
+   stops and the balls stay as they lie, their marks at whatever angle
+   they rolled to. */
+const CUST_STEP = 1 / 120
+const CUST_GRAVITY = 2800
+/* the speed a ball keeps off the floor, off an edge and off another
+   ball, and the slowest meeting that still bounces at all */
+const CUST_FLOOR_BOUNCE = 0.44
+const CUST_WALL_BOUNCE = 0.45
+const CUST_BALL_BOUNCE = 0.2
+const CUST_REST = 22
+/* How well each surface holds on to a ball, as a share of how hard the
+   two are pressed together.
+
+   This is where a ball becomes a ball. Friction works on the SLIP at
+   the touch, how fast the stuff of the ball there is scrubbing over
+   what it is touching, and spends itself on the ball's travel and on
+   its spin at once. A sphere answers an impulse at its edge with 7/2
+   of what its mass alone would give (1 from the mass, 5/2 from a
+   sphere's own moment, 2/5 m r squared), so the impulse that takes a
+   sliding contact to a rolling one is exactly 2/7 of the mass times
+   the slip, and the other 5/7 goes into the turn. Neither fraction
+   depends on the mass or the size. r over that moment is 2.5 / (m r),
+   which is the only awkward number below. */
+const CUST_FLOOR_GRIP = 0.45
+const CUST_WALL_GRIP = 0.35
+const CUST_BALL_GRIP = 0.5
+/* the drag the air puts on a ball's travel and the trickle it takes
+   off its spin (per second) */
+const CUST_AIR = 0.08
+const CUST_SPIN_AIR = 0.12
+/* what a rolling ball gives up to the ground it rolls on, as a share
+   of its weight, the fastest it may turn (about three and a half turns
+   a second, past which a mark only strobes), and the load a ball
+   resting on another carries, in weights */
+const CUST_ROLL_RES = 0.14
+const CUST_SPIN_MAX = 22
+const CUST_LOAD = 2.5
+/* a ball slower than this, turning slower than this, with something
+   under it, is put down flat; after this many steps of that it stops
+   being pulled on at all */
+const CUST_NUMB_V = 12
+const CUST_NUMB_W = 0.3
+const CUST_CALM = 6
+/* how far a ball and the skin of a ball may travel over a frame and
+   still count as still, and for how many frames before the world
+   sleeps */
+const CUST_SLEEP = 0.3
+const CUST_STILL = 24
+/* how much of an overlap is eased out in one pass, the sliver left
+   alone, and how many passes: the overlap is never fed back into the
+   speeds, since that is what blows a heap into a line */
+const CUST_FIRM = 0.45
+const CUST_SLOP = 0.4
+const CUST_PASSES = 6
+/* the share of the field the balls are tipped into (they heap rather
+   than line up), ms between one and the next, and how far over the top
+   edge they start */
+const CUST_BAND = 0.38
+const CUST_DROP = 50
+const CUST_FALL = 80
+const CUST_GAP = 12
+/* the fastest a throw can leave the hand, how much of the lever a
+   flick puts into spin, and how quickly the floor rolls a ball that is
+   being dragged along it */
+const CUST_THROW = 2800
+const CUST_FLICK = 0.35
+const CUST_HAND_ROLL = 24
+/* A ball's mark, lying on its surface.
+
+   A logo on a real ball is not a sticker on its front: it lies on the
+   surface, so it narrows towards the rim and goes over the horizon as
+   the ball turns. The mark is therefore cut into a grid of little
+   four-cornered pieces, each one placed with its four corners exactly
+   ON the sphere. That is the whole trick, and it is worth saying why:
+   a tall flat strip hung at one longitude only touches the sphere
+   along a circle as wide as the strip itself, so anything taller is
+   describing a cylinder and juts out past the ball's own edge. Four
+   corners on the sphere are always in one plane, the piece between
+   them is inside the ball, and so nothing can ever cross the
+   silhouette, whatever the ball does.
+
+   Every piece shows its own slice of one picture, at one size for the
+   whole mark, so the browser decodes and draws each mark once however
+   many pieces there are; the piece's own matrix stretches its row to
+   fit. Each piece is turned away on its back, so the far side of the
+   ball never shows through the near side.
+
+   The mark is repeated round the ball, the way a ball is branded, so
+   whichever way one comes to rest a copy is facing you. */
+/* how far above the floor we are looking at it from: the lean of the
+   ball's axle out of the screen. The stylesheet turns the cage about
+   this axle and takes it from here, so there is one number, not two
+   that can drift apart */
+const CUST_TILT = 52
+const CUST_COPIES = 3
+/* how far round the ball one copy of the mark reaches, in radii of
+   arc, and how finely it is cut up: about 11 degrees across and 20
+   down, which is fine enough that no edge of it reads as a straight
+   line at these sizes */
+const CUST_MARK = 1.3
+const CUST_LON_STEP = (11 * Math.PI) / 180
+const CUST_LAT_STEP = (20 * Math.PI) / 180
+const CUST_BLEED = 0.7
+const dressCustomerBall = (ball, size) => {
+  const template = document.getElementById(`lp-icon-${ball.dataset.icon}`)
+  const cage = ball.querySelector('.cust-ball-roll')
+  const svg = template?.innerHTML.trim()
+  if (!svg || !cage || !size) {
+    return false
+  }
+  // ids inside a data url belong to that picture alone, so a mark that
+  // clips or masks itself can stand on every ball without renaming
+  const box = /viewBox="([\d.\-\s]+)"/.exec(svg)
+  const seen = box ? box[1].trim().split(/\s+/).map(Number) : null
+  const ratio = seen && seen[2] && seen[3] ? seen[2] / seen[3] : 1
+  const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  const r = size / 2
+  // the axle the cage turns about, for the stylesheet
+  const lean = (CUST_TILT * Math.PI) / 180
+  ball.style.setProperty('--cust-axis', `0, ${Math.sin(lean).toFixed(4)}, ${(-Math.cos(lean)).toFixed(4)}`)
+
+  // a point on the sphere, in the ball's own axes: x right, y DOWN,
+  // z towards the eye, and longitude 0 facing the eye
+  const at = (lon, lat) => {
+    const c = Math.cos(lat)
+    return [r * c * Math.sin(lon), -r * Math.sin(lat), r * c * Math.cos(lon)]
+  }
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+  const mul = (a, k) => [a[0] * k, a[1] * k, a[2] * k]
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+  const len = (a) => Math.hypot(a[0], a[1], a[2])
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+  // the mark's footprint on the ball, as angles, and how many pieces
+  // that takes
+  const spanLon = CUST_MARK
+  const spanLat = CUST_MARK / ratio
+  const across = Math.max(3, Math.round(spanLon / CUST_LON_STEP))
+  const down = Math.max(1, Math.round(spanLat / CUST_LAT_STEP))
+  // one size of picture for every piece, taken from the row on the
+  // equator, so each mark is drawn once rather than once a row
+  const wide = (2 * r * Math.sin(spanLon / (2 * across))) / 1
+  const tall = (2 * r * Math.sin(spanLat / (2 * down))) / 1
+  const pieces = []
+  for (let copy = 0; copy < CUST_COPIES; copy++) {
+    const middle = (copy * 2 * Math.PI) / CUST_COPIES
+    for (let row = 0; row < down; row++) {
+      const lat0 = -spanLat / 2 + (row * spanLat) / down
+      const lat1 = lat0 + spanLat / down
+      for (let i = 0; i < across; i++) {
+        const lon0 = middle - spanLon / 2 + (i * spanLon) / across
+        const lon1 = lon0 + spanLon / across
+        const tl = at(lon0, lat1)
+        const tr = at(lon1, lat1)
+        const bl = at(lon0, lat0)
+        const br = at(lon1, lat0)
+        const mid = mul(add(add(tl, tr), add(bl, br)), 0.25)
+        const u = mul(sub(add(tr, br), add(tl, bl)), 0.5)
+        const v = mul(sub(add(bl, br), add(tl, tr)), 0.5)
+        const uw = len(u)
+        const vh = len(v)
+        const ux = mul(u, 1 / uw)
+        const vy = mul(v, 1 / vh)
+        // the third column has to be the outward normal, or the piece
+        // is culled the wrong way round
+        let n = cross(u, v)
+        n = mul(n, 1 / len(n))
+        if (dot(n, mid) < 0) {
+          n = mul(n, -1)
+        }
+        // its top left corner, pushed out by the bleed along its own
+        // axes, then moved from the ball's middle to its box's corner
+        let corner = add(mid, mul(add(u, v), -0.5))
+        corner = add(corner, mul(add(mul(ux, (uw / wide) * CUST_BLEED), mul(vy, (vh / tall) * CUST_BLEED)), -1))
+        corner = [corner[0] + r, corner[1] + r, corner[2]]
+        // the row's own stretch rides in the matrix, so every piece can
+        // share one picture size
+        const cu = mul(ux, uw / wide)
+        const cv = mul(vy, vh / tall)
+        const piece = document.createElement('i')
+        piece.className = 'cust-quad'
+        piece.style.width = `${(wide + 2 * CUST_BLEED).toFixed(2)}px`
+        piece.style.height = `${(tall + 2 * CUST_BLEED).toFixed(2)}px`
+        piece.style.backgroundImage = url
+        piece.style.backgroundSize = `${(wide * across).toFixed(2)}px ${(tall * down).toFixed(2)}px`
+        piece.style.backgroundPosition = `${(-(i / across) * wide * across + CUST_BLEED).toFixed(2)}px ${(
+          -(1 - (row + 1) / down) * tall * down + CUST_BLEED
+        ).toFixed(2)}px`
+        piece.style.transform =
+          `matrix3d(${cu[0].toFixed(4)},${cu[1].toFixed(4)},${cu[2].toFixed(4)},0,` +
+          `${cv[0].toFixed(4)},${cv[1].toFixed(4)},${cv[2].toFixed(4)},0,` +
+          `${n[0].toFixed(4)},${n[1].toFixed(4)},${n[2].toFixed(4)},0,` +
+          `${corner[0].toFixed(2)},${corner[1].toFixed(2)},${corner[2].toFixed(2)},1)`
+        pieces.push(piece)
+      }
+    }
+  }
+  cage.replaceChildren(...pieces)
+  ball.dataset.custDressed = size.toFixed(1)
+  return true
+}
+
+const initCustomerBalls = debounce(() => {
+  const fields = [...document.querySelectorAll('.cust-field')].filter((field) => field.dataset.custBound !== 'true')
+  if (!fields.length) {
+    return
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  fields.forEach((field) => {
+    field.dataset.custBound = 'true'
+    const floor = field.querySelector('.cust-floor')
+    const balls = [...field.querySelectorAll('.cust-ball')]
+      .map((el, index) => {
+        const size = Number.parseFloat(getComputedStyle(el).getPropertyValue('--s'))
+        if (!size || !dressCustomerBall(el, size)) {
+          return null
+        }
+        return {
+          el,
+          roll: el.querySelector('.cust-ball-roll'),
+          index,
+          // the size it is drawn at, which the heap's own scale works from
+          base: size,
+          r: size / 2,
+          // the bigger ball is the heavier one, so a small one bounces
+          // off it rather than shouldering it aside
+          m: size * size,
+          x: 0,
+          y: 0,
+          // where it was at the end of the last frame
+          px: 0,
+          py: 0,
+          vx: 0,
+          vy: 0,
+          // how fast it is turning, in radians a second, clockwise on
+          // screen, which is the way a ball travelling right turns
+          w: 0,
+          home: 0,
+          // a nudge off its place in the band, so no two fall alike
+          drop: (((index * 29) % 13) - 6) * 3,
+          // its turn in the fall, and whether it has had it yet
+          at: index * CUST_DROP,
+          live: false,
+          // the pointer holding it, if any, and where it was taken hold of
+          held: 0,
+          grabX: 0,
+          grabY: 0,
+          last: 0,
+          // how far it has rolled, in degrees
+          turn: 0,
+          // whether anything is holding it up this step, and how long
+          // it has been put down flat
+          prop: 0,
+          calm: 0,
+        }
+      })
+      .filter(Boolean)
+    if (!floor || !balls.length) {
+      return
+    }
+
+    /* The field, and where the balls are tipped in: a band across the
+       middle of it, each ball a little way along it in an order of its
+       own, so they land on one another and heap rather than lining up.
+       The whole row is scaled only when the field is too narrow to hold
+       a heap of them. */
+    let width = 0
+    let floorY = 0
+    const measure = () => {
+      const box = field.getBoundingClientRect()
+      const line = floor.getBoundingClientRect()
+      width = box.width
+      floorY = line.top + line.height / 2 - box.top
+      const full = balls.reduce((sum, b) => sum + b.base, 0)
+      const widest = balls.reduce((most, b) => Math.max(most, b.base), 0)
+      // room for a heap two deep, and never a ball wider than the field
+      const scale = Math.min(1, (2.1 * width) / Math.max(full, 1), (width * 0.7) / Math.max(widest, 1))
+      const band = Math.min(width * CUST_BAND, full * scale * 0.86)
+      const start = (width - band) / 2
+      balls.forEach((b, index) => {
+        const size = b.base * scale
+        b.el.style.setProperty('--s', `${size.toFixed(1)}px`)
+        // the pieces of the mark are cut for one size of ball, so they
+        // are cut again when the row rescales
+        if (b.el.dataset.custDressed !== size.toFixed(1)) {
+          dressCustomerBall(b.el, size)
+        }
+        b.r = size / 2
+        b.m = size * size
+        // along the band, but not in the order they stand in the page
+        b.home = Math.min(
+          Math.max(start + band * (((index * 7 + 3) % balls.length) / (balls.length - 1 || 1)) + b.drop, b.r + 2),
+          width - b.r - 2,
+        )
+      })
+    }
+    const draw = (b) => {
+      b.el.style.translate = `${(b.x - b.r).toFixed(1)}px ${(b.y - b.r).toFixed(1)}px`
+    }
+    const spin = (b) => {
+      b.roll.style.setProperty('--roll', `${b.turn.toFixed(1)}deg`)
+    }
+
+    // a sphere's own resistance to being turned
+    const spinMass = (b) => 0.4 * b.m * b.r * b.r
+    const capSpin = (b) => {
+      b.w = Math.max(-CUST_SPIN_MAX, Math.min(CUST_SPIN_MAX, b.w))
+    }
+
+    /* Friction against something that does not move: the floor, or an
+       edge. The normal points out of the ball towards the surface and
+       the tangent is that turned a quarter turn; the stuff of the ball
+       at the touch runs past the surface at (v along the tangent) plus
+       its own spin at the rim. The impulse that takes that to nothing
+       is 2/7 of the mass times it, and it is held to what the surface
+       can hold on to. Both clamps, every time: overshooting either is
+       what sets a heap buzzing at the step rate. */
+    const rub = (b, nx, ny, jn, mu) => {
+      if (jn <= 0) {
+        return
+      }
+      const tx = -ny
+      const ty = nx
+      const run = b.vx * tx + b.vy * ty + b.w * b.r
+      if (!run) {
+        return
+      }
+      const jt = -Math.sign(run) * Math.min((2 / 7) * b.m * Math.abs(run), mu * jn)
+      b.vx += (jt * tx) / b.m
+      b.vy += (jt * ty) / b.m
+      // the same impulse taken about the middle
+      b.w += (2.5 * jt) / (b.m * b.r)
+    }
+
+    /* The floor and the two edges. A ball lying still presses with its
+       own weight, which is one step of gravity: without that there is
+       no impulse for friction to work from, so a resting ball has no
+       grip at all and the heap slides itself flat. */
+    const sides = (b, moveOnly) => {
+      if (!b.live || b.held) {
+        return
+      }
+      const sink = b.y + b.r - floorY
+      if (sink > -0.5) {
+        b.prop = 1
+        if (sink > 0) {
+          b.y = floorY - b.r
+        }
+        if (!moveOnly) {
+          let jn = 0
+          if (b.vy > 0) {
+            // a slow landing does not bounce, which is what lets the
+            // last hop die instead of shivering for ever
+            const e = b.vy > CUST_REST ? CUST_FLOOR_BOUNCE : 0
+            jn = b.m * b.vy * (1 + e)
+            if (b.vy > CUST_REST) {
+              b.calm = 0
+            }
+            b.vy = -b.vy * e
+          }
+          jn = Math.max(jn, b.m * CUST_GRAVITY * CUST_STEP)
+          rub(b, 0, 1, jn, CUST_FLOOR_GRIP)
+        }
+      }
+      const nx = b.x - b.r < 0 ? -1 : b.x + b.r > width ? 1 : 0
+      if (nx) {
+        b.x = nx < 0 ? b.r : Math.max(width - b.r, b.r)
+        if (!moveOnly) {
+          const into = b.vx * nx
+          let jn = 0
+          if (into > 0) {
+            const e = into > CUST_REST ? CUST_WALL_BOUNCE : 0
+            jn = b.m * into * (1 + e)
+            b.vx = -b.vx * e
+            b.calm = 0
+          }
+          // an edge carries no load, so a ball takes spin off it only
+          // on a real knock
+          rub(b, nx, 0, jn, CUST_WALL_GRIP)
+        }
+      }
+    }
+
+    /* Two balls. The overlap is eased out a little at a time and never
+       fed back into the speeds, and the push and the grip are worked
+       out from the speeds alone. Both spins enter the scrub with a
+       plus sign: two touching balls scrub when they turn the same way
+       and roll on each other when they turn against each other, like a
+       pair of gears. One impulse turns them both the same way, which
+       looks wrong written down and is right on screen. A held ball is
+       immovable, so it takes neither push nor spin and keeps its place
+       under the hand. */
+    const hit = (a, b, moveOnly) => {
+      if (!a.live || !b.live) {
+        return
+      }
+      const dx = b.x - a.x
+      const dy = b.y - a.y
+      const d = Math.hypot(dx, dy) || 0.01
+      const overlap = a.r + b.r - d
+      if (overlap <= -0.5) {
+        return
+      }
+      const ia = a.held ? 0 : 1 / a.m
+      const ib = b.held ? 0 : 1 / b.m
+      const sum = ia + ib
+      if (!sum) {
+        return
+      }
+      const nx = dx / d
+      const ny = dy / d
+      // leaning on, rather than merely beside: only a touch below a
+      // ball can hold it up
+      if (ny > 0.3) {
+        a.prop = 1
+      }
+      if (ny < -0.3) {
+        b.prop = 1
+      }
+      if (overlap > 0) {
+        const give = Math.max(overlap - CUST_SLOP, 0) * CUST_FIRM
+        a.x -= (nx * give * ia) / sum
+        a.y -= (ny * give * ia) / sum
+        b.x += (nx * give * ib) / sum
+        b.y += (ny * give * ib) / sum
+      }
+      if (moveOnly) {
+        return
+      }
+      const closing = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny
+      let jn = 0
+      if (closing < 0) {
+        const e = -closing > CUST_REST ? CUST_BALL_BOUNCE : 0
+        jn = (-(1 + e) * closing) / sum
+        a.vx -= jn * nx * ia
+        a.vy -= jn * ny * ia
+        b.vx += jn * nx * ib
+        b.vy += jn * ny * ib
+        if (-closing > CUST_REST) {
+          a.calm = 0
+          b.calm = 0
+        }
+      }
+      // they press on each other even when nothing is closing: with no
+      // load there is no grip, and a heap with no grip spreads flat
+      jn = Math.max(jn, (CUST_LOAD * CUST_GRAVITY * CUST_STEP) / sum)
+      const tx = -ny
+      const ty = nx
+      const run = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - (a.w * a.r + b.w * b.r)
+      if (!run) {
+        return
+      }
+      // 1 + 5/2 of the shared mass, because the spins take their share
+      const jt = -Math.sign(run) * Math.min(Math.abs(run) / (3.5 * sum), CUST_BALL_GRIP * jn)
+      a.vx -= jt * tx * ia
+      a.vy -= jt * ty * ia
+      b.vx += jt * tx * ib
+      b.vy += jt * ty * ib
+      if (!a.held) {
+        a.w -= (2.5 * jt) / (a.m * a.r)
+      }
+      if (!b.held) {
+        b.w -= (2.5 * jt) / (b.m * b.r)
+      }
+    }
+
+    /* What a rolling ball gives up to the ground. It slides nowhere,
+       so sliding friction cannot slow it: what slows it is the contact
+       patch, spent as a couple against the spin, and the next step's
+       friction hands the loss on to the travel. Driven by the ball's
+       weight rather than by whatever the last bounce needed, since a
+       hard landing presses thirty times as hard and would swallow the
+       spin the floor just gave it. Once per ball per step, after the
+       touches, so a ball in the middle of a heap is not braked once
+       for every neighbour. */
+    const brake = (b) => {
+      if (!b.live || b.held) {
+        return
+      }
+      if (b.prop && b.w) {
+        const moment = spinMass(b)
+        const give = Math.min(CUST_ROLL_RES * b.r * b.m * CUST_GRAVITY * CUST_STEP, moment * Math.abs(b.w))
+        b.w -= (Math.sign(b.w) * give) / moment
+      }
+      capSpin(b)
+      // a turn too slow to see is no turn: this is what stops a mark
+      // creeping round for ever on a settled heap
+      if (Math.abs(b.w) < 0.02) {
+        b.w = 0
+      }
+    }
+
+    /* A ball that is slow, barely turning and leaning on something is
+       put down flat. This, not a speed test, is what makes a heap go
+       quiet: the arithmetic always leaves a trickle, and a ball with
+       something under it takes a whole step of gravity every step for
+       ever. */
+    const numb = (b) => {
+      if (!b.live || b.held) {
+        return
+      }
+      if (b.prop && Math.hypot(b.vx, b.vy) < CUST_NUMB_V && Math.abs(b.w) < CUST_NUMB_W) {
+        b.vx = 0
+        b.vy = 0
+        b.w = 0
+        b.calm += 1
+      } else {
+        b.calm = 0
+      }
+    }
+
+    /* A ball in hand keeps whatever spin it has. The hand sets no
+       angle: a ball lifted off the floor and swept sideways does not
+       roll, while one dragged along the floor is rolled by the floor.
+       Approached rather than snapped, so a quick drag does not strobe
+       the mark. */
+    const handSpin = (b, h) => {
+      if (!b.live || !b.held) {
+        return
+      }
+      if (b.y + b.r >= floorY - 0.5) {
+        const want = Math.max(-CUST_SPIN_MAX, Math.min(CUST_SPIN_MAX, b.vx / b.r))
+        b.w += (want - b.w) * (1 - Math.exp(-CUST_HAND_ROLL * h))
+      } else {
+        b.w *= Math.exp(-CUST_SPIN_AIR * h)
+      }
+      b.turn += (b.w * h * 180) / Math.PI
+    }
+
+    /* One fixed step. Gravity pulls on the middle of a ball, so it
+       changes where the ball goes and never how it spins: a ball
+       thrown straight up comes down turning at the rate it left the
+       hand with. The mark's angle is taken from the spin inside this
+       same step, so it can never drift out of phase with the motion. */
+    const step = (h) => {
+      balls.forEach((b) => {
+        if (b.live && !b.held) {
+          // a ball put down flat is not pulled on, which is what keeps
+          // a heap from sinking a fraction of a pixel every step for
+          // ever; it falls again the step it loses what holds it up
+          if (b.calm < CUST_CALM) {
+            b.vy += CUST_GRAVITY * h
+          }
+          const air = Math.exp(-CUST_AIR * h)
+          b.vx *= air
+          b.vy *= air
+          b.w *= Math.exp(-CUST_SPIN_AIR * h)
+          b.x += b.vx * h
+          b.y += b.vy * h
+          b.turn += (b.w * h * 180) / Math.PI
+        }
+        handSpin(b, h)
+        b.prop = 0
+      })
+      // the impulses once, then the overlaps alone a few more times, so
+      // a ball shouldered by its neighbour still ends the step above
+      // the floor and inside the field without taking six doses of grip
+      for (let pass = 0; pass < CUST_PASSES; pass++) {
+        const moveOnly = pass > 0
+        for (let i = 0; i < balls.length; i++) {
+          for (let j = i + 1; j < balls.length; j++) {
+            hit(balls[i], balls[j], moveOnly)
+          }
+        }
+        balls.forEach((b) => sides(b, moveOnly))
+      }
+      balls.forEach((b) => {
+        brake(b)
+        numb(b)
+      })
+    }
+
+    /* Asleep, the loop stops and the balls stay as they lie. */
+    let frame = 0
+    let last = null
+    let began = 0
+    let still = 0
+    let asleep = true
+    const sleep = () => {
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+      last = null
+      still = 0
+      asleep = true
+    }
+    const wake = () => {
+      if (!asleep) {
+        return
+      }
+      asleep = false
+      last = null
+      frame = requestAnimationFrame(tick)
+    }
+    const tick = (now) => {
+      frame = 0
+      if (last === null) {
+        last = now
+      }
+      let left = Math.min((now - last) / 1000, 0.05)
+      const went = Math.max(left, CUST_STEP)
+      last = now
+      const since = now - began
+      balls.forEach((b) => {
+        if (!b.live && since >= b.at) {
+          b.live = true
+        }
+      })
+      while (left > 0) {
+        const h = Math.min(left, CUST_STEP)
+        step(h)
+        left -= h
+      }
+      // How far each ball went over the frame is the test, and how far
+      // its skin went under the spin with it, so one threshold covers a
+      // creeping mark as well as a creeping ball. A speed test cannot
+      // do this: a ball at rest still takes a step of gravity every
+      // step. Everything must also be leaning on something, which is
+      // what keeps the world awake at the top of a bounce, where the
+      // middle of a ball is as still as a ball at rest.
+      let moved = 0
+      balls.forEach((b) => {
+        if (Math.hypot(b.x - b.px, b.y - b.py) + Math.abs(b.w) * b.r * went > CUST_SLEEP) {
+          moved += 1
+        }
+        b.px = b.x
+        b.py = b.y
+        draw(b)
+        spin(b)
+      })
+      const quiet = moved === 0 && balls.every((b) => b.live && !b.held && b.prop)
+      still = quiet ? still + 1 : 0
+      if (still >= CUST_STILL) {
+        sleep()
+        return
+      }
+      frame = requestAnimationFrame(tick)
+    }
+
+    // the fall: each ball over its own place in the band, a moment
+    // after the one before, with a nudge sideways so no two land alike
+    const tip = () => {
+      balls.forEach((b) => {
+        b.x = b.home
+        b.y = -b.r - CUST_FALL - ((b.index * 53) % 90)
+        b.vx = 0
+        b.vy = 0
+        // a turn of its own on the way down, apart from any drift, so
+        // the very first bounce shows the floor biting: a ball dropped
+        // turning squirts sideways as it lands
+        b.w = (((b.index * 41) % 9) - 4) * 0.55
+        b.turn = 0
+        b.prop = 0
+        b.calm = 0
+        b.live = false
+        draw(b)
+        spin(b)
+      })
+      began = performance.now()
+    }
+    // the same fall, run through at once: the heap without the show,
+    // for a reader who asked for no motion and after the field resizes.
+    // It keeps the turns the balls take, so the heap it builds is the
+    // one the fall would have left
+    const settle = () => {
+      tip()
+      let at = 0
+      for (let i = 0; i < 1400; i++) {
+        at += CUST_STEP * 1000
+        balls.forEach((b) => {
+          if (!b.live && at >= b.at) {
+            b.live = true
+          }
+        })
+        step(CUST_STEP)
+      }
+      balls.forEach((b) => {
+        draw(b)
+        spin(b)
+      })
+    }
+
+    /* A ball in hand follows the pointer, keeping the speed of the last
+       move so a throw carries it. It stays inside the field while held,
+       so the toy cannot be dragged out of its box. */
+    balls.forEach((b) => {
+      b.el.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse' && event.button !== 0) {
+          return
+        }
+        const box = field.getBoundingClientRect()
+        wake()
+        b.held = event.pointerId
+        b.live = true
+        b.grabX = b.x - (event.clientX - box.left)
+        b.grabY = b.y - (event.clientY - box.top)
+        b.last = event.timeStamp
+        b.vx = 0
+        b.vy = 0
+        b.el.classList.add('is-held')
+        // the ball keeps the pointer even when it slips out from under
+        // it; a pointer the browser has already let go of cannot be
+        // captured, and losing it is no reason to drop the grab
+        try {
+          b.el.setPointerCapture(event.pointerId)
+        } catch {}
+        event.preventDefault()
+      })
+      b.el.addEventListener('pointermove', (event) => {
+        if (b.held !== event.pointerId) {
+          return
+        }
+        const box = field.getBoundingClientRect()
+        const x = Math.min(Math.max(event.clientX - box.left + b.grabX, b.r), Math.max(width - b.r, b.r))
+        const y = Math.min(Math.max(event.clientY - box.top + b.grabY, b.r), floorY - b.r)
+        const h = Math.max(event.timeStamp - b.last, 8) / 1000
+        b.vx = (x - b.x) / h
+        b.vy = (y - b.y) / h
+        b.x = x
+        b.y = y
+        b.last = event.timeStamp
+      })
+      const release = (event) => {
+        if (b.held !== event.pointerId) {
+          return
+        }
+        b.held = 0
+        b.el.classList.remove('is-held')
+        // a flick that outran the hand is held to a sensible throw
+        const speed = Math.hypot(b.vx, b.vy)
+        if (speed > CUST_THROW) {
+          b.vx *= CUST_THROW / speed
+          b.vy *= CUST_THROW / speed
+        }
+        /* The throw leaves at the point the ball was HELD, not at its
+           middle, so a grip off to one side levers it round: a ball
+           taken by the middle is thrown flat, one taken by its edge
+           leaves spinning. Flick the top of a ball and it runs away
+           with topspin; flick the bottom and it comes back off the
+           floor. */
+        let px = -b.grabX
+        let py = -b.grabY
+        const reach = Math.hypot(px, py)
+        if (reach > b.r) {
+          px *= b.r / reach
+          py *= b.r / reach
+        }
+        b.w += (CUST_FLICK * b.m * (px * b.vy - py * b.vx)) / spinMass(b)
+        capSpin(b)
+        if (!Number.isFinite(b.w)) {
+          b.w = 0
+        }
+        b.calm = 0
+        wake()
+      }
+      b.el.addEventListener('pointerup', release)
+      b.el.addEventListener('pointercancel', release)
+    })
+
+    // the fall runs once the hero is on screen; a field that changes
+    // size is measured again, and a heap already at rest built afresh
+    let started = false
+    measure()
+    new ResizeObserver(() => {
+      measure()
+      if (started && asleep) {
+        settle()
+      }
+    }).observe(field)
+    const start = () => {
+      measure()
+      started = true
+      // only now is there a place for them: until this they would show
+      // stacked in the field's corner
+      field.classList.add('is-ready')
+      if (reduceMotion) {
+        settle()
+        return
+      }
+      tip()
+      wake()
+    }
+    // straight away where the hero is already on screen, which it is on
+    // a page opened at the top; otherwise the first time it comes into
+    // view, so a reader who lands further down still sees them fall
+    const where = field.getBoundingClientRect()
+    if (where.top < window.innerHeight && where.bottom > 0) {
+      start()
+    } else {
+      const watch = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) {
+            return
+          }
+          watch.disconnect()
+          start()
+        },
+        { threshold: 0.01 },
+      )
+      watch.observe(field)
+    }
+  })
+})
+
+/* What the onboard button copies on a page that does not carry the
+   prompt itself. The home page's prompt is the one with the fields in
+   it, so it stays the source there and this is its plain form: keep
+   the two in step when the prompt in introduction.md changes. */
+const LANDING_ONBOARD_PROMPT = [
+  'Set up Scalar for this repo with the Scalar MCP server (https://mcp.scalar.com/) and the Scalar CLI (`npx -y @scalar/cli@latest`).',
+  '',
+  'Find my OpenAPI file and the brand site for my company, check what my team already has so nothing is duplicated, and confirm with me once. Then:',
+  '',
+  '1. Publish the API to the Scalar Registry.',
+  '2. Create one TypeScript SDK with `create_an_sdk` (it builds itself, never call `build_an_sdk`).',
+  '3. Host an MCP server for the API with `create_an_mcp_server`, pointed at the Registry entry.',
+  '4. Scaffold `scalar-docs/` with intro, quickstart and authentication guides from the spec, a custom `--scalar-*` CSS theme from my brand (`siteConfig.theme`), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show.',
+  '5. Create the docs project and `project publish` it.',
+  '',
+  'Report the links. Never delete anything.',
+].join('\n')
 const initLandingOnboard = () => {
   document.querySelectorAll('[data-lp-onboard]').forEach((button) => {
     if (button.dataset.lpOnboardBound === 'true') {
@@ -5458,7 +6323,7 @@ const initLandingOnboard = () => {
     let timer = 0
     button.addEventListener('click', () => {
       const text = document.querySelector('#lp-prompts .lp-prompt-text')
-      const prompt = text ? landingPromptText(text) : ''
+      const prompt = text ? landingPromptText(text) : LANDING_ONBOARD_PROMPT
       if (!prompt || !navigator.clipboard) {
         return
       }
@@ -5484,6 +6349,7 @@ initHeroCards()
 initLandingBoxLinks()
 initLandingOrbs()
 initFooterPlanets()
+initCustomerBalls()
 initLandingOnboard()
 initLandingChat()
 initLandingFlow()
@@ -5506,6 +6372,7 @@ const observer = new MutationObserver((records) => {
   initLandingBoxLinks()
   initLandingOrbs()
   initFooterPlanets()
+  initCustomerBalls()
   initLandingOnboard()
   initLandingChat()
   initLandingFlow()

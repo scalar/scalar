@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.29
+
+### Patch Changes
+
+- [#10781](https://github.com/scalar/scalar/pull/10781): feat: pick the default API reference theme from the date, using the Halloween theme throughout October
+
 ## 0.2.28
 
 ### Patch Changes

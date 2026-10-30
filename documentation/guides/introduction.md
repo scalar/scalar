@@ -930,12 +930,48 @@
     position: absolute;
     inset: calc(var(--s) * 0.25);
     border-radius: 50%;
-    background:
-      var(--lp-grain-ball) 50% 50% / 160px 160px,
-      var(--lp-ball-light),
-      var(--lp-ball-paint);
-    background-blend-mode: overlay, normal, normal, normal;
+    background: var(--lp-ball-light), var(--lp-ball-paint);
     box-shadow: var(--lp-ball-shade);
+    /* the grain over it blends with the ball alone, never with the
+       planet behind */
+    isolation: isolate;
+  }
+  /* The grain travels round the ball as the ball turns: the surface
+     facing us covers the planet's whole circumference in one turn, so a
+     tile of grain goes by in that share of it (landing.js works the
+     time out from the planet's size). Only the grain moves; the light
+     and the paint under it hold still, as a room's light does.
+
+     It has a layer of its own rather than riding on the skin's
+     background, because a brand's paint may be one gradient or two:
+     background-position takes a list, a list shorter than the layers
+     repeats itself, and a three-value list on a four-layer ball sent
+     one of the paint's gradients travelling with the grain and
+     snapping back every turn. One layer cannot be miscounted. */
+  .lp-orb-skin::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--lp-grain-ball) 0 0 / 160px 160px;
+    /* overlay, so white stays white and the colours take the grain */
+    mix-blend-mode: overlay;
+    animation: lp-grain-roll var(--lp-grain-turn, 1300ms) linear infinite;
+  }
+  @keyframes lp-grain-roll {
+    to {
+      background-position: 160px 0;
+    }
+  }
+  /* a planet that is talking holds its surface still, the way it holds
+     its place on the orbit */
+  .lp-orb.is-talking .lp-orb-skin::after {
+    animation-play-state: paused;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lp-orb-skin::after {
+      animation: none;
+    }
   }
   /* shaped (a planet talking, its ball taking its mark's shape): the
      skin fills the wide box and the faces' module clips it, and the
@@ -1279,10 +1315,6 @@
        the broad bright one, the outer one and the thin line at the edge;
        the sheen turning over them lightens them (shades them in the dark
        scheme), so it never shows on the page's colour between them */
-    --lp-ring-c: 0.24 0.27 0.9;
-    --lp-ring-b: 0.13 0.2 0.96;
-    --lp-ring-a: 0.17 0.3 0.97;
-    --lp-ring-f: 0.24 0.4 1;
     --lp-ring-sheen: #fff;
     /* grain: a tile of grey noise round mid-grey, laid over a paint with
        overlay, so white stays white and the colours take the grain. The
@@ -1292,10 +1324,6 @@
     --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
   .dark-mode .lp-section {
-    --lp-ring-c: 0.2 0.2 0.7;
-    --lp-ring-b: 0.2 0.3 1;
-    --lp-ring-a: 0.22 0.36 1;
-    --lp-ring-f: 0.42 0.55 1;
     --lp-ring-sheen: #000;
   }
   /* on the pill the paint fades in over its surface as it rounds off,
@@ -1417,63 +1445,76 @@
     --lp-tail: 360deg;
     position: absolute;
     inset: 0;
-    /* the ring's lines, after Saturn's: faint inner rings, the broad
+    /* The ring's lines, after Saturn's: faint inner rings, the broad
        bright one, a dark division, the outer one with its gap and a thin
-       line at the edge, each a blue at its density over the page's own
-       colour (so the band is solid, as it was, and its two halves never
-       show a seam where they overlap), with grain laid over them. The
-       ellipse is the band's own, so the lines follow it at any size */
+       line at the edge, with grain laid over them. The brand's colours
+       run round the band underneath, and the lines are cut out of the
+       page's own colour over them: where a line was, the page's colour
+       is held back and the colour beneath comes through; where the gaps
+       are, the page's colour closes over it. Drawing it that way rather
+       than painting coloured lines keeps the band solid, so its two
+       halves never show a seam where they overlap. The ellipse is the
+       band's own, so the lines follow it at any size. */
     background:
       var(--lp-grain) 0 0 / 160px 160px,
       radial-gradient(
         farthest-side,
-        color(display-p3 var(--lp-ring-c) / 0.31) 64% 64.64%,
-        color(display-p3 var(--lp-ring-c) / 0.07) 64.82% 65.53%,
-        color(display-p3 var(--lp-ring-c) / 0.03) 65.71% 66.24%,
-        color(display-p3 var(--lp-ring-c) / 0.34) 66.42% 67.15%,
-        color(display-p3 var(--lp-ring-c) / 0.42) 67.33% 67.69%,
-        color(display-p3 var(--lp-ring-c) / 0.11) 67.87% 68.57%,
-        color(display-p3 var(--lp-ring-c) / 0.37) 68.75% 69.67%,
-        color(display-p3 var(--lp-ring-c) / 0.4) 69.85% 70.21%,
-        color(display-p3 var(--lp-ring-c) / 0.12) 70.39% 70.74%,
-        color(display-p3 var(--lp-ring-c) / 0.35) 70.92% 71.29%,
-        color(display-p3 var(--lp-ring-c) / 0.46) 71.47% 72.15%,
-        color(display-p3 var(--lp-ring-c) / 0.1) 72.33% 72.91%,
-        color(display-p3 var(--lp-ring-b) / 0.72) 73.09% 73.53%,
-        color(display-p3 var(--lp-ring-b) / 0.33) 73.71% 74.15%,
-        color(display-p3 var(--lp-ring-b) / 0.76) 74.33% 74.71%,
-        color(display-p3 var(--lp-ring-b) / 1) 74.89% 75.28%,
-        color(display-p3 var(--lp-ring-b) / 0.69) 75.46% 75.82%,
-        color(display-p3 var(--lp-ring-b) / 1) 76% 76.65%,
-        color(display-p3 var(--lp-ring-b) / 0.61) 76.83% 77.13%,
-        color(display-p3 var(--lp-ring-b) / 1) 77.31% 77.97%,
-        color(display-p3 var(--lp-ring-b) / 0.6) 78.15% 78.89%,
-        color(display-p3 var(--lp-ring-b) / 1) 79.07% 79.77%,
-        color(display-p3 var(--lp-ring-b) / 0.72) 79.95% 80.8%,
-        color(display-p3 var(--lp-ring-b) / 1) 80.98% 81.35%,
-        color(display-p3 var(--lp-ring-b) / 0.73) 81.53% 82.09%,
-        color(display-p3 var(--lp-ring-b) / 1) 82.27% 82.59%,
-        color(display-p3 var(--lp-ring-b) / 0.67) 82.77% 83.29%,
-        color(display-p3 var(--lp-ring-b) / 1) 83.47% 84.06%,
-        color(display-p3 var(--lp-ring-b) / 0.64) 84.24% 84.99%,
-        color(display-p3 var(--lp-ring-b) / 1) 85.17% 86.59%,
-        color(display-p3 var(--lp-ring-a) / 0.11) 86.77% 87.67%,
-        color(display-p3 var(--lp-ring-a) / 0.32) 87.85% 88.1%,
-        color(display-p3 var(--lp-ring-a) / 0.03) 88.28% 89.11%,
-        color(display-p3 var(--lp-ring-a) / 0.83) 89.29% 90.13%,
-        color(display-p3 var(--lp-ring-a) / 0.42) 90.31% 91.06%,
-        color(display-p3 var(--lp-ring-a) / 0.83) 91.24% 92.06%,
-        color(display-p3 var(--lp-ring-a) / 0.45) 92.24% 92.71%,
-        color(display-p3 var(--lp-ring-a) / 0.83) 92.89% 93.71%,
-        color(display-p3 var(--lp-ring-a) / 0.42) 93.89% 94.91%,
-        color(display-p3 var(--lp-ring-a) / 0.84) 95.09% 95.41%,
-        color(display-p3 var(--lp-ring-a) / 0.05) 95.59% 95.88%,
-        color(display-p3 var(--lp-ring-a) / 0.45) 96.06% 97.39%,
-        color(display-p3 var(--lp-ring-a) / 0.05) 97.57% 98.65%,
-        color(display-p3 var(--lp-ring-f) / 0.85) 98.83% 100%
+        color-mix(in srgb, var(--scalar-background-1) 69%, transparent) 64% 64.64%,
+        color-mix(in srgb, var(--scalar-background-1) 93%, transparent) 64.82% 65.53%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 65.71% 66.24%,
+        color-mix(in srgb, var(--scalar-background-1) 66%, transparent) 66.42% 67.15%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 67.33% 67.69%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 67.87% 68.57%,
+        color-mix(in srgb, var(--scalar-background-1) 63%, transparent) 68.75% 69.67%,
+        color-mix(in srgb, var(--scalar-background-1) 60%, transparent) 69.85% 70.21%,
+        color-mix(in srgb, var(--scalar-background-1) 88%, transparent) 70.39% 70.74%,
+        color-mix(in srgb, var(--scalar-background-1) 65%, transparent) 70.92% 71.29%,
+        color-mix(in srgb, var(--scalar-background-1) 54%, transparent) 71.47% 72.15%,
+        color-mix(in srgb, var(--scalar-background-1) 90%, transparent) 72.33% 72.91%,
+        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 73.09% 73.53%,
+        color-mix(in srgb, var(--scalar-background-1) 67%, transparent) 73.71% 74.15%,
+        color-mix(in srgb, var(--scalar-background-1) 24%, transparent) 74.33% 74.71%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 74.89% 75.28%,
+        color-mix(in srgb, var(--scalar-background-1) 31%, transparent) 75.46% 75.82%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 76% 76.65%,
+        color-mix(in srgb, var(--scalar-background-1) 39%, transparent) 76.83% 77.13%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 77.31% 77.97%,
+        color-mix(in srgb, var(--scalar-background-1) 40%, transparent) 78.15% 78.89%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 79.07% 79.77%,
+        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 79.95% 80.8%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 80.98% 81.35%,
+        color-mix(in srgb, var(--scalar-background-1) 27%, transparent) 81.53% 82.09%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 82.27% 82.59%,
+        color-mix(in srgb, var(--scalar-background-1) 33%, transparent) 82.77% 83.29%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 83.47% 84.06%,
+        color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 84.24% 84.99%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 85.17% 86.59%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 86.77% 87.67%,
+        color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 87.85% 88.1%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 88.28% 89.11%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 89.29% 90.13%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 90.31% 91.06%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 91.24% 92.06%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 92.24% 92.71%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 92.89% 93.71%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 93.89% 94.91%,
+        color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 95.09% 95.41%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 95.59% 95.88%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 96.06% 97.39%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 97.57% 98.65%,
+        color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 98.83% 100%
+      ),
+      conic-gradient(
+        from 0deg,
+        var(--scalar-color-red),
+        var(--scalar-color-orange),
+        var(--scalar-color-yellow),
+        var(--scalar-color-green),
+        var(--scalar-color-blue),
+        var(--scalar-color-purple),
+        var(--scalar-color-red)
       );
-    background-color: var(--scalar-background-1);
-    background-blend-mode: overlay, normal;
+    background-blend-mode: overlay, normal, normal;
     -webkit-mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
     mask: conic-gradient(from 0deg, transparent 0deg var(--lp-tail), #000 var(--lp-tail) var(--lp-head), transparent var(--lp-head) 360deg);
     transition:
