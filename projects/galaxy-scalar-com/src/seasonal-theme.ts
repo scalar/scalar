@@ -32,13 +32,6 @@ export type Celebration = {
  * The celebrations galaxy.scalar.com dresses up for. Add an entry here to add one.
  */
 const CELEBRATIONS: readonly Celebration[] = [
-  // TODO: Temporary preview of the Winter Holidays theme on the PR's Galaxy deploy. Revert before merging.
-  {
-    name: 'Winter Holidays preview',
-    theme: 'winterHolidays',
-    start: { month: 10, day: 29 },
-    end: { month: 10, day: 30 },
-  },
   {
     name: 'Halloween',
     theme: 'halloween',
