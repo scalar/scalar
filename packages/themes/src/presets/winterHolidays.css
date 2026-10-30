@@ -1,0 +1,487 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* Fresh snow with candy-cane red */
+  --scalar-color-1: #1d2a26;
+  --scalar-color-2: #4c5a55;
+  --scalar-color-3: #7d8a85;
+  --scalar-color-accent: #b8222b;
+
+  --scalar-background-1: #fdfcf8;
+  --scalar-background-2: #f3f1ea;
+  --scalar-background-3: #e6e2d6;
+  --scalar-background-accent: #b8222b12;
+
+  --scalar-border-color: #e4dfd2;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A long winter night under the evergreens */
+  --scalar-color-1: #f2f7f4;
+  --scalar-color-2: #b3c2bc;
+  --scalar-color-3: #7c8c86;
+  --scalar-color-accent: #ff6b6b;
+
+  --scalar-background-1: #0e1614;
+  --scalar-background-2: #16201d;
+  --scalar-background-3: #23302c;
+  --scalar-background-accent: #ff6b6b1f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #0b1210;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #1f6b3a;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #185a30;
+
+  --scalar-color-green: #1f6b3a;
+  --scalar-color-red: #b3202a;
+  --scalar-color-yellow: #855f00;
+  --scalar-color-blue: #1e5b9e;
+  --scalar-color-orange: #a9470e;
+  --scalar-color-purple: #6b3aa8;
+  --scalar-color-query: #8a2f6b;
+
+  --scalar-scrollbar-color: #4c5a5533;
+  --scalar-scrollbar-color-active: #4c5a5566;
+}
+.dark-mode {
+  --scalar-button-1: #f4c95d;
+  --scalar-button-1-color: #0e1614;
+  --scalar-button-1-hover: #f8d77f;
+
+  /* Pine needles, holly berries, gold tinsel, fresh ice, a warm fire and sugar plums */
+  --scalar-color-green: #7ddc8f;
+  --scalar-color-red: #ff7a7a;
+  --scalar-color-yellow: #f4c95d;
+  --scalar-color-blue: #9cc9ff;
+  --scalar-color-orange: #ffa45c;
+  --scalar-color-purple: #c7a6ff;
+  --scalar-color-query: #e9a6ff;
+
+  --scalar-scrollbar-color: #9cc9ff33;
+  --scalar-scrollbar-color-active: #9cc9ff66;
+}
+
+/* Radius: soft, like a snowdrift */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-red), transparent 70%);
+}
+
+/* Headings catch the glow of the lights */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 18px #f4c95d33;
+}
+
+/*
+ * Hero section flare: string lights along the top, Santa flying by, and New Year fireworks.
+ * The flare and the snow sit behind the content, so their parent needs its own stacking
+ * context or the page background would paint over them.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  /* Below the snow, so flakes keep falling in front of the sky */
+  z-index: -2;
+}
+
+/*
+ * Snow falls behind the content across the whole page, in two layers at different speeds.
+ * Each layer is one tile taller than the viewport and slides down by exactly one tile, so the
+ * loop is seamless, and it moves with a transform so the browser never repaints the flakes.
+ * The sidebar and header sit above this stacking context, so the snow passes behind them.
+ */
+.references-rendered::before,
+.references-rendered::after {
+  content: "";
+  position: fixed;
+  top: -260px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 260px);
+  pointer-events: none;
+  z-index: -1;
+  --snow: #f2f7f4;
+  animation: scalar-holidays-snowfall 16s linear infinite;
+}
+.references-rendered::before {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, var(--snow), transparent),
+    radial-gradient(1.5px 1.5px at 90px 110px, var(--snow), transparent),
+    radial-gradient(2.5px 2.5px at 160px 60px, var(--snow), transparent),
+    radial-gradient(1.5px 1.5px at 230px 180px, var(--snow), transparent),
+    radial-gradient(2px 2px at 270px 230px, var(--snow), transparent);
+  background-size: 300px 260px;
+  opacity: 0.55;
+}
+.references-rendered::after {
+  background-image:
+    radial-gradient(3.5px 3.5px at 60px 80px, var(--snow), transparent),
+    radial-gradient(3px 3px at 230px 20px, var(--snow), transparent),
+    radial-gradient(4px 4px at 360px 190px, var(--snow), transparent);
+  background-size: 420px 260px;
+  opacity: 0.75;
+  animation-duration: 9s;
+}
+.light-mode .references-rendered::before,
+.light-mode .references-rendered::after {
+  --snow: #9db6cf;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 15% 0%, #1f6b4a55, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 0%, #7a1f3a44, transparent 70%), linear-gradient(#0d2420, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 85% 0%, #ffd6d633, transparent 70%), linear-gradient(#e6f1fb, transparent);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/* The string lights: a sagging wire with red, gold and green bulbs, tiled across the top */
+.section-flare-item:nth-of-type(1) {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 4Q60 28 120 4' fill='none' stroke='%232b3a35' stroke-width='1.5'/%3E%3Cg fill='%233a4a44'%3E%3Crect x='28' y='11' width='4' height='4' rx='1'/%3E%3Crect x='58' y='14' width='4' height='4' rx='1'/%3E%3Crect x='88' y='11' width='4' height='4' rx='1'/%3E%3C/g%3E%3Cellipse cx='30' cy='20' rx='3.4' ry='5' fill='%23ff4d5e'/%3E%3Cellipse cx='60' cy='23' rx='3.4' ry='5' fill='%23ffd166'/%3E%3Cellipse cx='90' cy='20' rx='3.4' ry='5' fill='%235ee08a'/%3E%3C/svg%3E")
+    0 0 / 120px 40px repeat-x;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 4Q60 28 120 4' fill='none' stroke='%234a5a52' stroke-width='1.5'/%3E%3Cg fill='%234a5a52'%3E%3Crect x='28' y='11' width='4' height='4' rx='1'/%3E%3Crect x='58' y='14' width='4' height='4' rx='1'/%3E%3Crect x='88' y='11' width='4' height='4' rx='1'/%3E%3C/g%3E%3Cellipse cx='30' cy='20' rx='3.4' ry='5' fill='%23e0303f'/%3E%3Cellipse cx='60' cy='23' rx='3.4' ry='5' fill='%23e8a90c'/%3E%3Cellipse cx='90' cy='20' rx='3.4' ry='5' fill='%2321a35a'/%3E%3C/svg%3E");
+}
+
+/* The glow around the bulbs, in two groups that twinkle out of step */
+.section-flare-item:nth-of-type(2),
+.section-flare-item:nth-of-type(3) {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-size: 120px 40px;
+  background-repeat: repeat-x;
+  animation: scalar-holidays-twinkle 2.4s ease-in-out infinite alternate;
+}
+.section-flare-item:nth-of-type(2) {
+  background-image:
+    radial-gradient(circle at 30px 20px, #ff4d5e99, transparent 12px),
+    radial-gradient(circle at 90px 20px, #5ee08a99, transparent 12px);
+}
+.section-flare-item:nth-of-type(3) {
+  background-image: radial-gradient(circle at 60px 23px, #ffd16699, transparent 12px);
+  animation-delay: -1.2s;
+}
+.light-mode .section-flare-item:nth-of-type(2),
+.light-mode .section-flare-item:nth-of-type(3) {
+  --glow-max: 0.6;
+}
+
+/*
+ * Santa's fly-by: a second after the page loads, and every 24 seconds after that, his sleigh
+ * swoops across the sky, tilting into each dip and climb with a trail of stardust behind it.
+ * The galloping, the wave and Rudolph's glowing nose are animated inside the SVG itself.
+ */
+.section-flare-item:nth-of-type(4) {
+  top: 40px;
+  left: 100%;
+  /* Above the fireworks, so the sleigh flies in front of them */
+  z-index: 1;
+  width: 217px;
+  height: 62px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 80'%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0;0 -2.5;0 0' dur='0.42s' begin='0s' repeatCount='indefinite'/%3E%3Cline x1='25' y1='51' x2='25' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 25 51;28 25 51;-28 25 51' dur='0.42s' begin='0s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='28' y1='51' x2='28' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 28 51;28 28 51;-28 28 51' dur='0.42s' begin='-0.21s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='43' y1='51' x2='43' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 43 51;28 43 51;-28 43 51' dur='0.42s' begin='-0.1s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='46' y1='51' x2='46' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 46 51;28 46 51;-28 46 51' dur='0.42s' begin='-0.31s' repeatCount='indefinite'/%3E%3C/line%3E%3Cellipse cx='35' cy='45' rx='19' ry='9.5' fill='%238b5a3c'/%3E%3Cellipse cx='35' cy='49' rx='13' ry='4' fill='%23a8724f'/%3E%3Ccircle cx='54' cy='41' r='3' fill='%23f3e6d8'/%3E%3Cpath d='M22 42 Q16 38 16 31' stroke='%238b5a3c' stroke-width='8' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='16' cy='30' r='7' fill='%238b5a3c'/%3E%3Cellipse cx='10' cy='32.5' rx='4.6' ry='3.4' fill='%23a8724f'/%3E%3Cpath d='M19 25 l4 -3 l-1 5z' fill='%236b4329'/%3E%3Ccircle cx='16' cy='28.5' r='1.3' fill='%231d1d1d'/%3E%3Cg stroke='%235a3a22' stroke-width='2.4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 24 l-4 -10 M11 18 l-5 -2 M10 15 l1 -6 M18 23 l3 -11 M20 17 l-3 -5 M20 16 l5 -4'/%3E%3C/g%3E%3Cpath d='M22 42 h14' stroke='%23d42e2e' stroke-width='3.4'/%3E%3Ccircle cx='29' cy='43' r='2' fill='%23e8b923'/%3E%3Ccircle cx='6' cy='32.5' r='8' fill='%23ff3b3b' opacity='0.3'%3E%3Canimate attributeName='opacity' values='0.15;0.55;0.15' dur='1.1s' repeatCount='indefinite'/%3E%3Canimate attributeName='r' values='6;9;6' dur='1.1s' repeatCount='indefinite'/%3E%3C/circle%3E%3Ccircle cx='6' cy='32.5' r='3.4' fill='%23ff3b3b'/%3E%3C/g%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0;0 -2.5;0 0' dur='0.42s' begin='-0.15s' repeatCount='indefinite'/%3E%3Cline x1='81' y1='51' x2='81' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 81 51;28 81 51;-28 81 51' dur='0.42s' begin='-0.15s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='84' y1='51' x2='84' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 84 51;28 84 51;-28 84 51' dur='0.42s' begin='-0.36s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='99' y1='51' x2='99' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 99 51;28 99 51;-28 99 51' dur='0.42s' begin='-0.25s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='102' y1='51' x2='102' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 102 51;28 102 51;-28 102 51' dur='0.42s' begin='-0.45999999999999996s' repeatCount='indefinite'/%3E%3C/line%3E%3Cellipse cx='91' cy='45' rx='19' ry='9.5' fill='%238b5a3c'/%3E%3Cellipse cx='91' cy='49' rx='13' ry='4' fill='%23a8724f'/%3E%3Ccircle cx='110' cy='41' r='3' fill='%23f3e6d8'/%3E%3Cpath d='M78 42 Q72 38 72 31' stroke='%238b5a3c' stroke-width='8' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='72' cy='30' r='7' fill='%238b5a3c'/%3E%3Cellipse cx='66' cy='32.5' rx='4.6' ry='3.4' fill='%23a8724f'/%3E%3Cpath d='M75 25 l4 -3 l-1 5z' fill='%236b4329'/%3E%3Ccircle cx='72' cy='28.5' r='1.3' fill='%231d1d1d'/%3E%3Cg stroke='%235a3a22' stroke-width='2.4' stroke-linecap='round' fill='none'%3E%3Cpath d='M70 24 l-4 -10 M67 18 l-5 -2 M66 15 l1 -6 M74 23 l3 -11 M76 17 l-3 -5 M76 16 l5 -4'/%3E%3C/g%3E%3Cpath d='M78 42 h14' stroke='%23d42e2e' stroke-width='3.4'/%3E%3Ccircle cx='85' cy='43' r='2' fill='%23e8b923'/%3E%3Ccircle cx='62.5' cy='32.5' r='2.2' fill='%233b2416'/%3E%3C/g%3E%3Cpath d='M76 44 Q 100 40 112 44 M128 44 Q 160 40 190 27' stroke='%23d9b45a' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='242' cy='24' r='12' fill='%237a5233'/%3E%3Cpath d='M236 13q6-6 12 0' stroke='%23e8b923' stroke-width='2.5' fill='none'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' values='-14 224 22;22 224 22;-14 224 22' dur='0.7s' repeatCount='indefinite'/%3E%3Cpath d='M223 23 l9 -12' stroke='%23e53935' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='233' cy='9.5' r='3' fill='%23fff'/%3E%3C/g%3E%3Cpath d='M200 36q-2-20 12-20q14 0 12 20z' fill='%23e53935'/%3E%3Crect x='199' y='28' width='26' height='4' fill='%232b2b2b'/%3E%3Crect x='209' y='27.5' width='6' height='5' fill='%23e8b923'/%3E%3Ccircle cx='212' cy='11' r='7' fill='%23f5c9a3'/%3E%3Ccircle cx='209.5' cy='10' r='1' fill='%232b2b2b'/%3E%3Cpath d='M204.5 12q7.5 16 15 0z' fill='%23fff'/%3E%3Cpath d='M205 8q7-15 17-2z' fill='%23e53935'/%3E%3Ccircle cx='223' cy='6' r='2.8' fill='%23fff'/%3E%3Crect x='204' y='7' width='16' height='3.4' rx='1.7' fill='%23fff'/%3E%3Cpath d='M200 24q-8 0-10 4' stroke='%23e53935' stroke-width='5' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='190' cy='28' r='2.6' fill='%23fff'/%3E%3Cpath d='M176 36h74l-6 22h-58z' fill='%239e1c25'/%3E%3Cpath d='M176 36h74' stroke='%23e8b923' stroke-width='2.5'/%3E%3Cpath d='M184 46h56' stroke='%23e8b923' stroke-width='1.2' stroke-dasharray='2 4' opacity='0.8'/%3E%3Cpath d='M176 36q-6 0-6-6' stroke='%239e1c25' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Cpath d='M168 66h86q12 0 14-10' stroke='%23e8b923' stroke-width='3.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M190 58v8M236 58v8' stroke='%23e8b923' stroke-width='3'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-holidays-flyby 24s ease-in-out 1s infinite;
+}
+/* The stardust trail, streaming out behind the sleigh */
+.section-flare-item:nth-of-type(4)::after {
+  content: "";
+  position: absolute;
+  top: 46%;
+  left: 94%;
+  width: 200px;
+  height: 22px;
+  background:
+    radial-gradient(1.5px 1.5px at 6px 6px, #fff8dc, transparent),
+    radial-gradient(2px 2px at 18px 15px, #f4c95d, transparent),
+    radial-gradient(1px 1px at 27px 4px, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 33px 17px, #ffd166, transparent),
+    linear-gradient(#f4c95d00 25%, #f4c95d59 50%, #f4c95d00 75%);
+  background-size:
+    40px 22px,
+    40px 22px,
+    40px 22px,
+    40px 22px,
+    100% 100%;
+  -webkit-mask-image: linear-gradient(to right, #000 10%, transparent);
+  mask-image: linear-gradient(to right, #000 10%, transparent);
+  animation: scalar-holidays-stardust 0.5s linear infinite;
+}
+.section-flare-item:nth-of-type(5) {
+  display: none;
+}
+
+/* The fireworks, ringing in the New Year */
+.section-flare-item:nth-of-type(6),
+.section-flare-item:nth-of-type(7) {
+  width: 72px;
+  height: 72px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' stroke='%23f4c95d' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M0-14V-34M0 14V34M-14 0H-34M14 0H34M10-10 24-24M-10 10-24 24M-10-10-24-24M10 10 24 24'/%3E%3Cg fill='%23ff7a7a' stroke='none'%3E%3Ccircle cy='-42' r='3'/%3E%3Ccircle cy='42' r='3'/%3E%3Ccircle cx='-42' r='3'/%3E%3Ccircle cx='42' r='3'/%3E%3C/g%3E%3Cg fill='%23fff3c4' stroke='none'%3E%3Ccircle cx='30' cy='-30' r='2.5'/%3E%3Ccircle cx='-30' cy='30' r='2.5'/%3E%3Ccircle cx='-30' cy='-30' r='2.5'/%3E%3Ccircle cx='30' cy='30' r='2.5'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-holidays-burst 4s ease-out infinite;
+}
+.section-flare-item:nth-of-type(6) {
+  top: 42px;
+  right: 9%;
+}
+.section-flare-item:nth-of-type(7) {
+  top: 36px;
+  right: calc(9% + 140px);
+  scale: 0.6;
+  animation-delay: -2s;
+}
+.light-mode .section-flare-item:nth-of-type(6),
+.light-mode .section-flare-item:nth-of-type(7) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100' stroke='%23d99a0b' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M0-14V-34M0 14V34M-14 0H-34M14 0H34M10-10 24-24M-10 10-24 24M-10-10-24-24M10 10 24 24'/%3E%3Cg fill='%23d0303a' stroke='none'%3E%3Ccircle cy='-42' r='3'/%3E%3Ccircle cy='42' r='3'/%3E%3Ccircle cx='-42' r='3'/%3E%3Ccircle cx='42' r='3'/%3E%3C/g%3E%3Cg fill='%231f6b3a' stroke='none'%3E%3Ccircle cx='30' cy='-30' r='2.5'/%3E%3Ccircle cx='-30' cy='30' r='2.5'/%3E%3Ccircle cx='-30' cy='-30' r='2.5'/%3E%3Ccircle cx='30' cy='30' r='2.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@keyframes scalar-holidays-twinkle {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    /* Light mode dims the peak, because a lit bulb reads much brighter on snow than on the night sky */
+    opacity: var(--glow-max, 1);
+  }
+}
+@keyframes scalar-holidays-snowfall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(260px);
+  }
+}
+@keyframes scalar-holidays-flyby {
+  /*
+   * Cross the sky in the first fifth of the loop on a wavy path, then wait off-screen for the
+   * next pass. The sleigh faces left, so a negative angle dips its nose and a positive one lifts it.
+   */
+  0% {
+    transform: translate(0, 20px) rotate(6deg);
+  }
+  5% {
+    transform: translate(calc(-25vw - 125px), -10px) rotate(-5deg);
+  }
+  10% {
+    transform: translate(calc(-50vw - 250px), 14px) rotate(5deg);
+  }
+  15% {
+    transform: translate(calc(-75vw - 375px), -6px) rotate(-3deg);
+  }
+  20%,
+  100% {
+    transform: translate(calc(-100vw - 520px), 6px) rotate(0deg);
+  }
+}
+@keyframes scalar-holidays-stardust {
+  /* The dust drifts back along the trail, by exactly one tile so the loop is seamless */
+  to {
+    background-position:
+      40px 0,
+      40px 0,
+      40px 0,
+      40px 0,
+      0 0;
+  }
+}
+@keyframes scalar-holidays-burst {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+/*
+ * Santa delivers the API client: when "Test Request" opens the modal, his sleigh swoops across
+ * the top of the screen, the client drops in behind him and lands with a bounce, and two elves
+ * pop up under its corners to catch it, wave, and hop away.
+ *
+ * The modal stays mounted and only toggles `scalar-client--open`, so each animation restarts
+ * whenever the modal opens. The drop uses `backwards` fill only: a transform left on the modal
+ * after the landing would trap its fixed-position children.
+ */
+.scalar-client--open .scalar-client {
+  animation: scalar-holidays-delivery 1.5s cubic-bezier(0.3, 0.7, 0.4, 1) backwards;
+}
+.scalar-client--open::before,
+.scalar-client--open::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+.scalar-client--open::before {
+  top: 4px;
+  left: 100%;
+  width: 252px;
+  height: 72px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 80'%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0;0 -2.5;0 0' dur='0.42s' begin='0s' repeatCount='indefinite'/%3E%3Cline x1='25' y1='51' x2='25' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 25 51;28 25 51;-28 25 51' dur='0.42s' begin='0s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='28' y1='51' x2='28' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 28 51;28 28 51;-28 28 51' dur='0.42s' begin='-0.21s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='43' y1='51' x2='43' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 43 51;28 43 51;-28 43 51' dur='0.42s' begin='-0.1s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='46' y1='51' x2='46' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 46 51;28 46 51;-28 46 51' dur='0.42s' begin='-0.31s' repeatCount='indefinite'/%3E%3C/line%3E%3Cellipse cx='35' cy='45' rx='19' ry='9.5' fill='%238b5a3c'/%3E%3Cellipse cx='35' cy='49' rx='13' ry='4' fill='%23a8724f'/%3E%3Ccircle cx='54' cy='41' r='3' fill='%23f3e6d8'/%3E%3Cpath d='M22 42 Q16 38 16 31' stroke='%238b5a3c' stroke-width='8' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='16' cy='30' r='7' fill='%238b5a3c'/%3E%3Cellipse cx='10' cy='32.5' rx='4.6' ry='3.4' fill='%23a8724f'/%3E%3Cpath d='M19 25 l4 -3 l-1 5z' fill='%236b4329'/%3E%3Ccircle cx='16' cy='28.5' r='1.3' fill='%231d1d1d'/%3E%3Cg stroke='%235a3a22' stroke-width='2.4' stroke-linecap='round' fill='none'%3E%3Cpath d='M14 24 l-4 -10 M11 18 l-5 -2 M10 15 l1 -6 M18 23 l3 -11 M20 17 l-3 -5 M20 16 l5 -4'/%3E%3C/g%3E%3Cpath d='M22 42 h14' stroke='%23d42e2e' stroke-width='3.4'/%3E%3Ccircle cx='29' cy='43' r='2' fill='%23e8b923'/%3E%3Ccircle cx='6' cy='32.5' r='8' fill='%23ff3b3b' opacity='0.3'%3E%3Canimate attributeName='opacity' values='0.15;0.55;0.15' dur='1.1s' repeatCount='indefinite'/%3E%3Canimate attributeName='r' values='6;9;6' dur='1.1s' repeatCount='indefinite'/%3E%3C/circle%3E%3Ccircle cx='6' cy='32.5' r='3.4' fill='%23ff3b3b'/%3E%3C/g%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='translate' values='0 0;0 -2.5;0 0' dur='0.42s' begin='-0.15s' repeatCount='indefinite'/%3E%3Cline x1='81' y1='51' x2='81' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 81 51;28 81 51;-28 81 51' dur='0.42s' begin='-0.15s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='84' y1='51' x2='84' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 84 51;28 84 51;-28 84 51' dur='0.42s' begin='-0.36s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='99' y1='51' x2='99' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 99 51;28 99 51;-28 99 51' dur='0.42s' begin='-0.25s' repeatCount='indefinite'/%3E%3C/line%3E%3Cline x1='102' y1='51' x2='102' y2='65' stroke='%237a4e33' stroke-width='3.6' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' values='-28 102 51;28 102 51;-28 102 51' dur='0.42s' begin='-0.45999999999999996s' repeatCount='indefinite'/%3E%3C/line%3E%3Cellipse cx='91' cy='45' rx='19' ry='9.5' fill='%238b5a3c'/%3E%3Cellipse cx='91' cy='49' rx='13' ry='4' fill='%23a8724f'/%3E%3Ccircle cx='110' cy='41' r='3' fill='%23f3e6d8'/%3E%3Cpath d='M78 42 Q72 38 72 31' stroke='%238b5a3c' stroke-width='8' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='72' cy='30' r='7' fill='%238b5a3c'/%3E%3Cellipse cx='66' cy='32.5' rx='4.6' ry='3.4' fill='%23a8724f'/%3E%3Cpath d='M75 25 l4 -3 l-1 5z' fill='%236b4329'/%3E%3Ccircle cx='72' cy='28.5' r='1.3' fill='%231d1d1d'/%3E%3Cg stroke='%235a3a22' stroke-width='2.4' stroke-linecap='round' fill='none'%3E%3Cpath d='M70 24 l-4 -10 M67 18 l-5 -2 M66 15 l1 -6 M74 23 l3 -11 M76 17 l-3 -5 M76 16 l5 -4'/%3E%3C/g%3E%3Cpath d='M78 42 h14' stroke='%23d42e2e' stroke-width='3.4'/%3E%3Ccircle cx='85' cy='43' r='2' fill='%23e8b923'/%3E%3Ccircle cx='62.5' cy='32.5' r='2.2' fill='%233b2416'/%3E%3C/g%3E%3Cpath d='M76 44 Q 100 40 112 44 M128 44 Q 160 40 190 27' stroke='%23d9b45a' stroke-width='1.6' fill='none'/%3E%3Ccircle cx='242' cy='24' r='12' fill='%237a5233'/%3E%3Cpath d='M236 13q6-6 12 0' stroke='%23e8b923' stroke-width='2.5' fill='none'/%3E%3Cg%3E%3CanimateTransform attributeName='transform' type='rotate' values='-14 224 22;22 224 22;-14 224 22' dur='0.7s' repeatCount='indefinite'/%3E%3Cpath d='M223 23 l9 -12' stroke='%23e53935' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='233' cy='9.5' r='3' fill='%23fff'/%3E%3C/g%3E%3Cpath d='M200 36q-2-20 12-20q14 0 12 20z' fill='%23e53935'/%3E%3Crect x='199' y='28' width='26' height='4' fill='%232b2b2b'/%3E%3Crect x='209' y='27.5' width='6' height='5' fill='%23e8b923'/%3E%3Ccircle cx='212' cy='11' r='7' fill='%23f5c9a3'/%3E%3Ccircle cx='209.5' cy='10' r='1' fill='%232b2b2b'/%3E%3Cpath d='M204.5 12q7.5 16 15 0z' fill='%23fff'/%3E%3Cpath d='M205 8q7-15 17-2z' fill='%23e53935'/%3E%3Ccircle cx='223' cy='6' r='2.8' fill='%23fff'/%3E%3Crect x='204' y='7' width='16' height='3.4' rx='1.7' fill='%23fff'/%3E%3Cpath d='M200 24q-8 0-10 4' stroke='%23e53935' stroke-width='5' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='190' cy='28' r='2.6' fill='%23fff'/%3E%3Cpath d='M176 36h74l-6 22h-58z' fill='%239e1c25'/%3E%3Cpath d='M176 36h74' stroke='%23e8b923' stroke-width='2.5'/%3E%3Cpath d='M184 46h56' stroke='%23e8b923' stroke-width='1.2' stroke-dasharray='2 4' opacity='0.8'/%3E%3Cpath d='M176 36q-6 0-6-6' stroke='%239e1c25' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Cpath d='M168 66h86q12 0 14-10' stroke='%23e8b923' stroke-width='3.5' stroke-linecap='round' fill='none'/%3E%3Cpath d='M190 58v8M236 58v8' stroke='%23e8b923' stroke-width='3'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-holidays-sleigh 1.7s ease-in-out forwards;
+}
+.scalar-client--open::after {
+  bottom: 0;
+  /* Line the elves up under the modal's corners; the modal is at most 1390px wide and centred */
+  left: max(12px, calc(50% - 695px + 12px));
+  right: max(12px, calc(50% - 695px + 12px));
+  height: 64px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 64'%3E%3Cpath d='M14 22L24 2l8 20z' fill='%232e9e4f'/%3E%3Ccircle cx='24' cy='2.5' r='2.6' fill='%23e8b923'/%3E%3Crect x='12' y='20' width='22' height='4' rx='2' fill='%23fff'/%3E%3Ccircle cx='23' cy='29' r='8' fill='%23f5c9a3'/%3E%3Cpath d='M14 28l-5-3 4 6zM32 28l5-3-4 6z' fill='%23f5c9a3'/%3E%3Ccircle cx='20' cy='28' r='1.2' fill='%232b2b2b'/%3E%3Ccircle cx='26' cy='28' r='1.2' fill='%232b2b2b'/%3E%3Cpath d='M20 32q3 2.5 6 0' stroke='%23a0522d' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M14 38h18l3 16H11z' fill='%232e9e4f'/%3E%3Crect x='11' y='45' width='24' height='3' fill='%23d42e2e'/%3E%3Cpath d='M14 40L4 30' stroke='%232e9e4f' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='4' cy='30' r='3' fill='%23f5c9a3'/%3E%3Cpath d='M32 40l8-6' stroke='%232e9e4f' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='34' r='3' fill='%23f5c9a3'/%3E%3Cpath d='M16 54v6M30 54v6' stroke='%23d42e2e' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M13 61h6M27 61h6' stroke='%232b2b2b' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E")
+    left bottom / 44px 64px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 64'%3E%3Cg transform='translate(44 0) scale(-1 1)'%3E%3Cpath d='M14 22L24 2l8 20z' fill='%232e9e4f'/%3E%3Ccircle cx='24' cy='2.5' r='2.6' fill='%23e8b923'/%3E%3Crect x='12' y='20' width='22' height='4' rx='2' fill='%23fff'/%3E%3Ccircle cx='23' cy='29' r='8' fill='%23f5c9a3'/%3E%3Cpath d='M14 28l-5-3 4 6zM32 28l5-3-4 6z' fill='%23f5c9a3'/%3E%3Ccircle cx='20' cy='28' r='1.2' fill='%232b2b2b'/%3E%3Ccircle cx='26' cy='28' r='1.2' fill='%232b2b2b'/%3E%3Cpath d='M20 32q3 2.5 6 0' stroke='%23a0522d' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M14 38h18l3 16H11z' fill='%232e9e4f'/%3E%3Crect x='11' y='45' width='24' height='3' fill='%23d42e2e'/%3E%3Cpath d='M14 40L4 30' stroke='%232e9e4f' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='4' cy='30' r='3' fill='%23f5c9a3'/%3E%3Cpath d='M32 40l8-6' stroke='%232e9e4f' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='40' cy='34' r='3' fill='%23f5c9a3'/%3E%3Cpath d='M16 54v6M30 54v6' stroke='%23d42e2e' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M13 61h6M27 61h6' stroke='%232b2b2b' stroke-width='3' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E")
+    right bottom / 44px 64px no-repeat;
+  animation: scalar-holidays-elves 4.5s ease-out forwards;
+}
+
+@keyframes scalar-holidays-sleigh {
+  from {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(calc(-50vw - 126px), 18px);
+  }
+  to {
+    transform: translate(calc(-100vw - 280px), 0);
+  }
+}
+@keyframes scalar-holidays-delivery {
+  0%,
+  30% {
+    transform: translateY(-115vh) rotate(-5deg);
+  }
+  72% {
+    transform: translateY(14px) rotate(1.5deg);
+  }
+  86% {
+    transform: translateY(-6px) rotate(-0.5deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+@keyframes scalar-holidays-elves {
+  0%,
+  30% {
+    transform: translateY(110%);
+  }
+  38% {
+    transform: translateY(-6px);
+  }
+  43%,
+  53%,
+  63% {
+    transform: translateY(0);
+  }
+  48%,
+  58% {
+    transform: translateY(-8px);
+  }
+  85% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110%);
+    opacity: 0;
+  }
+}
+
+/* On small screens the sticky header covers the top of the sky, and a second firework would crowd the title */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(7) {
+    display: none;
+  }
+  .section-flare-item:nth-of-type(4) {
+    scale: 0.7;
+  }
+}
+
+/* Keep the decorations still when motion is unwelcome: the fireworks freeze mid-burst and the snow hangs in the air */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item,
+  .section-flare-item::after,
+  .references-rendered::before,
+  .references-rendered::after,
+  .scalar-client--open .scalar-client {
+    animation: none !important;
+  }
+  /* No sleigh run or elf parade over the modal; it simply opens */
+  .scalar-client--open::before,
+  .scalar-client--open::after {
+    display: none;
+  }
+}
+
+/* P3 color support */
+@supports (color: color(display-p3 1 1 1)) {
+  .dark-mode {
+    --scalar-color-accent: color(display-p3 1 0.43 0.43 / 1);
+  }
+}
