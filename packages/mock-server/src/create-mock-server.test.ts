@@ -2564,6 +2564,139 @@ describe('createMockServer', () => {
     })
   })
 
+  describe('path precedence', () => {
+    /** Build a document whose operations each answer with the path key they were declared under. */
+    const documentWithPaths = (paths: string[]) => ({
+      openapi: '3.1.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: Object.fromEntries(
+        paths.map((path) => [
+          path,
+          {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { path } } } },
+              },
+            },
+          },
+        ]),
+      ),
+    })
+
+    /** Request a path and read back which path key answered it. */
+    const answeredBy = async (server: { request: (path: string) => Response | Promise<Response> }, path: string) =>
+      ((await (await server.request(path)).json()) as { path: string }).path
+
+    it('matches a concrete path before a templated one the document declares first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/profiles/{profileId}', '/profiles/legacy-search']),
+      })
+
+      expect(await answeredBy(server, '/profiles/legacy-search')).toBe('/profiles/legacy-search')
+      expect(await answeredBy(server, '/profiles/42')).toBe('/profiles/{profileId}')
+    })
+
+    it('matches a concrete path before a templated one the document declares after it', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/profiles/legacy-search', '/profiles/{profileId}']),
+      })
+
+      expect(await answeredBy(server, '/profiles/legacy-search')).toBe('/profiles/legacy-search')
+      expect(await answeredBy(server, '/profiles/42')).toBe('/profiles/{profileId}')
+    })
+
+    it('lets the first segment that differs decide between nested paths', async () => {
+      for (const paths of [
+        ['/a/{x}/b', '/a/literal/{y}'],
+        ['/a/literal/{y}', '/a/{x}/b'],
+      ]) {
+        const server = await createMockServer({ document: documentWithPaths(paths) })
+
+        expect(await answeredBy(server, '/a/literal/b')).toBe('/a/literal/{y}')
+        expect(await answeredBy(server, '/a/literal/c')).toBe('/a/literal/{y}')
+        expect(await answeredBy(server, '/a/other/b')).toBe('/a/{x}/b')
+      }
+    })
+
+    it('ranks a segment mixing a template with literal text between a literal and a bare template', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/jobs/{jobId}', '/jobs/{jobId}:cancel', '/jobs/batch:cancel']),
+      })
+
+      expect(await answeredBy(server, '/jobs/batch:cancel')).toBe('/jobs/batch:cancel')
+      expect(await answeredBy(server, '/jobs/1:cancel')).toBe('/jobs/{jobId}:cancel')
+      expect(await answeredBy(server, '/jobs/1')).toBe('/jobs/{jobId}')
+    })
+
+    it('keeps a mixed segment the router matches against any value from taking over a bare template', async () => {
+      // `{name}.json` compiles to a whole-segment parameter, so it matches `/files/1` as well. Ranking
+      // it as more specific than `{id}` would let it answer every request the document gave to `{id}`.
+      const server = await createMockServer({ document: documentWithPaths(['/files/{id}', '/files/{name}.json']) })
+
+      expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+    })
+
+    it('keeps query-pinned variants with their path while concrete paths go first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/things/{id}', '/things/{id}?beta=true', '/things/latest']),
+      })
+
+      expect(await answeredBy(server, '/things/latest')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/latest?beta=true')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/1?beta=true')).toBe('/things/{id}?beta=true')
+      expect(await answeredBy(server, '/things/1')).toBe('/things/{id}')
+    })
+
+    it('matches a concrete query-pinned variant before a templated path the document declares first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/things/{id}', '/things/latest', '/things/latest?beta=true']),
+      })
+
+      expect(await answeredBy(server, '/things/latest?beta=true')).toBe('/things/latest?beta=true')
+      expect(await answeredBy(server, '/things/latest')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/1?beta=true')).toBe('/things/{id}')
+    })
+
+    it('orders path items that are references and keeps HEAD and method case working', async () => {
+      // Each operation answers with its own status, so a HEAD request without a body still shows
+      // which operation served it.
+      const operation = (status: string, value: string): Record<string, unknown> => ({
+        responses: { [status]: { description: 'OK', content: { 'application/json': { example: value } } } },
+      })
+
+      const server = await createMockServer({
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Hello World', version: '1.0.0' },
+          paths: {
+            '/items/{id}': {
+              get: operation('200', 'templated'),
+              additionalOperations: { copy: operation('200', 'x') },
+            },
+            '/items/latest': { $ref: '#/components/pathItems/latest' },
+          },
+          components: {
+            pathItems: {
+              latest: {
+                get: operation('201', 'literal'),
+                additionalOperations: { copy: operation('201', 'copy'), COPY: operation('202', 'COPY') },
+              },
+            },
+          },
+        },
+      })
+
+      expect(await (await server.request('/items/latest')).json()).toBe('literal')
+      expect((await server.request('/items/latest', { method: 'HEAD' })).status).toBe(201)
+      expect((await server.request('/items/latest', { method: 'copy' })).status).toBe(201)
+      expect((await server.request('/items/latest', { method: 'COPY' })).status).toBe(202)
+      expect(await (await server.request('/items/1')).json()).toBe('templated')
+      expect((await server.request('/items/1', { method: 'HEAD' })).status).toBe(200)
+      expect((await server.request('/items/1', { method: 'copy' })).status).toBe(200)
+      expect((await server.request('/items/1', { method: 'COPY' })).status).toBe(404)
+    })
+  })
+
   describe('logger', () => {
     /**
      * A document with a security scheme, so the server has authentication instructions to print.
