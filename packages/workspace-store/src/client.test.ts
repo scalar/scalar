@@ -3333,14 +3333,16 @@ describe('create-workspace-store', () => {
         },
         'https://example.com/docs/examples/schemas/item.json': { type: 'object' },
       }
-      const mockFetch = vi.fn((input: string) =>
-        Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(responses[input])) }),
-      )
+      const mockFetch = vi
+        .fn()
+        .mockImplementation((input: string) =>
+          Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(responses[input])) }),
+        )
 
       await store.addDocument({
         name: 'relative-doc',
         url: 'examples/openapi.json',
-        fetch: mockFetch as unknown as typeof fetch,
+        fetch: mockFetch,
       })
 
       vi.unstubAllGlobals()
