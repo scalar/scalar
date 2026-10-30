@@ -9,6 +9,14 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.76.3 (2026-10-29)
+
+### Downloaded OpenAPI documents now use meaningful filenames
+
+When you download an OpenAPI document without configuring a custom slug, the filename now uses the document title instead of a generic placeholder like api-1.json.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1763)
+
 ## 1.76.2 (2026-10-28)
 
 ### AsyncAPI metadata improvements and localhost developer toolbar
