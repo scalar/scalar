@@ -4184,17 +4184,202 @@ const initLandingOrbs = debounce(() => {
     )
     observer.observe(field)
     document.addEventListener('visibilitychange', sync)
-    // the logo wall slides only while it is on screen
-    const wall = hero.querySelector('.lp-trusted')
-    if (wall) {
+  })
+})
+
+/* The enterprise hero's ring turns.
+ *
+ * The ring is a real disc lying in space, and it turns on all three of
+ * its axes:
+ *
+ *   spin  — about the disc's own axis, so the colours travel round it
+ *           and pass behind the planet. A drag across the hero.
+ *   tilt  — how far the disc is tipped towards the viewer, from nearly
+ *           edge on to well open. A drag up or down near the middle.
+ *   roll  — the whole ring tipped over in the plane of the page, so it
+ *           can lie at an angle. A drag up or down out at a wing.
+ *
+ * The last two come off the same gesture because a ring is a rigid
+ * thing: pulling on the middle of it tips it, pulling on one end of it
+ * rolls it, and pulling in between does some of each — which is what
+ * the pull actually does to a hoop you are holding.
+ *
+ * From the moment the page opens the ring turns on its own, a lap
+ * every two and a half minutes — it does not draw itself on first.
+ * The drift is only there until someone takes hold of it: after that
+ * the ring is theirs, a fling coasts to a stop the way something with
+ * weight does, and it stays where they left it.
+ *
+ * All three turns are transforms on two elements, so a frame of it is
+ * work for the compositor and never a repaint or a layout.
+ */
+/** degrees a second the ring drifts when it is left alone */
+const ENT_DRIFT = 2.4
+/** degrees the ring turns for each pixel the pointer is dragged across */
+const ENT_DRAG = 0.5
+/** degrees the disc tips for each pixel the pointer is dragged down */
+const ENT_TIP = 0.14
+/** degrees the ring rolls for each pixel a wing of it is dragged down */
+const ENT_ROLL = 0.12
+/** how far the disc may be tipped: nearly edge on, to well open */
+const ENT_TILT_MIN = 66
+const ENT_TILT_MAX = 85
+/** how far out a grab counts as all roll and no tip, as a share of the hero */
+const ENT_WING = 0.38
+/** how fast a fling bleeds back down to the drift, per second */
+const ENT_FRICTION = 1.4
+/** the fastest a fling may leave the hand, in degrees a second */
+const ENT_MAX_FLING = 1500
+/** how far a pointer may travel before it counts as a drag and not a click */
+const ENT_SLOP = 4
+
+const initEnterpriseRing = debounce(() => {
+  const hero = document.querySelector('.ent-hero')
+  if (!hero || hero.dataset.entRingBound === 'true') {
+    return
+  }
+  hero.dataset.entRingBound = 'true'
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  let angle = 0
+  /** degrees a second: the drift is where this settles */
+  let velocity = 0
+  let tilt = Number.parseFloat(getComputedStyle(hero).getPropertyValue('--ent-tilt')) || ENT_TILT_MAX
+  let roll = 0
+  let seen = false
+  let frame = 0
+  let last = null
+  let grab = null
+  let travelled = 0
+  /** the ring drifts until someone has taken hold of it, and then stops */
+  let handled = false
+
+  const draw = () => {
+    hero.style.setProperty('--ent-spin', `${angle.toFixed(2)}deg`)
+    hero.style.setProperty('--ent-tilt', `${tilt.toFixed(2)}deg`)
+    hero.style.setProperty('--ent-roll', `${roll.toFixed(2)}deg`)
+  }
+
+  const tick = (now) => {
+    frame = 0
+    if (!seen || document.hidden) {
+      last = null
+      return
+    }
+    const dt = last === null ? 0 : Math.min(now - last, 100) / 1000
+    last = now
+    const drift = reduceMotion.matches || handled ? 0 : ENT_DRIFT
+    // a hand on the ring sets the angle itself; otherwise the fling
+    // eases towards the drift, which is nothing once it has been held
+    if (!grab) {
+      velocity += (drift - velocity) * Math.min(1, ENT_FRICTION * dt)
+      angle += velocity * dt
+      draw()
+    }
+    // the drift never runs out, so without it there has to be a fling
+    // left to coast on for the ring to be worth another frame
+    if (grab || drift !== 0 || Math.abs(velocity) > 0.05) {
+      frame = requestAnimationFrame(tick)
+    }
+  }
+
+  const wake = () => {
+    if (seen && !document.hidden && !frame) {
+      last = null
+      frame = requestAnimationFrame(tick)
+    }
+  }
+
+  hero.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return
+    }
+    // the copy is for reading, and its links are for following
+    if (event.target.closest('.ent-copy')) {
+      return
+    }
+    grab = { id: event.pointerId, x: event.clientX, y: event.clientY, at: event.timeStamp }
+    travelled = 0
+    velocity = 0
+    // the ring is theirs now: it stops drifting on its own
+    handled = true
+    hero.setPointerCapture(event.pointerId)
+    hero.classList.add('is-spinning')
+    wake()
+  })
+
+  hero.addEventListener('pointermove', (event) => {
+    if (!grab || event.pointerId !== grab.id) {
+      return
+    }
+    const dx = event.clientX - grab.x
+    const dy = event.clientY - grab.y
+    const dt = Math.max(event.timeStamp - grab.at, 8) / 1000
+    travelled += Math.abs(dx) + Math.abs(dy)
+    // across the hero turns the disc about its own axis
+    angle += dx * ENT_DRAG
+    // How far out along the ring the hand is, from nothing at the
+    // middle to all of it at a wing: a pull on the middle tips the
+    // disc towards the viewer, a pull on a wing rolls the ring over,
+    // and a pull in between does some of each.
+    const box = hero.getBoundingClientRect()
+    const out = Math.max(-1, Math.min(1, (event.clientX - (box.left + box.width / 2)) / (box.width * ENT_WING)))
+    tilt = Math.max(ENT_TILT_MIN, Math.min(ENT_TILT_MAX, tilt - dy * ENT_TIP * (1 - Math.abs(out))))
+    roll += dy * ENT_ROLL * out
+    // smoothed, so the speed it leaves the hand at is the speed of the
+    // throw and not of whichever last event happened to land
+    velocity = velocity * 0.6 + ((dx * ENT_DRAG) / dt) * 0.4
+    grab.x = event.clientX
+    grab.y = event.clientY
+    grab.at = event.timeStamp
+    draw()
+    if (travelled > ENT_SLOP) {
+      event.preventDefault()
+    }
+  })
+
+  const letGo = (event) => {
+    if (!grab || event.pointerId !== grab.id) {
+      return
+    }
+    grab = null
+    hero.classList.remove('is-spinning')
+    // a flick carries on; without motion the ring stops where it was put
+    velocity = reduceMotion.matches ? 0 : Math.max(-ENT_MAX_FLING, Math.min(ENT_MAX_FLING, velocity))
+    wake()
+  }
+  hero.addEventListener('pointerup', letGo)
+  hero.addEventListener('pointercancel', letGo)
+
+  new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        seen = entry.isIntersecting
+      })
+      wake()
+    },
+    { threshold: 0 },
+  ).observe(hero)
+  document.addEventListener('visibilitychange', wake)
+
+  // the ring's state, for the page's tests
+  hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
+})
+
+/* The customer logo sliders (the home page's hero, the enterprise
+   page's) run only while they are on screen. */
+const initTrustedWalls = debounce(() => {
+  ;[...document.querySelectorAll('.lp-trusted')]
+    .filter((wall) => wall.dataset.lpTrustedBound !== 'true')
+    .forEach((wall) => {
+      wall.dataset.lpTrustedBound = 'true'
       new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => wall.classList.toggle('is-off', !entry.isIntersecting))
         },
         { threshold: 0 },
       ).observe(wall)
-    }
-  })
+    })
 })
 
 /* The welcome committee under the footer: five of the landing planets
@@ -6357,6 +6542,8 @@ initLandingPrompt()
 initLandingFunnel()
 initLandingWinTabs()
 initLandingDocsWindows()
+initTrustedWalls()
+initEnterpriseRing()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -6380,6 +6567,8 @@ const observer = new MutationObserver((records) => {
   initLandingFunnel()
   initLandingWinTabs()
   initLandingDocsWindows()
+  initTrustedWalls()
+  initEnterpriseRing()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

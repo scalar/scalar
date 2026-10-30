@@ -212,7 +212,10 @@ const initEnterpriseContactForm = () => {
 
 initEnterpriseContactForm()
 
-const observer = new MutationObserver((records) => {
+/* a name of its own: every script on the page shares one global scope,
+   and landing.js has an `observer` too — two consts of the same name
+   kill whichever of the two is parsed second */
+const enterpriseContactFormObserver = new MutationObserver((records) => {
   if (!records.some((record) => record.addedNodes.length)) {
     return
   }
@@ -220,7 +223,7 @@ const observer = new MutationObserver((records) => {
   initEnterpriseContactForm()
 })
 
-observer.observe(document.documentElement || document.body, {
+enterpriseContactFormObserver.observe(document.documentElement || document.body, {
   childList: true,
   subtree: true,
 })

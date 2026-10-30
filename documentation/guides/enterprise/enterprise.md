@@ -1,49 +1,64 @@
-<div class="flex flex-col gap-3 hero small-test">
+<div class="ent-hero container-full">
+
+<div class="ent-ring ent-ring--back" aria-hidden="true" data-md-exclude><div class="ent-ring-disc"><div class="ent-ring-lines"><div class="ent-ring-sheen"></div></div></div></div>
+<div class="ent-globe" aria-hidden="true" data-md-exclude></div>
+
+<div class="ent-hero-copy">
+<div class="ent-copy">
+<div class="hero flex flex-col gap-3">
   <scalar-heading level="1" slug="enterprise" class="text-balance">
     Enterprise-grade API Platform
   </scalar-heading>
-  <p>
-     Scalar gives teams a single OpenAPI system of record across docs, registry, SDKs, Spectral linting & MCP servers so AI agents use your APIs through a standard, controlled surface. One hub for design, governance, quality, and visibility at enterprise scale.
+  <p class="ent-lede">
+    Scalar gives teams one OpenAPI system of record across docs, registry, SDKs, Spectral linting &amp; MCP servers, so AI agents reach your APIs through one governed surface.
   </p>
-</div>
-
-<div class="flex gap-2">
-  <a class="t-editor__button" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
-  <a class="t-editor__button" href="https://dashboard.scalar.com/register">Get started</a>
-</div>
-
-<br>
-
-<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
-
-<div class="logowall">
-  <div class="logowall-item logowall-item-tr">
-    <scalar-icon src="../../assets/remote/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
+  <div class="ent-cta flex gap-2">
+    <a class="t-editor__button ent-pill" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a demo</a>
+    <a class="t-editor__button ent-pill" href="https://dashboard.scalar.com/register">Get started</a>
   </div>
 </div>
+</div>
+</div>
 
-<div class="enterprise-image-shift">
-  <img alt="API Client" class="enterprise-image-shift-one light-image" src="/api-client-static.svg"/>
-  <img alt="API Client" class="enterprise-image-shift-one dark-image" src="/api-client-static-dark.svg"/>
-  <img alt="API Registry Preview" class="enterprise-image-shift-two light-image" src="/registry-static.svg" />
-  <img alt="API Registry Preview" class="enterprise-image-shift-two dark-image" src="/registry-static-dark.svg" />
-  <img alt="Docs" class="enterprise-image-shift-three light-image" src="/api-docs-static-zoom.svg"/>
-  <img alt="Docs" class="enterprise-image-shift-three dark-image" src="/api-docs-static-zoom-dark.svg"/>
+<div class="ent-ring ent-ring--front" aria-hidden="true" data-md-exclude><div class="ent-ring-disc"><div class="ent-ring-lines"><div class="ent-ring-sheen"></div></div></div></div>
+
+</div>
+
+<div class="ent-hero-foot" data-md-exclude>
+  <div class="lp-trusted">
+    <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
+    <div class="lp-trusted-track">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    </div>
+  </div>
 </div>
 
 <div class="enterprise-features border-t flex">
@@ -123,6 +138,525 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 
 <style>
+  /* ------------------------------------------------------------------
+     The hero: Scalar's ring wrapping it.
+
+     The hero stands on a planet: a globe far taller than the hero, so
+     the hero's top edge crops it and only its flanks are in frame,
+     drawn the way the home page draws Scalar's globe — the page's own
+     surface inside the page's border, nothing else. Its edge fades out
+     as it runs down, so the planet has no closing arc at the bottom
+     and dissolves into the page instead. Round it is the ring from
+     that globe at this scale: an ellipse with a band for a border, the
+     brand's colours running round it with Saturn's own lines cut out
+     of the page over them.
+
+     The globe is opaque, so the back of the ring disappears behind it
+     and comes out again at the flanks; the front of the ring, clipped
+     to its lower half, crosses the globe's face under the copy. That
+     is the whole trick: back ring, globe, copy, front ring, in that
+     order, and the ring reads as going round.
+
+     It draws itself round on arrival and then only a sheen turns over
+     it, so a frame of the hero is compositing work and never layout.
+     ------------------------------------------------------------------ */
+  .ent-hero {
+    /* the ring's colours and its grain, as the home page's globe
+       carries them */
+    --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 1.45 -0.225 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --lp-ring-sheen: #fff;
+    /* The ring: a share of the hero's width, never under the floor,
+       and a height it keeps whatever the viewport does. The copy
+       inside it is always the same 460 by 202, so a ring that shrank
+       with the window would start cutting through the words. */
+    /* The ring sits square on, not tilted: it is a planet seen from
+       its own equator, so the band runs level out of each flank and
+       the ellipse is symmetrical left to right. */
+    /* The ring and the globe are a fixed size, not a share of the
+       page. The hero is always the same height, so a planet that
+       shrank with the window would stop being taller than the hero
+       and close into a dome over the copy. At this size it never
+       does: the window only ever crops more of the same scene, which
+       is what a planet bigger than the frame looks like. */
+    /* the ring's diameter, in its own plane: it is a real disc, lying
+       flat and tipped towards us, not an ellipse drawn flat */
+    /* The disc keeps pace with the hero, down to a floor, so a narrow
+       page shows an arc of ring rather than the middle of a band far
+       too big for it. Measured against the hero itself rather than the
+       window, because the sidebar takes a third of the window away;
+       and in container units rather than per cent, because this is
+       used for a height too, where per cent would mean the wrong box. */
+    --ent-rd: clamp(460px, 102cqw, 1180px);
+    /* the box the disc is projected into, with room for the near half
+       to be drawn wider than the disc and for any roll */
+    --ent-rbox: calc(var(--ent-rd) * 1.45);
+    /* the band's share of that diameter */
+    --ent-rk: 0.08;
+    /* how far the disc is tipped: at this angle it is nearly edge on,
+       so the band is a line across the planet's face and a broad fan
+       where it comes out at the flanks. A drag up or down changes it. */
+    --ent-tilt: 74deg;
+    /* how far round the disc has turned, about its own axis */
+    --ent-spin: 0deg;
+    /* and how far the whole ring is rolled over, so it can lie at an
+       angle across the page rather than always level */
+    --ent-roll: 0deg;
+    /* Far enough back that the near half of the ring is a little
+       wider and lower than the far half, which is what makes the disc
+       read as lying in space rather than drawn on the page, but not so
+       near that it fans out. */
+    --ent-persp: 2600px;
+    /* wide enough that the ring's wings come out past the flanks, and
+       that its crown clears the top of the hero at every width */
+    --ent-gd: 1000px;
+    /* the ring's centre, below the middle of the hero so the band
+       crosses under the copy */
+    --ent-cy: 56%;
+    /* The planet's centre, lower again: the ring sits across its
+       upper half rather than round its equator, so there is a body
+       under the band and not just a hoop. */
+    --ent-gy: calc(var(--ent-cy) + 110px);
+    position: relative;
+    /* the ring is sized against the hero's own width */
+    container-type: inline-size;
+    /* the ring, the globe and the copy stack inside the hero and
+       nowhere else */
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* the home page's hero, to the pixel: its copy starts 190px under
+       the top of the section, which is flush with the header. The
+       logo slider under it makes up the rest of the height. */
+    min-height: 560px;
+    margin-top: 0;
+    padding: 190px 0 24px;
+    /* the ring reaches past the column on both sides */
+    overflow: clip;
+    /* the whole hero is the ring's handle, except the copy; a finger
+       swiped down the page still scrolls it */
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .ent-hero.is-spinning {
+    cursor: grabbing;
+    /* nothing to select out here, and a drag should not try */
+    user-select: none;
+  }
+  .dark-mode .ent-hero {
+    --lp-ring-sheen: #000;
+  }
+  /* The globe: the page's own surface inside the page's border, as on
+     the home page. The surface is the whole circle and hides whatever
+     of the ring is behind it, which is the only job it has — it is the
+     page's own colour, so nothing of it shows. */
+  .ent-globe {
+    position: absolute;
+    left: 50%;
+    top: var(--ent-gy);
+    z-index: 1;
+    width: var(--ent-gd);
+    /* a circle: a percentage height would be read against the hero and
+       give an egg */
+    aspect-ratio: 1;
+    /* a percentage margin is read against the width too, so this is
+       half the globe either way */
+    margin: calc(var(--ent-gd) / -2) 0 0 calc(var(--ent-gd) / -2);
+    border-radius: 50%;
+    background: var(--scalar-background-1);
+    pointer-events: none;
+  }
+  /* The edge, on a layer of its own so it can fade where the surface
+     cannot: it is nothing at the crown, full by the shoulders, and
+     gone again by the time the ring's band crosses the face. So the
+     planet never closes into an arc — two flanks rise out of the top
+     of the hero and dissolve at the bottom — and that holds at every
+     width, where a crop would only work while the planet is taller
+     than the hero. */
+  .ent-globe::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: inherit;
+    -webkit-mask: linear-gradient(transparent 8%, #000 32% 46%, transparent 58%);
+    mask: linear-gradient(transparent 8%, #000 32% 46%, transparent 58%);
+  }
+  /* The ring is a real disc: a circle the size of the ring, lying flat
+     and tipped towards the viewer, inside a box that carries the
+     perspective. Everything about it — the band, the ringlets, the
+     colours — is drawn as if seen face on, and the tip is what turns
+     it into the ellipse on the page. Turning it is then one rotation
+     of that disc about its own axis, so the colours travel round it
+     and go behind the planet as they should, and it costs the page a
+     transform rather than a repaint. */
+  .ent-ring {
+    position: absolute;
+    left: 50%;
+    top: var(--ent-cy);
+    /* Comfortably bigger than the disc, because the near half of the
+       disc is drawn nearer and so wider than the disc itself, and
+       because a mask is clipped to this box: at the disc's own size
+       the wings would be cut off at the sides. */
+    width: var(--ent-rbox);
+    height: var(--ent-rbox);
+    margin: calc(var(--ent-rbox) / -2) 0 0 calc(var(--ent-rbox) / -2);
+    perspective: var(--ent-persp);
+    /* The third axis: the whole ring rolled over in the plane of the
+       page. It is here rather than on the disc so that the mask which
+       splits the near half from the far one rolls with it — a mask is
+       taken in the element's own frame, before this turns it. */
+    rotate: var(--ent-roll);
+    pointer-events: none;
+  }
+  /* the band is the padding box masked out of the border box, which
+     leaves the padding itself: an annulus, seen face on; the lines are
+     painted underneath on a child filling the whole disc */
+  .ent-ring-disc {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--ent-rd);
+    height: var(--ent-rd);
+    margin: calc(var(--ent-rd) / -2) 0 0 calc(var(--ent-rd) / -2);
+    box-sizing: border-box;
+    padding: calc(var(--ent-rd) * var(--ent-rk));
+    border-radius: 50%;
+    /* tipped first, then turned about its own axis */
+    transform: rotateX(var(--ent-tilt)) rotateZ(var(--ent-spin));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+  /* the back of the ring under the globe, the front of it — its lower
+     half — over the globe and the copy both */
+  .ent-ring--back {
+    z-index: 0;
+  }
+  /* The near half is everything below the line the disc's own plane
+     draws across the page, which is the middle of this box however far
+     the ring is rolled — a mask is taken in the element's own frame,
+     before the roll turns it. It is feathered rather than cut: at the
+     flanks the near and far halves of the band all but meet, and a
+     hard edge there leaves a step where the band crosses the planet's
+     limb. Fading it instead lets the near half dissolve into the far
+     one, which is what the eye expects of a ring going behind a
+     planet. */
+  .ent-ring--front {
+    z-index: 3;
+    -webkit-mask: linear-gradient(transparent 47.5%, #000 53.5%);
+    mask: linear-gradient(transparent 47.5%, #000 53.5%);
+  }
+  /* The ring's lines, after Saturn's. The brand's colours run round the
+     band underneath and the lines are cut out of the page over them:
+     where a line was, the page's colour is held back and the colour
+     beneath comes through. Drawn that way the band stays solid, so its
+     two halves never show a seam where they overlap.
+
+     The ring is simply there when the page opens — it does not draw
+     itself on. What moves is the ring itself, turning slowly from the
+     first frame. */
+  /* How far the ring has turned, and how far it is tipped. Both are
+     set on the hero, so the two halves of the ring move together, and
+     both are registered so the browser reads them as angles rather
+     than re-parsing a string on every frame. */
+  @property --ent-spin {
+    syntax: '<angle>';
+    inherits: true;
+    initial-value: 0deg;
+  }
+  @property --ent-tilt {
+    syntax: '<angle>';
+    inherits: true;
+    initial-value: 74deg;
+  }
+  @property --ent-roll {
+    syntax: '<angle>';
+    inherits: true;
+    initial-value: 0deg;
+  }
+  .ent-ring-lines {
+    position: absolute;
+    inset: 0;
+    background:
+      var(--lp-grain) 0 0 / 160px 160px,
+      radial-gradient(
+        farthest-side,
+        color-mix(in srgb, var(--scalar-background-1) 69%, transparent) 64% 64.64%,
+        color-mix(in srgb, var(--scalar-background-1) 93%, transparent) 64.82% 65.53%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 65.71% 66.24%,
+        color-mix(in srgb, var(--scalar-background-1) 66%, transparent) 66.42% 67.15%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 67.33% 67.69%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 67.87% 68.57%,
+        color-mix(in srgb, var(--scalar-background-1) 63%, transparent) 68.75% 69.67%,
+        color-mix(in srgb, var(--scalar-background-1) 60%, transparent) 69.85% 70.21%,
+        color-mix(in srgb, var(--scalar-background-1) 88%, transparent) 70.39% 70.74%,
+        color-mix(in srgb, var(--scalar-background-1) 65%, transparent) 70.92% 71.29%,
+        color-mix(in srgb, var(--scalar-background-1) 54%, transparent) 71.47% 72.15%,
+        color-mix(in srgb, var(--scalar-background-1) 90%, transparent) 72.33% 72.91%,
+        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 73.09% 73.53%,
+        color-mix(in srgb, var(--scalar-background-1) 67%, transparent) 73.71% 74.15%,
+        color-mix(in srgb, var(--scalar-background-1) 24%, transparent) 74.33% 74.71%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 74.89% 75.28%,
+        color-mix(in srgb, var(--scalar-background-1) 31%, transparent) 75.46% 75.82%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 76% 76.65%,
+        color-mix(in srgb, var(--scalar-background-1) 39%, transparent) 76.83% 77.13%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 77.31% 77.97%,
+        color-mix(in srgb, var(--scalar-background-1) 40%, transparent) 78.15% 78.89%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 79.07% 79.77%,
+        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 79.95% 80.8%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 80.98% 81.35%,
+        color-mix(in srgb, var(--scalar-background-1) 27%, transparent) 81.53% 82.09%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 82.27% 82.59%,
+        color-mix(in srgb, var(--scalar-background-1) 33%, transparent) 82.77% 83.29%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 83.47% 84.06%,
+        color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 84.24% 84.99%,
+        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 85.17% 86.59%,
+        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 86.77% 87.67%,
+        color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 87.85% 88.1%,
+        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 88.28% 89.11%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 89.29% 90.13%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 90.31% 91.06%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 91.24% 92.06%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 92.24% 92.71%,
+        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 92.89% 93.71%,
+        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 93.89% 94.91%,
+        color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 95.09% 95.41%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 95.59% 95.88%,
+        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 96.06% 97.39%,
+        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 97.57% 98.65%,
+        color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 98.83% 100%
+      ),
+      conic-gradient(
+        from 0deg,
+        var(--scalar-color-red),
+        var(--scalar-color-orange),
+        var(--scalar-color-yellow),
+        var(--scalar-color-green),
+        var(--scalar-color-blue),
+        var(--scalar-color-purple),
+        var(--scalar-color-red)
+      );
+    background-blend-mode: overlay, normal, normal;
+  }
+  /* A sheen over the lines: a light arc and a fainter one opposite. It
+     lies on the disc, so it turns with it and the turn stays legible
+     where the colours are close together. It has to be square and wide
+     enough to cover the disc however far round it has got. */
+  .ent-ring-sheen {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 110%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      color-mix(in srgb, var(--lp-ring-sheen) 30%, transparent) 50deg,
+      transparent 120deg 160deg,
+      color-mix(in srgb, var(--lp-ring-sheen) 15%, transparent) 230deg,
+      transparent 300deg
+    );
+  }
+
+  /* ---- the copy ----------------------------------------------------- */
+  /* The home page's hero copy, to the letter: 680 wide, centred, the
+     lines balanced, a 460 measure under the heading and the calls to
+     action as pills. It sits on the globe's face, with the ring
+     passing behind the globe above it and across the face below. */
+  .ent-hero-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+  .ent-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    max-width: 680px;
+    text-wrap: balance;
+    /* the words are for reading and selecting, not for spinning the
+       ring: landing.js leaves drags that start in here alone */
+    cursor: auto;
+  }
+  .ent-copy .hero {
+    align-items: center;
+    text-align: center;
+  }
+  /* the heading is a flex row (it holds its anchor button) */
+  .ent-copy .hero .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
+    justify-content: center;
+  }
+  /* The heading is centred, so the button that appears beside it on
+     hover (the one that copies a link to it) would push the words off
+     centre as it comes and goes. */
+  .ent-copy .t-editor__heading .notify-container {
+    display: none;
+  }
+  .ent-copy .hero > .flex {
+    justify-content: center;
+  }
+  .ent-lede {
+    /* a narrow measure, as on the home page */
+    max-width: 460px;
+    margin: 0;
+    /* 14px, a step under the body size */
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
+    text-wrap: pretty;
+  }
+  .ent-cta {
+    align-items: center;
+    gap: 12px;
+    /* 12px on top of the hero's 12px gap: the pills sit 24px under the
+       subhead, a little apart from the copy */
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* no margin: the theme's button carries one, which drops it below the
+     other pill */
+  .ent-cta .ent-pill {
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border-radius: 999px;
+    justify-content: center;
+  }
+
+  /* ---- the customers ------------------------------------------------ */
+  /* The home page's logo slider, along the bottom edge of the hero, so
+     the names are on screen before any scroll. It stays outside the
+     hero's full-bleed box, in the page's own column, so the row fades
+     out at the same place the home page's does, and so the ring — which
+     is clipped to the hero — can never cross it. */
+  .ent-hero-foot {
+    display: flex;
+    flex-direction: column;
+    /* the room between the logos and the first section's rule */
+    margin-bottom: 48px;
+  }
+  /* Customer logos as one endless row. The track holds three copies of
+     the list and slides exactly one copy's width, so the loop has no
+     seam; the spacing is padding on each item rather than a flex gap
+     for the same reason. Three copies rather than two because one copy
+     is narrower than the full-width column on tablet widths, and the
+     copies behind the first have to cover the viewport right up to the
+     end of the cycle. The edges fade out so logos never look cut off. */
+  .lp-trusted {
+    --lp-trusted-speed: 36s;
+    padding-top: 28px;
+  }
+  .lp-trusted-viewport {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 12%,
+      black 88%,
+      transparent
+    );
+  }
+  .lp-trusted-track {
+    flex: none;
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: lp-trusted-slide var(--lp-trusted-speed) linear infinite;
+  }
+  /* Only real pointers pause it: a tap leaves :hover stuck on touch screens */
+  @media (hover: hover) {
+    .lp-trusted-viewport:hover .lp-trusted-track {
+      animation-play-state: paused;
+    }
+  }
+  .lp-trusted.is-off .lp-trusted-track {
+    animation-play-state: paused;
+  }
+  @keyframes lp-trusted-slide {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .lp-trusted-item {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding-right: 44px;
+    color: var(--scalar-color-1);
+  }
+  .lp-trusted-item .lp-trusted-logo {
+    display: block;
+    width: auto;
+    height: 20px;
+    max-width: none;
+  }
+  /* stacked lockup, see styles.css for the logowall version of this */
+  .lp-trusted-item-tr .lp-trusted-logo {
+    height: 28px;
+  }
+  /* Clerk's upper arc fades like it does on the logo wall */
+  .lp-trusted-item svg[viewBox="0 0 441 128"] path:last-of-type {
+    opacity: 0.4;
+  }
+
+  /* Narrow enough that the calls to action fall onto two rows: the
+     hero grows and the ring drops with it, so the band still crosses
+     the face under the copy rather than through the buttons. */
+  @media screen and (max-width: 540px) {
+    .ent-hero {
+      --ent-cy: 64%;
+      /* a shallower band, so the arc does not read as a stripe */
+      --ent-rk: 0.11;
+      /* the ring is already low down here, so dropping the planet
+         further would bring its crown back into the frame */
+      --ent-gy: var(--ent-cy);
+      min-height: 660px;
+    }
+  }
+  @media screen and (max-width: 720px) {
+    .lp-trusted-item {
+      padding-right: 36px;
+    }
+    .lp-trusted-item .lp-trusted-logo {
+      height: 18px;
+    }
+    .lp-trusted-item-tr .lp-trusted-logo {
+      height: 24px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* Without motion, lay the logos out in rows so every one is visible */
+    .lp-trusted-viewport {
+      mask-image: none;
+    }
+    .lp-trusted-track {
+      animation: none;
+      flex: auto;
+      min-width: 0;
+      flex-wrap: wrap;
+      row-gap: 12px;
+      width: auto;
+    }
+    .lp-trusted-track[aria-hidden] {
+      display: none;
+    }
+  }
   :root {
     --scalar-text-decoration: underline;
     --scalar-text-decoration-hover: underline;
@@ -145,47 +679,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
   .enterprise-features {
     padding: 100px 0;
-  }
-  .enterprise-image-shift {
-    position: relative;
-    perspective: 3500px;
-    perspective-origin: 0% 50%;
-    overflow: hidden;
-    mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
-  }
-  .enterprise-image-shift img {
-    width: 100%;
-    height: auto;
-  }
-  .dark-mode .enterprise-image-shift img {
-    filter: brightness(1.2);
-  }
-  .enterprise-image-shift-one {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(-196px) translateY(60px) translateZ(0px) skewX(0deg) skewY(0deg);
-  }
-  .enterprise-image-shift-two {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(120px) translateY(47px) translateZ(0px) skewX(0deg) skewY(0deg);
-  }
-  .enterprise-image-shift-three {
-    transform: scaleX(1) scaleY(1) scaleZ(1) rotateX(0deg) rotateY(45deg) rotateZ(0deg) translateX(452px) translateY(28px) translateZ(0px) skewX(0deg) skewY(0deg);
-    margin-bottom: -60px;
-  }
-  @media screen and (max-width: 1280px) {
-    .enterprise-image-shift-three,
-    .enterprise-image-shift-two,
-    .enterprise-image-shift-one {
-      transform: none;
-    }
-    .enterprise-image-shift-one,
-    .enterprise-image-shift-two {
-      display: none;
-    }
   }
     .resources-cta-container {
       border-radius: var(--scalar-radius-lg);
@@ -472,26 +965,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
       grid-template-columns: 1fr;
     }
   }
-  .hero-animation  {
-    position: absolute;
-    top: 0;
-    z-index: -1;
-    transform: scaleY(-1);
-    margin-top: 0;
-  }
-  .hero-animation .fa {
-    --fa-orange: rgba(40, 40, 45, .2);
-    --fa-yellow: #252529;
-    --fa-red: rgba(20, 20, 24, 0);
-    --scalar-background-2: var(--scalar-background-1)
-  }
-  @supports (color: color(display-p3 1 1 1)) {
-    .hero-animation .fa {
-      --fa-orange: color(display-p3 0.18 0.18 0.19 / 0.2);
-      --fa-yellow: color(display-p3 0.16 0.16 0.17);
-      --fa-red: color(display-p3 0.1 0.1 0.11 / 0);
-    }
-  }
   .t-editor__page-title,
   .layout-aside-right,
   .t-editor__page-nav,
@@ -523,9 +996,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   :root {
     --scalar-container-width: 960px;
     --scalar-toc-width: 0;
-  }
-  .hero.hero {
-    margin-top: 78px;
   }
   .small-test {
     max-width: 680px;
@@ -559,24 +1029,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
   .t-editor.page {
     position: relative;
     margin-right: unset;
-  }
-  /* logos */
-  .logowall.logowall {
-    margin-top: 24px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    align-items: center;
-    gap: 40px;
-  }
-  .logowall-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .logowall-item svg {
-    width: 100%;
-    height: auto;
-    max-height: 24px;
   }
   .ign-logo__fill {
     fill: var(--scalar-color-1);
@@ -721,9 +1173,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     .t-doc {
       --scalar-sidebar-width: 0px;
     }
-    .hero.hero {
-      margin-top: 188px;
-    }
     .t-editor.page {
       padding-inline: 30px;
     }
@@ -732,24 +1181,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
       width: 100dvw;
       padding-inline: 30px;
       margin-inline: -30px;
-    }
-    .hero-animation {
-      margin-top: -100px !important;
-      padding-inline: 0;
-      margin-inline: 0;
-    }
-    .logowall.logowall {
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 20px;
-      row-gap: 40px;
-    }
-    .logowall-item {
-      justify-content: start;
-    }
-    .logowall-item svg {
-      max-width: 100%;
-      height: 100%;
-      max-height: 20px;
     }
     .feature-item {
       flex: 0 0 calc(100% - 22px);
