@@ -38,6 +38,12 @@ const CELEBRATIONS: readonly Celebration[] = [
     start: { month: 10, day: 1 },
     end: { month: 10, day: 31 },
   },
+  {
+    name: 'Pi Day',
+    theme: 'piDay',
+    start: { month: 3, day: 14 },
+    end: { month: 3, day: 14 },
+  },
 ]
 
 /** The theme used outside every celebration window. */

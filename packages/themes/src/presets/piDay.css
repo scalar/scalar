@@ -1,0 +1,356 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* Cream graph paper and a golden crust */
+  --scalar-color-1: #22262b;
+  --scalar-color-2: #51555e;
+  --scalar-color-3: #7d808a;
+  --scalar-color-accent: #a24f0c;
+
+  --scalar-background-1: #fdfaf0;
+  --scalar-background-2: #f4eedd;
+  --scalar-background-3: #e7dfc8;
+  --scalar-background-accent: #a24f0c14;
+
+  --scalar-border-color: #e2dac4;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A chalkboard after a long maths lesson */
+  --scalar-color-1: #f1eee4;
+  --scalar-color-2: #b6bdb1;
+  --scalar-color-3: #7f8a80;
+  --scalar-color-accent: #f2a54e;
+
+  --scalar-background-1: #151e1a;
+  --scalar-background-2: #1b2621;
+  --scalar-background-3: #29372f;
+  --scalar-background-accent: #f2a54e1f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  /* The wooden frame around the board */
+  --scalar-sidebar-background-1: #111915;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #a24f0c;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #873f07;
+
+  --scalar-color-green: #2a6a35;
+  --scalar-color-red: #ad2738;
+  --scalar-color-yellow: #7c5c00;
+  --scalar-color-blue: #22539c;
+  --scalar-color-orange: #a24f0c;
+  --scalar-color-purple: #6b3aa6;
+  --scalar-color-query: #8a3a8f;
+
+  --scalar-scrollbar-color: #51555e33;
+  --scalar-scrollbar-color-active: #51555e66;
+}
+.dark-mode {
+  --scalar-button-1: #f2a54e;
+  --scalar-button-1-color: #151e1a;
+  --scalar-button-1-hover: #f6b86d;
+
+  /* Coloured chalk: mint, cherry, lemon, sky, crust and lavender */
+  --scalar-color-green: #9edb8c;
+  --scalar-color-red: #ff9484;
+  --scalar-color-yellow: #f0d06c;
+  --scalar-color-blue: #9cc8f0;
+  --scalar-color-orange: #f2a54e;
+  --scalar-color-purple: #c9abf2;
+  --scalar-color-query: #e8a8e0;
+
+  --scalar-scrollbar-color: #f1eee433;
+  --scalar-scrollbar-color-active: #f1eee466;
+}
+
+/* Radius: round, naturally */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-orange), transparent 70%);
+}
+
+/* Headings look freshly chalked */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 14px #f1eee426;
+}
+
+/*
+ * The page itself: graph paper by day, a dusty chalkboard by night, with digits of pi drifting
+ * down over it. Everything sits behind the content, so the parent needs its own stacking context
+ * or the page background would paint over it. The sidebar and header sit above this stacking
+ * context, so the digits pass behind them.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+
+/* The paper (or board) scrolls with the content, like a real sheet would */
+.references-rendered::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+}
+.light-mode .references-rendered::before {
+  /* Fine lines every 20px and a bolder line every fifth one */
+  background-image:
+    linear-gradient(#4a7fc42e 1px, transparent 1px), linear-gradient(90deg, #4a7fc42e 1px, transparent 1px),
+    linear-gradient(#4a7fc414 1px, transparent 1px), linear-gradient(90deg, #4a7fc414 1px, transparent 1px);
+  background-size:
+    100px 100px,
+    100px 100px,
+    20px 20px,
+    20px 20px;
+  background-position: -1px -1px;
+}
+.dark-mode .references-rendered::before {
+  /* Smudges where the board was wiped, but not quite clean */
+  background-image:
+    radial-gradient(ellipse 260px 90px at 220px 140px, #ffffff08, transparent 70%),
+    radial-gradient(ellipse 200px 120px at 760px 420px, #ffffff06, transparent 70%),
+    radial-gradient(ellipse 320px 80px at 520px 760px, #ffffff07, transparent 70%);
+  background-size: 1000px 900px;
+}
+
+/*
+ * The digits fall behind the content across the whole page. The layer is one tile taller than the
+ * viewport and slides down by exactly one tile, so the loop is seamless, and it moves with a
+ * transform so the browser never repaints the digits. They are painted through a mask, so one
+ * drawing serves both colour modes.
+ */
+.references-rendered::after {
+  content: "";
+  position: fixed;
+  top: -360px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 360px);
+  pointer-events: none;
+  z-index: -1;
+  background-color: var(--scalar-piday-digits, #f1eee4);
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 360' font-family='ui-monospace,Menlo,Consolas,monospace' font-weight='600'%3E%3Ctext x='36.52' y='43.42' font-size='18' opacity='0.79' transform='rotate(-19 41.92 37.12)'%3E3%3C/text%3E%3Ctext x='93.22' y='67.54' font-size='25' opacity='0.55' transform='rotate(-18 100.72 58.79)'%3E1%3C/text%3E%3Ctext x='160.5' y='47.37' font-size='20' opacity='0.7' transform='rotate(-16 166.5 40.37)'%3E4%3C/text%3E%3Ctext x='244.15' y='60.54' font-size='13' opacity='0.5' transform='rotate(-1 248.05 55.99)'%3E1%3C/text%3E%3Ctext x='312.37' y='56.49' font-size='25' opacity='0.97' transform='rotate(22 319.87 47.74)'%3E5%3C/text%3E%3Ctext x='380.93' y='68.76' font-size='17' opacity='0.63' transform='rotate(19 386.03 62.81)'%3E9%3C/text%3E%3Ctext x='22.71' y='225.54' font-size='18' opacity='0.86' transform='rotate(-4 28.11 219.24)'%3E2%3C/text%3E%3Ctext x='83' y='162.62' font-size='22' opacity='0.69' transform='rotate(-8 89.6 154.92)'%3E6%3C/text%3E%3Ctext x='150.52' y='168.05' font-size='18' opacity='0.68' transform='rotate(1 155.92 161.75)'%3E5%3C/text%3E%3Ctext x='240.48' y='205.72' font-size='24' opacity='0.76' transform='rotate(-9 247.68 197.32)'%3E3%3C/text%3E%3Ctext x='317.14' y='226.16' font-size='15' opacity='0.63' transform='rotate(-2 321.64 220.91)'%3E5%3C/text%3E%3Ctext x='384.44' y='212.5' font-size='22' opacity='0.91' transform='rotate(18 391.04 204.8)'%3E8%3C/text%3E%3Ctext x='21.43' y='330.29' font-size='24' opacity='0.72' transform='rotate(-19 28.63 321.89)'%3E9%3C/text%3E%3Ctext x='105.61' y='310.22' font-size='15' opacity='0.96' transform='rotate(7 110.11 304.97)'%3E7%3C/text%3E%3Ctext x='172.82' y='327.3' font-size='20' opacity='0.95' transform='rotate(21 178.82 320.3)'%3E9%3C/text%3E%3Ctext x='229.32' y='296.74' font-size='23' opacity='0.83' transform='rotate(3 236.22 288.69)'%3E3%3C/text%3E%3Ctext x='314.46' y='346.4' font-size='15' opacity='0.81' transform='rotate(-3 318.96 341.15)'%3E2%3C/text%3E%3Ctext x='377.27' y='324.93' font-size='21' opacity='0.98' transform='rotate(8 383.57 317.58)'%3E3%3C/text%3E%3C/svg%3E")
+    0 0 / 420px 360px repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 420 360' font-family='ui-monospace,Menlo,Consolas,monospace' font-weight='600'%3E%3Ctext x='36.52' y='43.42' font-size='18' opacity='0.79' transform='rotate(-19 41.92 37.12)'%3E3%3C/text%3E%3Ctext x='93.22' y='67.54' font-size='25' opacity='0.55' transform='rotate(-18 100.72 58.79)'%3E1%3C/text%3E%3Ctext x='160.5' y='47.37' font-size='20' opacity='0.7' transform='rotate(-16 166.5 40.37)'%3E4%3C/text%3E%3Ctext x='244.15' y='60.54' font-size='13' opacity='0.5' transform='rotate(-1 248.05 55.99)'%3E1%3C/text%3E%3Ctext x='312.37' y='56.49' font-size='25' opacity='0.97' transform='rotate(22 319.87 47.74)'%3E5%3C/text%3E%3Ctext x='380.93' y='68.76' font-size='17' opacity='0.63' transform='rotate(19 386.03 62.81)'%3E9%3C/text%3E%3Ctext x='22.71' y='225.54' font-size='18' opacity='0.86' transform='rotate(-4 28.11 219.24)'%3E2%3C/text%3E%3Ctext x='83' y='162.62' font-size='22' opacity='0.69' transform='rotate(-8 89.6 154.92)'%3E6%3C/text%3E%3Ctext x='150.52' y='168.05' font-size='18' opacity='0.68' transform='rotate(1 155.92 161.75)'%3E5%3C/text%3E%3Ctext x='240.48' y='205.72' font-size='24' opacity='0.76' transform='rotate(-9 247.68 197.32)'%3E3%3C/text%3E%3Ctext x='317.14' y='226.16' font-size='15' opacity='0.63' transform='rotate(-2 321.64 220.91)'%3E5%3C/text%3E%3Ctext x='384.44' y='212.5' font-size='22' opacity='0.91' transform='rotate(18 391.04 204.8)'%3E8%3C/text%3E%3Ctext x='21.43' y='330.29' font-size='24' opacity='0.72' transform='rotate(-19 28.63 321.89)'%3E9%3C/text%3E%3Ctext x='105.61' y='310.22' font-size='15' opacity='0.96' transform='rotate(7 110.11 304.97)'%3E7%3C/text%3E%3Ctext x='172.82' y='327.3' font-size='20' opacity='0.95' transform='rotate(21 178.82 320.3)'%3E9%3C/text%3E%3Ctext x='229.32' y='296.74' font-size='23' opacity='0.83' transform='rotate(3 236.22 288.69)'%3E3%3C/text%3E%3Ctext x='314.46' y='346.4' font-size='15' opacity='0.81' transform='rotate(-3 318.96 341.15)'%3E2%3C/text%3E%3Ctext x='377.27' y='324.93' font-size='21' opacity='0.98' transform='rotate(8 383.57 317.58)'%3E3%3C/text%3E%3C/svg%3E")
+    0 0 / 420px 360px repeat;
+  opacity: 0.14;
+  animation: scalar-piday-drift 36s linear infinite;
+}
+.light-mode .references-rendered::after {
+  /* Blue pencil on paper */
+  --scalar-piday-digits: #2f62a8;
+  opacity: 0.16;
+}
+
+/* Hero section flare: a pie on a plate, chalked up with its radius, circumference and area */
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  /* Below the digits, so they keep drifting in front of the hero */
+  z-index: -2;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 60% at 86% 0%, #2c4a3b88, transparent 70%), linear-gradient(#1d2b24, transparent);
+}
+.light-mode .section-flare {
+  background: radial-gradient(ellipse 55% 60% at 86% 0%, #f2a54e26, transparent 70%);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/*
+ * Everything sits in the band above the hero's header links, so nothing covers readable text.
+ * The pie turns slowly on its stand, with one slice pulled out.
+ */
+.section-flare-item:nth-of-type(1) {
+  top: 18px;
+  right: calc(8% + 17px);
+  width: 86px;
+  height: 86px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-62 -62 124 124'%3E %3Cdefs%3E %3CclipPath id='b'%3E%3Cpath d='M0 0L53.46 -27.24A60 60 0 1 1 18.54 -57.06Z'/%3E%3C/clipPath%3E %3CclipPath id='s'%3E%3Cpath d='M0 0L18.54 -57.06A60 60 0 0 1 53.46 -27.24Z'/%3E%3C/clipPath%3E %3CclipPath id='f'%3E%3Ccircle r='40'/%3E%3C/clipPath%3E %3Cg id='p'%3E %3Ccircle r='50' fill='%23b46a26'/%3E %3Cg fill='%23d9963f'%3E%3Ccircle cx='46.5' cy='0' r='3.6'/%3E%3Ccircle cx='44.92' cy='12.04' r='3.6'/%3E%3Ccircle cx='40.27' cy='23.25' r='3.6'/%3E%3Ccircle cx='32.88' cy='32.88' r='3.6'/%3E%3Ccircle cx='23.25' cy='40.27' r='3.6'/%3E%3Ccircle cx='12.04' cy='44.92' r='3.6'/%3E%3Ccircle cx='0' cy='46.5' r='3.6'/%3E%3Ccircle cx='-12.04' cy='44.92' r='3.6'/%3E%3Ccircle cx='-23.25' cy='40.27' r='3.6'/%3E%3Ccircle cx='-32.88' cy='32.88' r='3.6'/%3E%3Ccircle cx='-40.27' cy='23.25' r='3.6'/%3E%3Ccircle cx='-44.92' cy='12.04' r='3.6'/%3E%3Ccircle cx='-46.5' cy='0' r='3.6'/%3E%3Ccircle cx='-44.92' cy='-12.04' r='3.6'/%3E%3Ccircle cx='-40.27' cy='-23.25' r='3.6'/%3E%3Ccircle cx='-32.88' cy='-32.88' r='3.6'/%3E%3Ccircle cx='-23.25' cy='-40.27' r='3.6'/%3E%3Ccircle cx='-12.04' cy='-44.92' r='3.6'/%3E%3Ccircle cx='0' cy='-46.5' r='3.6'/%3E%3Ccircle cx='12.04' cy='-44.92' r='3.6'/%3E%3Ccircle cx='23.25' cy='-40.27' r='3.6'/%3E%3Ccircle cx='32.88' cy='-32.88' r='3.6'/%3E%3Ccircle cx='40.27' cy='-23.25' r='3.6'/%3E%3Ccircle cx='44.92' cy='-12.04' r='3.6'/%3E%3C/g%3E %3Ccircle r='41' fill='%238f2431'/%3E %3Ccircle r='40' fill='%23a8323a'/%3E %3Cg clip-path='url(%23f)' fill='%23eab35f' stroke='%23b9762f' stroke-width='1.2'%3E%3Crect x='-30' y='-40' width='10' height='80' rx='2'/%3E%3Crect x='-40' y='-30' width='80' height='10' rx='2'/%3E%3Crect x='-13.5' y='-40' width='10' height='80' rx='2'/%3E%3Crect x='-40' y='-13.5' width='80' height='10' rx='2'/%3E%3Crect x='3.5' y='-40' width='10' height='80' rx='2'/%3E%3Crect x='-40' y='3.5' width='80' height='10' rx='2'/%3E%3Crect x='20' y='-40' width='10' height='80' rx='2'/%3E%3Crect x='-40' y='20' width='80' height='10' rx='2'/%3E%3C/g%3E %3C/g%3E %3C/defs%3E %3Ccircle r='57' fill='%23efe9da' stroke='%23c9bfa6' stroke-width='1.5'/%3E %3Ccircle r='51' fill='%237a4a22'/%3E %3Ccircle r='44' fill='%235e3618'/%3E %3Cuse href='%23p' clip-path='url(%23b)'/%3E %3Cg transform='translate(7.14 -8.36)'%3E%3Cuse href='%23p' clip-path='url(%23s)'/%3E%3C/g%3E %3C/svg%3E")
+    center / contain no-repeat;
+  filter: drop-shadow(0 4px 6px #00000033);
+  animation: scalar-piday-turn 120s linear infinite;
+}
+
+/* The chalk notes beside it: a dashed circle, its radius, and the formulas */
+.section-flare-item:nth-of-type(2) {
+  top: 1px;
+  right: 8%;
+  width: 300px;
+  height: 120px;
+  background-color: var(--scalar-piday-chalk, #f1eee4);
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 120' fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E %3Ccircle cx='240' cy='60' r='54' stroke-width='1.6' stroke-dasharray='5 6'/%3E %3Ccircle cx='240' cy='60' r='2.6' fill='%23000' stroke='none'/%3E %3Cpath d='M240 60L191.06 37.18' stroke-width='2'/%3E %3Cpath d='M194.62 44.37L191.06 37.18L198.89 37.21' stroke-width='2'/%3E %3Cg font-family='Georgia,serif' font-style='italic' fill='%23000' stroke='none'%3E %3Ctext x='199' y='33' font-size='15'%3Er%3C/text%3E %3Ctext x='22' y='52' font-size='17'%3EC = 2%CF%80r%3C/text%3E %3Ctext x='22' y='84' font-size='17'%3EA = %CF%80r%C2%B2%3C/text%3E %3C/g%3E %3Cpath d='M106 66q30 14 62 0' stroke-width='1.6'/%3E %3Cpath d='M160 60l8 6-9 4' stroke-width='1.6'/%3E %3C/svg%3E")
+    center / contain no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 120' fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E %3Ccircle cx='240' cy='60' r='54' stroke-width='1.6' stroke-dasharray='5 6'/%3E %3Ccircle cx='240' cy='60' r='2.6' fill='%23000' stroke='none'/%3E %3Cpath d='M240 60L191.06 37.18' stroke-width='2'/%3E %3Cpath d='M194.62 44.37L191.06 37.18L198.89 37.21' stroke-width='2'/%3E %3Cg font-family='Georgia,serif' font-style='italic' fill='%23000' stroke='none'%3E %3Ctext x='199' y='33' font-size='15'%3Er%3C/text%3E %3Ctext x='22' y='52' font-size='17'%3EC = 2%CF%80r%3C/text%3E %3Ctext x='22' y='84' font-size='17'%3EA = %CF%80r%C2%B2%3C/text%3E %3C/g%3E %3Cpath d='M106 66q30 14 62 0' stroke-width='1.6'/%3E %3Cpath d='M160 60l8 6-9 4' stroke-width='1.6'/%3E %3C/svg%3E")
+    center / contain no-repeat;
+  opacity: 0.6;
+}
+.light-mode .section-flare-item:nth-of-type(2) {
+  --scalar-piday-chalk: #2f62a8;
+  opacity: 0.65;
+}
+
+/* A big, faint pi, chalked large across the board */
+.section-flare-item:nth-of-type(3) {
+  top: 6px;
+  right: calc(8% + 330px);
+  width: 108px;
+  height: 108px;
+  background-color: var(--scalar-piday-chalk, #f1eee4);
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M10 34q8-12 24-10l58-3'/%3E %3Cpath d='M38 25q2 30-14 60'/%3E %3Cpath d='M66 23q-4 36 2 54q4 10 16 4'/%3E %3C/svg%3E")
+    center / contain no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23000' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M10 34q8-12 24-10l58-3'/%3E %3Cpath d='M38 25q2 30-14 60'/%3E %3Cpath d='M66 23q-4 36 2 54q4 10 16 4'/%3E %3C/svg%3E")
+    center / contain no-repeat;
+  opacity: 0.12;
+}
+.light-mode .section-flare-item:nth-of-type(3) {
+  --scalar-piday-chalk: #a24f0c;
+  opacity: 0.14;
+}
+
+@keyframes scalar-piday-drift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(360px);
+  }
+}
+@keyframes scalar-piday-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * The API client moment: when "Test Request" opens the modal, it is served like a fresh slice,
+ * and a ring of pi digits bursts out around it and fades away.
+ *
+ * The modal stays mounted and only toggles `scalar-client--open`, so each animation restarts
+ * whenever the modal opens. The serve uses `backwards` fill only: a transform left on the modal
+ * after it lands would trap its fixed-position children.
+ */
+.scalar-client--open .scalar-client {
+  animation: scalar-piday-serve 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+}
+.scalar-client--open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(80vmin, 760px);
+  height: min(80vmin, 760px);
+  z-index: 2;
+  pointer-events: none;
+  background-color: var(--scalar-color-accent);
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' font-family='ui-monospace,Menlo,Consolas,monospace' font-weight='500'%3E %3Cdefs%3E%3Cpath id='o' d='M0 -90A90 90 0 1 1 0 90A90 90 0 1 1 0 -90'/%3E%3Cpath id='i' d='M0 72A72 72 0 1 1 0 -72A72 72 0 1 1 0 72'/%3E%3C/defs%3E %3Ctext font-size='5.2' letter-spacing='1.5'%3E%3CtextPath href='%23o'%3E3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647%3C/textPath%3E%3C/text%3E %3Ctext font-size='4.6' letter-spacing='1.3' opacity='0.6'%3E%3CtextPath href='%23i'%3E093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648%3C/textPath%3E%3C/text%3E %3C/svg%3E")
+    center / contain no-repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-100 -100 200 200' font-family='ui-monospace,Menlo,Consolas,monospace' font-weight='500'%3E %3Cdefs%3E%3Cpath id='o' d='M0 -90A90 90 0 1 1 0 90A90 90 0 1 1 0 -90'/%3E%3Cpath id='i' d='M0 72A72 72 0 1 1 0 -72A72 72 0 1 1 0 72'/%3E%3C/defs%3E %3Ctext font-size='5.2' letter-spacing='1.5'%3E%3CtextPath href='%23o'%3E3.141592653589793238462643383279502884197169399375105820974944592307816406286208998628034825342117067982148086513282306647%3C/textPath%3E%3C/text%3E %3Ctext font-size='4.6' letter-spacing='1.3' opacity='0.6'%3E%3CtextPath href='%23i'%3E093844609550582231725359408128481117450284102701938521105559644622948954930381964428810975665933446128475648%3C/textPath%3E%3C/text%3E %3C/svg%3E")
+    center / contain no-repeat;
+  /* At rest the ring is gone, so a still frame never shows it over the modal */
+  opacity: 0;
+  animation: scalar-piday-burst 1.2s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+
+@keyframes scalar-piday-serve {
+  from {
+    transform: translateY(24px) scale(0.94) rotate(-1.5deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes scalar-piday-burst {
+  0% {
+    transform: scale(0.45) rotate(-50deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.5;
+  }
+  55% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(2) rotate(15deg);
+    opacity: 0;
+  }
+}
+
+/* On small screens the sticky header covers the top of the hero, and the notes would crowd the title */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(2),
+  .section-flare-item:nth-of-type(3) {
+    display: none;
+  }
+  /* A smaller pie tucked into the corner, above the badges */
+  .section-flare-item:nth-of-type(1) {
+    top: 8px;
+    right: 14px;
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Keep everything still when motion is unwelcome: the digits hang in the air and the modal simply opens */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item,
+  .references-rendered::after,
+  .scalar-client--open .scalar-client {
+    animation: none !important;
+  }
+  .scalar-client--open::after {
+    display: none;
+  }
+}
