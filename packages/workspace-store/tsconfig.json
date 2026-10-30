@@ -4,7 +4,9 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
-    }
+    },
+    // TypeScript 7 no longer loads every @types package by default, so list the ones we rely on.
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "vite.config.ts"]
 }
