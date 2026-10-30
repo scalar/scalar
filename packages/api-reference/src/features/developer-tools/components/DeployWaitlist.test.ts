@@ -112,6 +112,26 @@ describe('DeployWaitlist', () => {
   })
 
   describe('framework', () => {
+    it('sends the server framework along as a contact property', async () => {
+      fetchMock.mockResolvedValue(new Response('{"success":true}', { status: 200 }))
+      const wrapper = mount(DeployWaitlist, { props: { integration: 'express' } })
+
+      await submitEmail(wrapper, 'dev@acme.io')
+
+      const [, init] = fetchMock.mock.calls[0]!
+      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&framework=Express')
+    })
+
+    it('leaves the framework out for integrations that only render docs', async () => {
+      fetchMock.mockResolvedValue(new Response('{"success":true}', { status: 200 }))
+      const wrapper = mount(DeployWaitlist, { props: { integration: 'docusaurus' } })
+
+      await submitEmail(wrapper, 'dev@acme.io')
+
+      const [, init] = fetchMock.mock.calls[0]!
+      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io')
+    })
+
     it('offers to run a server framework app on Scalar, with what hosting includes', () => {
       const wrapper = mount(DeployWaitlist, { props: { integration: 'fastapi' } })
 
