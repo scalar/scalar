@@ -9,4 +9,9 @@ export type {
   ResolvedOperation,
   TransportContext,
 } from './transports/types'
-export type { MockServerLogger, MockServerOptions } from './types'
+export type {
+  MockServerLogger,
+  MockServerOptions,
+  MockServerResponseHook,
+  MockServerResponseHookData,
+} from './types'

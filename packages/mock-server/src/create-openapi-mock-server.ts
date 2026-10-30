@@ -1,11 +1,12 @@
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
 import { every } from 'hono/combine'
 import { cors } from 'hono/cors'
 
-import type { MockServerOptions } from '@/types'
+import type { MockServerOptions, MockServerResponseHook } from '@/types'
 import { buildSeedContext } from '@/utils/build-seed-context'
 import { executeSeed } from '@/utils/execute-seed'
 import { getOperations } from '@/utils/get-operation'
@@ -42,15 +43,88 @@ type MockedOperation = {
  * The app itself stays a plain `Hono` because that type is part of this package's public API, so
  * the variable is reached through a narrowed view of the context instead.
  */
-type MockServerContext = Context<{ Variables: { mockedOperation: MockedOperation } }>
+type MockServerContext = Context<{
+  Variables: { mockedOperation: MockedOperation; matchedOperation: OpenAPIV3_1.OperationObject }
+}>
 
-/** Record which operation a request matched, so an error escaping it can be named */
-const setMockedOperation = (c: Context, operation: MockedOperation): void => {
-  ;(c as MockServerContext).set('mockedOperation', operation)
+/**
+ * Record which operation a request matched, so an error escaping it can be named and `onResponse`
+ * receives the operation object itself.
+ */
+const setMockedOperation = (
+  c: Context,
+  mockedOperation: MockedOperation,
+  operation: OpenAPIV3_1.OperationObject,
+): void => {
+  ;(c as MockServerContext).set('mockedOperation', mockedOperation)
+  ;(c as MockServerContext).set('matchedOperation', operation)
 }
 
 /** Read back the operation a request matched, or `undefined` when it reached no mocked route */
 const getMockedOperation = (c: Context): MockedOperation | undefined => (c as MockServerContext).get('mockedOperation')
+
+/** Read back the operation object a request matched, or `undefined` when it reached no mocked route */
+const getMatchedOperation = (c: Context): OpenAPIV3_1.OperationObject | undefined =>
+  (c as MockServerContext).get('matchedOperation')
+
+/**
+ * Make `response` the response of the request, keeping only the headers that were staged before the
+ * request was handled — the CORS headers — where `response` does not set them itself.
+ *
+ * Assigning `c.res` directly would merge every header of the response it replaces into the new one,
+ * overriding the new one's values, so the mock response's own headers (an `ETag`, a declared
+ * `X-Rate-Limit`) would leak into a replacement that deliberately sets different ones.
+ */
+const replaceResponse = (c: Context, response: Response, stagedHeaders: Headers): void => {
+  // Rebuilt so the headers are mutable even when the caller passed a response with immutable ones,
+  // such as one returned by `fetch()`. The body stream is handed over as is, never read.
+  const replacement = new Response(response.body, response)
+
+  stagedHeaders.forEach((value, name) => {
+    if (!replacement.headers.has(name)) {
+      replacement.headers.set(name, value)
+    }
+  })
+
+  // Clearing it first is what stops Hono from merging the replaced response's headers in.
+  c.res = undefined
+  c.res = replacement
+}
+
+/**
+ * Run `onResponse` once the rest of the app has answered a request, sending its replacement when it
+ * returns one.
+ *
+ * Registered as the first middleware after CORS, so it sees every response the app produces —
+ * mocked operations, authentication failures, validation errors, the document exports, `404`s and
+ * the error handler's `500`s (the error handler runs where the error is thrown, deeper down, before
+ * this middleware resumes) — while CORS preflight requests are still answered before it runs.
+ */
+const runResponseHook =
+  (onResponse: MockServerResponseHook): MiddlewareHandler =>
+  async (c, next) => {
+    // The CORS middleware stages its headers on the response before the request is handled. Copied
+    // now, before the mock response is merged over them, so a replacement can be given just these.
+    const stagedHeaders = new Headers(c.res.headers)
+
+    await next()
+
+    const response = c.res
+    let replacement: Response | void
+
+    try {
+      replacement = await onResponse({ context: c, operation: getMatchedOperation(c), response })
+    } catch (error) {
+      // The error handler answers through the context, which would otherwise build the `500` on top
+      // of the mock response and carry all of its headers. Start it from the staged headers instead.
+      replaceResponse(c, new Response(null), stagedHeaders)
+      throw error
+    }
+
+    if (replacement && replacement !== response) {
+      replaceResponse(c, replacement, stagedHeaders)
+    }
+  }
 
 /**
  * Whether an error carries its own response, the way Hono's `HTTPException` does.
@@ -154,6 +228,12 @@ export const createOpenApiMockServer = async (
   }
   app.use(cors({ origin: '*', allowMethods: [...allowedMethods], exposeHeaders: ['X-Scalar-XML-Error'] }))
 
+  // Registered right after CORS and before every route, so it also wraps the routes a caller adds to
+  // the returned app.
+  if (configuration.onResponse) {
+    app.use(runResponseHook(configuration.onResponse))
+  }
+
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
@@ -221,7 +301,7 @@ export const createOpenApiMockServer = async (
       // path key that pins a query it is part of the guarded chain below, so it only fires once the
       // request actually matches the variant rather than for one that is handed on to the sibling.
       handlers.push(async (c, next) => {
-        setMockedOperation(c, mockedOperation)
+        setMockedOperation(c, mockedOperation, operation)
         await next()
       })
 
