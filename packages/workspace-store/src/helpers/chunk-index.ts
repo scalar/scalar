@@ -173,9 +173,11 @@ export const buildChunkIndex = ({
   paths: Object.fromEntries(
     Object.entries(paths).map(([path, pathItem]) => [
       path,
-      Object.fromEntries(
-        Object.entries(pathItem).map(([key, value]) => [key, isHttpMethod(key) ? OPERATION_PLACEHOLDER : value]),
-      ),
+      path.startsWith('x-')
+        ? pathItem
+        : Object.fromEntries(
+            Object.entries(pathItem).map(([key, value]) => [key, isHttpMethod(key) ? OPERATION_PLACEHOLDER : value]),
+          ),
     ]),
   ),
 })
@@ -236,16 +238,18 @@ export const expandChunkIndex = (document: unknown): boolean => {
   const paths = Object.fromEntries(
     Object.entries(index.paths).map(([path, pathItem]) => [
       path,
-      Object.fromEntries(
-        Object.entries(pathItem).map(([key, value]) => [
-          key,
-          isHttpMethod(key)
-            ? chunkReference(
-                fillChunkRef(index.refs.operations, { path: encoders.path(path), method: encoders.method(key) }),
-              )
-            : value,
-        ]),
-      ),
+      path.startsWith('x-')
+        ? pathItem
+        : Object.fromEntries(
+            Object.entries(pathItem).map(([key, value]) => [
+              key,
+              isHttpMethod(key)
+                ? chunkReference(
+                    fillChunkRef(index.refs.operations, { path: encoders.path(path), method: encoders.method(key) }),
+                  )
+                : value,
+            ]),
+          ),
     ]),
   )
 
