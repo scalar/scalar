@@ -3,9 +3,9 @@ import { scopeChain } from '../core/scopes'
 /**
  * Scope vocabulary -> highlight.js class names.
  *
- * `@scalar/code-highlight` renders through lowlight, so every stylesheet and
+ * `@scalar/code-highlight` rendered through lowlight, so every stylesheet and
  * screenshot in the ecosystem is written against `hljs-*` classes. Emitting
- * those classes is what makes a swap invisible: `packages/code-highlight/src/css/code.css`
+ * those classes is what makes a swap invisible: `./code.css`
  * keeps working unchanged, and nothing downstream has to be restyled.
  *
  * Values are full class attributes, not suffixes, because highlight.js uses

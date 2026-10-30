@@ -49,12 +49,10 @@
     "@scalar/asyncapi-upgrader": "workspace:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/markdown": "workspace:*",
     "@scalar/openapi-to-markdown": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@scalar/workspace-store": "workspace:*",
-    "remark-gfm": "catalog:*",
-    "remark-stringify": "catalog:*",
-    "unified": "catalog:*"
+    "@scalar/workspace-store": "workspace:*"
   },
   "devDependencies": {
     "@scalar/components": "workspace:*",
@@ -68,6 +66,7 @@
     "rehype-stringify": "^10.0.1",
     "tailwindcss": "catalog:*",
     "tsx": "catalog:*",
+    "unified": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "vue": "catalog:*",
