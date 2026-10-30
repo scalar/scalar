@@ -62,6 +62,20 @@ describe('createMagicProxy', () => {
       expect(result.a.b.c.e['$ref-value'].prop).toBe('hello')
     })
 
+    it('resolves refs with percent-encoded characters', () => {
+      const input = {
+        paths: {
+          '/items#list': 'hello',
+        },
+        b: {
+          '$ref': '#/paths/~1items%23list',
+        },
+      }
+
+      const result = createMagicProxy(input)
+      expect(result.b).toEqual({ $ref: '#/paths/~1items%23list', '$ref-value': 'hello' })
+    })
+
     it('should correctly proxy multi refs', () => {
       const input = {
         a: {
