@@ -50,12 +50,17 @@ import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
  * //   ]
  * // }
  */
-export function setValueAtPath(obj: any, path: string, value: any): void {
+export function setValueAtPath(
+  obj: any,
+  path: string,
+  value: any,
+  parsePath: (path: string) => string[] = getSegmentsFromPath,
+): void {
   if (path === '') {
     throw new Error("Cannot set value at root ('') pointer")
   }
 
-  const parts = getSegmentsFromPath(path)
+  const parts = parsePath(path)
 
   // Prevent prototype pollution
   parts.forEach((part) => preventPollution(part))
