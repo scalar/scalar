@@ -12,12 +12,18 @@ import { upgrade } from '@scalar/openapi-upgrader'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { openApiDocument, resolveOpenApiDocument } from '@scalar/workspace-store/plugins/bundler'
 
+import { cloneDocument } from '@/utils/clone-document'
+
 /** A processed API description, tagged so each mock engine receives its own document type. */
 export type ProcessedDocument =
   | { type: 'openapi'; document: OpenAPIV3_1.Document | OpenAPIV3_2.Document }
   | { type: 'asyncapi'; document: AsyncApiDocument }
 
-/** Bundle API descriptions once, retaining AsyncAPI and upgrading compatible OpenAPI input. */
+/**
+ * Bundle API descriptions once, retaining AsyncAPI and upgrading compatible OpenAPI input.
+ *
+ * An object input is never modified; the returned document is built from a copy of it.
+ */
 export const processDocument = async (
   document: string | Record<string, unknown> | undefined,
   origin?: string,
@@ -49,7 +55,9 @@ export const processDocument = async (
   try {
     // Bundle external references with Node.js plugins
     // Include parseJson and parseYaml to handle string inputs
-    bundled = await bundle(document, {
+    // `bundle` edits the object it is handed — it records external documents under `x-ext` and drops
+    // `x-ext-urls` — so an object input is copied first and the caller's document is left as passed.
+    bundled = await bundle(typeof document === 'string' ? document : cloneDocument(document), {
       origin,
       plugins: [
         openApiDocument(),
