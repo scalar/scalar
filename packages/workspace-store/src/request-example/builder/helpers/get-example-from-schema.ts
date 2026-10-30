@@ -1052,6 +1052,53 @@ const describeComposition = (
 }
 
 /**
+ * Describe the properties a truncated object cannot leave out.
+ *
+ * An empty object stands in for a truncated one, but a schema that marks properties `required` rejects
+ * it, and so does any strict decoder reading the example (a mock server's response, for one). Each
+ * required property is described with the same depth-capped stand-in, so a required child object brings
+ * only its own required keys and the walk still never descends through optional ones. The `seen` path
+ * guards a schema that requires itself, which would otherwise never terminate.
+ */
+const getRequiredProperties = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object>,
+): Record<string, unknown> => {
+  const result: Record<string, unknown> = {}
+  const properties = 'properties' in schema ? schema.properties : undefined
+  const required = 'required' in schema && Array.isArray(schema.required) ? schema.required : []
+  const target = getSchemaCacheTarget(schema)
+
+  if (!properties || required.length === 0 || seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
+    return result
+  }
+
+  seen.add(target)
+  for (const name of required) {
+    const property = resolve.schema(properties[name])
+    // Skip what the full walk would skip, so the stand-in never carries a key a full render would not.
+    if (
+      !property ||
+      (property.deprecated && options?.includeDeprecated !== true) ||
+      (options?.mode === 'write' && property.readOnly) ||
+      (options?.mode === 'read' && property.writeOnly)
+    ) {
+      continue
+    }
+
+    const value = getMaxDepthValue(property, options, [...schemaPath, name], seen)
+    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
+      result[name] = value
+    }
+  }
+  seen.delete(target)
+
+  return result
+}
+
+/**
  * Build the value that stands in for a schema the recursion depth cap cut off.
  *
  * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
@@ -1065,8 +1112,9 @@ const describeComposition = (
  * answers `null`: a container spelled as a list (`type: ['object']`, or `['object', 'null']`) is read
  * here as the container it names, where the walk's strict comparison misses it.
  *
- * The value is empty rather than complete: satisfying `required` or `minItems` means descending
- * again, which is exactly what the cap exists to prevent.
+ * An object keeps only its `required` properties, each described the same way, so a strict decoder
+ * still finds every key it insists on. Optional properties and array items stay out: they are what
+ * the cap exists to stop descending into, and nothing that reads the value depends on them.
  */
 const getMaxDepthValue = (
   schema: SchemaObject,
@@ -1084,7 +1132,7 @@ const getMaxDepthValue = (
   if (container !== undefined) {
     // Children were dropped here, so anything assembled around this value is level-bound too.
     truncated = true
-    return container
+    return Array.isArray(container) ? container : getRequiredProperties(schema, options, schemaPath, seen)
   }
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
