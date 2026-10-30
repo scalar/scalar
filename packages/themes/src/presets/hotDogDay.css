@@ -1,0 +1,424 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* A sunny picnic: warm napkins and a ketchup accent */
+  --scalar-color-1: #2a1d17;
+  --scalar-color-2: #5f4b40;
+  --scalar-color-3: #8c776a;
+  --scalar-color-accent: #b3261e;
+
+  --scalar-background-1: #fffaf2;
+  --scalar-background-2: #f8efe2;
+  --scalar-background-3: #efe1cd;
+  --scalar-background-accent: #b3261e14;
+
+  --scalar-border-color: #ebdcc7;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A warm night by the grill: charcoal, embers and ketchup */
+  --scalar-color-1: #fbf1e4;
+  --scalar-color-2: #c9b6a3;
+  --scalar-color-3: #8f7c6c;
+  --scalar-color-accent: #ff5f4f;
+
+  --scalar-background-1: #17120f;
+  --scalar-background-2: #211915;
+  --scalar-background-3: #33271f;
+  --scalar-background-accent: #ff5f4f1f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #130f0c;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #b3261e;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #951f19;
+
+  --scalar-color-green: #2f6b2a;
+  --scalar-color-red: #b3261e;
+  --scalar-color-yellow: #855600;
+  --scalar-color-blue: #2f56b0;
+  --scalar-color-orange: #a8460b;
+  --scalar-color-purple: #7a3fb0;
+  --scalar-color-query: #8a3f8f;
+
+  --scalar-scrollbar-color: #5f4b4033;
+  --scalar-scrollbar-color-active: #5f4b4066;
+}
+.dark-mode {
+  /* Mustard buttons, because everything is better with mustard */
+  --scalar-button-1: #f5c02e;
+  --scalar-button-1-color: #17120f;
+  --scalar-button-1-hover: #ffd24f;
+
+  /* Relish, ketchup, mustard, a summer sky, charcoal embers and a grape soda */
+  --scalar-color-green: #a5d67c;
+  --scalar-color-red: #ff7a6b;
+  --scalar-color-yellow: #f7c948;
+  --scalar-color-blue: #8fb8ff;
+  --scalar-color-orange: #ff9a4d;
+  --scalar-color-purple: #d1a3ff;
+  --scalar-color-query: #e8a3d8;
+
+  --scalar-scrollbar-color: #f7c94833;
+  --scalar-scrollbar-color-active: #f7c94866;
+}
+
+/* Radius: a little rounder, like a soft bun */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+
+  /* One hot dog, drawn once and served in the hero and the API client */
+  --scalar-hot-dog: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23f9cd8a'/%3E%3Cstop offset='.5' stop-color='%23eaa75a'/%3E%3Cstop offset='1' stop-color='%23c87a2f'/%3E%3C/linearGradient%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e8673f'/%3E%3Cstop offset='.5' stop-color='%23c4422a'/%3E%3Cstop offset='1' stop-color='%238c2817'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M18 40C18 20 30 8 48 10c22 3 42 3 64 0 18-2 30 10 30 30z' fill='%23cd8240'/%3E%3Cpath d='M28 20c4-5 11-7 20-6 22 3 42 3 64 0 9-1 16 1 20 6' fill='none' stroke='%23f4bc72' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M16 18c34 8 94 8 128 0 7-2 14 3 14 12s-6 14-14 14c-34 8-94 8-128 0-8 0-14-5-14-14s7-14 14-12z' fill='url(%23s)'/%3E%3Cpath d='M18 23c34 7 90 7 124 0' fill='none' stroke='%23fa9373' stroke-width='2.4' stroke-linecap='round' opacity='.7'/%3E%3Cpath d='M24 31 32 25 40 33.3 48 26.9 56 34.8 64 28 72 35.5 80 28.4 88 35.5 96 28 104 34.8 112 26.9 120 33.3 128 25 136 31' fill='none' stroke='%23a87400' stroke-width='4.8' stroke-linecap='round' stroke-linejoin='round' opacity='.3'/%3E%3Cpath d='M24 30 32 24 40 32.3 48 25.9 56 33.8 64 27 72 34.5 80 27.4 88 34.5 96 27 104 33.8 112 25.9 120 32.3 128 24 136 30' fill='none' stroke='%23ffce2b' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10 42c0-6 6-8 12-7 33 6 83 6 116 0 6-1 12 1 12 7 0 16-16 24-34 24H44c-18 0-34-8-34-24z' fill='url(%23b)'/%3E%3Cpath d='M23 45c14 4 30 5 46 5' fill='none' stroke='%23ffe7bd' stroke-width='3' stroke-linecap='round' opacity='.85'/%3E%3Cpath d='M28 61c8 3 15 4 22 4h60c7 0 14-1 22-4' fill='none' stroke='%23a35e1e' stroke-width='2' stroke-linecap='round' opacity='.3'/%3E%3C/svg%3E");
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-yellow), transparent 65%);
+}
+
+/* Headings catch the glow of the grill */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 18px #ff5f4f33;
+}
+
+/*
+ * Hero section flare: a ketchup and mustard squiggle across the top, two hot dogs bobbing on a
+ * picnic blanket (by day) or over the embers (by night), and a few drifting sparks or sesame seeds.
+ * The flare sits behind the content, so its parent needs its own stacking context or the page
+ * background would paint over it.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  z-index: -1;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 55% 60% at 88% 0%, #ff5a2a2e, transparent 70%),
+    radial-gradient(ellipse 40% 45% at 8% 0%, #f5a52a14, transparent 70%), linear-gradient(#24170f, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 60% at 88% 0%, #ffd56a33, transparent 70%), linear-gradient(#fff1dc, transparent);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/*
+ * The squiggle: a ketchup wave with a mustard wave over it, tiled across the top of the hero.
+ * The fully drawn squiggle is the resting style and the animation only runs from hidden, so a
+ * screenshot with animations turned off (or a visitor who prefers less motion) sees it complete.
+ * The mustard follows a moment after the ketchup, like a second bottle.
+ */
+.section-flare-item:nth-of-type(1),
+.section-flare-item:nth-of-type(2) {
+  top: 8px;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background-size: 150px 30px;
+  background-repeat: repeat-x;
+  animation: scalar-hot-dog-day-squeeze 1.6s cubic-bezier(0.55, 0, 0.35, 1) 0.2s backwards;
+}
+.section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c10-8 20-8 30 0s20 8 30 0 20-8 30 0 20 8 30 0' fill='none' stroke='%23e8412f' stroke-width='4.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.section-flare-item:nth-of-type(2) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c5 6 10 6 15 0s10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0' fill='none' stroke='%23f7c331' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  animation-delay: 0.55s;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c10-8 20-8 30 0s20 8 30 0 20-8 30 0 20 8 30 0' fill='none' stroke='%23d1352a' stroke-width='4.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.light-mode .section-flare-item:nth-of-type(2) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c5 6 10 6 15 0s10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0' fill='none' stroke='%23eba900' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/*
+ * The hot dogs, bobbing gently as if someone is about to grab one. They stay in the band between
+ * the squiggle and the title row, so they never sit behind the links in the header.
+ */
+.section-flare-item:nth-of-type(3),
+.section-flare-item:nth-of-type(4) {
+  background: var(--scalar-hot-dog) center / contain no-repeat;
+  filter: drop-shadow(0 6px 6px #0000004d);
+  animation: scalar-hot-dog-day-bob 3.4s ease-in-out infinite;
+}
+.section-flare-item:nth-of-type(3) {
+  top: 40px;
+  right: 9%;
+  width: 132px;
+  height: 60px;
+  rotate: -5deg;
+}
+.section-flare-item:nth-of-type(4) {
+  top: 50px;
+  right: calc(9% + 150px);
+  width: 92px;
+  height: 42px;
+  rotate: 7deg;
+  /* Facing the other way, so the pair looks like it is chatting */
+  scale: -1 1;
+  animation-delay: -1.7s;
+}
+.light-mode .section-flare-item:nth-of-type(3),
+.light-mode .section-flare-item:nth-of-type(4) {
+  filter: drop-shadow(0 6px 5px #8a4b1a33);
+}
+
+/*
+ * The classic layout keeps its header (the document picker and search) inside the hero, so the
+ * squiggle drops below it and the hot dogs rest on the squiggle, clear of the title row.
+ */
+@media (min-width: 1001px) {
+  .references-classic .section-flare-item:nth-of-type(1),
+  .references-classic .section-flare-item:nth-of-type(2) {
+    top: 60px;
+  }
+  .references-classic .section-flare-item:nth-of-type(3) {
+    top: 52px;
+    width: 110px;
+    height: 50px;
+  }
+  .references-classic .section-flare-item:nth-of-type(4) {
+    top: 62px;
+    right: calc(9% + 126px);
+    width: 76px;
+    height: 35px;
+  }
+}
+
+/*
+ * Sparks rising off the grill (dark mode) or sesame seeds drifting down (light mode). The layer is
+ * one tile taller than the flare and moves by exactly one tile, so the loop is seamless.
+ */
+.section-flare-item:nth-of-type(5) {
+  top: -220px;
+  left: 0;
+  right: 0;
+  height: calc(100% + 220px);
+  background-size: 260px 220px;
+  -webkit-mask-image: radial-gradient(ellipse 45% 55% at 85% 35%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 45% 55% at 85% 35%, #000, transparent 75%);
+}
+.dark-mode .section-flare-item:nth-of-type(5) {
+  background-image:
+    radial-gradient(1.5px 1.5px at 30px 40px, #ffb347, transparent),
+    radial-gradient(1px 1px at 96px 150px, #ffd27a, transparent),
+    radial-gradient(2px 2px at 170px 90px, #ff7a3d, transparent),
+    radial-gradient(1px 1px at 220px 190px, #ffb347, transparent),
+    radial-gradient(1.5px 1.5px at 130px 10px, #ffd27a, transparent);
+  opacity: 0.7;
+  animation: scalar-hot-dog-day-float 14s linear infinite;
+}
+.light-mode .section-flare-item:nth-of-type(5) {
+  background-image:
+    radial-gradient(2.5px 1.2px at 40px 50px, #c79a55, transparent),
+    radial-gradient(1.2px 2.5px at 150px 120px, #c79a55, transparent),
+    radial-gradient(2.5px 1.4px at 220px 30px, #c79a55, transparent),
+    radial-gradient(1.4px 2.4px at 90px 190px, #c79a55, transparent);
+  opacity: 0.55;
+  animation: scalar-hot-dog-day-float 22s linear infinite reverse;
+}
+
+/*
+ * A red gingham picnic blanket under the hot dogs, light mode only. It fades out above the title
+ * row, so it never sits behind text.
+ */
+.section-flare-item:nth-of-type(6) {
+  top: 0;
+  right: 0;
+  width: 560px;
+  height: 116px;
+  --gingham: #d1352a0f;
+  background:
+    repeating-linear-gradient(90deg, var(--gingham) 0 14px, transparent 14px 28px),
+    repeating-linear-gradient(var(--gingham) 0 14px, transparent 14px 28px);
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, #000 30%, transparent);
+  mask-image: radial-gradient(ellipse 100% 100% at 100% 0%, #000 30%, transparent);
+}
+.dark-mode .section-flare-item:nth-of-type(6) {
+  display: none;
+}
+
+@keyframes scalar-hot-dog-day-squeeze {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes scalar-hot-dog-day-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(2deg);
+  }
+}
+/* Up by exactly one tile; played in reverse, the same loop drifts down */
+@keyframes scalar-hot-dog-day-float {
+  from {
+    transform: translateY(220px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/*
+ * A hot dog delivers the API client: when "Test Request" opens the modal, a hot dog zips along
+ * its top edge leaving a mustard squiggle behind it, and the client settles into place.
+ *
+ * The modal stays mounted and only toggles `scalar-client--open`, so each animation restarts
+ * whenever the modal opens. The settle uses `backwards` fill only: a transform left on the modal
+ * afterwards would trap its fixed-position children.
+ */
+.scalar-client--open .scalar-client {
+  animation: scalar-hot-dog-day-settle 0.6s cubic-bezier(0.3, 0.7, 0.4, 1.2) backwards;
+}
+.scalar-client--open::before,
+.scalar-client--open::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  /* Line up with the modal, which is at most 1390px wide, centred, and starts 60px from the top */
+  left: max(0px, calc(50% - 695px));
+}
+/* The mustard squiggle, drawn in the gap above the modal and then cleared away */
+.scalar-client--open::after {
+  top: 36px;
+  width: min(100%, 1390px);
+  height: 20px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c5 6 10 6 15 0s10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0' fill='none' stroke='%23f7c331' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E")
+    0 0 / 100px 20px repeat-x;
+  animation: scalar-hot-dog-day-trail 2.6s linear forwards;
+}
+.light-mode .scalar-client--open::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 24'%3E%3Cpath d='M0 12c5 6 10 6 15 0s10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0 10 6 15 0 10-6 15 0' fill='none' stroke='%23eba900' stroke-width='2.8' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+/* The hot dog itself, whose tail stays right on the end of the squiggle */
+.scalar-client--open::before {
+  top: 16px;
+  width: 88px;
+  height: 40px;
+  margin-left: -88px;
+  background: var(--scalar-hot-dog) center / contain no-repeat;
+  animation: scalar-hot-dog-day-zip 0.9s linear forwards;
+}
+
+@keyframes scalar-hot-dog-day-settle {
+  from {
+    transform: translateY(-18px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+@keyframes scalar-hot-dog-day-zip {
+  from {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(calc(min(100vw, 1390px) + 88px));
+    opacity: 0;
+  }
+}
+@keyframes scalar-hot-dog-day-trail {
+  /* Drawn in step with the hot dog, held for a beat, then faded out */
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  34.6% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  80% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+}
+
+/*
+ * On small screens the sticky header covers the top of the hero, and the title sits close under the
+ * squiggle, so the second hot dog and the picnic blanket would crowd it.
+ */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(4),
+  .section-flare-item:nth-of-type(6) {
+    display: none;
+  }
+  /* The title row starts right under the squiggle here, so the hot dog rests on the squiggle instead */
+  .section-flare-item:nth-of-type(3) {
+    top: 9px;
+    right: 16px;
+    width: 72px;
+    height: 33px;
+  }
+}
+
+/* Keep everything still when motion is unwelcome: the squiggle is simply there, and the client simply opens */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item,
+  .scalar-client--open .scalar-client {
+    animation: none !important;
+  }
+  .scalar-client--open::before,
+  .scalar-client--open::after {
+    display: none;
+  }
+}
