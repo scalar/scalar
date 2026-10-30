@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { isIP } from 'node:net'
+
+import { assert, describe, expect, it } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -532,21 +534,137 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
-  it('uses a uuid example for version-specific uuid formats', () => {
-    for (const format of ['uuid', 'uuid1', 'uuid3', 'uuid4', 'uuid5']) {
-      const result = getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          format,
-        }),
-        {
-          emptyString: '…',
-        },
-      )
+  it.each(['date', 'date-time', 'time'] as const)('generates a parseable UTC %s example', (format) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Round-tripping catches invalid calendar dates that Date would otherwise normalize.
+    const timestamp = { date: `${result}T00:00:00.000Z`, 'date-time': result, time: `2000-01-01T${result}` }[format]
+    expect(new Date(timestamp).toISOString()).toBe(timestamp)
+  })
 
-      expect(result).toBe('123e4567-e89b-12d3-a456-426614174000')
+  it.each([
+    ['ipv4', 4],
+    ['ipv6', 6],
+  ] as const)('generates a parseable %s address', (format, version) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    expect(isIP(result)).toBe(version)
+  })
+
+  it.each([
+    ['uri', 'https://example.com/'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', 'https://example.com/folder'],
+    ['iri-reference', 'https://example.com/entity/1'],
+    ['uri-template', 'https://example.com/123'],
+  ])('generates a usable %s example', (format, expected) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Exercise the simple template by expanding its parameter before parsing the URL.
+    const expanded = format === 'uri-template' ? result.replace('{id}', '123') : result
+    const base = format.endsWith('-reference') ? 'https://example.com/base/' : undefined
+    expect(new URL(expanded, base).href).toBe(expected)
+  })
+
+  it('generates a usable regular expression', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'regex' }))
+    assert(typeof result === 'string')
+    const expression = new RegExp(result)
+    expect(expression.test('a')).toBe(true)
+    expect(expression.test('1')).toBe(false)
+  })
+
+  // These checks cover the simple examples we emit, not every form allowed by the standards.
+  // ASCII examples are also valid for the internationalized email and hostname formats.
+  it.each([
+    ['email', /^[a-z]+@[a-z]+\.[a-z]+$/],
+    ['idn-email', /^[a-z]+(?:\.[a-z]+)*@[a-z]+\.[a-z]+$/],
+    ['hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['idn-hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['duration', /^P[1-9]\d*D$/],
+    ['json-pointer', /^(?:\/(?:[^~/]|~[01])*)+$/],
+    ['relative-json-pointer', /^(?:0|[1-9]\d*)(?:\/(?:[^~/]|~[01])*)+$/],
+    ['uuid', /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/],
+  ] as const)('generates a syntactically valid %s example', (format, pattern) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    expect(result).toEqual(expect.stringMatching(pattern))
+  })
+
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
+    for (const emptyString of [undefined, '', '…']) {
+      const result = getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, { type: 'string', format: `uuid${version}` }),
+        { emptyString },
+      )
+      expect(result).toEqual(
+        expect.stringMatching(
+          new RegExp(`^[0-9a-f]{8}-[0-9a-f]{4}-${version}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`),
+        ),
+      )
     }
   })
+
+  it.each([
+    ['duration', 'P1D'],
+    ['email', 'hello@example.com'],
+    ['idn-email', 'jane.doe@example.com'],
+    ['hostname', 'example.com'],
+    ['idn-hostname', 'example.com'],
+    ['ipv4', '192.0.2.1'],
+    ['ipv6', '2001:db8::1'],
+    ['uri', 'https://example.com'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', '../folder'],
+    ['iri-reference', '/entity/1'],
+    ['uri-template', 'https://example.com/{id}'],
+    ['json-pointer', '/nested/objects'],
+    ['relative-json-pointer', '1/nested/objects'],
+    ['regex', '[a-z]'],
+    ['uuid', '123e4567-e89b-12d3-a456-426614174000'],
+  ])('generates a formatted %s example regardless of the plain string fallback', (format, expected) => {
+    for (const emptyString of [undefined, '', '…']) {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })).toBe(
+        expected,
+      )
+    }
+  })
+
+  it('generates a UTC time including its timezone', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'time' }))
+    expect(result).toEqual(expect.stringMatching(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/))
+  })
+
+  it.each([
+    ['password', '', 'super-secret'],
+    ['binary', '@filename', '@filename'],
+    ['object-id', '', '6592008029c8c3e4dc76256c'],
+    ['custom-format', '', '…'],
+    ['uuid9', '', '…'],
+    ['toString', '', '…'],
+    ['__proto__', '', '…'],
+    ['', '', '…'],
+  ])('preserves fallback behavior for %s', (format, empty, populated) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))).toBe(empty)
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString: '…' }),
+    ).toBe(populated)
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'preserves authored formatted values from %s',
+    (keyword) => {
+      const value = 'author@example.org'
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'email',
+            [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+          }),
+        ),
+      ).toBe(value)
+    },
+  )
 
   it('uses variables as an example value', () => {
     expect(
