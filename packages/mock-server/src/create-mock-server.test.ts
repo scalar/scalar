@@ -2344,6 +2344,57 @@ describe('createMockServer', () => {
       expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
     })
 
+    it('serves a generated XML body for a response whose schema is deprecated', async () => {
+      // XML takes its own serializer, which dropped deprecated nodes after the JSON generator kept
+      // them, so the same document answered `application/xml` with an empty body.
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Finetuning API', version: '1.0.0' },
+        paths: {
+          '/finetuning': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/xml': { schema: { $ref: '#/components/schemas/FinetunedModel' } } },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            FinetunedModel: {
+              deprecated: true,
+              type: 'object',
+              required: ['id', 'legacyName'],
+              properties: {
+                id: { type: 'string', example: 'ft-1' },
+                legacyName: { type: 'string', example: 'old', deprecated: true },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/finetuning')
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/xml')
+      expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
+      expect(await response.text()).toBe(
+        [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<FinetunedModel>',
+          '  <id>ft-1</id>',
+          '  <legacyName>old</legacyName>',
+          '</FinetunedModel>',
+        ].join('\n'),
+      )
+    })
+
     it('sets a response header whose schema is deprecated', async () => {
       // A header value is generated from its schema like any other, so the annotation suppressed it
       // there too and the declared header went out missing rather than merely empty.
