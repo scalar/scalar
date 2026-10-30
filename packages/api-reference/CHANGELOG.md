@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.76.4
+
+### Patch Changes
+
+- [#10796](https://github.com/scalar/scalar/pull/10796): feat: send the server framework with hosting waitlist sign-ups
+
 ## 1.76.3
 
 ### Patch Changes
