@@ -1,0 +1,442 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* A blush love letter, sealed in deep rose */
+  --scalar-color-1: #2e1a24;
+  --scalar-color-2: #674e5a;
+  --scalar-color-3: #977d89;
+  --scalar-color-accent: #b0204f;
+
+  --scalar-background-1: #fffafb;
+  --scalar-background-2: #fbeef2;
+  --scalar-background-3: #f3dde4;
+  --scalar-background-accent: #b0204f12;
+
+  --scalar-border-color: #efdbe1;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A candlelit wine-dark evening with rose-pink accents */
+  --scalar-color-1: #fbeff3;
+  --scalar-color-2: #c9b0bc;
+  --scalar-color-3: #927884;
+  --scalar-color-accent: #ff8fb1;
+
+  --scalar-background-1: #1a0f17;
+  --scalar-background-2: #24141f;
+  --scalar-background-3: #3a2232;
+  --scalar-background-accent: #ff8fb11f;
+
+  --scalar-border-color: #ffffff1a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #160c13;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #b0204f;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #941a42;
+
+  --scalar-color-green: #2b6e45;
+  --scalar-color-red: #b3203a;
+  --scalar-color-yellow: #855c00;
+  --scalar-color-blue: #3b4fae;
+  --scalar-color-orange: #a8460f;
+  --scalar-color-purple: #7a35a8;
+  --scalar-color-query: #9a2f72;
+
+  --scalar-scrollbar-color: #674e5a33;
+  --scalar-scrollbar-color-active: #674e5a66;
+}
+.dark-mode {
+  --scalar-button-1: #ff8fb1;
+  --scalar-button-1-color: #1a0f17;
+  --scalar-button-1-hover: #ffa8c3;
+
+  /* Rose leaves, red roses, gold ribbon, forget-me-nots, peach blossom and lavender */
+  --scalar-color-green: #8fdcae;
+  --scalar-color-red: #ff7d8f;
+  --scalar-color-yellow: #ffd38a;
+  --scalar-color-blue: #a9b8ff;
+  --scalar-color-orange: #ffa77a;
+  --scalar-color-purple: #d0a3ff;
+  --scalar-color-query: #f0a6d8;
+
+  --scalar-scrollbar-color: #ff8fb133;
+  --scalar-scrollbar-color-active: #ff8fb166;
+}
+
+/* Radius: soft and rounded, like a heart */
+:root,
+:host {
+  --scalar-radius: 4px;
+  --scalar-radius-lg: 8px;
+  --scalar-radius-xl: 10px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 70%);
+}
+
+/* Headings catch a soft blush glow */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 18px #ff8fb133;
+}
+
+/*
+ * Hero section flare: a garland of hearts along the top and a pair of hearts pierced by
+ * Cupid's arrow. The flare and the floating hearts sit behind the content, so their parent
+ * needs its own stacking context or the page background would paint over them.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  /* Below the floating hearts, so they drift up in front of the glow */
+  z-index: -2;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 88% 0%, #8a2a5a66, transparent 70%),
+    radial-gradient(ellipse 50% 45% at 10% 0%, #5a1f4a55, transparent 70%), linear-gradient(#2c1426, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 88% 0%, #ffc4d466, transparent 70%), linear-gradient(#ffeef3, transparent);
+}
+
+/*
+ * Little hearts float up behind the content across the whole page, in two layers at different
+ * speeds. Each layer is one tile taller than the viewport and rises by exactly one tile, so the
+ * loop is seamless, and it moves with a transform so the browser never repaints the hearts.
+ * The tiles are masks, so one drawing serves both colour modes.
+ */
+.references-rendered::before,
+.references-rendered::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 300px);
+  pointer-events: none;
+  z-index: -1;
+  background-color: var(--scalar-valentine-heart, #ff8fb1);
+  animation: scalar-valentine-float 24s linear infinite;
+}
+.references-rendered::before {
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(35.11 29.41) scale(0.1) rotate(-12 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.7' transform='translate(166.2 69.54) scale(0.08) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(244.57 149.35) scale(0.11) rotate(-6 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.7' transform='translate(96.2 189.54) scale(0.08) rotate(14 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(15.65 249.48) scale(0.09) rotate(6 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.6' transform='translate(201.74 264.61) scale(0.07) rotate(-10 50 47)'/%3E%3C/svg%3E")
+    0 0 / 300px 300px repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(35.11 29.41) scale(0.1) rotate(-12 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.7' transform='translate(166.2 69.54) scale(0.08) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(244.57 149.35) scale(0.11) rotate(-6 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.7' transform='translate(96.2 189.54) scale(0.08) rotate(14 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(15.65 249.48) scale(0.09) rotate(6 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' fill-opacity='.6' transform='translate(201.74 264.61) scale(0.07) rotate(-10 50 47)'/%3E%3C/svg%3E")
+    0 0 / 300px 300px repeat;
+  opacity: 0.18;
+}
+.references-rendered::after {
+  -webkit-mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 460 300'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(72.39 59.09) scale(0.15) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(323.48 139.22) scale(0.13) rotate(12 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(191.85 239.02) scale(0.16) rotate(-4 50 47)'/%3E%3C/svg%3E")
+    0 0 / 460px 300px repeat;
+  mask:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 460 300'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(72.39 59.09) scale(0.15) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(323.48 139.22) scale(0.13) rotate(12 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23000' transform='translate(191.85 239.02) scale(0.16) rotate(-4 50 47)'/%3E%3C/svg%3E")
+    0 0 / 460px 300px repeat;
+  opacity: 0.24;
+  animation-duration: 15s;
+}
+.light-mode .references-rendered::before,
+.light-mode .references-rendered::after {
+  --scalar-valentine-heart: #d6336c;
+}
+.light-mode .references-rendered::before {
+  opacity: 0.12;
+}
+.light-mode .references-rendered::after {
+  opacity: 0.16;
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/* The garland: hearts on short threads, strung along a sagging ribbon and swaying in the breeze */
+.section-flare-item:nth-of-type(1) {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 5Q60 19 120 5' fill='none' stroke='%23c98aa3' stroke-width='1.3'/%3E%3Cpath d='M20 8.89V13.89' stroke='%23c98aa3' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff7aa2' transform='translate(14.57 12.24) scale(0.11) rotate(-8 50 47)'/%3E%3Cpath d='M60 12V19' stroke='%23c98aa3' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff4f7f' transform='translate(52.93 17.15) scale(0.14) rotate(0 50 47)'/%3E%3Cpath d='M100 8.89V13.89' stroke='%23c98aa3' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(94.57 12.24) scale(0.11) rotate(8 50 47)'/%3E%3Ccircle cx='40' cy='11.22' r='1.6' fill='%23f0c06a'/%3E%3Ccircle cx='80' cy='11.22' r='1.6' fill='%23f0c06a'/%3E%3Ccircle cx='0' cy='5' r='2.2' fill='%23f0c06a'/%3E%3Ccircle cx='120' cy='5' r='2.2' fill='%23f0c06a'/%3E%3C/svg%3E")
+    0 0 / 120px 40px repeat-x;
+  /* Skewing from the top keeps the ribbon pinned while the hearts below it swing */
+  transform-origin: 50% 0;
+  animation: scalar-valentine-sway 4s ease-in-out infinite alternate;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40'%3E%3Cpath d='M0 5Q60 19 120 5' fill='none' stroke='%23b9869a' stroke-width='1.3'/%3E%3Cpath d='M20 8.89V13.89' stroke='%23b9869a' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e0457a' transform='translate(14.57 12.24) scale(0.11) rotate(-8 50 47)'/%3E%3Cpath d='M60 12V19' stroke='%23b9869a' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23bf1f52' transform='translate(52.93 17.15) scale(0.14) rotate(0 50 47)'/%3E%3Cpath d='M100 8.89V13.89' stroke='%23b9869a' stroke-width='1'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23f29ab5' transform='translate(94.57 12.24) scale(0.11) rotate(8 50 47)'/%3E%3Ccircle cx='40' cy='11.22' r='1.6' fill='%23c99532'/%3E%3Ccircle cx='80' cy='11.22' r='1.6' fill='%23c99532'/%3E%3Ccircle cx='0' cy='5' r='2.2' fill='%23c99532'/%3E%3Ccircle cx='120' cy='5' r='2.2' fill='%23c99532'/%3E%3C/svg%3E");
+}
+
+.section-flare-item:nth-of-type(2),
+.section-flare-item:nth-of-type(8) {
+  display: none;
+}
+
+/*
+ * Two hearts pierced by Cupid's arrow, hanging in front of the end of the garland. All the
+ * pieces share one frame so they line up; the arrow sits behind the hearts, which is what makes
+ * it look like it passes through them. The frame stays in the band above the title and the
+ * header links, so the art never sits behind readable text.
+ */
+.section-flare-item:nth-of-type(3),
+.section-flare-item:nth-of-type(4),
+.section-flare-item:nth-of-type(5),
+.section-flare-item:nth-of-type(6),
+.section-flare-item:nth-of-type(7) {
+  top: 10px;
+  right: 6%;
+  width: 150px;
+  height: 106px;
+}
+
+/* A soft blush glow behind the pair */
+.section-flare-item:nth-of-type(3) {
+  background: radial-gradient(closest-side, #ff7aa244, transparent);
+  scale: 1.3;
+}
+.light-mode .section-flare-item:nth-of-type(3) {
+  background: radial-gradient(closest-side, #ff9bb844, transparent);
+}
+
+/* The arrow */
+.section-flare-item:nth-of-type(4) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cg transform='translate(8 85) rotate(-18.9)'%3E%3Cpath d='M14 0H158' stroke='%23f0c06a' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M167 0L153 -6.5L156.5 0L153 6.5Z' fill='%23f0c06a'/%3E%3Cpath d='M26 0L15 -7H8L18 0L8 7H15Z' fill='%23ffc2d3'/%3E%3Cpath d='M16 0L5 -7H-2L8 0L-2 7H5Z' fill='%23ff7aa2'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.light-mode .section-flare-item:nth-of-type(4) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cg transform='translate(8 85) rotate(-18.9)'%3E%3Cpath d='M14 0H158' stroke='%23b98322' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M167 0L153 -6.5L156.5 0L153 6.5Z' fill='%23b98322'/%3E%3Cpath d='M26 0L15 -7H8L18 0L8 7H15Z' fill='%23f29ab5'/%3E%3Cpath d='M16 0L5 -7H-2L8 0L-2 7H5Z' fill='%23d63a6e'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* The hearts beat, a little out of step with each other */
+.section-flare-item:nth-of-type(5) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffc4d4'/%3E%3Cstop offset='1' stop-color='%23f78fae'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(20 41.8) scale(.6) rotate(-16 50 47)'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='url(%23g)'/%3E%3Cpath d='M22 22C16 24 13 30 14 36' fill='none' stroke='%23fff' stroke-opacity='.55' stroke-width='5' stroke-linecap='round'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transform-origin: 29% 58%;
+  animation: scalar-valentine-beat 2.4s ease-in-out infinite;
+}
+.section-flare-item:nth-of-type(6) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ff7aa2'/%3E%3Cstop offset='1' stop-color='%23e23a6b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='translate(72 16.2) scale(.72) rotate(12 50 47)'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='url(%23g)'/%3E%3Cpath d='M22 22C16 24 13 30 14 36' fill='none' stroke='%23fff' stroke-opacity='.55' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='18' cy='44' r='2.6' fill='%23fff' fill-opacity='.45'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  transform-origin: 64% 42%;
+  animation: scalar-valentine-beat 2.4s ease-in-out -0.3s infinite;
+}
+
+/* A few sparkles around the pair */
+.section-flare-item:nth-of-type(7) {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23ffe2a8' transform='translate(150 12) scale(0.9)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23ffc2d3' transform='translate(10 50) scale(0.7)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23ffc2d3' transform='translate(160 84) scale(0.6)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23ffe2a8' transform='translate(66 22) scale(0.55)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23ffe2a8' transform='translate(36 108) scale(0.5)'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: scalar-valentine-twinkle 3s ease-in-out infinite alternate;
+}
+.light-mode .section-flare-item:nth-of-type(7) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 120'%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23e0a63a' transform='translate(150 12) scale(0.9)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23f08aaa' transform='translate(10 50) scale(0.7)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23f08aaa' transform='translate(160 84) scale(0.6)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23e0a63a' transform='translate(66 22) scale(0.55)'/%3E%3Cpath d='M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z' fill='%23e0a63a' transform='translate(36 108) scale(0.5)'/%3E%3C/svg%3E");
+}
+
+@keyframes scalar-valentine-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-300px);
+  }
+}
+@keyframes scalar-valentine-sway {
+  from {
+    transform: skewX(-4deg);
+  }
+  to {
+    transform: skewX(4deg);
+  }
+}
+@keyframes scalar-valentine-beat {
+  /* Lub-dub, then a rest */
+  0%,
+  40%,
+  100% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.09);
+  }
+  24% {
+    transform: scale(0.99);
+  }
+  32% {
+    transform: scale(1.05);
+  }
+}
+@keyframes scalar-valentine-twinkle {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+ * Cupid opens the API client: when "Test Request" opens the modal, an arrow streaks across the
+ * top of the screen, the client rises into place with a little heartbeat, and a soft burst of
+ * hearts blooms out from behind its corners.
+ *
+ * The modal stays mounted and only toggles `scalar-client--open`, so each animation restarts
+ * whenever the modal opens. The arrival uses `backwards` fill only: a transform left on the
+ * modal afterwards would trap its fixed-position children.
+ */
+.scalar-client--open .scalar-client {
+  animation: scalar-valentine-arrive 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s backwards;
+}
+.scalar-client--open::before,
+.scalar-client--open::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+/* The arrow flies in the gap above the modal, trailing a blush streak */
+.scalar-client--open::before {
+  top: 18px;
+  left: 0;
+  z-index: 2;
+  width: 420px;
+  height: 24px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 24'%3E%3Cpath d='M14 12H186' stroke='%23d9a441' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M198 12L183 5L187 12L183 19Z' fill='%23d9a441'/%3E%3Cpath d='M26 12L15 5H8L18 12L8 19H15Z' fill='%23ff8fb1'/%3E%3Cpath d='M16 12L5 5H-2L8 12L-2 19H5Z' fill='%23e8456f'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(160.02 5.78) scale(0.12) rotate(0 50 47)'/%3E%3C/svg%3E")
+    right center / 200px 24px no-repeat,
+    linear-gradient(to right, #ff8fb100, #ff8fb199) left center / 240px 2px no-repeat;
+  /* At rest it waits off-screen, so a paused or skipped animation shows nothing */
+  transform: translateX(-440px);
+  animation: scalar-valentine-arrow 1s cubic-bezier(0.45, 0, 0.55, 1);
+}
+/*
+ * The hearts bloom behind the modal (above the dimmed backdrop), from a box a little larger
+ * than the modal, which is at most 1390px wide, centred, with 60px above and below it.
+ * 739px is half the modal plus the 44px the box reaches past each side.
+ */
+.scalar-client--open::after {
+  top: 16px;
+  bottom: 16px;
+  /* Never further off-screen than a sliver, so a full-width modal still gets its burst */
+  left: max(-8px, calc(50% - 739px));
+  right: max(-8px, calc(50% - 739px));
+  z-index: -1;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff7aa2' transform='translate(22.39 9.09) scale(0.15) rotate(-20 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(6.57 33.35) scale(0.11) rotate(-30 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(53.11 3.41) scale(0.1) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(3.65 63.48) scale(0.09) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(40.2 33.54) scale(0.08) rotate(0 50 47)' fill-opacity='.8'/%3E%3C/svg%3E")
+    left top / 150px 150px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff7aa2' transform='translate(82.39 9.09) scale(0.15) rotate(20 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(102.57 33.35) scale(0.11) rotate(30 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(57.11 3.41) scale(0.1) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(107.65 63.48) scale(0.09) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(72.2 33.54) scale(0.08) rotate(0 50 47)' fill-opacity='.8'/%3E%3C/svg%3E")
+    right top / 150px 150px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff7aa2' transform='translate(22.39 96.49) scale(0.15) rotate(-20 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(6.57 76.35) scale(0.11) rotate(-30 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(53.11 107.31) scale(0.1) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(3.65 48.28) scale(0.09) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(40.2 79.24) scale(0.08) rotate(0 50 47)' fill-opacity='.8'/%3E%3C/svg%3E")
+    left bottom / 150px 150px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ff7aa2' transform='translate(82.39 96.49) scale(0.15) rotate(20 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(102.57 76.35) scale(0.11) rotate(30 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(57.11 107.31) scale(0.1) rotate(-10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23e8456f' transform='translate(107.65 48.28) scale(0.09) rotate(10 50 47)'/%3E%3Cpath d='M50 88C20 66 4 48 4 30C4 16 15 6 28 6C38 6 46 12 50 20C54 12 62 6 72 6C85 6 96 16 96 30C96 48 80 66 50 88Z' fill='%23ffc2d3' transform='translate(72.2 79.24) scale(0.08) rotate(0 50 47)' fill-opacity='.8'/%3E%3C/svg%3E")
+    right bottom / 150px 150px no-repeat;
+  opacity: 0;
+  animation: scalar-valentine-burst 1.5s ease-out 0.7s;
+}
+
+@keyframes scalar-valentine-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.94);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(0) scale(1.012);
+  }
+  75% {
+    transform: scale(0.997);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes scalar-valentine-arrow {
+  from {
+    transform: translateX(-440px);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+@keyframes scalar-valentine-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
+
+/* On small screens the sticky header covers the top of the flare, and the glow and sparkles would crowd the title */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(3),
+  .section-flare-item:nth-of-type(7) {
+    display: none;
+  }
+  /* A smaller pair, tucked into the garland band above the badges and title */
+  .section-flare-item:nth-of-type(4),
+  .section-flare-item:nth-of-type(5),
+  .section-flare-item:nth-of-type(6) {
+    top: 4px;
+    right: 12px;
+    width: 76px;
+    height: 54px;
+  }
+}
+
+/* Keep everything still when motion is unwelcome: the hearts rest where they are */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item,
+  .references-rendered::before,
+  .references-rendered::after,
+  .scalar-client--open .scalar-client {
+    animation: none !important;
+  }
+  /* No arrow or burst over the modal; it simply opens */
+  .scalar-client--open::before,
+  .scalar-client--open::after {
+    display: none;
+  }
+}
