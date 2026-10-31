@@ -18,6 +18,42 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('AsyncApiTraversedEntry', () => {
+  it.each(['classic', 'modern'] as const)('renders model constraints in %s layout', (layout) => {
+    const wrapper = mount(AsyncApiTraversedEntry, {
+      props: {
+        entries: [{ type: 'model', id: 'model-user', ref: '#/components/schemas/User', name: 'User', title: 'User' }],
+        document: {
+          ...document,
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                if: true,
+                then: { required: ['id'] },
+                dependencies: { card: ['address'] },
+                properties: { values: { type: 'array', contains: { type: 'integer' } } },
+              },
+            },
+          },
+        } as AsyncApiDocument,
+        expandedItems: { 'model-user': true },
+        options: {
+          layout,
+          hideModels: false,
+          expandAllSchemaProperties: true,
+          schemaKeyboardNav: false,
+          orderSchemaPropertiesBy: 'preserve',
+          orderRequiredPropertiesFirst: true,
+        },
+        eventBus: createWorkspaceEventBus(),
+      },
+    })
+    expect(wrapper.text()).toContain('Conditional constraints')
+    expect(wrapper.text()).toContain('Required properties: id')
+    expect(wrapper.text()).toContain('When card is present')
+    expect(wrapper.text()).toContain('Contains at least one matching item')
+  })
+
   it.each(['classic', 'modern'] as const)('renders source models and keeps their anchors in %s layout', (layout) => {
     const schema = 'message User { string id = 1; }'
     const wrapper = mount(AsyncApiTraversedEntry, {
