@@ -143,6 +143,86 @@ describe('createMockServer', () => {
       }
     })
 
+    /** Freeze a value and everything inside it, so any write to it throws in strict mode. */
+    const deepFreeze = <T>(value: T): T => {
+      if (typeof value === 'object' && value !== null && !Object.isFrozen(value)) {
+        Object.freeze(value)
+        Object.values(value).forEach(deepFreeze)
+      }
+      return value
+    }
+
+    it.each([false, true])(
+      'leaves a preloaded document with external references unchanged (frozen: %s)',
+      async (frozen) => {
+        const directory = await mkdtemp(join(tmpdir(), 'mock-unchanged-'))
+        const file = join(directory, 'openapi.json')
+        try {
+          await writeFile(file, JSON.stringify(document))
+          await writeFile(join(directory, 'pets.json'), JSON.stringify(pathItem))
+          const input = {
+            ...structuredClone(document),
+            // Bundling reads these mappings and removes them from the document it is handed.
+            'x-ext-urls': { abc1234: 'https://example.com/unused.json' },
+          }
+          const original = structuredClone(input)
+          if (frozen) {
+            deepFreeze(input)
+          }
+
+          const app = await createMockServer({ document: input, origin: file, logger: false })
+
+          expect(input).toStrictEqual(original)
+          expect(input).not.toHaveProperty('x-ext')
+          expect(input.paths['/pets']).toStrictEqual({ $ref: './pets.json' })
+          await assertExports(app)
+        } finally {
+          await rm(directory, { recursive: true, force: true })
+        }
+      },
+    )
+
+    it.each([false, true])('leaves an OpenAPI 3.0 object document unchanged (frozen: %s)', async (frozen) => {
+      const input = {
+        openapi: '3.0.3',
+        info: { title: 'Pets', version: '1.0.0' },
+        'x-ext-urls': { abc1234: 'https://example.com/unused.json' },
+        paths: {
+          '/pets': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Pets',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        nullable: true,
+                        properties: { name: { type: 'string', example: 'Fido' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const original = structuredClone(input)
+      if (frozen) {
+        deepFreeze(input)
+      }
+
+      const app = await createMockServer({ document: input, logger: false })
+
+      expect(input).toStrictEqual(original)
+      const response = await app.request('/pets')
+      expect(response.status).toBe(200)
+      expect(await response.json()).toStrictEqual({ name: 'Fido' })
+      // The export serves the document as it was passed, 3.0 version and `x-ext-urls` included.
+      expect(await (await app.request('/openapi.json')).json()).toStrictEqual(original)
+    })
+
     it.each(['object', 'json', 'yaml'])(
       'preserves the original OpenAPI version for inline %s input',
       async (format) => {
