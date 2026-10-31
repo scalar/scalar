@@ -3,12 +3,77 @@ import {
   type RequestBodyObject,
   RequestBodyObjectSchema,
   type SchemaObject,
+  SchemaObjectSchema,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it, vi } from 'vitest'
 
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it.each(['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'])(
+    'generates formatted strings in %s bodies while preserving other fallbacks',
+    (contentType) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: {
+          date: { type: 'string', format: 'date' },
+          datetime: { type: 'string', format: 'date-time' },
+          dates: { type: 'array', items: { type: 'string', format: 'date' } },
+          choice: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] },
+          email: { type: 'string', format: 'email' },
+          duration: { type: 'string', format: 'duration' },
+          ids: { type: 'array', items: { type: 'string', format: 'uuid4' } },
+          summary: { type: 'string' },
+          nullable: { type: ['string', 'null'] },
+          temperature: { type: 'integer' },
+        },
+      })
+      expect(getExampleFromBody({ content: { [contentType]: { schema } } }, contentType, 'default')).toStrictEqual({
+        value: {
+          date: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          datetime: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+          dates: [expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)],
+          choice: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+          email: 'hello@example.com',
+          duration: 'P1D',
+          ids: ['919108f7-52d1-4320-9bac-f847db4148a8'],
+          summary: '',
+          nullable: null,
+          temperature: 1,
+        },
+      })
+    },
+  )
+
+  it('generates formatted dates in XML bodies', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      xml: { name: 'event' },
+      properties: {
+        date: { type: 'string', format: 'date' },
+        datetime: { type: 'string', format: 'date-time' },
+      },
+    }
+    expect(getSchemaExampleFromBody({ content: { 'application/xml': { schema } } }, 'application/xml')).toEqual(
+      expect.stringMatching(
+        /^<\?xml version="1.0" encoding="UTF-8"\?>\n<event>\n {2}<date>\d{4}-\d{2}-\d{2}<\/date>\n {2}<datetime>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z<\/datetime>\n<\/event>$/,
+      ),
+    )
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'preserves authored date values from %s',
+    (keyword) => {
+      const value = '2000-01-01'
+      const schema: SchemaObject = {
+        type: 'string',
+        format: 'date',
+        [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+      }
+      expect(getSchemaExampleFromBody({ content: { 'application/json': { schema } } }, 'application/json')).toBe(value)
+    },
+  )
+
   it.each([false, true])('generates finite recursive array examples with a root reference: %s', (rootReference) => {
     const schema: SchemaObject = {
       type: 'object',
