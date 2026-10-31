@@ -1,4 +1,4 @@
-import type { Node } from '@scalar/code-highlight'
+import type { Node } from '@scalar/markdown'
 
 export type ScalarMarkdownProps = {
   /**

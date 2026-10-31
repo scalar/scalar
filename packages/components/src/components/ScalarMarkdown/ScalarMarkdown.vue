@@ -17,7 +17,7 @@ import {
   isHeading,
   textFromNode,
   type Node,
-} from '@scalar/code-highlight'
+} from '@scalar/markdown'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
 
@@ -93,7 +93,7 @@ useMarkdownRenderHooks(
     v-html="html" />
 </template>
 <style>
-@import '@scalar/code-highlight/css/code.css';
+@import '@scalar/highlight/compat/code.css';
 
 .scalar-app {
   /* Base container and variables */

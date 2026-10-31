@@ -187,7 +187,7 @@ const { cx } = useBindCx()
 </template>
 <style>
 @reference '../../style.css';
-@import '@scalar/code-highlight/css/code.css';
+@import '@scalar/highlight/compat/code.css';
 
 /** Disable font ligatures so code renders with literal characters */
 .scalar-code-block pre {

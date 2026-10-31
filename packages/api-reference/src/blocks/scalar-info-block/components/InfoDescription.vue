@@ -1,12 +1,12 @@
 <script setup lang="ts">
+import { slugger } from '@scalar/helpers/string/slugger'
 import {
   getHeadings,
   isHeading,
   splitContent,
   textFromNode,
   type Node,
-} from '@scalar/code-highlight/markdown'
-import { slugger } from '@scalar/helpers/string/slugger'
+} from '@scalar/markdown'
 import type { Heading } from '@scalar/types/legacy'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed } from 'vue'
