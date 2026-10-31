@@ -38,6 +38,7 @@ const {
     options: Pick<
       ApiReferenceConfigurationRaw,
       | 'layout'
+      | 'showExtensions'
       | 'expandAllSchemaProperties'
       | 'schemaKeyboardNav'
       | 'orderRequiredPropertiesFirst'

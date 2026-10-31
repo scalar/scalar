@@ -36,6 +36,8 @@ import AsyncApiDocumentation from '@/components/Content/AsyncApi/AsyncApiDocumen
 import Bindings from '@/components/Content/AsyncApi/Bindings.vue'
 import type { AsyncApiSchemaRenderOptions } from '@/components/Content/AsyncApi/helpers/async-api-render-options'
 import { getBindingEntries } from '@/components/Content/AsyncApi/helpers/get-binding-entries'
+import { SpecificationExtension } from '@/features/specification-extension'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { useLocalization } from '@/features/localization'
 
 import Selector from './Selector.vue'
@@ -96,8 +98,14 @@ const serverProtocolVersion = computed(() => {
   return version ? `${selectedServer?.protocol.toUpperCase()} ${version}` : ''
 })
 
+const { hasExtensions } = useSpecificationExtensions(
+  () => selectedServer?.server,
+  () => options?.showExtensions,
+)
+
 const hasServerDetails = computed(() =>
   Boolean(
+    hasExtensions.value ||
     serverSummary.value ||
     serverProtocolVersion.value ||
     selectedServer?.description ||
@@ -178,5 +186,9 @@ const updateServerVariable = (key: string, value: string) => {
       scope="server" />
     <AsyncApiDocumentation
       :owner="{ externalDocs: selectedServer?.server.externalDocs }" />
+    <SpecificationExtension
+      compact
+      :showExtensions="options?.showExtensions"
+      :value="selectedServer?.server" />
   </div>
 </template>
