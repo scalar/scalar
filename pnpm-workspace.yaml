@@ -177,3 +177,5 @@ minimumReleaseAgeExclude:
   - undici@7.30.1
   # Explicitly reviewed Undici 8 upgrade.
   - undici@8.12.3
+  # Renovate security update: nuxt@4.6.3
+  - nuxt@4.6.3
