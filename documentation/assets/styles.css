@@ -412,6 +412,7 @@
 /* the five, an arch a hundred pixels apart (the shapes touch), left to
    right; the sizes are the hero's */
 .docs-footer-band .fp-planet--chatgpt {
+  --fp-wash: #8d949c;
   --s: 104px;
   --x: -200px;
   --y: 0px;
@@ -421,6 +422,7 @@
 }
 
 .docs-footer-band .fp-planet--claude {
+  --fp-wash: #f0582a;
   --s: 116px;
   --x: -100px;
   --y: 42px;
@@ -430,6 +432,7 @@
 }
 
 .docs-footer-band .fp-planet--gemini {
+  --fp-wash: #2d6bff;
   --s: 96px;
   --x: 0px;
   --y: 68px;
@@ -439,6 +442,7 @@
 }
 
 .docs-footer-band .fp-planet--opencode {
+  --fp-wash: #ffb020;
   --s: 100px;
   --x: 100px;
   --y: 50px;
@@ -449,6 +453,7 @@
 }
 
 .docs-footer-band .fp-planet--grok {
+  --fp-wash: #4a4a50;
   --s: 100px;
   --x: 200px;
   --y: 2px;
@@ -771,12 +776,381 @@
   -webkit-backdrop-filter: blur(12px);
 }
 
+/* A planet is a button: it waits as a plain globe with its name round
+   it, takes its mark's shape under the pointer (the faces' module,
+   from landing.js) and opens the MCP card when it is pressed. */
+.docs-footer-band .fp-planet {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.docs-footer-band .fp-planet:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 6px;
+}
+
+/* The sheet the planets open: a fixed dim over the whole viewport with
+   the card centred in it. The script makes the rest of the document
+   inert while it is up, so this behaves as a modal without being a
+   <dialog>: Chrome leaves the top layer out of a running view
+   transition, which is how the planet flies into the hero. The dim and
+   the card come and go on plain CSS transitions under that flight. */
+.docs-footer-band .fp-sheet {
+  position: fixed;
+  inset: 0;
+  /* over the site's fixed header, which stands at 999, and under the
+     toast and tooltip layers above that */
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  visibility: hidden;
+  background-color: rgba(16, 18, 22, 0);
+  color: var(--scalar-color-1);
+  font-family: var(--scalar-font);
+  transition:
+    background-color 300ms ease,
+    visibility 0s linear 300ms;
+}
+
+/* the markup ships it hidden, so the card cannot flash before the
+   stylesheet lands; the script takes the attribute off once it has the
+   sheet in hand and the rules below own it from there */
+.docs-footer-band .fp-sheet[hidden] {
+  display: none;
+}
+
+.docs-footer-band .fp-sheet.is-open {
+  visibility: visible;
+  background-color: rgba(16, 18, 22, 0.5);
+  transition:
+    background-color 300ms ease,
+    visibility 0s linear 0s;
+}
+
+/* the card fades, and only fades: the planet's flight is measured off
+   this box, and a scale here would move the target out from under it */
+.docs-footer-band .fp-card {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.docs-footer-band .fp-sheet.is-open .fp-card {
+  opacity: 1;
+}
+
+.docs-footer-band .fp-card {
+  --fp-card-tint: #f0582a;
+  position: relative;
+  /* auto margins keep a card taller than the viewport reachable at both
+     ends, which centring alone does not */
+  margin: auto;
+  width: min(460px, 100%);
+  flex: none;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 28px;
+  background: var(--scalar-background-1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 32px 64px -24px rgba(0, 0, 0, 0.32);
+  text-align: left;
+}
+
+/* the card takes the first focus when it opens, as a dialog's box does,
+   and wants no ring of its own for it: the controls inside keep theirs */
+.docs-footer-band .fp-card:focus,
+.docs-footer-band .fp-card:focus-visible {
+  outline: none;
+}
+
+/* the hero: the planet over a wash of its own paint. It stands over the
+   card's own body so a planet still in flight, or one whose shape hangs
+   past the box, draws over the type rather than under it */
+.docs-footer-band .fp-card-hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 208px;
+  /* the card's own radius, less its border: the hero is not clipped by
+     the card, so that a planet may hang past it */
+  border-radius: 27px 27px 0 0;
+  background:
+    radial-gradient(
+      90% 110% at 26% 10%,
+      color-mix(in oklab, var(--fp-card-tint) 26%, var(--scalar-background-1)),
+      transparent 68%
+    ),
+    radial-gradient(
+      80% 90% at 82% 94%,
+      color-mix(in oklab, var(--fp-card-tint) 34%, var(--scalar-background-1)),
+      transparent 72%
+    ),
+    color-mix(in oklab, var(--fp-card-tint) 12%, var(--scalar-background-1));
+}
+
+.docs-footer-band .fp-card-seat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the planet, once it has flown in: bigger, standing still, and out of
+   the pointer's way so the card below it stays reachable */
+.docs-footer-band .fp-sheet .fp-card .fp-planet {
+  --s: 120px;
+  position: relative;
+  left: auto;
+  bottom: auto;
+  opacity: 1;
+  translate: none;
+  transition: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* the close the dashboard uses on its own cards: a translucent disc
+   with a hairline ring, going opaque under the pointer */
+.docs-footer-band .fp-card-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--scalar-background-1) 70%, transparent);
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    0 0 0 1px var(--scalar-border-color);
+  color: var(--scalar-color-2);
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+}
+
+.docs-footer-band .fp-card-close:hover {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-close:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 2px;
+}
+
+.docs-footer-band .fp-card-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.docs-footer-band .fp-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 24px;
+}
+
+/* the prose the card sits in lays its headings out as flex boxes, where
+   text-align has nothing to centre */
+.docs-footer-band .fp-card-title {
+  display: block;
+  margin: 0;
+  font-size: 22px;
+  font-weight: var(--scalar-bold, 700);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docs-footer-band .fp-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.docs-footer-band .fp-field-label {
+  font-size: 13px;
+  color: var(--scalar-color-2);
+}
+
+.docs-footer-band .fp-field-box {
+  position: relative;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 10px;
+  background: var(--scalar-background-2);
+}
+
+.docs-footer-band .fp-field-code code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font: inherit;
+  color: inherit;
+}
+
+.docs-footer-band .fp-field-code {
+  margin: 0;
+  padding: 10px 40px 10px 12px;
+  font-family: var(--scalar-font-code, ui-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--scalar-color-1);
+  /* wrapped, never scrolled: a scrolling snippet is one more thing to
+     reach by keyboard and to name, for two short lines of setup */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.docs-footer-band .fp-field-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--scalar-background-2) 85%, transparent);
+  color: var(--scalar-color-2);
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+}
+
+.docs-footer-band .fp-field-copy:hover {
+  background: var(--scalar-background-3);
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-field-copy:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 1px;
+}
+
+.docs-footer-band .fp-field-copy svg {
+  grid-area: 1 / 1;
+  width: 14px;
+  height: 14px;
+}
+
+.docs-footer-band .fp-field-copy .fp-copy-done,
+.docs-footer-band .fp-field-copy.is-done .fp-copy-mark {
+  opacity: 0;
+}
+
+.docs-footer-band .fp-field-copy.is-done {
+  color: var(--scalar-color-green);
+}
+
+.docs-footer-band .fp-field-copy.is-done .fp-copy-done {
+  opacity: 1;
+}
+
+.docs-footer-band .fp-card-actions {
+  display: grid;
+  margin-top: 2px;
+  padding-top: 16px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+
+.docs-footer-band .fp-card-go {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--scalar-color-1);
+  color: var(--scalar-background-1);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: var(--scalar-semibold, 600);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+
+.docs-footer-band .fp-card-go[hidden] {
+  display: none;
+}
+
+.docs-footer-band .fp-card-go:hover {
+  opacity: 0.85;
+}
+
+.docs-footer-band .fp-card-go:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 2px;
+}
+
+.docs-footer-band .fp-card-go > span {
+  grid-area: 1 / 1;
+}
+
+.docs-footer-band .fp-card-go .fp-card-go-done,
+.docs-footer-band .fp-card-go.is-done .fp-card-go-rest {
+  opacity: 0;
+}
+
+.docs-footer-band .fp-card-go.is-done .fp-card-go-done {
+  opacity: 1;
+}
+
 /* a narrow page: the stage is scaled down by the script, the band gives
    back some of its room */
 @media screen and (max-width: 640px) {
   .docs-footer-band {
     --fp-stand: 46px;
     height: 330px;
+  }
+
+  .docs-footer-band .fp-card-hero {
+    height: 172px;
+  }
+
+  .docs-footer-band .fp-sheet .fp-card .fp-planet {
+    --s: 108px;
+  }
+
+  .docs-footer-band .fp-card-body {
+    padding: 18px 18px 20px;
   }
 }
 
@@ -790,6 +1164,12 @@
   .docs-footer-band .fp-hi,
   .docs-footer-band .fp-hi.is-on,
   .docs-footer-band .fp-stage {
+    transition: none;
+  }
+
+  .docs-footer-band .fp-sheet,
+  .docs-footer-band .fp-sheet.is-open,
+  .docs-footer-band .fp-card {
     transition: none;
   }
 }

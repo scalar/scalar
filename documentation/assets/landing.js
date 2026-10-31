@@ -4200,18 +4200,22 @@ const initLandingOrbs = debounce(() => {
 /* The welcome committee under the footer: five of the landing planets
    (documentation/footer.html, the band's styles in styles.css) wait
    below the fold and rise when the page is scrolled to its very end,
-   left to right into an arch, each face forming as its planet lands and
-   each planet then saying hello in a small bubble of its own. They stand
-   round a point on the AI chat bar scalar.com floats over the bottom of
-   every page, centred on it (on a page without one, on the band) and
-   scaled down where the band is narrower than the cluster. They sink
-   back down when the page leaves its end, so the committee is there
-   again for the next arrival. The footer is drawn anew on every page the
-   site moves to, so a band whose footer has gone lets go of its
-   listeners and faces at the next scroll or resize */
-/* from a planet's turn in the rise: when its face forms (near the top
-   of its spring) and when its hello pops (as it settles) */
-const FOOTER_PLANETS_FORM = 420
+   left to right into an arch, each saying hello in a small bubble of
+   its own. They stand round a point on the AI chat bar scalar.com
+   floats over the bottom of every page, centred on it (on a page
+   without one, on the band) and scaled down where the band is narrower
+   than the cluster. They sink back down when the page leaves its end,
+   so the committee is there again for the next arrival.
+
+   Every planet is a button. It waits as a plain globe with its name
+   round it, takes its mark's shape with a face under the pointer or on
+   keyboard focus, and opens the install card for Scalar's own MCP
+   server when it is pressed, flying into the card's hero as it goes.
+
+   The footer is drawn anew on every page the site moves to, so a band
+   whose footer has gone lets go of its listeners and faces at the next
+   scroll or resize */
+/* from a planet's turn in the rise: when its hello pops (as it settles) */
 const FOOTER_PLANETS_HELLO = 640
 /* the cluster's width at full size, bubbles included, with its margins
    (the stylesheet's --fp-span: the planets' --x and sizes lay it out) */
@@ -4221,6 +4225,268 @@ const FOOTER_PLANETS_SPAN = 632
    holds its size, so the wider ones are dealt at full size only */
 const FOOTER_PLANETS_HELLOS = ['Hi!', 'Hello!', 'Hey!', 'Hiya!', 'Heyo!', 'Yo!', 'Hallo!']
 const FOOTER_PLANETS_HELLOS_WIDE = ['Howdy!', 'Hey hey!', 'Hi hi!']
+
+/* Scalar's own MCP server, and the way into it for the agent whose
+   planet was pressed, as mcp.scalar.com gives it. The two with no setup
+   of their own there (Gemini, Grok) get the plain configuration, which
+   is what an editor without a named recipe takes. */
+const FOOTER_MCP_URL = 'https://mcp.scalar.com/'
+const FOOTER_MCP_CLIENTS = {
+  chatgpt: {
+    name: 'Codex',
+    note: 'Add this to ~/.codex/config.toml.',
+    code: `[mcp_servers.scalar-api]\nurl = "${FOOTER_MCP_URL}"`,
+  },
+  claude: {
+    name: 'Claude Code',
+    note: 'Run this in your terminal to add the server to Claude Code.',
+    code: `claude mcp add scalar-api --transport http '${FOOTER_MCP_URL}'`,
+  },
+  opencode: {
+    name: 'OpenCode',
+    note: 'Add this to your opencode.json.',
+    code: `{\n  "mcp": {\n    "scalar-api": {\n      "type": "remote",\n      "url": "${FOOTER_MCP_URL}"\n    }\n  }\n}`,
+  },
+}
+/* a planet with no recipe of its own takes the plain one */
+const FOOTER_MCP_ANY = {
+  name: '',
+  note: "Add this to your agent's MCP server config.",
+  code: `{\n  "scalar-api": {\n    "type": "http",\n    "url": "${FOOTER_MCP_URL}"\n  }\n}`,
+}
+
+/* how long a copied control holds its tick */
+const FOOTER_MCP_COPIED = 1600
+/* how long a planet takes between the band and the card's hero */
+const FOOTER_MCP_FLIGHT = 520
+
+/* The card a planet opens: the install card for mcp.scalar.com, a sheet
+   fixed over the page with the rest of the document made inert while it
+   is up, so it behaves as a modal without being a <dialog>. It shows
+   the setup for the agent whose planet was pressed, and that planet
+   itself moves into the card's hero and back out again, carried there
+   by a FLIP (see fly below) while the dim and the card fade in under
+   it. `settle` hands a planet back to the band once the card has let go
+   of it. */
+const createFooterCard = (band, reduceMotion, settle) => {
+  const sheet = band.querySelector('.fp-sheet')
+  const card = sheet?.querySelector('.fp-card')
+  const seat = sheet?.querySelector('.fp-card-seat')
+  const note = sheet?.querySelector('[data-fp-note]')
+  const code = sheet?.querySelector('[data-fp-code]')
+  const go = sheet?.querySelector('[data-fp-go]')
+  const goLabel = go?.querySelector('.fp-card-go-rest')
+  const snippetCopy = sheet?.querySelector('[data-fp-copy="code"]')
+  if (!sheet || !card || !seat || !note || !code || !go || !goLabel || !snippetCopy) {
+    return null
+  }
+  // the markup hides it outright so it cannot flash before the
+  // stylesheet lands: from here the rules hold it
+  sheet.removeAttribute('hidden')
+
+  let client = FOOTER_MCP_ANY
+  /* the card on one agent: its snippet, and the button that acts on it */
+  const fill = (icon) => {
+    client = FOOTER_MCP_CLIENTS[icon] ?? FOOTER_MCP_ANY
+    note.textContent = client.note
+    code.textContent = client.code
+    snippetCopy.setAttribute('aria-label', client.name ? `Copy the ${client.name} snippet` : 'Copy the configuration')
+    goLabel.textContent = client.name ? `Copy for ${client.name}` : 'Copy the configuration'
+    go.classList.remove('is-done')
+  }
+
+  /* copying: the control holds a tick for a moment, nothing else moves */
+  const timers = new WeakMap()
+  const copy = (text, control) => {
+    if (!navigator.clipboard) {
+      return
+    }
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        control.classList.add('is-done')
+        window.clearTimeout(timers.get(control))
+        timers.set(
+          control,
+          window.setTimeout(() => control.classList.remove('is-done'), FOOTER_MCP_COPIED),
+        )
+      })
+      .catch(() => {})
+  }
+  sheet.querySelectorAll('[data-fp-copy]').forEach((control) => {
+    control.addEventListener('click', () =>
+      copy(control.dataset.fpCopy === 'url' ? FOOTER_MCP_URL : client.code, control),
+    )
+  })
+  go.addEventListener('click', () => copy(client.code, go))
+
+  let planet = null
+  let seated = null
+  let busy = false
+  /* where the focus was when the card took it */
+  let came = null
+  /* The flight: the planet moves between the band and the card's hero,
+     and a FLIP carries it there, measured on both sides of the move and
+     played back from where it stood. Deliberately not a view
+     transition: those paint the whole turn from snapshots, and in this
+     page Chrome tore the frame whenever anything else changed in the
+     same turn (the sheet showing, the document going inert), which left
+     the header and sidebar missing for a beat. A FLIP also leaves the
+     planet live, so its eyes keep following the pointer on the way in. */
+  const fly = (orb, run) => {
+    if (reduceMotion || typeof orb.animate !== 'function') {
+      run()
+      return Promise.resolve()
+    }
+    const from = orb.getBoundingClientRect()
+    run()
+    const to = orb.getBoundingClientRect()
+    if (!from.width || !to.width) {
+      return Promise.resolve()
+    }
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
+    return orb
+      .animate(
+        [
+          {
+            transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${(from.width / to.width).toFixed(4)})`,
+          },
+          { transform: 'none' },
+        ],
+        { duration: FOOTER_MCP_FLIGHT, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+      )
+      .finished.catch(() => {})
+  }
+
+  /* Everything outside the sheet, made inert while the card is up: the
+     tab order then holds inside the card on its own, as a dialog's
+     does, and nothing behind the dim answers a pointer. */
+  let shut = []
+  const seal = (on) => {
+    if (!on) {
+      shut.forEach((el) => {
+        el.inert = false
+      })
+      shut = []
+      return
+    }
+    for (let node = sheet; node && node !== document.body; node = node.parentElement) {
+      for (const other of node.parentElement?.children ?? []) {
+        if (other !== node && !other.inert) {
+          other.inert = true
+          shut.push(other)
+        }
+      }
+    }
+  }
+
+  const open = (next) => {
+    if (busy || planet) {
+      return
+    }
+    busy = true
+    planet = next
+    fill(next.orb.dataset.icon)
+    card.style.setProperty('--fp-card-tint', getComputedStyle(next.orb).getPropertyValue('--fp-wash').trim())
+    // the hero always shows the shape, however the planet was pressed
+    next.face.set(true)
+    next.hi.classList.remove('is-on')
+    seated = document.createComment('fp-planet')
+    next.orb.before(seated)
+    came = document.activeElement
+    const at = window.scrollY
+    fly(next.orb, () => {
+      // inert keeps the hero's planet out of the reading order while it
+      // is only a picture, and blurs the pressed planet on the way
+      next.orb.inert = true
+      seat.appendChild(next.orb)
+      sheet.classList.add('is-open')
+    })
+      .then(() => {
+        busy = false
+        seal(true)
+        // a frame after the sweep: marking the pressed planet inert
+        // sends the focus wandering, and that fixup lands after a
+        // focus() made in the same turn
+        window.requestAnimationFrame(() => card.focus({ preventScroll: true }))
+        // nothing here is meant to move the page, and the band is only
+        // up at its very end: hold the reader where they were
+        if (Math.abs(window.scrollY - at) > 1) {
+          window.scrollTo(0, at)
+        }
+      })
+      .catch(() => {})
+  }
+
+  const close = () => {
+    const leaving = planet
+    if (!leaving || busy) {
+      return
+    }
+    busy = true
+    seal(false)
+    fly(leaving.orb, () => {
+      sheet.classList.remove('is-open')
+      seated?.replaceWith(leaving.orb)
+      leaving.orb.inert = false
+    })
+      .then(() => {
+        planet = null
+        seated = null
+        busy = false
+        if (band.classList.contains('is-up')) {
+          leaving.hi.classList.add('is-on')
+        }
+        // the pointer may have left while the card stood over it. The
+        // focus goes back in the same turn as the settle, so the planet
+        // never paints a frame between the two
+        window.requestAnimationFrame(() => {
+          if (planet) {
+            return
+          }
+          ;(came?.isConnected ? came : leaving.orb).focus({ preventScroll: true })
+          came = null
+          settle(leaving)
+        })
+      })
+      .catch(() => {})
+  }
+
+  /* Escape, wherever the focus happens to be */
+  const onKey = (event) => {
+    if (planet && event.key === 'Escape') {
+      event.preventDefault()
+      close()
+    }
+  }
+  document.addEventListener('keydown', onKey)
+  sheet.addEventListener('click', (event) => {
+    if (event.target === sheet) {
+      close()
+    }
+  })
+  card.querySelector('.fp-card-close')?.addEventListener('click', close)
+
+  return {
+    open,
+    /* the card has a planet, or is on its way in or out of one */
+    busy: () => busy || Boolean(planet),
+    /* the band has gone: close up and put the planet back where it sat */
+    release: () => {
+      document.removeEventListener('keydown', onKey)
+      seal(false)
+      if (planet) {
+        sheet.classList.remove('is-open')
+        seated?.replaceWith(planet.orb)
+        planet.orb.inert = false
+        planet = null
+        seated = null
+      }
+    },
+  }
+}
+
 const initFooterPlanets = debounce(() => {
   const bands = [...document.querySelectorAll('.docs-footer-band')].filter((band) => band.dataset.fpBound !== 'true')
   if (!bands.length) {
@@ -4256,12 +4522,13 @@ const initFooterPlanets = debounce(() => {
         // left, away from the taller neighbour
         const hi = document.createElement('span')
         hi.className = 'fp-hi'
+        hi.setAttribute('aria-hidden', 'true')
         for (const name of ['--x', '--y', '--s']) {
           hi.style.setProperty(name, style.getPropertyValue(name))
         }
         hi.classList.toggle('is-left', Number.parseFloat(style.getPropertyValue('--x')) < 0)
-        // its turn in the rise, so its face and its hello follow its landing
-        return { orb, ring, hi, face: null, delay: Number.parseFloat(style.getPropertyValue('--d')) || 0 }
+        // its turn in the rise, so its hello follows its landing
+        return { orb, ring, hi, face: null, hover: false, delay: Number.parseFloat(style.getPropertyValue('--d')) || 0 }
       })
       .filter(Boolean)
     if (!stage || !planets.length) {
@@ -4274,6 +4541,35 @@ const initFooterPlanets = debounce(() => {
     })
     planets.forEach((planet) => {
       planet.face = landingFaces.attach(planet.orb, planet.ring)
+    })
+
+    /* a planet is in its shape while the pointer is on it or the
+       keyboard has it, and holds it while the card has it */
+    let card = null
+    const wake = (planet) => {
+      if (card?.busy()) {
+        return
+      }
+      planet.face.set(planet.hover || planet.orb.matches(':focus-visible'))
+    }
+    card = createFooterCard(band, reduceMotion, (planet) => {
+      planet.hover = planet.orb.matches(':hover')
+      wake(planet)
+    })
+    planets.forEach((planet) => {
+      // a finger has no hover: a tap goes straight to the card
+      const moved = (event, on) => {
+        if (event.pointerType === 'touch') {
+          return
+        }
+        planet.hover = on
+        wake(planet)
+      }
+      planet.orb.addEventListener('pointerenter', (event) => moved(event, true))
+      planet.orb.addEventListener('pointerleave', (event) => moved(event, false))
+      planet.orb.addEventListener('focus', () => wake(planet))
+      planet.orb.addEventListener('blur', () => wake(planet))
+      planet.orb.addEventListener('click', () => card?.open(planet))
     })
 
     let timers = []
@@ -4327,14 +4623,10 @@ const initFooterPlanets = debounce(() => {
       })
       band.classList.add('is-up')
       if (reduceMotion) {
-        planets.forEach((planet) => {
-          planet.face.set(true)
-          planet.hi.classList.add('is-on')
-        })
+        planets.forEach((planet) => planet.hi.classList.add('is-on'))
         return
       }
       planets.forEach((planet) => {
-        later(() => planet.face.set(true), FOOTER_PLANETS_FORM + planet.delay)
         later(() => planet.hi.classList.add('is-on'), FOOTER_PLANETS_HELLO + planet.delay)
       })
     }
@@ -4342,6 +4634,7 @@ const initFooterPlanets = debounce(() => {
       clear()
       band.classList.remove('is-up')
       planets.forEach((planet) => {
+        planet.hover = false
         planet.hi.classList.remove('is-on')
         planet.face.set(false)
       })
@@ -4354,6 +4647,10 @@ const initFooterPlanets = debounce(() => {
     const check = () => {
       if (!band.isConnected) {
         release()
+        return
+      }
+      // the committee holds its place while the card stands over it
+      if (card?.busy()) {
         return
       }
       const remaining = left()
@@ -4378,6 +4675,7 @@ const initFooterPlanets = debounce(() => {
       window.removeEventListener('resize', onResize)
       grown.disconnect()
       clear()
+      card?.release()
       planets.forEach((planet) => planet.face.detach())
     }
     window.addEventListener('scroll', check, { passive: true })
@@ -4386,7 +4684,6 @@ const initFooterPlanets = debounce(() => {
     check()
   })
 })
-
 /* Each chat plays every time it scrolls into view. */
 const initLandingChat = debounce(() => {
   const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')

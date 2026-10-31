@@ -1965,51 +1965,206 @@
   </svg>
   <div
     class="fp-stage"
-    aria-hidden="true"
     data-md-exclude>
-    <div
+    <button
+      type="button"
       class="fp-planet fp-planet--chatgpt"
       data-label="ChatGPT"
-      data-icon="chatgpt">
+      data-icon="chatgpt"
+      aria-label="Connect ChatGPT to the Scalar API MCP server">
       <div class="lp-orb-globe">
         <div class="lp-orb-ball"><div class="lp-orb-skin"></div></div>
         <div class="lp-orb-ring"></div>
       </div>
-    </div>
-    <div
+    </button>
+    <button
+      type="button"
       class="fp-planet fp-planet--claude"
       data-label="Claude"
-      data-icon="claude">
+      data-icon="claude"
+      aria-label="Connect Claude to the Scalar API MCP server">
       <div class="lp-orb-globe">
         <div class="lp-orb-ball"><div class="lp-orb-skin"></div></div>
         <div class="lp-orb-ring"></div>
       </div>
-    </div>
-    <div
+    </button>
+    <button
+      type="button"
       class="fp-planet fp-planet--gemini"
       data-label="Gemini"
-      data-icon="gemini">
+      data-icon="gemini"
+      aria-label="Connect Gemini to the Scalar API MCP server">
       <div class="lp-orb-globe">
         <div class="lp-orb-ball"><div class="lp-orb-skin"></div></div>
         <div class="lp-orb-ring"></div>
       </div>
-    </div>
-    <div
+    </button>
+    <button
+      type="button"
       class="fp-planet fp-planet--opencode"
       data-label="OpenCode"
-      data-icon="opencode">
+      data-icon="opencode"
+      aria-label="Connect OpenCode to the Scalar API MCP server">
       <div class="lp-orb-globe">
         <div class="lp-orb-ball"><div class="lp-orb-skin"></div></div>
         <div class="lp-orb-ring"></div>
       </div>
-    </div>
-    <div
+    </button>
+    <button
+      type="button"
       class="fp-planet fp-planet--grok"
       data-label="Grok"
-      data-icon="grok">
+      data-icon="grok"
+      aria-label="Connect Grok to the Scalar API MCP server">
       <div class="lp-orb-globe">
         <div class="lp-orb-ball"><div class="lp-orb-skin"></div></div>
         <div class="lp-orb-ring"></div>
+      </div>
+    </button>
+  </div>
+  <!-- What a planet opens: the install card for Scalar's own MCP server
+       (mcp.scalar.com), laid out like an app's add-to card. It is a
+       modal in the ordinary sense: a fixed sheet over the page, the
+       rest of the document made inert while it is up, Escape and the
+       dim both closing it. The pressed planet moves into the hero and
+       flies there, and the snippet row is filled from
+       FOOTER_MCP_CLIENTS in landing.js, opening on the agent whose
+       planet was pressed. -->
+  <div
+    class="fp-sheet"
+    data-md-exclude
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="fp-card-title"
+    hidden>
+    <div
+      class="fp-card"
+      tabindex="-1">
+      <div class="fp-card-hero">
+        <div class="fp-card-seat"></div>
+      </div>
+      <button
+        type="button"
+        class="fp-card-close"
+        aria-label="Close">
+        <svg
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.15"
+          stroke-linecap="round"
+          aria-hidden="true">
+          <path d="M4.3 4.3l7.4 7.4M11.7 4.3l-7.4 7.4"></path>
+        </svg>
+      </button>
+      <div class="fp-card-body">
+        <h2
+          class="fp-card-title"
+          id="fp-card-title">
+          Scalar API MCP Server
+        </h2>
+        <p class="fp-card-text">
+          Connect your AI coding agent to the Scalar API. Use the API from your
+          editor, with any client that speaks the Model Context Protocol.
+        </p>
+        <div class="fp-card-panel">
+          <div class="fp-field">
+            <div class="fp-field-head">
+              <span
+                class="fp-field-label"
+                data-fp-note></span>
+            </div>
+            <div class="fp-field-box">
+              <pre class="fp-field-code"><code data-fp-code></code></pre>
+              <button
+                type="button"
+                class="fp-field-copy"
+                data-fp-copy="code"
+                aria-label="Copy the setup snippet">
+                <svg
+                  class="fp-copy-mark"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                  aria-hidden="true">
+                  <rect
+                    x="5.4"
+                    y="5.4"
+                    width="8.2"
+                    height="8.2"
+                    rx="1.8"></rect>
+                  <path
+                    d="M10.6 5.4V4.2a1.8 1.8 0 0 0-1.8-1.8H4.2a1.8 1.8 0 0 0-1.8 1.8v4.6a1.8 1.8 0 0 0 1.8 1.8h1.2"></path>
+                </svg>
+                <svg
+                  class="fp-copy-done"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true">
+                  <path d="M3.5 8.4l3 3 6-6.8"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="fp-field">
+            <div class="fp-field-head">
+              <span class="fp-field-label">Server URL</span>
+            </div>
+            <div class="fp-field-box">
+              <pre
+                class="fp-field-code"><code>https://mcp.scalar.com/</code></pre>
+              <button
+                type="button"
+                class="fp-field-copy"
+                data-fp-copy="url"
+                aria-label="Copy the server URL">
+                <svg
+                  class="fp-copy-mark"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                  aria-hidden="true">
+                  <rect
+                    x="5.4"
+                    y="5.4"
+                    width="8.2"
+                    height="8.2"
+                    rx="1.8"></rect>
+                  <path
+                    d="M10.6 5.4V4.2a1.8 1.8 0 0 0-1.8-1.8H4.2a1.8 1.8 0 0 0-1.8 1.8v4.6a1.8 1.8 0 0 0 1.8 1.8h1.2"></path>
+                </svg>
+                <svg
+                  class="fp-copy-done"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true">
+                  <path d="M3.5 8.4l3 3 6-6.8"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="fp-card-actions">
+          <button
+            type="button"
+            class="fp-card-go"
+            data-fp-go>
+            <span class="fp-card-go-rest"></span>
+            <span class="fp-card-go-done">Copied</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
