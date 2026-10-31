@@ -20,6 +20,20 @@ describe('seasonal-theme', () => {
       expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
     })
 
+    it.each([
+      ['September 12, the 256th day of a leap year', '2028-09-12T00:00:00Z'],
+      ['September 13, the 256th day of a common year', '2026-09-13T23:59:59Z'],
+    ])("uses the Programmer's Day theme on %s", (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('programmersDay')
+    })
+
+    it.each([
+      ["the day before Programmer's Day", '2026-09-11T23:59:59Z'],
+      ["the day after Programmer's Day", '2026-09-14T00:00:00Z'],
+    ])('falls back to the default theme on %s', (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
+    })
+
     it('recurs every year', () => {
       expect(getSeasonalTheme(new Date('2031-10-31T12:00:00Z'))).toBe('halloween')
     })
