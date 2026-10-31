@@ -284,6 +284,11 @@ export function externalizePathReferences(
   }
 
   Object.entries(document.paths).forEach(([path, pathItemRef]) => {
+    if (path.startsWith('x-')) {
+      result[path] = getRaw(pathItemRef)
+      return
+    }
+
     const pathItem = getResolvedPathItem(pathItemRef)
     if (!pathItem || typeof pathItem !== 'object') {
       return

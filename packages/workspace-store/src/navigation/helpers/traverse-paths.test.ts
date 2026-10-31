@@ -7,6 +7,21 @@ import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { traversePaths } from './traverse-paths'
 
 describe('traversePaths', () => {
+  it('ignores operation-shaped extensions on the Paths Object', () => {
+    const result = traversePaths({
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Pets', version: '1' },
+        'x-scalar-original-document-hash': '',
+        paths: { 'x-metadata': { get: { summary: 'Not an operation' } }, '/pets': { get: {} } },
+      },
+      tagsMap: new Map(),
+      documentId: 'pets',
+      generateId: getNavigationOptions('pets').generateId,
+    })
+    expect(result.untaggedOperations.map(({ path }) => path)).toStrictEqual(['/pets'])
+  })
+
   it('includes additional operations with their nested JSON pointers', () => {
     const document: OpenApiDocument = {
       openapi: '3.2.1',

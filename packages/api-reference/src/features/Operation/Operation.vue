@@ -171,6 +171,7 @@ const selectedSecuritySchemes = computed(() =>
       :operation
       :options
       :path
+      :pathValue
       :requiredSecurity
       :scrollTargetId="scrollTargetId"
       :selectedClient
@@ -196,6 +197,7 @@ const selectedSecuritySchemes = computed(() =>
       :operation
       :options
       :path
+      :pathValue
       :requiredSecurity
       :scrollTargetId="scrollTargetId"
       :selectedClient

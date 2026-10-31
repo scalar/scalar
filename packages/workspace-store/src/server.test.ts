@@ -17,7 +17,7 @@ import { isAsyncApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
-import { SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
+import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
 
 import { allFilesMatch, getOpenApiServerDocument } from '../test/helpers'
 import {
@@ -30,6 +30,23 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it('preserves Paths Object extensions when externalizing operations', () => {
+    const extensions = {
+      'x-origins': ['https://example.com'],
+      'x-metadata': { get: { summary: 'Metadata' } },
+      'x-null': null,
+    }
+    const document = coerceValue(OpenAPIDocumentSchema, {
+      openapi: '3.1.0',
+      info: { title: 'Pets', version: '1' },
+      paths: { ...extensions, '/pets': { get: {} } },
+    })
+    expect(externalizePathReferences(document, { mode: 'ssr', name: 'pets', baseUrl: '/docs' })).toStrictEqual({
+      ...extensions,
+      '/pets': { get: { $ref: '/docs/pets/operations/~1pets/get#', $global: true } },
+    })
+  })
+
   const loadingDocument = { openapi: '3.2.0', info: { title: 'Trusted API', version: '1' }, paths: {} }
   it('blocks private initial URLs, later additions, and external references without contacting them', async () => {
     const requests: string[] = []
