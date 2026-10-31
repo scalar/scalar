@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { nextTick } from 'vue'
 
-import { getStickyHeaderOffset, scrollToLazy } from './lazy-bus'
+import { getStickyHeaderOffset, requestLazyRender, scrollToLazy } from './lazy-bus'
 
 // ---------------------------------------------------------------------------
 // scrollToLazy — existing tests
@@ -72,6 +73,49 @@ describe('lazy-bus', () => {
       vi.useFakeTimers()
 
       expect(expandedIdsFor('nothing/here.body.name')).not.toContain(operationId)
+
+      vi.useRealTimers()
+    })
+
+    it('keeps the page on the newest target while an earlier target is still rendering', async () => {
+      vi.useFakeTimers()
+
+      const pending = 'tag/planets/GET/planets'
+      const rendered = 'tag/planets/POST/planets'
+      const entries = new Map<string, { id: string; parent?: { id: string } }>([
+        ['tag/planets', { id: 'tag/planets' }],
+        [pending, { id: pending, parent: { id: 'tag/planets' } }],
+        [rendered, { id: rendered, parent: { id: 'tag/planets' } }],
+      ])
+      const getEntryById = (id: string) => entries.get(id)
+
+      // jsdom does not implement scrollIntoView, so each target records the scrolls it receives
+      const scrolledTo: string[] = []
+      for (const id of [pending, rendered]) {
+        const element = document.createElement('section')
+        element.id = id
+        element.scrollIntoView = () => scrolledTo.push(id)
+        document.body.append(element)
+      }
+
+      // Render one target up front, so only the other one is still lazy when the reader navigates
+      requestLazyRender(rendered, true)
+      await nextTick()
+      await nextTick()
+
+      scrollToLazy(pending, () => undefined, getEntryById)
+      await nextTick()
+      vi.advanceTimersToNextFrame()
+      expect(scrolledTo.at(-1)).toBe(pending)
+
+      // The reader navigates again before the lazy bus has rendered the first target
+      scrollToLazy(rendered, () => undefined, getEntryById)
+      await nextTick()
+      for (let frame = 0; frame < 5; frame++) {
+        vi.advanceTimersToNextFrame()
+      }
+
+      expect(scrolledTo.at(-1)).toBe(rendered)
 
       vi.useRealTimers()
     })
