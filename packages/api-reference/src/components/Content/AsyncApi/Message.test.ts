@@ -6,8 +6,13 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
+import { PLUGIN_MANAGER_SYMBOL } from '@/plugins/hooks/usePluginManager'
+import { createPluginManager } from '@/plugins/plugin-manager'
+
 import Message from './Message.vue'
 import MessageExamples from './MessageExamples.vue'
+
+vi.unmock('@/plugins/hooks/usePluginManager')
 
 const MESSAGE_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp'
 
@@ -126,6 +131,39 @@ describe('Message', () => {
       })
       expect(wrapper.text()).not.toContain('Redundant tag')
     }
+  })
+
+  it('renders payload extension plugins without a supplied renderer', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          payload: {
+            type: 'object',
+            properties: { userId: { type: 'string', 'x-owner': 'message-team', 'x-hidden': 'hidden-team' } },
+          },
+        }),
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Plugin owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Plugin owner')
+    expect(wrapper.text()).not.toContain('message-team')
+    expect(wrapper.text()).not.toContain('hidden-team')
+    wrapper.unmount()
   })
 
   it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {
