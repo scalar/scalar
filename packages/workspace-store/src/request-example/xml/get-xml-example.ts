@@ -20,7 +20,13 @@ import { matchXmlPropertyPattern } from './match-xml-property-pattern'
 import { type WriteXmlOptions, writeXml } from './write-xml'
 import type { XmlAttribute, XmlDiagnostic, XmlExampleResult, XmlName, XmlNode } from './xml-node'
 
-/** XML options share the data generator's value and branch-selection policies. */
+/**
+ * XML options share the data generator's value and branch-selection policies.
+ *
+ * That includes `includeDeprecated`: the serializer honors it too, so a value the generator kept
+ * is not dropped again when it becomes an element. Without that, a caller that opts in (a mock
+ * server response, for instance) would still answer a wholly deprecated schema with an empty body.
+ */
 export type XmlExampleOptions = Omit<GetExampleFromSchemaOptions, 'xml' | typeof EXAMPLE_EVALUATION> &
   WriteXmlOptions & {
     /** Version-specific XML defaults. Existing descriptions default to OpenAPI 3.1 behavior. */
@@ -291,7 +297,7 @@ const buildXmlExample = (
       )
     }
     if (
-      schema.deprecated ||
+      (schema.deprecated && options.includeDeprecated !== true) ||
       (options.mode === 'write' && schema.readOnly) ||
       (options.mode === 'read' && schema.writeOnly)
     ) {
@@ -401,7 +407,7 @@ const buildXmlExample = (
         ) as SchemaObject
         const resolved = getResolvedRef(childSchema, mergeSiblingReferences)
         if (
-          resolved?.deprecated ||
+          (resolved?.deprecated && options.includeDeprecated !== true) ||
           (options.mode === 'write' && resolved?.readOnly) ||
           (options.mode === 'read' && resolved?.writeOnly)
         ) {

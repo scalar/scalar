@@ -70,6 +70,9 @@ function getExampleFromResponse(
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',
+      // Same reason as `generateResponseExample`: `deprecated` marks a field as discouraged, not absent
+      // from the wire, so without this a wholly deprecated schema came back as an empty XML body.
+      includeDeprecated: true,
     })
     const error = result.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
     if (error) {
