@@ -37,7 +37,9 @@ jobs:
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    # Every other JS job waits on this one, and a PR's first push builds with
+    # an empty turbo cache, so the extra cores pay for themselves here.
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
@@ -232,12 +234,41 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - name: Setup Node
-        uses: ./.github/actions/setup-node
-      - name: Install dependencies
-        run: pnpm install
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      # `--only` skips the `build` dependencies of types:check: restore-build
+      # already put every package dist/ in place, and turbo used to rebuild
+      # whatever missed its cache before it could start checking types.
+      #
+      # `--cache=local:` turns the turbo cache off for this run, and it must
+      # stay off. With `--only`, a task's hash no longer covers the packages
+      # it depends on, so a cached pass would be replayed even after an
+      # upstream package changed its types.
       - name: Check types
-        run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
+        run: |
+          pnpm turbo ${{ env.TURBO_FLAGS }} --only --cache=local: types:check
+
+  # Builds the examples, projects and tooling that the build job leaves out
+  # (it only builds packages and integrations). They depend on those packages,
+  # so this restores their dist/ and builds just the apps on top. Without it,
+  # an example or scalar-app that no longer builds would only fail after merge.
+  # The cache stays off for the same reason as in the types job above.
+  build-apps:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Build examples, projects and tooling
+        run: >-
+          pnpm turbo --only --cache=local:
+          --filter './examples/**'
+          --filter './projects/*'
+          --filter '!./projects/proxy-scalar-com'
+          --filter './tooling/**'
+          build
 
   knip:
     if: github.event_name == 'pull_request'
@@ -282,7 +313,7 @@ jobs:
       - name: Restore pre-built workspace
         uses: ./.github/actions/restore-build
       - name: Run tests
-        run: pnpm turbo --filter './integrations/**' test
+        run: pnpm turbo --filter './integrations/**' --only test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
@@ -693,6 +724,7 @@ jobs:
     needs:
       [
         build,
+        build-apps,
         test-server-side-rendering,
         format,
         knip,
