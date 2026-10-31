@@ -577,6 +577,30 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Configures defaults for an OpenID Connect security scheme after discovery.
+    /// </summary>
+    /// <param name="options">The Scalar options.</param>
+    /// <param name="securitySchemeName">The scheme name in the API description.</param>
+    /// <param name="configureScheme">Configures the OpenID Connect defaults.</param>
+    public static TOptions AddOpenIdConnectAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarOpenIdConnectSecurityScheme> configureScheme) where TOptions : ScalarOptions
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
+
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) &&
+            existingScheme is ScalarOpenIdConnectSecurityScheme existingOpenIdConnectScheme)
+        {
+            configureScheme(existingOpenIdConnectScheme);
+            return options;
+        }
+
+        var scheme = new ScalarOpenIdConnectSecurityScheme();
+        configureScheme(scheme);
+        options.Authentication.SecuritySchemes[securitySchemeName] = scheme;
+        return options;
+    }
+
+    /// <summary>
     /// Adds OAuth2 device authorization authentication configuration for a specific security scheme.
     /// </summary>
     /// <param name="options">The options to configure.</param>

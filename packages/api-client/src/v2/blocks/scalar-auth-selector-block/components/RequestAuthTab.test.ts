@@ -17,6 +17,26 @@ vi.mock('@/v2/blocks/scalar-auth-selector-block/helpers/run-oauth2-authorize', (
 import { runOAuth2Authorize } from '@/v2/blocks/scalar-auth-selector-block/helpers/run-oauth2-authorize'
 
 describe('RequestAuthTab', () => {
+  it('initially selects the first OIDC flow and allows switching to another discovered flow', async () => {
+    const flows = {
+      authorizationCode: {
+        authorizationUrl: 'https://example.com/auth',
+        tokenUrl: 'https://example.com/token',
+        scopes: { openid: '' },
+        'x-scalar-secret-client-id': 'scalar',
+        'x-usePkce': 'SHA-256',
+      },
+      implicit: { authorizationUrl: 'https://example.com/auth', scopes: { openid: '' } },
+    }
+    const scheme = { type: 'openIdConnect', openIdConnectUrl: 'https://example.com/discovery', flows }
+    const wrapper = mountWithProps({ securitySchemes: { oidc: scheme }, selectedSecuritySchemas: { oidc: ['openid'] } })
+    expect(wrapper.findComponent(OAuth2).props('type')).toBe('authorizationCode')
+    const implicitButton = wrapper.findAll('button').find((button) => button.text() === 'implicit')!
+    await implicitButton.trigger('click')
+    expect(wrapper.findComponent(OAuth2).props('type')).toBe('implicit')
+    wrapper.unmount()
+  })
+
   const baseEnvironment = {
     uid: 'env-1' as any,
     name: 'Default',

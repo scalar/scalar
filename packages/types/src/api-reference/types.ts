@@ -59,6 +59,10 @@ type OasSecurityOpenIdConnect = {
   /** REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS. */
   openIdConnectUrl: string
+  /** Defaults applied to matching flows after OpenID Connect discovery. */
+  flows?: PartialDeep<OasSecurityOauth2FlowImplicit['flows']>
+  /** Scopes selected by default after discovery. */
+  'x-default-scopes'?: string[]
 }
 export type SecuritySchemeOpenIdConnect = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOpenIdConnect
 

@@ -381,6 +381,31 @@ app.MapScalarApiReference(options => options
     }));
 ```
 
+#### OpenID Connect Authentication
+
+Declare an `openIdConnect` security scheme with an `openIdConnectUrl` in your API description, then configure defaults using the same scheme name:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OpenIdConnect")
+    .AddOpenIdConnectAuthentication("OpenIdConnect", scheme =>
+    {
+        scheme.Flows = new ScalarFlows
+        {
+            AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "scalar",
+                Pkce = Pkce.Sha256,
+                SelectedScopes = ["openid", "profile", "email"]
+            }
+        };
+    }));
+```
+
+You can also assign a `ScalarOpenIdConnectSecurityScheme` directly in `Authentication.SecuritySchemes`. After **Fetch Configuration**, matching discovered flows use these defaults. Configuring exactly one supported flow selects it initially while keeping other discovered flows available. With multiple configured flows, or an unsupported configured flow, the existing flow order is used. User edits take precedence over defaults.
+
+These options configure the API reference, not authentication on your server. They do not add flows to the API description or bypass discovery. Selected scopes must be available on the discovered flow. Credentials configured here are sent to the browser.
+
 #### OAuth2 Authentication
 
 Scalar provides convenience methods for each OAuth2 flow type to pre-fill authentication details in the API reference interface:

@@ -208,7 +208,8 @@ export const getSecuritySchemeOptions = (
       // Reuse the current selection so changing scopes does not create a second option.
       // Defaults seed a new selection, but must not replace scopes the user deliberately cleared.
       const value = selectedByRequirement.get(requirementSignature({ [name]: [] })) ?? {
-        [name]: scheme.type === 'oauth2' ? [...(scheme['x-default-scopes'] ?? [])] : [],
+        [name]:
+          scheme.type === 'oauth2' || scheme.type === 'openIdConnect' ? [...(scheme['x-default-scopes'] ?? [])] : [],
       }
       const formatted = formatScheme({ name, value })
       availableFormatted.push(formatted)
