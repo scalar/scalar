@@ -142,6 +142,7 @@ export const TRACKED_EVENTS: TrackedEventsMap = {
   'operation:update:extra-parameters': undefined,
   'operation:delete:parameter': undefined,
   'operation:delete-all:parameters': undefined,
+  'operation:reset:requestBody': undefined,
   'operation:update:requestBody:value': undefined,
   'operation:update:requestBody:formValue': undefined,
   'server:initialize:servers': undefined,

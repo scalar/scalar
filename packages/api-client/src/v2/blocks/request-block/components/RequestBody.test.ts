@@ -56,6 +56,25 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it('requests a reset for the selected content type', async () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: { 'application/json': { example: { name: 'original' } } },
+        },
+      },
+    })
+    await wrapper.get('button[aria-label="Restore original body"]').trigger('click')
+    expect(wrapper.emitted('reset')).toStrictEqual([[{ contentType: 'application/json' }]])
+    expect(wrapper.emitted('generate:example')).toBeUndefined()
+  })
+
+  it('does not offer a reset when no body is selected', () => {
+    const wrapper = mount(RequestBody, { props: defaultProps })
+    expect(wrapper.find('button[aria-label="Restore original body"]').exists()).toBe(false)
+  })
+
   it('renders writable schema fields independently of a custom example and preserves the edited payload', async () => {
     const editedValue = '{"name":"Edited account"}'
     const wrapper = mount(RequestBody, {
@@ -2245,7 +2264,7 @@ describe('RequestBody', () => {
     expect(rawWrapper.find('[data-testid="structured-form"]').exists()).toBe(false)
   })
   const findGenerateButton = (wrapper: ReturnType<typeof mount>) =>
-    wrapper.find('[aria-label="Generate example from schema"]')
+    wrapper.find('[aria-label="Create example from schema"]')
 
   it('emits the selected content type when clicked', async () => {
     const requestBody: RequestBodyObject = {
