@@ -1,3 +1,4 @@
+import { mergeObjects } from '@scalar/helpers/object/merge-objects'
 import { slugger } from '@scalar/helpers/string/slugger'
 import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
 import { apiReferenceConfigurationWithSourceSchema } from '@scalar/schemas/api-reference'
@@ -65,7 +66,15 @@ export const normalizeConfigurations = (
         // For each source in the array:
         // - Merge the source with the parent config properties
         // - Handle undefined sources by returning empty array via ?? []
-        return configSources?.map((source) => ({ ...rest, ...source })) ?? []
+        return (
+          configSources?.map((source) => ({
+            ...rest,
+            ...source,
+            authentication: source.authentication
+              ? mergeObjects(rest.authentication ?? {}, source.authentication)
+              : rest.authentication,
+          })) ?? []
+        )
       }
 
       // If config doesn't have sources array, treat the config itself as a source

@@ -1,11 +1,15 @@
 import z from 'zod'
 
+import type { AuthenticationConfiguration } from './authentication-configuration'
+
 /**
  * A source is any potential document input used for API Reference
  * and API Client integrations. Sources may be specified in the configuration
  * or used independently. Some configurations may have multiple sources.
  */
 export const sourceConfigurationSchema = z.object({
+  /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */
+  authentication: z.custom<AuthenticationConfiguration>().optional(),
   default: z.boolean().default(false).optional().catch(false),
   /**
    * URL to an OpenAPI/Swagger document

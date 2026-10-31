@@ -20,6 +20,7 @@ const {
   environment,
   isStatic,
   selectedSchemeOptions,
+  selectedSchemeIndexes,
   activeAuthIndex,
   securitySchemes = {},
   server,
@@ -34,6 +35,8 @@ const {
   isStatic: boolean
   /** Available authentication scheme options */
   selectedSchemeOptions: SecuritySchemeOption[]
+  /** Original store indexes when visible choices are filtered. */
+  selectedSchemeIndexes?: number[]
   /** Index of the currently active authentication tab */
   activeAuthIndex: number
   /** Proxy URL */
@@ -68,7 +71,7 @@ const shouldShowTabs = computed<boolean>(() => selectedSchemeOptions.length > 1)
 /** Handles authentication tab selection */
 const handleTabChange = (index: number) =>
   eventBus.emit('auth:update:active-index', {
-    index,
+    index: selectedSchemeIndexes?.[index] ?? index,
     meta,
   })
 

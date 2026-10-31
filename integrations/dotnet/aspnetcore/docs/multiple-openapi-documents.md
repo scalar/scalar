@@ -143,3 +143,28 @@ foreach (var version in versions)
 
 
 With this setup, Scalar will display a version selector in the UI, allowing users to switch between different API versions and their corresponding documentation.
+
+## Per-document authentication
+
+Authentication configured on `ScalarOptions` is shared by all documents. Use the document callback to override those defaults for one document:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddAuthorizationCodeFlow("OAuth", flow => flow.ClientId = "shared-client")
+    .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
+    .AddDocument("public", configureDocument: document => document
+        .AddPreferredSecuritySchemes("OAuth")
+        .WithAllowedSecuritySchemes("OAuth"))
+    .AddDocument("internal", configureDocument: document => document
+        .AddPreferredSecuritySchemes("Basic")
+        .AddHttpAuthentication("Basic", auth => auth.Username = "internal-demo")
+        .WithAllowedSecuritySchemes("Basic")));
+```
+
+Define the corresponding security schemes in each API description. The public document displays OAuth with the shared client ID. The internal document displays Basic with its document-specific username.
+
+Document authentication settings merge recursively with global defaults. Document values win, and arrays (including preferred schemes and allowed schemes) replace global arrays. Documents without overrides inherit the global configuration. You can also set `Authentication` directly on a `ScalarDocument` passed to `AddDocuments`.
+
+`WithAllowedSecuritySchemes` limits authentication choices and forms in the reference and its request modal. Omitting it shows all inherited and document-defined schemes. Calling it without names hides all choices. An allowlist also hides generic authentication creation, and an AND combination is hidden if any member is excluded.
+
+The allowlist only controls visibility. It does not change the API description, server authorization, or credentials sent with requests, including saved selections. Configure the preferred scheme consistently with the allowlist. Existing user selections take precedence over the preferred scheme.
