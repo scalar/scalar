@@ -892,10 +892,22 @@ const contextChain = computed(() => {
   return crumbs
 })
 
+const documentElement = useTemplateRef<HTMLElement>('documentEl')
+/** Navigation targets live inside the custom element's shadow root when embedded. */
+const getDocumentRoot = (): Document | ShadowRoot => {
+  const root = documentElement.value?.getRootNode()
+  return root instanceof ShadowRoot ? root : document
+}
+
 const scrollToLazyElement = (id: string) => {
   setBreadcrumb(id)
   sidebarState.setSelected(id)
-  _scrollToLazy(id, sidebarState.setExpanded, sidebarState.getEntryById)
+  _scrollToLazy(
+    id,
+    sidebarState.setExpanded,
+    sidebarState.getEntryById,
+    getDocumentRoot(),
+  )
 }
 
 /**
@@ -1826,7 +1838,7 @@ useIntersection(
   {
     onExit: () => {
       const centerY = window.innerHeight / 2
-      const section = document
+      const section = getDocumentRoot()
         .elementsFromPoint(window.innerWidth / 2, centerY)
         .find((el) => el.tagName === 'SECTION' && el.id)
 

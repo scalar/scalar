@@ -267,6 +267,7 @@ export const scrollToLazy = (
   id: string,
   setExpanded: (id: string, value: boolean) => void,
   getEntryById: (id: string) => { id: string; parent?: { id: string }; children?: { id: string }[] } | undefined,
+  root: Document | ShadowRoot = document,
 ) => {
   const item = getEntryById(id)
 
@@ -279,7 +280,7 @@ export const scrollToLazy = (
    */
   const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
 
-  const unfreeze = isLazy ? freeze(id) : undefined
+  const unfreeze = isLazy ? freeze(id, root) : undefined
   addLazyCompleteCallback(unfreeze)
 
   // Disable intersection while we scroll to the element
@@ -325,7 +326,7 @@ export const scrollToLazy = (
   addParents(rawId)
 
   void nextTick(() => {
-    tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, unfreeze, rawId)
+    tryScroll(id, Date.now() + SCROLL_RETRY_MS, unblock, root, unfreeze, rawId)
   })
 }
 
@@ -380,7 +381,9 @@ const resolveNavigationId = (id: string, getEntryById: (id: string) => unknown):
 export const getStickyHeaderOffset = (element: HTMLElement, scrollportTop = 0): number => {
   const target = element.getBoundingClientRect()
   const targetX = target.left + target.width / 2
-  const headers = Array.from(element.ownerDocument.querySelectorAll<HTMLElement>('[data-scalar-scroll-header]'))
+  const headers = Array.from(
+    (element.getRootNode() as Document | ShadowRoot).querySelectorAll<HTMLElement>('[data-scalar-scroll-header]'),
+  )
     .flatMap((candidate) => {
       if (candidate === element || candidate.contains(element) || element.contains(candidate)) {
         return []
@@ -455,10 +458,11 @@ const tryScroll = (
   id: string,
   stopTime: number,
   onComplete: UnblockFn,
+  root: Document | ShadowRoot,
   onFailure?: () => void,
   fallbackId?: string,
 ): void => {
-  const element = document.getElementById(id)
+  const element = root.getElementById(id)
   if (element) {
     scrollToElement(element)
     if (element instanceof HTMLElement && scrollTargetId.value === id) {
@@ -467,10 +471,10 @@ const tryScroll = (
     clearScrollTarget(id)
     onComplete()
   } else if (Date.now() < stopTime) {
-    requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, onFailure, fallbackId))
+    requestAnimationFrame(() => tryScroll(id, stopTime, onComplete, root, onFailure, fallbackId))
   } else {
     if (fallbackId && fallbackId !== id && scrollTargetId.value === id) {
-      const fallback = document.getElementById(fallbackId)
+      const fallback = root.getElementById(fallbackId)
       if (fallback) {
         scrollToElement(fallback)
       }
@@ -481,11 +485,11 @@ const tryScroll = (
   }
 }
 
-const freeze = (id: string): (() => void) => {
+const freeze = (id: string, root: Document | ShadowRoot): (() => void) => {
   let stop = false
 
   const runFrame = (stopAfterFrame: boolean) => {
-    const element = document.getElementById(id)
+    const element = root.getElementById(id)
     if (element) {
       scrollToElement(element)
     }
