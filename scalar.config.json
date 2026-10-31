@@ -1305,6 +1305,8 @@
             "filepath": "documentation/guides/company.md",
             "type": "page",
             "layout": {
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
@@ -1313,6 +1315,9 @@
               "scripts": [
                 {
                   "path": "documentation/assets/company.js"
+                },
+                {
+                  "path": "documentation/assets/company-hero.js"
                 }
               ],
               "links": [
