@@ -1,4 +1,4 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
@@ -145,7 +145,10 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         }
 
         // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${path}`))
+        const resolvedValue = getValueByPath(
+          args.root,
+          decodeURIComponent(path).split('/').map(unescapeJsonPointerSegment),
+        )
         // Return early if the value is already a magic proxy
         if (isMagicProxyObject(resolvedValue.value)) {
           return resolvedValue.value
@@ -193,7 +196,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return undefined
         }
 
-        const segments = parseJsonPointerSegments(`/${path}`)
+        const segments = decodeURIComponent(path).split('/').map(unescapeJsonPointerSegment)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value
