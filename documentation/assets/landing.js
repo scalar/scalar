@@ -994,10 +994,12 @@ const createPlanetFaces = (options = {}) => {
   const settings = { ...DEFAULTS, ...(options.settings ?? {}) }
   /* an expression: how the mouth lies, how open each eye is, and the
      head's tilt (degrees, a roll). The mouth is the name: 'smile' puts
-     it on the smile's circle, 'flat' on a line, 'hmm' on a line that
-     rises to one side, shifted that way */
+     it on the smile's circle, 'frown' on the same circle turned over,
+     'flat' on a line, 'hmm' on a line that rises to one side, shifted
+     that way */
   const EXPRESSIONS = {
     happy: { mouth: 'smile', lids: [1, 1], tilt: 0 },
+    sad: { mouth: 'frown', lids: [0.72, 0.72], tilt: 0 },
     straight: { mouth: 'flat', lids: [1, 1], tilt: 0 },
     thinking: { mouth: 'hmm', lids: [0.5, 1], tilt: -6 },
   }
@@ -1980,7 +1982,7 @@ const createPlanetFaces = (options = {}) => {
       const extent = final - first + step
       let offsets = pos.map((p) => p - centre)
       let scale = 1
-      if (expr.mouth === 'smile') {
+      if (expr.mouth === 'smile' || expr.mouth === 'frown') {
         const span = extent / r
         const min = (settings.minSpan * Math.PI) / 180
         const max = (settings.maxSpan * Math.PI) / 180
@@ -1990,9 +1992,16 @@ const createPlanetFaces = (options = {}) => {
           scale = max / span
           offsets = offsets.map((q) => q * scale)
         }
+        // a frown is the smile's own circle turned over: its centre sits
+        // above the mouth instead of below, so the word keeps its middle
+        // where it was and bows its ends down. The glyphs follow the
+        // tangent either way, so the roll turns over with it
+        const down = expr.mouth === 'frown'
+        const mid = down ? settings.mouthY + r : yc
         out.items = offsets.map((q) => {
           const psi = q / r
-          return { ...onSphere(r * Math.sin(psi), yc + r * Math.cos(psi)), roll: -psi, scale }
+          const y = down ? mid - r * Math.cos(psi) : mid + r * Math.cos(psi)
+          return { ...onSphere(r * Math.sin(psi), y), roll: down ? psi : -psi, scale }
         })
         return out
       }
@@ -4523,21 +4532,24 @@ const initTrustedWalls = debounce(() => {
    The footer is drawn anew on every page the site moves to, so a band
    whose footer has gone lets go of its listeners and faces at the next
    scroll or resize */
-/* from a planet's turn in the rise: when its hello pops (as it settles) */
-const FOOTER_PLANETS_HELLO = 640
+/* The committee's patter: as the row lands every planet campaigns for
+   the click, once or twice, each on a clock of its own so they never
+   fall into step. Then they let the reader be — the band only comes up
+   at the very end of a page, and it plays again on the next arrival. */
+const FOOTER_PLANETS_CHANT = ['Pick me!', 'Pick me!', 'Pick me!', 'Pick me!!', 'Me!', 'Pick me!']
+/* from a planet's turn in the rise: when it first calls out */
+const FOOTER_PLANETS_CHANT_FROM = 640
+/* a chant bubble is up for this long, then its planet waits this long,
+   both dealt at random */
+const FOOTER_PLANETS_UP = [800, 1500]
+const FOOTER_PLANETS_GAP = [700, 2200]
+/* how many of the six call out on an arrival. They say it once each:
+   the row is there to be picked, not to shout */
+const FOOTER_PLANETS_VOICES = 3
 /* the cluster's width at full size, bubbles included, with its margins
    (the stylesheet's --fp-span: the planets' --x and sizes lay it out) */
-const FOOTER_PLANETS_SPAN = 632
-/* the hellos, dealt out anew each time. A bubble has the hundred pixels
-   to the next planet's, less on a scaled-down stage where the type
-   holds its size, so the wider ones are dealt at full size only */
-const FOOTER_PLANETS_HELLOS = ['Hi!', 'Hello!', 'Hey!', 'Hiya!', 'Heyo!', 'Yo!', 'Hallo!']
-const FOOTER_PLANETS_HELLOS_WIDE = ['Howdy!', 'Hey hey!', 'Hi hi!']
+const FOOTER_PLANETS_SPAN = 760
 
-/* Scalar's own MCP server, and the way into it for the agent whose
-   planet was pressed, as mcp.scalar.com gives it. The two with no setup
-   of their own there (Gemini, Grok) get the plain configuration, which
-   is what an editor without a named recipe takes. */
 const FOOTER_MCP_URL = 'https://mcp.scalar.com/'
 const FOOTER_MCP_CLIENTS = {
   chatgpt: {
@@ -4621,11 +4633,9 @@ const createFooterCard = (band, reduceMotion, settle) => {
       })
       .catch(() => {})
   }
-  sheet.querySelectorAll('[data-fp-copy]').forEach((control) => {
-    control.addEventListener('click', () =>
-      copy(control.dataset.fpCopy === 'url' ? FOOTER_MCP_URL : client.code, control),
-    )
-  })
+  // both the icon beside the snippet and the button below it do the one
+  // thing there is to do: the snippet carries the server's URL inside it
+  snippetCopy.addEventListener('click', () => copy(client.code, snippetCopy))
   go.addEventListener('click', () => copy(client.code, go))
 
   let planet = null
@@ -4697,7 +4707,9 @@ const createFooterCard = (band, reduceMotion, settle) => {
     planet = next
     fill(next.orb.dataset.icon)
     card.style.setProperty('--fp-card-tint', getComputedStyle(next.orb).getPropertyValue('--fp-wash').trim())
-    // the hero always shows the shape, however the planet was pressed
+    // the hero always shows the shape, and smiles there however the
+    // planet was pressed
+    next.face.express('happy')
     next.face.set(true)
     next.hi.classList.remove('is-on')
     seated = document.createComment('fp-planet')
@@ -4743,9 +4755,8 @@ const createFooterCard = (band, reduceMotion, settle) => {
         planet = null
         seated = null
         busy = false
-        if (band.classList.contains('is-up')) {
-          leaving.hi.classList.add('is-on')
-        }
+        // its bubble stays down: the chant it sat out comes back round
+        // on its own and brings the planet's words with it
         // the pointer may have left while the card stood over it. The
         // focus goes back in the same turn as the settle, so the planet
         // never paints a frame between the two
@@ -4851,18 +4862,46 @@ const initFooterPlanets = debounce(() => {
       planet.face = landingFaces.attach(planet.orb, planet.ring)
     })
 
-    /* a planet is in its shape while the pointer is on it or the
-       keyboard has it, and holds it while the card has it */
+    /* The row answers as one. The planet the pointer is on (or the
+       keyboard has) takes its shape and smiles; the two standing either
+       side of it take theirs too and take it badly, one put out and the
+       other merely unimpressed, drawn afresh each time the row turns to
+       someone new. Everyone else stays a plain globe. */
     let card = null
-    const wake = (planet) => {
+    let turned = -1
+    const moods = new Map()
+    const settleRow = () => {
       if (card?.busy()) {
         return
       }
-      planet.face.set(planet.hover || planet.orb.matches(':focus-visible'))
+      const at = planets.findIndex((planet) => planet.hover || planet.orb.matches(':focus-visible'))
+      // the reaction is dealt once a planet, when the row turns, and not
+      // again while it holds: the pointer crossing from one to the next
+      // runs this twice and the pair either side must not flicker
+      if (at !== turned) {
+        turned = at
+        moods.clear()
+        planets.forEach((planet, index) => {
+          if (Math.abs(index - at) === 1) {
+            moods.set(planet, Math.random() < 0.5 ? 'sad' : 'straight')
+          }
+        })
+      }
+      planets.forEach((planet, index) => {
+        const mood = at < 0 ? null : index === at ? 'happy' : moods.get(planet)
+        if (!mood) {
+          planet.face.set(false)
+          return
+        }
+        planet.face.express(mood)
+        planet.face.set(true)
+      })
     }
-    card = createFooterCard(band, reduceMotion, (planet) => {
-      planet.hover = planet.orb.matches(':hover')
-      wake(planet)
+    card = createFooterCard(band, reduceMotion, () => {
+      planets.forEach((planet) => {
+        planet.hover = planet.orb.matches(':hover')
+      })
+      settleRow()
     })
     planets.forEach((planet) => {
       // a finger has no hover: a tap goes straight to the card
@@ -4871,31 +4910,47 @@ const initFooterPlanets = debounce(() => {
           return
         }
         planet.hover = on
-        wake(planet)
+        settleRow()
       }
       planet.orb.addEventListener('pointerenter', (event) => moved(event, true))
       planet.orb.addEventListener('pointerleave', (event) => moved(event, false))
-      planet.orb.addEventListener('focus', () => wake(planet))
-      planet.orb.addEventListener('blur', () => wake(planet))
+      planet.orb.addEventListener('focus', settleRow)
+      planet.orb.addEventListener('blur', settleRow)
       planet.orb.addEventListener('click', () => card?.open(planet))
     })
 
-    let timers = []
+    /* the chant reschedules itself for as long as the band is up, so the
+       timers prune themselves as they fire and clear() ends every chain */
+    const timers = new Set()
     const later = (fn, ms) => {
-      timers.push(window.setTimeout(fn, ms))
+      const id = window.setTimeout(() => {
+        timers.delete(id)
+        fn()
+      }, ms)
+      timers.add(id)
     }
     const clear = () => {
       timers.forEach((id) => window.clearTimeout(id))
-      timers = []
+      timers.clear()
     }
-    /* the hellos dealt out: one each, no two the same */
-    const deal = (scale) => {
-      const deck = [...FOOTER_PLANETS_HELLOS, ...(scale < 1 ? [] : FOOTER_PLANETS_HELLOS_WIDE)]
-      for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[deck[i], deck[j]] = [deck[j], deck[i]]
+    const between = ([low, high]) => low + Math.random() * (high - low)
+    const anyOf = (list) => list[Math.floor(Math.random() * list.length)]
+    /* one turn of the chant: a bubble up, a bubble down, and round again
+       until the planet has had its turns. A planet the card has taken
+       waits rather than spending one of them */
+    const chant = (planet, left) => {
+      if (planet.orb.inert) {
+        later(() => chant(planet, left), 800)
+        return
       }
-      return deck
+      planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
+      planet.hi.classList.add('is-on')
+      later(() => {
+        planet.hi.classList.remove('is-on')
+        if (left > 1) {
+          later(() => chant(planet, left - 1), between(FOOTER_PLANETS_GAP))
+        }
+      }, between(FOOTER_PLANETS_UP))
     }
     /* the chat bar's input, when the page has one */
     const bar = () =>
@@ -4925,17 +4980,22 @@ const initFooterPlanets = debounce(() => {
     }
     let up = false
     const show = () => {
-      const hellos = deal(place())
-      planets.forEach((planet, index) => {
-        planet.hi.textContent = hellos[index % hellos.length]
-      })
+      place()
       band.classList.add('is-up')
+      planets.forEach((planet) => planet.hi.classList.remove('is-on'))
+      // asked for stillness, the row calls out once and holds
       if (reduceMotion) {
-        planets.forEach((planet) => planet.hi.classList.add('is-on'))
+        planets.forEach((planet) => {
+          planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
+          planet.hi.classList.add('is-on')
+        })
         return
       }
-      planets.forEach((planet) => {
-        later(() => planet.hi.classList.add('is-on'), FOOTER_PLANETS_HELLO + planet.delay)
+      // a few of them, drawn afresh each time the row comes up
+      const deck = planets.map((planet, index) => ({ planet, index, at: Math.random() }))
+      deck.sort((a, b) => a.at - b.at)
+      deck.slice(0, FOOTER_PLANETS_VOICES).forEach(({ planet }) => {
+        later(() => chant(planet, 1), FOOTER_PLANETS_CHANT_FROM + planet.delay)
       })
     }
     const hide = () => {

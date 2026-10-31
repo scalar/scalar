@@ -345,7 +345,7 @@
   --fp-stand: 86px;
   /* the cluster at full size, bubbles included, with its margins (the
      width is FOOTER_PLANETS_SPAN in landing.js too) */
-  --fp-span: 632px;
+  --fp-span: 760px;
   position: relative;
   height: 480px;
   padding-bottom: var(--fp-clear);
@@ -409,12 +409,24 @@
     opacity 0s linear var(--d, 0ms);
 }
 
-/* the five, an arch a hundred pixels apart (the shapes touch), left to
-   right; the sizes are the hero's */
+/* The six, left to right, overlapping by fourteen pixels each. Both
+   axes are solved rather than stepped, because the sizes are the hero's
+   and so all differ: --y comes from the top each planet should reach,
+   which puts the tops on one even curve, and --x is then whatever
+   distance leaves that same overlap once the drop to the next planet is
+   taken into account (dx = sqrt((r1 + r2 - 8)^2 - dy^2)). Stepping
+   either one evenly leaves gaps in the middle of the row and sets the
+   small, low planets at the ends adrift.
+
+   Eight pixels, not more, because --z decides whose name survives an
+   overlap and OpenCode's lockup is the widest of the six against its
+   ball: its ink starts eight pixels from the edge. Gemini and OpenCode
+   sit at the same height, so the whole bite lands on the equator where
+   the names are, and anything deeper than eight eats one of them. */
 .docs-footer-band .fp-planet--chatgpt {
   --fp-wash: #8d949c;
   --s: 104px;
-  --x: -200px;
+  --x: -221px;
   --y: 0px;
   --z: 1;
   --d: 0ms;
@@ -424,8 +436,8 @@
 .docs-footer-band .fp-planet--claude {
   --fp-wash: #f0582a;
   --s: 116px;
-  --x: -100px;
-  --y: 42px;
+  --x: -128px;
+  --y: 36px;
   --z: 2;
   --d: 120ms;
   --tint: #f0582a;
@@ -434,8 +446,8 @@
 .docs-footer-band .fp-planet--gemini {
   --fp-wash: #2d6bff;
   --s: 96px;
-  --x: 0px;
-  --y: 68px;
+  --x: -35px;
+  --y: 76px;
   --z: 3;
   --d: 240ms;
   --tint: #2d6bff;
@@ -444,9 +456,9 @@
 .docs-footer-band .fp-planet--opencode {
   --fp-wash: #ffb020;
   --s: 100px;
-  --x: 100px;
-  --y: 50px;
-  --z: 2;
+  --x: 55px;
+  --y: 72px;
+  --z: 3;
   --d: 360ms;
   --tint: #ffb020;
   --ink: #0d0d0d;
@@ -455,11 +467,21 @@
 .docs-footer-band .fp-planet--grok {
   --fp-wash: #4a4a50;
   --s: 100px;
-  --x: 200px;
-  --y: 2px;
-  --z: 1;
+  --x: 145px;
+  --y: 52px;
+  --z: 2;
   --d: 480ms;
   --ink: #fff;
+}
+
+.docs-footer-band .fp-planet--t3 {
+  --fp-wash: #e5399b;
+  --s: 92px;
+  --x: 221px;
+  --y: 12px;
+  --z: 1;
+  --d: 600ms;
+  --tint: #e5399b;
 }
 
 .docs-footer-band .lp-orb-globe {
@@ -541,6 +563,16 @@
       rgba(255, 229, 107, 0) 100%
     ),
     radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%);
+}
+
+.docs-footer-band .fp-planet--t3 .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ff8ad0 0 16%,
+      rgba(255, 138, 208, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f052ae 36%, #e5399b 76%);
 }
 
 .docs-footer-band .fp-planet--grok .lp-orb-ball {
@@ -1084,9 +1116,7 @@
 
 .docs-footer-band .fp-card-actions {
   display: grid;
-  margin-top: 2px;
-  padding-top: 16px;
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  margin-top: 4px;
 }
 
 .docs-footer-band .fp-card-go {
