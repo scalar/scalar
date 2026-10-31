@@ -360,6 +360,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 .operation-title {
   grid-area: heading;
+  min-width: 0;
   margin-bottom: 12px;
 
   /* Mirror the shared section header typography (see SectionHeader.vue) */
@@ -367,6 +368,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
   font-weight: var(--font-weight, var(--scalar-bold));
   color: var(--scalar-color-1);
   line-height: 1.45;
+  overflow-wrap: break-word;
 }
 
 .operation-auth {

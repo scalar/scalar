@@ -85,6 +85,16 @@ const securedOperationContent = {
   },
 }
 
+const unbrokenTitleContent = {
+  openapi: '3.1.1',
+  info: { title: 'Webhooks', version: '1.0.0' },
+  webhooks: {
+    'order.purchase.created': {
+      post: { responses: { '200': { description: 'Delivered' } } },
+    },
+  },
+}
+
 const taggedContent = {
   openapi: '3.1.1',
   info: { title: 'Tagged operations', version: '1.0.0' },
@@ -220,6 +230,15 @@ test.describe('reference controls', () => {
     await expect(copyMarkdown).toBeVisible()
     const box = await copyMarkdown.boundingBox()
     expect(box!.x + box!.width).toBeLessThanOrEqual(320)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
+  })
+
+  test('wraps an operation title without spaces inside the page at 320px', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 900 })
+    const example = await serveExample({ content: unbrokenTitleContent })
+    await page.goto(example)
+
+    await expect(page.getByRole('heading', { name: 'order.purchase.created', exact: true })).toBeVisible()
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
 })
