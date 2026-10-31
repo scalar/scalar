@@ -17,6 +17,7 @@
     "documentation/assets/brand.js",
     "documentation/assets/enterprise-contact-form.js",
     "documentation/assets/company.js",
+    "documentation/assets/company-hero.js",
     "documentation/assets/sdk-demo.js",
     "documentation/assets/structured-data.js",
     // Free tool widgets: the page scripts are referenced in scalar.config.json and
