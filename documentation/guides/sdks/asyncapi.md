@@ -33,7 +33,7 @@ A few consequences worth knowing:
 - **A document where no channel speaks a supported protocol fails to load**, rather than quietly producing an SDK with no methods. The error names the protocols it found.
 - **Mixed documents still generate.** A document with a `wss` channel and a `kafka` channel produces a client for the first and a warning for the second.
 - **When a channel's servers disagree, the first supported protocol in declaration order wins.** A channel served over `wss` and `kafka` becomes a WebSocket method in either order, and one served over `https` and `wss` takes whichever is declared first. `AsyncApi/AmbiguousProtocol` names what was dropped. Order the `servers` map — or scope the channel with `channel.servers` — to control which transport survives.
-- **A channel records only the servers matching its transport.** The connection itself is still opened from the client's selected base URL, not from the channel's servers. That holds for every target with a WebSocket runtime (TypeScript, Python, Rust, and the CLI); Python also accepts a separate `websocket_base_url` client option for the socket. So do not select an environment built from a broker server such as a Kafka host. Other targets open no connection at all; see [Target support](#target-support).
+- **A channel records only the servers matching its transport.** The connection itself is still opened from the client's selected base URL, not from the channel's servers. That holds for every target with a WebSocket runtime (TypeScript, Python, Rust, PHP, and the CLI); Python also accepts a separate `websocket_base_url` client option for the socket. So do not select an environment built from a broker server such as a Kafka host. Other targets open no connection at all; see [Target support](#target-support).
 
 ## Send and receive
 
@@ -114,7 +114,7 @@ What feeds that method:
 
 ### Target support
 
-WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, and the generated **CLI**. Other targets generate the event types but nothing that opens a connection, which is why generated starter configs limit every connect method to those four targets with `only`.
+WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, **PHP**, and the generated **CLI**. Other targets generate the event types but nothing that opens a connection, which is why generated starter configs limit every connect method to those five targets with `only`.
 
 If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you do not limit with `only` or `skip` also reports `Unsupported/WebSocketMethod` for that target.
 
@@ -232,7 +232,7 @@ As with OpenAPI, the config is the source of truth for the SDK's public shape: a
           "endpoint": "get /chat/{roomId}",
           "verb": "get",
           "path": "/chat/{roomId}",
-          "only": ["typescript", "python", "rust", "cli"],
+          "only": ["typescript", "python", "rust", "php", "cli"],
           "asyncapi": { "channel": "chat" }
         }
       }
@@ -305,7 +305,7 @@ Parts of the specification that are read and reported rather than generated. Mos
 The starter config a first run writes treats every channel as a WebSocket channel, HTTP channels included: each gets a `connect` method with `"kind": "websocket"`. That leaves three rough edges for HTTP channels, all fixable by hand. Only the first is reported:
 
 - Every channel is written with `"verb": "get"`. A channel whose SDK-sent messages carry payloads needs a body-carrying verb — change it to `post` — or those payloads are dropped, which is what `AsyncApi/UnsendablePayload` reports.
-- Every channel is limited with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove `only` on those channels and change their `kind` to `http` to generate them everywhere. Nothing reports this.
+- Every channel is limited with `only: ["typescript", "python", "rust", "php", "cli"]`, including HTTP channels that every target could generate. Remove `only` on those channels and change their `kind` to `http` to generate them everywhere. Nothing reports this.
 - Every channel's method is keyed `connect`. Rename the key (for example to `stream`) for a more natural method name. Nothing reports this either.
 
 **Not produced**

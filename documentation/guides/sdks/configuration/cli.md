@@ -182,7 +182,7 @@ Release environment name used by generated publishing workflows. It renders as t
 
 **Type:** `string`
 
-Homepage rendered into the generated Homebrew formula (or cask, with `cask`). Defaults to the target's production repository.
+Homepage rendered into the generated Homebrew formula (or cask, with `cask`). Defaults to `organization.homepage`, then to the target's production repository.
 
 #### description
 
