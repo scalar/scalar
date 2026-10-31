@@ -1,22 +1,24 @@
-# API documentation platform
+<div class="dh-hero">
 
-Scalar Docs is an API documentation platform that puts product guides and interactive API references in one developer portal, generated from the OpenAPI documents you already maintain.
+<div class="dh-field" aria-hidden="true" data-md-exclude><div class="dh-stage"></div></div>
 
-Write in Markdown or MDX, pull content from GitHub, preview every pull request, and deploy on merge or from anywhere with the CLI, so your docs stay in sync with your code. All of scalar.com is fully built with Scalar Docs.
-
-<div class="flex gap-2">
-  <a class="t-editor__button button__primary" href="https://dashboard.scalar.com/register">Get Started</a>
-  <a class="t-editor__button button__secondary" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
+<div class="dh-copy">
+<div class="hero flex flex-col gap-3">
+  <scalar-heading level="1" slug="api-documentation-platform" class="text-balance">
+    API documentation platform
+  </scalar-heading>
+  <p class="dh-lede">
+    Scalar Docs puts product guides and interactive API references in one developer portal, generated from the
+    OpenAPI documents you already maintain.
+  </p>
+  <div class="dh-cta flex gap-2">
+    <a class="t-editor__button dh-pill" href="https://dashboard.scalar.com/register">Get Started</a>
+    <a class="t-editor__button dh-pill" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank">Book a Demo</a>
+  </div>
+</div>
 </div>
 
-<scalar-image
-  class="docs-hero-image"
-  src="/api-docs-static-zoom.svg"
-  src-dark="/api-docs-static-zoom-dark.svg"
-  alt="Scalar Docs interface"
-  size="full">
-</scalar-image>
-
+</div>
 
 <div class="logowall">
   <div class="logowall-item logowall-item-tr">
@@ -44,6 +46,8 @@ Write in Markdown or MDX, pull content from GitHub, preview every pull request, 
     <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
   </div>
 </div>
+
+Write in Markdown or MDX, pull content from GitHub, preview every pull request, and deploy on merge or from anywhere with the CLI, so your docs stay in sync with your code. All of scalar.com is fully built with Scalar Docs.
 
 ## Why API teams choose Scalar Docs
 
@@ -232,24 +236,185 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     justify-content: center;
   }
 
-  .container-full {
-    --scalar-container-sidebar-gap: calc(
-      (
-        100dvw - var(--scalar-container-width, 960px) -
-          var(--scalar-sidebar-width, 0px) - var(--scalar-toc-width, 0px)
-      ) / 2
-    );
-    width: calc(100dvw - var(--scalar-sidebar-width, 0px));
-    margin-left: min(calc(-1 * var(--scalar-container-sidebar-gap)), -50px);
+  /* ------------------------------------------------------------------
+     The hero, after the customers and home pages: the copy centred on
+     the first screen, 12px between the heading, the lede and the
+     buttons, and the buttons as pills.
+
+     Behind it, a row of documentation sites built with Scalar, sliding
+     past on a curve that bends away at both edges. The row is the
+     treatment meech213.com gives its gallery: the cards lie on a
+     shallow arc, they carry their speed after a drag, and while they
+     move each one bows, its middle drawn where it is going and its top
+     and bottom edges where it is. landing.js (initDocsHero) builds the
+     cards and runs the arithmetic; everything here is the room they
+     move in. A card is cut into horizontal slices so the bow has
+     something to bend: at rest they sit flush and the card is an
+     ordinary rectangle.
+     ------------------------------------------------------------------ */
+  .t-editor .editor-static .page-node,
+  .t-editor .page-node,
+  .t-editor .content {
+    /* the hero starts right under the header, as the home page's does */
+    margin-top: 0;
+  }
+  .dh-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* a screen, never more than 720px, and never less than the room
+       landing.js asks for so most of a card stands above the bottom
+       edge when the copy runs long */
+    min-height: max(min(calc(96dvh - var(--scalar-header-height, 48px)), 720px), var(--dh-min, 0px));
+    padding: 48px 0 0;
+  }
+  .dh-copy {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    /* the home page's hero copy: 680 wide, its lines balanced */
+    max-width: 680px;
+    /* the copy sits in the room above the row, not centred in the hero */
+    margin: 0 0 auto;
+    min-width: 0;
+    text-wrap: balance;
+    /* the row takes drags, the words do not */
+    cursor: auto;
+  }
+  .dh-hero .hero {
+    align-items: center;
+    text-align: center;
+  }
+  .dh-copy .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
+    margin-top: 0;
+  }
+  /* the heading is a flex row (it holds its anchor button) */
+  .dh-hero .hero .t-editor__heading {
+    justify-content: center;
+  }
+  /* The heading is centred, so the button that appears beside it on
+     hover (the one that copies a link to it) would push the words off
+     centre as it comes and goes. */
+  .dh-copy .t-editor__heading .notify-container {
+    display: none;
+  }
+  .dh-hero .hero > .flex {
+    justify-content: center;
+  }
+  .dh-lede {
+    /* a narrow measure: three lines under the heading */
+    max-width: 460px;
+    margin: 0 auto;
+    /* 14px, a step under the body size */
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
+    text-wrap: pretty;
+  }
+  .dh-cta {
+    align-items: center;
+    gap: 12px;
+    /* 12px on top of the hero's 12px gap: the pills sit 24px under the
+       subhead, a little apart from the copy */
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* no margin: the theme's button carries one, which drops it below the
+     other pill */
+  .dh-cta .dh-pill {
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border-radius: 999px;
   }
 
-  .docs-hero-image {
-    margin-top: 32px;
+  /* The row reaches both edges of the column the page clips to, past
+     the text column and past the sidebar. landing.js measures that
+     column and sets the two lengths, because the sidebar's width keeps
+     its desktop value on a phone, where the sidebar is a drawer. */
+  .dh-field {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--dh-left, 0px);
+    width: var(--dh-width, 100%);
+    z-index: 0;
+    overflow: clip;
+    /* the cards sink into the page rather than being cut off by the
+       hero's bottom edge */
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 120px), transparent);
+    /* a sideways drag moves the row; a vertical one still scrolls, and
+       pinching still zooms, which pan-y alone would take away across the
+       whole first screen */
+    touch-action: pan-y pinch-zoom;
+    cursor: grab;
   }
-
-  .docs-hero-image {
-    width: 150%;
-    max-width: auto;
+  .dh-field.is-dragging {
+    cursor: grabbing;
+  }
+  /* the row's vanishing point, which is also where its cards sit */
+  .dh-stage {
+    position: absolute;
+    left: 50%;
+    top: var(--dh-top, 80%);
+    width: 0;
+    height: 0;
+    transform-style: preserve-3d;
+  }
+  .dh-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--dh-w);
+    height: var(--dh-h);
+    /* placed from its own centre, so the arithmetic is symmetric */
+    margin-left: calc(var(--dh-w) / -2);
+    margin-top: calc(var(--dh-h) / -2);
+    /* flat on purpose: the card is one plane in the row's space, so the
+       browser keeps it as a single texture and only moves it */
+    transform-style: flat;
+    will-change: transform;
+  }
+  .dh-slice {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    /* a hair of overlap, so a seam never shows between two slices */
+    height: calc(var(--dh-sh) + 1px);
+    top: calc(var(--i) * var(--dh-sh));
+    overflow: hidden;
+    background-color: var(--scalar-background-2);
+    background-image: var(--dh-src);
+    background-repeat: no-repeat;
+    /* the slices are bordered, and the default padding box would start
+       the first and last one's artwork a border-width out of step */
+    background-origin: border-box;
+    background-size: 100% var(--dh-h);
+    background-position: 0 calc(var(--i) * var(--dh-sh) * -1);
+    border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+    transform-origin: 0 0;
+    backface-visibility: hidden;
+  }
+  .dark-mode .dh-slice {
+    background-image: var(--dh-src-dark);
+  }
+  .dh-slice:first-child {
+    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: var(--scalar-radius-2xl, 12px) var(--scalar-radius-2xl, 12px) 0 0;
+  }
+  .dh-slice:last-child {
+    height: var(--dh-sh);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 0 0 var(--scalar-radius-2xl, 12px) var(--scalar-radius-2xl, 12px);
+  }
+  /* only while a card is bent: at rest the slices are flush and need no
+     layer of their own */
+  .dh-field.is-bowing .dh-slice {
+    will-change: transform;
   }
 
   .logowall.logowall {
@@ -294,19 +459,6 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
   }
 
   @media screen and (max-width: 1000px) {
-    .container-full {
-      --scalar-container-sidebar-gap: 30px;
-      width: 100dvw;
-      padding-inline: 30px;
-      margin-inline: -30px;
-    }
-
-    .hero-animation {
-      margin-top: -100px !important;
-      padding-inline: 0;
-      margin-inline: 0;
-    }
-
     .logowall.logowall {
       grid-template-columns: repeat(2, 1fr);
       column-gap: 20px;
@@ -325,6 +477,24 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
 
     .feature-item {
       flex: 0 0 calc(100% - 22px);
+    }
+  }
+
+  @media screen and (max-width: 700px) {
+    .dh-hero {
+      /* a phone has no room for a card and a screen of copy both, so
+         the hero keeps the copy and lets the row run off the bottom */
+      min-height: max(min(calc(88dvh - var(--scalar-header-height, 48px)), 560px), var(--dh-min, 0px));
+      padding-top: 32px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* landing.js leaves the row still; nothing here should move it */
+    .dh-card,
+    .dh-slice {
+      transition: none;
+      will-change: auto;
     }
   }
 </style>

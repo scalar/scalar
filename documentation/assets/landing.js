@@ -6648,6 +6648,382 @@ const initLandingOnboard = () => {
   })
 }
 
+/* The docs page's hero: a row of documentation sites built with Scalar,
+   sliding past on a curve, after the treatment meech213.com gives its
+   gallery.
+
+   Their row is three.js — a line of textured planes whose vertices one
+   node graph moves. The graph reads a vertex's world x and adds three
+   offsets to it:
+
+     y  cos(x * curveFrequency) * curveStrength - curveStrength
+     z  -(abs(x) ** 1.25) * depthCurveStrength
+     x  sin(uv.y * PI) * travel
+
+   The first two bend the row: a shallow sag, and a fall away from the
+   camera that grows towards the edges. They depend only on where a card
+   is, so each card here gets them as a translate, plus the turn that
+   keeps a flat card lying on the curve it is standing on.
+
+   The third is the bow, and it is the one worth having: the middle of a
+   card is drawn one frame's travel ahead of its top and bottom edges,
+   so a card moving quickly reads as a drawn bow. It varies down the
+   card, which no single CSS transform does, so a card is cut into
+   slices and each slice is moved and sheared to meet its neighbours —
+   the same straight join the GPU draws between two rows of vertices.
+   At rest the slices sit flush and a card is an ordinary rectangle.
+
+   Their numbers are kept as they are; what is ours is the row never
+   quite stopping, and the wheel adding to its speed without taking the
+   page's scrolling away. */
+const DOCS_HERO_PREVIEWS = ['zoom', 'scalar', 'clerk', 'partech', 'tailscale', 'bobcat']
+
+const DOCS_HERO = {
+  /* theirs: the shape of the curve, and the plane that rides it */
+  curveFrequency: 0.18,
+  curveStrength: 0.12,
+  depthCurveStrength: 0.2,
+  imageSizeX: 0.72,
+  imageSizeY: 1.06,
+  gap: 0.16,
+  cameraDistance: 3.3,
+  groupRotation: 0.28,
+  /* theirs: the scrubbing. A frame keeps 92% of its speed, and the
+     travel that speed works out to is also the bow */
+  friction: 0.92,
+  wheelFactor: 0.52,
+  wheelDirection: -1,
+  wheelGain: 0.18,
+  dragGain: 0.315,
+  maxVelocity: 180,
+  /* ours */
+  drift: 0.85,
+  bowFloor: 1,
+  slices: 8,
+  cards: 12,
+  cardMin: 250,
+  cardMax: 470,
+  cardShare: 0.33,
+  /* the room between the buttons and the top of a card, and how much of
+     a card stands above the hero's bottom edge */
+  copyGap: 28,
+  standing: 0.78,
+}
+
+const DOCS_HERO_FRAME = 1000 / 60
+const docsHeroMod = (value, span) => ((value % span) + span) % span
+
+/* Every docs hero's sync, so one that left the page while it was off
+   screen — where no observer fires again — is released on the next page
+   change, as the landing page's flows are. */
+const docsHeroSyncs = new Set()
+
+const initDocsHero = debounce(() => {
+  const field = document.querySelector('.dh-field')
+  if (!field || field.dataset.dhBound === 'true') {
+    return
+  }
+  const stage = field.querySelector('.dh-stage')
+  if (!stage) {
+    return
+  }
+  field.dataset.dhBound = 'true'
+
+  const cards = []
+  for (let index = 0; index < DOCS_HERO.cards; index += 1) {
+    const card = document.createElement('div')
+    card.className = 'dh-card'
+    const slug = DOCS_HERO_PREVIEWS[index % DOCS_HERO_PREVIEWS.length]
+    /* both modes are set here and the page's class picks one, so a
+       reader switching modes costs nothing */
+    card.style.setProperty('--dh-src', `url("/docs-hero/${slug}.svg")`)
+    card.style.setProperty('--dh-src-dark', `url("/docs-hero/${slug}-dark.svg")`)
+    const slices = []
+    for (let slice = 0; slice < DOCS_HERO.slices; slice += 1) {
+      const element = document.createElement('div')
+      element.className = 'dh-slice'
+      element.style.setProperty('--i', String(slice))
+      card.appendChild(element)
+      slices.push(element)
+    }
+    stage.appendChild(card)
+    cards.push({ element: card, slices, flat: false })
+  }
+
+  /* px per world unit, and the run of one card plus its gap */
+  let unit = 0
+  let stride = 0
+  let span = 0
+  let cardHeight = 0
+  /* how far the row has travelled: the row's whole position, so a resize
+     can carry it over rather than snapping every card back to its slot */
+  let offset = 0
+
+  const hero = field.parentElement
+  const copy = hero && hero.querySelector('.dh-copy')
+  let previousStride = 0
+
+  const layout = () => {
+    /* The row runs as wide as it can without reaching under the sidebar,
+       and stays centred on the copy. The hero is already centred in
+       whatever room the page left it, so the shorter of its two margins
+       is that room — no need to know what the sidebar is doing, which is
+       just as well, since --scalar-sidebar-width keeps its desktop value
+       on a phone where the sidebar is a drawer. */
+    const box = hero ? hero.getBoundingClientRect() : null
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const middle = box ? box.left + box.width / 2 : page / 2
+    const reach = Math.min(middle, page - middle)
+    const space = Math.max(reach * 2, box ? box.width : page)
+    if (box) {
+      field.style.setProperty('--dh-left', `${Math.round(middle - reach - box.left)}px`)
+      field.style.setProperty('--dh-width', `${Math.round(space)}px`)
+    }
+    const width = Math.round(Math.max(DOCS_HERO.cardMin, Math.min(DOCS_HERO.cardMax, space * DOCS_HERO.cardShare)))
+    cardHeight = Math.round((width / DOCS_HERO.imageSizeX) * DOCS_HERO.imageSizeY)
+    unit = width / DOCS_HERO.imageSizeX
+    stride = (DOCS_HERO.imageSizeX + DOCS_HERO.gap) * unit
+    span = DOCS_HERO.cards * stride
+    field.style.setProperty('--dh-w', `${width}px`)
+    field.style.setProperty('--dh-h', `${cardHeight}px`)
+    field.style.setProperty('--dh-sh', `${cardHeight / DOCS_HERO.slices}px`)
+    /* The row hangs off the copy rather than off a share of the hero,
+       so a heading that wraps to three lines on a narrow screen pushes
+       the cards down instead of standing behind them. The hero then
+       grows to leave most of a card above its bottom edge. */
+    const under = copy && box ? copy.getBoundingClientRect().bottom - box.top : 0
+    const cardTop = under + DOCS_HERO.copyGap
+    field.style.setProperty('--dh-top', `${Math.round(cardTop + cardHeight / 2)}px`)
+    if (hero) {
+      /* on the hero, not the field: a custom property only reaches down */
+      hero.style.setProperty('--dh-min', `${Math.round(cardTop + DOCS_HERO.standing * cardHeight)}px`)
+    }
+    field.style.perspective = `${DOCS_HERO.cameraDistance * unit}px`
+    field.style.perspectiveOrigin = `50% ${Math.round(cardTop + cardHeight / 2)}px`
+    stage.style.transform = `rotateY(${DOCS_HERO.groupRotation}rad)`
+    offset = previousStride ? (offset * stride) / previousStride : offset
+    previousStride = stride
+  }
+
+  /* Move the row along by travel, put every card back on the curve, and
+     bend it by bow. One call with both at zero is the still picture a
+     reader who asked for less motion gets. */
+  const place = (travel, bow) => {
+    const half = span / 2
+    const count = DOCS_HERO.slices
+    offset = docsHeroMod(offset + travel, span)
+    const bending = Math.abs(bow) > DOCS_HERO.bowFloor
+    field.classList.toggle('is-bowing', bending)
+
+    for (let index = 0; index < cards.length; index += 1) {
+      const card = cards[index]
+      const at = docsHeroMod(index * stride + offset + half, span) - half
+      /* the curve reads the vertex's world x, so the row's own turn has
+         to be in it before a card is bent */
+      const x = (Math.cos(DOCS_HERO.groupRotation) * at) / unit
+      const distance = Math.abs(x)
+      const depth = -(distance ** 1.25) * DOCS_HERO.depthCurveStrength * unit
+      const yaw = Math.atan(1.25 * DOCS_HERO.depthCurveStrength * distance ** 0.25 * Math.sign(x))
+      const sag = -(Math.cos(x * DOCS_HERO.curveFrequency) * DOCS_HERO.curveStrength - DOCS_HERO.curveStrength) * unit
+      const roll = Math.atan(
+        DOCS_HERO.curveStrength * DOCS_HERO.curveFrequency * Math.sin(x * DOCS_HERO.curveFrequency),
+      )
+      card.element.style.transform = `translate3d(${at}px, ${sag}px, ${depth}px) rotateY(${yaw}rad) rotateZ(${roll}rad)`
+
+      if (!bending) {
+        if (!card.flat) {
+          card.flat = true
+          for (const slice of card.slices) {
+            slice.style.transform = ''
+          }
+        }
+        continue
+      }
+      card.flat = false
+      for (let slice = 0; slice < count; slice += 1) {
+        /* sin(uv.y * PI) at this slice's top and bottom edge; uv.y runs
+           up the card, so slice 0 is the top one */
+        const top = Math.sin((1 - slice / count) * Math.PI) * bow
+        const bottom = Math.sin((1 - (slice + 1) / count) * Math.PI) * bow
+        card.slices[slice].style.transform =
+          `translateX(${top}px) skewX(${Math.atan((bottom - top) / (cardHeight / count))}rad)`
+      }
+    }
+  }
+
+  /* The site is one page, so this hero's field is thrown away on the way
+     to another. Everything hung on the window goes with it. */
+  let release = () => {}
+  let measured = ''
+  const onResize = debounce(() => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    /* laying out gives the hero a height, which the watcher below would
+       otherwise read as another change to answer; only its width and the
+       window's are worth a second pass */
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const box = hero ? hero.getBoundingClientRect() : null
+    const shape = `${page}:${box ? Math.round(box.left) : 0}:${box ? Math.round(box.width) : 0}`
+    if (shape === measured) {
+      return
+    }
+    measured = shape
+    layout()
+    place(0, 0)
+  })
+
+  layout()
+  /* placed before the first paint: without this every card sits on the
+     stage's origin, stacked, until the first frame runs */
+  place(0, 0)
+  measured = `${document.documentElement.clientWidth || window.innerWidth}:${
+    hero ? Math.round(hero.getBoundingClientRect().left) : 0
+  }:${hero ? Math.round(hero.getBoundingClientRect().width) : 0}`
+  window.addEventListener('resize', onResize)
+  /* The sidebar and the content column settle after this runs, so the
+     first measurement can be of a page that is not finished. Watching the
+     hero catches that, and a sidebar that opens or closes later. */
+  const watcher = typeof ResizeObserver === 'function' && hero ? new ResizeObserver(onResize) : null
+  watcher?.observe(hero)
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    /* the row stays where layout() put it: the sites are the point, the
+       sliding is the flourish */
+    release = () => {
+      watcher?.disconnect()
+      window.removeEventListener('resize', onResize)
+    }
+    return
+  }
+
+  /* A pointer resting on the row stops it drifting, the way the customer
+     logo walls stop: moving content that started on its own has to be
+     stoppable. A drag still works, and so does the wheel. */
+  let resting = false
+  const hoverable = window.matchMedia('(hover: hover)')
+  field.addEventListener('pointerenter', (event) => {
+    resting = event.pointerType === 'mouse' && hoverable.matches
+  })
+  field.addEventListener('pointerleave', () => {
+    resting = false
+  })
+
+  let velocity = 0
+  const push = (amount) => {
+    velocity = Math.max(-DOCS_HERO.maxVelocity, Math.min(DOCS_HERO.maxVelocity, velocity + amount))
+  }
+
+  /* The wheel alone, as theirs does. Listening to scroll as well would
+     count a wheel twice on a page that can still scroll, and once on one
+     that cannot. The page scrolls as it always did: nothing is taken. */
+  const onWheel = (event) => push(DOCS_HERO.wheelGain * event.deltaY)
+  window.addEventListener('wheel', onWheel, { passive: true })
+
+  let drag = null
+  field.addEventListener('pointerdown', (event) => {
+    drag = { id: event.pointerId, last: event.clientX }
+    try {
+      field.setPointerCapture(event.pointerId)
+    } catch {
+      /* a pointer that has already gone */
+    }
+    field.classList.add('is-dragging')
+  })
+  field.addEventListener('pointermove', (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    push(-(DOCS_HERO.dragGain * (event.clientX - drag.last)))
+    drag.last = event.clientX
+  })
+  const endDrag = (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    try {
+      field.releasePointerCapture(event.pointerId)
+    } catch {
+      /* already released */
+    }
+    drag = null
+    field.classList.remove('is-dragging')
+  }
+  field.addEventListener('pointerup', endDrag)
+  field.addEventListener('pointercancel', endDrag)
+
+  /* The row runs only while it is on screen and the page is in front. A
+     background tab paints nothing, and a row that has scrolled away is
+     work nobody sees. */
+  let running = false
+  let inView = false
+  let previous = 0
+
+  const step = (now) => {
+    if (!running) {
+      return
+    }
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const elapsed = Math.min(64, now - previous) || DOCS_HERO_FRAME
+    previous = now
+    const steps = elapsed / DOCS_HERO_FRAME
+
+    velocity *= DOCS_HERO.friction ** steps
+    if (Math.abs(velocity) < 0.001) {
+      velocity = 0
+    }
+    /* their travel for one sixtieth of a second, which is also the bow;
+       taking it per sixtieth rather than per frame keeps a 120 Hz screen
+       showing the same slide as a 60 Hz one */
+    const drift = resting ? 0 : DOCS_HERO.drift
+    const bow = 0.005 * velocity * DOCS_HERO.wheelFactor * DOCS_HERO.wheelDirection * unit + drift
+    place(bow * steps, bow)
+    requestAnimationFrame(step)
+  }
+
+  const sync = () => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const wanted = inView && !document.hidden
+    if (wanted === running) {
+      return
+    }
+    running = wanted
+    if (running) {
+      previous = performance.now()
+      requestAnimationFrame(step)
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        inView = entry.isIntersecting
+      })
+      sync()
+    },
+    { threshold: 0 },
+  )
+  observer.observe(field)
+  document.addEventListener('visibilitychange', sync)
+  docsHeroSyncs.add(sync)
+  release = () => {
+    running = false
+    observer.disconnect()
+    watcher?.disconnect()
+    docsHeroSyncs.delete(sync)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('wheel', onWheel)
+    document.removeEventListener('visibilitychange', sync)
+  }
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
@@ -6669,6 +7045,7 @@ initTrustedWalls()
 initEnterpriseRing()
 initLandingHostStage()
 initEnterpriseSky()
+initDocsHero()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
@@ -6696,6 +7073,8 @@ const observer = new MutationObserver((records) => {
   initEnterpriseRing()
   initLandingHostStage()
   initEnterpriseSky()
+  docsHeroSyncs.forEach((sync) => sync())
+  initDocsHero()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })
