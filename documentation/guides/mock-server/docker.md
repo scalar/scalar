@@ -142,6 +142,28 @@ docker run -p 3000:3000 \
 
 See the [AsyncAPI mocking guide](asyncapi.md) for supported transports and how messages are generated.
 
+## Request Validation
+
+By default the mock server validates every request against your OpenAPI document. When path or query parameters, or an `application/json` request body, violate the contract, it answers `422` with an `application/problem+json` body that describes the violations, instead of a mock response.
+
+To always return a mock response, turn validation off with the `--no-validate-request` flag:
+
+```bash
+docker run -p 3000:3000 \
+  scalarapi/mock-server --url https://api.example.com/openapi.yaml --no-validate-request
+```
+
+Or set the `VALIDATE_REQUEST` environment variable to `false`, which is handy in Docker Compose or CI where you do not control the command:
+
+```bash
+docker run -p 3000:3000 \
+  -e VALIDATE_REQUEST=false \
+  -v ./openapi.yaml:/docs/openapi.yaml:ro \
+  scalarapi/mock-server
+```
+
+`VALIDATE_REQUEST` accepts `true`, `false`, `1` and `0` (case-insensitive); any other value stops the container with an error, so a typo does not silently leave validation on. The flag always turns validation off, whatever the variable says. Authentication still applies when validation is off.
+
 ## Docker Compose
 
 Here's a complete `docker-compose.yml` example:
@@ -164,15 +186,18 @@ services:
       #     version: 1.0.0
       # Or use URL to fetch document
       # OPENAPI_DOCUMENT_URL: https://api.example.com/openapi.yaml
+      # Optional: return a mock response even for requests that violate the contract
+      # VALIDATE_REQUEST: "false"
     restart: unless-stopped
 ```
 
 ## Environment Variables
 
-| Variable               | Description                                    | Required | Default |
-| ---------------------- | ---------------------------------------------- | -------- | ------- |
-| `OPENAPI_DOCUMENT`     | OpenAPI document content (JSON or YAML string) | No*      | -       |
-| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from             | No*      | -       |
+| Variable               | Description                                                          | Required | Default |
+| ---------------------- | -------------------------------------------------------------------- | -------- | ------- |
+| `OPENAPI_DOCUMENT`     | OpenAPI document content (JSON or YAML string)                       | No*      | -       |
+| `OPENAPI_DOCUMENT_URL` | URL to fetch OpenAPI document from                                   | No*      | -       |
+| `VALIDATE_REQUEST`     | Set to `false` to turn off [request validation](#request-validation) | No       | `true`  |
 
 \* At least one method (command-line argument, environment variable, or volume mount) must be provided.
 

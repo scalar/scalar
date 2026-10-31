@@ -115,6 +115,8 @@ Document source priority (high to low):
 3. `OPENAPI_DOCUMENT_URL`
 4. `/docs` volume-mounted files
 
+Request validation is on by default (`422` for contract violations). Turn it off with `--no-validate-request` or `-e VALIDATE_REQUEST=false`; the flag wins over the variable.
+
 Useful routes:
 
 - Mock endpoints: from your OpenAPI paths

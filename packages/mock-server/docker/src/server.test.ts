@@ -271,6 +271,27 @@ describe('startMockServer', () => {
     consoleSpy.mockRestore()
   })
 
+  it('leaves request validation to the library default when it is not configured', async () => {
+    const document = '{"openapi":"3.0.0","info":{"title":"Test"}}'
+
+    await startMockServer({ document, format: 'json' })
+
+    expect(mockCreateMockServer.mock.calls[0]?.[0].validateRequest).toBeUndefined()
+  })
+
+  it('passes validateRequest: false to createMockServer and says so in the log', async () => {
+    const document = '{"openapi":"3.0.0","info":{"title":"Test"}}'
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+    await startMockServer({ document, format: 'json', validateRequest: false })
+
+    expect(mockCreateMockServer.mock.calls[0]?.[0].validateRequest).toBe(false)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Request validation is disabled: requests that violate the API description get a mock response, not a 422.',
+    )
+    consoleSpy.mockRestore()
+  })
+
   it('passes WebSocket support to the server for AsyncAPI documents', async () => {
     const document = '{"asyncapi":"3.1.0","info":{"title":"Test","version":"1.0.0"}}'
 
