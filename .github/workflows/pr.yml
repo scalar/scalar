@@ -602,8 +602,7 @@ jobs:
     # Only run for PRs from the same repository
     if: |
       always() &&
-      (needs.deploy-previews.outputs.examples-url != '' ||
-       needs.deploy-previews.outputs.api-reference-url != '' ||
+      (needs.deploy-previews.outputs.api-reference-url != '' ||
        needs.deploy-previews.outputs.components-url != '' ||
        needs.deploy-previews.outputs.api-client-url != '' ||
        needs.deploy-previews.outputs.galaxy-url != '' ||
@@ -620,7 +619,6 @@ jobs:
       - name: Build comment message
         id: build-message
         env:
-          EXAMPLES_URL: ${{ needs.deploy-previews.outputs.examples-url }}
           API_REFERENCE_URL: ${{ needs.deploy-previews.outputs.api-reference-url }}
           COMPONENTS_URL: ${{ needs.deploy-previews.outputs.components-url }}
           API_CLIENT_URL: ${{ needs.deploy-previews.outputs.api-client-url }}
@@ -628,7 +626,6 @@ jobs:
           REGISTRY_PREVIEW_URL: ${{ needs.deploy-previews.outputs.registry-preview-url }}
         run: |
           MESSAGE=""
-          [ -n "$EXAMPLES_URL" ] && MESSAGE="${MESSAGE}**Preview Examples**\n\n${EXAMPLES_URL}\n\n"
           [ -n "$API_REFERENCE_URL" ] && MESSAGE="${MESSAGE}**Preview API Reference**\n\n${API_REFERENCE_URL}\n\n"
           [ -n "$COMPONENTS_URL" ] && MESSAGE="${MESSAGE}**Preview Storybook**\n\n${COMPONENTS_URL}\n\n"
           [ -n "$API_CLIENT_URL" ] && MESSAGE="${MESSAGE}**Preview API Client**\n\n${API_CLIENT_URL}\n\n"
