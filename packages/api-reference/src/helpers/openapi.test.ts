@@ -122,6 +122,76 @@ describe('openapi', () => {
     expect(Math.max(...expansions.values())).toBe(1)
   })
 
+  it('walks a schema once when many operations reference it', () => {
+    let expansions = 0
+    const shared: SchemaObject = {
+      type: 'object',
+      properties: { sharedField: { type: 'string', description: 'Shared description' } },
+      // The traversal reads `oneOf` exactly once per expansion.
+      get oneOf() {
+        expansions++
+        return undefined
+      },
+    }
+    // Every operation has its own reference object, so only the resolved schema can identify the work.
+    const operation = (): OperationObject => ({
+      responses: {
+        '200': {
+          description: 'OK',
+          content: { 'application/json': { schema: { $ref: '#/shared', '$ref-value': shared } } },
+        },
+      },
+    })
+    const extract = createSearchFieldExtractor(true)
+
+    const results = [extract.operation(operation()), extract.operation(operation()), extract.schema(shared)]
+
+    for (const fields of results) {
+      expect(fields).toStrictEqual({ names: ['sharedField'], descriptions: ['Shared description'] })
+    }
+    expect(expansions).toBe(1)
+  })
+
+  it('does not share reference siblings with the schema they reference', () => {
+    const shared: SchemaObject = { type: 'object', properties: { sharedField: { type: 'string' } } }
+    const withSibling = {
+      $ref: '#/shared',
+      '$ref-value': shared,
+      properties: { siblingField: { type: 'string' } },
+    } as unknown as SchemaObject
+
+    const extract = createSearchFieldExtractor(true)
+    expect(extract.schema(shared).names).toStrictEqual(['sharedField'])
+    expect(extract.schema(withSibling).names).toEqual(expect.arrayContaining(['sharedField', 'siblingField']))
+    expect(extract.schema(shared).names).toStrictEqual(['sharedField'])
+
+    // OpenAPI 3.0 ignores siblings, so the same object is just a reference there.
+    expect(createSearchFieldExtractor(false).schema(withSibling).names).toStrictEqual(['sharedField'])
+  })
+
+  it('applies the character budget across the schemas of one operation', () => {
+    const verbose = (prefix: string): SchemaObject => ({
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 40 }, (_, index) => [
+          `${prefix}${index}`,
+          { type: 'string', description: `${prefix}${index}${'x'.repeat(2_000)}` },
+        ]),
+      ),
+    })
+    const response = (schema: SchemaObject): OperationObject['responses'] => ({
+      '200': { description: 'OK', content: { 'application/json': { schema } } },
+    })
+    const fields = createSearchFieldExtractor().operation({
+      requestBody: { content: { 'application/json': { schema: verbose('request') } } },
+      responses: response(verbose('response')),
+    })
+
+    const characters = [...fields.names, ...fields.descriptions].reduce((sum, value) => sum + value.length, 0)
+    expect(characters).toBe(100_000)
+    expect(fields.names).toContain('request0')
+  })
+
   it('reads schema edits in a subsequent extraction build', () => {
     const schema: SchemaObject = { type: 'object', properties: { before: { type: 'string', description: 'Old' } } }
     const operation: OperationObject = { requestBody: { content: { 'application/json': { schema } } } }

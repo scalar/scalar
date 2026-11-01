@@ -115,6 +115,44 @@ const extractSchemaSearchText = (
   return { names: [...names], descriptions: [...descriptions] }
 }
 
+/**
+ * Combines the fields of several schemas into one entry, keeping the entry within the same limits
+ * as a single extraction: 100,000 characters, and at most 10,000 schemas.
+ */
+const mergeSchemaSearchText = (
+  schemas: Iterable<SchemaReferenceType<SchemaObject> | undefined>,
+  extract: (schema: SchemaReferenceType<SchemaObject> | undefined) => SchemaSearchText,
+): SchemaSearchText => {
+  const names = new Set<string>()
+  const descriptions = new Set<string>()
+  let visits = 0
+  let characters = 0
+
+  const add = (target: Set<string>, values: string[]): void => {
+    for (const value of values) {
+      if (characters >= 100_000) {
+        return
+      }
+      const text = value.slice(0, 100_000 - characters)
+      if (!target.has(text)) {
+        target.add(text)
+        characters += text.length
+      }
+    }
+  }
+
+  for (const schema of schemas) {
+    if (visits >= 10_000 || characters >= 100_000) {
+      break
+    }
+    visits++
+    const fields = extract(schema)
+    add(names, fields.names)
+    add(descriptions, fields.descriptions)
+  }
+  return { names: [...names], descriptions: [...descriptions] }
+}
+
 /** Yields media schemas lazily so extraction can stop at its per-entry budget. */
 function* bodySchemas(
   operation: OperationObject,
@@ -142,10 +180,6 @@ function* bodySchemas(
     }
   }
 }
-
-/** Collects request and response fields together under a single operation budget. */
-const extractOperationSchemaSearchText = (operation: OperationObject, includeRefSiblings: boolean): SchemaSearchText =>
-  extractSchemaSearchText(bodySchemas(operation, true), includeRefSiblings)
 
 const pushUnique = (target: string[], value: string | undefined): void => {
   if (value && !target.includes(value)) {
@@ -213,6 +247,9 @@ type SchemaSearchFields = {
 /**
  * Creates extraction caches for one synchronous index build. Discarding them after the build
  * ensures edits to existing schema objects are visible the next time search is indexed.
+ *
+ * Operations usually reference the same few schemas, and walking those is by far the most expensive
+ * part of indexing, so each schema is walked once per build and its fields are shared.
  */
 export const createSearchFieldExtractor = (
   includeRefSiblings = false,
@@ -225,17 +262,31 @@ export const createSearchFieldExtractor = (
   const bodies = new WeakMap<object, SchemaSearchFields>()
   const operations = new WeakMap<OperationObject, SchemaSearchFields>()
 
+  /**
+   * Every usage has its own reference object, so a plain reference has to be cached by what it resolves
+   * to. In OpenAPI 3.1+ a reference with sibling keywords adds to its target, so it keeps its own entry.
+   */
+  const getCacheKey = (value: SchemaObject): SchemaObject => {
+    const target = '$ref-value' in value ? value['$ref-value'] : undefined
+    if (!('$ref' in value) || !isSchemaObject(target)) {
+      return value
+    }
+    const hasSiblings = includeRefSiblings && Object.keys(value).some((key) => key !== '$ref' && key !== '$ref-value')
+    return hasSiblings ? value : target
+  }
+
   const schema = (value: SchemaReferenceType<SchemaObject> | undefined): SchemaSearchFields => {
     // Callers outside the workspace store can pass schemas that have not been normalized.
     if (!isSchemaObject(value)) {
       return { names: [], descriptions: [] }
     }
-    const cached = schemas.get(value)
+    const key = getCacheKey(value)
+    const cached = schemas.get(key)
     if (cached) {
       return cached
     }
-    const fields = extractSchemaSearchText([value], includeRefSiblings)
-    schemas.set(value, fields)
+    const fields = extractSchemaSearchText([key], includeRefSiblings)
+    schemas.set(key, fields)
     return fields
   }
 
@@ -246,7 +297,7 @@ export const createSearchFieldExtractor = (
       if (cached) {
         return cached
       }
-      const fields = extractOperationSchemaSearchText(operation, includeRefSiblings)
+      const fields = mergeSchemaSearchText(bodySchemas(operation, true), schema)
       operations.set(operation, fields)
       return fields
     },
@@ -256,7 +307,7 @@ export const createSearchFieldExtractor = (
       if (cached) {
         return cached
       }
-      const fields = extractSchemaSearchText(bodySchemas(operation, false), includeRefSiblings)
+      const fields = mergeSchemaSearchText(bodySchemas(operation, false), schema)
       if (requestBody) {
         bodies.set(requestBody, fields)
       }
