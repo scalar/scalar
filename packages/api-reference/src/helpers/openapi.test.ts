@@ -51,8 +51,8 @@ describe('openapi', () => {
 
     const fields = createSearchFieldExtractor().schema(schema)
     expect(fields).toStrictEqual({
-      names: ['shared', 'alternate', 'nested', 'child', 'tooDeep', 'duplicate', 'unresolved'],
-      descriptions: ['Shared field', 'Alternate field', 'Nested object', 'Child field'],
+      names: ['nested', 'duplicate', 'unresolved', 'shared', 'alternate', 'child', 'tooDeep'],
+      descriptions: ['Nested object', 'Shared field', 'Alternate field', 'Child field'],
     })
     expect(fields).toStrictEqual({
       names: extractSchemaFieldNames(schema),
@@ -86,6 +86,133 @@ describe('openapi', () => {
       names: extractBodyFieldNames(operation),
       descriptions: extractBodyDescriptions(operation),
     })
+  })
+
+  it('expands each schema once when many paths lead to it', () => {
+    // Models that reference each other, like entities with navigation properties. Counting reads
+    // keeps this deterministic, because proxied reads are what cost time in the browser.
+    const expansions = new Map<SchemaObject, number>()
+    const models: SchemaObject[] = Array.from({ length: 30 }, () => {
+      const model: SchemaObject = {
+        type: 'object',
+        // The traversal reads `oneOf` exactly once per expansion.
+        get oneOf() {
+          expansions.set(model, (expansions.get(model) ?? 0) + 1)
+          return undefined
+        },
+      }
+      return model
+    })
+    models.forEach((model, index) => {
+      Object.assign(model, {
+        properties: Object.fromEntries([
+          [`field${index}`, { type: 'string' }],
+          ...[1, 7, 13, 19].map((offset) => {
+            const target = (index + offset) % models.length
+            return [`to${target}`, { $ref: `#/${target}`, '$ref-value': models[target] }]
+          }),
+        ]),
+      })
+    })
+
+    const { names } = createSearchFieldExtractor().schema(models[0])
+
+    expect(names).toEqual(expect.arrayContaining(['field0', 'field1', 'field7']))
+    expect(Math.max(...expansions.values())).toBe(1)
+  })
+
+  it('walks a schema once when many operations reference it', () => {
+    let expansions = 0
+    const shared: SchemaObject = {
+      type: 'object',
+      properties: { sharedField: { type: 'string', description: 'Shared description' } },
+      // The traversal reads `oneOf` exactly once per expansion.
+      get oneOf() {
+        expansions++
+        return undefined
+      },
+    }
+    // Every operation has its own reference object, so only the resolved schema can identify the work.
+    const operation = (): OperationObject => ({
+      responses: {
+        '200': {
+          description: 'OK',
+          content: { 'application/json': { schema: { $ref: '#/shared', '$ref-value': shared } } },
+        },
+      },
+    })
+    const extract = createSearchFieldExtractor(true)
+
+    const results = [extract.operation(operation()), extract.operation(operation()), extract.schema(shared)]
+
+    for (const fields of results) {
+      expect(fields).toStrictEqual({ names: ['sharedField'], descriptions: ['Shared description'] })
+    }
+    expect(expansions).toBe(1)
+  })
+
+  it('does not share reference siblings with the schema they reference', () => {
+    const shared: SchemaObject = { type: 'object', properties: { sharedField: { type: 'string' } } }
+    const withSibling = {
+      $ref: '#/shared',
+      '$ref-value': shared,
+      properties: { siblingField: { type: 'string' } },
+    } as unknown as SchemaObject
+
+    const extract = createSearchFieldExtractor(true)
+    expect(extract.schema(shared).names).toStrictEqual(['sharedField'])
+    expect(extract.schema(withSibling).names).toEqual(expect.arrayContaining(['sharedField', 'siblingField']))
+    expect(extract.schema(shared).names).toStrictEqual(['sharedField'])
+
+    // OpenAPI 3.0 ignores siblings, so the same object is just a reference there.
+    expect(createSearchFieldExtractor(false).schema(withSibling).names).toStrictEqual(['sharedField'])
+  })
+
+  it('applies the character budget across the schemas of one operation', () => {
+    const verbose = (prefix: string): SchemaObject => ({
+      type: 'object',
+      properties: Object.fromEntries(
+        Array.from({ length: 40 }, (_, index) => [
+          `${prefix}${index}`,
+          { type: 'string', description: `${prefix}${index}${'x'.repeat(2_000)}` },
+        ]),
+      ),
+    })
+    const response = (schema: SchemaObject): OperationObject['responses'] => ({
+      '200': { description: 'OK', content: { 'application/json': { schema } } },
+    })
+    const fields = createSearchFieldExtractor().operation({
+      requestBody: { content: { 'application/json': { schema: verbose('request') } } },
+      responses: response(verbose('response')),
+    })
+
+    const characters = [...fields.names, ...fields.descriptions].reduce((sum, value) => sum + value.length, 0)
+    expect(characters).toBe(100_000)
+    expect(fields.names).toContain('request0')
+  })
+
+  it('indexes fields two references away from a model but not the whole model graph', () => {
+    const reference = (schema: SchemaObject): SchemaObject =>
+      ({ $ref: '#/schema', '$ref-value': schema }) as unknown as SchemaObject
+    const tooFar: SchemaObject = { type: 'object', properties: { tooFarField: { type: 'string' } } }
+    const distant: SchemaObject = {
+      type: 'object',
+      properties: { distantField: { type: 'string' }, tooFar: reference(tooFar) },
+    }
+    const related: SchemaObject = {
+      type: 'object',
+      properties: { relatedField: { type: 'string' }, distant: reference(distant) },
+    }
+    const entity: SchemaObject = {
+      type: 'object',
+      properties: { entityField: { type: 'string' }, related: reference(related) },
+    }
+    const dto: SchemaObject = { type: 'object', properties: { data: reference(entity) } }
+
+    const { names } = createSearchFieldExtractor().schema(reference(dto))
+
+    expect(names).toEqual(expect.arrayContaining(['entityField', 'relatedField', 'distantField', 'tooFar']))
+    expect(names).not.toContain('tooFarField')
   })
 
   it('reads schema edits in a subsequent extraction build', () => {
