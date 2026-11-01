@@ -17,12 +17,16 @@ type SchemaSearchText = { names: string[]; descriptions: string[] }
 /**
  * Extracts only property names and descriptions, never examples or schema metadata.
  *
- * Limits apply across all roots of one entry: 64 schema edges deep, 10,000 visits,
+ * Limits apply across all roots of one entry: 6 schema edges deep, 10,000 visits,
  * and 100,000 characters (at most 2,048 per string). These bounds keep recursive,
  * very wide, and unusually verbose schemas from monopolizing search construction.
  * Fields beyond these limits are omitted, starting with the most deeply nested.
  * Identity tracking is local to each extraction so shared schemas remain searchable
  * on every owning operation.
+ *
+ * The depth limit counts reference hops, so it reaches about two references past a model. Going
+ * further would make every operation in a connected API index nearly all of its fields, which
+ * slows down every search keystroke.
  *
  * The walk is breadth-first so that a schema is always first reached by its shortest path,
  * which means it only ever needs expanding once. Depth-first order would reach a schema
@@ -70,7 +74,7 @@ const extractSchemaSearchText = (
   // Everything queued has been paid for, so the visit budget does not stop this loop.
   for (let head = 0; head < queue.length && characters < 100_000; head++) {
     const { schema, depth, property } = queue[head]!
-    if (depth > 64 || !isSchemaObject(schema)) {
+    if (depth > 6 || !isSchemaObject(schema)) {
       continue
     }
     if (property && (includeRefSiblings || !('$ref' in schema))) {

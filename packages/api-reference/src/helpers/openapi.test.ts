@@ -117,8 +117,7 @@ describe('openapi', () => {
 
     const { names } = createSearchFieldExtractor().schema(models[0])
 
-    expect(names).toEqual(expect.arrayContaining(models.map((_, index) => `field${index}`)))
-    expect(expansions.size).toBe(models.length)
+    expect(names).toEqual(expect.arrayContaining(['field0', 'field1', 'field7']))
     expect(Math.max(...expansions.values())).toBe(1)
   })
 
@@ -190,6 +189,30 @@ describe('openapi', () => {
     const characters = [...fields.names, ...fields.descriptions].reduce((sum, value) => sum + value.length, 0)
     expect(characters).toBe(100_000)
     expect(fields.names).toContain('request0')
+  })
+
+  it('indexes fields two references away from a model but not the whole model graph', () => {
+    const reference = (schema: SchemaObject): SchemaObject =>
+      ({ $ref: '#/schema', '$ref-value': schema }) as unknown as SchemaObject
+    const tooFar: SchemaObject = { type: 'object', properties: { tooFarField: { type: 'string' } } }
+    const distant: SchemaObject = {
+      type: 'object',
+      properties: { distantField: { type: 'string' }, tooFar: reference(tooFar) },
+    }
+    const related: SchemaObject = {
+      type: 'object',
+      properties: { relatedField: { type: 'string' }, distant: reference(distant) },
+    }
+    const entity: SchemaObject = {
+      type: 'object',
+      properties: { entityField: { type: 'string' }, related: reference(related) },
+    }
+    const dto: SchemaObject = { type: 'object', properties: { data: reference(entity) } }
+
+    const { names } = createSearchFieldExtractor().schema(reference(dto))
+
+    expect(names).toEqual(expect.arrayContaining(['entityField', 'relatedField', 'distantField', 'tooFar']))
+    expect(names).not.toContain('tooFarField')
   })
 
   it('reads schema edits in a subsequent extraction build', () => {
