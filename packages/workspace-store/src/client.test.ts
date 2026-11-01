@@ -4774,6 +4774,87 @@ describe('create-workspace-store', () => {
       expect(isOpenApiDocument(document)).toBe(true)
       expect(isPluginDocument(document)).toBe(false)
     })
+
+    it('ignores the document type marker on a document no type claims', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'petstore',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Petstore', version: '1.0.0' },
+          paths: {},
+          'x-scalar-document-type': 'arazzo',
+        },
+      })
+
+      const document = store.workspace.documents['petstore']
+      expect(isOpenApiDocument(document)).toBe(true)
+      expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it('keeps loading built-in documents when a detect hook throws', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({
+        documentTypes: [
+          arazzo({
+            detect: () => {
+              throw new Error('broken plugin')
+            },
+          }),
+        ],
+      })
+
+      const result = await store.addDocument({
+        name: 'petstore',
+        document: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+      })
+
+      expect(result).toBe(true)
+      expect(isOpenApiDocument(store.workspace.documents['petstore'])).toBe(true)
+      expect(consoleError).toHaveBeenCalled()
+      consoleError.mockRestore()
+    })
+
+    it.each([
+      [
+        'ingest',
+        {
+          ingest: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+      [
+        'traverse',
+        {
+          traverse: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+    ])('adds the could-not-be-loaded document when %s throws', async (_hook, overrides) => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({ documentTypes: [arazzo(overrides)] })
+
+      const result = await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(result).toBe(false)
+      expect(store.workspace.documents['adoption']?.info?.title).toBe("Document 'adoption' could not be loaded")
+      consoleError.mockRestore()
+    })
+
+    it('keeps the document type marker out of saved documents', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      await store.saveDocument('adoption')
+
+      expect(JSON.parse(store.exportDocument('adoption', 'json') ?? '{}')).toStrictEqual(arazzoDocument())
+
+      await store.revertDocumentChanges('adoption')
+      expect(isPluginDocument(store.workspace.documents['adoption'])).toBe(true)
+    })
   })
 
   describe('openapi security schemes', () => {

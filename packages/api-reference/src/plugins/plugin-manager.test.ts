@@ -264,7 +264,6 @@ describe('plugin-manager', () => {
   describe('document types', () => {
     const documentType = (type: string) => ({
       type,
-      label: type,
       detect: () => true,
       traverse: () => [],
       content: { component: {} },

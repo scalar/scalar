@@ -5,7 +5,6 @@ import { toStoreDocumentTypes } from './to-store-document-types'
 
 const documentType = (overrides: Partial<PluginDocumentType> = {}): PluginDocumentType => ({
   type: 'arazzo',
-  label: 'Arazzo',
   detect: () => true,
   traverse: () => [],
   content: { component: {} },

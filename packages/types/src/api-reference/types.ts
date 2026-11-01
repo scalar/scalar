@@ -223,17 +223,18 @@ export type ViewComponent = {
  * A document format that API Reference does not support natively (it supports OpenAPI and AsyncAPI).
  *
  * The plugin detects documents of its format, optionally normalizes them, builds their sidebar entries,
- * and renders the whole document. Everything else (loading, the document selector, routing, the sidebar
- * and scroll tracking) is handled by API Reference.
+ * and renders the whole document. Loading, the document selector, routing and the sidebar are handled
+ * by API Reference.
  */
 export type PluginDocumentType = {
   /** Stable identifier, stored on every claimed document as `x-scalar-document-type`. */
   type: string
-  /** Human-readable name of the format, e.g. `Arazzo`. */
-  label: string
   /** Whether this type handles the raw (parsed) document. Checked before OpenAPI and AsyncAPI. */
   detect: (document: Record<string, unknown>) => boolean
-  /** Optional hook to upgrade, validate or normalize the document before it is stored. */
+  /**
+   * Optional hook to upgrade, validate or normalize the document before it is stored. API Reference
+   * keeps two stores, so this can run more than once per document: keep it free of side effects.
+   */
   ingest?: (
     document: Record<string, unknown>,
     context: { documentName: string },
@@ -251,7 +252,9 @@ export type PluginDocumentType = {
    *
    * The component receives `document`, `documentName`, `documents` (every document in the workspace,
    * read-only), `navigation` (its sidebar entries), `eventBus` and `options`. Each rendered entry should
-   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it.
+   * use the entry `id` as its element id, so sidebar navigation and deep links can scroll to it. To keep
+   * the sidebar and the URL in sync while scrolling, emit `intersecting:nav-item` with the entry `id` on
+   * the `eventBus` when an entry scrolls into view.
    */
   content: {
     component: unknown

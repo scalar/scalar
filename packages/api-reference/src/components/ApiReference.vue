@@ -832,11 +832,18 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
-/** Find the sidebar entry that represents the introduction section */
+/**
+ * Find the sidebar entry that represents the introduction section.
+ *
+ * A plugin document has no introduction, so the top of the page belongs to the document itself.
+ * Falling through to the suffix would put an id in the URL that resolves to nothing.
+ */
 const infoSectionId = computed(
   () =>
     sidebarItems.value.find(isIntroductionEntry)?.id ??
-    `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`,
+    (isPluginDocument(workspaceStore.workspace.activeDocument)
+      ? activeSlug.value
+      : `${activeSlug.value}${INTRODUCTION_ENTRY_ID_SUFFIX}`),
 )
 
 /**
