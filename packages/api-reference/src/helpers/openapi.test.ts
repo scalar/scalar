@@ -51,8 +51,8 @@ describe('openapi', () => {
 
     const fields = createSearchFieldExtractor().schema(schema)
     expect(fields).toStrictEqual({
-      names: ['shared', 'alternate', 'nested', 'child', 'tooDeep', 'duplicate', 'unresolved'],
-      descriptions: ['Shared field', 'Alternate field', 'Nested object', 'Child field'],
+      names: ['nested', 'duplicate', 'unresolved', 'shared', 'alternate', 'child', 'tooDeep'],
+      descriptions: ['Nested object', 'Shared field', 'Alternate field', 'Child field'],
     })
     expect(fields).toStrictEqual({
       names: extractSchemaFieldNames(schema),
@@ -86,6 +86,40 @@ describe('openapi', () => {
       names: extractBodyFieldNames(operation),
       descriptions: extractBodyDescriptions(operation),
     })
+  })
+
+  it('expands each schema once when many paths lead to it', () => {
+    // Models that reference each other, like entities with navigation properties. Counting reads
+    // keeps this deterministic, because proxied reads are what cost time in the browser.
+    const expansions = new Map<SchemaObject, number>()
+    const models: SchemaObject[] = Array.from({ length: 30 }, () => {
+      const model: SchemaObject = {
+        type: 'object',
+        // The traversal reads `oneOf` exactly once per expansion.
+        get oneOf() {
+          expansions.set(model, (expansions.get(model) ?? 0) + 1)
+          return undefined
+        },
+      }
+      return model
+    })
+    models.forEach((model, index) => {
+      Object.assign(model, {
+        properties: Object.fromEntries([
+          [`field${index}`, { type: 'string' }],
+          ...[1, 7, 13, 19].map((offset) => {
+            const target = (index + offset) % models.length
+            return [`to${target}`, { $ref: `#/${target}`, '$ref-value': models[target] }]
+          }),
+        ]),
+      })
+    })
+
+    const { names } = createSearchFieldExtractor().schema(models[0])
+
+    expect(names).toEqual(expect.arrayContaining(models.map((_, index) => `field${index}`)))
+    expect(expansions.size).toBe(models.length)
+    expect(Math.max(...expansions.values())).toBe(1)
   })
 
   it('reads schema edits in a subsequent extraction build', () => {
