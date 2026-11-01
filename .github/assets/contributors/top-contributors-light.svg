@@ -105,26 +105,26 @@
                 80.1%, 100% { background: #fb2c90; }
               }
               .banner-text-oner:before {
-                content: "#1 hanspagel - 203 commits 89,256 ++ 18,990 --";
+                content: "#1 hanspagel - 149 commits 92,823 ++ 51,744 --";
                 animation: bannertextchange 50s infinite linear;
               }
               @keyframes bannertextchange {
-                0%, 20% { content: "#1 hanspagel - 203 commits 89,256 ++ 18,990 --"; }
-                20.1%, 40% { content: "#3 amritk - 10 commits 7,307 ++ 1,223 --"; }
-                40.1%, 60% { content: "#5 DemonHa - 7 commits 6,809 ++ 406 --"; }
-                60.1%, 80% { content: "#7 geoffgscott - 6 commits 3,820 ++ 460 --"; }
-                80.1%, 100% { content: "#9 AshishKumarPathak - 3 commits 530 ++ 53 --"; }
+                0%, 20% { content: "#1 hanspagel - 149 commits 92,823 ++ 51,744 --"; }
+                20.1%, 40% { content: "#3 hwkr - 23 commits 4,047 ++ 3,434 --"; }
+                40.1%, 60% { content: "#5 marclave - 11 commits 3,197 ++ 559 --"; }
+                60.1%, 80% { content: "#7 AdzerKI - 7 commits 404 ++ 57 --"; }
+                80.1%, 100% { content: "#9 tmastrom - 3 commits 411 ++ 367 --"; }
               }
               .banner-text-twoer:before {
-                content: "#2 cameronrohani - 16 commits 12,832 ++ 3,915 --";
+                content: "#2 cameronrohani - 29 commits 30,784 ++ 6,991 --";
                 animation: bannertexttwochange 45s infinite linear;
               }
               @keyframes bannertexttwochange {
-                0%, 20% { content: "#2 cameronrohani - 16 commits 12,832 ++ 3,915 --"; }
-                20.1%, 40% { content: "#4 marclave - 7 commits 32,107 ++ 633 --"; }
-                40.1%, 60% { content: "#6 hwkr - 7 commits 418 ++ 71 --"; }
-                60.1%, 80% { content: "#8 lazerg - 6 commits 565 ++ 132 --"; }
-                80.1%, 100% { content: "#10 kou029w - 1 commits 179 ++ 7 --"; }
+                0%, 20% { content: "#2 cameronrohani - 29 commits 30,784 ++ 6,991 --"; }
+                20.1%, 40% { content: "#4 amritk - 12 commits 8,491 ++ 1,700 --"; }
+                40.1%, 60% { content: "#6 charan-rathore - 8 commits 566 ++ 42 --"; }
+                60.1%, 80% { content: "#8 DemonHa - 4 commits 884 ++ 39 --"; }
+                80.1%, 100% { content: "#10 lazerg - 3 commits 301 ++ 26 --"; }
               }
               .banner-bunny-bounce2 .banner-text { background: #0082d0; }
               .banner-bunny { background: transparent; width: 190px; height: 80px; z-index: 10; position: relative; }
