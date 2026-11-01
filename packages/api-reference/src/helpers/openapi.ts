@@ -20,10 +20,14 @@ type SchemaSearchText = { names: string[]; descriptions: string[] }
  * Limits apply across all roots of one entry: 64 schema edges deep, 10,000 visits,
  * and 100,000 characters (at most 2,048 per string). These bounds keep recursive,
  * very wide, and unusually verbose schemas from monopolizing search construction.
- * Traversal order follows the document; fields beyond these limits are omitted.
+ * Fields beyond these limits are omitted, starting with the most deeply nested.
  * Identity tracking is local to each extraction so shared schemas remain searchable
- * on every owning operation. A shallower revisit is allowed to avoid losing fields
- * when a shared schema first appears near the depth limit.
+ * on every owning operation.
+ *
+ * The walk is breadth-first so that a schema is always first reached by its shortest path,
+ * which means it only ever needs expanding once. Depth-first order would reach a schema
+ * by a long path first and expand it again for every shorter path, and every read here goes
+ * through several proxies, so that gets very slow for models that reference each other.
  */
 const extractSchemaSearchText = (
   schemas: Iterable<SchemaReferenceType<SchemaObject> | undefined>,
@@ -31,13 +35,14 @@ const extractSchemaSearchText = (
 ): SchemaSearchText => {
   const names = new Set<string>()
   const descriptions = new Set<string>()
-  const visited = new Map<SchemaObject, number>()
+  const visited = new Set<SchemaObject>()
+  const queue: { schema: unknown; depth: number; property: boolean }[] = []
   let visits = 0
   let characters = 0
 
   const exhausted = (): boolean => visits >= 10_000 || characters >= 100_000
   const add = (target: Set<string>, value: string | undefined): void => {
-    if (typeof value !== 'string' || !value || exhausted()) {
+    if (typeof value !== 'string' || !value || characters >= 100_000) {
       return
     }
     const text = value.slice(0, Math.min(2_048, 100_000 - characters))
@@ -46,56 +51,12 @@ const extractSchemaSearchText = (
       characters += text.length
     }
   }
-
-  const visit = (schema: unknown, depth: number, property = false): void => {
-    if (exhausted()) {
-      return
-    }
-    visits++
-    if (depth > 64 || !isSchemaObject(schema)) {
-      return
-    }
-    if (property && (includeRefSiblings || !('$ref' in schema))) {
-      add(descriptions, schema.description)
-    }
-    const previousDepth = visited.get(schema)
-    if (previousDepth !== undefined && previousDepth <= depth) {
-      return
-    }
-    visited.set(schema, depth)
-
-    // Follow store-resolved links one hop at a time so reference chains share the budget.
-    // Unresolved references contribute their property name but do not trigger I/O.
-    if ('$ref' in schema) {
-      if ('$ref-value' in schema) {
-        visit(schema['$ref-value'], depth + 1, property)
-      }
-      // OpenAPI 3.0 references ignore siblings; 3.1+ schema keywords apply alongside $ref.
-      if (!includeRefSiblings) {
-        return
-      }
-    }
-    for (const variants of [schema.oneOf, schema.anyOf, schema.allOf]) {
-      for (const variant of variants ?? []) {
-        if (exhausted()) {
-          return
-        }
-        visit(variant, depth + 1)
-      }
-    }
-    if ('properties' in schema && schema.properties) {
-      for (const key in schema.properties) {
-        if (exhausted()) {
-          return
-        }
-        if (Object.hasOwn(schema.properties, key)) {
-          add(names, key)
-          visit(schema.properties[key], depth + 1, true)
-        }
-      }
-    }
-    if ('items' in schema && schema.items) {
-      visit(schema.items, depth + 1)
+  // Visits are charged here rather than when dequeued, so a very wide schema cannot add all of
+  // its property names before the budget applies.
+  const enqueue = (schema: unknown, depth: number, property = false): void => {
+    if (!exhausted()) {
+      visits++
+      queue.push({ schema, depth, property })
     }
   }
 
@@ -103,7 +64,53 @@ const extractSchemaSearchText = (
     if (exhausted()) {
       break
     }
-    visit(schema, 0)
+    enqueue(schema, 0)
+  }
+
+  // Everything queued has been paid for, so the visit budget does not stop this loop.
+  for (let head = 0; head < queue.length && characters < 100_000; head++) {
+    const { schema, depth, property } = queue[head]!
+    if (depth > 64 || !isSchemaObject(schema)) {
+      continue
+    }
+    if (property && (includeRefSiblings || !('$ref' in schema))) {
+      add(descriptions, schema.description)
+    }
+    if (visited.has(schema)) {
+      continue
+    }
+    visited.add(schema)
+
+    // Follow store-resolved links one hop at a time so reference chains share the budget.
+    // Unresolved references contribute their property name but do not trigger I/O.
+    if ('$ref' in schema) {
+      if ('$ref-value' in schema) {
+        enqueue(schema['$ref-value'], depth + 1, property)
+      }
+      // OpenAPI 3.0 references ignore siblings; 3.1+ schema keywords apply alongside $ref.
+      if (!includeRefSiblings) {
+        continue
+      }
+    }
+    for (const variants of [schema.oneOf, schema.anyOf, schema.allOf]) {
+      for (const variant of variants ?? []) {
+        enqueue(variant, depth + 1)
+      }
+    }
+    if ('properties' in schema && schema.properties) {
+      for (const key in schema.properties) {
+        if (exhausted()) {
+          break
+        }
+        if (Object.hasOwn(schema.properties, key)) {
+          add(names, key)
+          enqueue(schema.properties[key], depth + 1, true)
+        }
+      }
+    }
+    if ('items' in schema && schema.items) {
+      enqueue(schema.items, depth + 1)
+    }
   }
   return { names: [...names], descriptions: [...descriptions] }
 }
