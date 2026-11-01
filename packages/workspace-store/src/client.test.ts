@@ -4759,7 +4759,9 @@ describe('create-workspace-store', () => {
 
       await store.addDocument({ name: 'adoption', document: arazzoDocument() })
 
-      expect(store.workspace.documents['adoption']?.['x-scalar-document-type']).toBe('first')
+      const document = store.workspace.documents['adoption']
+      assert(isPluginDocument(document))
+      expect(document['x-scalar-document-type']).toBe('first')
     })
 
     it('leaves documents no type claims on the built-in pipelines', async () => {
