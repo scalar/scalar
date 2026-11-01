@@ -56,8 +56,21 @@ export type DocumentTypeDefinition = {
 export const isPluginDocument = (value: unknown): value is PluginDocument =>
   isObject(value) && typeof value[PLUGIN_DOCUMENT_TYPE_KEY] === 'string'
 
-/** Find the registered document type that claims a raw document, if any. */
+/**
+ * Find the registered document type that claims a raw document, if any.
+ *
+ * Every document goes through `detect`, so one that throws counts as "not mine". Otherwise a bug in a
+ * single document type would stop OpenAPI and AsyncAPI documents from loading too.
+ */
 export const findDocumentType = (
   documentTypes: readonly DocumentTypeDefinition[] | undefined,
   document: UnknownObject,
-): DocumentTypeDefinition | undefined => documentTypes?.find((documentType) => documentType.detect(document))
+): DocumentTypeDefinition | undefined =>
+  documentTypes?.find((documentType) => {
+    try {
+      return documentType.detect(document)
+    } catch (error) {
+      console.error(`Document type '${documentType.type}' failed to detect a document:`, error)
+      return false
+    }
+  })

@@ -36,7 +36,6 @@ const ArazzoContent = defineComponent({
 
 const arazzoDocumentType: PluginDocumentType = {
   type: 'arazzo',
-  label: 'Arazzo',
   detect: (document) => typeof document.arazzo === 'string',
   traverse: ({ documentId, document }) =>
     (document.workflows as { workflowId: string; summary: string }[]).map((workflow) => ({
@@ -53,7 +52,7 @@ const arazzoPlugin: ApiReferencePlugin = () => ({
   documentTypes: [arazzoDocumentType],
 })
 
-describe('plugin document types', () => {
+describe('ApiReference.document-types', () => {
   it('renders a claimed document with the plugin content component', async () => {
     const wrapper = mount(ApiReference, {
       props: {
