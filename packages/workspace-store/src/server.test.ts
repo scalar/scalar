@@ -13,7 +13,7 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument } from '@/schemas'
+import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
 import { extensions } from '@/schemas/extensions'
 import type { TraversedDocument, TraversedEntry } from '@/schemas/navigation'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -247,7 +247,7 @@ describe('create-server-store', () => {
 
     expect(store.get('#/query-api/operations/~1planets/query')).toStrictEqual(operation)
     const document = store.getWorkspace().documents['query-api']
-    assert(document && 'openapi' in document)
+    assert(isOpenApiDocument(document))
     expect(document.paths?.['/planets']).toStrictEqual({
       query: { $ref: 'https://example.com/query-api/operations/~1planets/query#', $global: true },
     })
@@ -1743,7 +1743,7 @@ describe('getResolvedDocument', () => {
       })
 
       const resolved = store.getResolvedDocument('galaxy')
-      assert(resolved && !isAsyncApiDocument(resolved))
+      assert(isOpenApiDocument(resolved))
 
       // Real content where the sparse document has references
       expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toEqual(galaxy().paths['/planets'].get)
@@ -1768,7 +1768,7 @@ describe('getResolvedDocument', () => {
     })
 
     const resolved = store.getResolvedDocument('galaxy')
-    assert(resolved && !isAsyncApiDocument(resolved))
+    assert(isOpenApiDocument(resolved))
 
     const operation = getResolvedRef(getPathItemOperation(resolved.paths?.['/planets'], 'get'))
     const response = getResolvedRef(operation?.responses?.['200'])
@@ -1804,7 +1804,7 @@ describe('getResolvedDocument', () => {
     })
 
     const resolved = store.getResolvedDocument('galaxy')
-    assert(resolved && !isAsyncApiDocument(resolved))
+    assert(isOpenApiDocument(resolved))
 
     expect(getRaw(resolved.components?.schemas?.['Planet'])).toBe(store.get('#/galaxy/components/schemas/Planet'))
     expect(getRaw(getPathItemOperation(resolved.paths?.['/planets'], 'get'))).toBe(

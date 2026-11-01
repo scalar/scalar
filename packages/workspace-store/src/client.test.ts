@@ -12,7 +12,8 @@ import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
-import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas'
+import { isAsyncApiDocument, isOpenApiDocument, isPluginDocument } from '@/schemas'
+import type { DocumentTypeDefinition } from '@/schemas/plugin-document'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import { createServerWorkspaceStore } from '@/server'
 
@@ -4663,6 +4664,198 @@ describe('create-workspace-store', () => {
         'title': 'Simple Chat WebSocket API',
         'type': 'document',
       })
+    })
+  })
+
+  describe('registered document types', () => {
+    const arazzoDocument = () => ({
+      arazzo: '1.0.1',
+      info: { title: 'Pet adoption', version: '1.0.0' },
+      sourceDescriptions: [{ name: 'petstore', url: './petstore.json', type: 'openapi' }],
+      workflows: [{ workflowId: 'adopt', steps: [{ stepId: 'find', operationId: 'findPets' }] }],
+    })
+
+    const arazzo = (overrides: Partial<DocumentTypeDefinition> = {}): DocumentTypeDefinition => ({
+      type: 'arazzo',
+      detect: (document) => typeof document.arazzo === 'string',
+      traverse: ({ documentId, document }) =>
+        (document.workflows as { workflowId: string }[]).map((workflow) => ({
+          id: `${documentId}/workflow/${workflow.workflowId}`,
+          title: workflow.workflowId,
+          type: 'plugin',
+          documentType: 'arazzo',
+          kind: 'workflow',
+        })),
+      ...overrides,
+    })
+
+    it('stores a claimed document as-is, tagged with its document type', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      const document = store.workspace.documents['adoption']
+      assert(isPluginDocument(document))
+      expect(document).toMatchObject({
+        ...arazzoDocument(),
+        'x-scalar-document-type': 'arazzo',
+        'x-scalar-original-document-hash': expect.any(String),
+      })
+      // The OpenAPI pipeline must not have touched it.
+      expect(document).not.toHaveProperty('openapi')
+      expect(isOpenApiDocument(document)).toBe(false)
+      expect(isAsyncApiDocument(document)).toBe(false)
+    })
+
+    it('builds the navigation from the document type', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(store.workspace.documents['adoption']?.['x-scalar-navigation']).toStrictEqual({
+        id: 'adoption',
+        type: 'document',
+        title: 'Pet adoption',
+        name: 'adoption',
+        icon: undefined,
+        children: [
+          {
+            id: 'adoption/workflow/adopt',
+            title: 'adopt',
+            type: 'plugin',
+            documentType: 'arazzo',
+            kind: 'workflow',
+          },
+        ],
+      })
+    })
+
+    it('stores the result of ingest', async () => {
+      const ingest = vi.fn((document: Record<string, unknown>) => ({ ...document, normalized: true }))
+      const store = createWorkspaceStore({ documentTypes: [arazzo({ ingest })] })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(ingest).toHaveBeenCalledWith(arazzoDocument(), { documentName: 'adoption' })
+      expect(store.workspace.documents['adoption']).toMatchObject({ normalized: true })
+    })
+
+    it('adds an empty info object when the format has none', async () => {
+      const store = createWorkspaceStore({
+        documentTypes: [arazzo({ detect: (document) => 'overlay' in document, traverse: () => [] })],
+      })
+
+      await store.addDocument({ name: 'overlay', document: { overlay: '1.0.0', actions: [] } })
+
+      const document = store.workspace.documents['overlay']
+      expect(document?.info).toStrictEqual({})
+      expect(document?.['x-scalar-navigation']?.title).toBe('Untitled Document')
+    })
+
+    it('lets the first matching document type claim the document', async () => {
+      const store = createWorkspaceStore({
+        documentTypes: [arazzo({ type: 'first' }), arazzo({ type: 'second' })],
+      })
+
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      const document = store.workspace.documents['adoption']
+      assert(isPluginDocument(document))
+      expect(document['x-scalar-document-type']).toBe('first')
+    })
+
+    it('leaves documents no type claims on the built-in pipelines', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+
+      await store.addDocument({
+        name: 'petstore',
+        document: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+      })
+
+      const document = store.workspace.documents['petstore']
+      expect(isOpenApiDocument(document)).toBe(true)
+      expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it('ignores the document type marker on a document no type claims', async () => {
+      const store = createWorkspaceStore()
+
+      await store.addDocument({
+        name: 'petstore',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Petstore', version: '1.0.0' },
+          paths: {},
+          'x-scalar-document-type': 'arazzo',
+        },
+      })
+
+      const document = store.workspace.documents['petstore']
+      expect(isOpenApiDocument(document)).toBe(true)
+      expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it('keeps loading built-in documents when a detect hook throws', async () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({
+        documentTypes: [
+          arazzo({
+            detect: () => {
+              throw new Error('broken plugin')
+            },
+          }),
+        ],
+      })
+
+      const result = await store.addDocument({
+        name: 'petstore',
+        document: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+      })
+
+      expect(result).toBe(true)
+      expect(isOpenApiDocument(store.workspace.documents['petstore'])).toBe(true)
+      expect(consoleError).toHaveBeenCalled()
+      consoleError.mockRestore()
+    })
+
+    it.each([
+      [
+        'ingest',
+        {
+          ingest: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+      [
+        'traverse',
+        {
+          traverse: () => {
+            throw new Error('broken plugin')
+          },
+        },
+      ],
+    ])('adds the could-not-be-loaded document when %s throws', async (_hook, overrides) => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined)
+      const store = createWorkspaceStore({ documentTypes: [arazzo(overrides)] })
+
+      const result = await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      expect(result).toBe(false)
+      expect(store.workspace.documents['adoption']?.info?.title).toBe("Document 'adoption' could not be loaded")
+      consoleError.mockRestore()
+    })
+
+    it('keeps the document type marker out of saved documents', async () => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+      await store.addDocument({ name: 'adoption', document: arazzoDocument() })
+
+      await store.saveDocument('adoption')
+
+      expect(JSON.parse(store.exportDocument('adoption', 'json') ?? '{}')).toStrictEqual(arazzoDocument())
+
+      await store.revertDocumentChanges('adoption')
+      expect(isPluginDocument(store.workspace.documents['adoption'])).toBe(true)
     })
   })
 

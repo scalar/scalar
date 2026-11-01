@@ -34,7 +34,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
+import { createNavigation, traverseAsyncApiDocument, traversePluginDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
   externalValueResolver,
@@ -51,6 +51,12 @@ import {
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { TraversedDocument } from '@/schemas/navigation'
+import {
+  type DocumentTypeDefinition,
+  PLUGIN_DOCUMENT_TYPE_KEY,
+  type PluginDocument,
+  findDocumentType,
+} from '@/schemas/plugin-document'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.2/openapi'
 import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
@@ -216,6 +222,11 @@ type WorkspaceProps = {
   plugins?: WorkspacePlugin[]
   /** A file loader plugin for resolving local file references (for non browser environments) */
   fileLoader?: LoaderPlugin
+  /**
+   * Document formats the store does not support natively. Each one is checked, in order, before the
+   * built-in OpenAPI and AsyncAPI pipelines.
+   */
+  documentTypes?: readonly DocumentTypeDefinition[]
   /**
    * Whether writes to the workspace are observable. Defaults to `true`.
    *
@@ -650,7 +661,7 @@ const METADATA_ONLY_DOCUMENT_KEYS = new Set<string>([
  */
 const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T): T => {
   const result = deepClone(input)
-  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs'
+  type BundlerKeys = 'x-ext' | 'x-ext-urls' | 'x-scalar-original-refs' | typeof PLUGIN_DOCUMENT_TYPE_KEY
   // Top level keys that need to be excluded from the original document
   // Nested keys are removed during the previous step of the bundler process
   const EXCLUDE_KEYS: string[] = [
@@ -666,6 +677,7 @@ const purgeInternalDocumentKeys = <T extends Record<string, unknown>>(input: T):
     'x-scalar-original-document-hash',
     'x-scalar-original-source-url',
     'x-scalar-registry-meta',
+    PLUGIN_DOCUMENT_TYPE_KEY,
   ] satisfies (keyof OpenAPIExtensions | BundlerKeys)[]
 
   // Remove top-level properties that should only exist temporarily or for internal usage
@@ -1040,6 +1052,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     return true
   }
 
+  /** The placeholder shown for a document that could not be loaded. */
+  const createLoadFailedDocument = (name: string, meta: WorkspaceDocumentMeta | undefined): OpenApiDocument => ({
+    ...meta,
+    openapi: '3.1.0',
+    info: {
+      title: `Document '${name}' could not be loaded`,
+      version: 'unknown',
+    },
+    'x-scalar-original-document-hash': 'not-a-hash',
+  })
+
   // Add a document to the store synchronously from an in-memory OpenAPI or AsyncAPI document
   async function addInMemoryDocument(
     input: ObjectDoc & { initialize?: boolean; documentSource?: string; documentHash: string },
@@ -1088,6 +1111,67 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     if (workspaceProps?.fileLoader) {
       loaders.push(workspaceProps.fileLoader)
     }
+
+    // Registered document types come first, so a format they claim never reaches the OpenAPI
+    // upgrade and coercion below (which would turn it into a broken OpenAPI document).
+    const documentType = findDocumentType(workspaceProps?.documentTypes, clonedRawInputDocument)
+    if (documentType) {
+      // Third-party code runs here, so a failure ends up as the usual "could not be loaded" document
+      // instead of leaving the workspace without this document.
+      try {
+        const ingestedDocument = await withMeasurementAsync(
+          'ingest',
+          async () =>
+            (await documentType.ingest?.(deepClone(clonedRawInputDocument), { documentName: name })) ??
+            clonedRawInputDocument,
+        )
+
+        const pluginDocument = createMagicProxy({
+          ...ingestedDocument,
+          info: isObject(ingestedDocument.info) ? ingestedDocument.info : {},
+          ...meta,
+          [PLUGIN_DOCUMENT_TYPE_KEY]: documentType.type,
+          'x-scalar-original-document-hash': input.documentHash,
+          'x-scalar-original-source-url': input.documentSource,
+        }) as PluginDocument
+
+        if (documentType.bundle && pluginDocument[extensions.document.navigation] === undefined) {
+          await withMeasurementAsync(
+            'bundle',
+            async () =>
+              await bundle(getRaw(pluginDocument), {
+                treeShake: false,
+                plugins: loaders,
+                urlMap: true,
+                origin: input.documentSource,
+              }),
+          )
+        }
+
+        if (pluginDocument[extensions.document.navigation] === undefined) {
+          pluginDocument[extensions.document.navigation] = traversePluginDocument(
+            name,
+            pluginDocument,
+            documentType,
+            navigationOptions,
+          )
+        }
+
+        const pluginOverrides = unpackProxyObject(overrides[name])
+        workspace.documents[name] = needsOverridesProxy(pluginOverrides)
+          ? createOverridesProxy(pluginDocument, { overrides: pluginOverrides })
+          : pluginDocument
+        return true
+      } catch (error) {
+        console.error(`Failed to load document '${name}' with document type '${documentType.type}':`, error)
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
+        return false
+      }
+    }
+
+    // Nobody claimed this document, so the marker can only come from its source. Left in place, it would
+    // make the type guards reject a regular OpenAPI or AsyncAPI document.
+    delete clonedRawInputDocument[PLUGIN_DOCUMENT_TYPE_KEY]
 
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
     // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
@@ -1138,7 +1222,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       workspace.documents[name] = needsOverridesProxy(asyncApiOverrides)
         ? createOverridesProxy(asyncApiDocument, { overrides: asyncApiOverrides })
         : asyncApiDocument
-      return
+      return true
     }
 
     const inputDocument = withMeasurementSync('upgrade', () => upgrade(deepClone(clonedRawInputDocument), '3.1'))
@@ -1218,6 +1302,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
       : magicDocument
+    return true
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1241,15 +1326,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (!resolve.ok) {
         console.error(`Failed to fetch document '${name}': request was not successful`)
 
-        workspace.documents[name] = {
-          ...meta,
-          openapi: '3.1.0',
-          info: {
-            title: `Document '${name}' could not be loaded`,
-            version: 'unknown',
-          },
-          'x-scalar-original-document-hash': 'not-a-hash',
-        }
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
 
         return false
       }
@@ -1257,20 +1334,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       if (!isObject(resolve.data)) {
         console.error(`Failed to load document '${name}': response data is not a valid object`)
 
-        workspace.documents[name] = {
-          ...meta,
-          openapi: '3.1.0',
-          info: {
-            title: `Document '${name}' could not be loaded`,
-            version: 'unknown',
-          },
-          'x-scalar-original-document-hash': 'not-a-hash',
-        }
+        workspace.documents[name] = createLoadFailedDocument(name, meta)
 
         return false
       }
 
-      await addInMemoryDocument(
+      return await addInMemoryDocument(
         {
           ...input,
           document: resolve.data,
@@ -1279,8 +1348,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         },
         navigationOptions,
       )
-
-      return true
     })
   }
 
