@@ -1,9 +1,4 @@
-/** Whether a value is a plain object (an object literal, parsed JSON or YAML) rather than a class instance. */
-const isPlainObject = (value: object): value is Record<string, unknown> => {
-  const prototype = Object.getPrototypeOf(value)
-
-  return prototype === Object.prototype || prototype === null
-}
+import { isObject } from '@scalar/helpers/object/is-object'
 
 /**
  * Copy the JSON-shaped part of a value: arrays and plain objects are copied, everything else is
@@ -35,7 +30,7 @@ const copy = (value: unknown, seen: Map<object, unknown>): unknown => {
 
   // A `Date`, a `Map` or any other instance is not something bundling walks into, so it is shared
   // with the source rather than rebuilt without its prototype.
-  if (!isPlainObject(value)) {
+  if (!isObject(value)) {
     return value
   }
 
