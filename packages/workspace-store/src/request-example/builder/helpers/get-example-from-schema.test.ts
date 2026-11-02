@@ -2877,6 +2877,56 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf, { mode: 'read', includeDeprecated: true })).toStrictEqual({ id: 'kept', old: 'retired' })
     })
 
+    it('keeps required properties an object declares through allOf', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [{ type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } }],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ id: 'ok' })
+    })
+
+    it('keeps a required property whose definition lives in another allOf member', () => {
+      const base = { type: 'object', properties: { id: { type: 'string', const: 'ok' }, note: { type: 'string' } } }
+      const extension = { required: ['id'] }
+
+      expect(truncate({ allOf: [base, extension] })).toStrictEqual({ id: 'ok' })
+      expect(truncate({ type: 'object', allOf: [extension, base] })).toStrictEqual({ id: 'ok' })
+    })
+
+    it('keeps the required properties of the selected oneOf variant only', () => {
+      const leaf = {
+        type: 'object',
+        oneOf: [
+          { required: ['first'], properties: { first: { type: 'string', const: 'a' } } },
+          { required: ['second'], properties: { second: { type: 'string', const: 'b' } } },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+    })
+
+    it('bounds the stand-in for a branching chain of shared schemas', () => {
+      // Every link requires two properties pointing at the same next link, so without a shared budget
+      // the stand-in would double with each of the forty links. Built by hand rather than through
+      // `truncate`, whose coercion deep-clones and would expand the shared links itself.
+      let link: SchemaObject = { type: 'string', const: 'leaf' }
+      for (let index = 0; index < 40; index++) {
+        link = { type: 'object', required: ['left', 'right'], properties: { left: link, right: link } }
+      }
+
+      /** Count every key in the generated value, however deeply nested. */
+      const countKeys = (value: unknown): number =>
+        value !== null && typeof value === 'object'
+          ? Object.values(value).reduce<number>((total, child) => total + 1 + countKeys(child), 0)
+          : 0
+
+      const example = deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, link)))
+
+      expect(countKeys(example)).toBeGreaterThan(0)
+      expect(countKeys(example)).toBeLessThanOrEqual(1_000)
+    })
+
     it('keeps the sentinel when the schema declares no shape', () => {
       expect(truncate({ description: 'anything goes' })).toBe('[Max Depth Exceeded]')
     })
