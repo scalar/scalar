@@ -94,7 +94,7 @@
     "@types/node": "catalog:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "catalog:*",
-    "electron": "44.8.0",
+    "electron": "44.9.1",
     "electron-vite": "6.0.0",
     "fake-indexeddb": "catalog:*",
     "vite": "catalog:*",
