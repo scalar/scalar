@@ -2,6 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -1171,41 +1172,138 @@ const describeComposition = (
 }
 
 /**
+ * How many required properties the depth-capped stand-ins of one top-level call may fill in.
+ *
+ * Path guards stop a schema that requires itself, but not a chain of distinct schemas that each
+ * require two properties pointing at the next one: that output doubles with every link. The cap
+ * bounds the work and the output alike, and is generous enough that only such a pathological shape
+ * ever reaches it.
+ */
+const MAX_REQUIRED_STAND_IN_PROPERTIES = 1_000
+
+/** Required properties the stand-ins of the current top-level call may still fill in. */
+let requiredStandInBudget = MAX_REQUIRED_STAND_IN_PROPERTIES
+
+/** The object a schema describes once its `allOf` members and selected `oneOf`/`anyOf` variant are merged in. */
+type ObjectShape = {
+  properties: Map<string, SchemaObject>
+  required: Set<string>
+}
+
+/**
+ * Gather the properties and `required` names a schema declares, including through its compositions.
+ *
+ * `required` and the property it names often live in different `allOf` members (a base schema lists
+ * the property, the extension marks it required), so reading either member alone finds nothing.
+ * Choice compositions contribute only the variant the walk itself would render, keyed by the same
+ * paths `describeComposition` uses. The schema's own property definitions win over its members'.
+ */
+const collectObjectShape = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object>,
+  shape: ObjectShape = { properties: new Map(), required: new Set() },
+): ObjectShape => {
+  const target = getSchemaCacheTarget(schema)
+  if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
+    return shape
+  }
+  seen.add(target)
+
+  if ('properties' in schema && schema.properties) {
+    for (const [name, property] of Object.entries(schema.properties)) {
+      const resolved = resolve.schema(property)
+      if (resolved && !shape.properties.has(name)) {
+        shape.properties.set(name, resolved)
+      }
+    }
+  }
+  if ('required' in schema && Array.isArray(schema.required)) {
+    for (const name of schema.required) {
+      shape.required.add(name)
+    }
+  }
+
+  if (Array.isArray(schema.allOf)) {
+    let choiceIndex = 0
+    for (const member of schema.allOf) {
+      const resolved = resolve.schema(member)
+      if (!resolved) {
+        continue
+      }
+      const isChoiceMember = Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf)
+      collectObjectShape(
+        resolved,
+        options,
+        isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath,
+        seen,
+        shape,
+      )
+    }
+  }
+
+  const variant = getSelectedVariant(schema, options, schemaPath)
+  if (variant) {
+    collectObjectShape(variant, options, schemaPath, seen, shape)
+  }
+
+  seen.delete(target)
+  return shape
+}
+
+/**
  * Describe the properties a truncated object cannot leave out.
  *
  * An empty object stands in for a truncated one, but a schema that marks properties `required` rejects
  * it, and so does any strict decoder reading the example (a mock server's response, for one). Each
  * required property is described with the same depth-capped stand-in, so a required child object brings
  * only its own required keys and the walk still never descends through optional ones. The `seen` path
- * guards a schema that requires itself, which would otherwise never terminate.
+ * guards a schema that requires itself, which would otherwise never terminate, and the shared budget
+ * bounds a branching chain of schemas that the path guard alone lets grow exponentially.
+ *
+ * Keys already present in `base` are kept as they are, so a composition whose members described some
+ * of the keys only gains the ones that needed the merged view to be found.
  */
 const getRequiredProperties = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
+  base: Record<string, unknown> = {},
 ): Record<string, unknown> => {
-  const result: Record<string, unknown> = {}
-  const properties = 'properties' in schema ? schema.properties : undefined
-  const required = 'required' in schema && Array.isArray(schema.required) ? schema.required : []
   const target = getSchemaCacheTarget(schema)
-
-  if (!properties || required.length === 0 || seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
-    return result
+  if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
+    return base
   }
 
+  const { properties, required } = collectObjectShape(schema, options, schemaPath, seen)
+  if (required.size === 0) {
+    return base
+  }
+
+  const result = { ...base }
   seen.add(target)
   for (const name of required) {
-    const property = resolve.schema(properties[name])
+    const property = properties.get(name)
     // Skip what the full walk would skip, so the stand-in never carries a key a full render would not.
     if (
+      name in result ||
       !property ||
-      (property.deprecated && options?.includeDeprecated !== true) ||
-      (options?.mode === 'write' && property.readOnly) ||
-      (options?.mode === 'read' && property.writeOnly)
+      shouldOmitProperty(property, schema, name, {
+        mode: options?.mode,
+        includeDeprecated: options?.includeDeprecated,
+      })
     ) {
       continue
     }
+
+    if (requiredStandInBudget <= 0) {
+      // Out of budget, the object keeps what it has. Nothing assembled from here on is a full render.
+      truncated = true
+      break
+    }
+    requiredStandInBudget--
 
     const value = getMaxDepthValue(property, options, [...schemaPath, name], seen)
     if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
@@ -1273,6 +1371,11 @@ const getMaxDepthValue = (
     const composed = describeComposition(schema, options, schemaPath, seen)
     seen.delete(target)
 
+    // Members describe their own required keys, but one that is marked required in one member and
+    // defined in another only shows up in the merged view, so fill those in from the whole composition.
+    if (isObject(composed)) {
+      return getRequiredProperties(schema, options, schemaPath, seen, composed)
+    }
     if (composed !== undefined) {
       return composed
     }
@@ -1347,6 +1450,7 @@ const generateExampleFromSchema = (
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
+    requiredStandInBudget = MAX_REQUIRED_STAND_IN_PROPERTIES
   }
 
   // Resolve any $ref references to get the actual schema
