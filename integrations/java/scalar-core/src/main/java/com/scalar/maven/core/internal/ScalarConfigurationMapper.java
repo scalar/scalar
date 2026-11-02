@@ -27,7 +27,7 @@ public class ScalarConfigurationMapper {
         ScalarConfiguration config = new ScalarConfiguration();
 
         // Basic properties
-        config.setUrl(properties.getUrl());
+        config.setUrl(properties.getContent() == null ? properties.getUrl() : null);
         config.setProxyUrl(properties.getProxyUrl());
         config.setShowSidebar(properties.isShowSidebar());
         config.setHideModels(properties.isHideModels());
@@ -91,6 +91,12 @@ public class ScalarConfigurationMapper {
         config.setOauth2RedirectUri(properties.getOauth2RedirectUri());
 
         config.setExternalUrls(properties.getExternalUrls());
+
+        config.setContent(properties.getContent());
+
+        config.setTitle(properties.getTitle());
+
+        config.setSlug(properties.getSlug());
 
         return config;
     }

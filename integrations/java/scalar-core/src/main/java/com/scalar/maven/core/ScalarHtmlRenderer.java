@@ -107,7 +107,8 @@ public final class ScalarHtmlRenderer {
      */
     private static String buildConfigurationJson(ScalarProperties properties) {
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
-        return JacksonJsonSerializer.serialize(config);
+        // Inline API descriptions may contain HTML, including closing script tags.
+        return JacksonJsonSerializer.serialize(config).replace("<", "\\u003c");
     }
 
     /**
