@@ -187,16 +187,10 @@ const shouldOmitProperty = (
   schema: SchemaObject,
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
-  options:
-    | Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode' | 'includeDeprecated'>
-    | undefined,
+  options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
 ): boolean => {
-  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly)
-  if (
-    (schema.deprecated && options?.includeDeprecated !== true) ||
-    (options?.mode === 'write' && schema.readOnly) ||
-    (options?.mode === 'read' && schema.writeOnly)
-  ) {
+  // Early exits for schemas that should not be included (readOnly, writeOnly)
+  if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
     return true
   }
 
@@ -875,14 +869,6 @@ export type GetExampleFromSchemaOptions = {
   variables?: Record<string, unknown>
   /** Whether to omit empty and optional properties. */
   omitEmptyAndOptionalProperties?: boolean
-  /**
-   * Whether to keep schemas annotated `deprecated: true`.
-   *
-   * `deprecated` says a field is discouraged, not that it is absent from the wire, so a caller
-   * that must produce a value satisfying the schema — a mock server response, for instance —
-   * sets this. Defaults to omitting, which is what a request-body form-filler wants.
-   */
-  includeDeprecated?: boolean
   /** Selected oneOf/anyOf variants keyed by schema path. */
   compositionSelection?: Record<string, number>
 }
@@ -896,11 +882,6 @@ const createOptionsCacheKey = (options: GetExampleFromSchemaOptions | undefined)
     mode: options?.mode,
     variables: options?.variables,
     omitEmptyAndOptionalProperties: options?.omitEmptyAndOptionalProperties,
-    // Load-bearing: `resultCache` is a module global keyed by schema identity plus this string, and
-    // the lookup happens before `shouldOmitProperty` runs. Without this entry an include-caller's
-    // populated object could be handed back to a default caller, and vice versa. `JSON.stringify`
-    // drops `undefined`, so existing callers' keys stay byte-identical.
-    includeDeprecated: options?.includeDeprecated,
     compositionSelection: options?.compositionSelection
       ? Object.entries(options.compositionSelection).sort(([a], [b]) => a.localeCompare(b))
       : undefined,
@@ -1234,7 +1215,7 @@ const generateExampleFromSchema = (
   // Determine if we should generate realistic example data
   const makeUpRandomData = !!options?.emptyString
 
-  // Early exits for schemas that should not be included (deprecated unless opted in, readOnly, writeOnly, omitEmptyAndOptionalProperties)
+  // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
   if (shouldOmitProperty(_schema, parentSchema, name, options)) {
     seen.delete(targetValue)
     return undefined

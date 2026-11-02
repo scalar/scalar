@@ -1,5 +1,6 @@
 ---
 '@scalar/workspace-store': patch
+'@scalar/blocks': patch
 ---
 
-feat(workspace-store): honor `includeDeprecated` when generating and serializing XML examples, so deprecated schemas and properties can be kept in XML bodies the same way they can in JSON. The default still omits them.
+Keep deprecated schemas and properties in generated JSON and XML examples by default. Remove the `includeDeprecated` option; deprecation no longer filters example values. Read/write and optional-property filtering still apply.

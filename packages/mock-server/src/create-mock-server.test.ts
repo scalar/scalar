@@ -2345,8 +2345,6 @@ describe('createMockServer', () => {
     })
 
     it('serves a generated XML body for a response whose schema is deprecated', async () => {
-      // XML takes its own serializer, which dropped deprecated nodes after the JSON generator kept
-      // them, so the same document answered `application/xml` with an empty body.
       const document = {
         openapi: '3.1.0',
         info: { title: 'Finetuning API', version: '1.0.0' },

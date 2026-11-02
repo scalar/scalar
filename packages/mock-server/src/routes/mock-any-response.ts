@@ -55,10 +55,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
     const headerObject = getResolvedRef(headers[header])
-    // Headers need `includeDeprecated` but none of `generateResponseExample`'s other options — see
-    // the note on that helper for why passing them would change what declared headers emit.
+    // Headers use the generator defaults to preserve their declared values.
     const value = headerObject?.schema
-      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
+      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) as string)
       : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
@@ -141,9 +140,6 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',
-      // Same reason as `generateResponseExample`: `deprecated` marks a field as discouraged, not absent
-      // from the wire, so without this a wholly deprecated schema came back as an empty XML body.
-      includeDeprecated: true,
     })
     const error = result.diagnostics.find((diagnostic) => diagnostic.severity === 'error')
     if (error) {
