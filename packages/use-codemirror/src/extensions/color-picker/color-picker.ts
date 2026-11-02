@@ -1,9 +1,3 @@
-/**
- * Adapted from @replit/codemirror-css-color-picker 6.3.0 (MIT).
- * Upstream: https://github.com/replit/Codemirror-CSS-color-picker/tree/2eb228cdf8140b0bb586f5c561cf5347d05d4cc6
- * Copyright (c) Faris Masad and contributors. See THIRD_PARTY_NOTICES in this package.
- */
-
 import { syntaxTree } from '@codemirror/language'
 import type { Extension, Range, Text } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, WidgetType } from '@codemirror/view'

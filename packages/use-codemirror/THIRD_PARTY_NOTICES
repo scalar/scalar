@@ -1,10 +1,4 @@
-CodeMirror CSS color picker
-
-Adapted from @replit/codemirror-css-color-picker 6.3.0.
-Source: https://github.com/replit/Codemirror-CSS-color-picker
-Revision: 2eb228cdf8140b0bb586f5c561cf5347d05d4cc6
-Original package author: Faris Masad.
-The upstream package declares the MIT license.
+@replit/codemirror-css-color-picker
 
 MIT License
 
