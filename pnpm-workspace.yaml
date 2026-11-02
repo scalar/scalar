@@ -181,3 +181,5 @@ minimumReleaseAgeExclude:
   - fast-uri@3.1.9
   # Renovate security update: nuxt@4.6.3
   - nuxt@4.6.3
+  # Renovate security update: pnpm@10.34.5
+  - pnpm@10.34.5
