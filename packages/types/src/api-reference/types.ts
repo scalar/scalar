@@ -86,6 +86,10 @@ type FlowsCommon = {
   'x-scalar-security-body'?: Record<string, string>
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName'?: string
+  /** Display order of this flow's tab in the auth UI (ascending). Flows with an order come first. */
+  'x-order'?: number
+  /** When true, this flow's tab is hidden from the auth UI. */
+  'x-scalar-ignore'?: boolean
 }
 
 type PkceOptions = 'SHA-256' | 'plain' | 'no'
