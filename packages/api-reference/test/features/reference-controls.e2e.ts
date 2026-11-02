@@ -233,12 +233,19 @@ test.describe('reference controls', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
 
-  test('wraps an operation title without spaces inside the page at 320px', async ({ page }) => {
-    await page.setViewportSize({ width: 320, height: 900 })
-    const example = await serveExample({ content: unbrokenTitleContent })
-    await page.goto(example)
+  for (const width of [320, 393]) {
+    test(`wraps an operation title without spaces inside the page at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      const example = await serveExample({ content: unbrokenTitleContent })
+      await page.goto(example)
 
-    await expect(page.getByRole('heading', { name: 'order.purchase.created', exact: true })).toBeVisible()
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
-  })
+      const title = page.getByRole('heading', { name: 'order.purchase.created', exact: true })
+      await expect(title).toBeVisible()
+      await title.scrollIntoViewIfNeeded()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+      await expect(page.getByRole('region', { name: 'order.purchase.created', exact: true })).toHaveScreenshot(
+        `operation-title-wrap-${width}.png`,
+      )
+    })
+  }
 })
