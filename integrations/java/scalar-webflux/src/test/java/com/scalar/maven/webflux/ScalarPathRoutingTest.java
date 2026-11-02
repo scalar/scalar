@@ -1,6 +1,7 @@
 package com.scalar.maven.webflux;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +42,7 @@ class ScalarPathRoutingTest {
                     WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
                     for (String path : new String[] {"/docs", "/docs/", "/docs/example/tag/pets/get/pets"}) {
                         client.get().uri("/app" + path).exchange().expectStatus().isOk()
+                                .expectHeader().contentTypeCompatibleWith("text/html")
                                 .expectBody(String.class).value(html -> {
                                     assertThat(html).contains("src=\"/app/reference/scalar.js\"");
                                     assertThat(html).contains("\"pathRouting\":{\"basePath\":\"/app/docs\"}");
@@ -73,5 +75,27 @@ class ScalarPathRoutingTest {
                 client.get().uri("/scalar/tag/pets").exchange().expectStatus().isNotFound();
             });
         }
+    }
+
+    @Test
+    void doesNotRequireWebInfrastructureWhenPathRoutingIsAbsent() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(ScalarWebFluxAutoConfiguration.class))
+                .run(context -> assertThat(context).hasNotFailed());
+    }
+
+
+    @Test
+    void servesNormalizedBundleWhenUrlRoutingIsDisabled() {
+        runner.withPropertyValues("scalar.path=/reference/", "scalar.path-routing.base-path=/docs",
+                "scalar.url-routing=false").run(context -> {
+            WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
+            client.get().uri("/reference/").exchange().expectStatus().isOk()
+                    .expectBody(String.class).value(html ->
+                            assertThat(html).contains("src=\"/reference/scalar.js\""));
+            client.get().uri("/reference/scalar.js").exchange().expectStatus().isOk()
+                    .expectHeader().contentType("application/javascript");
+            client.get().uri("/docs/tag/pets").exchange().expectStatus().isNotFound();
+        });
     }
 }

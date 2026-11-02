@@ -1,6 +1,7 @@
 package com.scalar.maven.webmvc;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Configuration;
@@ -65,5 +66,26 @@ class ScalarPathRoutingTest {
                 client.perform(get("/scalar/tag/pets")).andExpect(status().isNotFound());
             });
         }
+    }
+
+    @Test
+    void doesNotRequireWebInfrastructureWhenPathRoutingIsAbsent() {
+        new ApplicationContextRunner()
+                .withConfiguration(AutoConfigurations.of(ScalarWebMvcAutoConfiguration.class))
+                .run(context -> assertThat(context).hasNotFailed());
+    }
+
+
+    @Test
+    void servesNormalizedBundleWhenUrlRoutingIsDisabled() {
+        runner.withPropertyValues("scalar.path=/reference/", "scalar.path-routing.base-path=/docs",
+                "scalar.url-routing=false").run(context -> {
+            MockMvc client = MockMvcBuilders.webAppContextSetup(context).build();
+            String html = client.perform(get("/reference/")).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(html).contains("src=\"/reference/scalar.js\"");
+            client.perform(get("/reference/scalar.js")).andExpect(status().isOk());
+            client.perform(get("/docs/tag/pets")).andExpect(status().isNotFound());
+        });
     }
 }
