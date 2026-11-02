@@ -51,8 +51,8 @@ describe('openapi', () => {
 
     const fields = createSearchFieldExtractor().schema(schema)
     expect(fields).toStrictEqual({
-      names: ['shared', 'alternate', 'nested', 'child', 'tooDeep', 'duplicate', 'unresolved'],
-      descriptions: ['Shared field', 'Alternate field', 'Nested object', 'Child field'],
+      names: ['nested', 'duplicate', 'unresolved', 'shared', 'alternate', 'child', 'tooDeep'],
+      descriptions: ['Nested object', 'Shared field', 'Alternate field', 'Child field'],
     })
     expect(fields).toStrictEqual({
       names: extractSchemaFieldNames(schema),
@@ -86,6 +86,93 @@ describe('openapi', () => {
       names: extractBodyFieldNames(operation),
       descriptions: extractBodyDescriptions(operation),
     })
+  })
+
+  it.each(['oneOf', 'anyOf', 'allOf'] as const)('bounds reads of a wide %s composition', (keyword) => {
+    let reads = 0
+    let expansions = 0
+    const variant: SchemaObject = {
+      type: 'string',
+      get oneOf() {
+        expansions++
+        return undefined
+      },
+    }
+    const variants = new Proxy(
+      Array.from({ length: 100_000 }, () => variant),
+      {
+        get(target, key, receiver) {
+          if (typeof key === 'string' && /^\d+$/.test(key)) {
+            reads++
+          }
+          return Reflect.get(target, key, receiver)
+        },
+      },
+    )
+
+    expect(createSearchFieldExtractor().schema({ type: 'object', [keyword]: variants })).toStrictEqual({
+      names: [],
+      descriptions: [],
+    })
+    expect(reads).toBe(10_000)
+    // Exhausting the enqueue budget must still allow already queued schemas to be expanded.
+    expect(expansions).toBe(1)
+  })
+
+  it.each([false, true])(
+    'collects property descriptions through aliases first reached as items (siblings: %s)',
+    (siblings) => {
+      const target: SchemaObject = { type: 'string', description: 'Target description' }
+      const alias = { $ref: '#/components/schemas/Target', '$ref-value': target }
+      const reference = (): SchemaObject =>
+        ({ $ref: '#/components/schemas/Alias', '$ref-value': alias }) as unknown as SchemaObject
+      const schema: SchemaObject = {
+        type: 'object',
+        properties: {
+          deep: { type: 'object', properties: { middle: { type: 'object', properties: { p: reference() } } } },
+          array: { type: 'array', items: reference() },
+        },
+      }
+
+      expect(createSearchFieldExtractor(siblings).schema(schema)).toStrictEqual({
+        names: ['deep', 'array', 'middle', 'p'],
+        descriptions: ['Target description'],
+      })
+    },
+  )
+
+  it('expands each schema once when many paths lead to it', () => {
+    // Models that reference each other, like entities with navigation properties. Counting reads
+    // keeps this deterministic, because proxied reads are what cost time in the browser.
+    const expansions = new Map<SchemaObject, number>()
+    const models: SchemaObject[] = Array.from({ length: 30 }, () => {
+      const model: SchemaObject = {
+        type: 'object',
+        // The traversal reads `oneOf` exactly once per expansion.
+        get oneOf() {
+          expansions.set(model, (expansions.get(model) ?? 0) + 1)
+          return undefined
+        },
+      }
+      return model
+    })
+    models.forEach((model, index) => {
+      Object.assign(model, {
+        properties: Object.fromEntries([
+          [`field${index}`, { type: 'string' }],
+          ...[1, 7, 13, 19].map((offset) => {
+            const target = (index + offset) % models.length
+            return [`to${target}`, { $ref: `#/${target}`, '$ref-value': models[target] }]
+          }),
+        ]),
+      })
+    })
+
+    const { names } = createSearchFieldExtractor().schema(models[0])
+
+    expect(names).toEqual(expect.arrayContaining(models.map((_, index) => `field${index}`)))
+    expect(expansions.size).toBe(models.length)
+    expect(Math.max(...expansions.values())).toBe(1)
   })
 
   it('reads schema edits in a subsequent extraction build', () => {
