@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalize } from './normalize'
+import { normalize } from '../index'
 
 describe('normalize', () => {
   it('returns undefined if the document is null', () => {
@@ -102,11 +102,8 @@ describe('normalize', () => {
   })
 
   it('should handle non-string, non-object inputs', () => {
-    // @ts-expect-error testing bad input
     expect(normalize(42)).toEqual(42)
-    // @ts-expect-error testing bad input
     expect(normalize(true)).toEqual(true)
-    // @ts-expect-error testing bad input
     expect(normalize([1, 2, 3])).toEqual([1, 2, 3])
   })
 
