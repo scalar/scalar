@@ -4,19 +4,15 @@
  * @param ref - The JSON Reference string (e.g., "#/foo/bar", "other.json#/baz", "other.json#anchor")
  * @param currentContext - The current base context (usually the $id of the current schema or parent)
  * @param schemas - A map of schema identifiers ($id, $anchor) to their local object paths
- * @param options - Decode URI pointer fragments before joining them to internal schema paths
  * @returns The local object path as a string, or undefined if the reference cannot be resolved
  */
 export const convertToLocalRef = (
   ref: string,
   currentContext: string,
   schemas: Map<string, string>,
-  options?: { decodeFragment?: boolean },
 ): string | undefined => {
   // Split the reference into base URL and path/anchor (e.g., "foo.json#/bar" => ["foo.json", "/bar"])
-  const [baseUrl, fragment] = ref.split('#', 2)
-  // Schema lookup paths contain literal property names, so only decode the URI fragment.
-  const pathOrAnchor = options?.decodeFragment && fragment?.startsWith('/') ? decodeURIComponent(fragment) : fragment
+  const [baseUrl, pathOrAnchor] = ref.split('#', 2)
 
   if (baseUrl) {
     if (!schemas.has(baseUrl)) {

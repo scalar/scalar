@@ -1,10 +1,9 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
-import { getId, getSchemas } from '@/helpers/get-schemas'
+import { getId, getSchemaSegments } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
+import { resolveRefSegments } from '@/helpers/resolve-ref-segments'
 import type { UnknownObject } from '@/types'
 
 const isMagicProxy = Symbol('isMagicProxy')
@@ -76,7 +75,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /**
      * Map of all schemas by their $id or $anchor for cross-document reference resolution.
      */
-    schemas: Map<string, string>
+    schemas: Map<string, string[]>
     /**
      * The current JSON path context within the root object.
      *
@@ -87,7 +86,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     root: target,
     proxyCache: new WeakMap(),
     cache: new Map(),
-    schemas: getSchemas(target, '', [], new Map(options?.documentUri ? [[options.documentUri, '']] : [])),
+    schemas: getSchemaSegments(target, '', [], new Map(options?.documentUri ? [[options.documentUri, []]] : [])),
     currentContext: '',
   },
 ): T => {
@@ -138,14 +137,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return args.cache.get(ref)
         }
 
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas, { decodeFragment: true })
+        const segments = resolveRefSegments(ref, id ?? args.currentContext, args.schemas)
 
-        if (path === undefined) {
+        if (segments === undefined) {
           return undefined
         }
 
         // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(args.root, path.split('/').map(unescapeJsonPointerSegment))
+        const resolvedValue = getValueByPath(args.root, segments)
         // Return early if the value is already a magic proxy
         if (isMagicProxyObject(resolvedValue.value)) {
           return resolvedValue.value
@@ -187,13 +186,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       if (prop === REF_VALUE && typeof ref === 'string') {
         const id = getId(target)
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas, { decodeFragment: true })
+        const segments = resolveRefSegments(ref, id ?? args.currentContext, args.schemas)
 
-        if (path === undefined) {
+        if (segments === undefined) {
           return undefined
         }
-
-        const segments = path.split('/').map(unescapeJsonPointerSegment)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value
