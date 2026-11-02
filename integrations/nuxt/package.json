@@ -73,7 +73,7 @@
     "@nuxt/module-builder": "1.0.2",
     "@types/node": "catalog:*",
     "cross-env": "catalog:*",
-    "nuxt": "^4.6.1",
+    "nuxt": "^4.6.3",
     "vitest": "catalog:*"
   }
 }
