@@ -30,6 +30,26 @@ describe('normalize', () => {
     expect(normalize(jsonWithBom)).toEqual({ foo: 'bar' })
   })
 
+  it('parses YAML with a leading UTF-8 BOM', () => {
+    expect(normalize('\uFEFFfoo: bar')).toStrictEqual({ foo: 'bar' })
+  })
+
+  it('preserves a BOM inside a JSON string value', () => {
+    expect(normalize(JSON.stringify({ foo: '\uFEFFbar' }))).toStrictEqual({ foo: '\uFEFFbar' })
+  })
+
+  it('returns undefined for a BOM-only document', () => {
+    expect(normalize('\uFEFF')).toBeUndefined()
+  })
+
+  it('parses JSON arrays', () => {
+    expect(normalize('[{"foo":"bar"}]')).toStrictEqual([{ foo: 'bar' }])
+  })
+
+  it('does not interpret malformed JSON arrays as YAML', () => {
+    expect(normalize('[{foo: "bar"}]')).toBeUndefined()
+  })
+
   it('should parse YAML string specifications', () => {
     const yamlString = 'foo: bar\nbar: foo'
     expect(normalize(yamlString)).toEqual({ foo: 'bar', bar: 'foo' })
