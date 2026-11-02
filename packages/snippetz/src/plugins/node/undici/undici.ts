@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
@@ -30,22 +31,11 @@ export const nodeUndici: Plugin = {
     const url = joinUrlAndQuery(normalizedRequest.url ?? '', normalizedRequest.queryString)
 
     // Headers
-    const headers = formDataHeaders(normalizedRequest)
+    const headers = formDataHeaders({ ...normalizedRequest, headers: mergeCookieHeaders(normalizedRequest) })
     if (headers?.length) {
       options.headers = {}
       headers.forEach((header) => {
         options.headers![header.name] = header.value
-      })
-    }
-
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      options.headers = options.headers || {}
-
-      normalizedRequest.cookies.forEach((cookie) => {
-        options.headers!['Set-Cookie'] = options.headers!['Set-Cookie']
-          ? `${options.headers!['Set-Cookie']}; ${cookie.name}=${cookie.value}`
-          : `${cookie.name}=${cookie.value}`
       })
     }
 

@@ -5,16 +5,12 @@ import { buildFormData, formDataHeaders } from './form-data'
 import { joinUrlAndQuery, normalizeMethod } from './http'
 import type { Raw } from './javascript'
 
-/** Builds browser request values without collapsing repeated headers or form fields. */
-export const prepareBrowserRequest = (
-  request: Partial<HarRequest> = {},
-  configuration?: PluginConfiguration,
+/** Move cookies into the browser store because browsers forbid setting the Cookie header. */
+export const prepareBrowserCookies = (
+  request: Partial<HarRequest>,
 ): {
-  url: string
-  method: string
-  headers: { name: string; value: string | Raw }[]
+  headers: HarRequest['headers']
   setup: string[]
-  body: string
   withCredentials: boolean
 } => {
   // Browsers forbid setting Cookie directly. Header values are already serialized,
@@ -27,18 +23,34 @@ export const prepareBrowserRequest = (
       .filter((cookie) => cookie.includes('=')),
   ]
   const headers = (request.headers ?? []).filter(({ name }) => name.toLowerCase() !== 'cookie')
-  if (configuration?.auth?.username && configuration.auth.password) {
-    headers.push({
-      name: 'Authorization',
-      value: `Basic ${Base64.encode(`${configuration.auth.username}:${configuration.auth.password}`)}`,
-    })
-  }
   const setup: string[] = []
   if (cookieValues.length) {
     setup.push("// Run on the request origin; document.cookie writes cookies for the current page's domain.")
     for (const cookie of cookieValues) {
       setup.push(`document.cookie = ${JSON.stringify(`${cookie}; path=/`)};`)
     }
+  }
+  return { headers, setup, withCredentials: Boolean(cookieValues.length) }
+}
+
+/** Builds browser request values without collapsing repeated headers or form fields. */
+export const prepareBrowserRequest = (
+  request: Partial<HarRequest> = {},
+  configuration?: PluginConfiguration,
+): {
+  url: string
+  method: string
+  headers: { name: string; value: string | Raw }[]
+  setup: string[]
+  body: string
+  withCredentials: boolean
+} => {
+  const { headers, setup, withCredentials } = prepareBrowserCookies(request)
+  if (configuration?.auth?.username && configuration.auth.password) {
+    headers.push({
+      name: 'Authorization',
+      value: `Basic ${Base64.encode(`${configuration.auth.username}:${configuration.auth.password}`)}`,
+    })
   }
   const postData = request.postData
   const multipart = postData?.mimeType === 'multipart/form-data' && postData.params
@@ -64,7 +76,7 @@ export const prepareBrowserRequest = (
     setup,
     // This intentionally includes explicit Cookie headers, even without cookie-style parameters.
     // Cross-origin use additionally requires credentialed CORS and eligible stored cookies.
-    withCredentials: Boolean(cookieValues.length),
+    withCredentials,
     body: multipart ? 'body' : formBody,
   }
 }

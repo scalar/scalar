@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { prepareBrowserCookies } from '@/libs/browser-request'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
@@ -31,23 +32,17 @@ export const jsOfetch: Plugin = {
       options.query = reduceQueryParams(normalizedRequest.queryString)
     }
 
+    const { headers: cookieHeaders, setup, withCredentials } = prepareBrowserCookies(normalizedRequest)
+    if (withCredentials) {
+      options.credentials = 'include'
+    }
+
     // Headers
-    const headers = formDataHeaders(normalizedRequest)
+    const headers = formDataHeaders({ ...normalizedRequest, headers: cookieHeaders })
     if (headers?.length) {
       options.headers = {}
       headers.forEach((header) => {
         options.headers![header.name] = header.value
-      })
-    }
-
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      options.headers = options.headers || {}
-
-      normalizedRequest.cookies.forEach((cookie) => {
-        options.headers!['Set-Cookie'] = options.headers!['Set-Cookie']
-          ? `${options.headers!['Set-Cookie']}; ${cookie.name}=${cookie.value}`
-          : `${cookie.name}=${cookie.value}`
       })
     }
 
@@ -74,6 +69,8 @@ export const jsOfetch: Plugin = {
         options.body = JSON.parse(options.body)
       }
     }
+
+    prefix = `${setup.length ? `${setup.join('\n')}\n\n` : ''}${prefix}`
 
     // Transform to JSON
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''

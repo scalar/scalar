@@ -1,5 +1,7 @@
 import type { Plugin, TargetId } from '@scalar/types/snippetz'
 
+import { prepareBrowserCookies } from '@/libs/browser-request'
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
@@ -28,11 +30,6 @@ const buildHeaders = (
       addHeaderValue(headers, header.name, header.value)
     }
   })
-
-  if (request?.cookies?.length) {
-    const cookieValue = request.cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join('; ')
-    addHeaderValue(headers, 'Cookie', cookieValue)
-  }
 
   return Object.keys(headers).length || Object.keys(rawHeaders).length ? { ...headers, ...rawHeaders } : undefined
 }
@@ -120,9 +117,17 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       options.params = params
     }
 
-    const headers = buildHeaders(normalizedRequest)
+    const browserCookies = target === 'js' ? prepareBrowserCookies(normalizedRequest) : undefined
+    const headers = buildHeaders({
+      ...normalizedRequest,
+      headers: browserCookies?.headers ?? mergeCookieHeaders(normalizedRequest),
+    })
     if (headers) {
       options.headers = headers
+    }
+
+    if (browserCookies?.withCredentials) {
+      options.withCredentials = true
     }
 
     if (configuration?.auth?.username && configuration?.auth?.password) {
@@ -137,7 +142,8 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
       options.data = data
     }
 
-    const setupBlock = setup.length ? `${setup.join('\n')}\n\n` : ''
+    const allSetup = [...(browserCookies?.setup ?? []), ...setup]
+    const setupBlock = allSetup.length ? `${allSetup.join('\n')}\n\n` : ''
 
     return `import axios from 'axios'
 

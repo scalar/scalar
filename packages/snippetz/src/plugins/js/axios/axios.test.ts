@@ -18,6 +18,36 @@ try {
 }
 
 describe('jsAxios', () => {
+  it('preserves raw Cookie headers and encodes structured cookies for the browser', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'cOoKiE', value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`document.cookie = "session=a%20b%3Bc; path=/";
+document.cookie = "empty=; path=/";
+document.cookie = "existing=a+b==; path=/";
+document.cookie = "escaped=%2F; path=/";`)
+    expect(result).toContain('withCredentials: true')
+    expect(result.includes('headers:')).toBe(false)
+  })
+
+  it('keeps cookie setup when generating a multipart body', () => {
+    const result = jsAxios.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      cookies: [{ name: 'session', value: 'abc123' }],
+      postData: { mimeType: 'multipart/form-data', params: [{ name: 'note', value: 'hello' }] },
+    })
+    expect(result).toContain('document.cookie = "session=abc123; path=/";')
+    expect(result).toContain('const formData = new FormData();')
+    expect(result).toContain('withCredentials: true')
+    expect(result).toContain('data: formData')
+  })
+
   it('uses ESM imports and avoids CommonJS require', () => {
     const result = jsAxios.generate({
       url: 'https://example.com',
@@ -269,7 +299,7 @@ describe('jsAxios', () => {
     )
   })
 
-  it('adds cookies as Cookie header', () => {
+  it('sets browser cookies and enables credentials', () => {
     const result = jsAxios.generate({
       url: 'https://example.com',
       cookies: [
@@ -279,13 +309,16 @@ describe('jsAxios', () => {
     })
 
     expect(result).toBe(
-      createSnippet(`{
+      createSnippet(
+        `{
   method: 'GET',
   url: 'https://example.com',
-  headers: {
-    Cookie: 'foo=bar; bar=foo'
-  }
-}`),
+  withCredentials: true
+}`,
+        `// Run on the request origin; document.cookie writes cookies for the current page's domain.
+document.cookie = "foo=bar; path=/";
+document.cookie = "bar=foo; path=/";`,
+      ),
     )
   })
 
@@ -311,14 +344,18 @@ describe('jsAxios', () => {
     })
 
     expect(result).toBe(
-      createSnippet(`{
+      createSnippet(
+        `{
   method: 'GET',
   url: 'https://example.com',
   headers: {
-    Accept: 'application/json',
-    Cookie: 'session=token'
-  }
-}`),
+    Accept: 'application/json'
+  },
+  withCredentials: true
+}`,
+        `// Run on the request origin; document.cookie writes cookies for the current page's domain.
+document.cookie = "session=token; path=/";`,
+      ),
     )
   })
 
