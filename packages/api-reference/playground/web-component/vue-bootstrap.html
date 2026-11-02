@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <title>Scalar inside Vue and Bootstrap</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
+    <script src="/dist/webComponent/component.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="container-fluid bg-primary p-3 text-white">
+        <h1 class="h4">Vue and Bootstrap host</h1>
+        <button
+          class="btn btn-light"
+          @click="count++">
+          Host clicks: {{ count }}
+        </button>
+        <label class="form-check-label ms-3"
+          ><input
+            class="form-check-input me-2"
+            type="checkbox" />
+          Host checkbox</label
+        >
+      </header>
+      <scalar-api-reference
+        :configuration.prop="configuration"></scalar-api-reference>
+    </div>
+    <script>
+      const app = Vue.createApp({
+        data: () => ({
+          count: 0,
+          configuration: {
+            content: {
+              openapi: '3.1.0',
+              info: { title: 'Bootstrap integration', version: '1.0.0' },
+              paths: {
+                '/ping/{id}': {
+                  get: {
+                    summary: 'Ping operation',
+                    parameters: [
+                      {
+                        name: 'id',
+                        in: 'path',
+                        required: true,
+                        schema: { type: 'string' },
+                      },
+                    ],
+                    responses: { 200: { description: 'OK' } },
+                  },
+                },
+              },
+            },
+            darkMode: false,
+            showDeveloperTools: 'never',
+          },
+        }),
+      })
+      app.config.compilerOptions.isCustomElement = (tag) =>
+        tag === 'scalar-api-reference'
+      app.mount('#app')
+    </script>
+  </body>
+</html>
