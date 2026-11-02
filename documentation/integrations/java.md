@@ -196,6 +196,36 @@ Each target entry accepts either `all` or `clients`; target entries cannot conta
 The Java API uses `ScalarHiddenClients` and `ScalarExternalUrls` for the same
 options. These are serialized into the frontend's native configuration shapes.
 
+### Path-Based Navigation
+
+By default, navigation uses URL fragments. To use paths and support direct visits
+or reloads of nested documentation URLs:
+
+```properties
+scalar.path=/docs
+scalar.path-routing.base-path=/docs
+```
+
+Both WebMVC and WebFlux register a GET fallback for the configured documentation
+subtree. Existing exact application routes and the JavaScript bundle keep precedence.
+The base path may differ from `scalar.path`; the bundle remains served under
+`scalar.path`. Avoid choosing a subtree owned by unrelated application routes.
+
+`base-path` is a literal path relative to the application, without its context path.
+For example, with `server.servlet.context-path=/app`, configure `/docs`, not
+`/app/docs`. The rendered frontend configuration and bundle URL include `/app`.
+For WebFlux, the same applies to its application context path. Configure trusted
+forwarded-header handling in the host application when a reverse proxy adds a prefix.
+
+Trailing slashes on the routing base path are normalized. Setting
+`scalar.url-routing=false` leaves browser history unchanged and disables automatic
+deep-link fallback registration. With no `path-routing` configuration, existing
+hash navigation and server mappings are unchanged.
+
+Route registration happens at startup. Set the base path through application
+configuration or the properties bean, rather than changing it per request.
+This fallback belongs to the main documentation endpoint, not the Actuator endpoint.
+
 ### Localization
 
 Both WebMVC and WebFlux support UI localization through Spring Boot properties.

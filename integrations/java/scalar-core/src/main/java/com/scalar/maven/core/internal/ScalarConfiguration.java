@@ -6,6 +6,7 @@ import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
 import com.scalar.maven.core.config.ScalarHiddenClients;
 import com.scalar.maven.core.config.ScalarExternalUrls;
+import com.scalar.maven.core.config.ScalarPathRouting;
 import com.scalar.maven.core.config.ScalarAgentOptions;
 import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
@@ -29,6 +30,10 @@ import java.util.Map;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarConfiguration {
+
+    /** The application-relative base path for path-based navigation. */
+    @JsonProperty("pathRouting")
+    private ScalarPathRouting pathRouting;
 
     /** The document slug used in navigation URLs. */
     @JsonProperty("slug")
@@ -812,5 +817,23 @@ public class ScalarConfiguration {
      */
     public void setSlug(String slug) {
         this.slug = slug;
+    }
+
+    /**
+     * Gets the application-relative base path for path-based navigation.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarPathRouting getPathRouting() {
+        return pathRouting;
+    }
+
+    /**
+     * Sets the application-relative base path for path-based navigation.
+     *
+     * @param pathRouting the configured value, or null to use the frontend default
+     */
+    public void setPathRouting(ScalarPathRouting pathRouting) {
+        this.pathRouting = pathRouting;
     }
 }

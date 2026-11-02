@@ -1,5 +1,12 @@
 package com.scalar.maven.webflux;
 
+import com.scalar.maven.core.config.ScalarPathRouting;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+
 import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -7,6 +14,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.reactive.result.method.RequestMappingInfo;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 
 /**
  * Auto-configuration for the Scalar API Reference integration in Spring WebFlux applications.
@@ -59,5 +68,50 @@ public class ScalarWebFluxAutoConfiguration {
     @ConditionalOnAvailableEndpoint(endpoint = ScalarWebFluxActuatorEndpoint.class)
     public ScalarWebFluxActuatorEndpoint scalarWebFluxActuatorEndpoint() {
         return new ScalarWebFluxActuatorEndpoint();
+    }
+
+    /**
+     * Registers the opted-in documentation subtree after annotated routes are initialized.
+     * Exact application endpoints, including the JavaScript bundle, keep precedence.
+     *
+     * @param propertiesProvider the configured properties
+     * @param controllerProvider the Scalar controller, including application customizations
+     * @param mapping the application's annotated request mapping
+     * @return the route registration callback
+     */
+    @Bean
+    public SmartInitializingSingleton scalarPathRouting(
+            ObjectProvider<SpringBootScalarProperties> propertiesProvider,
+            ObjectProvider<ScalarWebFluxController> controllerProvider,
+            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
+        return () -> {
+            SpringBootScalarProperties properties = propertiesProvider.getObject();
+            ScalarPathRouting routing = properties.getPathRouting();
+            if (routing == null || Boolean.FALSE.equals(properties.getUrlRouting())) {
+                return;
+            }
+            String basePath = java.util.Objects.requireNonNull(routing.getBasePath(), "pathRouting.basePath is required");
+            String pattern = "/".equals(basePath) ? "/**" : basePath + "/**";
+            RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
+            options.setPatternParser(mapping.getPathPatternParser());
+            options.setContentTypeResolver(mapping.getContentTypeResolver());
+            RequestMappingInfo route = RequestMappingInfo.paths(pattern)
+                    .methods(RequestMethod.GET).options(options).build();
+            try {
+                mapping.registerMapping(route, controllerProvider.getObject(),
+                        ScalarWebFluxController.class.getMethod("getDocs", ServerHttpRequest.class));
+                // Annotation placeholders retain trailing slashes; add the normalized asset URL used by the HTML.
+                String scalarPath = properties.getPath();
+                if (scalarPath != null && scalarPath.endsWith("/")) {
+                    String bundlePath = scalarPath.replaceAll("/+$", "") + "/scalar.js";
+                    RequestMappingInfo bundle = RequestMappingInfo.paths(bundlePath)
+                            .methods(RequestMethod.GET).options(options).build();
+                    mapping.registerMapping(bundle, controllerProvider.getObject(),
+                            ScalarWebFluxController.class.getMethod("getScalarJs"));
+                }
+            } catch (NoSuchMethodException e) {
+                throw new IllegalStateException("Scalar documentation handler is missing", e);
+            }
+        };
     }
 }

@@ -28,8 +28,7 @@ class ScalarConfigurationParityTest {
     private static final Set<String> EXCLUDED = Set.of(
             "isEditable", // The editor is outside the Java integration's scope.
             "_integration", // Internal frontend integration identifier.
-            "default", // Only meaningful per source; ScalarSource supports it.
-            "pathRouting"); // TODO: routing follow-up.
+            "default"); // Only meaningful per source; ScalarSource supports it.
 
     @Test
     void accountsForEveryFrontendConfigurationOption() throws Exception {

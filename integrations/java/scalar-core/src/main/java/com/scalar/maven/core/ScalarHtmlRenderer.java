@@ -1,5 +1,6 @@
 package com.scalar.maven.core;
 
+import com.scalar.maven.core.config.ScalarPathRouting;
 import com.scalar.maven.core.internal.JacksonJsonSerializer;
 import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
@@ -49,6 +50,18 @@ public final class ScalarHtmlRenderer {
      * @throws IOException if the HTML template cannot be loaded
      */
     public static String render(ScalarProperties properties) throws IOException {
+        return render(properties, "");
+    }
+
+    /**
+     * Renders HTML using the request context path for nested navigation and bundle URLs.
+     *
+     * @param properties the Scalar configuration
+     * @param contextPath the application context path, or an empty string
+     * @return the rendered HTML
+     * @throws IOException if the template cannot be loaded
+     */
+    public static String render(ScalarProperties properties, String contextPath) throws IOException {
         Objects.requireNonNull(properties, "properties must not be null");
 
         String basePath = normalizeBasePath(properties.getPath());
@@ -65,11 +78,13 @@ public final class ScalarHtmlRenderer {
         }
 
         // Build the JS bundle URL from the base path
-        String bundleUrl = buildJsBundleUrl(basePath);
+        String bundleUrl = properties.getPathRouting() == null
+                ? buildJsBundleUrl(basePath)
+                : contextPath + (basePath.endsWith("/") ? basePath : basePath + "/") + ScalarConstants.JS_FILENAME;
         String pageTitle = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
 
         // Serialize configuration to JSON
-        String configurationJson = buildConfigurationJson(properties);
+        String configurationJson = buildConfigurationJson(properties, contextPath);
 
         // Replace placeholders
         return html
@@ -105,8 +120,14 @@ public final class ScalarHtmlRenderer {
      * @param properties the properties to serialize
      * @return the configuration JSON as a string
      */
-    private static String buildConfigurationJson(ScalarProperties properties) {
+    private static String buildConfigurationJson(ScalarProperties properties, String contextPath) {
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
+        if (properties.getPathRouting() != null) {
+            ScalarPathRouting routing = new ScalarPathRouting();
+            String path = Objects.requireNonNull(properties.getPathRouting().getBasePath(), "pathRouting.basePath is required");
+            routing.setBasePath(contextPath + path);
+            config.setPathRouting(routing);
+        }
         // Inline API descriptions may contain HTML, including closing script tags.
         return JacksonJsonSerializer.serialize(config).replace("<", "\\u003c");
     }
