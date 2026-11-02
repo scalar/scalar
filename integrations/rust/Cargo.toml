@@ -46,7 +46,7 @@ optional = true
 features = ["server"]
 
 [dependencies.tokio]
-version = "1.51.1"
+version = "1.51.6"
 features = ["full"]
 optional = true
 
