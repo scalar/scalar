@@ -5,6 +5,7 @@ import { promisify } from 'node:util'
 import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
+import { clients } from '../clients'
 import { nodeFetch } from '../plugins/node/fetch/fetch'
 import { nodeUndici } from '../plugins/node/undici/undici'
 import { mergeCookieHeaders } from './cookies'
@@ -46,6 +47,74 @@ const cases = [
 ] satisfies { name: string; request: Partial<HarRequest>; expected: string | undefined }[]
 
 describe('cookies', () => {
+  const affectedPlugins = clients
+    .flatMap(({ clients }) => clients)
+    .filter((plugin) =>
+      [
+        'clojure/clj_http',
+        'dart/http',
+        'go/native',
+        'http/http1.1',
+        'objc/nsurlsession',
+        'r/httr2',
+        'ruby/native',
+        'rust/reqwest',
+        'shell/curl',
+        'shell/wget',
+        'swift/nsurlsession',
+        // These generators share prepareRequest, including the multipart paths of curl and wget.
+        'java/asynchttp',
+        'java/nethttp',
+        'java/okhttp',
+        'java/unirest',
+        'ocaml/cohttp',
+        'shell/httpie',
+      ].includes(`${plugin.target}/${plugin.client}`),
+    )
+
+  for (const plugin of affectedPlugins) {
+    it.each(['Cookie', 'cookie', 'cOoKiE'])(
+      `preserves existing %s and structured cookies in ${plugin.target}/${plugin.client}`,
+      (name) => {
+        const result = plugin.generate({
+          url: 'https://example.com',
+          headers: [{ name, value: 'existing=a+b==; escaped=%2F' }],
+          cookies: [
+            { name: 'session', value: 'a b;c' },
+            { name: 'empty', value: '' },
+          ],
+        })
+        expect(result).toContain('existing=a+b==; escaped=%2F; session=a%20b%3Bc; empty=')
+        expect(result.split('existing=').length - 1).toBe(1)
+        expect(result.split('session=').length - 1).toBe(1)
+      },
+    )
+
+    it(`includes structured cookies without an existing header in ${plugin.target}/${plugin.client}`, () => {
+      const result = plugin.generate({
+        url: 'https://example.com',
+        cookies: [{ name: 'session', value: 'abc123' }],
+      })
+      expect(result).toContain('session=abc123')
+      expect(result.split('session=').length - 1).toBe(1)
+    })
+
+    it(`keeps merged cookies with a typed multipart body in ${plugin.target}/${plugin.client}`, () => {
+      const result = plugin.generate({
+        url: 'https://example.com',
+        method: 'POST',
+        headers: [{ name: 'cookie', value: 'existing=one' }],
+        cookies: [{ name: 'session', value: 'abc123' }],
+        postData: {
+          mimeType: 'multipart/form-data',
+          params: [{ name: 'note', value: '@hello', contentType: 'text/plain' }],
+        },
+      })
+      expect(result).toContain('existing=one; session=abc123')
+      expect(result.split('session=').length - 1).toBe(1)
+    })
+  }
+
   it.each(cases)('merges $name without mutating the input', ({ request, expected }) => {
     const original = structuredClone(request)
     expect(mergeCookieHeaders(request)).toStrictEqual(

@@ -1,12 +1,12 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
-import { collectHeaders } from './http'
-
 /** Merge cookie headers case-insensitively, preserving already serialized header values. */
 export const mergeCookieHeaders = (request: Partial<HarRequest>): HarRequest['headers'] => {
   const headers = request.headers ?? []
   const cookieHeaders = headers.filter(({ name }) => name.toLowerCase() === 'cookie')
-  const serializedCookies = collectHeaders([], request.cookies)
+  const serializedCookies = (request.cookies ?? []).map(
+    ({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`,
+  )
 
   return [
     ...headers.filter(({ name }) => name.toLowerCase() !== 'cookie'),
@@ -14,8 +14,7 @@ export const mergeCookieHeaders = (request: Partial<HarRequest>): HarRequest['he
       ? [
           {
             name: 'Cookie',
-            value: [...cookieHeaders, ...serializedCookies]
-              .map(({ value }) => value)
+            value: [...cookieHeaders.map(({ value }) => value), ...serializedCookies]
               .filter((value) => value !== '')
               .join('; '),
           },

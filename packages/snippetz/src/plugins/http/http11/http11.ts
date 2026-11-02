@@ -1,6 +1,7 @@
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { dispositionValue } from '@/libs/prepare-request'
 
@@ -47,7 +48,7 @@ export const httpHttp11: Plugin = {
     headers.set('Host', host)
 
     // Passed headers
-    normalizedRequest.headers.forEach((header) => {
+    mergeCookieHeaders(normalizedRequest).forEach((header) => {
       if (headers.has(header.name)) {
         headers.set(header.name, `${headers.get(header.name)}, ${header.value}`)
       } else {
