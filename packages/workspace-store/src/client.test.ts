@@ -10,6 +10,7 @@ import { getActiveOpenApiDocument, getOpenApiDocument } from '@test/helpers'
 import { literalReferencesDocument } from '@test/literal-references'
 import fastify, { type FastifyInstance } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
+import YAML from 'yaml'
 
 import { type WorkspaceDocumentInput, createWorkspaceStore } from '@/client'
 import { getPathItemOperation } from '@/helpers/for-each-path-item-operation'
@@ -5006,6 +5007,29 @@ describe('create-workspace-store', () => {
       const document = store.workspace.documents['petstore']
       expect(isOpenApiDocument(document)).toBe(true)
       expect(isPluginDocument(document)).toBe(false)
+    })
+
+    it.each(['json', 'yaml'] as const)('omits source type markers from immediate %s exports', async (format) => {
+      const store = createWorkspaceStore({ documentTypes: [arazzo()] })
+      const documents = {
+        petstore: { openapi: '3.1.0', info: { title: 'Petstore', version: '1.0.0' }, paths: {} },
+        adoption: arazzoDocument(),
+      }
+
+      for (const [name, document] of Object.entries(documents)) {
+        const input = { ...document, 'x-scalar-document-type': 'untrusted' }
+        await store.addDocument({ name, document: input })
+
+        const exported = store.exportDocument(name, format)
+        assert(exported !== undefined)
+        expect(YAML.parse(exported)).toStrictEqual(document)
+        expect(input['x-scalar-document-type']).toBe('untrusted')
+      }
+
+      expect(isOpenApiDocument(store.workspace.documents.petstore)).toBe(true)
+      const adoption = store.workspace.documents.adoption
+      assert(isPluginDocument(adoption))
+      expect(adoption['x-scalar-document-type']).toBe('arazzo')
     })
 
     it('keeps loading built-in documents when a detect hook throws', async () => {
