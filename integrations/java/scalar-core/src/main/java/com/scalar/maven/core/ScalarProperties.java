@@ -2,6 +2,8 @@ package com.scalar.maven.core;
 
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
+import com.scalar.maven.core.config.ScalarHiddenClients;
+import com.scalar.maven.core.config.ScalarExternalUrls;
 import com.scalar.maven.core.config.ScalarAgentOptions;
 import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
@@ -36,6 +38,39 @@ import java.util.Map;
  * </pre>
  */
 public class ScalarProperties {
+
+    /** The URLs of external Scalar services. */
+    private ScalarExternalUrls externalUrls;
+
+    /** The default OAuth 2.0 redirect URI. */
+    private String oauth2RedirectUri;
+
+    /** Whether navigation updates the browser URL and history. */
+    private Boolean urlRouting;
+
+    /** The clients hidden from code sample selection. */
+    private ScalarHiddenClients hiddenClients;
+
+    /** The full client identifiers shown as tabs, in order. */
+    private List<String> featuredClients;
+
+    /** The extension keys to display, each beginning with x-. */
+    private List<String> showExtensions;
+
+    /** The initial request body view: form or raw. */
+    private String defaultRequestBodyView;
+
+    /** The maximum initially visible request body properties; zero shows all. */
+    private Integer maxVisibleRequestBodyProperties;
+
+    /** Whether parameter details are initially expanded. */
+    private Boolean expandAllParameters;
+
+    /** Whether to enable arrow-key navigation for schema disclosures. */
+    private Boolean schemaKeyboardNav;
+
+    /** Whether to show structural types instead of model names. */
+    private Boolean hideModelNames;
 
     /**
      * The URL of the OpenAPI specification to display in the API Reference.
@@ -691,5 +726,202 @@ public class ScalarProperties {
     public void setMcp(ScalarMcpOptions mcp) {
         this.mcp = mcp;
     }
-}
 
+    /**
+     * Gets whether to show structural types instead of model names.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getHideModelNames() {
+        return hideModelNames;
+    }
+
+    /**
+     * Sets whether to show structural types instead of model names.
+     *
+     * @param hideModelNames the configured value, or null to use the frontend default
+     */
+    public void setHideModelNames(Boolean hideModelNames) {
+        this.hideModelNames = hideModelNames;
+    }
+
+    /**
+     * Gets whether to enable arrow-key navigation for schema disclosures.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getSchemaKeyboardNav() {
+        return schemaKeyboardNav;
+    }
+
+    /**
+     * Sets whether to enable arrow-key navigation for schema disclosures.
+     *
+     * @param schemaKeyboardNav the configured value, or null to use the frontend default
+     */
+    public void setSchemaKeyboardNav(Boolean schemaKeyboardNav) {
+        this.schemaKeyboardNav = schemaKeyboardNav;
+    }
+
+    /**
+     * Gets whether parameter details are initially expanded.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getExpandAllParameters() {
+        return expandAllParameters;
+    }
+
+    /**
+     * Sets whether parameter details are initially expanded.
+     *
+     * @param expandAllParameters the configured value, or null to use the frontend default
+     */
+    public void setExpandAllParameters(Boolean expandAllParameters) {
+        this.expandAllParameters = expandAllParameters;
+    }
+
+    /**
+     * Gets the maximum initially visible request body properties; zero shows all.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Integer getMaxVisibleRequestBodyProperties() {
+        return maxVisibleRequestBodyProperties;
+    }
+
+    /**
+     * Sets the maximum initially visible request body properties; zero shows all.
+     *
+     * @param maxVisibleRequestBodyProperties the configured value, or null to use the frontend default
+     */
+    public void setMaxVisibleRequestBodyProperties(Integer maxVisibleRequestBodyProperties) {
+        this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
+    }
+
+    /**
+     * Gets the initial request body view: form or raw.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getDefaultRequestBodyView() {
+        return defaultRequestBodyView;
+    }
+
+    /**
+     * Sets the initial request body view: form or raw.
+     *
+     * @param defaultRequestBodyView the configured value, or null to use the frontend default
+     */
+    public void setDefaultRequestBodyView(String defaultRequestBodyView) {
+        this.defaultRequestBodyView = defaultRequestBodyView;
+    }
+
+    /**
+     * Gets the extension keys to display, each beginning with x-.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public List<String> getShowExtensions() {
+        return showExtensions;
+    }
+
+    /**
+     * Sets the extension keys to display, each beginning with x-.
+     *
+     * @param showExtensions the configured value, or null to use the frontend default
+     */
+    public void setShowExtensions(List<String> showExtensions) {
+        this.showExtensions = showExtensions;
+    }
+
+    /**
+     * Gets the full client identifiers shown as tabs, in order.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public List<String> getFeaturedClients() {
+        return featuredClients;
+    }
+
+    /**
+     * Sets the full client identifiers shown as tabs, in order.
+     *
+     * @param featuredClients the configured value, or null to use the frontend default
+     */
+    public void setFeaturedClients(List<String> featuredClients) {
+        this.featuredClients = featuredClients;
+    }
+
+    /**
+     * Gets the clients hidden from code sample selection.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarHiddenClients getHiddenClients() {
+        return hiddenClients;
+    }
+
+    /**
+     * Sets the clients hidden from code sample selection.
+     *
+     * @param hiddenClients the configured value, or null to use the frontend default
+     */
+    public void setHiddenClients(ScalarHiddenClients hiddenClients) {
+        this.hiddenClients = hiddenClients;
+    }
+
+    /**
+     * Gets whether navigation updates the browser URL and history.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getUrlRouting() {
+        return urlRouting;
+    }
+
+    /**
+     * Sets whether navigation updates the browser URL and history.
+     *
+     * @param urlRouting the configured value, or null to use the frontend default
+     */
+    public void setUrlRouting(Boolean urlRouting) {
+        this.urlRouting = urlRouting;
+    }
+
+    /**
+     * Gets the default OAuth 2.0 redirect URI.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getOauth2RedirectUri() {
+        return oauth2RedirectUri;
+    }
+
+    /**
+     * Sets the default OAuth 2.0 redirect URI.
+     *
+     * @param oauth2RedirectUri the configured value, or null to use the frontend default
+     */
+    public void setOauth2RedirectUri(String oauth2RedirectUri) {
+        this.oauth2RedirectUri = oauth2RedirectUri;
+    }
+
+    /**
+     * Gets the URLs of external Scalar services.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarExternalUrls getExternalUrls() {
+        return externalUrls;
+    }
+
+    /**
+     * Sets the URLs of external Scalar services.
+     *
+     * @param externalUrls the configured value, or null to use the frontend default
+     */
+    public void setExternalUrls(ScalarExternalUrls externalUrls) {
+        this.externalUrls = externalUrls;
+    }
+}

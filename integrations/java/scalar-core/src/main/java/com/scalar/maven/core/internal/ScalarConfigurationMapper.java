@@ -70,6 +70,28 @@ public class ScalarConfigurationMapper {
         config.setDefaultOpenFirstTag(properties.isDefaultOpenFirstTag());
         config.setMcp(properties.getMcp());
 
+        config.setHideModelNames(properties.getHideModelNames());
+
+        config.setSchemaKeyboardNav(properties.getSchemaKeyboardNav());
+
+        config.setExpandAllParameters(properties.getExpandAllParameters());
+
+        config.setMaxVisibleRequestBodyProperties(properties.getMaxVisibleRequestBodyProperties());
+
+        config.setDefaultRequestBodyView(properties.getDefaultRequestBodyView());
+
+        config.setShowExtensions(properties.getShowExtensions());
+
+        config.setFeaturedClients(properties.getFeaturedClients());
+
+        config.setHiddenClients(properties.getHiddenClients());
+
+        config.setUrlRouting(properties.getUrlRouting());
+
+        config.setOauth2RedirectUri(properties.getOauth2RedirectUri());
+
+        config.setExternalUrls(properties.getExternalUrls());
+
         return config;
     }
 }

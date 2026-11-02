@@ -155,6 +155,47 @@ scalar.path=/docs
 scalar.pageTitle=My API Documentation
 ```
 
+### Additional UI and Client Options
+
+These options work in both WebMVC and WebFlux. Omitted values use the frontend defaults.
+
+| Spring property | Values |
+| --- | --- |
+| `scalar.hide-model-names` | `true` or `false` |
+| `scalar.schema-keyboard-nav` | `true` or `false` |
+| `scalar.expand-all-parameters` | `true` or `false` |
+| `scalar.max-visible-request-body-properties` | Nonnegative integer; `0` shows all |
+| `scalar.default-request-body-view` | `form` or `raw` |
+| `scalar.show-extensions` | List of extension keys such as `x-internal` |
+| `scalar.featured-clients` | Ordered list of full client IDs such as `node/fetch` |
+| `scalar.url-routing` | `false` leaves the browser URL and history unchanged |
+| `scalar.oauth2-redirect-uri` | Default OAuth redirect URI |
+| `scalar.agent.hide-add-api` | Hide the agent's control for adding APIs; also available under each source |
+
+Override individual service URLs with `scalar.external-urls.dashboard-url`,
+`registry-url`, `proxy-url`, and `api-base-url`. Unset URLs retain their defaults.
+
+For hidden clients, choose exactly one of `all`, `clients`, or `targets`:
+
+```yaml
+scalar:
+  hidden-clients:
+    targets:
+      python:
+        all: true
+      node:
+        clients: [fetch]
+  featured-clients: [shell/curl, node/axios]
+```
+
+Use `scalar.hidden-clients.all=true` to hide every client. Set it to `false`,
+or set `clients: []`, to show all clients, including clients hidden by default.
+The `clients` list accepts target names, client names, and full client IDs.
+Each target entry accepts either `all` or `clients`; target entries cannot contain more targets.
+
+The Java API uses `ScalarHiddenClients` and `ScalarExternalUrls` for the same
+options. These are serialized into the frontend's native configuration shapes.
+
 ### Localization
 
 Both WebMVC and WebFlux support UI localization through Spring Boot properties.
