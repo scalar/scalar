@@ -53,6 +53,7 @@ At least one of the following is required:
 Optional:
 
 - `onRequest({ context, operation })`: callback before each request is processed
+- `onResponse({ context, operation, response })`: callback after the mock produced its response; return a `Response` to replace it, or nothing to keep it (`operation` is `undefined` for routes that are not operations)
 - `validateRequest`: set to `false` to always return a mock response instead of rejecting contract violations with `422` (default: `true`)
 - `logger`: pass `false` to silence the authentication instructions printed on startup, or a `(line) => void` sink to redirect them (default: logs to the console)
 

@@ -410,6 +410,45 @@ Failures that are already handled elsewhere never reach this handler, so they ke
 - **Operations with no response** — an operation whose `responses` are empty responds with `{ "error": "No response defined for this operation." }`.
 - **Errors that carry a response** — an error such as Hono's `HTTPException` keeps the status and body it chose, and is not logged.
 
+### Observing and changing responses
+
+Pass `onResponse` to see every response before it is sent, or to send a different one. It is called once per request, after the mock server has produced its response, with:
+
+- `context` — the Hono context of the request, the same one `onRequest` receives.
+- `operation` — the OpenAPI operation that answered the request, or `undefined` when no operation did: the `/openapi.json` and `/openapi.yaml` exports, the authentication routes, routes you add to the returned app, and `404 Not Found` responses.
+- `response` — the `Response` about to be sent.
+
+Return a `Response` to send it instead, or return nothing to keep the mock response. Async callbacks are awaited.
+
+A mock server serves the same example on every request, so a list endpoint that says `has_more: true` sends an auto-paginating client around forever. Rewrite it into the last page:
+
+```ts
+import { createMockServer } from '@scalar/mock-server'
+
+const app = await createMockServer({
+  document,
+  async onResponse({ operation, response }) {
+    // Only rewrite the paginated list, and leave every other response untouched
+    if (operation?.operationId !== 'listItems') {
+      return
+    }
+
+    const page = await response.json()
+
+    return Response.json({ ...page, has_more: false }, { status: response.status })
+  },
+})
+```
+
+A few things to know:
+
+- **Every response reaches it**, including authentication failures, `422` [request validation](#request-validation) responses and `500` [error responses](#error-responses). CORS preflight (`OPTIONS`) requests are answered before it runs. A `HEAD` request reaches it with the `GET` response, and the body is dropped afterwards either way.
+- **Streams keep streaming.** The mock server never reads the body, so a `text/event-stream` or JSON Lines response is still streaming when it reaches the callback. Reading the body consumes it, so a callback that reads it has to return a replacement — or read `response.clone()` instead.
+- **Headers.** The replacement is sent with its own headers. The CORS headers the server adds are carried over onto it, unless it sets them itself; the mock response's other headers are not, so copy them from `response.headers` when you want to keep them.
+- **Errors.** If the callback throws or its promise rejects, the server responds with a `500` that names the operation, as described in [Error Responses](#error-responses). That response is not passed to the callback again.
+
+`onResponse` only applies to OpenAPI documents. For AsyncAPI documents, use `onMessage` to observe channel messages.
+
 ### HTTP authentication
 
 Basic and Bearer schemes accept case-insensitive scheme names. Basic checks for a base64-encoded `username:password`; Bearer checks for a non-empty token. API keys must be present in their declared header, query parameter, or cookie. These are mock credential-shape checks, not password, token-signature, expiry, or scope validation.
