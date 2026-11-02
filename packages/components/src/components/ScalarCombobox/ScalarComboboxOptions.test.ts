@@ -64,6 +64,46 @@ const extendedGroups = [
 ] as const satisfies ExtendedGroup[]
 
 describe('ScalarComboboxOptions', () => {
+  it('cancels the pending selected-option scroll when unmounted', () => {
+    vi.useFakeTimers()
+    const wrapper = mount(ScalarComboboxOptions, {
+      props: { options: singleOptions, modelValue: [singleOptions[1]] },
+      attachTo: document.body,
+    })
+    const lookup = vi.spyOn(document, 'getElementById')
+
+    try {
+      wrapper.unmount()
+      lookup.mockClear()
+      vi.runAllTimers()
+
+      expect(lookup).not.toHaveBeenCalled()
+    } finally {
+      lookup.mockRestore()
+      vi.useRealTimers()
+    }
+  })
+
+  it('scrolls the selected option into view while mounted', () => {
+    vi.useFakeTimers()
+    const wrapper = mount(ScalarComboboxOptions, {
+      props: { options: singleOptions, modelValue: [singleOptions[1]] },
+      attachTo: document.body,
+    })
+    const selected = wrapper.findAllComponents(ScalarComboboxOption)[1]!.element
+    const scrollIntoView = vi.fn()
+    selected.scrollIntoView = scrollIntoView
+
+    try {
+      vi.runAllTimers()
+
+      expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith({ block: 'nearest' })
+    } finally {
+      wrapper.unmount()
+      vi.useRealTimers()
+    }
+  })
+
   describe('with single options', () => {
     it('filters options based on search query', async () => {
       const wrapper = mount(ScalarComboboxOptions, {

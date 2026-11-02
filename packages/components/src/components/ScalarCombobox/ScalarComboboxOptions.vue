@@ -17,6 +17,7 @@ export default {}
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
+import { useTimeoutFn } from '@vueuse/core'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
@@ -142,6 +143,22 @@ const getInitialActive = (): Option | undefined => {
 
 const activeRef = ref<Option | undefined>(getInitialActive())
 
+// Tie the delayed scroll to this component so it cannot access the DOM after unmount.
+const { start: scrollToSelected } = useTimeoutFn(
+  () => {
+    const value = model.value[0]
+    if (!value) {
+      return
+    }
+
+    document
+      .getElementById(getOptionId(value))
+      ?.scrollIntoView({ block: 'nearest' })
+  },
+  10,
+  { immediate: false },
+)
+
 // Clear the query on open and close
 onMounted(() => {
   // Clear the query
@@ -153,16 +170,7 @@ onMounted(() => {
   // Scroll to the selected option
   const selected = model.value[0]
   if (selected) {
-    setTimeout(() => {
-      const value = model.value[0]
-      if (!value) {
-        return
-      }
-
-      document
-        ?.getElementById(getOptionId(value))
-        ?.scrollIntoView({ block: 'nearest' })
-    }, 10)
+    scrollToSelected()
   }
 })
 
