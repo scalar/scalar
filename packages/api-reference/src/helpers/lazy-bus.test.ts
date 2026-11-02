@@ -121,6 +121,93 @@ describe('lazy-bus', () => {
     })
   })
 
+  it('only scrolls to the newest target during rapid lazy navigation', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const targets = ['tag/rapid/GET/first', 'tag/rapid/GET/second', 'tag/rapid/GET/third']
+      const scrolledTo: string[] = []
+
+      for (const id of targets) {
+        const element = document.createElement('section')
+        element.id = id
+        element.scrollIntoView = () => scrolledTo.push(id)
+        document.body.append(element)
+
+        scrollToLazy(
+          id,
+          () => undefined,
+          () => undefined,
+        )
+        await nextTick()
+      }
+
+      // Every target is still lazy. Earlier freezes must not scroll even briefly
+      // before the newest freeze restores the final position in the same frame.
+      scrolledTo.length = 0
+      vi.advanceTimersToNextFrame()
+      expect(scrolledTo).toStrictEqual([targets[2]])
+
+      scrolledTo.length = 0
+      vi.advanceTimersToNextFrame()
+      expect(scrolledTo).toStrictEqual([targets[2]])
+
+      requestLazyRender(targets[2], true)
+      await nextTick()
+      await nextTick()
+
+      scrolledTo.length = 0
+      vi.advanceTimersToNextFrame()
+      expect(scrolledTo).toStrictEqual([targets[2]])
+
+      scrolledTo.length = 0
+      vi.advanceTimersToNextFrame()
+      expect(scrolledTo).toStrictEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('scrolls for one final settling frame after lazy rendering completes', async () => {
+    vi.useFakeTimers()
+
+    try {
+      const id = 'tag/settling/GET/settling'
+      const element = document.createElement('section')
+      element.id = id
+      const scrollIntoView = vi.fn()
+      element.scrollIntoView = scrollIntoView
+      document.body.append(element)
+
+      scrollToLazy(
+        id,
+        () => undefined,
+        () => undefined,
+      )
+      await nextTick()
+
+      scrollIntoView.mockClear()
+      vi.advanceTimersToNextFrame()
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+
+      requestLazyRender(id, true)
+      await nextTick()
+      await nextTick()
+
+      // Completing the bus must leave one frame to settle the rendered layout.
+      scrollIntoView.mockClear()
+      vi.advanceTimersToNextFrame()
+      expect(scrollIntoView).toHaveBeenCalledTimes(1)
+
+      scrollIntoView.mockClear()
+      vi.advanceTimersToNextFrame()
+      vi.advanceTimersToNextFrame()
+      expect(scrollIntoView).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   afterEach(() => {
     vi.restoreAllMocks()
     document.body.replaceChildren()
