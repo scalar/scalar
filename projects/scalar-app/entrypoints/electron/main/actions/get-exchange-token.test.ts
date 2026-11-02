@@ -39,7 +39,9 @@ const sendRequest = (
     request.end()
   })
 
-const startLogin = async (flow: 'login' | 'register' = 'login') => {
+const startLogin = async (
+  flow: 'login' | 'register' = 'login',
+): Promise<{ result: ReturnType<typeof getExchangeToken>; url: URL; port: number; state: string; path: string }> => {
   const result = getExchangeToken(flow)
   await vi.waitFor(() => expect(openExternalMock).toHaveBeenCalled())
   const url = new URL(openExternalMock.mock.lastCall![0])
@@ -149,6 +151,25 @@ describe('get-exchange-token', () => {
     expect((await first).status).toBe(303)
     expect(await result).toStrictEqual(TOKENS)
     expect(exchangeTokenMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a redeemed session when the browser closes during the exchange', async () => {
+    let resolve!: (value: [null, typeof TOKENS]) => void
+    exchangeTokenMock.mockReturnValue(
+      new Promise<[null, typeof TOKENS]>((complete) => {
+        resolve = complete
+      }),
+    )
+    const { result, port, path } = await startLogin()
+    const request = http.get({ hostname: '127.0.0.1', port, path })
+    request.on('error', () => undefined)
+    await vi.waitFor(() => expect(exchangeTokenMock).toHaveBeenCalledTimes(1))
+    const closed = new Promise<void>((complete) => request.once('close', complete))
+    request.destroy()
+    await closed
+    resolve([null, TOKENS])
+    expect(await result).toStrictEqual(TOKENS)
+    await expect(sendRequest(port, path)).rejects.toThrow()
   })
 
   it('uses different state and PKCE secrets for each attempt', async () => {

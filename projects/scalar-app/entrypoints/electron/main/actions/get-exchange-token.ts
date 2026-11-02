@@ -136,6 +136,15 @@ const waitForExchangeTokenCallback = ({
         return
       }
 
+      // Closing the browser must not discard an already redeemed session.
+      if (response.destroyed) {
+        void finish(result)
+        return
+      }
+      response.once('close', () => {
+        void finish(result)
+      })
+
       // The destination is fixed, and contains neither the code nor the state.
       // Only the completed exchange can send the browser to the success page.
       response.writeHead(303, {
