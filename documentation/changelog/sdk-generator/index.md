@@ -8,6 +8,42 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.37.0 (2026-10-29)
+
+### PHP signed uploads, backward pagination, and hardened runtimes
+
+This release brings file uploads to PHP SDKs, backward pagination to cursor schemes, and runtime security improvements across all targets.
+
+- PHP SDKs now generate signed upload methods that handle the full upload flow, from initiation through pre-signed URL upload to confirmation.
+- Cursor pagination can now step backward when the caller sets a backward parameter, with support landing in TypeScript, Python, CLI, C#, Swift, Dart, C++ and PHP SDKs.
+- TypeScript and CLI SDKs gained hardened redirect handling that drops credentials when leaving the API origin, caps response bodies at 64 MiB, and masks secrets in logs.
+- Swift SDKs changed scalar typing: `uuid` format is now `String`, `int32` is `Int`, and watchOS is no longer a supported platform.
+- Generated package manifests now link homepage, repository, issue tracker, changelog and documentation, and list configured keywords.
+
+## 0.36.11 (2026-10-26)
+
+### PHP SDK enhancements and webhook verification improvements
+
+This release brings significant improvements to generated PHP SDKs, including file downloads, date-time parsing, and webhook signature verification with no external dependencies. It also adds webhook companion methods and signed upload support across multiple targets.
+
+- PHP SDKs now write raw responses to files with `toFile($path)` and parse date-times using configured fallback formats before falling back to PHP's own parser.
+- PHP SDKs verify webhook signatures with a built-in verifier and no longer require the standardwebhooks package.
+- PHP SDKs expose `getRequestID()` on raw responses and API exceptions, and add client conveniences like `withOptions()` and idempotency key support.
+- Webhook helpers now generate `verify_signature` and `parse_unsafe` companion methods alongside the parse method across TypeScript, Python, Go, Java, Kotlin, Ruby and PHP.
+- Signed upload methods are now generated for Go, Java, Kotlin, Ruby and the CLI, uploading files to pre-signed URLs returned by the API.
+
+## 0.36.10 (2026-10-23)
+
+### TypeScript webhook verification improvements and C++ SDK updates
+
+This release brings a faster, built-in webhook verifier to TypeScript SDKs and extends signed upload support to TypeScript and Python. The experimental C++ SDK adds comprehensive features including client options, logging, and webhook handling.
+
+- TypeScript SDKs now verify webhook signatures with a built-in verifier that is 2–6× faster than the previous library dependency.
+- Signed upload methods are now available in TypeScript and Python SDKs for two-step file upload flows.
+- The experimental C++ SDK can now authenticate requests, validate credentials at build time, and log requests at configurable levels.
+- Generated Go, Java, Kotlin, and Rust SDKs can parse date-time responses in custom formats through `dateTimeSettings.fallbackFormats`.
+- Method aliases can now point to methods on any resource, with independent control over positional parameters.
+
 ## 0.36.9 (2026-10-21)
 
 ### Configuration handling improvements and code generation refinements

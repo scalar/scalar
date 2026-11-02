@@ -23,7 +23,9 @@ Add `php` under `targets` to generate a PHP SDK package.
         }
       },
       "publish": {
-        "packagist": true
+        "packagist": {
+          "releaseEnvironment": "production"
+        }
       }
     }
   }
@@ -74,7 +76,9 @@ Packagist publishing configuration.
 
 Publishes the PHP package on Packagist. `true` publishes with the defaults; an object tunes them.
 
-Packagist reads versions from the repository's git tags, so a release is the `vX.Y.Z` tag: there is no upload step, no secret, and `authMethod` is unused. The destination repository has to be [submitted to Packagist](https://packagist.org/packages/submit) once.
+Packagist reads versions from the repository's git tags, so a release is the `vX.Y.Z` tag and there is no upload step; `authMethod` is unused. The destination repository has to be [submitted to Packagist](https://packagist.org/packages/submit) once.
+
+After each release the generated `publish` job runs `composer validate --strict` and then calls Packagist's update-package API for the package, so a release fails when Packagist cannot find the package or the account cannot maintain it. That call reads your Packagist username from a `PACKAGIST_USERNAME` secret and an API token from your [Packagist profile](https://packagist.org/profile/) (the safe token is enough) from a `PACKAGIST_API_TOKEN` secret, falling back to an existing `PACKAGIST_SAFE_KEY` secret. Both are optional: without them the call is skipped with a notice, and Packagist's GitHub hook picks up the tag on its own.
 
 #### releaseEnvironment
 
@@ -97,6 +101,20 @@ Prerelease channel this target's releases publish on, as a bare semver prereleas
 Omit it to release on the stable line. A release train promoting to a conventionally named prerelease branch (`alpha`, `beta`, `canary`, `next`, `preview`, `rc`) adopts that branch's name as its channel, so this only has to be set to name a channel the branch does not, or to put a target on a prerelease line while promoting to a branch named something else.
 
 **Constraints:** `pattern: ^[A-Za-z][0-9A-Za-z-]*$`
+
+## options
+
+**Type:** `object`
+
+PHP generation options.
+
+### parameterDefaults
+
+**Type:** `"signature" | "server"`
+
+How a service method declares an optional parameter or body field that has a schema `default`. `signature` (the default) uses the default as the PHP argument default, as in `int $limit = 20`, and always sends that value. `server` declares the argument nullable, as in `?int $limit = null`, and sends it only when the caller sets it, so the server applies its own default. The method's docblock notes the default value unless the parameter's description already states it. Required arguments are unaffected. Switching a published SDK between the two changes method signatures, so treat it as a breaking change.
+
+**Default:** `"signature"`
 
 ## skip
 

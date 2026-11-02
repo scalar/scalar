@@ -18,7 +18,7 @@ For how publishing works end to end, see [Publishing](overview.md).
 | [Java and Kotlin](java.md) | `maven` | Maven Central | Token + GPG | `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_PRIVATE_KEY`, `MAVEN_GPG_PASSPHRASE` (or `SONATYPE_USERNAME`, `SONATYPE_PASSWORD`, `GPG_SIGNING_KEY`, `GPG_SIGNING_PASSWORD`) |
 | [C#](csharp.md) (experimental) | `nuget` | NuGet | OIDC | `NUGET_USER` (OIDC) or `NUGET_API_KEY` |
 | [Ruby](ruby.md) | `rubygems` | RubyGems | OIDC | none (OIDC) or `RUBYGEMS_API_KEY` (or `GEM_HOST_API_KEY`) |
-| [PHP](php.md) (experimental) | `packagist` | Packagist | Git tag | none |
+| [PHP](php.md) (experimental) | `packagist` | Packagist | Git tag | none, or `PACKAGIST_USERNAME` and `PACKAGIST_API_TOKEN` (or `PACKAGIST_SAFE_KEY`) to notify Packagist of each release |
 | [Swift](swift.md) (experimental) | `swiftpm` | Swift Package Manager | Git tag | none |
 | [Dart](dart.md) (experimental) | `pub` | pub.dev | OIDC, which the generated workflows cannot use; set `access-token` | `PUB_TOKEN` |
 | [CLI](cli.md) | `npm`, `binaries`, `homebrew` | npm / GitHub Release / Homebrew | OIDC or token | none (npm OIDC) or `NPM_TOKEN`, plus `HOMEBREW_TAP_TOKEN` (or `HOMEBREW_TAP_GITHUB_TOKEN`) for Homebrew |
@@ -48,7 +48,7 @@ Registries that support OIDC (`npm`, `pypi`, `cargo`, `nuget`, `rubygems`, `pub`
 > When you register a trusted publisher, the workflow filename is **`release-please.yml`** — the workflow whose inline `publish` job does the automated publish. NuGet's OIDC login also reads your nuget.org profile name from a `NUGET_USER` secret. `sdk-release.yml` is the manual re-publish path; add it as a second trusted publisher only if you dispatch it.
 
 > [!NOTE]
-> Tag-served ecosystems (Swift Package Manager, Packagist) have no upload step and no secrets. The `vX.Y.Z` Git tag and GitHub Release cut when a release pull request merges are the published version. Go versions are tags too, but Go still gets a release workflow, which uploads nothing and warms the public module proxy.
+> Swift Package Manager is tag-served: it has no upload step and no secrets, and the `vX.Y.Z` Git tag and GitHub Release cut when a release pull request merges are the published version. Go and Packagist versions are tags too, but both still get a release workflow, which uploads nothing: Go's warms the public module proxy, and PHP's validates `composer.json` and notifies Packagist of the tag.
 
 ## C++
 
