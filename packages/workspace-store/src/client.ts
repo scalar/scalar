@@ -191,7 +191,10 @@ function loadDocument(
  */
 const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('url' in input) {
-    return makeUrlAbsolute(input.url)
+    // Match browser fetch resolution, including a page's <base href>.
+    return makeUrlAbsolute(input.url, {
+      baseUrl: typeof document === 'undefined' ? undefined : document.baseURI,
+    })
   }
   if ('path' in input) {
     return input.path
