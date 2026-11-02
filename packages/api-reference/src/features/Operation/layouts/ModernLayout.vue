@@ -304,8 +304,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
                   :path="path" />
               </template>
               <template #footer="{ exampleName }">
-                <div class="flex">
-                  <AskAgentButton />
+                <div
+                  class="operation-request-actions grid auto-cols-fr grid-flow-col gap-1 whitespace-nowrap">
+                  <AskAgentButton class="h-auto!" />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
                     :id
@@ -360,6 +361,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 .operation-title {
   grid-area: heading;
+  min-width: 0;
   margin-bottom: 12px;
 
   /* Mirror the shared section header typography (see SectionHeader.vue) */
@@ -367,6 +369,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
   font-weight: var(--font-weight, var(--scalar-bold));
   color: var(--scalar-color-1);
   line-height: 1.45;
+  overflow-wrap: break-word;
+}
+
+.operation-request-actions :deep(.agent-button-container) {
+  margin-right: 0;
+  justify-content: center;
 }
 
 .operation-auth {

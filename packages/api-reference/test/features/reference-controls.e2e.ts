@@ -85,6 +85,16 @@ const securedOperationContent = {
   },
 }
 
+const unbrokenTitleContent = {
+  openapi: '3.1.1',
+  info: { title: 'Webhooks', version: '1.0.0' },
+  webhooks: {
+    'order.purchase.created': {
+      post: { responses: { '200': { description: 'Delivered' } } },
+    },
+  },
+}
+
 const taggedContent = {
   openapi: '3.1.1',
   info: { title: 'Tagged operations', version: '1.0.0' },
@@ -222,4 +232,44 @@ test.describe('reference controls', () => {
     expect(box!.x + box!.width).toBeLessThanOrEqual(320)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
+
+  for (const width of [320, 393, 1920]) {
+    test(`wraps an operation title without spaces inside the page at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 })
+      const example = await serveExample({ content: unbrokenTitleContent })
+      await page.goto(example)
+
+      const title = page.getByRole('heading', { name: 'order.purchase.created', exact: true })
+      await expect(title).toBeVisible()
+      await title.scrollIntoViewIfNeeded()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+
+      const operation = page.getByRole('region', { name: 'order.purchase.created', exact: true })
+      const requestHeader = operation.locator('.request-header')
+      const testRequest = operation.getByRole('button', { name: 'Test Request', exact: false })
+      const headerBox = await requestHeader.boundingBox()
+      const buttonBox = await testRequest.boundingBox()
+      const agentBox = await operation.locator('.agent-button-container').boundingBox()
+      expect(headerBox).not.toBeNull()
+      expect(buttonBox).not.toBeNull()
+      expect(agentBox).not.toBeNull()
+      expect(agentBox!.height).toBeCloseTo(buttonBox!.height, 1)
+      expect(agentBox!.y).toBeCloseTo(buttonBox!.y, 1)
+      if (width < 1920) {
+        expect(buttonBox!.y).toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height)
+        const actionsBox = await operation.locator('.operation-request-actions').boundingBox()
+        expect(actionsBox).not.toBeNull()
+        expect(agentBox!.width).toBeCloseTo(buttonBox!.width, 0)
+        expect(agentBox!.x).toBeCloseTo(actionsBox!.x, 0)
+        expect(buttonBox!.x + buttonBox!.width).toBeCloseTo(actionsBox!.x + actionsBox!.width, 0)
+      } else {
+        expect(buttonBox!.x).toBeGreaterThanOrEqual(headerBox!.x + headerBox!.width)
+        expect(buttonBox!.y).toBeLessThan(headerBox!.y + headerBox!.height)
+      }
+      await expect(operation.locator('.operation-request-actions')).toHaveScreenshot(`operation-actions-${width}.png`)
+      await expect(page.getByRole('region', { name: 'order.purchase.created', exact: true })).toHaveScreenshot(
+        `operation-title-wrap-${width}.png`,
+      )
+    })
+  }
 })
