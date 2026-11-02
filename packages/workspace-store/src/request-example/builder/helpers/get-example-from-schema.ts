@@ -1048,22 +1048,37 @@ const describeComposition = (
 }
 
 /**
- * How many required properties the depth-capped stand-ins of one top-level call may fill in.
+ * How many steps the depth-capped stand-ins of one top-level call may take.
  *
- * Path guards stop a schema that requires itself, but not a chain of distinct schemas that each
- * require two properties pointing at the next one: that output doubles with every link. The cap
- * bounds the work and the output alike, and is generous enough that only such a pathological shape
- * ever reaches it.
+ * Path guards stop a schema that requires or extends itself, but not a chain of distinct schemas that
+ * each point at the next one twice, through two required properties or an `allOf` that lists the same
+ * member twice: the work doubles with every link. Each required property filled in, each schema read
+ * while collecting an object's shape and each composition unwrapped costs one step, so the budget bounds
+ * the work and the output alike. It is generous enough that only such a pathological shape reaches it.
  */
-const MAX_REQUIRED_STAND_IN_PROPERTIES = 1_000
+const MAX_STAND_IN_STEPS = 10_000
 
-/** Required properties the stand-ins of the current top-level call may still fill in. */
-let requiredStandInBudget = MAX_REQUIRED_STAND_IN_PROPERTIES
+/** Steps the stand-ins of the current top-level call may still take. */
+let standInSteps = MAX_STAND_IN_STEPS
+
+/** Spend one stand-in step, or report that the budget is gone (which also taints the call). */
+const takeStandInStep = (): boolean => {
+  if (standInSteps <= 0) {
+    // Whatever is cut short here is not what a full render would have produced.
+    truncated = true
+    return false
+  }
+  standInSteps--
+  return true
+}
 
 /** The object a schema describes once its `allOf` members and selected `oneOf`/`anyOf` variant are merged in. */
 type ObjectShape = {
-  properties: Map<string, SchemaObject>
+  /** Every definition of each property, in the order they were found, since `allOf` members may refine one. */
+  properties: Map<string, SchemaObject[]>
   required: Set<string>
+  /** Schemas already read, by the path they were read at, since the path selects their variants. */
+  visited: Map<object, Set<string>>
 }
 
 /**
@@ -1072,27 +1087,41 @@ type ObjectShape = {
  * `required` and the property it names often live in different `allOf` members (a base schema lists
  * the property, the extension marks it required), so reading either member alone finds nothing.
  * Choice compositions contribute only the variant the walk itself would render, keyed by the same
- * paths `describeComposition` uses. The schema's own property definitions win over its members'.
+ * paths `describeComposition` uses. A schema reached again at the same path adds nothing new, so it is
+ * read once: a member shared by several branches would otherwise be read once per route to it.
  */
 const collectObjectShape = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
-  shape: ObjectShape = { properties: new Map(), required: new Set() },
+  shape: ObjectShape = { properties: new Map(), required: new Set(), visited: new Map() },
 ): ObjectShape => {
   const target = getSchemaCacheTarget(schema)
   if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
     return shape
   }
+
+  const pathKey = schemaPath.join('/')
+  const visitedPaths = shape.visited.get(target) ?? new Set<string>()
+  if (visitedPaths.has(pathKey) || !takeStandInStep()) {
+    return shape
+  }
+  visitedPaths.add(pathKey)
+  shape.visited.set(target, visitedPaths)
   seen.add(target)
 
   if ('properties' in schema && schema.properties) {
     for (const [name, property] of Object.entries(schema.properties)) {
       const resolved = resolve.schema(property)
-      if (resolved && !shape.properties.has(name)) {
-        shape.properties.set(name, resolved)
+      if (!resolved) {
+        continue
       }
+      const definitions = shape.properties.get(name) ?? []
+      if (!definitions.includes(resolved)) {
+        definitions.push(resolved)
+      }
+      shape.properties.set(name, definitions)
     }
   }
   if ('required' in schema && Array.isArray(schema.required)) {
@@ -1135,8 +1164,11 @@ const collectObjectShape = (
  * it, and so does any strict decoder reading the example (a mock server's response, for one). Each
  * required property is described with the same depth-capped stand-in, so a required child object brings
  * only its own required keys and the walk still never descends through optional ones. The `seen` path
- * guards a schema that requires itself, which would otherwise never terminate, and the shared budget
- * bounds a branching chain of schemas that the path guard alone lets grow exponentially.
+ * guards a schema that requires itself, which would otherwise never terminate, and the shared step
+ * budget bounds a branching chain of schemas that the path guard alone lets grow exponentially.
+ *
+ * A property defined more than once across `allOf` members must satisfy every definition, so the
+ * definitions are described together, as the `allOf` they amount to.
  *
  * Keys already present in `base` are kept as they are, so a composition whose members described some
  * of the keys only gains the ones that needed the merged view to be found.
@@ -1161,29 +1193,27 @@ const getRequiredProperties = (
   const result = { ...base }
   seen.add(target)
   for (const name of required) {
-    const property = properties.get(name)
+    // Own keys only: `constructor` or `toString` are valid property names, not values already filled in.
+    const definitions = Object.hasOwn(result, name) ? undefined : properties.get(name)
     // Skip what the full walk would skip, so the stand-in never carries a key a full render would not.
     if (
-      name in result ||
-      !property ||
-      shouldOmitProperty(property, schema, name, {
-        mode: options?.mode,
-        includeDeprecated: options?.includeDeprecated,
-      })
+      !definitions ||
+      definitions.some((definition) => shouldOmitProperty(definition, schema, name, { mode: options?.mode }))
     ) {
       continue
     }
 
-    if (requiredStandInBudget <= 0) {
-      // Out of budget, the object keeps what it has. Nothing assembled from here on is a full render.
-      truncated = true
+    if (!takeStandInStep()) {
+      // Out of budget, the object keeps what it has.
       break
     }
-    requiredStandInBudget--
 
+    // An untyped `allOf` has no strict member of its own, the same way the walk's synthesized members do not.
+    const property = definitions.length === 1 ? definitions[0]! : ({ allOf: definitions } as SchemaObject)
     const value = getMaxDepthValue(property, options, [...schemaPath, name], seen)
     if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
-      result[name] = value
+      // Defined rather than assigned, so a property named `__proto__` stays a property.
+      Object.defineProperty(result, name, { value, enumerable: true, writable: true, configurable: true })
     }
   }
   seen.delete(target)
@@ -1242,7 +1272,7 @@ const getMaxDepthValue = (
   // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
   // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
   const target = getSchemaCacheTarget(schema)
-  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH) {
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && takeStandInStep()) {
     seen.add(target)
     const composed = describeComposition(schema, options, schemaPath, seen)
     seen.delete(target)
@@ -1326,7 +1356,7 @@ const generateExampleFromSchema = (
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
-    requiredStandInBudget = MAX_REQUIRED_STAND_IN_PROPERTIES
+    standInSteps = MAX_STAND_IN_STEPS
   }
 
   // Resolve any $ref references to get the actual schema

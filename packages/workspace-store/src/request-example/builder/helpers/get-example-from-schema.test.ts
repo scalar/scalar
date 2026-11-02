@@ -2924,7 +2924,60 @@ describe('getExampleFromSchema', () => {
       const example = deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, link)))
 
       expect(countKeys(example)).toBeGreaterThan(0)
-      expect(countKeys(example)).toBeLessThanOrEqual(1_000)
+      expect(countKeys(example)).toBeLessThanOrEqual(10_000)
+    })
+
+    it.each([
+      ['typed', { type: 'object' }],
+      ['untyped', {}],
+    ] as const)('reads a member an %s allOf chain lists twice only once', (_, wrapper) => {
+      // Each link lists the same next link twice, so walking every route to the leaf would take
+      // 2^40 steps. Built by hand for the same reason as the branching case above.
+      let link: SchemaObject = {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string', const: 'ok' } },
+      }
+      for (let index = 0; index < 40; index++) {
+        link = { ...wrapper, allOf: [link, link] } as SchemaObject
+      }
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, link)))).toStrictEqual({ id: 'ok' })
+    })
+
+    it('keeps required properties named like Object.prototype members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['constructor', 'toString', 'id'],
+        properties: {
+          constructor: { type: 'string', const: 'a' },
+          toString: { type: 'string', const: 'b' },
+          id: { type: 'string', const: 'ok' },
+        },
+      }
+
+      expect(Object.entries(truncate(leaf) as object)).toStrictEqual([
+        ['constructor', 'a'],
+        ['toString', 'b'],
+        ['id', 'ok'],
+      ])
+    })
+
+    it('combines the definitions of a property repeated across allOf members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        allOf: [
+          { properties: { child: { type: 'object' } } },
+          {
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
     })
 
     it('keeps the sentinel when the schema declares no shape', () => {
