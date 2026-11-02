@@ -37,6 +37,7 @@ import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -79,6 +80,7 @@ import { useMediaQuery, useScrollLock } from '@vueuse/core'
 import {
   computed,
   defineAsyncComponent,
+  getCurrentInstance,
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
@@ -547,6 +549,27 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+/** Keep the first browser render identical to the preloaded server render. */
+const hydrationState = ref<string>()
+const hydrationElement = getCurrentInstance()?.vnode.el
+const serializedState =
+  typeof Element !== 'undefined' && hydrationElement instanceof Element
+    ? hydrationElement.querySelector(':scope > script[data-scalar-hydration]')
+        ?.textContent
+    : undefined
+
+if (serializedState) {
+  const state = JSON.parse(serializedState) as {
+    slug: string
+    reference: ReturnType<typeof workspaceStore.exportWorkspace>
+    client: ReturnType<typeof clientStore.exportWorkspace>
+  }
+  activeSlug.value = state.slug
+  workspaceStore.loadWorkspace(state.reference)
+  clientStore.loadWorkspace(state.client)
+  hydrationState.value = serializedState
+}
 
 useDocumentEnvironment(workspaceStore)
 useDocumentEnvironment(clientStore)
@@ -1399,7 +1422,19 @@ watch(
 )
 
 /** Preload the first document during SSR */
-onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
+onServerPrefetch(async () => {
+  await changeSelectedDocument(activeSlug.value)
+  const reference = workspaceStore.exportWorkspace()
+  const client = clientStore.exportWorkspace()
+  // Keep document snapshots for downloads and editing, but never embed auth or request history.
+  hydrationState.value = escapeJsonForInlineScript(
+    JSON.stringify({
+      slug: activeSlug.value,
+      reference: { ...reference, auth: {}, history: {} },
+      client: { ...client, auth: {}, history: {} },
+    }),
+  )
+})
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
@@ -1463,6 +1498,14 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
+/** Browser-only controls must stay hidden until hydration finishes. */
+const isMounted = ref(false)
+const isLocalhost = ref(false)
+onMounted(() => {
+  isMounted.value = true
+  isLocalhost.value = isLocalUrl(window.location.href)
+})
+
 /**
  * Determines if Agent Scalar should be enabled based on the configuration and the current URL
  *
@@ -1478,7 +1521,7 @@ const agent = useAgent({
       return false
     }
 
-    if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    if (isLocalhost.value) {
       return true
     }
 
@@ -1497,6 +1540,7 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
  * installation instructions).
  */
 const generateSdk = useGenerateSdk({
+  enabled: computed(() => isLocalhost.value),
   disabled: () => mergedConfig.value.showDeveloperTools === 'never',
   hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
@@ -1855,16 +1899,6 @@ const bodyScrollLocked = useScrollLock(
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
 /**
- * Only the browser knows the host. Reading window inside a computed makes the server render one
- * footer and the client another (a hydration mismatch), so we resolve it after mount: SSR on
- * localhost shows the API client button for one frame, then swaps.
- */
-const isLocalhost = ref(false)
-onMounted(() => {
-  isLocalhost.value = isLocalUrl(window.location.href)
-})
-
-/**
  * Localhost only: the developer toolbar leaves the content column for a sticky bar above the whole
  * reference, and the reference renders as a bordered card on a tinted backdrop.
  *
@@ -2172,6 +2206,14 @@ const sidebarCta = computed((): SidebarCta => {
 <template>
   <!-- SingleApiReference -->
   <div v-bind="shellAttrs">
+    <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+    <component
+      :is="'script'"
+      v-if="hydrationState"
+      data-scalar-hydration
+      type="application/json"
+      v-html="hydrationState" />
+    <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <!-- Inject any custom CSS directly into a style tag -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
@@ -2342,7 +2384,7 @@ const sidebarCta = computed((): SidebarCta => {
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="sidebarCta === 'client'"
+                    v-if="isMounted && sidebarCta === 'client'"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"
@@ -2434,7 +2476,9 @@ const sidebarCta = computed((): SidebarCta => {
             <div ref="documentStartRef" />
 
             <DeveloperTools
-              v-if="!isShell && workspaceStore.workspace.activeDocument"
+              v-if="
+                isMounted && !isShell && workspaceStore.workspace.activeDocument
+              "
               v-model:overrides="configurationOverrides"
               class="references-developer-tools"
               :configuration="mergedConfig"
