@@ -64,6 +64,9 @@ toTest.forEach((source) => {
     const celestialBodyModel = await models.getByRole('region', { name: 'CelestialBody' })
     await celestialBodyModel.getByRole('button', { name: 'One of' }).click()
     await celestialBodyModel.getByRole('option', { name: 'Satellite' }).click()
+    // Dismiss incidental example popups after the selection changes focus and layout.
+    await page.keyboard.press('Escape')
+    await page.mouse.move(0, 0)
     await expect(celestialBodyModel).toHaveScreenshot(`${slug}-model-discriminator.png`)
   })
 })

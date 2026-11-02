@@ -20,6 +20,7 @@ import {
 } from './discriminator-metadata'
 import { getDiscriminatorValues } from './helpers/get-discriminator-values'
 import { getSchemaType } from './helpers/get-schema-type'
+import { hasSchemaConstraints } from './helpers/has-schema-constraints'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { type CompositionKeyword } from './helpers/schema-composition'
 import { getCycleKey } from './helpers/schema-cycle'
@@ -269,7 +270,11 @@ if (
         :key="segmentIndex">
         <Schema
           v-if="segment.kind === 'object'"
-          :breadcrumb="breadcrumb"
+          :breadcrumb="
+            hasSchemaConstraints(segment.schema)
+              ? [...(breadcrumb ?? []), '~allOf', String(segmentIndex)]
+              : breadcrumb
+          "
           :compact="compact"
           :compositionPath="compositionPath"
           :depth="depth"

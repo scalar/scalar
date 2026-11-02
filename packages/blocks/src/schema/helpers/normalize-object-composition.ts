@@ -1,5 +1,6 @@
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { hasCompositionConstraints } from './has-schema-constraints'
 import { isTypeObject } from './is-type-object'
 import { partitionAllOfCompositions } from './partition-all-of-compositions'
 
@@ -12,7 +13,7 @@ export const normalizeObjectComposition = (
   name: string | undefined,
 ): DisplaySchema | undefined => {
   // Choice groups and unnamed composition containers keep their existing rendering.
-  if (!name || !value?.allOf || value.oneOf || value.anyOf || value.not) {
+  if (hasCompositionConstraints(value) || !name || !value?.allOf || value.oneOf || value.anyOf || value.not) {
     return value
   }
 

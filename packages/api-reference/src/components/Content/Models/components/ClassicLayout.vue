@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import {
+  Schema,
+  schemaDialect,
   SchemaHeading,
   SchemaProperty,
+  supportsOpenApiSchemaDialect,
   type SchemaRenderingProps,
 } from '@scalar/blocks/schema'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
@@ -60,35 +63,48 @@ const { level: headingLevel } = useDocumentOutline('model')
         </SectionHeaderTag>
       </Anchor>
     </template>
-    <!-- Schema -->
-    <div
-      v-if="'properties' in schema"
-      class="properties">
-      <SchemaProperty
-        v-for="[property, value] in Object.entries(schema.properties ?? {})"
-        :key="property"
+    <div class="py-2 ps-9 pe-3">
+      <!-- Dialect-aware constraints belong to the model as well as its properties. -->
+      <Schema
+        v-if="schemaDialect in schema || supportsOpenApiSchemaDialect(document)"
         :breadcrumb="[id]"
-        :discriminator="schema.discriminator"
-        :eventBus="eventBus"
-        :expansion="expansion"
-        :hideModelNames="options.hideModels"
-        :name="property"
+        :eventBus
+        :expansion
+        noncollapsible
         :options="{ ...options, document }"
-        :required="schema.required?.includes(property)"
-        :schema="resolve.schema(value)"
-        :scrollTargetId="scrollTargetId"
-        :specificationExtension="specificationExtension" />
-    </div>
-    <div v-else>
-      <SchemaProperty
-        :breadcrumb="[id]"
-        :eventBus="eventBus"
-        :expansion="expansion"
-        :hideModelNames="options.hideModels"
-        :options="{ ...options, document }"
-        :schema="schema"
-        :scrollTargetId="scrollTargetId"
-        :specificationExtension="specificationExtension" />
+        :schema
+        :scrollTargetId
+        :specificationExtension />
+      <!-- Schema -->
+      <div
+        v-else-if="'properties' in schema"
+        class="properties">
+        <SchemaProperty
+          v-for="[property, value] in Object.entries(schema.properties ?? {})"
+          :key="property"
+          :breadcrumb="[id]"
+          :discriminator="schema.discriminator"
+          :eventBus="eventBus"
+          :expansion="expansion"
+          :hideModelNames="options.hideModels"
+          :name="property"
+          :options="{ ...options, document }"
+          :required="schema.required?.includes(property)"
+          :schema="resolve.schema(value)"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
+      </div>
+      <div v-else>
+        <SchemaProperty
+          :breadcrumb="[id]"
+          :eventBus="eventBus"
+          :expansion="expansion"
+          :hideModelNames="options.hideModels"
+          :options="{ ...options, document }"
+          :schema="schema"
+          :scrollTargetId="scrollTargetId"
+          :specificationExtension="specificationExtension" />
+      </div>
     </div>
   </SectionAccordion>
 </template>

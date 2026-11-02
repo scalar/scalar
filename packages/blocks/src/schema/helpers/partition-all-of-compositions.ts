@@ -2,6 +2,8 @@ import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject, SchemaReferenceType } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
+import { type ConstraintSchema, schemaDialect } from '../constraint-metadata'
+import { hasSchemaConstraints } from './has-schema-constraints'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
 import type { CompositionKeyword } from './schema-composition'
 
@@ -19,11 +21,21 @@ type AllOfSegment =
       choiceIndex: number
     }
 
+/** Preserve the entire conditional group at its original schema boundary. */
+const preserveConstraints = (source: ConstraintSchema, rest: SchemaObject): ConstraintSchema =>
+  source[schemaDialect] && source[schemaDialect] !== 'unsupported'
+    ? {
+        ...rest,
+        [schemaDialect]: source[schemaDialect],
+        ...(source.if !== undefined ? { if: source.if, then: source.then, else: source.else } : {}),
+      }
+    : rest
+
 const CHOICE_KEYWORDS: ChoiceKeyword[] = ['oneOf', 'anyOf']
 
 type Member =
   | { kind: 'object'; schema: SchemaObject }
-  | { kind: 'boolean'; schema: SchemaObject }
+  | { kind: 'standalone'; schema: SchemaObject }
   | { kind: 'choice'; composition: ChoiceKeyword; value: SchemaObject; inheritedSelection: boolean }
 
 /**
@@ -31,9 +43,8 @@ type Member =
  * group it declares — recursing into nested `allOf` — into a flat, ordered list,
  * preserving source order so choice groups stay where they were authored.
  *
- * Pure-constraint keywords (`not`, `if/then/else`) are dropped: they carry no
- * visual variant and Scalar would otherwise render `not` as a bogus picker. The
- * rule still lives in the schema (validation) and in field descriptions.
+ * Recognized constraint members stay separate so unrelated conditions cannot merge.
+ * Other pure constraints keep the existing OpenAPI display behavior.
  */
 const collectMembers = (
   input: SchemaReferenceType<SchemaObject> | boolean,
@@ -43,7 +54,7 @@ const collectMembers = (
   const target = getResolvedRef(input)
   if (typeof target === 'boolean') {
     // Keep the explanation separate: merging it with an object's description would hide it.
-    out.push({ kind: 'boolean', schema: resolve.schema(target) })
+    out.push({ kind: 'standalone', schema: resolve.schema(target) })
     return
   }
   const schema = resolve.schema(input)
@@ -66,8 +77,9 @@ const collectMembers = (
     else?: unknown
   } = schema
 
-  if (Object.keys(rest).length > 0) {
-    out.push({ kind: 'object', schema: rest })
+  const view = preserveConstraints(schema, rest)
+  if (Object.keys(view).length > 0) {
+    out.push({ kind: hasSchemaConstraints(view) ? 'standalone' : 'object', schema: view })
   }
 
   for (const keyword of CHOICE_KEYWORDS) {
@@ -155,8 +167,9 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   }
 
   const members: Member[] = []
-  if (Object.keys(rest).length > 0) {
-    members.push({ kind: 'object', schema: rest })
+  const view = preserveConstraints(schema, rest)
+  if (Object.keys(view).length > 0) {
+    members.push({ kind: hasSchemaConstraints(view) ? 'standalone' : 'object', schema: view })
   }
   const schemaRef = '$ref' in schema ? schema.$ref : undefined
   const seenRefs = new Set<string>(typeof schemaRef === 'string' ? [schemaRef] : [])
@@ -186,7 +199,7 @@ export const partitionAllOfCompositions = (schema: SchemaObject | undefined): { 
   for (const member of members) {
     if (member.kind === 'object') {
       objectRun.push(member.schema)
-    } else if (member.kind === 'boolean') {
+    } else if (member.kind === 'standalone') {
       flushObjectRun()
       segments.push({ kind: 'object', schema: member.schema })
     } else if (member.inheritedSelection) {

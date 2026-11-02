@@ -52,8 +52,10 @@ import { getPropertyDescriptionKey } from './helpers/get-property-description'
 import { getRefName } from './helpers/get-ref-name'
 import { typeSignatureInlinesEnum } from './helpers/get-type-signature-tokens'
 import { hasComplexArrayItems } from './helpers/has-complex-array-items'
+import { hasSchemaConstraints } from './helpers/has-schema-constraints'
 import { isTypeObject } from './helpers/is-type-object'
 import { normalizeObjectComposition } from './helpers/normalize-object-composition'
+import { openApiSchemaView } from './helpers/openapi-schema-view'
 import { optimizeValueForDisplay } from './helpers/optimize-value-for-display'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import type { CompositionKeyword } from './helpers/schema-composition'
@@ -67,6 +69,7 @@ import { useLocalization } from './localization'
 import Schema from './Schema.vue'
 import SchemaCollapsedPreview from './SchemaCollapsedPreview.vue'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaConstraints from './SchemaConstraints.vue'
 import SchemaEnums from './SchemaEnums.vue'
 import SchemaGutterToggle from './SchemaGutterToggle.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
@@ -146,14 +149,18 @@ const dynamicScope = useDynamicScope()
  * `ParameterListItem` and `Headers` hand a schema in below a root and would otherwise leave the
  * whole subtree on the reactive and detect-changes proxies. See {@link unwrapForRead}.
  */
-const optimizedValue = computed(() =>
-  normalizeObjectComposition(
+const optimizedValue = computed(() => {
+  const bound = resolveDynamicSchema(
+    openApiSchemaView(unwrapForRead(props.schema), props.options.document),
+    dynamicScope,
+  )
+  return normalizeObjectComposition(
     optimizeValueForDisplay(
-      resolveDynamicSchema(unwrapForRead(props.schema), dynamicScope),
+      bound && '$ref' in bound ? resolve.schema(bound) : bound,
     ),
     props.name,
-  ),
-)
+  )
+})
 
 /** Mixed object/choice compositions still belong inside their named property's panel. */
 const hasObjectComposition = computed((): boolean => {
@@ -1219,6 +1226,24 @@ const onBeforeMatch = (): void => {
         :scrollTargetId="scrollTargetId"
         :specificationExtension="specificationExtension" />
     </div>
+
+    <SchemaConstraints
+      v-if="
+        !isCyclicProperty &&
+        !objectChildProps &&
+        !optimizedValue?.allOf &&
+        hasSchemaConstraints(optimizedValue)
+      "
+      :breadcrumb="childBreadcrumb"
+      class="ms-[var(--schema-gutter,16px)]"
+      :depth="depth + 1"
+      :eventBus
+      :expansion
+      :level
+      :options
+      :schema="optimizedValue!"
+      :scrollTargetId
+      :specificationExtension />
 
     <!-- Compositions -->
     <!-- This row's own breadcrumb, so sibling compositions do not collide on

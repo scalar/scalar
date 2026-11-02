@@ -1,6 +1,7 @@
 import {
   type DiscriminatorSchema,
   inferDiscriminatorMappingComposition,
+  schemaDialect,
   schemaDiscriminator,
 } from '@scalar/blocks/schema'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
@@ -33,7 +34,11 @@ export const createAsyncApiSchemaAdapter = (
     const value = resolveInput(input)
     if (!isObject(value) || typeof value.schemaFormat !== 'string') return false
     const mediaType = value.schemaFormat.split(';')[0]?.trim().toLowerCase()
-    return mediaType !== 'application/vnd.aai.asyncapi+json' && mediaType !== 'application/vnd.aai.asyncapi+yaml'
+    return ![
+      'application/vnd.aai.asyncapi',
+      'application/vnd.aai.asyncapi+json',
+      'application/vnd.aai.asyncapi+yaml',
+    ].includes(mediaType ?? '')
   }
   const named = entries.flatMap(([name, input]) => {
     const schema = unwrap(input)
@@ -88,13 +93,23 @@ export const createAsyncApiSchemaAdapter = (
   // A concrete variant and a selectable base need different views of the same source object.
   const selectable = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
   const concrete = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
-  const adapt = (input: unknown, name?: string, suppressSelector = false): SchemaObject | undefined => {
+  const jsonSchemaViews = new WeakMap<object, Map<string | undefined, DiscriminatorSchema>>()
+  const adapt = (input: unknown, name?: string, suppressSelector = false, native = true): SchemaObject | undefined => {
     const source = unwrap(input)
     if (typeof source === 'boolean') return getBooleanSchema(source)
     if (!isObject(source)) return undefined
     // Other schema formats have their own discriminator semantics.
-    if (isForeignSchema(input)) return source as SchemaObject
-    const cache = suppressSelector ? concrete : selectable
+    if (isForeignSchema(input)) {
+      const wrapper = resolveInput(input)
+      if (
+        !isObject(wrapper) ||
+        !/^application\/schema\+(json|yaml);version=draft-07$/i.test(String(wrapper.schemaFormat))
+      )
+        return source as SchemaObject
+    }
+    const wrapper = resolveInput(input)
+    const nativeSchema = isObject(wrapper) && 'schemaFormat' in wrapper ? !isForeignSchema(input) : native
+    const cache = nativeSchema ? (suppressSelector ? concrete : selectable) : jsonSchemaViews
     const referenceName =
       isObject(input) && typeof input.$ref === 'string'
         ? entries.find(([entryName]) => `#/components/schemas/${escapeJsonPointer(entryName)}` === input.$ref)?.[0]
@@ -108,15 +123,18 @@ export const createAsyncApiSchemaAdapter = (
     if (cached) return cached
     // AsyncAPI and OpenAPI share schema fields; the discriminator is normalized below.
     const result = { ...source } as DiscriminatorSchema
+    if (['if', 'then', 'else', 'contains', 'dependencies', 'allOf', 'oneOf', 'anyOf'].some((key) => key in source)) {
+      Object.assign(result, { [schemaDialect]: 'draft-07' })
+    }
     views.set(schemaName, result)
     cache.set(unpackProxyShallow(source), views)
-    const propertyName = discriminatorName(source)
-    if (typeof source.discriminator === 'string') delete result.discriminator
+    const propertyName = nativeSchema ? discriminatorName(source) : undefined
+    if (nativeSchema && typeof source.discriminator === 'string') delete result.discriminator
     if (propertyName) result.discriminator = { propertyName }
 
     // Preserve reference identities for model links and the renderer's cycle guards.
     const child = (value: unknown, inherited = false): unknown => {
-      const schema = adapt(value, undefined, inherited)
+      const schema = adapt(value, undefined, inherited, nativeSchema)
       return isObject(value) && typeof value.$ref === 'string' ? { $ref: value.$ref, '$ref-value': schema } : schema
     }
 
@@ -140,6 +158,16 @@ export const createAsyncApiSchemaAdapter = (
       'contentSchema',
     ] as const) {
       if (source[key] !== undefined) Object.assign(result, { [key]: child(source[key]) })
+    }
+    if (isObject(source.dependencies)) {
+      Object.assign(result, {
+        dependencies: Object.fromEntries(
+          Object.entries(source.dependencies).map(([name, value]) => [
+            name,
+            Array.isArray(value) ? value : child(value),
+          ]),
+        ),
+      })
     }
     for (const key of ['allOf', 'oneOf', 'anyOf', 'prefixItems'] as const) {
       const members = source[key]

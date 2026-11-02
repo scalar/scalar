@@ -1,6 +1,16 @@
 /** Built-in schema translations for zh-TW. */
 export const zhTw = {
   schema: {
+    conditionalConstraints: '條件限制',
+    constraintIf: '若符合此結構描述',
+    constraintThen: '則套用',
+    constraintElse: '否則套用',
+    containsMatchingItems: '符合的項目數量：{minimum}–{maximum}',
+    containsConstraint: '至少包含一個符合的項目',
+    dependencyConstraint: '當 {name} 存在時',
+    requiredProperties: '必要屬性：{names}',
+    noAdditionalConstraint: '無額外限制。',
+
     variants: '變體',
     discriminatorValue: '鑑別器值',
     noAllowedValues: '沒有值滿足此列舉限制。',

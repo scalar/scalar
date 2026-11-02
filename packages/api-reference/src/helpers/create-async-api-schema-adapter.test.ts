@@ -39,6 +39,60 @@ const createDocument = (): AsyncApiDocument => ({
 })
 
 describe('create-async-api-schema-adapter', () => {
+  it.each(['application/vnd.aai.asyncapi', 'application/vnd.aai.asyncapi+json', 'application/vnd.aai.asyncapi+yaml'])(
+    'renders constraints for native schema format %s',
+    (mediaType) => {
+      const schema = createAsyncApiSchemaAdapter(createDocument())({
+        schemaFormat: `${mediaType};version=3.1.0`,
+        schema: { type: 'object', if: true, then: { required: ['account'] }, dependencies: { card: ['address'] } },
+      })
+      const wrapper = mount(Schema, { props: { schema, eventBus: null, options: { expandAllSchemaProperties: true } } })
+      expect(wrapper.text()).toContain('Conditional constraints')
+      expect(wrapper.text()).toContain('Required properties: account')
+      expect(wrapper.text()).toContain('When card is present')
+    },
+  )
+
+  it('preserves foreign Draft-07 discriminator extensions while adapting nested constraints', () => {
+    const source = {
+      type: 'object',
+      discriminator: 'kind',
+      properties: { kind: { type: 'string' } },
+      dependencies: { id: ['name'] },
+    }
+    const adapt = createAsyncApiSchemaAdapter(createDocument())
+    const result = adapt(
+      {
+        schemaFormat: 'application/schema+json;version=draft-07',
+        schema: { type: 'object', properties: { child: source }, if: true, then: source },
+      },
+      'Event',
+    )
+    const wrapper = mount(Schema, {
+      props: { schema: result, eventBus: null, options: { expandAllSchemaProperties: true } },
+    })
+    expect(wrapper.text()).toContain('Conditional constraints')
+    expect(wrapper.text()).toContain('When id is present')
+    expect(wrapper.text()).not.toContain('Discriminator value:')
+    expect(Reflect.get(result!, 'then').discriminator).toBe('kind')
+    expect(adapt(source)?.discriminator).toEqual({ propertyName: 'kind' })
+  })
+
+  it('adapts dependency schemas without changing property-list dependencies or source data', () => {
+    const source = {
+      type: 'object',
+      dependencies: {
+        card: ['address'],
+        account: { type: 'object', discriminator: 'kind', properties: { kind: { type: 'string' } } },
+      },
+    }
+    const before = structuredClone(source)
+    const result = createAsyncApiSchemaAdapter(createDocument())(source)
+    expect(Reflect.get(result!, 'dependencies').card).toStrictEqual(['address'])
+    expect(Reflect.get(result!, 'dependencies').account.discriminator).toStrictEqual({ propertyName: 'kind' })
+    expect(source).toStrictEqual(before)
+  })
+
   it('preserves discriminator semantics through workspace ingestion and proxy resolution', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({ name: 'pets', document: createDocument() })

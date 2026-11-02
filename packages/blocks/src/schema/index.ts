@@ -1,5 +1,7 @@
+export { schemaDialect } from './constraint-metadata'
 export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-metadata'
 export { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
+export { supportsOpenApiSchemaDialect } from './helpers/openapi-schema-view'
 export { default as LinkButton } from './LinkButton.vue'
 export { schemaTranslations } from './localization/translations'
 export {

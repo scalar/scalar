@@ -2,6 +2,7 @@ import { resolve } from '@scalar/workspace-store/resolve'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import { type DiscriminatorSchema, schemaDiscriminator } from '../discriminator-metadata'
+import { hasCompositionConstraints } from './has-schema-constraints'
 import { compositions } from './schema-composition'
 
 /** Display normalization tracks null branches without changing the stored OpenAPI schema. */
@@ -62,7 +63,7 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
  * required fields are merged into variants so the renderer keeps their full context.
  */
 export function optimizeValueForDisplay(value: DisplaySchema | undefined): DisplaySchema | undefined {
-  if (!value || typeof value !== 'object') {
+  if (!value || typeof value !== 'object' || hasCompositionConstraints(value)) {
     return value
   }
 

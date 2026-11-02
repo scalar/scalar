@@ -1,5 +1,15 @@
 export const zhCn = {
   schema: {
+    conditionalConstraints: '条件约束',
+    constraintIf: '如果符合此模式',
+    constraintThen: '则应用',
+    constraintElse: '否则应用',
+    containsMatchingItems: '匹配项数量：{minimum}–{maximum}',
+    containsConstraint: '至少包含一个匹配项',
+    dependencyConstraint: '当 {name} 存在时',
+    requiredProperties: '必需属性：{names}',
+    noAdditionalConstraint: '无额外约束。',
+
     variants: '变体',
     discriminatorValue: '鉴别器值',
     noAllowedValues: '没有值满足此枚举约束。',

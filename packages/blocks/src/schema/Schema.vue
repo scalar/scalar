@@ -17,10 +17,12 @@ import {
   useDynamicScope,
 } from './helpers/dynamic-scope'
 import { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
+import { hasSchemaConstraints } from './helpers/has-schema-constraints'
 import { isEmptySchemaObject } from './helpers/is-empty-schema-object'
 import { isOnSchemaTargetPath } from './helpers/is-on-schema-target-path'
 import { isTypeObject } from './helpers/is-type-object'
 import { mergeAllOfSchemas } from './helpers/merge-all-of-schemas'
+import { openApiSchemaView } from './helpers/openapi-schema-view'
 import { partitionAllOfCompositions } from './helpers/partition-all-of-compositions'
 import { SCHEMA_ANCESTORS_SYMBOL } from './helpers/schema-cycle'
 import {
@@ -32,6 +34,7 @@ import { handleTreeKeydown } from './helpers/schema-keyboard-nav'
 import { unwrapForRead } from './helpers/unwrap-for-read'
 import { useLocalization } from './localization'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaConstraints from './SchemaConstraints.vue'
 import SchemaGlyphPuck from './SchemaGlyphPuck.vue'
 import SchemaObjectProperties from './SchemaObjectProperties.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -139,7 +142,7 @@ const dynamicScope = useDynamicScope()
  * so replacing or switching the document still re-renders.
  */
 const schema = computed((): SchemaObject | undefined =>
-  unwrapForRead(schemaProp),
+  openApiSchemaView(unwrapForRead(schemaProp), options.document),
 )
 
 /**
@@ -439,7 +442,10 @@ const toggle = (): void => {
       <ScalarMarkdown :value="schemaDescription" />
     </div>
     <div
-      v-if="isEmptySchemaObject(resolvedSchema)"
+      v-if="
+        isEmptySchemaObject(resolvedSchema) &&
+        !hasSchemaConstraints(resolvedSchema)
+      "
       class="text-c-2 py-1.5">
       {{ translate('schema.emptyObject') }}
     </div>
@@ -549,6 +555,21 @@ const toggle = (): void => {
             :scrollTargetId="scrollTargetId"
             :specificationExtension="specificationExtension" />
         </template>
+        <li
+          v-if="
+            isTypeObject(resolvedSchema) && hasSchemaConstraints(resolvedSchema)
+          ">
+          <SchemaConstraints
+            :breadcrumb
+            :depth
+            :eventBus
+            :expansion
+            :level
+            :options
+            :schema="resolvedSchema"
+            :scrollTargetId
+            :specificationExtension />
+        </li>
       </ul>
     </div>
   </div>
