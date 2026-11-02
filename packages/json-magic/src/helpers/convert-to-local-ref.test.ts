@@ -3,6 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { convertToLocalRef } from './convert-to-local-ref'
 
 describe('convertToLocalRef', () => {
+  it('decodes only the pointer fragment when requested', () => {
+    const schemas = new Map([['model.json', '$defs/a%2Fb']])
+
+    expect(convertToLocalRef('model.json#/properties/a%23b', '', schemas, { decodeFragment: true })).toBe(
+      '$defs/a%2Fb/properties/a#b',
+    )
+    expect(convertToLocalRef('model.json#/properties/a%23b', '', schemas)).toBe('$defs/a%2Fb/properties/a%23b')
+  })
+
   it('resolves a qualified pointer into the document root', () => {
     expect(
       convertToLocalRef(

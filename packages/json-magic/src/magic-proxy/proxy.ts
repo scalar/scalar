@@ -138,17 +138,14 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
           return args.cache.get(ref)
         }
 
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
+        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas, { decodeFragment: true })
 
         if (path === undefined) {
           return undefined
         }
 
         // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(
-          args.root,
-          decodeURIComponent(path).split('/').map(unescapeJsonPointerSegment),
-        )
+        const resolvedValue = getValueByPath(args.root, path.split('/').map(unescapeJsonPointerSegment))
         // Return early if the value is already a magic proxy
         if (isMagicProxyObject(resolvedValue.value)) {
           return resolvedValue.value
@@ -190,13 +187,13 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       if (prop === REF_VALUE && typeof ref === 'string') {
         const id = getId(target)
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
+        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas, { decodeFragment: true })
 
         if (path === undefined) {
           return undefined
         }
 
-        const segments = decodeURIComponent(path).split('/').map(unescapeJsonPointerSegment)
+        const segments = path.split('/').map(unescapeJsonPointerSegment)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value

@@ -62,6 +62,28 @@ describe('createMagicProxy', () => {
       expect(result.a.b.c.e['$ref-value'].prop).toBe('hello')
     })
 
+    it.each(['a%2Fb', 'a%23b'])('preserves literal percent sequences in schema lookup paths: %s', (key) => {
+      const schema = { $id: 'https://example.com/model', $anchor: 'thing', type: 'string' }
+      const input = {
+        $defs: { [key]: schema },
+        byAnchor: { $ref: 'https://example.com/model#thing' },
+        byId: { $ref: 'https://example.com/model' },
+        byPointer: { $ref: 'https://example.com/model#/type' },
+      }
+      const result = createMagicProxy(input)
+
+      expect(result.byAnchor['$ref-value']).toStrictEqual(schema)
+      expect(result.byId['$ref-value']).toStrictEqual(schema)
+      expect(result.byPointer['$ref-value']).toBe('string')
+
+      result.byPointer['$ref-value'] = 'number'
+      expect(input.$defs).toStrictEqual({ [key]: { ...schema, type: 'number' } })
+      result.byAnchor['$ref-value'] = { type: 'boolean' }
+      expect(input.$defs).toStrictEqual({ [key]: { type: 'boolean' } })
+      result.byId['$ref-value'] = { type: 'integer' }
+      expect(input.$defs).toStrictEqual({ [key]: { type: 'integer' } })
+    })
+
     it('resolves refs with percent-encoded characters', () => {
       const input = {
         paths: {
