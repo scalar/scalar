@@ -1,11 +1,12 @@
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
 import { every } from 'hono/combine'
 import { cors } from 'hono/cors'
 
-import type { MockServerOptions } from '@/types'
+import type { MockServerOptions, MockServerResponseHook } from '@/types'
 import { buildSeedContext } from '@/utils/build-seed-context'
 import { executeSeed } from '@/utils/execute-seed'
 import { getOperations } from '@/utils/get-operation'
@@ -13,6 +14,7 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
+import { comparePathSpecificity, getPathSpecificity } from '@/utils/path-specificity'
 import type { ProcessedDocument } from '@/utils/process-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
 import { resolveLogger } from '@/utils/resolve-logger'
@@ -42,15 +44,88 @@ type MockedOperation = {
  * The app itself stays a plain `Hono` because that type is part of this package's public API, so
  * the variable is reached through a narrowed view of the context instead.
  */
-type MockServerContext = Context<{ Variables: { mockedOperation: MockedOperation } }>
+type MockServerContext = Context<{
+  Variables: { mockedOperation: MockedOperation; matchedOperation: OpenAPIV3_1.OperationObject }
+}>
 
-/** Record which operation a request matched, so an error escaping it can be named */
-const setMockedOperation = (c: Context, operation: MockedOperation): void => {
-  ;(c as MockServerContext).set('mockedOperation', operation)
+/**
+ * Record which operation a request matched, so an error escaping it can be named and `onResponse`
+ * receives the operation object itself.
+ */
+const setMockedOperation = (
+  c: Context,
+  mockedOperation: MockedOperation,
+  operation: OpenAPIV3_1.OperationObject,
+): void => {
+  ;(c as MockServerContext).set('mockedOperation', mockedOperation)
+  ;(c as MockServerContext).set('matchedOperation', operation)
 }
 
 /** Read back the operation a request matched, or `undefined` when it reached no mocked route */
 const getMockedOperation = (c: Context): MockedOperation | undefined => (c as MockServerContext).get('mockedOperation')
+
+/** Read back the operation object a request matched, or `undefined` when it reached no mocked route */
+const getMatchedOperation = (c: Context): OpenAPIV3_1.OperationObject | undefined =>
+  (c as MockServerContext).get('matchedOperation')
+
+/**
+ * Make `response` the response of the request, keeping only the headers that were staged before the
+ * request was handled — the CORS headers — where `response` does not set them itself.
+ *
+ * Assigning `c.res` directly would merge every header of the response it replaces into the new one,
+ * overriding the new one's values, so the mock response's own headers (an `ETag`, a declared
+ * `X-Rate-Limit`) would leak into a replacement that deliberately sets different ones.
+ */
+const replaceResponse = (c: Context, response: Response, stagedHeaders: Headers): void => {
+  // Rebuilt so the headers are mutable even when the caller passed a response with immutable ones,
+  // such as one returned by `fetch()`. The body stream is handed over as is, never read.
+  const replacement = new Response(response.body, response)
+
+  stagedHeaders.forEach((value, name) => {
+    if (!replacement.headers.has(name)) {
+      replacement.headers.set(name, value)
+    }
+  })
+
+  // Clearing it first is what stops Hono from merging the replaced response's headers in.
+  c.res = undefined
+  c.res = replacement
+}
+
+/**
+ * Run `onResponse` once the rest of the app has answered a request, sending its replacement when it
+ * returns one.
+ *
+ * Registered as the first middleware after CORS, so it sees every response the app produces —
+ * mocked operations, authentication failures, validation errors, the document exports, `404`s and
+ * the error handler's `500`s (the error handler runs where the error is thrown, deeper down, before
+ * this middleware resumes) — while CORS preflight requests are still answered before it runs.
+ */
+const runResponseHook =
+  (onResponse: MockServerResponseHook): MiddlewareHandler =>
+  async (c, next) => {
+    // The CORS middleware stages its headers on the response before the request is handled. Copied
+    // now, before the mock response is merged over them, so a replacement can be given just these.
+    const stagedHeaders = new Headers(c.res.headers)
+
+    await next()
+
+    const response = c.res
+    let replacement: Response | void
+
+    try {
+      replacement = await onResponse({ context: c, operation: getMatchedOperation(c), response })
+    } catch (error) {
+      // The error handler answers through the context, which would otherwise build the `500` on top
+      // of the mock response and carry all of its headers. Start it from the staged headers instead.
+      replaceResponse(c, new Response(null), stagedHeaders)
+      throw error
+    }
+
+    if (replacement && replacement !== response) {
+      replaceResponse(c, replacement, stagedHeaders)
+    }
+  }
 
 /**
  * Whether an error carries its own response, the way Hono's `HTTPException` does.
@@ -154,6 +229,12 @@ export const createOpenApiMockServer = async (
   }
   app.use(cors({ origin: '*', allowMethods: [...allowedMethods], exposeHeaders: ['X-Scalar-XML-Error'] }))
 
+  // Registered right after CORS and before every route, so it also wraps the routes a caller adds to
+  // the returned app.
+  if (configuration.onResponse) {
+    app.use(runResponseHook(configuration.onResponse))
+  }
+
   /** Authentication methods defined in the OpenAPI document */
   setUpAuthenticationRoutes(app, schema)
 
@@ -164,14 +245,25 @@ export const createOpenApiMockServer = async (
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
 
-  // A path key may pin query parameters to describe a variant of an operation, for example
-  // `/v1/messages?beta=true` next to `/v1/messages`. Hono runs every matching route in registration
-  // order, so a variant has to come before the sibling it shares a path with — otherwise the sibling
-  // answers its requests too, and the more pinned parameters a key has the more specific it is.
+  // Hono runs every matching route in registration order and the first one that answers wins, so
+  // the order routes are registered in decides which operation serves a request that more than one
+  // path key matches. Two things set that order.
+  //
+  // First, concrete paths come before templated ones, as the OpenAPI Paths Object asks: `/pets/mine`
+  // answers its own requests even when the document declares `/pets/{petId}` first. Segments are
+  // compared from the left and the first one that differs decides; a segment mixing a template with
+  // literal text (`{jobId}:cancel`) ranks between a literal and a bare `{param}`. Path keys that rank
+  // the same keep the order the document declares them in. See `comparePathSpecificity`.
+  //
+  // Second, a path key may pin query parameters to describe a variant of an operation, for example
+  // `/v1/messages?beta=true` next to `/v1/messages`. A variant has to come before the sibling it shares
+  // a path with — otherwise the sibling answers its requests too — so the keys that share a path are
+  // grouped where the first of them appears, and the more pinned parameters a key has the earlier it
+  // goes. A variant that a request does not satisfy hands it on to the next matching route.
   const pathKeys = Object.keys(paths).map((path) => {
     const { path: pathname, query } = splitPathKey(path)
 
-    return { path, pathname, query }
+    return { path, pathname, query, specificity: getPathSpecificity(pathname) }
   })
 
   /** Where each path first shows up in the document, so its variants stay with it */
@@ -183,15 +275,13 @@ export const createOpenApiMockServer = async (
     }
   })
 
-  // Keys that share a path are grouped where the first of them appears and the most specific one
-  // leads the group; a key with a path of its own never moves. So the only keys that change places
-  // with anything unrelated are the variants of a path that is described more than once. When two
-  // distinct paths overlap — a literal and a parameterized one that pins a query — neither is moved,
-  // so whichever the document declares first is matched first, the same as any pair of overlapping
-  // Hono routes.
+  // Paths that cannot match the same request may change places here, which is harmless: only the
+  // relative order of overlapping routes decides which operation answers.
   const orderedPathKeys = [...pathKeys].sort(
     (a, b) =>
-      (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) || b.query.length - a.query.length,
+      comparePathSpecificity(a.specificity, b.specificity) ||
+      (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) ||
+      b.query.length - a.query.length,
   )
 
   orderedPathKeys.forEach(({ path, query }) => {
@@ -221,7 +311,7 @@ export const createOpenApiMockServer = async (
       // path key that pins a query it is part of the guarded chain below, so it only fires once the
       // request actually matches the variant rather than for one that is handed on to the sibling.
       handlers.push(async (c, next) => {
-        setMockedOperation(c, mockedOperation)
+        setMockedOperation(c, mockedOperation, operation)
         await next()
       })
 

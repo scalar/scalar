@@ -290,11 +290,7 @@ const buildXmlExample = (
         parentAttributes,
       )
     }
-    if (
-      schema.deprecated ||
-      (options.mode === 'write' && schema.readOnly) ||
-      (options.mode === 'read' && schema.writeOnly)
-    ) {
+    if ((options.mode === 'write' && schema.readOnly) || (options.mode === 'read' && schema.writeOnly)) {
       return []
     }
     const xml = schema.xml ?? {}
@@ -400,11 +396,7 @@ const buildXmlExample = (
             : (propertySchemas[0] ?? childEvaluation?.schema ?? additional ?? {})
         ) as SchemaObject
         const resolved = getResolvedRef(childSchema, mergeSiblingReferences)
-        if (
-          resolved?.deprecated ||
-          (options.mode === 'write' && resolved?.readOnly) ||
-          (options.mode === 'read' && resolved?.writeOnly)
-        ) {
+        if ((options.mode === 'write' && resolved?.readOnly) || (options.mode === 'read' && resolved?.writeOnly)) {
           continue
         }
         children.push(

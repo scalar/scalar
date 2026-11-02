@@ -1,3 +1,4 @@
 * text eol=lf
 *.png binary
 *.zip binary
+*.mp4 binary

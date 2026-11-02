@@ -4,7 +4,7 @@ import { type ComputedRef, type InjectionKey, type MaybeRefOrGetter, computed, i
 
 export type GenerateSdkContext = {
   /**
-   * Whether the Generate SDK buttons should render at all.
+   * Whether the Generate SDK button should render at all.
    *
    * They hand the active document to Scalar, which only makes sense while the reference is being
    * developed locally ("offline mode"). Deployed references never show them, and neither does a
@@ -15,6 +15,21 @@ export type GenerateSdkContext = {
   dialog: ModalState
   /** Open the Explore Scalar dialog */
   open: () => void
+  /**
+   * Set by the localhost shell, which shows the Explore Scalar content in its side panel instead of
+   * the dialog on wide screens. The buttons then disclose that panel rather than announce a dialog.
+   */
+  panel?: GenerateSdkPanel
+}
+
+/** The side panel the buttons disclose while the localhost shell has room for it */
+type GenerateSdkPanel = {
+  /** The panel element's id, for `aria-controls` */
+  id: string
+  /** Whether the buttons open the panel at the moment, rather than the dialog */
+  active: ComputedRef<boolean>
+  /** Whether the panel shows the Explore Scalar content right now */
+  expanded: ComputedRef<boolean>
 }
 
 type UseGenerateSdkOptions = {

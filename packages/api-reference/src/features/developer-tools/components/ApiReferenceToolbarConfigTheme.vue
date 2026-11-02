@@ -13,6 +13,14 @@ type ThemeOption = {
   css: string
 }
 
+const { flat = false } = defineProps<{
+  /**
+   * The localhost shell's side panel: the chosen theme at full contrast like its other values, and a
+   * teleported list, so it opens above the sticky toolbar instead of under it
+   */
+  flat?: boolean
+}>()
+
 const model = defineModel<ThemeId>()
 
 const options = computed<ThemeOption[]>(() =>
@@ -39,10 +47,13 @@ const selected = computed<ThemeOption>({
   <ScalarCombobox
     v-model="selected"
     :options
-    resize>
+    resize
+    :teleport="flat || undefined">
     <template #default="{ open }">
       <ScalarFormInput>
-        <div class="min-w-0 flex-1 truncate text-left">
+        <div
+          class="min-w-0 flex-1 truncate text-left"
+          :class="{ 'text-c-1': flat }">
           {{ selected.label }}
         </div>
         <ScalarThemeSwatches

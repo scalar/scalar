@@ -29,7 +29,7 @@ describe('Bindings', () => {
     expect(wrapper.get('summary').text()).toBe('lastWill')
   })
 
-  it('distinguishes Kafka operation clientId from MQTT clientId and unknown objects', () => {
+  it('recognizes schemas in custom fields independently of protocol and scope', () => {
     const schema = { type: 'string', description: 'Consumer identifier.' }
     const wrapper = mount(Bindings, {
       props: {
@@ -37,8 +37,64 @@ describe('Bindings', () => {
         bindings: { kafka: { clientId: schema }, mqtt: { clientId: schema }, custom: { clientId: schema } },
       },
     })
-    expect(wrapper.findAllComponents(Schema)).toHaveLength(1)
-    expect(wrapper.findAll('summary')).toHaveLength(2)
+    expect(wrapper.findAllComponents(Schema).length).toBe(3)
+    expect(wrapper.find('summary').exists()).toBe(false)
+  })
+
+  it('renders legacy WebSocket message properties through the schema renderer', () => {
+    const wrapper = mount(Bindings, {
+      props: {
+        scope: 'message',
+        options: { expandAllSchemaProperties: true },
+        bindings: {
+          ws: {
+            bindingVersion: '0.1.0',
+            message: {
+              $ref: '#/components/schemas/Event',
+              '$ref-value': {
+                type: 'object',
+                properties: {
+                  eventId: { type: 'string', description: 'Unique event identifier' },
+                  timestamp: { type: 'string', format: 'date-time', description: 'When the event occurred' },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent(Schema).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Unique event identifier')
+    expect(wrapper.text()).toContain('When the event occurred')
+    expect(wrapper.text()).toContain('0.1.0')
+    expect(wrapper.find('details').exists()).toBe(false)
+  })
+
+  it('renders WebSocket operation header schemas instead of raw JSON', () => {
+    const wrapper = mount(Bindings, {
+      props: {
+        scope: 'operation',
+        options: { expandAllSchemaProperties: true },
+        bindings: {
+          ws: {
+            bindingVersion: '0.1.0',
+            method: 'GET',
+            headers: {
+              type: 'object',
+              properties: {
+                'X-RateLimit-Limit': { type: 'integer', description: 'Maximum requests per minute' },
+                'X-RateLimit-Remaining': { type: 'integer', description: 'Remaining requests in current window' },
+              },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent(Schema).exists()).toBe(true)
+    expect(wrapper.text()).toContain('Maximum requests per minute')
+    expect(wrapper.text()).toContain('Remaining requests in current window')
+    expect(wrapper.text()).toContain('GET')
+    expect(wrapper.find('details').exists()).toBe(false)
   })
 
   it('renders protocol fields and expandable nested JSON', () => {

@@ -184,6 +184,16 @@ describe('ExploreScalarModal', () => {
     expect(getDialog().querySelector('h2')?.textContent).toContain('Everything your API needs')
   })
 
+  it('gives focus back to the demo call button when leaving the booking step', async () => {
+    mountCalMock.mockResolvedValue(undefined)
+    await mountModal()
+
+    await click(findInDialog('button', 'or get a demo with Marc'))
+    await click(getIconButton('Back'))
+
+    expect(document.activeElement?.textContent?.trim()).toBe('or get a demo with Marc')
+  })
+
   it('morphs the dialog size between the steps and mounts the calendar once the size has settled', async () => {
     mountCalMock.mockResolvedValue(undefined)
     vi.stubGlobal('matchMedia', () => ({ matches: false }))
@@ -446,5 +456,57 @@ describe('ExploreScalarModal', () => {
     const list = getDialog().querySelector('ul')
     expect(list?.getAttribute('role')).toBe('list')
     expect(list?.querySelectorAll(':scope > li')).toHaveLength(2)
+  })
+
+  describe('panel presentation', () => {
+    /** The localhost shell renders the same content inline, in its side panel */
+    const mountPanel = async () => {
+      const state = useModal()
+      state.open = true
+      const wrapper = mount(ExploreScalarModal, {
+        attachTo: document.body,
+        props: {
+          state,
+          externalUrls,
+          url: 'https://api.acme.io/openapi.json',
+          workspace: createWorkspace(),
+          usesViewTransition: false,
+          morphStickers: false,
+          presentation: 'panel',
+        },
+      })
+      await flushPromises()
+      return { state, wrapper }
+    }
+
+    it('renders inline instead of opening a dialog', async () => {
+      const { wrapper } = await mountPanel()
+
+      expect(document.querySelector('[role="dialog"]')).toBeNull()
+      expect(wrapper.classes()).toContain('explore-scalar-modal--panel')
+      expect(wrapper.get('h2').text()).toBe('Everything your API needs, from one OpenAPI document')
+      expect(wrapper.text()).toContain('Try it out for free')
+    })
+
+    it('closes through its state, which the panel owns', async () => {
+      const { state, wrapper } = await mountPanel()
+
+      await wrapper.get('button[aria-label="Close"]').trigger('click')
+
+      expect(state.open).toBe(false)
+    })
+
+    it('moves to the booking step without a dialog to resize', async () => {
+      const { wrapper } = await mountPanel()
+
+      const demo = wrapper.findAll('button').find((button) => button.text().includes('or get a demo with Marc'))
+      await demo!.trigger('click')
+      await flushPromises()
+      await flushPromises()
+
+      expect(wrapper.find('.explore-scalar-cal').exists()).toBe(true)
+      expect(wrapper.get('h2.sr-only').text()).toBe('Book a demo with Marc, our CEO')
+      expect(mountCalMock).toHaveBeenCalledTimes(1)
+    })
   })
 })

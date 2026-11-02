@@ -1,5 +1,90 @@
 [
   {
+    "version": "1.76.4",
+    "date": "2026-10-30",
+    "title": "Hosting waitlist sign-ups now capture server framework",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The Deploy card in localhost developer tools now sends the server framework name when users sign up for hosting, helping us understand which integrations are most popular."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1764",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.76.3",
+    "date": "2026-10-29",
+    "title": "Downloaded OpenAPI documents now use meaningful filenames",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "When you download an OpenAPI document without configuring a custom slug, the filename now uses the document title instead of a generic placeholder like api-1.json."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1763",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.76.2",
+    "date": "2026-10-28",
+    "title": "AsyncAPI metadata improvements and localhost developer toolbar",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release improves AsyncAPI documentation rendering and introduces a new developer toolbar for localhost environments."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Schemas in AsyncAPI binding fields like WebSocket headers and message schemas now render as structured properties instead of raw JSON.",
+          "AsyncAPI application identifier headings now match channel metadata styling with consistent dividers.",
+          "On localhost, a new developer toolbar appears above the reference with a side panel for Configure, Share, Deploy, and Generate SDK tools.",
+          "The localhost Deploy tool now shows a waitlist sign-up for Scalar hosting instead of the full deployment flow."
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1762",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
+    "version": "1.76.1",
+    "date": "2026-10-28",
+    "title": "Developer toolbar with side panel for localhost",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "When running on localhost, the API reference now displays with a sticky developer toolbar and renders tools in a side panel instead of dropdowns. The interface presents as a bordered card on a backdrop, making development workflows more accessible."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Added a sticky toolbar above the reference on localhost with Configure, Share, Generate SDK, and Deploy buttons",
+          "Tools now open in a side panel beside the reference card instead of dropdown overlays",
+          "Introduced Deploy waitlist for API hosting on Scalar, with framework detection for FastAPI, Hono, Express, and others",
+          "Reference renders as a bordered card on localhost while maintaining full page scrolling",
+          "Consolidated Generate SDK into the toolbar, removing redundant buttons from client libraries and request examples"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1761",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.76.0",
     "date": "2026-10-23",
     "title": "AsyncAPI message examples and optional URL routing",
