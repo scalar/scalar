@@ -183,3 +183,5 @@ minimumReleaseAgeExclude:
   - nuxt@4.6.3
   # Renovate security update: pnpm@10.34.5
   - pnpm@10.34.5
+  # Renovate security update: @sveltejs/kit@3.0.0
+  - '@sveltejs/kit@3.0.0'
