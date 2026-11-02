@@ -305,7 +305,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
               </template>
               <template #footer="{ exampleName }">
                 <div
-                  class="operation-request-actions flex flex-wrap justify-end gap-y-1 whitespace-nowrap">
+                  class="operation-request-actions grid auto-cols-fr grid-flow-col gap-1 whitespace-nowrap">
                   <AskAgentButton class="h-auto!" />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
@@ -372,18 +372,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
   overflow-wrap: break-word;
 }
 
-@container request-card (max-width: 480px) {
-  .operation-request-actions {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 1fr);
-    column-gap: 4px;
-  }
-
-  .operation-request-actions :deep(.agent-button-container) {
-    margin-right: 0;
-    justify-content: center;
-  }
+.operation-request-actions :deep(.agent-button-container) {
+  margin-right: 0;
+  justify-content: center;
 }
 
 .operation-auth {

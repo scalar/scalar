@@ -623,7 +623,7 @@ const id = useId()
   <!-- Fallback card with just method and path in the case of no examples -->
   <ScalarCard
     v-else-if="fallback"
-    class="request-card request-card-fallback dark-mode">
+    class="request-card dark-mode">
     <ScalarCardSection class="request-card-simple">
       <div class="request-header">
         <HttpMethod
@@ -634,7 +634,7 @@ const id = useId()
       </div>
       <div
         v-if="$slots.footer"
-        class="relative max-w-full shrink-0">
+        class="request-card-actions relative max-w-full">
         <slot
           :exampleName="localExampleKey"
           name="footer" />
@@ -684,6 +684,7 @@ const id = useId()
 }
 .request-card-simple {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -692,19 +693,14 @@ const id = useId()
 
   font-size: var(--scalar-small);
 }
-.request-card-fallback {
-  container: request-card / inline-size;
-}
 .request-header {
+  /* Give spare inline space to the path, while actions fill their own row after wrapping. */
+  flex: 999 1 auto;
   min-width: 0;
   overflow-wrap: anywhere;
 }
-/* Keep actions below the path when the card itself has limited space. */
-@container request-card (max-width: 480px) {
-  .request-card-simple {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.request-card-actions {
+  flex: 1 0 auto;
 }
 .code-snippet {
   display: flex;
