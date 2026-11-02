@@ -2211,7 +2211,6 @@ const sidebarCta = computed((): SidebarCta => {
 </script>
 
 <template>
-  <!-- SingleApiReference -->
   <div v-bind="shellAttrs">
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
