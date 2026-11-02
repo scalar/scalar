@@ -1099,6 +1099,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // sees the document a non-compact server store would have sent.
     withMeasurementSync('expandChunkIndex', () => expandChunkIndex(clonedRawInputDocument))
 
+    // The marker belongs to the store, never the source. Remove it before capturing the saved
+    // baseline so an export before the first save cannot leak it or misclassify the document.
+    delete clonedRawInputDocument[PLUGIN_DOCUMENT_TYPE_KEY]
+
     withMeasurementSync('initialize', () => {
       if (input.initialize !== false) {
         // Store the original document in the originalDocuments map
@@ -1190,10 +1194,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return false
       }
     }
-
-    // Nobody claimed this document, so the marker can only come from its source. Left in place, it would
-    // make the type guards reject a regular OpenAPI or AsyncAPI document.
-    delete clonedRawInputDocument[PLUGIN_DOCUMENT_TYPE_KEY]
 
     // AsyncAPI ingestion: skip the OpenAPI-specific upgrade and validation pipeline.
     // The OpenAPI `coerce` step would otherwise inject an empty `openapi: ''` field
