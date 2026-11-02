@@ -12,16 +12,6 @@ export const getId = (input: unknown): string | undefined => {
 }
 
 /**
- * Joins an array of path segments into a single string separated by '/'.
- *
- * @param segments - The array of path segments.
- * @returns The joined path string.
- */
-const getPath = (segments: string[]): string => {
-  return segments.join('/')
-}
-
-/**
  * Recursively traverses the input object to collect all schemas identified by $id and $anchor properties.
  *
  * - If an object has a $id property, it is added to the map with its $id as the key.
@@ -31,15 +21,15 @@ const getPath = (segments: string[]): string => {
  * @param input - The input object to traverse.
  * @param base - The current base URI, used for resolving anchors.
  * @param map - The map collecting found schemas.
- * @returns A map of schema identifiers to their corresponding objects.
+ * @returns A map of schema identifiers to literal property-name segments.
  */
-export const getSchemas = (
+export const getSchemaSegments = (
   input: unknown,
   base: string = '',
   segments: string[] = [],
-  map = new Map<string, string>(),
+  map = new Map<string, string[]>(),
   visited = new WeakSet(),
-) => {
+): Map<string, string[]> => {
   // Only process non-null objects
   if (typeof input !== 'object' || input === null) {
     return map
@@ -58,7 +48,7 @@ export const getSchemas = (
 
   // If $id exists, add the object to the map with $id as the key
   if (id) {
-    map.set(id, getPath(segments))
+    map.set(id, segments)
   }
 
   // Update the base for nested anchors
@@ -66,15 +56,32 @@ export const getSchemas = (
 
   // If $anchor exists, add the object to the map with base#anchor as the key
   if (input['$anchor'] && typeof input['$anchor'] === 'string') {
-    map.set(`${newBase}#${input['$anchor']}`, getPath(segments))
+    map.set(`${newBase}#${input['$anchor']}`, segments)
   }
 
   // Recursively traverse all properties (DFS)
   for (const key in input) {
     if (typeof input[key] === 'object' && input[key] !== null) {
-      getSchemas(input[key], newBase, [...segments, key], map, visited)
+      getSchemaSegments(input[key], newBase, [...segments, key], map, visited)
     }
   }
 
+  return map
+}
+
+/**
+ * Collects schema identifiers as slash-separated paths for existing consumers.
+ * Use getSchemaSegments when property names must be preserved literally.
+ */
+export const getSchemas = (
+  input: unknown,
+  base = '',
+  segments: string[] = [],
+  map = new Map<string, string>(),
+  visited = new WeakSet(),
+): Map<string, string> => {
+  for (const [identifier, path] of getSchemaSegments(input, base, segments, new Map(), visited)) {
+    map.set(identifier, path.join('/'))
+  }
   return map
 }
