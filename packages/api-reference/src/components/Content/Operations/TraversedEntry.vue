@@ -181,6 +181,7 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
     <!-- Operation or Webhook -->
     <SectionContainer
       v-if="isEndpoint(entry)"
+      :class="{ 'pt-12!': options.layout === 'classic' && level === 0 }"
       :omit="level !== 0">
       <Operation
         :id="entry.id"
