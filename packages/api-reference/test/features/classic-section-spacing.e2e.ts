@@ -36,4 +36,7 @@ test('separates untagged operations from the Models section like a tag in the cl
 
   expect(gapAfterTag).toBeGreaterThan(0)
   expect(gapAfterUntaggedOperation).toBe(gapAfterTag)
+
+  // Capture both sections together so the space between them is part of the snapshot.
+  await expect(page.getByRole('main')).toHaveScreenshot('classic-untagged-operation-models.png')
 })
