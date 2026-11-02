@@ -20,14 +20,16 @@ afterEach(() => {
 
 describe('App', () => {
   it.each([
-    ['openapi', 'preview'],
-    ['asyncapi', 'preview'],
-    ['openapi', 'full'],
-    ['asyncapi', 'full'],
+    ['openapi', 'preview', true],
+    ['asyncapi', 'preview', true],
+    ['openapi', 'full', false],
+    ['asyncapi', 'full', false],
+    ['openapi', 'full', true],
+    ['asyncapi', 'full', true],
   ] as const)(
-    'uploads the current %s description in %s mode instead of restoring stale context',
-    async (format, mode) => {
-      if (mode === 'preview') {
+    'uploads the current %s description once in %s mode with saved consent %s instead of restoring stale context',
+    async (format, mode, savedConsent) => {
+      if (savedConsent) {
         localStorage.setItem('scalar/agent-terms-accepted', 'true')
       }
       localStorage.setItem('scalar-tmp-doc', JSON.stringify({ namespace: 'old', slug: 'old' }))
