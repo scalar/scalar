@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
@@ -137,6 +138,12 @@ public class ScalarConfiguration {
 
     @JsonProperty("agent")
     private ScalarAgentOptions agent;
+
+    /**
+     * UI localization options. When omitted, the frontend uses English.
+     */
+    @JsonProperty("localization")
+    private ScalarLocalizationOptions localization;
 
     @JsonProperty("modelsSectionLabel")
     private String modelsSectionLabel;
@@ -437,6 +444,24 @@ public class ScalarConfiguration {
 
     public void setShowDeveloperTools(DeveloperToolsVisibility showDeveloperTools) {
         this.showDeveloperTools = showDeveloperTools;
+    }
+
+    /**
+     * Gets UI localization options.
+     *
+     * @return the localization options, or null
+     */
+    public ScalarLocalizationOptions getLocalization() {
+        return localization;
+    }
+
+    /**
+     * Sets UI localization options.
+     *
+     * @param localization the localization options, or null to use frontend defaults
+     */
+    public void setLocalization(ScalarLocalizationOptions localization) {
+        this.localization = localization;
     }
 
     public ScalarAgentOptions getAgent() {

@@ -155,6 +155,33 @@ scalar.path=/docs
 scalar.pageTitle=My API Documentation
 ```
 
+### Localization
+
+Both WebMVC and WebFlux support UI localization through Spring Boot properties.
+For example, use Simplified Chinese:
+
+```properties
+scalar.localization.locale=zh-CN
+```
+
+You can also set text direction (`auto`, `ltr`, or `rtl`) and override individual
+UI translations in `application.yml`:
+
+```yaml
+scalar:
+  localization:
+    locale: zh-CN
+    direction: auto
+    translations:
+      search:
+        label: 搜索
+      operation:
+        testRequest: 发送请求
+```
+
+Translation overrides are merged with the built-in locale and English fallback.
+When localization is omitted, the UI uses English.
+
 ### Multiple OpenAPI Documents
 
 You can configure multiple OpenAPI documents using the `sources` property:
