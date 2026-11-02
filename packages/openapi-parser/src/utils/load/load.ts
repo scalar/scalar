@@ -1,9 +1,10 @@
+import { normalize } from '@scalar/json-magic/helpers/normalize'
+
 import { ERRORS } from '@/configuration'
 import type { AnyApiDefinitionFormat, ErrorObject, Filesystem, LoadResult, ThrowOnErrorOption } from '@/types/index'
 import { getEntrypoint } from '@/utils/get-entrypoint'
 import { type ReferenceTarget, getReferenceTargets } from '@/utils/get-reference-targets'
 import { makeFilesystem } from '@/utils/make-filesystem'
-import { normalize } from '@/utils/normalize'
 
 export type LoadPlugin = {
   check: (value?: any) => boolean
