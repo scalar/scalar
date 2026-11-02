@@ -59,7 +59,7 @@ public enum ScalarClient {
     GUZZLE("guzzle"),
 
     /**
-     * HTTP.jl client.
+     * Http client.
      */
     HTTP("http"),
 
