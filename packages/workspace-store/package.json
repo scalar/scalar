@@ -179,6 +179,7 @@
     "@google-cloud/storage": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
+    "typescript": "7.0.2",
     "vite": "catalog:*",
     "vitest": "catalog:*"
   }
