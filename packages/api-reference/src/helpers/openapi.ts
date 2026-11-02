@@ -36,6 +36,7 @@ const extractSchemaSearchText = (
   const names = new Set<string>()
   const descriptions = new Set<string>()
   const visited = new Set<SchemaObject>()
+  const propertyReferences = new Set<SchemaObject>()
   const queue: { schema: unknown; depth: number; property: boolean }[] = []
   let visits = 0
   let characters = 0
@@ -76,24 +77,31 @@ const extractSchemaSearchText = (
     if (property && (includeRefSiblings || !('$ref' in schema))) {
       add(descriptions, schema.description)
     }
-    if (visited.has(schema)) {
+    const wasVisited = visited.has(schema)
+    // A reference first reached through items or a composition may later describe a property.
+    // Follow that description once without expanding the schema's children again.
+    if ('$ref' in schema && (!wasVisited || (property && !propertyReferences.has(schema)))) {
+      if (property) {
+        propertyReferences.add(schema)
+      }
+      if ('$ref-value' in schema) {
+        enqueue(schema['$ref-value'], depth + 1, property)
+      }
+    }
+    if (wasVisited) {
       continue
     }
     visited.add(schema)
 
-    // Follow store-resolved links one hop at a time so reference chains share the budget.
-    // Unresolved references contribute their property name but do not trigger I/O.
-    if ('$ref' in schema) {
-      if ('$ref-value' in schema) {
-        enqueue(schema['$ref-value'], depth + 1, property)
-      }
-      // OpenAPI 3.0 references ignore siblings; 3.1+ schema keywords apply alongside $ref.
-      if (!includeRefSiblings) {
-        continue
-      }
+    // OpenAPI 3.0 references ignore siblings; 3.1+ schema keywords apply alongside $ref.
+    if ('$ref' in schema && !includeRefSiblings) {
+      continue
     }
     for (const variants of [schema.oneOf, schema.anyOf, schema.allOf]) {
       for (const variant of variants ?? []) {
+        if (exhausted()) {
+          break
+        }
         enqueue(variant, depth + 1)
       }
     }
