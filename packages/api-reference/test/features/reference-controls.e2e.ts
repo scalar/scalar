@@ -233,7 +233,7 @@ test.describe('reference controls', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   })
 
-  for (const width of [320, 393]) {
+  for (const width of [320, 393, 1920]) {
     test(`wraps an operation title without spaces inside the page at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 })
       const example = await serveExample({ content: unbrokenTitleContent })
@@ -243,6 +243,27 @@ test.describe('reference controls', () => {
       await expect(title).toBeVisible()
       await title.scrollIntoViewIfNeeded()
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+
+      const operation = page.getByRole('region', { name: 'order.purchase.created', exact: true })
+      const requestHeader = operation.locator('.request-header')
+      const testRequest = operation.getByRole('button', { name: 'Test Request', exact: false })
+      const headerBox = await requestHeader.boundingBox()
+      const buttonBox = await testRequest.boundingBox()
+      expect(headerBox).not.toBeNull()
+      expect(buttonBox).not.toBeNull()
+      if (width < 1920) {
+        expect(buttonBox!.y).toBeGreaterThanOrEqual(headerBox!.y + headerBox!.height)
+        const agentBox = await operation.locator('.agent-button-container').boundingBox()
+        const actionsBox = await operation.locator('.operation-request-actions').boundingBox()
+        expect(agentBox).not.toBeNull()
+        expect(actionsBox).not.toBeNull()
+        expect(agentBox!.width).toBeCloseTo(buttonBox!.width, 0)
+        expect(agentBox!.x).toBeCloseTo(actionsBox!.x, 0)
+        expect(buttonBox!.x + buttonBox!.width).toBeCloseTo(actionsBox!.x + actionsBox!.width, 0)
+      } else {
+        expect(buttonBox!.x).toBeGreaterThanOrEqual(headerBox!.x + headerBox!.width)
+        expect(buttonBox!.y).toBeLessThan(headerBox!.y + headerBox!.height)
+      }
       await expect(page.getByRole('region', { name: 'order.purchase.created', exact: true })).toHaveScreenshot(
         `operation-title-wrap-${width}.png`,
       )
