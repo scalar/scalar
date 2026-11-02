@@ -4,7 +4,7 @@
  * Copyright (c) Faris Masad and contributors. See THIRD_PARTY_NOTICES in this package.
  */
 
-import { language, syntaxTree } from '@codemirror/language'
+import { syntaxTree } from '@codemirror/language'
 import type { Extension, Range, Text } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, WidgetType } from '@codemirror/view'
 import { NodeProp, type Tree } from '@lezer/common'
@@ -38,7 +38,6 @@ const discoverColorsInCSS = (
   to: number,
   typeName: string,
   doc: Text,
-  language?: string,
 ): WidgetOptions | Array<WidgetOptions> | null => {
   switch (typeName) {
     case 'AttributeValue': {
@@ -67,7 +66,6 @@ const discoverColorsInCSS = (
             from + 1 + overlayTo,
             type.name,
             doc,
-            language,
           )
 
           if (maybeWidgetOptions) {
@@ -208,14 +206,7 @@ const colorPickersDecorations = (view: EditorView): DecorationSet => {
       from: range.from,
       to: range.to,
       enter: ({ type, from, to }) => {
-        const maybeWidgetOptions = discoverColorsInCSS(
-          st,
-          from,
-          to,
-          type.name,
-          view.state.doc,
-          view.state.facet(language)?.name,
-        )
+        const maybeWidgetOptions = discoverColorsInCSS(st, from, to, type.name, view.state.doc)
 
         if (!maybeWidgetOptions) {
           return
@@ -270,14 +261,9 @@ const toFullHex = (color: string): [string, string] => {
 }
 
 const rgbComponentToHex = (component: string): string => {
-  let numericValue: number
-  if (component.endsWith('%')) {
-    // 0-100%
-    const percent = Number(component.slice(0, -1))
-    numericValue = Math.round((percent / 100) * 255.0)
-  } else {
-    numericValue = Number(component) // assume 0-255
-  }
+  const numericValue = component.endsWith('%')
+    ? Math.round((Number(component.slice(0, -1)) / 100) * 255.0)
+    : Number(component)
   return decimalToHex(numericValue)
 }
 
@@ -304,31 +290,18 @@ const hslToHex = (h: string, s: string, l: string): string => {
   return `#${decimalToHex(r)}${decimalToHex(g)}${decimalToHex(b)}`
 }
 
+// Preserve the upstream conversion formulas and rounding so existing edits keep the same values.
 const hslToRGB = (hue: number, saturation: number, luminance: number): [number, number, number] => {
-  // If there is no Saturation it means that it’s a shade of grey.
-  // So in that case we just need to convert the Luminance and set R,G and B to that level.
   if (saturation === 0) {
     const value = Math.round(luminance * 255)
     return [value, value, value]
   }
 
-  let temp1: number
-  // If Luminance is smaller then 0.5 (50%) then temporary_1 = Luminance x (1.0+Saturation)
-  if (luminance < 0.5) {
-    temp1 = luminance * (1.0 + saturation)
-  } else {
-    // If Luminance is equal or larger then 0.5 (50%) then temporary_1 = Luminance + Saturation – Luminance x Saturation
-    temp1 = luminance + saturation - luminance * saturation
-  }
-
-  // temporary_2 = 2 x Luminance – temporary _1
+  const temp1 = luminance < 0.5 ? luminance * (1.0 + saturation) : luminance + saturation - luminance * saturation
   const temp2 = 2 * luminance - temp1
 
-  // The next step is to convert the 360 degrees in a circle to 1 by dividing the angle by 360.
   const normalizedHue = hue / 360.0
 
-  // And now we need another temporary variable for each color channel, temporary_R, temporary_G and temporary_B.
-  // All values need to be between 0 and 1. In our case all the values are between 0 and 1
   const tempR = clamp(normalizedHue + 0.333)
   const tempG = normalizedHue
   const tempB = clamp(normalizedHue - 0.333)
@@ -339,8 +312,6 @@ const hslToRGB = (hue: number, saturation: number, luminance: number): [number, 
   return [Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255)]
 }
 
-// If you get a negative value you need to add 1 to it.
-// If you get a value above 1 you need to subtract 1 from it.
 const clamp = (num: number): number => {
   if (num < 0) {
     return num + 1
@@ -351,20 +322,6 @@ const clamp = (num: number): number => {
   return num
 }
 
-/**
- * Now we need to do up to 3 tests to select the correct formula for each color channel. Let’s start with Red.
- *
- * test 1 – If 6 x temporary_R is smaller then 1, Red = temporary_2 + (temporary_1 – temporary_2) x 6 x temporary_R
- * In the case the first test is larger then 1 check the following
- *
- * test 2 – If 2 x temporary_R is smaller then 1, Red = temporary_1
- * In the case the second test also is larger then 1 do the following
- *
- * test 3 – If 3 x temporary_R is smaller then 2, Red = temporary_2 + (temporary_1 – temporary_2) x (0.666 – temporary_R) x 6
- * In the case the third test also is larger then 2 you do the following
- *
- * Red = temporary_2
- */
 const hueToRGB = (temp1: number, temp2: number, tempHue: number): number => {
   if (6 * tempHue < 1) {
     return temp2 + (temp1 - temp2) * 6 * tempHue
@@ -378,7 +335,6 @@ const hueToRGB = (temp1: number, temp2: number, tempHue: number): number => {
   return temp2
 }
 
-// https://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
 const rgbToHSL = (r: number, g: number, b: number): [number, number, number] => {
   const redPercent = r / 255
   const greenPercent = g / 255
@@ -386,34 +342,24 @@ const rgbToHSL = (r: number, g: number, b: number): [number, number, number] => 
   const min = Math.min(redPercent, greenPercent, bluePercent)
   const max = Math.max(redPercent, greenPercent, bluePercent)
   const luminance = (max + min) / 2
-  // If the min and max value are the same, it means that there is no saturation. ...
-  // If there is no Saturation, we do not need to calculate the Hue. So we set it to 0 degrees.
+
   if (max === min) {
     return [0, 0, luminance]
   }
 
-  let saturation: number
-  // If Luminance is less or equal to 0.5, then Saturation = (max-min)/(max+min)
-  if (luminance <= 0.5) {
-    saturation = (max - min) / (max + min)
-  } else {
-    // If Luminance is bigger then 0.5. then Saturation = ( max-min)/(2.0-max-min)
-    saturation = (max - min) / (2.0 - max - min)
-  }
+  const saturation = luminance <= 0.5 ? (max - min) / (max + min) : (max - min) / (2.0 - max - min)
 
   let hue: number
-  // If Red is max, then Hue = (G-B)/(max-min)
+
   if (max === redPercent) {
     hue = (greenPercent - bluePercent) / (max - min)
   } else if (greenPercent === max) {
-    // If Green is max, then Hue = 2.0 + (B-R)/(max-min)
     hue = 2.0 + (bluePercent - redPercent) / (max - min)
   } else {
-    // If Blue is max, then Hue = 4.0 + (R-G)/(max-min)
     hue = 4.0 + (redPercent - greenPercent) / (max - min)
   }
-  hue = Math.round(hue * 60) // convert to degrees
-  // make hue positive angle/degrees
+  hue = Math.round(hue * 60)
+
   while (hue < 0) {
     hue += 360
   }
