@@ -4,6 +4,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 import { generateHash } from '@scalar/helpers/string/generate-hash'
 import { measureAsync, measureSync } from '@scalar/helpers/testing/measure'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
 import { fetchUrls } from '@scalar/json-magic/bundle/plugins/browser'
 import { type Difference, apply, diff, merge } from '@scalar/json-magic/diff'
@@ -190,7 +191,10 @@ function loadDocument(
  */
 const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('url' in input) {
-    return input.url
+    // Match browser fetch resolution, including a page's <base href>.
+    return makeUrlAbsolute(input.url, {
+      baseUrl: typeof document === 'undefined' ? undefined : document.baseURI,
+    })
   }
   if ('path' in input) {
     return input.path
