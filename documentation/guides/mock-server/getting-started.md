@@ -202,6 +202,18 @@ const app = await createMockServer({
 
 For file and URL inputs, the JSON and YAML export routes return the loaded, bundled API description. Inline inputs without `origin` keep their original format version.
 
+### Overlapping paths
+
+When more than one path matches a request, the most concrete one answers it, as the OpenAPI specification asks. It does not matter which one the document declares first:
+
+```yaml
+paths:
+  /pets/{petId}: … # answers /pets/42
+  /pets/mine: … # answers /pets/mine
+```
+
+Paths are compared segment by segment from the left, and the first segment that differs decides. A literal segment beats one that mixes a parameter with literal text (`{jobId}:cancel`), which beats a bare parameter (`{jobId}`). A mixed segment that is routed as a whole-segment parameter, such as `{name}.json`, matches any value and so ranks like a bare parameter. So `/a/literal/{y}` answers `/a/literal/b` ahead of `/a/{x}/b`. Paths that rank the same keep the order the document declares them in.
+
 ### Path keys with a query string
 
 Some documents describe a variant of an operation by putting a query string in the path key:

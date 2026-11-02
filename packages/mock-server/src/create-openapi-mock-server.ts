@@ -14,6 +14,7 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
+import { comparePathSpecificity, getPathSpecificity } from '@/utils/path-specificity'
 import type { ProcessedDocument } from '@/utils/process-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
 import { resolveLogger } from '@/utils/resolve-logger'
@@ -244,14 +245,25 @@ export const createOpenApiMockServer = async (
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
 
-  // A path key may pin query parameters to describe a variant of an operation, for example
-  // `/v1/messages?beta=true` next to `/v1/messages`. Hono runs every matching route in registration
-  // order, so a variant has to come before the sibling it shares a path with — otherwise the sibling
-  // answers its requests too, and the more pinned parameters a key has the more specific it is.
+  // Hono runs every matching route in registration order and the first one that answers wins, so
+  // the order routes are registered in decides which operation serves a request that more than one
+  // path key matches. Two things set that order.
+  //
+  // First, concrete paths come before templated ones, as the OpenAPI Paths Object asks: `/pets/mine`
+  // answers its own requests even when the document declares `/pets/{petId}` first. Segments are
+  // compared from the left and the first one that differs decides; a segment mixing a template with
+  // literal text (`{jobId}:cancel`) ranks between a literal and a bare `{param}`. Path keys that rank
+  // the same keep the order the document declares them in. See `comparePathSpecificity`.
+  //
+  // Second, a path key may pin query parameters to describe a variant of an operation, for example
+  // `/v1/messages?beta=true` next to `/v1/messages`. A variant has to come before the sibling it shares
+  // a path with — otherwise the sibling answers its requests too — so the keys that share a path are
+  // grouped where the first of them appears, and the more pinned parameters a key has the earlier it
+  // goes. A variant that a request does not satisfy hands it on to the next matching route.
   const pathKeys = Object.keys(paths).map((path) => {
     const { path: pathname, query } = splitPathKey(path)
 
-    return { path, pathname, query }
+    return { path, pathname, query, specificity: getPathSpecificity(pathname) }
   })
 
   /** Where each path first shows up in the document, so its variants stay with it */
@@ -263,15 +275,13 @@ export const createOpenApiMockServer = async (
     }
   })
 
-  // Keys that share a path are grouped where the first of them appears and the most specific one
-  // leads the group; a key with a path of its own never moves. So the only keys that change places
-  // with anything unrelated are the variants of a path that is described more than once. When two
-  // distinct paths overlap — a literal and a parameterized one that pins a query — neither is moved,
-  // so whichever the document declares first is matched first, the same as any pair of overlapping
-  // Hono routes.
+  // Paths that cannot match the same request may change places here, which is harmless: only the
+  // relative order of overlapping routes decides which operation answers.
   const orderedPathKeys = [...pathKeys].sort(
     (a, b) =>
-      (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) || b.query.length - a.query.length,
+      comparePathSpecificity(a.specificity, b.specificity) ||
+      (documentOrder.get(a.pathname) ?? 0) - (documentOrder.get(b.pathname) ?? 0) ||
+      b.query.length - a.query.length,
   )
 
   orderedPathKeys.forEach(({ path, query }) => {
