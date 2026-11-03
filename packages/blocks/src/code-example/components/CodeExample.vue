@@ -632,9 +632,13 @@ const id = useId()
           :method="method" />
         <slot name="header" />
       </div>
-      <slot
-        :exampleName="localExampleKey"
-        name="footer" />
+      <div
+        v-if="$slots.footer"
+        class="request-card-actions relative max-w-full">
+        <slot
+          :exampleName="localExampleKey"
+          name="footer" />
+      </div>
     </ScalarCardSection>
   </ScalarCard>
 </template>
@@ -680,12 +684,23 @@ const id = useId()
 }
 .request-card-simple {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 
   padding: 8px 8px 8px 12px;
 
   font-size: var(--scalar-small);
+}
+.request-header {
+  /* Give spare inline space to the path, while actions fill their own row after wrapping. */
+  flex: 999 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.request-card-actions {
+  flex: 1 0 auto;
 }
 .code-snippet {
   display: flex;

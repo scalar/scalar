@@ -3,6 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { nodeFetch } from './fetch'
 
 describe('nodeFetch', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])('preserves the root JSON value %j', (value) => {
+    const result = nodeFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify(value) },
+    })
+    expect(result).toContain(`body: JSON.stringify(${JSON.stringify(value)})`)
+  })
+
   it('returns a basic request', () => {
     const result = nodeFetch.generate({
       url: 'https://example.com',
@@ -138,7 +147,7 @@ describe('nodeFetch', () => {
 
     expect(result).toBe(`fetch('https://example.com', {
   headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
+    Cookie: 'foo=bar; bar=foo'
   }
 })`)
   })

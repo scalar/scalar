@@ -51,8 +51,18 @@
   .references-footer,
   .section-flare,
   .agent-scalar,
-  .agent-scalar-overlay {
+  .agent-scalar-overlay,
+  .references-shell-toolbar,
+  .references-shell-frame,
+  .references-shell-panel {
     display: none !important;
+  }
+
+  /* The localhost shell is screen chrome: no backdrop, no card, no grid. */
+  .references-shell {
+    display: block !important;
+    padding: 0 !important;
+    background: none !important;
   }
 
   /* ------------------------------------------------------------------ */

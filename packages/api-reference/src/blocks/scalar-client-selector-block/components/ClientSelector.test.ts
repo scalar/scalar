@@ -292,30 +292,14 @@ describe('ClientLibraries', () => {
     const findGenerateSdkButton = (wrapper: ReturnType<typeof mount>) =>
       wrapper.findAll('button').find((button) => button.text() === 'Generate SDK')
 
-    it('offers Generate SDK beside the selected client, outside the tabs and their panel', async () => {
+    // Generate SDK lives in the developer toolbar only; the card keeps just the selected client
+    it('keeps Generate SDK out of the card while it is offered', async () => {
       const context = createContext(true)
       const wrapper = mountWithContext(context)
       await flushPromises()
 
-      const button = findGenerateSdkButton(wrapper)
-      expect(button?.exists()).toBe(true)
-
-      const tablist = wrapper.get('[role="tablist"]')
-      const panel = wrapper.get('[role="tabpanel"]')
-      expect(tablist.element.contains(button?.element ?? null)).toBe(false)
-      expect(panel.element.contains(button?.element ?? null)).toBe(false)
-      expect(panel.text()).toBe('Shell cURL')
-      expect(wrapper.get(`#${tablist.attributes('aria-labelledby')}`).text()).toBe('Client Libraries')
-
-      await button?.trigger('click')
-      expect(context.open).toHaveBeenCalledTimes(1)
-    })
-
-    it('hides Generate SDK when the context is disabled', async () => {
-      const wrapper = mountWithContext(createContext(false))
-      await flushPromises()
-
       expect(findGenerateSdkButton(wrapper)).toBeUndefined()
+      expect(wrapper.get('[role="tabpanel"]').text()).toBe('Shell cURL')
     })
   })
 

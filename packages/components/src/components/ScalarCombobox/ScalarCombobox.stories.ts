@@ -1,6 +1,8 @@
 import { placements } from '@floating-ui/utils'
+import type { Middleware } from '@floating-ui/vue'
 import type { Meta, StoryObj } from '@storybook/vue3-vite'
-import { ref, watch } from 'vue'
+import { useEventListener } from '@vueuse/core'
+import { type Component, ref, watch } from 'vue'
 import type { ComponentExposed } from 'vue-component-type-helpers'
 
 import { ScalarButton, ScalarDropdownButton, ScalarListboxCheckbox, useLoadingState } from '../..'
@@ -326,3 +328,54 @@ export const Async: Story = {
 `,
   }),
 }
+
+/** Hold positioning until the test releases it, so opening races are reproducible. */
+const delayedPositioningStory = (multiselect: boolean): Story => ({
+  tags: ['!dev', '!autodocs'],
+  args: { options: [] },
+  parameters: { layout: 'fullscreen' },
+  render: () => ({
+    components: {
+      ScalarCombobox: ScalarCombobox as ComponentExposed<typeof ScalarCombobox>,
+      ScalarComboboxMultiselect: ScalarComboboxMultiselect as unknown as Component,
+      ScalarButton,
+    },
+    setup() {
+      const choices = Array.from({ length: 40 }, (_, index) => ({ id: `${index}`, label: `Option ${index}` }))
+      const selected = ref(choices[25])
+      const selections = ref([choices[25]!])
+      const positioned = ref(false)
+      const ready = new Promise<void>((resolve) => {
+        useEventListener(document, 'position-picker', () => resolve())
+      })
+      const middleware: Middleware[] = [
+        {
+          name: 'wait-for-test',
+          async fn() {
+            await ready
+            positioned.value = true
+            return {}
+          },
+        },
+      ]
+      return { choices, selected, selections, positioned, middleware, multiselect }
+    },
+    template: `
+<div class="h-[16000px] pt-[10000px]">
+  <div aria-label="Outer scroller" class="h-80 overflow-auto">
+    <div class="h-[2000px] pt-[600px] pl-32">
+      <p role="status">{{ positioned ? 'Positioned' : 'Waiting for positioning' }}</p>
+      <ScalarComboboxMultiselect v-if="multiselect" v-model="selections" :options="choices" :middleware="middleware" teleport class="max-h-60">
+        <ScalarButton>Choose options</ScalarButton>
+      </ScalarComboboxMultiselect>
+      <ScalarCombobox v-else v-model="selected" :options="choices" :middleware="middleware" teleport class="max-h-60">
+        <ScalarButton>Choose option</ScalarButton>
+      </ScalarCombobox>
+    </div>
+  </div>
+</div>`,
+  }),
+})
+
+export const DelayedPositioning = delayedPositioningStory(false)
+export const DelayedMultiselect = delayedPositioningStory(true)

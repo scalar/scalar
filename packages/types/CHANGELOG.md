@@ -1,5 +1,27 @@
 # @scalar/types
 
+## 0.26.0
+
+### Minor Changes
+
+- [#10781](https://github.com/scalar/scalar/pull/10781): feat: add a Halloween theme preset with a moonlit sky, bats, and pumpkin accents
+
+## 0.25.2
+
+### Patch Changes
+
+- [#10763](https://github.com/scalar/scalar/pull/10763): feat(api-reference): give the localhost playground a developer toolbar with a side panel for its tools
+
+  On localhost, the developer toolbar becomes a sticky bar above the reference, which renders as a bordered card. Configure, Share, Deploy and Generate SDK open in a side panel beside the card; Deploy is now a waitlist sign-up for hosting on Scalar. The Generate SDK buttons in the client libraries card and the request examples, and the sidebar's "Generate SDKs & MCP" card and API client button, no longer show on localhost. Hosted references are unchanged.
+
+## 0.25.1
+
+### Patch Changes
+
+- [#10761](https://github.com/scalar/scalar/pull/10761): feat(api-reference): give the localhost playground a developer toolbar with a side panel for its tools
+
+  On localhost, the developer toolbar becomes a sticky bar above the reference, which renders as a bordered card. Configure, Share, Deploy and Generate SDK open in a side panel beside the card; Deploy is now a waitlist sign-up for hosting on Scalar. The Generate SDK buttons in the client libraries card and the request examples, and the sidebar's "Generate SDKs & MCP" card and API client button, no longer show on localhost. Hosted references are unchanged.
+
 ## 0.25.0
 
 ### Minor Changes

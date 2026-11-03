@@ -1178,17 +1178,13 @@
             "filepath": "documentation/guides/customers/customers.md",
             "type": "page",
             "layout": {
-              "toc": true,
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
             "head": {
               "title": "Scalar Customers — Trusted by the World's Best API Teams",
-              "scripts": [
-                {
-                  "path": "documentation/assets/company.js"
-                }
-              ],
               "links": [
                 {
                   "rel": "canonical",
@@ -1207,6 +1203,26 @@
                 {
                   "property": "og:description",
                   "content": "Trusted by the world's best API teams."
+                },
+                {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/customers-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
                 },
                 {
                   "name": "robots",
@@ -1248,8 +1264,33 @@
                   "content": "Enterprise-grade API platform: one OpenAPI system of record for docs, SDKs, governance, and MCP servers with SSO and enterprise support."
                 },
                 {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/enterprise-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
+                },
+                {
                   "name": "robots",
                   "content": "index, follow"
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
                 }
               ]
             },
@@ -1264,6 +1305,8 @@
             "filepath": "documentation/guides/company.md",
             "type": "page",
             "layout": {
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
@@ -1272,6 +1315,9 @@
               "scripts": [
                 {
                   "path": "documentation/assets/company.js"
+                },
+                {
+                  "path": "documentation/assets/company-hero.js"
                 }
               ],
               "links": [
@@ -1292,6 +1338,26 @@
                 {
                   "property": "og:description",
                   "content": "Learn about Scalar, the API platform built for developers and agents."
+                },
+                {
+                  "property": "og:video",
+                  "content": "https://cdn.scalar.com/marketing/landing/company-og-video.mp4"
+                },
+                {
+                  "property": "og:video:secure_url",
+                  "content": "https://cdn.scalar.com/marketing/landing/company-og-video.mp4"
+                },
+                {
+                  "property": "og:video:type",
+                  "content": "video/mp4"
+                },
+                {
+                  "property": "og:video:width",
+                  "content": "1200"
+                },
+                {
+                  "property": "og:video:height",
+                  "content": "630"
                 },
                 {
                   "name": "robots",
@@ -1663,6 +1729,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -2132,6 +2201,12 @@
                         "type": "page",
                         "title": "Tables"
                       },
+                      "fields": {
+                        "description": "Document parameters, properties, and response values as labelled rows with the field, param field, and response field components.",
+                        "filepath": "documentation/guides/docs/components/fields.mdx",
+                        "type": "page",
+                        "title": "Fields"
+                      },
                       "steps": {
                         "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
@@ -2155,6 +2230,12 @@
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
+                      },
+                      "tooltips": {
+                        "description": "Attach a short explanation to a word or phrase in running text with the tooltip component.",
+                        "filepath": "documentation/guides/docs/components/tooltips.mdx",
+                        "type": "page",
+                        "title": "Tooltips"
                       },
                       "page-link": {
                         "description": "Link to other documentation pages with rich page-link previews.",
@@ -2198,6 +2279,14 @@
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
                       "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/agent-marks.js"
+                        },
+                        {
+                          "path": "documentation/assets/agent-hero.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2224,6 +2313,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },

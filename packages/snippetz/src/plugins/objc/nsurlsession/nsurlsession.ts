@@ -104,9 +104,17 @@ export const objcNsurlsession: Plugin = {
 
       if (mimeType === 'application/json' && text !== undefined) {
         try {
-          const parsed = JSON.parse(text)
-          lines.push('', nsDeclaration('NSDictionary', 'parameters', parsed))
-          lines.push('', 'NSData *postData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:nil];')
+          const parsed: unknown = JSON.parse(text)
+          if (parsed !== null && typeof parsed === 'object') {
+            lines.push('', nsDeclaration(Array.isArray(parsed) ? 'NSArray' : 'NSDictionary', 'parameters', parsed))
+            lines.push(
+              '',
+              'NSData *postData = [NSJSONSerialization dataWithJSONObject:parameters options:0 error:nil];',
+            )
+          } else {
+            // Preserve scalar JSON without requiring Foundation to serialize fragments.
+            lines.push('', `NSData *postData = [${objcStringLiteral(text)} dataUsingEncoding:NSUTF8StringEncoding];`)
+          }
           hasBody = true
         } catch {
           // Fall back to the raw text when the payload is not valid JSON.

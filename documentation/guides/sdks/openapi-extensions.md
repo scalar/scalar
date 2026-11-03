@@ -182,7 +182,7 @@ When a build has no SDK configuration and the document carries `x-fern-*` extens
 | `x-fern-sdk-variables` | Document root | Declares SDK variables. |
 | `x-fern-sdk-variable` | Parameter | Binds a parameter to an SDK variable. |
 | `x-fern-webhook` | Operation | Prevents an inbound webhook operation from becoming an outbound client call. |
-| `x-fern-webhook-signature` | Document root or webhook | Webhook signature-verification settings where Scalar has an equivalent. |
+| `x-fern-webhook-signature` | Document root or webhook | Webhook signature-verification settings where Scalar has an equivalent. See [Webhooks](webhooks.md#importing-a-fern-project). |
 | `x-fern-type-name` | Schema | Generated type name. |
 | `x-fern-property-name` | Property schema | Generated property name. |
 | `x-fern-parameter-name` | Parameter Object | Generated parameter name. |
@@ -222,5 +222,6 @@ With `openapi.tags: "resources"`, the augmented OpenAPI document labels each der
 
 - [Configuration](configuration.md) — the config blocks mirrored by root-level extensions
 - [Pagination](pagination.md) — the scheme shape `x-scalar-pagination` carries, and the helpers it generates
+- [Webhooks](webhooks.md) — the helpers generated from the document's `webhooks`, and how Fern's webhook extensions map onto them
 - [Diagnostics](diagnostics.md) — messages for invalid, ignored, or incomplete input
 - [AsyncAPI](asyncapi.md) — SDK generation from AsyncAPI documents

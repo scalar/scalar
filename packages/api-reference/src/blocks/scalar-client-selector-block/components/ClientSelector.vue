@@ -10,7 +10,6 @@ import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { computed, ref, useId, useTemplateRef, watch } from 'vue'
 
 import { getFeaturedClients } from '@/blocks/scalar-client-selector-block/helpers/featured-clients'
-import { GenerateSdkButton } from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 
 import ClientDropdown from './ClientDropdown.vue'
@@ -161,7 +160,7 @@ defineExpose({
           :selectedClient="activeClient" />
       </div>
 
-      <!-- Content: the selected client, with Generate SDK beside it rather than inside the tab panel -->
+      <!-- Content: the selected client -->
       <div class="selected-client-row card-footer">
         <TabPanels class="selected-client-panels">
           <template v-if="tabIndex >= 0">
@@ -182,17 +181,12 @@ defineExpose({
             {{ selectedClientOption?.title }}
           </div>
         </TabPanels>
-
-        <!-- Local development only: opens the Explore Scalar dialog to generate an SDK -->
-        <GenerateSdkButton
-          class="selected-client-action"
-          variant="card" />
       </div>
     </TabGroup>
   </div>
 </template>
 <style scoped>
-/* The card's footer box; Generate SDK sits on its end edge when the reference runs locally */
+/* The card's footer box */
 .selected-client-row {
   display: flex;
   align-items: center;
@@ -202,7 +196,7 @@ defineExpose({
   border-bottom-right-radius: var(--scalar-radius-xl);
   min-height: fit-content;
 }
-/* The client name gives way to the button on narrow cards and truncates instead */
+/* The client name truncates on narrow cards instead of wrapping */
 .selected-client-panels {
   flex: 1 1 auto;
   min-width: 0;
@@ -218,11 +212,6 @@ defineExpose({
   /* Keeps the inset focus ring inside the card's rounded corners */
   border-bottom-left-radius: var(--scalar-radius-xl);
   border-bottom-right-radius: var(--scalar-radius-xl);
-}
-.selected-client-action {
-  flex-shrink: 0;
-  white-space: nowrap;
-  margin-inline-end: 5px;
 }
 .client-libraries-heading {
   font-size: var(--scalar-small);

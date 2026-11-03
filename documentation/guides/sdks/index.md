@@ -298,7 +298,13 @@ The demo at the top of this page runs this whole flow in the browser, against a 
 <scalar-steps>
   <scalar-step id="step-openapi" title="Start from your OpenAPI document">
 
-Put your API document in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method.
+Put your API document in [Registry](../registry/index.md), or import it while creating the SDK. OpenAPI 3.0 and 3.1 are supported, and Swagger 2.0 documents are upgraded on load. [AsyncAPI](asyncapi.md) documents work too — experimentally — with each channel becoming a WebSocket connect method or an HTTP streaming method. No document yet? Start from the Scalar Galaxy demo API.
+
+<scalar-image
+  src="/sdks/sdk-import-api.png"
+  alt="The new SDK dialog in the Scalar dashboard, ready to import the Scalar Galaxy demo API into Registry"
+  size="full">
+</scalar-image>
 
   </scalar-step>
 
@@ -307,8 +313,8 @@ Put your API document in [Registry](../registry/index.md), or import it while cr
 Choose one target or a dozen. Generation begins immediately, and each target gets its own configuration, version history, and build log.
 
 <scalar-image
-  src="/sdks/sdk-overview.png"
-  alt="An SDK in the Scalar dashboard showing build status, targets, and version history"
+  src="/sdks/sdk-pick-targets.png"
+  alt="The target picker in the new SDK dialog, with TypeScript, Python, and Go selected"
   size="full">
 </scalar-image>
 
@@ -316,7 +322,13 @@ Choose one target or a dozen. Generation begins immediately, and each target get
 
   <scalar-step id="step-sample" title="Read the code before committing to anything">
 
-Every target gets a preview repository, provisioned automatically. Browse the generated code, the `api.md` reference, and the README before you wire up a repository of your own.
+Every target gets a preview repository, provisioned automatically. Browse the generated code, the `api.md` reference, and the README before you wire up a repository of your own. The SDK studio shows each target's generated reference next to the configuration that produced it, with a link to its preview repository.
+
+<scalar-image
+  src="/sdks/sdk-studio.png"
+  alt="The SDK studio showing a generated TypeScript SDK's operations, installation command, and configuration, with its preview repository ready to view"
+  size="full">
+</scalar-image>
 
   </scalar-step>
 
@@ -325,8 +337,8 @@ Every target gets a preview repository, provisioned automatically. Browse the ge
 Connect the repository where the SDK should live. Scalar authors commits through a GitHub App installation, never a personal token. Every build pushes generated output to `scalar-generated`, merges it with your custom code on `scalar-next`, and keeps a release pull request open against the branch you nominate.
 
 <scalar-image
-  src="/sdks/github-linked.png"
-  alt="Git settings for a target, showing the connected repository, default branch, publish toggle, and synced versions"
+  src="/sdks/sdk-git-pipeline.png"
+  alt="The build pipeline for a linked TypeScript target, from scalar-generated through scalar-next and an open release pull request into main"
   size="full">
 </scalar-image>
 

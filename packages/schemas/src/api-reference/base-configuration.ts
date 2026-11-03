@@ -100,6 +100,7 @@ export const baseConfigurationSchema = object({
       literal('fastify'),
       literal('mars'),
       literal('laserwave'),
+      literal('halloween'),
       literal('none'),
     ],
     {

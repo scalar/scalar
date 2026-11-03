@@ -1,5 +1,6 @@
 package com.scalar.maven.core;
 
+import com.scalar.maven.core.config.ScalarPathRouting;
 import com.scalar.maven.core.internal.JacksonJsonSerializer;
 import com.scalar.maven.core.internal.ScalarConfiguration;
 import com.scalar.maven.core.internal.ScalarConfigurationMapper;
@@ -49,6 +50,34 @@ public final class ScalarHtmlRenderer {
      * @throws IOException if the HTML template cannot be loaded
      */
     public static String render(ScalarProperties properties) throws IOException {
+        return render(properties, "");
+    }
+
+    /**
+     * Renders HTML using the request context path for nested navigation and bundle URLs.
+     *
+     * @param properties the Scalar configuration
+     * @param contextPath the application context path, or an empty string
+     * @return the rendered HTML
+     * @throws IOException if the template cannot be loaded
+     */
+    public static String render(ScalarProperties properties, String contextPath) throws IOException {
+        return render(properties, contextPath, true);
+    }
+
+    /**
+     * Renders the actuator page without application path routing. Actuator has its
+     * own URL space and may run on a separate management server.
+     *
+     * @param properties the Scalar configuration
+     * @return the rendered HTML
+     * @throws IOException if the template cannot be loaded
+     */
+    public static String renderForActuator(ScalarProperties properties) throws IOException {
+        return render(properties, "", false);
+    }
+
+    private static String render(ScalarProperties properties, String contextPath, boolean pathRouting) throws IOException {
         Objects.requireNonNull(properties, "properties must not be null");
 
         String basePath = normalizeBasePath(properties.getPath());
@@ -65,16 +94,19 @@ public final class ScalarHtmlRenderer {
         }
 
         // Build the JS bundle URL from the base path
-        String bundleUrl = buildJsBundleUrl(basePath);
+        String bundleUrl = !pathRouting || properties.getPathRouting() == null
+                ? buildJsBundleUrl(basePath)
+                : contextPath + (basePath.endsWith("/") ? basePath : basePath + "/") + ScalarConstants.JS_FILENAME;
         String pageTitle = Objects.requireNonNullElse(properties.getPageTitle(), "Scalar API Reference");
 
         // Serialize configuration to JSON
-        String configurationJson = buildConfigurationJson(properties);
+        String configurationJson = buildConfigurationJson(properties, contextPath, pathRouting);
 
         // Replace placeholders
         return html
-                .replace("__JS_BUNDLE_URL__", bundleUrl)
-                .replace("__PAGE_TITLE__", pageTitle)
+                .replace("__JS_BUNDLE_URL__", bundleUrl.replace("&", "&amp;").replace("\"", "&quot;")
+                        .replace("'", "&#39;").replace("<", "&lt;").replace(">", "&gt;"))
+                .replace("__PAGE_TITLE__", pageTitle.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
                 .replace("__CONFIGURATION__", configurationJson);
     }
 
@@ -105,9 +137,16 @@ public final class ScalarHtmlRenderer {
      * @param properties the properties to serialize
      * @return the configuration JSON as a string
      */
-    private static String buildConfigurationJson(ScalarProperties properties) {
+    private static String buildConfigurationJson(ScalarProperties properties, String contextPath, boolean pathRouting) {
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
-        return JacksonJsonSerializer.serialize(config);
+        if (pathRouting && properties.getPathRouting() != null) {
+            ScalarPathRouting routing = new ScalarPathRouting();
+            String path = Objects.requireNonNull(properties.getPathRouting().getBasePath(), "pathRouting.basePath is required");
+            routing.setBasePath(contextPath + path);
+            config.setPathRouting(routing);
+        }
+        // Inline API descriptions may contain HTML, including closing script tags.
+        return JacksonJsonSerializer.serialize(config).replace("<", "\\u003c");
     }
 
     /**

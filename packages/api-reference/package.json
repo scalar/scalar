@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.76.0",
+  "version": "1.76.4",
   "engines": {
     "node": ">=22"
   },
@@ -108,6 +108,8 @@
     "!dist/browser/webpack-stats.esm.json",
     "!dist/examples",
     "!dist/browser/examples",
+    "!dist/_redirects",
+    "!dist/browser/_redirects",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",

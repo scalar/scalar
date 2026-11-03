@@ -4,6 +4,8 @@
  *
  * Renders a markdown string as styled HTML with support for
  * headings, links, code blocks, tables, alerts, and more.
+ * Set --scalar-code-line-height on the component or an ancestor to override fenced code
+ * spacing, which defaults to 1.5.
  *
  * @example
  * <ScalarMarkdown value="# Hello World" />
@@ -477,11 +479,16 @@ useMarkdownRenderHooks(
     font-size: var(--scalar-small);
   }
 
+  /* Keep fenced-code spacing independent of token boundaries and surrounding prose. */
+  .markdown pre {
+    line-height: var(--scalar-code-line-height, 1.5);
+  }
+
   .markdown pre code {
     display: block;
     white-space: pre;
     padding: var(--markdown-spacing-sm);
-    line-height: 1.5;
+    line-height: inherit;
     margin: var(--markdown-spacing-sm) 0;
     -webkit-overflow-scrolling: touch;
     overflow-x: auto;

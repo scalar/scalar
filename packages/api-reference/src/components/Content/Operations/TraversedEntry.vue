@@ -29,13 +29,16 @@ import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 const {
+  specificationExtension = SpecificationExtension,
   level = 0,
   clientOptions,
   document,
   authStore,
   entries,
+  options,
   insideTagContainer = false,
 } = defineProps<
   {
@@ -115,6 +118,22 @@ const isOperation = (entry: TraversedEntry): entry is TraversedOperation =>
 const isWebhook = (entry: TraversedEntry): entry is TraversedWebhook =>
   entry['type'] === 'webhook'
 
+const isEndpoint = (
+  entry: TraversedEntry,
+): entry is TraversedOperation | TraversedWebhook =>
+  isOperation(entry) || isWebhook(entry)
+
+const isLastEndpointBeforeSection = (index: number): boolean => {
+  const entry = entries[index]
+  const next = entries[index + 1]
+
+  if (options.layout !== 'classic' || level !== 0 || !entry || !next) {
+    return false
+  }
+
+  return isEndpoint(entry) && !isEndpoint(next)
+}
+
 /** Models are special form of tag entry */
 const isModelsTag = (entry: TraversedEntry): entry is TraversedModels =>
   entry['type'] === 'models'
@@ -156,13 +175,15 @@ function getPathValue(entry: TraversedOperation | TraversedWebhook) {
   <!-- The key must be joined with the layout to force a re-render when the layout changes -->
   <!-- Without this we get a timing issue where the lazy bus is reset and the element is not rendered -->
   <Lazy
-    v-for="entry in entries"
+    v-for="(entry, index) in entries"
     :id="entry.id"
     :key="`${entry.id}-${options.layout}`"
+    :class="{ 'mb-12': isLastEndpointBeforeSection(index) }"
     :expanded="!!expandedItems[entry.id]">
     <!-- Operation or Webhook -->
     <SectionContainer
-      v-if="isOperation(entry) || isWebhook(entry)"
+      v-if="isEndpoint(entry)"
+      :class="{ 'pt-12!': options.layout === 'classic' && level === 0 }"
       :omit="level !== 0">
       <Operation
         :id="entry.id"

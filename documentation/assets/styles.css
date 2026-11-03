@@ -139,7 +139,8 @@
 .docs-global-footer.introduction.footer {
   background: var(--scalar-background-2);
   border-radius: var(--scalar-radius-lg);
-  margin: 0 auto 68px;
+  /* the room under it (for the AI chat bar) is the footer band's now */
+  margin: 0 auto;
   overflow: hidden;
   padding-bottom: 200px;
   padding-inline: 20px;
@@ -318,6 +319,888 @@
 @media screen and (max-width: 600px) {
   .docs-global-footer .footer-links {
     grid-template-columns: 1fr;
+  }
+}
+
+/* The welcome committee under the footer.
+
+   Five of the landing page's planets (the AI agents, at the size they
+   have in the hero, with the faces and the mark shapes they take while
+   they talk there) wait below the fold and rise when the page is
+   scrolled to its very end, left to right into an arch over the AI chat
+   bar that scalar.com floats over the bottom of every page, each saying
+   hello in a bubble of its own. The band is the room they stand in,
+   480px under the footer with the arch standing 86px over the bar, and
+   its bottom padding the room the bar needs (48px tall, 20px up); it
+   clips at its edges, so a planet waiting below the fold never
+   lengthens the page. landing.js
+   (initFooterPlanets) pops them, dresses the globes, attaches the faces,
+   makes the hellos and centres the stage on the bar. The ball, ring,
+   glyph and face rules are the landing page's
+   (documentation/guides/introduction.md), scoped to the band, with the
+   brand paints of these five planets: keep the two in step. */
+.docs-footer-band {
+  --fp-clear: 68px;
+  /* how high over the bar's room the arch stands */
+  --fp-stand: 86px;
+  /* the cluster at full size, bubbles included, with its margins (the
+     width is FOOTER_PLANETS_SPAN in landing.js too) */
+  --fp-span: 760px;
+  position: relative;
+  height: 480px;
+  padding-bottom: var(--fp-clear);
+  overflow: hidden;
+  overflow: visible clip;
+}
+
+/* the stage: a point just over the bar the planets stand round, centred
+   on the bar (--fp-x is the bar's middle in the band, or the band's own
+   when there is none), lifted clear of a bar that reaches into the band,
+   and scaled down by the script where the band is narrower than the
+   cluster */
+.docs-footer-band .fp-stage {
+  position: absolute;
+  left: var(--fp-x, 50%);
+  bottom: calc(var(--fp-clear) + var(--fp-lift, 0px) + var(--fp-stand));
+  width: 0;
+  height: 0;
+  scale: var(--fp-scale, 1);
+  pointer-events: none;
+  transition: left 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docs-footer-band.is-up .fp-stage {
+  pointer-events: auto;
+}
+
+/* a planet stands at --x from the stage, its bottom --y up, on its own
+   layer (--z: the middle of the arch in front). It waits below the fold,
+   the whole of it (a shape reaches a quarter past the box), and springs
+   up into its place in its turn (--d), then sinks back down when the
+   page leaves its end. The ball, ring and face inside are sized by --s
+   like the landing page's */
+.docs-footer-band .fp-planet {
+  --s: 100px;
+  --x: 0px;
+  --y: 0px;
+  --z: 1;
+  --ink: #fff;
+  --tint: #f8f8f8;
+  --type: calc(var(--s) * 0.135);
+  --fp-rise: calc(var(--fp-clear) + var(--fp-stand) + 10px + var(--y) + var(--s) * 1.25);
+  position: absolute;
+  left: calc(var(--x) - var(--s) / 2);
+  bottom: var(--y);
+  z-index: var(--z);
+  width: var(--s);
+  height: var(--s);
+  opacity: 0;
+  translate: 0 var(--fp-rise);
+  transition:
+    translate 420ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 0s linear 420ms;
+}
+
+.docs-footer-band.is-up .fp-planet {
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    translate 1000ms cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0ms),
+    opacity 0s linear var(--d, 0ms);
+}
+
+/* The six, left to right, overlapping by fourteen pixels each. Both
+   axes are solved rather than stepped, because the sizes are the hero's
+   and so all differ: --y comes from the top each planet should reach,
+   which puts the tops on one even curve, and --x is then whatever
+   distance leaves that same overlap once the drop to the next planet is
+   taken into account (dx = sqrt((r1 + r2 - 8)^2 - dy^2)). Stepping
+   either one evenly leaves gaps in the middle of the row and sets the
+   small, low planets at the ends adrift.
+
+   Eight pixels, not more, because --z decides whose name survives an
+   overlap and OpenCode's lockup is the widest of the six against its
+   ball: its ink starts eight pixels from the edge. Gemini and OpenCode
+   sit at the same height, so the whole bite lands on the equator where
+   the names are, and anything deeper than eight eats one of them. */
+.docs-footer-band .fp-planet--chatgpt {
+  --fp-wash: #8d949c;
+  --s: 104px;
+  --x: -221px;
+  --y: 0px;
+  --z: 1;
+  --d: 0ms;
+  --ink: #0d0d0d;
+}
+
+.docs-footer-band .fp-planet--claude {
+  --fp-wash: #f0582a;
+  --s: 116px;
+  --x: -128px;
+  --y: 36px;
+  --z: 2;
+  --d: 120ms;
+  --tint: #f0582a;
+}
+
+.docs-footer-band .fp-planet--gemini {
+  --fp-wash: #2d6bff;
+  --s: 96px;
+  --x: -35px;
+  --y: 76px;
+  --z: 3;
+  --d: 240ms;
+  --tint: #2d6bff;
+}
+
+.docs-footer-band .fp-planet--opencode {
+  --fp-wash: #ffb020;
+  --s: 100px;
+  --x: 55px;
+  --y: 72px;
+  --z: 3;
+  --d: 360ms;
+  --tint: #ffb020;
+  --ink: #0d0d0d;
+}
+
+.docs-footer-band .fp-planet--grok {
+  --fp-wash: #4a4a50;
+  --s: 100px;
+  --x: 145px;
+  --y: 52px;
+  --z: 2;
+  --d: 480ms;
+  --ink: #fff;
+}
+
+.docs-footer-band .fp-planet--t3 {
+  --fp-wash: #e5399b;
+  --s: 92px;
+  --x: 221px;
+  --y: 12px;
+  --z: 1;
+  --d: 600ms;
+  --tint: #e5399b;
+}
+
+.docs-footer-band .lp-orb-globe {
+  position: absolute;
+  inset: 0;
+  perspective: calc(var(--s) * 5);
+}
+
+.docs-footer-band .lp-ball-filters {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* the ball: lit from below, one colour out to its edge, its paint on a
+   skin inside a box half again as wide as the planet (room for a
+   shape's rays) */
+.docs-footer-band .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(
+    calc(var(--s) / 2) at 50% 50%,
+    color-mix(in oklab, var(--tint) 90%, white) 40%,
+    var(--tint) 80%
+  );
+  --lp-ball-shade: inset 4px 16px 18px -12px rgba(0, 0, 0, 0.14), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  inset: calc(var(--s) * -0.25);
+  pointer-events: none;
+}
+
+/* the planets' grain, as on the landing page: grey noise laid over the
+   paint with overlay, centred on the disc so a shape does not move it */
+.docs-footer-band .lp-orb-skin {
+  --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0.805 0.0975 0 0 0 0.805 0.0975 0 0 0 0.805 0.0975 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  position: absolute;
+  inset: calc(var(--s) * 0.25);
+  border-radius: 50%;
+  background:
+    var(--lp-grain-ball) 50% 50% / 160px 160px,
+    var(--lp-ball-light),
+    var(--lp-ball-paint);
+  background-blend-mode: overlay, normal, normal, normal;
+  box-shadow: var(--lp-ball-shade);
+}
+
+/* shaped (the face on, the ball in its mark's shape): the skin fills
+   the wide box, the faces' module clips it, and the shading comes from
+   a filter on its alpha, so it follows the shape's edge */
+.docs-footer-band .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade);
+}
+
+.docs-footer-band .lp-orb-ball.is-shaped .lp-orb-skin {
+  inset: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.docs-footer-band .fp-planet--claude .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffb27a 0 16%,
+      rgba(255, 178, 122, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f36a40 36%, #f0582a 76%);
+}
+
+.docs-footer-band .fp-planet--opencode .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ffe56b 0 16%,
+      rgba(255, 229, 107, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #ffc43a 36%, #ffb000 76%);
+}
+
+.docs-footer-band .fp-planet--t3 .lp-orb-ball {
+  --lp-ball-paint:
+    radial-gradient(
+      calc(var(--s) * 0.66) calc(var(--s) * 0.54) at 50% calc(50% + var(--s) * 0.48),
+      #ff8ad0 0 16%,
+      rgba(255, 138, 208, 0) 100%
+    ),
+    radial-gradient(calc(var(--s) / 2) at 50% 50%, #f052ae 36%, #e5399b 76%);
+}
+
+.docs-footer-band .fp-planet--grok .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #4a4a50 55%, #3a3a40 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(255, 255, 255, 0.1), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.15),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.docs-footer-band .fp-planet--grok .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade-dark);
+}
+
+.docs-footer-band .fp-planet--chatgpt .lp-orb-ball {
+  --lp-ball-light: radial-gradient(
+    calc(var(--s) * 0.7) calc(var(--s) * 0.6) at 50% calc(50% + var(--s) * 0.54),
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0) 70%
+  );
+  --lp-ball-paint: radial-gradient(calc(var(--s) / 2) at 50% 50%, #f8f8f8 72%, #f4f4f4 100%);
+  --lp-ball-shade:
+    inset 4px 16px 18px -12px rgba(28, 32, 36, 0.18), inset 0 -5px 8px -5px rgba(0, 0, 0, 0.04),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.035);
+}
+
+.docs-footer-band .fp-planet--chatgpt .lp-orb-ball.is-shaped {
+  filter: url(#fp-ball-shade-glass);
+}
+
+/* the ring: the mark and every glyph of the name on the ball's
+   equator, facing out */
+.docs-footer-band .lp-orb-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.docs-footer-band .lp-orb-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotateY(var(--a)) translateZ(calc(var(--s) / 2));
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.docs-footer-band .lp-orb-glyph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  white-space: pre;
+  font-family: var(--scalar-font);
+  font-size: var(--type);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--ink);
+  backface-visibility: hidden;
+}
+
+.docs-footer-band .lp-orb-glyph svg {
+  display: block;
+  width: 1.15em;
+  height: 1.15em;
+}
+
+.docs-footer-band .lp-orb-glyph svg [fill] {
+  fill: currentColor;
+}
+
+/* the face: the name's glyphs and two eyes in one box on the sphere,
+   placed and turned by the faces' module through transforms only */
+.docs-footer-band .lp-face {
+  --lp-eye-d: calc(var(--s) * 0.09);
+  --lp-eye-mark: calc(var(--s) * 0.17);
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.docs-footer-band .lp-eye {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.docs-footer-band .lp-face.is-on .lp-eye {
+  visibility: visible;
+}
+
+.docs-footer-band .lp-eye-lid,
+.docs-footer-band .lp-eye-pupil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+}
+
+.docs-footer-band .lp-eye-cap,
+.docs-footer-band .lp-eye-bar {
+  position: absolute;
+  left: calc(var(--lp-eye-d) / -2);
+  top: calc(var(--lp-eye-d) / -2);
+  width: var(--lp-eye-d);
+  height: var(--lp-eye-d);
+  background: var(--ink);
+}
+
+.docs-footer-band .lp-eye-cap {
+  border-radius: 50%;
+}
+
+.docs-footer-band .lp-eye-mark {
+  display: none;
+  position: absolute;
+  left: calc(var(--lp-eye-mark) / -2);
+  top: calc(var(--lp-eye-mark) / -2);
+  width: var(--lp-eye-mark);
+  height: var(--lp-eye-mark);
+  color: var(--ink);
+}
+
+.docs-footer-band .lp-eye-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.docs-footer-band .lp-eye-mark svg [fill] {
+  fill: currentColor;
+}
+
+.docs-footer-band .lp-face.is-marks .lp-eye-cap,
+.docs-footer-band .lp-face.is-marks .lp-eye-bar {
+  display: none;
+}
+
+.docs-footer-band .lp-face.is-marks .lp-eye-mark {
+  display: block;
+}
+
+/* two shapes narrow where the eyes and the mouth go (Claude's rays,
+   Gemini's points): their face box holds its features on a smaller
+   sphere while the face is on, so the smile and the eyes stay inside
+   the shape; the box shrinks as the face forms and grows back as it
+   unwinds (the look and the tilt are the box's rotate and transform,
+   which a uniform scale leaves as they are) */
+.docs-footer-band .fp-planet--claude .lp-face,
+.docs-footer-band .fp-planet--gemini .lp-face {
+  transition: scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.docs-footer-band .fp-planet--claude .lp-face.is-on {
+  scale: 0.76;
+}
+
+.docs-footer-band .fp-planet--gemini .lp-face.is-on {
+  scale: 0.62;
+}
+
+/* the smaller face would leave Gemini's eyes the smallest of the five:
+   its pupils are scaled back up about their own centres (the blink is
+   the lid's, the look the face box's, neither touched by this) */
+.docs-footer-band .fp-planet--gemini .lp-eye-pupil {
+  scale: 1.6;
+}
+
+/* each planet's hello: a small bubble over its top edge with the tight
+   corner at the planet, opening away from its taller neighbour (the
+   left two to the left, the rest to the right), made by the script
+   after the planets so it stands over every one of them; it pops in
+   once its planet has landed. On a scaled-down stage the type holds a
+   readable size */
+.docs-footer-band .fp-hi {
+  position: absolute;
+  left: calc(var(--x) + var(--s) * 0.14);
+  bottom: calc(var(--y) + var(--s) * 0.82);
+  z-index: 5;
+  padding: 0.5em 0.85em;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 1em 1em 1em 0.3em;
+  background: color-mix(in srgb, var(--scalar-background-2) 82%, transparent);
+  font-family: var(--scalar-font);
+  font-size: max(14px, calc(11px / var(--fp-scale, 1)));
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: var(--scalar-color-1);
+  opacity: 0;
+  visibility: hidden;
+  translate: 0 6px;
+  scale: 0.6;
+  transform-origin: bottom left;
+  transition:
+    opacity 160ms ease,
+    translate 160ms ease,
+    scale 160ms ease,
+    visibility 0s linear 160ms;
+}
+
+.docs-footer-band .fp-hi.is-left {
+  left: auto;
+  right: calc(var(--s) * 0.14 - var(--x));
+  border-radius: 1em 1em 0.3em 1em;
+  transform-origin: bottom right;
+}
+
+.docs-footer-band .fp-hi.is-on {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  scale: 1;
+  transition:
+    opacity 180ms ease,
+    translate 360ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    scale 360ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    visibility 0s linear 0s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* A planet is a button: it waits as a plain globe with its name round
+   it, takes its mark's shape under the pointer (the faces' module,
+   from landing.js) and opens the MCP card when it is pressed. */
+.docs-footer-band .fp-planet {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.docs-footer-band .fp-planet:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 6px;
+}
+
+/* The sheet the planets open: a fixed dim over the whole viewport with
+   the card centred in it. The script makes the rest of the document
+   inert while it is up, so this behaves as a modal without being a
+   <dialog>: Chrome leaves the top layer out of a running view
+   transition, which is how the planet flies into the hero. The dim and
+   the card come and go on plain CSS transitions under that flight. */
+.docs-footer-band .fp-sheet {
+  position: fixed;
+  inset: 0;
+  /* over the site's fixed header, which stands at 999, and under the
+     toast and tooltip layers above that */
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+  visibility: hidden;
+  background-color: rgba(16, 18, 22, 0);
+  color: var(--scalar-color-1);
+  font-family: var(--scalar-font);
+  transition:
+    background-color 300ms ease,
+    visibility 0s linear 300ms;
+}
+
+/* the markup ships it hidden, so the card cannot flash before the
+   stylesheet lands; the script takes the attribute off once it has the
+   sheet in hand and the rules below own it from there */
+.docs-footer-band .fp-sheet[hidden] {
+  display: none;
+}
+
+.docs-footer-band .fp-sheet.is-open {
+  visibility: visible;
+  background-color: rgba(16, 18, 22, 0.5);
+  transition:
+    background-color 300ms ease,
+    visibility 0s linear 0s;
+}
+
+/* the card fades, and only fades: the planet's flight is measured off
+   this box, and a scale here would move the target out from under it */
+.docs-footer-band .fp-card {
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.docs-footer-band .fp-sheet.is-open .fp-card {
+  opacity: 1;
+}
+
+.docs-footer-band .fp-card {
+  --fp-card-tint: #f0582a;
+  position: relative;
+  /* auto margins keep a card taller than the viewport reachable at both
+     ends, which centring alone does not */
+  margin: auto;
+  width: min(460px, 100%);
+  flex: none;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 28px;
+  background: var(--scalar-background-1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 32px 64px -24px rgba(0, 0, 0, 0.32);
+  text-align: left;
+}
+
+/* the card takes the first focus when it opens, as a dialog's box does,
+   and wants no ring of its own for it: the controls inside keep theirs */
+.docs-footer-band .fp-card:focus,
+.docs-footer-band .fp-card:focus-visible {
+  outline: none;
+}
+
+/* the hero: the planet over a wash of its own paint. It stands over the
+   card's own body so a planet still in flight, or one whose shape hangs
+   past the box, draws over the type rather than under it */
+.docs-footer-band .fp-card-hero {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: 208px;
+  /* the card's own radius, less its border: the hero is not clipped by
+     the card, so that a planet may hang past it */
+  border-radius: 27px 27px 0 0;
+  background:
+    radial-gradient(
+      90% 110% at 26% 10%,
+      color-mix(in oklab, var(--fp-card-tint) 26%, var(--scalar-background-1)),
+      transparent 68%
+    ),
+    radial-gradient(
+      80% 90% at 82% 94%,
+      color-mix(in oklab, var(--fp-card-tint) 34%, var(--scalar-background-1)),
+      transparent 72%
+    ),
+    color-mix(in oklab, var(--fp-card-tint) 12%, var(--scalar-background-1));
+}
+
+.docs-footer-band .fp-card-seat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* the planet, once it has flown in: bigger, standing still, and out of
+   the pointer's way so the card below it stays reachable */
+.docs-footer-band .fp-sheet .fp-card .fp-planet {
+  --s: 120px;
+  position: relative;
+  left: auto;
+  bottom: auto;
+  opacity: 1;
+  translate: none;
+  transition: none;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* the close the dashboard uses on its own cards: a translucent disc
+   with a hairline ring, going opaque under the pointer */
+.docs-footer-band .fp-card-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--scalar-background-1) 70%, transparent);
+  box-shadow:
+    0 1px 2px 0 rgba(0, 0, 0, 0.05),
+    0 0 0 1px var(--scalar-border-color);
+  color: var(--scalar-color-2);
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+}
+
+.docs-footer-band .fp-card-close:hover {
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-close:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 2px;
+}
+
+.docs-footer-band .fp-card-close svg {
+  width: 16px;
+  height: 16px;
+}
+
+.docs-footer-band .fp-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 24px;
+}
+
+/* the prose the card sits in lays its headings out as flex boxes, where
+   text-align has nothing to centre */
+.docs-footer-band .fp-card-title {
+  display: block;
+  margin: 0;
+  font-size: 22px;
+  font-weight: var(--scalar-bold, 700);
+  line-height: 1.2;
+  text-align: center;
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-card-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docs-footer-band .fp-field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.docs-footer-band .fp-field-label {
+  font-size: 13px;
+  color: var(--scalar-color-2);
+}
+
+.docs-footer-band .fp-field-box {
+  position: relative;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 10px;
+  background: var(--scalar-background-2);
+}
+
+.docs-footer-band .fp-field-code code {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  font: inherit;
+  color: inherit;
+}
+
+.docs-footer-band .fp-field-code {
+  margin: 0;
+  padding: 10px 40px 10px 12px;
+  font-family: var(--scalar-font-code, ui-monospace, monospace);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--scalar-color-1);
+  /* wrapped, never scrolled: a scrolling snippet is one more thing to
+     reach by keyboard and to name, for two short lines of setup */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.docs-footer-band .fp-field-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--scalar-background-2) 85%, transparent);
+  color: var(--scalar-color-2);
+  cursor: pointer;
+  transition:
+    background 120ms,
+    color 120ms;
+}
+
+.docs-footer-band .fp-field-copy:hover {
+  background: var(--scalar-background-3);
+  color: var(--scalar-color-1);
+}
+
+.docs-footer-band .fp-field-copy:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 1px;
+}
+
+.docs-footer-band .fp-field-copy svg {
+  grid-area: 1 / 1;
+  width: 14px;
+  height: 14px;
+}
+
+.docs-footer-band .fp-field-copy .fp-copy-done,
+.docs-footer-band .fp-field-copy.is-done .fp-copy-mark {
+  opacity: 0;
+}
+
+.docs-footer-band .fp-field-copy.is-done {
+  color: var(--scalar-color-green);
+}
+
+.docs-footer-band .fp-field-copy.is-done .fp-copy-done {
+  opacity: 1;
+}
+
+.docs-footer-band .fp-card-actions {
+  display: grid;
+  margin-top: 4px;
+}
+
+.docs-footer-band .fp-card-go {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--scalar-color-1);
+  color: var(--scalar-background-1);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: var(--scalar-semibold, 600);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+
+.docs-footer-band .fp-card-go[hidden] {
+  display: none;
+}
+
+.docs-footer-band .fp-card-go:hover {
+  opacity: 0.85;
+}
+
+.docs-footer-band .fp-card-go:focus-visible {
+  outline: 1px solid var(--scalar-color-1);
+  outline-offset: 2px;
+}
+
+.docs-footer-band .fp-card-go > span {
+  grid-area: 1 / 1;
+}
+
+.docs-footer-band .fp-card-go .fp-card-go-done,
+.docs-footer-band .fp-card-go.is-done .fp-card-go-rest {
+  opacity: 0;
+}
+
+.docs-footer-band .fp-card-go.is-done .fp-card-go-done {
+  opacity: 1;
+}
+
+/* a narrow page: the stage is scaled down by the script, the band gives
+   back some of its room */
+@media screen and (max-width: 640px) {
+  .docs-footer-band {
+    --fp-stand: 46px;
+    height: 330px;
+  }
+
+  .docs-footer-band .fp-card-hero {
+    height: 172px;
+  }
+
+  .docs-footer-band .fp-sheet .fp-card .fp-planet {
+    --s: 108px;
+  }
+
+  .docs-footer-band .fp-card-body {
+    padding: 18px 18px 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docs-footer-band .fp-planet,
+  .docs-footer-band.is-up .fp-planet {
+    translate: 0 0;
+    transition: opacity 200ms ease;
+  }
+
+  .docs-footer-band .fp-hi,
+  .docs-footer-band .fp-hi.is-on,
+  .docs-footer-band .fp-stage {
+    transition: none;
+  }
+
+  .docs-footer-band .fp-sheet,
+  .docs-footer-band .fp-sheet.is-open,
+  .docs-footer-band .fp-card {
+    transition: none;
   }
 }
 

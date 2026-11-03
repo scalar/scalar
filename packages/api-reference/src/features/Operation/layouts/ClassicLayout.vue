@@ -32,10 +32,6 @@ import { SectionAccordion } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
 import { ExampleResponses } from '@/features/example-responses'
 import { ExternalDocs } from '@/features/external-docs'
-import {
-  GenerateSdkButton,
-  useGenerateSdkContext,
-} from '@/features/generate-sdk'
 import { useLocalization } from '@/features/localization'
 import Callbacks from '@/features/Operation/components/callbacks/Callbacks.vue'
 import CopyMarkdownButton from '@/features/Operation/components/CopyMarkdownButton.vue'
@@ -50,8 +46,12 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { getXKeysFromObject } from '@/features/specification-extension'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import {
+  getXKeysFromObject,
+  SpecificationExtension,
+} from '@/features/specification-extension'
+import { usePathsExtensions } from '@/features/specification-extension/use-paths-extensions'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -64,6 +64,7 @@ const {
   operation,
   options,
   path,
+  pathValue,
   requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
@@ -72,7 +73,7 @@ const {
 } = defineProps<
   Omit<
     OperationProps,
-    'document' | 'pathValue' | 'server' | 'securitySchemes' | 'authStore'
+    'document' | 'server' | 'securitySchemes' | 'authStore'
   > & {
     /** Operation object with path params */
     operation: OperationObject
@@ -94,14 +95,18 @@ const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
 
-/**
- * Generate SDK takes the start of the code example footer, but only while it is offered: passing
- * the slot at all would otherwise render an empty footer on deployed references.
- */
-const generateSdk = useGenerateSdkContext()
-const showGenerateSdk = computed(() =>
-  Boolean(generateSdk.value?.enabled.value),
+const pathsExtensions = usePathsExtensions(() => document?.paths)
+const pathExtensions = computed(() => getXKeysFromObject(pathValue))
+
+const pathsExtensionSelection = useSpecificationExtensions(
+  () => pathsExtensions.value,
+  () => options.showExtensions,
 )
+const pathExtensionSelection = useSpecificationExtensions(
+  () => pathExtensions.value,
+  () => options.showExtensions,
+)
+
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
 /** Track the selected request body content type so the code sample stays in sync */
@@ -265,6 +270,23 @@ const { level: headingLevel } = useDocumentOutline('operation')
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div
+          v-if="!isWebhook && pathsExtensionSelection.hasExtensions.value"
+          class="operation-details-card-item">
+          <SpecificationExtension
+            :selection="pathsExtensionSelection"
+            :showExtensions="options.showExtensions"
+            :value="pathsExtensions" />
+        </div>
+        <div
+          v-if="!isWebhook && pathExtensionSelection.hasExtensions.value"
+          class="operation-details-card-item">
+          <SpecificationExtension
+            :selection="pathExtensionSelection"
+            :showExtensions="options.showExtensions"
+            :value="pathExtensions" />
+        </div>
+
+        <div
           v-if="Object.keys(operationExtensions).length > 0"
           class="operation-details-card-item">
           <SpecificationExtension
@@ -360,11 +382,6 @@ const { level: headingLevel } = useDocumentOutline('operation')
             :selectedExample
             :selectedServer
             @update:exampleKey="resolvedExampleKey = $event">
-            <template
-              v-if="showGenerateSdk"
-              #footer-start>
-              <GenerateSdkButton variant="footer" />
-            </template>
           </CodeExample>
         </ScalarErrorBoundary>
       </div>

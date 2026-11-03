@@ -11,6 +11,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.io.Resource;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -31,8 +32,7 @@ class ScalarWebFluxControllerTest {
     @Mock
     private ObjectProvider<SpringBootScalarProperties> propertiesProvider;
 
-    @Mock
-    private ServerHttpRequest request;
+    private final ServerHttpRequest request = MockServerHttpRequest.get("/scalar").build();
 
     private ScalarWebFluxController controller;
 

@@ -8,7 +8,7 @@ import {
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { scrollTargetId } from '@/helpers/lazy-bus'
 
 import ParameterListItem from './ParameterListItem.vue'

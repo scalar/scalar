@@ -94,6 +94,10 @@ export const sendRequest = async ({
     response: ResponseInstance
     requestPayload: RequestPayload
     timestamp: number
+    /**
+     * Completion-hook response. Buffered responses retain their body; streaming responses
+     * expose a cloneable, bodyless metadata snapshot so history never waits for the stream.
+     */
     originalResponse: Response
   }>
 > => {
@@ -151,7 +155,6 @@ export const sendRequest = async ({
       method,
       fullPath,
       contentType,
-      shouldSkipBody,
       plugins,
     })
   } catch (error) {
@@ -182,6 +185,28 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
+ * Completion hooks clone this snapshot and history reads it independently of the viewer.
+ * Only the viewer owns the live body: teeing it with Response.clone() would buffer unread
+ * chunks on the history branch and can grow without bound for an endless response.
+ * A null body lets history finish immediately, even before the first stream chunk arrives.
+ * Set status separately because the Response constructor rejects nonstandard status codes.
+ * Clones must preserve that status too, instead of reverting to the constructor default.
+ */
+const createStreamingResponseSnapshot = ({
+  status,
+  statusText,
+  headers,
+}: Pick<Response, 'status' | 'statusText' | 'headers'>): Response => {
+  const snapshot = new Response(null, { statusText, headers })
+  Object.defineProperties(snapshot, {
+    status: { value: status },
+    ok: { value: status >= 200 && status <= 299 },
+    clone: { value: (): Response => createStreamingResponseSnapshot(snapshot) },
+  })
+  return snapshot
+}
+
+/**
  * Build a streaming response for sequential media types.
  * Streaming responses use a reader instead of buffering the entire body.
  */
@@ -209,14 +234,8 @@ const buildStreamingResponse = ({
   timestamp: number
   originalResponse: Response
 }> => {
-  const normalizedResponse = new Response(null, {
-    status: response.status,
-    statusText,
-    headers: response.headers,
-  })
-
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -224,7 +243,7 @@ const buildStreamingResponse = ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,
@@ -234,7 +253,11 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      originalResponse: normalizedResponse.clone(),
+      originalResponse: createStreamingResponseSnapshot({
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      }),
     },
   ]
 }
@@ -253,7 +276,6 @@ const buildStandardResponse = async ({
   method,
   fullPath,
   contentType,
-  shouldSkipBody,
   plugins,
 }: {
   response: Response
@@ -265,7 +287,6 @@ const buildStandardResponse = async ({
   method: string
   fullPath: string
   contentType: string | null
-  shouldSkipBody: boolean
   plugins: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
@@ -276,28 +297,18 @@ const buildStandardResponse = async ({
   }>
 > => {
   /**
-   * Clone the response to preserve the original for body reading.
-   * Read the body once and reuse the buffer for both decoding and creating a new Response.
+   * Clone so we can decode the body without consuming the network Response.
+   * Keep the original Response (and its real status) for callers — never rebuild
+   * it with `new Response`, which rejects statuses outside [200, 599].
    */
-  const clonedResponse = response.clone()
-  const arrayBuffer = await clonedResponse.arrayBuffer()
+  const arrayBuffer = await response.clone().arrayBuffer()
   const responseType = resolveResponseContentType(contentType)
   const mimeEssence = resolveResponseMimeType(contentType).essence
   const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
   const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
-  /**
-   * Create a new Response using the arrayBuffer we already read.
-   * ArrayBuffers can be reused to create new Response objects without additional memory.
-   */
-  const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
-    status: response.status,
-    statusText,
-    headers: response.headers,
-  })
-
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -305,7 +316,7 @@ const buildStandardResponse = async ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,

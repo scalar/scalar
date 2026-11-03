@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
+import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
 import { serializePropertyKey } from '@scalar/helpers/json/serialize-property-key'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -169,11 +170,11 @@ export async function renderApiReferenceToString(configuration: AnyApiReferenceC
 let _cachedCss: string | undefined
 let _cachedJs: string | undefined
 
-/** Read the built style.css from the @scalar/api-reference package. */
+/** Cache the built stylesheet escaped for embedding in an HTML style element. */
 function getDefaultCss(): string {
   if (_cachedCss === undefined) {
     const cssPath = require.resolve('@scalar/api-reference/style.css')
-    _cachedCss = readFileSync(cssPath, 'utf-8')
+    _cachedCss = escapeCssForStyleTag(readFileSync(cssPath, 'utf-8'))
   }
   return _cachedCss
 }
@@ -391,7 +392,7 @@ export async function renderApiReference(options: {
   cdn?: string
 }): Promise<string> {
   const title = options.pageTitle ?? 'Scalar API Reference'
-  const css = options.css ?? getDefaultCss()
+  const css = options.css == null ? getDefaultCss() : escapeCssForStyleTag(options.css)
   const cdn = escapeHtmlAttribute(options.cdn ?? '/scalar/scalar.js')
   const { html, head } = await renderApiReferenceApp({
     configuration: options.config,

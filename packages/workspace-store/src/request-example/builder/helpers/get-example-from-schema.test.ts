@@ -1,4 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { isIP } from 'node:net'
+
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -6,6 +8,36 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it('refreshes generated dates and times in reused nested schemas', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        values: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              date: { type: 'string', format: 'date' },
+              timestamp: { type: 'string', format: 'date-time' },
+              time: { type: 'string', format: 'time' },
+            },
+          },
+        },
+      },
+    })
+    vi.useFakeTimers()
+    try {
+      for (const iso of ['2026-11-03T23:59:59.000Z', '2026-11-04T00:00:01.000Z']) {
+        vi.setSystemTime(new Date(iso))
+        expect(getExampleFromSchema(schema)).toStrictEqual({
+          values: [{ date: iso.split('T')[0], timestamp: iso, time: iso.split('T')[1] }],
+        })
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('retains file metadata when allOf combines binary contributions', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       allOf: [
@@ -532,21 +564,137 @@ describe('getExampleFromSchema', () => {
     expect(result).toBe('hello@example.com')
   })
 
-  it('uses a uuid example for version-specific uuid formats', () => {
-    for (const format of ['uuid', 'uuid1', 'uuid3', 'uuid4', 'uuid5']) {
-      const result = getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'string',
-          format,
-        }),
-        {
-          emptyString: '…',
-        },
-      )
+  it.each(['date', 'date-time', 'time'] as const)('generates a parseable UTC %s example', (format) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Round-tripping catches invalid calendar dates that Date would otherwise normalize.
+    const timestamp = { date: `${result}T00:00:00.000Z`, 'date-time': result, time: `2000-01-01T${result}` }[format]
+    expect(new Date(timestamp).toISOString()).toBe(timestamp)
+  })
 
-      expect(result).toBe('123e4567-e89b-12d3-a456-426614174000')
+  it.each([
+    ['ipv4', 4],
+    ['ipv6', 6],
+  ] as const)('generates a parseable %s address', (format, version) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    expect(isIP(result)).toBe(version)
+  })
+
+  it.each([
+    ['uri', 'https://example.com/'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', 'https://example.com/folder'],
+    ['iri-reference', 'https://example.com/entity/1'],
+    ['uri-template', 'https://example.com/123'],
+  ])('generates a usable %s example', (format, expected) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    assert(typeof result === 'string')
+    // Exercise the simple template by expanding its parameter before parsing the URL.
+    const expanded = format === 'uri-template' ? result.replace('{id}', '123') : result
+    const base = format.endsWith('-reference') ? 'https://example.com/base/' : undefined
+    expect(new URL(expanded, base).href).toBe(expected)
+  })
+
+  it('generates a usable regular expression', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'regex' }))
+    assert(typeof result === 'string')
+    const expression = new RegExp(result)
+    expect(expression.test('a')).toBe(true)
+    expect(expression.test('1')).toBe(false)
+  })
+
+  // These checks cover the simple examples we emit, not every form allowed by the standards.
+  // ASCII examples are also valid for the internationalized email and hostname formats.
+  it.each([
+    ['email', /^[a-z]+@[a-z]+\.[a-z]+$/],
+    ['idn-email', /^[a-z]+(?:\.[a-z]+)*@[a-z]+\.[a-z]+$/],
+    ['hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['idn-hostname', /^[a-z]+(?:\.[a-z]+)+$/],
+    ['duration', /^P[1-9]\d*D$/],
+    ['json-pointer', /^(?:\/(?:[^~/]|~[01])*)+$/],
+    ['relative-json-pointer', /^(?:0|[1-9]\d*)(?:\/(?:[^~/]|~[01])*)+$/],
+    ['uuid', /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/],
+  ] as const)('generates a syntactically valid %s example', (format, pattern) => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))
+    expect(result).toEqual(expect.stringMatching(pattern))
+  })
+
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])('generates a version %i UUID with the RFC variant', (version) => {
+    for (const emptyString of [undefined, '', '…']) {
+      const result = getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, { type: 'string', format: `uuid${version}` }),
+        { emptyString },
+      )
+      expect(result).toEqual(
+        expect.stringMatching(
+          new RegExp(`^[0-9a-f]{8}-[0-9a-f]{4}-${version}[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`),
+        ),
+      )
     }
   })
+
+  it.each([
+    ['duration', 'P1D'],
+    ['email', 'hello@example.com'],
+    ['idn-email', 'jane.doe@example.com'],
+    ['hostname', 'example.com'],
+    ['idn-hostname', 'example.com'],
+    ['ipv4', '192.0.2.1'],
+    ['ipv6', '2001:db8::1'],
+    ['uri', 'https://example.com'],
+    ['iri', 'https://example.com/entity/123'],
+    ['uri-reference', '../folder'],
+    ['iri-reference', '/entity/1'],
+    ['uri-template', 'https://example.com/{id}'],
+    ['json-pointer', '/nested/objects'],
+    ['relative-json-pointer', '1/nested/objects'],
+    ['regex', '[a-z]'],
+    ['uuid', '123e4567-e89b-12d3-a456-426614174000'],
+  ])('generates a formatted %s example regardless of the plain string fallback', (format, expected) => {
+    for (const emptyString of [undefined, '', '…']) {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString })).toBe(
+        expected,
+      )
+    }
+  })
+
+  it('generates a UTC time including its timezone', () => {
+    const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'time' }))
+    expect(result).toEqual(expect.stringMatching(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/))
+  })
+
+  it.each([
+    ['password', '', 'super-secret'],
+    ['binary', '@filename', '@filename'],
+    ['object-id', '', '6592008029c8c3e4dc76256c'],
+    ['custom-format', '', '…'],
+    ['uuid9', '', '…'],
+    ['toString', '', '…'],
+    ['__proto__', '', '…'],
+    ['', '', '…'],
+  ])('preserves fallback behavior for %s', (format, empty, populated) => {
+    expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }))).toBe(empty)
+    expect(
+      getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format }), { emptyString: '…' }),
+    ).toBe(populated)
+  })
+
+  it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+    'preserves authored formatted values from %s',
+    (keyword) => {
+      const value = 'author@example.org'
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'string',
+            format: 'email',
+            [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+          }),
+        ),
+      ).toBe(value)
+    },
+  )
 
   it('uses variables as an example value', () => {
     expect(
@@ -2344,30 +2492,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('omits deprecated properties', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'object',
-          properties: {
-            name: {
-              type: 'string',
-              example: 'test',
-            },
-            oldField: {
-              type: 'string',
-              example: 'should not appear',
-              deprecated: true,
-            },
-          },
-        }),
-      ),
-    ).toStrictEqual({
-      name: 'test',
-    })
-  })
-
-  it('keeps deprecated properties with includeDeprecated', () => {
+  it('keeps deprecated properties', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2384,7 +2509,6 @@ describe('getExampleFromSchema', () => {
             },
           },
         }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({
       name: 'test',
@@ -2392,9 +2516,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('omits a deprecated root schema entirely', () => {
-    // The annotation is tested on every schema including the root, so a wholly deprecated response
-    // schema generates nothing at all — which is what answered a declared JSON body with zero bytes.
+  it('generates a value for a deprecated root schema', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2403,27 +2525,11 @@ describe('getExampleFromSchema', () => {
           required: ['id'],
           properties: { id: { type: 'string' } },
         }),
-      ),
-    ).toBeUndefined()
-  })
-
-  it('generates a value for a deprecated root schema with includeDeprecated', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          deprecated: true,
-          type: 'object',
-          required: ['id'],
-          properties: { id: { type: 'string' } },
-        }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({ id: '' })
   })
 
-  it('omits a required deprecated property, violating the schema', () => {
-    // `required` does not rescue the property: without the flag the generated object breaks the very
-    // contract it was generated from, which is why a mock response needs the opt-in.
+  it('keeps a required deprecated property', () => {
     expect(
       getExampleFromSchema(
         coerceValue(SchemaObjectSchema, {
@@ -2434,43 +2540,37 @@ describe('getExampleFromSchema', () => {
             legacyName: { type: 'string', deprecated: true },
           },
         }),
-      ),
-    ).toStrictEqual({ name: '' })
-  })
-
-  it('keeps a required deprecated property with includeDeprecated', () => {
-    expect(
-      getExampleFromSchema(
-        coerceValue(SchemaObjectSchema, {
-          type: 'object',
-          required: ['name', 'legacyName'],
-          properties: {
-            name: { type: 'string' },
-            legacyName: { type: 'string', deprecated: true },
-          },
-        }),
-        { includeDeprecated: true },
       ),
     ).toStrictEqual({ name: '', legacyName: '' })
   })
 
-  it('does not leak a cached example between includeDeprecated and the default', () => {
-    // `resultCache` is a module global keyed by schema identity plus the serialized options, and its
-    // lookup runs before the annotation is tested. If the flag were missing from that key, whichever
-    // caller ran first would decide the answer for the other one.
+  it.each(['read', 'write'] as const)('keeps deprecated properties while respecting %s mode', (mode) => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
+      deprecated: true,
       properties: {
-        name: { type: 'string', example: 'test' },
-        oldField: { type: 'string', example: 'legacy', deprecated: true },
+        legacy: { type: 'string', deprecated: true, example: 'old' },
+        id: { type: 'integer', deprecated: true, readOnly: true, example: 1 },
+        secret: { type: 'string', deprecated: true, writeOnly: true, example: 's' },
       },
     })
 
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toStrictEqual({
-      name: 'test',
-      oldField: 'legacy',
+    expect(getExampleFromSchema(schema, { mode })).toStrictEqual(
+      mode === 'read' ? { legacy: 'old', id: 1 } : { legacy: 'old', secret: 's' },
+    )
+  })
+
+  it('keeps required deprecated properties when omitting empty optional properties', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      required: ['legacy'],
+      properties: {
+        legacy: { type: 'string', deprecated: true },
+        optional: { type: 'string', deprecated: true },
+      },
     })
-    expect(getExampleFromSchema(schema)).toStrictEqual({ name: 'test' })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ legacy: '' })
   })
 
   it('expands objects and arrays in arrays (without a type)', () => {
@@ -3040,13 +3140,13 @@ describe('options cache key', () => {
       type: 'object',
       properties: {
         name: { type: 'string' },
-        legacy: { type: 'string', deprecated: true },
+        legacy: { type: 'string', readOnly: true },
       },
     } as const
 
-    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({ name: '', legacy: '' })
-    expect(getExampleFromSchema(schema)).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: '' })
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({ name: '', legacy: '' })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ name: '' })
   })
 
   it('keys nested results by the options of the call they were produced in', () => {
@@ -3055,27 +3155,27 @@ describe('options cache key', () => {
       properties: {
         child: {
           type: 'object',
-          properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+          properties: { name: { type: 'string' }, legacy: { type: 'string', readOnly: true } },
         },
       },
     } as const
 
-    expect(getExampleFromSchema(schema, { includeDeprecated: true })).toEqual({
+    expect(getExampleFromSchema(schema, { mode: 'read' })).toEqual({
       child: { name: '', legacy: '' },
     })
-    expect(getExampleFromSchema(schema)).toEqual({ child: { name: '' } })
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toEqual({ child: { name: '' } })
   })
 
   it('picks up an options object mutated between two calls', () => {
     const schema = {
       type: 'object',
-      properties: { name: { type: 'string' }, legacy: { type: 'string', deprecated: true } },
+      properties: { name: { type: 'string' }, legacy: { type: 'string', readOnly: true } },
     } as const
-    const options: { includeDeprecated?: boolean } = { includeDeprecated: true }
+    const options: { mode: 'read' | 'write' } = { mode: 'read' }
 
     expect(getExampleFromSchema(schema, options)).toEqual({ name: '', legacy: '' })
 
-    options.includeDeprecated = false
+    options.mode = 'write'
 
     expect(getExampleFromSchema(schema, options)).toEqual({ name: '' })
   })

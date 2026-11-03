@@ -23,6 +23,7 @@ registerLanguage(...languages)
  *
  * Renders syntax-highlighted code using @scalar/highlight.
  * Supports line numbers, credential masking, and an optional copy button.
+ * Set --scalar-code-line-height on the component or an ancestor to override its 1.4 line height.
  *
  * @example
  * <ScalarCodeBlock content="const x = 1" lang="javascript" />
@@ -155,7 +156,7 @@ const { cx } = useBindCx()
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
+        class="scalar-code-block-pre m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
@@ -189,8 +190,10 @@ const { cx } = useBindCx()
 @reference '../../style.css';
 @import '@scalar/highlight/compat/code.css';
 
-/** Disable font ligatures so code renders with literal characters */
-.scalar-code-block pre {
+/** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
+.scalar-code-block-pre {
+  font-family: var(--scalar-font-code);
+  /* Disable ligatures so code characters remain distinct. */
   font-variant-ligatures: none;
 }
 

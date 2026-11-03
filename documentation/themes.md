@@ -13,6 +13,7 @@ You don't like the color scheme? We've prepared some themes for you:
 * `mars`
 * `deepSpace`
 * `laserwave`
+* `halloween`
 
 Just pass the theme name to your [API Reference configuration](configuration.md):
 
@@ -36,6 +37,16 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 ![layouts](https://github.com/scalar/scalar/assets/6374090/a28b89e0-8d3b-477f-a02f-bcf39f7830f0)
 
 ## Custom Styling
+
+Set `--scalar-code-line-height` on a code component or an ancestor to customize code line spacing. Code blocks and direct users of `@scalar/code-highlight/css/code.css` default to `1.4`; Markdown fenced code keeps its `1.5` default.
+
+```css
+:root {
+  --scalar-code-line-height: 1.6;
+}
+```
+
+Prefer unitless values so spacing scales with the code font size. An `em` value resolves against the `pre` element, which uses the prose font size in Markdown rather than the code font size.
 
 You can pretty much style everything you see.
 [Here's an extreme example of what's possible.](https://windows98.apidocumentation.com/)

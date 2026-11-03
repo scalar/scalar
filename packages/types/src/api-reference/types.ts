@@ -86,6 +86,10 @@ type FlowsCommon = {
   'x-scalar-security-body'?: Record<string, string>
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName'?: string
+  /** Display order of this flow's tab in the auth UI (ascending). Flows with an order come first. */
+  'x-order'?: number
+  /** When true, this flow's tab is hidden from the auth UI. */
+  'x-scalar-ignore'?: boolean
 }
 
 type PkceOptions = 'SHA-256' | 'plain' | 'no'
@@ -199,6 +203,13 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Restricts visible authentication choices and forms to these scheme names.
+   * Omit to show all schemes; an empty array hides all choices, including generic creation.
+   * This does not change authentication sent with requests or API security requirements.
+   */
+  allowedSecuritySchemes?: string[]
 }
 
 export type SpecificationExtension = {
@@ -313,6 +324,7 @@ export type BaseConfiguration = {
     | 'fastify'
     | 'mars'
     | 'laserwave'
+    | 'halloween'
     | 'none'
   /** Integration type identifier */
   _integration?:
@@ -613,6 +625,26 @@ export type ApiReferenceTranslations = {
     mcpServers: string
     unableToExportDocument: string
     unknownError: string
+    waitlistEmail: string
+    waitlistPlaceholder: string
+    joinWaitlist: string
+    waitlistSuccess: string
+    waitlistError: string
+    waitlistRateLimit: string
+    waitlistBack: string
+    deployApiButton: string
+    deployFrameworkButton: string
+    deployApiTitle: string
+    deployFrameworkTitle: string
+    deployApiDescription: string
+    hostingScaleTitle: string
+    hostingScaleDescription: string
+    hostingIdleTitle: string
+    hostingIdleDescription: string
+    hostingDeploysTitle: string
+    hostingDeploysDescription: string
+    hostingPlans: string
+    hostingSeePlans: string
   }
   exploreScalar: {
     /** The sidebar call to action that opens the dialog */
@@ -759,7 +791,7 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
-  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
+  /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
@@ -885,6 +917,8 @@ type ExtendedConfiguration = {
 }
 
 export type SourceConfiguration = {
+  /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */
+  authentication?: AuthenticationConfiguration
   default?: boolean
   /** URL to an OpenAPI/Swagger document */
   url?: string

@@ -3,6 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { nodeOfetch } from './ofetch'
 
 describe('nodeOfetch', () => {
+  it.each(['cookie', 'Cookie', 'cOoKiE'])('merges an existing %s header with encoded cookies', (name) => {
+    const result = nodeOfetch.generate({
+      url: 'https://example.com',
+      headers: [{ name, value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`headers: {
+    Cookie: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc; empty='
+  }`)
+  })
+
   it('returns a basic request', () => {
     const result = nodeOfetch.generate({
       url: 'https://example.com',
@@ -145,7 +159,7 @@ ofetch('https://example.com', {
 
 ofetch('https://example.com', {
   headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
+    Cookie: 'foo=bar; bar=foo'
   }
 })`)
   })

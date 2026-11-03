@@ -785,6 +785,9 @@ onBeforeUnmount(() => {
         </ViewLayoutSection>
         <RequestBlock
           v-else
+          :allowedSecuritySchemes="
+            toValue(options)?.authentication?.allowedSecuritySchemes
+          "
           :authMeta
           :clientOptions
           :defaultHeaders

@@ -772,6 +772,29 @@ const createLandingChatPlayer = (chat) => {
    hovered globe holds still and eases its mark to the front (its bubble
    is CSS). */
 const LANDING_ORB_TURN = 3000
+/* The grain a planet is painted with runs round it as it turns.
+
+   The ball is a flat disc, so the grain on it would otherwise lie still
+   while the name goes round, and a planet whose surface never moves is
+   a drawing of a ball rather than a ball. Putting the grain on the ring
+   as a shell of little sphere pieces is the true answer and costs far
+   too much: pieces carrying a picture, inside a ring whose transform
+   changes every frame, took the home page from 120 frames a second to
+   46, at any count down to six a planet. So the grain travels across
+   the disc instead, at the speed the surface facing us moves, which is
+   the planet's whole circumference in one turn. It does not slow into
+   the edges the way a real surface does; at this size, against noise
+   with no feature in it to follow, what reads is that the surface is
+   moving at all. One tile of grain is 160px, so a tile goes by in that
+   share of a turn. A scene that turns its rings at a pace of its own
+   passes that pace in, so the surface keeps step with the name there
+   too. */
+const LANDING_GRAIN_TILE = 160
+const landingGrainTurn = (globe, size, turn = LANDING_ORB_TURN) => {
+  if (size && globe.querySelector('.lp-orb-ball')) {
+    globe.style.setProperty('--lp-grain-turn', `${Math.round((turn * LANDING_GRAIN_TILE) / (Math.PI * size))}ms`)
+  }
+}
 /* the two orbits: the long radius as a share of half the field's width,
    the short one as a share of the long (the tilt), and seconds a lap;
    then each planet's orbit and where it starts (in laps), in the order
@@ -808,12 +831,13 @@ let landingDressCopies = 0
    of its name round the ring's equator, the word centred on the
    front; the angles hold whatever size the globe takes, as the type
    scales with it */
-const dressLandingGlobe = (globe, ring, size) => {
+const dressLandingGlobe = (globe, ring, size, turn = LANDING_ORB_TURN) => {
   const template = document.getElementById(`lp-icon-${globe.dataset.icon}`)
   const label = globe.dataset.label || ''
   if (!template) {
     return false
   }
+  landingGrainTurn(globe, size, turn)
   const suffix = `-o${++landingDressCopies}`
   const holder = document.createElement('div')
   holder.innerHTML = template.innerHTML
@@ -970,10 +994,12 @@ const createPlanetFaces = (options = {}) => {
   const settings = { ...DEFAULTS, ...(options.settings ?? {}) }
   /* an expression: how the mouth lies, how open each eye is, and the
      head's tilt (degrees, a roll). The mouth is the name: 'smile' puts
-     it on the smile's circle, 'flat' on a line, 'hmm' on a line that
-     rises to one side, shifted that way */
+     it on the smile's circle, 'frown' on the same circle turned over,
+     'flat' on a line, 'hmm' on a line that rises to one side, shifted
+     that way */
   const EXPRESSIONS = {
     happy: { mouth: 'smile', lids: [1, 1], tilt: 0 },
+    sad: { mouth: 'frown', lids: [0.72, 0.72], tilt: 0 },
     straight: { mouth: 'flat', lids: [1, 1], tilt: 0 },
     thinking: { mouth: 'hmm', lids: [0.5, 1], tilt: -6 },
   }
@@ -1956,7 +1982,7 @@ const createPlanetFaces = (options = {}) => {
       const extent = final - first + step
       let offsets = pos.map((p) => p - centre)
       let scale = 1
-      if (expr.mouth === 'smile') {
+      if (expr.mouth === 'smile' || expr.mouth === 'frown') {
         const span = extent / r
         const min = (settings.minSpan * Math.PI) / 180
         const max = (settings.maxSpan * Math.PI) / 180
@@ -1966,9 +1992,16 @@ const createPlanetFaces = (options = {}) => {
           scale = max / span
           offsets = offsets.map((q) => q * scale)
         }
+        // a frown is the smile's own circle turned over: its centre sits
+        // above the mouth instead of below, so the word keeps its middle
+        // where it was and bows its ends down. The glyphs follow the
+        // tangent either way, so the roll turns over with it
+        const down = expr.mouth === 'frown'
+        const mid = down ? settings.mouthY + r : yc
         out.items = offsets.map((q) => {
           const psi = q / r
-          return { ...onSphere(r * Math.sin(psi), yc + r * Math.cos(psi)), roll: -psi, scale }
+          const y = down ? mid - r * Math.cos(psi) : mid + r * Math.cos(psi)
+          return { ...onSphere(r * Math.sin(psi), y), roll: down ? psi : -psi, scale }
         })
         return out
       }
@@ -2423,6 +2456,31 @@ const trackLandingWipe = (event) => {
 for (const type of ['transitionrun', 'transitionend', 'transitioncancel']) {
   document.addEventListener(type, trackLandingWipe)
 }
+/* What a page's animations bound outside their own markup: the document
+   and window listeners, and the observers, that would otherwise outlive
+   the page they were bound for. The site is a single-page app, so every
+   initialiser below runs again on every page change and binds again
+   against fresh markup; with nothing to let the old bindings go, the
+   document keeps one more of each per page view, each holding on to the
+   page it closed over, and a stale handler can still wake a scene that
+   is no longer on the page. Each block hands in the element it lives on
+   and the undo for what it bound.
+
+   The flows keep a map of their own further down, because theirs has to
+   be read on visibilitychange as well as on a page change. */
+const landingReleases = new Map()
+const holdLanding = (element, release) => {
+  landingReleases.set(element, release)
+}
+const sweepLanding = () => {
+  landingReleases.forEach((release, element) => {
+    if (!element.isConnected) {
+      landingReleases.delete(element)
+      release()
+    }
+  })
+}
+
 const initLandingOrbs = debounce(() => {
   const fields = [...document.querySelectorAll('.lp-orbs')].filter((field) => field.dataset.lpOrbsBound !== 'true')
   if (!fields.length) {
@@ -2432,6 +2490,16 @@ const initLandingOrbs = debounce(() => {
 
   fields.forEach((field) => {
     field.dataset.lpOrbsBound = 'true'
+    /* Everything this page's orbs bind beyond their own markup, kept so
+       that the page taking them away can take these with it. The cards
+       further down bind against elements of their own, and hand their
+       undo in here rather than keeping one each, because the app swaps
+       a whole page at once: a field that has gone means the Docs, SDK
+       and MCP cards have gone with it. They are let go together on that
+       reading, and each card's own guard then binds the page that
+       replaced them. */
+    const undo = []
+    holdLanding(field, () => undo.forEach((release) => release()))
     const hero = field.parentElement
     const paths = [...field.querySelectorAll('.lp-orbit')]
     const orbs = [...field.querySelectorAll('.lp-orb')]
@@ -2473,6 +2541,11 @@ const initLandingOrbs = debounce(() => {
     orbs.forEach((o) => {
       o.face = landingFaces.attach(o.orb, o.ring)
     })
+    /* The faces live in a controller that is made once and kept for the
+       life of the page, so a planet leaving the page has to hand its own
+       back: otherwise the controller goes on watching an orb that is no
+       longer in the document, one more of them per page view. */
+    undo.push(() => orbs.forEach((o) => o.face?.detach()))
     /* the Scalar globe in the onboard button, dressed like the planets;
        it shows while a planet talks */
     const button = hero.querySelector('[data-lp-onboard]')
@@ -2516,6 +2589,9 @@ const initLandingOrbs = debounce(() => {
           return
         }
         o.size = Number.parseFloat(getComputedStyle(o.orb).getPropertyValue('--s')) || o.size
+        // a planet that has taken a new size turns its grain at a new
+        // pace: the surface still covers its circumference in one turn
+        landingGrainTurn(o.orb, o.size)
         // the bubble's width, for keeping it inside the content box
         o.bw = o.orb.querySelector('.lp-orb-bubble')?.offsetWidth || 250
       })
@@ -2941,12 +3017,12 @@ const initLandingOrbs = debounce(() => {
       })
     })
     // the keyboard can end a talk, as the copy is hidden meanwhile
-    document.addEventListener('keydown', (event) => {
+    const onEscape = (event) => {
       if (event.key === 'Escape' && talk) {
         stopTalk()
       }
-    })
-    document.addEventListener('pointerdown', (event) => {
+    }
+    const onTapAway = (event) => {
       if (
         talk &&
         event.pointerType === 'touch' &&
@@ -2955,6 +3031,12 @@ const initLandingOrbs = debounce(() => {
       ) {
         stopTalk()
       }
+    }
+    document.addEventListener('keydown', onEscape)
+    document.addEventListener('pointerdown', onTapAway)
+    undo.push(() => {
+      document.removeEventListener('keydown', onEscape)
+      document.removeEventListener('pointerdown', onTapAway)
     })
     if (hasSun) {
       button.addEventListener('lp-onboard-copied', () => {
@@ -2987,7 +3069,9 @@ const initLandingOrbs = debounce(() => {
       orbs.forEach((o) => o.orb.classList.add('is-placed'))
     }
     apply()
-    new ResizeObserver(apply).observe(field)
+    const sizes = new ResizeObserver(apply)
+    sizes.observe(field)
+    undo.push(() => sizes.disconnect())
     // the orbit's state, for the page's tests
     field.lpOrbs = () =>
       orbs.map((o) => ({
@@ -3406,7 +3490,7 @@ const initLandingOrbs = debounce(() => {
       // the planets come once the card has risen into the top part of
       // the viewport (its top above the 45% line), and go back once it
       // has dropped below that line; past the top they stay
-      new IntersectionObserver(
+      const stageWatch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -3417,14 +3501,16 @@ const initLandingOrbs = debounce(() => {
           })
         },
         { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-      ).observe(stage)
+      )
+      stageWatch.observe(stage)
+      undo.push(() => stageWatch.disconnect())
       const wakeOrbit = () => {
         if (stageSeen && !document.hidden && onStage && stage.classList.contains('is-orbit') && !orbitFrame) {
           orbitLast = null
           orbitTick(performance.now())
         }
       }
-      new IntersectionObserver(
+      const seenWatch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             stageSeen = entry.isIntersecting
@@ -3432,8 +3518,22 @@ const initLandingOrbs = debounce(() => {
           wakeOrbit()
         },
         { threshold: 0 },
-      ).observe(stage)
+      )
+      seenWatch.observe(stage)
       document.addEventListener('visibilitychange', wakeOrbit)
+      /* A page swapped out while the tab is hidden leaves this one worse
+         than merely leaking: nothing paints, so the watcher above never
+         reports the stage gone, and on the way back a listener still on
+         the document would start a loop writing styles into a stage that
+         is no longer on the page. */
+      undo.push(() => {
+        seenWatch.disconnect()
+        document.removeEventListener('visibilitychange', wakeOrbit)
+        if (orbitFrame) {
+          cancelAnimationFrame(orbitFrame)
+          orbitFrame = 0
+        }
+      })
 
       /* The SDK card, below. As it scrolls into view the globe, with its
          ring, leaves the Docs card for the top of this one and one of the
@@ -3720,7 +3820,7 @@ const initLandingOrbs = debounce(() => {
           // the thread goes once the caller has measured the planets
           return () => next.off()
         }
-        new IntersectionObserver(
+        const sdkWatch = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
@@ -3731,7 +3831,9 @@ const initLandingOrbs = debounce(() => {
             })
           },
           { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-        ).observe(sdk)
+        )
+        sdkWatch.observe(sdk)
+        undo.push(() => sdkWatch.disconnect())
         lent.check = () => {
           const line = window.innerHeight * 0.45
           const top = sdk.getBoundingClientRect().top
@@ -3918,7 +4020,7 @@ const initLandingOrbs = debounce(() => {
             }
             next.off()
           }
-          new IntersectionObserver(
+          const mcpWatch = new IntersectionObserver(
             (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -3929,7 +4031,9 @@ const initLandingOrbs = debounce(() => {
               })
             },
             { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-          ).observe(mcp)
+          )
+          mcpWatch.observe(mcp)
+          undo.push(() => mcpWatch.disconnect())
           next.check = () => {
             const line = window.innerHeight * 0.45
             const top = mcp.getBoundingClientRect().top
@@ -3945,104 +4049,6 @@ const initLandingOrbs = debounce(() => {
             shown: order.filter((r) => r.classList.contains('is-shown')).length,
             done: rows.think.classList.contains('is-done'),
             lines: lines.filter((line) => line.classList.contains('is-shown')).length,
-          })
-        }
-
-        /* The hosting band's scene, below that: a globe of its own at the
-           centre of the orbit box, there from the start, and the three
-           products, planets of their own, rising and going round it with
-           their rings turning while the scene is on screen (the loop
-           sleeps off screen and wakes where it left off); the flow's
-           lines run from Your API into the box and out to the agents. */
-        const host = document.querySelector('[data-lp-stage-host]')
-        const hostSun = host?.querySelector('.lp-stage-sun .lp-sun')
-        const hostRing = hostSun?.querySelector('.lp-orb-ring')
-        const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
-        const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
-        const wares = host
-          ? [...host.querySelectorAll('.lp-orb--product')]
-              .map((orb) => {
-                const ring = orb.querySelector('.lp-orb-ring')
-                const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
-                if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
-                  return null
-                }
-                // the name a second time on the far side, so it reads
-                // whichever way the ring is turned
-                ;[...ring.querySelectorAll('.lp-orb-item')].forEach((item) => {
-                  const twin = item.cloneNode(true)
-                  twin.style.setProperty('--a', `${Number.parseFloat(item.style.getPropertyValue('--a')) + 180}deg`)
-                  ring.appendChild(twin)
-                })
-                return { orb, ring, spin: 0, angle: 0 }
-              })
-              .filter(Boolean)
-          : []
-        if (host && hasHostSun && wares.length && host.dataset.lpStageBound !== 'true') {
-          host.dataset.lpStageBound = 'true'
-          hostRing.style.transform = 'rotateY(0deg)'
-          // a slow lap, and the rings at half the hero's pace
-          const HOST_LAP = 36
-          let hostOn = false
-          let hostSeen = false
-          let hostFrame = 0
-          let hostLast = null
-          const hostTick = (now) => {
-            hostFrame = 0
-            if (!hostOn || !hostSeen || document.hidden) {
-              hostLast = null
-              return
-            }
-            const dt = hostLast === null ? 0 : Math.min(now - hostLast, 100)
-            hostLast = now
-            const rx = host.clientWidth * 0.4
-            const ry = host.clientHeight * 0.34
-            wares.forEach((w) => {
-              w.angle += (2 * Math.PI * dt) / 1000 / HOST_LAP
-              w.orb.style.translate = `${(rx * Math.cos(w.angle)).toFixed(1)}px ${(ry * Math.sin(w.angle)).toFixed(1)}px`
-              const z = Math.sin(w.angle) >= 0 ? '5' : '1'
-              if (w.orb.style.zIndex !== z) {
-                w.orb.style.zIndex = z
-              }
-              w.spin = (w.spin + (360 * dt) / (LANDING_ORB_TURN * 2)) % 360
-              w.ring.style.transform = `rotateY(${w.spin}deg)`
-            })
-            if (!reduceMotion) {
-              hostFrame = requestAnimationFrame(hostTick)
-            }
-          }
-          const wakeHost = () => {
-            if (hostOn && hostSeen && !document.hidden && !hostFrame) {
-              hostLast = null
-              hostTick(performance.now())
-            }
-          }
-          // the planets rise the first time the scene shows, and go round
-          // whenever it is on screen
-          new IntersectionObserver(
-            (entries) => {
-              entries.forEach((entry) => {
-                hostSeen = entry.isIntersecting
-                host.classList.toggle('is-off', !hostSeen)
-              })
-              if (hostSeen && !hostOn) {
-                hostOn = true
-                wares.forEach((w, i) => {
-                  w.angle = (i * 2 * Math.PI) / wares.length + Math.PI / 2
-                })
-                host.classList.add('is-orbit')
-              }
-              wakeHost()
-            },
-            { threshold: 0 },
-          ).observe(host)
-          document.addEventListener('visibilitychange', wakeHost)
-          // the band's state, for the page's tests
-          host.lpHost = () => ({
-            on: hostOn,
-            seen: hostSeen,
-            orbit: host.classList.contains('is-orbit'),
-            running: Boolean(hostFrame),
           })
         }
       }
@@ -4073,6 +4079,13 @@ const initLandingOrbs = debounce(() => {
         })
       }
       window.addEventListener('scroll', onJump, { passive: true })
+      undo.push(() => {
+        window.removeEventListener('scroll', onJump)
+        if (scrolled) {
+          cancelAnimationFrame(scrolled)
+          scrolled = 0
+        }
+      })
       onJump()
     }
     orbs.forEach((o) => {
@@ -4156,19 +4169,994 @@ const initLandingOrbs = debounce(() => {
     )
     observer.observe(field)
     document.addEventListener('visibilitychange', sync)
-    // the logo wall slides only while it is on screen
-    const wall = hero.querySelector('.lp-trusted')
-    if (wall) {
+    undo.push(() => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+    })
+  })
+})
+
+/* The enterprise hero's ring turns.
+ *
+ * The ring is a real disc lying in space, and it turns on all three of
+ * its axes:
+ *
+ *   spin  — about the disc's own axis, so the colours travel round it
+ *           and pass behind the planet. A drag across the hero.
+ *   tilt  — how far the disc is tipped towards the viewer, from nearly
+ *           edge on to well open. A drag up or down near the middle.
+ *   roll  — the whole ring tipped over in the plane of the page, so it
+ *           can lie at an angle. A drag up or down out at a wing.
+ *
+ * The last two come off the same gesture because a ring is a rigid
+ * thing: pulling on the middle of it tips it, pulling on one end of it
+ * rolls it, and pulling in between does some of each — which is what
+ * the pull actually does to a hoop you are holding.
+ *
+ * From the moment the page opens the ring turns on its own, a lap
+ * every two and a half minutes — it does not draw itself on first.
+ * The drift is only there until someone takes hold of it: after that
+ * the ring is theirs, a fling coasts to a stop the way something with
+ * weight does, and it stays where they left it.
+ *
+ * All three turns are transforms on two elements, so a frame of it is
+ * work for the compositor and never a repaint or a layout.
+ */
+/** degrees a second the ring drifts when it is left alone */
+const ENT_DRIFT = 2.4
+/** degrees the ring turns for each pixel the pointer is dragged across */
+const ENT_DRAG = 0.5
+/** degrees the disc tips for each pixel the pointer is dragged down */
+const ENT_TIP = 0.14
+/** degrees the ring rolls for each pixel a wing of it is dragged down */
+const ENT_ROLL = 0.12
+/** how far the disc may be tipped: nearly edge on, to well open */
+const ENT_TILT_MIN = 66
+const ENT_TILT_MAX = 85
+/** how far out a grab counts as all roll and no tip, as a share of the hero */
+const ENT_WING = 0.38
+/** how fast a fling bleeds back down to the drift, per second */
+const ENT_FRICTION = 1.4
+/** the fastest a fling may leave the hand, in degrees a second */
+const ENT_MAX_FLING = 1500
+/** how far a pointer may travel before it counts as a drag and not a click */
+const ENT_SLOP = 4
+
+const initEnterpriseRing = debounce(() => {
+  const hero = document.querySelector('.ent-hero')
+  if (!hero || hero.dataset.entRingBound === 'true') {
+    return
+  }
+  hero.dataset.entRingBound = 'true'
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+  let angle = 0
+  /** degrees a second: the drift is where this settles */
+  let velocity = 0
+  let tilt = Number.parseFloat(getComputedStyle(hero).getPropertyValue('--ent-tilt')) || ENT_TILT_MAX
+  let roll = 0
+  let seen = false
+  let frame = 0
+  let last = null
+  let grab = null
+  let travelled = 0
+  /** the ring drifts until someone has taken hold of it, and then stops */
+  let handled = false
+
+  const draw = () => {
+    hero.style.setProperty('--ent-spin', `${angle.toFixed(2)}deg`)
+    hero.style.setProperty('--ent-tilt', `${tilt.toFixed(2)}deg`)
+    hero.style.setProperty('--ent-roll', `${roll.toFixed(2)}deg`)
+  }
+
+  const tick = (now) => {
+    frame = 0
+    if (!seen || document.hidden) {
+      last = null
+      return
+    }
+    const dt = last === null ? 0 : Math.min(now - last, 100) / 1000
+    last = now
+    const drift = reduceMotion.matches || handled ? 0 : ENT_DRIFT
+    // a hand on the ring sets the angle itself; otherwise the fling
+    // eases towards the drift, which is nothing once it has been held
+    if (!grab) {
+      velocity += (drift - velocity) * Math.min(1, ENT_FRICTION * dt)
+      angle += velocity * dt
+      draw()
+    }
+    // the drift never runs out, so without it there has to be a fling
+    // left to coast on for the ring to be worth another frame
+    if (grab || drift !== 0 || Math.abs(velocity) > 0.05) {
+      frame = requestAnimationFrame(tick)
+    }
+  }
+
+  const wake = () => {
+    if (seen && !document.hidden && !frame) {
+      last = null
+      frame = requestAnimationFrame(tick)
+    }
+  }
+
+  hero.addEventListener('pointerdown', (event) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) {
+      return
+    }
+    // the copy is for reading, and its links are for following
+    if (event.target.closest('.ent-copy')) {
+      return
+    }
+    grab = { id: event.pointerId, x: event.clientX, y: event.clientY, at: event.timeStamp }
+    travelled = 0
+    velocity = 0
+    // the ring is theirs now: it stops drifting on its own
+    handled = true
+    hero.setPointerCapture(event.pointerId)
+    hero.classList.add('is-spinning')
+    wake()
+  })
+
+  hero.addEventListener('pointermove', (event) => {
+    if (!grab || event.pointerId !== grab.id) {
+      return
+    }
+    const dx = event.clientX - grab.x
+    const dy = event.clientY - grab.y
+    const dt = Math.max(event.timeStamp - grab.at, 8) / 1000
+    travelled += Math.abs(dx) + Math.abs(dy)
+    // across the hero turns the disc about its own axis
+    angle += dx * ENT_DRAG
+    // How far out along the ring the hand is, from nothing at the
+    // middle to all of it at a wing: a pull on the middle tips the
+    // disc towards the viewer, a pull on a wing rolls the ring over,
+    // and a pull in between does some of each.
+    const box = hero.getBoundingClientRect()
+    const out = Math.max(-1, Math.min(1, (event.clientX - (box.left + box.width / 2)) / (box.width * ENT_WING)))
+    tilt = Math.max(ENT_TILT_MIN, Math.min(ENT_TILT_MAX, tilt - dy * ENT_TIP * (1 - Math.abs(out))))
+    roll += dy * ENT_ROLL * out
+    // smoothed, so the speed it leaves the hand at is the speed of the
+    // throw and not of whichever last event happened to land
+    velocity = velocity * 0.6 + ((dx * ENT_DRAG) / dt) * 0.4
+    grab.x = event.clientX
+    grab.y = event.clientY
+    grab.at = event.timeStamp
+    draw()
+    if (travelled > ENT_SLOP) {
+      event.preventDefault()
+    }
+  })
+
+  const letGo = (event) => {
+    if (!grab || event.pointerId !== grab.id) {
+      return
+    }
+    grab = null
+    hero.classList.remove('is-spinning')
+    // a flick carries on; without motion the ring stops where it was put
+    velocity = reduceMotion.matches ? 0 : Math.max(-ENT_MAX_FLING, Math.min(ENT_MAX_FLING, velocity))
+    wake()
+  }
+  hero.addEventListener('pointerup', letGo)
+  hero.addEventListener('pointercancel', letGo)
+
+  const watch = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        seen = entry.isIntersecting
+      })
+      wake()
+    },
+    { threshold: 0 },
+  )
+  watch.observe(hero)
+  document.addEventListener('visibilitychange', wake)
+  holdLanding(hero, () => {
+    watch.disconnect()
+    document.removeEventListener('visibilitychange', wake)
+    if (frame) {
+      cancelAnimationFrame(frame)
+      frame = 0
+    }
+  })
+
+  // the ring's state, for the page's tests
+  hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
+})
+
+/* The light crossing the enterprise page's figures.
+ *
+ * It only crosses while the band is on screen — there is no sense in
+ * it crossing where nobody is looking. The three cards start blank
+ * and face down, and each one turns over as the head of the light
+ * reaches it: the watcher below follows where the head actually is
+ * rather than running the turns off a timer, so it is the light that
+ * flips them and not a coincidence of timing. They land once.
+ */
+/** where the head sits along the light, as a share of its length */
+const ENT_HEAD_AT = 0.88
+/** how long a card takes to turn over and settle */
+const ENT_SPIN_MS = 1500
+/** how far left of a card the head has to get before it counts again */
+const ENT_REARM = 40
+
+const initEnterpriseSky = debounce(() => {
+  ;[...document.querySelectorAll('.ent-sky')]
+    .filter((sky) => sky.dataset.entSkyBound !== 'true')
+    .forEach((sky) => {
+      sky.dataset.entSkyBound = 'true'
+      const comet = sky.querySelector('.ent-comet')
+      const figures = sky.querySelector('.ent-figures')
+      const cards = [...sky.querySelectorAll('.ent-figure')]
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+      let watching = 0
+
+      /* Four turns, landing face up. The first one starts from the
+         blank side, since that is what is showing; every one after it
+         starts from the number, because the number has been seen and
+         hiding it again would be a step backwards. */
+      const turn = (card) => {
+        const flip = card.querySelector('.ent-flip')
+        const from = card.dataset.entLanded === 'true' ? 0 : 180
+        card.entTurn?.cancel()
+        card.entTurn = flip.animate([{ transform: `rotateY(${from}deg)` }, { transform: 'rotateY(1440deg)' }], {
+          duration: ENT_SPIN_MS,
+          easing: 'cubic-bezier(0.16, 0.84, 0.3, 1)',
+          fill: 'forwards',
+        })
+        card.dataset.entLanded = 'true'
+      }
+
+      // a card turns as the head reaches its middle, and is ready to
+      // turn again once the head is back behind it on the next pass
+      const watch = () => {
+        watching = 0
+        if (comet) {
+          const box = comet.getBoundingClientRect()
+          const head = box.left + box.width * ENT_HEAD_AT
+          cards.forEach((card) => {
+            const r = card.getBoundingClientRect()
+            if (head >= r.left + r.width / 2) {
+              if (card.dataset.entPassed !== 'true') {
+                card.dataset.entPassed = 'true'
+                turn(card)
+              }
+            } else if (head < r.left - ENT_REARM) {
+              card.dataset.entPassed = 'false'
+            }
+          })
+        }
+        if (sky.classList.contains('is-flying')) {
+          watching = requestAnimationFrame(watch)
+        }
+      }
+
       new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            sky.classList.toggle('is-flying', entry.isIntersecting)
+            if (entry.isIntersecting) {
+              sky.classList.add('is-seen')
+              if (!watching && !reduceMotion.matches) {
+                watching = requestAnimationFrame(watch)
+              }
+            }
+          })
+        },
+        { threshold: 0 },
+      ).observe(sky)
+
+      // The cards are face up in the stylesheet, so that a page with
+      // no script shows the numbers rather than three blanks. Turning
+      // them face down is the script's first job — and not one it does
+      // at all where motion is unwanted.
+      if (figures && !reduceMotion.matches) {
+        figures.classList.add('is-armed')
+      }
+    })
+})
+
+/* The hosting scene: a globe at the centre of the orbit box, there
+   from the start, and three products — planets of their own — rising
+   and going round it with their rings turning while the scene is on
+   screen. It used to live inside the home page's hero setup, which
+   meant it only ran on a page that had that hero; it looks the scene
+   up by itself, so it is an init of its own and any page that has the
+   markup gets it. */
+const initLandingHostStage = debounce(() => {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  /* The hosting band's scene: a globe of its own at the centre of the
+       orbit box, there from the start, and the three products, planets
+       of their own, rising and going round it with their rings turning
+       while the scene is on screen (the loop sleeps off screen and
+       wakes where it left off); the flow's lines run from Your API into
+       the box and out to the agents. */
+  const host = document.querySelector('[data-lp-stage-host]')
+  /* Dressing a globe adds a few thousand elements, and adding them
+       is itself a mutation, which brings this init straight back round
+       — so the guard has to be here, before any dressing, and not
+       beside the work it protects. Without it the scene dresses itself
+       again on every pass and the page ends up with several times the
+       elements it needs. */
+  if (!host || host.dataset.lpStageBound === 'true') {
+    return
+  }
+  const hostSun = host?.querySelector('.lp-stage-sun .lp-sun')
+  const hostRing = hostSun?.querySelector('.lp-orb-ring')
+  const hostSunSize = hostSun ? Number.parseFloat(getComputedStyle(hostSun).getPropertyValue('--s')) : 0
+  const hasHostSun = Boolean(hostRing && hostSunSize && dressLandingGlobe(hostSun, hostRing, hostSunSize))
+  /* the rings here turn at half the hero's pace, a calmer scene; the
+     grain is painted at that pace too, so a planet's surface travels
+     with its name rather than twice round it */
+  const HOST_ORB_TURN = LANDING_ORB_TURN * 2
+  const wares = host
+    ? [...host.querySelectorAll('.lp-orb--product')]
+        .map((orb) => {
+          const ring = orb.querySelector('.lp-orb-ring')
+          const size = Number.parseFloat(getComputedStyle(orb).getPropertyValue('--s'))
+          if (!ring || !size || !dressLandingGlobe(orb, ring, size, HOST_ORB_TURN)) {
+            return null
+          }
+          // the name a second time on the far side, so it reads
+          // whichever way the ring is turned
+          ;[...ring.querySelectorAll('.lp-orb-item')].forEach((item) => {
+            const twin = item.cloneNode(true)
+            twin.style.setProperty('--a', `${Number.parseFloat(item.style.getPropertyValue('--a')) + 180}deg`)
+            ring.appendChild(twin)
+          })
+          return { orb, ring, spin: 0, angle: 0 }
+        })
+        .filter(Boolean)
+    : []
+  if (hasHostSun && wares.length) {
+    host.dataset.lpStageBound = 'true'
+    hostRing.style.transform = 'rotateY(0deg)'
+    // a slow lap round the globe
+    const HOST_LAP = 36
+    let hostOn = false
+    let hostSeen = false
+    let hostFrame = 0
+    let hostLast = null
+    const hostTick = (now) => {
+      hostFrame = 0
+      if (!hostOn || !hostSeen || document.hidden) {
+        hostLast = null
+        return
+      }
+      const dt = hostLast === null ? 0 : Math.min(now - hostLast, 100)
+      hostLast = now
+      const rx = host.clientWidth * 0.4
+      const ry = host.clientHeight * 0.34
+      wares.forEach((w) => {
+        w.angle += (2 * Math.PI * dt) / 1000 / HOST_LAP
+        w.orb.style.translate = `${(rx * Math.cos(w.angle)).toFixed(1)}px ${(ry * Math.sin(w.angle)).toFixed(1)}px`
+        const z = Math.sin(w.angle) >= 0 ? '5' : '1'
+        if (w.orb.style.zIndex !== z) {
+          w.orb.style.zIndex = z
+        }
+        w.spin = (w.spin + (360 * dt) / HOST_ORB_TURN) % 360
+        w.ring.style.transform = `rotateY(${w.spin}deg)`
+      })
+      if (!reduceMotion) {
+        hostFrame = requestAnimationFrame(hostTick)
+      }
+    }
+    const wakeHost = () => {
+      if (hostOn && hostSeen && !document.hidden && !hostFrame) {
+        hostLast = null
+        hostTick(performance.now())
+      }
+    }
+    // the planets rise the first time the scene shows, and go round
+    // whenever it is on screen
+    const hostWatch = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          hostSeen = entry.isIntersecting
+          host.classList.toggle('is-off', !hostSeen)
+        })
+        if (hostSeen && !hostOn) {
+          hostOn = true
+          wares.forEach((w, i) => {
+            w.angle = (i * 2 * Math.PI) / wares.length + Math.PI / 2
+          })
+          host.classList.add('is-orbit')
+        }
+        wakeHost()
+      },
+      { threshold: 0 },
+    )
+    hostWatch.observe(host)
+    document.addEventListener('visibilitychange', wakeHost)
+    // the planets take their size from the scene's width, so a planet
+    // that has taken a new size turns its grain at a new pace: the
+    // surface still covers its circumference in one turn
+    const hostSizes = new ResizeObserver(() => {
+      wares.forEach((w) => {
+        const size = Number.parseFloat(getComputedStyle(w.orb).getPropertyValue('--s'))
+        landingGrainTurn(w.orb, size, HOST_ORB_TURN)
+      })
+    })
+    hostSizes.observe(host)
+    holdLanding(host, () => {
+      hostWatch.disconnect()
+      hostSizes.disconnect()
+      document.removeEventListener('visibilitychange', wakeHost)
+      if (hostFrame) {
+        cancelAnimationFrame(hostFrame)
+        hostFrame = 0
+      }
+    })
+    // the band's state, for the page's tests
+    host.lpHost = () => ({
+      on: hostOn,
+      seen: hostSeen,
+      orbit: host.classList.contains('is-orbit'),
+      running: Boolean(hostFrame),
+    })
+  }
+})
+
+/* The customer logo sliders (the home page's hero, the enterprise
+   page's) run only while they are on screen. */
+const initTrustedWalls = debounce(() => {
+  ;[...document.querySelectorAll('.lp-trusted')]
+    .filter((wall) => wall.dataset.lpTrustedBound !== 'true')
+    .forEach((wall) => {
+      wall.dataset.lpTrustedBound = 'true'
+      const watch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => wall.classList.toggle('is-off', !entry.isIntersecting))
         },
         { threshold: 0 },
-      ).observe(wall)
-    }
-  })
+      )
+      watch.observe(wall)
+      holdLanding(wall, () => watch.disconnect())
+    })
 })
 
+/* The welcome committee under the footer: five of the landing planets
+   (documentation/footer.html, the band's styles in styles.css) wait
+   below the fold and rise when the page is scrolled to its very end,
+   left to right into an arch, each saying hello in a small bubble of
+   its own. They stand round a point on the AI chat bar scalar.com
+   floats over the bottom of every page, centred on it (on a page
+   without one, on the band) and scaled down where the band is narrower
+   than the cluster. They sink back down when the page leaves its end,
+   so the committee is there again for the next arrival.
+
+   Every planet is a button. It waits as a plain globe with its name
+   round it, takes its mark's shape with a face under the pointer or on
+   keyboard focus, and opens the install card for Scalar's own MCP
+   server when it is pressed, flying into the card's hero as it goes.
+
+   The footer is drawn anew on every page the site moves to, so a band
+   whose footer has gone lets go of its listeners and faces at the next
+   scroll or resize */
+/* The committee's patter: as the row lands every planet campaigns for
+   the click, once or twice, each on a clock of its own so they never
+   fall into step. Then they let the reader be — the band only comes up
+   at the very end of a page, and it plays again on the next arrival. */
+const FOOTER_PLANETS_CHANT = ['Pick me!', 'Pick me!', 'Pick me!', 'Pick me!!', 'Me!', 'Pick me!']
+/* from a planet's turn in the rise: when it first calls out */
+const FOOTER_PLANETS_CHANT_FROM = 640
+/* a chant bubble is up for this long, then its planet waits this long,
+   both dealt at random */
+const FOOTER_PLANETS_UP = [800, 1500]
+const FOOTER_PLANETS_GAP = [700, 2200]
+/* how many of the six call out on an arrival. They say it once each:
+   the row is there to be picked, not to shout */
+const FOOTER_PLANETS_VOICES = 3
+/* the cluster's width at full size, bubbles included, with its margins
+   (the stylesheet's --fp-span: the planets' --x and sizes lay it out) */
+const FOOTER_PLANETS_SPAN = 760
+
+const FOOTER_MCP_URL = 'https://mcp.scalar.com/'
+const FOOTER_MCP_CLIENTS = {
+  chatgpt: {
+    name: 'Codex',
+    note: 'Add this to ~/.codex/config.toml.',
+    code: `[mcp_servers.scalar-api]\nurl = "${FOOTER_MCP_URL}"`,
+  },
+  claude: {
+    name: 'Claude Code',
+    note: 'Run this in your terminal to add the server to Claude Code.',
+    code: `claude mcp add scalar-api --transport http '${FOOTER_MCP_URL}'`,
+  },
+  opencode: {
+    name: 'OpenCode',
+    note: 'Add this to your opencode.json.',
+    code: `{\n  "mcp": {\n    "scalar-api": {\n      "type": "remote",\n      "url": "${FOOTER_MCP_URL}"\n    }\n  }\n}`,
+  },
+}
+/* a planet with no recipe of its own takes the plain one */
+const FOOTER_MCP_ANY = {
+  name: '',
+  note: "Add this to your agent's MCP server config.",
+  code: `{\n  "scalar-api": {\n    "type": "http",\n    "url": "${FOOTER_MCP_URL}"\n  }\n}`,
+}
+
+/* how long a copied control holds its tick */
+const FOOTER_MCP_COPIED = 1600
+/* how long a planet takes between the band and the card's hero */
+const FOOTER_MCP_FLIGHT = 520
+
+/* The card a planet opens: the install card for mcp.scalar.com, a sheet
+   fixed over the page with the rest of the document made inert while it
+   is up, so it behaves as a modal without being a <dialog>. It shows
+   the setup for the agent whose planet was pressed, and that planet
+   itself moves into the card's hero and back out again, carried there
+   by a FLIP (see fly below) while the dim and the card fade in under
+   it. `settle` hands a planet back to the band once the card has let go
+   of it. */
+const createFooterCard = (band, reduceMotion, settle) => {
+  const sheet = band.querySelector('.fp-sheet')
+  const card = sheet?.querySelector('.fp-card')
+  const seat = sheet?.querySelector('.fp-card-seat')
+  const note = sheet?.querySelector('[data-fp-note]')
+  const code = sheet?.querySelector('[data-fp-code]')
+  const go = sheet?.querySelector('[data-fp-go]')
+  const goLabel = go?.querySelector('.fp-card-go-rest')
+  const snippetCopy = sheet?.querySelector('[data-fp-copy="code"]')
+  if (!sheet || !card || !seat || !note || !code || !go || !goLabel || !snippetCopy) {
+    return null
+  }
+  // the markup hides it outright so it cannot flash before the
+  // stylesheet lands: from here the rules hold it
+  sheet.removeAttribute('hidden')
+
+  let client = FOOTER_MCP_ANY
+  /* the card on one agent: its snippet, and the button that acts on it */
+  const fill = (icon) => {
+    client = FOOTER_MCP_CLIENTS[icon] ?? FOOTER_MCP_ANY
+    note.textContent = client.note
+    code.textContent = client.code
+    snippetCopy.setAttribute('aria-label', client.name ? `Copy the ${client.name} snippet` : 'Copy the configuration')
+    goLabel.textContent = client.name ? `Copy for ${client.name}` : 'Copy the configuration'
+    go.classList.remove('is-done')
+  }
+
+  /* copying: the control holds a tick for a moment, nothing else moves */
+  const timers = new WeakMap()
+  const copy = (text, control) => {
+    if (!navigator.clipboard) {
+      return
+    }
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        control.classList.add('is-done')
+        window.clearTimeout(timers.get(control))
+        timers.set(
+          control,
+          window.setTimeout(() => control.classList.remove('is-done'), FOOTER_MCP_COPIED),
+        )
+      })
+      .catch(() => {})
+  }
+  // both the icon beside the snippet and the button below it do the one
+  // thing there is to do: the snippet carries the server's URL inside it
+  snippetCopy.addEventListener('click', () => copy(client.code, snippetCopy))
+  go.addEventListener('click', () => copy(client.code, go))
+
+  let planet = null
+  let seated = null
+  let busy = false
+  /* where the focus was when the card took it */
+  let came = null
+  /* The flight: the planet moves between the band and the card's hero,
+     and a FLIP carries it there, measured on both sides of the move and
+     played back from where it stood. Deliberately not a view
+     transition: those paint the whole turn from snapshots, and in this
+     page Chrome tore the frame whenever anything else changed in the
+     same turn (the sheet showing, the document going inert), which left
+     the header and sidebar missing for a beat. A FLIP also leaves the
+     planet live, so its eyes keep following the pointer on the way in. */
+  const fly = (orb, run) => {
+    if (reduceMotion || typeof orb.animate !== 'function') {
+      run()
+      return Promise.resolve()
+    }
+    const from = orb.getBoundingClientRect()
+    run()
+    const to = orb.getBoundingClientRect()
+    if (!from.width || !to.width) {
+      return Promise.resolve()
+    }
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
+    return orb
+      .animate(
+        [
+          {
+            transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${(from.width / to.width).toFixed(4)})`,
+          },
+          { transform: 'none' },
+        ],
+        { duration: FOOTER_MCP_FLIGHT, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+      )
+      .finished.catch(() => {})
+  }
+
+  /* Everything outside the sheet, made inert while the card is up: the
+     tab order then holds inside the card on its own, as a dialog's
+     does, and nothing behind the dim answers a pointer. */
+  let shut = []
+  const seal = (on) => {
+    if (!on) {
+      shut.forEach((el) => {
+        el.inert = false
+      })
+      shut = []
+      return
+    }
+    for (let node = sheet; node && node !== document.body; node = node.parentElement) {
+      for (const other of node.parentElement?.children ?? []) {
+        if (other !== node && !other.inert) {
+          other.inert = true
+          shut.push(other)
+        }
+      }
+    }
+  }
+
+  const open = (next) => {
+    if (busy || planet) {
+      return
+    }
+    busy = true
+    planet = next
+    fill(next.orb.dataset.icon)
+    card.style.setProperty('--fp-card-tint', getComputedStyle(next.orb).getPropertyValue('--fp-wash').trim())
+    // the hero always shows the shape, and smiles there however the
+    // planet was pressed
+    next.face.express('happy')
+    next.face.set(true)
+    next.hi.classList.remove('is-on')
+    seated = document.createComment('fp-planet')
+    next.orb.before(seated)
+    came = document.activeElement
+    const at = window.scrollY
+    fly(next.orb, () => {
+      // inert keeps the hero's planet out of the reading order while it
+      // is only a picture, and blurs the pressed planet on the way
+      next.orb.inert = true
+      seat.appendChild(next.orb)
+      sheet.classList.add('is-open')
+    })
+      .then(() => {
+        busy = false
+        seal(true)
+        // a frame after the sweep: marking the pressed planet inert
+        // sends the focus wandering, and that fixup lands after a
+        // focus() made in the same turn
+        window.requestAnimationFrame(() => card.focus({ preventScroll: true }))
+        // nothing here is meant to move the page, and the band is only
+        // up at its very end: hold the reader where they were
+        if (Math.abs(window.scrollY - at) > 1) {
+          window.scrollTo(0, at)
+        }
+      })
+      .catch(() => {})
+  }
+
+  const close = () => {
+    const leaving = planet
+    if (!leaving || busy) {
+      return
+    }
+    busy = true
+    seal(false)
+    fly(leaving.orb, () => {
+      sheet.classList.remove('is-open')
+      seated?.replaceWith(leaving.orb)
+      leaving.orb.inert = false
+    })
+      .then(() => {
+        planet = null
+        seated = null
+        busy = false
+        // its bubble stays down: the chant it sat out comes back round
+        // on its own and brings the planet's words with it
+        // the pointer may have left while the card stood over it. The
+        // focus goes back in the same turn as the settle, so the planet
+        // never paints a frame between the two
+        window.requestAnimationFrame(() => {
+          if (planet) {
+            return
+          }
+          ;(came?.isConnected ? came : leaving.orb).focus({ preventScroll: true })
+          came = null
+          settle(leaving)
+        })
+      })
+      .catch(() => {})
+  }
+
+  /* Escape, wherever the focus happens to be */
+  const onKey = (event) => {
+    if (planet && event.key === 'Escape') {
+      event.preventDefault()
+      close()
+    }
+  }
+  document.addEventListener('keydown', onKey)
+  sheet.addEventListener('click', (event) => {
+    if (event.target === sheet) {
+      close()
+    }
+  })
+  card.querySelector('.fp-card-close')?.addEventListener('click', close)
+
+  return {
+    open,
+    /* the card has a planet, or is on its way in or out of one */
+    busy: () => busy || Boolean(planet),
+    /* the band has gone: close up and put the planet back where it sat */
+    release: () => {
+      document.removeEventListener('keydown', onKey)
+      seal(false)
+      if (planet) {
+        sheet.classList.remove('is-open')
+        seated?.replaceWith(planet.orb)
+        planet.orb.inert = false
+        planet = null
+        seated = null
+      }
+    },
+  }
+}
+
+const initFooterPlanets = debounce(() => {
+  const bands = [...document.querySelectorAll('.docs-footer-band')].filter((band) => band.dataset.fpBound !== 'true')
+  if (!bands.length) {
+    return
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  bands.forEach((band) => {
+    band.dataset.fpBound = 'true'
+    // the marks the globes dress in: templates like the landing page's,
+    // made from the band's hidden copies on a page that has none yet
+    band.querySelectorAll('.fp-marks > svg').forEach((svg) => {
+      const id = `lp-icon-${svg.dataset.icon}`
+      if (document.getElementById(id)) {
+        return
+      }
+      const mark = document.createElement('template')
+      mark.id = id
+      mark.innerHTML = svg.outerHTML
+      band.appendChild(mark)
+    })
+    const stage = band.querySelector('.fp-stage')
+    const planets = [...band.querySelectorAll('.fp-planet')]
+      .map((orb) => {
+        const ring = orb.querySelector('.lp-orb-ring')
+        const style = getComputedStyle(orb)
+        const size = Number.parseFloat(style.getPropertyValue('--s'))
+        if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+          return null
+        }
+        // its hello: a bubble over its top edge, placed by the planet's
+        // own --x, --y and --s; the left half of the arch opens to the
+        // left, away from the taller neighbour
+        const hi = document.createElement('span')
+        hi.className = 'fp-hi'
+        hi.setAttribute('aria-hidden', 'true')
+        for (const name of ['--x', '--y', '--s']) {
+          hi.style.setProperty(name, style.getPropertyValue(name))
+        }
+        hi.classList.toggle('is-left', Number.parseFloat(style.getPropertyValue('--x')) < 0)
+        // its turn in the rise, so its hello follows its landing
+        return { orb, ring, hi, face: null, hover: false, delay: Number.parseFloat(style.getPropertyValue('--d')) || 0 }
+      })
+      .filter(Boolean)
+    if (!stage || !planets.length) {
+      return
+    }
+    // the hellos after every planet, so each stands over all of them
+    planets.forEach((planet) => stage.appendChild(planet.hi))
+    landingFaces ??= createPlanetFaces({
+      settings: { reduceMotion, body: 'shape', mark: 'hide', shapes: LANDING_SHAPES },
+    })
+    planets.forEach((planet) => {
+      planet.face = landingFaces.attach(planet.orb, planet.ring)
+    })
+
+    /* The row answers as one. The planet the pointer is on (or the
+       keyboard has) takes its shape and smiles; the two standing either
+       side of it take theirs too and take it badly, one put out and the
+       other merely unimpressed, drawn afresh each time the row turns to
+       someone new. Everyone else stays a plain globe. */
+    let card = null
+    let turned = -1
+    const moods = new Map()
+    const settleRow = () => {
+      if (card?.busy()) {
+        return
+      }
+      const at = planets.findIndex((planet) => planet.hover || planet.orb.matches(':focus-visible'))
+      // the reaction is dealt once a planet, when the row turns, and not
+      // again while it holds: the pointer crossing from one to the next
+      // runs this twice and the pair either side must not flicker
+      if (at !== turned) {
+        turned = at
+        moods.clear()
+        planets.forEach((planet, index) => {
+          if (Math.abs(index - at) === 1) {
+            moods.set(planet, Math.random() < 0.5 ? 'sad' : 'straight')
+          }
+        })
+      }
+      planets.forEach((planet, index) => {
+        const mood = at < 0 ? null : index === at ? 'happy' : moods.get(planet)
+        if (!mood) {
+          planet.face.set(false)
+          return
+        }
+        planet.face.express(mood)
+        planet.face.set(true)
+      })
+    }
+    card = createFooterCard(band, reduceMotion, () => {
+      planets.forEach((planet) => {
+        planet.hover = planet.orb.matches(':hover')
+      })
+      settleRow()
+    })
+    planets.forEach((planet) => {
+      // a finger has no hover: a tap goes straight to the card
+      const moved = (event, on) => {
+        if (event.pointerType === 'touch') {
+          return
+        }
+        planet.hover = on
+        settleRow()
+      }
+      planet.orb.addEventListener('pointerenter', (event) => moved(event, true))
+      planet.orb.addEventListener('pointerleave', (event) => moved(event, false))
+      planet.orb.addEventListener('focus', settleRow)
+      planet.orb.addEventListener('blur', settleRow)
+      planet.orb.addEventListener('click', () => card?.open(planet))
+    })
+
+    /* the chant reschedules itself for as long as the band is up, so the
+       timers prune themselves as they fire and clear() ends every chain */
+    const timers = new Set()
+    const later = (fn, ms) => {
+      const id = window.setTimeout(() => {
+        timers.delete(id)
+        fn()
+      }, ms)
+      timers.add(id)
+    }
+    const clear = () => {
+      timers.forEach((id) => window.clearTimeout(id))
+      timers.clear()
+    }
+    const between = ([low, high]) => low + Math.random() * (high - low)
+    const anyOf = (list) => list[Math.floor(Math.random() * list.length)]
+    /* one turn of the chant: a bubble up, a bubble down, and round again
+       until the planet has had its turns. A planet the card has taken
+       waits rather than spending one of them */
+    const chant = (planet, left) => {
+      if (planet.orb.inert) {
+        later(() => chant(planet, left), 800)
+        return
+      }
+      planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
+      planet.hi.classList.add('is-on')
+      later(() => {
+        planet.hi.classList.remove('is-on')
+        if (left > 1) {
+          later(() => chant(planet, left - 1), between(FOOTER_PLANETS_GAP))
+        }
+      }, between(FOOTER_PLANETS_UP))
+    }
+    /* the chat bar's input, when the page has one */
+    const bar = () =>
+      document.querySelector('.chat-widget .chat-composer-input') ?? document.querySelector('.chat-widget')
+    /* the stage's place: centred on the bar, scaled down to fit a band
+       narrower than the cluster and kept inside it, and lifted clear of
+       a bar that reaches into the band */
+    const place = () => {
+      const box = band.getBoundingClientRect()
+      const scale = Math.min(1, (box.width - 32) / FOOTER_PLANETS_SPAN)
+      const half = (FOOTER_PLANETS_SPAN * scale) / 2
+      // the band's bottom padding is the bar's room: the stage stands
+      // above it, so a bar is in the way only past that
+      const clear = Number.parseFloat(getComputedStyle(band).paddingBottom) || 0
+      let x = box.width / 2
+      let lift = 0
+      const rect = bar()?.getBoundingClientRect()
+      if (rect?.width && rect.height) {
+        x = rect.left + rect.width / 2 - box.left
+        lift = Math.max(0, box.bottom - clear - rect.top)
+      }
+      x = Math.min(Math.max(x, half + 16), box.width - half - 16)
+      band.style.setProperty('--fp-x', `${x.toFixed(1)}px`)
+      band.style.setProperty('--fp-lift', `${lift.toFixed(1)}px`)
+      band.style.setProperty('--fp-scale', scale.toFixed(3))
+      return scale
+    }
+    let up = false
+    const show = () => {
+      place()
+      band.classList.add('is-up')
+      planets.forEach((planet) => planet.hi.classList.remove('is-on'))
+      // asked for stillness, the row calls out once and holds
+      if (reduceMotion) {
+        planets.forEach((planet) => {
+          planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
+          planet.hi.classList.add('is-on')
+        })
+        return
+      }
+      // a few of them, drawn afresh each time the row comes up
+      const deck = planets.map((planet, index) => ({ planet, index, at: Math.random() }))
+      deck.sort((a, b) => a.at - b.at)
+      deck.slice(0, FOOTER_PLANETS_VOICES).forEach(({ planet }) => {
+        later(() => chant(planet, 1), FOOTER_PLANETS_CHANT_FROM + planet.delay)
+      })
+    }
+    const hide = () => {
+      clear()
+      band.classList.remove('is-up')
+      planets.forEach((planet) => {
+        planet.hover = false
+        planet.hi.classList.remove('is-on')
+        planet.face.set(false)
+      })
+    }
+    /* how far the page still has to go to its end */
+    const left = () => {
+      const page = document.scrollingElement ?? document.documentElement
+      return page.scrollHeight - window.innerHeight - window.scrollY
+    }
+    const check = () => {
+      if (!band.isConnected) {
+        release()
+        return
+      }
+      // the committee holds its place while the card stands over it
+      if (card?.busy()) {
+        return
+      }
+      const remaining = left()
+      if (!up && remaining <= 1) {
+        up = true
+        show()
+      } else if (up && remaining > 24) {
+        up = false
+        hide()
+      }
+    }
+    const onResize = () => {
+      check()
+      if (up) {
+        place()
+      }
+    }
+    // the page's height changes as it loads and when the site moves on
+    const grown = new ResizeObserver(() => check())
+    const release = () => {
+      window.removeEventListener('scroll', check)
+      window.removeEventListener('resize', onResize)
+      grown.disconnect()
+      clear()
+      card?.release()
+      planets.forEach((planet) => planet.face.detach())
+    }
+    window.addEventListener('scroll', check, { passive: true })
+    window.addEventListener('resize', onResize)
+    grown.observe(document.body)
+    check()
+  })
+})
 /* Each chat plays every time it scrolls into view. */
 const initLandingChat = debounce(() => {
   const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
@@ -4369,7 +5357,7 @@ const createLandingFlowPlayer = (flow) => {
     return null
   }
   /* The hosting scene's hub is Scalar's globe. A packet going in under it
-     sets its ring's spectrum turning, and once the turn is done packets
+     sets its ring's sheen turning, and once the turn is done packets
      go out from under it to everything on the right at once; the round
      is longer for it. The paint there has no loop of its own (the sheet
      turns it off), so the ring lies still between packets */
@@ -4477,10 +5465,10 @@ const createLandingFlowPlayer = (flow) => {
     }
   }
 
-  /* the spectrum's turn from the top: the ring paint's keyframes (the
+  /* the sheen's turn from the top: the ring paint's keyframes (the
      turn of lp-halo-turn, the first 18% of its 9s, with its easing), run
      once here. A turn still going when a packet lands is left to finish
-     rather than started again, so the spectrum never jumps. Settles when
+     rather than started again, so the sheen never jumps. Settles when
      the turn ends, on the turn's own clock: after a stalled frame the
      packets still wait for the ring, not for a timer */
   const TURN_MS = 1620
@@ -4572,6 +5560,14 @@ const createLandingFlowPlayer = (flow) => {
 
   const stop = () => {
     running = false
+    /* A turn still going would carry a burst of its own across the pause:
+       it settles while nothing is playing, and by the time anyone reads
+       it the flow may be playing again, so its generation has to move on
+       without it. The turn itself goes too — a sheen turning behind a
+       hidden tab is work nobody sees. */
+    beatGen += 1
+    turns.forEach((turn) => turn.cancel())
+    turns.clear()
     timers.forEach((id) => clearTimeout(id))
     timers.clear()
     if (frame) {
@@ -4610,13 +5606,15 @@ const initLandingFlow = debounce(() => {
 
   flows.forEach((flow) => {
     flow.dataset.lpFlowBound = 'true'
+    // held out here so that letting the flow go lets this go with it
+    let edges = null
     if (flow.dataset.lpEdges) {
       drawLandingFlowEdges(flow)
-      const observer = new ResizeObserver(() => drawLandingFlowEdges(flow))
-      observer.observe(flow)
+      edges = new ResizeObserver(() => drawLandingFlowEdges(flow))
+      edges.observe(flow)
       // the anchors too: the hosting scene's disc eases its size after the
       // hub box has already changed, and the lines follow it
-      flow.querySelectorAll('[data-lp-node], .lp-chip-body, [data-lp-anchor]').forEach((el) => observer.observe(el))
+      flow.querySelectorAll('[data-lp-node], .lp-chip-body, [data-lp-anchor]').forEach((el) => edges.observe(el))
       document.fonts?.ready.then(() => drawLandingFlowEdges(flow))
     }
     if (reduceMotion) {
@@ -4637,6 +5635,7 @@ const initLandingFlow = debounce(() => {
       if (!flow.isConnected) {
         player.stop()
         observer.disconnect()
+        edges?.disconnect()
         landingFlowSyncs.delete(flow)
         return
       }
@@ -4868,12 +5867,14 @@ const initLandingFunnel = debounce(() => {
       track.appendChild(item)
     })
     // the turn runs only while the funnel is on screen
-    new IntersectionObserver(
+    const watch = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => track.classList.toggle('is-paused', !entry.isIntersecting))
       },
       { threshold: 0 },
-    ).observe(track)
+    )
+    watch.observe(track)
+    holdLanding(track, () => watch.disconnect())
   })
 })
 
@@ -4996,6 +5997,9 @@ const initLandingPrompt = debounce(() => {
 
   boxes.forEach((box) => {
     box.dataset.lpPromptBound = 'true'
+    // what this box binds beyond its own markup, to go with the page
+    const undo = []
+    holdLanding(box, () => undo.forEach((release) => release()))
     // the icons are decoration; the controls' labels say what they do
     box.querySelectorAll('svg').forEach((icon) => icon.setAttribute('aria-hidden', 'true'))
 
@@ -5063,7 +6067,9 @@ const initLandingPrompt = debounce(() => {
       atEnd = () => box.classList.toggle('is-at-end', body.scrollTop + body.clientHeight >= body.scrollHeight - 2)
       body.addEventListener('scroll', atEnd, { passive: true })
       if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(atEnd).observe(body)
+        const sizes = new ResizeObserver(atEnd)
+        sizes.observe(body)
+        undo.push(() => sizes.disconnect())
       }
       atEnd()
     }
@@ -5085,7 +6091,9 @@ const initLandingPrompt = debounce(() => {
       short.addEventListener('input', fitBody)
       short.addEventListener('change', fitBody)
       if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(fitBody).observe(short)
+        const sizes = new ResizeObserver(fitBody)
+        sizes.observe(short)
+        undo.push(() => sizes.disconnect())
       }
     }
 
@@ -5187,7 +6195,9 @@ const initLandingPrompt = debounce(() => {
     // the snapshots are pinned to the viewport, so a page scroll mid-swap
     // (a focus or an anchor bringing the box into view) would draw the
     // words away from the box; the swap just lands instead
-    window.addEventListener('scroll', () => transition?.skipTransition(), { passive: true })
+    const skipOnScroll = () => transition?.skipTransition()
+    window.addEventListener('scroll', skipOnScroll, { passive: true })
+    undo.push(() => window.removeEventListener('scroll', skipOnScroll))
     // read once focus has settled: at focusout the next element is not
     // focused yet, so a Tab to the button would read as leaving; and a
     // window blur leaves the active element where it is, so nothing moves
@@ -5207,12 +6217,14 @@ const initLandingPrompt = debounce(() => {
       pinned = !pinned
       update(document.activeElement)
     })
-    document.addEventListener('pointerdown', (event) => {
+    const onTapOut = (event) => {
       if (pinned && !box.contains(event.target)) {
         pinned = false
         update(document.activeElement)
       }
-    })
+    }
+    document.addEventListener('pointerdown', onTapOut)
+    undo.push(() => document.removeEventListener('pointerdown', onTapOut))
     // the short form at rest, with no transition at mount
     show(true, false)
 
@@ -5249,6 +6261,854 @@ const initLandingPrompt = debounce(() => {
    marks come from the icon templates; a click puts the setup prompt from
    the prompt section on the clipboard, as the text that section's Copy
    gives, and the button shows its copied state for a moment */
+/* The customers page's hero: every customer as a ball of its own.
+
+   The marks from the grids below, each on a glass ball like the home
+   page's planets, tipped in over the fold one after another and left to
+   heap up on a hairline floor.
+
+   The balls are a small world with its own physics: gravity, the floor
+   and the field's two edges, and the balls themselves, which collide
+   and have enough grip on one another to hold a heap. A ball rolls the
+   way a ball does, turning about the axle through it, so its mark turns
+   with it; the paint under the mark is lit from the room and stays
+   where it is. A pointer can pick one up and throw it, and the rest get
+   out of its way. Once everything has come to rest the frame loop
+   stops and the balls stay as they lie, their marks at whatever angle
+   they rolled to. */
+const CUST_STEP = 1 / 120
+const CUST_GRAVITY = 2800
+/* the speed a ball keeps off the floor, off an edge and off another
+   ball, and the slowest meeting that still bounces at all */
+const CUST_FLOOR_BOUNCE = 0.44
+const CUST_WALL_BOUNCE = 0.45
+const CUST_BALL_BOUNCE = 0.2
+const CUST_REST = 22
+/* How well each surface holds on to a ball, as a share of how hard the
+   two are pressed together.
+
+   This is where a ball becomes a ball. Friction works on the SLIP at
+   the touch, how fast the stuff of the ball there is scrubbing over
+   what it is touching, and spends itself on the ball's travel and on
+   its spin at once. A sphere answers an impulse at its edge with 7/2
+   of what its mass alone would give (1 from the mass, 5/2 from a
+   sphere's own moment, 2/5 m r squared), so the impulse that takes a
+   sliding contact to a rolling one is exactly 2/7 of the mass times
+   the slip, and the other 5/7 goes into the turn. Neither fraction
+   depends on the mass or the size. r over that moment is 2.5 / (m r),
+   which is the only awkward number below. */
+const CUST_FLOOR_GRIP = 0.45
+const CUST_WALL_GRIP = 0.35
+const CUST_BALL_GRIP = 0.5
+/* the drag the air puts on a ball's travel and the trickle it takes
+   off its spin (per second) */
+const CUST_AIR = 0.08
+const CUST_SPIN_AIR = 0.12
+/* what a rolling ball gives up to the ground it rolls on, as a share
+   of its weight, the fastest it may turn (about three and a half turns
+   a second, past which a mark only strobes), and the load a ball
+   resting on another carries, in weights */
+const CUST_ROLL_RES = 0.14
+const CUST_SPIN_MAX = 22
+const CUST_LOAD = 2.5
+/* a ball slower than this, turning slower than this, with something
+   under it, is put down flat; after this many steps of that it stops
+   being pulled on at all */
+const CUST_NUMB_V = 12
+const CUST_NUMB_W = 0.3
+const CUST_CALM = 6
+/* how far a ball and the skin of a ball may travel over a frame and
+   still count as still, and for how many frames before the world
+   sleeps */
+const CUST_SLEEP = 0.3
+const CUST_STILL = 24
+/* how much of an overlap is eased out in one pass, the sliver left
+   alone, and how many passes: the overlap is never fed back into the
+   speeds, since that is what blows a heap into a line */
+const CUST_FIRM = 0.45
+const CUST_SLOP = 0.4
+const CUST_PASSES = 6
+/* the share of the field the balls are tipped into (they heap rather
+   than line up), ms between one and the next, and how far over the top
+   edge they start */
+const CUST_BAND = 0.38
+const CUST_DROP = 50
+const CUST_FALL = 80
+const CUST_GAP = 12
+/* the fastest a throw can leave the hand, how much of the lever a
+   flick puts into spin, and how quickly the floor rolls a ball that is
+   being dragged along it */
+const CUST_THROW = 2800
+const CUST_FLICK = 0.35
+const CUST_HAND_ROLL = 24
+/* A ball's mark, lying on its surface.
+
+   A logo on a real ball is not a sticker on its front: it lies on the
+   surface, so it narrows towards the rim and goes over the horizon as
+   the ball turns. The mark is therefore cut into a grid of little
+   four-cornered pieces, each one placed with its four corners exactly
+   ON the sphere. That is the whole trick, and it is worth saying why:
+   a tall flat strip hung at one longitude only touches the sphere
+   along a circle as wide as the strip itself, so anything taller is
+   describing a cylinder and juts out past the ball's own edge. Four
+   corners on the sphere are always in one plane, the piece between
+   them is inside the ball, and so nothing can ever cross the
+   silhouette, whatever the ball does.
+
+   Every piece shows its own slice of one picture, at one size for the
+   whole mark, so the browser decodes and draws each mark once however
+   many pieces there are; the piece's own matrix stretches its row to
+   fit. Each piece is turned away on its back, so the far side of the
+   ball never shows through the near side.
+
+   The mark is repeated round the ball, the way a ball is branded, so
+   whichever way one comes to rest a copy is facing you. */
+/* how far above the floor we are looking at it from: the lean of the
+   ball's axle out of the screen. The stylesheet turns the cage about
+   this axle and takes it from here, so there is one number, not two
+   that can drift apart */
+const CUST_TILT = 52
+const CUST_COPIES = 3
+/* how far round the ball one copy of the mark reaches, in radii of
+   arc, and how finely it is cut up: about 11 degrees across and 20
+   down, which is fine enough that no edge of it reads as a straight
+   line at these sizes */
+const CUST_MARK = 1.3
+const CUST_LON_STEP = (11 * Math.PI) / 180
+const CUST_LAT_STEP = (20 * Math.PI) / 180
+const CUST_BLEED = 0.7
+const dressCustomerBall = (ball, size) => {
+  const template = document.getElementById(`lp-icon-${ball.dataset.icon}`)
+  const cage = ball.querySelector('.cust-ball-roll')
+  const svg = template?.innerHTML.trim()
+  if (!svg || !cage || !size) {
+    return false
+  }
+  // ids inside a data url belong to that picture alone, so a mark that
+  // clips or masks itself can stand on every ball without renaming
+  const box = /viewBox="([\d.\-\s]+)"/.exec(svg)
+  const seen = box ? box[1].trim().split(/\s+/).map(Number) : null
+  const ratio = seen && seen[2] && seen[3] ? seen[2] / seen[3] : 1
+  const url = `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
+  const r = size / 2
+  // the axle the cage turns about, for the stylesheet
+  const lean = (CUST_TILT * Math.PI) / 180
+  ball.style.setProperty('--cust-axis', `0, ${Math.sin(lean).toFixed(4)}, ${(-Math.cos(lean)).toFixed(4)}`)
+
+  // a point on the sphere, in the ball's own axes: x right, y DOWN,
+  // z towards the eye, and longitude 0 facing the eye
+  const at = (lon, lat) => {
+    const c = Math.cos(lat)
+    return [r * c * Math.sin(lon), -r * Math.sin(lat), r * c * Math.cos(lon)]
+  }
+  const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+  const mul = (a, k) => [a[0] * k, a[1] * k, a[2] * k]
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+  const len = (a) => Math.hypot(a[0], a[1], a[2])
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]
+
+  // the mark's footprint on the ball, as angles, and how many pieces
+  // that takes
+  const spanLon = CUST_MARK
+  const spanLat = CUST_MARK / ratio
+  const across = Math.max(3, Math.round(spanLon / CUST_LON_STEP))
+  const down = Math.max(1, Math.round(spanLat / CUST_LAT_STEP))
+  // one size of picture for every piece, taken from the row on the
+  // equator, so each mark is drawn once rather than once a row
+  const wide = (2 * r * Math.sin(spanLon / (2 * across))) / 1
+  const tall = (2 * r * Math.sin(spanLat / (2 * down))) / 1
+  const pieces = []
+  for (let copy = 0; copy < CUST_COPIES; copy++) {
+    const middle = (copy * 2 * Math.PI) / CUST_COPIES
+    for (let row = 0; row < down; row++) {
+      const lat0 = -spanLat / 2 + (row * spanLat) / down
+      const lat1 = lat0 + spanLat / down
+      for (let i = 0; i < across; i++) {
+        const lon0 = middle - spanLon / 2 + (i * spanLon) / across
+        const lon1 = lon0 + spanLon / across
+        const tl = at(lon0, lat1)
+        const tr = at(lon1, lat1)
+        const bl = at(lon0, lat0)
+        const br = at(lon1, lat0)
+        const mid = mul(add(add(tl, tr), add(bl, br)), 0.25)
+        const u = mul(sub(add(tr, br), add(tl, bl)), 0.5)
+        const v = mul(sub(add(bl, br), add(tl, tr)), 0.5)
+        const uw = len(u)
+        const vh = len(v)
+        const ux = mul(u, 1 / uw)
+        const vy = mul(v, 1 / vh)
+        // the third column has to be the outward normal, or the piece
+        // is culled the wrong way round
+        let n = cross(u, v)
+        n = mul(n, 1 / len(n))
+        if (dot(n, mid) < 0) {
+          n = mul(n, -1)
+        }
+        // its top left corner, pushed out by the bleed along its own
+        // axes, then moved from the ball's middle to its box's corner
+        let corner = add(mid, mul(add(u, v), -0.5))
+        corner = add(corner, mul(add(mul(ux, (uw / wide) * CUST_BLEED), mul(vy, (vh / tall) * CUST_BLEED)), -1))
+        corner = [corner[0] + r, corner[1] + r, corner[2]]
+        // the row's own stretch rides in the matrix, so every piece can
+        // share one picture size
+        const cu = mul(ux, uw / wide)
+        const cv = mul(vy, vh / tall)
+        const piece = document.createElement('i')
+        piece.className = 'cust-quad'
+        piece.style.width = `${(wide + 2 * CUST_BLEED).toFixed(2)}px`
+        piece.style.height = `${(tall + 2 * CUST_BLEED).toFixed(2)}px`
+        piece.style.backgroundImage = url
+        piece.style.backgroundSize = `${(wide * across).toFixed(2)}px ${(tall * down).toFixed(2)}px`
+        piece.style.backgroundPosition = `${(-(i / across) * wide * across + CUST_BLEED).toFixed(2)}px ${(
+          -(1 - (row + 1) / down) * tall * down + CUST_BLEED
+        ).toFixed(2)}px`
+        piece.style.transform =
+          `matrix3d(${cu[0].toFixed(4)},${cu[1].toFixed(4)},${cu[2].toFixed(4)},0,` +
+          `${cv[0].toFixed(4)},${cv[1].toFixed(4)},${cv[2].toFixed(4)},0,` +
+          `${n[0].toFixed(4)},${n[1].toFixed(4)},${n[2].toFixed(4)},0,` +
+          `${corner[0].toFixed(2)},${corner[1].toFixed(2)},${corner[2].toFixed(2)},1)`
+        pieces.push(piece)
+      }
+    }
+  }
+  cage.replaceChildren(...pieces)
+  ball.dataset.custDressed = size.toFixed(1)
+  return true
+}
+
+const initCustomerBalls = debounce(() => {
+  const fields = [...document.querySelectorAll('.cust-field')].filter((field) => field.dataset.custBound !== 'true')
+  if (!fields.length) {
+    return
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  fields.forEach((field) => {
+    field.dataset.custBound = 'true'
+    const floor = field.querySelector('.cust-floor')
+    const balls = [...field.querySelectorAll('.cust-ball')]
+      .map((el, index) => {
+        const size = Number.parseFloat(getComputedStyle(el).getPropertyValue('--s'))
+        if (!size || !dressCustomerBall(el, size)) {
+          return null
+        }
+        return {
+          el,
+          roll: el.querySelector('.cust-ball-roll'),
+          index,
+          // the size it is drawn at, which the heap's own scale works from
+          base: size,
+          r: size / 2,
+          // the bigger ball is the heavier one, so a small one bounces
+          // off it rather than shouldering it aside
+          m: size * size,
+          x: 0,
+          y: 0,
+          // where it was at the end of the last frame
+          px: 0,
+          py: 0,
+          vx: 0,
+          vy: 0,
+          // how fast it is turning, in radians a second, clockwise on
+          // screen, which is the way a ball travelling right turns
+          w: 0,
+          home: 0,
+          // a nudge off its place in the band, so no two fall alike
+          drop: (((index * 29) % 13) - 6) * 3,
+          // its turn in the fall, and whether it has had it yet
+          at: index * CUST_DROP,
+          live: false,
+          // the pointer holding it, if any, and where it was taken hold of
+          held: 0,
+          grabX: 0,
+          grabY: 0,
+          last: 0,
+          // how far it has rolled, in degrees
+          turn: 0,
+          // whether anything is holding it up this step, and how long
+          // it has been put down flat
+          prop: 0,
+          calm: 0,
+        }
+      })
+      .filter(Boolean)
+    if (!floor || !balls.length) {
+      return
+    }
+
+    /* The field, and where the balls are tipped in: a band across the
+       middle of it, each ball a little way along it in an order of its
+       own, so they land on one another and heap rather than lining up.
+       The whole row is scaled only when the field is too narrow to hold
+       a heap of them. */
+    let width = 0
+    let floorY = 0
+    const measure = () => {
+      const box = field.getBoundingClientRect()
+      const line = floor.getBoundingClientRect()
+      width = box.width
+      floorY = line.top + line.height / 2 - box.top
+      const full = balls.reduce((sum, b) => sum + b.base, 0)
+      const widest = balls.reduce((most, b) => Math.max(most, b.base), 0)
+      // room for a heap two deep, and never a ball wider than the field
+      const scale = Math.min(1, (2.1 * width) / Math.max(full, 1), (width * 0.7) / Math.max(widest, 1))
+      const band = Math.min(width * CUST_BAND, full * scale * 0.86)
+      const start = (width - band) / 2
+      balls.forEach((b, index) => {
+        const size = b.base * scale
+        b.el.style.setProperty('--s', `${size.toFixed(1)}px`)
+        // the pieces of the mark are cut for one size of ball, so they
+        // are cut again when the row rescales
+        if (b.el.dataset.custDressed !== size.toFixed(1)) {
+          dressCustomerBall(b.el, size)
+        }
+        b.r = size / 2
+        b.m = size * size
+        // along the band, but not in the order they stand in the page
+        b.home = Math.min(
+          Math.max(start + band * (((index * 7 + 3) % balls.length) / (balls.length - 1 || 1)) + b.drop, b.r + 2),
+          width - b.r - 2,
+        )
+      })
+    }
+    const draw = (b) => {
+      b.el.style.translate = `${(b.x - b.r).toFixed(1)}px ${(b.y - b.r).toFixed(1)}px`
+    }
+    const spin = (b) => {
+      b.roll.style.setProperty('--roll', `${b.turn.toFixed(1)}deg`)
+    }
+
+    // a sphere's own resistance to being turned
+    const spinMass = (b) => 0.4 * b.m * b.r * b.r
+    const capSpin = (b) => {
+      b.w = Math.max(-CUST_SPIN_MAX, Math.min(CUST_SPIN_MAX, b.w))
+    }
+
+    /* Friction against something that does not move: the floor, or an
+       edge. The normal points out of the ball towards the surface and
+       the tangent is that turned a quarter turn; the stuff of the ball
+       at the touch runs past the surface at (v along the tangent) plus
+       its own spin at the rim. The impulse that takes that to nothing
+       is 2/7 of the mass times it, and it is held to what the surface
+       can hold on to. Both clamps, every time: overshooting either is
+       what sets a heap buzzing at the step rate. */
+    const rub = (b, nx, ny, jn, mu) => {
+      if (jn <= 0) {
+        return
+      }
+      const tx = -ny
+      const ty = nx
+      const run = b.vx * tx + b.vy * ty + b.w * b.r
+      if (!run) {
+        return
+      }
+      const jt = -Math.sign(run) * Math.min((2 / 7) * b.m * Math.abs(run), mu * jn)
+      b.vx += (jt * tx) / b.m
+      b.vy += (jt * ty) / b.m
+      // the same impulse taken about the middle
+      b.w += (2.5 * jt) / (b.m * b.r)
+    }
+
+    /* The floor and the two edges. A ball lying still presses with its
+       own weight, which is one step of gravity: without that there is
+       no impulse for friction to work from, so a resting ball has no
+       grip at all and the heap slides itself flat. */
+    const sides = (b, moveOnly) => {
+      if (!b.live || b.held) {
+        return
+      }
+      const sink = b.y + b.r - floorY
+      if (sink > -0.5) {
+        b.prop = 1
+        if (sink > 0) {
+          b.y = floorY - b.r
+        }
+        if (!moveOnly) {
+          let jn = 0
+          if (b.vy > 0) {
+            // a slow landing does not bounce, which is what lets the
+            // last hop die instead of shivering for ever
+            const e = b.vy > CUST_REST ? CUST_FLOOR_BOUNCE : 0
+            jn = b.m * b.vy * (1 + e)
+            if (b.vy > CUST_REST) {
+              b.calm = 0
+            }
+            b.vy = -b.vy * e
+          }
+          jn = Math.max(jn, b.m * CUST_GRAVITY * CUST_STEP)
+          rub(b, 0, 1, jn, CUST_FLOOR_GRIP)
+        }
+      }
+      const nx = b.x - b.r < 0 ? -1 : b.x + b.r > width ? 1 : 0
+      if (nx) {
+        b.x = nx < 0 ? b.r : Math.max(width - b.r, b.r)
+        if (!moveOnly) {
+          const into = b.vx * nx
+          let jn = 0
+          if (into > 0) {
+            const e = into > CUST_REST ? CUST_WALL_BOUNCE : 0
+            jn = b.m * into * (1 + e)
+            b.vx = -b.vx * e
+            b.calm = 0
+          }
+          // an edge carries no load, so a ball takes spin off it only
+          // on a real knock
+          rub(b, nx, 0, jn, CUST_WALL_GRIP)
+        }
+      }
+    }
+
+    /* Two balls. The overlap is eased out a little at a time and never
+       fed back into the speeds, and the push and the grip are worked
+       out from the speeds alone. Both spins enter the scrub with a
+       plus sign: two touching balls scrub when they turn the same way
+       and roll on each other when they turn against each other, like a
+       pair of gears. One impulse turns them both the same way, which
+       looks wrong written down and is right on screen. A held ball is
+       immovable, so it takes neither push nor spin and keeps its place
+       under the hand. */
+    const hit = (a, b, moveOnly) => {
+      if (!a.live || !b.live) {
+        return
+      }
+      const dx = b.x - a.x
+      const dy = b.y - a.y
+      const d = Math.hypot(dx, dy) || 0.01
+      const overlap = a.r + b.r - d
+      if (overlap <= -0.5) {
+        return
+      }
+      const ia = a.held ? 0 : 1 / a.m
+      const ib = b.held ? 0 : 1 / b.m
+      const sum = ia + ib
+      if (!sum) {
+        return
+      }
+      const nx = dx / d
+      const ny = dy / d
+      // leaning on, rather than merely beside: only a touch below a
+      // ball can hold it up
+      if (ny > 0.3) {
+        a.prop = 1
+      }
+      if (ny < -0.3) {
+        b.prop = 1
+      }
+      if (overlap > 0) {
+        const give = Math.max(overlap - CUST_SLOP, 0) * CUST_FIRM
+        a.x -= (nx * give * ia) / sum
+        a.y -= (ny * give * ia) / sum
+        b.x += (nx * give * ib) / sum
+        b.y += (ny * give * ib) / sum
+      }
+      if (moveOnly) {
+        return
+      }
+      const closing = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny
+      let jn = 0
+      if (closing < 0) {
+        const e = -closing > CUST_REST ? CUST_BALL_BOUNCE : 0
+        jn = (-(1 + e) * closing) / sum
+        a.vx -= jn * nx * ia
+        a.vy -= jn * ny * ia
+        b.vx += jn * nx * ib
+        b.vy += jn * ny * ib
+        if (-closing > CUST_REST) {
+          a.calm = 0
+          b.calm = 0
+        }
+      }
+      // they press on each other even when nothing is closing: with no
+      // load there is no grip, and a heap with no grip spreads flat
+      jn = Math.max(jn, (CUST_LOAD * CUST_GRAVITY * CUST_STEP) / sum)
+      const tx = -ny
+      const ty = nx
+      const run = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty - (a.w * a.r + b.w * b.r)
+      if (!run) {
+        return
+      }
+      // 1 + 5/2 of the shared mass, because the spins take their share
+      const jt = -Math.sign(run) * Math.min(Math.abs(run) / (3.5 * sum), CUST_BALL_GRIP * jn)
+      a.vx -= jt * tx * ia
+      a.vy -= jt * ty * ia
+      b.vx += jt * tx * ib
+      b.vy += jt * ty * ib
+      if (!a.held) {
+        a.w -= (2.5 * jt) / (a.m * a.r)
+      }
+      if (!b.held) {
+        b.w -= (2.5 * jt) / (b.m * b.r)
+      }
+    }
+
+    /* What a rolling ball gives up to the ground. It slides nowhere,
+       so sliding friction cannot slow it: what slows it is the contact
+       patch, spent as a couple against the spin, and the next step's
+       friction hands the loss on to the travel. Driven by the ball's
+       weight rather than by whatever the last bounce needed, since a
+       hard landing presses thirty times as hard and would swallow the
+       spin the floor just gave it. Once per ball per step, after the
+       touches, so a ball in the middle of a heap is not braked once
+       for every neighbour. */
+    const brake = (b) => {
+      if (!b.live || b.held) {
+        return
+      }
+      if (b.prop && b.w) {
+        const moment = spinMass(b)
+        const give = Math.min(CUST_ROLL_RES * b.r * b.m * CUST_GRAVITY * CUST_STEP, moment * Math.abs(b.w))
+        b.w -= (Math.sign(b.w) * give) / moment
+      }
+      capSpin(b)
+      // a turn too slow to see is no turn: this is what stops a mark
+      // creeping round for ever on a settled heap
+      if (Math.abs(b.w) < 0.02) {
+        b.w = 0
+      }
+    }
+
+    /* A ball that is slow, barely turning and leaning on something is
+       put down flat. This, not a speed test, is what makes a heap go
+       quiet: the arithmetic always leaves a trickle, and a ball with
+       something under it takes a whole step of gravity every step for
+       ever. */
+    const numb = (b) => {
+      if (!b.live || b.held) {
+        return
+      }
+      if (b.prop && Math.hypot(b.vx, b.vy) < CUST_NUMB_V && Math.abs(b.w) < CUST_NUMB_W) {
+        b.vx = 0
+        b.vy = 0
+        b.w = 0
+        b.calm += 1
+      } else {
+        b.calm = 0
+      }
+    }
+
+    /* A ball in hand keeps whatever spin it has. The hand sets no
+       angle: a ball lifted off the floor and swept sideways does not
+       roll, while one dragged along the floor is rolled by the floor.
+       Approached rather than snapped, so a quick drag does not strobe
+       the mark. */
+    const handSpin = (b, h) => {
+      if (!b.live || !b.held) {
+        return
+      }
+      if (b.y + b.r >= floorY - 0.5) {
+        const want = Math.max(-CUST_SPIN_MAX, Math.min(CUST_SPIN_MAX, b.vx / b.r))
+        b.w += (want - b.w) * (1 - Math.exp(-CUST_HAND_ROLL * h))
+      } else {
+        b.w *= Math.exp(-CUST_SPIN_AIR * h)
+      }
+      b.turn += (b.w * h * 180) / Math.PI
+    }
+
+    /* One fixed step. Gravity pulls on the middle of a ball, so it
+       changes where the ball goes and never how it spins: a ball
+       thrown straight up comes down turning at the rate it left the
+       hand with. The mark's angle is taken from the spin inside this
+       same step, so it can never drift out of phase with the motion. */
+    const step = (h) => {
+      balls.forEach((b) => {
+        if (b.live && !b.held) {
+          // a ball put down flat is not pulled on, which is what keeps
+          // a heap from sinking a fraction of a pixel every step for
+          // ever; it falls again the step it loses what holds it up
+          if (b.calm < CUST_CALM) {
+            b.vy += CUST_GRAVITY * h
+          }
+          const air = Math.exp(-CUST_AIR * h)
+          b.vx *= air
+          b.vy *= air
+          b.w *= Math.exp(-CUST_SPIN_AIR * h)
+          b.x += b.vx * h
+          b.y += b.vy * h
+          b.turn += (b.w * h * 180) / Math.PI
+        }
+        handSpin(b, h)
+        b.prop = 0
+      })
+      // the impulses once, then the overlaps alone a few more times, so
+      // a ball shouldered by its neighbour still ends the step above
+      // the floor and inside the field without taking six doses of grip
+      for (let pass = 0; pass < CUST_PASSES; pass++) {
+        const moveOnly = pass > 0
+        for (let i = 0; i < balls.length; i++) {
+          for (let j = i + 1; j < balls.length; j++) {
+            hit(balls[i], balls[j], moveOnly)
+          }
+        }
+        balls.forEach((b) => sides(b, moveOnly))
+      }
+      balls.forEach((b) => {
+        brake(b)
+        numb(b)
+      })
+    }
+
+    /* Asleep, the loop stops and the balls stay as they lie. */
+    let frame = 0
+    let last = null
+    /** how much of the fall has actually been drawn, in milliseconds */
+    let fallen = 0
+    let still = 0
+    let asleep = true
+    const sleep = () => {
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+      last = null
+      still = 0
+      asleep = true
+    }
+    const wake = () => {
+      if (!asleep) {
+        return
+      }
+      asleep = false
+      last = null
+      frame = requestAnimationFrame(tick)
+    }
+    const tick = (now) => {
+      frame = 0
+      if (last === null) {
+        last = now
+      }
+      let left = Math.min((now - last) / 1000, 0.05)
+      const went = Math.max(left, CUST_STEP)
+      last = now
+      /* the fall is told by the frames that have run, not by the clock: a
+         tab opened in the background paints none of them, and a wall-clock
+         reading on the way back would find every ball already due and drop
+         the lot together instead of one after another */
+      fallen += left * 1000
+      balls.forEach((b) => {
+        if (!b.live && fallen >= b.at) {
+          b.live = true
+        }
+      })
+      while (left > 0) {
+        const h = Math.min(left, CUST_STEP)
+        step(h)
+        left -= h
+      }
+      // How far each ball went over the frame is the test, and how far
+      // its skin went under the spin with it, so one threshold covers a
+      // creeping mark as well as a creeping ball. A speed test cannot
+      // do this: a ball at rest still takes a step of gravity every
+      // step. Everything must also be leaning on something, which is
+      // what keeps the world awake at the top of a bounce, where the
+      // middle of a ball is as still as a ball at rest.
+      let moved = 0
+      balls.forEach((b) => {
+        if (Math.hypot(b.x - b.px, b.y - b.py) + Math.abs(b.w) * b.r * went > CUST_SLEEP) {
+          moved += 1
+        }
+        b.px = b.x
+        b.py = b.y
+        draw(b)
+        spin(b)
+      })
+      const quiet = moved === 0 && balls.every((b) => b.live && !b.held && b.prop)
+      still = quiet ? still + 1 : 0
+      if (still >= CUST_STILL) {
+        sleep()
+        return
+      }
+      frame = requestAnimationFrame(tick)
+    }
+
+    // the fall: each ball over its own place in the band, a moment
+    // after the one before, with a nudge sideways so no two land alike
+    const tip = () => {
+      balls.forEach((b) => {
+        b.x = b.home
+        b.y = -b.r - CUST_FALL - ((b.index * 53) % 90)
+        b.vx = 0
+        b.vy = 0
+        // a turn of its own on the way down, apart from any drift, so
+        // the very first bounce shows the floor biting: a ball dropped
+        // turning squirts sideways as it lands
+        b.w = (((b.index * 41) % 9) - 4) * 0.55
+        b.turn = 0
+        b.prop = 0
+        b.calm = 0
+        b.live = false
+        draw(b)
+        spin(b)
+      })
+      fallen = 0
+    }
+    // the same fall, run through at once: the heap without the show,
+    // for a reader who asked for no motion and after the field resizes.
+    // It keeps the turns the balls take, so the heap it builds is the
+    // one the fall would have left
+    const settle = () => {
+      tip()
+      let at = 0
+      for (let i = 0; i < 1400; i++) {
+        at += CUST_STEP * 1000
+        balls.forEach((b) => {
+          if (!b.live && at >= b.at) {
+            b.live = true
+          }
+        })
+        step(CUST_STEP)
+      }
+      balls.forEach((b) => {
+        draw(b)
+        spin(b)
+      })
+    }
+
+    /* A ball in hand follows the pointer, keeping the speed of the last
+       move so a throw carries it. It stays inside the field while held,
+       so the toy cannot be dragged out of its box. */
+    balls.forEach((b) => {
+      b.el.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'mouse' && event.button !== 0) {
+          return
+        }
+        const box = field.getBoundingClientRect()
+        wake()
+        b.held = event.pointerId
+        b.live = true
+        b.grabX = b.x - (event.clientX - box.left)
+        b.grabY = b.y - (event.clientY - box.top)
+        b.last = event.timeStamp
+        b.vx = 0
+        b.vy = 0
+        b.el.classList.add('is-held')
+        // the ball keeps the pointer even when it slips out from under
+        // it; a pointer the browser has already let go of cannot be
+        // captured, and losing it is no reason to drop the grab
+        try {
+          b.el.setPointerCapture(event.pointerId)
+        } catch {}
+        event.preventDefault()
+      })
+      b.el.addEventListener('pointermove', (event) => {
+        if (b.held !== event.pointerId) {
+          return
+        }
+        const box = field.getBoundingClientRect()
+        const x = Math.min(Math.max(event.clientX - box.left + b.grabX, b.r), Math.max(width - b.r, b.r))
+        const y = Math.min(Math.max(event.clientY - box.top + b.grabY, b.r), floorY - b.r)
+        const h = Math.max(event.timeStamp - b.last, 8) / 1000
+        b.vx = (x - b.x) / h
+        b.vy = (y - b.y) / h
+        b.x = x
+        b.y = y
+        b.last = event.timeStamp
+      })
+      const release = (event) => {
+        if (b.held !== event.pointerId) {
+          return
+        }
+        b.held = 0
+        b.el.classList.remove('is-held')
+        // a flick that outran the hand is held to a sensible throw
+        const speed = Math.hypot(b.vx, b.vy)
+        if (speed > CUST_THROW) {
+          b.vx *= CUST_THROW / speed
+          b.vy *= CUST_THROW / speed
+        }
+        /* The throw leaves at the point the ball was HELD, not at its
+           middle, so a grip off to one side levers it round: a ball
+           taken by the middle is thrown flat, one taken by its edge
+           leaves spinning. Flick the top of a ball and it runs away
+           with topspin; flick the bottom and it comes back off the
+           floor. */
+        let px = -b.grabX
+        let py = -b.grabY
+        const reach = Math.hypot(px, py)
+        if (reach > b.r) {
+          px *= b.r / reach
+          py *= b.r / reach
+        }
+        b.w += (CUST_FLICK * b.m * (px * b.vy - py * b.vx)) / spinMass(b)
+        capSpin(b)
+        if (!Number.isFinite(b.w)) {
+          b.w = 0
+        }
+        b.calm = 0
+        wake()
+      }
+      b.el.addEventListener('pointerup', release)
+      b.el.addEventListener('pointercancel', release)
+    })
+
+    // the fall runs once the hero is on screen; a field that changes
+    // size is measured again, and a heap already at rest built afresh
+    let started = false
+    measure()
+    const sizes = new ResizeObserver(() => {
+      measure()
+      if (started && asleep) {
+        settle()
+      }
+    })
+    sizes.observe(field)
+    // the heap belongs to the page it was dropped on, and goes with it
+    holdLanding(field, () => {
+      sizes.disconnect()
+      sleep()
+    })
+    const start = () => {
+      measure()
+      started = true
+      // only now is there a place for them: until this they would show
+      // stacked in the field's corner
+      field.classList.add('is-ready')
+      if (reduceMotion) {
+        settle()
+        return
+      }
+      tip()
+      wake()
+    }
+    // straight away where the hero is already on screen, which it is on
+    // a page opened at the top; otherwise the first time it comes into
+    // view, so a reader who lands further down still sees them fall
+    const where = field.getBoundingClientRect()
+    if (where.top < window.innerHeight && where.bottom > 0) {
+      start()
+    } else {
+      const watch = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((entry) => entry.isIntersecting)) {
+            return
+          }
+          watch.disconnect()
+          start()
+        },
+        { threshold: 0.01 },
+      )
+      watch.observe(field)
+    }
+  })
+})
+
+/* What the onboard button copies on a page that does not carry the
+   prompt itself. The home page's prompt is the one with the fields in
+   it, so it stays the source there and this is its plain form: keep
+   the two in step when the prompt in introduction.md changes. */
+const LANDING_ONBOARD_PROMPT = [
+  'Set up Scalar for this repo with the Scalar MCP server (https://mcp.scalar.com/) and the Scalar CLI (`npx -y @scalar/cli@latest`).',
+  '',
+  'Find my OpenAPI file and the brand site for my company, check what my team already has so nothing is duplicated, and confirm with me once. Then:',
+  '',
+  '1. Publish the API to the Scalar Registry.',
+  '2. Create one TypeScript SDK with `create_an_sdk` (it builds itself, never call `build_an_sdk`).',
+  '3. Host an MCP server for the API with `create_an_mcp_server`, pointed at the Registry entry.',
+  '4. Scaffold `scalar-docs/` with intro, quickstart and authentication guides from the spec, a custom `--scalar-*` CSS theme from my brand (`siteConfig.theme`), and a config (schema https://registry.scalar.com/@scalar/schemas/config) whose API reference route points at the Registry entry by namespace and slug, not a local file, so the SDK samples show.',
+  '5. Create the docs project and `project publish` it.',
+  '',
+  'Report the links. Never delete anything.',
+].join('\n')
 const initLandingOnboard = () => {
   document.querySelectorAll('[data-lp-onboard]').forEach((button) => {
     if (button.dataset.lpOnboardBound === 'true') {
@@ -5268,7 +7128,7 @@ const initLandingOnboard = () => {
     let timer = 0
     button.addEventListener('click', () => {
       const text = document.querySelector('#lp-prompts .lp-prompt-text')
-      const prompt = text ? landingPromptText(text) : ''
+      const prompt = text ? landingPromptText(text) : LANDING_ONBOARD_PROMPT
       if (!prompt || !navigator.clipboard) {
         return
       }
@@ -5285,6 +7145,619 @@ const initLandingOnboard = () => {
   })
 }
 
+/* The docs page's hero: a row of documentation sites built with Scalar,
+   sliding past on a curve, after the treatment meech213.com gives its
+   gallery.
+
+   Their row is three.js — a line of textured planes whose vertices one
+   node graph moves. The graph reads a vertex's world x and adds three
+   offsets to it:
+
+     y  cos(x * curveFrequency) * curveStrength - curveStrength
+     z  -(abs(x) ** 1.25) * depthCurveStrength
+     x  sin(uv.y * PI) * travel
+
+   The first two bend the row: a shallow sag, and a fall away from the
+   camera that grows towards the edges. They depend only on where a card
+   is, so each card here gets them as a translate, plus the turn that
+   keeps a flat card lying on the curve it is standing on. The sag is
+   theirs; the fall away is ours — a curve that keeps bending reads as
+   one long tilt, so this row lies flat across the middle and falls away
+   at one angle to either side instead. See flatSpan below.
+
+   The third is the bow, and it is the one worth having: the middle of a
+   card is drawn one frame's travel ahead of its top and bottom edges,
+   so a card moving quickly reads as a drawn bow. It varies down the
+   card, which no single CSS transform does, so a card is cut into
+   slices and each slice is moved and sheared to meet its neighbours —
+   the same straight join the GPU draws between two rows of vertices.
+   At rest the slices sit flush and a card is an ordinary rectangle.
+
+   Their numbers are kept as they are; what is ours is the row never
+   quite stopping, and the wheel adding to its speed without taking the
+   page's scrolling away. */
+/* The faces of the row: three customers' documentation portals, each
+   rendering one operation — Zoom's and Clerk's from the drawings made for
+   the August 2026 hero, Supabase's built from its own Management API
+   document and the look of its docs, in documentation/assets/docs-hero.
+
+   They are bitmaps rather than markup: as HTML inside an <svg> the browser
+   lays them out and rasterises them again every time the row moves — 53
+   frames a second against 120 for the same picture baked. */
+const DOCS_HERO_PREVIEWS = ['zoom', 'clerk', 'supabase']
+
+/* The two rows, in the order the page has them: left of the seam the
+   browser is rendering a portal's API reference, right of it the same
+   browser is on the same page's .md — plain monospace text, markdown and
+   all. The suffix is what tells one bake from the other. */
+const DOCS_HERO_SIDES = ['', '-markdown']
+
+const DOCS_HERO = {
+  /* theirs: the sag the plane rides, and the plane itself */
+  curveFrequency: 0.18,
+  curveStrength: 0.12,
+  /* Ours, in place of their fall-away curve: the row lies flat across
+     the middle and falls away at one fixed angle to either side, so a
+     preview funnels in, squares up to the reader as it crosses the
+     centre, and funnels out again. A power curve keeps bending the
+     further out a card goes, which reads as one long tilt instead of a
+     funnel. The three are world units, where a preview is imageSizeX
+     across and flatSpan is measured from the centre. */
+  flatSpan: 1,
+  funnelSlope: 0.8,
+  funnelCorner: 0.35,
+  /* theirs is a tall plane; these previews are the wide pages they were
+     drawn as, so the same numbers stand the other way round */
+  imageSizeX: 1.28,
+  imageSizeY: 0.72,
+  gap: 0.12,
+  cameraDistance: 3.3,
+  /* where the seam starts, as a share of the row's width, and how far
+     it may be taken before one side is too thin to read */
+  split: 0.5,
+  splitMin: 0.14,
+  splitMax: 0.86,
+  /* theirs: the scrubbing. A frame keeps 92% of its speed, and the
+     travel that speed works out to is also the bow */
+  friction: 0.92,
+  wheelFactor: 0.52,
+  wheelDirection: -1,
+  wheelGain: 0.18,
+  dragGain: 0.315,
+  maxVelocity: 180,
+  /* ours */
+  drift: 0.85,
+  bowFloor: 1,
+  slices: 8,
+  cards: 12,
+  /* a fifth larger than the funnel first wanted them: the funnel reads
+     best when a preview's whole turn fits on the screen beside the flat
+     one in the middle, but the previews are the point of the row */
+  cardMin: 312,
+  cardMax: 816,
+  cardShare: 0.624,
+  /* how much of the room above the hero's foot a card may take, and how
+     far above the words the row rides, as a share of a card */
+  cardRoom: 0.92,
+  rowLift: 0.04,
+}
+
+const DOCS_HERO_FRAME = 1000 / 60
+
+/* The row reaches both edges of the column the page clips to, past the
+   text column and past the sidebar. The hero is already centred in
+   whatever room the page left it, so the shorter of its two margins is
+   that room — no need to know what the sidebar is doing, which is just
+   as well, since --scalar-sidebar-width keeps its desktop value on a
+   phone where the sidebar is a drawer.
+
+   The two lengths go on the hero rather than the field because the
+   seam's handle and its grip are placed from them as well, and a custom
+   property only reaches down. */
+const docsHeroBleed = (hero) => {
+  const box = hero.getBoundingClientRect()
+  const page = document.documentElement.clientWidth || window.innerWidth
+  const middle = box.left + box.width / 2
+  const reach = Math.min(middle, page - middle)
+  const space = Math.max(reach * 2, box.width)
+  if (!box.width) {
+    /* a hero that is not laid out yet measures as nothing; leave the two
+       lengths unwritten rather than put a zero in them */
+    return { box, space }
+  }
+  hero.style.setProperty('--dh-left', `${Math.round(middle - reach - box.left)}px`)
+  hero.style.setProperty('--dh-width', `${Math.round(space)}px`)
+  /* the handle waits for this: the page swaps the hero out from under an
+     early measurement while it hydrates, so the lengths can arrive a
+     moment after the words, and a handle placed before them would stand
+     in the text column and then jump out to the row's edge */
+  hero.dataset.dhBleed = 'true'
+  return { box, space }
+}
+
+/* The field is on the page before the row is built, so it is measured
+   on its own as well, without the wait the rest of the hero can afford:
+   left to the debounced build below, it would be laid out at the text
+   column's width and then jump out to the row's. */
+const measureDocsHero = () => {
+  const hero = document.querySelector('.dh-hero')
+  if (hero) {
+    docsHeroBleed(hero)
+  }
+}
+const docsHeroMod = (value, span) => ((value % span) + span) % span
+
+/* Every docs hero's sync, so one that left the page while it was off
+   screen — where no observer fires again — is released on the next page
+   change, as the landing page's flows are. */
+const docsHeroSyncs = new Set()
+
+const initDocsHero = debounce(() => {
+  const field = document.querySelector('.dh-field')
+  if (!field || field.dataset.dhBound === 'true') {
+    return
+  }
+  /* One row a side of the seam. Both are laid out from the same numbers
+     and placed by the same call, so they register to the pixel and the
+     seam reads as one portal rendering two things rather than as two
+     portals side by side. */
+  const panes = [...field.querySelectorAll('.dh-pane')]
+  const stages = panes.map((pane) => pane.querySelector('.dh-stage'))
+  if (stages.length !== DOCS_HERO_SIDES.length || stages.some((stage) => !stage)) {
+    return
+  }
+  field.dataset.dhBound = 'true'
+
+  const cards = []
+  for (let index = 0; index < DOCS_HERO.cards; index += 1) {
+    const face = DOCS_HERO_PREVIEWS[index % DOCS_HERO_PREVIEWS.length]
+    const copies = stages.map((stage, side) => {
+      const card = document.createElement('div')
+      card.className = 'dh-card'
+      const bake = `${face}${DOCS_HERO_SIDES[side]}`
+      /* both modes are set here and the page's class picks one, so a
+         reader switching modes costs nothing */
+      card.style.setProperty('--dh-src', `url("/docs-hero/${bake}.webp")`)
+      card.style.setProperty('--dh-src-dark', `url("/docs-hero/${bake}-dark.webp")`)
+      const slices = []
+      for (let slice = 0; slice < DOCS_HERO.slices; slice += 1) {
+        const element = document.createElement('div')
+        element.className = 'dh-slice'
+        element.style.setProperty('--i', String(slice))
+        card.appendChild(element)
+        slices.push(element)
+      }
+      stage.appendChild(card)
+      return { element: card, slices }
+    })
+    cards.push({ copies, flat: false })
+  }
+
+  /* px per world unit, and the run of one card plus its gap */
+  let unit = 0
+  let stride = 0
+  let span = 0
+  let cardHeight = 0
+  /* how far from the middle a preview's middle can land and still have
+     any of itself on the screen */
+  let reach = 0
+  /* how far the row has travelled: the row's whole position, so a resize
+     can carry it over rather than snapping every card back to its slot */
+  let offset = 0
+
+  const hero = field.parentElement
+  const copy = hero && hero.querySelector('.dh-copy')
+  let previousStride = 0
+
+  const layout = () => {
+    const bleed = hero ? docsHeroBleed(hero) : null
+    const box = bleed ? bleed.box : null
+    const space = bleed ? bleed.space : document.documentElement.clientWidth || window.innerWidth
+    /* The row runs from the top of the hero down to its foot — the rule
+       and the logos — so that room, not the whole hero, is what a card is
+       measured against. The foot's own height is read from the page
+       rather than written down twice. */
+    const footing = hero ? hero.querySelector('.dh-foot') : null
+    const gap = footing ? Number.parseFloat(getComputedStyle(footing).marginTop) || 0 : 0
+    const footRoom = footing && box ? Math.round(box.bottom - footing.getBoundingClientRect().top + gap) : 0
+    /* on the hero rather than on the row: the handle beside the row ends
+       at the foot as well, and a custom property only reaches down */
+    if (hero) {
+      hero.style.setProperty('--dh-foot', `${footRoom}px`)
+    }
+    const room = box ? box.height - footRoom : 0
+    const tallest = room
+      ? (room * DOCS_HERO.cardRoom * DOCS_HERO.imageSizeX) / DOCS_HERO.imageSizeY
+      : Number.POSITIVE_INFINITY
+    /* the room binds last: a card that will not fit in it would be cut
+       off flat at the top of the hero, and a smaller card is better than
+       a sliced one on a short screen */
+    const width = Math.round(
+      Math.min(Math.max(DOCS_HERO.cardMin, Math.min(DOCS_HERO.cardMax, space * DOCS_HERO.cardShare)), tallest),
+    )
+    cardHeight = Math.round((width / DOCS_HERO.imageSizeX) * DOCS_HERO.imageSizeY)
+    unit = width / DOCS_HERO.imageSizeX
+    stride = (DOCS_HERO.imageSizeX + DOCS_HERO.gap) * unit
+    span = DOCS_HERO.cards * stride
+    reach = (space + width) / 2
+    field.style.setProperty('--dh-w', `${width}px`)
+    field.style.setProperty('--dh-h', `${cardHeight}px`)
+    field.style.setProperty('--dh-sh', `${cardHeight / DOCS_HERO.slices}px`)
+    /* The row is centred on the words and lifted a little above them, so
+       the previews ride high in the hero rather than hanging at its foot.
+       Centring on the copy rather than on the room keeps the two together
+       however long the heading runs, and at every width. */
+    const words = copy && box ? copy.getBoundingClientRect() : null
+    const centre = words ? words.top + words.height / 2 - box.top : room / 2
+    const middleY = Math.round(centre - DOCS_HERO.rowLift * cardHeight)
+    field.style.setProperty('--dh-top', `${middleY}px`)
+    /* the same camera for both rows, so neither is a hair's breadth off
+       the other where the seam cuts them */
+    for (const pane of panes) {
+      pane.style.perspective = `${DOCS_HERO.cameraDistance * unit}px`
+      pane.style.perspectiveOrigin = `50% ${middleY}px`
+    }
+    /* The handle rides a little below the top edge of a preview, and
+       never lower than the words begin: on a narrow screen the previews
+       are small and the words reach the top of them, and a handle in
+       among the words is one the words take the pointer from. */
+    if (hero) {
+      const clear = words ? Math.round(words.top - box.top - 26) : Number.POSITIVE_INFINITY
+      const rides = Math.round(middleY - cardHeight / 2 + 44)
+      hero.style.setProperty('--dh-grip', `${Math.max(28, Math.min(rides, clear))}px`)
+    }
+    offset = previousStride ? (offset * stride) / previousStride : offset
+    previousStride = stride
+  }
+
+  /* Move the row along by travel, put every card back on the curve, and
+     bend it by bow. One call with both at zero is the still picture a
+     reader who asked for less motion gets. */
+  const place = (travel, bow) => {
+    const half = span / 2
+    const count = DOCS_HERO.slices
+    offset = docsHeroMod(offset + travel, span)
+    const bending = Math.abs(bow) > DOCS_HERO.bowFloor
+    field.classList.toggle('is-bowing', bending)
+
+    for (let index = 0; index < cards.length; index += 1) {
+      const card = cards[index]
+      const at = docsHeroMod(index * stride + offset + half, span) - half
+      const x = at / unit
+      /* A card is a chord of the curve, not a tangent to it: its two
+         edges are put on the curve and the card is laid between them.
+         Reading the slope at the middle instead would snap a card round
+         as it crossed the centre, where the funnel's two sides meet: the
+         slope there is continuous but the bend is not, and a tangent
+         feels that within a few pixels of travel. A chord spans it and
+         never does. */
+      const edge = DOCS_HERO.imageSizeX / 2
+      /* flat across the middle, a straight fall beyond it, and a corner
+         of funnelCorner rounding the turn between the two */
+      const fall = (place) => {
+        const out = Math.abs(place) - DOCS_HERO.flatSpan
+        const turn = (out + Math.sqrt(out * out + DOCS_HERO.funnelCorner ** 2)) / 2
+        return -turn * DOCS_HERO.funnelSlope
+      }
+      const drop = (place) =>
+        -(Math.cos(place * DOCS_HERO.curveFrequency) * DOCS_HERO.curveStrength - DOCS_HERO.curveStrength)
+      const backLeft = fall(x - edge)
+      const backRight = fall(x + edge)
+      const downLeft = drop(x - edge)
+      const downRight = drop(x + edge)
+      const depth = ((backLeft + backRight) / 2) * unit
+      const sag = ((downLeft + downRight) / 2) * unit
+      const yaw = Math.atan((backLeft - backRight) / (2 * edge))
+      const roll = Math.atan((downRight - downLeft) / (2 * edge))
+      const placed = `translate3d(${at}px, ${sag}px, ${depth}px) rotateY(${yaw}rad) rotateZ(${roll}rad)`
+      for (const copy of card.copies) {
+        copy.element.style.transform = placed
+      }
+
+      /* The row is far longer than the screen, and bending a card is the
+         expensive part: eight slices a card, twice over now that there
+         are two rows. Only the two or three cards anywhere near the
+         screen are worth it; the rest lie flat until they come round.
+
+         Where a card lands is not where it stands: a card out on the
+         funnel's slope is a long way back, and the perspective divides
+         it toward the middle again, so the test has to be made on the
+         screen rather than on the stage. */
+      const away = DOCS_HERO.cameraDistance * unit
+      if (!bending || Math.abs((at * away) / (away - depth)) > reach) {
+        if (!card.flat) {
+          card.flat = true
+          for (const copy of card.copies) {
+            for (const slice of copy.slices) {
+              slice.style.transform = ''
+            }
+          }
+        }
+        continue
+      }
+      card.flat = false
+      for (let slice = 0; slice < count; slice += 1) {
+        /* sin(uv.y * PI) at this slice's top and bottom edge; uv.y runs
+           up the card, so slice 0 is the top one */
+        const top = Math.sin((1 - slice / count) * Math.PI) * bow
+        const bottom = Math.sin((1 - (slice + 1) / count) * Math.PI) * bow
+        const bent = `translateX(${top}px) skewX(${Math.atan((bottom - top) / (cardHeight / count))}rad)`
+        for (const copy of card.copies) {
+          copy.slices[slice].style.transform = bent
+        }
+      }
+    }
+  }
+
+  /* The site is one page, so this hero's field is thrown away on the way
+     to another. Everything hung on the window goes with it. */
+  let release = () => {}
+  let measured = ''
+  const onResize = debounce(() => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    /* the hero's height is in the key because a card is sized against
+       it; laying out does not change it, so this cannot answer itself */
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const box = hero ? hero.getBoundingClientRect() : null
+    const shape = box ? `${page}:${Math.round(box.left)}:${Math.round(box.width)}:${Math.round(box.height)}` : `${page}`
+    if (shape === measured) {
+      return
+    }
+    measured = shape
+    layout()
+    place(0, 0)
+  })
+
+  layout()
+  /* placed before the first paint: without this every card sits on the
+     stage's origin, stacked, until the first frame runs */
+  place(0, 0)
+  measured = (() => {
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const box = hero ? hero.getBoundingClientRect() : null
+    return box ? `${page}:${Math.round(box.left)}:${Math.round(box.width)}:${Math.round(box.height)}` : `${page}`
+  })()
+  window.addEventListener('resize', onResize)
+  /* The sidebar and the content column settle after this runs, so the
+     first measurement can be of a page that is not finished. Watching the
+     hero catches that, and a sidebar that opens or closes later. */
+  const watcher = typeof ResizeObserver === 'function' && hero ? new ResizeObserver(onResize) : null
+  watcher?.observe(hero)
+
+  /* The seam. Both rows are already drawn one on top of the other, so
+     moving it only changes where each of them is cut — the previews
+     themselves do not move, which is what makes it read as one portal
+     showing a page's markdown on one side and the rendered page on
+     the other.
+
+     The handle is a sibling of the row rather than a child of it: the
+     row is decorative and hidden from screen readers, and a control
+     inside it would be focusable but unreachable. */
+  const splitter = hero && hero.querySelector('.dh-split')
+  const setSplit = (share) => {
+    const next = Math.min(DOCS_HERO.splitMax, Math.max(DOCS_HERO.splitMin, share))
+    hero.style.setProperty('--dh-split', String(Math.round(next * 1e4) / 1e4))
+    splitter.setAttribute('aria-valuenow', String(Math.round(next * 100)))
+  }
+  if (splitter && hero) {
+    setSplit(DOCS_HERO.split)
+    let holding = null
+    const share = (clientX) => {
+      const box = field.getBoundingClientRect()
+      return box.width ? (clientX - box.left) / box.width : DOCS_HERO.split
+    }
+    splitter.addEventListener('pointerdown', (event) => {
+      holding = event.pointerId
+      try {
+        splitter.setPointerCapture(event.pointerId)
+      } catch {
+        /* a pointer that has already gone */
+      }
+      splitter.classList.add('is-dragging')
+      /* otherwise the browser starts a text selection across the words
+         the handle is standing in front of */
+      event.preventDefault()
+    })
+    splitter.addEventListener('pointermove', (event) => {
+      if (holding === event.pointerId) {
+        setSplit(share(event.clientX))
+      }
+    })
+    const letGo = (event) => {
+      if (holding !== event.pointerId) {
+        return
+      }
+      try {
+        splitter.releasePointerCapture(event.pointerId)
+      } catch {
+        /* already released */
+      }
+      holding = null
+      splitter.classList.remove('is-dragging')
+    }
+    splitter.addEventListener('pointerup', letGo)
+    splitter.addEventListener('pointercancel', letGo)
+    /* A click on the row takes the seam to where it was clicked. The row
+       has no other click of its own — it is scrubbed by dragging — and a
+       seam that can only be dragged is a seam some readers cannot move
+       at all. */
+    let pressed = null
+    field.addEventListener('pointerdown', (event) => {
+      pressed = event.clientX
+    })
+    field.addEventListener('pointerup', (event) => {
+      if (pressed !== null && Math.abs(event.clientX - pressed) < 5) {
+        setSplit(share(event.clientX))
+      }
+      pressed = null
+    })
+    splitter.addEventListener('keydown', (event) => {
+      const by = event.shiftKey ? 0.1 : 0.02
+      const now = Number.parseFloat(getComputedStyle(hero).getPropertyValue('--dh-split')) || DOCS_HERO.split
+      const moves = {
+        ArrowLeft: now - by,
+        ArrowRight: now + by,
+        Home: DOCS_HERO.splitMin,
+        End: DOCS_HERO.splitMax,
+      }
+      if (event.key in moves) {
+        setSplit(moves[event.key])
+        event.preventDefault()
+      }
+    })
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    /* the row stays where layout() put it: the sites are the point, the
+       sliding is the flourish */
+    release = () => {
+      watcher?.disconnect()
+      window.removeEventListener('resize', onResize)
+    }
+    return
+  }
+
+  /* A pointer resting on the row stops it drifting, the way the customer
+     logo walls stop: moving content that started on its own has to be
+     stoppable. A drag still works, and so does the wheel. */
+  let resting = false
+  const hoverable = window.matchMedia('(hover: hover)')
+  field.addEventListener('pointerenter', (event) => {
+    resting = event.pointerType === 'mouse' && hoverable.matches
+  })
+  field.addEventListener('pointerleave', () => {
+    resting = false
+  })
+
+  let velocity = 0
+  const push = (amount) => {
+    velocity = Math.max(-DOCS_HERO.maxVelocity, Math.min(DOCS_HERO.maxVelocity, velocity + amount))
+  }
+
+  /* The wheel alone, as theirs does. Listening to scroll as well would
+     count a wheel twice on a page that can still scroll, and once on one
+     that cannot. The page scrolls as it always did: nothing is taken. */
+  const onWheel = (event) => push(DOCS_HERO.wheelGain * event.deltaY)
+  window.addEventListener('wheel', onWheel, { passive: true })
+
+  let drag = null
+  field.addEventListener('pointerdown', (event) => {
+    drag = { id: event.pointerId, last: event.clientX }
+    try {
+      field.setPointerCapture(event.pointerId)
+    } catch {
+      /* a pointer that has already gone */
+    }
+    field.classList.add('is-dragging')
+  })
+  field.addEventListener('pointermove', (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    push(-(DOCS_HERO.dragGain * (event.clientX - drag.last)))
+    drag.last = event.clientX
+  })
+  const endDrag = (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    try {
+      field.releasePointerCapture(event.pointerId)
+    } catch {
+      /* already released */
+    }
+    drag = null
+    field.classList.remove('is-dragging')
+  }
+  field.addEventListener('pointerup', endDrag)
+  field.addEventListener('pointercancel', endDrag)
+
+  /* The row runs only while it is on screen and the page is in front. A
+     background tab paints nothing, and a row that has scrolled away is
+     work nobody sees. */
+  let running = false
+  let inView = false
+  let previous = 0
+  /* The frame that has already been asked for, if there is one. A tab sent
+     to the background stops running its frame callbacks but keeps the last
+     one it was given, so a page that is left and come back to still has a
+     frame owed to it. Asking for another one on the way back would leave
+     two chains of frames driving the row, at twice the speed, and one more
+     chain for every visit after that. Holding the handle is how the other
+     animations on these pages stay at one. */
+  let frame = 0
+
+  const step = (now) => {
+    frame = 0
+    if (!running) {
+      return
+    }
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const elapsed = Math.min(64, now - previous) || DOCS_HERO_FRAME
+    previous = now
+    const steps = elapsed / DOCS_HERO_FRAME
+
+    velocity *= DOCS_HERO.friction ** steps
+    if (Math.abs(velocity) < 0.001) {
+      velocity = 0
+    }
+    /* their travel for one sixtieth of a second, which is also the bow;
+       taking it per sixtieth rather than per frame keeps a 120 Hz screen
+       showing the same slide as a 60 Hz one */
+    const drift = resting ? 0 : DOCS_HERO.drift
+    const bow = 0.005 * velocity * DOCS_HERO.wheelFactor * DOCS_HERO.wheelDirection * unit + drift
+    place(bow * steps, bow)
+    frame = requestAnimationFrame(step)
+  }
+
+  const sync = () => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const wanted = inView && !document.hidden
+    if (wanted === running) {
+      return
+    }
+    running = wanted
+    if (running) {
+      /* the time the tab spent away is not travel the row has to make up */
+      previous = performance.now()
+      if (!frame) {
+        frame = requestAnimationFrame(step)
+      }
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        inView = entry.isIntersecting
+      })
+      sync()
+    },
+    { threshold: 0 },
+  )
+  observer.observe(field)
+  document.addEventListener('visibilitychange', sync)
+  docsHeroSyncs.add(sync)
+  release = () => {
+    running = false
+    observer.disconnect()
+    watcher?.disconnect()
+    docsHeroSyncs.delete(sync)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('wheel', onWheel)
+    document.removeEventListener('visibilitychange', sync)
+  }
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
@@ -5293,6 +7766,8 @@ initHeroScenes()
 initHeroCards()
 initLandingBoxLinks()
 initLandingOrbs()
+initFooterPlanets()
+initCustomerBalls()
 initLandingOnboard()
 initLandingChat()
 initLandingFlow()
@@ -5300,12 +7775,21 @@ initLandingPrompt()
 initLandingFunnel()
 initLandingWinTabs()
 initLandingDocsWindows()
+initTrustedWalls()
+initEnterpriseRing()
+initLandingHostStage()
+initEnterpriseSky()
+measureDocsHero()
+initDocsHero()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
     return
   }
 
+  // the page that has just been replaced lets go of what it bound, before
+  // the initialisers below bind the one that replaced it
+  sweepLanding()
   initDraggableElements()
   initFooterAnimation()
   initGallery()
@@ -5314,6 +7798,8 @@ const observer = new MutationObserver((records) => {
   initHeroCards()
   initLandingBoxLinks()
   initLandingOrbs()
+  initFooterPlanets()
+  initCustomerBalls()
   initLandingOnboard()
   initLandingChat()
   initLandingFlow()
@@ -5321,6 +7807,13 @@ const observer = new MutationObserver((records) => {
   initLandingFunnel()
   initLandingWinTabs()
   initLandingDocsWindows()
+  initTrustedWalls()
+  initEnterpriseRing()
+  initLandingHostStage()
+  initEnterpriseSky()
+  docsHeroSyncs.forEach((sync) => sync())
+  measureDocsHero()
+  initDocsHero()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

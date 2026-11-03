@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalize } from './normalize'
+import { normalize } from '../index'
 
 describe('normalize', () => {
   it('returns undefined if the document is null', () => {
@@ -23,6 +23,31 @@ describe('normalize', () => {
   it('should parse JSON string specifications', () => {
     const jsonString = '{"foo": "bar"}'
     expect(normalize(jsonString)).toEqual({ foo: 'bar' })
+  })
+
+  it('parses JSON with a leading UTF-8 BOM', () => {
+    const jsonWithBom = `\uFEFF${JSON.stringify({ foo: 'bar' })}`
+    expect(normalize(jsonWithBom)).toEqual({ foo: 'bar' })
+  })
+
+  it('parses YAML with a leading UTF-8 BOM', () => {
+    expect(normalize('\uFEFFfoo: bar')).toStrictEqual({ foo: 'bar' })
+  })
+
+  it('preserves a BOM inside a JSON string value', () => {
+    expect(normalize(JSON.stringify({ foo: '\uFEFFbar' }))).toStrictEqual({ foo: '\uFEFFbar' })
+  })
+
+  it('returns undefined for a BOM-only document', () => {
+    expect(normalize('\uFEFF')).toBeUndefined()
+  })
+
+  it('parses JSON arrays', () => {
+    expect(normalize('[{"foo":"bar"}]')).toStrictEqual([{ foo: 'bar' }])
+  })
+
+  it('does not interpret malformed JSON arrays as YAML', () => {
+    expect(normalize('[{foo: "bar"}]')).toBeUndefined()
   })
 
   it('should parse YAML string specifications', () => {
@@ -77,11 +102,8 @@ describe('normalize', () => {
   })
 
   it('should handle non-string, non-object inputs', () => {
-    // @ts-expect-error testing bad input
     expect(normalize(42)).toEqual(42)
-    // @ts-expect-error testing bad input
     expect(normalize(true)).toEqual(true)
-    // @ts-expect-error testing bad input
     expect(normalize([1, 2, 3])).toEqual([1, 2, 3])
   })
 

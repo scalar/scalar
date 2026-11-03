@@ -149,12 +149,22 @@ export const environmentMutatorsFactory = ({
   collection: WorkspaceDocument | Workspace | null
 }) => {
   return {
-    upsertEnvironment: (payload: Event<'environment:upsert:environment'>) =>
-      upsertEnvironment(workspace, collection, payload),
+    upsertEnvironment: (payload: {
+      environmentName: string
+      payload: Partial<XScalarEnvironment>
+      // Spelled out with an explicit `| undefined` so the published declarations keep accepting
+      // `oldEnvironmentName: undefined` for consumers that enable `exactOptionalPropertyTypes`.
+      oldEnvironmentName?: string | undefined
+    }) => upsertEnvironment(workspace, collection, payload),
     deleteEnvironment: (payload: Event<'environment:delete:environment'>) =>
       deleteEnvironment(workspace, collection, payload),
-    upsertEnvironmentVariable: (payload: Event<'environment:upsert:environment-variable'>) =>
-      upsertEnvironmentVariable(collection, payload),
+    upsertEnvironmentVariable: (payload: {
+      environmentName: string
+      variable: XScalarEnvVar
+      // Spelled out with an explicit `| undefined` so the published declarations keep accepting
+      // `index: undefined` for consumers that enable `exactOptionalPropertyTypes`.
+      index?: number | undefined
+    }) => upsertEnvironmentVariable(collection, payload),
     deleteEnvironmentVariable: (payload: Event<'environment:delete:environment-variable'>) =>
       deleteEnvironmentVariable(collection, payload),
   }
