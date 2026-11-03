@@ -16,20 +16,10 @@ const MAX_LEVELS_DEEP = 10
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
 /**
- * Pre-computed date/time values to avoid expensive Date operations on every call.
- * These are calculated once at module load time for better performance.
- */
-const currentISOString = new Date().toISOString()
-const currentDateString = currentISOString.split('T')[0]!
-const currentTimeString = currentISOString.split('T')[1]!
-
-/**
  * Mapping of OpenAPI string formats to example values.
  * Used to generate realistic examples for different string formats.
  */
 const genericExampleValues: Record<string, string> = {
-  'date-time': currentISOString,
-  'date': currentDateString,
   'duration': 'P1D',
   'email': 'hello@example.com',
   'hostname': 'example.com',
@@ -47,8 +37,6 @@ const genericExampleValues: Record<string, string> = {
   'regex': '[a-z]',
   // https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01
   'relative-json-pointer': '1/nested/objects',
-  // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
-  'time': currentTimeString,
   // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
   'uri-reference': '../folder',
   'uri-template': 'https://example.com/{id}',
@@ -97,6 +85,19 @@ const guessFromFormat = (
     return '@filename'
   }
 
+  if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
+    // Do not persist enclosing objects or arrays with generated clock-dependent values.
+    generatedCurrentTime = true
+    const iso = new Date().toISOString()
+    if (schema.format === 'date') {
+      return iso.split('T')[0]!
+    }
+    if (schema.format === 'time') {
+      return iso.split('T')[1]!
+    }
+    return iso
+  }
+
   if ('format' in schema && schema.format && Object.hasOwn(genericExampleValues, schema.format)) {
     // Password and object-id retain their opt-in placeholders; other known formats need valid syntax.
     if (schema.format === 'password' || schema.format === 'object-id') {
@@ -127,6 +128,9 @@ const resultCache = new WeakMap<object, Map<string, unknown>>()
  * top-level call.
  */
 let truncated = false
+
+/** Prevent cached containers from retaining generated dates and times across calls. */
+let generatedCurrentTime = false
 
 /** Cache required property names per parent schema for O(1) membership checks */
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
@@ -170,7 +174,7 @@ const getRequiredNames = (parentSchema: SchemaObject | undefined): ReadonlySet<s
  * identity would leak one scope's result into another.
  */
 const cache = (schema: SchemaObject, result: unknown, cacheKey: string, skip = false) => {
-  if (skip || truncated || typeof result !== 'object' || result === null) {
+  if (skip || truncated || generatedCurrentTime || typeof result !== 'object' || result === null) {
     return result
   }
   const rawSchema = getSchemaCacheTarget(schema)
@@ -1167,9 +1171,10 @@ const generateExampleFromSchema = (
     dynamicScope: DynamicScope
   }> = {},
 ): unknown => {
-  // A truncation only taints the call it happened in, so every top-level call starts clean.
+  // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
   if (level === 0) {
     truncated = false
+    generatedCurrentTime = false
   }
 
   // Resolve any $ref references to get the actual schema

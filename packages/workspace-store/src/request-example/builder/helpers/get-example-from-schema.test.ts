@@ -1,6 +1,6 @@
 import { isIP } from 'node:net'
 
-import { assert, describe, expect, it } from 'vitest'
+import { assert, describe, expect, it, vi } from 'vitest'
 
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/openapi-document'
@@ -8,6 +8,36 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it('refreshes generated dates and times in reused nested schemas', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'object',
+      properties: {
+        values: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              date: { type: 'string', format: 'date' },
+              timestamp: { type: 'string', format: 'date-time' },
+              time: { type: 'string', format: 'time' },
+            },
+          },
+        },
+      },
+    })
+    vi.useFakeTimers()
+    try {
+      for (const iso of ['2026-11-03T23:59:59.000Z', '2026-11-04T00:00:01.000Z']) {
+        vi.setSystemTime(new Date(iso))
+        expect(getExampleFromSchema(schema)).toStrictEqual({
+          values: [{ date: iso.split('T')[0], timestamp: iso, time: iso.split('T')[1] }],
+        })
+      }
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('retains file metadata when allOf combines binary contributions', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       allOf: [
