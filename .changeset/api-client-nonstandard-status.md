@@ -2,4 +2,4 @@
 '@scalar/api-client': patch
 ---
 
-Show API responses for any HTTP status outside the Fetch Response constructor range (200–599), including 1xx and custom 6xx–999 codes, without rewriting the status or failing while processing the response.
+Show API responses for any HTTP status the server returns, including codes outside 200–599. Stop rebuilding responses with `new Response`, which rejects those statuses and previously caused the request to fail.

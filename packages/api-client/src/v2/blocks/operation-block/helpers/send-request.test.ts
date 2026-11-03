@@ -467,9 +467,9 @@ describe('sendRequest', () => {
   })
 
   /**
-   * Fetch's Response constructor only allows [200, 599]. Any other network
-   * status in 0–999 must still be shown with its body. Mocks use a Response-like
-   * object because `new Response(..., { status })` throws outside that range.
+   * Network responses can carry any status in 0–999. We never rebuild them with
+   * `new Response` (which only allows [200, 599]), so mocks use a Response-like
+   * object for statuses the constructor rejects.
    */
   it.each([0, 100, 103, 199, 600, 601, 700, 850, 999])(
     'surfaces status %s outside the Response constructor range with the response body',

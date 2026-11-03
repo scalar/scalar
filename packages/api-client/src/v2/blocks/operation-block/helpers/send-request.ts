@@ -51,15 +51,6 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
 /** HTTP status codes that should not include a response body */
 const NO_BODY_STATUS_CODES = [204, 205, 304]
 
-/**
- * The Fetch `Response` constructor only accepts statuses in [200, 599].
- * Outside that range we keep the network Response as-is instead of inventing a
- * fake status just to satisfy the constructor.
- *
- * @see https://fetch.spec.whatwg.org/#dom-response-response
- */
-const canConstructResponse = (status: number): boolean => status >= 200 && status <= 599
-
 /** Custom fetch function signature compatible with the global fetch API */
 export type CustomFetch = typeof fetch
 
@@ -160,7 +151,6 @@ export const sendRequest = async ({
       method,
       fullPath,
       contentType,
-      shouldSkipBody,
       plugins,
     })
   } catch (error) {
@@ -218,15 +208,6 @@ const buildStreamingResponse = ({
   timestamp: number
   originalResponse: Response
 }> => {
-  // Clone before locking the body with getReader so callers still get the real status.
-  const originalResponse = canConstructResponse(response.status)
-    ? new Response(null, {
-        status: response.status,
-        statusText,
-        headers: response.headers,
-      })
-    : response.clone()
-
   const customCookie = getCustomCookie(response)
   const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
@@ -236,7 +217,7 @@ const buildStreamingResponse = ({
       timestamp,
       requestPayload,
       response: {
-        ...originalResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,
@@ -246,7 +227,8 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      originalResponse,
+      // Keep the network Response (real status). Do not rebuild with `new Response`.
+      originalResponse: response,
     },
   ]
 }
@@ -265,7 +247,6 @@ const buildStandardResponse = async ({
   method,
   fullPath,
   contentType,
-  shouldSkipBody,
   plugins,
 }: {
   response: Response
@@ -277,7 +258,6 @@ const buildStandardResponse = async ({
   method: string
   fullPath: string
   contentType: string | null
-  shouldSkipBody: boolean
   plugins: ClientPlugin[]
 }): Promise<
   ErrorResponse<{
@@ -288,30 +268,18 @@ const buildStandardResponse = async ({
   }>
 > => {
   /**
-   * Clone the response to preserve the original for body reading.
-   * Read the body once and reuse the buffer for both decoding and creating a new Response.
+   * Clone so we can decode the body without consuming the network Response.
+   * Keep the original Response (and its real status) for callers — never rebuild
+   * it with `new Response`, which rejects statuses outside [200, 599].
    */
-  const clonedResponse = response.clone()
-  const arrayBuffer = await clonedResponse.arrayBuffer()
+  const arrayBuffer = await response.clone().arrayBuffer()
   const responseType = resolveResponseContentType(contentType)
   const mimeEssence = resolveResponseMimeType(contentType).essence
   const pluginHandler = resolveResponseBodyHandler(mimeEssence, plugins)
   const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
-  /**
-   * Rebuild a Response from the buffered body when the status is constructor-safe.
-   * For out-of-range statuses, keep the network Response so we never rewrite the code.
-   */
-  const normalizedResponse = canConstructResponse(response.status)
-    ? new Response(shouldSkipBody ? null : arrayBuffer, {
-        status: response.status,
-        statusText,
-        headers: response.headers,
-      })
-    : response
-
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -319,7 +287,7 @@ const buildStandardResponse = async ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...response,
         status: response.status,
         statusText,
         headers: responseHeaders,
@@ -330,7 +298,7 @@ const buildStandardResponse = async ({
         method,
         path: fullPath,
       },
-      originalResponse: normalizedResponse.clone(),
+      originalResponse: response.clone(),
     },
   ]
 }
