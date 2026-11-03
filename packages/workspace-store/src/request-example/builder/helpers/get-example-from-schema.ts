@@ -1072,10 +1072,22 @@ const takeStandInStep = (): boolean => {
   return true
 }
 
+/**
+ * A schema read at the composition path the walk would reach it by.
+ *
+ * The path is what an explicit `compositionSelection` is keyed by, and a schema reached through an
+ * `allOf` choice member sits one ordinal deeper than the object that holds it, so the two travel
+ * together.
+ */
+type SchemaAtPath = {
+  schema: SchemaObject
+  path: string[]
+}
+
 /** The object a schema describes once its `allOf` members and selected `oneOf`/`anyOf` variant are merged in. */
 type ObjectShape = {
   /** Every definition of each property, in the order they were found, since `allOf` members may refine one. */
-  properties: Map<string, SchemaObject[]>
+  properties: Map<string, SchemaAtPath[]>
   required: Set<string>
   /** Schemas already read, by the path they were read at, since the path selects their variants. */
   visited: Map<object, Set<string>>
@@ -1087,25 +1099,26 @@ type ObjectShape = {
  * `required` and the property it names often live in different `allOf` members (a base schema lists
  * the property, the extension marks it required), so reading either member alone finds nothing.
  * Choice compositions contribute only the variant the walk itself would render, keyed by the same
- * paths `describeComposition` uses. A schema reached again at the same path adds nothing new, so it is
- * read once: a member shared by several branches would otherwise be read once per route to it.
+ * paths `describeComposition` uses, and each property definition keeps the path of the schema that
+ * declared it. A schema reached again at the same path adds nothing new, so it is read once: a member
+ * shared by several branches would otherwise be read once per route to it.
  */
 const collectObjectShape = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
-  shape: ObjectShape = { properties: new Map(), required: new Set(), visited: new Map() },
-): ObjectShape => {
+  shape: ObjectShape,
+): void => {
   const target = getSchemaCacheTarget(schema)
   if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
-    return shape
+    return
   }
 
   const pathKey = schemaPath.join('/')
   const visitedPaths = shape.visited.get(target) ?? new Set<string>()
   if (visitedPaths.has(pathKey) || !takeStandInStep()) {
-    return shape
+    return
   }
   visitedPaths.add(pathKey)
   shape.visited.set(target, visitedPaths)
@@ -1118,8 +1131,8 @@ const collectObjectShape = (
         continue
       }
       const definitions = shape.properties.get(name) ?? []
-      if (!definitions.includes(resolved)) {
-        definitions.push(resolved)
+      if (!definitions.some((definition) => definition.schema === resolved && definition.path.join('/') === pathKey)) {
+        definitions.push({ schema: resolved, path: schemaPath })
       }
       shape.properties.set(name, definitions)
     }
@@ -1154,7 +1167,37 @@ const collectObjectShape = (
   }
 
   seen.delete(target)
-  return shape
+}
+
+/**
+ * Describe one required property from every definition the object's compositions give it.
+ *
+ * Each definition is described at its own path, so a selection keyed under an `allOf` choice member
+ * still picks the variant it names, and the values merge the way the walk merges `allOf` members. A
+ * key one definition marks required and another defines only shows up across all of them, so a merged
+ * object is then filled from every definition together.
+ */
+const describeRequiredProperty = (
+  definitions: SchemaAtPath[],
+  name: string,
+  options: GetExampleFromSchemaOptions | undefined,
+  seen: Set<object>,
+): unknown => {
+  const sources = definitions.map(({ schema, path }) => ({ schema, path: [...path, name] }))
+  const [only] = sources
+  if (only && sources.length === 1) {
+    return getMaxDepthValue(only.schema, options, only.path, seen)
+  }
+
+  let merged: unknown = undefined
+  for (const { schema, path } of sources) {
+    const value = getMaxDepthValue(schema, options, path, seen)
+    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
+      merged = mergeExamples(merged, value)
+    }
+  }
+
+  return isObject(merged) ? getRequiredProperties(sources, options, seen, merged) : merged
 }
 
 /**
@@ -1167,38 +1210,45 @@ const collectObjectShape = (
  * guards a schema that requires itself, which would otherwise never terminate, and the shared step
  * budget bounds a branching chain of schemas that the path guard alone lets grow exponentially.
  *
- * A property defined more than once across `allOf` members must satisfy every definition, so the
- * definitions are described together, as the `allOf` they amount to.
- *
- * Keys already present in `base` are kept as they are, so a composition whose members described some
- * of the keys only gains the ones that needed the merged view to be found.
+ * `sources` are the schemas the object has to satisfy at once: one schema, or every definition a
+ * property has across `allOf` members. Keys already present in `base` came from a member describing
+ * itself. A key with a single definition is already what that member rendered, so it is kept. A key
+ * several definitions refine is described again from all of them and merged in, because the member that
+ * filled it saw only its own definition.
  */
 const getRequiredProperties = (
-  schema: SchemaObject,
+  sources: SchemaAtPath[],
   options: GetExampleFromSchemaOptions | undefined,
-  schemaPath: string[],
   seen: Set<object>,
   base: Record<string, unknown> = {},
 ): Record<string, unknown> => {
-  const target = getSchemaCacheTarget(schema)
-  if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
+  const open = sources.filter(({ schema }) => !seen.has(getSchemaCacheTarget(schema)))
+  if (open.length === 0 || seen.size >= MAX_COMPOSITION_DEPTH) {
     return base
   }
 
-  const { properties, required } = collectObjectShape(schema, options, schemaPath, seen)
-  if (required.size === 0) {
+  const shape: ObjectShape = { properties: new Map(), required: new Set(), visited: new Map() }
+  for (const { schema, path } of open) {
+    collectObjectShape(schema, options, path, seen, shape)
+  }
+  if (shape.required.size === 0) {
     return base
   }
 
   const result = { ...base }
-  seen.add(target)
-  for (const name of required) {
+  const targets = open.map(({ schema }) => getSchemaCacheTarget(schema))
+  for (const target of targets) {
+    seen.add(target)
+  }
+  for (const name of shape.required) {
+    const definitions = shape.properties.get(name)
     // Own keys only: `constructor` or `toString` are valid property names, not values already filled in.
-    const definitions = Object.hasOwn(result, name) ? undefined : properties.get(name)
+    const filled = Object.hasOwn(result, name)
     // Skip what the full walk would skip, so the stand-in never carries a key a full render would not.
     if (
       !definitions ||
-      definitions.some((definition) => shouldOmitProperty(definition, schema, name, { mode: options?.mode }))
+      (filled && (definitions.length === 1 || !isObject(result[name]))) ||
+      definitions.some(({ schema }) => shouldOmitProperty(schema, sources[0]?.schema, name, { mode: options?.mode }))
     ) {
       continue
     }
@@ -1208,15 +1258,16 @@ const getRequiredProperties = (
       break
     }
 
-    // An untyped `allOf` has no strict member of its own, the same way the walk's synthesized members do not.
-    const property = definitions.length === 1 ? definitions[0]! : ({ allOf: definitions } as SchemaObject)
-    const value = getMaxDepthValue(property, options, [...schemaPath, name], seen)
+    const described = describeRequiredProperty(definitions, name, options, seen)
+    const value = filled && isObject(described) ? mergeExamples(result[name], described) : described
     if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
       // Defined rather than assigned, so a property named `__proto__` stays a property.
       Object.defineProperty(result, name, { value, enumerable: true, writable: true, configurable: true })
     }
   }
-  seen.delete(target)
+  for (const target of targets) {
+    seen.delete(target)
+  }
 
   return result
 }
@@ -1255,7 +1306,7 @@ const getMaxDepthValue = (
   if (container !== undefined) {
     // Children were dropped here, so anything assembled around this value is level-bound too.
     truncated = true
-    return Array.isArray(container) ? container : getRequiredProperties(schema, options, schemaPath, seen)
+    return Array.isArray(container) ? container : getRequiredProperties([{ schema, path: schemaPath }], options, seen)
   }
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
@@ -1280,7 +1331,7 @@ const getMaxDepthValue = (
     // Members describe their own required keys, but one that is marked required in one member and
     // defined in another only shows up in the merged view, so fill those in from the whole composition.
     if (isObject(composed)) {
-      return getRequiredProperties(schema, options, schemaPath, seen, composed)
+      return getRequiredProperties([{ schema, path: schemaPath }], options, seen, composed)
     }
     if (composed !== undefined) {
       return composed
