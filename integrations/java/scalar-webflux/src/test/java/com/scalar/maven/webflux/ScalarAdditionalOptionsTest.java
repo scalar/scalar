@@ -11,6 +11,7 @@ import org.springframework.boot.context.properties.source.MapConfigurationProper
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScalarAdditionalOptionsTest {
 
@@ -68,6 +69,27 @@ class ScalarAdditionalOptionsTest {
         )).get("hiddenClients");
         assertThat(targets.get("python").booleanValue()).isTrue();
         assertThat(targets.at("/node/0").textValue()).isEqualTo("fetch");
+    }
+
+    @Test
+    void rejectsInvalidOptionsDuringBinding() {
+        for (Map<String, String> values : java.util.List.of(
+                Map.of("scalar.hidden-clients.all", "true", "scalar.hidden-clients.clients[0]", "fetch"),
+                Map.of("scalar.hidden-clients.all", "false", "scalar.hidden-clients.targets.node.all", "true"),
+                Map.of("scalar.hidden-clients.clients[0]", "fetch", "scalar.hidden-clients.targets.node.all", "true"),
+                Map.of("scalar.hidden-clients.targets.node.all", "true", "scalar.hidden-clients.targets.node.clients[0]", "fetch"),
+                Map.of("scalar.hidden-clients.targets.node.targets.python.all", "true"),
+                Map.of("scalar.default-request-body-view", "invalid"))) {
+            assertThatThrownBy(() -> new Binder(new MapConfigurationPropertySource(values))
+                    .bind("scalar", Bindable.ofInstance(new SpringBootScalarProperties())))
+                    .isInstanceOf(org.springframework.boot.context.properties.bind.BindException.class);
+        }
+    }
+
+    @Test
+    void bindsRawRequestBodyView() throws Exception {
+        assertThat(bindAndRender(Map.of("scalar.default-request-body-view", "raw"))
+                .get("defaultRequestBodyView").textValue()).isEqualTo("raw");
     }
 
     @Test

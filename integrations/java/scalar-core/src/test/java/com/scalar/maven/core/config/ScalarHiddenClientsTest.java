@@ -22,13 +22,11 @@ class ScalarHiddenClientsTest {
     void rejectsConflictingFormsAndNestedTargetMaps() {
         ScalarHiddenClients options = new ScalarHiddenClients();
         options.setAll(true);
-        options.setClients(List.of("fetch"));
-        assertThatThrownBy(options::toJson).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> options.setClients(List.of("fetch"))).isInstanceOf(IllegalArgumentException.class);
         options.setAll(null);
         options.setClients(null);
         ScalarHiddenClients target = new ScalarHiddenClients();
         target.setTargets(Map.of());
-        options.setTargets(Map.of("node", target));
-        assertThatThrownBy(options::toJson).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> options.setTargets(Map.of("node", target))).isInstanceOf(IllegalArgumentException.class);
     }
 }

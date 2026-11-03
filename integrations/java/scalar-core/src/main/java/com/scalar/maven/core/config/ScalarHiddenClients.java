@@ -22,6 +22,7 @@ public class ScalarHiddenClients {
 
     /** @param all true to hide every client, false to hide none */
     public void setAll(Boolean all) {
+        validate(all, this.clients, this.targets);
         this.all = all;
     }
 
@@ -32,6 +33,7 @@ public class ScalarHiddenClients {
 
     /** @param clients hidden target names, client names, or full client identifiers */
     public void setClients(List<String> clients) {
+        validate(this.all, clients, this.targets);
         this.clients = clients;
     }
 
@@ -42,6 +44,7 @@ public class ScalarHiddenClients {
 
     /** @param targets target-specific settings using all or clients */
     public void setTargets(Map<String, ScalarHiddenClients> targets) {
+        validate(this.all, this.clients, targets);
         this.targets = targets;
     }
 
@@ -53,6 +56,18 @@ public class ScalarHiddenClients {
      */
     @JsonValue
     public Object toJson() {
+        validate(all, clients, targets);
+        if (targets != null) {
+            return targets;
+        }
+        if (clients != null) {
+            return clients;
+        }
+        // The frontend accepts true to hide all, but uses [] to show all.
+        return Boolean.TRUE.equals(all) ? true : List.of();
+    }
+
+    private static void validate(Boolean all, List<String> clients, Map<String, ScalarHiddenClients> targets) {
         int forms = (all == null ? 0 : 1) + (clients == null ? 0 : 1) + (targets == null ? 0 : 1);
         if (forms > 1) {
             throw new IllegalArgumentException("Set only one of hiddenClients.all, clients, or targets");
@@ -63,12 +78,6 @@ public class ScalarHiddenClients {
                     throw new IllegalArgumentException("Hidden client targets must use all or clients");
                 }
             }
-            return targets;
         }
-        if (clients != null) {
-            return clients;
-        }
-        // The frontend accepts true to hide all, but uses [] to show all.
-        return Boolean.TRUE.equals(all) ? true : List.of();
     }
 }

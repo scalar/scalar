@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class ScalarConfigurationParityTest {
 
@@ -36,7 +37,7 @@ class ScalarConfigurationParityTest {
         while (root != null && !Files.isDirectory(root.resolve("packages/types/src/api-reference"))) {
             root = root.getParent();
         }
-        assertThat(root).as("Run this test inside the Scalar monorepo").isNotNull();
+        assumeTrue(root != null, "Frontend configuration parity requires the Scalar monorepo");
         Set<String> frontend = new HashSet<>();
         for (Map.Entry<String, String> schema : Map.of(
                 "base-configuration.ts", "baseConfigurationSchema",

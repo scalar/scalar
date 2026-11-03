@@ -68,7 +68,7 @@ public class ScalarConfiguration {
 
     /** The initial request body view: form or raw. */
     @JsonProperty("defaultRequestBodyView")
-    private String defaultRequestBodyView;
+    private ScalarRequestBodyView defaultRequestBodyView;
 
     /** The maximum initially visible request body properties; zero shows all. */
     @JsonProperty("maxVisibleRequestBodyProperties")
@@ -639,7 +639,7 @@ public class ScalarConfiguration {
      *
      * @return the configured value, or null to use the frontend default
      */
-    public String getDefaultRequestBodyView() {
+    public ScalarRequestBodyView getDefaultRequestBodyView() {
         return defaultRequestBodyView;
     }
 
@@ -648,7 +648,7 @@ public class ScalarConfiguration {
      *
      * @param defaultRequestBodyView the configured value, or null to use the frontend default
      */
-    public void setDefaultRequestBodyView(String defaultRequestBodyView) {
+    public void setDefaultRequestBodyView(ScalarRequestBodyView defaultRequestBodyView) {
         this.defaultRequestBodyView = defaultRequestBodyView;
     }
 

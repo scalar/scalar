@@ -70,7 +70,7 @@ public class ScalarProperties {
     private List<String> showExtensions;
 
     /** The initial request body view: form or raw. */
-    private String defaultRequestBodyView;
+    private ScalarRequestBodyView defaultRequestBodyView;
 
     /** The maximum initially visible request body properties; zero shows all. */
     private Integer maxVisibleRequestBodyProperties;
@@ -816,7 +816,7 @@ public class ScalarProperties {
      *
      * @return the configured value, or null to use the frontend default
      */
-    public String getDefaultRequestBodyView() {
+    public ScalarRequestBodyView getDefaultRequestBodyView() {
         return defaultRequestBodyView;
     }
 
@@ -825,7 +825,7 @@ public class ScalarProperties {
      *
      * @param defaultRequestBodyView the configured value, or null to use the frontend default
      */
-    public void setDefaultRequestBodyView(String defaultRequestBodyView) {
+    public void setDefaultRequestBodyView(ScalarRequestBodyView defaultRequestBodyView) {
         this.defaultRequestBodyView = defaultRequestBodyView;
     }
 
