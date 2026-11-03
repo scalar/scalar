@@ -3198,6 +3198,54 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
     })
 
+    it('refines a required property an earlier member of an untyped allOf already filled', () => {
+      // The first member describes `child` on its own and fills it with an empty object, so the
+      // refinement in the second member has to be merged into that key rather than skipped.
+      const leaf = {
+        allOf: [
+          { type: 'object', required: ['child'], properties: { child: { type: 'object' } } },
+          {
+            type: 'object',
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
+    })
+
+    it('describes a property collected from an allOf choice member at that member’s selection path', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          {
+            oneOf: [
+              {
+                type: 'object',
+                required: ['child'],
+                properties: {
+                  child: {
+                    oneOf: [
+                      { type: 'string', const: 'first' },
+                      { type: 'string', const: 'second' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ child: 'first' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.child.oneOf`]: 1 } })).toStrictEqual({
+        child: 'second',
+      })
+    })
+
     it('keeps the sentinel when the schema declares no shape', () => {
       expect(truncate({ description: 'anything goes' })).toBe('[Max Depth Exceeded]')
     })
