@@ -510,6 +510,9 @@
         "playground/pages/docs-reference.vue"
       ],
       "ignoreDependencies": [
+        // The generated dist/module.d.mts imports NuxtModule from @nuxt/schema.
+        // Fresh worktrees do not have that declaration file for Knip to trace.
+        "@nuxt/schema",
         "@scalar/api-client" // referenced in /src/runtime/components/nuxt-theme.css
       ]
     },

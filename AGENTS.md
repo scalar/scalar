@@ -417,6 +417,9 @@ Then, before opening or updating a PR, also run:
 # In a fresh worktree, build the packages loaded by tooling configurations.
 # Turbo also builds @scalar/themes; no integration build is needed.
 pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
+# Nuxt configs extend generated .nuxt/tsconfig.json files, including the Playwright config.
+pnpm --filter @scalar/nuxt exec nuxi prepare
+pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
 pnpm knip          # Detect unused exports, files, and dependencies
 ```
 
