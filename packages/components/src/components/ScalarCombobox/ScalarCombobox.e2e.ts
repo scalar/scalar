@@ -60,6 +60,32 @@ for (const story of ['Delayed Positioning', 'Delayed Multiselect']) {
   test.describe(`ScalarCombobox ${story}`, () => {
     test.use({ component: 'ScalarCombobox', story })
 
+    test('scrolls keyboard navigation instantly with reduced motion', async ({ page }) => {
+      await page.emulateMedia({ reducedMotion: 'reduce' })
+      await page.getByRole('button', { name: /Choose option/ }).click()
+      await page.evaluate(() => document.dispatchEvent(new Event('position-picker')))
+      await expect(page.getByRole('status')).toHaveText('Positioned')
+      const listbox = page.getByRole('listbox')
+      await listbox.evaluate((element) => {
+        const scrollBy = element.scrollBy.bind(element)
+        element.scrollBy = (options?: ScrollToOptions | number, y?: number): void => {
+          if (typeof options === 'number') {
+            scrollBy(options, y ?? 0)
+            return
+          }
+          element.dataset.scrollBehavior = options?.behavior
+          scrollBy(options)
+        }
+      })
+
+      for (let index = 0; index < 14; index++) {
+        await page.getByRole('combobox').press('ArrowDown')
+      }
+
+      await expect(listbox).toHaveAttribute('data-scroll-behavior', 'instant')
+      await expect(page.getByRole('option', { name: 'Option 39', exact: true })).toBeInViewport()
+    })
+
     test('preserves outer scrolling while opening and navigating before positioning', async ({ page }) => {
       const outer = page.getByLabel('Outer scroller')
       await outer.evaluate((element) => {

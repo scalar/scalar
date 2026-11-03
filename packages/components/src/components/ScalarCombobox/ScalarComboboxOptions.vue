@@ -184,7 +184,6 @@ onMounted(async () => {
   scrollToActiveOption()
 })
 
-
 /**
  * Whether the query changed since the options last updated. Async results arrive after the
  * query changes, so the top hit of the new results should become active even when the

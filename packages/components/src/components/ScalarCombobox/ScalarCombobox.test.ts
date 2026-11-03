@@ -95,7 +95,6 @@ describe('ScalarCombobox', () => {
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
-
     })
 
     it('closes combobox when tabbing out of the input', async ({ onTestFinished }) => {
