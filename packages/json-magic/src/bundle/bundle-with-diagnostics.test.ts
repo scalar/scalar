@@ -619,11 +619,13 @@ describe('bundle-with-diagnostics', () => {
         'Foo Bar': { type: 'string' },
         '%20#': { type: 'number' },
         'a/b~c': { type: 'boolean' },
+        $defs: { Item: { type: 'object' } },
       }
       const input = {
         space: { $ref: '/external.json#/Foo%20Bar' },
         percent: { $ref: '/external.json#/%2520%23' },
         escaped: { $ref: '/external.json#/a~1b~0c' },
+        definition: { $ref: '/external.json#/$defs/Item' },
       }
       const config = {
         plugins: [sources({ '/external.json': external }).plugin],
@@ -636,6 +638,7 @@ describe('bundle-with-diagnostics', () => {
       expect(plain).toStrictEqual(diagnosed.document)
       expect(plain['x-ext'].external).toStrictEqual(external)
       expect(plain['percent'].$ref).toBe('#/x-ext/external/%2520%23')
+      expect(plain['definition'].$ref).toBe('#/x-ext/external/$defs/Item')
     },
   )
 })

@@ -748,7 +748,7 @@ export const bundleDocument = async (
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
     const fragment = pointer
       .split('/')
-      .map((segment, index) => (index === 0 ? segment : encodeURIComponent(segment)))
+      .map((segment, index) => (index === 0 ? segment : encodeURI(segment).replace(/#/g, '%23')))
       .join('/')
     return hasRootIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
       ? `${defaultOrigin}${fragment}`
