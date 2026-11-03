@@ -27,6 +27,9 @@ export const firstLazyLoadComplete = ref(false)
 /**
  * The id of the element we are currently scrolling to (the anchor target).
  *
+ * Custom layouts should observe this ref without assigning to it. Use
+ * scrollToLazy to navigate so the lazy bus can manage the scroll lifecycle.
+ *
  * Schema properties live inside collapsible disclosures that are not part of the
  * navigation tree, so the lazy bus cannot expand them the way it expands sidebar
  * parents. Instead we publish the active target here and let each collapsible
