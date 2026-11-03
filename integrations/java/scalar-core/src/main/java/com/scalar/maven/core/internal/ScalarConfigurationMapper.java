@@ -1,6 +1,7 @@
 package com.scalar.maven.core.internal;
 
 import com.scalar.maven.core.ScalarProperties;
+import com.scalar.maven.core.config.ScalarSource;
 
 /**
  * Mapper class to convert ScalarProperties to ScalarConfiguration for JSON
@@ -27,7 +28,7 @@ public class ScalarConfigurationMapper {
         ScalarConfiguration config = new ScalarConfiguration();
 
         // Basic properties
-        config.setUrl(properties.getUrl());
+        config.setUrl(properties.getContent() == null ? properties.getUrl() : null);
         config.setProxyUrl(properties.getProxyUrl());
         config.setShowSidebar(properties.isShowSidebar());
         config.setHideModels(properties.isHideModels());
@@ -48,7 +49,16 @@ public class ScalarConfigurationMapper {
         config.setHideSearch(properties.isHideSearch());
         config.setFavicon(properties.getFavicon());
         config.setHideClientButton(properties.isHideClientButton());
-        config.setSources(properties.getSources());
+        if (properties.getSources() != null) {
+            config.setSources(properties.getSources().stream().map(source -> {
+                ScalarSource mapped = new ScalarSource(
+                        source.getContent() == null ? source.getUrl() : null,
+                        source.getTitle(), source.getSlug(), source.isDefault());
+                mapped.setContent(source.getContent());
+                mapped.setAgent(source.getAgent());
+                return mapped;
+            }).toList());
+        }
         config.setBaseServerUrl(properties.getBaseServerUrl());
         config.setPersistAuth(properties.isPersistAuth());
         config.setTelemetry(properties.isTelemetry());
@@ -91,6 +101,12 @@ public class ScalarConfigurationMapper {
         config.setOauth2RedirectUri(properties.getOauth2RedirectUri());
 
         config.setExternalUrls(properties.getExternalUrls());
+
+        config.setContent(properties.getContent());
+
+        config.setTitle(properties.getTitle());
+
+        config.setSlug(properties.getSlug());
 
         return config;
     }

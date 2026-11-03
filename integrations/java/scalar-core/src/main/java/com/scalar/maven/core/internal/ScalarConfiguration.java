@@ -30,6 +30,18 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarConfiguration {
 
+    /** The document slug used in navigation URLs. */
+    @JsonProperty("slug")
+    private String slug;
+
+    /** The document title, separate from the HTML page title. */
+    @JsonProperty("title")
+    private String title;
+
+    /** The inline API description, as text or an object. */
+    @JsonProperty("content")
+    private Object content;
+
     /** The URLs of external Scalar services. */
     @JsonProperty("externalUrls")
     private ScalarExternalUrls externalUrls;
@@ -746,5 +758,59 @@ public class ScalarConfiguration {
      */
     public void setExternalUrls(ScalarExternalUrls externalUrls) {
         this.externalUrls = externalUrls;
+    }
+
+    /**
+     * Gets the inline API description, as text or an object.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Object getContent() {
+        return content;
+    }
+
+    /**
+     * Sets the inline API description, as text or an object.
+     *
+     * @param content the configured value, or null to use the frontend default
+     */
+    public void setContent(Object content) {
+        this.content = content;
+    }
+
+    /**
+     * Gets the document title, separate from the HTML page title.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the document title, separate from the HTML page title.
+     *
+     * @param title the configured value, or null to use the frontend default
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Gets the document slug used in navigation URLs.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getSlug() {
+        return slug;
+    }
+
+    /**
+     * Sets the document slug used in navigation URLs.
+     *
+     * @param slug the configured value, or null to use the frontend default
+     */
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 }

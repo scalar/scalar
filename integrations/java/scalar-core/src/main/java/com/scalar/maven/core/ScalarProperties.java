@@ -1,5 +1,6 @@
 package com.scalar.maven.core;
 
+
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
 import com.scalar.maven.core.config.ScalarHiddenClients;
@@ -38,6 +39,17 @@ import java.util.Map;
  * </pre>
  */
 public class ScalarProperties {
+
+    /** The document slug used in navigation URLs. */
+    private String slug;
+
+    /** The document title, separate from the HTML page title. */
+    private String title;
+
+    /** The inline API description, as text or an object. */
+    private Object content;
+
+    private Map<String, Object> contentMap;
 
     /** The URLs of external Scalar services. */
     private ScalarExternalUrls externalUrls;
@@ -923,5 +935,83 @@ public class ScalarProperties {
      */
     public void setExternalUrls(ScalarExternalUrls externalUrls) {
         this.externalUrls = externalUrls;
+    }
+
+    /**
+     * Gets the inline API description, as text or an object.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Object getContent() {
+        return contentMap == null ? content : contentMap;
+    }
+
+    /**
+     * Sets the inline API description, as text or an object.
+     *
+     * @param content the configured value, or null to use the frontend default
+     */
+    public void setContent(Object content) {
+        if (content != null && !(content instanceof String) && !(content instanceof java.util.Map<?, ?>)) {
+            throw new IllegalArgumentException("Content must be text or an object");
+        }
+        this.content = content;
+        this.contentMap = null;
+    }
+
+    /**
+     * Gets the document title, separate from the HTML page title.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the document title, separate from the HTML page title.
+     *
+     * @param title the configured value, or null to use the frontend default
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Gets the document slug used in navigation URLs.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getSlug() {
+        return slug;
+    }
+
+    /**
+     * Sets the document slug used in navigation URLs.
+     *
+     * @param slug the configured value, or null to use the frontend default
+     */
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    /**
+     * Gets inline object content for Spring binding.
+     *
+     * @return the object content, or null when text or programmatic content is used
+     */
+    public Map<String, Object> getContentMap() {
+        return contentMap;
+    }
+
+    /**
+     * Sets inline object content through Spring properties, replacing text content.
+     * Serialized as content; contentMap is never sent to the frontend.
+     *
+     * @param contentMap the API description object, or null
+     */
+    public void setContentMap(Map<String, Object> contentMap) {
+        this.contentMap = contentMap;
+        this.content = null;
     }
 }

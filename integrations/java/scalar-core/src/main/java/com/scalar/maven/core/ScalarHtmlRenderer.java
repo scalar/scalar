@@ -74,7 +74,7 @@ public final class ScalarHtmlRenderer {
         // Replace placeholders
         return html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
-                .replace("__PAGE_TITLE__", pageTitle)
+                .replace("__PAGE_TITLE__", pageTitle.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
                 .replace("__CONFIGURATION__", configurationJson);
     }
 
@@ -107,7 +107,8 @@ public final class ScalarHtmlRenderer {
      */
     private static String buildConfigurationJson(ScalarProperties properties) {
         ScalarConfiguration config = ScalarConfigurationMapper.map(properties);
-        return JacksonJsonSerializer.serialize(config);
+        // Inline API descriptions may contain HTML, including closing script tags.
+        return JacksonJsonSerializer.serialize(config).replace("<", "\\u003c");
     }
 
     /**

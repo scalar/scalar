@@ -28,7 +28,6 @@ class ScalarConfigurationParityTest {
             "isEditable", // The editor is outside the Java integration's scope.
             "_integration", // Internal frontend integration identifier.
             "default", // Only meaningful per source; ScalarSource supports it.
-            "content", "title", "slug", // TODO: document configuration follow-up.
             "pathRouting"); // TODO: routing follow-up.
 
     @Test

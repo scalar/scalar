@@ -45,6 +45,15 @@ class ScalarHtmlRendererTest {
         }
 
         @Test
+        void escapesHtmlInPageTitle() throws IOException {
+            ScalarProperties properties = new ScalarProperties();
+            properties.setPageTitle("API & </title><script>alert(1)</script>");
+            assertThat(ScalarHtmlRenderer.render(properties))
+                    .contains("<title>API &amp; &lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt;</title>")
+                    .doesNotContain("<script>alert(1)</script>");
+        }
+
+        @Test
         @DisplayName("should render HTML with custom path")
         void shouldRenderHtmlWithCustomPath() throws IOException {
             ScalarProperties properties = new ScalarProperties();

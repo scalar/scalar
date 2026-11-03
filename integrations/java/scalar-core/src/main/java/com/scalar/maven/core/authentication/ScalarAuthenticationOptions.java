@@ -19,13 +19,19 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScalarAuthenticationOptions {
 
+    /** Whether users may add authentication schemes absent from the API description. */
+    private Boolean createAnySecurityScheme;
+
     /**
      * Gets or sets the preferred security schemes.
      * Can be a single string, an array for OR relationship, or an array of arrays
      * for AND/OR relationships.
      */
-    @JsonProperty("preferredSecurityScheme")
+    @JsonIgnore
     private List<String> preferredSecuritySchemes;
+
+    @JsonIgnore
+    private List<List<String>> preferredSecuritySchemeGroups;
 
     /**
      * Gets or sets the security schemes dictionary.
@@ -79,6 +85,7 @@ public class ScalarAuthenticationOptions {
      *
      * @return the preferred security schemes
      */
+    @JsonIgnore
     public List<String> getPreferredSecuritySchemes() {
         return preferredSecuritySchemes;
     }
@@ -90,6 +97,7 @@ public class ScalarAuthenticationOptions {
      */
     public void setPreferredSecuritySchemes(List<String> preferredSecuritySchemes) {
         this.preferredSecuritySchemes = preferredSecuritySchemes;
+        this.preferredSecuritySchemeGroups = null;
     }
 
     /**
@@ -99,9 +107,7 @@ public class ScalarAuthenticationOptions {
      * @param preferredSecurityScheme the preferred security scheme
      */
     public void setPreferredSecurityScheme(String preferredSecurityScheme) {
-        if (preferredSecurityScheme != null) {
-            this.preferredSecuritySchemes = List.of(preferredSecurityScheme);
-        }
+        setPreferredSecuritySchemes(preferredSecurityScheme == null ? null : List.of(preferredSecurityScheme));
     }
 
     /**
@@ -114,24 +120,59 @@ public class ScalarAuthenticationOptions {
     @JsonSetter("preferredSecurityScheme")
     public void setPreferredSecuritySchemeFromJson(Object value) {
         if (value == null) {
-            this.preferredSecuritySchemes = null;
+            setPreferredSecuritySchemes(null);
         } else if (value instanceof String stringValue) {
-            this.preferredSecuritySchemes = List.of(stringValue);
-        } else if (value instanceof List rawList) {
-            List<String> stringList = new ArrayList<>();
-            for (Object item : rawList) {
-                if (item instanceof String stringValue) {
-                    stringList.add(stringValue);
+            setPreferredSecurityScheme(stringValue);
+        } else if (value instanceof List<?> entries) {
+            if (entries.stream().allMatch(String.class::isInstance)) {
+                setPreferredSecuritySchemes(entries.stream().map(String.class::cast).toList());
+                return;
+            }
+            List<List<String>> groups = new ArrayList<>();
+            for (Object entry : entries) {
+                if (entry instanceof String name) {
+                    groups.add(List.of(name));
+                } else if (entry instanceof List<?> group && group.stream().allMatch(String.class::isInstance)) {
+                    groups.add(group.stream().map(String.class::cast).toList());
                 } else {
-                    throw new IllegalArgumentException(
-                            "preferredSecurityScheme list must contain only strings, found: " + item.getClass());
+                    throw new IllegalArgumentException("Preferred schemes must be strings or lists of strings");
                 }
             }
-            this.preferredSecuritySchemes = stringList;
+            setPreferredSecuritySchemeGroups(groups);
         } else {
-            throw new IllegalArgumentException(
-                    "preferredSecurityScheme must be a String or List<String>, got: " + value.getClass());
+            throw new IllegalArgumentException("Preferred schemes must be a string or list");
         }
+    }
+
+    /**
+     * Gets alternatives of security schemes that must be used together.
+     *
+     * @return OR alternatives of AND groups, or null when the legacy flat list is used
+     */
+    @JsonIgnore
+    public List<List<String>> getPreferredSecuritySchemeGroups() {
+        return preferredSecuritySchemeGroups;
+    }
+
+    /**
+     * Sets OR alternatives, each containing schemes that must be used together.
+     * Replaces a previously configured flat list. The legacy flat-list getter then returns null.
+     *
+     * @param groups alternatives of AND groups, or null to clear preferences
+     */
+    public void setPreferredSecuritySchemeGroups(List<List<String>> groups) {
+        this.preferredSecuritySchemeGroups = groups;
+        this.preferredSecuritySchemes = null;
+    }
+
+    /**
+     * Gets the frontend representation of the preferred schemes.
+     *
+     * @return the legacy flat list or the configured groups
+     */
+    @JsonProperty("preferredSecurityScheme")
+    public Object getPreferredSecuritySchemeConfiguration() {
+        return preferredSecuritySchemeGroups == null ? preferredSecuritySchemes : preferredSecuritySchemeGroups;
     }
 
     /**
@@ -231,5 +272,23 @@ public class ScalarAuthenticationOptions {
         if (oauth2 != null) {
             this.securitySchemes.putAll(oauth2);
         }
+    }
+
+    /**
+     * Gets whether users may add authentication schemes absent from the API description.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getCreateAnySecurityScheme() {
+        return createAnySecurityScheme;
+    }
+
+    /**
+     * Sets whether users may add authentication schemes absent from the API description.
+     *
+     * @param createAnySecurityScheme the configured value, or null to use the frontend default
+     */
+    public void setCreateAnySecurityScheme(Boolean createAnySecurityScheme) {
+        this.createAnySecurityScheme = createAnySecurityScheme;
     }
 }
