@@ -108,7 +108,7 @@ public class ScalarWebFluxAutoConfiguration {
                 }
                 if (!Boolean.FALSE.equals(properties.getUrlRouting())) {
                     RequestMappingInfo route = RequestMappingInfo.paths(pattern)
-                            .methods(RequestMethod.GET).produces("text/html").options(options).build();
+                            .methods(RequestMethod.GET).customCondition(new HtmlNavigationCondition()).options(options).build();
                     mapping.registerMapping(route, controllerProvider.getObject(),
                             ScalarWebFluxController.class.getMethod("getDocs", ServerHttpRequest.class));
                 }

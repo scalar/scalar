@@ -30,4 +30,17 @@ class ScalarPathRoutingConfigurationTest {
             assertThatThrownBy(() -> routing.setBasePath(path)).isInstanceOf(IllegalArgumentException.class);
         }
     }
+
+    @Test
+    void escapesBundleUrlAttribute() throws Exception {
+        ScalarProperties properties = new ScalarProperties();
+        ScalarPathRouting routing = new ScalarPathRouting();
+        routing.setBasePath("/docs");
+        properties.setPathRouting(routing);
+
+        String html = ScalarHtmlRenderer.render(properties, "/app\"'<>&");
+
+        assertThat(html).contains("src=\"/app&quot;&#39;&lt;&gt;&amp;/scalar/scalar.js\"");
+        assertThat(routing.getBasePath()).isEqualTo("/docs");
+    }
 }

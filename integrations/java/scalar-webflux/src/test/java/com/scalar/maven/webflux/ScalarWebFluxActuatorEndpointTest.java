@@ -1,5 +1,6 @@
 package com.scalar.maven.webflux;
 
+import com.scalar.maven.core.config.ScalarPathRouting;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -132,5 +133,18 @@ class ScalarWebFluxActuatorEndpointTest {
                     .verifyComplete();
         }
     }
-}
 
+    @Test
+    void ignoresApplicationPathRoutingWithoutMutatingProperties() throws Exception {
+        SpringBootScalarProperties configured = new SpringBootScalarProperties();
+        ScalarPathRouting routing = new ScalarPathRouting();
+        routing.setBasePath("/docs");
+        configured.setPathRouting(routing);
+        when(propertiesProvider.getObject()).thenReturn(configured);
+
+        String html = new String(endpoint.scalarUi(request).block().getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+        assertThat(html).contains("src=\"scalar/scalar.js\"").doesNotContain("\"pathRouting\"");
+        assertThat(configured.getPathRouting()).isSameAs(routing);
+    }
+}

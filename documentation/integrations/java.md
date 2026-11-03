@@ -207,7 +207,10 @@ scalar.path-routing.base-path=/docs
 ```
 
 Both WebMVC and WebFlux register a GET fallback for the configured documentation
-subtree. Existing exact application routes and the JavaScript bundle keep precedence.
+subtree for requests that explicitly accept `text/html`. Wildcard requests from
+scripts, styles, images, and `fetch()` continue to reach static resource handlers,
+including when the base path is `/`. Existing exact application routes and the
+JavaScript bundle keep precedence.
 The base path may differ from `scalar.path`; the bundle remains served under
 `scalar.path`. Avoid choosing a subtree owned by unrelated application routes.
 
@@ -224,7 +227,8 @@ hash navigation and server mappings are unchanged.
 
 Route registration happens at startup. Set the base path through application
 configuration or the properties bean, rather than changing it per request.
-This fallback belongs to the main documentation endpoint, not the Actuator endpoint.
+The Actuator page uses hash navigation and its existing relative bundle URL even
+when path routing is configured for the main documentation endpoint.
 
 ### Localization
 

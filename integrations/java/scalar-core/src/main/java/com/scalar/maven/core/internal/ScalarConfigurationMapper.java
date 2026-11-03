@@ -108,8 +108,6 @@ public class ScalarConfigurationMapper {
 
         config.setSlug(properties.getSlug());
 
-        config.setPathRouting(properties.getPathRouting());
-
         return config;
     }
 }

@@ -1,6 +1,9 @@
 package com.scalar.maven.webflux;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
+import org.springframework.web.reactive.config.ResourceHandlerRegistry;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ReactiveWebApplicationContextRunner;
@@ -16,7 +19,12 @@ class ScalarPathRoutingTest {
 
     @Configuration(proxyBeanMethods = false)
     @EnableWebFlux
-    static class WebConfiguration {
+    static class WebConfiguration implements WebFluxConfigurer {
+        @Override
+        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
+        }
+
         // Model the context path that a reactive server or reverse-proxy transformer supplies.
         @Bean
         WebFilter contextPath() {
@@ -41,7 +49,7 @@ class ScalarPathRoutingTest {
                     assertThat(context).hasNotFailed();
                     WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
                     for (String path : new String[] {"/docs", "/docs/", "/docs/example/tag/pets/get/pets"}) {
-                        client.get().uri("/app" + path).exchange().expectStatus().isOk()
+                        client.get().uri("/app" + path).accept(MediaType.TEXT_HTML).exchange().expectStatus().isOk()
                                 .expectHeader().contentTypeCompatibleWith("text/html")
                                 .expectBody(String.class).value(html -> {
                                     assertThat(html).contains("src=\"/app/reference/scalar.js\"");
@@ -60,7 +68,7 @@ class ScalarPathRoutingTest {
             client.get().uri("/scalar").exchange().expectStatus().isOk();
             client.get().uri("/scalar/scalar.js").exchange().expectStatus().isOk()
                     .expectHeader().contentType("application/javascript");
-            client.get().uri("/scalar/tag/pets").exchange().expectStatus().isOk();
+            client.get().uri("/scalar/tag/pets").accept(MediaType.TEXT_HTML).exchange().expectStatus().isOk();
         });
     }
 
@@ -72,7 +80,7 @@ class ScalarPathRoutingTest {
             runner.withPropertyValues(settings).run(context -> {
                 WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
                 client.get().uri("/scalar").exchange().expectStatus().isOk();
-                client.get().uri("/scalar/tag/pets").exchange().expectStatus().isNotFound();
+                client.get().uri("/scalar/tag/pets").accept(MediaType.TEXT_HTML).exchange().expectStatus().isNotFound();
             });
         }
     }
@@ -95,7 +103,23 @@ class ScalarPathRoutingTest {
                             assertThat(html).contains("src=\"/reference/scalar.js\""));
             client.get().uri("/reference/scalar.js").exchange().expectStatus().isOk()
                     .expectHeader().contentType("application/javascript");
-            client.get().uri("/docs/tag/pets").exchange().expectStatus().isNotFound();
+            client.get().uri("/docs/tag/pets").accept(MediaType.TEXT_HTML).exchange().expectStatus().isNotFound();
         });
+    }
+
+    @Test
+    void leavesStaticResourcesToTheirHandlers() {
+        for (String basePath : new String[] {"/", "/docs"}) {
+            runner.withPropertyValues("scalar.path-routing.base-path=" + basePath).run(context -> {
+                WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
+                for (String path : new String[] {"/docs/openapi.json", "/docs/app.js", "/docs/style.css", "/docs/logo.svg", "/docs/data"}) {
+                    for (String accept : new String[] {"*/*", "application/json", "text/*", "text/html;q=0,*/*;q=1"}) {
+                        client.get().uri(path).header("Accept", accept).exchange().expectStatus().isOk()
+                                .expectBody(String.class).value(body -> assertThat(body).contains("static resource"));
+                    }
+                }
+                client.get().uri("/docs/missing").exchange().expectStatus().isNotFound();
+            });
+        }
     }
 }

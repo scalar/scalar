@@ -1,6 +1,9 @@
 package com.scalar.maven.webmvc;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
@@ -17,7 +20,12 @@ class ScalarPathRoutingTest {
 
     @Configuration(proxyBeanMethods = false)
     @EnableWebMvc
-    static class WebConfiguration {
+    static class WebConfiguration implements WebMvcConfigurer {
+        @Override
+        public void addResourceHandlers(ResourceHandlerRegistry registry) {
+            registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
+        }
+
     }
 
     private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
@@ -31,14 +39,14 @@ class ScalarPathRoutingTest {
                     assertThat(context).hasNotFailed();
                     MockMvc client = MockMvcBuilders.webAppContextSetup(context).build();
                     for (String path : new String[] {"/docs", "/docs/", "/docs/example/tag/pets/get/pets"}) {
-                        String html = client.perform(get("/app" + path).contextPath("/app"))
+                        String html = client.perform(get("/app" + path).contextPath("/app").accept(MediaType.TEXT_HTML))
                                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
                         assertThat(html).contains("src=\"/app/reference/scalar.js\"");
                         assertThat(html).contains("\"pathRouting\":{\"basePath\":\"/app/docs\"}");
                     }
                     client.perform(get("/app/reference/scalar.js").contextPath("/app"))
                             .andExpect(status().isOk());
-                    client.perform(get("/app/unrelated").contextPath("/app"))
+                    client.perform(get("/app/unrelated").contextPath("/app").accept(MediaType.TEXT_HTML))
                             .andExpect(status().isNotFound());
                 });
     }
@@ -51,7 +59,7 @@ class ScalarPathRoutingTest {
             String type = client.perform(get("/scalar/scalar.js")).andExpect(status().isOk())
                     .andReturn().getResponse().getContentType();
             assertThat(type).startsWith("application/javascript");
-            client.perform(get("/scalar/tag/pets")).andExpect(status().isOk());
+            client.perform(get("/scalar/tag/pets").accept(MediaType.TEXT_HTML)).andExpect(status().isOk());
         });
     }
 
@@ -63,7 +71,7 @@ class ScalarPathRoutingTest {
             runner.withPropertyValues(settings).run(context -> {
                 MockMvc client = MockMvcBuilders.webAppContextSetup(context).build();
                 client.perform(get("/scalar")).andExpect(status().isOk());
-                client.perform(get("/scalar/tag/pets")).andExpect(status().isNotFound());
+                client.perform(get("/scalar/tag/pets").accept(MediaType.TEXT_HTML)).andExpect(status().isNotFound());
             });
         }
     }
@@ -85,7 +93,24 @@ class ScalarPathRoutingTest {
                     .andReturn().getResponse().getContentAsString();
             assertThat(html).contains("src=\"/reference/scalar.js\"");
             client.perform(get("/reference/scalar.js")).andExpect(status().isOk());
-            client.perform(get("/docs/tag/pets")).andExpect(status().isNotFound());
+            client.perform(get("/docs/tag/pets").accept(MediaType.TEXT_HTML)).andExpect(status().isNotFound());
         });
+    }
+
+    @Test
+    void leavesStaticResourcesToTheirHandlers() {
+        for (String basePath : new String[] {"/", "/docs"}) {
+            runner.withPropertyValues("scalar.path-routing.base-path=" + basePath).run(context -> {
+                MockMvc client = MockMvcBuilders.webAppContextSetup(context).build();
+                for (String path : new String[] {"/docs/openapi.json", "/docs/app.js", "/docs/style.css", "/docs/logo.svg", "/docs/data"}) {
+                    for (String accept : new String[] {"*/*", "application/json", "text/*", "text/html;q=0,*/*;q=1"}) {
+                        String body = client.perform(get(path).header("Accept", accept))
+                                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+                        assertThat(body).contains("static resource");
+                    }
+                }
+                client.perform(get("/docs/missing")).andExpect(status().isNotFound());
+            });
+        }
     }
 }

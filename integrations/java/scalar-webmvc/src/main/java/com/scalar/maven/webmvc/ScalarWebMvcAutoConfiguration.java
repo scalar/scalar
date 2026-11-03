@@ -106,7 +106,7 @@ public class ScalarWebMvcAutoConfiguration {
                 }
                 if (!Boolean.FALSE.equals(properties.getUrlRouting())) {
                     RequestMappingInfo route = RequestMappingInfo.paths(pattern)
-                            .methods(RequestMethod.GET).produces("text/html").options(options).build();
+                            .methods(RequestMethod.GET).customCondition(new HtmlNavigationCondition()).options(options).build();
                     mapping.registerMapping(route, controllerProvider.getObject(),
                             ScalarWebMvcController.class.getMethod("getDocs", HttpServletRequest.class));
                 }
