@@ -10,17 +10,20 @@ import {
 } from './ssr'
 
 describe('ssr', () => {
-  it.each(['</style>', '</StYlE>', '</style\n>', '</style/>', '</style data-x>'])(
-    'keeps a CSS override containing %s inside its style element',
-    async (closingTag) => {
-      const css = `/* ${closingTag}<script id="injected">window.injected = true</script><style> */`
-      const html = await renderApiReference({ config: {}, css })
-      const head = html.slice(0, html.indexOf('</head>'))
+  it.each([
+    ['</style>', '<\\/style>'],
+    ['</StYlE>', '<\\/StYlE>'],
+    ['</style\n>', '<\\/style\n>'],
+    ['</style/>', '<\\/style/>'],
+    ['</style data-x>', '<\\/style data-x>'],
+  ])('keeps a CSS override containing %s inside its style element', async (closingTag, escapedTag) => {
+    const css = `/* ${closingTag}<script id="injected">window.injected = true</script><style> */`
+    const html = await renderApiReference({ config: {}, css })
+    const head = html.slice(0, html.indexOf('</head>'))
 
-      expect(head.match(/<\/style[\s/>]/gi)).toStrictEqual(['</style>'])
-      expect(head).toContain(css.replace('</', '<\\/'))
-    },
-  )
+    expect(head.match(/<\/style[\s/>]/gi)).toStrictEqual(['</style>'])
+    expect(head).toContain(`/* ${escapedTag}<script id="injected">window.injected = true</script><style> */`)
+  })
 
   it('preserves ordinary CSS in the complete document', async () => {
     const css = 'a > b { color: red; } .label::after { content: "< & >"; }'

@@ -170,11 +170,11 @@ export async function renderApiReferenceToString(configuration: AnyApiReferenceC
 let _cachedCss: string | undefined
 let _cachedJs: string | undefined
 
-/** Read the built style.css from the @scalar/api-reference package. */
+/** Cache the built stylesheet escaped for embedding in an HTML style element. */
 function getDefaultCss(): string {
   if (_cachedCss === undefined) {
     const cssPath = require.resolve('@scalar/api-reference/style.css')
-    _cachedCss = readFileSync(cssPath, 'utf-8')
+    _cachedCss = escapeCssForStyleTag(readFileSync(cssPath, 'utf-8'))
   }
   return _cachedCss
 }
@@ -392,7 +392,7 @@ export async function renderApiReference(options: {
   cdn?: string
 }): Promise<string> {
   const title = options.pageTitle ?? 'Scalar API Reference'
-  const css = options.css ?? getDefaultCss()
+  const css = options.css == null ? getDefaultCss() : escapeCssForStyleTag(options.css)
   const cdn = escapeHtmlAttribute(options.cdn ?? '/scalar/scalar.js')
   const { html, head } = await renderApiReferenceApp({
     configuration: options.config,
@@ -407,7 +407,7 @@ export async function renderApiReference(options: {
 <html${head.htmlAttrs}>
   <head>
     ${head.headTags}
-    <style>${escapeCssForStyleTag(css)}</style>
+    <style>${css}</style>
   </head>
   <body${bodyAttrs}>
     ${head.bodyTagsOpen}

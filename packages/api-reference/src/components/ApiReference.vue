@@ -37,6 +37,7 @@ import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -446,9 +447,8 @@ const themeStyle = computed(() =>
  * theme would otherwise be able to close the tag and open a `<script>`.
  */
 const styleContent = computed(() =>
-  `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`.replace(
-    /<\/style/gi,
-    '<\\/style',
+  escapeCssForStyleTag(
+    `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
   ),
 )
 
