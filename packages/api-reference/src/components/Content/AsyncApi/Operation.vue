@@ -12,8 +12,6 @@ import type {
 import { computed, useId, useTemplateRef } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
-import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
-import { SpecificationExtension } from '@/features/specification-extension'
 import { Badge } from '@/components/Badge'
 import { SectionHeaderTag } from '@/components/Section'
 import {
@@ -22,6 +20,8 @@ import {
 } from '@/features/document-outline'
 import SecurityRequirementBadge from '@/features/Operation/components/SecurityRequirementBadge.vue'
 import type { RequiredSecurity } from '@/features/Operation/helpers/get-required-security'
+import { SpecificationExtension } from '@/features/specification-extension'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { useIntersection } from '@/hooks/use-intersection'
 
 import AsyncApiDocumentation from './AsyncApiDocumentation.vue'
@@ -105,10 +105,11 @@ const summary = computed((): string => {
     : value
 })
 
-const { hasExtensions } = useSpecificationExtensions(
+const extensionSelection = useSpecificationExtensions(
   () => resolvedOperation.value,
   () => options?.showExtensions,
 )
+const { hasExtensions } = extensionSelection
 
 const description = computed(
   (): string => resolvedOperation.value?.description ?? '',
@@ -236,6 +237,7 @@ const messagesHeadingLevel = Math.min(6, headingLevel + 1) as HeadingLevel
         <AsyncApiDocumentation
           :owner="{ externalDocs: resolvedOperation?.externalDocs }" />
         <SpecificationExtension
+          :selection="extensionSelection"
           :showExtensions="options?.showExtensions"
           :value="resolvedOperation" />
       </div>

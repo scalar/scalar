@@ -98,10 +98,11 @@ const serverProtocolVersion = computed(() => {
   return version ? `${selectedServer?.protocol.toUpperCase()} ${version}` : ''
 })
 
-const { hasExtensions } = useSpecificationExtensions(
+const extensionSelection = useSpecificationExtensions(
   () => selectedServer?.server,
   () => options?.showExtensions,
 )
+const { hasExtensions } = extensionSelection
 
 const hasServerDetails = computed(() =>
   Boolean(
@@ -188,6 +189,7 @@ const updateServerVariable = (key: string, value: string) => {
       :owner="{ externalDocs: selectedServer?.server.externalDocs }" />
     <SpecificationExtension
       compact
+      :selection="extensionSelection"
       :showExtensions="options?.showExtensions"
       :value="selectedServer?.server" />
   </div>

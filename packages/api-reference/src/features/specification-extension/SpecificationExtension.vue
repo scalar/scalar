@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { SpecificationExtensions } from '@scalar/blocks/specification-extensions'
 import { ScalarErrorBoundary } from '@scalar/components/error-boundary'
+import { computed } from 'vue'
 
 import { useSpecificationExtensions } from './use-specification-extensions'
 
 const {
   value,
+  selection,
   showExtensions = [],
   compact = false,
 } = defineProps<{
+  /** Reuse the selection that controls the surrounding metadata section. */
+  selection?: ReturnType<typeof useSpecificationExtensions>
   /** Explicitly selected keys that may use the default renderer. */
   showExtensions?: string[]
   /** Use the surrounding panel spacing for default extension values. */
@@ -19,9 +23,20 @@ const {
   value: Record<string, unknown> | undefined
 }>()
 
-const { customExtensions, defaultExtensions } = useSpecificationExtensions(
+const fallbackSelection = useSpecificationExtensions(
   () => value,
   () => showExtensions,
+)
+// The fallback computed values stay lazy when the parent supplies its selection.
+const customExtensions = computed(
+  () =>
+    selection?.customExtensions.value ??
+    fallbackSelection.customExtensions.value,
+)
+const defaultExtensions = computed(
+  () =>
+    selection?.defaultExtensions.value ??
+    fallbackSelection.defaultExtensions.value,
 )
 </script>
 
