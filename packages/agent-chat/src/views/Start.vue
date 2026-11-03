@@ -1,21 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import Logo from '@/components/Logo.vue'
 import { URLS } from '@/consts/urls'
-import { useState } from '@/state/state'
 import PromptForm from '@/views/PromptForm.vue'
 
 const emit = defineEmits<{
   (e: 'submit'): void
   (e: 'uploadApi'): void
 }>()
-
-const { uploadState } = useState()
-const showDisclaimer = computed(
-  () =>
-    !['awaiting-consent', 'cancelled'].includes(uploadState.value?.type ?? ''),
-)
 </script>
 
 <template>
@@ -26,9 +17,7 @@ const showDisclaimer = computed(
       ref="promptFormField"
       @submit="emit('submit')"
       @uploadApi="emit('uploadApi')" />
-    <p
-      v-if="showDisclaimer"
-      class="disclaimerText">
+    <p class="disclaimerText">
       By messaging Agent Scalar you agree to our
       <a
         class="disclaimerLink"

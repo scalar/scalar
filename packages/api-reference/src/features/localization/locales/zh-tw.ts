@@ -164,7 +164,7 @@ export const zhTw = {
     shareDescription: '上傳 OpenAPI 文件，與其他人分享你的 API Reference。只需點擊按鈕即可。',
     uploadDocument: '上傳文件',
     confirmShareTitle: '建立分享連結？',
-    confirmShareDescription: '你的完整 API 描述文件將上傳至 Scalar。',
+    confirmShareDescription: '將此 API 描述文件上傳至 Scalar。任何擁有連結的人都可以存取，文件會在 7 天後自動刪除。',
     confirmShareAccess: '任何擁有連結的人都可以存取此文件。',
     confirmShareWarning: '請確認文件不含任何機密或你無權分享的私人資訊。',
     cancelShare: '取消',

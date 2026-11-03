@@ -10,7 +10,7 @@ test(galaxy.title, async ({ page }) => {
   await page.goto(example)
 
   await page.getByRole('complementary', { name: 'Sidebar' }).getByRole('button', { name: 'Ask AI' }).click()
-  await expect(page.getByRole('heading', { name: 'Upload API description to Ask AI?' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Upload and continue' })).toBeDisabled()
+  await expect(page.getByRole('heading', { name: 'Upload API description?' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Upload and continue' })).toBeEnabled()
   await expect(page).toHaveScreenshot('drawer.png')
 })

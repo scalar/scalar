@@ -113,10 +113,8 @@ const requestUpload = (): void => {
   }
 }
 
-const showUploadConsent = computed(() =>
-  ['awaiting-consent', 'cancelled'].includes(
-    uploadTmpDoc.uploadState.value?.type ?? '',
-  ),
+const showUploadConsent = computed(
+  () => uploadTmpDoc.uploadState.value?.type === 'awaiting-consent',
 )
 
 watch(showUploadConsent, async (visible) => {
@@ -142,10 +140,13 @@ const submitDisabled = computed(() => {
 
   const isPreview = state.mode === 'preview'
 
-  const termsNotAccepted = isPreview && !state.terms.accepted.value
+  const cancelled = uploadTmpDoc.uploadState.value?.type === 'cancelled'
+  const termsNotAccepted =
+    isPreview && !state.terms.accepted.value && !cancelled
   const uploadingTmpDoc =
     !!uploadTmpDoc.uploadState.value &&
-    uploadTmpDoc.uploadState.value.type !== 'done'
+    uploadTmpDoc.uploadState.value.type !== 'done' &&
+    !cancelled
   const isLoading = isPending.value
 
   return (
@@ -164,6 +165,11 @@ function handleSubmit() {
     return
   }
 
+  if (uploadTmpDoc.uploadState.value?.type === 'cancelled') {
+    requestUpload()
+    return
+  }
+
   emit('submit')
 }
 
@@ -171,12 +177,8 @@ const chatError = useChatError()
 </script>
 
 <template>
-  <UploadConsent
-    v-if="showUploadConsent"
-    @retry="requestUpload" />
-  <div
-    v-else
-    class="actionContainer">
+  <UploadConsent />
+  <div class="actionContainer">
     <ScalarButton
       v-if="
         uploadTmpDoc.uploadState.value?.type === 'error' &&
@@ -188,7 +190,13 @@ const chatError = useChatError()
       Try upload again
     </ScalarButton>
     <UploadSection
-      v-if="uploadTmpDoc.uploadState.value || isPending"
+      v-if="
+        (uploadTmpDoc.uploadState.value &&
+          !['cancelled', 'awaiting-consent'].includes(
+            uploadTmpDoc.uploadState.value.type,
+          )) ||
+        isPending
+      "
       :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
     <ErrorMessageMessage
       v-if="chatError"
@@ -275,7 +283,11 @@ const chatError = useChatError()
           </template>
           <div class="sendCheckboxContinue">
             <div
-              v-if="!state.terms.accepted.value && state.mode === 'preview'"
+              v-if="
+                !state.terms.accepted.value &&
+                state.mode === 'preview' &&
+                !state.uploadConsent.document.value
+              "
               class="relative flex items-center gap-1.5">
               <input
                 id="agentTermsAgree"

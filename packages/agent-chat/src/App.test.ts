@@ -170,10 +170,10 @@ describe('App', () => {
       })
       await flushPromises()
       expect(requests.filter(({ url }) => url.includes('/upload/'))).toStrictEqual([])
-      expect(wrapper.find('[role=dialog]').exists()).toBe(false)
-      expect(wrapper.find('textarea').exists()).toBe(false)
-      expect(wrapper.text()).toContain('Current')
-      expect(wrapper.text()).toContain('Anyone with the link can access it.')
+      expect(document.querySelector('[role=dialog]')).not.toBeNull()
+      expect(wrapper.find('textarea').exists()).toBe(true)
+      expect(document.body.textContent).toContain('Current')
+      expect(document.body.textContent).toContain('Anyone with the link can access it.')
       await clickConfirmation('Upload and continue')
       expect(requests.filter(({ url }) => url.includes('/upload/'))).toStrictEqual([
         {
@@ -229,17 +229,19 @@ describe('App', () => {
     })
     await flushPromises()
     await clickConfirmation('Cancel')
-    expect(wrapper.find('textarea').exists()).toBe(false)
+    expect(wrapper.find('textarea').exists()).toBe(true)
     await flushPromises()
     expect(urls.some((url) => url.includes('/upload/') || url.endsWith('/chat'))).toBe(false)
-    expect(wrapper.text()).toContain('Your API description has not been uploaded')
+    expect(document.querySelector('[role=dialog]')).toBeNull()
     expect(wrapper.find('[role=alert]').exists()).toBe(false)
-    await clickConfirmation('Upload API description')
-    expect(document.body.textContent).toContain('Upload API description to Ask AI?')
+    await wrapper.get('textarea').setValue('Explain this API')
+    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    await flushPromises()
+    expect(document.body.textContent).toContain('Upload API description?')
     expect(urls.some((url) => url.includes('/upload/'))).toBe(false)
   })
 
-  it('requires both terms acceptance and upload confirmation for a first-time visitor', async () => {
+  it('requires only upload confirmation for a first-time visitor', async () => {
     const requests: string[] = []
     vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
       requests.push(String(url))
@@ -250,11 +252,8 @@ describe('App', () => {
       attachTo: document.body,
     })
     await flushPromises()
-    expect(wrapper.find('textarea').exists()).toBe(false)
-    await clickConfirmation('Upload and continue')
-    expect(requests.some((url) => url.includes('/upload/'))).toBe(false)
-    await wrapper.get('input[type=checkbox]').setValue(true)
-    expect(requests.some((url) => url.includes('/upload/'))).toBe(false)
+    expect(wrapper.find('textarea').exists()).toBe(true)
+    expect(new DOMWrapper(document.body).find('[role=dialog] input[type=checkbox]').exists()).toBe(false)
     expect(localStorage.getItem('scalar/agent-terms-accepted')).toBeNull()
     await clickConfirmation('Upload and continue')
     expect(localStorage.getItem('scalar/agent-terms-accepted')).toBe('true')

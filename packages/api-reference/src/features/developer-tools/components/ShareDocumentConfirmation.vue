@@ -14,6 +14,10 @@ const { state, document } = defineProps<{
 }>()
 const emit = defineEmits<{ confirm: [] }>()
 const { translate } = useLocalization()
+// Keep the translated sentence intact while rendering the brand as a safe link.
+const descriptionParts = computed(() =>
+  translate('developerTools.confirmShareDescription').split('Scalar'),
+)
 const info = computed(() => {
   const result = safeRun<unknown>(() => JSON.parse(document ?? '{}'))
   const data =
@@ -42,7 +46,7 @@ const confirm = (): void => {
     <div class="text-sm leading-relaxed">
       <div
         v-if="info.title || info.version"
-        class="text-c-2 mb-5 flex items-start gap-2">
+        class="text-c-2 mb-3 flex items-start gap-2">
         <ScalarIconFileText
           aria-hidden="true"
           class="mt-0.5 size-4 shrink-0" />
@@ -56,20 +60,21 @@ const confirm = (): void => {
         </span>
       </div>
       <p class="text-c-2">
-        {{ translate('developerTools.confirmShareDescription') }}
+        <template
+          v-for="(part, index) in descriptionParts"
+          :key="index">
+          {{ part
+          }}<a
+            v-if="index < descriptionParts.length - 1"
+            class="underline"
+            href="https://scalar.com"
+            rel="noopener noreferrer"
+            target="_blank"
+            >Scalar</a
+          >
+        </template>
       </p>
-      <div class="mt-4 space-y-1">
-        <p class="text-c-1 font-medium">
-          {{ translate('developerTools.confirmShareAccess') }}
-        </p>
-        <p class="text-c-2">
-          {{ translate('developerTools.temporaryLinkExpiration') }}
-        </p>
-      </div>
-      <p class="text-c-2 mt-4">
-        {{ translate('developerTools.confirmShareWarning') }}
-      </p>
-      <div class="mt-6 flex flex-wrap justify-end gap-2 border-t pt-4">
+      <div class="mt-5 flex flex-wrap justify-end gap-2">
         <ScalarButton
           variant="outlined"
           @click="state.hide()">
