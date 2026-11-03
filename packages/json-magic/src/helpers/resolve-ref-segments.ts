@@ -1,5 +1,7 @@
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 
+import { decodeUriFragment } from './decode-uri-fragment'
+
 /**
  * Resolves a reference into literal property names for object traversal.
  * Only URI fragments are decoded; schema locations already contain literal keys.
@@ -20,7 +22,7 @@ export const resolveRefSegments = (
     return baseUrl ? root : undefined
   }
 
-  const pointer = decodeURIComponent(fragment)
+  const pointer = decodeUriFragment(fragment)
   if (pointer.startsWith('/')) {
     return [...root, ...pointer.slice(1).split('/').map(unescapeJsonPointerSegment)]
   }

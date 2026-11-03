@@ -39,4 +39,7 @@ describe('resolveRefSegments', () => {
     expect(resolveRefSegments('missing.json#/value', '', new Map())).toBeUndefined()
     expect(resolveRefSegments('#missing', '', new Map())).toBeUndefined()
   })
+  it('retains literal percent characters in legacy fragments', () => {
+    expect(resolveRefSegments('#/100%', '', new Map())).toStrictEqual(['100%'])
+  })
 })
