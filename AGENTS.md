@@ -422,7 +422,7 @@ pnpm --filter @scalar/nuxt exec nuxi prepare
 # The example loads the local Nuxt module, so generate its entry point without a full build.
 pnpm --filter @scalar/nuxt exec nuxt-module-build build --stub
 pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
-pnpm knip          # Detect unused exports, files, and dependencies
+pnpm lint:knip     # Detect unused exports, files, and dependencies
 ```
 
 > All checks must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.
