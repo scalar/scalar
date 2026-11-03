@@ -1,6 +1,10 @@
 package com.scalar.maven.webflux;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
 import org.springframework.web.reactive.config.ResourceHandlerRegistry;
@@ -38,8 +42,16 @@ class ScalarPathRoutingTest {
         }
     }
 
+    @RestController
+    static class ApiController {
+        @GetMapping(value = "/users/1", produces = "application/json")
+        String user() {
+            return "{}";
+        }
+    }
+
     private final ReactiveWebApplicationContextRunner runner = new ReactiveWebApplicationContextRunner()
-            .withUserConfiguration(WebConfiguration.class)
+            .withUserConfiguration(WebConfiguration.class, ApiController.class)
             .withConfiguration(AutoConfigurations.of(ScalarWebFluxAutoConfiguration.class));
 
     @Test
@@ -121,5 +133,20 @@ class ScalarPathRoutingTest {
                 client.get().uri("/docs/missing").exchange().expectStatus().isNotFound();
             });
         }
+    }
+
+    @Test
+    void preservesContentNegotiationErrorsForMalformedAccept() {
+        runner.withPropertyValues("scalar.path-routing.base-path=/").run(context -> {
+            WebTestClient client = WebTestClient.bindToApplicationContext(context).build();
+            client.get().uri("/users/1").header("Accept", "foo").exchange().expectStatus().isEqualTo(406);
+        });
+    }
+
+    @Test
+    void rejectsMalformedAcceptInNavigationCondition() {
+        MockServerWebExchange request = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/users/1").header("Accept", "foo").build());
+        assertThat(new HtmlNavigationCondition().getMatchingCondition(request)).isNull();
     }
 }

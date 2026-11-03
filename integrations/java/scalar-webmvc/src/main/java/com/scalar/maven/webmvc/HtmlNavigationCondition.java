@@ -1,6 +1,7 @@
 package com.scalar.maven.webmvc;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
 
@@ -14,10 +15,15 @@ final class HtmlNavigationCondition implements RequestCondition<HtmlNavigationCo
 
     @Override
     public HtmlNavigationCondition getMatchingCondition(HttpServletRequest request) {
-        boolean acceptsHtml = MediaType.parseMediaTypes(java.util.Collections.list(request.getHeaders("Accept"))).stream()
-                .anyMatch(type -> "text".equalsIgnoreCase(type.getType())
-                        && "html".equalsIgnoreCase(type.getSubtype()) && type.getQualityValue() > 0);
-        return acceptsHtml ? this : null;
+        try {
+            boolean acceptsHtml = MediaType.parseMediaTypes(java.util.Collections.list(request.getHeaders("Accept"))).stream()
+                    .anyMatch(type -> "text".equalsIgnoreCase(type.getType())
+                            && "html".equalsIgnoreCase(type.getSubtype()) && type.getQualityValue() > 0);
+            return acceptsHtml ? this : null;
+        } catch (InvalidMediaTypeException exception) {
+            // Let Spring's normal handlers report invalid content negotiation.
+            return null;
+        }
     }
 
     @Override

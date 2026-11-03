@@ -1,6 +1,9 @@
 package com.scalar.maven.webmvc;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -28,8 +31,16 @@ class ScalarPathRoutingTest {
 
     }
 
+    @RestController
+    static class ApiController {
+        @GetMapping(value = "/users/1", produces = "application/json")
+        String user() {
+            return "{}";
+        }
+    }
+
     private final WebApplicationContextRunner runner = new WebApplicationContextRunner()
-            .withUserConfiguration(WebConfiguration.class)
+            .withUserConfiguration(WebConfiguration.class, ApiController.class)
             .withConfiguration(AutoConfigurations.of(ScalarWebMvcAutoConfiguration.class));
 
     @Test
@@ -112,5 +123,20 @@ class ScalarPathRoutingTest {
                 client.perform(get("/docs/missing")).andExpect(status().isNotFound());
             });
         }
+    }
+
+    @Test
+    void preservesContentNegotiationErrorsForMalformedAccept() {
+        runner.withPropertyValues("scalar.path-routing.base-path=/").run(context -> {
+            MockMvc client = MockMvcBuilders.webAppContextSetup(context).build();
+            client.perform(get("/users/1").header("Accept", "foo")).andExpect(status().isNotAcceptable());
+        });
+    }
+
+    @Test
+    void rejectsMalformedAcceptInNavigationCondition() {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Accept", "foo");
+        assertThat(new HtmlNavigationCondition().getMatchingCondition(request)).isNull();
     }
 }

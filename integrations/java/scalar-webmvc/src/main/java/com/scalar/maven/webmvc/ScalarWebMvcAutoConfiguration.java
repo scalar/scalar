@@ -105,8 +105,9 @@ public class ScalarWebMvcAutoConfiguration {
                             ScalarWebMvcController.class.getMethod("getScalarJs"));
                 }
                 if (!Boolean.FALSE.equals(properties.getUrlRouting())) {
+                    // Retain Spring content negotiation without excluding non-HTML resource requests.
                     RequestMappingInfo route = RequestMappingInfo.paths(pattern)
-                            .methods(RequestMethod.GET).customCondition(new HtmlNavigationCondition()).options(options).build();
+                            .methods(RequestMethod.GET).produces("*/*").customCondition(new HtmlNavigationCondition()).options(options).build();
                     mapping.registerMapping(route, controllerProvider.getObject(),
                             ScalarWebMvcController.class.getMethod("getDocs", HttpServletRequest.class));
                 }
