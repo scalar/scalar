@@ -2,4 +2,4 @@
 '@scalar/code-highlight': patch
 ---
 
-Restore code block line spacing from before the highlighter migration, including plain text, blank lines, and Markdown code blocks.
+Restore the 1.4 default for highlighted code block containers after the highlighter migration, including plain text and blank lines, while allowing Markdown to retain its own spacing.

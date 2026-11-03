@@ -1,25 +1,31 @@
 import { expect, test } from '@test/helpers'
+import { measureCodeLineSpacing } from '@test/measure-code-line-spacing'
 
 test.describe('ScalarMarkdown', () => {
-  test.use({
-    component: 'ScalarMarkdown',
-    story: 'Base',
-    args: { value: '```javascript\n1\n2\n3\n```' },
-  })
+  test.use({ component: 'ScalarMarkdown', story: 'Base' })
 
-  test('preserves highlighted token spacing inside Markdown code blocks', async ({ mountedStory }) => {
-    const spacing = await mountedStory.locator('pre code').evaluate((code) => {
-      const codeStyle = getComputedStyle(code)
-      const tokenStyle = getComputedStyle(code.querySelector('span')!)
-      return {
-        code: Number.parseFloat(codeStyle.lineHeight) / Number.parseFloat(codeStyle.fontSize),
-        token: Number.parseFloat(tokenStyle.lineHeight) / Number.parseFloat(tokenStyle.fontSize),
-      }
-    })
+  for (const lang of ['plaintext', 'javascript']) {
+    for (const { name, style, rule, expected } of [
+      { name: 'default', style: '', rule: '', expected: 21 },
+      { name: 'custom property', style: '--scalar-code-line-height: 28px', rule: '', expected: 28 },
+      { name: 'container override', style: '', rule: 'line-height: 16px;', expected: 16 },
+    ]) {
+      test(`${lang}: uniform ${name} fenced-code spacing`, async ({ mount, page }) => {
+        const story = await mount('ScalarMarkdown/Base', {
+          value: `\`\`\`${lang}\nconst alpha = 1\n\nalpha\n// comment\n\`\`\``,
+          style,
+        })
+        await page.addStyleTag({
+          content: `.scalar-app .markdown pre { ${rule} } .scalar-app .markdown { --scalar-small: 14px; }`,
+        })
+        await page.evaluate(() => document.fonts.ready)
 
-    // These ratios preserve pre-migration spacing rather than define a uniform spacing policy.
-    // TODO: Revisit both ratios when https://github.com/scalar/scalar/issues/10848 is addressed.
-    expect(spacing.code).toBeCloseTo(1.5, 5)
-    expect(spacing.token).toBeCloseTo(1.4, 5)
-  })
+        const pitches = await measureCodeLineSpacing(story.locator('pre code'))
+        expect(pitches.length).toBe(2)
+        for (const pitch of pitches) {
+          expect(pitch).toBeCloseTo(expected, 1)
+        }
+      })
+    }
+  }
 })
