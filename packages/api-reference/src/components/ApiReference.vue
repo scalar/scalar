@@ -37,6 +37,7 @@ import {
   ScalarSidebarFooter,
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
+import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -79,6 +80,7 @@ import { useMediaQuery, useScrollLock } from '@vueuse/core'
 import {
   computed,
   defineAsyncComponent,
+  getCurrentInstance,
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
@@ -118,12 +120,15 @@ import {
 } from '@/features/localization'
 import DocumentSelector from '@/features/multiple-documents/DocumentSelector.vue'
 import SearchButton from '@/features/Search/components/SearchButton.vue'
-import { SpecificationExtension } from '@/features/specification-extension'
 import { buildModelsIndex } from '@/helpers/build-models-index'
 import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getDownloadFilename } from '@/helpers/get-download-filename'
 import { hasDocumentChanges } from '@/helpers/has-document-changes'
+import {
+  parseHydrationState,
+  serializeHydrationState,
+} from '@/helpers/hydration-state'
 import {
   getIdFromUrl,
   makeHrefFromId,
@@ -441,9 +446,8 @@ const themeStyle = computed(() =>
  * theme would otherwise be able to close the tag and open a `<script>`.
  */
 const styleContent = computed(() =>
-  `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`.replace(
-    /<\/style/gi,
-    '<\\/style',
+  escapeCssForStyleTag(
+    `${mergedConfig.value.customCss ?? ''}\n${themeStyle.value}`,
   ),
 )
 
@@ -547,6 +551,28 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+/** Keep the first browser render identical to the preloaded server render. */
+const hydrationState = ref<string>()
+const requestedSlug = activeSlug.value
+const hydrationElement = getCurrentInstance()?.vnode.el
+const serializedState =
+  typeof Element !== 'undefined' && hydrationElement instanceof Element
+    ? hydrationElement.querySelector(':scope > script[data-scalar-hydration]')
+        ?.textContent
+    : undefined
+
+if (serializedState) {
+  try {
+    const state = parseHydrationState(serializedState)
+    workspaceStore.loadWorkspace(state.reference)
+    clientStore.loadWorkspace(state.client)
+    activeSlug.value = state.slug
+    hydrationState.value = serializedState
+  } catch {
+    // A damaged inline payload must not prevent the normal client load.
+  }
+}
 
 useDocumentEnvironment(workspaceStore)
 useDocumentEnvironment(clientStore)
@@ -979,11 +1005,11 @@ eventBus.on('scroll-to:model-by-name', ({ name }) => {
   }
 })
 
-const addDocument: typeof workspaceStore.addDocument = async (
-  input,
-  navigationOptions,
-) => {
-  const result = await workspaceStore.addDocument(input, navigationOptions)
+const addDocument = async (
+  input: Parameters<typeof workspaceStore.addDocument>[0],
+  config: ApiReferenceConfigurationRaw,
+): Promise<boolean> => {
+  const result = await workspaceStore.addDocument(input, config)
 
   // The selected server lives only on the client store document. The user picks it in the
   // reference, it is never part of the imported source. Reloading the freshly imported document
@@ -1027,6 +1053,32 @@ const addDocument: typeof workspaceStore.addDocument = async (
     history: {},
     meta: {},
   })
+
+  const document = clientStore.workspace.documents[input.name]
+  if (result === true && isOpenApiDocument(document)) {
+    // Configured servers have been applied synchronously by useConfiguredServers. Resolve
+    // relative URLs before comparing them with the selection retained from the previous load.
+    // Use this document's own URL because background preloads may target an inactive document.
+    const servers = getServers(document.servers, {
+      baseServerUrl: config.baseServerURL,
+      documentUrl: document['x-scalar-original-source-url'],
+    })
+    const selectedServerUrl = document['x-scalar-selected-server']
+
+    // An empty string is intentional deselection. A removed server is not: select the first
+    // available server so live document edits do not leave the reference and requests blank.
+    if (
+      servers.length > 0 &&
+      selectedServerUrl !== '' &&
+      !servers.some((server) => server.url === selectedServerUrl)
+    ) {
+      clientStore.updateDocument(
+        input.name,
+        'x-scalar-selected-server',
+        servers[0]?.url,
+      )
+    }
+  }
   return result
 }
 
@@ -1085,28 +1137,6 @@ const ensureDocumentLoaded = (slug: string): Promise<void> => {
     )
 
     const document = clientStore.workspace.documents[slug]
-
-    // If the document does not have a selected server we set it to the first server
-    if (
-      result === true &&
-      isOpenApiDocument(document) &&
-      document['x-scalar-selected-server'] === undefined
-    ) {
-      // Set the active server if the document is loaded successfully. Resolve relative servers
-      // against this document's own base URL, not the active document's, so a background preload
-      // does not derive its server from whichever document happens to be active.
-      const servers = getServers(document.servers, {
-        baseServerUrl: config.baseServerURL,
-        documentUrl: normalized.source.url,
-      })
-      if (servers.length > 0) {
-        clientStore.updateDocument(
-          slug,
-          'x-scalar-selected-server',
-          servers[0]!.url,
-        )
-      }
-    }
 
     // Seed the request body editor view from config, unless the document already sets it
     // explicitly via the `x-scalar-default-request-body-view` extension.
@@ -1399,10 +1429,23 @@ watch(
 )
 
 /** Preload the first document during SSR */
-onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
+onServerPrefetch(async () => {
+  await changeSelectedDocument(activeSlug.value)
+  hydrationState.value = serializeHydrationState({
+    slug: activeSlug.value,
+    reference: workspaceStore.exportWorkspace(),
+    client: clientStore.exportWorkspace(),
+  })
+})
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
+  if (hydrationState.value) {
+    // Hydrate the server's document first, then honor the document selected by the browser URL.
+    await nextTick()
+    activeSlug.value = requestedSlug
+  }
+
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
@@ -1463,6 +1506,15 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
+/** Browser-only controls must stay hidden until hydration finishes. */
+const isMounted = ref(false)
+const isLocalhost = ref(false)
+onMounted(() => {
+  hydrationState.value = undefined
+  isMounted.value = true
+  isLocalhost.value = isLocalUrl(window.location.href)
+})
+
 /**
  * Determines if Agent Scalar should be enabled based on the configuration and the current URL
  *
@@ -1478,7 +1530,7 @@ const agent = useAgent({
       return false
     }
 
-    if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    if (isLocalhost.value) {
       return true
     }
 
@@ -1497,6 +1549,7 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
  * installation instructions).
  */
 const generateSdk = useGenerateSdk({
+  enabled: computed(() => isLocalhost.value),
   disabled: () => mergedConfig.value.showDeveloperTools === 'never',
   hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
@@ -1855,16 +1908,6 @@ const bodyScrollLocked = useScrollLock(
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
 /**
- * Only the browser knows the host. Reading window inside a computed makes the server render one
- * footer and the client another (a hydration mismatch), so we resolve it after mount: SSR on
- * localhost shows the API client button for one frame, then swaps.
- */
-const isLocalhost = ref(false)
-onMounted(() => {
-  isLocalhost.value = isLocalUrl(window.location.href)
-})
-
-/**
  * Localhost only: the developer toolbar leaves the content column for a sticky bar above the whole
  * reference, and the reference renders as a bordered card on a tinted backdrop.
  *
@@ -2170,8 +2213,16 @@ const sidebarCta = computed((): SidebarCta => {
 </script>
 
 <template>
-  <!-- SingleApiReference -->
   <div v-bind="shellAttrs">
+    <!-- Keep a single root with no leading comment: hydration detection reads vnode.el. -->
+    <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+    <component
+      :is="'script'"
+      v-if="hydrationState"
+      data-scalar-hydration
+      type="application/json"
+      v-html="hydrationState" />
+    <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <!-- Inject any custom CSS directly into a style tag -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
@@ -2422,7 +2473,6 @@ const sidebarCta = computed((): SidebarCta => {
           :items="sidebarItems"
           :options="runtimeConfig"
           :scrollTargetId="scrollTargetId"
-          :specificationExtension="SpecificationExtension"
           :xScalarDefaultClient="
             clientStore.workspace['x-scalar-default-client']
           "
@@ -2434,7 +2484,9 @@ const sidebarCta = computed((): SidebarCta => {
             <div ref="documentStartRef" />
 
             <DeveloperTools
-              v-if="!isShell && workspaceStore.workspace.activeDocument"
+              v-if="
+                isMounted && !isShell && workspaceStore.workspace.activeDocument
+              "
               v-model:overrides="configurationOverrides"
               class="references-developer-tools"
               :configuration="mergedConfig"

@@ -108,6 +108,8 @@
     "!dist/browser/webpack-stats.esm.json",
     "!dist/examples",
     "!dist/browser/examples",
+    "!dist/_redirects",
+    "!dist/browser/_redirects",
     "CHANGELOG.md"
   ],
   "browser": "./dist/browser/standalone.js",

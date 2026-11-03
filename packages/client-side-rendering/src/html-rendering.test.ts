@@ -17,6 +17,29 @@ import {
 } from './html-rendering'
 
 describe('html-rendering', () => {
+  it.each([
+    ['</style>', '<\\/style>'],
+    ['</StYlE>', '<\\/StYlE>'],
+    ['</style\n>', '<\\/style\n>'],
+    ['</style/>', '<\\/style/>'],
+    ['</style data-x>', '<\\/style data-x>'],
+  ])('keeps custom CSS and themes containing %s inside their style element', (closingTag, escapedTag) => {
+    const css = `/* ${closingTag}<script id="injected">window.injected = true</script><style> */`
+    const configurations = [
+      renderApiReference({ config: { customCss: css } }),
+      renderApiReference({ config: {} }, css),
+      renderApiReference({ config: { customCss: css }, nonce: 'test-nonce' }, css),
+    ]
+
+    for (const html of configurations) {
+      const head = html.slice(0, html.indexOf('</head>'))
+      expect(head.match(/<\/style[\s/>]/gi)).toStrictEqual(['</style>'])
+      expect(head.replace(/\s+/g, ' ')).toContain(
+        `/* ${escapedTag}<script id="injected">window.injected = true</script><style> */`.replace(/\s+/g, ' '),
+      )
+    }
+  })
+
   it('preserves JSON-only values and keys while escaping script parser control characters', () => {
     const payload = '</script><!--<script> & " \\ \u2028\u2029'
     const configuration = { [payload]: { value: payload, escaped: '\\u003c', empty: null } }

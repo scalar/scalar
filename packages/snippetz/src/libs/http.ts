@@ -1,6 +1,8 @@
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 import type { HarRequest } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from './cookies'
+
 type HeaderPair = {
   name: string
   value: string
@@ -95,18 +97,14 @@ export const joinUrlAndQuery = (url: string, queryString?: NameValuePair[]): str
 export const collectHeaders = (headers?: NameOptionalValuePair[], cookies?: NameValuePair[]): HeaderPair[] => {
   const dedupedHeaders = new Map<string, string>()
 
-  headers?.forEach((header) => {
+  mergeCookieHeaders({
+    headers: headers?.map(({ name, value }) => ({ name, value: value ?? '' })),
+    cookies,
+  }).forEach((header) => {
     if (header.name) {
       dedupedHeaders.set(header.name, header.value ?? '')
     }
   })
-
-  if (cookies?.length) {
-    const cookieHeader = cookies
-      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-      .join('; ')
-    dedupedHeaders.set('Cookie', cookieHeader)
-  }
 
   return Array.from(dedupedHeaders.entries()).map(([name, value]) => ({ name, value }))
 }
@@ -142,21 +140,10 @@ export function reduceQueryParams(query: HarRequest['queryString'] = []): Record
 export function processHeaders(request: Partial<HarRequest>): Record<string, string> {
   const headers: Record<string, string> = {}
 
-  // Process regular headers
-  if (request.headers) {
-    for (const header of request.headers) {
-      if (header.value && !/[; ]/.test(header.name)) {
-        headers[header.name] = header.value
-      }
+  for (const header of mergeCookieHeaders(request)) {
+    if (header.value && !/[; ]/.test(header.name)) {
+      headers[header.name] = header.value
     }
-  }
-
-  // Process cookies
-  if (request.cookies && request.cookies.length > 0) {
-    const cookieString = request.cookies
-      .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-      .join('; ')
-    headers['Cookie'] = cookieString
   }
 
   return headers

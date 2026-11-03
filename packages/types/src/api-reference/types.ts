@@ -203,6 +203,13 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Restricts visible authentication choices and forms to these scheme names.
+   * Omit to show all schemes; an empty array hides all choices, including generic creation.
+   * This does not change authentication sent with requests or API security requirements.
+   */
+  allowedSecuritySchemes?: string[]
 }
 
 export type SpecificationExtension = {
@@ -784,7 +791,7 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
-  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
+  /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
@@ -910,6 +917,8 @@ type ExtendedConfiguration = {
 }
 
 export type SourceConfiguration = {
+  /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */
+  authentication?: AuthenticationConfiguration
   default?: boolean
   /** URL to an OpenAPI/Swagger document */
   url?: string

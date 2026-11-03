@@ -103,6 +103,15 @@ const { pendingClientToolParts } = useChatPendingClientToolParts()
 
 const uploadTmpDoc = useUploadTmpDocument()
 
+const retryUpload = (): void => {
+  if (
+    uploadTmpDoc.uploadState.value?.type === 'error' &&
+    state.getActiveDocumentJson
+  ) {
+    void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
+  }
+}
+
 function acceptTerms() {
   state.terms.accept()
 }
@@ -120,7 +129,9 @@ const submitDisabled = computed(() => {
   const isPreview = state.mode === 'preview'
 
   const termsNotAccepted = isPreview && !state.terms.accepted.value
-  const uploadingTmpDoc = isPreview && !!uploadTmpDoc.uploadState.value
+  const uploadingTmpDoc =
+    !!uploadTmpDoc.uploadState.value &&
+    uploadTmpDoc.uploadState.value.type !== 'done'
   const isLoading = isPending.value
 
   return (
@@ -149,7 +160,9 @@ const chatError = useChatError()
   <div class="actionContainer">
     <UploadSection
       v-if="uploadTmpDoc.uploadState.value || isPending"
-      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
+      :canRetry="!!state.getActiveDocumentJson"
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }"
+      @retry="retryUpload" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />

@@ -8,6 +8,8 @@
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
     // Referenced in scalar.config.json
+    "documentation/assets/agent-hero.js",
+    "documentation/assets/agent-marks.js",
     "documentation/assets/landing.js",
     "documentation/assets/powered-by.js",
     "documentation/assets/fathom.js",
@@ -75,8 +77,13 @@
   },
   "workspaces": {
     ".": {
-      // Loaded dynamically from the composite action's github-script step.
-      "entry": [".github/actions/update-contributors/update-contributors.ts"],
+      "entry": [
+        // Loaded dynamically from the composite action's github-script step.
+        ".github/actions/update-contributors/update-contributors.ts",
+        // Run by hand to re-bake the docs hero's cards; it pulls in the
+        // other two files in that folder.
+        "tooling/docs-hero/portals.mjs"
+      ],
       "ignoreDependencies": [
         // Executed from the repo root by tooling/changelog-generator/src/version.ts.
         "@changesets/cli"
@@ -485,6 +492,8 @@
       ]
     },
     "integrations/java": {
+      // Loaded by Spring resource handlers in the Java routing tests.
+      "entry": ["scalar-*/src/test/resources/static/**/*.js"],
       "ignoreDependencies": [
         "@scalar/api-reference", // build step copy standalone file from this package
         // Included for convenience.

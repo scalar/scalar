@@ -12,8 +12,8 @@ export {
   type ViewUpdate,
   WidgetType,
 } from '@codemirror/view'
-export { colorPicker } from '@replit/codemirror-css-color-picker'
 
+export { colorPicker } from './extensions/color-picker/color-picker'
 export {
   type UseCodeMirrorParameters,
   useCodeMirror,

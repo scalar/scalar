@@ -2456,6 +2456,31 @@ const trackLandingWipe = (event) => {
 for (const type of ['transitionrun', 'transitionend', 'transitioncancel']) {
   document.addEventListener(type, trackLandingWipe)
 }
+/* What a page's animations bound outside their own markup: the document
+   and window listeners, and the observers, that would otherwise outlive
+   the page they were bound for. The site is a single-page app, so every
+   initialiser below runs again on every page change and binds again
+   against fresh markup; with nothing to let the old bindings go, the
+   document keeps one more of each per page view, each holding on to the
+   page it closed over, and a stale handler can still wake a scene that
+   is no longer on the page. Each block hands in the element it lives on
+   and the undo for what it bound.
+
+   The flows keep a map of their own further down, because theirs has to
+   be read on visibilitychange as well as on a page change. */
+const landingReleases = new Map()
+const holdLanding = (element, release) => {
+  landingReleases.set(element, release)
+}
+const sweepLanding = () => {
+  landingReleases.forEach((release, element) => {
+    if (!element.isConnected) {
+      landingReleases.delete(element)
+      release()
+    }
+  })
+}
+
 const initLandingOrbs = debounce(() => {
   const fields = [...document.querySelectorAll('.lp-orbs')].filter((field) => field.dataset.lpOrbsBound !== 'true')
   if (!fields.length) {
@@ -2465,6 +2490,16 @@ const initLandingOrbs = debounce(() => {
 
   fields.forEach((field) => {
     field.dataset.lpOrbsBound = 'true'
+    /* Everything this page's orbs bind beyond their own markup, kept so
+       that the page taking them away can take these with it. The cards
+       further down bind against elements of their own, and hand their
+       undo in here rather than keeping one each, because the app swaps
+       a whole page at once: a field that has gone means the Docs, SDK
+       and MCP cards have gone with it. They are let go together on that
+       reading, and each card's own guard then binds the page that
+       replaced them. */
+    const undo = []
+    holdLanding(field, () => undo.forEach((release) => release()))
     const hero = field.parentElement
     const paths = [...field.querySelectorAll('.lp-orbit')]
     const orbs = [...field.querySelectorAll('.lp-orb')]
@@ -2506,6 +2541,11 @@ const initLandingOrbs = debounce(() => {
     orbs.forEach((o) => {
       o.face = landingFaces.attach(o.orb, o.ring)
     })
+    /* The faces live in a controller that is made once and kept for the
+       life of the page, so a planet leaving the page has to hand its own
+       back: otherwise the controller goes on watching an orb that is no
+       longer in the document, one more of them per page view. */
+    undo.push(() => orbs.forEach((o) => o.face?.detach()))
     /* the Scalar globe in the onboard button, dressed like the planets;
        it shows while a planet talks */
     const button = hero.querySelector('[data-lp-onboard]')
@@ -2977,12 +3017,12 @@ const initLandingOrbs = debounce(() => {
       })
     })
     // the keyboard can end a talk, as the copy is hidden meanwhile
-    document.addEventListener('keydown', (event) => {
+    const onEscape = (event) => {
       if (event.key === 'Escape' && talk) {
         stopTalk()
       }
-    })
-    document.addEventListener('pointerdown', (event) => {
+    }
+    const onTapAway = (event) => {
       if (
         talk &&
         event.pointerType === 'touch' &&
@@ -2991,6 +3031,12 @@ const initLandingOrbs = debounce(() => {
       ) {
         stopTalk()
       }
+    }
+    document.addEventListener('keydown', onEscape)
+    document.addEventListener('pointerdown', onTapAway)
+    undo.push(() => {
+      document.removeEventListener('keydown', onEscape)
+      document.removeEventListener('pointerdown', onTapAway)
     })
     if (hasSun) {
       button.addEventListener('lp-onboard-copied', () => {
@@ -3023,7 +3069,9 @@ const initLandingOrbs = debounce(() => {
       orbs.forEach((o) => o.orb.classList.add('is-placed'))
     }
     apply()
-    new ResizeObserver(apply).observe(field)
+    const sizes = new ResizeObserver(apply)
+    sizes.observe(field)
+    undo.push(() => sizes.disconnect())
     // the orbit's state, for the page's tests
     field.lpOrbs = () =>
       orbs.map((o) => ({
@@ -3442,7 +3490,7 @@ const initLandingOrbs = debounce(() => {
       // the planets come once the card has risen into the top part of
       // the viewport (its top above the 45% line), and go back once it
       // has dropped below that line; past the top they stay
-      new IntersectionObserver(
+      const stageWatch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -3453,14 +3501,16 @@ const initLandingOrbs = debounce(() => {
           })
         },
         { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-      ).observe(stage)
+      )
+      stageWatch.observe(stage)
+      undo.push(() => stageWatch.disconnect())
       const wakeOrbit = () => {
         if (stageSeen && !document.hidden && onStage && stage.classList.contains('is-orbit') && !orbitFrame) {
           orbitLast = null
           orbitTick(performance.now())
         }
       }
-      new IntersectionObserver(
+      const seenWatch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             stageSeen = entry.isIntersecting
@@ -3468,8 +3518,22 @@ const initLandingOrbs = debounce(() => {
           wakeOrbit()
         },
         { threshold: 0 },
-      ).observe(stage)
+      )
+      seenWatch.observe(stage)
       document.addEventListener('visibilitychange', wakeOrbit)
+      /* A page swapped out while the tab is hidden leaves this one worse
+         than merely leaking: nothing paints, so the watcher above never
+         reports the stage gone, and on the way back a listener still on
+         the document would start a loop writing styles into a stage that
+         is no longer on the page. */
+      undo.push(() => {
+        seenWatch.disconnect()
+        document.removeEventListener('visibilitychange', wakeOrbit)
+        if (orbitFrame) {
+          cancelAnimationFrame(orbitFrame)
+          orbitFrame = 0
+        }
+      })
 
       /* The SDK card, below. As it scrolls into view the globe, with its
          ring, leaves the Docs card for the top of this one and one of the
@@ -3756,7 +3820,7 @@ const initLandingOrbs = debounce(() => {
           // the thread goes once the caller has measured the planets
           return () => next.off()
         }
-        new IntersectionObserver(
+        const sdkWatch = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
               if (entry.isIntersecting) {
@@ -3767,7 +3831,9 @@ const initLandingOrbs = debounce(() => {
             })
           },
           { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-        ).observe(sdk)
+        )
+        sdkWatch.observe(sdk)
+        undo.push(() => sdkWatch.disconnect())
         lent.check = () => {
           const line = window.innerHeight * 0.45
           const top = sdk.getBoundingClientRect().top
@@ -3954,7 +4020,7 @@ const initLandingOrbs = debounce(() => {
             }
             next.off()
           }
-          new IntersectionObserver(
+          const mcpWatch = new IntersectionObserver(
             (entries) => {
               entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -3965,7 +4031,9 @@ const initLandingOrbs = debounce(() => {
               })
             },
             { rootMargin: '0px 0px -55% 0px', threshold: 0 },
-          ).observe(mcp)
+          )
+          mcpWatch.observe(mcp)
+          undo.push(() => mcpWatch.disconnect())
           next.check = () => {
             const line = window.innerHeight * 0.45
             const top = mcp.getBoundingClientRect().top
@@ -4011,6 +4079,13 @@ const initLandingOrbs = debounce(() => {
         })
       }
       window.addEventListener('scroll', onJump, { passive: true })
+      undo.push(() => {
+        window.removeEventListener('scroll', onJump)
+        if (scrolled) {
+          cancelAnimationFrame(scrolled)
+          scrolled = 0
+        }
+      })
       onJump()
     }
     orbs.forEach((o) => {
@@ -4094,6 +4169,14 @@ const initLandingOrbs = debounce(() => {
     )
     observer.observe(field)
     document.addEventListener('visibilitychange', sync)
+    undo.push(() => {
+      observer.disconnect()
+      document.removeEventListener('visibilitychange', sync)
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+    })
   })
 })
 
@@ -4261,7 +4344,7 @@ const initEnterpriseRing = debounce(() => {
   hero.addEventListener('pointerup', letGo)
   hero.addEventListener('pointercancel', letGo)
 
-  new IntersectionObserver(
+  const watch = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         seen = entry.isIntersecting
@@ -4269,8 +4352,17 @@ const initEnterpriseRing = debounce(() => {
       wake()
     },
     { threshold: 0 },
-  ).observe(hero)
+  )
+  watch.observe(hero)
   document.addEventListener('visibilitychange', wake)
+  holdLanding(hero, () => {
+    watch.disconnect()
+    document.removeEventListener('visibilitychange', wake)
+    if (frame) {
+      cancelAnimationFrame(frame)
+      frame = 0
+    }
+  })
 
   // the ring's state, for the page's tests
   hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
@@ -4461,7 +4553,7 @@ const initLandingHostStage = debounce(() => {
     }
     // the planets rise the first time the scene shows, and go round
     // whenever it is on screen
-    new IntersectionObserver(
+    const hostWatch = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           hostSeen = entry.isIntersecting
@@ -4477,17 +4569,28 @@ const initLandingHostStage = debounce(() => {
         wakeHost()
       },
       { threshold: 0 },
-    ).observe(host)
+    )
+    hostWatch.observe(host)
     document.addEventListener('visibilitychange', wakeHost)
     // the planets take their size from the scene's width, so a planet
     // that has taken a new size turns its grain at a new pace: the
     // surface still covers its circumference in one turn
-    new ResizeObserver(() => {
+    const hostSizes = new ResizeObserver(() => {
       wares.forEach((w) => {
         const size = Number.parseFloat(getComputedStyle(w.orb).getPropertyValue('--s'))
         landingGrainTurn(w.orb, size, HOST_ORB_TURN)
       })
-    }).observe(host)
+    })
+    hostSizes.observe(host)
+    holdLanding(host, () => {
+      hostWatch.disconnect()
+      hostSizes.disconnect()
+      document.removeEventListener('visibilitychange', wakeHost)
+      if (hostFrame) {
+        cancelAnimationFrame(hostFrame)
+        hostFrame = 0
+      }
+    })
     // the band's state, for the page's tests
     host.lpHost = () => ({
       on: hostOn,
@@ -4505,12 +4608,14 @@ const initTrustedWalls = debounce(() => {
     .filter((wall) => wall.dataset.lpTrustedBound !== 'true')
     .forEach((wall) => {
       wall.dataset.lpTrustedBound = 'true'
-      new IntersectionObserver(
+      const watch = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => wall.classList.toggle('is-off', !entry.isIntersecting))
         },
         { threshold: 0 },
-      ).observe(wall)
+      )
+      watch.observe(wall)
+      holdLanding(wall, () => watch.disconnect())
     })
 })
 
@@ -5455,6 +5560,14 @@ const createLandingFlowPlayer = (flow) => {
 
   const stop = () => {
     running = false
+    /* A turn still going would carry a burst of its own across the pause:
+       it settles while nothing is playing, and by the time anyone reads
+       it the flow may be playing again, so its generation has to move on
+       without it. The turn itself goes too — a sheen turning behind a
+       hidden tab is work nobody sees. */
+    beatGen += 1
+    turns.forEach((turn) => turn.cancel())
+    turns.clear()
     timers.forEach((id) => clearTimeout(id))
     timers.clear()
     if (frame) {
@@ -5493,13 +5606,15 @@ const initLandingFlow = debounce(() => {
 
   flows.forEach((flow) => {
     flow.dataset.lpFlowBound = 'true'
+    // held out here so that letting the flow go lets this go with it
+    let edges = null
     if (flow.dataset.lpEdges) {
       drawLandingFlowEdges(flow)
-      const observer = new ResizeObserver(() => drawLandingFlowEdges(flow))
-      observer.observe(flow)
+      edges = new ResizeObserver(() => drawLandingFlowEdges(flow))
+      edges.observe(flow)
       // the anchors too: the hosting scene's disc eases its size after the
       // hub box has already changed, and the lines follow it
-      flow.querySelectorAll('[data-lp-node], .lp-chip-body, [data-lp-anchor]').forEach((el) => observer.observe(el))
+      flow.querySelectorAll('[data-lp-node], .lp-chip-body, [data-lp-anchor]').forEach((el) => edges.observe(el))
       document.fonts?.ready.then(() => drawLandingFlowEdges(flow))
     }
     if (reduceMotion) {
@@ -5520,6 +5635,7 @@ const initLandingFlow = debounce(() => {
       if (!flow.isConnected) {
         player.stop()
         observer.disconnect()
+        edges?.disconnect()
         landingFlowSyncs.delete(flow)
         return
       }
@@ -5751,12 +5867,14 @@ const initLandingFunnel = debounce(() => {
       track.appendChild(item)
     })
     // the turn runs only while the funnel is on screen
-    new IntersectionObserver(
+    const watch = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => track.classList.toggle('is-paused', !entry.isIntersecting))
       },
       { threshold: 0 },
-    ).observe(track)
+    )
+    watch.observe(track)
+    holdLanding(track, () => watch.disconnect())
   })
 })
 
@@ -5879,6 +5997,9 @@ const initLandingPrompt = debounce(() => {
 
   boxes.forEach((box) => {
     box.dataset.lpPromptBound = 'true'
+    // what this box binds beyond its own markup, to go with the page
+    const undo = []
+    holdLanding(box, () => undo.forEach((release) => release()))
     // the icons are decoration; the controls' labels say what they do
     box.querySelectorAll('svg').forEach((icon) => icon.setAttribute('aria-hidden', 'true'))
 
@@ -5946,7 +6067,9 @@ const initLandingPrompt = debounce(() => {
       atEnd = () => box.classList.toggle('is-at-end', body.scrollTop + body.clientHeight >= body.scrollHeight - 2)
       body.addEventListener('scroll', atEnd, { passive: true })
       if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(atEnd).observe(body)
+        const sizes = new ResizeObserver(atEnd)
+        sizes.observe(body)
+        undo.push(() => sizes.disconnect())
       }
       atEnd()
     }
@@ -5968,7 +6091,9 @@ const initLandingPrompt = debounce(() => {
       short.addEventListener('input', fitBody)
       short.addEventListener('change', fitBody)
       if (typeof ResizeObserver !== 'undefined') {
-        new ResizeObserver(fitBody).observe(short)
+        const sizes = new ResizeObserver(fitBody)
+        sizes.observe(short)
+        undo.push(() => sizes.disconnect())
       }
     }
 
@@ -6070,7 +6195,9 @@ const initLandingPrompt = debounce(() => {
     // the snapshots are pinned to the viewport, so a page scroll mid-swap
     // (a focus or an anchor bringing the box into view) would draw the
     // words away from the box; the swap just lands instead
-    window.addEventListener('scroll', () => transition?.skipTransition(), { passive: true })
+    const skipOnScroll = () => transition?.skipTransition()
+    window.addEventListener('scroll', skipOnScroll, { passive: true })
+    undo.push(() => window.removeEventListener('scroll', skipOnScroll))
     // read once focus has settled: at focusout the next element is not
     // focused yet, so a Tab to the button would read as leaving; and a
     // window blur leaves the active element where it is, so nothing moves
@@ -6090,12 +6217,14 @@ const initLandingPrompt = debounce(() => {
       pinned = !pinned
       update(document.activeElement)
     })
-    document.addEventListener('pointerdown', (event) => {
+    const onTapOut = (event) => {
       if (pinned && !box.contains(event.target)) {
         pinned = false
         update(document.activeElement)
       }
-    })
+    }
+    document.addEventListener('pointerdown', onTapOut)
+    undo.push(() => document.removeEventListener('pointerdown', onTapOut))
     // the short form at rest, with no transition at mount
     show(true, false)
 
@@ -6722,7 +6851,8 @@ const initCustomerBalls = debounce(() => {
     /* Asleep, the loop stops and the balls stay as they lie. */
     let frame = 0
     let last = null
-    let began = 0
+    /** how much of the fall has actually been drawn, in milliseconds */
+    let fallen = 0
     let still = 0
     let asleep = true
     const sleep = () => {
@@ -6750,9 +6880,13 @@ const initCustomerBalls = debounce(() => {
       let left = Math.min((now - last) / 1000, 0.05)
       const went = Math.max(left, CUST_STEP)
       last = now
-      const since = now - began
+      /* the fall is told by the frames that have run, not by the clock: a
+         tab opened in the background paints none of them, and a wall-clock
+         reading on the way back would find every ball already due and drop
+         the lot together instead of one after another */
+      fallen += left * 1000
       balls.forEach((b) => {
-        if (!b.live && since >= b.at) {
+        if (!b.live && fallen >= b.at) {
           b.live = true
         }
       })
@@ -6806,7 +6940,7 @@ const initCustomerBalls = debounce(() => {
         draw(b)
         spin(b)
       })
-      began = performance.now()
+      fallen = 0
     }
     // the same fall, run through at once: the heap without the show,
     // for a reader who asked for no motion and after the field resizes.
@@ -6911,12 +7045,18 @@ const initCustomerBalls = debounce(() => {
     // size is measured again, and a heap already at rest built afresh
     let started = false
     measure()
-    new ResizeObserver(() => {
+    const sizes = new ResizeObserver(() => {
       measure()
       if (started && asleep) {
         settle()
       }
-    }).observe(field)
+    })
+    sizes.observe(field)
+    // the heap belongs to the page it was dropped on, and goes with it
+    holdLanding(field, () => {
+      sizes.disconnect()
+      sleep()
+    })
     const start = () => {
       measure()
       started = true
@@ -7005,6 +7145,619 @@ const initLandingOnboard = () => {
   })
 }
 
+/* The docs page's hero: a row of documentation sites built with Scalar,
+   sliding past on a curve, after the treatment meech213.com gives its
+   gallery.
+
+   Their row is three.js — a line of textured planes whose vertices one
+   node graph moves. The graph reads a vertex's world x and adds three
+   offsets to it:
+
+     y  cos(x * curveFrequency) * curveStrength - curveStrength
+     z  -(abs(x) ** 1.25) * depthCurveStrength
+     x  sin(uv.y * PI) * travel
+
+   The first two bend the row: a shallow sag, and a fall away from the
+   camera that grows towards the edges. They depend only on where a card
+   is, so each card here gets them as a translate, plus the turn that
+   keeps a flat card lying on the curve it is standing on. The sag is
+   theirs; the fall away is ours — a curve that keeps bending reads as
+   one long tilt, so this row lies flat across the middle and falls away
+   at one angle to either side instead. See flatSpan below.
+
+   The third is the bow, and it is the one worth having: the middle of a
+   card is drawn one frame's travel ahead of its top and bottom edges,
+   so a card moving quickly reads as a drawn bow. It varies down the
+   card, which no single CSS transform does, so a card is cut into
+   slices and each slice is moved and sheared to meet its neighbours —
+   the same straight join the GPU draws between two rows of vertices.
+   At rest the slices sit flush and a card is an ordinary rectangle.
+
+   Their numbers are kept as they are; what is ours is the row never
+   quite stopping, and the wheel adding to its speed without taking the
+   page's scrolling away. */
+/* The faces of the row: three customers' documentation portals, each
+   rendering one operation — Zoom's and Clerk's from the drawings made for
+   the August 2026 hero, Supabase's built from its own Management API
+   document and the look of its docs, in documentation/assets/docs-hero.
+
+   They are bitmaps rather than markup: as HTML inside an <svg> the browser
+   lays them out and rasterises them again every time the row moves — 53
+   frames a second against 120 for the same picture baked. */
+const DOCS_HERO_PREVIEWS = ['zoom', 'clerk', 'supabase']
+
+/* The two rows, in the order the page has them: left of the seam the
+   browser is rendering a portal's API reference, right of it the same
+   browser is on the same page's .md — plain monospace text, markdown and
+   all. The suffix is what tells one bake from the other. */
+const DOCS_HERO_SIDES = ['', '-markdown']
+
+const DOCS_HERO = {
+  /* theirs: the sag the plane rides, and the plane itself */
+  curveFrequency: 0.18,
+  curveStrength: 0.12,
+  /* Ours, in place of their fall-away curve: the row lies flat across
+     the middle and falls away at one fixed angle to either side, so a
+     preview funnels in, squares up to the reader as it crosses the
+     centre, and funnels out again. A power curve keeps bending the
+     further out a card goes, which reads as one long tilt instead of a
+     funnel. The three are world units, where a preview is imageSizeX
+     across and flatSpan is measured from the centre. */
+  flatSpan: 1,
+  funnelSlope: 0.8,
+  funnelCorner: 0.35,
+  /* theirs is a tall plane; these previews are the wide pages they were
+     drawn as, so the same numbers stand the other way round */
+  imageSizeX: 1.28,
+  imageSizeY: 0.72,
+  gap: 0.12,
+  cameraDistance: 3.3,
+  /* where the seam starts, as a share of the row's width, and how far
+     it may be taken before one side is too thin to read */
+  split: 0.5,
+  splitMin: 0.14,
+  splitMax: 0.86,
+  /* theirs: the scrubbing. A frame keeps 92% of its speed, and the
+     travel that speed works out to is also the bow */
+  friction: 0.92,
+  wheelFactor: 0.52,
+  wheelDirection: -1,
+  wheelGain: 0.18,
+  dragGain: 0.315,
+  maxVelocity: 180,
+  /* ours */
+  drift: 0.85,
+  bowFloor: 1,
+  slices: 8,
+  cards: 12,
+  /* a fifth larger than the funnel first wanted them: the funnel reads
+     best when a preview's whole turn fits on the screen beside the flat
+     one in the middle, but the previews are the point of the row */
+  cardMin: 312,
+  cardMax: 816,
+  cardShare: 0.624,
+  /* how much of the room above the hero's foot a card may take, and how
+     far above the words the row rides, as a share of a card */
+  cardRoom: 0.92,
+  rowLift: 0.04,
+}
+
+const DOCS_HERO_FRAME = 1000 / 60
+
+/* The row reaches both edges of the column the page clips to, past the
+   text column and past the sidebar. The hero is already centred in
+   whatever room the page left it, so the shorter of its two margins is
+   that room — no need to know what the sidebar is doing, which is just
+   as well, since --scalar-sidebar-width keeps its desktop value on a
+   phone where the sidebar is a drawer.
+
+   The two lengths go on the hero rather than the field because the
+   seam's handle and its grip are placed from them as well, and a custom
+   property only reaches down. */
+const docsHeroBleed = (hero) => {
+  const box = hero.getBoundingClientRect()
+  const page = document.documentElement.clientWidth || window.innerWidth
+  const middle = box.left + box.width / 2
+  const reach = Math.min(middle, page - middle)
+  const space = Math.max(reach * 2, box.width)
+  if (!box.width) {
+    /* a hero that is not laid out yet measures as nothing; leave the two
+       lengths unwritten rather than put a zero in them */
+    return { box, space }
+  }
+  hero.style.setProperty('--dh-left', `${Math.round(middle - reach - box.left)}px`)
+  hero.style.setProperty('--dh-width', `${Math.round(space)}px`)
+  /* the handle waits for this: the page swaps the hero out from under an
+     early measurement while it hydrates, so the lengths can arrive a
+     moment after the words, and a handle placed before them would stand
+     in the text column and then jump out to the row's edge */
+  hero.dataset.dhBleed = 'true'
+  return { box, space }
+}
+
+/* The field is on the page before the row is built, so it is measured
+   on its own as well, without the wait the rest of the hero can afford:
+   left to the debounced build below, it would be laid out at the text
+   column's width and then jump out to the row's. */
+const measureDocsHero = () => {
+  const hero = document.querySelector('.dh-hero')
+  if (hero) {
+    docsHeroBleed(hero)
+  }
+}
+const docsHeroMod = (value, span) => ((value % span) + span) % span
+
+/* Every docs hero's sync, so one that left the page while it was off
+   screen — where no observer fires again — is released on the next page
+   change, as the landing page's flows are. */
+const docsHeroSyncs = new Set()
+
+const initDocsHero = debounce(() => {
+  const field = document.querySelector('.dh-field')
+  if (!field || field.dataset.dhBound === 'true') {
+    return
+  }
+  /* One row a side of the seam. Both are laid out from the same numbers
+     and placed by the same call, so they register to the pixel and the
+     seam reads as one portal rendering two things rather than as two
+     portals side by side. */
+  const panes = [...field.querySelectorAll('.dh-pane')]
+  const stages = panes.map((pane) => pane.querySelector('.dh-stage'))
+  if (stages.length !== DOCS_HERO_SIDES.length || stages.some((stage) => !stage)) {
+    return
+  }
+  field.dataset.dhBound = 'true'
+
+  const cards = []
+  for (let index = 0; index < DOCS_HERO.cards; index += 1) {
+    const face = DOCS_HERO_PREVIEWS[index % DOCS_HERO_PREVIEWS.length]
+    const copies = stages.map((stage, side) => {
+      const card = document.createElement('div')
+      card.className = 'dh-card'
+      const bake = `${face}${DOCS_HERO_SIDES[side]}`
+      /* both modes are set here and the page's class picks one, so a
+         reader switching modes costs nothing */
+      card.style.setProperty('--dh-src', `url("/docs-hero/${bake}.webp")`)
+      card.style.setProperty('--dh-src-dark', `url("/docs-hero/${bake}-dark.webp")`)
+      const slices = []
+      for (let slice = 0; slice < DOCS_HERO.slices; slice += 1) {
+        const element = document.createElement('div')
+        element.className = 'dh-slice'
+        element.style.setProperty('--i', String(slice))
+        card.appendChild(element)
+        slices.push(element)
+      }
+      stage.appendChild(card)
+      return { element: card, slices }
+    })
+    cards.push({ copies, flat: false })
+  }
+
+  /* px per world unit, and the run of one card plus its gap */
+  let unit = 0
+  let stride = 0
+  let span = 0
+  let cardHeight = 0
+  /* how far from the middle a preview's middle can land and still have
+     any of itself on the screen */
+  let reach = 0
+  /* how far the row has travelled: the row's whole position, so a resize
+     can carry it over rather than snapping every card back to its slot */
+  let offset = 0
+
+  const hero = field.parentElement
+  const copy = hero && hero.querySelector('.dh-copy')
+  let previousStride = 0
+
+  const layout = () => {
+    const bleed = hero ? docsHeroBleed(hero) : null
+    const box = bleed ? bleed.box : null
+    const space = bleed ? bleed.space : document.documentElement.clientWidth || window.innerWidth
+    /* The row runs from the top of the hero down to its foot — the rule
+       and the logos — so that room, not the whole hero, is what a card is
+       measured against. The foot's own height is read from the page
+       rather than written down twice. */
+    const footing = hero ? hero.querySelector('.dh-foot') : null
+    const gap = footing ? Number.parseFloat(getComputedStyle(footing).marginTop) || 0 : 0
+    const footRoom = footing && box ? Math.round(box.bottom - footing.getBoundingClientRect().top + gap) : 0
+    /* on the hero rather than on the row: the handle beside the row ends
+       at the foot as well, and a custom property only reaches down */
+    if (hero) {
+      hero.style.setProperty('--dh-foot', `${footRoom}px`)
+    }
+    const room = box ? box.height - footRoom : 0
+    const tallest = room
+      ? (room * DOCS_HERO.cardRoom * DOCS_HERO.imageSizeX) / DOCS_HERO.imageSizeY
+      : Number.POSITIVE_INFINITY
+    /* the room binds last: a card that will not fit in it would be cut
+       off flat at the top of the hero, and a smaller card is better than
+       a sliced one on a short screen */
+    const width = Math.round(
+      Math.min(Math.max(DOCS_HERO.cardMin, Math.min(DOCS_HERO.cardMax, space * DOCS_HERO.cardShare)), tallest),
+    )
+    cardHeight = Math.round((width / DOCS_HERO.imageSizeX) * DOCS_HERO.imageSizeY)
+    unit = width / DOCS_HERO.imageSizeX
+    stride = (DOCS_HERO.imageSizeX + DOCS_HERO.gap) * unit
+    span = DOCS_HERO.cards * stride
+    reach = (space + width) / 2
+    field.style.setProperty('--dh-w', `${width}px`)
+    field.style.setProperty('--dh-h', `${cardHeight}px`)
+    field.style.setProperty('--dh-sh', `${cardHeight / DOCS_HERO.slices}px`)
+    /* The row is centred on the words and lifted a little above them, so
+       the previews ride high in the hero rather than hanging at its foot.
+       Centring on the copy rather than on the room keeps the two together
+       however long the heading runs, and at every width. */
+    const words = copy && box ? copy.getBoundingClientRect() : null
+    const centre = words ? words.top + words.height / 2 - box.top : room / 2
+    const middleY = Math.round(centre - DOCS_HERO.rowLift * cardHeight)
+    field.style.setProperty('--dh-top', `${middleY}px`)
+    /* the same camera for both rows, so neither is a hair's breadth off
+       the other where the seam cuts them */
+    for (const pane of panes) {
+      pane.style.perspective = `${DOCS_HERO.cameraDistance * unit}px`
+      pane.style.perspectiveOrigin = `50% ${middleY}px`
+    }
+    /* The handle rides a little below the top edge of a preview, and
+       never lower than the words begin: on a narrow screen the previews
+       are small and the words reach the top of them, and a handle in
+       among the words is one the words take the pointer from. */
+    if (hero) {
+      const clear = words ? Math.round(words.top - box.top - 26) : Number.POSITIVE_INFINITY
+      const rides = Math.round(middleY - cardHeight / 2 + 44)
+      hero.style.setProperty('--dh-grip', `${Math.max(28, Math.min(rides, clear))}px`)
+    }
+    offset = previousStride ? (offset * stride) / previousStride : offset
+    previousStride = stride
+  }
+
+  /* Move the row along by travel, put every card back on the curve, and
+     bend it by bow. One call with both at zero is the still picture a
+     reader who asked for less motion gets. */
+  const place = (travel, bow) => {
+    const half = span / 2
+    const count = DOCS_HERO.slices
+    offset = docsHeroMod(offset + travel, span)
+    const bending = Math.abs(bow) > DOCS_HERO.bowFloor
+    field.classList.toggle('is-bowing', bending)
+
+    for (let index = 0; index < cards.length; index += 1) {
+      const card = cards[index]
+      const at = docsHeroMod(index * stride + offset + half, span) - half
+      const x = at / unit
+      /* A card is a chord of the curve, not a tangent to it: its two
+         edges are put on the curve and the card is laid between them.
+         Reading the slope at the middle instead would snap a card round
+         as it crossed the centre, where the funnel's two sides meet: the
+         slope there is continuous but the bend is not, and a tangent
+         feels that within a few pixels of travel. A chord spans it and
+         never does. */
+      const edge = DOCS_HERO.imageSizeX / 2
+      /* flat across the middle, a straight fall beyond it, and a corner
+         of funnelCorner rounding the turn between the two */
+      const fall = (place) => {
+        const out = Math.abs(place) - DOCS_HERO.flatSpan
+        const turn = (out + Math.sqrt(out * out + DOCS_HERO.funnelCorner ** 2)) / 2
+        return -turn * DOCS_HERO.funnelSlope
+      }
+      const drop = (place) =>
+        -(Math.cos(place * DOCS_HERO.curveFrequency) * DOCS_HERO.curveStrength - DOCS_HERO.curveStrength)
+      const backLeft = fall(x - edge)
+      const backRight = fall(x + edge)
+      const downLeft = drop(x - edge)
+      const downRight = drop(x + edge)
+      const depth = ((backLeft + backRight) / 2) * unit
+      const sag = ((downLeft + downRight) / 2) * unit
+      const yaw = Math.atan((backLeft - backRight) / (2 * edge))
+      const roll = Math.atan((downRight - downLeft) / (2 * edge))
+      const placed = `translate3d(${at}px, ${sag}px, ${depth}px) rotateY(${yaw}rad) rotateZ(${roll}rad)`
+      for (const copy of card.copies) {
+        copy.element.style.transform = placed
+      }
+
+      /* The row is far longer than the screen, and bending a card is the
+         expensive part: eight slices a card, twice over now that there
+         are two rows. Only the two or three cards anywhere near the
+         screen are worth it; the rest lie flat until they come round.
+
+         Where a card lands is not where it stands: a card out on the
+         funnel's slope is a long way back, and the perspective divides
+         it toward the middle again, so the test has to be made on the
+         screen rather than on the stage. */
+      const away = DOCS_HERO.cameraDistance * unit
+      if (!bending || Math.abs((at * away) / (away - depth)) > reach) {
+        if (!card.flat) {
+          card.flat = true
+          for (const copy of card.copies) {
+            for (const slice of copy.slices) {
+              slice.style.transform = ''
+            }
+          }
+        }
+        continue
+      }
+      card.flat = false
+      for (let slice = 0; slice < count; slice += 1) {
+        /* sin(uv.y * PI) at this slice's top and bottom edge; uv.y runs
+           up the card, so slice 0 is the top one */
+        const top = Math.sin((1 - slice / count) * Math.PI) * bow
+        const bottom = Math.sin((1 - (slice + 1) / count) * Math.PI) * bow
+        const bent = `translateX(${top}px) skewX(${Math.atan((bottom - top) / (cardHeight / count))}rad)`
+        for (const copy of card.copies) {
+          copy.slices[slice].style.transform = bent
+        }
+      }
+    }
+  }
+
+  /* The site is one page, so this hero's field is thrown away on the way
+     to another. Everything hung on the window goes with it. */
+  let release = () => {}
+  let measured = ''
+  const onResize = debounce(() => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    /* the hero's height is in the key because a card is sized against
+       it; laying out does not change it, so this cannot answer itself */
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const box = hero ? hero.getBoundingClientRect() : null
+    const shape = box ? `${page}:${Math.round(box.left)}:${Math.round(box.width)}:${Math.round(box.height)}` : `${page}`
+    if (shape === measured) {
+      return
+    }
+    measured = shape
+    layout()
+    place(0, 0)
+  })
+
+  layout()
+  /* placed before the first paint: without this every card sits on the
+     stage's origin, stacked, until the first frame runs */
+  place(0, 0)
+  measured = (() => {
+    const page = document.documentElement.clientWidth || window.innerWidth
+    const box = hero ? hero.getBoundingClientRect() : null
+    return box ? `${page}:${Math.round(box.left)}:${Math.round(box.width)}:${Math.round(box.height)}` : `${page}`
+  })()
+  window.addEventListener('resize', onResize)
+  /* The sidebar and the content column settle after this runs, so the
+     first measurement can be of a page that is not finished. Watching the
+     hero catches that, and a sidebar that opens or closes later. */
+  const watcher = typeof ResizeObserver === 'function' && hero ? new ResizeObserver(onResize) : null
+  watcher?.observe(hero)
+
+  /* The seam. Both rows are already drawn one on top of the other, so
+     moving it only changes where each of them is cut — the previews
+     themselves do not move, which is what makes it read as one portal
+     showing a page's markdown on one side and the rendered page on
+     the other.
+
+     The handle is a sibling of the row rather than a child of it: the
+     row is decorative and hidden from screen readers, and a control
+     inside it would be focusable but unreachable. */
+  const splitter = hero && hero.querySelector('.dh-split')
+  const setSplit = (share) => {
+    const next = Math.min(DOCS_HERO.splitMax, Math.max(DOCS_HERO.splitMin, share))
+    hero.style.setProperty('--dh-split', String(Math.round(next * 1e4) / 1e4))
+    splitter.setAttribute('aria-valuenow', String(Math.round(next * 100)))
+  }
+  if (splitter && hero) {
+    setSplit(DOCS_HERO.split)
+    let holding = null
+    const share = (clientX) => {
+      const box = field.getBoundingClientRect()
+      return box.width ? (clientX - box.left) / box.width : DOCS_HERO.split
+    }
+    splitter.addEventListener('pointerdown', (event) => {
+      holding = event.pointerId
+      try {
+        splitter.setPointerCapture(event.pointerId)
+      } catch {
+        /* a pointer that has already gone */
+      }
+      splitter.classList.add('is-dragging')
+      /* otherwise the browser starts a text selection across the words
+         the handle is standing in front of */
+      event.preventDefault()
+    })
+    splitter.addEventListener('pointermove', (event) => {
+      if (holding === event.pointerId) {
+        setSplit(share(event.clientX))
+      }
+    })
+    const letGo = (event) => {
+      if (holding !== event.pointerId) {
+        return
+      }
+      try {
+        splitter.releasePointerCapture(event.pointerId)
+      } catch {
+        /* already released */
+      }
+      holding = null
+      splitter.classList.remove('is-dragging')
+    }
+    splitter.addEventListener('pointerup', letGo)
+    splitter.addEventListener('pointercancel', letGo)
+    /* A click on the row takes the seam to where it was clicked. The row
+       has no other click of its own — it is scrubbed by dragging — and a
+       seam that can only be dragged is a seam some readers cannot move
+       at all. */
+    let pressed = null
+    field.addEventListener('pointerdown', (event) => {
+      pressed = event.clientX
+    })
+    field.addEventListener('pointerup', (event) => {
+      if (pressed !== null && Math.abs(event.clientX - pressed) < 5) {
+        setSplit(share(event.clientX))
+      }
+      pressed = null
+    })
+    splitter.addEventListener('keydown', (event) => {
+      const by = event.shiftKey ? 0.1 : 0.02
+      const now = Number.parseFloat(getComputedStyle(hero).getPropertyValue('--dh-split')) || DOCS_HERO.split
+      const moves = {
+        ArrowLeft: now - by,
+        ArrowRight: now + by,
+        Home: DOCS_HERO.splitMin,
+        End: DOCS_HERO.splitMax,
+      }
+      if (event.key in moves) {
+        setSplit(moves[event.key])
+        event.preventDefault()
+      }
+    })
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    /* the row stays where layout() put it: the sites are the point, the
+       sliding is the flourish */
+    release = () => {
+      watcher?.disconnect()
+      window.removeEventListener('resize', onResize)
+    }
+    return
+  }
+
+  /* A pointer resting on the row stops it drifting, the way the customer
+     logo walls stop: moving content that started on its own has to be
+     stoppable. A drag still works, and so does the wheel. */
+  let resting = false
+  const hoverable = window.matchMedia('(hover: hover)')
+  field.addEventListener('pointerenter', (event) => {
+    resting = event.pointerType === 'mouse' && hoverable.matches
+  })
+  field.addEventListener('pointerleave', () => {
+    resting = false
+  })
+
+  let velocity = 0
+  const push = (amount) => {
+    velocity = Math.max(-DOCS_HERO.maxVelocity, Math.min(DOCS_HERO.maxVelocity, velocity + amount))
+  }
+
+  /* The wheel alone, as theirs does. Listening to scroll as well would
+     count a wheel twice on a page that can still scroll, and once on one
+     that cannot. The page scrolls as it always did: nothing is taken. */
+  const onWheel = (event) => push(DOCS_HERO.wheelGain * event.deltaY)
+  window.addEventListener('wheel', onWheel, { passive: true })
+
+  let drag = null
+  field.addEventListener('pointerdown', (event) => {
+    drag = { id: event.pointerId, last: event.clientX }
+    try {
+      field.setPointerCapture(event.pointerId)
+    } catch {
+      /* a pointer that has already gone */
+    }
+    field.classList.add('is-dragging')
+  })
+  field.addEventListener('pointermove', (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    push(-(DOCS_HERO.dragGain * (event.clientX - drag.last)))
+    drag.last = event.clientX
+  })
+  const endDrag = (event) => {
+    if (!drag || drag.id !== event.pointerId) {
+      return
+    }
+    try {
+      field.releasePointerCapture(event.pointerId)
+    } catch {
+      /* already released */
+    }
+    drag = null
+    field.classList.remove('is-dragging')
+  }
+  field.addEventListener('pointerup', endDrag)
+  field.addEventListener('pointercancel', endDrag)
+
+  /* The row runs only while it is on screen and the page is in front. A
+     background tab paints nothing, and a row that has scrolled away is
+     work nobody sees. */
+  let running = false
+  let inView = false
+  let previous = 0
+  /* The frame that has already been asked for, if there is one. A tab sent
+     to the background stops running its frame callbacks but keeps the last
+     one it was given, so a page that is left and come back to still has a
+     frame owed to it. Asking for another one on the way back would leave
+     two chains of frames driving the row, at twice the speed, and one more
+     chain for every visit after that. Holding the handle is how the other
+     animations on these pages stay at one. */
+  let frame = 0
+
+  const step = (now) => {
+    frame = 0
+    if (!running) {
+      return
+    }
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const elapsed = Math.min(64, now - previous) || DOCS_HERO_FRAME
+    previous = now
+    const steps = elapsed / DOCS_HERO_FRAME
+
+    velocity *= DOCS_HERO.friction ** steps
+    if (Math.abs(velocity) < 0.001) {
+      velocity = 0
+    }
+    /* their travel for one sixtieth of a second, which is also the bow;
+       taking it per sixtieth rather than per frame keeps a 120 Hz screen
+       showing the same slide as a 60 Hz one */
+    const drift = resting ? 0 : DOCS_HERO.drift
+    const bow = 0.005 * velocity * DOCS_HERO.wheelFactor * DOCS_HERO.wheelDirection * unit + drift
+    place(bow * steps, bow)
+    frame = requestAnimationFrame(step)
+  }
+
+  const sync = () => {
+    if (!field.isConnected) {
+      release()
+      return
+    }
+    const wanted = inView && !document.hidden
+    if (wanted === running) {
+      return
+    }
+    running = wanted
+    if (running) {
+      /* the time the tab spent away is not travel the row has to make up */
+      previous = performance.now()
+      if (!frame) {
+        frame = requestAnimationFrame(step)
+      }
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        inView = entry.isIntersecting
+      })
+      sync()
+    },
+    { threshold: 0 },
+  )
+  observer.observe(field)
+  document.addEventListener('visibilitychange', sync)
+  docsHeroSyncs.add(sync)
+  release = () => {
+    running = false
+    observer.disconnect()
+    watcher?.disconnect()
+    docsHeroSyncs.delete(sync)
+    window.removeEventListener('resize', onResize)
+    window.removeEventListener('wheel', onWheel)
+    document.removeEventListener('visibilitychange', sync)
+  }
+})
+
 initDraggableElements()
 initFooterAnimation()
 initGallery()
@@ -7026,12 +7779,17 @@ initTrustedWalls()
 initEnterpriseRing()
 initLandingHostStage()
 initEnterpriseSky()
+measureDocsHero()
+initDocsHero()
 
 const observer = new MutationObserver((records) => {
   if (!records.some((r) => r.addedNodes.length)) {
     return
   }
 
+  // the page that has just been replaced lets go of what it bound, before
+  // the initialisers below bind the one that replaced it
+  sweepLanding()
   initDraggableElements()
   initFooterAnimation()
   initGallery()
@@ -7053,6 +7811,9 @@ const observer = new MutationObserver((records) => {
   initEnterpriseRing()
   initLandingHostStage()
   initEnterpriseSky()
+  docsHeroSyncs.forEach((sync) => sync())
+  measureDocsHero()
+  initDocsHero()
 })
 
 observer.observe(document.documentElement || document.body, { childList: true, subtree: true })

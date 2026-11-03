@@ -6,8 +6,12 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
+
 import Message from './Message.vue'
 import MessageExamples from './MessageExamples.vue'
+
+vi.unmock('@/plugins/hooks/usePluginManager')
 
 const MESSAGE_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp'
 
@@ -39,7 +43,72 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 /** Expand this message's accordion so the body (description, schemas) renders. */
 const expanded = { [MESSAGE_ID]: true }
 
+vi.unmock('@/plugins/hooks/usePluginManager')
+
 describe('Message', () => {
+  it('renders plugin-only extensions without default selection', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ 'x-owner': 'team' }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Custom owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('x-owner:')
+  })
+
+  it('renders referenced trait extensions with overrides and null deletion', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        options: { showExtensions: ['x-array', 'x-own', 'x-null', 'x-removed', 'x-literal'] },
+        document: createDocument({
+          $ref: '#/components/example',
+          'x-own': 'ignored sibling',
+          '$ref-value': {
+            traits: [
+              {
+                $ref: '#/components/traits/common',
+                '$ref-value': {
+                  'x-array': [false, 0, null],
+                  'x-own': 'inherited',
+                  'x-removed': 'remove me',
+                  'x-literal': { $ref: 'literal-data' },
+                },
+              },
+            ],
+            'x-own': 'local-value',
+            'x-null': null,
+            'x-removed': null,
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('local-value')
+    expect(wrapper.text()).toContain('literal-data')
+    expect(wrapper.text()).toContain('x-null:null')
+    expect(wrapper.text()).toContain('false')
+    expect(wrapper.text()).not.toContain('ignored sibling')
+    expect(wrapper.text()).not.toContain('inherited')
+    expect(wrapper.text()).not.toContain('x-removed')
+  })
+
   it.each([
     { title: 'Event title', summary: 'Event summary', description: 'Event description', heading: 'Event title' },
     { title: 'Event title', summary: 'Event summary', description: undefined, heading: 'Event title' },
@@ -126,6 +195,39 @@ describe('Message', () => {
       })
       expect(wrapper.text()).not.toContain('Redundant tag')
     }
+  })
+
+  it('renders payload extension plugins without a supplied renderer', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          payload: {
+            type: 'object',
+            properties: { userId: { type: 'string', 'x-owner': 'message-team', 'x-hidden': 'hidden-team' } },
+          },
+        }),
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Plugin owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Plugin owner')
+    expect(wrapper.text()).not.toContain('message-team')
+    expect(wrapper.text()).not.toContain('hidden-team')
+    wrapper.unmount()
   })
 
   it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {

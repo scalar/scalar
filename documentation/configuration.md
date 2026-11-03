@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -379,6 +378,35 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 - `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
+- `allowedSecuritySchemes`: Optional array of scheme names to show in authentication choices and forms. Omit to show all schemes; `[]` hides all choices. When provided, generic authentication creation is hidden. An AND combination is hidden if any member is excluded. This is a visibility setting: it does not change credentials sent with requests, saved selections, or server authorization.
+
+Individual `sources` can override `authentication`. These overrides merge recursively with the shared authentication configuration; document values win and arrays replace shared arrays:
+
+```js
+Scalar.createApiReference('#app', {
+  authentication: {
+    securitySchemes: { Basic: { username: 'demo' } },
+  },
+  sources: [
+    {
+      url: '/public.json',
+      authentication: {
+        preferredSecurityScheme: 'OAuth',
+        allowedSecuritySchemes: ['OAuth'],
+      },
+    },
+    {
+      url: '/internal.json',
+      authentication: {
+        preferredSecurityScheme: 'Basic',
+        allowedSecuritySchemes: ['Basic'],
+      },
+    },
+  ],
+})
+```
+
+Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
 
 ### baseServerURL
 
@@ -598,7 +626,6 @@ By default response sections are closed in the operations. This flag will open t
 }
 ```
 
-
 ### maxVisibleRequestBodyProperties
 
 **Type:** `number`
@@ -687,7 +714,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
+Display selected OpenAPI extensions on Paths Object and Path Item values within each operation, as well as operations, parameters, response headers, and schema fields without writing a plugin. For AsyncAPI, selected extensions also appear on channels, operations, messages, servers, and replies. Trait extensions follow the existing merge rules, including null deletion. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js

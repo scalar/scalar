@@ -5,6 +5,20 @@ import { clojureCljhttp } from './clj_http'
 const REQUIRE = `(require '[clj-http.client :as client])`
 
 describe('clojureCljhttp', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])(
+    'preserves the root JSON value %j as a raw body',
+    (value) => {
+      const text = JSON.stringify(value)
+      const result = clojureCljhttp.generate({
+        url: 'https://example.com',
+        method: 'POST',
+        postData: { mimeType: 'application/json', text },
+      })
+      expect(result).toContain(`:body ${JSON.stringify(text)}`)
+      expect(result).not.toContain(':form-params')
+    },
+  )
+
   it('returns a basic request', () => {
     const result = clojureCljhttp.generate({
       url: 'https://example.com',

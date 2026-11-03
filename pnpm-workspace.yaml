@@ -144,7 +144,7 @@ allowBuilds:
 # pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
 overrides:
   '@types/node': catalog:*
-  fast-uri@3.1.2: 3.1.9
+  fast-uri@3.1.2: 4.2.3
   lodash: 4.18.1
   # Keep Mermaid's transitive Lodash ES dependency on the patched release.
   lodash-es: 4.18.1
@@ -177,8 +177,8 @@ minimumReleaseAgeExclude:
   - undici@7.30.1
   # Explicitly reviewed Undici 8 upgrade.
   - undici@8.12.3
-  # Renovate security update: fast-uri@3.1.9
-  - fast-uri@3.1.9
+  # Renovate security update: fast-uri@3.1.9 || 4.2.3
+  - fast-uri@3.1.9 || 4.2.3
   # Renovate security update: nuxt@4.6.3
   - nuxt@4.6.3
   # Renovate security update: pnpm@10.34.5

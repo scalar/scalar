@@ -5,15 +5,20 @@ import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { err, ok } from '@scalar/helpers/types/result'
 import { type ClientPlugin, executeHook } from '@scalar/oas-utils/helpers'
 import { AVAILABLE_CLIENTS } from '@scalar/types/snippetz'
+import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { type AuthMeta, type WorkspaceEventBus, createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { generateClientMutators } from '@scalar/workspace-store/mutators'
 import { type RequestPayload, buildRequest, requestFactory } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
+import ResponseBlock from '@/v2/blocks/response-block/ResponseBlock.vue'
 import { createMockEventBus } from '@/v2/helpers/test-utils'
 import type { ClientLayout } from '@/v2/types/layout'
 
@@ -1164,6 +1169,89 @@ describe('OperationBlock', () => {
     const rebuiltRequest = buildSafeBodyRequest('https://api.example.com/upload', { method: 'POST', body: formData })
     expect(await sha256Base64(rebuiltRequest)).not.toBe(hookHash)
   })
+
+  it.each([200, 600])(
+    'renders an open status %s stream while saving history and supports cancellation',
+    async (status) => {
+      const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')
+      vi.mocked(sendRequest).mockImplementationOnce(actual.sendRequest)
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'streaming',
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Streaming', version: '1.0.0' },
+          paths: { '/api/users': { get: { responses: {} } } },
+        },
+      })
+      const document = store.workspace.documents.streaming
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Expected an OpenAPI document')
+      }
+      const eventBus = createWorkspaceEventBus()
+      const saveHistory = vi.fn(generateClientMutators(store).doc('streaming').operation.addResponseToHistory)
+      eventBus.on('hooks:on:request:complete', saveHistory)
+      const controllers: ReadableStreamDefaultController<Uint8Array>[] = []
+      const cancel = vi.fn()
+      const stream = new ReadableStream<Uint8Array>({
+        start: (controller) => {
+          controllers.push(controller)
+        },
+        cancel,
+      })
+      const networkResponse = new Response(stream, { headers: { 'content-type': 'text/event-stream' } })
+      Object.defineProperty(networkResponse, 'status', { value: status })
+      const wrapper = mount(OperationBlock, {
+        props: {
+          ...createDefaultProps(),
+          document,
+          eventBus,
+          options: { customFetch: () => Promise.resolve(networkResponse) },
+        },
+        global: { stubs: { ResponseBlock } },
+      })
+
+      try {
+        await triggerExecute(wrapper)
+        // History must finish while the source stream is still open and has sent no chunks.
+        expect(saveHistory).toHaveBeenCalledOnce()
+        await saveHistory.mock.results[0]!.value
+        const history = store.history.getHistory('streaming', '/api/users', 'get')
+        expect(history?.length).toBe(1)
+        expect(history?.[0]?.response.status).toBe(status)
+        expect(history?.[0]?.response.content.text).toBe('')
+        expect(cancel).not.toHaveBeenCalled()
+
+        const viewer = wrapper.findComponent(ResponseBodyStreaming)
+        expect(viewer.exists()).toBe(true)
+        controllers[0]!.enqueue(new TextEncoder().encode('data: first\n\n'))
+        await flushPromises()
+        expect(viewer.text()).toContain('data: first')
+        expect(viewer.text()).toContain('Listening')
+        controllers[0]!.enqueue(new TextEncoder().encode('data: second\n\n'))
+        await flushPromises()
+        expect(viewer.text()).toContain('data: second')
+
+        const cancelButton = viewer.findAll('button').find((button) => button.text() === 'Cancel')
+        if (!cancelButton) {
+          throw new Error('Expected a stream cancellation button')
+        }
+        await cancelButton.trigger('click')
+        await flushPromises()
+        expect(cancel).toHaveBeenCalledOnce()
+        expect(stream.locked).toBe(false)
+        expect(viewer.text()).not.toContain('Listening')
+        expect(viewer.text()).toContain('data: first')
+        expect(viewer.text()).toContain('data: second')
+      } finally {
+        wrapper.unmount()
+        eventBus.off('hooks:on:request:complete', saveHistory)
+        if (!stream.locked) {
+          await stream.cancel()
+        }
+      }
+    },
+  )
 
   it('renders the intercepted response and persists tokens saved by response hooks', async () => {
     const actual = await vi.importActual<typeof import('./helpers/send-request')>('./helpers/send-request')

@@ -187,7 +187,11 @@ describe('resolve-route-parameters', () => {
     await store.addDocument({
       name: 'my-doc',
       document: getDocument({
-        paths: { '/users': { get: { summary: 'Get users' } }, '/posts': { get: { summary: 'Get posts' } } },
+        paths: {
+          'x-meta': { get: {} },
+          '/users': { get: { summary: 'Get users' } },
+          '/posts': { get: { summary: 'Get posts' } },
+        },
       }),
     })
     const ctx = { store, documentSlug: 'my-doc' }
@@ -208,6 +212,15 @@ describe('resolve-route-parameters', () => {
     const result = resolvePath(ctx, 'default')
 
     expect(result).toBeUndefined()
+  })
+
+  it('returns no default path for an extensions-only document', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'extensions',
+      document: { openapi: '3.0.4', info: { title: 'Extensions', version: '1' }, paths: { 'x-meta': { get: {} } } },
+    })
+    expect(resolvePath({ store, documentSlug: 'extensions' }, 'default')).toBeUndefined()
   })
 
   it('returns undefined when documentSlug is undefined', () => {

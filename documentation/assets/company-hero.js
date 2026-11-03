@@ -1343,61 +1343,87 @@
     // ---- sizing ----------------------------------------------------------
     // The paint layer is laid straight over the drawing, so a mark put on the
     // wall stays on the same brick at every width.
+    /** the box this canvas was last set up for */
+    let fitted = ''
+    /**
+     * Fit the layer to the drawing. Measures first and only then writes, so
+     * that a call which has nothing to do leaves the canvas alone: setting
+     * canvas.width wipes it, and the paint would be gone until the next
+     * render. Answers whether there is now a canvas waiting to be painted.
+     */
     const setSize = () => {
       const artBox = art.getBoundingClientRect()
       const wrapBox = layer.offsetParent?.getBoundingClientRect() ?? artBox
-      scale = artBox.width / ROOM.width
-      width = Math.max(1, Math.round(artBox.width))
-      height = Math.max(1, Math.round(artBox.height))
-      layer.style.left = `${Math.round(artBox.left - wrapBox.left)}px`
-      layer.style.top = `${Math.round(artBox.top - wrapBox.top)}px`
+      const box = {
+        width: Math.max(1, Math.round(artBox.width)),
+        height: Math.max(1, Math.round(artBox.height)),
+        left: Math.round(artBox.left - wrapBox.left),
+        top: Math.round(artBox.top - wrapBox.top),
+        // beyond 2x the grain is finer than anyone can see and the canvas is
+        // four times the memory
+        dpr: Math.min(window.devicePixelRatio || 1, 2),
+      }
+      // too small to be the room: the page is still laying itself out
+      if (box.width <= 80 || box.height <= 40) {
+        return false
+      }
+      const key = `${box.width}x${box.height}@${box.dpr}+${box.left}+${box.top}`
+      if (key === fitted) {
+        return false
+      }
+      fitted = key
+      scale = box.width / ROOM.width
+      width = box.width
+      height = box.height
+      dpr = box.dpr
+      layer.style.left = `${box.left}px`
+      layer.style.top = `${box.top}px`
       layer.style.width = `${width}px`
       layer.style.height = `${height}px`
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
       canvas.width = Math.round(width * dpr)
       canvas.height = Math.round(height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      return width > 80 && height > 40
-    }
-
-    let painted = false
-    const repaint = () => {
-      if (!setSize()) {
-        return false
-      }
-      render()
-      painted = true
       return true
     }
 
-    let settle = 0
-    window.addEventListener(
-      'resize',
-      () => {
-        clearTimeout(settle)
-        settle = setTimeout(repaint, 160)
-      },
-      { passive: true },
-    )
-
-    // The word and the tags are already on the walls when the page opens —
-    // one frame of grace first, so the room has settled at its real size.
-    requestAnimationFrame(() => {
-      if (!repaint()) {
-        const observer = new ResizeObserver(() => {
-          if (!painted && repaint()) {
-            observer.disconnect()
-          }
-        })
-        observer.observe(art)
+    const repaint = () => {
+      if (!setSize()) {
+        return
       }
-    })
+      render()
+    }
+
+    let settle = 0
+    const later = () => {
+      clearTimeout(settle)
+      settle = setTimeout(repaint, 160)
+    }
+
+    // The room is laid out by the page rather than by the window, so watch
+    // the drawing itself: it reaches its real size some time after this runs,
+    // and it changes size again at the narrow layout. Observing it also puts
+    // the word and the tags on the walls to begin with, because the first
+    // observation carries the size the drawing already has.
+    const watcher = new ResizeObserver(repaint)
+    watcher.observe(art)
+    // A taller hero moves the drawing without resizing it — in the wide
+    // layout it stands on the hero's bottom edge — which the observer above
+    // does not see.
+    window.addEventListener('resize', later, { passive: true })
+
+    // Everything this binding holds outside the element itself, so that
+    // rebinding to a replacement does not leave it running.
+    const release = () => {
+      clearTimeout(settle)
+      watcher.disconnect()
+      window.removeEventListener('resize', later)
+    }
 
     // ---- the reader's own can ---------------------------------------------
     // Only where there is a real pointer to hold it with: a drag on a touch
     // screen is how the page is scrolled.
     if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      return
+      return release
     }
     layer.classList.add('is-live')
 
@@ -1493,19 +1519,41 @@
       stop()
       nozzle.classList.remove('is-near')
     })
+
+    return release
   }
 
+  // The room this binds to does not stay put. The page server-renders it,
+  // then hydration throws the prose away and puts a fresh copy in its place,
+  // so a script that binds once at DOMContentLoaded is left holding a canvas
+  // that is no longer in the document — which is why the walls came up bare.
+  // Bind whatever is there now, the way landing.js does: the flag sits on
+  // the element, so a replacement arrives unbound and is painted again.
+  let release = null
   const init = () => {
     const layer = document.querySelector('[data-company-paint]')
     const art = document.querySelector('[data-company-room] .co-room-art')
-    if (layer && art) {
-      run(layer, art)
+    if (!layer || !art || layer.dataset.coPaintBound === 'true') {
+      return
     }
+    if (release) {
+      release()
+    }
+    layer.dataset.coPaintBound = 'true'
+    release = run(layer, art)
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true })
-  } else {
-    init()
+  let pending = 0
+  const soon = () => {
+    clearTimeout(pending)
+    pending = setTimeout(init, 60)
   }
+
+  init()
+  document.addEventListener('DOMContentLoaded', init, { once: true })
+  new MutationObserver((records) => {
+    if (records.some((record) => record.addedNodes.length)) {
+      soon()
+    }
+  }).observe(document.documentElement || document.body, { childList: true, subtree: true })
 })()

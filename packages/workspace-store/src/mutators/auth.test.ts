@@ -1145,6 +1145,22 @@ describe('updateSelectedScopes', () => {
 })
 
 describe('deleteSecurityScheme', () => {
+  it('leaves method-shaped Paths extensions unchanged', async () => {
+    const store = createWorkspaceStore()
+    const extension = { get: { security: [{ A: [] }] } }
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        components: { securitySchemes: { A: { type: 'http', scheme: 'bearer' } } },
+        paths: { 'x-metadata': extension, '/pets': { get: { security: [{ A: [] }] } } },
+      }),
+    })
+    deleteSecurityScheme(store, store.workspace.activeDocument!, { names: ['A'] })
+    const document = getActiveOpenApiDocument(store)
+    expect(document?.paths?.['x-metadata']).toStrictEqual(extension)
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'get'))?.security).toStrictEqual([])
+  })
+
   it('removes schemes from components, document selections, document security, and operations', async () => {
     const document = createDocument({
       components: {

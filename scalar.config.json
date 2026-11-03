@@ -1729,6 +1729,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -2198,6 +2201,12 @@
                         "type": "page",
                         "title": "Tables"
                       },
+                      "fields": {
+                        "description": "Document parameters, properties, and response values as labelled rows with the field, param field, and response field components.",
+                        "filepath": "documentation/guides/docs/components/fields.mdx",
+                        "type": "page",
+                        "title": "Fields"
+                      },
                       "steps": {
                         "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
@@ -2221,6 +2230,12 @@
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
+                      },
+                      "tooltips": {
+                        "description": "Attach a short explanation to a word or phrase in running text with the tooltip component.",
+                        "filepath": "documentation/guides/docs/components/tooltips.mdx",
+                        "type": "page",
+                        "title": "Tooltips"
                       },
                       "page-link": {
                         "description": "Link to other documentation pages with rich page-link previews.",
@@ -2264,6 +2279,14 @@
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
                       "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/agent-marks.js"
+                        },
+                        {
+                          "path": "documentation/assets/agent-hero.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2290,6 +2313,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },

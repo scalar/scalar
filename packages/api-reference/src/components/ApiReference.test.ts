@@ -1161,7 +1161,7 @@ describe('sidebar footer call to action', () => {
     expect(footerOf(wrapper)).toEqual({ generate: false, mcpRows: true, client: false })
   })
 
-  it('renders the API client button in server rendered output without touching window', async () => {
+  it('renders the client button while deferring browser-only footer controls', async () => {
     const app = createSSRApp({
       render: () => h(ApiReference, { configuration: { content: document } }),
     })
