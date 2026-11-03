@@ -148,9 +148,20 @@ const isOrAlternatives = computed(
         weight="bold" />
       <span v-if="!hideLabel">{{ label }}</span>
     </button>
-    <template #floating>
+    <!--
+      The floating slot itself is gated on isOpen, not just the panel inside
+      it. ScalarFloating always renders its floating wrapper when the slot is
+      provided, so gating only the panel left an empty 0px wrapper that
+      Floating UI positioned with that width; when the panel then grew to its
+      real width it briefly extended past the viewport (and past the badge's
+      right edge with bottom-end placement) until the next autoUpdate, adding
+      a horizontal scrollbar. Mounting the slot together with the panel lets
+      Floating UI measure the real content on its first positioning pass.
+    -->
+    <template
+      v-if="isOpen"
+      #floating>
       <div
-        v-if="isOpen"
         ref="panelRef"
         :aria-label="panelLabel"
         class="bg-b-1 dark:bg-b-1.5 inset-shadow-border relative flex flex-col rounded-xl p-0.75 shadow-md"
