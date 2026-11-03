@@ -1729,6 +1729,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
