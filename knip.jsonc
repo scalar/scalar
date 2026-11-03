@@ -485,6 +485,8 @@
       ]
     },
     "integrations/java": {
+      // Loaded by Spring resource handlers in the Java routing tests.
+      "entry": ["scalar-*/src/test/resources/static/**/*.js"],
       "ignoreDependencies": [
         "@scalar/api-reference", // build step copy standalone file from this package
         // Included for convenience.
