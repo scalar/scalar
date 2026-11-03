@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import Logo from '@/components/Logo.vue'
 import { URLS } from '@/consts/urls'
 import { useState } from '@/state/state'
@@ -9,7 +11,11 @@ const emit = defineEmits<{
   (e: 'uploadApi'): void
 }>()
 
-const { mode } = useState()
+const { uploadState } = useState()
+const showDisclaimer = computed(
+  () =>
+    !['awaiting-consent', 'cancelled'].includes(uploadState.value?.type ?? ''),
+)
 </script>
 
 <template>
@@ -20,12 +26,10 @@ const { mode } = useState()
       ref="promptFormField"
       @submit="emit('submit')"
       @uploadApi="emit('uploadApi')" />
-    <p class="disclaimerText">
-      <template v-if="mode === 'preview'">
-        To answer your questions, Agent Scalar needs to upload your API
-        description. Confirm the upload separately and agree to our
-      </template>
-      <template v-else>By messaging Agent Scalar you agree to our </template>
+    <p
+      v-if="showDisclaimer"
+      class="disclaimerText">
+      By messaging Agent Scalar you agree to our
       <a
         class="disclaimerLink"
         :href="URLS.TERMS_AND_CONDITIONS"

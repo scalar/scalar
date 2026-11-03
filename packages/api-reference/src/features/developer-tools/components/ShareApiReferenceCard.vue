@@ -119,6 +119,7 @@ const upload = async (): Promise<void> => {
     </div>
   </DeveloperToolsCard>
   <ShareDocumentConfirmation
+    :document="pendingDocument"
     :state="confirmation"
     @confirm="upload" />
 </template>

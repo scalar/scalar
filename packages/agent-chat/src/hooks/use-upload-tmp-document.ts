@@ -9,6 +9,7 @@ const SHOW_UPLOAD_SUCCESS_DELAY = 5_000 // 5 seconds
 export type UploadTmpDocumentState =
   | { type: 'error'; error: unknown }
   | { type: 'awaiting-consent' }
+  | { type: 'cancelled' }
   | { type: 'uploading' }
   | { type: 'processing' }
   | { type: 'loading' }
@@ -63,14 +64,13 @@ export function useUploadTmpDocument() {
         type: 'awaiting-consent',
       }
 
-      const accepted = await state.uploadConsent.request()
+      const accepted = await state.uploadConsent.request(document)
       if (controller.signal.aborted) {
         return
       }
       if (!accepted) {
         uploadState.value = {
-          type: 'error',
-          error: 'Upload cancelled. Review the upload to continue.',
+          type: 'cancelled',
         }
         return
       }

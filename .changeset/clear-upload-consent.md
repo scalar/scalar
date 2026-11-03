@@ -5,3 +5,5 @@
 ---
 
 Ask for explicit confirmation before uploading an API description for Ask AI or a temporary share link, explaining who can access it and when it expires. Saved terms acceptance no longer skips upload confirmation.
+
+Show document identity and link access clearly, use inline Ask AI consent before the composer, and treat cancellation as a neutral state with an option to reconsider.

@@ -90,6 +90,7 @@ async function generateTemporaryLink() {
     {{ translate('developerTools.temporaryLinkExpiration') }}
   </ApiReferenceToolbarBlurb>
   <ShareDocumentConfirmation
+    :document="pendingDocument"
     :state="confirmation"
     @confirm="generateTemporaryLink" />
 </template>

@@ -2,7 +2,6 @@
 import { provide, type Ref } from 'vue'
 
 import Chat from '@/Chat.vue'
-import UploadConsentDialog from '@/components/UploadConsentDialog.vue'
 import { createState, STATE_SYMBOL, type RegistryDocument } from '@/state/state'
 import { type ChatMode } from '@/types'
 
@@ -70,7 +69,6 @@ defineExpose<ChatExposed>({
 
 <template>
   <Chat @uploadApi="$emit('uploadApi')" />
-  <UploadConsentDialog />
 </template>
 
 <style scoped></style>

@@ -40,10 +40,12 @@ describe('use-upload-tmp-document', () => {
     )
 
     const cancelled = fixture.upload?.('{}', true)
-    expect(fixture.state?.uploadConsent.modal.open).toBe(true)
+    expect(fixture.state?.uploadState.value?.type).toBe('awaiting-consent')
+    expect(fixture.state?.uploadConsent.document.value).toBe('{}')
     expect(fetchMock).not.toHaveBeenCalled()
     fixture.state?.uploadConsent.respond(false)
     await cancelled
+    expect(fixture.state?.uploadState.value).toStrictEqual({ type: 'cancelled' })
     expect(fetchMock).not.toHaveBeenCalled()
 
     const accepted = fixture.upload?.('{}', true)

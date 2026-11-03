@@ -110,8 +110,8 @@ describe('App', () => {
         await wrapper.get('textarea').setValue('Explain this API')
         await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
         expect(chats).toStrictEqual([])
-        const retry = wrapper.findAll('button').find((button) => button.text() === 'Review upload')
-        expect(retry?.text()).toBe('Review upload')
+        const retry = wrapper.findAll('button').find((button) => button.text() === 'Try upload again')
+        expect(retry?.text()).toBe('Try upload again')
         await retry?.trigger('click')
         await flushPromises()
         expect(uploads).toStrictEqual([JSON.stringify({ document: content })])
@@ -145,7 +145,7 @@ describe('App', () => {
     ['openapi', 'full', true],
     ['asyncapi', 'full', true],
   ] as const)(
-    'uploads the current %s description once in %s mode with saved consent %s instead of restoring stale context',
+    'confirms the current %s description in %s mode with saved terms %s instead of restoring stale context',
     async (format, mode, savedConsent) => {
       if (savedConsent) {
         localStorage.setItem('scalar/agent-terms-accepted', 'true')
@@ -170,6 +170,10 @@ describe('App', () => {
       })
       await flushPromises()
       expect(requests.filter(({ url }) => url.includes('/upload/'))).toStrictEqual([])
+      expect(wrapper.find('[role=dialog]').exists()).toBe(false)
+      expect(wrapper.find('textarea').exists()).toBe(false)
+      expect(wrapper.text()).toContain('Current')
+      expect(wrapper.text()).toContain('Anyone with the link can access it.')
       await clickConfirmation('Upload and continue')
       expect(requests.filter(({ url }) => url.includes('/upload/'))).toStrictEqual([
         {
@@ -225,14 +229,39 @@ describe('App', () => {
     })
     await flushPromises()
     await clickConfirmation('Cancel')
-    await wrapper.get('textarea').setValue('Explain this API')
-    await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+    expect(wrapper.find('textarea').exists()).toBe(false)
     await flushPromises()
     expect(urls.some((url) => url.includes('/upload/') || url.endsWith('/chat'))).toBe(false)
-    expect(wrapper.text()).toContain('Upload cancelled.')
-    await clickConfirmation('Review upload')
-    expect(document.body.textContent).toContain('Upload this API description?')
+    expect(wrapper.text()).toContain('Your API description has not been uploaded')
+    expect(wrapper.find('[role=alert]').exists()).toBe(false)
+    await clickConfirmation('Upload API description')
+    expect(document.body.textContent).toContain('Upload API description to Ask AI?')
     expect(urls.some((url) => url.includes('/upload/'))).toBe(false)
+  })
+
+  it('requires both terms acceptance and upload confirmation for a first-time visitor', async () => {
+    const requests: string[] = []
+    vi.spyOn(globalThis, 'fetch').mockImplementation((url) => {
+      requests.push(String(url))
+      return Promise.resolve(new Response(JSON.stringify({ results: [] }), { status: 400 }))
+    })
+    const wrapper = mount(App, {
+      props: { ...props, getActiveDocumentJson: () => '{}' },
+      attachTo: document.body,
+    })
+    await flushPromises()
+    expect(wrapper.find('textarea').exists()).toBe(false)
+    await clickConfirmation('Upload and continue')
+    expect(requests.some((url) => url.includes('/upload/'))).toBe(false)
+    await wrapper.get('input[type=checkbox]').setValue(true)
+    expect(requests.some((url) => url.includes('/upload/'))).toBe(false)
+    expect(localStorage.getItem('scalar/agent-terms-accepted')).toBeNull()
+    await clickConfirmation('Upload and continue')
+    expect(localStorage.getItem('scalar/agent-terms-accepted')).toBe('true')
+    expect(requests.filter((url) => url.includes('/upload/'))).toStrictEqual([
+      'https://api.example.com/core/share/upload/apis?source=agent',
+    ])
+    expect(wrapper.find('textarea').exists()).toBe(true)
   })
 
   it('does not send a prefilled question before the user submits it', async () => {

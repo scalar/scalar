@@ -10,7 +10,7 @@ import {
   ScalarIconPlus,
   ScalarIconX,
 } from '@scalar/icons'
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
 import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
@@ -18,6 +18,7 @@ import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
 import SearchPopover from '@/components/SearchPopover.vue'
+import UploadConsent from '@/components/UploadConsent.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
@@ -105,13 +106,25 @@ const { pendingClientToolParts } = useChatPendingClientToolParts()
 const uploadTmpDoc = useUploadTmpDocument()
 
 const requestUpload = (): void => {
-  if (
-    state.getActiveDocumentJson &&
-    uploadTmpDoc.uploadState.value?.type === 'error'
-  ) {
-    void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
+  const document =
+    state.getActiveDocumentJson?.() ?? state.uploadConsent.document.value
+  if (document) {
+    void uploadTmpDoc.uploadTempDocument(document, true)
   }
 }
+
+const showUploadConsent = computed(() =>
+  ['awaiting-consent', 'cancelled'].includes(
+    uploadTmpDoc.uploadState.value?.type ?? '',
+  ),
+)
+
+watch(showUploadConsent, async (visible) => {
+  if (!visible) {
+    await nextTick()
+    focusPrompt()
+  }
+})
 
 function acceptTerms() {
   state.terms.accept()
@@ -158,16 +171,21 @@ const chatError = useChatError()
 </script>
 
 <template>
-  <div class="actionContainer">
+  <UploadConsent
+    v-if="showUploadConsent"
+    @retry="requestUpload" />
+  <div
+    v-else
+    class="actionContainer">
     <ScalarButton
       v-if="
         uploadTmpDoc.uploadState.value?.type === 'error' &&
-        state.getActiveDocumentJson
+        state.uploadConsent.document.value
       "
       class="m-2"
       variant="outlined"
       @click="requestUpload">
-      Review upload
+      Try upload again
     </ScalarButton>
     <UploadSection
       v-if="uploadTmpDoc.uploadState.value || isPending"

@@ -610,6 +610,8 @@ export type ApiReferenceTranslations = {
     uploadDocument: string
     confirmShareTitle?: string
     confirmShareDescription?: string
+    confirmShareAccess?: string
+    confirmShareWarning?: string
     cancelShare?: string
     confirmShare?: string
     temporaryLinkExpiration: string

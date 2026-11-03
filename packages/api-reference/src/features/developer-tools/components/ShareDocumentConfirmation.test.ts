@@ -49,17 +49,27 @@ describe('ShareDocumentConfirmation', () => {
       await clickButton('Share')
     }
     await clickButton('Upload Document')
-    expect(document.body.textContent).toContain('available to anyone with its share link')
+    expect(document.body.textContent).toContain('Anyone with the link can access it.')
+    expect(document.body.textContent).toContain('Private API')
     expect(fetchMock).not.toHaveBeenCalled()
     await clickButton('Cancel')
     expect(fetchMock).not.toHaveBeenCalled()
 
     await clickButton('Upload Document')
-    await clickButton('Upload and share')
+    const confirmedDocument = workspace.exportActiveDocument('json')
+    await workspace.addDocument({
+      name: 'other-api',
+      document: { openapi: '3.1.0', info: { title: 'Other API', version: '2' }, paths: {} },
+    })
+    workspace.update('x-scalar-active-document', 'other-api')
+    await flushPromises()
+    expect(new DOMWrapper(document.body).get('[role=dialog]').text()).toContain('Private API')
+    expect(new DOMWrapper(document.body).get('[role=dialog]').text()).not.toContain('Other API')
+    await clickButton('Upload and create link')
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith('https://api.example.com/core/share/upload/apis', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ document: workspace.exportActiveDocument('json') }),
+      body: JSON.stringify({ document: confirmedDocument }),
     })
   })
 })

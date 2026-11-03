@@ -1,24 +1,22 @@
-import { type ModalState, useModal } from '@scalar/components/modal'
-import { onScopeDispose } from 'vue'
+import { type Ref, onScopeDispose, ref } from 'vue'
 
 /** Confirm each upload separately so saved terms never authorize sharing another API. */
 export const useUploadConsent = (): {
-  modal: ModalState
-  request: () => Promise<boolean>
+  document: Ref<string>
+  request: (document: string) => Promise<boolean>
   respond: (accepted: boolean) => void
 } => {
-  const modal = useModal()
+  const document = ref('')
   const pending: { resolve?: (accepted: boolean) => void } = {}
 
   const respond = (accepted: boolean): void => {
     pending.resolve?.(accepted)
     pending.resolve = undefined
-    modal.hide()
   }
 
-  const request = (): Promise<boolean> => {
+  const request = (content: string): Promise<boolean> => {
     respond(false)
-    modal.show()
+    document.value = content
     return new Promise((resolve) => {
       pending.resolve = resolve
     })
@@ -26,5 +24,5 @@ export const useUploadConsent = (): {
 
   onScopeDispose(() => respond(false))
 
-  return { modal, request, respond }
+  return { document, request, respond }
 }
