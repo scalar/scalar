@@ -466,6 +466,42 @@ describe('sendRequest', () => {
     expect(result.response.status).toBe(404)
   })
 
+  /**
+   * Network stacks can return custom status codes outside the Fetch Response
+   * constructor range [200, 599]. We cannot build those with `new Response`, so
+   * the mock mirrors a network Response shape instead.
+   */
+  it.each([600, 601, 100, 999])('surfaces nonstandard status code %s with the response body', async (status) => {
+    const body = JSON.stringify({ code: status, message: 'custom business error' })
+    const headers = new Headers({ 'content-type': 'application/json' })
+    const arrayBuffer = new TextEncoder().encode(body).buffer
+
+    const mockResponse = {
+      status,
+      statusText: '',
+      headers,
+      ok: false,
+      url: MOCK_URL,
+      body: null,
+      clone: () => mockResponse,
+      arrayBuffer: async () => arrayBuffer,
+    } as unknown as Response
+
+    globalFetchSpy.mockResolvedValueOnce(mockResponse)
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, {}],
+    })
+
+    expect(error).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    expect(result.response.status).toBe(status)
+    expect(result.response.data).toBe(body)
+  })
+
   it('handles empty response body', async () => {
     const mockEmptyStream = new ReadableStream({
       start(controller) {

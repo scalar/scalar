@@ -51,6 +51,21 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
 /** HTTP status codes that should not include a response body */
 const NO_BODY_STATUS_CODES = [204, 205, 304]
 
+/**
+ * The Fetch `Response` constructor only accepts statuses in [200, 599].
+ * Network responses can still carry custom codes (for example 600/601), so we
+ * clamp when reconstructing a Response and keep the real status on ResponseInstance.
+ *
+ * @see https://fetch.spec.whatwg.org/#dom-response-response
+ */
+const toResponseConstructorStatus = (status: number): number => {
+  if (status >= 200 && status <= 599) {
+    return status
+  }
+
+  return 200
+}
+
 /** Custom fetch function signature compatible with the global fetch API */
 export type CustomFetch = typeof fetch
 
@@ -210,7 +225,7 @@ const buildStreamingResponse = ({
   originalResponse: Response
 }> => {
   const normalizedResponse = new Response(null, {
-    status: response.status,
+    status: toResponseConstructorStatus(response.status),
     statusText,
     headers: response.headers,
   })
@@ -291,7 +306,7 @@ const buildStandardResponse = async ({
    * ArrayBuffers can be reused to create new Response objects without additional memory.
    */
   const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
-    status: response.status,
+    status: toResponseConstructorStatus(response.status),
     statusText,
     headers: response.headers,
   })
