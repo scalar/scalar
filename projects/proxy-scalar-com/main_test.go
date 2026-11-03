@@ -995,3 +995,103 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 		}
 	}
 }
+
+func TestUntrustedContentHeaders(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	t.Run("Sandboxes a proxied SVG so its scripts cannot run on the proxy origin", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/svg+xml")
+			w.Write([]byte(`<svg xmlns="http://www.w3.org/2000/svg"><script>alert(document.domain)</script></svg>`))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url+"/evil.svg"), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Header().Values("Content-Security-Policy"); len(got) != 1 || got[0] != untrustedContentSecurityPolicy {
+			t.Errorf("Expected Content-Security-Policy %q, got %v", untrustedContentSecurityPolicy, got)
+		}
+		if got := w.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+			t.Errorf("Expected X-Content-Type-Options 'nosniff', got '%s'", got)
+		}
+		// The body itself is still proxied as-is, so the API client sees the real response
+		if got := w.Header().Get("Content-Type"); got != "image/svg+xml" {
+			t.Errorf("Expected Content-Type 'image/svg+xml', got '%s'", got)
+		}
+	})
+
+	t.Run("Sandboxes proxied HTML", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			w.Write([]byte(`<script>location = 'https://attacker.example'</script>`))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Header().Get("Content-Security-Policy"); got != untrustedContentSecurityPolicy {
+			t.Errorf("Expected Content-Security-Policy %q, got %q", untrustedContentSecurityPolicy, got)
+		}
+	})
+
+	t.Run("Keeps the upstream policy alongside the sandbox policy", func(t *testing.T) {
+		const upstreamPolicy = "default-src 'self'"
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Security-Policy", upstreamPolicy)
+			w.Header().Set("X-Content-Type-Options", "something-else")
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		got := w.Header().Values("Content-Security-Policy")
+		if len(got) != 2 || got[0] != upstreamPolicy || got[1] != untrustedContentSecurityPolicy {
+			t.Errorf("Expected both upstream and sandbox policies, got %v", got)
+		}
+		if got := w.Header().Values("X-Content-Type-Options"); len(got) != 1 || got[0] != "nosniff" {
+			t.Errorf("Expected a single X-Content-Type-Options 'nosniff', got %v", got)
+		}
+	})
+
+	t.Run("Sandboxes error responses from the target", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(`<script>alert(1)</script>`))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("Expected status code %d, got %d", http.StatusNotFound, w.Code)
+		}
+		if got := w.Header().Get("Content-Security-Policy"); got != untrustedContentSecurityPolicy {
+			t.Errorf("Expected Content-Security-Policy %q, got %q", untrustedContentSecurityPolicy, got)
+		}
+	})
+
+	t.Run("Does not sandbox the proxy's own landing page", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Header().Get("Content-Security-Policy"); got != "" {
+			t.Errorf("Expected no Content-Security-Policy on the landing page, got %q", got)
+		}
+	})
+}

@@ -545,6 +545,8 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
 
+	setUntrustedContentHeaders(w.Header())
+
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
 
@@ -568,6 +570,33 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	return nil
+}
+
+// untrustedContentSecurityPolicy keeps proxied documents inert when a browser
+// renders them. `sandbox` gives the document an opaque origin, disables scripts,
+// and blocks navigation and meta refresh. `default-src 'none'` stops it from
+// loading any subresources.
+const untrustedContentSecurityPolicy = "default-src 'none'; sandbox"
+
+// setUntrustedContentHeaders protects the proxy origin from proxied content.
+//
+// The proxy returns whatever the target URL responds with. Without these
+// headers, anyone could link to `/?scalar_url=https://attacker.example/evil.svg`
+// and the browser would render that SVG or HTML as a document on the proxy
+// origin, running its scripts there (XSS) or redirecting the victim elsewhere
+// (open redirect).
+//
+// Browsers ignore CSP on responses read through fetch(), so the API client
+// keeps working. The policy only applies when the response is rendered as a
+// document, for example after navigating to a proxy URL directly.
+//
+// The policy is added rather than set, so an upstream CSP stays visible to the
+// API client. Browsers enforce every CSP header, so the upstream policy can only
+// make the response more restrictive.
+func setUntrustedContentHeaders(header http.Header) {
+	header.Add("Content-Security-Policy", untrustedContentSecurityPolicy)
+	// Stop browsers from sniffing a mislabeled response into an active type
+	header.Set("X-Content-Type-Options", "nosniff")
 }
 
 // Handle preflight requests and ensures browsers can access the proxy regardless of where the request originates from.
