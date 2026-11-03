@@ -2276,6 +2276,14 @@
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
                       "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/agent-marks.js"
+                        },
+                        {
+                          "path": "documentation/assets/agent-hero.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2302,6 +2310,9 @@
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
