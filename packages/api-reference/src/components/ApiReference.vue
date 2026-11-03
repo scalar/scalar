@@ -1032,6 +1032,7 @@ const addDocument = async (
   if (result === true && isOpenApiDocument(document)) {
     // Configured servers have been applied synchronously by useConfiguredServers. Resolve
     // relative URLs before comparing them with the selection retained from the previous load.
+    // Use this document's own URL because background preloads may target an inactive document.
     const servers = getServers(document.servers, {
       baseServerUrl: config.baseServerURL,
       documentUrl: document['x-scalar-original-source-url'],
@@ -1041,6 +1042,7 @@ const addDocument = async (
     // An empty string is intentional deselection. A removed server is not: select the first
     // available server so live document edits do not leave the reference and requests blank.
     if (
+      servers.length > 0 &&
       selectedServerUrl !== '' &&
       !servers.some((server) => server.url === selectedServerUrl)
     ) {
