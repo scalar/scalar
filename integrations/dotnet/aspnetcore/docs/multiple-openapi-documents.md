@@ -161,6 +161,8 @@ app.MapScalarApiReference(options => options
         .WithAllowedSecuritySchemes("Basic")));
 ```
 
+The same `configureDocument` callback is available on `AddAsyncApiDocument` for AsyncAPI documents.
+
 Define the corresponding security schemes in each API description. The public document displays OAuth with the shared client ID. The internal document displays Basic with its document-specific username.
 
 Document authentication settings merge recursively with global defaults. Document values win, and arrays (including preferred schemes and allowed schemes) replace global arrays. Documents without overrides inherit the global configuration. You can also set `Authentication` directly on a `ScalarDocument` passed to `AddDocuments`.

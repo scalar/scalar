@@ -787,10 +787,26 @@ public static partial class ScalarOptionsExtensions
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
     /// </remarks>
-    public static TOptions AddAsyncApiDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null) where TOptions : ScalarOptions
+    public static TOptions AddAsyncApiDocument<TOptions>(this TOptions options, string documentName, string? title, string? routePattern, bool isDefault, string? agentKey) where TOptions : ScalarOptions
+    {
+        // Keep the original signature for already compiled consumers. Optional arguments live on the configurable overload.
+        return options.AddAsyncApiDocument(documentName, title, routePattern, isDefault, agentKey, configureDocument: null);
+    }
+
+    /// <summary>Adds an AsyncAPI document with authentication overrides merged over the global configuration.</summary>
+    /// <param name="options">The reference options.</param>
+    /// <param name="documentName">The document name.</param>
+    /// <param name="title">Optional display title.</param>
+    /// <param name="routePattern">Optional route to the API description.</param>
+    /// <param name="isDefault">Whether to select this document initially.</param>
+    /// <param name="agentKey">Optional Agent Scalar key for this document.</param>
+    /// <param name="configureDocument">Configures authentication for this document. Use a named argument to preserve positional title calls.</param>
+    public static TOptions AddAsyncApiDocument<TOptions>(this TOptions options, string documentName, string? title = null, string? routePattern = null, bool isDefault = false, string? agentKey = null, Action<ScalarDocument>? configureDocument = null) where TOptions : ScalarOptions
     {
         var agent = agentKey is null ? null : new ScalarAgentOptions { Key = agentKey };
-        options.Documents.Add(new ScalarDocument(documentName, title, routePattern, isDefault, agent, DocumentType.AsyncApi));
+        var document = new ScalarDocument(documentName, title, routePattern, isDefault, agent, DocumentType.AsyncApi);
+        configureDocument?.Invoke(document);
+        options.Documents.Add(document);
         return options;
     }
 

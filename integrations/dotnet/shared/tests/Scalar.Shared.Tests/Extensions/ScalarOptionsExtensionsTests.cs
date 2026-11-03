@@ -59,6 +59,50 @@ public class ScalarOptionsExtensionsTests
     }
 
     [Fact]
+    public void AddAsyncApiDocument_ConfiguresAuthenticationWithoutMutatingGlobalOptions()
+    {
+        var options = new ScalarOptions().AddPreferredSecuritySchemes("Global");
+        var result = options.AddAsyncApiDocument("events", title: "Events", routePattern: "/events.yaml", isDefault: true, agentKey: "agent-key",
+            configureDocument: document => document
+                .AddPreferredSecuritySchemes("Basic")
+                .AddHttpAuthentication("Basic", auth => auth.Username = "demo")
+                .WithAllowedSecuritySchemes("Basic"));
+
+        result.Should().BeSameAs(options);
+        options.Authentication!.PreferredSecuritySchemes.Should().Equal("Global");
+        options.Authentication.SecuritySchemes.Should().BeNull();
+        var document = options.Documents.Single();
+        document.Name.Should().Be("events");
+        document.Title.Should().Be("Events");
+        document.RoutePattern.Should().Be("/events.yaml");
+        document.IsDefault.Should().BeTrue();
+        document.Agent!.Key.Should().Be("agent-key");
+        document.DocumentType.Should().Be(DocumentType.AsyncApi);
+        document.Authentication!.PreferredSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.AllowedSecuritySchemes.Should().Equal("Basic");
+        document.Authentication.SecuritySchemes!["Basic"].Should().BeOfType<ScalarHttpSecurityScheme>()
+            .Which.Username.Should().Be("demo");
+    }
+
+    [Fact]
+    public void AddAsyncApiDocument_PreservesOriginalSignatureAndNullTitleCalls()
+    {
+        var options = new ScalarOptions();
+        options.AddAsyncApiDocument("events", null);
+        options.AddAsyncApiDocument("legacy", "Legacy", "/legacy.yaml", true, "agent-key");
+
+        options.Documents[0].Title.Should().BeNull();
+        options.Documents[0].Authentication.Should().BeNull();
+        var document = options.Documents[1];
+        document.Title.Should().Be("Legacy");
+        document.RoutePattern.Should().Be("/legacy.yaml");
+        document.IsDefault.Should().BeTrue();
+        document.Agent!.Key.Should().Be("agent-key");
+        document.DocumentType.Should().Be(DocumentType.AsyncApi);
+        document.Authentication.Should().BeNull();
+    }
+
+    [Fact]
     public void AddAsyncApiDocument_ShouldUseDefaultAsyncApiRoutePattern()
     {
         // Arrange

@@ -168,6 +168,7 @@ export const getSecuritySchemeOptions = (
       security.filter(isAllowed),
       Object.fromEntries(Object.entries(securitySchemes).filter(([name]) => allowedSecuritySchemes.includes(name))),
       selectedSchemes.filter(isAllowed),
+      // Generic creation cannot guarantee that the new scheme belongs to the allowlist.
       false,
       labels,
     )

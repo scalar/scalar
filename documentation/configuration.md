@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -409,7 +408,6 @@ Scalar.createApiReference('#app', {
 
 Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
 
-
 ### baseServerURL
 
 **Type:** `string`
@@ -627,7 +625,6 @@ By default response sections are closed in the operations. This flag will open t
   expandAllResponses: true
 }
 ```
-
 
 ### maxVisibleRequestBodyProperties
 

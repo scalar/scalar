@@ -27,7 +27,6 @@ public sealed class ScalarAuthenticationOptions
         set => PreferredSecuritySchemes = value is null ? null : [value];
     }
 
-
     /// <summary>
     /// Gets or sets the preferred security schemes.
     /// </summary>
@@ -47,7 +46,6 @@ public sealed class ScalarAuthenticationOptions
 
     /// <summary>Scheme names visible in the authentication UI. Null shows all schemes; an empty list hides all choices. This does not change request authentication.</summary>
     public IList<string>? AllowedSecuritySchemes { get; set; }
-
 
 #if !SCALAR_ASPIRE && !SCALAR_SERVERLESS
     /// <summary>
