@@ -41,6 +41,7 @@ import OperationReply from './OperationReply.vue'
 type OperationOptions = AsyncApiSchemaRenderOptions
 
 const {
+  specificationExtension = SpecificationExtension,
   operation,
   document,
   eventBus,

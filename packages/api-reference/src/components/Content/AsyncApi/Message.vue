@@ -42,6 +42,7 @@ import SchemaSource from './SchemaSource.vue'
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
 
 const {
+  specificationExtension = SpecificationExtension,
   message,
   document,
   eventBus,

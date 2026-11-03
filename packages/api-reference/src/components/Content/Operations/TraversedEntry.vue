@@ -29,8 +29,10 @@ import { Tag } from '@/components/Content/Tags'
 import Lazy from '@/components/Lazy/Lazy.vue'
 import { SectionContainer } from '@/components/Section'
 import { Operation } from '@/features/Operation'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 const {
+  specificationExtension = SpecificationExtension,
   level = 0,
   clientOptions,
   document,

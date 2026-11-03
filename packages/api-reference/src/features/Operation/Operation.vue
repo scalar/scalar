@@ -73,6 +73,7 @@ import type {
 import { computed } from 'vue'
 
 import { filterSelectedSecurity } from '@/features/Operation/helpers/filter-selected-security'
+import { SpecificationExtension } from '@/features/specification-extension'
 
 import {
   getRequiredSecurity,
@@ -82,6 +83,7 @@ import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
+  specificationExtension = SpecificationExtension,
   authStore,
   clientOptions,
   document,
