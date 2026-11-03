@@ -94,6 +94,10 @@ export const sendRequest = async ({
     response: ResponseInstance
     requestPayload: RequestPayload
     timestamp: number
+    /**
+     * Completion-hook response. Buffered responses retain their body; streaming responses
+     * expose a cloneable, bodyless metadata snapshot so history never waits for the stream.
+     */
     originalResponse: Response
   }>
 > => {
@@ -181,7 +185,10 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
- * Completion hooks and history need response metadata without retaining the live stream.
+ * Completion hooks clone this snapshot and history reads it independently of the viewer.
+ * Only the viewer owns the live body: teeing it with Response.clone() would buffer unread
+ * chunks on the history branch and can grow without bound for an endless response.
+ * A null body lets history finish immediately, even before the first stream chunk arrives.
  * Set status separately because the Response constructor rejects nonstandard status codes.
  * Clones must preserve that status too, instead of reverting to the constructor default.
  */
