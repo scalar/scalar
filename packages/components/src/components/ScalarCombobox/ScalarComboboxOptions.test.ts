@@ -64,24 +64,16 @@ const extendedGroups = [
 ] as const satisfies ExtendedGroup[]
 
 describe('ScalarComboboxOptions', () => {
-  it('cancels the selected-option scroll when unmounted', () => {
-    vi.useFakeTimers()
-    try {
-      const wrapper = mount(ScalarComboboxOptions, {
-        props: { options: singleOptions, modelValue: [singleOptions[0]] },
-      })
-      wrapper.unmount()
+  it('does not look up the selected option after unmounting', async ({ onTestFinished }) => {
+    const wrapper = mount(ScalarComboboxOptions, {
+      props: { options: singleOptions, modelValue: [singleOptions[0]] },
+    })
+    wrapper.unmount()
 
-      const lookup = vi.spyOn(document, 'getElementById')
-      try {
-        vi.runAllTimers()
-        expect(lookup).not.toHaveBeenCalled()
-      } finally {
-        lookup.mockRestore()
-      }
-    } finally {
-      vi.useRealTimers()
-    }
+    const lookup = vi.spyOn(document, 'getElementById')
+    onTestFinished(() => lookup.mockRestore())
+    await nextTick()
+    expect(lookup).not.toHaveBeenCalled()
   })
 
   describe('with single options', () => {
@@ -229,22 +221,20 @@ describe('ScalarComboboxOptions', () => {
       expect(filteredOptions[0]?.text()).toBe('Option 3')
     })
 
-    it('focuses the input when component is mounted', ({ onTestFinished }) => {
-      vi.useFakeTimers()
+    it('focuses the input without scrolling when component is mounted', async ({ onTestFinished }) => {
+      const focus = vi.spyOn(HTMLInputElement.prototype, 'focus')
+      onTestFinished(() => focus.mockRestore())
 
       const wrapper = mount(ScalarComboboxOptions, {
         props: { options: singleOptions },
         attachTo: document.body,
       })
 
-      vi.runAllTimers()
+      await nextTick()
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
-
-      onTestFinished(() => {
-        vi.useRealTimers()
-      })
+      expect(focus).toHaveBeenCalledWith({ preventScroll: true })
     })
   })
 

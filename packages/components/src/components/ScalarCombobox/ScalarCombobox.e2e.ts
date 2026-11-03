@@ -1,4 +1,4 @@
-import { test } from '@test/helpers'
+import { expect, test } from '@test/helpers'
 
 test.describe('ScalarCombobox', () => {
   // Single select
@@ -55,3 +55,47 @@ test.describe('ScalarCombobox', () => {
     })
   })
 })
+
+for (const story of ['Delayed Positioning', 'Delayed Multiselect']) {
+  test.describe(`ScalarCombobox ${story}`, () => {
+    test.use({ component: 'ScalarCombobox', story })
+
+    test('preserves outer scrolling while opening and navigating before positioning', async ({ page }) => {
+      const outer = page.getByLabel('Outer scroller')
+      await outer.evaluate((element) => {
+        element.scrollTop = 550
+      })
+      await page.evaluate(() => window.scrollTo(0, 9900))
+      const initialScroll = await page.evaluate(() => window.scrollY)
+      const outerScroll = await outer.evaluate((element) => element.scrollTop)
+
+      await page.getByRole('button', { name: /Choose option/ }).click()
+      const search = page.getByRole('combobox')
+      await expect(search).toBeFocused()
+      await expect(page.getByRole('status')).toHaveText('Waiting for positioning')
+      expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll)
+      expect(await outer.evaluate((element) => element.scrollTop)).toBe(outerScroll)
+
+      await search.press('ArrowDown')
+      await expect(search).toHaveAttribute('aria-activedescendant', /-26$/)
+      await search.press('ArrowUp')
+      await expect(search).toHaveAttribute('aria-activedescendant', /-25$/)
+      expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll)
+
+      await page.evaluate(() => document.dispatchEvent(new Event('position-picker')))
+      await expect(page.getByRole('status')).toHaveText('Positioned')
+      await expect(page.getByRole('option', { name: 'Option 25', exact: true })).toBeInViewport()
+      await expect(search).toBeFocused()
+      expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll)
+      expect(await outer.evaluate((element) => element.scrollTop)).toBe(outerScroll)
+
+      // Scrolling the list remains possible after it is positioned.
+      for (let index = 0; index < 14; index++) {
+        await search.press('ArrowDown')
+      }
+      await expect(page.getByRole('option', { name: 'Option 39', exact: true })).toBeInViewport()
+      expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll)
+      expect(await outer.evaluate((element) => element.scrollTop)).toBe(outerScroll)
+    })
+  })
+}

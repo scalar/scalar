@@ -84,8 +84,6 @@ describe('ScalarCombobox', () => {
     })
 
     it('focuses the input when combobox is opened', async () => {
-      vi.useFakeTimers()
-
       const wrapper = mount(ScalarCombobox, {
         props: { options: singleOptions },
         slots: { default: '<button>Toggle</button>' },
@@ -93,13 +91,11 @@ describe('ScalarCombobox', () => {
       })
 
       await wrapper.find('button').trigger('click')
-      // We use a time out to focus the input
-      await vi.runAllTimers()
+      await nextTick()
 
       const input = wrapper.find('input[type="text"]')
       expect(input.element).toBe(document.activeElement)
 
-      vi.useRealTimers()
     })
 
     it('closes combobox when tabbing out of the input', async ({ onTestFinished }) => {
