@@ -21,6 +21,7 @@ import YAML from 'yaml'
 
 import { type AuthStore, createAuthStore } from '@/entities/auth'
 import { type HistoryStore, createHistoryStore } from '@/entities/history'
+import type { OperationMeta } from '@/events/definitions/operation'
 import { asyncApiModelChunkReference } from '@/helpers/asyncapi-model-chunk-reference'
 import { chunkReference, expandChunkIndex } from '@/helpers/chunk-index'
 import { deepClone } from '@/helpers/deep-clone'
@@ -34,6 +35,7 @@ import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
+import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -55,6 +57,7 @@ import type { TraversedDocument } from '@/schemas/navigation'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
 import { generateSchema } from '@/schemas/v3.2/openapi'
 import { recursiveRef } from '@/schemas/v3.2/openapi/reference'
+import type { RequestBodyObject } from '@/schemas/v3.2/strict/openapi-document'
 import {
   OpenAPIDocumentSchema as OpenAPIDocumentSchemaStrict,
   type OpenAPIExtensions,
@@ -122,6 +125,8 @@ export type FileDoc = {
 export type ObjectDoc = {
   /** The OpenAPI document object containing the API specification */
   document: Record<string, unknown>
+  /** Base URI for relative references in an in-memory document. */
+  documentSource?: string
 } & WorkspaceDocumentMetaInput
 
 /**
@@ -199,7 +204,7 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('path' in input) {
     return input.path
   }
-  return undefined
+  return 'document' in input ? input.documentSource : undefined
 }
 
 /**
@@ -429,6 +434,15 @@ export type WorkspaceStore = {
    * @returns The original version of the document, or undefined if the document does not exist.
    */
   getOriginalDocument(documentName: string): Record<string, unknown> | null
+  /**
+   * Read the loaded or last-saved authored examples for a single request body.
+   *
+   * Workspace exports include resolved baselines, but IndexedDB persistence does not store them.
+   * After an IndexedDB reload (or loading an older export), the first reset rebuilds the baseline
+   * from the original document in a temporary store. This can refetch external references and
+   * does not reapply configured overrides, so the restored values can differ from the loaded defaults.
+   */
+  getOriginalRequestBody(documentName: string, operation: OperationMeta): Promise<RequestBodyObject | undefined>
   /**
    * Returns the intermediate version of the specified document.
    *
@@ -849,9 +863,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }),
       )
 
-  /**
-   * The plain document snapshot maps, before the detect changes proxy is applied.
-   */
+  /** Resolved authored payloads remain available even when their remote sources go offline. */
+  const requestBodyBaselines: Record<string, RequestBodyBaselines> = {}
+
+  /** The plain document snapshot maps, before the detect changes proxy is applied. */
   const documentSnapshots: Pick<InMemoryWorkspace, 'originalDocuments' | 'intermediateDocuments' | 'overrides'> = {
     /**
      * Holds the original, unmodified documents as they were initially loaded into the workspace.
@@ -1038,6 +1053,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // get a deep clone each so subsequent mutations on either one stay
     // isolated.
     originalDocuments[documentName] = newDocument
+    requestBodyBaselines[documentName] = withMeasurementSync('snapshotRequestBodies', () =>
+      snapshotRequestBodies(activeDocument),
+    )
     intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
     activeDocument['x-scalar-is-dirty'] = false
@@ -1222,6 +1240,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
       : magicDocument
+    const baselineDocument = workspace.documents[name]
+    requestBodyBaselines[name] = withMeasurementSync('snapshotRequestBodies', () =>
+      snapshotRequestBodies(baselineDocument),
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1538,6 +1560,33 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     getEditableDocument,
     getOriginalDocument,
+    async getOriginalRequestBody(documentName, { path, method }) {
+      // IndexedDB hydration and older workspace exports have no resolved payload snapshots.
+      // Recover saved examples once; this may refetch references and does not reapply overrides.
+      if (!Object.hasOwn(requestBodyBaselines, documentName)) {
+        const original = getOriginalDocument(documentName)
+        if (!original) {
+          return undefined
+        }
+        const baselineStore = createWorkspaceStore({
+          fetch: workspaceProps?.fetch,
+          fileLoader: workspaceProps?.fileLoader,
+        })
+        const loaded = await baselineStore.addDocument({
+          name: documentName,
+          document: original,
+          documentSource: workspace.documents[documentName]?.['x-scalar-original-source-url'],
+          fetch: extraDocumentConfigurations[documentName]?.fetch,
+        })
+        if (!loaded) {
+          return undefined
+        }
+        requestBodyBaselines[documentName] = withMeasurementSync('snapshotRequestBodies', () =>
+          snapshotRequestBodies(baselineStore.workspace.documents[documentName]!),
+        )
+      }
+      return requestBodyBaselines[documentName]?.[path]?.[method]
+    },
     getIntermediateDocument,
     updateDocument<K extends keyof DocumentMetaExtensions>(
       name: 'active' | (string & {}),
@@ -1664,6 +1713,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       delete workspace.documents[documentName]
 
       // Clean up all associated data structures
+      delete requestBodyBaselines[documentName]
       delete originalDocuments[documentName]
       delete intermediateDocuments[documentName]
       delete overrides[documentName]
@@ -1741,6 +1791,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         originalDocuments: unpackProxyObject(originalDocuments),
         intermediateDocuments: unpackProxyObject(intermediateDocuments),
         overrides: unpackProxyObject(overrides),
+        ...(Object.values(requestBodyBaselines).some((baseline) => Object.keys(baseline).length > 0)
+          ? { requestBodyBaselines: deepClone(requestBodyBaselines) }
+          : {}),
         history: history.export(),
         auth: auth.export(),
       } satisfies InMemoryWorkspace
@@ -1776,6 +1829,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       safeAssign(originalDocuments, input.originalDocuments)
       safeAssign(intermediateDocuments, input.intermediateDocuments)
       safeAssign(overrides, input.overrides)
+      safeAssign(requestBodyBaselines, deepClone(input.requestBodyBaselines ?? {}))
       safeAssign(workspace, input.meta)
       history.load(input.history)
       auth.load(input.auth)

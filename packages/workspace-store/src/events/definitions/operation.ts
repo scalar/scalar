@@ -256,6 +256,15 @@ export type OperationEvents = {
   //------------------------------------------------------------------------------------------------
   // Operation Request Body Mutators
   //------------------------------------------------------------------------------------------------
+  /** Restore only the selected body from its saved example, or generate it from the schema. */
+  'operation:reset:requestBody': {
+    documentName: string
+    meta: OperationExampleMeta
+    contentType: string
+    requestBodyCompositionSelection?: Record<string, number>
+    openapiVersion?: string
+  }
+
   /**
    * Update the selected request-body content type for the current example key.
    * Triggers when the user selects a new content type for the request body in the UI.

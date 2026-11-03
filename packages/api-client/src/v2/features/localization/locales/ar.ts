@@ -95,6 +95,8 @@ export const ar = {
     'openAPIClient': 'فتح عميل API',
   },
   'requestBody': {
+    'restoreOriginalBody': 'استعادة المحتوى الأصلي',
+    'createExampleFromSchema': 'إنشاء مثال من المخطط',
     'noBody': 'بدون جسم',
     'delete': 'حذف',
     'selectFile': 'اختيار ملف',

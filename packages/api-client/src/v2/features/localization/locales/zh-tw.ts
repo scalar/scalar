@@ -95,6 +95,8 @@ export const zhTw = {
     'openAPIClient': '開啟 API 用戶端',
   },
   'requestBody': {
+    'restoreOriginalBody': '還原原始請求主體',
+    'createExampleFromSchema': '根據結構描述建立範例',
     'noBody': '無請求主體',
     'delete': '刪除',
     'selectFile': '選擇檔案',

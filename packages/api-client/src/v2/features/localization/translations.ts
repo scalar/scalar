@@ -95,6 +95,8 @@ export const en = {
     openAPIClient: 'Open API Client',
   },
   requestBody: {
+    restoreOriginalBody: 'Restore original body',
+    createExampleFromSchema: 'Create example from schema',
     noBody: 'No Body',
     delete: 'Delete',
     selectFile: 'Select File',

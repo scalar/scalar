@@ -91,6 +91,8 @@ export type ApiClientTranslations = {
     openAPIClient: string
   }
   requestBody: {
+    restoreOriginalBody: string
+    createExampleFromSchema: string
     noBody: string
     delete: string
     selectFile: string
