@@ -1,6 +1,6 @@
 # How to migrate from Mintlify to Scalar
 
-*Last updated: November 2026*
+*Last updated: September 2026*
 
 Moving from Mintlify to Scalar means translating one config file, renaming a handful of MDX components, and pointing your OpenAPI document at a new route. Your Markdown stays Markdown, your OpenAPI document stays as it is, and most teams spend their time on the component pass rather than anything structural.
 
@@ -150,7 +150,7 @@ Validate the result with `npx @scalar/cli project check-config`. [Navigation](/p
 </scalar-step>
 <scalar-step title="Rename Mintlify components">
 
-This is the part to budget time for. Scalar Docs supports [MDX](/products/docs/content/mdx), and several Mintlify names already work in Scalar's MDX as aliases: `<Accordion>` renders as a [Detail](/products/docs/components/details), `<Columns>` and `<CardGroup>` render as a [Row](/products/docs/components/row), `<ParamField>` and `<ResponseField>` render as a [Field](/products/docs/components/fields), and `<Tooltip>` is a [Tooltip](/products/docs/components/tooltips). The rest need a find and replace.
+This is the part to budget time for. Scalar Docs supports [MDX](/products/docs/content/mdx), and several Mintlify names already work in Scalar's MDX as aliases: `<Accordion>` renders as a [Detail](/products/docs/components/details), and `<Columns>` and `<CardGroup>` render as a [Row](/products/docs/components/row). The rest need a find and replace.
 
 | Mintlify component | Scalar component | What to change |
 | --- | --- | --- |
@@ -166,19 +166,18 @@ This is the part to budget time for. Scalar Docs supports [MDX](/products/docs/c
 | `<CodeGroup>` | `<Tabs>` with a code block in each `<Tab>` | |
 | `<Accordion>`, `<AccordionGroup>`, `<Expandable>` | [`<Detail>`](/products/docs/components/details) | `<Accordion>` works as is; drop the group wrapper |
 | `<Frame>` | [`<Image>`](/products/docs/components/images) | Use `caption` for the frame caption |
-| `<Icon>` | [`<Icon>`](/products/docs/components/icons) | `icon` and `iconType` work as is, and common Font Awesome and Lucide names resolve onto Scalar's Phosphor and Simple Icons sets |
-| `<ParamField>`, `<ResponseField>` | [`<ParamField>`, `<ResponseField>`](/products/docs/components/fields) | Work as is, `query`, `path`, `body`, and `header` props included |
-| `<Tooltip>` | [`<Tooltip>`](/products/docs/components/tooltips) | Works as is, `headline`, `cta`, and `href` included |
+| `<Icon>` | [`<Icon>`](/products/docs/components/icons) | Scalar uses Phosphor and Simple Icons keys, so check each name |
+| `<ParamField>`, `<ResponseField>` | No direct equivalent | Document parameters in OpenAPI and let the reference render them |
 | `<RequestExample>`, `<ResponseExample>` | No direct equivalent | Use `x-codeSamples` and response `examples` in OpenAPI |
 | `<Mermaid>` | No equivalent today | Render the diagram to SVG and use `<Image>` |
-| `<Badge>`, `<Banner>`, `<Tree>`, `<Color>`, `<Update>`, `<Prompt>`, `<View>` | No equivalent today | Rewrite as prose, a table, or a callout |
+| `<Tooltip>`, `<Badge>`, `<Banner>`, `<Tree>`, `<Color>`, `<Update>`, `<Prompt>`, `<View>` | No equivalent today | Rewrite as prose, a table, or a callout |
 
-The Mintlify column comes from its [components overview](https://www.mintlify.com/docs/components) and [callouts page](https://www.mintlify.com/docs/components/callouts) as of September 2026. Custom React components you wrote for Mintlify will not carry across as they are. Scalar MDX supports JSX, expressions, and importing other MDX files, and you can add site-wide [HTML, CSS, and JavaScript](/products/docs/content/html-css-js), so most of them can be rebuilt, but plan for it. Anything you keep in `snippets/` is available in every MDX page without an import, the way Mintlify's snippets are — see [Project snippets](/products/docs/content/mdx#project-snippets).
+The Mintlify column comes from its [components overview](https://www.mintlify.com/docs/components) and [callouts page](https://www.mintlify.com/docs/components/callouts) as of September 2026. Custom React components you wrote for Mintlify will not carry across as they are. Scalar MDX supports JSX, expressions, and importing other MDX files, and you can add site-wide [HTML, CSS, and JavaScript](/products/docs/content/html-css-js), so most of them can be rebuilt, but plan for it.
 
 A quick way to size the job:
 
 ```bash
-grep -rhoE "<(Note|Info|Tip|Check|Warning|Danger|CodeGroup|Frame|RequestExample|ResponseExample|Mermaid|Badge|Banner|Tree|Update)[ />]" --include="*.mdx" . | sort | uniq -c | sort -rn
+grep -rhoE "<(Note|Info|Tip|Check|Warning|Danger|CodeGroup|Frame|ParamField|ResponseField|RequestExample|ResponseExample|Mermaid|Tooltip|Badge|Banner|Tree|Update)[ />]" --include="*.mdx" . | sort | uniq -c | sort -rn
 ```
 
 </scalar-step>
@@ -278,7 +277,7 @@ Be clear about these before you start, so none of them turns up as a surprise ha
 
 - **Localization.** Mintlify supports [30+ locales](https://www.mintlify.com/docs/guides/internationalization) with per-language navigation. Scalar Docs has no equivalent. If you publish in several languages, this may be a reason to stay.
 - **Mintlify's web editor.** Scalar has its own editor, but content written through Mintlify's editor is just MDX in Git, so nothing is lost; your writers will need to learn a new tool.
-- **Components without a Scalar equivalent.** See the table in step 3. Most of the ones that remain are cosmetic and can be rewritten as prose, a table, or a callout. Parameter, response, and tooltip components are no longer among them.
+- **Components without a Scalar equivalent.** See the table in step 3. Most are cosmetic, but `<ParamField>`-heavy pages need rethinking rather than renaming.
 - **Built-in analytics integrations.** You add scripts yourself.
 - **Seat pricing.** Mintlify Pro includes [unlimited editor seats](https://www.mintlify.com/pricing). Scalar Pro includes 5, and Business 10. For a large writing team, compare the numbers before you move.
 
@@ -293,7 +292,7 @@ Not today. The translation is manual, but it is mechanical: tabs become `navigat
 </scalar-detail>
 
 <scalar-detail title="Will my Mintlify MDX work in Scalar?">
-Most of it. Plain Markdown and MDX render as they are, and `<Card>`, `<Steps>`, `<Tabs>`, `<Accordion>`, `<Columns>`, `<CardGroup>`, `<ParamField>`, `<ResponseField>`, and `<Tooltip>` work directly. Callouts such as `<Note>` and `<Warning>` need renaming to `<Callout type="...">`, and a few Mintlify components have no Scalar equivalent.
+Most of it. Plain Markdown and MDX render as they are, and `<Card>`, `<Steps>`, `<Tabs>`, `<Accordion>`, `<Columns>`, and `<CardGroup>` work directly. Callouts such as `<Note>` and `<Warning>` need renaming to `<Callout type="...">`, and a few Mintlify components have no Scalar equivalent.
 </scalar-detail>
 
 <scalar-detail title="Do I need to change my OpenAPI document?">

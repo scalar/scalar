@@ -2,7 +2,7 @@ import Preview from './Preview.mdx'
 
 # Icons
 
-Icons render scalable vector graphics from the built-in [Phosphor](https://phosphoricons.com/) and [Simple Icons](https://simpleicons.org/) libraries, or from a direct URL. Common [Font Awesome and Lucide names](#font-awesome-and-lucide-names) resolve onto the built-in sets as well, so content written for another tool renders as it is.
+Icons render scalable vector graphics from the built-in [Phosphor](https://phosphoricons.com/) and [Simple Icons](https://simpleicons.org/) libraries, or from a direct URL.
 
 ## Built-in Icons
 
@@ -17,100 +17,6 @@ Scalar bundles two icon libraries you can reference by key — no hosting requir
   <Button title="Browse Simple Icons" href="https://simpleicons.org" icon="phosphor/regular/magnifying-glass" />
 </Row>
 
-## Font Awesome and Lucide Names
-
-Content written for other documentation tools usually names icons the way [Font Awesome](https://fontawesome.com/) or [Lucide](https://lucide.dev/) does. Those names resolve through a set of compatibility aliases that map them onto the Phosphor and Simple Icons equivalents Scalar ships, so pages written for Mintlify render without a find and replace.
-
-| Written as | Resolves to |
-| ---------- | ----------- |
-| `circle-check` (Font Awesome) | `phosphor/regular/check-circle` |
-| `zap` (Lucide) | `phosphor/regular/lightning` |
-| `github` (bare brand name) | `simple/github` |
-
-The alias set covers around 125 of the most common names across those three groups. It is a curated list rather than a complete mapping of either library, so a name outside it does not resolve — see [Unrecognized names](#unrecognized-names).
-
-Matching ignores case, and a leading `fa-` comes off first, so `Circle-Check` and `fa-circle-check` resolve the same way as `circle-check`.
-
-### Weights with iconType
-
-`iconType` names a Font Awesome style, which Scalar reads as a Phosphor weight.
-
-| `iconType` | Phosphor weight |
-| ---------- | --------------- |
-| `solid`, `sharp`, `sharp-solid` | `fill` |
-| `regular` | `regular` |
-| `light` | `light` |
-| `thin` | `thin` |
-| `duotone` | `duotone` |
-
-A weight only applies to a bare name. A prefixed key, a path, or a URL already names the file it wants, so `iconType` is ignored there — `src="phosphor/bold/rocket" iconType="solid"` stays bold. A word outside the table is ignored as well. Markdown lowercases attribute names, so write it as `icon-type` in `.md` files.
-
-Brand icons come from Simple Icons, which ships one weight, so a weight on a brand name has no effect.
-
-<Preview>
-  <div className="flex gap-1">
-    <Icon icon="bolt" iconType="solid" size="24px" />
-    <Icon icon="circle-check" iconType="regular" size="24px" />
-    <Icon icon="settings" size="24px" />
-    <Icon icon="github" size="24px" />
-  </div>
-</Preview>
-
-<CodeGroup>
-```md Markdown
-<scalar-icon icon="bolt" icon-type="solid" size="24px"></scalar-icon>
-<scalar-icon icon="circle-check" icon-type="regular" size="24px"></scalar-icon>
-<scalar-icon icon="settings" size="24px"></scalar-icon>
-<scalar-icon icon="github" size="24px"></scalar-icon>
-```
-```mdx MDX
-<Icon icon="bolt" iconType="solid" size="24px" />
-<Icon icon="circle-check" iconType="regular" size="24px" />
-<Icon icon="settings" size="24px" />
-<Icon icon="github" size="24px" />
-```
-</CodeGroup>
-
-### Font Awesome Class Strings
-
-A whole Font Awesome class string works as the name.
-
-<Preview>
-  <Icon icon="fa-solid fa-rocket" size="24px" />
-</Preview>
-
-<CodeGroup>
-```md Markdown
-<scalar-icon icon="fa-solid fa-rocket" size="24px"></scalar-icon>
-```
-```mdx MDX
-<Icon icon="fa-solid fa-rocket" size="24px" />
-```
-</CodeGroup>
-
-The `fa-` prefix comes off each class, and the style class sets the weight: `fa-solid` and the rest of the `iconType` words, plus Font Awesome 5's one-word prefixes `fas`, `far`, `fal`, `fat`, and `fad`. The family prefixes `fa` and `fab` are recognized but set no weight, so `fab fa-github` still resolves to the GitHub logo. Modifier classes are skipped — sizes such as `fa-2x` and `fa-lg`, `fa-fw`, lists, borders, pulls, animations such as `fa-spin` and `fa-beat`, rotations, and stacking or layering. Classes of your own ride along harmlessly, because the icon is the first class that resolves.
-
-Two edges are worth knowing:
-
-- A string with nothing but a style and modifiers has no name in it, so it resolves to no icon. `fa-solid fa-fw` renders nothing.
-- A lone word is always read as a name, even one that spells a style or a modifier. `fa-stack` on its own is the Phosphor `stack` icon.
-
-### Built-in Keys Win
-
-Resolution tries the built-in libraries first and the aliases last, so an alias can only ever fill a miss. A name that is a real Phosphor or Simple Icons key always resolves to that icon, and no alias shadows one.
-
-Simple Icons keys always carry their `simple/` prefix, so a bare brand name such as `github` cannot collide with one.
-
-### Unrecognized Names
-
-A name that matches neither a built-in key nor an alias renders no icon. On MDX pages the build reports it, naming the page and suggesting the closest built-in key when one is close enough:
-
-```text
-pages/quickstart.mdx — [scalar-icon] Unknown icon "phosphor/regular/rockett". Did you mean "phosphor/regular/rocket"? Rendering no icon.
-```
-
-A `src` that looks like a path or a URL is treated as an image rather than a key, so only a value meant as an icon name is reported this way.
-
 ## Custom Icons
 
 For anything outside the built-in libraries, pass a direct URL to `src`.
@@ -123,13 +29,9 @@ Other image formats (PNG, JPG, and so on) render as a standard `<img>` and canno
 
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
-| `src` | `string` | _required_ | Phosphor key, Simple Icons key, [Font Awesome or Lucide name](#font-awesome-and-lucide-names), or full URL to an SVG/image. |
-| `icon` | `string` | — | Alternative spelling of `src`, for Mintlify compatibility. Used only when `src` is absent. |
-| `iconType` | `string` | — | Font Awesome style word applied to a bare name: `solid`, `sharp`, `sharp-solid`, `regular`, `light`, `thin`, or `duotone`. Written `icon-type` in Markdown. |
+| `src` | `string` | _required_ | Phosphor key, Simple Icons key, or full URL to an SVG/image. |
 | `title` | `string` | — | Accessible label read by screen readers. |
 | `size` | `string` | — | CSS size for both width and height (e.g. `16px`, `1.5em`, `2rem`). |
-
-Set either `src` or `icon`. When both are present, `src` wins.
 
 ## Examples
 
