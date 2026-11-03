@@ -1,4 +1,3 @@
-import { languages, registerLanguage } from '@scalar/highlight/all'
 import { toHast } from '@scalar/highlight/compat'
 import type { Element, Root } from 'hast'
 import { toText } from 'hast-util-to-text'
@@ -7,14 +6,15 @@ import type { VFile } from 'vfile'
 
 import { guessLanguage } from './guess-language'
 
-/**
- * Registers every bundled grammar once, when this module loads.
- *
- * A bare `import '@scalar/highlight/all'` would register them too, but a
- * side-effect-only import of an external package is what a library build is
- * allowed to drop. A named import keeps a binding the bundler can see used.
- */
-registerLanguage(...languages)
+declare module 'vfile' {
+  interface DataMap {
+    /**
+     * Languages of the code blocks that rendered as plain text because no
+     * grammar was registered for them, in highlight.js vocabulary.
+     */
+    missingLanguages: string[]
+  }
+}
 
 type HighlightOptions = {
   /** Extra class name(s) to add to highlighted `<code>` elements (optional) */
@@ -32,6 +32,11 @@ type HighlightOptions = {
  * highlight.js scored every grammar and nearly always picked one, often the
  * wrong one, so an unlabeled block rendering uncoloured is the more honest
  * default.
+ *
+ * Only registered grammars highlight. This plugin registers none itself, so a
+ * page downloads just the grammars its code blocks use: a block whose grammar
+ * is missing renders as plain text and its language lands in
+ * `file.data.missingLanguages`, for the caller to load and render again.
  */
 export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | undefined) {
   const extraClassNames = typeof options?.className === 'string' ? [options.className] : (options?.className ?? [])
@@ -81,6 +86,11 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
         const children = toHast(code, target)
 
         if (children === null) {
+          file.data.missingLanguages ??= []
+          if (!file.data.missingLanguages.includes(target)) {
+            file.data.missingLanguages.push(target)
+          }
+
           file.message(`Cannot highlight as \`${target}\`, it's not registered`, {
             ancestors: [parent, node],
             place: node.position,
