@@ -38,6 +38,7 @@ import {
   ScalarSidebarSection,
 } from '@scalar/components/sidebar'
 import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
+import { isObjectEqual } from '@scalar/helpers/object/is-object-equal'
 import { toJsonCompatible } from '@scalar/helpers/object/to-json-compatible'
 import { slugify } from '@scalar/helpers/string/slugify'
 import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
@@ -561,15 +562,44 @@ const serializedState =
     : undefined
 
 if (serializedState) {
-  const state = JSON.parse(serializedState) as {
-    slug: string
-    reference: ReturnType<typeof workspaceStore.exportWorkspace>
-    client: ReturnType<typeof clientStore.exportWorkspace>
+  try {
+    const state = JSON.parse(serializedState) as {
+      slug: string
+      reference: Omit<
+        ReturnType<typeof workspaceStore.exportWorkspace>,
+        'intermediateDocuments' | 'auth' | 'history'
+      >
+      client: Pick<
+        ReturnType<typeof clientStore.exportWorkspace>,
+        'documents' | 'meta'
+      >
+    }
+    const reference = {
+      ...state.reference,
+      intermediateDocuments: safeDeepClone(state.reference.originalDocuments),
+      auth: {},
+      history: {},
+    }
+    // Client edits must never mutate the reference or its download snapshot.
+    const documents = safeDeepClone(reference.documents)
+    for (const [name, changes] of Object.entries(state.client.documents)) {
+      Object.assign(documents[name]!, changes)
+    }
+    workspaceStore.loadWorkspace(reference)
+    clientStore.loadWorkspace({
+      documents,
+      meta: state.client.meta,
+      originalDocuments: {},
+      intermediateDocuments: {},
+      overrides: {},
+      auth: {},
+      history: {},
+    })
+    activeSlug.value = state.slug
+    hydrationState.value = serializedState
+  } catch {
+    // A damaged inline payload must not prevent the normal client load.
   }
-  activeSlug.value = state.slug
-  workspaceStore.loadWorkspace(state.reference)
-  clientStore.loadWorkspace(state.client)
-  hydrationState.value = serializedState
 }
 
 useDocumentEnvironment(workspaceStore)
@@ -1427,19 +1457,43 @@ onServerPrefetch(async () => {
   await changeSelectedDocument(activeSlug.value)
   const reference = workspaceStore.exportWorkspace()
   const client = clientStore.exportWorkspace()
-  // Keep document snapshots for downloads and editing, but never embed auth or request history.
+  // Retain the original for downloads. The intermediate snapshot is identical after preload,
+  // and the client only needs fields that differ from the rendered reference document.
   hydrationState.value = escapeJsonForInlineScript(
     JSON.stringify({
       slug: activeSlug.value,
-      reference: { ...reference, auth: {}, history: {} },
-      client: { ...client, auth: {}, history: {} },
+      reference: {
+        documents: reference.documents,
+        originalDocuments: reference.originalDocuments,
+        overrides: reference.overrides,
+        meta: reference.meta,
+      },
+      client: {
+        meta: client.meta,
+        documents: Object.fromEntries(
+          Object.entries(client.documents).map(([name, document]) => {
+            const referenceFields = new Map(
+              Object.entries(reference.documents[name] ?? {}),
+            )
+            return [
+              name,
+              Object.fromEntries(
+                Object.entries(document).filter(
+                  ([key, value]) =>
+                    !isObjectEqual(value, referenceFields.get(key)),
+                ),
+              ),
+            ]
+          }),
+        ),
+      },
     }),
   )
 })
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
-  if (serializedState) {
+  if (hydrationState.value) {
     // Hydrate the server's document first, then honor the document selected by the browser URL.
     await nextTick()
     activeSlug.value = requestedSlug
@@ -1509,6 +1563,7 @@ const documentUrl = computed(() => {
 const isMounted = ref(false)
 const isLocalhost = ref(false)
 onMounted(() => {
+  hydrationState.value = undefined
   isMounted.value = true
   isLocalhost.value = isLocalUrl(window.location.href)
 })
@@ -2212,6 +2267,7 @@ const sidebarCta = computed((): SidebarCta => {
 
 <template>
   <div v-bind="shellAttrs">
+    <!-- Keep a single root with no leading comment: hydration detection reads vnode.el. -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
       :is="'script'"
@@ -2390,7 +2446,7 @@ const sidebarCta = computed((): SidebarCta => {
                 <!-- We default the sidebar footer to the standard scalar elements -->
                 <ScalarSidebarFooter class="darklight-reference">
                   <OpenApiClientButton
-                    v-if="isMounted && sidebarCta === 'client'"
+                    v-if="sidebarCta === 'client'"
                     buttonSource="sidebar"
                     :integration="mergedConfig._integration"
                     :isDevelopment="isDevelopment"

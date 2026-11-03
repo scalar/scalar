@@ -51,6 +51,7 @@ describe('html-api hydration', () => {
       await nextTick()
       expect(element.querySelector('h1')).toBe(heading)
       expect(element.textContent).toContain('Say hello')
+      expect(element.querySelector('script[data-scalar-hydration]')).toBeNull()
       const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
         .flat()
         .map(String)
@@ -89,6 +90,22 @@ describe('html-api hydration', () => {
     }
   })
 
+  it('loads normally when the embedded state contains invalid JSON', async () => {
+    const config = { content: { openapi: '3.1.0', info: { title: 'Recovered API', version: '1.0.0' }, paths: {} } }
+    const element = document.createElement('div')
+    element.innerHTML = await renderToString(createSSRApp(ApiReference, { configuration: config }))
+    element.querySelector('script[data-scalar-hydration]')!.textContent = '{invalid'
+    document.body.append(element)
+    const reference = createApiReference(element, config)
+    try {
+      await flushPromises()
+      await nextTick()
+      expect(element.querySelector('h1')?.textContent).toContain('Recovered API')
+    } finally {
+      reference.destroy()
+    }
+  })
+
   it('escapes embedded document state without changing the description', async () => {
     const title = '</script><script id="injected">alert(1)</script>&'
     const config = apiReferenceConfigurationWithSourceSchema({
@@ -102,7 +119,10 @@ describe('html-api hydration', () => {
     expect(element.querySelector('#injected')).toBeNull()
     const parsed = JSON.parse(state!)
     expect(parsed.reference.documents['api-1'].info.title).toBe(title)
-    expect(parsed.reference.auth).toStrictEqual({})
-    expect(parsed.client.auth).toStrictEqual({})
+    expect(parsed.reference.auth).toBeUndefined()
+    expect(parsed.client.auth).toBeUndefined()
+    expect(parsed.reference.intermediateDocuments).toBeUndefined()
+    expect(parsed.client.documents['api-1'].info).toBeUndefined()
+    expect(parsed.reference.originalDocuments['api-1'].info.title).toBe(title)
   })
 })
