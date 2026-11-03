@@ -17,7 +17,7 @@ export default {}
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
-import { computed, onMounted, ref, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
 
 import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
 
@@ -141,6 +141,7 @@ const getInitialActive = (): Option | undefined => {
 }
 
 const activeRef = ref<Option | undefined>(getInitialActive())
+let scrollTimeout: ReturnType<typeof setTimeout> | undefined
 
 // Clear the query on open and close
 onMounted(() => {
@@ -153,7 +154,7 @@ onMounted(() => {
   // Scroll to the selected option
   const selected = model.value[0]
   if (selected) {
-    setTimeout(() => {
+    scrollTimeout = setTimeout(() => {
       const value = model.value[0]
       if (!value) {
         return
@@ -165,6 +166,8 @@ onMounted(() => {
     }, 10)
   }
 })
+
+onBeforeUnmount(() => clearTimeout(scrollTimeout))
 
 /**
  * Whether the query changed since the options last updated. Async results arrive after the

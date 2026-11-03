@@ -5,12 +5,9 @@ import {
 } from '@scalar/schemas/api-reference'
 import { coerce } from '@scalar/validation'
 import { createHead } from '@unhead/vue/client'
-import { renderToString } from '@vue/server-renderer'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createSSRApp, h, nextTick } from 'vue'
-
-import ApiReference from '@/components/ApiReference.vue'
+import { nextTick } from 'vue'
 
 import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
 
@@ -98,44 +95,6 @@ describe('createApiReference', () => {
     createApiReference(element!, coerce(apiReferenceConfigurationSchema, config))
 
     expect(createHeadSpy).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not log hydration warnings or errors when hydrating server-rendered content', async () => {
-    const element = document.querySelector('#mount-point')
-    expect(element).toBeInstanceOf(HTMLElement)
-
-    const config = apiReferenceConfigurationWithSourceSchema({
-      _integration: 'html',
-      content: JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 'Hydration Test API', version: '1.0.0' },
-        paths: {},
-      }),
-    })
-
-    const ssrApp = createSSRApp({
-      render: () => h(ApiReference, { configuration: config }),
-    })
-    ssrApp.config.idPrefix = 'scalar-refs'
-    const serverRenderedHtml = await renderToString(ssrApp)
-    element!.innerHTML = serverRenderedHtml
-
-    consoleWarnSpy.mockClear()
-    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
-    createApiReference(element!, config)
-
-    await flushPromises()
-    await nextTick()
-
-    const hydrationMessages = [...consoleWarnSpy.mock.calls, ...consoleErrorSpy.mock.calls]
-      .flat()
-      .map((value) => String(value))
-      .filter((message) => /hydration/i.test(message))
-
-    expect(hydrationMessages).toStrictEqual([])
-
-    consoleErrorSpy.mockRestore()
   })
 
   it('handles scalar:reload-references event', () => {

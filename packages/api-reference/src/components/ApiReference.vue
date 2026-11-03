@@ -79,6 +79,7 @@ import { useMediaQuery, useScrollLock } from '@vueuse/core'
 import {
   computed,
   defineAsyncComponent,
+  getCurrentInstance,
   nextTick,
   onBeforeMount,
   onBeforeUnmount,
@@ -124,6 +125,10 @@ import { getSystemModePreference } from '@/helpers/color-mode'
 import { downloadDocument } from '@/helpers/download'
 import { getDownloadFilename } from '@/helpers/get-download-filename'
 import { hasDocumentChanges } from '@/helpers/has-document-changes'
+import {
+  parseHydrationState,
+  serializeHydrationState,
+} from '@/helpers/hydration-state'
 import {
   getIdFromUrl,
   makeHrefFromId,
@@ -547,6 +552,28 @@ const clientStore = createWorkspaceStore({
     }),
   ],
 })
+
+/** Keep the first browser render identical to the preloaded server render. */
+const hydrationState = ref<string>()
+const requestedSlug = activeSlug.value
+const hydrationElement = getCurrentInstance()?.vnode.el
+const serializedState =
+  typeof Element !== 'undefined' && hydrationElement instanceof Element
+    ? hydrationElement.querySelector(':scope > script[data-scalar-hydration]')
+        ?.textContent
+    : undefined
+
+if (serializedState) {
+  try {
+    const state = parseHydrationState(serializedState)
+    workspaceStore.loadWorkspace(state.reference)
+    clientStore.loadWorkspace(state.client)
+    activeSlug.value = state.slug
+    hydrationState.value = serializedState
+  } catch {
+    // A damaged inline payload must not prevent the normal client load.
+  }
+}
 
 useDocumentEnvironment(workspaceStore)
 useDocumentEnvironment(clientStore)
@@ -1403,10 +1430,23 @@ watch(
 )
 
 /** Preload the first document during SSR */
-onServerPrefetch(() => changeSelectedDocument(activeSlug.value))
+onServerPrefetch(async () => {
+  await changeSelectedDocument(activeSlug.value)
+  hydrationState.value = serializeHydrationState({
+    slug: activeSlug.value,
+    reference: workspaceStore.exportWorkspace(),
+    client: clientStore.exportWorkspace(),
+  })
+})
 
 /** Load the first document on page load */
 onBeforeMount(async () => {
+  if (hydrationState.value) {
+    // Hydrate the server's document first, then honor the document selected by the browser URL.
+    await nextTick()
+    activeSlug.value = requestedSlug
+  }
+
   // We read the client from the client store so we need to set it to the client store
   loadClientFromStorage(clientStore)
 
@@ -1467,6 +1507,15 @@ const documentUrl = computed(() => {
 // --------------------------------------------------------------------------- */
 // Agent Scalar
 
+/** Browser-only controls must stay hidden until hydration finishes. */
+const isMounted = ref(false)
+const isLocalhost = ref(false)
+onMounted(() => {
+  hydrationState.value = undefined
+  isMounted.value = true
+  isLocalhost.value = isLocalUrl(window.location.href)
+})
+
 /**
  * Determines if Agent Scalar should be enabled based on the configuration and the current URL
  *
@@ -1482,7 +1531,7 @@ const agent = useAgent({
       return false
     }
 
-    if (typeof window !== 'undefined' && isLocalUrl(window.location.href)) {
+    if (isLocalhost.value) {
       return true
     }
 
@@ -1501,6 +1550,7 @@ provide(AGENT_CONTEXT_SYMBOL, agent)
  * installation instructions).
  */
 const generateSdk = useGenerateSdk({
+  enabled: computed(() => isLocalhost.value),
   disabled: () => mergedConfig.value.showDeveloperTools === 'never',
   hasDocument: () => isOpenApiDocument(workspaceStore.workspace.activeDocument),
   hasSdk: () => hasRenderableSdks(workspaceStore.workspace.activeDocument),
@@ -1859,16 +1909,6 @@ const bodyScrollLocked = useScrollLock(
 watch(agent.showAgent, () => (bodyScrollLocked.value = agent.showAgent.value))
 
 /**
- * Only the browser knows the host. Reading window inside a computed makes the server render one
- * footer and the client another (a hydration mismatch), so we resolve it after mount: SSR on
- * localhost shows the API client button for one frame, then swaps.
- */
-const isLocalhost = ref(false)
-onMounted(() => {
-  isLocalhost.value = isLocalUrl(window.location.href)
-})
-
-/**
  * Localhost only: the developer toolbar leaves the content column for a sticky bar above the whole
  * reference, and the reference renders as a bordered card on a tinted backdrop.
  *
@@ -2174,8 +2214,16 @@ const sidebarCta = computed((): SidebarCta => {
 </script>
 
 <template>
-  <!-- SingleApiReference -->
   <div v-bind="shellAttrs">
+    <!-- Keep a single root with no leading comment: hydration detection reads vnode.el. -->
+    <!-- eslint-disable vue/no-v-text-v-html-on-component -->
+    <component
+      :is="'script'"
+      v-if="hydrationState"
+      data-scalar-hydration
+      type="application/json"
+      v-html="hydrationState" />
+    <!-- eslint-enable vue/no-v-text-v-html-on-component -->
     <!-- Inject any custom CSS directly into a style tag -->
     <!-- eslint-disable vue/no-v-text-v-html-on-component -->
     <component
@@ -2438,7 +2486,9 @@ const sidebarCta = computed((): SidebarCta => {
             <div ref="documentStartRef" />
 
             <DeveloperTools
-              v-if="!isShell && workspaceStore.workspace.activeDocument"
+              v-if="
+                isMounted && !isShell && workspaceStore.workspace.activeDocument
+              "
               v-model:overrides="configurationOverrides"
               class="references-developer-tools"
               :configuration="mergedConfig"
