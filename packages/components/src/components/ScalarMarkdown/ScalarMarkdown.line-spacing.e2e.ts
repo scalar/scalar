@@ -16,7 +16,7 @@ test.describe('ScalarMarkdown', () => {
           style,
         })
         await page.addStyleTag({
-          content: `.scalar-app .markdown pre { ${rule} } .scalar-app .markdown pre code { font-size: 14px; }`,
+          content: `.scalar-app .markdown pre { ${rule} } .scalar-app .markdown { --scalar-small: 14px; }`,
         })
         await page.evaluate(() => document.fonts.ready)
 

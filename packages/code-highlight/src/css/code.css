@@ -1,3 +1,8 @@
+/* Keep direct stylesheet consumers at the default spacing without competing with container overrides. */
+:where(pre:has(> code.hljs)) {
+  line-height: var(--scalar-code-line-height, 1.4);
+}
+
 .scalar-app {
   :where(code.hljs) * {
     font-size: inherit;

@@ -156,7 +156,7 @@ const { cx } = useBindCx()
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
+        class="scalar-code-block-pre m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
@@ -190,10 +190,10 @@ const { cx } = useBindCx()
 @reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
 
-/** The block owns spacing so highlighting and line numbers do not change line heights. */
-.scalar-code-block pre {
-  line-height: var(--scalar-code-line-height, 1.4);
+/** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
+.scalar-code-block-pre {
   font-family: var(--scalar-font-code);
+  /* Disable ligatures so code characters remain distinct. */
   font-variant-ligatures: none;
 }
 

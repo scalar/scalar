@@ -1,10 +1,39 @@
+import { readFileSync } from 'node:fs'
+
 import { expect, test } from '@test/helpers'
 import { measureCodeLineSpacing } from '@test/measure-code-line-spacing'
+
+const highlightingStyles = readFileSync(new URL('../../../../code-highlight/src/css/code.css', import.meta.url), 'utf8')
 
 const content = 'const alpha = 1\n\nalpha\n// comment'
 
 test.describe('ScalarCodeBlock', () => {
   test.use({ component: 'ScalarCodeBlock', story: 'Base' })
+
+  for (const scalarApp of [false, true]) {
+    for (const { name, rule, expected } of [
+      { name: 'default', rule: '', expected: 19.6 },
+      { name: 'custom property', rule: 'body { --scalar-code-line-height: 2; }', expected: 28 },
+      { name: 'container override', rule: 'pre { line-height: 24px; }', expected: 24 },
+    ]) {
+      test(`direct stylesheet, Scalar wrapper ${scalarApp}: uniform ${name} spacing`, async ({ page }) => {
+        await page.setContent(
+          `<div class="${scalarApp ? 'scalar-app' : ''}"><pre><code class="hljs"><span class="hljs-keyword">const</span> alpha = 1\n\nalpha\n// comment</code></pre></div>`,
+        )
+        // Load consumer rules first to verify that specificity beats the stylesheet default.
+        await page.addStyleTag({
+          content: `body { font-size: 14px; --scalar-font-code: monospace; } pre { font-family: monospace; } ${rule}`,
+        })
+        await page.addStyleTag({ content: highlightingStyles })
+
+        const pitches = await measureCodeLineSpacing(page.locator('code'))
+        expect(pitches.length).toBe(2)
+        for (const pitch of pitches) {
+          expect(pitch).toBeCloseTo(expected, 1)
+        }
+      })
+    }
+  }
 
   for (const lang of ['plaintext', 'javascript']) {
     for (const lineNumbers of [false, true]) {
