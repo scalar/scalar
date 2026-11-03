@@ -362,6 +362,13 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Only programmatic requests (fetch, XHR) are proxied. Opening a proxy URL as
+	// a page would render attacker-controlled content on the proxy origin.
+	if isDocumentRequest(r) {
+		http.Error(w, documentRequestError, http.StatusForbidden)
+		return
+	}
+
 	// Get and validate the target URL from the `scalar_url` query parameter
 	target := r.URL.Query().Get("scalar_url")
 
@@ -510,9 +517,16 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 			return err
 		}
+
+		// Go and browsers do not parse every Location the same way. For example,
+		// Go resolves `/\attacker.example/` to a path on the upstream host, while
+		// browsers treat the backslash as a slash and go to attacker.example.
+		// Forward the absolute URL we validated instead of the raw value.
+		resp.Header.Set("Location", destination.String())
 	}
 
-	// Copy headers from final response, but skip CORS headers
+	// Copy headers from final response, but skip CORS headers and headers the
+	// browser would act on for the proxy origin (see untrustedResponseHeaders).
 	for key, values := range resp.Header {
 
 		// Check if header is a CORS headers
@@ -520,10 +534,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return strings.HasPrefix(strings.ToLower(header), "access-control-")
 		}
 
-		if !isCorsHeader(key) {
-			for _, value := range values {
-				w.Header().Add(key, value)
-			}
+		if isCorsHeader(key) || isUntrustedResponseHeader(key) {
+			continue
+		}
+
+		for _, value := range values {
+			w.Header().Add(key, value)
 		}
 	}
 
@@ -545,7 +561,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
 
-	setUntrustedContentHeaders(w.Header())
+	setUntrustedContentHeaders(w.Header(), resp.Header)
 
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
@@ -573,30 +589,112 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 }
 
 // untrustedContentSecurityPolicy keeps proxied documents inert when a browser
-// renders them. `sandbox` gives the document an opaque origin, disables scripts,
-// and blocks navigation and meta refresh. `default-src 'none'` stops it from
-// loading any subresources.
-const untrustedContentSecurityPolicy = "default-src 'none'; sandbox"
+// renders them anyway, for example one that does not send Sec-Fetch-* headers.
+//
+// `sandbox` gives the document an opaque origin and blocks scripts, forms,
+// popups, and `<meta>` refresh. `default-src 'none'` blocks scripts and
+// subresources in its own right. `base-uri` and `form-action` do not fall back
+// to `default-src`, so they are listed explicitly. It does not stop a user from
+// clicking a plain link, and it does not cover the HTTP `Refresh` header, which
+// is removed separately.
+const untrustedContentSecurityPolicy = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox"
+
+const documentRequestError = "Forbidden: The proxy only handles requests made with fetch() or XMLHttpRequest. It does not serve pages to open in the browser."
+
+// isDocumentRequest reports whether the browser is loading the proxy URL as a
+// page (a link, a redirect, a form submission, or an iframe) rather than
+// reading it with fetch() or XMLHttpRequest.
+//
+// The API client only reads the proxy programmatically, so refusing these
+// requests costs nothing and stops attackers from using the proxy origin to
+// host pages, run scripts, redirect visitors, set cookies, or serve downloads.
+// Non-browser clients (curl, servers) do not send these headers and are not
+// affected.
+func isDocumentRequest(r *http.Request) bool {
+	if strings.EqualFold(r.Header.Get("Sec-Fetch-Mode"), "navigate") {
+		return true
+	}
+
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Dest")) {
+	case "document", "iframe", "frame", "embed", "object", "fencedframe":
+		return true
+	}
+
+	return false
+}
+
+// untrustedResponseHeaders are upstream headers that browsers act on for the
+// proxy origin, whatever the response body is, and that the API client does
+// not need to receive as-is:
+//
+//   - Refresh redirects the page, even when it is sandboxed (open redirect)
+//   - Clear-Site-Data wipes the proxy origin's storage
+//   - Set-Cookie can set cookies on the proxy host or its parent domain.
+//     fetch() never exposes it, so the API client reads X-Scalar-Set-Cookie.
+//   - Content-Security-Policy(-Report-Only) would sit next to our own policy.
+//     Per the HTML spec only the last `sandbox` directive applies, and report
+//     endpoints would still be pinged.
+//   - X-Content-Type-Options is replaced with our own `nosniff`.
+var untrustedResponseHeaders = []string{
+	"Refresh",
+	"Clear-Site-Data",
+	"Set-Cookie",
+	"Content-Security-Policy",
+	"Content-Security-Policy-Report-Only",
+	"X-Content-Type-Options",
+}
+
+// proxyModifiedHeaders are headers the proxy sets itself. Listing them in
+// X-Scalar-Modified-Headers lets the API client hide the proxy's values, and it
+// restores the upstream values from X-Scalar-Original-* (see normalizeHeaders
+// in @scalar/helpers).
+var proxyModifiedHeaders = []string{
+	"Content-Security-Policy",
+	"X-Content-Type-Options",
+}
+
+func isUntrustedResponseHeader(key string) bool {
+	for _, header := range untrustedResponseHeaders {
+		if strings.EqualFold(key, header) {
+			return true
+		}
+	}
+
+	return false
+}
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.
 //
 // The proxy returns whatever the target URL responds with. Without these
 // headers, anyone could link to `/?scalar_url=https://attacker.example/evil.svg`
 // and the browser would render that SVG or HTML as a document on the proxy
-// origin, running its scripts there (XSS) or redirecting the victim elsewhere
-// (open redirect).
+// origin, running its scripts there. Document requests are already refused in
+// handleRequest; this is the fallback for browsers that do not send
+// Sec-Fetch-* headers.
 //
 // Browsers ignore CSP on responses read through fetch(), so the API client
-// keeps working. The policy only applies when the response is rendered as a
-// document, for example after navigating to a proxy URL directly.
+// keeps working. When the upstream does not send a Content-Type, Go sniffs one
+// before writing; `nosniff` cannot prevent that, which is one more reason the
+// CSP applies to every response.
 //
-// The policy is added rather than set, so an upstream CSP stays visible to the
-// API client. Browsers enforce every CSP header, so the upstream policy can only
-// make the response more restrictive.
-func setUntrustedContentHeaders(header http.Header) {
-	header.Add("Content-Security-Policy", untrustedContentSecurityPolicy)
+// Upstream values of the removed headers are passed on as X-Scalar-Original-*,
+// which browsers ignore, so the API client can still show what the API sent.
+func setUntrustedContentHeaders(header http.Header, upstream http.Header) {
+	for _, key := range untrustedResponseHeaders {
+		// Set-Cookie is already mirrored in X-Scalar-Set-Cookie
+		if key == "Set-Cookie" {
+			continue
+		}
+
+		if values := upstream.Values(key); len(values) > 0 {
+			header.Set("X-Scalar-Original-"+key, strings.Join(values, ", "))
+		}
+	}
+
+	header.Set("Content-Security-Policy", untrustedContentSecurityPolicy)
 	// Stop browsers from sniffing a mislabeled response into an active type
 	header.Set("X-Content-Type-Options", "nosniff")
+	header.Set("X-Scalar-Modified-Headers", strings.Join(proxyModifiedHeaders, ", "))
 }
 
 // Handle preflight requests and ensures browsers can access the proxy regardless of where the request originates from.

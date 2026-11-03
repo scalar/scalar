@@ -119,3 +119,51 @@ func TestRedirectOriginPolicy(t *testing.T) {
 		}
 	}
 }
+
+func TestForwardedLocation(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	tests := []struct {
+		name     string
+		method   string
+		status   int
+		location string
+	}{
+		// Browsers read `\` as `/`, so this would be //attacker.example/
+		{name: "backslash after a slash", method: http.MethodPost, status: http.StatusTemporaryRedirect, location: `/\attacker.example/phish`},
+		{name: "double backslash", method: http.MethodPost, status: http.StatusPermanentRedirect, location: `\\attacker.example/phish`},
+		// Go does not follow a 300, so the response reaches the browser on GET too
+		{name: "status not followed by Go", method: http.MethodGet, status: http.StatusMultipleChoices, location: `/\attacker.example/phish`},
+	}
+
+	for _, tc := range tests {
+		t.Run("Forwards the validated absolute URL for "+tc.name, func(t *testing.T) {
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Location", tc.location)
+				w.WriteHeader(tc.status)
+			})
+			defer targetServer.server.Close()
+
+			// A body that cannot be replayed makes Go return a 307/308 as-is
+			req := httptest.NewRequest(tc.method, "/?scalar_url="+url.QueryEscape(targetServer.url+"/start"), strings.NewReader(`{"a":1}`))
+			w := httptest.NewRecorder()
+
+			proxyServer.handleRequest(w, req)
+
+			if w.Code != tc.status {
+				t.Fatalf("Expected status code %d, got %d", tc.status, w.Code)
+			}
+
+			location := w.Header().Get("Location")
+			forwarded, err := url.Parse(location)
+			if err != nil {
+				t.Fatalf("Expected a valid Location, got %q: %v", location, err)
+			}
+
+			target, _ := url.Parse(targetServer.url)
+			if !forwarded.IsAbs() || forwarded.Host != target.Host || strings.Contains(location, `\`) {
+				t.Errorf("Expected an absolute same-origin Location without backslashes, got %q", location)
+			}
+		})
+	}
+}

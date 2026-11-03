@@ -688,8 +688,9 @@ func TestProxyBehavior(t *testing.T) {
 
 		proxyServer.handleRequest(w, req)
 
-		// The original Set-Cookie is still forwarded, and mirrored into the custom
-		// header the browser client can actually read.
+		// Set-Cookie is mirrored into the custom header the browser client can
+		// actually read. The original is not forwarded, so it cannot set cookies on
+		// the proxy origin.
 		expected := "csrftoken=abc123; Path=/; SameSite=Lax"
 		if got := w.Header().Get("X-Scalar-Set-Cookie"); got != expected {
 			t.Errorf("Expected X-Scalar-Set-Cookie header to be '%s', got '%s'", expected, got)
@@ -1040,11 +1041,13 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		}
 	})
 
-	t.Run("Keeps the upstream policy alongside the sandbox policy", func(t *testing.T) {
-		const upstreamPolicy = "default-src 'self'"
+	t.Run("Replaces upstream policies and passes them on as X-Scalar-Original-*", func(t *testing.T) {
+		const upstreamPolicy = "sandbox allow-scripts allow-top-navigation; script-src * 'unsafe-inline'"
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Security-Policy", upstreamPolicy)
+			w.Header().Set("Content-Security-Policy-Report-Only", "default-src 'none'; report-uri https://attacker.example/report")
 			w.Header().Set("X-Content-Type-Options", "something-else")
+			w.Header().Set("X-Scalar-Modified-Headers", "Content-Type")
 			w.Write([]byte("ok"))
 		})
 		defer targetServer.server.Close()
@@ -1054,12 +1057,58 @@ func TestUntrustedContentHeaders(t *testing.T) {
 
 		proxyServer.handleRequest(w, req)
 
-		got := w.Header().Values("Content-Security-Policy")
-		if len(got) != 2 || got[0] != upstreamPolicy || got[1] != untrustedContentSecurityPolicy {
-			t.Errorf("Expected both upstream and sandbox policies, got %v", got)
+		// Only our policy is enforced, so the upstream one cannot loosen the sandbox
+		if got := w.Header().Values("Content-Security-Policy"); len(got) != 1 || got[0] != untrustedContentSecurityPolicy {
+			t.Errorf("Expected only the sandbox policy, got %v", got)
+		}
+		if got := w.Header().Values("Content-Security-Policy-Report-Only"); len(got) != 0 {
+			t.Errorf("Expected no Content-Security-Policy-Report-Only, got %v", got)
 		}
 		if got := w.Header().Values("X-Content-Type-Options"); len(got) != 1 || got[0] != "nosniff" {
 			t.Errorf("Expected a single X-Content-Type-Options 'nosniff', got %v", got)
+		}
+
+		// The API client restores these for display
+		if got := w.Header().Get("X-Scalar-Original-Content-Security-Policy"); got != upstreamPolicy {
+			t.Errorf("Expected X-Scalar-Original-Content-Security-Policy %q, got %q", upstreamPolicy, got)
+		}
+		if got := w.Header().Get("X-Scalar-Original-X-Content-Type-Options"); got != "something-else" {
+			t.Errorf("Expected X-Scalar-Original-X-Content-Type-Options 'something-else', got %q", got)
+		}
+		if got := w.Header().Get("X-Scalar-Modified-Headers"); got != "Content-Security-Policy, X-Content-Type-Options" {
+			t.Errorf("Expected X-Scalar-Modified-Headers to list the proxy's headers, got %q", got)
+		}
+	})
+
+	t.Run("Does not forward headers the browser acts on for the proxy origin", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Refresh", "0; url=https://attacker.example/phish")
+			w.Header().Set("Clear-Site-Data", `"cookies", "storage"`)
+			w.Header().Set("Set-Cookie", "session=attacker; Domain=scalar.com; Path=/")
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		for _, header := range []string{"Refresh", "Clear-Site-Data", "Set-Cookie"} {
+			if got := w.Header().Values(header); len(got) != 0 {
+				t.Errorf("Expected %s to be removed, got %v", header, got)
+			}
+		}
+
+		// The values are still available to the API client, under names browsers ignore
+		if got := w.Header().Get("X-Scalar-Original-Refresh"); got != "0; url=https://attacker.example/phish" {
+			t.Errorf("Expected X-Scalar-Original-Refresh, got %q", got)
+		}
+		if got := w.Header().Get("X-Scalar-Original-Clear-Site-Data"); got != `"cookies", "storage"` {
+			t.Errorf("Expected X-Scalar-Original-Clear-Site-Data, got %q", got)
+		}
+		if got := w.Header().Get("X-Scalar-Set-Cookie"); got != "session=attacker; Domain=scalar.com; Path=/" {
+			t.Errorf("Expected X-Scalar-Set-Cookie, got %q", got)
 		}
 	})
 
@@ -1092,6 +1141,95 @@ func TestUntrustedContentHeaders(t *testing.T) {
 
 		if got := w.Header().Get("Content-Security-Policy"); got != "" {
 			t.Errorf("Expected no Content-Security-Policy on the landing page, got %q", got)
+		}
+	})
+}
+
+func TestDocumentRequests(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	documentRequests := []struct {
+		name    string
+		headers map[string]string
+	}{
+		{name: "top-level navigation", headers: map[string]string{"Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "document"}},
+		{name: "iframe", headers: map[string]string{"Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "iframe"}},
+		{name: "object", headers: map[string]string{"Sec-Fetch-Mode": "no-cors", "Sec-Fetch-Dest": "object"}},
+		{name: "embed", headers: map[string]string{"Sec-Fetch-Mode": "no-cors", "Sec-Fetch-Dest": "embed"}},
+	}
+
+	for _, tc := range documentRequests {
+		t.Run("Refuses "+tc.name+" requests without contacting the target", func(t *testing.T) {
+			called := false
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				called = true
+				w.Write([]byte("<script>alert(1)</script>"))
+			})
+			defer targetServer.server.Close()
+
+			for _, method := range []string{http.MethodGet, http.MethodPost} {
+				req := httptest.NewRequest(method, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+				for key, value := range tc.headers {
+					req.Header.Set(key, value)
+				}
+				w := httptest.NewRecorder()
+
+				proxyServer.handleRequest(w, req)
+
+				if w.Code != http.StatusForbidden {
+					t.Errorf("%s: expected status code %d, got %d", method, http.StatusForbidden, w.Code)
+				}
+				if got := w.Header().Get("Content-Type"); !strings.HasPrefix(got, "text/plain") {
+					t.Errorf("%s: expected a text/plain error, got %q", method, got)
+				}
+			}
+
+			if called {
+				t.Error("Expected the target not to be contacted")
+			}
+		})
+	}
+
+	programmaticRequests := []struct {
+		name    string
+		headers map[string]string
+	}{
+		{name: "fetch()", headers: map[string]string{"Sec-Fetch-Mode": "cors", "Sec-Fetch-Dest": "empty"}},
+		{name: "same-origin fetch()", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "empty"}},
+		{name: "non-browser client", headers: map[string]string{}},
+	}
+
+	for _, tc := range programmaticRequests {
+		t.Run("Proxies "+tc.name+" requests", func(t *testing.T) {
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("ok"))
+			})
+			defer targetServer.server.Close()
+
+			req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+			for key, value := range tc.headers {
+				req.Header.Set(key, value)
+			}
+			w := httptest.NewRecorder()
+
+			proxyServer.handleRequest(w, req)
+
+			if w.Code != http.StatusOK || w.Body.String() != "ok" {
+				t.Errorf("Expected 200 'ok', got %d %q", w.Code, w.Body.String())
+			}
+		})
+	}
+
+	t.Run("Still serves the landing page to browsers", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set("Sec-Fetch-Mode", "navigate")
+		req.Header.Set("Sec-Fetch-Dest", "document")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 	})
 }

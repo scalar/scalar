@@ -23,6 +23,15 @@ in browser environments.
 - Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH)
 - Zero external dependencies (only using Go standard libraries)
 
+## Security
+
+The proxy returns content from arbitrary URLs on its own origin, so it keeps that content from acting on the proxy origin in a browser:
+
+- Requests where the browser opens the proxy URL as a page (link, redirect, form, iframe, `<object>`, `<embed>`) are rejected with `403`, based on the `Sec-Fetch-Mode` and `Sec-Fetch-Dest` headers. `fetch()`, `XMLHttpRequest`, and non-browser clients are not affected.
+- Every proxied response is sent with `Content-Security-Policy: default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox` and `X-Content-Type-Options: nosniff`, for browsers that do not send `Sec-Fetch-*` headers.
+- Upstream `Refresh`, `Clear-Site-Data`, `Content-Security-Policy`, `Content-Security-Policy-Report-Only`, and `X-Content-Type-Options` headers are forwarded as `X-Scalar-Original-*` instead, and `Set-Cookie` as `X-Scalar-Set-Cookie`. The API client shows the original values.
+- Same-origin redirects that reach the browser carry the absolute URL the proxy validated, not the raw upstream `Location` value.
+
 ## Usage
 
 ### Requirements
