@@ -1,4 +1,5 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 
 import type { WorkspaceStore } from '@/client'
 import type { AuthEvents } from '@/events/definitions/auth'
@@ -15,6 +16,7 @@ import { getSelectedSecurity } from '@/request-example/context/security/get-sele
 import { usesApiKeyNameOverride } from '@/request-example/context/security/uses-api-key-name-override'
 import type { WorkspaceDocument } from '@/schemas'
 import { isAsyncApiDocument, isOpenApiDocument } from '@/schemas/type-guards'
+import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 import type { SecurityRequirementObject } from '@/schemas/v3.2/strict/security-requirement'
 import type { OAuth2Object, SecuritySchemeObject } from '@/schemas/v3.2/strict/security-scheme'
 
@@ -52,7 +54,7 @@ const getDocumentSecuritySchemes = (document: WorkspaceDocument | null): Record<
  * `availableScopes` (which `mergeSecurity` renames to `scopes` for rendering), so scope edits
  * must target the right key to round-trip.
  */
-const getFlowScopeKey = (document: WorkspaceDocument | null): 'scopes' | 'availableScopes' =>
+const getFlowScopeKey = (document: OpenApiDocument | AsyncApiDocument): 'scopes' | 'availableScopes' =>
   isAsyncApiDocument(document) ? 'availableScopes' : 'scopes'
 
 /**

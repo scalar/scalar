@@ -1,5 +1,5 @@
 import type { ApiReferencePlugin, PluginDocumentType } from '@scalar/types/api-reference'
-import { enableAutoUnmount, mount } from '@vue/test-utils'
+import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 
@@ -53,6 +53,40 @@ const arazzoPlugin: ApiReferencePlugin = () => ({
 })
 
 describe('ApiReference.document-types', () => {
+  it('switches between built-in and plugin documents without exposing unsupported agent or search content', async () => {
+    const wrapper = mount(ApiReference, {
+      props: {
+        configuration: {
+          plugins: [arazzoPlugin],
+          agent: { key: 'test-key' },
+          sources: [
+            { slug: 'http', content: { openapi: '3.1.0', info: { title: 'HTTP', version: '1' }, paths: {} } },
+            { slug: 'events', content: { asyncapi: '3.1.0', info: { title: 'Events', version: '1' }, channels: {} } },
+            {
+              slug: 'adoption',
+              content: { ...arazzoDocument, openapi: '3.1.0', asyncapi: '3.1.0', paths: {}, servers: [] },
+            },
+          ],
+        },
+      },
+    })
+    await vi.waitFor(() => expect(wrapper.findComponent({ name: 'AgentScalarButton' }).exists()).toBe(true))
+    const selector = wrapper.getComponent({ name: 'DocumentSelector' })
+    for (const slug of ['events', 'adoption', 'http', 'adoption']) {
+      selector.vm.$emit('update:modelValue', slug)
+      await flushPromises()
+      await vi.waitFor(() => expect(wrapper.findComponent(ArazzoContent).exists()).toBe(slug === 'adoption'))
+      expect(wrapper.findComponent({ name: 'InfoBlock' }).exists()).toBe(slug !== 'adoption')
+      expect(wrapper.findComponent({ name: 'AgentScalarButton' }).exists()).toBe(slug !== 'adoption')
+      if (slug === 'adoption') {
+        expect(wrapper.getComponent({ name: 'SearchModal' }).props('document')).toBeUndefined()
+        expect(wrapper.getComponent(ArazzoContent).props('navigation')).toMatchObject([
+          { id: 'adoption/workflow/adopt-a-pet' },
+        ])
+      }
+    }
+  })
+
   it('renders a claimed document with the plugin content component', async () => {
     const wrapper = mount(ApiReference, {
       props: {

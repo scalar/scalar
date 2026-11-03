@@ -1967,7 +1967,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         }
       }
 
-      const newDocumentOrigin = resolve.data
+      // Source markers are not classification evidence, including when rebasing a saved baseline.
+      const newDocumentOrigin = deepClone(resolve.data)
+      delete newDocumentOrigin[PLUGIN_DOCUMENT_TYPE_KEY]
 
       // ---- Override the configurations and metadata
       overrides[name] = input.overrides ?? {}
@@ -2016,7 +2018,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             return applyChangesInput.resolvedDocument
           }
 
-          const mergedDocument = getNewActiveDocument()
+          const mergedDocument = deepClone(getNewActiveDocument())
+          delete mergedDocument[PLUGIN_DOCUMENT_TYPE_KEY]
 
           // Detect whether the rebase folded in any local edits. When the
           // merged result matches the upstream snapshot the pull was
@@ -2058,11 +2061,6 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           const activeServers = activeDocumentRaw.servers
           const mergedHasServers = Array.isArray(mergedServers) && mergedServers.length > 0
           const activeHasServers = Array.isArray(activeServers) && activeServers.length > 0
-          const preservedServers =
-            !isAsyncApiDocument(mergedDocument) && !mergedHasServers && activeHasServers
-              ? deepClone(activeServers)
-              : undefined
-
           // add the new active document to the workspace but don't re-initialize
           await addInMemoryDocument({
             ...input,
@@ -2085,11 +2083,17 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               'x-scalar-selected-server': activeDocumentRaw['x-scalar-selected-server'],
               ...(environments !== undefined ? { 'x-scalar-environments': environments } : {}),
               ...(order !== undefined ? { 'x-scalar-order': order } : {}),
-              ...(preservedServers !== undefined ? { servers: preservedServers } : {}),
               // Flag local edits that need pushing - see note above.
               'x-scalar-is-dirty': hasLocalChangesAgainstUpstream,
             },
           })
+
+          // Re-ingestion determines the resulting format. Raw input can carry OpenAPI-looking fields
+          // while being claimed by a plugin, so only preserve HTTP servers after classification.
+          const rebasedDocument = workspace.documents[name]
+          if (isOpenApi && isOpenApiDocument(rebasedDocument) && !mergedHasServers && activeHasServers) {
+            rebasedDocument.servers = deepClone(activeServers)
+          }
         },
       }
     },

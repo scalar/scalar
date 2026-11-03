@@ -8,6 +8,37 @@ import AgentScalarChatInterface from './AgentScalarChatInterface.vue'
 afterEach(() => vi.restoreAllMocks())
 
 describe('AgentScalarChatInterface', () => {
+  it('does not mount chat for a plugin document with misleading built-in fields', async () => {
+    const workspaceStore = createWorkspaceStore({
+      documentTypes: [{ type: 'custom', detect: (document) => document.format === 'custom', traverse: () => [] }],
+    })
+    await workspaceStore.addDocument({
+      name: 'plugin',
+      document: {
+        format: 'custom',
+        openapi: '3.1.0',
+        asyncapi: '3.1.0',
+        info: { title: 'Plugin', version: '1' },
+        paths: {},
+      },
+    })
+    const wrapper = mount(AgentScalarChatInterface, {
+      props: {
+        workspaceStore,
+        agentScalarConfiguration: { key: 'test-key' },
+        externalUrls: {
+          apiBaseUrl: 'https://api.example.com',
+          registryUrl: 'https://registry.example.com',
+          dashboardUrl: 'https://dashboard.example.com',
+          proxyUrl: '',
+        },
+      },
+    })
+    await flushPromises()
+    expect(wrapper.find('textarea').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('clears the previous source question when switching from OpenAPI to AsyncAPI', async () => {
     vi.spyOn(globalThis, 'fetch').mockImplementation(() =>
       Promise.resolve(new Response(JSON.stringify({ documents: [], results: [] }))),
