@@ -228,6 +228,9 @@ When localization is omitted, the UI uses English.
 Use `content` for a JSON or YAML string, or `content-map` for a Spring-bound
 object. Both forms are available globally and under each `sources` entry.
 Inline content takes precedence over a URL, including the default sample URL.
+Global `content` also takes precedence over per-source `url` values because the
+frontend copies global fields onto every source. To display different documents,
+set content or a URL on each source and leave global content unset.
 Use only one content form at a time.
 
 ```yaml
@@ -245,22 +248,11 @@ scalar:
 
 `title` and `slug` identify the document. `page-title` controls the HTML page title.
 
-For object binding, replace `content` above with:
-
-```yaml
-scalar:
-  content-map:
-    openapi: 3.1.2
-    info:
-      title: Internal API
-      version: '1'
-    paths: {}
-```
-
-For complex API descriptions, prefer the text form to preserve JSON/YAML value
-types and special map keys through Spring's property binder. Programmatic Java
-callers can use `setContent(String)` or pass a `Map<String, Object>` to
-`setContent(Object)`.
+Prefer the text form for Spring configuration: YAML property flattening drops
+empty maps such as `paths: {}`, and binding can change JSON/YAML value types or
+special map keys. `content-map` remains available when these limitations are
+acceptable. Programmatic Java callers can use `setContent(String)` or pass a
+`Map<String, Object>` to `setContent(Object)`.
 
 ### Authentication Alternatives
 

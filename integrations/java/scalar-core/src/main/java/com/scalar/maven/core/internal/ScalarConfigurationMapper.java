@@ -1,6 +1,7 @@
 package com.scalar.maven.core.internal;
 
 import com.scalar.maven.core.ScalarProperties;
+import com.scalar.maven.core.config.ScalarSource;
 
 /**
  * Mapper class to convert ScalarProperties to ScalarConfiguration for JSON
@@ -48,7 +49,16 @@ public class ScalarConfigurationMapper {
         config.setHideSearch(properties.isHideSearch());
         config.setFavicon(properties.getFavicon());
         config.setHideClientButton(properties.isHideClientButton());
-        config.setSources(properties.getSources());
+        if (properties.getSources() != null) {
+            config.setSources(properties.getSources().stream().map(source -> {
+                ScalarSource mapped = new ScalarSource(
+                        source.getContent() == null ? source.getUrl() : null,
+                        source.getTitle(), source.getSlug(), source.isDefault());
+                mapped.setContent(source.getContent());
+                mapped.setAgent(source.getAgent());
+                return mapped;
+            }).toList());
+        }
         config.setBaseServerUrl(properties.getBaseServerUrl());
         config.setPersistAuth(properties.isPersistAuth());
         config.setTelemetry(properties.isTelemetry());

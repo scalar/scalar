@@ -74,7 +74,7 @@ public class ScalarSource {
      * @return the url
      */
     public String getUrl() {
-        return getContent() == null ? url : null;
+        return url;
     }
 
     /**

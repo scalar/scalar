@@ -74,7 +74,7 @@ public final class ScalarHtmlRenderer {
         // Replace placeholders
         return html
                 .replace("__JS_BUNDLE_URL__", bundleUrl)
-                .replace("__PAGE_TITLE__", pageTitle)
+                .replace("__PAGE_TITLE__", pageTitle.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
                 .replace("__CONFIGURATION__", configurationJson);
     }
 

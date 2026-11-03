@@ -36,9 +36,32 @@ class ScalarDocumentConfigurationTest {
         assertThat(config.at("/sources/0/content")).isEqualTo(mapper.valueToTree(document));
         assertThat(config.has("url")).isFalse();
         assertThat(config.at("/sources/0/url").isMissingNode()).isTrue();
+        assertThat(source.getUrl()).isEqualTo("/ignored.json");
         String html = ScalarHtmlRenderer.render(properties);
         assertThat(html).doesNotContain("</script><script>alert(1)");
         assertThat(html).contains("\\u003c/script>");
+    }
+
+    @Test
+    void mapsSourcesWithoutMutatingTheirConfiguredValues() {
+        ScalarSource inline = new ScalarSource("/fallback.json", "Inline", "inline", true);
+        inline.setContentMap(Map.of("openapi", "3.1.2"));
+        ScalarSource remote = new ScalarSource("/remote.json", "Remote", "remote", false);
+        ScalarProperties properties = new ScalarProperties();
+        properties.setSources(List.of(inline, remote));
+
+        var mapped = ScalarConfigurationMapper.map(properties).getSources();
+        assertThat(mapped.get(0).getUrl()).isNull();
+        assertThat(mapped.get(0).getContent()).isEqualTo(inline.getContent());
+        assertThat(mapped.get(0).getTitle()).isEqualTo("Inline");
+        assertThat(mapped.get(0).getSlug()).isEqualTo("inline");
+        assertThat(mapped.get(0).isDefault()).isTrue();
+        assertThat(mapped.get(1).getUrl()).isEqualTo("/remote.json");
+        assertThat(inline.getUrl()).isEqualTo("/fallback.json");
+
+        inline.setContent(null);
+        assertThat(ScalarConfigurationMapper.map(properties).getSources().get(0).getUrl())
+                .isEqualTo("/fallback.json");
     }
 
     @Test

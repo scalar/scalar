@@ -1,6 +1,5 @@
 package com.scalar.maven.core;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
@@ -50,7 +49,6 @@ public class ScalarProperties {
     /** The inline API description, as text or an object. */
     private Object content;
 
-    @JsonIgnore
     private Map<String, Object> contentMap;
 
     /** The URLs of external Scalar services. */
@@ -1002,7 +1000,6 @@ public class ScalarProperties {
      *
      * @return the object content, or null when text or programmatic content is used
      */
-    @JsonIgnore
     public Map<String, Object> getContentMap() {
         return contentMap;
     }
