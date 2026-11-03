@@ -15,16 +15,23 @@ const PREVIEW = fileURLToPath(new URL('./out', import.meta.url))
 
 export const parts = (name) => {
   const svg = readFileSync(`${ASSETS}/${name}.svg`, 'utf8')
-  const style = svg.match(/<style[^>]*>([\s\S]*?)<\/style>/)
-  if (!style) {
-    throw new Error(`no style block in ${name}`)
+  /* Every style element, not the first one: each of these artworks carries
+     exactly one, and an artwork that grew a second would otherwise have
+     half its rules read and the other half left in the body for the
+     browser to apply anyway. Better to refuse than to guess which. */
+  const styles = [...svg.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+  if (styles.length !== 1) {
+    throw new Error(`expected one style block in ${name}, found ${styles.length}`)
   }
-  /* everything inside the foreignObject, minus the style block */
+  const [style] = styles
   const inner = svg.match(/<foreignObject[^>]*>([\s\S]*)<\/foreignObject>/)
   if (!inner) {
     throw new Error(`no foreignObject in ${name}`)
   }
-  const body = inner[1].replace(/<style[^>]*>[\s\S]*?<\/style>/, '')
+  /* everything inside the foreignObject, minus that same style element --
+     taken out by the exact text that was matched above rather than by
+     looking for it a second time */
+  const body = inner[1].replace(style[0], '')
   return { css: style[1], body }
 }
 
