@@ -157,7 +157,13 @@ export const clojureCljhttp: Plugin = {
         params['content-type'] = new Keyword('json')
         if (postData.text) {
           try {
-            params['form-params'] = JSON.parse(postData.text)
+            const parsed: unknown = JSON.parse(postData.text)
+            if (parsed !== null && typeof parsed === 'object') {
+              params['form-params'] = parsed
+            } else {
+              // clj-http skips form-params when the value is false or nil.
+              params.body = postData.text
+            }
           } catch {
             // Preserve the original payload as a raw body when it is not valid JSON.
             params.body = postData.text

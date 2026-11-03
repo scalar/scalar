@@ -26,6 +26,10 @@ function convertToPythonSyntax(str: string): string {
 }
 
 export function formatPythonValue(value: unknown, indentation = 4): string {
+  if (typeof value === 'boolean') {
+    return value ? 'True' : 'False'
+  }
+
   return convertToPythonSyntax(
     JSON.stringify(value, null, 2)
       .split('\n')

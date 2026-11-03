@@ -3,6 +3,15 @@ import { describe, expect, it } from 'vitest'
 import { jsFetch } from './fetch'
 
 describe('jsFetch', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])('preserves the root JSON value %j', (value) => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify(value) },
+    })
+    expect(result).toContain(`body: JSON.stringify(${JSON.stringify(value)})`)
+  })
+
   it('preserves raw Cookie headers and encodes structured cookies for the browser', () => {
     const result = jsFetch.generate({
       url: 'https://example.com',

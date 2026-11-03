@@ -10,6 +10,15 @@ import { describe, expect, it } from 'vitest'
 import { nodeUndici } from './undici'
 
 describe('nodeUndici', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])('preserves the root JSON value %j', (value) => {
+    const result = nodeUndici.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify(value) },
+    })
+    expect(result).toContain(`body: JSON.stringify(${JSON.stringify(value)})`)
+  })
+
   it.each([false, true])(
     'uploads binary files from a fresh Node process with typed=%s',
     async (typed) => {
