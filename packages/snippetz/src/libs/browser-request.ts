@@ -15,15 +15,18 @@ export const prepareBrowserCookies = (
 } => {
   // Browsers forbid setting Cookie directly. Header values are already serialized,
   // so preserve their escaping when transferring them to the browser cookie store.
+  const headerCookies = (request.headers ?? [])
+    .filter(({ name }) => name.toLowerCase() === 'cookie')
+    .flatMap(({ value }) => value.split(';').map((cookie) => cookie.trim()))
+    .filter(Boolean)
   const cookieValues = [
     ...(request.cookies ?? []).map(({ name, value }) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`),
-    ...(request.headers ?? [])
-      .filter(({ name }) => name.toLowerCase() === 'cookie')
-      .flatMap(({ value }) => (value ?? '').split(';').map((cookie) => cookie.trim()))
-      .filter((cookie) => cookie.includes('=')),
+    ...headerCookies.filter((cookie) => cookie.includes('=')),
   ]
   const headers = (request.headers ?? []).filter(({ name }) => name.toLowerCase() !== 'cookie')
-  const setup: string[] = []
+  const setup = headerCookies
+    .filter((cookie) => !cookie.includes('='))
+    .map((cookie) => `// Cannot set Cookie entry without "=": ${JSON.stringify(cookie)}`)
   if (cookieValues.length) {
     setup.push("// Run on the request origin; document.cookie writes cookies for the current page's domain.")
     for (const cookie of cookieValues) {

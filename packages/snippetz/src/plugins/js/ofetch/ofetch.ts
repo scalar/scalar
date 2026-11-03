@@ -3,7 +3,7 @@ import type { Plugin } from '@scalar/types/snippetz'
 import { prepareBrowserCookies } from '@/libs/browser-request'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { Raw, objectToString } from '@/libs/javascript'
+import { Raw, formatSetup, objectToString } from '@/libs/javascript'
 
 /**
  * js/ofetch
@@ -70,7 +70,7 @@ export const jsOfetch: Plugin = {
       }
     }
 
-    prefix = `${setup.length ? `${setup.join('\n')}\n\n` : ''}${prefix}`
+    prefix = `${formatSetup(setup)}${prefix}`
 
     // Transform to JSON
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''

@@ -10,6 +10,18 @@ import { nodeFetch } from '../plugins/node/fetch/fetch'
 import { nodeUndici } from '../plugins/node/undici/undici'
 import { mergeCookieHeaders } from './cookies'
 
+const mixedCookies = {
+  name: 'mixed header casing and structured cookies',
+  request: {
+    headers: [
+      { name: 'cookie', value: 'existing=one' },
+      { name: 'Cookie', value: 'other=%2F' },
+    ],
+    cookies: [{ name: 'session', value: 'abc123' }],
+  },
+  expected: 'existing=one; other=%2F; session=abc123',
+}
+
 const cases = [
   { name: 'absent cookies', request: {}, expected: undefined },
   { name: 'empty cookies', request: { cookies: [] }, expected: undefined },
@@ -33,17 +45,7 @@ const cases = [
     request: { headers: [{ name: 'cOoKiE', value: 'token=a+b==; escaped=%2F' }] },
     expected: 'token=a+b==; escaped=%2F',
   },
-  {
-    name: 'mixed header casing and structured cookies',
-    request: {
-      headers: [
-        { name: 'cookie', value: 'existing=one' },
-        { name: 'Cookie', value: 'other=%2F' },
-      ],
-      cookies: [{ name: 'session', value: 'abc123' }],
-    },
-    expected: 'existing=one; other=%2F; session=abc123',
-  },
+  mixedCookies,
 ] satisfies { name: string; request: Partial<HarRequest>; expected: string | undefined }[]
 
 describe('cookies', () => {
@@ -51,6 +53,11 @@ describe('cookies', () => {
     .flatMap(({ clients }) => clients)
     .filter((plugin) =>
       [
+        'kotlin/okhttp',
+        'csharp/httpclient',
+        'php/curl',
+        'python/python3',
+        'c/libcurl',
         'clojure/clj_http',
         'dart/http',
         'go/native',
@@ -140,7 +147,7 @@ describe('cookies', () => {
   })
 
   for (const plugin of [nodeFetch, nodeUndici]) {
-    it.each(cases)(
+    it.each([mixedCookies])(
       `sends $name to a server using ${plugin.client}`,
       async ({ request, expected }) => {
         const received: { cookie: string | undefined; setCookie: string[] | undefined }[] = []

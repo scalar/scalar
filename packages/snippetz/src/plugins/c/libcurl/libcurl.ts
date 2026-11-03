@@ -1,5 +1,6 @@
 import type { Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 const escapeCString = (value: string): string =>
@@ -24,14 +25,6 @@ const normalizeUrl = (url: string): string => {
   } catch {
     return url
   }
-}
-
-const buildCookieString = (cookies?: Array<{ name: string; value: string }>): string | null => {
-  if (!cookies?.length) {
-    return null
-  }
-
-  return cookies.map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`).join('; ')
 }
 
 const buildFormUrlEncodedBody = (params?: Array<{ name: string; value?: string }>): string | null => {
@@ -92,11 +85,11 @@ export const cLibcurl: Plugin = {
     const method = normalizeMethod(request.method)
     const normalizedUrl = normalizeUrl(request.url ?? '')
     const fullUrl = joinUrlAndQuery(normalizedUrl, request.queryString)
-    const hasHeaders = Boolean(request.headers?.length)
-    const hasCookies = Boolean(request.cookies?.length)
     const body = request.postData
     const isMultipartBody = body?.mimeType === 'multipart/form-data' && Boolean(body.params?.length)
-    const headers = request.headers ?? []
+    const mergedHeaders = mergeCookieHeaders(request)
+    const headers = mergedHeaders.filter(({ name }) => name.toLowerCase() !== 'cookie')
+    const hasHeaders = headers.length > 0
     const shouldEnableCompression = headers.some(
       (header) => header.name.toLowerCase() === 'accept-encoding' && /gzip|deflate/.test(header.value),
     )
@@ -132,11 +125,9 @@ export const cLibcurl: Plugin = {
       lines.push('  curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);')
     }
 
-    if (hasCookies) {
-      const cookieString = buildCookieString(request.cookies)
-      if (cookieString) {
-        lines.push('', `  curl_easy_setopt(curl, CURLOPT_COOKIE, "${escapeCString(cookieString)}");`)
-      }
+    const cookieHeader = mergedHeaders.find(({ name }) => name.toLowerCase() === 'cookie')
+    if (cookieHeader) {
+      lines.push('', `  curl_easy_setopt(curl, CURLOPT_COOKIE, "${escapeCString(cookieHeader.value)}");`)
     }
 
     if (shouldEnableCompression) {

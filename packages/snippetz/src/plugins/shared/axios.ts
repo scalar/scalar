@@ -4,7 +4,7 @@ import { prepareBrowserCookies } from '@/libs/browser-request'
 import { mergeCookieHeaders } from '@/libs/cookies'
 import { buildFormData, formDataHeaders } from '@/libs/form-data'
 import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
-import { Raw, escapeJsString, objectToString } from '@/libs/javascript'
+import { Raw, escapeJsString, formatSetup, objectToString } from '@/libs/javascript'
 
 type AxiosHeaders = Record<string, string | string[]>
 
@@ -143,7 +143,7 @@ export const createAxiosPlugin = <T extends Extract<TargetId, 'js' | 'node'>>(ta
     }
 
     const allSetup = [...(browserCookies?.setup ?? []), ...setup]
-    const setupBlock = allSetup.length ? `${allSetup.join('\n')}\n\n` : ''
+    const setupBlock = formatSetup(allSetup)
 
     return `import axios from 'axios'
 
