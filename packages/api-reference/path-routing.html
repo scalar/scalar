@@ -10,6 +10,7 @@
   <body>
     <div id="app"></div>
     <script type="module">
+      // Use an absolute import so nested /path-routing/* URLs load the same entry point.
       import '/src/standalone.ts'
 
       import content from '@scalar/galaxy/latest.json'
