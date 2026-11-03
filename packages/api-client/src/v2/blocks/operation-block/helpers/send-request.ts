@@ -53,18 +53,12 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
 
 /**
  * The Fetch `Response` constructor only accepts statuses in [200, 599].
- * Network responses may use any other status in 0–999 (1xx, 6xx+, custom codes),
- * so clamp only for reconstruction and keep the real status on ResponseInstance.
+ * Outside that range we keep the network Response as-is instead of inventing a
+ * fake status just to satisfy the constructor.
  *
  * @see https://fetch.spec.whatwg.org/#dom-response-response
  */
-const toResponseConstructorStatus = (status: number): number => {
-  if (status >= 200 && status <= 599) {
-    return status
-  }
-
-  return 200
-}
+const canConstructResponse = (status: number): boolean => status >= 200 && status <= 599
 
 /** Custom fetch function signature compatible with the global fetch API */
 export type CustomFetch = typeof fetch
@@ -224,14 +218,17 @@ const buildStreamingResponse = ({
   timestamp: number
   originalResponse: Response
 }> => {
-  const normalizedResponse = new Response(null, {
-    status: toResponseConstructorStatus(response.status),
-    statusText,
-    headers: response.headers,
-  })
+  // Clone before locking the body with getReader so callers still get the real status.
+  const originalResponse = canConstructResponse(response.status)
+    ? new Response(null, {
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      })
+    : response.clone()
 
-  const customCookie = getCustomCookie(normalizedResponse)
-  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
+  const customCookie = getCustomCookie(response)
+  const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(response.headers)
 
   return [
     null,
@@ -239,7 +236,7 @@ const buildStreamingResponse = ({
       timestamp,
       requestPayload,
       response: {
-        ...normalizedResponse,
+        ...originalResponse,
         status: response.status,
         statusText,
         headers: responseHeaders,
@@ -249,7 +246,7 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      originalResponse: normalizedResponse.clone(),
+      originalResponse,
     },
   ]
 }
@@ -302,14 +299,16 @@ const buildStandardResponse = async ({
   const responseData = await decodeBuffer(arrayBuffer, responseType, pluginHandler)
 
   /**
-   * Create a new Response using the arrayBuffer we already read.
-   * ArrayBuffers can be reused to create new Response objects without additional memory.
+   * Rebuild a Response from the buffered body when the status is constructor-safe.
+   * For out-of-range statuses, keep the network Response so we never rewrite the code.
    */
-  const normalizedResponse = new Response(shouldSkipBody ? null : arrayBuffer, {
-    status: toResponseConstructorStatus(response.status),
-    statusText,
-    headers: response.headers,
-  })
+  const normalizedResponse = canConstructResponse(response.status)
+    ? new Response(shouldSkipBody ? null : arrayBuffer, {
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      })
+    : response
 
   const customCookie = getCustomCookie(normalizedResponse)
   const cookieHeaderKeys = customCookie ?? getCookieHeaderKeys(normalizedResponse.headers)
@@ -331,7 +330,7 @@ const buildStandardResponse = async ({
         method,
         path: fullPath,
       },
-      originalResponse: response.clone(),
+      originalResponse: normalizedResponse.clone(),
     },
   ]
 }

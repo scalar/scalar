@@ -501,6 +501,7 @@ describe('sendRequest', () => {
         throw new Error('No data')
       }
       expect(result.response.status).toBe(status)
+      expect(result.originalResponse.status).toBe(status)
       expect(result.response.data).toBe(body)
     },
   )
