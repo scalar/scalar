@@ -225,7 +225,7 @@ const { statusCode, body } = await request('https://example.com?foo=bar&bar=foo'
 
 const { statusCode, body } = await request('https://example.com', {
   headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
+    Cookie: 'foo=bar; bar=foo'
   }
 })`)
   })

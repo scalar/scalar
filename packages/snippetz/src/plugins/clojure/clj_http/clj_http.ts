@@ -1,6 +1,7 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
@@ -135,18 +136,10 @@ export const clojureCljhttp: Plugin = {
     const queryObj = reduceQueryParams(request?.queryString)
 
     // Reduce headers into a plain object (last value wins for duplicates).
-    const headers = (request?.headers ?? []).reduce<Record<string, unknown>>((accumulator, header) => {
+    const headers = mergeCookieHeaders(request ?? {}).reduce<Record<string, unknown>>((accumulator, header) => {
       accumulator[header.name] = header.value ?? ''
       return accumulator
     }, {})
-
-    // clj-http has no dedicated cookie option, so fold cookies into a single
-    // Cookie header, mirroring what the request would send on the wire.
-    if (request?.cookies?.length) {
-      headers.Cookie = request.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-        .join('; ')
-    }
 
     const params: Record<string, unknown> = {
       'headers': headers,

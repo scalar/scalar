@@ -18,6 +18,20 @@ try {
 }
 
 describe('nodeAxios', () => {
+  it.each(['cookie', 'Cookie', 'cOoKiE'])('merges an existing %s header with encoded cookies', (name) => {
+    const result = nodeAxios.generate({
+      url: 'https://example.com',
+      headers: [{ name, value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`headers: {
+    Cookie: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc; empty='
+  }`)
+  })
+
   it('uses ESM imports and avoids CommonJS require', () => {
     const result = nodeAxios.generate({
       url: 'https://example.com',

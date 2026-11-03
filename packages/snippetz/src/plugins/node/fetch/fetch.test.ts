@@ -138,7 +138,7 @@ describe('nodeFetch', () => {
 
     expect(result).toBe(`fetch('https://example.com', {
   headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
+    Cookie: 'foo=bar; bar=foo'
   }
 })`)
   })

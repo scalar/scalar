@@ -94,3 +94,6 @@ function indentString(str: string, indent: number) {
     .map((line) => `${indentation}${line}`)
     .join('\n')
 }
+
+/** Format setup statements with a blank line before the request. */
+export const formatSetup = (setup: string[]): string => (setup.length ? `${setup.join('\n')}\n\n` : '')
