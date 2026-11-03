@@ -181,6 +181,25 @@ const getCustomCookie = (response: Response): string[] | null => {
 }
 
 /**
+ * Completion hooks and history need response metadata without retaining the live stream.
+ * Set status separately because the Response constructor rejects nonstandard status codes.
+ * Clones must preserve that status too, instead of reverting to the constructor default.
+ */
+const createStreamingResponseSnapshot = ({
+  status,
+  statusText,
+  headers,
+}: Pick<Response, 'status' | 'statusText' | 'headers'>): Response => {
+  const snapshot = new Response(null, { statusText, headers })
+  Object.defineProperties(snapshot, {
+    status: { value: status },
+    ok: { value: status >= 200 && status <= 299 },
+    clone: { value: (): Response => createStreamingResponseSnapshot(snapshot) },
+  })
+  return snapshot
+}
+
+/**
  * Build a streaming response for sequential media types.
  * Streaming responses use a reader instead of buffering the entire body.
  */
@@ -227,8 +246,11 @@ const buildStreamingResponse = ({
         method,
         path: fullPath,
       },
-      // Keep the network Response (real status). Do not rebuild with `new Response`.
-      originalResponse: response,
+      originalResponse: createStreamingResponseSnapshot({
+        status: response.status,
+        statusText,
+        headers: response.headers,
+      }),
     },
   ]
 }

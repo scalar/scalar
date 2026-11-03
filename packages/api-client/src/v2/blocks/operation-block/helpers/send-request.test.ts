@@ -37,10 +37,48 @@ describe('sendRequest', () => {
         throw new Error('Expected a live reader')
       }
       expect(result.response.status).toBe(206)
+      // The completion hook clones this response before history reads it.
+      const completedResponse = result.originalResponse.clone().clone()
+      expect(completedResponse.status).toBe(206)
+      expect(completedResponse.ok).toBe(true)
+      expect(completedResponse.headers.get('content-type')).toBe(contentType)
+      expect(completedResponse.body).toBeNull()
+      expect(await completedResponse.text()).toBe('')
       await result.response.reader.cancel()
       expect(cancelled).toBe(true)
     },
   )
+
+  it.each([600, 999])('preserves streaming status %s through completion hook clones', async (status) => {
+    const chunk = new TextEncoder().encode('data: hello\n\n')
+    const stream = new ReadableStream<Uint8Array>({
+      start: (controller) => {
+        controller.enqueue(chunk)
+        controller.close()
+      },
+    })
+    const networkResponse = new Response(stream, { headers: { 'content-type': 'text/event-stream' } })
+    Object.defineProperty(networkResponse, 'status', { value: status })
+
+    const [error, result] = await sendRequest({
+      isUsingProxy: false,
+      requestPayload: [MOCK_URL, { method: 'GET' }],
+      customFetch: () => Promise.resolve(networkResponse),
+    })
+
+    expect(error).toBeNull()
+    if (!result || !('reader' in result.response)) {
+      throw new Error('Expected a live reader')
+    }
+    const completedResponse = result.originalResponse.clone().clone()
+    expect(result.response.status).toBe(status)
+    expect(completedResponse.status).toBe(status)
+    expect(completedResponse.ok).toBe(false)
+    expect(completedResponse.body).toBeNull()
+    expect(await completedResponse.text()).toBe('')
+    expect(await result.response.reader.read()).toStrictEqual({ done: false, value: chunk })
+    expect(await result.response.reader.read()).toStrictEqual({ done: true, value: undefined })
+  })
 
   /**
    * Adds a URL property to a Response object and ensures it persists through cloning.
