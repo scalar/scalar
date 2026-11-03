@@ -109,12 +109,14 @@ function createChat({
   baseUrl,
   getAccessToken,
   getAgentKey,
+  getActiveDocumentContext,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
   getAccessToken?: () => string
   getAgentKey?: () => string
+  getActiveDocumentContext?: () => string | undefined
 }) {
   const chat = new Chat<UIMessage<unknown, UIDataTypes, Tools>>({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
@@ -124,6 +126,22 @@ function createChat({
       body: () => ({
         registryDocuments: registryDocuments.value,
       }),
+      prepareSendMessagesRequest: ({ id, messages, body, trigger, messageId }) => {
+        const context = getActiveDocumentContext?.()
+        // Keep API context in the request without adding it to the visible conversation.
+        const contextMessages: UIMessage[] = context
+          ? [
+              {
+                id: 'selected-api-context',
+                role: 'user',
+                parts: [{ type: 'text', text: `Selected API description: ${context}` }],
+              },
+            ]
+          : []
+        return {
+          body: { ...body, id, messages: [...contextMessages, ...messages], trigger, messageId },
+        }
+      },
     }),
     onToolCall({ toolCall }): void {
       if (toolCall.dynamic) {
@@ -212,6 +230,7 @@ export function createState({
     baseUrl,
     getAccessToken,
     getAgentKey,
+    getActiveDocumentContext,
   })
 
   const api = createApi({
