@@ -2,7 +2,8 @@
 import { history, undo } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
-import { EditorState, type Extension } from '@codemirror/state'
+import { forceParsing } from '@codemirror/language'
+import { Compartment, EditorState, type Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -16,6 +17,8 @@ const createEditor = (doc: string, language: Extension = css()): EditorView => {
     parent: document.body,
   })
   editors.push(editor)
+  // Parsing can yield under load; complete it before checking syntax-based swatches.
+  expect(forceParsing(editor, editor.state.doc.length, 1000)).toBe(true)
   return editor
 }
 
@@ -37,6 +40,17 @@ afterEach(() => {
 })
 
 describe('color-picker', () => {
+  it('adds swatches when the syntax tree changes without a document edit', () => {
+    const language = new Compartment()
+    const editor = createEditor('a { color: red; }', language.of(html()))
+    expect(editor.dom.querySelector('input')).toBeNull()
+
+    editor.dispatch({ effects: language.reconfigure(css()) })
+    expect(forceParsing(editor, editor.state.doc.length, 1000)).toBe(true)
+
+    expect(Array.from(editor.dom.querySelectorAll('input'), (input) => input.value)).toStrictEqual(['#ff0000'])
+  })
+
   it.each([
     ['#f00', '#ff0000'],
     ['#ff000080', '#ff0000'],

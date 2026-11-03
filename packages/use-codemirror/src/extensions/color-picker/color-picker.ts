@@ -436,7 +436,8 @@ const colorPickerPlugin = ViewPlugin.fromClass(
     }
 
     update(update: ViewUpdate): void {
-      if (update.docChanged || update.viewportChanged) {
+      // Background parsing can discover colors without changing the document or viewport.
+      if (update.docChanged || update.viewportChanged || syntaxTree(update.startState) !== syntaxTree(update.state)) {
         this.decorations = colorPickersDecorations(update.view)
       }
     }
