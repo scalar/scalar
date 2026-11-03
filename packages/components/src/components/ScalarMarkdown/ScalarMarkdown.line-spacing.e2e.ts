@@ -17,7 +17,8 @@ test.describe('ScalarMarkdown', () => {
       }
     })
 
-    // Markdown controls the block spacing while highlighted tokens retain their original rhythm.
+    // These ratios preserve pre-migration spacing rather than define a uniform spacing policy.
+    // TODO: Revisit both ratios when https://github.com/scalar/scalar/issues/10848 is addressed.
     expect(spacing.code).toBeCloseTo(1.5, 5)
     expect(spacing.token).toBeCloseTo(1.4, 5)
   })

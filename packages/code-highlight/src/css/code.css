@@ -7,6 +7,8 @@
     word-spacing: normal;
     word-break: normal;
     word-wrap: normal;
+    /* Keep this on token elements so unscoped lines inherit the pre line height.
+       Uniform spacing is a separate change: https://github.com/scalar/scalar/issues/10848. */
     line-height: 1.4;
     tab-size: 4;
   }
