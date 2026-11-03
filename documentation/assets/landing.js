@@ -7251,8 +7251,8 @@ const DOCS_HERO_FRAME = 1000 / 60
    as well, since --scalar-sidebar-width keeps its desktop value on a
    phone where the sidebar is a drawer.
 
-   The two lengths go on the hero rather than the field because the rule
-   under the hero's foot is drawn to the same width, and a custom
+   The two lengths go on the hero rather than the field because the
+   seam's handle and its grip are placed from them as well, and a custom
    property only reaches down. */
 const docsHeroBleed = (hero) => {
   const box = hero.getBoundingClientRect()
@@ -7267,18 +7267,18 @@ const docsHeroBleed = (hero) => {
   }
   hero.style.setProperty('--dh-left', `${Math.round(middle - reach - box.left)}px`)
   hero.style.setProperty('--dh-width', `${Math.round(space)}px`)
-  /* the rule under the foot waits for this: the page swaps the hero out
-     from under an early measurement while it hydrates, so the lengths can
-     arrive a moment after the words, and a rule drawn before them would be
-     drawn at the text column's width and then jump out to the row's */
+  /* the handle waits for this: the page swaps the hero out from under an
+     early measurement while it hydrates, so the lengths can arrive a
+     moment after the words, and a handle placed before them would stand
+     in the text column and then jump out to the row's edge */
   hero.dataset.dhBleed = 'true'
   return { box, space }
 }
 
-/* The rule is on the page before the row is, so it is measured on its
-   own as well, without the wait the rest of the hero can afford: left to
-   the debounced build below it would paint at the text column's width
-   and then jump out to the row's. */
+/* The field is on the page before the row is built, so it is measured
+   on its own as well, without the wait the rest of the hero can afford:
+   left to the debounced build below, it would be laid out at the text
+   column's width and then jump out to the row's. */
 const measureDocsHero = () => {
   const hero = document.querySelector('.dh-hero')
   if (hero) {

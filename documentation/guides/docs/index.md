@@ -677,31 +677,27 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     }
   }
 
-  /* The hero ends in a rule as wide as the row of previews — landing.js
-     measures that width for the row, and the rule reads the same two
-     lengths — and under it the logo slider the home page ends its hero
-     with. The row of previews stops at the top of this block, so the
-     rule is the line it fades away above. */
+  /* The hero ends in the logo slider the home page ends its hero with,
+     and at the width it has there: that page's landing column — 960,
+     where this page's text column is 680 — and, on a window wide enough
+     to hold it, the overhang its cards take past that column. The two
+     lengths are the home page's own, so the strip is the same size on
+     both pages. It hangs off either side of the column the words keep,
+     which is what the hero centres everything else in it on, and it
+     gives way to that column once the window is too narrow for the
+     landing one, as the home page's does. The two narrow widths below
+     follow the home page down as well, so the strip is the same size on
+     both pages at every width. */
   .dh-foot {
+    --dh-logos: min(960px, 100dvw - var(--scalar-sidebar-width, 0px) - 100px);
+    --dh-logos-over: max(
+      0px,
+      min(76px, (100dvw - var(--scalar-sidebar-width, 0px) - var(--dh-logos)) / 2 - 32px)
+    );
     position: relative;
     z-index: 1;
-    align-self: stretch;
+    width: max(100%, calc(var(--dh-logos) + var(--dh-logos-over)));
     margin-top: 48px;
-  }
-  .dh-foot::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: var(--dh-left, 0px);
-    width: var(--dh-width, 100%);
-    border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-    /* it arrives with the row, once landing.js has measured how wide the
-       two of them are; before that there is nothing above it to end */
-    opacity: 0;
-    transition: opacity 240ms ease-out;
-  }
-  .dh-hero[data-dh-bleed] .dh-foot::before {
-    opacity: 1;
   }
 
   /* Customer logos as one endless row, after the home page's. The track
@@ -785,7 +781,21 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     flex: 0 0 calc(50% - 6px);
   }
 
+  @media screen and (max-width: 1100px) {
+    /* the home page drops the overhang here and keeps its logos in its
+       landing column, so the strip takes that column on its own */
+    .dh-foot {
+      width: var(--dh-logos);
+    }
+  }
+
   @media screen and (max-width: 1000px) {
+    /* The sidebar is a drawer from here down, but --scalar-sidebar-width
+       keeps its desktop value, so the column is measured off the window
+       and the gutters the page keeps either side of it instead. */
+    .dh-foot {
+      width: min(960px, 100dvw - 60px);
+    }
     /* the column is at its narrowest here — the sidebar is still beside
        it — so the logos step down before the strip is cramped */
     .lp-trusted-item {
@@ -828,10 +838,6 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     .dh-field {
       cursor: auto;
     }
-    /* the rule still waits for its width, but arrives without the fade */
-    .dh-foot::before {
-      transition: none;
-    }
     /* the seam's handle is the reader's own doing, so it stays; only the
        way it arrives and grows is dropped */
     .dh-grip {
@@ -843,12 +849,14 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     .lp-trusted-viewport {
       mask-image: none;
     }
-    /* and the strip takes the width of the rule above it, so one copy of
-       the list still fits on one row at the widths where it can: the foot
-       keeps its height, and the heading its line */
+    /* and the strip widens to the whole room the row of previews had, so
+       one copy of the list still fits on one row at the widths where it
+       can: the foot keeps its height, and the heading its line. That room
+       is centred on the hero and so is the foot, so half the difference
+       between them centres this box too. */
     .dh-foot .lp-trusted {
-      margin-left: var(--dh-left, 0px);
       width: var(--dh-width, 100%);
+      margin-left: calc((100% - var(--dh-width, 100%)) / 2);
     }
     .lp-trusted-track {
       animation: none;
