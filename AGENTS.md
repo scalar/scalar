@@ -419,6 +419,8 @@ Then, before opening or updating a PR, also run:
 pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
 # Nuxt configs extend generated .nuxt/tsconfig.json files, including the Playwright config.
 pnpm --filter @scalar/nuxt exec nuxi prepare
+# The example loads the local Nuxt module, so generate its entry point without a full build.
+pnpm --filter @scalar/nuxt exec nuxt-module-build build --stub
 pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
 pnpm knip          # Detect unused exports, files, and dependencies
 ```

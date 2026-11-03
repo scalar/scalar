@@ -59,13 +59,14 @@ In a fresh worktree, install dependencies and build the small set of packages lo
 pnpm install --frozen-lockfile
 pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
 pnpm --filter @scalar/nuxt exec nuxi prepare
+pnpm --filter @scalar/nuxt exec nuxt-module-build build --stub
 pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
 pnpm lint:knip
 ```
 
 Turbo also builds `@scalar/themes`, which helpers needs. Playwright configurations load helpers, and the Scalar App configuration loads validation. No integration build or full monorepo build is required.
 
-Nuxt preparation generates the `.nuxt/tsconfig.json` files extended by Nuxt and Playwright configurations.
+Nuxt preparation generates the `.nuxt/tsconfig.json` files extended by Nuxt and Playwright configurations. The module stub lets the example load the local Nuxt module without a full integration build.
 
 To check only Docusaurus after installing dependencies, run `pnpm knip --workspace integrations/docusaurus`. This check does not require any workspace packages to be built. Knip analyzes the playground configuration statically, so configuration-only references such as sidebars must remain listed in `knip.jsonc`.
 
