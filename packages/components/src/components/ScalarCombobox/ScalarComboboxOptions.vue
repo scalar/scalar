@@ -17,7 +17,8 @@ export default {}
   lang="ts"
   generic="O extends Option = Option, G extends OptionGroup<O> = OptionGroup<O>">
 import { ScalarIconMagnifyingGlass, ScalarIconPlus } from '@scalar/icons'
-import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from 'vue'
+import { usePreferredReducedMotion, useResizeObserver } from '@vueuse/core'
+import { computed, nextTick, onMounted, ref, useId, watch } from 'vue'
 
 import { filterByOptionLabel } from '@/components/ScalarCombobox/filter-by-option-label'
 
@@ -141,33 +142,47 @@ const getInitialActive = (): Option | undefined => {
 }
 
 const activeRef = ref<Option | undefined>(getInitialActive())
-let scrollTimeout: ReturnType<typeof setTimeout> | undefined
+const reducedMotion = usePreferredReducedMotion()
 
-// Clear the query on open and close
-onMounted(() => {
-  // Clear the query
+const input = ref<HTMLInputElement | null>(null)
+const listbox = ref<HTMLUListElement | null>(null)
+
+/** Keep option scrolling inside the list, even before the floating panel is positioned. */
+const scrollToActiveOption = (behavior: ScrollBehavior = 'auto'): void => {
+  const list = listbox.value
+  const active = activeRef.value
+  const option =
+    active && list?.ownerDocument.getElementById(getOptionId(active))
+  if (!list || !option) {
+    return
+  }
+
+  const bounds = list.getBoundingClientRect()
+  const optionBounds = option.getBoundingClientRect()
+  const top = bounds.top + list.clientTop
+  const bottom = top + list.clientHeight
+  const delta =
+    optionBounds.top < top
+      ? optionBounds.top - top
+      : Math.max(0, optionBounds.bottom - bottom)
+
+  if (delta) {
+    list.scrollBy({ top: delta, behavior })
+  }
+}
+
+// Keep the active option visible after floating-panel positioning and later window or list resizes.
+useResizeObserver(listbox, () => scrollToActiveOption())
+
+onMounted(async () => {
   query.value = ''
-
-  // Set the active option to the selected option or the first option
   activeRef.value = getInitialActive()
 
-  // Scroll to the selected option
-  const selected = model.value[0]
-  if (selected) {
-    scrollTimeout = setTimeout(() => {
-      const value = model.value[0]
-      if (!value) {
-        return
-      }
-
-      document
-        ?.getElementById(getOptionId(value))
-        ?.scrollIntoView({ block: 'nearest' })
-    }, 10)
-  }
+  // Wait for the cleared query to render, without relying on a timer to finish positioning.
+  await nextTick()
+  input.value?.focus({ preventScroll: true })
+  scrollToActiveOption()
 })
-
-onBeforeUnmount(() => clearTimeout(scrollTimeout))
 
 /**
  * Whether the query changed since the options last updated. Async results arrive after the
@@ -270,15 +285,8 @@ function moveActive(dir: 1 | -1) {
 
   activeRef.value = list[nextIdx]! // We know it's in bounds from the check above
 
-  if (!activeRef.value) {
-    return
-  }
-
-  // Scroll to the active option
-  document?.getElementById(getOptionId(activeRef.value))?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'nearest',
-  })
+  // Scroll to the active option without animating when reduced motion is preferred.
+  scrollToActiveOption(reducedMotion.value === 'reduce' ? 'instant' : 'smooth')
 }
 
 function addNew() {
@@ -306,12 +314,6 @@ const handleSpace = (event: KeyboardEvent): void => {
     toggleSelected(activeRef.value)
   }
 }
-
-// Manual autofocus for the input
-const input = ref<HTMLInputElement | null>(null)
-
-// This must be a setTimeout to ensure there is no scroll jump. nextTick does not work here.
-onMounted(() => setTimeout(() => input.value?.focus(), 0))
 </script>
 <template>
   <!-- Inset to line up with the options below -->
@@ -354,6 +356,7 @@ onMounted(() => setTimeout(() => input.value?.focus(), 0))
   <ul
     v-show="showList"
     :id="id"
+    ref="listbox"
     :aria-busy="isLoading"
     :aria-multiselectable="multiselect"
     class="custom-scroll min-h-0 flex-1 overscroll-contain border-t p-0.75"
