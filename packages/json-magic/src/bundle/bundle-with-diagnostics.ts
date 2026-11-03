@@ -17,6 +17,8 @@ export type BundleResult = {
 }
 
 /** Bundle once, report recoverable reference failures, and prune only after successful resolution.
+ * Loader exceptions and rejected cache entries are treated as loading failures, including
+ * programming errors inside custom loaders: the loader contract does not classify errors.
  * Root loading and unexpected hook/bundling failures still reject the promise.
  * Cached loader results remain authored data and can safely be reused across calls.
  */

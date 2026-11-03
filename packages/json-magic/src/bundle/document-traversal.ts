@@ -12,23 +12,22 @@ export const documentTraversal = (
   aware: boolean,
   swagger: boolean,
   schemaSiblings: boolean,
+  enabled = true,
 ): {
   register: (document: unknown, source: string, context?: ReferenceContext, targetPath?: readonly string[]) => void
   location: (node: object) => SourceLocation | undefined
 } => {
-  const exposures = new WeakMap<object, Map<string, { path: readonly string[]; context: ReferenceContext }>>()
+  const exposures = new WeakMap<object, ReferenceContext>()
   const locations = new WeakMap<object, SourceLocation>()
+  const registered = new WeakSet<object>()
   const register = (
     document: unknown,
     source: string,
     context?: ReferenceContext,
     targetPath: readonly string[] = [],
   ): void => {
-    if (document === null || typeof document !== 'object') return
-    const targets = exposures.get(document) ?? new Map<string, { path: readonly string[]; context: ReferenceContext }>()
-    exposures.set(document, targets)
-    if (context !== undefined) targets.set(JSON.stringify(targetPath), { path: targetPath, context })
-    const visited = new WeakSet<object>()
+    if (!enabled || document === null || typeof document !== 'object') return
+    let visited = new WeakSet<object>()
     const api = isObject(document) && ['openapi', 'swagger', 'asyncapi'].some((key) => key in document)
     const targetContext = context ?? (api ? 'object' : 'schema')
     const isSwagger = api ? document.swagger === '2.0' : swagger
@@ -36,7 +35,7 @@ export const documentTraversal = (
     const visit = (value: unknown, path: string[], inherited: ReferenceContext, inheritedSiblings: boolean): void => {
       if (value === null || typeof value !== 'object' || visited.has(value)) return
       visited.add(value)
-      const current = !aware ? 'generic' : (targets.get(JSON.stringify(path))?.context ?? inherited)
+      const current = !aware ? 'generic' : (exposures.get(value) ?? inherited)
       const currentSiblings =
         isObject(value) && typeof value.$schema === 'string'
           ? inheritedSiblings && !/draft-0[3467]/.test(value.$schema)
@@ -52,15 +51,32 @@ export const documentTraversal = (
           Array.isArray(value) && !['objects', 'schemas', 'messages'].includes(current)
             ? current
             : childReferenceContext(current, key, isSwagger)
-        const childPath = [...path, key]
-        const leadsToTarget = [...targets.values()].some(
-          ({ path: target }) =>
-            childPath.length < target.length && childPath.every((segment, i) => segment === target[i]),
-        )
-        visit(child, childPath, next === 'data' && leadsToTarget ? 'data-container' : next, currentSiblings)
+        visit(child, [...path, key], next, currentSiblings)
       }
     }
-    visit(document, [], api ? 'object' : targetContext, siblings)
+    // Index a document once; later references only expose their target subtree.
+    if (!registered.has(document)) {
+      visit(document, [], api ? 'object' : targetContext, siblings)
+      registered.add(document)
+    }
+    if (context === undefined) return
+    let target: unknown = document
+    for (const key of targetPath) {
+      if (target === null || typeof target !== 'object') return
+      const location = locations.get(target)
+      if (location?.context === 'data') {
+        locations.set(target, { ...location, context: 'data-container' })
+        exposures.set(target, 'data-container')
+      }
+      target = (target as Record<string, unknown>)[key]
+    }
+    if (target === null || typeof target !== 'object') return
+    exposures.set(target, context)
+    if (locations.get(target)?.context === context) return
+    // The initial walk may already have visited descendants with a different context.
+    const targetSiblings = locations.get(target)?.schemaSiblings ?? siblings
+    visited = new WeakSet<object>()
+    visit(target, [...targetPath], context, targetSiblings)
   }
   return { register, location: (node: object): SourceLocation | undefined => locations.get(node) }
 }

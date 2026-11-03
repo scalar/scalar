@@ -1,9 +1,9 @@
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 
+import { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
-import { getSegmentsFromPath } from '@/helpers/get-segments-from-path'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
@@ -33,7 +33,7 @@ type Resource = {
 type DocumentReferences = {
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
-  refresh: (document: unknown) => void
+  refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
   resolve: (
@@ -54,7 +54,6 @@ export const documentReferences = (
   canonicalizeIds = false,
   shouldVisit: (node: object) => boolean = () => true,
   hasSchemaIdentity: (node: object) => boolean = () => true,
-  decodeFragments = false,
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
@@ -81,7 +80,7 @@ export const documentReferences = (
   }
 
   // Refresh newly exposed fragments without replaying the document identity hook.
-  const index = (document: unknown, base: string, path: string[]): void => {
+  const index = (document: unknown, base: string, path: string[], targetPath: string[] = []): void => {
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
@@ -125,35 +124,32 @@ export const documentReferences = (
         }
       }
     }
-    visit(document, base, path)
+    let target = document
+    let origin = base
+    let identifier = ''
+    for (const key of targetPath) {
+      if (target === null || typeof target !== 'object') return
+      origin = origins.get(target) ?? origin
+      identifier = (hasSchemaIdentity(target) ? getId(target) : undefined) ?? identifier
+      target = (target as Record<string, unknown>)[key]
+    }
+    visit(target, origin, [...path, ...targetPath], identifier)
   }
 
   return {
     identity: (document) => identities.get(document),
     register,
-    refresh: (document) => {
+    refresh: (document, targetPath) => {
       const registration = registrations.get(document)
-      if (registration) index(document, registration.base, registration.path)
+      if (registration) index(document, registration.base, registration.path, targetPath)
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
     resolve: (ref, base) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
-      const fragment = (() => {
-        if (!decodeFragments) return authoredFragment
-        try {
-          return decodeURIComponent(authoredFragment)
-        } catch {
-          // Retain generic JSON-pointer compatibility with literal percent characters.
-          return authoredFragment
-        }
-      })()
+      const fragment = decodeUriFragment(authoredFragment)
       const uri = prefix ? resolveReferencePath(base, prefix) : base
-      const pointer = fragment.startsWith('/')
-        ? decodeFragments
-          ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment)
-          : getSegmentsFromPath(fragment)
-        : []
+      const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
       const bundled =
         (!prefix || resources.get(uri)?.path.length === 0) && pointer[0] === externalDocumentsKey
           ? bundledResources.get(pointer[1])

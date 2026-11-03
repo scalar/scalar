@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import type { LoaderPlugin, ResolveResult } from './bundle'
+import { type LoaderPlugin, type ResolveResult, bundle } from './bundle'
 import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { fetchUrls } from './plugins/fetch-urls'
 
@@ -590,4 +590,52 @@ describe('bundle-with-diagnostics', () => {
     expect(result.pruning).toBe('skipped')
     expect(result.document['x-ext'].external).toStrictEqual({ present: {} })
   })
+  it('reports loader exceptions and rejected cache entries as external loading failures', async () => {
+    const plugin: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => {
+        throw new TypeError('loader bug')
+      },
+    }
+    const result = await bundleWithDiagnostics(
+      { loaded: { $ref: '/throws' }, cached: { $ref: '/cached' } },
+      { plugins: [plugin], treeShake: true, cache: new Map([['/cached', Promise.reject(new Error('cache failed'))]]) },
+    )
+    expect(result.diagnostics).toStrictEqual([
+      { kind: 'unresolved-document', reference: '/throws', source: '/', pointer: '#/loaded/$ref' },
+      { kind: 'unresolved-document', reference: '/cached', source: '/', pointer: '#/cached/$ref' },
+    ])
+    expect(result.pruning).toBe('skipped')
+    await expect(bundleWithDiagnostics('/throws', { plugins: [plugin], treeShake: false })).rejects.toThrow(
+      'Failed to resolve input',
+    )
+  })
+
+  it.each([true, false])(
+    'uses the same URI fragment rules with and without diagnostics (treeShake: %s)',
+    async (treeShake) => {
+      const external = {
+        'Foo Bar': { type: 'string' },
+        '%20#': { type: 'number' },
+        'a/b~c': { type: 'boolean' },
+      }
+      const input = {
+        space: { $ref: '/external.json#/Foo%20Bar' },
+        percent: { $ref: '/external.json#/%2520%23' },
+        escaped: { $ref: '/external.json#/a~1b~0c' },
+      }
+      const config = {
+        plugins: [sources({ '/external.json': external }).plugin],
+        treeShake,
+        compress: () => 'external',
+      }
+      const plain = await bundle(structuredClone(input), config)
+      const diagnosed = await bundleWithDiagnostics(structuredClone(input), config)
+      expect(diagnosed.diagnostics).toStrictEqual([])
+      expect(plain).toStrictEqual(diagnosed.document)
+      expect(plain['x-ext'].external).toStrictEqual(external)
+      expect(plain['percent'].$ref).toBe('#/x-ext/external/%2520%23')
+    },
+  )
 })
