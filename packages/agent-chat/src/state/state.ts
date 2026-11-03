@@ -129,7 +129,7 @@ function createChat({
       body: () => ({
         registryDocuments: registryDocuments.value,
       }),
-      prepareSendMessagesRequest: ({ id, messages, body, trigger, messageId }) => {
+      prepareSendMessagesRequest: ({ id, messages, body, trigger, messageId }): { body: Record<string, unknown> } => {
         const context = getActiveDocumentContext?.()
         // Keep API context in the request without adding it to the visible conversation.
         const contextMessages: UIMessage[] = context
