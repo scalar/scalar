@@ -3,6 +3,7 @@ import { createRequire } from 'node:module'
 import { dirname, resolve } from 'node:path'
 
 import { ApiReference } from '@scalar/api-reference'
+import { escapeCssForStyleTag } from '@scalar/helpers/dom/escape-css-for-style-tag'
 import { escapeJsonForInlineScript } from '@scalar/helpers/json/escape-json-for-inline-script'
 import { serializePropertyKey } from '@scalar/helpers/json/serialize-property-key'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -406,7 +407,7 @@ export async function renderApiReference(options: {
 <html${head.htmlAttrs}>
   <head>
     ${head.headTags}
-    <style>${css}</style>
+    <style>${escapeCssForStyleTag(css)}</style>
   </head>
   <body${bodyAttrs}>
     ${head.bodyTagsOpen}
