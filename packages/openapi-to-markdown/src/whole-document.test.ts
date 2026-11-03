@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createOpenApiMarkdownRenderer } from './create-markdown-from-openapi'
 
@@ -331,7 +331,13 @@ describe('whole-document', () => {
     expect(output).not.toContain('[Generated example](')
   })
 
-  it('gives shared schemas one canonical definition including aliases and recursion', async () => {
+  it('gives shared schemas one canonical definition including aliases and recursion', async ({ onTestFinished }) => {
+    // Compare schema rendering at the same instant, including generated date-time examples.
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-11-03T12:00:00.000Z'))
+    onTestFinished(() => {
+      vi.useRealTimers()
+    })
     const renderer = await createOpenApiMarkdownRenderer(input)
     const output = await renderer.render()
     const operations = output.slice(output.indexOf('## Operations'), output.indexOf('## Schemas'))
