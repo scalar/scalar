@@ -7,6 +7,59 @@ import { createState } from './state'
 afterEach(() => vi.restoreAllMocks())
 
 describe('state', () => {
+  it.each([undefined, 'Scalar Galaxy (OpenAPI, version 0.7.2, source scalar-galaxy)'])(
+    'keeps context %s separate from visible messages across follow-ups',
+    async (context) => {
+      const requests: { messages: { role: string; parts: unknown[] }[]; registryDocuments: unknown[] }[] = []
+      vi.spyOn(globalThis, 'fetch').mockImplementation((_url, options) => {
+        requests.push(JSON.parse(String(options?.body)))
+        return Promise.resolve(
+          new Response('data: [DONE]\n\n', {
+            headers: { 'content-type': 'text/event-stream', 'x-vercel-ai-ui-message-stream': 'v1' },
+          }),
+        )
+      })
+      const stateHolder: { current?: ReturnType<typeof createState> } = {}
+      const wrapper = mount(
+        defineComponent({
+          setup() {
+            stateHolder.current = createState({
+              initialRegistryDocuments: [],
+              registryUrl: '',
+              dashboardUrl: '',
+              platformProxyUrl: '',
+              baseUrl: 'https://api.example.com',
+              mode: 'full',
+              getActiveDocumentContext: context ? () => context : undefined,
+            })
+            return () => h('div')
+          },
+        }),
+      )
+      const state = stateHolder.current!
+      try {
+        await state.chat.sendMessage({ text: 'create planet curl example' })
+        await state.chat.sendMessage({ text: 'Explain the response' })
+        const userMessages = ['create planet curl example', 'Explain the response'].map((text) => ({
+          role: 'user',
+          parts: [{ type: 'text', text }],
+        }))
+        expect(state.chat.messages.map(({ role, parts }) => ({ role, parts }))).toStrictEqual(userMessages)
+        const contextMessages = context
+          ? [{ role: 'user', parts: [{ type: 'text', text: `Selected API description: ${context}` }] }]
+          : []
+        expect(requests.map(({ messages }) => messages.map(({ role, parts }) => ({ role, parts })))).toStrictEqual([
+          [...contextMessages, userMessages[0]],
+          [...contextMessages, ...userMessages],
+        ])
+        expect(requests.map(({ registryDocuments }) => registryDocuments)).toStrictEqual([[], []])
+      } finally {
+        await state.chat.stop()
+        wrapper.unmount()
+      }
+    },
+  )
+
   it.each(['get', 'post', 'authentication'])(
     'completes unsupported AsyncAPI %s tools without making a request',
     async (action) => {
