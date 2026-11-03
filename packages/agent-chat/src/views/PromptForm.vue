@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarLoading } from '@scalar/components/loading'
 import { ScalarTooltip } from '@scalar/components/tooltip'
@@ -103,10 +104,10 @@ const { pendingClientToolParts } = useChatPendingClientToolParts()
 
 const uploadTmpDoc = useUploadTmpDocument()
 
-const retryUpload = (): void => {
+const requestUpload = (): void => {
   if (
-    uploadTmpDoc.uploadState.value?.type === 'error' &&
-    state.getActiveDocumentJson
+    state.getActiveDocumentJson &&
+    uploadTmpDoc.uploadState.value?.type === 'error'
   ) {
     void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
   }
@@ -158,11 +159,19 @@ const chatError = useChatError()
 
 <template>
   <div class="actionContainer">
+    <ScalarButton
+      v-if="
+        uploadTmpDoc.uploadState.value?.type === 'error' &&
+        state.getActiveDocumentJson
+      "
+      class="m-2"
+      variant="outlined"
+      @click="requestUpload">
+      Review upload
+    </ScalarButton>
     <UploadSection
       v-if="uploadTmpDoc.uploadState.value || isPending"
-      :canRetry="!!state.getActiveDocumentJson"
-      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }"
-      @retry="retryUpload" />
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />

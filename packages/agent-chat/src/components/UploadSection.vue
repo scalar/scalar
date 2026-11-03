@@ -16,7 +16,9 @@ defineEmits<{ retry: [] }>()
 const loadingState = useLoadingState()
 
 const isLoading = computed(() =>
-  ['uploading', 'processing', 'loading'].includes(uploadState.type),
+  ['awaiting-consent', 'uploading', 'processing', 'loading'].includes(
+    uploadState.type,
+  ),
 )
 </script>
 
@@ -38,7 +40,12 @@ const isLoading = computed(() =>
         }"
         size="lg" />
       <strong
-        v-if="uploadState.type === 'loading'"
+        v-if="uploadState.type === 'awaiting-consent'"
+        class="uploadText">
+        Waiting for upload confirmation…
+      </strong>
+      <strong
+        v-else-if="uploadState.type === 'loading'"
         class="uploadText">
         Loading API description…
       </strong>

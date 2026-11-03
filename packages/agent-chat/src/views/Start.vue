@@ -22,8 +22,8 @@ const { mode } = useState()
       @uploadApi="emit('uploadApi')" />
     <p class="disclaimerText">
       <template v-if="mode === 'preview'">
-        By messaging Agent Scalar your API description will be temporarily
-        uploaded to Scalar's servers. You must agree to our
+        To answer your questions, Agent Scalar needs to upload your API
+        description. Confirm the upload separately and agree to our
       </template>
       <template v-else>By messaging Agent Scalar you agree to our </template>
       <a

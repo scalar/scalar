@@ -5,6 +5,7 @@
  */
 import { ScalarButton } from '@scalar/components/button'
 import { useLoadingState } from '@scalar/components/loading'
+import { useModal } from '@scalar/components/modal'
 import { ScalarTextInputCopy } from '@scalar/components/text-input'
 import { ScalarIconShareNetwork } from '@scalar/icons'
 import type { ExternalUrls } from '@scalar/types/api-reference'
@@ -16,6 +17,7 @@ import { useLocalization } from '@/features/localization'
 import { uploadTempDocument } from '@/helpers/upload-temp-document'
 
 import DeveloperToolsCard from './DeveloperToolsCard.vue'
+import ShareDocumentConfirmation from './ShareDocumentConfirmation.vue'
 
 const { workspace, externalUrls } = defineProps<{
   workspace: WorkspaceStore
@@ -28,9 +30,23 @@ const emit = defineEmits<{
 
 const { toast } = useToasts()
 const loader = useLoadingState()
+const confirmation = useModal()
 const { translate } = useLocalization()
 
 const shareUrl = ref<string>()
+const pendingDocument = ref<string>()
+
+const requestUpload = (): void => {
+  if (loader.isLoading || shareUrl.value) {
+    return
+  }
+  pendingDocument.value = workspace.exportActiveDocument('json')
+  if (!pendingDocument.value) {
+    toast(translate('developerTools.unableToExportDocument'), 'error')
+    return
+  }
+  confirmation.show()
+}
 
 const upload = async (): Promise<void> => {
   if (loader.isLoading || shareUrl.value) {
@@ -39,7 +55,7 @@ const upload = async (): Promise<void> => {
 
   loader.start()
 
-  const document = workspace.exportActiveDocument('json')
+  const document = pendingDocument.value
 
   if (!document) {
     toast(translate('developerTools.unableToExportDocument'), 'error')
@@ -94,7 +110,7 @@ const upload = async (): Promise<void> => {
         class="h-10 w-full rounded-full text-base"
         :loader
         variant="solid"
-        @click="upload">
+        @click="requestUpload">
         {{ translate('developerTools.uploadDocument') }}
       </ScalarButton>
       <p class="text-c-2 m-0 text-center text-sm leading-relaxed text-balance">
@@ -102,6 +118,9 @@ const upload = async (): Promise<void> => {
       </p>
     </div>
   </DeveloperToolsCard>
+  <ShareDocumentConfirmation
+    :state="confirmation"
+    @confirm="upload" />
 </template>
 <style scoped>
 .share-card-tile {
