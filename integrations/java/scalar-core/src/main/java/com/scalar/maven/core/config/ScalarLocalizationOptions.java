@@ -1,6 +1,7 @@
 package com.scalar.maven.core.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.scalar.maven.core.enums.TextDirection;
 
 import java.util.Map;
 
@@ -12,7 +13,7 @@ import java.util.Map;
 public class ScalarLocalizationOptions {
 
     private String locale;
-    private String direction;
+    private TextDirection direction;
     private Map<String, Object> translations;
 
     /**
@@ -38,7 +39,7 @@ public class ScalarLocalizationOptions {
      *
      * @return auto, ltr, rtl, or null to use the frontend default
      */
-    public String getDirection() {
+    public TextDirection getDirection() {
         return direction;
     }
 
@@ -47,7 +48,7 @@ public class ScalarLocalizationOptions {
      *
      * @param direction auto to derive direction from the locale, ltr, or rtl
      */
-    public void setDirection(String direction) {
+    public void setDirection(TextDirection direction) {
         this.direction = direction;
     }
 

@@ -164,7 +164,9 @@ For example, use Simplified Chinese:
 scalar.localization.locale=zh-CN
 ```
 
-You can also set text direction (`auto`, `ltr`, or `rtl`) and override individual
+Text direction accepts `auto`, `ltr`, or `rtl`; invalid values fail during Spring Boot configuration binding.
+
+You can also set text direction and override individual
 UI translations in `application.yml`:
 
 ```yaml

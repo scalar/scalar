@@ -5,12 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.BindException;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ScalarLocalizationTest {
 
@@ -40,6 +42,29 @@ class ScalarLocalizationTest {
                 .contains("\"direction\":\"rtl\"")
                 .contains("\"search\":{\"label\":\"搜索\"}")
                 .contains("\"operation\":{\"testRequest\":\"发送请求\"}");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"auto", "ltr", "rtl"})
+    void rendersDirectionBoundFromSpringProperties(String direction) throws Exception {
+        SpringBootScalarProperties properties = new SpringBootScalarProperties();
+        new Binder(new MapConfigurationPropertySource(Map.of(
+                "scalar.localization.direction", direction
+        ))).bind("scalar", Bindable.ofInstance(properties));
+
+        assertThat(ScalarHtmlRenderer.render(properties))
+                .contains("\"direction\":\"" + direction + "\"");
+    }
+
+    @Test
+    void rejectsInvalidDirectionWhenBindingSpringProperties() {
+        Binder binder = new Binder(new MapConfigurationPropertySource(Map.of(
+                "scalar.localization.direction", "rlt"
+        )));
+
+        assertThatThrownBy(() -> binder.bind("scalar", Bindable.of(SpringBootScalarProperties.class)))
+                .isInstanceOf(BindException.class)
+                .hasRootCauseInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
