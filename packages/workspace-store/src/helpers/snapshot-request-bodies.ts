@@ -1,4 +1,5 @@
 import { forEachPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { snapshotSchema } from '@/helpers/snapshot-schema'
 import { isOpenApiDocument } from '@/schemas/type-guards'
@@ -14,7 +15,7 @@ export const snapshotRequestBodies = (document: WorkspaceDocument): RequestBodyB
     return {}
   }
   return Object.fromEntries(
-    Object.entries(document.paths ?? {}).flatMap(([path, pathItem]) => {
+    getPathEntries(document.paths).flatMap(([path, pathItem]) => {
       const operations: [string, RequestBodyObject][] = []
       forEachPathItemOperation(pathItem, (method, operation) => {
         const body = getResolvedRef(getResolvedRef(operation)?.requestBody)

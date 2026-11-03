@@ -114,6 +114,8 @@ describe('create-workspace-store', () => {
       'x-enabled': false,
       'x-count': 0,
       'x-empty': null,
+      'x-meta': { post: { requestBody: { description: 'm' } } },
+      'x-template-{id}': { get: { parameters: [{ name: 'keep', in: 'path' }] } },
       'x-origins': ['https://example.com'],
       'x-methods': { get: { tags: ['metadata'], security: [{ token: [] }] } },
     }

@@ -51,6 +51,7 @@ import {
   SpecificationExtension,
 } from '@/features/specification-extension'
 import { usePathsExtensions } from '@/features/specification-extension/use-paths-extensions'
+import { useSpecificationExtensions } from '@/features/specification-extension/use-specification-extensions'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -96,6 +97,15 @@ const operationTitle = computed(() => operation.summary || path || '')
 
 const pathsExtensions = usePathsExtensions(() => document?.paths)
 const pathExtensions = computed(() => getXKeysFromObject(pathValue))
+
+const pathsExtensionSelection = useSpecificationExtensions(
+  () => pathsExtensions.value,
+  () => options.showExtensions,
+)
+const pathExtensionSelection = useSpecificationExtensions(
+  () => pathExtensions.value,
+  () => options.showExtensions,
+)
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
@@ -260,16 +270,18 @@ const { level: headingLevel } = useDocumentOutline('operation')
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div
-          v-if="!isWebhook && Object.keys(pathsExtensions).length > 0"
+          v-if="!isWebhook && pathsExtensionSelection.hasExtensions.value"
           class="operation-details-card-item">
           <SpecificationExtension
+            :selection="pathsExtensionSelection"
             :showExtensions="options.showExtensions"
             :value="pathsExtensions" />
         </div>
         <div
-          v-if="!isWebhook && Object.keys(pathExtensions).length > 0"
+          v-if="!isWebhook && pathExtensionSelection.hasExtensions.value"
           class="operation-details-card-item">
           <SpecificationExtension
+            :selection="pathExtensionSelection"
             :showExtensions="options.showExtensions"
             :value="pathExtensions" />
         </div>

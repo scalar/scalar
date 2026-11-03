@@ -7,6 +7,7 @@ import {
   setPathItemOperation,
 } from '@/helpers/for-each-path-item-operation'
 import { getExampleValue } from '@/helpers/get-example-value'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { snapshotSchema } from '@/helpers/snapshot-schema'
 import { getSchemaExampleFromBody } from '@/request-example/builder/body/get-request-body-example'
@@ -62,7 +63,7 @@ export const resetOperationRequestBody = async (
     (selectedExample && '$ref' in selectedExample)
   // Preserve incoming aliases too: replacing their target would otherwise reset them as well.
   if (current && !hasSharedReference) {
-    for (const [otherPath, otherPathItem] of Object.entries(document.paths ?? {})) {
+    for (const [otherPath, otherPathItem] of getPathEntries(document.paths)) {
       forEachPathItemOperation(otherPathItem, (otherMethod, otherOperationInput) => {
         const otherOperation = getResolvedRef(otherOperationInput)
         const otherBody = getResolvedRef(otherOperation?.requestBody)
