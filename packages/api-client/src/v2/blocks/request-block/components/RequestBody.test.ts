@@ -7,7 +7,9 @@ import type { RequestBodyObject, SchemaObject } from '@scalar/workspace-store/sc
 import { RequestBodyObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, readonly, ref } from 'vue'
+import { defineComponent, h, nextTick, readonly, ref } from 'vue'
+
+import { provideLocalization } from '@/v2/features/localization'
 
 import RequestBody from './RequestBody.vue'
 import RequestBodyStructured from './RequestBodyStructured.vue'
@@ -68,6 +70,30 @@ describe('RequestBody', () => {
     await wrapper.get('button[aria-label="Restore original body"]').trigger('click')
     expect(wrapper.emitted('reset')).toStrictEqual([[{ contentType: 'application/json' }]])
     expect(wrapper.emitted('generate:example')).toBeUndefined()
+  })
+
+  it('translates body actions while preserving the reset event', async () => {
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          provideLocalization({ locale: 'de' })
+          return () =>
+            h(RequestBody, {
+              ...defaultProps,
+              requestBody: {
+                content: { 'application/json': { schema: { type: 'object' }, example: { name: 'original' } } },
+              },
+            })
+        },
+      }),
+    )
+    const body = wrapper.findComponent(RequestBody)
+    await body.get('button[aria-label="Ursprünglichen Body wiederherstellen"]').trigger('click')
+    expect(body.emitted('reset')).toStrictEqual([[{ contentType: 'application/json' }]])
+    expect(body.get('button[aria-label="Beispiel aus Schema erstellen"]').attributes('aria-label')).toBe(
+      'Beispiel aus Schema erstellen',
+    )
+    wrapper.unmount()
   })
 
   it('does not offer a reset when no body is selected', () => {

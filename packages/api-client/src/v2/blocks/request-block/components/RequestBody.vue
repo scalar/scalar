@@ -484,9 +484,9 @@ const canGenerateExample = computed(() =>
         <div class="flex items-center gap-1">
           <ScalarIconButton
             v-if="selectedContentType !== 'none'"
-            aria-label="Restore original body"
+            :aria-label="translate('apiClient.requestBody.restoreOriginalBody')"
             :icon="ScalarIconArrowCounterClockwise"
-            label="Restore original body"
+            :label="translate('apiClient.requestBody.restoreOriginalBody')"
             size="sm"
             tooltip
             @click.stop="
@@ -498,9 +498,11 @@ const canGenerateExample = computed(() =>
           -->
           <ScalarIconButton
             v-if="canGenerateExample"
-            aria-label="Create example from schema"
+            :aria-label="
+              translate('apiClient.requestBody.createExampleFromSchema')
+            "
             :icon="ScalarIconMagicWand"
-            label="Create example from schema"
+            :label="translate('apiClient.requestBody.createExampleFromSchema')"
             size="sm"
             tooltip
             @click.stop="

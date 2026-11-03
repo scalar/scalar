@@ -434,7 +434,14 @@ export type WorkspaceStore = {
    * @returns The original version of the document, or undefined if the document does not exist.
    */
   getOriginalDocument(documentName: string): Record<string, unknown> | null
-  /** Read the loaded or last-saved authored examples for a single request body. */
+  /**
+   * Read the loaded or last-saved authored examples for a single request body.
+   *
+   * Workspace exports include resolved baselines, but IndexedDB persistence does not store them.
+   * After an IndexedDB reload (or loading an older export), the first reset rebuilds the baseline
+   * from the original document in a temporary store. This can refetch external references and
+   * does not reapply configured overrides, so the restored values can differ from the loaded defaults.
+   */
   getOriginalRequestBody(documentName: string, operation: OperationMeta): Promise<RequestBodyObject | undefined>
   /**
    * Returns the intermediate version of the specified document.
@@ -1046,7 +1053,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // get a deep clone each so subsequent mutations on either one stay
     // isolated.
     originalDocuments[documentName] = newDocument
-    requestBodyBaselines[documentName] = snapshotRequestBodies(activeDocument)
+    requestBodyBaselines[documentName] = withMeasurementSync('snapshotRequestBodies', () =>
+      snapshotRequestBodies(activeDocument),
+    )
     intermediateDocuments[documentName] = deepClone(newDocument)
     // Mark the document as not dirty since we are saving it
     activeDocument['x-scalar-is-dirty'] = false
@@ -1231,7 +1240,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     workspace.documents[name] = needsOverridesProxy(documentOverrides)
       ? createOverridesProxy(magicDocument, { overrides: documentOverrides })
       : magicDocument
-    requestBodyBaselines[name] = snapshotRequestBodies(workspace.documents[name])
+    const baselineDocument = workspace.documents[name]
+    requestBodyBaselines[name] = withMeasurementSync('snapshotRequestBodies', () =>
+      snapshotRequestBodies(baselineDocument),
+    )
   }
 
   // Asynchronously adds a new document to the workspace by loading and validating the input.
@@ -1549,8 +1561,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     getEditableDocument,
     getOriginalDocument,
     async getOriginalRequestBody(documentName, { path, method }) {
-      // Older workspace exports have no resolved payload snapshots. Recover their saved examples
-      // through the normal loader once; new workspaces never refetch references when resetting.
+      // IndexedDB hydration and older workspace exports have no resolved payload snapshots.
+      // Recover saved examples once; this may refetch references and does not reapply overrides.
       if (!Object.hasOwn(requestBodyBaselines, documentName)) {
         const original = getOriginalDocument(documentName)
         if (!original) {
@@ -1569,7 +1581,9 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         if (!loaded) {
           return undefined
         }
-        requestBodyBaselines[documentName] = snapshotRequestBodies(baselineStore.workspace.documents[documentName]!)
+        requestBodyBaselines[documentName] = withMeasurementSync('snapshotRequestBodies', () =>
+          snapshotRequestBodies(baselineStore.workspace.documents[documentName]!),
+        )
       }
       return requestBodyBaselines[documentName]?.[path]?.[method]
     },

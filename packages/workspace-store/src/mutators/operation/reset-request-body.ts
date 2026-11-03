@@ -53,8 +53,15 @@ export const resetOperationRequestBody = async (
   }
   const media = body.content[contentType]
   const current = getResolvedRef(media?.examples?.[meta.exampleKey])
+  const pathItem = document.paths?.[meta.path]
+  const hasSharedPath = pathItem && '$ref' in pathItem
+  const selectedExample = media?.examples?.[meta.exampleKey]
+  const hasSharedReference =
+    hasSharedPath ||
+    (operation.requestBody && '$ref' in operation.requestBody) ||
+    (selectedExample && '$ref' in selectedExample)
   // Preserve incoming aliases too: replacing their target would otherwise reset them as well.
-  if (current) {
+  if (current && !hasSharedReference) {
     for (const [otherPath, otherPathItem] of Object.entries(document.paths ?? {})) {
       forEachPathItemOperation(otherPathItem, (otherMethod, otherOperationInput) => {
         const otherOperation = getResolvedRef(otherOperationInput)
@@ -97,13 +104,6 @@ export const resetOperationRequestBody = async (
       })
     }
   }
-  const pathItem = document.paths?.[meta.path]
-  const hasSharedPath = pathItem && '$ref' in pathItem
-  const selectedExample = media?.examples?.[meta.exampleKey]
-  const hasSharedReference =
-    hasSharedPath ||
-    (operation.requestBody && '$ref' in operation.requestBody) ||
-    (selectedExample && '$ref' in selectedExample)
   // Keep ordinary examples in place: configured overrides use stable proxies whose nested
   // targets must be updated rather than replaced. Shared references are detached below.
   const example: ExampleObject = current && !hasSharedReference ? current : { ...current }

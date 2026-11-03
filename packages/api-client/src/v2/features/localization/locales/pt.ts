@@ -95,6 +95,8 @@ export const pt = {
     'openAPIClient': 'Abrir cliente de API',
   },
   'requestBody': {
+    'restoreOriginalBody': 'Restaurar o corpo original',
+    'createExampleFromSchema': 'Criar exemplo a partir do esquema',
     'noBody': 'Sem corpo',
     'delete': 'Excluir',
     'selectFile': 'Selecionar arquivo',

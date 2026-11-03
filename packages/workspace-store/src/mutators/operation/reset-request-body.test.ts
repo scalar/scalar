@@ -278,6 +278,48 @@ describe('reset-request-body', () => {
     const other = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/other'], 'post'))?.requestBody)
     expect(getExampleFromBody(selected!, contentType, 'selected')?.value).toStrictEqual({ name: 'original' })
     expect(getExampleFromBody(other!, contentType, 'selected')?.value).toBe('changed')
+    expect(document.paths?.['/other']?.$ref).toBe('#/paths/~1source')
+  })
+
+  it('preserves other operations and component references when detaching a shared example', async () => {
+    const { store } = await setup()
+    const original = store.getOriginalDocument('api')!
+    const sharedOperation = {
+      requestBody: {
+        content: { [contentType]: { examples: { selected: { $ref: '#/components/examples/Note' } } } },
+      },
+      responses: { '200': { description: 'OK' } },
+    }
+    await store.addDocument({
+      name: 'api',
+      document: {
+        ...original,
+        paths: {
+          '/items': { post: structuredClone(sharedOperation) },
+          '/other': { post: structuredClone(sharedOperation) },
+        },
+        components: { examples: { Note: { value: 'original' } } },
+      },
+    })
+    const document = store.workspace.documents.api
+    if (!isOpenApiDocument(document)) {
+      throw new Error('Missing document')
+    }
+    updateOperationRequestBodyExample(document, { meta, contentType, payload: 'changed' })
+    const before = await store.getEditableDocument('api')
+    await resetOperationRequestBody(store, reset)
+    const after = await store.getEditableDocument('api')
+    if (!isOpenApiDocument(before) || !isOpenApiDocument(after)) {
+      throw new Error('Missing editable document')
+    }
+    expect(after.paths?.['/other']).toStrictEqual(before.paths?.['/other'])
+    expect(after.components?.examples).toStrictEqual(before.components?.examples)
+    const other = getResolvedRef(getPathItemOperation(after.paths?.['/other'], 'post'))
+    expect(getResolvedRef(other?.requestBody)?.content[contentType]?.examples?.selected).toStrictEqual({
+      $ref: '#/components/examples/Note',
+    })
+    const selected = getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))
+    expect(getExampleFromBody(getResolvedRef(selected?.requestBody)!, contentType, 'selected')?.value).toBe('original')
   })
 
   it('preserves incoming example references when resetting their direct target', async () => {

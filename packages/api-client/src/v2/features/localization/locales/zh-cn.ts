@@ -95,6 +95,8 @@ export const zhCn = {
     'openAPIClient': '打开 API 客户端',
   },
   'requestBody': {
+    'restoreOriginalBody': '恢复原始请求体',
+    'createExampleFromSchema': '根据模式创建示例',
     'noBody': '无请求体',
     'delete': '删除',
     'selectFile': '选择文件',
