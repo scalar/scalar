@@ -107,6 +107,39 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each(['3.0.4', '3.1.2', '3.2.1'])('preserves arbitrary Paths extensions when importing %s', async (openapi) => {
+    const store = createWorkspaceStore()
+    const extensions = {
+      'x-owner': 'Pet platform team',
+      'x-enabled': false,
+      'x-count': 0,
+      'x-empty': null,
+      'x-origins': ['https://example.com'],
+      'x-methods': { get: { tags: ['metadata'], security: [{ token: [] }] } },
+    }
+    await store.addDocument({
+      name: 'extensions',
+      document: {
+        openapi,
+        info: { title: 'Pets', version: '1' },
+        paths: {
+          ...extensions,
+          '/pet': { 'x-owner': 'Path owner', get: { responses: { '200': { description: 'OK' } } } },
+        },
+      },
+    })
+    const document = getOpenApiDocument(store, 'extensions')
+    for (const [key, value] of Object.entries(extensions)) {
+      expect(document?.paths?.[key]).toStrictEqual(value)
+    }
+    expect(
+      Object.entries(getResolvedRef(document?.paths?.['/pet']) ?? {}).find(([key]) => key === 'x-owner'),
+    ).toStrictEqual(['x-owner', 'Path owner'])
+    expect(
+      getResolvedRef(getResolvedRef(getResolvedRef(document?.paths?.['/pet'])?.get)?.responses?.['200'])?.description,
+    ).toBe('OK')
+  })
+
   it('preserves and resolves streaming item schemas when importing OpenAPI 3.2', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

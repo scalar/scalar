@@ -127,29 +127,36 @@ describe('Operation', () => {
   it.each(['modern', 'classic'] as const)(
     'renders selected Paths Object extensions in each operation in %s',
     async (layout) => {
-      const document = coerceValue(OpenAPIDocumentSchema, {
-        openapi: '3.0.1',
-        info: { title: 'Pets', version: '1' },
-        paths: {
-          'x-origins': ['https://example.com'],
-          'x-hidden': 'secret',
-          '/pet': { get: {}, post: {} },
+      const store = createWorkspaceStore()
+      await store.addDocument({
+        name: 'pets',
+        document: {
+          openapi: '3.0.1',
+          info: { title: 'Pets', version: '1' },
+          paths: {
+            'x-origins': ['https://example.com'],
+            'x-owner': 'Pet platform team',
+            'x-hidden': 'secret',
+            '/pet': { get: {}, post: {} },
+          },
         },
       })
+      const document = store.workspace.documents.pets as OpenApiDocument
       for (const method of ['get', 'post']) {
         const wrapper = mountOperationWithConfig({
           document,
           path: '/pet',
           pathValue: document.paths?.['/pet'],
           method,
-          options: { layout, showExtensions: ['x-origins'] },
+          options: { layout, showExtensions: ['x-origins', 'x-owner'] },
         })
         expect(wrapper.text()).toContain('https://example.com')
+        expect(wrapper.text()).toContain('Pet platform team')
         expect(wrapper.text()).not.toContain('secret')
         await wrapper.setProps({ options: { ...wrapper.props('options'), showExtensions: [] } })
         expect(wrapper.text()).not.toContain('https://example.com')
         await wrapper.setProps({
-          options: { ...wrapper.props('options'), showExtensions: ['x-origins'] },
+          options: { ...wrapper.props('options'), showExtensions: ['x-origins', 'x-owner'] },
           isWebhook: true,
         })
         expect(wrapper.text()).not.toContain('https://example.com')

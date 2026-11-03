@@ -1,6 +1,7 @@
 import { escapeJsonPointer } from '@scalar/json-magic/helpers/escape-json-pointer'
 
 import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for-each-path-item-operation'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
@@ -121,12 +122,7 @@ export const traversePaths = ({
   const untaggedOperations: TraversedOperation[] = []
 
   // Traverse paths
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
-    // Extension objects may contain method-shaped keys without defining operations.
-    if (path.startsWith('x-')) {
-      return
-    }
-
+  getPathEntries(document.paths).forEach(([path, pathItemRef]) => {
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       const operation = getResolvedRef(operationRef, mergeSiblingReferences)
       if (!operation) {

@@ -44,6 +44,7 @@ import {
   getXKeysFromObject,
   SpecificationExtension,
 } from '@/features/specification-extension'
+import { usePathsExtensions } from '@/features/specification-extension/use-paths-extensions'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -56,6 +57,7 @@ const {
   operation,
   options,
   path,
+  pathValue,
   requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
@@ -87,6 +89,9 @@ const { translate } = useLocalization()
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
+
+const pathsExtensions = usePathsExtensions(() => document?.paths)
+const pathExtensions = computed(() => getXKeysFromObject(pathValue))
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
@@ -198,11 +203,11 @@ const { level: headingLevel } = useDocumentOutline('operation')
           <SpecificationExtension
             v-if="!isWebhook"
             :showExtensions="options.showExtensions"
-            :value="document?.paths" />
+            :value="pathsExtensions" />
           <SpecificationExtension
             v-if="!isWebhook"
             :showExtensions="options.showExtensions"
-            :value="pathValue" />
+            :value="pathExtensions" />
 
           <SpecificationExtension
             :showExtensions="options.showExtensions"

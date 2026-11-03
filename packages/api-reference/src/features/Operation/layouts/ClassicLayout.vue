@@ -50,6 +50,7 @@ import {
   getXKeysFromObject,
   SpecificationExtension,
 } from '@/features/specification-extension'
+import { usePathsExtensions } from '@/features/specification-extension/use-paths-extensions'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -62,6 +63,7 @@ const {
   operation,
   options,
   path,
+  pathValue,
   requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
@@ -91,6 +93,9 @@ defineSlots<{
 const { translate } = useLocalization()
 
 const operationTitle = computed(() => operation.summary || path || '')
+
+const pathsExtensions = usePathsExtensions(() => document?.paths)
+const pathExtensions = computed(() => getXKeysFromObject(pathValue))
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
@@ -254,14 +259,20 @@ const { level: headingLevel } = useDocumentOutline('operation')
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
-        <SpecificationExtension
-          v-if="!isWebhook"
-          :showExtensions="options.showExtensions"
-          :value="document?.paths" />
-        <SpecificationExtension
-          v-if="!isWebhook"
-          :showExtensions="options.showExtensions"
-          :value="pathValue" />
+        <div
+          v-if="!isWebhook && Object.keys(pathsExtensions).length > 0"
+          class="operation-details-card-item">
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="pathsExtensions" />
+        </div>
+        <div
+          v-if="!isWebhook && Object.keys(pathExtensions).length > 0"
+          class="operation-details-card-item">
+          <SpecificationExtension
+            :showExtensions="options.showExtensions"
+            :value="pathExtensions" />
+        </div>
 
         <div
           v-if="Object.keys(operationExtensions).length > 0"
