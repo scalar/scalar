@@ -59,6 +59,16 @@ const setup = async (
 }
 
 describe('reset-request-body', () => {
+  it('leaves method-shaped Paths extensions untouched when resetting a body', async () => {
+    const { store, document, read, edit } = await setup()
+    const extension = { post: { requestBody: { description: 'metadata' } } }
+    Object.assign(document.paths!, { 'x-meta': extension })
+    edit('changed')
+    await resetOperationRequestBody(store, reset)
+    expect(read()?.value).toStrictEqual({ name: 'original' })
+    expect(document.paths?.['x-meta']).toStrictEqual(extension)
+  })
+
   it.each([false, 0, null, '', { name: 'original' }])(
     'restores the authored value %j without changing other request data',
     async (value) => {

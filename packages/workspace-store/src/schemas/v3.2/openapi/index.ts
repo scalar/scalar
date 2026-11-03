@@ -1,8 +1,10 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import {
   type Schema,
   any,
   array,
   boolean,
+  evaluate,
   intersection,
   lazy,
   literal,
@@ -14,6 +16,7 @@ import {
   union,
 } from '@scalar/validation'
 
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { extensions } from '@/schemas/extensions'
 import { XInternal } from '@/schemas/extensions/document/x-internal'
 import { XScalarDefaultRequestBodyView } from '@/schemas/extensions/document/x-scalar-default-request-body-view'
@@ -1173,10 +1176,14 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
         }),
       ),
       paths: optional(
-        record(string(), pathItem, {
-          typeComment: 'The available paths and operations for the API.',
-          typeName: 'PathsObject',
-        }),
+        // Extensions keep their original values when the coerced document is merged back.
+        evaluate(
+          (value) => Object.fromEntries(getPathEntries(isObject(value) ? value : undefined)),
+          record(string(), pathItem, {
+            typeComment: 'The available paths and operations for the API.',
+            typeName: 'PathsObject',
+          }),
+        ),
       ),
       webhooks: optional(
         record(string(), pathItem, {
