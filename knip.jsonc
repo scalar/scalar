@@ -8,6 +8,8 @@
     // CSS files imported via @import or Vue components — knip cannot trace CSS imports
     "**/*.css",
     // Referenced in scalar.config.json
+    "documentation/assets/agent-hero.js",
+    "documentation/assets/agent-marks.js",
     "documentation/assets/landing.js",
     "documentation/assets/powered-by.js",
     "documentation/assets/fathom.js",
