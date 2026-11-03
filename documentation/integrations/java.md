@@ -155,6 +155,47 @@ scalar.path=/docs
 scalar.pageTitle=My API Documentation
 ```
 
+### Additional UI and Client Options
+
+These options work in both WebMVC and WebFlux. Omitted values use the frontend defaults.
+
+| Spring property | Values |
+| --- | --- |
+| `scalar.hide-model-names` | `true` or `false` |
+| `scalar.schema-keyboard-nav` | `true` or `false` |
+| `scalar.expand-all-parameters` | `true` or `false` |
+| `scalar.max-visible-request-body-properties` | Nonnegative integer; `0` shows all |
+| `scalar.default-request-body-view` | `form` or `raw` |
+| `scalar.show-extensions` | List of extension keys such as `x-internal` |
+| `scalar.featured-clients` | Ordered list of full client IDs such as `node/fetch` |
+| `scalar.url-routing` | `false` leaves the browser URL and history unchanged |
+| `scalar.oauth2-redirect-uri` | Default OAuth redirect URI |
+| `scalar.agent.hide-add-api` | Hide the agent's control for adding APIs; also available under each source |
+
+Override individual service URLs with `scalar.external-urls.dashboard-url`,
+`registry-url`, `proxy-url`, and `api-base-url`. Unset URLs retain their defaults.
+
+For hidden clients, choose exactly one of `all`, `clients`, or `targets`:
+
+```yaml
+scalar:
+  hidden-clients:
+    targets:
+      python:
+        all: true
+      node:
+        clients: [fetch]
+  featured-clients: [shell/curl, node/axios]
+```
+
+Use `scalar.hidden-clients.all=true` to hide every client. Set it to `false`,
+or set `clients: []`, to show all clients, including clients hidden by default.
+The `clients` list accepts target names, client names, and full client IDs.
+Each target entry accepts either `all` or `clients`; target entries cannot contain more targets.
+
+The Java API uses `ScalarHiddenClients` and `ScalarExternalUrls` for the same
+options. These are serialized into the frontend's native configuration shapes.
+
 ### Localization
 
 Both WebMVC and WebFlux support UI localization through Spring Boot properties.
@@ -183,6 +224,60 @@ scalar:
 
 Translation overrides are merged with the built-in locale and English fallback.
 When localization is omitted, the UI uses English.
+
+### Inline API Descriptions and Document Identity
+
+Use `content` for a JSON or YAML string, or `content-map` for a Spring-bound
+object. Both forms are available globally and under each `sources` entry.
+Inline content takes precedence over a URL, including the default sample URL.
+Global `content` also takes precedence over per-source `url` values because the
+frontend copies global fields onto every source. To display different documents,
+set content or a URL on each source and leave global content unset.
+Use only one content form at a time.
+
+```yaml
+scalar:
+  title: Internal API
+  slug: internal
+  page-title: Developer Portal
+  content: |
+    openapi: 3.1.2
+    info:
+      title: Internal API
+      version: '1'
+    paths: {}
+```
+
+`title` and `slug` identify the document. `page-title` controls the HTML page title.
+
+Prefer the text form for Spring configuration: YAML property flattening drops
+empty maps such as `paths: {}`, and binding can change JSON/YAML value types or
+special map keys. `content-map` remains available when these limitations are
+acceptable. Programmatic Java callers can use `setContent(String)` or pass a
+`Map<String, Object>` to `setContent(Object)`.
+
+### Authentication Alternatives
+
+`scalar.authentication.create-any-security-scheme=true` allows users to add
+authentication schemes that are not declared in the API description.
+
+The existing `preferred-security-schemes` flat list still selects alternatives.
+For schemes that must be used together, use `preferred-security-scheme-groups`:
+
+```yaml
+scalar:
+  authentication:
+    preferred-security-scheme-groups:
+      - [apiKey, bearer]
+      - [oauth]
+```
+
+This represents `(apiKey AND bearer) OR oauth`. Choose either the flat list or
+groups. The Java setters `setPreferredSecurityScheme(String)` and
+`setPreferredSecuritySchemes(List<String>)` remain available;
+`setPreferredSecuritySchemeGroups(List<List<String>>)` adds grouped alternatives.
+Setting one form replaces the other. The legacy flat-list getter returns null
+when grouped preferences are configured.
 
 ### Multiple OpenAPI Documents
 
