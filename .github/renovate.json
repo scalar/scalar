@@ -344,11 +344,6 @@
       "matchFileNames": ["examples/ssg/**"],
       "additionalBranchPrefix": "ssg-example"
     },
-    {
-      "description": "Examples - Web",
-      "matchFileNames": ["examples/web/**"],
-      "additionalBranchPrefix": "web-example"
-    },
 
     {
       "description": "Do not group GitHub actions",
