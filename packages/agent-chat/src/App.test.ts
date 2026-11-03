@@ -15,10 +15,101 @@ const props = {
 
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.useRealTimers()
   localStorage.clear()
 })
 
 describe('App', () => {
+  it.each(['preview', 'full'] as const)(
+    'retries the selected description in %s mode and allows questions as soon as it is ready',
+    async (mode) => {
+      vi.useFakeTimers()
+      localStorage.setItem('scalar/agent-terms-accepted', 'true')
+      const previousDocument = JSON.stringify({ namespace: 'previous', slug: 'preview' })
+      localStorage.setItem('scalar-tmp-doc', previousDocument)
+      const content = JSON.stringify({ openapi: '3.1.0', info: { title: 'Selected', version: '1' }, paths: {} })
+      let resolveEmbedding: (response: Response) => void = () => {
+        throw new Error('Embedding response is not initialized')
+      }
+      const embedding = new Promise<Response>((resolve) => {
+        resolveEmbedding = resolve
+      })
+      const uploads: string[] = []
+      const chats: unknown[] = []
+      const metadata = {
+        id: 'selected',
+        namespace: 'share',
+        slug: 'selected',
+        title: 'Selected',
+        currentVersion: '1',
+        logoUrl: null,
+      }
+      vi.spyOn(globalThis, 'fetch').mockImplementation((url, options) => {
+        const path = String(url)
+        const respond = (body: unknown): Promise<Response> => Promise.resolve(new Response(JSON.stringify(body)))
+        if (path.includes('/upload/')) {
+          uploads.push(String(options?.body))
+          return uploads.length === 1
+            ? Promise.resolve(new Response('{}', { status: 500 }))
+            : respond({ namespace: 'share', slug: 'selected', url: 'https://registry.example.com/share/apis/selected' })
+        }
+        if (path.includes('/embeddings/')) {
+          return embedding
+        }
+        if (path.includes('/registry/document/share/')) {
+          return respond(metadata)
+        }
+        if (path.includes('/@share/apis/')) {
+          return Promise.resolve(new Response(content))
+        }
+        if (path.endsWith('/chat')) {
+          chats.push(JSON.parse(String(options?.body)))
+          return Promise.resolve(
+            new Response('data: [DONE]\n\n', {
+              headers: { 'content-type': 'text/event-stream', 'x-vercel-ai-ui-message-stream': 'v1' },
+            }),
+          )
+        }
+        return respond({ results: [] })
+      })
+      const wrapper = mount(App, {
+        props: {
+          ...props,
+          mode,
+          getActiveDocumentJson: () => content,
+          getAgentKey: mode === 'full' ? () => 'key' : undefined,
+        },
+      })
+      try {
+        await flushPromises()
+        await wrapper.get('textarea').setValue('Explain this API')
+        await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+        expect(chats).toStrictEqual([])
+        const retry = wrapper.findAll('button').find((button) => button.text() === 'Retry upload')
+        expect(retry?.text()).toBe('Retry upload')
+        await retry?.trigger('click')
+        await flushPromises()
+        expect(uploads).toStrictEqual([JSON.stringify({ document: content }), JSON.stringify({ document: content })])
+        expect(wrapper.text()).toContain('Processing API description')
+        await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+        expect(chats).toStrictEqual([])
+
+        resolveEmbedding(new Response('null'))
+        await flushPromises()
+        expect(wrapper.text()).toContain('Your API description has been processed successfully.')
+        expect(localStorage.getItem('scalar-tmp-doc')).toBe(
+          mode === 'preview' ? JSON.stringify({ namespace: 'share', slug: 'selected' }) : previousDocument,
+        )
+        // The success message stays visible, but it must not delay the user's question.
+        await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
+        await flushPromises()
+        expect(chats.length).toBe(1)
+      } finally {
+        wrapper.unmount()
+      }
+    },
+  )
+
   it.each([
     ['openapi', 'preview', true],
     ['asyncapi', 'preview', true],

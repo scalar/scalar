@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarLoading, useLoadingState } from '@scalar/components/loading'
 import { ScalarIconCheck, ScalarIconXCircle } from '@scalar/icons'
 import { computed } from 'vue'
 
 import { type UploadTmpDocumentState } from '@/hooks/use-upload-tmp-document'
 
-const { uploadState } = defineProps<{
+const { uploadState, canRetry = false } = defineProps<{
   uploadState: UploadTmpDocumentState
+  canRetry?: boolean
 }>()
+
+defineEmits<{ retry: [] }>()
 
 const loadingState = useLoadingState()
 
@@ -61,6 +65,13 @@ const isLoading = computed(() =>
       <ScalarIconXCircle class="icon text-red" />
       {{ uploadState.error }}
     </strong>
+    <ScalarButton
+      v-if="uploadState.type === 'error' && canRetry"
+      size="sm"
+      variant="outlined"
+      @click="$emit('retry')">
+      Retry upload
+    </ScalarButton>
   </div>
 </template>
 

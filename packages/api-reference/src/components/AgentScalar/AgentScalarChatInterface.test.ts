@@ -135,10 +135,7 @@ describe('AgentScalarChatInterface', () => {
         for (const name of ['http', 'events', 'http']) {
           workspaceStore.update('x-scalar-active-document', name)
           await flushPromises()
-          await wrapper.get('textarea').setValue('Do not send while uploading')
-          await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
           expect(chats.length).toBe(uploads.length - 1)
-          await vi.advanceTimersByTimeAsync(5_000)
           await wrapper.get('textarea').setValue('Explain this API')
           await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
           await flushPromises()
