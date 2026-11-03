@@ -205,7 +205,7 @@ const { navigation } = defineProps<{
 | `traverse({ documentName, documentId, document })` | Returns entries with `id`, `title`, optional `kind`, and optional recursive `children`. Prefix IDs with `documentId` to keep them unique across documents. |
 | `content` | A `component`, optional custom `renderer`, and optional additional `props`. Custom renderers work as they do for view components, including plugins loaded through `pluginUrls`. |
 
-An `ingest` or `traverse` error produces the existing “could not be loaded” document. Documents no type claims continue through the built-in pipelines. Claimed documents retain their content and expose an `info` object; Scalar adds an empty object if the format has none. The internal `x-scalar-document-type` marker is managed by Scalar and excluded from saved and exported documents.
+An `ingest` or `traverse` error produces the existing “could not be loaded” document. Documents no type claims continue through the built-in pipelines. Claimed documents retain their content and expose an `info` object; Scalar adds an empty object if the format has none. The internal `x-scalar-document-type` marker is managed by Scalar and excluded from saved and exported documents. Do not add this marker to your input: the store strips incoming markers and assigns its own after a registered detector claims the document. Workspace snapshots retain the marker for hydration; use `addDocument` or `replaceDocument` for raw input, and `loadWorkspace` only for snapshots produced by a workspace store.
 
 #### Content Props and Scroll Tracking
 
@@ -220,7 +220,7 @@ An `ingest` or `traverse` error produces the existing “could not be loaded” 
 
 Scalar cannot infer which sections your component displays. To update the selected sidebar entry and URL while scrolling, observe your sections and emit `eventBus.emit('intersecting:nav-item', { id: entry.id })` when a section becomes active. Disconnect observers when the component unmounts. The minimal component above supports sidebar clicks and deep links but does not implement scroll tracking.
 
-Search, the API client, agent chat, and mock server do not support plugin documents yet. Registering a type adds document rendering to API Reference; it does not add request execution or format-specific validation to those surfaces.
+Search, the API client, agent chat, and mock server do not support plugin documents yet. Ask AI is hidden for plugin documents, and request/authentication tools and the mock server reject processed plugin documents rather than interpreting their fields as OpenAPI. Registering a type adds document rendering to API Reference; it does not add request execution or format-specific validation to those surfaces.
 
 ### Lifecycle Hooks
 

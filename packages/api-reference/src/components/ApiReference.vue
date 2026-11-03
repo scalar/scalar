@@ -1580,6 +1580,11 @@ const agent = useAgent({
   agentEnabled: computed(() => {
     const currentConfiguration = configList.value[activeSlug.value]
 
+    const document = workspaceStore.workspace.activeDocument
+    if (!isOpenApiDocument(document) && !isAsyncApiDocument(document)) {
+      return false
+    }
+
     if (currentConfiguration?.agent?.disabled) {
       return false
     }
@@ -1590,6 +1595,11 @@ const agent = useAgent({
 
     return Boolean(configList.value[activeSlug.value]?.agent?.key)
   }),
+})
+watch(agent.agentEnabled, (enabled) => {
+  if (!enabled) {
+    agent.closeAgent()
+  }
 })
 provide(AGENT_CONTEXT_SYMBOL, agent)
 

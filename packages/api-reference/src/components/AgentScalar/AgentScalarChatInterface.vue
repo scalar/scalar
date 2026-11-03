@@ -5,7 +5,10 @@ import type {
   ExternalUrls,
 } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
-import { isAsyncApiDocument } from '@scalar/workspace-store/schemas/type-guards'
+import {
+  isAsyncApiDocument,
+  isOpenApiDocument,
+} from '@scalar/workspace-store/schemas/type-guards'
 import { computed, ref, watch, type Ref } from 'vue'
 
 const {
@@ -19,13 +22,23 @@ const {
   workspaceStore: WorkspaceStore
   prefilledMessage?: Ref<string>
 }>()
+/** Only built-in API descriptions are supported by Ask AI. */
+const supportedDocument = computed(() => {
+  const document = workspaceStore.workspace.activeDocument
+  return isOpenApiDocument(document) || isAsyncApiDocument(document)
+    ? document
+    : undefined
+})
+
 /** A source change must not reuse the previous document's conversation or agent key. */
-const documentJson = computed(
-  () => workspaceStore.exportActiveDocument('json') ?? '',
+const documentJson = computed(() =>
+  supportedDocument.value
+    ? (workspaceStore.exportActiveDocument('json') ?? '')
+    : '',
 )
 /** Include the selected source even when an agent key grants access to several APIs. */
 const documentContext = computed(() => {
-  const document = workspaceStore.workspace.activeDocument
+  const document = supportedDocument.value
   if (!document) {
     return undefined
   }
@@ -57,6 +70,7 @@ watch(
 
 <template>
   <Chat
+    v-if="supportedDocument"
     :key="sessionKey"
     :baseUrl="externalUrls.apiBaseUrl"
     :dashboardUrl="externalUrls.dashboardUrl"
