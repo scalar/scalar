@@ -1,12 +1,27 @@
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
-import { flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { DOMWrapper, enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import AgentScalarChatInterface from './AgentScalarChatInterface.vue'
 
+enableAutoUnmount(afterEach)
+
+beforeEach(() => {
+  // Headless UI observes the consent dialog, but JSDOM does not implement layout observers.
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe = vi.fn()
+      unobserve = vi.fn()
+      disconnect = vi.fn()
+    },
+  )
+})
+
 afterEach(() => {
   vi.restoreAllMocks()
+  vi.unstubAllGlobals()
   vi.useRealTimers()
   localStorage.clear()
 })
@@ -28,6 +43,7 @@ describe('AgentScalarChatInterface', () => {
     workspaceStore.update('x-scalar-active-document', 'http')
     const prefilledMessage = ref('Explain GET /orders')
     const wrapper = mount(AgentScalarChatInterface, {
+      attachTo: document.body,
       props: {
         workspaceStore,
         prefilledMessage,
@@ -51,7 +67,7 @@ describe('AgentScalarChatInterface', () => {
     wrapper.unmount()
   })
   it.each([undefined, 'agent-key'])(
-    'uploads each selected description and preserves agent key %s across format switches',
+    'confirms each selected description upload and preserves agent key %s across format switches',
     async (key) => {
       vi.useFakeTimers()
       if (!key) {
@@ -120,6 +136,7 @@ describe('AgentScalarChatInterface', () => {
         return respond({ results: [] })
       })
       const wrapper = mount(AgentScalarChatInterface, {
+        attachTo: document.body,
         props: {
           workspaceStore,
           agentScalarConfiguration: key ? { key } : undefined,
@@ -133,9 +150,19 @@ describe('AgentScalarChatInterface', () => {
       })
       try {
         for (const name of ['http', 'events', 'http']) {
+          const uploadCount = uploads.length
           workspaceStore.update('x-scalar-active-document', name)
           await flushPromises()
-          expect(chats.length).toBe(uploads.length - 1)
+          expect(uploads.length).toBe(uploadCount)
+          expect(chats.length).toBe(uploadCount)
+          const dialog = new DOMWrapper(document.body).get('[role=dialog]')
+          expect(dialog.text()).toContain(name === 'http' ? 'HTTP' : 'Events')
+          const confirm = dialog.findAll('button').find((button) => button.text() === 'Upload and continue')
+          expect(confirm?.text()).toBe('Upload and continue')
+          await confirm?.trigger('click')
+          await flushPromises()
+          expect(uploads.length).toBe(uploadCount + 1)
+          expect(chats.length).toBe(uploadCount)
           await wrapper.get('textarea').setValue('Explain this API')
           await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
           await flushPromises()

@@ -1,10 +1,23 @@
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ApiReference from './ApiReference.vue'
 
 // Exercise the real drawer and chat so lazy mounting cannot conceal a rendering failure.
 enableAutoUnmount(afterEach)
+
+beforeEach(() => {
+  // The real chat opens a Headless UI dialog; JSDOM has no ResizeObserver.
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe = vi.fn()
+      unobserve = vi.fn()
+      disconnect = vi.fn()
+    },
+  )
+})
+afterEach(() => vi.unstubAllGlobals())
 
 const content = {
   openapi: '3.1.0',
