@@ -53,8 +53,8 @@ const NO_BODY_STATUS_CODES = [204, 205, 304]
 
 /**
  * The Fetch `Response` constructor only accepts statuses in [200, 599].
- * Network responses can still carry custom codes (for example 600/601), so we
- * clamp when reconstructing a Response and keep the real status on ResponseInstance.
+ * Network responses may use any other status in 0–999 (1xx, 6xx+, custom codes),
+ * so clamp only for reconstruction and keep the real status on ResponseInstance.
  *
  * @see https://fetch.spec.whatwg.org/#dom-response-response
  */

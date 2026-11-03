@@ -467,40 +467,43 @@ describe('sendRequest', () => {
   })
 
   /**
-   * Network stacks can return custom status codes outside the Fetch Response
-   * constructor range [200, 599]. We cannot build those with `new Response`, so
-   * the mock mirrors a network Response shape instead.
+   * Fetch's Response constructor only allows [200, 599]. Any other network
+   * status in 0–999 must still be shown with its body. Mocks use a Response-like
+   * object because `new Response(..., { status })` throws outside that range.
    */
-  it.each([600, 601, 100, 999])('surfaces nonstandard status code %s with the response body', async (status) => {
-    const body = JSON.stringify({ code: status, message: 'custom business error' })
-    const headers = new Headers({ 'content-type': 'application/json' })
-    const arrayBuffer = new TextEncoder().encode(body).buffer
+  it.each([0, 100, 103, 199, 600, 601, 700, 850, 999])(
+    'surfaces status %s outside the Response constructor range with the response body',
+    async (status) => {
+      const body = JSON.stringify({ code: status, message: 'custom status' })
+      const headers = new Headers({ 'content-type': 'application/json' })
+      const arrayBuffer = new TextEncoder().encode(body).buffer
 
-    const mockResponse = {
-      status,
-      statusText: '',
-      headers,
-      ok: false,
-      url: MOCK_URL,
-      body: null,
-      clone: () => mockResponse,
-      arrayBuffer: async () => arrayBuffer,
-    } as unknown as Response
+      const mockResponse = {
+        status,
+        statusText: '',
+        headers,
+        ok: false,
+        url: MOCK_URL,
+        body: null,
+        clone: () => mockResponse,
+        arrayBuffer: async () => arrayBuffer,
+      } as unknown as Response
 
-    globalFetchSpy.mockResolvedValueOnce(mockResponse)
+      globalFetchSpy.mockResolvedValueOnce(mockResponse)
 
-    const [error, result] = await sendRequest({
-      isUsingProxy: false,
-      requestPayload: [MOCK_URL, {}],
-    })
+      const [error, result] = await sendRequest({
+        isUsingProxy: false,
+        requestPayload: [MOCK_URL, {}],
+      })
 
-    expect(error).toBe(null)
-    if (!result || !('data' in result.response)) {
-      throw new Error('No data')
-    }
-    expect(result.response.status).toBe(status)
-    expect(result.response.data).toBe(body)
-  })
+      expect(error).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result.response.status).toBe(status)
+      expect(result.response.data).toBe(body)
+    },
+  )
 
   it('handles empty response body', async () => {
     const mockEmptyStream = new ReadableStream({
