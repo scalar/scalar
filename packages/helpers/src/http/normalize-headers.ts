@@ -62,18 +62,17 @@ export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false):
         delete headers[key]
         return
       }
-      if (headers[key]) {
-        headers[originalKey] = headers[key]
-        delete headers[key]
-      }
+      // An upstream header can be empty, and our internal name must not show up for it
+      headers[originalKey] = headers[key] ?? ''
+      delete headers[key]
     }
   })
 
   // Normalizes the header keys
   Object.keys(headers).forEach((key) => {
     const formattedKey = formatHeaderKey(key)
-    if (key !== formattedKey && headers[key]) {
-      headers[formattedKey] = headers[key]
+    if (key !== formattedKey) {
+      headers[formattedKey] = headers[key] ?? ''
       delete headers[key]
     }
   })

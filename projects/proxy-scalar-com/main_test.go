@@ -1357,6 +1357,63 @@ func TestUntrustedContentHeaders(t *testing.T) {
 	})
 }
 
+func TestServiceWorkerRequests(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	t.Run("Answers an update check with a script that unregisters the worker", func(t *testing.T) {
+		called := false
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			called = true
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		req.Header.Set("Sec-Fetch-Mode", "same-origin")
+		req.Header.Set("Sec-Fetch-Dest", "serviceworker")
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		// Anything but a successful script response leaves the old worker installed
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+		if got := w.Header().Get("Content-Type"); got != "text/javascript" {
+			t.Errorf("Expected a JavaScript content type, got %q", got)
+		}
+		if got := w.Header().Get("Cache-Control"); got != "no-store" {
+			t.Errorf("Expected the script not to be cached, got %q", got)
+		}
+		if !strings.Contains(w.Body.String(), "registration.unregister()") {
+			t.Errorf("Expected a script that unregisters the worker, got %q", w.Body.String())
+		}
+		if called {
+			t.Error("Expected the target not to be contacted")
+		}
+	})
+}
+
+func TestSpeculationRulesHeader(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Speculation-Rules", `"https://attacker.example/rules.json"`)
+	})
+	defer targetServer.server.Close()
+
+	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+	w := httptest.NewRecorder()
+
+	proxyServer.handleRequest(w, req)
+
+	if got := w.Header().Get("Speculation-Rules"); got != "" {
+		t.Errorf("Expected the header to be removed, got %q", got)
+	}
+	if got := w.Header().Get("X-Scalar-Original-Speculation-Rules"); got != `"https://attacker.example/rules.json"` {
+		t.Errorf("Expected the upstream value to be passed on, got %q", got)
+	}
+}
+
 func TestDocumentRequests(t *testing.T) {
 	proxyServer := NewProxyServer(true)
 
@@ -1371,7 +1428,6 @@ func TestDocumentRequests(t *testing.T) {
 		{name: "older Chrome iframe", headers: map[string]string{"Sec-Fetch-Mode": "nested-navigate", "Sec-Fetch-Dest": "iframe"}},
 		{name: "worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "worker"}},
 		{name: "shared worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "sharedworker"}},
-		{name: "service worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "serviceworker"}},
 	}
 
 	for _, tc := range documentRequests {
