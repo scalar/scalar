@@ -3134,6 +3134,35 @@
                   }
                 }
               },
+              "../../products/api-hosting": {
+                "type": "page",
+                "title": "API Hosting",
+                "filepath": "documentation/guides/api-hosting/index.md",
+                "description": "Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.",
+                "showInSidebar": false,
+                "layout": {
+                  "toc": false,
+                  "pageTitle": false,
+                  "pageActions": false,
+                  "feedback": false,
+                  "pageNav": false
+                },
+                "head": {
+                  "title": "API Hosting for server frameworks",
+                  "scripts": [
+                    {
+                      "path": "documentation/assets/api-hosting-hero.js",
+                      "defer": true
+                    }
+                  ],
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/products/api-hosting"
+                    }
+                  ]
+                }
+              },
               "../../products/api-references": {
                 "title": "API References",
                 "description": "Generate beautiful, interactive API documentation from OpenAPI and AsyncAPI specifications with customizable themes.",
