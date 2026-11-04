@@ -11,6 +11,7 @@ Manage shared schemas in the Scalar Registry.
 | [`scalar schema list`](#list) | List shared schemas in a team namespace |
 | [`scalar schema get`](#get) | Download a shared schema version from the Scalar Registry |
 | [`scalar schema publish`](#publish) | Publish a shared schema to the Scalar Registry |
+| [`scalar schema diff`](#diff) | Compare two schema versions, files, or URLs |
 
 ## delete
 
@@ -121,3 +122,29 @@ scalar schema publish [options] [file]
 | `--urlMap` | Generate a map of resolved URLs when bundling the document. |  |
 | `--fetchLimit <limit>` | Maximum number of concurrent URL fetches when bundling. |  |
 | `--no-input` | Disable prompts and browser launches. |  |
+
+## diff
+
+Compare two schema versions, files, or URLs.
+
+```bash
+scalar schema diff [options] <from> <to>
+```
+
+**Arguments**
+
+| Argument | Description |
+| --- | --- |
+| `from` | **Required.** Published schema (namespace/slug@version), file, or URL. |
+| `to` | **Required.** Published schema (namespace/slug@version), file, or URL. |
+
+**Options**
+
+| Option | Description |
+| --- | --- |
+| `-v, --verbose` | Show the full before and after value of every change. |
+| `--json` | Output the changes as JSON. |
+| `--check [exit-code]` | Exit with a non-zero code when the schemas differ (default 1). |
+| `-q, --quiet` | Print nothing; use with --check to only set the exit code. |
+| `--ignore <pointer...>` | Skip changes at or under a JSON Pointer (repeatable). |
+| `--no-input` | Disable prompts and browser launches. |

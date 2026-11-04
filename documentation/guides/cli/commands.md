@@ -73,6 +73,7 @@ Manage shared schemas in the Scalar Registry.
 - [`scalar schema list`](commands/schema.md#list): List shared schemas in a team namespace
 - [`scalar schema get`](commands/schema.md#get): Download a shared schema version from the Scalar Registry
 - [`scalar schema publish`](commands/schema.md#publish): Publish a shared schema to the Scalar Registry
+- [`scalar schema diff`](commands/schema.md#diff): Compare two schema versions, files, or URLs
 
 ## [scalar sdk](commands/sdk.md)
 
