@@ -50,6 +50,12 @@
   z-index: 123123123123 !important;
 }
 
+/* A nested sidebar group with no icon in the config still gets the renderer's list icon. Icons from the
+   config carry a class of their own, so this is only ever that one. */
+button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
+  display: none;
+}
+
 .docs-overview-card {
   display: flex;
   position: relative;

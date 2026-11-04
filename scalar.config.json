@@ -2572,14 +2572,17 @@
                     "filepath": "documentation/guides/sdks/index.md",
                     "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives.",
                     "layout": {
+                      "toc": false,
                       "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     },
                     "head": {
                       "title": "SDK generator from OpenAPI — TypeScript, Python, Go & more",
                       "scripts": [
                         {
-                          "path": "documentation/assets/sdk-demo.js"
+                          "path": "documentation/assets/sdk-hero.js",
+                          "defer": true
                         }
                       ],
                       "links": [
@@ -2675,7 +2678,6 @@
                     "title": "Publishing",
                     "type": "group",
                     "mode": "nested",
-                    "icon": "phosphor/regular/rocket-launch",
                     "children": {
                       "overview": {
                         "filepath": "documentation/guides/sdks/publishing/overview.md",

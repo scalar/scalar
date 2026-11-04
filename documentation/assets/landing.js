@@ -7780,6 +7780,13 @@ initEnterpriseRing()
 initLandingHostStage()
 initEnterpriseSky()
 measureDocsHero()
+/* a hero with no field has nothing else watching the window: initDocsHero stops before it listens.
+   Under reduced motion the site gives everything a .01ms transition, so the column only reaches its
+   new box on the second frame, and has to be measured again there. */
+window.addEventListener('resize', () => {
+  measureDocsHero()
+  requestAnimationFrame(() => requestAnimationFrame(measureDocsHero))
+})
 initDocsHero()
 
 const observer = new MutationObserver((records) => {
@@ -7813,6 +7820,9 @@ const observer = new MutationObserver((records) => {
   initEnterpriseSky()
   docsHeroSyncs.forEach((sync) => sync())
   measureDocsHero()
+  /* the same late column as on a resize: under reduced motion, a hero arriving from a page laid out
+     differently is still on its way to its box here */
+  requestAnimationFrame(() => requestAnimationFrame(measureDocsHero))
   initDocsHero()
 })
 
