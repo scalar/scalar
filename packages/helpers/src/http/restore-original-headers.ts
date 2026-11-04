@@ -1,12 +1,11 @@
 import { X_SCALAR_MODIFIED_HEADERS, X_SCALAR_ORIGINAL_PREFIX } from '@/http/scalar-headers'
 
 /**
- * Returns the response headers as the API sent them, before the Scalar proxy or the desktop app
- * changed them.
+ * Returns the response headers as the API sent them, before the Scalar proxy changed them.
  *
- * Both replace some headers with their own values (for example a sandboxing
- * `Content-Security-Policy`) so the browser does not act on them. They list those headers in
- * `X-Scalar-Modified-Headers` and pass the upstream values on as `X-Scalar-Original-*`.
+ * The proxy replaces some headers with its own values (for example a sandboxing
+ * `Content-Security-Policy`) so the browser does not act on them. It lists those headers in
+ * `X-Scalar-Modified-Headers` and passes the upstream values on as `X-Scalar-Original-*`.
  *
  * Unlike `normalizeHeaders`, this keeps every other header untouched, including the key casing, so
  * it is safe to hand to scripts and tools that inspect the raw response.

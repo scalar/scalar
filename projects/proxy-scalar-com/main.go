@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -425,10 +426,12 @@ func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValida
 
 // executeProxyRequest handles the proxying logic
 //
-// 1. Preserves all original headers (except CORS headers)
-// 2. Maintains session state through redirects
-// 3. Adds consistent CORS headers to allow browser access
-// 4. Tracks the final URL after any redirects
+//  1. Forwards the request headers, except Origin, Cookie (sent through
+//     X-Scalar-Cookie instead) and headers the browser adds for the proxy origin
+//  2. Follows same-origin redirects and maintains session state through them
+//  3. Passes on the upstream response, minus headers that would act on the
+//     proxy origin (see untrustedResponseHeaders), with consistent CORS headers
+//  4. Tracks the final URL after any redirects
 func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
 	client := &http.Client{
 		Transport: ps.transport,
@@ -465,7 +468,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Create the outbound request
-	outreq, err := http.NewRequest(r.Method, target, r.Body)
+	body, err := replayableBody(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
+	}
+
+	outreq, err := http.NewRequest(r.Method, target, body)
 
 	// Return error if request creation fails
 	if err != nil {
@@ -484,6 +493,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			outreq.Header[key] = values
 		}
 	}
+
+	// The browser advertises compression dictionaries it stored for the proxy
+	// origin. Those came from whichever API set them, so they must not be sent
+	// to every other API called through the proxy.
+	outreq.Header.Del("Available-Dictionary")
+	outreq.Header.Del("Dictionary-Id")
 
 	// Users need to specifically set their cookies in X-Scalar-Cookie
 	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
@@ -514,9 +529,10 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	redirectLocation := ""
 
-	// A 307/308 with a non-replayable body is returned without CheckRedirect.
-	// Reject cross-origin Locations here too so the browser cannot replay the
-	// original request outside the proxy's origin policy.
+	// A 3xx reaches this point when Go did not follow it: a 300, or a 307/308
+	// whose request body was too large to replay. Reject cross-origin Locations
+	// here too, so the response never points the client outside the proxy's
+	// origin policy.
 	if resp.StatusCode >= 300 && resp.StatusCode < 400 && len(resp.Header.Values("Location")) > 0 {
 		// Header.Get only looks at the first value. An empty first value followed
 		// by a real one would skip this check, so look at all of them.
@@ -533,34 +549,31 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return err
 		}
 
-		var destination *url.URL
-		var err error
 		if len(locations) == 1 {
-			resp.Header.Set("Location", locations[0])
-			destination, err = resp.Location()
+			destination, err := resp.Request.URL.Parse(locations[0])
+			if err != nil {
+				err := fmt.Errorf("redirect with an invalid Location is not allowed: %v", err)
+				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				return err
+			}
+
+			if !sameOrigin(remote, destination) {
+				err := fmt.Errorf("redirect to a different origin is not allowed")
+				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				return err
+			}
+
+			redirectLocation = destination.String()
 		}
 
-		if len(locations) == 0 {
-			// Nothing to follow, so do not forward empty values either
-			resp.Header.Del("Location")
-		} else if err != nil || !sameOrigin(remote, destination) {
-			err := fmt.Errorf("redirect to a different origin is not allowed")
-			http.Error(w, err.Error(), http.StatusServiceUnavailable)
-			return err
-		}
-
-		// A 3xx that reaches the browser is one Go did not follow: a 300, or a
-		// 307/308 whose body cannot be replayed. The upstream picked the target, so
-		// letting the browser follow it would be an open redirect for browsers
-		// that do not send Sec-Fetch-* headers. Pass on the absolute URL we
-		// validated as X-Scalar-Original-Location instead, which the API client
-		// shows as Location. That also avoids parser differences: Go resolves
+		// The upstream picked the target, so letting the browser follow it
+		// would be an open redirect for browsers that do not send Sec-Fetch-*
+		// headers. Pass on the absolute URL we validated as
+		// X-Scalar-Original-Location instead, which the API client shows as
+		// Location. That also avoids parser differences: Go resolves
 		// `/\attacker.example/` to a path on the upstream host, while browsers
 		// treat the backslash as a slash.
 		resp.Header.Del("Location")
-		if destination != nil {
-			redirectLocation = destination.String()
-		}
 	}
 
 	// Copy headers from final response, but skip CORS headers and headers the
@@ -693,9 +706,17 @@ func isDocumentRequest(r *http.Request) bool {
 //     to the proxy
 //   - No-Vary-Search makes the browser cache ignore the query string. Every
 //     proxied URL is `/?scalar_url=...`, so one API could answer for all others.
+//   - Use-As-Dictionary stores the response as a compression dictionary for
+//     the proxy origin. The browser then sends its hash and an ID the upstream
+//     picked on later proxy requests, which works like a cookie.
 //   - Cache-Control is replaced with a private one (see privateCacheControl),
 //     and CDN-specific cache headers are dropped, so shared caches never store
 //     a response that may depend on the caller's credentials
+//   - X-Accel-*, X-Sendfile, and X-Lighttpd-Send-File tell a front server
+//     (nginx, Apache, lighttpd) to serve a local file or internal location
+//     instead of the response. proxy.scalar.com runs on Cloud Run with nothing
+//     in front (see cloudbuild.yaml), but self-hosted proxies may sit behind
+//     one of these.
 //   - Set-Login, Observe-Browsing-Topics, Activate-Storage-Access, and the
 //     prefixes below record state or grant access for the proxy origin
 var untrustedResponseHeaders = []string{
@@ -711,9 +732,13 @@ var untrustedResponseHeaders = []string{
 	"Strict-Transport-Security",
 	"Alt-Svc",
 	"No-Vary-Search",
+	"Use-As-Dictionary",
 	"Cache-Control",
 	"Cdn-Cache-Control",
 	"Surrogate-Control",
+	"Edge-Control",
+	"X-Sendfile",
+	"X-Lighttpd-Send-File",
 	"Set-Login",
 	"Observe-Browsing-Topics",
 	"Activate-Storage-Access",
@@ -732,6 +757,8 @@ var untrustedResponseHeaderPrefixes = []string{
 	// Device-bound session credentials
 	"Secure-Session-",
 	"Shared-Storage-",
+	// X-Accel-Redirect, X-Accel-Expires, ... for nginx in front of the proxy
+	"X-Accel-",
 }
 
 // proxyModifiedHeaders are headers the proxy sets itself. Listing them in
@@ -741,6 +768,7 @@ var untrustedResponseHeaderPrefixes = []string{
 var proxyModifiedHeaders = []string{
 	"Cache-Control",
 	"Content-Security-Policy",
+	"Vary",
 	"X-Content-Type-Options",
 }
 
@@ -778,8 +806,7 @@ func privateCacheControl(upstream []string) string {
 	directives := []string{"private"}
 
 	for _, value := range upstream {
-		for _, directive := range strings.Split(value, ",") {
-			directive = strings.TrimSpace(directive)
+		for _, directive := range splitDirectives(value) {
 			name := strings.ToLower(strings.TrimSpace(strings.SplitN(directive, "=", 2)[0]))
 
 			switch name {
@@ -792,6 +819,63 @@ func privateCacheControl(upstream []string) string {
 	}
 
 	return strings.Join(directives, ", ")
+}
+
+// splitDirectives splits a Cache-Control value on commas outside quoted
+// strings, so `private="Set-Cookie, X-Foo", max-age=60` stays two directives.
+func splitDirectives(value string) []string {
+	directives := []string{}
+	start := 0
+	quoted := false
+	escaped := false
+
+	for i, char := range value {
+		switch {
+		case escaped:
+			escaped = false
+		case quoted && char == '\\':
+			escaped = true
+		case char == '"':
+			quoted = !quoted
+		case char == ',' && !quoted:
+			if directive := strings.TrimSpace(value[start:i]); directive != "" {
+				directives = append(directives, directive)
+			}
+			start = i + 1
+		}
+	}
+
+	if directive := strings.TrimSpace(value[start:]); directive != "" {
+		directives = append(directives, directive)
+	}
+
+	return directives
+}
+
+// maxReplayableBodySize is how much of a request body the proxy buffers so Go
+// can resend it when following a same-origin 307 or 308, like `curl -L`.
+// Larger bodies are streamed, and such redirects are passed on unfollowed.
+const maxReplayableBodySize = 10 << 20
+
+// replayableBody buffers the request body when it is small enough, so
+// http.NewRequest sets GetBody and Content-Length.
+func replayableBody(body io.Reader) (io.Reader, error) {
+	if body == nil {
+		return nil, nil
+	}
+
+	buffered, err := io.ReadAll(io.LimitReader(body, maxReplayableBodySize+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read request body: %w", err)
+	}
+
+	if len(buffered) <= maxReplayableBodySize {
+		return bytes.NewReader(buffered), nil
+	}
+
+	// Too large to replay: send what was read, then stream the rest. The
+	// wrapper hides the concrete type, so http.NewRequest does not set GetBody.
+	return struct{ io.Reader }{io.MultiReader(bytes.NewReader(buffered), body)}, nil
 }
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.
@@ -818,6 +902,15 @@ func setUntrustedContentHeaders(header http.Header, upstream http.Header) {
 		}
 
 		header.Set("X-Scalar-Original-"+http.CanonicalHeaderKey(key), strings.Join(values, ", "))
+	}
+
+	// Vary is forwarded, because the browser cache needs it, but the proxy adds
+	// its own values. Every modified header is hidden by the client, so pass on
+	// what the upstream sent.
+	for _, key := range proxyModifiedHeaders {
+		if values := upstream.Values(key); len(values) > 0 {
+			header.Set("X-Scalar-Original-"+key, strings.Join(values, ", "))
+		}
 	}
 
 	header.Set("Cache-Control", privateCacheControl(upstream.Values("Cache-Control")))

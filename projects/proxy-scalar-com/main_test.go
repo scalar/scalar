@@ -1075,7 +1075,7 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		if got := w.Header().Get("X-Scalar-Original-X-Content-Type-Options"); got != "something-else" {
 			t.Errorf("Expected X-Scalar-Original-X-Content-Type-Options 'something-else', got %q", got)
 		}
-		if got := w.Header().Get("X-Scalar-Modified-Headers"); got != "Cache-Control, Content-Security-Policy, X-Content-Type-Options" {
+		if got := w.Header().Get("X-Scalar-Modified-Headers"); got != "Cache-Control, Content-Security-Policy, Vary, X-Content-Type-Options" {
 			t.Errorf("Expected X-Scalar-Modified-Headers to list the proxy's headers, got %q", got)
 		}
 	})
@@ -1178,6 +1178,9 @@ func TestUntrustedContentHeaders(t *testing.T) {
 			{upstream: []string{"s-maxage=600, max-age=60, proxy-revalidate"}, expected: "private, max-age=60"},
 			{upstream: []string{"no-store"}, expected: "private, no-store"},
 			{upstream: []string{"private=\"Set-Cookie\", no-cache", "must-revalidate"}, expected: "private, no-cache, must-revalidate"},
+			{upstream: []string{`private="Set-Cookie, X-Foo", max-age=60`}, expected: "private, max-age=60"},
+			{upstream: []string{`no-cache="Set-Cookie, X-Foo", max-age=60`}, expected: `private, no-cache="Set-Cookie, X-Foo", max-age=60`},
+			{upstream: []string{`ext="a \" , b", max-age=5`}, expected: `private, ext="a \" , b", max-age=5`},
 		}
 
 		for _, tc := range tests {
@@ -1221,6 +1224,12 @@ func TestUntrustedContentHeaders(t *testing.T) {
 			"Ad-Auction-Allowed",
 			"Activate-Storage-Access",
 			"Attribution-Reporting-Register-Os-Source",
+			"Use-As-Dictionary",
+			"Edge-Control",
+			"X-Accel-Redirect",
+			"X-Accel-Expires",
+			"X-Sendfile",
+			"X-Lighttpd-Send-File",
 		}
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			for _, key := range upstreamHeaders {
@@ -1271,6 +1280,25 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		}
 	})
 
+	t.Run("Does not send compression dictionaries stored for the proxy origin to the target", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			for _, header := range []string{"Available-Dictionary", "Dictionary-Id"} {
+				if got := r.Header.Get(header); got != "" {
+					t.Errorf("Expected %s not to reach the target, got %q", header, got)
+				}
+			}
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		req.Header.Set("Available-Dictionary", ":pZGm1Av0IEBKARczz7exkNYsZb8LzaMrV7J32a2fFG4=:")
+		req.Header.Set("Dictionary-ID", `"tracking-id"`)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+	})
+
 	t.Run("Varies on the Sec-Fetch headers and keeps the upstream Vary", func(t *testing.T) {
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Vary", "Accept")
@@ -1288,6 +1316,11 @@ func TestUntrustedContentHeaders(t *testing.T) {
 			if !strings.Contains(vary, header) {
 				t.Errorf("Expected Vary to include %s, got %q", header, vary)
 			}
+		}
+
+		// The API client shows only the upstream's Vary
+		if got := w.Header().Get("X-Scalar-Original-Vary"); got != "Accept" {
+			t.Errorf("Expected X-Scalar-Original-Vary 'Accept', got %q", got)
 		}
 	})
 
