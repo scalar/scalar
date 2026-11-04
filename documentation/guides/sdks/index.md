@@ -26,7 +26,7 @@
   }
 
   /* ------------------------------------------------------------------
-     The hero's words and its foot are the docs page's, rule for rule
+     The hero's words are the docs page's, rule for rule
      (documentation/guides/docs/index.md), which is what lands the heading
      and the calls to action in the same place on both pages. A change to
      one wants making to the other.
@@ -42,18 +42,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* The docs hero's height and then some, so there is more of the pattern
-       to see. All of the extra goes in above the foot, so the words are
-       centred in the same room they have on the docs page and land in the
-       same place. It is what the window has spare, within these bounds, and
-       in svh: a phone's toolbar going away during a scroll should not move
-       everything under the hero. */
-    --sh-extra: clamp(96px, 100svh - var(--scalar-header-height, 48px) - 672px, 200px);
-    min-height: calc(min(calc(90dvh - var(--scalar-header-height, 48px)), 640px) + var(--sh-extra));
-    /* the foot — the rule and the logos — is inside the hero, as the home
-       page's is, and the copy centres in what is left, which puts this
-       heading on the line the home, customers and company pages use */
+    /* The docs hero's height, which is the room the words are centred in. */
+    --sh-docs: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+    /* The home hero's height. In svh, because a phone's toolbar going away during a scroll should not
+       move everything under the hero. */
+    --sh-home: min(calc(90svh - var(--scalar-header-height, 48px)), 640px);
+    /* How far under the words the Warp line stands, which puts it on the middle of the home page's
+       logos: the difference between the two heroes, and how far those logos stand under the room. */
+    --sh-drop: 76px;
+    --sh-under: calc(var(--sh-home) - var(--sh-docs) + var(--sh-drop));
+    /* The docs page has 104px under the words, for its logos. This page has the distance above and the
+       line, 28px. The difference goes on the hero, so the words have the same room they have on the docs
+       page and land in the same place. */
+    min-height: calc(var(--sh-docs) + var(--sh-under) - 76px);
+    /* the line is inside the hero, where the home page has its logos, and
+       the copy centres in what is left, which puts this heading on the line
+       the home, customers and company pages use */
     padding: 48px 0 24px;
+    /* the paragraph's own 12px margin gives way to this one, for 60px more than it had */
+    margin-bottom: 72px;
   }
   .dh-copy {
     position: relative;
@@ -250,7 +257,8 @@
   .sh-flow {
     position: absolute;
     top: 0;
-    bottom: var(--dh-foot, 128px);
+    /* 20px above the Warp line: its 28px box, and the hero's 24px under that */
+    bottom: 72px;
     left: var(--dh-left, 0px);
     width: var(--dh-width, 100%);
     z-index: 0;
@@ -292,123 +300,62 @@
   .sh-car{position:absolute;left:var(--sh-car-x);top:var(--sh-car-y);width:calc(var(--sh-car-s) * 1292px);height:calc(var(--sh-car-sy) * 672px);z-index:1;pointer-events:none}.sh-car-art{display:block;width:100%;height:100%;overflow:visible}.sh-car text{font:700 100px Inter,system-ui,sans-serif}.sh-car .sha{stroke:#6d7284;stroke-opacity:0.7}.sh-car .shb,.sh-car .shw{stroke:none;fill:#d6d9e4;fill-opacity:0.82}.sh-car .shw{fill:#ffc49a;fill-opacity:0.85}.sh-car .shk0{stop-color:#ff5f0a}.sh-car .shk1{stop-color:#000}.sh-car .shk2{stop-color:#e5200a}.sh-car .shk3{stop-color:#ff8f0a}.sh-car .shk4{stop-color:#ddd3d0}
   /* end of the car */
 
-  /* The hero ends in the logo slider the home page ends its hero with,
-     and at the width it has there: that page's landing column — 960,
-     where this page's text column is 680 — and, on a window wide enough
-     to hold it, the overhang its cards take past that column. The two
-     lengths are the home page's own, so the strip is the same size on
-     both pages. It hangs off either side of the column the words keep,
-     which is what the hero centres everything else in it on, and it
-     gives way to that column once the window is too narrow for the
-     landing one, as the home page's does. The two narrow widths below
-     follow the home page down as well, so the strip is the same size on
-     both pages at every width. */
-  .dh-foot {
-    --dh-logos: min(960px, 100dvw - var(--scalar-sidebar-width, 0px) - 100px);
-    --dh-logos-over: max(
-      0px,
-      min(76px, (100dvw - var(--scalar-sidebar-width, 0px) - var(--dh-logos)) / 2 - 32px)
-    );
-    position: relative;
-    z-index: 1;
-    width: max(100%, calc(var(--dh-logos) + var(--dh-logos-over)));
-    margin-top: calc(48px + var(--sh-extra, 0px));
-  }
-
-  /* Customer logos as one endless row, after the home page's. The track
-     holds three copies of the list and slides exactly one copy's width,
-     so the loop has no seam; the spacing is padding on each item rather
-     than a flex gap for the same reason. Three copies rather than two
-     because one copy is narrower than the column on tablet widths, and
-     the copies behind the first have to cover it right to the end of the
-     cycle. The edges fade out so logos never look cut off. landing.js
-     (initTrustedWalls) stops the animation while the row is off screen. */
-  .lp-trusted {
-    --lp-trusted-speed: 36s;
-    padding-top: 28px;
-  }
-  .lp-trusted-viewport {
+  /* The Warp story, under the pattern and on the middle of where the home page has its logos. The box is
+     as tall as those logos, which is what stands the words on their middle. */
+  .sh-post {
     display: flex;
-    overflow: hidden;
-    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
-  }
-  .lp-trusted-track {
-    flex: none;
-    display: flex;
-    align-items: center;
-    width: max-content;
-    animation: lp-trusted-slide var(--lp-trusted-speed) linear infinite;
-  }
-  /* Only real pointers pause it: a tap leaves :hover stuck on touch screens */
-  @media (hover: hover) {
-    .lp-trusted-viewport:hover .lp-trusted-track {
-      animation-play-state: paused;
-    }
-  }
-  .lp-trusted.is-off .lp-trusted-track {
-    animation-play-state: paused;
-  }
-  @keyframes lp-trusted-slide {
-    to {
-      transform: translateX(-100%);
-    }
-  }
-  .lp-trusted-item {
-    display: flex;
-    align-items: center;
+    justify-content: center;
     height: 28px;
-    padding-right: 44px;
+    margin-top: var(--sh-under);
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .sh-post a {
+    --font-visited: var(--scalar-color-2);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--scalar-color-2);
+    font-weight: 400;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .sh-post a:hover {
     color: var(--scalar-color-1);
+    text-decoration: none;
   }
-  .lp-trusted-item .lp-trusted-logo {
-    display: block;
-    width: auto;
-    height: 20px;
-    max-width: none;
-  }
-  /* stacked lockup, see styles.css for the logo wall version of this */
-  .lp-trusted-item-tr .lp-trusted-logo {
-    height: 28px;
-  }
-  /* Clerk's upper arc fades like it does on the logo wall */
-  .lp-trusted-item svg[viewBox="0 0 441 128"] path:last-of-type {
-    opacity: 0.4;
+  .sh-post a:focus-visible {
+    outline: 1px solid var(--scalar-color-1);
+    outline-offset: 2px;
   }
 
   @media screen and (max-width: 1100px) {
-    /* the home page drops the overhang here and keeps its logos in its
-       landing column, so the strip takes that column on its own */
-    .dh-foot {
-      width: var(--dh-logos);
-    }
-  }
-
-  @media screen and (max-width: 1000px) {
-    /* The sidebar is a drawer from here down, but --scalar-sidebar-width
-       keeps its desktop value, so the column is measured off the window
-       and the gutters the page keeps either side of it instead. */
-    .dh-foot {
-      width: min(960px, 100dvw - 60px);
-    }
-    /* the column is at its narrowest here — the sidebar is still beside
-       it — so the logos step down before the strip is cramped */
-    .lp-trusted-item {
-      padding-right: 36px;
-    }
-    .lp-trusted-item .lp-trusted-logo {
-      height: 18px;
-    }
-    .lp-trusted-item-tr .lp-trusted-logo {
-      height: 24px;
+    /* the home page's padding grows here, which lifts its logos */
+    .dh-hero {
+      --sh-drop: 60px;
     }
   }
 
   @media screen and (max-width: 700px) {
     .dh-hero {
-      /* a phone holds less of a screen, and the pattern shrinks with it */
-      --sh-extra: clamp(96px, 100svh - var(--scalar-header-height, 48px) - 592px, 200px);
-      min-height: calc(min(calc(88dvh - var(--scalar-header-height, 48px)), 560px) + var(--sh-extra));
+      /* a phone holds less of a screen, and the docs page's hero is smaller for it */
+      --sh-docs: min(calc(88dvh - var(--scalar-header-height, 48px)), 560px);
       padding: 32px 0 24px;
+    }
+  }
+
+  /* the Warp line just fills the column at 368, and from there down it says less */
+  @media screen and (max-width: 368px) {
+    .sh-post-more {
+      display: none;
+    }
+  }
+
+  /* A window this short has hardly anything under the buttons, and a phone's words take up more of it. The
+     line gives up on the home page's logos here and stands far enough down for the car to fit above it. */
+  @media screen and (max-height: 480px), screen and (max-width: 700px) and (max-height: 580px) {
+    .dh-hero {
+      --sh-under: 112px;
     }
   }
 
@@ -419,11 +366,10 @@
       cursor: auto;
     }
     /* The site gives everything a .01ms transition here, which lands a length a frame or two late. The
-       room, the car, the logos and the words are measured against each other, so all of the hero has to
-       be where it says. */
+       room, the car and the words are measured against each other, so all of the hero has to be where it
+       says. */
     .dh-hero,
-    .dh-hero *,
-    .dh-foot .lp-trusted {
+    .dh-hero * {
       transition-property: none;
     }
     .lp-onboard-icon svg {
@@ -431,49 +377,6 @@
     }
     .lp-onboard.is-copied .lp-onboard-done {
       animation: none;
-    }
-    /* the logos lie out in rows instead of sliding, so every one is seen */
-    .lp-trusted-viewport {
-      mask-image: none;
-    }
-    /* and the strip widens to the whole room the pattern has, so
-       one copy of the list still fits on one row at the widths where it
-       can: the foot keeps its height, and the heading its line. That room
-       is centred on the hero and so is the foot, so half the difference
-       between them centres this box too. */
-    .dh-foot .lp-trusted {
-      width: var(--dh-width, 100%);
-      margin-left: calc((100% - var(--dh-width, 100%)) / 2);
-    }
-    .lp-trusted-track {
-      animation: none;
-      flex: auto;
-      min-width: 0;
-      flex-wrap: wrap;
-      row-gap: 12px;
-      width: auto;
-    }
-    .lp-trusted-track[aria-hidden] {
-      display: none;
-    }
-  }
-
-  .sdk-migration {
-    margin-top: 24px;
-  }
-
-  @media screen and (max-width: 400px) {
-    .t-editor .sdk-migration-cta {
-      gap: 4px;
-      padding-right: 8px;
-      padding-left: 8px;
-    }
-  }
-
-  @media screen and (max-width: 360px) {
-    .t-editor .sdk-migration-cta-separator,
-    .t-editor .sdk-migration-cta-read-more {
-      display: none;
     }
   }
 
@@ -568,55 +471,14 @@
 </div>
 </div>
 
-<div class="dh-foot" data-md-exclude>
-  <div class="lp-trusted">
-    <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
-    <div class="lp-trusted-track">
-      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
-    </div>
-    <div class="lp-trusted-track" aria-hidden="true">
-      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
-    </div>
-    <div class="lp-trusted-track" aria-hidden="true">
-      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-maersk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-supabase.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-flyio.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></div>
-      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></div>
-    </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<div class="sdk-migration">
-  <a
-    class="sdk-migration-cta inline-flex w-fit max-w-full items-center gap-2 rounded-full bg-b-2 hover:bg-b-3 px-3 py-2 text-xs leading-none text-c-1 no-underline"
-    href="/resources/migration/stainless">
-    <span class="font-medium">Migrate off Stainless</span>
-    <span class="sdk-migration-cta-separator text-c-3" aria-hidden="true">•</span>
-    <span class="inline-flex items-center gap-2 text-c-2">
-      <span class="sdk-migration-cta-read-more">Read more</span>
-      <span aria-hidden="true">→</span>
-    </span>
+<div class="sh-post">
+  <a href="/customers/warp">
+    <span>Warp Chooses Scalar for SDKs</span>
+    <span class="sh-post-more" aria-hidden="true">•</span>
+    <span class="sh-post-more">Read more</span>
+    <span aria-hidden="true">→</span>
   </a>
+</div>
 </div>
 
 TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI targets are generally available, and six more languages are available as experimental targets. Pick your targets, review real code in minutes, and publish from your own repositories.

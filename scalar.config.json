@@ -2678,7 +2678,6 @@
                     "title": "Publishing",
                     "type": "group",
                     "mode": "nested",
-                    "icon": "phosphor/regular/rocket-launch",
                     "children": {
                       "overview": {
                         "filepath": "documentation/guides/sdks/publishing/overview.md",

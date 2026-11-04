@@ -138,20 +138,21 @@
   ]
 
   /* Where the car goes. Its art is in the pixels of the picture it was traced from, and this is the box
-     its outline fills. It takes about half the hero's width, right of the middle with the halo tucked
-     under the buttons, and stands near the bottom of the lines. These are the concept's own measurements,
-     taken at a window of 1512 by 820, and that includes `low`: the concept's car is lower and longer than
-     the photo it was traced from, which is what lets the halo clear the buttons at this size. */
+     its outline fills. It takes a little under half the hero's width, right of the middle with its
+     cockpit just past the buttons, and stands near the bottom of the lines. `low` is the concept's: its
+     car is lower and longer than the photo it was traced from, which is what lets the halo clear the
+     buttons. The rest were set by eye at a window of 1512 by 820. */
   const CAR = {
     box: [1, 82, 1277, 640],
     low: 0.9,
     ofWidth: 0.5057,
-    ofRoom: 2.58,
-    left: 0.3782,
-    foot: 0.8965,
+    ofRoom: 2.9,
+    /* how far across the car its cockpit is, which stands just past the buttons */
+    cockpit: 0.494,
+    foot: 0.8987,
     /* on a narrow screen it is as wide as there is room for and kept in the middle */
     narrow: 760,
-    narrowRoom: 140,
+    narrowRoom: 96,
     ofNarrowWidth: 0.94,
     ofNarrowRoom: 2.2,
   }
@@ -1134,42 +1135,13 @@
     /* Where the car stands. It is here rather than with the rest of the sizing because it stands there
        with or without the lines. */
     const car = { scale: 1, down: 1, x: 0, y: 0 }
-    /* The room ends 48px above the logos. Under reduced motion they lie out in rows and the foot grows,
-       and the car and the lines have to give way to it. Writing this moves the flow, and whatever watches
-       the flow does the rest. There is nothing to fit until the flow is open: before that the page's
-       styles may not have arrived, and the foot would measure thousands of pixels. */
-    const fitRoom = () => {
-      const foot = hero.querySelector('.dh-foot')
-      if (foot && flow.getClientRects().length) {
-        const clear = hero.getBoundingClientRect().bottom - foot.getBoundingClientRect().top + 48
-        hero.style.setProperty('--dh-foot', `${Math.round(clear)}px`)
-      }
-    }
-    /* The foot can change with the flow's box staying put, as when reduced motion is switched. It is
-       fitted on the next frame, so that the flow's own observer hears of the move in that frame and does
-       not count it as a loop. */
-    const footWatcher = new ResizeObserver(() => {
-      requestAnimationFrame(fitRoom)
-    })
-    /* landing.js opens the flow by measuring the hero. Fitting straight after it means the first thing
-       the flow's observer sees is already right, and nothing has to move once it is on the screen. */
-    const onOpened = () => {
-      const foot = hero.querySelector('.dh-foot')
-      if (foot && flow.getClientRects().length) {
-        footWatcher.observe(foot)
-        fitRoom()
-      }
-    }
-    const opened = new MutationObserver(onOpened)
-    opened.observe(hero, { attributes: true, attributeFilter: ['data-dh-bleed'] })
-    onOpened()
     const placeCar = () => {
       const box = flow.getBoundingClientRect()
       if (!box.width || !box.height) {
         return
       }
-      const buttons = hero.querySelector('.dh-cta')
-      const under = buttons ? buttons.getBoundingClientRect().bottom - box.top : box.height / 2
+      const buttons = hero.querySelector('.dh-cta')?.getBoundingClientRect()
+      const under = buttons ? buttons.bottom - box.top : box.height / 2
       const room = box.height - under
       /* a landscape phone is wide, but there is as little under its buttons as there is on a narrow screen */
       const narrow = box.width < CAR.narrow || room < CAR.narrowRoom
@@ -1178,7 +1150,9 @@
         : Math.min(box.width * CAR.ofWidth, room * CAR.ofRoom)
       car.scale = across / (CAR.box[2] - CAR.box[0])
       car.down = car.scale * CAR.low
-      car.x = (narrow ? (box.width - across) / 2 : box.width * CAR.left) - CAR.box[0] * car.scale
+      /* however small the car gets, the buttons must not hide its cockpit, though its tail stays on the screen */
+      const past = (buttons ? buttons.right - box.left : box.width / 2) - across * CAR.cockpit
+      car.x = (narrow ? (box.width - across) / 2 : Math.min(past, box.width - across - 8)) - CAR.box[0] * car.scale
       car.y = under + room * CAR.foot - CAR.box[3] * car.down
       flow.style.setProperty('--sh-car-s', car.scale)
       flow.style.setProperty('--sh-car-sy', car.down)
@@ -1212,21 +1186,16 @@
       }
     }
     if (!shaders) {
-      /* no pattern on a machine that cannot draw it: the words, the car and the logos stand by themselves */
+      /* no pattern on a machine that cannot draw it: the words and the car stand by themselves */
       canvas.remove()
       flow.style.cursor = 'auto'
-      const alone = new ResizeObserver(() => {
-        fitRoom()
-        placeCar()
-      })
+      const alone = new ResizeObserver(placeCar)
       alone.observe(flow)
       holding = [flow]
       release = () => {
         release = () => {}
         holding = []
         alone.disconnect()
-        opened.disconnect()
-        footWatcher.disconnect()
         flow.style.removeProperty('cursor')
         delete flow.dataset.shBound
       }
@@ -1395,7 +1364,6 @@
     }
 
     const size = () => {
-      fitRoom()
       const box = flow.getBoundingClientRect()
       if (!box.width || !box.height) {
         return false
@@ -1409,12 +1377,12 @@
       height = box.height
       canvas.width = Math.round(width * pixels)
       canvas.height = Math.round(height * pixels)
-      /* The picture stands on the bottom edge with its top just touching the buttons, but never so
-         large that the car would not fit across the screen. */
+      /* The picture stands on the bottom edge with its top just past the bottom of the buttons, but never
+         so large that the car would not fit across the screen. */
       const buttons = hero.querySelector('.dh-cta')
       const under = buttons ? buttons.getBoundingClientRect() : null
       const room = under ? height - (under.bottom - box.top) : height / 2
-      unit = Math.max(Math.min((room * 1.03) / PICTURE.height, width / PICTURE.car), width / PICTURE.span)
+      unit = Math.max(Math.min((room * 1.16) / PICTURE.height, width / PICTURE.car), width / PICTURE.span)
       /* on a narrow screen the car is what is kept in the middle */
       const focus = width < 760 ? 1075 : PICTURE.width / 2
       viewX = width / 2 - focus * unit
@@ -1760,8 +1728,6 @@
       holding = []
       observer.disconnect()
       watcher.disconnect()
-      opened.disconnect()
-      footWatcher.disconnect()
       themeWatcher.disconnect()
       document.removeEventListener('visibilitychange', onVisibility)
       motion.removeEventListener('change', onMotion)
