@@ -6,7 +6,7 @@ This page covers what the output looks like, the Java conventions it aims for, h
 
 ## What the generated code looks like
 
-This is the Java quickstart shown for Warp's HR API in the [SDK Generator demo](/products/sdk-generator):
+This is the Java quickstart for Warp's HR API:
 
 ```java
 import dev.warp.client.WarpClient;
