@@ -2858,6 +2858,12 @@
                         "description": "Configuration reference for the experimental C++ SDK target: naming and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/cpp.md",
                         "type": "page"
+                      },
+                      "signed-urls": {
+                        "title": "Signed URL methods (Experimental)",
+                        "description": "Configuration reference for experimental signedUrl methods: every key, its default, and the rules it is checked against.",
+                        "filepath": "documentation/guides/sdks/configuration/signed-urls.md",
+                        "type": "page"
                       }
                     }
                   },
@@ -2901,6 +2907,30 @@
                         {
                           "name": "description",
                           "content": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "signed-urls": {
+                    "filepath": "documentation/guides/sdks/signed-urls.md",
+                    "type": "page",
+                    "title": "Signed URLs (Experimental)",
+                    "description": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/signed-urls"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out."
                         },
                         {
                           "name": "robots",
