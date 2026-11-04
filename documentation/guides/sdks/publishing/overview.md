@@ -109,10 +109,15 @@ Only absolute `http` or `https` URLs are linked. Each target writes the links it
 
 `settings.keywords` lists up to five search keywords for every registry that takes them (`package.json`, `pyproject.toml`, Composer, Cargo, pubspec `topics`, NuGet `PackageTags`). One list serves every registry, so each keyword must meet the strictest of their rules: 2 to 20 lowercase ASCII letters, digits and `-`, starting with a letter, ending with a letter or digit, with no `--`. A config that breaks these rules fails validation.
 
+`settings.description` sets the one-line package description: `pyproject.toml` `description`, the `package.json` `description` of the TypeScript SDK and the CLI, Composer `description`, the Maven POM `description` the Java and Kotlin targets publish, and the CLI man page. When it is unset, those take the OpenAPI `info.summary`, then the first prose paragraph of `info.description`, then a generic sentence naming the SDK. Line breaks, repeated spaces and control characters collapse to single spaces, and it can be at most 512 characters, PyPI's limit. Cargo, RubyGems, pub.dev and NuGet keep their fixed sentence naming the API.
+
 ```json
 {
   "organization": { "name": "acme", "homepage": "https://acme.example", "docs": "https://docs.acme.example" },
-  "settings": { "keywords": ["payments", "rest-api"] }
+  "settings": {
+    "description": "The official client for the Acme payments API.",
+    "keywords": ["payments", "rest-api"]
+  }
 }
 ```
 
