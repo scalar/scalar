@@ -2610,6 +2610,26 @@
                           "content": "https://cdn.scalar.com/images/twitter-image.png"
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "twitter:title",
                           "content": "Scalar SDK Generator — Idiomatic SDKs and CLIs from OpenAPI"
                         },
