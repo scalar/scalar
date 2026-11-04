@@ -167,3 +167,67 @@ func TestForwardedLocation(t *testing.T) {
 		})
 	}
 }
+
+func TestMultipleLocations(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	t.Run("Rejects a redirect hidden behind an empty first Location", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "")
+			w.Header().Add("Location", "https://attacker.example/phish")
+			w.WriteHeader(http.StatusFound)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+		if got := w.Header().Values("Location"); len(got) != 0 {
+			t.Errorf("Expected no Location, got %v", got)
+		}
+	})
+
+	t.Run("Rejects two non-empty Locations", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "/same-origin")
+			w.Header().Add("Location", "https://attacker.example/phish")
+			w.WriteHeader(http.StatusMultipleChoices)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+	})
+
+	t.Run("Drops an empty Location without failing the request", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "")
+			w.WriteHeader(http.StatusMultipleChoices)
+			w.Write([]byte("choices"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusMultipleChoices || w.Body.String() != "choices" {
+			t.Errorf("Expected the 300 response, got %d %q", w.Code, w.Body.String())
+		}
+		if got := w.Header().Values("Location"); len(got) != 0 {
+			t.Errorf("Expected no Location, got %v", got)
+		}
+	})
+}

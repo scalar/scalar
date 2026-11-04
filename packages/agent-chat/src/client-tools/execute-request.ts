@@ -1,4 +1,5 @@
 import type { Chat } from '@ai-sdk/vue'
+import { restoreOriginalHeaders } from '@scalar/helpers/http/restore-original-headers'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { buildRequestSecurity, getResolvedUrl } from '@scalar/workspace-store/request-example'
@@ -45,7 +46,7 @@ const safeFetch = n.safeFn(
           status: response.status,
           url: response.url,
           responseBody: truncateResponse(responseBodyResult.success ? responseBodyResult.data : undefined),
-          headers: Object.fromEntries(response.headers.entries()),
+          headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
         }),
       }
     }
@@ -59,7 +60,7 @@ const safeFetch = n.safeFn(
       data: {
         status: response.status,
         responseBody: truncateResponse(responseBodyResult.data),
-        headers: Object.fromEntries(response.headers.entries()),
+        headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
       },
     }
   },

@@ -362,6 +362,11 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The answer depends on how the browser loads the URL, so a shared cache
+	// must not serve a response to a fetch() for a page load, or the other way
+	// around.
+	w.Header().Add("Vary", "Sec-Fetch-Mode, Sec-Fetch-Dest")
+
 	// Only programmatic requests (fetch, XHR) are proxied. Opening a proxy URL as
 	// a page would render attacker-controlled content on the proxy origin.
 	if isDocumentRequest(r) {
@@ -510,9 +515,33 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// A 307/308 with a non-replayable body is returned without CheckRedirect.
 	// Reject cross-origin Locations here too so the browser cannot replay the
 	// original request outside the proxy's origin policy.
-	if resp.StatusCode >= 300 && resp.StatusCode < 400 && resp.Header.Get("Location") != "" {
-		destination, err := resp.Location()
-		if err != nil || !sameOrigin(remote, destination) {
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 && len(resp.Header.Values("Location")) > 0 {
+		// Header.Get only looks at the first value. An empty first value followed
+		// by a real one would skip this check, so look at all of them.
+		locations := []string{}
+		for _, location := range resp.Header.Values("Location") {
+			if strings.TrimSpace(location) != "" {
+				locations = append(locations, location)
+			}
+		}
+
+		if len(locations) > 1 {
+			err := fmt.Errorf("redirect with more than one Location is not allowed")
+			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			return err
+		}
+
+		var destination *url.URL
+		var err error
+		if len(locations) == 1 {
+			resp.Header.Set("Location", locations[0])
+			destination, err = resp.Location()
+		}
+
+		if len(locations) == 0 {
+			// Nothing to follow, so do not forward empty values either
+			resp.Header.Del("Location")
+		} else if err != nil || !sameOrigin(remote, destination) {
 			err := fmt.Errorf("redirect to a different origin is not allowed")
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 			return err
@@ -522,7 +551,9 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		// Go resolves `/\attacker.example/` to a path on the upstream host, while
 		// browsers treat the backslash as a slash and go to attacker.example.
 		// Forward the absolute URL we validated instead of the raw value.
-		resp.Header.Set("Location", destination.String())
+		if destination != nil {
+			resp.Header.Set("Location", destination.String())
+		}
 	}
 
 	// Copy headers from final response, but skip CORS headers and headers the
@@ -635,6 +666,15 @@ func isDocumentRequest(r *http.Request) bool {
 //     Per the HTML spec only the last `sandbox` directive applies, and report
 //     endpoints would still be pinged.
 //   - X-Content-Type-Options is replaced with our own `nosniff`.
+//
+// Browsers also apply these to the proxy origin from fetch() responses:
+//
+//   - NEL, Report-To, and Reporting-Endpoints would have the browser report
+//     later proxy requests, including their `scalar_url`, to the attacker
+//   - Strict-Transport-Security and Alt-Svc change how the browser connects
+//     to the proxy
+//   - Set-Login, Observe-Browsing-Topics, and Attribution-Reporting-Register-*
+//     record state for the proxy origin
 var untrustedResponseHeaders = []string{
 	"Refresh",
 	"Clear-Site-Data",
@@ -642,6 +682,17 @@ var untrustedResponseHeaders = []string{
 	"Content-Security-Policy",
 	"Content-Security-Policy-Report-Only",
 	"X-Content-Type-Options",
+	"Nel",
+	"Report-To",
+	"Reporting-Endpoints",
+	"Strict-Transport-Security",
+	"Alt-Svc",
+	"Set-Login",
+	"Observe-Browsing-Topics",
+	"Attribution-Reporting-Register-Source",
+	"Attribution-Reporting-Register-Trigger",
+	"Attribution-Reporting-Register-Os-Source",
+	"Attribution-Reporting-Register-Os-Trigger",
 }
 
 // proxyModifiedHeaders are headers the proxy sets itself. Listing them in

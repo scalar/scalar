@@ -1112,6 +1112,61 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		}
 	})
 
+	t.Run("Does not forward headers that browsers apply to the proxy origin from fetch() responses", func(t *testing.T) {
+		upstreamHeaders := map[string]string{
+			"NEL":                                    `{"report_to":"attacker","max_age":31536000,"success_fraction":1}`,
+			"Report-To":                              `{"group":"attacker","max_age":31536000,"endpoints":[{"url":"https://attacker.example/report"}]}`,
+			"Reporting-Endpoints":                    `attacker="https://attacker.example/report"`,
+			"Strict-Transport-Security":              "max-age=0",
+			"Alt-Svc":                                `h3=":443"; ma=86400`,
+			"Set-Login":                              "logged-in",
+			"Observe-Browsing-Topics":                "?1",
+			"Attribution-Reporting-Register-Source":  `{"destination":"https://attacker.example"}`,
+			"Attribution-Reporting-Register-Trigger": `{}`,
+		}
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			for key, value := range upstreamHeaders {
+				w.Header().Set(key, value)
+			}
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		for key, value := range upstreamHeaders {
+			if got := w.Header().Values(key); len(got) != 0 {
+				t.Errorf("Expected %s to be removed, got %v", key, got)
+			}
+			if got := w.Header().Get("X-Scalar-Original-" + key); got != value {
+				t.Errorf("Expected X-Scalar-Original-%s %q, got %q", key, value, got)
+			}
+		}
+	})
+
+	t.Run("Varies on the Sec-Fetch headers and keeps the upstream Vary", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Vary", "Accept")
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		vary := strings.Join(w.Header().Values("Vary"), ", ")
+		for _, header := range []string{"Sec-Fetch-Mode", "Sec-Fetch-Dest", "Accept"} {
+			if !strings.Contains(vary, header) {
+				t.Errorf("Expected Vary to include %s, got %q", header, vary)
+			}
+		}
+	})
+
 	t.Run("Sandboxes error responses from the target", func(t *testing.T) {
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
@@ -1181,6 +1236,9 @@ func TestDocumentRequests(t *testing.T) {
 				}
 				if got := w.Header().Get("Content-Type"); !strings.HasPrefix(got, "text/plain") {
 					t.Errorf("%s: expected a text/plain error, got %q", method, got)
+				}
+				if got := w.Header().Get("Vary"); !strings.Contains(got, "Sec-Fetch-Mode") {
+					t.Errorf("%s: expected the refusal to vary on Sec-Fetch-Mode, got %q", method, got)
 				}
 			}
 
