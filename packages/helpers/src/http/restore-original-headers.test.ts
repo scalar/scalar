@@ -47,6 +47,17 @@ describe('restore-original-headers', () => {
     })
   })
 
+  it('ignores an original header without a name', () => {
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'X-Scalar-Original-': 'broken',
+    })
+
+    expect(Object.fromEntries(restoreOriginalHeaders(headers))).toStrictEqual({
+      'content-type': 'application/json',
+    })
+  })
+
   it('does not change the headers it was given', () => {
     const headers = new Headers({
       'Content-Type': 'application/json',

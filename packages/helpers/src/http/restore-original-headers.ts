@@ -31,8 +31,11 @@ export const restoreOriginalHeaders = (headers: Headers): Headers => {
 
   // Upstream values win over anything else with the same name
   headers.forEach((value, key) => {
-    if (key.startsWith(X_SCALAR_ORIGINAL_PREFIX) && value) {
-      restored.set(key.slice(X_SCALAR_ORIGINAL_PREFIX.length), value)
+    const originalKey = key.slice(X_SCALAR_ORIGINAL_PREFIX.length)
+
+    // A bare `X-Scalar-Original-` has no name to restore, and Headers throws on an empty name
+    if (key.startsWith(X_SCALAR_ORIGINAL_PREFIX) && originalKey && value) {
+      restored.set(originalKey, value)
     }
   })
 

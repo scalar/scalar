@@ -512,6 +512,8 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Close response body when done to prevent resource leaks
 	defer resp.Body.Close()
 
+	redirectLocation := ""
+
 	// A 307/308 with a non-replayable body is returned without CheckRedirect.
 	// Reject cross-origin Locations here too so the browser cannot replay the
 	// original request outside the proxy's origin policy.
@@ -547,12 +549,17 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return err
 		}
 
-		// Go and browsers do not parse every Location the same way. For example,
-		// Go resolves `/\attacker.example/` to a path on the upstream host, while
-		// browsers treat the backslash as a slash and go to attacker.example.
-		// Forward the absolute URL we validated instead of the raw value.
+		// A 3xx that reaches the browser is one Go did not follow: a 300, or a
+		// 307/308 whose body cannot be replayed. The upstream picked the target, so
+		// letting the browser follow it would be an open redirect for browsers
+		// that do not send Sec-Fetch-* headers. Pass on the absolute URL we
+		// validated as X-Scalar-Original-Location instead, which the API client
+		// shows as Location. That also avoids parser differences: Go resolves
+		// `/\attacker.example/` to a path on the upstream host, while browsers
+		// treat the backslash as a slash.
+		resp.Header.Del("Location")
 		if destination != nil {
-			resp.Header.Set("Location", destination.String())
+			redirectLocation = destination.String()
 		}
 	}
 
@@ -565,7 +572,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return strings.HasPrefix(strings.ToLower(header), "access-control-")
 		}
 
-		if isCorsHeader(key) || isUntrustedResponseHeader(key) {
+		if isCorsHeader(key) || isUntrustedResponseHeader(key) || isReservedProxyHeader(key) {
 			continue
 		}
 
@@ -593,6 +600,10 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
 
 	setUntrustedContentHeaders(w.Header(), resp.Header)
+
+	if redirectLocation != "" {
+		w.Header().Set("X-Scalar-Original-Location", redirectLocation)
+	}
 
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
@@ -642,12 +653,19 @@ const documentRequestError = "Forbidden: The proxy only handles requests made wi
 // Non-browser clients (curl, servers) do not send these headers and are not
 // affected.
 func isDocumentRequest(r *http.Request) bool {
-	if strings.EqualFold(r.Header.Get("Sec-Fetch-Mode"), "navigate") {
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Mode")) {
+	// Chrome 76 to 79 sent `nested-navigate` for iframes
+	case "navigate", "nested-navigate":
 		return true
 	}
 
 	switch strings.ToLower(r.Header.Get("Sec-Fetch-Dest")) {
 	case "document", "iframe", "frame", "embed", "object", "fencedframe":
+		return true
+	// Workers run with the origin of their script URL. Browsers only allow
+	// same-origin worker scripts, so this only matters if the proxy origin were
+	// compromised another way, but there is no reason to serve them.
+	case "worker", "sharedworker", "serviceworker":
 		return true
 	}
 
@@ -673,8 +691,13 @@ func isDocumentRequest(r *http.Request) bool {
 //     later proxy requests, including their `scalar_url`, to the attacker
 //   - Strict-Transport-Security and Alt-Svc change how the browser connects
 //     to the proxy
-//   - Set-Login, Observe-Browsing-Topics, and Attribution-Reporting-Register-*
-//     record state for the proxy origin
+//   - No-Vary-Search makes the browser cache ignore the query string. Every
+//     proxied URL is `/?scalar_url=...`, so one API could answer for all others.
+//   - Cache-Control is replaced with a private one (see privateCacheControl),
+//     and CDN-specific cache headers are dropped, so shared caches never store
+//     a response that may depend on the caller's credentials
+//   - Set-Login, Observe-Browsing-Topics, Activate-Storage-Access, and the
+//     prefixes below record state or grant access for the proxy origin
 var untrustedResponseHeaders = []string{
 	"Refresh",
 	"Clear-Site-Data",
@@ -687,12 +710,28 @@ var untrustedResponseHeaders = []string{
 	"Reporting-Endpoints",
 	"Strict-Transport-Security",
 	"Alt-Svc",
+	"No-Vary-Search",
+	"Cache-Control",
+	"Cdn-Cache-Control",
+	"Surrogate-Control",
 	"Set-Login",
 	"Observe-Browsing-Topics",
-	"Attribution-Reporting-Register-Source",
-	"Attribution-Reporting-Register-Trigger",
-	"Attribution-Reporting-Register-Os-Source",
-	"Attribution-Reporting-Register-Os-Trigger",
+	"Activate-Storage-Access",
+}
+
+// untrustedResponseHeaderPrefixes cover header families that browsers keep
+// adding to. A blocklist of single names keeps missing new members.
+var untrustedResponseHeaderPrefixes = []string{
+	// Attribution-Reporting-Register-Source, -Trigger, -OS-Source, ...
+	"Attribution-Reporting-",
+	// Ad-Auction-Signals, Ad-Auction-Allowed, Ad-Auction-Additional-Bid, ...
+	"Ad-Auction-",
+	// Sec-Session-Registration, Sec-Private-State-Token, ... Servers do not
+	// send `Sec-` headers to describe their API, only to talk to browsers.
+	"Sec-",
+	// Device-bound session credentials
+	"Secure-Session-",
+	"Shared-Storage-",
 }
 
 // proxyModifiedHeaders are headers the proxy sets itself. Listing them in
@@ -700,6 +739,7 @@ var untrustedResponseHeaders = []string{
 // restores the upstream values from X-Scalar-Original-* (see normalizeHeaders
 // in @scalar/helpers).
 var proxyModifiedHeaders = []string{
+	"Cache-Control",
 	"Content-Security-Policy",
 	"X-Content-Type-Options",
 }
@@ -711,7 +751,47 @@ func isUntrustedResponseHeader(key string) bool {
 		}
 	}
 
-	return false
+	for _, prefix := range untrustedResponseHeaderPrefixes {
+		if len(key) >= len(prefix) && strings.EqualFold(key[:len(prefix)], prefix) {
+			return true
+		}
+	}
+
+	// Cloudflare-CDN-Cache-Control and similar per-CDN variants
+	return len(key) >= len("-Cdn-Cache-Control") && strings.EqualFold(key[len(key)-len("-Cdn-Cache-Control"):], "-Cdn-Cache-Control")
+}
+
+// isReservedProxyHeader reports whether an upstream header uses a name the
+// proxy uses to talk to the API client. The upstream could otherwise hide or
+// fake the headers the client shows, or send a name the client cannot handle.
+func isReservedProxyHeader(key string) bool {
+	return strings.EqualFold(key, "X-Scalar-Modified-Headers") ||
+		strings.EqualFold(key, "X-Scalar-Set-Cookie") ||
+		(len(key) >= len("X-Scalar-Original-") && strings.EqualFold(key[:len("X-Scalar-Original-")], "X-Scalar-Original-"))
+}
+
+// privateCacheControl keeps the upstream's caching directives for the browser,
+// but marks the response private so shared caches (a CDN in front of the proxy)
+// never store it. Shared caches key on the URL only, not on the Authorization
+// or X-Scalar-Cookie headers the request was made with.
+func privateCacheControl(upstream []string) string {
+	directives := []string{"private"}
+
+	for _, value := range upstream {
+		for _, directive := range strings.Split(value, ",") {
+			directive = strings.TrimSpace(directive)
+			name := strings.ToLower(strings.TrimSpace(strings.SplitN(directive, "=", 2)[0]))
+
+			switch name {
+			case "", "public", "private", "s-maxage", "proxy-revalidate":
+				continue
+			}
+
+			directives = append(directives, directive)
+		}
+	}
+
+	return strings.Join(directives, ", ")
 }
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.
@@ -731,17 +811,16 @@ func isUntrustedResponseHeader(key string) bool {
 // Upstream values of the removed headers are passed on as X-Scalar-Original-*,
 // which browsers ignore, so the API client can still show what the API sent.
 func setUntrustedContentHeaders(header http.Header, upstream http.Header) {
-	for _, key := range untrustedResponseHeaders {
+	for key, values := range upstream {
 		// Set-Cookie is already mirrored in X-Scalar-Set-Cookie
-		if key == "Set-Cookie" {
+		if !isUntrustedResponseHeader(key) || strings.EqualFold(key, "Set-Cookie") {
 			continue
 		}
 
-		if values := upstream.Values(key); len(values) > 0 {
-			header.Set("X-Scalar-Original-"+key, strings.Join(values, ", "))
-		}
+		header.Set("X-Scalar-Original-"+http.CanonicalHeaderKey(key), strings.Join(values, ", "))
 	}
 
+	header.Set("Cache-Control", privateCacheControl(upstream.Values("Cache-Control")))
 	header.Set("Content-Security-Policy", untrustedContentSecurityPolicy)
 	// Stop browsers from sniffing a mislabeled response into an active type
 	header.Set("X-Content-Type-Options", "nosniff")

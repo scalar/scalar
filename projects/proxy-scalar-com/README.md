@@ -27,11 +27,12 @@ in browser environments.
 
 The proxy returns content from arbitrary URLs on its own origin, so it keeps that content from acting on the proxy origin in a browser:
 
-- Requests where the browser opens the proxy URL as a page (link, redirect, form, iframe, `<object>`, `<embed>`) are rejected with `403`, based on the `Sec-Fetch-Mode` and `Sec-Fetch-Dest` headers. `fetch()`, `XMLHttpRequest`, and non-browser clients are not affected.
+- Requests where the browser opens the proxy URL as a page (link, redirect, form, iframe, `<object>`, `<embed>`) or as a worker script are rejected with `403`, based on the `Sec-Fetch-Mode` and `Sec-Fetch-Dest` headers. `fetch()`, `XMLHttpRequest`, and non-browser clients are not affected.
 - Every proxied response is sent with `Content-Security-Policy: default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox` and `X-Content-Type-Options: nosniff`, for browsers that do not send `Sec-Fetch-*` headers.
-- Upstream headers that browsers act on for the proxy origin (`Refresh`, `Clear-Site-Data`, `Content-Security-Policy`, `Content-Security-Policy-Report-Only`, `X-Content-Type-Options`, `NEL`, `Report-To`, `Reporting-Endpoints`, `Strict-Transport-Security`, `Alt-Svc`, `Set-Login`, `Observe-Browsing-Topics`, and `Attribution-Reporting-Register-*`) are forwarded as `X-Scalar-Original-*` instead, and `Set-Cookie` as `X-Scalar-Set-Cookie`. The API client, post-response scripts, and the agent see the original values.
-- Proxied responses vary on `Sec-Fetch-Mode` and `Sec-Fetch-Dest`, so a shared cache cannot serve a `fetch()` response to a page load.
-- Same-origin redirects that reach the browser carry the absolute URL the proxy validated, not the raw upstream `Location` value. Redirects with more than one `Location` are rejected.
+- Upstream headers that browsers act on for the proxy origin are forwarded as `X-Scalar-Original-*` instead, and `Set-Cookie` as `X-Scalar-Set-Cookie`. This covers `Refresh`, `Clear-Site-Data`, `Content-Security-Policy`, `Content-Security-Policy-Report-Only`, `X-Content-Type-Options`, `NEL`, `Report-To`, `Reporting-Endpoints`, `Strict-Transport-Security`, `Alt-Svc`, `No-Vary-Search`, `Cache-Control`, CDN cache headers, `Set-Login`, `Observe-Browsing-Topics`, `Activate-Storage-Access`, and the `Sec-*`, `Secure-Session-*`, `Shared-Storage-*`, `Ad-Auction-*`, and `Attribution-Reporting-*` families. The API client, post-response scripts, and the agent see the original values.
+- `Cache-Control` is always `private`, keeping the upstream's other directives, so a shared cache never stores a response made with someone's credentials. Responses also vary on `Sec-Fetch-Mode` and `Sec-Fetch-Dest`.
+- Redirects that reach the browser are never followed: the validated absolute URL is passed on as `X-Scalar-Original-Location`, and redirects to another origin or with more than one `Location` are rejected.
+- Upstream headers that use the proxy's own names (`X-Scalar-Original-*`, `X-Scalar-Modified-Headers`, `X-Scalar-Set-Cookie`) are dropped.
 
 ## Usage
 

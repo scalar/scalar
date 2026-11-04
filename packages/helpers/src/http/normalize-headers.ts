@@ -60,6 +60,11 @@ export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false):
 
     if (ORIGINAL_KEY_REGEX.test(key)) {
       const originalKey = key.replace(ORIGINAL_KEY_REGEX, '')
+      // A bare `X-Scalar-Original-` has no name to restore
+      if (!originalKey) {
+        delete headers[key]
+        return
+      }
       if (headers[key]) {
         headers[originalKey] = headers[key]
         delete headers[key]

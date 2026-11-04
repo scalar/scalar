@@ -137,7 +137,7 @@ func TestForwardedLocation(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		t.Run("Forwards the validated absolute URL for "+tc.name, func(t *testing.T) {
+		t.Run("Passes on the validated absolute URL without redirecting for "+tc.name, func(t *testing.T) {
 			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Location", tc.location)
 				w.WriteHeader(tc.status)
@@ -154,7 +154,12 @@ func TestForwardedLocation(t *testing.T) {
 				t.Fatalf("Expected status code %d, got %d", tc.status, w.Code)
 			}
 
-			location := w.Header().Get("Location")
+			// Browsers must not follow it, the API client shows it as Location
+			if got := w.Header().Values("Location"); len(got) != 0 {
+				t.Errorf("Expected no Location, got %v", got)
+			}
+
+			location := w.Header().Get("X-Scalar-Original-Location")
 			forwarded, err := url.Parse(location)
 			if err != nil {
 				t.Fatalf("Expected a valid Location, got %q: %v", location, err)

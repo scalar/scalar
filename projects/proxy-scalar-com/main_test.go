@@ -1075,7 +1075,7 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		if got := w.Header().Get("X-Scalar-Original-X-Content-Type-Options"); got != "something-else" {
 			t.Errorf("Expected X-Scalar-Original-X-Content-Type-Options 'something-else', got %q", got)
 		}
-		if got := w.Header().Get("X-Scalar-Modified-Headers"); got != "Content-Security-Policy, X-Content-Type-Options" {
+		if got := w.Header().Get("X-Scalar-Modified-Headers"); got != "Cache-Control, Content-Security-Policy, X-Content-Type-Options" {
 			t.Errorf("Expected X-Scalar-Modified-Headers to list the proxy's headers, got %q", got)
 		}
 	})
@@ -1147,6 +1147,130 @@ func TestUntrustedContentHeaders(t *testing.T) {
 		}
 	})
 
+	t.Run("Does not let one upstream make the browser cache ignore scalar_url", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Cache-Control", "public, max-age=3600")
+			w.Header().Set("No-Vary-Search", "params")
+			w.Write([]byte(`{"poisoned":true}`))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url+"/poison"), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Header().Values("No-Vary-Search"); len(got) != 0 {
+			t.Errorf("Expected No-Vary-Search to be removed, got %v", got)
+		}
+		if got := w.Header().Get("X-Scalar-Original-No-Vary-Search"); got != "params" {
+			t.Errorf("Expected X-Scalar-Original-No-Vary-Search 'params', got %q", got)
+		}
+	})
+
+	t.Run("Keeps proxied responses out of shared caches", func(t *testing.T) {
+		tests := []struct {
+			upstream []string
+			expected string
+		}{
+			{upstream: nil, expected: "private"},
+			{upstream: []string{"public, max-age=3600"}, expected: "private, max-age=3600"},
+			{upstream: []string{"s-maxage=600, max-age=60, proxy-revalidate"}, expected: "private, max-age=60"},
+			{upstream: []string{"no-store"}, expected: "private, no-store"},
+			{upstream: []string{"private=\"Set-Cookie\", no-cache", "must-revalidate"}, expected: "private, no-cache, must-revalidate"},
+		}
+
+		for _, tc := range tests {
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				for _, value := range tc.upstream {
+					w.Header().Add("Cache-Control", value)
+				}
+				w.Header().Set("CDN-Cache-Control", "max-age=86400")
+				w.Header().Set("Cloudflare-CDN-Cache-Control", "max-age=86400")
+				w.Header().Set("Surrogate-Control", "max-age=86400")
+				w.Write([]byte("ok"))
+			})
+
+			req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+			w := httptest.NewRecorder()
+
+			proxyServer.handleRequest(w, req)
+			targetServer.server.Close()
+
+			if got := w.Header().Values("Cache-Control"); len(got) != 1 || got[0] != tc.expected {
+				t.Errorf("Upstream %v: expected Cache-Control %q, got %v", tc.upstream, tc.expected, got)
+			}
+			if got := w.Header().Get("X-Scalar-Original-Cache-Control"); got != strings.Join(tc.upstream, ", ") {
+				t.Errorf("Upstream %v: expected X-Scalar-Original-Cache-Control %q, got %q", tc.upstream, strings.Join(tc.upstream, ", "), got)
+			}
+			for _, header := range []string{"CDN-Cache-Control", "Cloudflare-CDN-Cache-Control", "Surrogate-Control"} {
+				if got := w.Header().Values(header); len(got) != 0 {
+					t.Errorf("Expected %s to be removed, got %v", header, got)
+				}
+			}
+		}
+	})
+
+	t.Run("Does not forward header families that set browser state", func(t *testing.T) {
+		upstreamHeaders := []string{
+			"Sec-Session-Registration",
+			"Secure-Session-Registration",
+			"Sec-Private-State-Token",
+			"Shared-Storage-Write",
+			"Ad-Auction-Signals",
+			"Ad-Auction-Allowed",
+			"Activate-Storage-Access",
+			"Attribution-Reporting-Register-Os-Source",
+		}
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			for _, key := range upstreamHeaders {
+				w.Header().Set(key, "value")
+			}
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		for _, key := range upstreamHeaders {
+			if got := w.Header().Values(key); len(got) != 0 {
+				t.Errorf("Expected %s to be removed, got %v", key, got)
+			}
+			if got := w.Header().Get("X-Scalar-Original-" + key); got != "value" {
+				t.Errorf("Expected X-Scalar-Original-%s 'value', got %q", key, got)
+			}
+		}
+	})
+
+	t.Run("Drops upstream headers that use the proxy's reserved names", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			// An empty suffix would make the client restore a header with no name
+			w.Header()["X-Scalar-Original-"] = []string{"broken"}
+			w.Header().Set("X-Scalar-Original-Content-Type", "text/html")
+			w.Header().Set("X-Scalar-Set-Cookie", "fake=1")
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte("ok"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		for _, key := range []string{"X-Scalar-Original-", "X-Scalar-Original-Content-Type", "X-Scalar-Set-Cookie"} {
+			if got := w.Header().Values(key); len(got) != 0 {
+				t.Errorf("Expected %s to be removed, got %v", key, got)
+			}
+		}
+		if got := w.Header().Get("Content-Type"); got != "application/json" {
+			t.Errorf("Expected Content-Type 'application/json', got %q", got)
+		}
+	})
+
 	t.Run("Varies on the Sec-Fetch headers and keeps the upstream Vary", func(t *testing.T) {
 		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Vary", "Accept")
@@ -1211,6 +1335,10 @@ func TestDocumentRequests(t *testing.T) {
 		{name: "iframe", headers: map[string]string{"Sec-Fetch-Mode": "navigate", "Sec-Fetch-Dest": "iframe"}},
 		{name: "object", headers: map[string]string{"Sec-Fetch-Mode": "no-cors", "Sec-Fetch-Dest": "object"}},
 		{name: "embed", headers: map[string]string{"Sec-Fetch-Mode": "no-cors", "Sec-Fetch-Dest": "embed"}},
+		{name: "older Chrome iframe", headers: map[string]string{"Sec-Fetch-Mode": "nested-navigate", "Sec-Fetch-Dest": "iframe"}},
+		{name: "worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "worker"}},
+		{name: "shared worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "sharedworker"}},
+		{name: "service worker", headers: map[string]string{"Sec-Fetch-Mode": "same-origin", "Sec-Fetch-Dest": "serviceworker"}},
 	}
 
 	for _, tc := range documentRequests {
