@@ -1723,6 +1723,26 @@
                           "content": "Publish API references and guides in one developer portal. Markdown and MDX in Git, previews on every PR, custom domains, llms.txt, and a free plan to start."
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "robots",
                           "content": "index, follow"
                         }
@@ -2201,6 +2221,12 @@
                         "type": "page",
                         "title": "Tables"
                       },
+                      "fields": {
+                        "description": "Document parameters, properties, and response values as labelled rows with the field, param field, and response field components.",
+                        "filepath": "documentation/guides/docs/components/fields.mdx",
+                        "type": "page",
+                        "title": "Fields"
+                      },
                       "steps": {
                         "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
@@ -2224,6 +2250,12 @@
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
+                      },
+                      "tooltips": {
+                        "description": "Attach a short explanation to a word or phrase in running text with the tooltip component.",
+                        "filepath": "documentation/guides/docs/components/tooltips.mdx",
+                        "type": "page",
+                        "title": "Tooltips"
                       },
                       "page-link": {
                         "description": "Link to other documentation pages with rich page-link previews.",
@@ -2293,6 +2325,26 @@
                         {
                           "property": "og:description",
                           "content": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication."
+                        },
+                        {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
                         },
                         {
                           "name": "robots",
