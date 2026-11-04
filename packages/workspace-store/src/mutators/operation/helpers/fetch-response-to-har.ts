@@ -1,3 +1,4 @@
+import { restoreOriginalHeaders } from '@scalar/helpers/http/restore-original-headers'
 import type { HarResponse } from '@scalar/snippetz'
 
 type FetchResponseToHarProps = {
@@ -60,14 +61,18 @@ export const fetchResponseToHar = async ({
   httpVersion = 'HTTP/1.1',
   bodySizeLimit = 1048576,
 }: FetchResponseToHarProps): Promise<HarResponse> => {
+  // Store the headers the API sent, not the ones the Scalar proxy set to protect its origin. This
+  // also restores the Location of a proxied redirect, which the proxy passes on under another name.
+  const responseHeaders = restoreOriginalHeaders(response.headers)
+
   // Extract the headers from the response
-  const { headers, headersSize, cookies } = processResponseHeaders(response)
+  const { headers, headersSize, cookies } = processResponseHeaders(responseHeaders)
 
   // Extract redirect URL from Location header
-  const redirectURL = response.headers.get('location') || ''
+  const redirectURL = responseHeaders.get('location') || ''
 
   // Get content type
-  const contentType = response.headers.get('content-type') ?? 'text/plain'
+  const contentType = responseHeaders.get('content-type') ?? 'text/plain'
 
   // Read the response body if requested
   const bodyDetails = await (async () => {
@@ -101,8 +106,8 @@ export const fetchResponseToHar = async ({
   return harResponse
 }
 
-const processResponseHeaders = (response: Response) => {
-  return Array.from(response.headers.entries()).reduce<{
+const processResponseHeaders = (responseHeaders: Headers) => {
+  return Array.from(responseHeaders.entries()).reduce<{
     headers: { name: string; value: string }[]
     headersSize: number
     cookies: { name: string; value: string }[]

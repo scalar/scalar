@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
 	"fmt"
@@ -362,6 +363,18 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The answer depends on how the browser loads the URL, so a shared cache
+	// must not serve a response to a fetch() for a page load, or the other way
+	// around.
+	w.Header().Add("Vary", "Sec-Fetch-Mode, Sec-Fetch-Dest")
+
+	// Only programmatic requests (fetch, XHR) are proxied. Opening a proxy URL as
+	// a page would render attacker-controlled content on the proxy origin.
+	if isDocumentRequest(r) {
+		http.Error(w, documentRequestError, http.StatusForbidden)
+		return
+	}
+
 	// Get and validate the target URL from the `scalar_url` query parameter
 	target := r.URL.Query().Get("scalar_url")
 
@@ -413,10 +426,12 @@ func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValida
 
 // executeProxyRequest handles the proxying logic
 //
-// 1. Preserves all original headers (except CORS headers)
-// 2. Maintains session state through redirects
-// 3. Adds consistent CORS headers to allow browser access
-// 4. Tracks the final URL after any redirects
+//  1. Forwards the request headers, except Origin, Cookie (sent through
+//     X-Scalar-Cookie instead) and headers the browser adds for the proxy origin
+//  2. Follows same-origin redirects and maintains session state through them
+//  3. Passes on the upstream response, minus headers that would act on the
+//     proxy origin (see untrustedResponseHeaders), with consistent CORS headers
+//  4. Tracks the final URL after any redirects
 func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
 	client := &http.Client{
 		Transport: ps.transport,
@@ -453,7 +468,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Create the outbound request
-	outreq, err := http.NewRequest(r.Method, target, r.Body)
+	body, err := replayableBody(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return err
+	}
+
+	outreq, err := http.NewRequest(r.Method, target, body)
 
 	// Return error if request creation fails
 	if err != nil {
@@ -472,6 +493,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			outreq.Header[key] = values
 		}
 	}
+
+	// The browser advertises compression dictionaries it stored for the proxy
+	// origin. Those came from whichever API set them, so they must not be sent
+	// to every other API called through the proxy.
+	outreq.Header.Del("Available-Dictionary")
+	outreq.Header.Del("Dictionary-Id")
 
 	// Users need to specifically set their cookies in X-Scalar-Cookie
 	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
@@ -500,19 +527,57 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Close response body when done to prevent resource leaks
 	defer resp.Body.Close()
 
-	// A 307/308 with a non-replayable body is returned without CheckRedirect.
-	// Reject cross-origin Locations here too so the browser cannot replay the
-	// original request outside the proxy's origin policy.
-	if resp.StatusCode >= 300 && resp.StatusCode < 400 && resp.Header.Get("Location") != "" {
-		destination, err := resp.Location()
-		if err != nil || !sameOrigin(remote, destination) {
-			err := fmt.Errorf("redirect to a different origin is not allowed")
+	redirectLocation := ""
+
+	// A 3xx reaches this point when Go did not follow it: a 300, or a 307/308
+	// whose request body was too large to replay. Reject cross-origin Locations
+	// here too, so the response never points the client outside the proxy's
+	// origin policy.
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 && len(resp.Header.Values("Location")) > 0 {
+		// Header.Get only looks at the first value. An empty first value followed
+		// by a real one would skip this check, so look at all of them.
+		locations := []string{}
+		for _, location := range resp.Header.Values("Location") {
+			if strings.TrimSpace(location) != "" {
+				locations = append(locations, location)
+			}
+		}
+
+		if len(locations) > 1 {
+			err := fmt.Errorf("redirect with more than one Location is not allowed")
 			http.Error(w, err.Error(), http.StatusServiceUnavailable)
 			return err
 		}
+
+		if len(locations) == 1 {
+			destination, err := resp.Request.URL.Parse(locations[0])
+			if err != nil {
+				err := fmt.Errorf("redirect with an invalid Location is not allowed: %v", err)
+				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				return err
+			}
+
+			if !sameOrigin(remote, destination) {
+				err := fmt.Errorf("redirect to a different origin is not allowed")
+				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				return err
+			}
+
+			redirectLocation = destination.String()
+		}
+
+		// The upstream picked the target, so letting the browser follow it
+		// would be an open redirect for browsers that do not send Sec-Fetch-*
+		// headers. Pass on the absolute URL we validated as
+		// X-Scalar-Original-Location instead, which the API client shows as
+		// Location. That also avoids parser differences: Go resolves
+		// `/\attacker.example/` to a path on the upstream host, while browsers
+		// treat the backslash as a slash.
+		resp.Header.Del("Location")
 	}
 
-	// Copy headers from final response, but skip CORS headers
+	// Copy headers from final response, but skip CORS headers and headers the
+	// browser would act on for the proxy origin (see untrustedResponseHeaders).
 	for key, values := range resp.Header {
 
 		// Check if header is a CORS headers
@@ -520,10 +585,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return strings.HasPrefix(strings.ToLower(header), "access-control-")
 		}
 
-		if !isCorsHeader(key) {
-			for _, value := range values {
-				w.Header().Add(key, value)
-			}
+		if isCorsHeader(key) || isUntrustedResponseHeader(key) || isReservedProxyHeader(key) {
+			continue
+		}
+
+		for _, value := range values {
+			w.Header().Add(key, value)
 		}
 	}
 
@@ -544,6 +611,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
+
+	setUntrustedContentHeaders(w.Header(), resp.Header)
+
+	if redirectLocation != "" {
+		w.Header().Set("X-Scalar-Original-Location", redirectLocation)
+	}
 
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
@@ -568,6 +641,283 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	return nil
+}
+
+// untrustedContentSecurityPolicy keeps proxied documents inert when a browser
+// renders them anyway, for example one that does not send Sec-Fetch-* headers.
+//
+// `sandbox` gives the document an opaque origin and blocks scripts, forms,
+// popups, and `<meta>` refresh. `default-src 'none'` blocks scripts and
+// subresources in its own right. `base-uri` and `form-action` do not fall back
+// to `default-src`, so they are listed explicitly. It does not stop a user from
+// clicking a plain link, and it does not cover the HTTP `Refresh` header, which
+// is removed separately.
+const untrustedContentSecurityPolicy = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox"
+
+const documentRequestError = "Forbidden: The proxy only handles requests made with fetch() or XMLHttpRequest. It does not serve pages to open in the browser."
+
+// isDocumentRequest reports whether the browser is loading the proxy URL as a
+// page (a link, a redirect, a form submission, or an iframe) rather than
+// reading it with fetch() or XMLHttpRequest.
+//
+// The API client only reads the proxy programmatically, so refusing these
+// requests costs nothing and stops attackers from using the proxy origin to
+// host pages, run scripts, redirect visitors, set cookies, or serve downloads.
+// Non-browser clients (curl, servers) do not send these headers and are not
+// affected.
+func isDocumentRequest(r *http.Request) bool {
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Mode")) {
+	// Chrome 76 to 79 sent `nested-navigate` for iframes
+	case "navigate", "nested-navigate":
+		return true
+	}
+
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Dest")) {
+	case "document", "iframe", "frame", "embed", "object", "fencedframe":
+		return true
+	// Workers run with the origin of their script URL. Browsers only allow
+	// same-origin worker scripts, so this only matters if the proxy origin were
+	// compromised another way, but there is no reason to serve them.
+	case "worker", "sharedworker", "serviceworker":
+		return true
+	}
+
+	return false
+}
+
+// untrustedResponseHeaders are upstream headers that browsers act on for the
+// proxy origin, whatever the response body is, and that the API client does
+// not need to receive as-is:
+//
+//   - Refresh redirects the page, even when it is sandboxed (open redirect)
+//   - Clear-Site-Data wipes the proxy origin's storage
+//   - Set-Cookie can set cookies on the proxy host or its parent domain.
+//     fetch() never exposes it, so the API client reads X-Scalar-Set-Cookie.
+//   - Content-Security-Policy(-Report-Only) would sit next to our own policy.
+//     Per the HTML spec only the last `sandbox` directive applies, and report
+//     endpoints would still be pinged.
+//   - X-Content-Type-Options is replaced with our own `nosniff`.
+//
+// Browsers also apply these to the proxy origin from fetch() responses:
+//
+//   - NEL, Report-To, and Reporting-Endpoints would have the browser report
+//     later proxy requests, including their `scalar_url`, to the attacker
+//   - Strict-Transport-Security and Alt-Svc change how the browser connects
+//     to the proxy
+//   - No-Vary-Search makes the browser cache ignore the query string. Every
+//     proxied URL is `/?scalar_url=...`, so one API could answer for all others.
+//   - Use-As-Dictionary stores the response as a compression dictionary for
+//     the proxy origin. The browser then sends its hash and an ID the upstream
+//     picked on later proxy requests, which works like a cookie.
+//   - Cache-Control is replaced with a private one (see privateCacheControl),
+//     and CDN-specific cache headers are dropped, so shared caches never store
+//     a response that may depend on the caller's credentials
+//   - X-Accel-*, X-Sendfile, and X-Lighttpd-Send-File tell a front server
+//     (nginx, Apache, lighttpd) to serve a local file or internal location
+//     instead of the response. proxy.scalar.com runs on Cloud Run with nothing
+//     in front (see cloudbuild.yaml), but self-hosted proxies may sit behind
+//     one of these.
+//   - Set-Login, Observe-Browsing-Topics, Activate-Storage-Access, and the
+//     prefixes below record state or grant access for the proxy origin
+var untrustedResponseHeaders = []string{
+	"Refresh",
+	"Clear-Site-Data",
+	"Set-Cookie",
+	"Content-Security-Policy",
+	"Content-Security-Policy-Report-Only",
+	"X-Content-Type-Options",
+	"Nel",
+	"Report-To",
+	"Reporting-Endpoints",
+	"Strict-Transport-Security",
+	"Alt-Svc",
+	"No-Vary-Search",
+	"Use-As-Dictionary",
+	"Cache-Control",
+	"Cdn-Cache-Control",
+	"Surrogate-Control",
+	"Edge-Control",
+	"X-Sendfile",
+	"X-Lighttpd-Send-File",
+	"Set-Login",
+	"Observe-Browsing-Topics",
+	"Activate-Storage-Access",
+}
+
+// untrustedResponseHeaderPrefixes cover header families that browsers keep
+// adding to. A blocklist of single names keeps missing new members.
+var untrustedResponseHeaderPrefixes = []string{
+	// Attribution-Reporting-Register-Source, -Trigger, -OS-Source, ...
+	"Attribution-Reporting-",
+	// Ad-Auction-Signals, Ad-Auction-Allowed, Ad-Auction-Additional-Bid, ...
+	"Ad-Auction-",
+	// Sec-Session-Registration, Sec-Private-State-Token, ... Servers do not
+	// send `Sec-` headers to describe their API, only to talk to browsers.
+	"Sec-",
+	// Device-bound session credentials
+	"Secure-Session-",
+	"Shared-Storage-",
+	// X-Accel-Redirect, X-Accel-Expires, ... for nginx in front of the proxy
+	"X-Accel-",
+}
+
+// proxyModifiedHeaders are headers the proxy sets itself. Listing them in
+// X-Scalar-Modified-Headers lets the API client hide the proxy's values, and it
+// restores the upstream values from X-Scalar-Original-* (see normalizeHeaders
+// in @scalar/helpers).
+var proxyModifiedHeaders = []string{
+	"Cache-Control",
+	"Content-Security-Policy",
+	"Vary",
+	"X-Content-Type-Options",
+}
+
+func isUntrustedResponseHeader(key string) bool {
+	for _, header := range untrustedResponseHeaders {
+		if strings.EqualFold(key, header) {
+			return true
+		}
+	}
+
+	for _, prefix := range untrustedResponseHeaderPrefixes {
+		if len(key) >= len(prefix) && strings.EqualFold(key[:len(prefix)], prefix) {
+			return true
+		}
+	}
+
+	// Cloudflare-CDN-Cache-Control and similar per-CDN variants
+	return len(key) >= len("-Cdn-Cache-Control") && strings.EqualFold(key[len(key)-len("-Cdn-Cache-Control"):], "-Cdn-Cache-Control")
+}
+
+// isReservedProxyHeader reports whether an upstream header uses a name the
+// proxy uses to talk to the API client. The upstream could otherwise hide or
+// fake the headers the client shows, or send a name the client cannot handle.
+func isReservedProxyHeader(key string) bool {
+	return strings.EqualFold(key, "X-Scalar-Modified-Headers") ||
+		strings.EqualFold(key, "X-Scalar-Set-Cookie") ||
+		(len(key) >= len("X-Scalar-Original-") && strings.EqualFold(key[:len("X-Scalar-Original-")], "X-Scalar-Original-"))
+}
+
+// privateCacheControl keeps the upstream's caching directives for the browser,
+// but marks the response private so shared caches (a CDN in front of the proxy)
+// never store it. Shared caches key on the URL only, not on the Authorization
+// or X-Scalar-Cookie headers the request was made with.
+func privateCacheControl(upstream []string) string {
+	directives := []string{"private"}
+
+	for _, value := range upstream {
+		for _, directive := range splitDirectives(value) {
+			name := strings.ToLower(strings.TrimSpace(strings.SplitN(directive, "=", 2)[0]))
+
+			switch name {
+			case "", "public", "private", "s-maxage", "proxy-revalidate":
+				continue
+			}
+
+			directives = append(directives, directive)
+		}
+	}
+
+	return strings.Join(directives, ", ")
+}
+
+// splitDirectives splits a Cache-Control value on commas outside quoted
+// strings, so `private="Set-Cookie, X-Foo", max-age=60` stays two directives.
+func splitDirectives(value string) []string {
+	directives := []string{}
+	start := 0
+	quoted := false
+	escaped := false
+
+	for i, char := range value {
+		switch {
+		case escaped:
+			escaped = false
+		case quoted && char == '\\':
+			escaped = true
+		case char == '"':
+			quoted = !quoted
+		case char == ',' && !quoted:
+			if directive := strings.TrimSpace(value[start:i]); directive != "" {
+				directives = append(directives, directive)
+			}
+			start = i + 1
+		}
+	}
+
+	if directive := strings.TrimSpace(value[start:]); directive != "" {
+		directives = append(directives, directive)
+	}
+
+	return directives
+}
+
+// maxReplayableBodySize is how much of a request body the proxy buffers so Go
+// can resend it when following a same-origin 307 or 308, like `curl -L`.
+// Larger bodies are streamed, and such redirects are passed on unfollowed.
+const maxReplayableBodySize = 10 << 20
+
+// replayableBody buffers the request body when it is small enough, so
+// http.NewRequest sets GetBody and Content-Length.
+func replayableBody(body io.Reader) (io.Reader, error) {
+	if body == nil {
+		return nil, nil
+	}
+
+	buffered, err := io.ReadAll(io.LimitReader(body, maxReplayableBodySize+1))
+	if err != nil {
+		return nil, fmt.Errorf("failed to read request body: %w", err)
+	}
+
+	if len(buffered) <= maxReplayableBodySize {
+		return bytes.NewReader(buffered), nil
+	}
+
+	// Too large to replay: send what was read, then stream the rest. The
+	// wrapper hides the concrete type, so http.NewRequest does not set GetBody.
+	return struct{ io.Reader }{io.MultiReader(bytes.NewReader(buffered), body)}, nil
+}
+
+// setUntrustedContentHeaders protects the proxy origin from proxied content.
+//
+// The proxy returns whatever the target URL responds with. Without these
+// headers, anyone could link to `/?scalar_url=https://attacker.example/evil.svg`
+// and the browser would render that SVG or HTML as a document on the proxy
+// origin, running its scripts there. Document requests are already refused in
+// handleRequest; this is the fallback for browsers that do not send
+// Sec-Fetch-* headers.
+//
+// Browsers ignore CSP on responses read through fetch(), so the API client
+// keeps working. When the upstream does not send a Content-Type, Go sniffs one
+// before writing; `nosniff` cannot prevent that, which is one more reason the
+// CSP applies to every response.
+//
+// Upstream values of the removed headers are passed on as X-Scalar-Original-*,
+// which browsers ignore, so the API client can still show what the API sent.
+func setUntrustedContentHeaders(header http.Header, upstream http.Header) {
+	for key, values := range upstream {
+		// Set-Cookie is already mirrored in X-Scalar-Set-Cookie
+		if !isUntrustedResponseHeader(key) || strings.EqualFold(key, "Set-Cookie") {
+			continue
+		}
+
+		header.Set("X-Scalar-Original-"+http.CanonicalHeaderKey(key), strings.Join(values, ", "))
+	}
+
+	// Vary is forwarded, because the browser cache needs it, but the proxy adds
+	// its own values. Every modified header is hidden by the client, so pass on
+	// what the upstream sent.
+	for _, key := range proxyModifiedHeaders {
+		if values := upstream.Values(key); len(values) > 0 {
+			header.Set("X-Scalar-Original-"+key, strings.Join(values, ", "))
+		}
+	}
+
+	header.Set("Cache-Control", privateCacheControl(upstream.Values("Cache-Control")))
+	header.Set("Content-Security-Policy", untrustedContentSecurityPolicy)
+	// Stop browsers from sniffing a mislabeled response into an active type
+	header.Set("X-Content-Type-Options", "nosniff")
+	header.Set("X-Scalar-Modified-Headers", strings.Join(proxyModifiedHeaders, ", "))
 }
 
 // Handle preflight requests and ensures browsers can access the proxy regardless of where the request originates from.

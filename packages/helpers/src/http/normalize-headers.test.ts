@@ -38,6 +38,19 @@ describe('normalizeHeaders', () => {
     })
   })
 
+  it('ignores an original header without a name', () => {
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'X-Scalar-Original-': 'broken',
+    })
+
+    const normalizedHeaders = normalizeHeaders(headers)
+
+    expect(normalizedHeaders).toStrictEqual({
+      'Content-Type': 'application/json',
+    })
+  })
+
   it('normalizes the header keys', () => {
     const headers = new Headers({
       'cOntent-tyPe': 'application/json',

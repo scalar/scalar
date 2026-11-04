@@ -1,6 +1,7 @@
 import { normalizeError } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { isStreamingContentType } from '@scalar/helpers/http/is-streaming-content-type'
+import { restoreOriginalHeaders } from '@scalar/helpers/http/restore-original-headers'
 import type { RequestFactory, VariablesStore } from '@scalar/workspace-store/request-example'
 
 import type { ConsoleContext } from '../context/console'
@@ -43,7 +44,8 @@ export const toPostmanResponse = async (
     ...(responseDuration === undefined ? {} : { responseTime: responseDuration }),
     code: response.status,
     status: response.statusText || String(response.status),
-    header: Array.from(response.headers.entries()).map(([key, value]) => ({ key, value })),
+    // Scripts should check the API's headers, not the ones the proxy sets to protect its origin
+    header: Array.from(restoreOriginalHeaders(response.headers).entries()).map(([key, value]) => ({ key, value })),
     stream: {
       type: 'Buffer',
       data: responseBytes,

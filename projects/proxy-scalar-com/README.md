@@ -13,7 +13,7 @@ in browser environments.
 ## Features
 
 - Full CORS support
-- Follows same-origin HTTP redirects while preserving headers. Redirects to another scheme, hostname, or effective port are rejected to protect credentials in headers and request bodies.
+- Follows same-origin HTTP redirects while preserving headers, including 307 and 308 with request bodies up to 10 MiB. Redirects to another scheme, hostname, or effective port are rejected to protect credentials in headers and request bodies.
 - Supports HTTPS (and even self-signed certificates)
 - Request logging with method and target URL
 - Health check endpoint at `/ping`
@@ -22,6 +22,17 @@ in browser environments.
 - Forwards `X-Scalar-Cookie` as `Cookie` header to circumvent the browser's cookie policy
 - Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH)
 - Zero external dependencies (only using Go standard libraries)
+
+## Security
+
+The proxy returns content from arbitrary URLs on its own origin, so it keeps that content from acting on the proxy origin in a browser:
+
+- Requests where the browser opens the proxy URL as a page (link, redirect, form, iframe, `<object>`, `<embed>`) or as a worker script are rejected with `403`, based on the `Sec-Fetch-Mode` and `Sec-Fetch-Dest` headers. `fetch()`, `XMLHttpRequest`, and non-browser clients are not affected.
+- Every proxied response is sent with `Content-Security-Policy: default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox` and `X-Content-Type-Options: nosniff`, for browsers that do not send `Sec-Fetch-*` headers.
+- Upstream headers that browsers act on for the proxy origin are forwarded as `X-Scalar-Original-*` instead, and `Set-Cookie` as `X-Scalar-Set-Cookie`. This covers `Refresh`, `Clear-Site-Data`, `Content-Security-Policy`, `Content-Security-Policy-Report-Only`, `X-Content-Type-Options`, `NEL`, `Report-To`, `Reporting-Endpoints`, `Strict-Transport-Security`, `Alt-Svc`, `No-Vary-Search`, `Use-As-Dictionary`, `Cache-Control`, CDN cache headers, front-server headers (`X-Accel-*`, `X-Sendfile`, `X-Lighttpd-Send-File`), `Set-Login`, `Observe-Browsing-Topics`, `Activate-Storage-Access`, and the `Sec-*`, `Secure-Session-*`, `Shared-Storage-*`, `Ad-Auction-*`, and `Attribution-Reporting-*` families. The API client, request history, post-response scripts, and the agent see the original values. The browser's `Available-Dictionary` and `Dictionary-ID` request headers are not forwarded.
+- `Cache-Control` is always `private`, keeping the upstream's other directives, so a shared cache never stores a response made with someone's credentials. Responses also vary on `Sec-Fetch-Mode` and `Sec-Fetch-Dest`, and the upstream's own `Vary` is passed on as `X-Scalar-Original-Vary`.
+- Redirects that reach the browser are never followed: the validated absolute URL is passed on as `X-Scalar-Original-Location`, and redirects to another origin or with more than one `Location` are rejected.
+- Upstream headers that use the proxy's own names (`X-Scalar-Original-*`, `X-Scalar-Modified-Headers`, `X-Scalar-Set-Cookie`) are dropped.
 
 ## Usage
 

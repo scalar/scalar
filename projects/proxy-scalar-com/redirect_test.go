@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -118,4 +119,173 @@ func TestRedirectOriginPolicy(t *testing.T) {
 			})
 		}
 	}
+}
+
+func TestForwardedLocation(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	tests := []struct {
+		name     string
+		method   string
+		status   int
+		location string
+		body     string
+	}{
+		// Browsers read `\` as `/`, so this would be //attacker.example/
+		{name: "backslash after a slash", method: http.MethodPost, status: http.StatusTemporaryRedirect, location: `/\attacker.example/phish`, body: strings.Repeat("a", maxReplayableBodySize+1)},
+		{name: "double backslash", method: http.MethodPost, status: http.StatusPermanentRedirect, location: `\\attacker.example/phish`, body: strings.Repeat("a", maxReplayableBodySize+1)},
+		// Go does not follow a 300, so the response reaches the browser on GET too
+		{name: "status not followed by Go", method: http.MethodGet, status: http.StatusMultipleChoices, location: `/\attacker.example/phish`},
+	}
+
+	for _, tc := range tests {
+		t.Run("Passes on the validated absolute URL without redirecting for "+tc.name, func(t *testing.T) {
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				io.Copy(io.Discard, r.Body)
+				w.Header().Set("Location", tc.location)
+				w.WriteHeader(tc.status)
+			})
+			defer targetServer.server.Close()
+
+			// A body over the replay limit makes Go return a 307/308 as-is
+			req := httptest.NewRequest(tc.method, "/?scalar_url="+url.QueryEscape(targetServer.url+"/start"), strings.NewReader(tc.body))
+			w := httptest.NewRecorder()
+
+			proxyServer.handleRequest(w, req)
+
+			if w.Code != tc.status {
+				t.Fatalf("Expected status code %d, got %d", tc.status, w.Code)
+			}
+
+			// Browsers must not follow it, the API client shows it as Location
+			if got := w.Header().Values("Location"); len(got) != 0 {
+				t.Errorf("Expected no Location, got %v", got)
+			}
+
+			location := w.Header().Get("X-Scalar-Original-Location")
+			forwarded, err := url.Parse(location)
+			if err != nil {
+				t.Fatalf("Expected a valid Location, got %q: %v", location, err)
+			}
+
+			target, _ := url.Parse(targetServer.url)
+			if !forwarded.IsAbs() || forwarded.Host != target.Host || strings.Contains(location, `\`) {
+				t.Errorf("Expected an absolute same-origin Location without backslashes, got %q", location)
+			}
+		})
+	}
+}
+
+func TestReplayableBody(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	for _, status := range []int{http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(fmt.Sprintf("Follows a same-origin %d and resends the body", status), func(t *testing.T) {
+			targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+				body, _ := io.ReadAll(r.Body)
+				if r.URL.Path == "/items" {
+					// Like FastAPI adding a trailing slash
+					w.Header().Set("Location", "/items/")
+					w.WriteHeader(status)
+					return
+				}
+				fmt.Fprintf(w, "%s %s %s", r.Method, r.URL.Path, body)
+			})
+			defer targetServer.server.Close()
+
+			req := httptest.NewRequest(http.MethodPost, "/?scalar_url="+url.QueryEscape(targetServer.url+"/items"), strings.NewReader(`{"name":"Mars"}`))
+			w := httptest.NewRecorder()
+
+			proxyServer.handleRequest(w, req)
+
+			if w.Code != http.StatusOK {
+				t.Fatalf("Expected status code %d, got %d: %s", http.StatusOK, w.Code, w.Body.String())
+			}
+			if got := w.Body.String(); got != `POST /items/ {"name":"Mars"}` {
+				t.Errorf("Expected the body to be resent to /items/, got %q", got)
+			}
+		})
+	}
+
+	t.Run("Streams a body over the limit to the target unchanged", func(t *testing.T) {
+		body := strings.Repeat("b", maxReplayableBodySize+10)
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			received, _ := io.ReadAll(r.Body)
+			fmt.Fprintf(w, "%d", len(received))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodPut, "/?scalar_url="+url.QueryEscape(targetServer.url), strings.NewReader(body))
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Body.String(); got != fmt.Sprint(len(body)) {
+			t.Errorf("Expected the target to receive %d bytes, got %s", len(body), got)
+		}
+	})
+}
+
+func TestMultipleLocations(t *testing.T) {
+	proxyServer := NewProxyServer(true)
+
+	t.Run("Rejects a redirect hidden behind an empty first Location", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "")
+			w.Header().Add("Location", "https://attacker.example/phish")
+			w.WriteHeader(http.StatusFound)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+		if got := w.Header().Values("Location"); len(got) != 0 {
+			t.Errorf("Expected no Location, got %v", got)
+		}
+	})
+
+	t.Run("Rejects two non-empty Locations", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "/same-origin")
+			w.Header().Add("Location", "https://attacker.example/phish")
+			w.WriteHeader(http.StatusMultipleChoices)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+	})
+
+	t.Run("Drops an empty Location without failing the request", func(t *testing.T) {
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Location", "")
+			w.WriteHeader(http.StatusMultipleChoices)
+			w.Write([]byte("choices"))
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusMultipleChoices || w.Body.String() != "choices" {
+			t.Errorf("Expected the 300 response, got %d %q", w.Code, w.Body.String())
+		}
+		if got := w.Header().Values("Location"); len(got) != 0 {
+			t.Errorf("Expected no Location, got %v", got)
+		}
+	})
 }
