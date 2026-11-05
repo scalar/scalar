@@ -1155,11 +1155,19 @@
       const spaced = heights.map((down, r) =>
         Math.max(down, (SPACING * 2 * RINGS[r].size * w * RINGS[r].count) / (Math.PI * 2)),
       )
+      // A stretched ring runs straighter, so its marks would meet the glass further out, at the very
+      // edge of the stage, where little of their comets shows. It is pulled in by as much, so that they
+      // meet the glass, halfway into the lens, where they did before. The copy and the gap between the
+      // two rings still hold it out, and a ring that was not stretched stays where it was.
+      const glassY = ((LENS_IN + 1) / 2) * half
+      const outAt = (down) => Math.sqrt(Math.max(0, 1 - (glassY / down) ** 2))
+      const pulled = (rx, r) => (rx * outAt(heights[r])) / Math.max(outAt(spaced[r]), 1e-3)
+      const innerRx = Math.max(pulled(innerX, 0), clear)
       const radii = narrow
         ? NARROW.radii.map((share) => [share * w, share * w])
         : [
-            [innerX, spaced[0]],
-            [Math.max(RINGS[1].across * w, innerX + RINGS[1].size * w * 3.2), spaced[1]],
+            [innerRx, spaced[0]],
+            [Math.max(pulled(RINGS[1].across * w, 1), innerRx + RINGS[1].size * w * 3.2), spaced[1]],
           ]
       pace = narrow ? RINGS.map(() => 1) : spaced.map((down, r) => heights[r] / down)
 
