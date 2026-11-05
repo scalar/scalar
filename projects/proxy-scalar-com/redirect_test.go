@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"testing/iotest"
 )
 
 func TestRedirectOriginPolicy(t *testing.T) {
@@ -222,6 +223,106 @@ func TestReplayableBody(t *testing.T) {
 
 		if got := w.Body.String(); got != fmt.Sprint(len(body)) {
 			t.Errorf("Expected the target to receive %d bytes, got %s", len(body), got)
+		}
+	})
+}
+
+func TestBufferedBodyLimit(t *testing.T) {
+	t.Run("Does not replay a body over the limit when the last read also returns EOF", func(t *testing.T) {
+		proxyServer := NewProxyServer(true)
+
+		for _, tc := range []struct {
+			size       int
+			replayable bool
+		}{{maxReplayableBodySize, true}, {maxReplayableBodySize + 1, false}} {
+			body, release, err := proxyServer.replayableBody(iotest.DataErrReader(strings.NewReader(strings.Repeat("a", tc.size))))
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			defer release()
+			defer body.Close()
+
+			if _, ok := body.(*bufferedBodyReader); ok != tc.replayable {
+				t.Errorf("%d bytes: expected replayable to be %v, got %v", tc.size, tc.replayable, ok)
+			}
+
+			received, _ := io.ReadAll(body)
+			if len(received) != tc.size {
+				t.Errorf("Expected %d bytes to be sent, got %d", tc.size, len(received))
+			}
+		}
+	})
+
+	t.Run("Stops buffering at the limit, however many bodies are held", func(t *testing.T) {
+		proxyServer := NewProxyServer(true)
+		releases := []func(){}
+		replayable := 0
+
+		// Each body stays held, like a client that stalls before finishing
+		for i := 0; i < 100; i++ {
+			body, release, err := proxyServer.replayableBody(strings.NewReader(strings.Repeat("a", maxReplayableBodySize)))
+			if err != nil {
+				t.Fatalf("Expected no error, got %v", err)
+			}
+			if _, ok := body.(*bufferedBodyReader); ok {
+				replayable++
+			}
+			releases = append(releases, func() {
+				body.Close()
+				release()
+			})
+		}
+
+		if held := proxyServer.bufferedBodyBytes.Load(); held > maxBufferedBodyBytes {
+			t.Errorf("Expected at most %d buffered bytes, got %d", maxBufferedBodyBytes, held)
+		}
+		if replayable == 0 || replayable == 100 {
+			t.Errorf("Expected only the bodies within the limit to be replayable, got %d of 100", replayable)
+		}
+
+		for _, release := range releases {
+			release()
+			release()
+		}
+
+		if held := proxyServer.bufferedBodyBytes.Load(); held != 0 {
+			t.Errorf("Expected every buffered byte to be released, got %d", held)
+		}
+	})
+
+	t.Run("Still delivers the whole body when the limit is reached", func(t *testing.T) {
+		proxyServer := NewProxyServer(true)
+		proxyServer.bufferedBodyBytes.Store(maxBufferedBodyBytes)
+
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			received, _ := io.ReadAll(r.Body)
+			fmt.Fprintf(w, "%s", received)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/?scalar_url="+url.QueryEscape(targetServer.url), strings.NewReader(`{"name":"Mars"}`))
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if got := w.Body.String(); got != `{"name":"Mars"}` {
+			t.Errorf("Expected the target to receive the body, got %q", got)
+		}
+	})
+
+	t.Run("Releases the body once the target has responded", func(t *testing.T) {
+		proxyServer := NewProxyServer(true)
+
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			io.ReadAll(r.Body)
+		})
+		defer targetServer.server.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/?scalar_url="+url.QueryEscape(targetServer.url), strings.NewReader("body"))
+		proxyServer.handleRequest(httptest.NewRecorder(), req)
+
+		if held := proxyServer.bufferedBodyBytes.Load(); held != 0 {
+			t.Errorf("Expected every buffered byte to be released, got %d", held)
 		}
 	})
 }

@@ -14,6 +14,16 @@ describe('normalizeHeaders', () => {
     expect(normalizedHeaders).toStrictEqual({})
   })
 
+  it('restores empty original headers under their own name', () => {
+    const headers = new Headers({
+      'X-Scalar-Modified-Headers': 'Cache-Control',
+      'Cache-Control': 'private',
+      'X-Scalar-Original-Cache-Control': '',
+    })
+
+    expect(normalizeHeaders(headers)).toStrictEqual({ 'Cache-Control': '' })
+  })
+
   it('sorts headers alphabetically', () => {
     const headers = new Headers({
       'Content-Type': 'application/json',

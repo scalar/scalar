@@ -12,6 +12,8 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -223,6 +225,8 @@ func main() {
 type ProxyServer struct {
 	transport  *http.Transport
 	bypassCidr bool
+	// bufferedBodyBytes counts the request body bytes held in memory right now.
+	bufferedBodyBytes atomic.Int64
 }
 
 type forbiddenHeaderRewrite struct {
@@ -368,6 +372,19 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	// around.
 	w.Header().Add("Vary", "Sec-Fetch-Mode, Sec-Fetch-Dest")
 
+	// Before document requests were refused, a page on the proxy origin could
+	// register any proxied script as a service worker. A worker like that answers
+	// navigations itself, so the checks below never see them. Refusing its update
+	// check would keep it installed, so replace it with one that removes itself.
+	if isServiceWorkerRequest(r) {
+		w.Header().Set("Content-Type", "text/javascript")
+		// Old upstreams could grant root scope to scripts under any path.
+		w.Header().Set("Service-Worker-Allowed", "/")
+		w.Header().Set("Cache-Control", "no-store")
+		w.Write([]byte(unregisterServiceWorkerScript))
+		return
+	}
+
 	// Only programmatic requests (fetch, XHR) are proxied. Opening a proxy URL as
 	// a page would render attacker-controlled content on the proxy origin.
 	if isDocumentRequest(r) {
@@ -468,10 +485,15 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Create the outbound request
-	body, err := replayableBody(r.Body)
+	body, releaseBody, err := ps.replayableBody(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return err
+	}
+	// Release on the way out too, for when the request is never sent.
+	defer releaseBody()
+	if body != nil {
+		defer body.Close()
 	}
 
 	outreq, err := http.NewRequest(r.Method, target, body)
@@ -481,6 +503,17 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return err
+	}
+
+	// The closable reader drops its buffer when the transport finishes the upload.
+	// Set replay metadata explicitly because NewRequest only recognizes bytes.Reader.
+	if buffered, ok := body.(*bufferedBodyReader); ok {
+		outreq.ContentLength = int64(buffered.reader.Len())
+		outreq.GetBody = buffered.buffer.newReader
+		if outreq.ContentLength == 0 {
+			outreq.Body = http.NoBody
+			buffered.Close()
+		}
 	}
 
 	// Copy the headers but exclude Origin and Cookie.
@@ -518,6 +551,10 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Make the request
 	resp, err := client.Do(outreq)
+
+	// Redirects are done, so discard the replay copy. If the transport is still
+	// uploading, its reader keeps the bytes counted until it closes the body.
+	releaseBody()
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
@@ -656,6 +693,17 @@ const untrustedContentSecurityPolicy = "default-src 'none'; base-uri 'none'; for
 
 const documentRequestError = "Forbidden: The proxy only handles requests made with fetch() or XMLHttpRequest. It does not serve pages to open in the browser."
 
+// unregisterServiceWorkerScript removes the service worker that is being updated.
+const unregisterServiceWorkerScript = "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.registration.unregister()));"
+
+// isServiceWorkerRequest reports whether the browser is fetching a service worker
+// script. Browsers only register same-origin scripts, so this is an update check
+// for a worker registered earlier. New pages cannot register one, because the
+// proxy no longer serves them.
+func isServiceWorkerRequest(r *http.Request) bool {
+	return strings.EqualFold(r.Header.Get("Sec-Fetch-Dest"), "serviceworker")
+}
+
 // isDocumentRequest reports whether the browser is loading the proxy URL as a
 // page (a link, a redirect, a form submission, or an iframe) rather than
 // reading it with fetch() or XMLHttpRequest.
@@ -678,7 +726,7 @@ func isDocumentRequest(r *http.Request) bool {
 	// Workers run with the origin of their script URL. Browsers only allow
 	// same-origin worker scripts, so this only matters if the proxy origin were
 	// compromised another way, but there is no reason to serve them.
-	case "worker", "sharedworker", "serviceworker":
+	case "worker", "sharedworker":
 		return true
 	}
 
@@ -719,6 +767,8 @@ func isDocumentRequest(r *http.Request) bool {
 //     one of these.
 //   - Set-Login, Observe-Browsing-Topics, Activate-Storage-Access, and the
 //     prefixes below record state or grant access for the proxy origin
+//   - Speculation-Rules makes Chromium fetch a rule set from any URL when it
+//     renders the response, which neither `sandbox` nor `default-src` stops
 var untrustedResponseHeaders = []string{
 	"Refresh",
 	"Clear-Site-Data",
@@ -742,6 +792,7 @@ var untrustedResponseHeaders = []string{
 	"Set-Login",
 	"Observe-Browsing-Topics",
 	"Activate-Storage-Access",
+	"Speculation-Rules",
 }
 
 // untrustedResponseHeaderPrefixes cover header families that browsers keep
@@ -857,25 +908,130 @@ func splitDirectives(value string) []string {
 // Larger bodies are streamed, and such redirects are passed on unfollowed.
 const maxReplayableBodySize = 10 << 20
 
-// replayableBody buffers the request body when it is small enough, so
-// http.NewRequest sets GetBody and Content-Length.
-func replayableBody(body io.Reader) (io.Reader, error) {
+// maxBufferedBodyBytes limits the memory all requests can hold in buffered bodies
+// together. Without it, clients that send a body and then stall would each pin
+// up to maxReplayableBodySize, without any authentication. Past the limit bodies
+// are streamed, which costs no memory and only loses 307 and 308 replays. The
+// process uses about three times this at saturation, because of the room the
+// garbage collector leaves on top of the live heap.
+const maxBufferedBodyBytes = 128 << 20
+
+// bodyReadSize is how much of a request body is read and counted at a time.
+const bodyReadSize = 32 << 10
+
+// bufferedBody owns the replay copy and counts readers still used by the transport.
+// A response can arrive before an upload finishes, so releasing replay ownership
+// alone must not return those bytes to the budget.
+type bufferedBody struct {
+	mu           sync.Mutex
+	data         []byte
+	readers      int
+	released     bool
+	releaseBytes func()
+}
+
+func (b *bufferedBody) newReader() (io.ReadCloser, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.released {
+		return nil, io.ErrClosedPipe
+	}
+	b.readers++
+	return &bufferedBodyReader{buffer: b, reader: bytes.NewReader(b.data)}, nil
+}
+
+func (b *bufferedBody) release() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.released = true
+	b.data = nil
+	if b.readers == 0 {
+		b.releaseBytes()
+	}
+}
+
+// bufferedBodyReader clears its own reference on Close, even if net/http keeps
+// the request reachable for the lifetime of a streaming response.
+type bufferedBodyReader struct {
+	mu     sync.Mutex
+	buffer *bufferedBody
+	reader *bytes.Reader
+}
+
+func (r *bufferedBodyReader) Read(p []byte) (int, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return 0, io.ErrClosedPipe
+	}
+	return r.reader.Read(p)
+}
+
+func (r *bufferedBodyReader) Close() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return nil
+	}
+	r.reader = nil
+	r.buffer.mu.Lock()
+	defer r.buffer.mu.Unlock()
+	r.buffer.readers--
+	if r.buffer.released && r.buffer.readers == 0 {
+		r.buffer.releaseBytes()
+	}
+	return nil
+}
+
+// replayableBody buffers the request body when it is small enough and there is
+// room. The returned function releases replay ownership; outstanding readers
+// keep the bytes counted until closed. Both release and Close are idempotent.
+func (ps *ProxyServer) replayableBody(body io.Reader) (io.ReadCloser, func(), error) {
 	if body == nil {
-		return nil, nil
+		return nil, func() {}, nil
 	}
 
-	buffered, err := io.ReadAll(io.LimitReader(body, maxReplayableBodySize+1))
-	if err != nil {
-		return nil, fmt.Errorf("failed to read request body: %w", err)
+	var held int64
+	release := sync.OnceFunc(func() {
+		ps.bufferedBodyBytes.Add(-held)
+	})
+
+	var buffered bytes.Buffer
+	chunk := make([]byte, bodyReadSize)
+
+	for buffered.Len() <= maxReplayableBodySize {
+		// Count the chunk before reading it, so stalled reads count too
+		if ps.bufferedBodyBytes.Add(bodyReadSize) > maxBufferedBodyBytes {
+			ps.bufferedBodyBytes.Add(-bodyReadSize)
+			break
+		}
+
+		// Reading one byte past the limit shows the body is too large
+		n, err := body.Read(chunk[:min(bodyReadSize, maxReplayableBodySize+1-buffered.Len())])
+		ps.bufferedBodyBytes.Add(int64(n - bodyReadSize))
+		held += int64(n)
+		buffered.Write(chunk[:n])
+
+		if err == io.EOF && buffered.Len() <= maxReplayableBodySize {
+			buffer := &bufferedBody{data: buffered.Bytes(), releaseBytes: release}
+			reader, _ := buffer.newReader()
+			return reader, buffer.release, nil
+		}
+
+		if err != nil && err != io.EOF {
+			release()
+			return nil, func() {}, fmt.Errorf("failed to read request body: %w", err)
+		}
 	}
 
-	if len(buffered) <= maxReplayableBodySize {
-		return bytes.NewReader(buffered), nil
-	}
-
-	// Too large to replay: send what was read, then stream the rest. The
-	// wrapper hides the concrete type, so http.NewRequest does not set GetBody.
-	return struct{ io.Reader }{io.MultiReader(bytes.NewReader(buffered), body)}, nil
+	// Send what was read, then stream the rest. The wrapper hides the concrete
+	// type, so http.NewRequest does not set GetBody.
+	buffer := &bufferedBody{data: buffered.Bytes(), releaseBytes: release}
+	reader, _ := buffer.newReader()
+	return struct {
+		io.Reader
+		io.Closer
+	}{io.MultiReader(reader, body), reader}, buffer.release, nil
 }
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.
