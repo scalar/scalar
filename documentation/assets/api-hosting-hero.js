@@ -718,10 +718,12 @@
     /* Half the width of the thread, in CSS pixels, at its top and at its foot, and how much wider it is on a dark page. */
     wide: [0.42, 0.34],
     widerInDark: 0.08,
-    /* How far a planet's own colours are taken towards white, so the flock's planets are pastels like the wings, and how
-       much of their colour that leaves them. */
-    pastel: 0.52,
-    keepColour: 0.85,
+    /* The planets are white with their logos in near black, as the white globes on /products/agent are, so the wings are
+       the only colour in the flock. `white` is a hair under white, so that the ball's shading and grain still show on it,
+       and `ink` and `inkCover` are the logo's grey and how fully it covers the ball where it is printed. */
+    white: 0.94,
+    ink: 0.06,
+    inkCover: 0.9,
   }
 
   /* The antennae: two fine neutral lines from the head, with nothing on their tips, so they say butterfly without
@@ -1239,35 +1241,16 @@
       vec3 on = vec3(cy * tilted.x - sy * n.z, tilted.y, sy * tilted.x + cy * n.z);
       on = vec3(on.x, 0.994 * on.y + 0.11 * on.z, 0.994 * on.z - 0.11 * on.y);
 
-      vec3 deep = ink(0);
-      vec3 body = ink(1);
-      vec3 light = ink(2);
-      vec3 glow = ink(3);
-      vec3 sheen = ink(4);
-      vec3 pale = ink(5);
-
-      /* The planets' recipe, which is matte: a tint, a heavy grain and a soft light along the bottom, in the colour of the wing's
-         glow. Only the sun is overhead, as anyone would shade a ball, so that it has some weight to it: the top a little lighter,
-         the underside a little deeper. It is lightened and takes a little of its colour out, as the wings have by being glass, so
-         that it is never the densest thing on the butterfly. */
+      /* The planets' recipe, which is matte: a heavy grain and a soft light along the bottom. Only the sun is overhead, as
+         anyone would shade a ball, so that it has some weight to it: the top a little lighter, the underside a little deeper. */
       vec3 sun = normalize(vec3(-0.34, 0.8, 0.5));
       float wrap = dot(n, sun) * 0.5 + 0.5;
-      vec3 tint = mix(mix(deep, body, 0.75), light, 0.12);
-      /* A black ball is an eight ball, and a hole in a dark page, so it comes up to the graphite of the site's dark globe. */
-      float lifted = 1.0 - smoothstep(0.03, 0.2, dot(tint, vec3(0.2126, 0.7152, 0.0722)));
-      tint = mix(tint, vec3(0.3, 0.3, 0.325), lifted);
-      /* A pastel, as the wings are: the framework's colour taken most of the way to white. Its light and its glow go with
-         it, so the shading stays as soft as it was. */
-      tint = mix(tint, vec3(1.0), ${HOLD.pastel.toFixed(2)});
-      tint = mix(vec3(dot(tint, vec3(0.2126, 0.7152, 0.0722))), tint, ${HOLD.keepColour.toFixed(2)});
-      light = mix(light, vec3(1.0), ${HOLD.pastel.toFixed(2)});
-      glow = mix(glow, vec3(1.0), 0.3);
-      sheen = mix(sheen, vec3(1.0), ${HOLD.pastel.toFixed(2)});
-      vec3 c = mix(tint * 0.78, tint, smoothstep(0.2, 0.62, wrap));
-      c = mix(c, mix(tint, light, 0.3), smoothstep(0.58, 1.0, wrap));
+      /* White, a hair under it: the shaded side a soft grey and the top and the light along the bottom going to white. */
+      vec3 tint = vec3(${HOLD.white.toFixed(3)});
+      vec3 c = mix(tint * 0.86, tint, smoothstep(0.2, 0.62, wrap));
+      c = mix(c, vec3(1.0), smoothstep(0.58, 1.0, wrap) * 0.6);
       float under = smoothstep(0.62, 1.0, r) * (1.0 - smoothstep(-0.8, 0.1, n.y));
-      c = mix(c, mix(glow, sheen, 0.3), under * 0.4);
-      c = mix(vec3(dot(c, vec3(0.2126, 0.7152, 0.0722))), c, 0.8);
+      c = mix(c, vec3(1.0), under * 0.3);
 
       /* The logo, printed: it takes the bead's light and grain, and it goes round with the bead. */
       vec2 up = vec2(atan(on.x, on.z), -asin(clamp(on.y, -1.0, 1.0))) / ${HOLD.print.toFixed(3)};
@@ -1279,10 +1262,8 @@
       /* Towards the rim the ball turns away quickly, the atlas is read at a coarse level and the neighbouring logo comes
          through, so nothing is printed past a logo's own cell. */
       float filled = (1.0 - smoothstep(-markAa, markAa, d)) * (1.0 - smoothstep(1.0, 1.06, max(abs(up.x), abs(up.y))));
-      /* White on a globe of a deep colour, and near black on a bright one, as the site's yellow globe has it. */
-      float bright = step(0.6, dot(tint, vec3(0.2126, 0.7152, 0.0722)));
-      vec3 printed = mix(pale, deep * 0.66, bright);
-      c = mix(c, printed * (0.74 + 0.36 * wrap), filled * 0.76);
+      /* In near black, as the logos on the white globes of /products/agent are. */
+      c = mix(c, vec3(${HOLD.ink.toFixed(3)}), filled * ${HOLD.inkCover.toFixed(2)});
 
       float grain = texture(uGrain, (on.xy * vKind.w * 1.6 + vWho.y * vec2(97.0, 53.0)) / 160.0).r;
       c = overlay(c, grain, 0.8);
@@ -1291,7 +1272,6 @@
       float shine = max(dot(n, normalize(sun + vec3(vMark.x * 1.4, 0.0, 1.0))), 0.0);
       c += vec3(0.025) * pow(shine, 7.0);
       c += vec3(0.02 + 0.3 * vMark.z) * pow(shine, 240.0) * (0.6 + 0.8 * grain);
-      c += vec3(0.14) * lifted * uDark * smoothstep(0.93, 0.99, r);
       /* The lens gives everything a soft glow on a dark page, which round a ball looks like a lit bulb, so it is a little dimmer
          there to make up for that. */
       c = min(c * (1.0 - 0.1 * uDark), vec3(1.0));
