@@ -38,8 +38,8 @@ run.addCommand(
 
     if (!proxyRunning) {
       servers.push({
-        // Local fixtures need private targets; the dev proxy still binds only to loopback.
-        command: 'cross-env CI=1 ALLOW_PRIVATE_ADDRESSES=true pnpm --filter proxy-scalar-com dev',
+        // Private fixture access exists only in the loopback-only Go test harness.
+        command: 'cross-env CI=1 pnpm --filter proxy-scalar-com test:server',
         name: 'proxy-server',
         prefixColor: 'cyan',
       })

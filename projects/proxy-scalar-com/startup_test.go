@@ -25,19 +25,27 @@ func TestProxyStartupProcess(t *testing.T) {
 
 func startProxyProcess(t *testing.T, environment, allowPrivate string) string {
 	t.Helper()
+	return startProxySubprocess(t, "TestProxyStartupProcess", []string{
+		"SCALAR_PROXY_STARTUP_TEST=1", "ENV=" + environment, "ALLOW_PRIVATE_ADDRESSES=" + allowPrivate,
+	})
+}
+
+func startProxySubprocess(t *testing.T, testName string, environment []string) string {
+	t.Helper()
 	listener, err := net.Listen("tcp4", "127.0.0.1:0")
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, port, _ := net.SplitHostPort(listener.Addr().String())
 	listener.Close()
-	command := exec.Command(os.Args[0], "-test.run=^TestProxyStartupProcess$")
+	command := exec.Command(os.Args[0], "-test.run=^"+testName+"$")
 	for _, entry := range os.Environ() {
-		if !strings.HasPrefix(entry, "ENV=") && !strings.HasPrefix(entry, "PORT=") && !strings.HasPrefix(entry, "ALLOW_PRIVATE_ADDRESSES=") && !strings.HasPrefix(entry, "SCALAR_PROXY_STARTUP_TEST=") {
+		if !strings.HasPrefix(entry, "ENV=") && !strings.HasPrefix(entry, "PORT=") && !strings.HasPrefix(entry, "ALLOW_PRIVATE_ADDRESSES=") && !strings.HasPrefix(entry, "SCALAR_PROXY_STARTUP_TEST=") && !strings.HasPrefix(entry, "SCALAR_PROXY_FIXTURE_SERVER=") {
 			command.Env = append(command.Env, entry)
 		}
 	}
-	command.Env = append(command.Env, "SCALAR_PROXY_STARTUP_TEST=1", "ENV="+environment, "PORT="+port, "ALLOW_PRIVATE_ADDRESSES="+allowPrivate)
+	command.Env = append(command.Env, environment...)
+	command.Env = append(command.Env, "PORT="+port)
 	if err := command.Start(); err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +103,7 @@ func TestProxyStartupBinding(t *testing.T) {
 		external                        bool
 	}{
 		{name: "development", environment: "dev"},
-		{name: "development private opt-in", environment: "dev", allowPrivate: "true"},
+		{name: "development ignored private flag", environment: "dev", allowPrivate: "true"},
 		{name: "production", external: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -115,16 +123,15 @@ func TestProxyStartupBinding(t *testing.T) {
 	}
 }
 
-func TestPrivateAddressAccessRequiresExplicitOptIn(t *testing.T) {
+func TestRuntimeCannotEnablePrivateAddresses(t *testing.T) {
 	for _, tc := range []struct {
 		name, environment, allowPrivate string
-		allowed                         bool
 	}{
-		{name: "development opt-in", environment: "dev", allowPrivate: "true", allowed: true},
+		{name: "development ignored private flag", environment: "dev", allowPrivate: "true"},
 		{name: "development false", environment: "dev", allowPrivate: "false"},
 		{name: "development invalid flag", environment: "dev", allowPrivate: "1"},
 		{name: "production default"},
-		{name: "production opt-in", allowPrivate: "true", allowed: true},
+		{name: "production ignored private flag", allowPrivate: "true"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var calls atomic.Int64
@@ -140,12 +147,8 @@ func TestPrivateAddressAccessRequiresExplicitOptIn(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if tc.allowed {
-				if response.StatusCode != http.StatusOK || string(body) != "private service" || calls.Load() != 1 {
-					t.Fatalf("opt-in did not forward exactly once: status=%d body=%q calls=%d", response.StatusCode, body, calls.Load())
-				}
-			} else if response.StatusCode != http.StatusForbidden || calls.Load() != 0 {
-				t.Fatalf("private target was not blocked: status=%d calls=%d", response.StatusCode, calls.Load())
+			if response.StatusCode != http.StatusForbidden || calls.Load() != 0 {
+				t.Fatalf("private target was not blocked: status=%d body=%q calls=%d", response.StatusCode, body, calls.Load())
 			}
 		})
 	}

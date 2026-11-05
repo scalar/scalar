@@ -200,14 +200,14 @@ func main() {
 		port = p
 	}
 
-	// Development servers stay on the local machine. Private destinations are
-	// a separate opt-in, so development mode alone does not disable SSRF checks.
+	// Development servers stay on the local machine. Every runtime mode keeps
+	// private-address checks enabled.
 	host := ""
 	if os.Getenv("ENV") == "dev" {
 		host = "127.0.0.1"
 	}
 	address := net.JoinHostPort(host, port)
-	proxyServer := NewProxyServer(os.Getenv("ALLOW_PRIVATE_ADDRESSES") == "true")
+	proxyServer := NewProxyServer(false)
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()

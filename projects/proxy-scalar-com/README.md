@@ -63,13 +63,9 @@ PORT=8080 go run main.go
 
 `pnpm dev` binds the proxy to `127.0.0.1:5051`. Setting `ENV=dev` selects loopback binding but keeps private-address checks enabled. Outside development mode, the proxy listens on all interfaces so deployed services remain reachable.
 
-To intentionally access local or private APIs, set `ALLOW_PRIVATE_ADDRESSES=true` explicitly:
+The normal executable always blocks local and private destinations. Environment variables, including `ALLOW_PRIVATE_ADDRESSES`, cannot disable these checks.
 
-```bash
-ENV=dev ALLOW_PRIVATE_ADDRESSES=true PORT=5051 go run main.go
-```
-
-This opt-in disables private-address blocking. Keep it limited to trusted local development: loopback binding prevents LAN access, but websites running in a local browser can still send requests to the proxy. Other values, including `false`, leave private-address checks enabled.
+The repository integration tests use `pnpm test:server`, a separate loopback-only harness compiled from Go test files. Only that harness allows private targets for fixtures; it is excluded from normal builds and Docker images. While the harness runs, local callers, including browser requests, can reach private targets through it.
 
 `pnpm docker:run` publishes the container only on `127.0.0.1:5051` and keeps private-address checks enabled. The process inside the container listens on all interfaces so Docker port forwarding can reach it.
 

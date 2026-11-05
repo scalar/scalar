@@ -27,6 +27,7 @@
     "lint:fix": "go fmt ./main.go",
     "preview": "pnpm dev",
     "test": "go test -v",
+    "test:server": "cross-env SCALAR_PROXY_FIXTURE_SERVER=1 PORT=5051 go test -run '^TestProxyFixtureServer$' -timeout 0 -count=1",
     "types:build": "pnpm build",
     "types:check": "pnpm build"
   },
