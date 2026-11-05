@@ -138,7 +138,7 @@ The command runs:
 - `@scalar/void-server` on its default port
 - `proxy-scalar-com` on its default port
 
-Both servers run with `CI=1` environment variable set.
+Both servers run with `CI=1` environment variable set. The proxy binds to `127.0.0.1` and explicitly enables `ALLOW_PRIVATE_ADDRESSES=true` so tests can reach local fixtures. This bypass is limited to the test launcher; ordinary proxy development keeps private targets blocked. While these test servers run, local callers, including browser requests, can use the proxy to reach private targets.
 
 ### `update-playwright-docker`
 

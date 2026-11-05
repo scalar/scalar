@@ -59,6 +59,20 @@ But you can customize it using the `PORT` environment variable:
 PORT=8080 go run main.go
 ```
 
+### Local development
+
+`pnpm dev` binds the proxy to `127.0.0.1:5051`. Setting `ENV=dev` selects loopback binding but keeps private-address checks enabled. Outside development mode, the proxy listens on all interfaces so deployed services remain reachable.
+
+To intentionally access local or private APIs, set `ALLOW_PRIVATE_ADDRESSES=true` explicitly:
+
+```bash
+ENV=dev ALLOW_PRIVATE_ADDRESSES=true PORT=5051 go run main.go
+```
+
+This opt-in disables private-address blocking. Keep it limited to trusted local development: loopback binding prevents LAN access, but websites running in a local browser can still send requests to the proxy. Other values, including `false`, leave private-address checks enabled.
+
+`pnpm docker:run` publishes the container only on `127.0.0.1:5051` and keeps private-address checks enabled. The process inside the container listens on all interfaces so Docker port forwarding can reach it.
+
 ### Example request
 
 ```bash

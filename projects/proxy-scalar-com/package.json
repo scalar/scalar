@@ -22,7 +22,7 @@
     "build": "go build main.go",
     "dev": "cross-env ENV=dev PORT=5051 go run main.go",
     "docker:build": "docker build -t scalar-proxy-server .",
-    "docker:run": "pnpm docker:build && docker run --env ENV=dev -p 5051:9033 scalar-proxy-server",
+    "docker:run": "pnpm docker:build && docker run -p 127.0.0.1:5051:9033 scalar-proxy-server",
     "lint:check": "go fmt ./main.go",
     "lint:fix": "go fmt ./main.go",
     "preview": "pnpm dev",
