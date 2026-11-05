@@ -75,6 +75,11 @@ const schema: SchemaObject = {
     enabled: { type: 'boolean' },
     tags: { type: 'array', items: { type: 'string' } },
     files: { type: 'array', items: { type: 'string', format: 'binary' } },
+    nullableFiles: {
+      type: 'array',
+      items: { __scalar_: '', anyOf: [{ type: 'string', format: 'binary' }, { type: 'null' }] },
+    },
+    composedFile: { __scalar_: '', allOf: [{ type: 'string' }, { __scalar_: '', format: 'binary' }] },
     meta: { type: 'object', properties: { label: { type: 'string' } } },
   },
 }
@@ -82,7 +87,7 @@ const value = { name: 'Widget', unit_id: 1, image: '', enabled: true, tags: ['a'
 
 describe('RequestBodyForm', () => {
   it.each([
-    ['multipart/form-data', ['image', 'files']],
+    ['multipart/form-data', ['image', 'files', 'nullableFiles', 'composedFile']],
     ['application/x-www-form-urlencoded', []],
   ])('offers file controls only on supported fields for %s', (selectedContentType, expected) => {
     const wrapper = mount(RequestBodyForm, {
@@ -134,28 +139,27 @@ describe('RequestBodyForm', () => {
     wrapper.unmount()
   })
 
-  it('updates file controls when the selected schema branch changes', async () => {
+  it.each(['direct', 'intersection'])('updates file controls when the selected %s branch changes', async (kind) => {
+    const choice: SchemaObject = { __scalar_: '', oneOf: [{ type: 'string' }, { type: 'string', format: 'binary' }] }
+    const selectionKey = kind === 'direct' ? 'requestBody.payload.oneOf' : 'requestBody.payload.0.oneOf'
     const wrapper = mount(RequestBodyForm, {
       props: {
         example: { value: { payload: '' } },
         bodySchema: {
           type: 'object',
           properties: {
-            payload: {
-              __scalar_: '',
-              oneOf: [{ type: 'string' }, { type: 'string', format: 'binary' }],
-            },
+            payload: kind === 'direct' ? choice : { __scalar_: '', allOf: [{ type: 'string' }, choice] },
           },
         },
-        compositionSelection: { 'requestBody.payload.oneOf': 0 },
+        compositionSelection: { [selectionKey]: 0 },
         selectedContentType: 'multipart/form-data',
         environment: defaultEnvironment,
       },
     })
     expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
-    await wrapper.setProps({ compositionSelection: { 'requestBody.payload.oneOf': 1 } })
+    await wrapper.setProps({ compositionSelection: { [selectionKey]: 1 } })
     expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(1)
-    await wrapper.setProps({ compositionSelection: { 'requestBody.payload.oneOf': 0 } })
+    await wrapper.setProps({ compositionSelection: { [selectionKey]: 0 } })
     expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
     wrapper.unmount()
   })
@@ -260,6 +264,7 @@ describe('RequestBodyForm', () => {
             type: 'object',
             properties: {
               files: { type: 'array', items: { type: 'string', format: 'binary' } },
+
               tags: { type: 'array', items: { type: 'string' } },
             },
           },

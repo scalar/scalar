@@ -8,6 +8,24 @@ describe('is-file-schema', () => {
     { name: 'binary string', schema: { type: 'string', format: 'binary' }, expected: true },
     { name: 'nullable binary string', schema: { type: ['string', 'null'], format: 'binary' }, expected: true },
     { name: 'file array', schema: { type: 'array', items: { type: 'string', format: 'binary' } }, expected: true },
+    {
+      name: 'nullable file array items',
+      schema: {
+        type: 'array',
+        items: { __scalar_: '', anyOf: [{ type: 'string', format: 'binary' }, { type: 'null' }] },
+      },
+      expected: true,
+    },
+    {
+      name: 'split binary intersection',
+      schema: { type: 'string', allOf: [{ type: 'string' }, { __scalar_: '', format: 'binary' }] },
+      expected: true,
+    },
+    {
+      name: 'selected text alternative',
+      schema: { type: 'string', oneOf: [{ type: 'string' }, { type: 'string', format: 'binary' }] },
+      expected: false,
+    },
     { name: 'text', schema: { type: 'string' }, expected: false },
     { name: 'integer', schema: { type: 'integer' }, expected: false },
     { name: 'boolean', schema: { type: 'boolean' }, expected: false },
@@ -33,5 +51,10 @@ describe('is-file-schema', () => {
     },
   ])('classifies $name', ({ schema, expected }) => {
     expect(isFileSchema(schema)).toBe(expected)
+  })
+  it('terminates for recursive array schemas', () => {
+    const schema: SchemaObject = { type: 'array' }
+    schema.items = schema
+    expect(isFileSchema(schema)).toBe(false)
   })
 })
