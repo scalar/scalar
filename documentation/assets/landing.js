@@ -826,12 +826,36 @@ const LANDING_TALK = [
 ]
 const landingMeasure = document.createElement('canvas').getContext('2d')
 let landingDressCopies = 0
+/* The metrics of a name, from a probe glyph in each ring's own style.
+   Reading a style after a write has the browser work out styles again,
+   so several globes dressed together hand in all their rings at once:
+   the probes go in together, are read together and come out together. */
+const measureGlobeNames = (rings) => {
+  const probes = rings.map((ring) => {
+    const probe = document.createElement('span')
+    probe.className = 'lp-orb-glyph'
+    probe.textContent = 'x'
+    ring.appendChild(probe)
+    return probe
+  })
+  const metrics = probes.map((probe) => {
+    const style = getComputedStyle(probe)
+    return {
+      font: `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`,
+      type: Number.parseFloat(style.fontSize),
+      tracking: Number.parseFloat(style.letterSpacing) || 0,
+    }
+  })
+  probes.forEach((probe) => probe.remove())
+  return metrics
+}
 /* a globe's dressing: a copy of its mark (with gradient ids of its
    own, as one mark can stand on two globes), a gap and the glyphs
    of its name round the ring's equator, the word centred on the
    front; the angles hold whatever size the globe takes, as the type
-   scales with it */
-const dressLandingGlobe = (globe, ring, size, turn = LANDING_ORB_TURN) => {
+   scales with it. `metrics` is its name's, if they have been measured
+   already. */
+const dressLandingGlobe = (globe, ring, size, turn = LANDING_ORB_TURN, metrics = null) => {
   const template = document.getElementById(`lp-icon-${globe.dataset.icon}`)
   const label = globe.dataset.label || ''
   if (!template) {
@@ -844,16 +868,8 @@ const dressLandingGlobe = (globe, ring, size, turn = LANDING_ORB_TURN) => {
     .replace(/id="([^"]+)"/g, `id="$1${suffix}"`)
     .replace(/url\(#([^)]+)\)/g, `url(#$1${suffix})`)
   const icon = holder.firstElementChild
-  // the name's metrics, from a probe glyph in the ring's own style
-  const probe = document.createElement('span')
-  probe.className = 'lp-orb-glyph'
-  probe.textContent = 'x'
-  ring.appendChild(probe)
-  const style = getComputedStyle(probe)
-  landingMeasure.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
-  const type = Number.parseFloat(style.fontSize)
-  const tracking = Number.parseFloat(style.letterSpacing) || 0
-  probe.remove()
+  const { font, type, tracking } = metrics ?? measureGlobeNames([ring])[0]
+  landingMeasure.font = font
   // the mark, a gap and the glyphs on a line first, with the kerned
   // advances the whole word has
   const iconWidth = type * 1.15
@@ -4920,6 +4936,21 @@ const initFooterPlanets = debounce(() => {
 
   bands.forEach((band) => {
     band.dataset.fpBound = 'true'
+    /* All that the planets need is read before anything is written. A
+       style read after a write has the browser work out styles again, and
+       a :has() rule in the code block styles makes that the whole page on
+       any page with a code block: read a planet at a time, this took 170ms
+       on the SDK page. */
+    const orbs = [...band.querySelectorAll('.fp-planet')]
+      .map((orb) => {
+        const style = getComputedStyle(orb)
+        const values = Object.fromEntries(
+          ['--x', '--y', '--s', '--d'].map((name) => [name, style.getPropertyValue(name)]),
+        )
+        return { orb, ring: orb.querySelector('.lp-orb-ring'), size: Number.parseFloat(values['--s']), values }
+      })
+      .filter(({ ring, size }) => ring && size)
+    const metrics = measureGlobeNames(orbs.map(({ ring }) => ring))
     // the marks the globes dress in: templates like the landing page's,
     // made from the band's hidden copies on a page that has none yet
     band.querySelectorAll('.fp-marks > svg').forEach((svg) => {
@@ -4933,12 +4964,9 @@ const initFooterPlanets = debounce(() => {
       band.appendChild(mark)
     })
     const stage = band.querySelector('.fp-stage')
-    const planets = [...band.querySelectorAll('.fp-planet')]
-      .map((orb) => {
-        const ring = orb.querySelector('.lp-orb-ring')
-        const style = getComputedStyle(orb)
-        const size = Number.parseFloat(style.getPropertyValue('--s'))
-        if (!ring || !size || !dressLandingGlobe(orb, ring, size)) {
+    const planets = orbs
+      .map(({ orb, ring, size, values }, index) => {
+        if (!dressLandingGlobe(orb, ring, size, LANDING_ORB_TURN, metrics[index])) {
           return null
         }
         // its hello: a bubble over its top edge, placed by the planet's
@@ -4948,11 +4976,11 @@ const initFooterPlanets = debounce(() => {
         hi.className = 'fp-hi'
         hi.setAttribute('aria-hidden', 'true')
         for (const name of ['--x', '--y', '--s']) {
-          hi.style.setProperty(name, style.getPropertyValue(name))
+          hi.style.setProperty(name, values[name])
         }
-        hi.classList.toggle('is-left', Number.parseFloat(style.getPropertyValue('--x')) < 0)
+        hi.classList.toggle('is-left', Number.parseFloat(values['--x']) < 0)
         // its turn in the rise, so its hello follows its landing
-        return { orb, ring, hi, face: null, hover: false, delay: Number.parseFloat(style.getPropertyValue('--d')) || 0 }
+        return { orb, ring, hi, face: null, hover: false, delay: Number.parseFloat(values['--d']) || 0 }
       })
       .filter(Boolean)
     if (!stage || !planets.length) {
