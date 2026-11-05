@@ -397,10 +397,11 @@ Spin up your first MCP server in under a minute—no boilerplate servers to main
   .ag-copy .notify-container {
     display: none;
   }
-  /* the home page's lede: a narrow measure under the heading */
+  /* the home page's lede, a little larger: a narrow measure under the heading,
+     widened with the type so it breaks where it did */
   .ag-copy p {
-    max-width: 460px;
-    font-size: 14px;
+    max-width: 520px;
+    font-size: 16px;
     line-height: 1.5;
     text-wrap: pretty;
   }
