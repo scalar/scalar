@@ -10,7 +10,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { type Component, defineComponent } from 'vue'
+import { type Component, defineComponent, h, markRaw } from 'vue'
 
 import { PLUGIN_MANAGER_SYMBOL } from '@/plugins/hooks/usePluginManager'
 import { createPluginManager } from '@/plugins/plugin-manager'
@@ -110,7 +110,11 @@ const mountOperationWithConfig = (
 
 describe('Operation', () => {
   it.each(['modern', 'classic'] as const)('keeps path and operation extensions separate in %s', (layout) => {
-    const pathValue = { 'x-owner': 'path-team', get: { 'x-owner': 'get-team' }, post: { 'x-owner': 'post-team' } }
+    const pathValue = {
+      'x-owner': 'path-team',
+      get: { 'x-owner': 'get-team', responses: { '200': { description: 'Success' } } },
+      post: { 'x-owner': 'post-team', responses: { '200': { description: 'Success' } } },
+    }
     for (const method of ['get', 'post']) {
       const wrapper = mountOperationWithConfig({ pathValue, method, options: { layout, showExtensions: ['x-owner'] } })
       expect(wrapper.text()).toContain('path-team')
@@ -121,7 +125,10 @@ describe('Operation', () => {
   })
 
   it.each(['modern', 'classic'] as const)('omits unselected path extensions in %s', (layout) => {
-    const wrapper = mountOperationWithConfig({ pathValue: { 'x-private': 'hidden', get: {} }, options: { layout } })
+    const wrapper = mountOperationWithConfig({
+      pathValue: { 'x-private': 'hidden', get: { responses: { '200': { description: 'Success' } } } },
+      options: { layout },
+    })
     expect(wrapper.text()).not.toContain('hidden')
   })
 
@@ -138,7 +145,10 @@ describe('Operation', () => {
             'x-origins': ['https://example.com'],
             'x-owner': 'Pet platform team',
             'x-hidden': 'secret',
-            '/pet': { get: {}, post: {} },
+            '/pet': {
+              get: { responses: { '200': { description: 'Success' } } },
+              post: { responses: { '200': { description: 'Success' } } },
+            },
           },
         },
       })
@@ -204,7 +214,7 @@ describe('Operation', () => {
       plugins: [
         () => ({
           name: 'owner',
-          extensions: [{ name: 'x-owner', component: { render: () => 'Plugin owner' } }],
+          extensions: [{ name: 'x-owner', component: defineComponent({ render: () => h('span', 'Plugin owner') }) }],
         }),
       ],
     })
@@ -218,7 +228,7 @@ describe('Operation', () => {
     const wrapper = mountOperationWithConfig({
       options: { layout, showExtensions: ['x-owner'] },
       pathValue: extensionPath,
-      specificationExtension: defineComponent({ render: () => 'Custom owner' }),
+      specificationExtension: markRaw(defineComponent({ render: () => h('span', 'Custom owner') })),
     })
 
     expect(wrapper.text()).toContain('Custom owner')
