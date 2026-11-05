@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"context"
 	"crypto/x509"
+	"errors"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -164,6 +166,29 @@ func TestUpstreamTimeouts(t *testing.T) {
 		}
 	})
 
+	t.Run("keeps streaming a response body past the response header timeout", func(t *testing.T) {
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/event-stream")
+			w.WriteHeader(http.StatusOK)
+			for i := range 4 {
+				fmt.Fprintf(w, "data: %d\n\n", i)
+				w.(http.Flusher).Flush()
+				time.Sleep(100 * time.Millisecond)
+			}
+		})
+		defer server.server.Close()
+
+		ps := NewProxyServerWithConfig(ProxyConfig{BypassCidr: true, ResponseHeaderTimeout: 50 * time.Millisecond})
+		w := proxyGet(ps, server.url)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+		if want := "data: 0\n\ndata: 1\n\ndata: 2\n\ndata: 3\n\n"; w.Body.String() != want {
+			t.Errorf("Expected the whole stream, got %q", w.Body.String())
+		}
+	})
+
 	t.Run("cancels the upstream request when the client goes away", func(t *testing.T) {
 		server, started, cancelled := blockingServer(t)
 		ps := NewProxyServer(true)
@@ -262,6 +287,54 @@ func TestSelfProxying(t *testing.T) {
 		}
 	})
 
+	t.Run("matches configured proxy hosts in any spelling", func(t *testing.T) {
+		ps := NewProxyServerWithConfig(ProxyConfig{BypassCidr: true, SelfHosts: []string{"Proxy.Example.", "[::1]:8080"}})
+
+		for _, target := range []string{
+			"https://proxy.example/",
+			"https://proxy.example./",
+			"http://[::1]:8080/",
+		} {
+			if w := proxyGet(ps, target); w.Code != http.StatusBadRequest {
+				t.Errorf("Expected status code %d for %s, got %d", http.StatusBadRequest, target, w.Code)
+			}
+		}
+	})
+
+	t.Run("ignores empty configured proxy hosts", func(t *testing.T) {
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("ok"))
+		})
+		defer server.server.Close()
+
+		ps := NewProxyServerWithConfig(ProxyConfig{BypassCidr: true, SelfHosts: []string{"", " "}})
+
+		if w := proxyGet(ps, server.url); w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
+	t.Run("marks outgoing requests, also after a redirect", func(t *testing.T) {
+		marks := make(chan string, 2)
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			marks <- r.URL.Path + "=" + r.Header.Get(proxyHopHeader)
+			if r.URL.Path == "/start" {
+				http.Redirect(w, r, "/end", http.StatusFound)
+			}
+		})
+		defer server.server.Close()
+
+		if w := proxyGet(NewProxyServer(true), server.url+"/start"); w.Code != http.StatusOK {
+			t.Fatalf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		for _, want := range []string{"/start=1", "/end=1"} {
+			if got := <-marks; got != want {
+				t.Errorf("Expected %q, got %q", want, got)
+			}
+		}
+	})
+
 	t.Run("refuses a loop through another name for the proxy", func(t *testing.T) {
 		// The second proxy stands in for this proxy reached under a hostname that
 		// is not configured. It must see that the request was proxied already.
@@ -289,6 +362,8 @@ func TestHopByHopResponseHeaders(t *testing.T) {
 	server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Connection", "X-Hop, Content-Security-Policy, X-Content-Type-Options, Cache-Control")
 		w.Header().Set("X-Hop", "1")
+		w.Header().Add("Connection", " x-second-hop ,")
+		w.Header().Set("X-Second-Hop", "1")
 		w.Header().Set("Content-Security-Policy", "default-src *")
 		w.Header().Set("X-Content-Type-Options", "sniff")
 		w.Header().Set("Cache-Control", "public, max-age=60")
@@ -306,7 +381,7 @@ func TestHopByHopResponseHeaders(t *testing.T) {
 
 	w := proxyGet(NewProxyServer(true), server.url)
 
-	for _, header := range []string{"Connection", "X-Hop", "Keep-Alive", "Proxy-Authenticate", "Proxy-Connection", "Proxy-Custom", "Te", "Trailer", "Transfer-Encoding", "Upgrade", "X-Scalar-Original-Content-Security-Policy", "X-Scalar-Original-Cache-Control"} {
+	for _, header := range []string{"Connection", "X-Hop", "X-Second-Hop", "Keep-Alive", "Proxy-Authenticate", "Proxy-Connection", "Proxy-Custom", "Te", "Trailer", "Transfer-Encoding", "Upgrade", "X-Scalar-Original-Content-Security-Policy", "X-Scalar-Original-Cache-Control"} {
 		if value := w.Header().Values(header); len(value) > 0 {
 			t.Errorf("Expected %s to be removed, got %q", header, value)
 		}
@@ -383,4 +458,73 @@ func TestHTTPServerTimeouts(t *testing.T) {
 	if server.WriteTimeout != 0 {
 		t.Errorf("Expected no write timeout, got %v", server.WriteTimeout)
 	}
+}
+
+func TestLoggableError(t *testing.T) {
+	t.Run("keeps errors without a URL as they are", func(t *testing.T) {
+		err := errors.New("failed to read request body")
+
+		if got := loggableError(err); got != err {
+			t.Errorf("Expected the same error, got %v", got)
+		}
+	})
+
+	t.Run("finds a URL error that is wrapped", func(t *testing.T) {
+		err := fmt.Errorf("request failed: %w", &url.Error{Op: "Get", URL: "https://example.com/a?token=secret", Err: errors.New("boom")})
+
+		if got := loggableError(err).Error(); got != `Get "https://example.com/a": boom` {
+			t.Errorf("Expected the URL without its query, got %q", got)
+		}
+	})
+
+	t.Run("hides URLs it cannot parse", func(t *testing.T) {
+		err := &url.Error{Op: "parse", URL: "http://[::1?token=secret", Err: errors.New("invalid")}
+
+		if got := loggableError(err).Error(); strings.Contains(got, "secret") {
+			t.Errorf("Expected the URL to be hidden, got %q", got)
+		}
+	})
+}
+
+func TestProxyConfigFromEnv(t *testing.T) {
+	env := func(values map[string]string) func(string) string {
+		return func(key string) string { return values[key] }
+	}
+
+	t.Run("verifies certificates and blocks private networks by default", func(t *testing.T) {
+		config := proxyConfigFromEnv(env(map[string]string{}))
+
+		if config.BypassCidr || config.AllowInsecureUpstreamTLS || len(config.SelfHosts) != 0 {
+			t.Errorf("Expected a production configuration, got %+v", config)
+		}
+	})
+
+	t.Run("relaxes checks in development mode", func(t *testing.T) {
+		config := proxyConfigFromEnv(env(map[string]string{"ENV": "dev"}))
+
+		if !config.BypassCidr || !config.AllowInsecureUpstreamTLS {
+			t.Errorf("Expected a development configuration, got %+v", config)
+		}
+	})
+
+	t.Run("skips certificate verification only when the flag is true", func(t *testing.T) {
+		for value, want := range map[string]bool{"true": true, "1": true, "false": false, "yes": false, "": false} {
+			config := proxyConfigFromEnv(env(map[string]string{"ALLOW_INSECURE_UPSTREAM_TLS": value}))
+
+			if config.AllowInsecureUpstreamTLS != want {
+				t.Errorf("Expected %v for %q, got %v", want, value, config.AllowInsecureUpstreamTLS)
+			}
+			if config.BypassCidr {
+				t.Errorf("Expected private networks to stay blocked for %q", value)
+			}
+		}
+	})
+
+	t.Run("reads a comma-separated list of proxy hosts", func(t *testing.T) {
+		config := proxyConfigFromEnv(env(map[string]string{"PROXY_SELF_HOSTS": " proxy.example, ,run.example:443 ,"}))
+
+		if got := strings.Join(config.SelfHosts, "|"); got != "proxy.example|run.example:443" {
+			t.Errorf("Expected the trimmed hosts, got %q", got)
+		}
+	})
 }

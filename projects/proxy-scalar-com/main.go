@@ -205,15 +205,9 @@ func main() {
 	}
 
 	dev := os.Getenv("ENV") == "dev"
-	allowInsecureUpstreamTLS, _ := strconv.ParseBool(os.Getenv("ALLOW_INSECURE_UPSTREAM_TLS"))
 
 	// Create a new proxy server instance
-	proxyServer := NewProxyServerWithConfig(ProxyConfig{
-		BypassCidr: dev,
-		// Local test APIs often use self-signed certificates
-		AllowInsecureUpstreamTLS: dev || allowInsecureUpstreamTLS,
-		SelfHosts:                strings.Split(os.Getenv("PROXY_SELF_HOSTS"), ","),
-	})
+	proxyServer := NewProxyServerWithConfig(proxyConfigFromEnv(os.Getenv))
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()
@@ -229,6 +223,28 @@ func main() {
 	// Start the server and log any errors that occur
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
+	}
+}
+
+// proxyConfigFromEnv reads the proxy configuration from environment variables.
+// The README lists them.
+func proxyConfigFromEnv(getenv func(string) string) ProxyConfig {
+	dev := getenv("ENV") == "dev"
+	// Anything but an explicit true keeps verification on
+	allowInsecureUpstreamTLS, _ := strconv.ParseBool(getenv("ALLOW_INSECURE_UPSTREAM_TLS"))
+
+	selfHosts := []string{}
+	for _, host := range strings.Split(getenv("PROXY_SELF_HOSTS"), ",") {
+		if host = strings.TrimSpace(host); host != "" {
+			selfHosts = append(selfHosts, host)
+		}
+	}
+
+	return ProxyConfig{
+		BypassCidr: dev,
+		// Local test APIs often use self-signed certificates
+		AllowInsecureUpstreamTLS: dev || allowInsecureUpstreamTLS,
+		SelfHosts:                selfHosts,
 	}
 }
 
