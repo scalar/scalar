@@ -3,6 +3,8 @@ import net from 'node:net'
 import { Command } from 'commander'
 import concurrently from 'concurrently'
 
+import { assertProxyFixtureServer } from '../helpers/assert-proxy-fixture-server'
+
 /** Run domain used for composing pnpm commands */
 export const run = new Command('run').description('Run a command')
 
@@ -23,6 +25,10 @@ const isPortListening = (port: number): Promise<boolean> =>
 run.addCommand(
   new Command('test-servers').description('Run the test servers').action(async () => {
     const [voidRunning, proxyRunning] = await Promise.all([isPortListening(5052), isPortListening(5051)])
+
+    if (proxyRunning) {
+      await assertProxyFixtureServer(5051)
+    }
 
     const servers = []
 

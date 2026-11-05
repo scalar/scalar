@@ -25,6 +25,11 @@ func TestProxyFixtureServer(t *testing.T) {
 	defer proxy.transport.CloseIdleConnections()
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", proxy.handleRequest)
+	// Let the integration launcher distinguish this fixture from a normal proxy.
+	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Scalar-Test-Fixture", "1")
+		proxy.handleRequest(w, r)
+	})
 	server := &http.Server{Addr: net.JoinHostPort("127.0.0.1", port), Handler: corsMiddleware(mux)}
 	defer server.Close()
 	if err := server.ListenAndServe(); err != nil {
@@ -37,6 +42,14 @@ func TestFixtureServerCanAccessPrivateTargets(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { calls.Add(1); io.WriteString(w, "fixture") }))
 	defer upstream.Close()
 	address := startProxySubprocess(t, "TestProxyFixtureServer", []string{"SCALAR_PROXY_FIXTURE_SERVER=1"})
+	ping, err := http.Get("http://" + address + "/ping")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ping.Body.Close()
+	if ping.Header.Get("X-Scalar-Test-Fixture") != "1" {
+		t.Fatal("fixture ping does not identify the test-only server")
+	}
 	response, err := http.Get("http://" + address + "/?scalar_url=" + url.QueryEscape(upstream.URL))
 	if err != nil {
 		t.Fatal(err)
@@ -56,6 +69,14 @@ func TestFixtureFlagDoesNotEnableRuntimePrivateAccess(t *testing.T) {
 	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { calls.Add(1) }))
 	defer upstream.Close()
 	address := startProxySubprocess(t, "TestProxyStartupProcess", []string{"SCALAR_PROXY_STARTUP_TEST=1", "SCALAR_PROXY_FIXTURE_SERVER=1", "ALLOW_PRIVATE_ADDRESSES=true", "ENV=dev"})
+	ping, err := http.Get("http://" + address + "/ping")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ping.Body.Close()
+	if ping.Header.Get("X-Scalar-Test-Fixture") != "" {
+		t.Fatal("normal proxy advertises the fixture identity")
+	}
 	response, err := http.Get("http://" + address + "/?scalar_url=" + url.QueryEscape(upstream.URL))
 	if err != nil {
 		t.Fatal(err)
