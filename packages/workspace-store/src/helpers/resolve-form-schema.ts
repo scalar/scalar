@@ -4,7 +4,7 @@ import { selectExampleComposition } from '@/request-example/builder/helpers/get-
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 import type { MaybeRefSchemaObject } from '@/schemas/v3.2/strict/schema'
-import { isNumberSchema, isObjectSchema } from '@/schemas/v3.2/strict/type-guards'
+import { isNumberSchema, isObjectSchema, isStringSchema } from '@/schemas/v3.2/strict/type-guards'
 
 import { getSchemaAnnotations, resolveSchemaWithAnnotations } from './resolve-schema-with-annotations'
 import { unpackProxyShallow } from './unpack-proxy'
@@ -71,6 +71,16 @@ export const resolveFormSchema = (
         const annotations = Object.assign({}, ...parts.map(getSchemaAnnotations))
         const result: SchemaObject = { ...first, ...annotations, ...siblings, type, allOf: source.allOf }
         Reflect.deleteProperty(result, '__scalar_')
+        // The format can come from a different intersection member than the string type,
+        // including a selected alternative. Form controls need that effective format.
+        if (isStringSchema(result)) {
+          const formats = [
+            ...new Set(parts.flatMap((part) => ('format' in part && part.format !== undefined ? [part.format] : []))),
+          ]
+          if (formats.length === 1) {
+            result.format = formats[0]
+          }
+        }
         if (isObjectSchema(result)) {
           const properties: Record<string, MaybeRefSchemaObject> = {}
           const required = new Set<string>()
