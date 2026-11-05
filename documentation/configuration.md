@@ -605,6 +605,8 @@ Show parameter details by default. Set to `false` to start path, query, header, 
 
 The default is `true`. This does not change response or nested schema expansion settings.
 
+Deep-object query parameters with more than five flattened fields always start as one collapsed group. Open the group to see its bracket-named fields. This keeps large filters compact without changing the API client.
+
 ```js
 Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',

@@ -40,6 +40,7 @@ const {
   parameter,
   options,
   collapsableItems,
+  childParameters,
   breadcrumb,
   document,
   eventBus,
@@ -50,6 +51,10 @@ const {
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
+    /** Flattened fields of a large deep-object query parameter. */
+    childParameters?: ParameterObject[]
+    /** Preserve the parameter detail setting inside a collapsed group. */
+    collapsableChildItems?: boolean
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
     options: Pick<
@@ -294,9 +299,24 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
  * does, the disclosure opens on mount so a fresh navigation can render the target
  * and scroll it into view (mirrors how collapsible schema disclosures behave).
  */
-const isOnTargetPath = computed<boolean>(() =>
-  isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')),
+const isOnTargetPath = computed<boolean>(
+  () =>
+    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    Boolean(
+      breadcrumb &&
+      childParameters?.some((child) =>
+        isOnScrollTargetPath([...breadcrumb, child.name].join('.')),
+      ),
+    ),
 )
+
+/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
+const groupNavigationKey = ref(0)
+watch(isOnTargetPath, (onTargetPath) => {
+  if (childParameters && onTargetPath) {
+    groupNavigationKey.value++
+  }
+})
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -320,6 +340,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
+      :key="groupNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
       <!-- The trigger spans the full row, so its focus ring must too: drawing
@@ -412,6 +433,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <!-- Schema -->
         <SchemaProperty
           is="div"
+          v-if="!childParameters"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="
@@ -455,6 +477,26 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :schema="getResolvedRef(content[selectedContentType]?.itemSchema)"
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
+
+        <!-- Keep the original breadcrumbs so existing links to flattened fields still work. -->
+        <ul
+          v-if="childParameters"
+          class="list-none p-0"
+          role="list">
+          <ParameterListItem
+            v-for="child in childParameters"
+            :key="child.name"
+            :breadcrumb="breadcrumb"
+            :collapsableItems="collapsableChildItems"
+            :document="document"
+            :eventBus="eventBus"
+            :expansion="expansion"
+            :name="child.name"
+            :options="options"
+            :parameter="child"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
+        </ul>
 
         <slot />
 
