@@ -14,6 +14,7 @@ import type {
 import { computed, ref, useTemplateRef, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
+import { isFileSchema } from '@/v2/blocks/request-block/helpers/is-file-schema'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
 import { CodeInputLite } from '@/v2/components/code-input'
 import {
@@ -33,6 +34,7 @@ const {
   deferKeyUpdates,
   invalidParams,
   showUploadButton,
+  allowUnknownFileUploads = true,
 } = defineProps<{
   data: TableRow
   /** Keep key edits local until blur when the row identity depends on its name. */
@@ -42,6 +44,8 @@ const {
   label?: string
   environment: XScalarEnvironment
   showUploadButton?: boolean
+  /** Unknown fields remain editable as files only in free-form multipart requests. */
+  allowUnknownFileUploads?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -142,6 +146,11 @@ watch(
 
 /** Check if the value is a File instance */
 const isFile = computed(() => value.value instanceof File)
+
+/** Keep the upload column aligned even when this field only accepts text. */
+const canUploadFile = computed(() =>
+  data.schema ? isFileSchema(data.schema) : allowUnknownFileUploads,
+)
 
 /** Display value handles File instances and shows filename instead */
 const displayValue = computed(
@@ -396,7 +405,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
           {{ translate('apiClient.requestTableRow.delete') }}
         </button>
       </template>
-      <template v-else>
+      <template v-else-if="canUploadFile">
         <div class="p-0.5">
           <ScalarButton
             class="bg-b-2 hover:bg-b-3 text-c-2 h-fit border-0 py-px shadow-none"

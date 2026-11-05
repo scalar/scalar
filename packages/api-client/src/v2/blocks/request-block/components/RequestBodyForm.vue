@@ -150,6 +150,7 @@ const handleFileUpload = (index: number) => {
   <!-- Form Data -->
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
+      :allowUnknownFileUploads="!bodySchema"
       :data="localFormBodyRows"
       deferKeyUpdates
       :environment="environment"
