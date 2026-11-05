@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -241,8 +240,9 @@ func TestBufferedBodyLimit(t *testing.T) {
 				t.Fatalf("Expected no error, got %v", err)
 			}
 			defer release()
+			defer body.Close()
 
-			if _, ok := body.(*bytes.Reader); ok != tc.replayable {
+			if _, ok := body.(*bufferedBodyReader); ok != tc.replayable {
 				t.Errorf("%d bytes: expected replayable to be %v, got %v", tc.size, tc.replayable, ok)
 			}
 
@@ -264,10 +264,13 @@ func TestBufferedBodyLimit(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Expected no error, got %v", err)
 			}
-			if _, ok := body.(*bytes.Reader); ok {
+			if _, ok := body.(*bufferedBodyReader); ok {
 				replayable++
 			}
-			releases = append(releases, release)
+			releases = append(releases, func() {
+				body.Close()
+				release()
+			})
 		}
 
 		if held := proxyServer.bufferedBodyBytes.Load(); held > maxBufferedBodyBytes {

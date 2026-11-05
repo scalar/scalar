@@ -1367,7 +1367,7 @@ func TestServiceWorkerRequests(t *testing.T) {
 		})
 		defer targetServer.server.Close()
 
-		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(targetServer.url), nil)
+		req := httptest.NewRequest(http.MethodGet, "/nested/worker.js?scalar_url="+url.QueryEscape(targetServer.url), nil)
 		req.Header.Set("Sec-Fetch-Mode", "same-origin")
 		req.Header.Set("Sec-Fetch-Dest", "serviceworker")
 		w := httptest.NewRecorder()
@@ -1380,6 +1380,9 @@ func TestServiceWorkerRequests(t *testing.T) {
 		}
 		if got := w.Header().Get("Content-Type"); got != "text/javascript" {
 			t.Errorf("Expected a JavaScript content type, got %q", got)
+		}
+		if got := w.Header().Get("Service-Worker-Allowed"); got != "/" {
+			t.Errorf("Expected cleanup to allow root scope, got %q", got)
 		}
 		if got := w.Header().Get("Cache-Control"); got != "no-store" {
 			t.Errorf("Expected the script not to be cached, got %q", got)

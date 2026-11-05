@@ -378,6 +378,8 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	// check would keep it installed, so replace it with one that removes itself.
 	if isServiceWorkerRequest(r) {
 		w.Header().Set("Content-Type", "text/javascript")
+		// Old upstreams could grant root scope to scripts under any path.
+		w.Header().Set("Service-Worker-Allowed", "/")
 		w.Header().Set("Cache-Control", "no-store")
 		w.Write([]byte(unregisterServiceWorkerScript))
 		return
@@ -488,8 +490,11 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return err
 	}
-	// Release on the way out too, for when the request is never sent
+	// Release on the way out too, for when the request is never sent.
 	defer releaseBody()
+	if body != nil {
+		defer body.Close()
+	}
 
 	outreq, err := http.NewRequest(r.Method, target, body)
 
@@ -498,6 +503,17 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return err
+	}
+
+	// The closable reader drops its buffer when the transport finishes the upload.
+	// Set replay metadata explicitly because NewRequest only recognizes bytes.Reader.
+	if buffered, ok := body.(*bufferedBodyReader); ok {
+		outreq.ContentLength = int64(buffered.reader.Len())
+		outreq.GetBody = buffered.buffer.newReader
+		if outreq.ContentLength == 0 {
+			outreq.Body = http.NoBody
+			buffered.Close()
+		}
 	}
 
 	// Copy the headers but exclude Origin and Cookie.
@@ -536,8 +552,8 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Make the request
 	resp, err := client.Do(outreq)
 
-	// Redirects are done, so the body is not needed again. A slow response body,
-	// such as an event stream, should not keep its request body counted.
+	// Redirects are done, so discard the replay copy. If the transport is still
+	// uploading, its reader keeps the bytes counted until it closes the body.
 	releaseBody()
 
 	if err != nil {
@@ -903,10 +919,74 @@ const maxBufferedBodyBytes = 128 << 20
 // bodyReadSize is how much of a request body is read and counted at a time.
 const bodyReadSize = 32 << 10
 
+// bufferedBody owns the replay copy and counts readers still used by the transport.
+// A response can arrive before an upload finishes, so releasing replay ownership
+// alone must not return those bytes to the budget.
+type bufferedBody struct {
+	mu           sync.Mutex
+	data         []byte
+	readers      int
+	released     bool
+	releaseBytes func()
+}
+
+func (b *bufferedBody) newReader() (io.ReadCloser, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	if b.released {
+		return nil, io.ErrClosedPipe
+	}
+	b.readers++
+	return &bufferedBodyReader{buffer: b, reader: bytes.NewReader(b.data)}, nil
+}
+
+func (b *bufferedBody) release() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.released = true
+	b.data = nil
+	if b.readers == 0 {
+		b.releaseBytes()
+	}
+}
+
+// bufferedBodyReader clears its own reference on Close, even if net/http keeps
+// the request reachable for the lifetime of a streaming response.
+type bufferedBodyReader struct {
+	mu     sync.Mutex
+	buffer *bufferedBody
+	reader *bytes.Reader
+}
+
+func (r *bufferedBodyReader) Read(p []byte) (int, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return 0, io.ErrClosedPipe
+	}
+	return r.reader.Read(p)
+}
+
+func (r *bufferedBodyReader) Close() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return nil
+	}
+	r.reader = nil
+	r.buffer.mu.Lock()
+	defer r.buffer.mu.Unlock()
+	r.buffer.readers--
+	if r.buffer.released && r.buffer.readers == 0 {
+		r.buffer.releaseBytes()
+	}
+	return nil
+}
+
 // replayableBody buffers the request body when it is small enough and there is
-// room, so http.NewRequest sets GetBody and Content-Length. The returned function
-// gives the buffered bytes back to the limit, and is safe to call more than once.
-func (ps *ProxyServer) replayableBody(body io.Reader) (io.Reader, func(), error) {
+// room. The returned function releases replay ownership; outstanding readers
+// keep the bytes counted until closed. Both release and Close are idempotent.
+func (ps *ProxyServer) replayableBody(body io.Reader) (io.ReadCloser, func(), error) {
 	if body == nil {
 		return nil, func() {}, nil
 	}
@@ -933,7 +1013,9 @@ func (ps *ProxyServer) replayableBody(body io.Reader) (io.Reader, func(), error)
 		buffered.Write(chunk[:n])
 
 		if err == io.EOF && buffered.Len() <= maxReplayableBodySize {
-			return bytes.NewReader(buffered.Bytes()), release, nil
+			buffer := &bufferedBody{data: buffered.Bytes(), releaseBytes: release}
+			reader, _ := buffer.newReader()
+			return reader, buffer.release, nil
 		}
 
 		if err != nil && err != io.EOF {
@@ -944,7 +1026,12 @@ func (ps *ProxyServer) replayableBody(body io.Reader) (io.Reader, func(), error)
 
 	// Send what was read, then stream the rest. The wrapper hides the concrete
 	// type, so http.NewRequest does not set GetBody.
-	return struct{ io.Reader }{io.MultiReader(bytes.NewReader(buffered.Bytes()), body)}, release, nil
+	buffer := &bufferedBody{data: buffered.Bytes(), releaseBytes: release}
+	reader, _ := buffer.newReader()
+	return struct {
+		io.Reader
+		io.Closer
+	}{io.MultiReader(reader, body), reader}, buffer.release, nil
 }
 
 // setUntrustedContentHeaders protects the proxy origin from proxied content.
