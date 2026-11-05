@@ -100,7 +100,24 @@ function runStoreBridge(store: StoreInterface, method: string, argsJson: string)
       throw new Error(`store: "${method}" is not a method`)
     }
 
-    const args = JSON.parse(argsJson) as unknown[]
+    const args: unknown = JSON.parse(argsJson)
+    if (!Array.isArray(args)) {
+      throw new Error('store: arguments must be an array')
+    }
+
+    const [collection, value]: unknown[] = args
+    if (typeof collection !== 'string' && !(method === 'clear' && collection == null)) {
+      throw new Error('store: collection must be a string')
+    }
+
+    // Do not coerce guest objects or arrays into property names on the host.
+    const dataId = value !== null && typeof value === 'object' && 'id' in value ? value.id : undefined
+    const lookupId = method === 'get' || method === 'update' || method === 'delete' ? value : undefined
+    const id = method === 'create' ? dataId : lookupId
+    if (id != null && typeof id !== 'string' && typeof id !== 'number') {
+      throw new Error('store: item ID must be a string or number')
+    }
+
     const result = (store[method as keyof StoreInterface] as (...args: unknown[]) => unknown)(...args)
 
     return serializeEnvelope({ ok: true, value: result ?? null })
