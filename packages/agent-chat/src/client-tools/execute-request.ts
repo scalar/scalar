@@ -67,6 +67,35 @@ const safeFetch = n.safeFn(
   (originalError) => createError('FAILED_TO_FETCH', { originalError }),
 )
 
+/** Keep model-provided paths anchored to the selected server before attaching credentials. */
+const getDestinationError = (path: string, activeServer: ServerObject | null): string | null => {
+  if (!activeServer?.url?.trim()) {
+    return 'Select a server before sending an API request.'
+  }
+
+  if (
+    !path.startsWith('/') ||
+    path.startsWith('//') ||
+    path.includes('\\') ||
+    Array.from(path).some((character) => character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127)
+  ) {
+    return 'Request paths must be relative endpoints beginning with a single forward slash.'
+  }
+
+  try {
+    const serverUrl = new URL(getResolvedUrl({ server: activeServer, path: '' }))
+    const requestUrl = new URL(getResolvedUrl({ server: activeServer, path }))
+
+    if ((serverUrl.protocol !== 'http:' && serverUrl.protocol !== 'https:') || requestUrl.origin !== serverUrl.origin) {
+      return 'Request destinations must use the selected HTTP or HTTPS server.'
+    }
+  } catch {
+    return 'Select a valid HTTP or HTTPS server before sending an API request.'
+  }
+
+  return null
+}
+
 function createUrl({
   path,
   activeServer,
@@ -122,6 +151,18 @@ export const executeRequestTool = n.safeFn(
           documentName,
         }),
       }
+    }
+
+    const destinationError = getDestinationError(path, settings.activeServer)
+    if (destinationError) {
+      // Tool callbacks run inside the stream queue, so do not await a write to that same queue.
+      void chat.addToolOutput({
+        tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+        toolCallId,
+        state: 'output-error',
+        errorText: destinationError,
+      })
+      return { success: false, error: createError('FAILED_TO_EXECUTE_REQUEST', destinationError) }
     }
 
     const requestSecurityOptions = buildRequestSecurity(settings.securitySchemes)
