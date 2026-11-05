@@ -1,5 +1,7 @@
 # @scalar/nextjs-api-reference
 
+## 0.12.16
+
 ## 0.12.15
 
 ## 0.12.14

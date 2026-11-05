@@ -17,7 +17,7 @@
     "validator",
     "typescript"
   ],
-  "version": "0.1.17",
+  "version": "0.1.18",
   "engines": {
     "node": ">=22"
   },

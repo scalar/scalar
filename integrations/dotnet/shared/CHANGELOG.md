@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 0.4.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+
 ## 0.3.0
 
 ### Minor Changes

@@ -1,5 +1,7 @@
 # @scalar/openapi-upgrader
 
+## 0.4.7
+
 ## 0.4.6
 
 ### Patch Changes

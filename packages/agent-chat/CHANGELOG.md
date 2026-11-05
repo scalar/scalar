@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.12.50
+
+### Patch Changes
+
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+- [#10869](https://github.com/scalar/scalar/pull/10869): Revert selected API description uploads in full mode until the backend supports them with agent-key authorization. Full mode uses the agent key's registered documents again.
+
 ## 0.12.49
 
 ## 0.12.48

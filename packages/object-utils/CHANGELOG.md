@@ -1,5 +1,7 @@
 # @scalar/object-utils
 
+## 1.3.34
+
 ## 1.3.33
 
 ### Patch Changes

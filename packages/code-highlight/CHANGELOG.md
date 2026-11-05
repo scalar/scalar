@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.4.12
+
+### Patch Changes
+
+- [#10742](https://github.com/scalar/scalar/pull/10742): Restore the 1.4 default for highlighted code block containers after the highlighter migration, including plain text and blank lines, while allowing Markdown to retain its own spacing.
+- [#10849](https://github.com/scalar/scalar/pull/10849): Make code block containers own line spacing so highlighted text, plain text, blank lines, and line numbers use the same height. ScalarCodeBlock defaults to 1.4 and Markdown fenced code defaults to 1.5; override either with --scalar-code-line-height on the component or an ancestor. The shared highlighting stylesheet preserves the 1.4 default for direct consumers with a zero-specificity container rule, so existing container overrides still take precedence.
+
 ## 0.4.11
 
 ### Patch Changes

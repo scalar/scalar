@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.6.88
+
+### Patch Changes
+
+- [#10846](https://github.com/scalar/scalar/pull/10846): Explicitly type the Nuxt module export so dependency checks can trace its schema dependency before building.
+
 ## 0.6.87
 
 ## 0.6.86
