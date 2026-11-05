@@ -2,7 +2,6 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
-import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -671,11 +670,15 @@ const handleObjectSchema = (
   cacheKey: string,
   schemaPath: string[],
   dynamicScope: DynamicScope,
+  requiredScope: ReadonlySet<string> | undefined,
 ): unknown => {
   const response: Record<string, unknown> = {}
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+  // Past the cap only the properties the object requires are rendered: optional ones are what the cap
+  // exists to stop descending into. Composition members share the names of the object they belong to.
+  const required = level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(schema)) : undefined
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -685,12 +688,12 @@ const handleObjectSchema = (
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
       const propertySchema = resolve.schema(properties[propertyName])
-      if (!propertySchema) {
+      if (!propertySchema || (required && !required.has(propertyName))) {
         continue
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const value = getExampleFromSchema(propertySchema, options, {
+      const rendered = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
         name: propertyName,
@@ -698,6 +701,9 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
       })
+      // A required property whose schema states no shape takes `null`, as it does at any other depth,
+      // rather than the sentinel that only marks where truncation happened.
+      const value = required && rendered === MAX_DEPTH_EXCEEDED ? null : rendered
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -705,7 +711,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('patternProperties' in schema && schema.patternProperties) {
+  if (!required && 'patternProperties' in schema && schema.patternProperties) {
     for (const pattern of Object.keys(schema.patternProperties)) {
       const propertySchema = resolve.schema(schema.patternProperties[pattern])
       if (!propertySchema) {
@@ -722,7 +728,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('additionalProperties' in schema && schema.additionalProperties) {
+  if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
     const additional =
       typeof schema.additionalProperties === 'boolean'
         ? schema.additionalProperties
@@ -775,6 +781,7 @@ const handleObjectSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          requiredScope: required,
         }),
       )
       Object.assign(response, withDiscriminatorTag(schema, chosen, response, options, schemaPath))
@@ -797,6 +804,7 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
         schemaPath: memberSchemaPath,
+        requiredScope: required,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -1056,6 +1064,88 @@ const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 /** How long a chain of composition wrappers may be unwrapped before the stack becomes the concern. */
 const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
 
+/**
+ * How deep the walk keeps going past `MAX_LEVELS_DEEP` to fill the properties a truncated object requires.
+ *
+ * Past the cap the walk still renders objects, but only their required properties, so a strict decoder
+ * reading the example finds every key it insists on. This level bounds that, well below the XML
+ * serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
+ * stand in empty again.
+ */
+const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
+
+/**
+ * How many schemas the walk may enter past `MAX_LEVELS_DEEP` in one top-level call.
+ *
+ * Cycle guards stop a schema that requires itself, but not a chain of distinct schemas that each point
+ * at the next one twice, through two required properties or an `allOf` that lists the same member
+ * twice: the work doubles with every link. Once the budget is spent, objects stand in empty.
+ */
+const MAX_REQUIRED_STEPS = 10_000
+
+/** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
+let requiredSteps = MAX_REQUIRED_STEPS
+
+/** Cache of the property names a schema or any of its compositions marks `required`. */
+const compositionRequiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
+
+/**
+ * Collect every property name a schema or any of its `allOf`, `oneOf` and `anyOf` members marks
+ * `required`.
+ *
+ * `required` and the property it names often live in different members (a base schema lists the
+ * property, the extension marks it required), and the walk renders each member on its own, so the
+ * names have to be gathered once for the whole composition. Every member counts, selected or not: an
+ * extra name only lets an optional property the rendered members define appear, which is still valid.
+ */
+const getCompositionRequiredNames = (schema: SchemaObject): ReadonlySet<string> => {
+  const root = getSchemaCacheTarget(schema)
+  const cached = compositionRequiredNamesCache.get(root)
+  if (cached) {
+    return cached
+  }
+
+  const names = new Set<string>()
+  const visited = new Set<object>()
+  const pending: SchemaObject[] = [schema]
+  while (pending.length > 0) {
+    const current = pending.pop()!
+    const target = getSchemaCacheTarget(current)
+    if (visited.has(target)) {
+      continue
+    }
+    visited.add(target)
+
+    if ('required' in current && Array.isArray(current.required)) {
+      for (const name of current.required) {
+        names.add(name)
+      }
+    }
+    for (const member of [...(current.allOf ?? []), ...(current.oneOf ?? []), ...(current.anyOf ?? [])]) {
+      const resolved = resolve.schema(member)
+      if (resolved) {
+        pending.push(resolved)
+      }
+    }
+  }
+
+  compositionRequiredNamesCache.set(root, names)
+  return names
+}
+
+/**
+ * Whether the walk keeps rendering a schema past `MAX_LEVELS_DEEP` to fill its required properties.
+ *
+ * Only an object or composition with a property marked `required` qualifies, either somewhere in its
+ * own compositions or, for a composition member, in the object it belongs to (`requiredScope`):
+ * anything else has nothing a decoder insists on, and keeps its usual stand-in. Arrays always stand in
+ * empty, because their items are what the cap exists to stop descending into.
+ */
+const fillsRequiredProperties = (schema: SchemaObject, requiredScope: ReadonlySet<string> | undefined): boolean =>
+  !getDeclaredTypes(schema).includes('array') &&
+  ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
+  (requiredScope ?? getCompositionRequiredNames(schema)).size > 0
+
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
   if (!('type' in schema) || !schema.type) {
@@ -1172,231 +1262,6 @@ const describeComposition = (
 }
 
 /**
- * How many steps the depth-capped stand-ins of one top-level call may take.
- *
- * Path guards stop a schema that requires or extends itself, but not a chain of distinct schemas that
- * each point at the next one twice, through two required properties or an `allOf` that lists the same
- * member twice: the work doubles with every link. Each required property filled in, each schema read
- * while collecting an object's shape and each composition unwrapped costs one step, so the budget bounds
- * the work and the output alike. It is generous enough that only such a pathological shape reaches it.
- */
-const MAX_STAND_IN_STEPS = 10_000
-
-/** Steps the stand-ins of the current top-level call may still take. */
-let standInSteps = MAX_STAND_IN_STEPS
-
-/** Spend one stand-in step, or report that the budget is gone (which also taints the call). */
-const takeStandInStep = (): boolean => {
-  if (standInSteps <= 0) {
-    // Whatever is cut short here is not what a full render would have produced.
-    truncated = true
-    return false
-  }
-  standInSteps--
-  return true
-}
-
-/**
- * A schema read at the composition path the walk would reach it by.
- *
- * The path is what an explicit `compositionSelection` is keyed by, and a schema reached through an
- * `allOf` choice member sits one ordinal deeper than the object that holds it, so the two travel
- * together.
- */
-type SchemaAtPath = {
-  schema: SchemaObject
-  path: string[]
-}
-
-/** The object a schema describes once its `allOf` members and selected `oneOf`/`anyOf` variant are merged in. */
-type ObjectShape = {
-  /** Every definition of each property, in the order they were found, since `allOf` members may refine one. */
-  properties: Map<string, SchemaAtPath[]>
-  required: Set<string>
-  /** Schemas already read, by the path they were read at, since the path selects their variants. */
-  visited: Map<object, Set<string>>
-}
-
-/**
- * Gather the properties and `required` names a schema declares, including through its compositions.
- *
- * `required` and the property it names often live in different `allOf` members (a base schema lists
- * the property, the extension marks it required), so reading either member alone finds nothing.
- * Choice compositions contribute only the variant the walk itself would render, keyed by the same
- * paths `describeComposition` uses, and each property definition keeps the path of the schema that
- * declared it. A schema reached again at the same path adds nothing new, so it is read once: a member
- * shared by several branches would otherwise be read once per route to it.
- */
-const collectObjectShape = (
-  schema: SchemaObject,
-  options: GetExampleFromSchemaOptions | undefined,
-  schemaPath: string[],
-  seen: Set<object>,
-  shape: ObjectShape,
-): void => {
-  const target = getSchemaCacheTarget(schema)
-  if (seen.has(target) || seen.size >= MAX_COMPOSITION_DEPTH) {
-    return
-  }
-
-  const pathKey = schemaPath.join('/')
-  const visitedPaths = shape.visited.get(target) ?? new Set<string>()
-  if (visitedPaths.has(pathKey) || !takeStandInStep()) {
-    return
-  }
-  visitedPaths.add(pathKey)
-  shape.visited.set(target, visitedPaths)
-  seen.add(target)
-
-  if ('properties' in schema && schema.properties) {
-    for (const [name, property] of Object.entries(schema.properties)) {
-      const resolved = resolve.schema(property)
-      if (!resolved) {
-        continue
-      }
-      const definitions = shape.properties.get(name) ?? []
-      if (!definitions.some((definition) => definition.schema === resolved && definition.path.join('/') === pathKey)) {
-        definitions.push({ schema: resolved, path: schemaPath })
-      }
-      shape.properties.set(name, definitions)
-    }
-  }
-  if ('required' in schema && Array.isArray(schema.required)) {
-    for (const name of schema.required) {
-      shape.required.add(name)
-    }
-  }
-
-  if (Array.isArray(schema.allOf)) {
-    let choiceIndex = 0
-    for (const member of schema.allOf) {
-      const resolved = resolve.schema(member)
-      if (!resolved) {
-        continue
-      }
-      const isChoiceMember = Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf)
-      collectObjectShape(
-        resolved,
-        options,
-        isChoiceMember ? [...schemaPath, String(choiceIndex++)] : schemaPath,
-        seen,
-        shape,
-      )
-    }
-  }
-
-  const variant = getSelectedVariant(schema, options, schemaPath)
-  if (variant) {
-    collectObjectShape(variant, options, schemaPath, seen, shape)
-  }
-
-  seen.delete(target)
-}
-
-/**
- * Describe one required property from every definition the object's compositions give it.
- *
- * Each definition is described at its own path, so a selection keyed under an `allOf` choice member
- * still picks the variant it names, and the values merge the way the walk merges `allOf` members. A
- * key one definition marks required and another defines only shows up across all of them, so a merged
- * object is then filled from every definition together.
- */
-const describeRequiredProperty = (
-  definitions: SchemaAtPath[],
-  name: string,
-  options: GetExampleFromSchemaOptions | undefined,
-  seen: Set<object>,
-): unknown => {
-  const sources = definitions.map(({ schema, path }) => ({ schema, path: [...path, name] }))
-  const [only] = sources
-  if (only && sources.length === 1) {
-    return getMaxDepthValue(only.schema, options, only.path, seen)
-  }
-
-  let merged: unknown = undefined
-  for (const { schema, path } of sources) {
-    const value = getMaxDepthValue(schema, options, path, seen)
-    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
-      merged = mergeExamples(merged, value)
-    }
-  }
-
-  return isObject(merged) ? getRequiredProperties(sources, options, seen, merged) : merged
-}
-
-/**
- * Describe the properties a truncated object cannot leave out.
- *
- * An empty object stands in for a truncated one, but a schema that marks properties `required` rejects
- * it, and so does any strict decoder reading the example (a mock server's response, for one). Each
- * required property is described with the same depth-capped stand-in, so a required child object brings
- * only its own required keys and the walk still never descends through optional ones. The `seen` path
- * guards a schema that requires itself, which would otherwise never terminate, and the shared step
- * budget bounds a branching chain of schemas that the path guard alone lets grow exponentially.
- *
- * `sources` are the schemas the object has to satisfy at once: one schema, or every definition a
- * property has across `allOf` members. Keys already present in `base` came from a member describing
- * itself. A key with a single definition is already what that member rendered, so it is kept. A key
- * several definitions refine is described again from all of them and merged in, because the member that
- * filled it saw only its own definition.
- */
-const getRequiredProperties = (
-  sources: SchemaAtPath[],
-  options: GetExampleFromSchemaOptions | undefined,
-  seen: Set<object>,
-  base: Record<string, unknown> = {},
-): Record<string, unknown> => {
-  const open = sources.filter(({ schema }) => !seen.has(getSchemaCacheTarget(schema)))
-  if (open.length === 0 || seen.size >= MAX_COMPOSITION_DEPTH) {
-    return base
-  }
-
-  const shape: ObjectShape = { properties: new Map(), required: new Set(), visited: new Map() }
-  for (const { schema, path } of open) {
-    collectObjectShape(schema, options, path, seen, shape)
-  }
-  if (shape.required.size === 0) {
-    return base
-  }
-
-  const result = { ...base }
-  const targets = open.map(({ schema }) => getSchemaCacheTarget(schema))
-  for (const target of targets) {
-    seen.add(target)
-  }
-  for (const name of shape.required) {
-    const definitions = shape.properties.get(name)
-    // Own keys only: `constructor` or `toString` are valid property names, not values already filled in.
-    const filled = Object.hasOwn(result, name)
-    // Skip what the full walk would skip, so the stand-in never carries a key a full render would not.
-    if (
-      !definitions ||
-      (filled && (definitions.length === 1 || !isObject(result[name]))) ||
-      definitions.some(({ schema }) => shouldOmitProperty(schema, sources[0]?.schema, name, { mode: options?.mode }))
-    ) {
-      continue
-    }
-
-    if (!takeStandInStep()) {
-      // Out of budget, the object keeps what it has.
-      break
-    }
-
-    const described = describeRequiredProperty(definitions, name, options, seen)
-    const value = filled && isObject(described) ? mergeExamples(result[name], described) : described
-    if (value !== undefined && value !== MAX_DEPTH_EXCEEDED) {
-      // Defined rather than assigned, so a property named `__proto__` stays a property.
-      Object.defineProperty(result, name, { value, enumerable: true, writable: true, configurable: true })
-    }
-  }
-  for (const target of targets) {
-    seen.delete(target)
-  }
-
-  return result
-}
-
-/**
  * Build the value that stands in for a schema the recursion depth cap cut off.
  *
  * The stand-in is still read as an example of the schema it replaced, so a plain string makes the
@@ -1410,9 +1275,8 @@ const getRequiredProperties = (
  * answers `null`: a container spelled as a list (`type: ['object']`, or `['object', 'null']`) is read
  * here as the container it names, where the walk's strict comparison misses it.
  *
- * An object keeps only its `required` properties, each described the same way, so a strict decoder
- * still finds every key it insists on. Optional properties and array items stay out: they are what
- * the cap exists to stop descending into, and nothing that reads the value depends on them.
+ * The value is empty rather than complete: satisfying `required` or `minItems` means descending
+ * again, which is exactly what the cap exists to prevent.
  */
 const getMaxDepthValue = (
   schema: SchemaObject,
@@ -1430,7 +1294,7 @@ const getMaxDepthValue = (
   if (container !== undefined) {
     // Children were dropped here, so anything assembled around this value is level-bound too.
     truncated = true
-    return Array.isArray(container) ? container : getRequiredProperties([{ schema, path: schemaPath }], options, seen)
+    return container
   }
 
   // A schema with no children renders the same at every level, so nothing is lost and the cache stays
@@ -1447,16 +1311,13 @@ const getMaxDepthValue = (
   // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
   // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
   const target = getSchemaCacheTarget(schema)
-  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && takeStandInStep()) {
+  // The step budget bounds a wrapper whose members repeat one another (`allOf: [next, next]`), which
+  // the path guard alone lets double with every link.
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && requiredSteps-- > 0) {
     seen.add(target)
     const composed = describeComposition(schema, options, schemaPath, seen)
     seen.delete(target)
 
-    // Members describe their own required keys, but one that is marked required in one member and
-    // defined in another only shows up in the merged view, so fill those in from the whole composition.
-    if (isObject(composed)) {
-      return getRequiredProperties([{ schema, path: schemaPath }], options, seen, composed)
-    }
     if (composed !== undefined) {
       return composed
     }
@@ -1516,6 +1377,7 @@ const generateExampleFromSchema = (
     seen = new WeakSet(),
     schemaPath = [],
     dynamicScope = [],
+    requiredScope,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1525,13 +1387,15 @@ const generateExampleFromSchema = (
     schemaPath: string[]
     /** Chain of schema resources entered so far, used to resolve `$dynamicRef` (JSON Schema 2020-12). */
     dynamicScope: DynamicScope
+    /** Past the depth cap, the required names of the object a composition member belongs to. */
+    requiredScope: ReadonlySet<string>
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
-    standInSteps = MAX_STAND_IN_STEPS
+    requiredSteps = MAX_REQUIRED_STEPS
   }
 
   // Resolve any $ref references to get the actual schema
@@ -1636,12 +1500,25 @@ const generateExampleFromSchema = (
   // Stop descending once the walk is too deep to keep going, which also breaks circular references.
   // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
   // any other level; only the children are given up on.
+  //
+  // An object still renders its required properties for a while past the cap, through this same walk, so
+  // every rule that applies at a shallower level (read/write omission, composition selection, variables,
+  // binary files) applies to them too. Arrays, primitives and anything past the bounds stand in.
   if (level > MAX_LEVELS_DEEP) {
-    seen.delete(targetValue)
+    if (!fillsRequiredProperties(_schema, requiredScope) || level > MAX_REQUIRED_LEVELS_DEEP || requiredSteps <= 0) {
+      seen.delete(targetValue)
 
-    // Deliberately not cached: the value holds only at this level, and the cache key carries none.
-    return getMaxDepthValue(_schema, options, schemaPath)
+      // Deliberately not cached: the value holds only at this level, and the cache key carries none.
+      return getMaxDepthValue(_schema, options, schemaPath)
+    }
+    requiredSteps--
+    // The rendered value omits optional properties, so it holds only at this level and must not be cached.
+    truncated = true
   }
+
+  // Past the cap, composition members render only the properties their object requires.
+  const memberRequiredScope =
+    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(_schema)) : undefined
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
@@ -1712,7 +1589,7 @@ const generateExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope, requiredScope)
     seen.delete(targetValue)
     return result
   }
@@ -1751,6 +1628,7 @@ const generateExampleFromSchema = (
               schemaPath,
               seen,
               dynamicScope: childScope,
+              requiredScope: memberRequiredScope,
             }),
             options,
             schemaPath,
@@ -1779,6 +1657,7 @@ const generateExampleFromSchema = (
         schemaPath: memberSchemaPath,
         seen,
         dynamicScope: childScope,
+        requiredScope: memberRequiredScope,
       })
       if (merged === undefined) {
         merged = ex
