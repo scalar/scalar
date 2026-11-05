@@ -76,9 +76,9 @@ onMounted(async () => {
 
 const { uploadTempDocument } = useUploadTmpDocument()
 watch(
-  () => mode === 'full' || terms.accepted.value,
-  (canUpload) => {
-    if (canUpload && getActiveDocumentJson) {
+  terms.accepted,
+  (accepted) => {
+    if (accepted && mode === 'preview' && getActiveDocumentJson) {
       void uploadTempDocument(getActiveDocumentJson(), true)
     }
   },

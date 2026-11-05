@@ -123,9 +123,7 @@ export function useUploadTmpDocument() {
       if (controller.signal.aborted) {
         return
       }
-      if (state.mode === 'preview') {
-        saveTmpDocumentInLocalStorage({ namespace: uploadData.namespace, slug: uploadData.slug })
-      }
+      saveTmpDocumentInLocalStorage({ namespace: uploadData.namespace, slug: uploadData.slug })
       uploadState.value = { type: 'done' }
       state.uploadedTmpDocumentUrl.value = uploadData.url
 
