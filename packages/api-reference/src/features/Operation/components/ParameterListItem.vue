@@ -311,7 +311,7 @@ const isOnTargetPath = computed<boolean>(
 )
 
 /** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
-const groupNavigationKey = ref(0)
+const groupNavigationKey = ref<number>(0)
 watch(isOnTargetPath, (onTargetPath) => {
   if (childParameters && onTargetPath) {
     groupNavigationKey.value++

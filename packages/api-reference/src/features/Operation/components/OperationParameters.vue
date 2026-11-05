@@ -48,7 +48,10 @@ const selectedContentType = defineModel<string>('selectedContentType')
 type ParameterLocation = Exclude<ParameterObject['in'], 'querystring'>
 
 /** Keep large filter objects together without changing their request representation. */
-const parameterSections = computed(() => {
+const parameterSections = computed<{
+  locations: Record<ParameterLocation, ParameterObject[]>
+  groups: Map<ParameterObject, ParameterObject[]>
+}>(() => {
   const locations: Record<ParameterLocation, ParameterObject[]> = {
     cookie: [],
     header: [],
