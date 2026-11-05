@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -404,9 +405,30 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
-		// Log any errors
-		log.Printf("[Proxy Error:] %v\n", err)
+		// Error strings can contain credential-bearing URLs or upstream data.
+		log.Printf("[Proxy Error:] %s\n", proxyErrorCategory(err))
 	}
+}
+
+// proxyErrorCategory keeps operational diagnostics without logging untrusted
+// error text, including URLs embedded in wrapped errors or redirect failures.
+func proxyErrorCategory(err error) string {
+	if errors.Is(err, context.Canceled) {
+		return "request canceled"
+	}
+	var networkError net.Error
+	if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &networkError) && networkError.Timeout()) {
+		return "upstream timeout"
+	}
+	var dnsError *net.DNSError
+	if errors.As(err, &dnsError) {
+		return "DNS failure"
+	}
+	var connectionError *net.OpError
+	if errors.As(err, &connectionError) {
+		return "network failure"
+	}
+	return "request failed"
 }
 
 func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValidationError) {
