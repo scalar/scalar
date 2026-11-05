@@ -2,6 +2,10 @@
 
 ## 0.7.0
 
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
 ### Minor Changes
 
 - [#10825](https://github.com/scalar/scalar/pull/10825): Expose additional UI, code sample, OAuth redirect, and service URL configuration in the Java integrations.

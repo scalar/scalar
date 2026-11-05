@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.0 (2026-11-05)
+
+### Response hooks and smarter path matching
+
+This release adds an onResponse hook so you can observe or modify responses before they are sent, and fixes how the server chooses between overlapping paths.
+
+- New onResponse hook lets you adjust responses after the mock generates them, useful for pagination or tweaking examples per request.
+- Concrete paths like /pets/mine now match before templated paths like /pets/{petId}, following the OpenAPI specification.
+- Passing an object document to createMockServer no longer mutates the original object or fails with frozen documents.
+- Deprecated schemas and properties are now included in XML responses, so a deprecated response schema no longer returns an empty body.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0210)
+
 ## 0.20.0 (2026-10-23)
 
 ### Updated to Undici 8 with HTTP/2 enabled by default
