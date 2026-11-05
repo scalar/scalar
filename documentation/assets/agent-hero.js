@@ -50,6 +50,16 @@
   ]
 
   /**
+   * How far apart neighbouring marks are at least, centre to centre, in marks' widths, where a
+   * ring runs down a side of the stage. The marks grow with the stage's width and the rings with
+   * its height, and the stage stops growing taller at 560px, so on a wide screen the outer ring's
+   * marks ran into each other down the sides (1.09 widths apart at 1512 by 820, overlapping from
+   * 1920 across). A ring is made at least tall enough to keep this, which is the inner ring's own
+   * spacing at 1512 by 820, and turns more slowly by as much, so its marks move as fast as before.
+   */
+  const SPACING = 1.5
+
+  /**
    * On a phone the copy fills the width and there is no room beside it for the arcs. Vitra's
    * page, measured at 390 by 844 and 430 by 932, then turns its circles into true circles of
    * 0.636 and 0.886 of the width, a little wider than the screen, so their tops and bottoms
@@ -1102,7 +1112,12 @@
     const reach = (LENS_IN + ((1 - LENS_IN) * (1 - Math.exp(-BEND))) / BEND) * (1 + SPLIT)
 
     let atlas = null
-    let clock = 0
+    // How far each ring has turned, in degrees. It is kept, and not worked out from a clock,
+    // because a stretched ring turns more slowly: worked out from the time so far, a resize that
+    // changed the pace would send every mark round to wherever the new pace would have had it.
+    let turns = RINGS.map(() => 0)
+    // How fast each ring turns, as a share of its speed: under 1 where SPACING stretches it.
+    let pace = RINGS.map(() => 1)
     let intro = 0
     let last = null
     let raf = 0
@@ -1112,7 +1127,7 @@
     // Something on screen has changed since the last picture was drawn.
     let dirty = true
 
-    // One picture at the clock as it stands. frame() below moves the clock and calls this; a
+    // One picture with the rings as they have turned. frame() below turns them and calls this; a
     // resize, or a change while the hero is away, calls it straight away.
     const draw = () => {
       if (!atlas) {
@@ -1135,18 +1150,24 @@
       // On a phone the circles are centred on the copy, as Vitra centres them on its title, so
       // the inner one frames it. The lens stays on the stage's own middle.
       const ringY = narrow && copy ? holeY : cy
+      // Down, each ring is at least tall enough to keep its marks SPACING apart along its sides.
+      const heights = [Math.max(RINGS[0].down * half, clear), RINGS[1].down * half]
+      const spaced = heights.map((down, r) =>
+        Math.max(down, (SPACING * 2 * RINGS[r].size * w * RINGS[r].count) / (Math.PI * 2)),
+      )
       const radii = narrow
         ? NARROW.radii.map((share) => [share * w, share * w])
         : [
-            [innerX, Math.max(RINGS[0].down * half, clear)],
-            [Math.max(RINGS[1].across * w, innerX + RINGS[1].size * w * 3.2), RINGS[1].down * half],
+            [innerX, spaced[0]],
+            [Math.max(RINGS[1].across * w, innerX + RINGS[1].size * w * 3.2), spaced[1]],
           ]
+      pace = narrow ? RINGS.map(() => 1) : spaced.map((down, r) => heights[r] / down)
 
-      // Where a mark is at the clock, and whether it is out of sight: beyond the lens, or past a
-      // side of a phone. Judged by the disc's near edge, so no part of it is still in view.
+      // Where a mark is as its ring has turned, and whether it is out of sight: beyond the lens, or
+      // past a side of a phone. Judged by the disc's near edge, so no part of it is still in view.
       const place = (p) => {
         const ring = RINGS[p.ring]
-        const a = p.angle + ring.speed * (Math.PI / 180) * clock
+        const a = p.angle + turns[p.ring] * (Math.PI / 180)
         const [rx, ry] = radii[p.ring]
         const x = rx * Math.cos(a)
         const y = ry * Math.sin(a)
@@ -1266,7 +1287,7 @@
         // from it instead of replaying it from an empty stage.
         intro = Math.max(intro, 99)
       } else {
-        clock += dt
+        turns = turns.map((turned, r) => turned + RINGS[r].speed * pace[r] * dt)
         intro += dt
       }
       draw()
@@ -1468,7 +1489,7 @@
 
     // A hook for captures and tests: jump the turn to a moment, with the opening finished.
     root.agSeek = (seconds) => {
-      clock = seconds
+      turns = RINGS.map((ring, r) => ring.speed * pace[r] * seconds)
       intro = 99
       dirty = true
       settled = false
