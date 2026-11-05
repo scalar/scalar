@@ -521,6 +521,11 @@ func (t redirectReplayTransport) RoundTrip(req *http.Request) (*http.Response, e
 //     proxy origin (see untrustedResponseHeaders), with consistent CORS headers
 //  4. Tracks the final URL after any redirects
 func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
+	// HTTP/1 otherwise drains the incoming upload before writing a response.
+	// HTTP/2 already permits concurrent reads and writes.
+	controller := http.NewResponseController(w)
+	_ = controller.EnableFullDuplex()
+
 	client := &http.Client{
 		Transport: redirectReplayTransport{transport: ps.transport},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -564,8 +569,17 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Retain a replay copy while the transport consumes the upload. Waiting for the
 	// complete upload here would stall streaming APIs and early responses.
 	body, releaseBody := ps.replayableBody(r.Body, r.ContentLength)
+	body.interruptRead = func() {
+		// Go closes the initial body before checking a redirect. Interrupt an
+		// unfinished HTTP/1 read so Close does not wait for the client to finish.
+		if r.ProtoMajor == 1 {
+			_ = controller.SetReadDeadline(time.Now())
+		}
+	}
 	defer releaseBody()
-	defer body.Close()
+	// The transport closes outbound bodies, and the server owns the incoming
+	// body. Closing it here can block behind a Read on an unfinished upload
+	// before the server has flushed the early response.
 
 	outreq, err := http.NewRequest(r.Method, target, body)
 	if err != nil {
@@ -1042,17 +1056,24 @@ func (r *bufferedBodyReader) Close() error {
 // Close must unblock Read, so the source is read outside the buffer mutex.
 // Closing the initial upload keeps replay ownership until redirects finish.
 type streamingReplayBody struct {
-	source io.ReadCloser
-	buffer *bufferedBody
-	proxy  *ProxyServer
-	length int64
-	held   int64
+	source        io.ReadCloser
+	buffer        *bufferedBody
+	proxy         *ProxyServer
+	length        int64
+	held          int64
+	consumed      int64
+	finished      bool
+	interruptRead func()
+	closeOnce     sync.Once
+	closeErr      error
 }
 
 func (r *streamingReplayBody) Read(p []byte) (int, error) {
 	n, err := r.source.Read(p)
 	r.buffer.mu.Lock()
 	defer r.buffer.mu.Unlock()
+	r.consumed += int64(n)
+	r.finished = err != nil || (r.length > 0 && r.consumed == r.length)
 	if r.buffer.released {
 		return n, err
 	}
@@ -1068,12 +1089,21 @@ func (r *streamingReplayBody) Read(p []byte) (int, error) {
 	r.held += int64(n)
 	r.buffer.data = append(r.buffer.data, p[:n]...)
 	// Known-length uploads may finish without a separate EOF read.
-	r.buffer.complete = err == io.EOF || (r.length > 0 && int64(len(r.buffer.data)) == r.length)
+	r.buffer.complete = r.finished && (r.length <= 0 || r.consumed == r.length)
 	return n, err
 }
 
 func (r *streamingReplayBody) Close() error {
-	return r.source.Close()
+	r.closeOnce.Do(func() {
+		r.buffer.mu.Lock()
+		finished := r.finished
+		r.buffer.mu.Unlock()
+		if !finished && r.interruptRead != nil {
+			r.interruptRead()
+		}
+		r.closeErr = r.source.Close()
+	})
+	return r.closeErr
 }
 
 func (r *streamingReplayBody) getBody() (io.ReadCloser, error) {

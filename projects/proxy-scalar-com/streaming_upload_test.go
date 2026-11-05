@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 )
@@ -118,6 +119,61 @@ func TestEarlyUploadResponse(t *testing.T) {
 			}
 			if held := proxy.bufferedBodyBytes.Load(); held != 0 {
 				t.Fatalf("retained %d bytes after early response", held)
+			}
+		})
+	}
+}
+
+// Use a real inbound HTTP/1 body: unlike io.Pipe, its Close can block behind
+// an ongoing Read, and the server normally drains it before sending a response.
+func TestHTTP1EarlyUploadResponse(t *testing.T) {
+	for _, status := range []int{http.StatusRequestEntityTooLarge, http.StatusTemporaryRedirect, http.StatusPermanentRedirect} {
+		t.Run(fmt.Sprint(status), func(t *testing.T) {
+			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				_ = http.NewResponseController(w).EnableFullDuplex()
+				if r.URL.Path != "/upload" {
+					t.Error("replayed an incomplete upload")
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+				if _, err := io.ReadFull(r.Body, make([]byte, 1)); err != nil {
+					return
+				}
+				w.Header().Set("Connection", "close")
+				w.Header().Set("Location", "/final")
+				w.WriteHeader(status)
+				w.Write([]byte("early"))
+			}))
+			defer upstream.Close()
+			proxy := NewProxyServer(true)
+			server := httptest.NewServer(corsMiddleware(http.HandlerFunc(proxy.handleRequest)))
+			defer server.Close()
+			defer proxy.transport.CloseIdleConnections()
+			conn, err := net.Dial("tcp", strings.TrimPrefix(server.URL, "http://"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer conn.Close()
+			// Send a chunk, but deliberately omit the terminating zero chunk.
+			fmt.Fprintf(conn, "POST /?scalar_url=%s HTTP/1.1\r\nHost: proxy\r\nTransfer-Encoding: chunked\r\n\r\n1\r\na\r\n", url.QueryEscape(upstream.URL+"/upload"))
+			conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+			response, err := http.ReadResponse(bufio.NewReader(conn), nil)
+			if err != nil {
+				t.Fatalf("early response blocked: %v", err)
+			}
+			defer response.Body.Close()
+			if response.StatusCode != status {
+				t.Fatalf("got status %d, want %d", response.StatusCode, status)
+			}
+			body, err := io.ReadAll(response.Body)
+			if err != nil || string(body) != "early" {
+				t.Fatalf("early body = %q, error = %v", body, err)
+			}
+			if response.Header.Get("Access-Control-Allow-Origin") != "*" {
+				t.Fatal("early response lost CORS headers")
+			}
+			if status != http.StatusRequestEntityTooLarge && response.Header.Get("Location") != "" {
+				t.Fatal("early redirect exposes a browser-followable Location")
 			}
 		})
 	}
