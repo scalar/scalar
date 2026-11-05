@@ -47,7 +47,7 @@ const selectedContentType = defineModel<string>('selectedContentType')
 
 type ParameterLocation = Exclude<ParameterObject['in'], 'querystring'>
 
-/** Keep large filter objects together without changing their request representation. */
+/** Keep filter objects together without changing their request representation. */
 const parameterSections = computed<{
   locations: Record<ParameterLocation, ParameterObject[]>
   groups: Map<ParameterObject, ParameterObject[]>
@@ -68,7 +68,8 @@ const parameterSections = computed<{
 
     const flattened = flattenDeepObjectQueryParameter(parameter)
     const location = parameter.in === 'querystring' ? 'query' : parameter.in
-    if (flattened.length > 5) {
+    // An unexpandable parameter is returned unchanged by the flattening helper.
+    if (flattened.some((field) => field.name !== parameter.name)) {
       locations[location].push(parameter)
       groups.set(parameter, flattened)
     } else {

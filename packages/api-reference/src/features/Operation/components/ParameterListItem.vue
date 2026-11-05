@@ -51,7 +51,7 @@ const {
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
-    /** Flattened fields of a large deep-object query parameter. */
+    /** Flattened fields of a deep-object query parameter. */
     childParameters?: ParameterObject[]
     /** Preserve the parameter detail setting inside a collapsed group. */
     collapsableChildItems?: boolean

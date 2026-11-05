@@ -44,18 +44,31 @@ describe('OperationParameters', () => {
     }),
   })
 
-  it.each([true, false])('keeps five flattened fields visible with expandAllParameters=%s', (expandAllParameters) => {
+  it.each([0, undefined])('keeps objects without expandable properties ordinary (%s)', (count) => {
+    const parameter = filterParameter(count ?? 0)
+    if (count === undefined) {
+      parameter.schema = { type: 'object' }
+    }
     const wrapper = mount(OperationParameters, {
-      props: {
-        eventBus: null,
-        options: { ...defaultSchemaOptions, expandAllParameters },
-        parameters: [filterParameter(5)],
-      },
+      props: { eventBus: null, options: defaultSchemaOptions, parameters: [parameter] },
     })
-    for (const index of [0, 1, 2, 3, 4]) {
+    expect(wrapper.text()).toContain('filters')
+    expect(
+      wrapper.findAllComponents({ name: 'ParameterListItem' }).map((item) => item.props('childParameters')),
+    ).toStrictEqual([undefined])
+  })
+
+  it.each([1, 2, 5, 6])('groups %s expandable fields', async (count) => {
+    const wrapper = mount(OperationParameters, {
+      props: { eventBus: null, options: defaultSchemaOptions, parameters: [filterParameter(count)] },
+    })
+    const group = wrapper.get('button[aria-expanded]')
+    expect(group.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.text()).not.toContain('filters[field0]')
+    await group.trigger('click')
+    for (const index of Array.from({ length: count }, (_, index) => index)) {
       expect(wrapper.text()).toContain(`filters[field${index}]`)
     }
-    expect(wrapper.findAll('button').some((button) => button.text().startsWith('filtersobject'))).toBe(false)
   })
 
   it.each([true, false])('groups six fields and preserves detail expansion=%s', async (expandAllParameters) => {
@@ -258,7 +271,7 @@ describe('OperationParameters', () => {
       expect(wrapper.text()).toContain('search')
     })
 
-    it('renders deepObject query parameters as flattened bracket names', () => {
+    it('renders deepObject query parameters as flattened bracket names', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
@@ -295,14 +308,15 @@ describe('OperationParameters', () => {
       })
 
       expect(wrapper.text()).toContain('Query Parameters')
+      await wrapper.get('button[aria-expanded]').trigger('click')
       expect(wrapper.text()).toContain('page[number]')
       expect(wrapper.text()).toContain('page[size]')
       expect(wrapper.text()).toContain('Page number')
       expect(wrapper.text()).toContain('Page size')
-      expect(wrapper.text()).not.toContain('pageobject')
+      expect(wrapper.get('button[aria-expanded]').attributes('aria-expanded')).toBe('true')
     })
 
-    it('renders nested deepObject query properties with recursive bracket names', () => {
+    it('renders nested deepObject query properties with recursive bracket names', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
@@ -333,10 +347,11 @@ describe('OperationParameters', () => {
         },
       })
 
+      await wrapper.get('button[aria-expanded]').trigger('click')
       expect(wrapper.text()).toContain('filter[pagination][number]')
     })
 
-    it('does not re-add the top-level deepObject parameter when a nested object has empty properties', () => {
+    it('does not re-add the top-level deepObject parameter when a nested object has empty properties', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
           eventBus: null,
@@ -366,11 +381,12 @@ describe('OperationParameters', () => {
         },
       })
 
+      await wrapper.get('button[aria-expanded]').trigger('click')
       const queryParameterNames = wrapper
         .findAllComponents({ name: 'ParameterListItem' })
         .map((item) => item.props('name'))
 
-      expect(queryParameterNames).toStrictEqual(['filter[pagination]', 'filter[status]'])
+      expect(queryParameterNames).toStrictEqual(['filter', 'filter[pagination]', 'filter[status]'])
     })
   })
 
