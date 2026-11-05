@@ -38,6 +38,8 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 
 Incoming clients have 10 seconds to finish sending request headers. Idle keep-alive connections close after 60 seconds between requests. Each incoming body read also has a 60-second idle deadline, refreshed for every read and cleared between reads. These limits do not impose a whole-request deadline on active uploads or streaming responses such as SSE.
 
+Requests targeting the proxy's own authority are rejected with HTTP 508. The proxy adds `X-Scalar-Proxy-Hop: 1` to outbound requests and refuses requests already containing that header, including empty values, so aliases cannot create chains of Scalar proxies. Requests naming that header in `Connection` are also rejected to prevent intermediaries from removing the marker. Separate APIs on the same hostname at a different port remain accessible.
+
 ## Usage
 
 ### Requirements

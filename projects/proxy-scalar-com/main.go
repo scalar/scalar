@@ -366,6 +366,53 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 	}
 }
 
+const proxyHopHeader = "X-Scalar-Proxy-Hop"
+
+// A caller cannot remove our loop marker through an intermediary by naming it
+// in Connection. Reject any existing marker, even an empty or invalid value.
+func hasProxyHop(r *http.Request) bool {
+	if _, present := r.Header[proxyHopHeader]; present {
+		return true
+	}
+	for _, connection := range r.Header.Values("Connection") {
+		for _, header := range strings.Split(connection, ",") {
+			if strings.EqualFold(strings.TrimSpace(header), proxyHopHeader) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// Compare the public request authority, without trusting forwarded-host headers.
+// A different port can serve a separate API on the same self-hosted machine.
+func isProxyDestination(remote *url.URL, host string) bool {
+	incoming := &url.URL{Host: host}
+	remoteHost := strings.TrimSuffix(remote.Hostname(), ".")
+	incomingHost := strings.TrimSuffix(incoming.Hostname(), ".")
+	sameHost := strings.EqualFold(remoteHost, incomingHost)
+	if remoteIP, incomingIP := net.ParseIP(remoteHost), net.ParseIP(incomingHost); remoteIP != nil && incomingIP != nil {
+		sameHost = remoteIP.Equal(incomingIP)
+	}
+	if !sameHost {
+		return false
+	}
+	port := remote.Port()
+	if port == "" {
+		if strings.EqualFold(remote.Scheme, "https") {
+			port = "443"
+		} else {
+			port = "80"
+		}
+	}
+	if incoming.Port() == "" {
+		// TLS may terminate before the proxy, so both public default ports
+		// belong to the unqualified incoming authority.
+		return port == "80" || port == "443"
+	}
+	return port == incoming.Port()
+}
+
 // Processes all incoming HTTP requests.
 //
 // It serves both as a proxy for API requests, but also provides some utility endpoints.
@@ -373,6 +420,11 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 // - /openapi.yaml: OpenAPI specification
 // For all other paths, it forwards the request to the URL specified in scalar_url
 func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
+	if hasProxyHop(r) {
+		http.Error(w, "Proxy loops are not allowed", http.StatusLoopDetected)
+		return
+	}
+
 	// Health check
 	if r.URL.Path == "/ping" {
 		w.Write([]byte("pong"))
@@ -436,6 +488,11 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	if len(validationErrors) > 0 {
 		firstError := validationErrors[0]
 		http.Error(w, firstError.message, firstError.statusCode)
+		return
+	}
+
+	if isProxyDestination(remote, r.Host) {
+		http.Error(w, "Proxy loops are not allowed", http.StatusLoopDetected)
 		return
 	}
 
@@ -632,6 +689,9 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			outreq.Header.Del(forbiddenHeader.scalarHeader)
 		}
 	}
+
+	// Aliases and other Scalar proxy instances must reject a second proxy hop.
+	outreq.Header.Set(proxyHopHeader, "1")
 
 	// Make the request
 	resp, err := client.Do(outreq)
