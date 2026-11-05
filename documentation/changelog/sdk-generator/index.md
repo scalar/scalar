@@ -8,6 +8,30 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.38.0 (2026-11-04)
+
+### Improved name pluralization and SDK credential handling
+
+This release improves how array elements and model names are derived from plural nouns, and refines security credential selection across multiple targets.
+
+- Array elements named from `-ie` plurals now use the proper singular form: `cookies` generates `Cookie` instead of `Cooky`, and the same applies to `movies`, `zombies`, `ties` and similar words across all naming.
+- Generated CLIs with `openapi.operationSecurity` now send only the credentials each command's security requirements select, so conflicting schemes no longer overwrite each other.
+- The CLI install script now updates your shell's startup file to put the command on `PATH`, so it works by name after installation without manual configuration.
+- SDKs in C++, C#, Go, Kotlin, Java, Python, Ruby, Rust, Swift and TypeScript honor `openapi.operationSecurity`, sending each request only the credentials its operation requires rather than every configured credential.
+- Experimental signed-URL methods landed in C++, Go, Rust and Swift SDKs for generating and fetching presigned URLs, with shared signing rules across all targets.
+
+## 0.37.1 (2026-11-01)
+
+### Signed URL methods ship for C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript
+
+Experimental signed URL methods now generate across ten languages. Each target builds, signs and fetches secure URLs following shared byte rules so every SDK signs consistently. TypeScript and Python also render CLI commands for these methods.
+
+- C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript SDKs now render `kind: signedUrl` methods for the `sign → return`, `sign → fetch` and `request → fetch` flows.
+- Every SDK follows the same byte rules when signing: declaration-order JSON payload, absent properties left out, RFC 3986 percent-encoding, HMAC-SHA256 keyed with UTF-8 bytes over exactly the bytes in the URL.
+- Generated CLIs for TypeScript SDKs now include commands for signed URL methods, calling the embedded SDK to build, sign and fetch URLs with per-param flags.
+- New `clientSettings.idempotency` block lets you configure the idempotency key format as `uuid-v4` or time-ordered `uuid-v7`, with optional hyphens and custom prefix.
+- CLI `upgrade` command now runs the owning package manager itself instead of printing instructions, and standalone binaries get an `install.sh` script for one-command installation.
+
 ## 0.37.0 (2026-10-29)
 
 ### PHP signed uploads, backward pagination, and hardened runtimes

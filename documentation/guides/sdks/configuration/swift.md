@@ -99,16 +99,6 @@ Give every generated model an `additionalProperties: [String: JSONValue]` member
 
 **Default:** `false`
 
-### requestStructThreshold
-
-**Type:** `integer`
-
-An operation taking more arguments than this — counting its body and every parameter except the leading path parameters — also gets an overload taking those arguments as one generated `Request` struct, for a caller building the request programmatically. Every operation keeps its flat form, one argument per parameter; `0` gives the overload to every operation with at least one such argument.
-
-**Default:** `4`
-
-**Constraints:** `minimum: 0`
-
 ## skip
 
 **Type:** `boolean`

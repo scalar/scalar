@@ -139,6 +139,8 @@ There is no registry and no account to set up: the binaries are uploaded to the 
 
 Each release builds `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, and `windows-x64`, attached as `<binary>-<platform>.tar.gz` (`.zip` on Windows). The asset names carry no version, so `https://github.com/<owner>/<repo>/releases/latest/download/<binary>-<platform>.tar.gz` always points at the newest release; re-running a release replaces the assets.
 
+When the destination is a GitHub `owner/repo`, the generated repository also gets an `install.sh` at its root, attached to every release beside a `checksums.txt` that covers it and the archives, so `curl -fsSL https://github.com/<owner>/<repo>/releases/latest/download/install.sh | bash` installs the binary for the machine into `~/.local/bin` (`<COMMAND>_INSTALL_DIR` picks another directory). When that directory is not on `PATH`, the script appends one line to the startup file of the user's shell — `.zshrc` in `$ZDOTDIR` (or `~`) for zsh, `~/.bashrc` for bash on Linux, the login file bash already reads on macOS (`~/.bash_profile` when there is none), `conf.d/<binary>.fish` for fish, and `~/.profile` for other POSIX shells — and prints the line that does the same in the current terminal. The line names the directory's real location, with any symlink resolved, so a link cannot later be pointed elsewhere. Re-running the script adds nothing, and `<binary> uninstall` names the line among what removing the executable leaves behind. The script leaves startup files alone, and says which check declined, when `<COMMAND>_NO_MODIFY_PATH` is set or when the shell is not one of those above; it then prints the line to add by hand. As root with a `$HOME` root does not own, as `sudo` can leave it, it declines without judging the directory, offers no line to paste, and says to run it as the home directory's owner; root in a home of its own, as in a container build or under `sudo -i`, is treated like any user. It also declines, and offers no line to paste whatever else declined, when the directory is relative, when it or any directory above it is not owned by the user or root or is writable by everyone (which rules out anything under `/tmp`), or when the directory contains a colon or — outside the home directory, which is written as `$HOME` — anything but ASCII letters, digits and `/ . _ + @ -`.
+
 #### releaseEnvironment
 
 **Type:** `string`
@@ -280,6 +282,14 @@ Whether the generated CLI ships shell completion scripts and the `completion` su
 How the generated CLI spells a command under a nested resource. `colon` joins the resource chain into one command group (`projects:tasks create`), the shape Heroku-style `oclif` CLIs use. `space` nests each subresource as a subcommand of its parent (`projects tasks create`), the shape `gh`, `kubectl`, and `gcloud` use; `--help`, shell completion, man pages, the README, and the smoke test all follow the nested tree. Under `space` a subresource and a method of its parent resource would be the same command if they shared a name, and so would a root method and a top-level resource that has only subresources. A subresource whose accessor clashes with a method is already renamed for every target (`policies-resource`); a clash that survives that, such as a method whose `publicIdentifier` differs from its name, fails generation naming both commands rather than silently renaming either. Top-level resources and root methods are spelled the same either way.
 
 **Default:** `"colon"`
+
+## installOrder
+
+**Type:** `("npm" | "installScript" | "homebrew" | "download")[]`
+
+Order of the install methods in the generated README's Installation section, the agent skill's Install section and the augmented OpenAPI document's `x-scalar-sdk-installation`, which all follow it. `npm` is `npm install -g`; `installScript` is the `curl … | bash` one-liner for the release's `install.sh`; `homebrew` is the tap's `brew install`; `download` is the manual archive download, including the Windows `.zip`. Listed methods come first, in the order given; any left out follow in the default order, so `["homebrew"]` only moves Homebrew to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed: the order never adds an install line for a channel no release produces.
+
+**Default:** `["installScript", "npm", "homebrew", "download"]`
 
 ## credentialStore
 

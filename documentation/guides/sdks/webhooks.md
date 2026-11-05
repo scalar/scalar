@@ -185,7 +185,7 @@ A webhook helper is a method with `"kind": "webhookUnwrap"` and a `webhook` bloc
 | ----- | ------ |
 | A map of event names | The helper decodes those events. Its return type is a union over them. |
 | `{}` | The helper decodes every webhook the document declares. |
-| A map that matches no event | When no helper in the configuration matches any event, the helper decodes every webhook instead of shipping with nothing to decode. Otherwise it decodes nothing. |
+| A map that matches no event | When no helper in the configuration matches any event, some targets decode every webhook instead of shipping the helper with nothing to decode, while others generate nothing for it (PHP generates no webhook service). Use `{}` to decode every webhook in every target. Otherwise the key selects no event, and what a target generates for a helper left with none varies. Each key that names no event is reported with `Config/WebhookUnknownEventType`. |
 
 When two helpers could claim the same event, one that lists the event explicitly wins over one with an empty map, whatever their order in the configuration. A webhook that no helper claims gets no generated type.
 
@@ -236,6 +236,16 @@ Leave `webhookKeyOpt` unset and the helper still verifies. TypeScript, Python, G
 Every verifying method also takes the secret per call, which wins over the client's. That suits an API that issues a different secret per endpoint or per tenant.
 
 Secrets use the Standard Webhooks format: an optional `whsec_` prefix, then base64. A secret that decodes to nothing is refused rather than used, because an HMAC under an empty key is one anyone can compute.
+
+### `bytesKey`
+
+`bytesKey` says how Python reads a per-call key passed as `bytes`. With `raw`, the default, the bytes are the HMAC key itself, as the Standard Webhooks library reads them. With `utf8`, the parse method decodes the bytes as UTF-8 and reads the text the way it reads a `str` key: an optional `whsec_` prefix is stripped and the rest is base64-decoded. The verifying companions (`verify_signature`, `unwrap`) keep using `bytes` as the raw key.
+
+```json
+{ "kind": "webhookUnwrap", "webhook": { "eventTypes": {}, "bytesKey": "utf8" } }
+```
+
+Set `utf8` when your users hand over the secret your dashboard shows as bytes, for example read from a file or from `os.environb`. Only Python tells a `bytes` key from a string one, so the other targets ignore the setting. It is experimental.
 
 ### Turning verification off
 
@@ -405,6 +415,8 @@ A signature block whose algorithm has no Scalar value, such as HMAC-SHA384 or EC
 | ---- | -------- | ------------- |
 | `Config/WebhookTypeNameConflict` | `warn` | A helper's `typeName` does not end in `Event`, or names a type the SDK already declares. The helper keeps its default union name. |
 | `Config/WebhookHelperNameUnsafe` | `warn` | A helper's `helpers.parseUnsafe` takes a verifying companion's name, so the decoder that skips verification is not generated. |
+| `Config/WebhookUnknownEventType` | `warn` | An `eventTypes` key names no webhook event in the document, so it selects nothing. The message lists the document's event names and suggests the one the key most likely meant, such as the `operationId` of the webhook the key names by its `webhooks` key. |
+| `Config/WebhookHelperNoEvents` | `warn` | A helper matches no webhook event, such as an empty `eventTypes` map on a document with no top-level webhooks, so it has nothing to decode. |
 | `Unsupported/WebhookSignatureAlgorithm` | `warn` | The C++ SDK cannot verify a helper's `signatureAlgorithm`, so it generates no method for that helper. |
 
 See [Diagnostics](diagnostics.md) for how findings are graded, suppressed, and used to fail a build.
