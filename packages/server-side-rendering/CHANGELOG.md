@@ -1,5 +1,11 @@
 # @scalar/server-side-rendering
 
+## 0.1.67
+
+### Patch Changes
+
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
 ## 0.1.66
 
 ## 0.1.65

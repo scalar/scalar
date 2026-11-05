@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.19.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+
 ## 2.18.7
 
 ### Bundled API Reference

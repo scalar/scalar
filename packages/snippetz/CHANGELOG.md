@@ -1,5 +1,18 @@
 # @scalar/snippetz
 
+## 0.10.15
+
+### Patch Changes
+
+- [#10823](https://github.com/scalar/scalar/pull/10823): Send cookies with the Cookie request header in Node fetch, ofetch, and undici snippets, merge existing cookie headers in Node and axios snippets, and use the browser cookie store in JavaScript fetch, ofetch, and axios snippets.
+
+  Preserve both explicit Cookie headers and structured cookies across the other HTTP header-based generators, including curl, wget, Ruby, Go, Swift, Objective-C, Rust, Dart, Clojure, R, Kotlin, C#, PHP cURL, Python http.client, and C libcurl. Include structured cookies in raw HTTP examples.
+
+  Explain cookie header entries without `=` in browser snippets instead of silently dropping them.
+
+- [#10838](https://github.com/scalar/scalar/pull/10838): Generate valid Python literals for boolean JSON request bodies in Requests, HTTPX, and aiohttp snippets.
+- [#10838](https://github.com/scalar/scalar/pull/10838): Preserve root JSON scalars in browser Fetch, Node Fetch, Undici, clj-http, and Objective-C NSURLSession code examples instead of converting booleans to objects, omitting false bodies, or rejecting JSON fragments.
+
 ## 0.10.14
 
 ## 0.10.13

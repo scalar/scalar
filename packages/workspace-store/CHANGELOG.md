@@ -1,5 +1,28 @@
 # @scalar/workspace-store
 
+## 0.70.0
+
+### Minor Changes
+
+- [#10729](https://github.com/scalar/scalar/pull/10729): Add a request body reset action that restores the original example, falling back to schema-generated values, without refreshing the page.
+
+  Expose `ObjectDoc.documentSource` as the base URI for resolving relative references in object documents. Add translation keys for restoring a body and creating an example from its schema.
+
+  Resolved request body baselines are included in workspace exports but are not persisted in IndexedDB. After an IndexedDB reload or loading an older export, the first reset reconstructs the baseline from the original document, which may refetch external references and does not reapply configured overrides.
+
+### Patch Changes
+
+- [#10730](https://github.com/scalar/scalar/pull/10730): Generate valid examples for known string formats in request bodies, including dates, times, durations, addresses, URIs, pointers, regular expressions, and version-specific UUIDs. Preserve existing password, binary, and unknown-format fallbacks.
+
+  Also generate formatted query and header values in code samples and querystring parameters. Versioned UUID formats (`uuid1`–`uuid8`) now use matching version bits instead of the generic UUID, including in mock-server and response examples. Generate date/time values at request time so reused schemas stay current in long-lived tabs.
+
+- [#10732](https://github.com/scalar/scalar/pull/10732): Render Paths Object and Path Item extensions alongside operation extensions within each operation in both layouts. Preserve arbitrary Paths Object extension values during browser loading and server preprocessing, and exclude them from operation navigation and tag/auth edits.
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Keep Paths extensions out of request-body snapshots, resets, default routing, and path parameter synchronization. Hide unselected Paths and Path Item extension sections in the classic layout.
+- [#10787](https://github.com/scalar/scalar/pull/10787): Resolve a relative document URL against the page before bundling, so external references in that document are fetched instead of being resolved to a root path that no loader handles.
+- [#10804](https://github.com/scalar/scalar/pull/10804): perf: build with the TypeScript 7 native compiler
+- [#10812](https://github.com/scalar/scalar/pull/10812): Keep deprecated schemas and properties in generated JSON and XML examples by default. Remove the `includeDeprecated` option; deprecation no longer filters example values. Read/write and optional-property filtering still apply.
+
 ## 0.69.3
 
 ## 0.69.2

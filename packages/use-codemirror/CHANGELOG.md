@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.14.17
+
+### Patch Changes
+
+- [#10824](https://github.com/scalar/scalar/pull/10824): Maintain the CSS color picker locally and declare its Lezer dependency so imports work with strict package-manager layouts.
+- [#10734](https://github.com/scalar/scalar/pull/10734): Refresh color swatches when background parsing updates the syntax tree.
+
 ## 0.14.16
 
 ### Patch Changes

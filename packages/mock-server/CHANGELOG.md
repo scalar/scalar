@@ -1,5 +1,17 @@
 # @scalar/mock-server
 
+## 0.21.0
+
+### Minor Changes
+
+- [#10809](https://github.com/scalar/scalar/pull/10809): feat: add an `onResponse` hook to observe or replace the response for each request
+
+### Patch Changes
+
+- [#10808](https://github.com/scalar/scalar/pull/10808): fix: match concrete paths before templated ones, so `/pets/mine` is answered by its own operation even when the document declares `/pets/{petId}` first
+- [#10810](https://github.com/scalar/scalar/pull/10810): fix: leave an object document passed to `createMockServer` unchanged instead of bundling it in place
+- [#10812](https://github.com/scalar/scalar/pull/10812): fix(mock-server): include deprecated schemas in XML responses, so a response whose schema is deprecated no longer comes back with an empty XML body
+
 ## 0.20.3
 
 ## 0.20.2

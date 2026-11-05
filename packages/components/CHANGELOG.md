@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.33.2
+
+### Patch Changes
+
+- [#10735](https://github.com/scalar/scalar/pull/10735): Cancel the pending selected-option scroll when a combobox is unmounted.
+- [#10843](https://github.com/scalar/scalar/pull/10843): Prevent opening or navigating combobox options from scrolling the surrounding page before the picker is positioned.
+- [#10849](https://github.com/scalar/scalar/pull/10849): Make code block containers own line spacing so highlighted text, plain text, blank lines, and line numbers use the same height. ScalarCodeBlock defaults to 1.4 and Markdown fenced code defaults to 1.5; override either with --scalar-code-line-height on the component or an ancestor. The shared highlighting stylesheet preserves the 1.4 default for direct consumers with a zero-specificity container rule, so existing container overrides still take precedence.
+
 ## 0.33.1
 
 ## 0.33.0

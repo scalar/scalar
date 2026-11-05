@@ -1,5 +1,16 @@
 # @scalar/helpers
 
+## 0.17.0
+
+### Minor Changes
+
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+
+### Patch Changes
+
+- [#10865](https://github.com/scalar/scalar/pull/10865): Show empty response headers under their own name, instead of the internal `X-Scalar-Original-*` name the Scalar proxy uses.
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
 ## 0.16.4
 
 ### Patch Changes

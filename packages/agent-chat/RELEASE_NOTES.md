@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.50 (2026-11-05)
+
+### Security hardening and agent key document fix
+
+This release fixes a security issue in the CORS proxy and restores full-mode chat functionality while backend support is being finalized.
+
+- The CORS proxy now protects against XSS, open redirect, and origin abuse attacks by rejecting document requests and sandboxing responses.
+- Response headers in post-response scripts, agent logs, and request history now show the values your API sent, not the proxy's security headers.
+- Full-mode Ask AI uses the agent key's registered documents again, fixing questions that require API context.
+- Preview mode continues to upload the selected API description as before.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01250)
+
 ## 0.12.46 (2026-10-23)
 
 ### Polish and bug fixes shipped

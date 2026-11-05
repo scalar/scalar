@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.1.47",
+    "date": "2026-11-05",
+    "title": "Authentication overrides, body reset, and response improvements",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release adds per-document authentication configuration, a toolbar action to restore original request body examples, and support for non-standard HTTP status codes in response displays."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Configure authentication defaults and visible security schemes separately for each API document",
+          "Reset request bodies to their original examples without refreshing the page",
+          "Display API responses with custom HTTP status codes outside the standard 200–599 range",
+          "Render Paths and Path Item extensions in both modern and classic layouts",
+          "Preserve server-rendered content during browser hydration to eliminate layout shifts"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1147",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.1.43",
     "date": "2026-10-23",
     "title": "Close tabs with keyboard shortcuts and AsyncAPI server-variable examples",

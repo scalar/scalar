@@ -1,5 +1,14 @@
 # @scalar/blocks
 
+## 0.6.4
+
+### Patch Changes
+
+- [#10733](https://github.com/scalar/scalar/pull/10733): Align AsyncAPI message and server extensions with their surrounding content and reduce excess spacing.
+- [#10814](https://github.com/scalar/scalar/pull/10814): fix(blocks): keep explicit badge colors above themed utility defaults
+- [#10771](https://github.com/scalar/scalar/pull/10771): Place request actions below the method and path in narrow fallback cards, keeping button labels readable without clipping.
+- [#10812](https://github.com/scalar/scalar/pull/10812): Keep deprecated schemas and properties in generated JSON and XML examples by default. Remove the `includeDeprecated` option; deprecation no longer filters example values. Read/write and optional-property filtering still apply.
+
 ## 0.6.3
 
 ## 0.6.2

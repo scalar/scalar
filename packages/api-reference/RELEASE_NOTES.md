@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.77.0 (2026-11-05)
+
+### Custom authentication per document and extension rendering improvements
+
+This release brings per-document authentication configuration, rendering for specification extensions across OpenAPI and AsyncAPI objects, and significant performance improvements for search on API descriptions with interconnected models.
+
+- Configure authentication separately for each document in ASP.NET Core references with merged defaults and optional security scheme allowlists
+- Render specification extensions on Paths objects, Path Items, and AsyncAPI channels, operations, messages, servers, and replies
+- Open search much faster on API descriptions with interconnected models by expanding and walking each schema only once per index build
+- Preserve server-rendered content during hydration so titles and operations stay in place when the browser takes over
+- Wrap operation titles without spaces, such as webhook names, on narrow screens instead of pushing the page wider than the viewport
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1770)
+
 ## 1.76.4 (2026-10-30)
 
 ### Hosting waitlist sign-ups now capture server framework
