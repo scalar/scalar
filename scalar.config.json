@@ -1391,7 +1391,7 @@
               },
               "api-hosting": {
                 "type": "page",
-                "title": "Hosting",
+                "title": "Deploy",
                 "icon": "phosphor/regular/butterfly",
                 "filepath": "documentation/guides/api-hosting/index.md",
                 "description": "Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.",
