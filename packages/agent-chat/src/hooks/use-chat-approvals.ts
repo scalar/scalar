@@ -12,12 +12,9 @@ type RequestToolPart = ToolUIPart & {
   input: Tools['execute-request']['input']
 }
 
+/** Every outbound request needs consent, including GET requests that can carry credentials or data. */
 export function requestPartRequiresApproval(part: UIMessagePart<any, Tools>): part is RequestToolPart {
-  return (
-    part.type === (`tool-${EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME}` as const) &&
-    part.state === 'input-available' &&
-    part.input?.method?.toLowerCase() !== 'get'
-  )
+  return part.type === (`tool-${EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME}` as const) && part.state === 'input-available'
 }
 
 /** Exposes pending request approvals without leaking SDK implementation types. */
