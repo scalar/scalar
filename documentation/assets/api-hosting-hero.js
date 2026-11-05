@@ -641,6 +641,14 @@
     beadSize: 0.45,
     blotch: 2.2,
     grain: 0.22,
+    /* How much of the glass's own patterning shows, as a share of what it was first drawn with: the beams through the root,
+       the striations, the blown panes, the bubbles and the glints. `veins` is the same for the veins alone, which read
+       most. A wing should look like glass from across the room and only show how it was made when you look closely. */
+    texture: 0.5,
+    veins: 0.4,
+    /* How far each wing's colours are drawn together towards the one colour of its glass, so that it reads as a single
+       pastel, paler and deeper, and not as a run of colours. The warm middle runs out less far into it for the same reason. */
+    mono: 0.45,
   }
 
   /* Each framework's mark is kept as a field of distances to its edge, so that it stays sharp however small it is printed.
@@ -710,6 +718,27 @@
     /* Half the width of the thread, in CSS pixels, at its top and at its foot, and how much wider it is on a dark page. */
     wide: [0.42, 0.34],
     widerInDark: 0.08,
+    /* How far a planet's own colours are taken towards white, so the flock's planets are pastels like the wings, and how
+       much of their colour that leaves them. */
+    pastel: 0.52,
+    keepColour: 0.85,
+  }
+
+  /* The antennae: two fine neutral lines from the head, with nothing on their tips, so they say butterfly without
+     saying bug. Lengths are in sizes. `root` is where they leave the body, `reach` how far forward they go, `spread` how far
+     apart their tips are and `curl` how much they bow out on the way, `rise` how far up off the back they lift. `wide` is
+     half their width in CSS pixels at the root and at the tip, and `ink` their colour on a light page and on a dark one. */
+  const ANTENNA = {
+    root: 0.2,
+    reach: 0.36,
+    spread: 0.12,
+    curl: 0.05,
+    rise: 0.1,
+    wide: [0.36, 0.3],
+    ink: [
+      [0.47, 0.46, 0.45],
+      [0.7, 0.69, 0.68],
+    ],
   }
 
   /** The wake: the grid the air's colour is kept on, and how quickly it lets go, a second. */
@@ -1025,6 +1054,25 @@
     } else if (kind < 2.5) {
       P = aAB.x * F + vec3(flat2, 0.0) * aAB.y;
       vMark = vec3(0.0);
+    } else if (kind > 5.5) {
+      /* An antenna, out from the head and up off the back, bowing outwards a little. It is drawn as the thread is, a strip
+         across the page as wide as it needs to be to touch every pixel the line does. */
+      float t = aAB.x;
+      vec3 at = F * (${ANTENNA.root.toFixed(3)} + ${ANTENNA.reach.toFixed(3)} * t) +
+        S * aPart.y * (0.015 + ${ANTENNA.spread.toFixed(3)} * t + ${ANTENNA.curl.toFixed(3)} * t * t) +
+        U * ${ANTENNA.rise.toFixed(3)} * t;
+      float t2 = min(t + 0.05, 1.0);
+      float t1 = max(t - 0.05, 0.0);
+      vec3 ahead = F * ${ANTENNA.reach.toFixed(3)} * t2 + S * aPart.y * (${ANTENNA.spread.toFixed(3)} * t2 + ${ANTENNA.curl.toFixed(3)} * t2 * t2) + U * ${ANTENNA.rise.toFixed(3)} * t2;
+      vec3 behind = F * ${ANTENNA.reach.toFixed(3)} * t1 + S * aPart.y * (${ANTENNA.spread.toFixed(3)} * t1 + ${ANTENNA.curl.toFixed(3)} * t1 * t1) + U * ${ANTENNA.rise.toFixed(3)} * t1;
+      vec2 along = (ahead - behind).xy;
+      float wide = (1.0 + ${HOLD.widerInDark.toFixed(2)} * uDark) * mix(${ANTENNA.wide[0].toFixed(2)} * clamp(iPlace.w / ${HOLD.sizes[1].toFixed(1)}, 0.6, 1.0), ${ANTENNA.wide[1].toFixed(2)}, t);
+      float truePx = wide * uPixels;
+      float stripPx = max(truePx, 0.5) + 0.75;
+      P = at + vec3(vec2(-along.y, along.x) / max(length(along), 1e-5) * aAB.y * stripPx / uPixels / iPlace.w, 0.0);
+      /* the tip fades out rather than stopping square */
+      vLit = vec3(truePx, stripPx, 1.0 - smoothstep(0.86, 1.0, t));
+      vMark = vec3(0.0);
     } else if (kind > 4.5) {
       /* The thread, in the plane of the page, from under the middle of the butterfly down to the bead. Its foot goes with the
          bead as it swings. */
@@ -1061,7 +1109,7 @@
     }
     /* The last place is the bead's radius in CSS pixels. */
     vKind = vec4(kind, iWho.y, aPart.y, iHold.z * iPlace.w);
-    vWho = vec4(iPlace.w, iWho.z, iShow * (kind > 3.5 ? iTurn.z : 1.0), iWho.x);
+    vWho = vec4(iPlace.w, iWho.z, iShow * (kind > 3.5 && kind < 5.5 ? iTurn.z : 1.0), iWho.x);
 
     /* In homogeneous form, so the GPU interpolates the wing's own place with perspective. */
     float w = (iPlace.z - P.z) / iPlace.z;
@@ -1155,6 +1203,13 @@
     /* The planet is in its framework's own colours and everything else in the butterfly's pastel, a block of rows further on. */
     inkRow = int(vWho.w) + (kind > 3.5 && kind < 4.5 ? 0 : ${SPECIES.length});
 
+    if (kind > 5.5) {
+      /* An antenna: the thread's edge, in a plain grey that is neither the wing's colour nor the planet's. */
+      float a = min(clamp(vLit.x + 0.5 - abs(vW.y) * vLit.y, 0.0, 1.0), 2.0 * vLit.x) * vLit.z * vWho.z;
+      vec3 grey = mix(vec3(${ANTENNA.ink[0].map((v) => v.toFixed(2)).join(', ')}), vec3(${ANTENNA.ink[1].map((v) => v.toFixed(2)).join(', ')}), uDark);
+      outColor = vec4(grey * a, a);
+      return;
+    }
     if (kind > 4.5) {
       /* A leg, with its edge worked out from how much of each pixel the line covers. On a dark page it is lit, or the bead
          would seem to float. */
@@ -1201,6 +1256,13 @@
       /* A black ball is an eight ball, and a hole in a dark page, so it comes up to the graphite of the site's dark globe. */
       float lifted = 1.0 - smoothstep(0.03, 0.2, dot(tint, vec3(0.2126, 0.7152, 0.0722)));
       tint = mix(tint, vec3(0.3, 0.3, 0.325), lifted);
+      /* A pastel, as the wings are: the framework's colour taken most of the way to white. Its light and its glow go with
+         it, so the shading stays as soft as it was. */
+      tint = mix(tint, vec3(1.0), ${HOLD.pastel.toFixed(2)});
+      tint = mix(vec3(dot(tint, vec3(0.2126, 0.7152, 0.0722))), tint, ${HOLD.keepColour.toFixed(2)});
+      light = mix(light, vec3(1.0), ${HOLD.pastel.toFixed(2)});
+      glow = mix(glow, vec3(1.0), 0.3);
+      sheen = mix(sheen, vec3(1.0), ${HOLD.pastel.toFixed(2)});
       vec3 c = mix(tint * 0.78, tint, smoothstep(0.2, 0.62, wrap));
       c = mix(c, mix(tint, light, 0.3), smoothstep(0.58, 1.0, wrap));
       float under = smoothstep(0.62, 1.0, r) * (1.0 - smoothstep(-0.8, 0.1, n.y));
@@ -1298,6 +1360,12 @@
     vec3 glow = ink(3);
     vec3 sheen = ink(4);
     vec3 rimInk = ink(5);
+    /* One colour of glass, paler and deeper, rather than a run of colours. The inks are all of one family, so drawing them
+       together keeps the wing clean and only takes out the spread. */
+    glow = mix(glow, body, ${WING.mono.toFixed(2)});
+    light = mix(light, body, ${WING.mono.toFixed(2)});
+    deep = mix(deep, body, ${WING.mono.toFixed(2)});
+    sheen = mix(sheen, body, ${WING.mono.toFixed(2)});
     float along = r / max(rimEven, 1e-3);
 
     /* The strokes fan out from the root, and more of them start as the fan widens. */
@@ -1355,18 +1423,18 @@
     vec2 seedAt = vec2(vWho.y * 37.0, vWho.y * 91.0 + kind * 11.0);
     vec2 streak = vec2(ang * 2.6, r * 0.55) * uBlotch;
     float blot = noise(streak + seedAt) * 0.62 + noise(streak * 2.7 - seedAt) * 0.38;
-    thick *= 1.0 + ((blot - 0.5) * 0.12 + (cellDice - 0.5) * 0.1) * smoothstep(0.2, 0.6, along);
+    thick *= 1.0 + ((blot - 0.5) * 0.12 + (cellDice - 0.5) * 0.1) * ${WING.texture.toFixed(2)} * smoothstep(0.2, 0.6, along);
     /* Each pane is blown a little, thinnest at its heart and thick along its veins, and the petals show it most. */
-    thick *= 1.0 + cell * cell * cell * 0.18 * smoothstep(0.1, 0.45, along);
-    thick *= 1.0 - petals * pillow * pillow * smoothstep(0.1, 0.34, along) * (1.0 - smoothstep(archAt - 0.2, archAt - 0.02, along)) * 0.3;
+    thick *= 1.0 + cell * cell * cell * ${(0.18 * WING.texture).toFixed(3)} * smoothstep(0.1, 0.45, along);
+    thick *= 1.0 - petals * pillow * pillow * smoothstep(0.1, 0.34, along) * (1.0 - smoothstep(archAt - 0.2, archAt - 0.02, along)) * ${(0.3 * WING.texture).toFixed(3)};
     /* Light pours through the root in long beams, along the veins and between them. */
     if (reach < 0.62) {
       float rays = noise(vec2(ang * 17.0 + seedAt.x, kind * 5.0)) * 0.7 + noise(vec2(ang * 43.0 + seedAt.y, kind * 9.0)) * 0.3;
       float beam = cell * cell;
-      thick *= 1.0 - (smoothstep(0.38, 0.72, rays) * mix(0.46, 0.26, warm) + beam * beam * mix(0.42, 0.3, warm)) * (1.0 - smoothstep(0.08, 0.62, reach));
+      thick *= 1.0 - (smoothstep(0.38, 0.72, rays) * mix(0.46, 0.26, warm) + beam * beam * mix(0.42, 0.3, warm)) * ${WING.texture.toFixed(2)} * (1.0 - smoothstep(0.08, 0.62, reach));
     }
     /* The strokes stay in the glass, as fine striations you find when you look closely. */
-    thick *= 1.0 + ((cover - 0.7) * 0.2 + (dice.y - 0.5) * 0.24) * smoothstep(0.12, 0.5, along);
+    thick *= 1.0 + ((cover - 0.7) * 0.2 + (dice.y - 0.5) * 0.24) * ${WING.texture.toFixed(2)} * smoothstep(0.12, 0.5, along);
     /* A wing turned away from us has a longer way through it, so its colour deepens as it beats, though only by a little, or
        the whole wing would pump where it should glint. */
     thick *= mix(1.0, min(1.0 / max(vLit.z, 0.2), 1.6), mix(0.35, 0.5, near)) * mix(1.0, 1.12, near);
@@ -1384,18 +1452,18 @@
     /* a dark page gives no light to speak of, and there it is the wing's own that we see */
     float landDeep = 1.0 + (1.0 - max(gets, uDark * 0.55)) * smoothstep(0.12, 0.45, along);
 
-    vec3 far = vivid(mix(deep, sheen, 0.2), 1.4);
+    vec3 far = vivid(mix(deep, sheen, 0.2), ${(1 + 0.4 * (1 - WING.mono)).toFixed(3)});
     /* A far wing takes little of its depth from the land, or red glass over green hills would go brown. */
-    vec3 c = stain(thick * mix(1.0, landDeep, mix(mix(0.6, 0.25, isFore), 1.0, near)), glow, light, body, far, vivid(mix(deep, sheen, 0.5), 1.5), mix(1.0, 0.4, warm));
+    vec3 c = stain(thick * mix(1.0, landDeep, mix(mix(0.6, 0.25, isFore), 1.0, near)), glow, light, body, far, vivid(mix(deep, sheen, 0.5), ${(1 + 0.5 * (1 - WING.mono)).toFixed(3)}), mix(1.0, 0.4, warm));
     /* the core of the light, where the glass has almost no colour */
     c = mix(c, mix(glow, vec3(1.0), 0.5), (1.0 - smoothstep(0.0, 0.2, thick)) * 0.7);
 
     /* The body does not stop at its edge. Its colour runs out along the strokes, each a length of its own, which is what joins
        the wings through the middle. */
-    float runsOut = 0.1 + 0.46 * dice.x * dice.x;
-    c = mix(c, ink(6), (1.0 - smoothstep(0.03, runsOut, r)) * mix(0.55, 1.0, cover) * 0.85);
+    float runsOut = 0.1 + ${(0.46 * (1 - WING.mono)).toFixed(3)} * dice.x * dice.x;
+    c = mix(c, ink(6), (1.0 - smoothstep(0.03, runsOut, r)) * mix(0.55, 1.0, cover) * ${(0.85 * (1 - WING.mono * 0.5)).toFixed(3)});
 
-    c = overlay(c, grain, uGrainStrength * 0.5);
+    c = overlay(c, grain, uGrainStrength * ${(0.5 * (0.5 + 0.5 * WING.texture)).toFixed(3)});
 
     /* Bright flecks running out along the strokes: the little bubbles in hand-made glass. */
     float spot = (travelled - uClock * uFlow * 1800.0 * (0.6 + 0.8 * dice.y)) / uBeadCell + dice.z * 57.0;
@@ -1405,7 +1473,7 @@
     float radius = uBeadSize * (0.5 + 0.8 * size * size) * (isOdd ? grow : 1.0);
     float bead = 1.0 - smoothstep(radius - 0.4, radius + 0.4, length(vec2(beadAt, side)));
     bead *= step(roll.x, uBeadChance) * min(1.0, radius * 1.6);
-    c = mix(c, mix(c, vec3(1.0), 0.55), bead * 0.6);
+    c = mix(c, mix(c, vec3(1.0), 0.55), bead * ${(0.6 * WING.texture).toFixed(3)});
 
     /* Glass reflects the sky with a hard edge: a sheet of light on one side of the edge that fades away from it, sliding
        across the wing as it beats. Each pane is blown a little, so it bows the edge and shows it at a place of its own,
@@ -1425,7 +1493,7 @@
     /* And no two panes lie quite the same way, so each catches the sky at a moment of its own, all of it at once, with its
        veins for edges, and brightest against the vein on the side of the light. */
     float facet = smoothstep(0.6, 0.98, sin(beat * 2.6 + cellDice * 23.0 + kind));
-    c += mix(light, vec3(1.0), 0.45) * facet * (0.3 + 0.7 * smoothstep(-1.0, 1.0, pane * mix(-1.0, 1.0, isFore))) * smoothstep(0.22, 0.55, along) * mix(0.1, 0.2, lifts);
+    c += mix(light, vec3(1.0), 0.45) * facet * (0.3 + 0.7 * smoothstep(-1.0, 1.0, pane * mix(-1.0, 1.0, isFore))) * smoothstep(0.22, 0.55, along) * mix(0.1, 0.2, lifts) * ${WING.texture.toFixed(2)};
 
     /* The veins, in light: the glass's own colour, almost clear. They are brightest near the root, where the
        light comes from, nearly gone at the rim, and brighter as the reflection goes by. */
@@ -1440,9 +1508,9 @@
     /* The glass is a little deeper beside a vein, and in its own colour: a plain grey on a pastel turns it khaki. */
     vec3 deeper = vec3(1.0) - light;
     deeper = mix(vec3(1.0), deeper / max((deeper.r + deeper.g + deeper.b) / 3.0, 0.01), 0.75);
-    c *= vec3(1.0) - (cell * cell * 0.1 + (1.0 - smoothstep(0.4, 1.7, veinPx)) * 0.1) * smoothstep(0.2, 0.45, along) * deeper * 0.6;
+    c *= vec3(1.0) - (cell * cell * ${(0.1 * WING.texture).toFixed(3)} + (1.0 - smoothstep(0.4, 1.7, veinPx)) * ${(0.1 * WING.veins).toFixed(3)}) * smoothstep(0.2, 0.45, along) * deeper * 0.6;
     /* They fade on the way out, so that a wing is not ruled like a fan. */
-    c = mix(c, veinInk, vein * min(mix(0.5, 0.0, smoothstep(0.16, 0.72, along)) + passing * 0.2, 1.0));
+    c = mix(c, veinInk, vein * ${WING.veins.toFixed(2)} * min(mix(0.5, 0.0, smoothstep(0.16, 0.72, along)) + passing * 0.2, 1.0));
     float shrunk = min(pxPer / 80.0, 1.0);
     c += vec3(0.13) * vLit.y;
 
@@ -1761,8 +1829,8 @@
           port2.postMessage(null)
         })
 
-  /* A static mesh for one butterfly: the far wings, the near wings, the soft middle where they meet and what it carries, in the
-     order they are painted. There are no antennae and no legs, which only made it look like a bug. A wing is a grid, so that it
+  /* A static mesh for one butterfly: the far wings, the near wings, the soft middle where they meet, its two fine antennae and
+     what it carries, in the order they are painted. There are no legs, which only made it look like a bug. A wing is a grid, so that it
      can bend, and its corners are all a triangle list. */
   const buildMesh = () => {
     const out = []
@@ -1820,6 +1888,8 @@
     wing(HIND_BOX, 1, -1)
     wing(FORE_BOX, 0, -1)
     strip(-0.4, 0.24, 0.1, 2, 1, 1)
+    strip(0, 1, 1, 6, 1, 12)
+    strip(0, 1, 1, 6, -1, 12)
     // What it carries comes last, so that its own wings never hide the logo.
     strip(0, 1, 1, 5, 0, 18)
     strip(-1.2, 1.2, 1.2, 4, 0, 1)
