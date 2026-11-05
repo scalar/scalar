@@ -4,12 +4,12 @@ WORKDIR /app
 
 ARG COMMIT_SHA=dev
 
-COPY ./main.go ./
+COPY ./go.mod ./*.go ./
 COPY ./public ./public
 
 RUN sed -i "s/__COMMIT_SHA__/${COMMIT_SHA}/" public/openapi.yaml
 
-RUN go build main.go
+RUN go build -o main .
 
 # Build distroless image
 FROM gcr.io/distroless/static-debian12
