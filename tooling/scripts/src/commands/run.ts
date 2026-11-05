@@ -38,7 +38,8 @@ run.addCommand(
 
     if (!proxyRunning) {
       servers.push({
-        command: 'cross-env CI=1 pnpm --filter proxy-scalar-com dev',
+        // Local fixtures need private targets; the dev proxy still binds only to loopback.
+        command: 'cross-env CI=1 ALLOW_PRIVATE_ADDRESSES=true pnpm --filter proxy-scalar-com dev',
         name: 'proxy-server',
         prefixColor: 'cyan',
       })

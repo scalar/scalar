@@ -248,7 +248,7 @@ func main() {
 	handler := corsMiddleware(mux)
 
 	// A proxy that can reach private networks only listens on this machine
-	server := newHTTPServer(listenAddress(config.BypassCidr, os.Getenv("PROXY_LISTEN_HOST"), port), handler)
+	server := newHTTPServer(listenAddress(os.Getenv("ENV") == "dev", os.Getenv("PROXY_LISTEN_HOST"), port), handler)
 
 	log.Println("🥤 Proxy Server listening on " + server.Addr)
 
@@ -285,18 +285,18 @@ func proxyConfigFromEnv(getenv func(string) string) ProxyConfig {
 	}
 
 	return ProxyConfig{
-		BypassCidr: dev,
+		// Private fixture access is confined to the separate Go test harness.
+		BypassCidr: false,
 		// Local test APIs often use self-signed certificates
 		AllowInsecureUpstreamTLS: dev || allowInsecureUpstreamTLS,
 		SelfHosts:                selfHosts,
 	}
 }
 
-// listenAddress returns the address to listen on. In development mode the proxy
-// can reach private networks, so it only accepts connections from this machine,
-// unless a host is set explicitly (for example 0.0.0.0 inside a container).
+// listenAddress keeps development servers on loopback. Explicit hosts only
+// apply outside development mode, including container deployments.
 func listenAddress(dev bool, host string, port string) string {
-	if host == "" && dev {
+	if dev {
 		host = "127.0.0.1"
 	}
 
