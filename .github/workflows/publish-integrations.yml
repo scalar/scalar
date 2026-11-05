@@ -205,6 +205,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -251,9 +252,15 @@ jobs:
           dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
+      - name: Log in to NuGet
+        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        id: nuget-login
+        with:
+          user: hanspagel
+
       - name: Publish packages
         working-directory: integrations/dotnet/aspnetcore
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
 
   aspire-publish:
     if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
@@ -265,6 +272,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -348,9 +356,15 @@ jobs:
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
+      - name: Log in to NuGet
+        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        id: nuget-login
+        with:
+          user: hanspagel
+
       - name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
 
   azure-functions-publish:
     if: inputs.published == 'true' && inputs.azure_functions_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
@@ -363,6 +377,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -406,9 +421,15 @@ jobs:
         working-directory: integrations/dotnet/azure-functions
         run: dotnet pack src/Scalar.Azure.Functions -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
+      - name: Log in to NuGet
+        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        id: nuget-login
+        with:
+          user: hanspagel
+
       - name: Publish package
         working-directory: integrations/dotnet/azure-functions
-        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
 
   fastapi-publish:
     if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
