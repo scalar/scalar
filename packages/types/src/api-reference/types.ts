@@ -608,6 +608,12 @@ export type ApiReferenceTranslations = {
     shareTitle: string
     shareDescription: string
     uploadDocument: string
+    confirmShareTitle?: string
+    confirmShareDescription?: string
+    confirmShareAccess?: string
+    confirmShareWarning?: string
+    cancelShare?: string
+    confirmShare?: string
     temporaryLinkExpiration: string
     deployOnScalar: string
     deployFree: string
@@ -716,7 +722,7 @@ export type ApiReferenceTranslations = {
  * For example, `{ search: { label: string } }` becomes `'search.label'`.
  */
 type TranslationDotPaths<T, Prefix extends string = ''> = {
-  [Key in keyof T & string]: T[Key] extends string
+  [Key in keyof T & string]: NonNullable<T[Key]> extends string
     ? `${Prefix}${Key}`
     : T[Key] extends Record<string, unknown>
       ? TranslationDotPaths<T[Key], `${Prefix}${Key}.`>

@@ -37,6 +37,7 @@ import type {
 } from '@/entities/tools/search-openapi-operations'
 import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
+import { useUploadConsent } from '@/hooks/use-upload-consent'
 import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
 import { persistencePlugin } from '@/plugins/persistance'
 import { loadDocument } from '@/registry/add-documents-to-store'
@@ -90,6 +91,7 @@ type State = {
   pendingDocuments: Record<string, boolean>
   mode: ChatMode
   terms: { accepted: Ref<boolean>; accept: () => void }
+  uploadConsent: ReturnType<typeof useUploadConsent>
   addDocument: (document: { namespace: string; slug: string; removable?: boolean; tmp?: boolean }) => Promise<void>
   addDocumentAsync: (document: { namespace: string; slug: string; removable?: boolean }) => Promise<void>
   removeDocument: (document: { namespace: string; slug: string }) => void
@@ -204,6 +206,7 @@ export function createState({
   const proxyUrl = computed(() => proxyUrlRaw.value?.trim() || URLS.DEFAULT_PROXY_URL)
   const uploadedTmpDocumentUrl = ref<string>()
   const terms = useTermsAndConditions()
+  const uploadConsent = useUploadConsent()
 
   const eventBus = createWorkspaceEventBus()
   const workspaceStore = createWorkspaceStore({
@@ -396,6 +399,7 @@ export function createState({
     proxyUrlRaw,
     mode,
     terms,
+    uploadConsent,
     isLoggedIn,
     addDocument,
     addDocumentAsync,

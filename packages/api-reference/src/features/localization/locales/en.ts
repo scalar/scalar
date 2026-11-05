@@ -166,6 +166,14 @@ export const en = {
     shareDescription:
       'Upload your OpenAPI document to share your API Reference with others. As easy as pressing a button.',
     uploadDocument: 'Upload Document',
+    confirmShareTitle: 'Create a share link?',
+    confirmShareDescription:
+      'Upload this API description to Scalar. Anyone with the link can access it. It is automatically deleted after 7 days.',
+    confirmShareAccess: 'Anyone with the link can access it.',
+    confirmShareWarning:
+      'Check that the document contains no secrets or private information you are not allowed to share.',
+    cancelShare: 'Cancel',
+    confirmShare: 'Upload and create link',
     temporaryLinkExpiration: 'Your document will automatically be deleted after 7 days.',
     deployOnScalar: 'Deploy on Scalar',
     deployFree: 'Deploy your documentation for free.',

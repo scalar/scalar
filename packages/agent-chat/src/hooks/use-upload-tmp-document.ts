@@ -8,6 +8,8 @@ const SHOW_UPLOAD_SUCCESS_DELAY = 5_000 // 5 seconds
 
 export type UploadTmpDocumentState =
   | { type: 'error'; error: unknown }
+  | { type: 'awaiting-consent' }
+  | { type: 'cancelled' }
   | { type: 'uploading' }
   | { type: 'processing' }
   | { type: 'loading' }
@@ -59,8 +61,20 @@ export function useUploadTmpDocument() {
   async function uploadTempDocument(document: string, isAgent = false) {
     try {
       uploadState.value = {
-        type: 'uploading',
+        type: 'awaiting-consent',
       }
+
+      const accepted = await state.uploadConsent.request(document)
+      if (controller.signal.aborted) {
+        return
+      }
+      if (!accepted) {
+        uploadState.value = {
+          type: 'cancelled',
+        }
+        return
+      }
+      uploadState.value = { type: 'uploading' }
 
       const response = await fetch(createUrl(`/core/share/upload/apis${isAgent ? '?source=agent' : ''}`), {
         method: 'POST',

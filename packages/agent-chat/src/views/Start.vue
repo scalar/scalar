@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import Logo from '@/components/Logo.vue'
 import { URLS } from '@/consts/urls'
-import { useState } from '@/state/state'
 import PromptForm from '@/views/PromptForm.vue'
 
 const emit = defineEmits<{
   (e: 'submit'): void
   (e: 'uploadApi'): void
 }>()
-
-const { mode } = useState()
 </script>
 
 <template>
@@ -21,11 +18,7 @@ const { mode } = useState()
       @submit="emit('submit')"
       @uploadApi="emit('uploadApi')" />
     <p class="disclaimerText">
-      <template v-if="mode === 'preview'">
-        By messaging Agent Scalar your API description will be temporarily
-        uploaded to Scalar's servers. You must agree to our
-      </template>
-      <template v-else>By messaging Agent Scalar you agree to our </template>
+      By messaging Agent Scalar you agree to our
       <a
         class="disclaimerLink"
         :href="URLS.TERMS_AND_CONDITIONS"

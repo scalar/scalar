@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components/button'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarLoading } from '@scalar/components/loading'
 import { ScalarTooltip } from '@scalar/components/tooltip'
@@ -9,7 +10,7 @@ import {
   ScalarIconPlus,
   ScalarIconX,
 } from '@scalar/icons'
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
 import ActionsDropdown from '@/components/ActionsDropdown.vue'
 import ApprovalSection from '@/components/ApprovalSection.vue'
@@ -17,6 +18,7 @@ import ErrorMessageMessage from '@/components/ErrorMessage.vue'
 import FreeMessagesInfoSection from '@/components/FreeMessagesInfoSection.vue'
 import PaymentSection from '@/components/PaymentSection.vue'
 import SearchPopover from '@/components/SearchPopover.vue'
+import UploadConsent from '@/components/UploadConsent.vue'
 import UploadSection from '@/components/UploadSection.vue'
 import { AgentErrorCodes } from '@/entities/error/constants'
 import { MAX_PROMPT_SIZE } from '@/entities/prompt/constants'
@@ -103,14 +105,24 @@ const { pendingClientToolParts } = useChatPendingClientToolParts()
 
 const uploadTmpDoc = useUploadTmpDocument()
 
-const retryUpload = (): void => {
-  if (
-    uploadTmpDoc.uploadState.value?.type === 'error' &&
-    state.getActiveDocumentJson
-  ) {
-    void uploadTmpDoc.uploadTempDocument(state.getActiveDocumentJson(), true)
+const requestUpload = (): void => {
+  const document =
+    state.getActiveDocumentJson?.() ?? state.uploadConsent.document.value
+  if (document) {
+    void uploadTmpDoc.uploadTempDocument(document, true)
   }
 }
+
+const showUploadConsent = computed(
+  () => uploadTmpDoc.uploadState.value?.type === 'awaiting-consent',
+)
+
+watch(showUploadConsent, async (visible) => {
+  if (!visible) {
+    await nextTick()
+    focusPrompt()
+  }
+})
 
 function acceptTerms() {
   state.terms.accept()
@@ -128,10 +140,13 @@ const submitDisabled = computed(() => {
 
   const isPreview = state.mode === 'preview'
 
-  const termsNotAccepted = isPreview && !state.terms.accepted.value
+  const cancelled = uploadTmpDoc.uploadState.value?.type === 'cancelled'
+  const termsNotAccepted =
+    isPreview && !state.terms.accepted.value && !cancelled
   const uploadingTmpDoc =
     !!uploadTmpDoc.uploadState.value &&
-    uploadTmpDoc.uploadState.value.type !== 'done'
+    uploadTmpDoc.uploadState.value.type !== 'done' &&
+    !cancelled
   const isLoading = isPending.value
 
   return (
@@ -150,6 +165,11 @@ function handleSubmit() {
     return
   }
 
+  if (uploadTmpDoc.uploadState.value?.type === 'cancelled') {
+    requestUpload()
+    return
+  }
+
   emit('submit')
 }
 
@@ -157,12 +177,27 @@ const chatError = useChatError()
 </script>
 
 <template>
+  <UploadConsent />
   <div class="actionContainer">
+    <ScalarButton
+      v-if="
+        uploadTmpDoc.uploadState.value?.type === 'error' &&
+        state.uploadConsent.document.value
+      "
+      class="m-2"
+      variant="outlined"
+      @click="requestUpload">
+      Try upload again
+    </ScalarButton>
     <UploadSection
-      v-if="uploadTmpDoc.uploadState.value || isPending"
-      :canRetry="!!state.getActiveDocumentJson"
-      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }"
-      @retry="retryUpload" />
+      v-if="
+        (uploadTmpDoc.uploadState.value &&
+          !['cancelled', 'awaiting-consent'].includes(
+            uploadTmpDoc.uploadState.value.type,
+          )) ||
+        isPending
+      "
+      :uploadState="uploadTmpDoc.uploadState.value ?? { type: 'loading' }" />
     <ErrorMessageMessage
       v-if="chatError"
       :error="chatError" />
@@ -248,7 +283,11 @@ const chatError = useChatError()
           </template>
           <div class="sendCheckboxContinue">
             <div
-              v-if="!state.terms.accepted.value && state.mode === 'preview'"
+              v-if="
+                !state.terms.accepted.value &&
+                state.mode === 'preview' &&
+                !state.uploadConsent.document.value
+              "
               class="relative flex items-center gap-1.5">
               <input
                 id="agentTermsAgree"

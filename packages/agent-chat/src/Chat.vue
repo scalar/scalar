@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLazyApiClient } from '@scalar/api-client/modal/use-lazy-api-client'
 import { initializeWorkspaceEventHandlers } from '@scalar/api-client/v2/workspace-events'
-import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import { useAgentKeyDocuments } from '@/hooks/use-agent-key-documents'
 import { useChatScroll } from '@/hooks/use-chat-scroll'
@@ -29,7 +29,6 @@ const {
   addDocument,
   getActiveDocumentJson,
   getActiveDocumentContext,
-  terms,
 } = useState()
 
 const clientModalRef = useTemplateRef<HTMLElement>('clientModal')
@@ -75,15 +74,9 @@ onMounted(async () => {
 })
 
 const { uploadTempDocument } = useUploadTmpDocument()
-watch(
-  () => mode === 'full' || terms.accepted.value,
-  (canUpload) => {
-    if (canUpload && getActiveDocumentJson) {
-      void uploadTempDocument(getActiveDocumentJson(), true)
-    }
-  },
-  { immediate: true },
-)
+if (getActiveDocumentJson) {
+  void uploadTempDocument(getActiveDocumentJson(), true)
+}
 onBeforeUnmount(() => {
   void chat.stop()
 })
