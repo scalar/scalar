@@ -441,7 +441,7 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Serves scalar_url set to proxy root", func(t *testing.T) {
+	t.Run("Refuses scalar_url set to proxy root", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -460,16 +460,16 @@ func TestProxyBehavior(t *testing.T) {
 			t.Fatalf("Failed to read response body: %v", err)
 		}
 
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
 		}
 
-		if len(body) == 0 {
-			t.Errorf("Expected loop rejection, got %q", body)
+		if !strings.Contains(string(body), proxyTargetError) {
+			t.Errorf("Expected the self-target error, got %q", string(body))
 		}
 	})
 
-	t.Run("Rejects nested scalar_url chains pointing back to proxy", func(t *testing.T) {
+	t.Run("Refuses nested scalar_url chain pointing back to proxy", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -493,12 +493,12 @@ func TestProxyBehavior(t *testing.T) {
 			t.Fatalf("Failed to read response body: %v", err)
 		}
 
-		if resp.StatusCode != http.StatusLoopDetected {
-			t.Errorf("Expected status code %d, got %d", http.StatusLoopDetected, resp.StatusCode)
+		if resp.StatusCode != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
 		}
 
-		if string(body) != "Proxy loops are not allowed\n" {
-			t.Errorf("Expected loop rejection, got %q", body)
+		if !strings.Contains(string(body), proxyTargetError) {
+			t.Errorf("Expected the self-target error, got %q", string(body))
 		}
 	})
 
