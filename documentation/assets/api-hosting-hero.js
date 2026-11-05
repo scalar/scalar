@@ -7,9 +7,11 @@
  * 1. The land. Under the words lies a landscape after a watercolour, in hairlines: water along the top,
  *    hills and dark clumps of trees below it, a sandy meadow thinning to specks at the foot. Each line is a
  *    place across a sheet, so the fragment shader can draw any number of them for the price of one mesh.
- * 2. The butterflies. Each follows the land's flow on real wings, in 3D: a fan of pencil strokes from
- *    the root of the wing out to its margin, in the framework's colours, with the framework's mark on the
- *    forewing where a butterfly would wear an eye spot. They beat, glide, bob and bank.
+ * 2. The butterflies. Each follows the land's flow on real wings, in 3D, seen from behind and a little above, with its
+ *    wings going from nearly flat to nearly shut. The wings are glass in pastel yellow, orange or blue: pale where the light comes through at the root,
+ *    deepening outwards, with fine strokes fanning through them and a soft dab of warm colour where they gather.
+ *    They beat in bursts, climbing in hops, and glide down between them. Nothing is painted on a wing: each one carries a little planet on a fine
+ *    thread, with its framework's logo printed on it, and the planet swings a little behind it.
  * 3. Their wakes. Where a butterfly has just been, a few lines of the air it flies in show its colour, and
  *    let it go.
  *
@@ -66,211 +68,244 @@
 
   /* --- the wings ---------------------------------------------------------------------------------- */
 
-  /* Wing outlines in wing units, one being about a forewing's length. The first number of each pair is
-     along the body, forwards, and the second out along the span, starting from the root and going round
-     by the leading edge. Seen from the root they never double back, so an outline can be kept as a radius
-     for each angle, and the fragment shader can ask in one look how far a place is from the wing's edge.
-     `spot` is where the mark goes on the forewing, as along, out and radius. `scallop` is how many waves
-     the margin has and how deep they are, and `cells` how many cells it has between its veins, each as
-     [forewing, hindwing]. */
+  /* Wing outlines in wing units, one being about a forewing's length, after the butterflies in the pictures this hero is drawn
+     from: three families of blunt, rounded fans, which is what keeps them a drawing of a butterfly and not a specimen. The
+     first number of each pair is along the body, forwards, and the second out along the span, starting from the root and going
+     round by the leading edge. Seen from the root they never double back, so an outline can be kept as a radius for each angle,
+     and the fragment shader can ask in one look how far a place is from the wing's edge. `scallop` is how many waves the margin
+     has and how deep they are, and `cells` how many cells it has between its veins, each as [forewing, hindwing]. */
   const WINGS = {
-    monarch: {
+    round: {
       fore: [
-        0.02, 0.02, 0.2, 0.2, 0.38, 0.46, 0.52, 0.76, 0.58, 1, 0.52, 1.16, 0.34, 1.22, 0.12, 1.14, -0.1, 0.98, -0.28,
-        0.76, -0.38, 0.5, -0.26, 0.24, -0.03, 0.04,
+        0.027, 0.013, 0.723, 0.426, 0.834, 0.584, 0.844, 0.696, 0.813, 0.786, 0.758, 0.857, 0.682, 0.905, 0.592, 0.929,
+        0.502, 0.944, 0.421, 0.969, 0.347, 1.006, 0.269, 1.042, 0.187, 1.059, 0.102, 1.057, 0.018, 1.047, -0.063, 1.03,
+        -0.139, 0.992, -0.202, 0.913, -0.239, 0.781, -0.231, 0.586, -0.013, 0.027,
       ],
       hind: [
-        -0.03, 0.04, -0.14, 0.26, -0.3, 0.48, -0.5, 0.58, -0.68, 0.56, -0.8, 0.44, -0.84, 0.26, -0.74, 0.12, -0.5, 0.05,
-        -0.22, 0.012,
+        -0.008, 0.029, -0.168, 0.446, -0.267, 0.568, -0.352, 0.615, -0.43, 0.628, -0.508, 0.627, -0.584, 0.613, -0.65,
+        0.581, -0.703, 0.534, -0.751, 0.48, -0.802, 0.426, -0.854, 0.369, -0.89, 0.303, -0.899, 0.228, -0.883, 0.149,
+        -0.854, 0.075, -0.814, 0.006, -0.751, -0.055, -0.644, -0.1, -0.472, -0.112, -0.029, -0.009,
       ],
-      spot: [0.14, 0.74, 0.135],
-      scallop: [0, 0, 7, 0.025],
+      scallop: [0, 0, 0, 0],
+      cells: [7, 7],
+    },
+    broad: {
+      fore: [
+        0.027, 0.013, 0.749, 0.445, 0.842, 0.598, 0.844, 0.711, 0.808, 0.803, 0.744, 0.872, 0.662, 0.918, 0.575, 0.954,
+        0.495, 0.997, 0.419, 1.052, 0.337, 1.104, 0.247, 1.133, 0.152, 1.138, 0.057, 1.131, -0.035, 1.121, -0.125, 1.1,
+        -0.207, 1.048, -0.272, 0.956, -0.31, 0.826, -0.304, 0.643, -0.015, 0.026,
+      ],
+      hind: [
+        -0.007, 0.029, -0.176, 0.521, -0.283, 0.654, -0.383, 0.717, -0.478, 0.742, -0.561, 0.732, -0.626, 0.69, -0.673,
+        0.63, -0.718, 0.569, -0.77, 0.513, -0.826, 0.458, -0.874, 0.395, -0.909, 0.324, -0.935, 0.249, -0.959, 0.172,
+        -0.971, 0.094, -0.951, 0.013, -0.88, -0.06, -0.756, -0.114, -0.567, -0.134, -0.029, -0.009,
+      ],
+      scallop: [0, 0, 0, 0],
       cells: [8, 7],
     },
-    swallowtail: {
+    slim: {
       fore: [
-        0.02, 0.02, 0.22, 0.26, 0.42, 0.6, 0.58, 0.96, 0.62, 1.22, 0.5, 1.32, 0.3, 1.2, 0.08, 1.02, -0.14, 0.82, -0.3,
-        0.6, -0.32, 0.36, -0.2, 0.18, -0.03, 0.04,
+        0.026, 0.014, 0.756, 0.472, 0.872, 0.633, 0.88, 0.738, 0.851, 0.822, 0.811, 0.9, 0.756, 0.968, 0.685, 1.015,
+        0.605, 1.047, 0.526, 1.078, 0.449, 1.112, 0.37, 1.14, 0.285, 1.142, 0.196, 1.112, 0.112, 1.065, 0.036, 1.017,
+        -0.034, 0.963, -0.093, 0.886, -0.135, 0.764, -0.143, 0.575, -0.009, 0.029,
       ],
       hind: [
-        -0.03, 0.04, -0.12, 0.26, -0.26, 0.48, -0.44, 0.58, -0.62, 0.56, -0.76, 0.52, -1.06, 0.5, -1.14, 0.4, -0.86,
-        0.3, -0.8, 0.2, -0.68, 0.1, -0.46, 0.04, -0.2, 0.012,
+        -0.01, 0.028, -0.174, 0.386, -0.271, 0.497, -0.358, 0.553, -0.436, 0.575, -0.5, 0.565, -0.549, 0.534, -0.591,
+        0.494, -0.638, 0.456, -0.688, 0.418, -0.733, 0.373, -0.765, 0.32, -0.785, 0.261, -0.802, 0.201, -0.811, 0.14,
+        -0.801, 0.077, -0.757, 0.016, -0.677, -0.037, -0.568, -0.074, -0.417, -0.086, -0.029, -0.008,
       ],
-      spot: [0.18, 0.8, 0.13],
-      scallop: [0, 0, 6, 0.04],
-      cells: [9, 6],
-    },
-    morpho: {
-      fore: [
-        0.02, 0.02, 0.26, 0.2, 0.48, 0.44, 0.64, 0.74, 0.7, 0.98, 0.62, 1.14, 0.42, 1.2, 0.18, 1.14, -0.08, 1, -0.3,
-        0.8, -0.42, 0.54, -0.3, 0.26, -0.03, 0.04,
-      ],
-      hind: [
-        -0.03, 0.04, -0.16, 0.32, -0.34, 0.56, -0.56, 0.68, -0.78, 0.62, -0.92, 0.48, -0.94, 0.28, -0.8, 0.12, -0.54,
-        0.05, -0.24, 0.012,
-      ],
-      spot: [0.18, 0.74, 0.14],
-      scallop: [0, 0, 8, 0.018],
-      cells: [9, 8],
-    },
-    brimstone: {
-      fore: [
-        0.02, 0.02, 0.2, 0.24, 0.4, 0.54, 0.58, 0.88, 0.7, 1.22, 0.46, 1.16, 0.2, 1.06, -0.04, 0.92, -0.24, 0.72, -0.34,
-        0.48, -0.22, 0.22, -0.03, 0.04,
-      ],
-      hind: [
-        -0.03, 0.04, -0.12, 0.28, -0.28, 0.5, -0.44, 0.6, -0.58, 0.72, -0.66, 0.54, -0.78, 0.4, -0.8, 0.24, -0.68, 0.1,
-        -0.46, 0.04, -0.2, 0.012,
-      ],
-      spot: [0.16, 0.74, 0.135],
       scallop: [0, 0, 0, 0],
-      cells: [7, 6],
-    },
-    longwing: {
-      fore: [
-        0.02, 0.02, 0.18, 0.3, 0.32, 0.66, 0.42, 1.04, 0.44, 1.3, 0.34, 1.4, 0.18, 1.3, 0, 1.08, -0.14, 0.82, -0.22,
-        0.54, -0.16, 0.26, -0.03, 0.04,
-      ],
-      hind: [
-        -0.03, 0.04, -0.1, 0.24, -0.22, 0.42, -0.36, 0.5, -0.5, 0.46, -0.6, 0.34, -0.6, 0.2, -0.5, 0.09, -0.32, 0.04,
-        -0.15, 0.012,
-      ],
-      spot: [0.12, 0.88, 0.12],
-      scallop: [0, 0, 5, 0.02],
-      cells: [6, 5],
-    },
-    blue: {
-      fore: [
-        0.02, 0.02, 0.22, 0.2, 0.42, 0.44, 0.54, 0.7, 0.56, 0.92, 0.42, 1.04, 0.2, 1.04, -0.02, 0.94, -0.22, 0.76,
-        -0.32, 0.52, -0.24, 0.26, -0.03, 0.04,
-      ],
-      hind: [
-        -0.03, 0.04, -0.12, 0.24, -0.26, 0.44, -0.44, 0.54, -0.62, 0.52, -0.74, 0.4, -0.76, 0.24, -0.66, 0.1, -0.44,
-        0.04, -0.2, 0.012,
-      ],
-      spot: [0.13, 0.66, 0.14],
-      scallop: [0, 0, 7, 0.03],
-      cells: [7, 7],
+      cells: [6, 6],
     },
   }
   const WING_NAMES = Object.keys(WINGS)
-  const SPOTS = new Float32Array(WING_NAMES.flatMap((name) => [...WINGS[name].spot, 0]))
+  /* How many radii an outline is kept as. Steep edges want a lot of them. */
+  const SHAPE_WIDTH = 1024
   const CELLS = new Float32Array(WING_NAMES.flatMap((name) => [...WINGS[name].cells, 0, 0]))
 
   /* The angles a wing can reach, measured from the span towards the head, in radians. */
-  const FORE_RANGE = [(-62 * Math.PI) / 180, (62 * Math.PI) / 180]
-  const HIND_RANGE = [(-90 * Math.PI) / 180, (-4 * Math.PI) / 180]
+  const FORE_RANGE = [(-62 * Math.PI) / 180, (72 * Math.PI) / 180]
+  const HIND_RANGE = [(-115 * Math.PI) / 180, (-4 * Math.PI) / 180]
 
   /* The wing's box, where the mesh is laid: [from, to] along the body and out along the span. */
-  const FORE_BOX = [-0.5, 0.76, 0, 1.44]
-  const HIND_BOX = [-1.2, 0.02, 0, 0.8]
+  const FORE_BOX = [-0.6, 1.2, 0, 1.26]
+  const HIND_BOX = [-1.02, 0.02, -0.3, 0.98]
 
-  /* Each framework's species: its wing and its inks, in order: `deep` for the strongest strokes and near
-     the root, `body` for most of the wing, `light` and `blush` for the paler patches, `tip` for the dashes
-     at the margin, `pencil` for the outline, `thorax` for the body. Hono's are the reference's, with
-     orange strokes and blue tips, and the others take the same scheme to their own brand. Every ink is a full
-     colour, `light` and `blush` included: a wing is colour all the way to its edge, with no white to speak of.
-     The black ones have no brand colour to take, so their tips are a colour chosen to tell them apart. */
+  /* Each framework's species: its wing, the pastel its wings are painted in, which is whichever its planet stands out from
+     best, and the inks of the planet it carries, in order: `deep`, `body`, `light`, `glow`, `sheen`, `rim` and `thorax`. `holes` are the fills a logo leaves
+     open, `without` a part of a logo that is left out, and `bold` how much a thin logo is thickened, in pixels of its cell.
+     `crop` is the square of the logo that a mark shows, as left, top and size in the logo's own units, measured
+     off each logo's ink so that its longest side is 90% of the mark and they all look the same size, except those that
+     are wide already. `sign` is the same for a logo that is a disc with its sign cut out of it, where the mark is the
+     sign alone. */
   const SPECIES = [
     {
       slug: 'hono',
       name: 'Hono',
-      wing: 'monarch',
-      inks: ['#e23d00', '#ff5a00', '#ff8c1a', '#ffb300', '#2f5fe8', '#c9400d', '#0f6f86'],
+      wing: 'round',
+      pastel: 'blue',
+      crop: [0.89, 0.62, 22.22],
+      // the flame inside the flame
+      holes: ['#FF9758'],
+      inks: ['#e0480a', '#ff7a12', '#ffa62e', '#ffe9a8', '#ff4f9a', '#fff1d6', '#7a4a1e'],
     },
     {
       slug: 'nestjs',
       name: 'NestJS',
-      wing: 'swallowtail',
-      inks: ['#a8002c', '#e8114b', '#ff3d6e', '#ff6a3d', '#2a0a2e', '#a80f35', '#241827'],
+      wing: 'broad',
+      pastel: 'yellow',
+      crop: [0.89, 0.89, 22.22],
+      inks: ['#c4124f', '#f0385f', '#ff7a7a', '#ffe3b0', '#a45cff', '#ffe6ea', '#8a4032'],
     },
     {
       slug: 'elysia',
       name: 'Elysia',
-      wing: 'morpho',
-      inks: ['#5a1fe0', '#8a3dff', '#c04dff', '#ff4fc4', '#14a8ff', '#5a22cc', '#33206e'],
+      wing: 'round',
+      pastel: 'orange',
+      crop: [-0.58, 1.08, 19.82],
+      // the fox, without the dark disc it sits in, and its eye and the far side of its tail left open so it reads
+      // as a fox and not a blob
+      holes: ['#333', '#666', '#5E5E5E'],
+      inks: ['#5a1fe0', '#8a3dff', '#b978ff', '#f2d9ff', '#d83cff', '#f0e4ff', '#4a2a8e'],
     },
     {
       slug: 'dotnet',
       name: '.NET',
-      wing: 'monarch',
-      inks: ['#2c10b0', '#512bd4', '#6f4dff', '#9a5cff', '#00d4ff', '#2c14a8', '#1a0c5c'],
+      wing: 'round',
+      pastel: 'yellow',
+      crop: [4.27, 4.27, 15.74],
+      // the letters, without their tile
+      holes: ['#512BD4'],
+      inks: ['#2c10b0', '#512bd4', '#7f63ff', '#d8ccff', '#23c8ff', '#e6e0ff', '#2a1a6e'],
     },
     {
       slug: 'express',
       name: 'Express',
-      wing: 'swallowtail',
-      inks: ['#060606', '#141414', '#3a3a3a', '#5a5a5a', '#ffe000', '#1c1c1c', '#060606'],
-      ink: '#141414',
+      wing: 'broad',
+      pastel: 'orange',
+      crop: [0.89, 0.89, 22.22],
+      bold: 1.4,
+      inks: ['#101c5a', '#1650b0', '#1f9be0', '#bff2ff', '#7a5cff', '#dfe9ff', '#20405e'],
     },
     {
       slug: 'fastify',
       name: 'Fastify',
-      wing: 'longwing',
-      inks: ['#060606', '#141414', '#333333', '#555555', '#ff3b5c', '#1c1c1c', '#060606'],
+      wing: 'slim',
+      pastel: 'blue',
+      // the cheetah's head, without its speed lines, which at this size are all you would see
+      crop: [-0.2, 4.2, 17.4],
+      inks: ['#520a24', '#a80f36', '#e8204e', '#ffb0c0', '#ff3b5c', '#ffd6de', '#1c1c1c'],
     },
     {
       slug: 'fastapi',
       name: 'FastAPI',
-      wing: 'blue',
-      inks: ['#00665a', '#009f8e', '#00c9a7', '#4fe0b0', '#ffc800', '#00665a', '#00493f'],
-      ink: '#009688',
+      wing: 'slim',
+      pastel: 'orange',
+      // the bolt on its own
+      sign: [5.8, 5.74, 12.4],
+      inks: ['#00665a', '#009f8e', '#21d0b0', '#d8ffe8', '#b8f25a', '#e2fff4', '#0a5a4c'],
     },
     {
       slug: 'go',
       name: 'Go',
-      wing: 'brimstone',
-      inks: ['#0070a8', '#00a6e0', '#19c8f5', '#5ce0ff', '#e8195e', '#006f9c', '#00506b'],
-      ink: '#00add8',
+      wing: 'broad',
+      pastel: 'yellow',
+      crop: [0, 0.48, 24],
+      inks: ['#0077b8', '#00a6e0', '#4cd6f7', '#dff8ff', '#8a55ff', '#e4f8ff', '#a8843a'],
     },
     {
       slug: 'rust',
       name: 'Rust',
-      wing: 'morpho',
-      inks: ['#8f2c00', '#d9500f', '#f0761f', '#f79a3a', '#140c08', '#8f3a10', '#1a1a1a'],
-      ink: '#1a1a1a',
+      wing: 'round',
+      pastel: 'blue',
+      // printed a little small, so that its gear does not echo the rim of the ball
+      crop: [-0.6, -0.6, 25.2],
+      inks: ['#b32600', '#e0500a', '#f0861f', '#ffdca8', '#d9488a', '#ffe8d0', '#3a2418'],
     },
     {
       slug: 'laravel',
       name: 'Laravel',
-      wing: 'brimstone',
-      inks: ['#c00d00', '#ff2d20', '#ff5a1f', '#ff8a1f', '#ffc400', '#b81408', '#7a100a'],
+      wing: 'broad',
+      pastel: 'yellow',
+      crop: [1.44, 1.44, 21.11],
+      bold: 2,
+      inks: ['#9c0a24', '#ff2d20', '#ff6a3a', '#ffd9b0', '#ff9a1f', '#ffe3d6', '#7a100a'],
     },
     {
       slug: 'litestar',
       name: 'Litestar',
-      wing: 'blue',
-      inks: ['#d08a00', '#f5b400', '#ffcb1f', '#ffdc4a', '#1c2060', '#b37f08', '#202235'],
-      // its gold is lost on the pale clearing, so the mark goes in its navy
-      recolour: ['#EDB641', '#202235'],
+      wing: 'slim',
+      pastel: 'blue',
+      // the comet, without the small stars, which are only specks at this size, and without its ring, which round a ball
+      // makes it a coin
+      without: /<path d="(m5\.33|M16\.408)[^>]*>/g,
+      crop: [5.2, 2.6, 18.2],
+      bold: 2.4,
+      inks: ['#d08a00', '#f5b400', '#ffd23f', '#fff6c8', '#ff8a2a', '#fff8da', '#2b2a6e'],
     },
     {
       slug: 'adonis',
       name: 'AdonisJS',
-      wing: 'longwing',
-      inks: ['#3317d8', '#5a35ff', '#7f5cff', '#b44dff', '#ff3da6', '#2f1ec0', '#221680'],
-      ink: '#5a45ff',
+      wing: 'slim',
+      pastel: 'orange',
+      // the triangle on its own
+      sign: [4.35, 4.0, 15.3],
+      inks: ['#3317d8', '#5a35ff', '#8a6cff', '#e0d6ff', '#b44cff', '#ebe6ff', '#221680'],
     },
     {
       slug: 'nuxt',
       name: 'Nuxt',
-      wing: 'swallowtail',
-      inks: ['#00995a', '#00d97e', '#2df09a', '#8cf542', '#06281b', '#008a52', '#0f2b20'],
+      wing: 'broad',
+      pastel: 'yellow',
+      inks: ['#00995a', '#00d97e', '#5cf0a8', '#e6ffd8', '#d6f542', '#e8ffe6', '#0f5b3a'],
     },
     {
       slug: 'nitro',
       name: 'Nitro',
-      wing: 'morpho',
-      inks: ['#e8361f', '#ff5a36', '#ff4fc8', '#d96bff', '#1fa8ff', '#c93a22', '#7a2f7a'],
+      wing: 'round',
+      pastel: 'blue',
+      // the bolt on its own
+      sign: [5.22, 5.33, 13.33],
+      inks: ['#e8186e', '#ff3a5e', '#ff9080', '#ffeacc', '#9a55ff', '#ffe8ec', '#7a2f7a'],
     },
     {
       slug: 'nextjs',
       name: 'Next.js',
-      wing: 'brimstone',
-      inks: ['#000000', '#101010', '#2c2c2c', '#4a4a4a', '#0a84ff', '#1a1a1a', '#000000'],
-      ink: '#000000',
+      wing: 'broad',
+      pastel: 'orange',
+      // the N on its own, with the long tail of its diagonal
+      sign: [5.87, 7.35, 13.7],
+      inks: ['#080a1c', '#142a70', '#3f6cd8', '#dbe6ff', '#6f8cff', '#eef1f8', '#101012'],
     },
   ]
+
+  /* The three colours the butterflies come in, read off the pictures they are after and all as pale as the yellow. The inks
+     are in the same order as a planet's, and run from the strongest colour at the root to nearly white at the tips. The last
+     is the warm colour of its middle, which runs out along the strokes and joins the wings. `wake` is what the
+     butterfly leaves in the air, on a light page and on a dark one. */
+  const PASTELS = {
+    yellow: {
+      inks: ['#fbf1b8', '#fcf2b4', '#fcee98', '#fbe777', '#fcf4c4', '#b0a060', '#f2c46a'],
+      wake: [
+        [226, 196, 84],
+        [250, 236, 150],
+      ],
+    },
+    orange: {
+      inks: ['#fdecd8', '#fbcf9f', '#fab880', '#f9a564', '#fbd3a9', '#c48a58', '#f6c25e'],
+      wake: [
+        [236, 150, 92],
+        [250, 190, 140],
+      ],
+    },
+    blue: {
+      inks: ['#d9e6f9', '#b1cdf1', '#96bcec', '#7caee3', '#bcd3f3', '#6f8db8', '#e9bd85'],
+      wake: [
+        [112, 160, 226],
+        [160, 196, 245],
+      ],
+    },
+  }
 
   /* The frameworks people look for first go to the butterflies seen first. */
   const FIRST = ['hono', 'nestjs', 'elysia', 'dotnet', 'fastify', 'express', 'fastapi', 'go', 'rust', 'laravel']
@@ -282,10 +317,51 @@
      of 1440 by 800, speed is CSS pixels a second, and a lane is a place across the air, 0 at its top and 1 at
      its foot. */
   const LAYERS = [
-    { size: 40, speed: 30, rate: 3.4, seed: 0.13, lanes: [0.12, 0.62, 0.34, 0.86] },
-    { size: 64, speed: 44, rate: 2.7, seed: 0.46, lanes: [0.3, 0.74, 0.52, 0.9] },
-    { size: 98, speed: 62, rate: 2.1, seed: 0.79, lanes: [0.62, 0.44, 0.7] },
+    { size: 44, speed: 66, rate: 3.6, seed: 0.13, lanes: [0.2, 0.62, 0.42] },
+    { size: 64, speed: 74, rate: 3.3, seed: 0.46, lanes: [0.34, 0.8, 0.58] },
+    { size: 90, speed: 84, rate: 3, seed: 0.79, lanes: [0.7, 0.45, 0.82] },
   ]
+
+  /* How they fly. They are seen from behind and a little above, going up the page and to the right, and the wings go from
+     nearly flat to nearly shut, so the shape is never the same twice: two wide lobes, then a sliver of a V. A butterfly beats
+     in bursts and glides between them, and it goes up in hops while it beats and sinks while it glides. `bursts` sets how
+     often, as the slowest rate of the burst and how much faster it may be, in radians a second. `rise` and `sink` are how
+     fast it goes up and down at a size of 64, in CSS pixels a second, `settle` how quickly its lane draws it back, `glide`
+     how much faster it goes across while gliding, and `hop` and `surge` how far each beat throws it up the page and along
+     its way, in sizes.
+
+     `slant` is where the body points on the page, up from going straight across, `spread` how much that differs from one
+     butterfly to the next, and `leans` how far it may go from there, down and up, as it climbs and sinks. `away` is how far
+     the head is turned from the viewer, and `pose` the range of how far each is rolled, which brings its left wing round to
+     face the viewer more than its right.
+
+     `open` and `shut` are the angle of the wings over the back at the two ends of a beat, and `soar` the angle they are held
+     at in a glide. Most of a beat is spent open, and they snap shut and open again: `snap` is how much of that there is, and
+     `shallow` how much less far some beats go than others. `sweep` turns the forewing and the hindwing round the root, from
+     how they are drawn to how they are held in flight. They keep out of each other's way: `room` is how close they may come,
+     in sizes, and `give` how hard they turn aside. */
+  const FLIGHT = {
+    bursts: [1, 0.8],
+    rise: 50,
+    sink: 60,
+    settle: 0.55,
+    glide: 0.2,
+    hop: 0.07,
+    surge: 0.06,
+    slant: 1.08,
+    spread: 0.3,
+    leans: [0.42, 0.24],
+    away: -0.9,
+    pose: [0.2, 0.45],
+    open: 0.14,
+    shut: 1.42,
+    soar: 0.34,
+    snap: 1.5,
+    shallow: 0.3,
+    sweep: [0.2, 0],
+    room: 1.15,
+    give: 1000,
+  }
 
   /* Under this width of stage in CSS pixels, half of the two farther depths stay home. */
   const NARROW = 520
@@ -378,15 +454,16 @@
         [1, -0.5],
         [1.6, -1.2],
       ],
+      /* It runs on under the hills, whose top edge is broken up, so that no page shows through there. */
       foot: [
-        [-1.6, 0.62],
-        [-1, 0.56],
-        [-0.55, 0.46],
-        [-0.2, 0.4],
-        [0.12, 0.36],
-        [0.45, 0.28],
-        [0.75, 0.14],
-        [1.6, -0.2],
+        [-1.6, 0.68],
+        [-1, 0.62],
+        [-0.55, 0.52],
+        [-0.2, 0.46],
+        [0.12, 0.42],
+        [0.45, 0.34],
+        [0.75, 0.2],
+        [1.6, -0.14],
       ],
       paint: [
         [0, 'pale', 0],
@@ -555,15 +632,84 @@
     pitch: 1.75,
     closest: 1.3,
     keep: 0.25,
-    fill: 0.74,
-    brick: [20, 60],
-    gap: 0.8,
+    fill: 0.76,
+    brick: [44, 130],
+    gap: 0.34,
     flow: 0.012,
     beadCell: 7,
-    beadChance: 0.28,
-    beadSize: 0.5,
-    blotch: 2.7,
-    grain: 0.9,
+    beadChance: 0.12,
+    beadSize: 0.45,
+    blotch: 2.2,
+    grain: 0.22,
+  }
+
+  /* Each framework's mark is kept as a field of distances to its edge, so that it stays sharp however small it is printed.
+     `cell` and `gutter` are its room in the atlas, `range` how far the field reaches, and `disc` the radius of a logo's disc
+     for a logo that is a disc with its sign cut out of it. */
+  const MARK = {
+    cell: 176,
+    gutter: 8,
+    range: 24,
+    disc: 9.6,
+  }
+
+  /* What a butterfly carries: a bead, a little planet with its framework's logo printed on it, hanging on a fine thread under
+     the middle of the butterfly. So the logo has a reason to be there, nothing is painted on a wing, and it is a thing you notice second. Lengths
+     are in sizes, one size being a wing unit, unless they say otherwise.
+
+     `chest` is where it is held from, as along the body and down from it, and `gap` how far below that the top of the bead
+     is, which is how long the thread is. `across` is how wide the bead is at the sizes in `sizes`, a little more
+     of a small butterfly than of a large one, so that its logo still hints at something, and `widest` the most it may be in
+     CSS pixels, so that a big window does not grow it into an app icon. `print` is how far round the ball a logo reaches from
+     its middle, in radians.
+
+     It swings as a pendulum on the legs. `gravity` is in CSS pixels a second squared, and with the distance down to the bead's
+     middle it sets how quickly the bead swings, faster under a small butterfly, as with any shorter pendulum. `damp` is how
+     quickly it settles, as a share of critical, and `calm` the swing at which it loses twice as fast, as a share of that
+     distance, so that a small swing lives on and a wide one is soon over. `takes` is how much of a shove reaches it, as when
+     another butterfly pushes this one aside. Each wing beat lifts the chest and pushes it on and the bead comes after it:
+     `follow` is how much of the push reaches it, and `spring` and `springDamp` how stiff the legs are, as a multiple of the
+     beat's rate and a share of critical. `rock` is how much harder one beat pulls than the next, as a share of gravity. That
+     comes round at half the beat's rate, close to the rate the bead likes to swing at, and is where its slow sway comes from,
+     so the sway dies away whenever the wings stop. `tilt` and `tiltMost` are how far the ball turns with its swing, as a share
+     of the swing and the most it may in radians, which is what keeps the logo upright. `turned` is the range the flock's balls
+     sit turned through, one way and the other, and `twist` how much each turns to and fro as it goes, both in radians.
+
+     `glass` is for the lens. Through the band at a window's edge a solid little ball burns a long flame that is hotter than
+     anything the wings do there, so wherever a bead or a leg comes to the glass it thins out, down to `glass[0]` of itself. It
+     goes by each pixel and not by the whole bead, so that a bead stays whole until it gets there, and does not float along
+     beside its butterfly as a ghost. How far the lens reaches into the flock is the measure: it starts `glass[2]` of that before
+     the glass and ends `glass[1]` of it inside. */
+  const HOLD = {
+    chest: [0.075, 0.045],
+    gap: 0.11,
+    across: [0.56, 0.42],
+    sizes: [37, 80],
+    widest: 35,
+    print: 0.76,
+    gravity: 1350,
+    damp: 0.14,
+    calm: 0.16,
+    takes: 0.6,
+    follow: 0.3,
+    spring: 2.4,
+    springDamp: 0.3,
+    rock: 0.03,
+    tilt: 0.55,
+    tiltMost: 0.1,
+    twist: 0.12,
+    turned: 0.46,
+    glass: [0.18, 0.34, 0.3],
+    /* What it hangs from: one fine thread, and not legs, which looked like a bug. It is worked out as a leg with two very short
+       bones and no knee to speak of, so that it stays straight and goes with the bead as it swings. `root` is how far along the
+       butterfly it starts, and `grip` the place on the bead it reaches, in radians from the top. */
+    legs: [{ root: 0.075, femur: 0.01, shin: 0.01, bend: 1, grip: 0, toe: 0, hook: 0 }],
+    /* How the curve along it is drawn, and how far along it the part that goes round the bead starts. */
+    tight: 7,
+    foot: 0.8,
+    /* Half the width of the thread, in CSS pixels, at its top and at its foot, and how much wider it is on a dark page. */
+    wide: [0.42, 0.34],
+    widerInDark: 0.08,
   }
 
   /** The wake: the grid the air's colour is kept on, and how quickly it lets go, a second. */
@@ -576,7 +722,9 @@
    * which joins the untouched middle smoothly and magnifies by e^b at the edge. `band` is how much of the
    * half-width or half-height that is, and `bandMost` the most it may be in CSS pixels, so a wide window
    * does not grow a wide band. The foot of the hero has no band: it is not an edge of the screen, and the
-   * page carries on under it. `round` is how round the lens's corners are, as the power of a superellipse.
+   * page carries on under it. `round` is how round the lens's corners are, as the power of a superellipse. `halo` is the
+   * soft light glass gives off onto the land around it: which mip it comes from at one pixel to the CSS pixel, and how
+   * strong it is.
    */
   const LENS = {
     in: 0.72,
@@ -587,6 +735,7 @@
     band: [0.3, 0.3],
     bandMost: [170, 62],
     round: 6,
+    halo: [2.6, 0.34],
   }
 
   /* The planets' grain tile, --lp-grain in the home page's styles. */
@@ -687,6 +836,14 @@
     return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
   }
   void main() {
+    /* The air is only seen where a butterfly has been, and everywhere else this is all it costs. */
+    vec4 dye = vec4(0.0);
+    if (uRow < 0.0) {
+      dye = texture(uDye, vDye);
+      if (dye.a < 0.004) {
+        discard;
+      }
+    }
     vec2 css = vec2(gl_FragCoord.x, uCanvas.y * uPixels - gl_FragCoord.y) / uPixels;
     float grain = texture(uGrain, gl_FragCoord.xy / uTile).r;
 
@@ -716,7 +873,6 @@
     vec4 band = uRow >= 0.0 ? texture(uPaint, vec2(clamp(t, 0.0, 1.0), uRow)) : vec4(0.0);
 
     /* The air is only seen where a butterfly has been: a few of its lines hold the colour for a while. */
-    vec4 dye = uRow < 0.0 ? texture(uDye, vDye) : vec4(0.0);
     float dyed = clamp(dye.a * 1.5, 0.0, 1.0) * step(dice.w, 0.42);
     vec3 paint = mix(band.rgb, dye.rgb / max(dye.a, 0.004), dyed);
     float body = max(band.a, dyed);
@@ -788,14 +944,51 @@
   layout(location = 5) in vec4 iFlap;
   layout(location = 6) in vec4 iWho;
   layout(location = 7) in float iShow;
+  layout(location = 8) in vec4 iHold;
+  layout(location = 9) in vec3 iTurn;
   uniform vec2 uCanvas;
   uniform vec4 uLight;
+  uniform float uDark;
+  uniform float uPixels;
   out vec2 vW;
   out vec3 vLit;
   flat out vec4 vKind;
   flat out vec4 vWho;
   flat out vec3 vMark;
+  const float LEG_ROOT[${HOLD.legs.length}] = float[${HOLD.legs.length}](${HOLD.legs.map((leg) => leg.root.toFixed(3)).join(', ')});
+  const float LEG_GRIP[${HOLD.legs.length}] = float[${HOLD.legs.length}](${HOLD.legs.map((leg) => leg.grip.toFixed(3)).join(', ')});
+  const vec2 LEG_BONES[${HOLD.legs.length}] = vec2[${HOLD.legs.length}](${HOLD.legs.map((leg) => `vec2(${leg.femur.toFixed(3)}, ${leg.shin.toFixed(3)})`).join(', ')});
+  const float LEG_BEND[${HOLD.legs.length}] = float[${HOLD.legs.length}](${HOLD.legs.map((leg) => leg.bend.toFixed(1)).join(', ')});
+  const vec2 LEG_TOE[${HOLD.legs.length}] = vec2[${HOLD.legs.length}](${HOLD.legs.map((leg) => `vec2(${leg.toe.toFixed(3)}, ${leg.hook.toFixed(3)})`).join(', ')});
+  /* Where a knee goes, with both bones keeping their length: where two circles meet, one round the hip and one round the foot.
+     With the foot out of reach the leg is simply straight. */
+  vec2 kneeOf(vec2 hip, vec2 foot, vec2 bones, float bend) {
+    vec2 to = foot - hip;
+    float reach = max(length(to), 1e-4);
+    float along = (bones.x * bones.x - bones.y * bones.y + reach * reach) / (2.0 * reach);
+    float sideways = sqrt(max(bones.x * bones.x - along * along, 0.0));
+    vec2 way = to / reach;
+    return hip + way * along + vec2(-way.y, way.x) * sideways * bend;
+  }
+  /* Along a leg: a curve drawn hard towards its knee, so that it bends there and runs straight either side, which is what
+     makes this a leg and not a thread. Then a last joint round the bead. */
+  vec2 legAt(float t, vec2 hip, vec2 knee, vec2 foot, vec2 centre, float radius, float from, vec2 toe) {
+    if (t >= ${HOLD.foot.toFixed(3)}) {
+      float k = (t - ${HOLD.foot.toFixed(3)}) / ${(1 - HOLD.foot).toFixed(3)};
+      float at = from + toe.x * k;
+      return centre + vec2(sin(at), cos(at)) * radius * (0.96 - toe.y * k);
+    }
+    float s = t / ${HOLD.foot.toFixed(3)};
+    float u = 1.0 - s;
+    float pull = 2.0 * ${HOLD.tight.toFixed(1)} * u * s;
+    return (u * u * hip + pull * knee + s * s * foot) / (u * u + pull + s * s);
+  }
   void main() {
+    /* one that is hidden is put outside the picture, so none of its pixels are worked out */
+    if (iShow <= 0.0) {
+      gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
+      return;
+    }
     vec3 F = iForward;
     vec3 S = iLeft;
     vec3 U = cross(F, S);
@@ -811,6 +1004,14 @@
       float lag = kind < 0.5 ? iFlap.z : iFlap.w;
       float a = aAB.x;
       float b = aAB.y;
+      /* In flight the forewing is held out to the side and the hindwing comes up to meet it, which is what makes two wide
+         lobes when the wings are open. This turns only where the wing is, and not how it is painted. */
+      float sweep = kind < 0.5 ? ${FLIGHT.sweep[0].toFixed(2)} : ${FLIGHT.sweep[1].toFixed(2)};
+      float cs = cos(sweep);
+      float sn = sin(sweep);
+      float a0 = a;
+      a = a0 * cs - b * sn;
+      b = a0 * sn + b * cs;
       /* The wing is not a board. Its tip and its trailing edge come along after the root, by as much as
          the wing is moving, which is what makes the beat look like cloth instead of a hinge. */
       float bent = phi + lag * (0.5 * b + 0.55 * max(-a, 0.0));
@@ -818,28 +1019,49 @@
       P = a * F + b * span;
       /* the root is a little forward of the middle for a forewing, and behind it for a hindwing */
       P += F * (kind < 0.5 ? 0.03 : -0.02);
-      N = U * cos(phi) - side * S * sin(phi);
-      vec3 rigid = side * S * cos(phi) + U * sin(phi);
-      vec2 A = vec2(F.x, -F.y);
-      vec2 B = vec2(rigid.x, -rigid.y);
-      float hand = A.x * B.y - A.y * B.x >= 0.0 ? 1.0 : -1.0;
-      vMark = vec3(normalize(A + vec2(1e-4, 0.0)), hand);
+      /* the light goes by the bent wing, so that it moves across it during a beat */
+      N = U * cos(bent) - side * S * sin(bent);
+      vMark = vec3(0.0);
     } else if (kind < 2.5) {
       P = aAB.x * F + vec3(flat2, 0.0) * aAB.y;
       vMark = vec3(0.0);
-    } else {
-      /* An antenna runs up and out from the head, and its club is a little wider than the rest. */
+    } else if (kind > 4.5) {
+      /* The thread, in the plane of the page, from under the middle of the butterfly down to the bead. Its foot goes with the
+         bead as it swings. */
       float t = aAB.x;
-      vec3 c = F * (0.17 + 0.36 * t) + side * S * (0.012 + 0.2 * t * t) + U * (0.02 + 0.14 * t);
-      float wide = mix(0.002, 0.012, smoothstep(0.82, 1.0, t)) + 0.42 / iPlace.w;
-      P = c + vec3(flat2, 0.0) * aAB.y * wide;
+      int leg = int(aPart.y + 0.5);
+      float grip = LEG_GRIP[leg] - iHold.w;
+      vec2 hip = F.xy * LEG_ROOT[leg] + flat2 * 0.028;
+      vec2 foot = iHold.xy + vec2(sin(grip), cos(grip)) * iHold.z * 0.96;
+      /* A smaller butterfly's ball is larger for its size and hangs lower, and its legs are longer in step. */
+      vec2 bones = LEG_BONES[leg] * (${HOLD.gap.toFixed(3)} + iHold.z) / ${(HOLD.gap + HOLD.across[1] / 2).toFixed(3)};
+      vec2 knee = kneeOf(hip, foot, bones, LEG_BEND[leg]);
+      vec2 c = legAt(t, hip, knee, foot, iHold.xy, iHold.z, grip, LEG_TOE[leg]);
+      vec2 along = legAt(min(t + 0.02, 1.0), hip, knee, foot, iHold.xy, iHold.z, grip, LEG_TOE[leg]) -
+        legAt(max(t - 0.02, 0.0), hip, knee, foot, iHold.xy, iHold.z, grip, LEG_TOE[leg]);
+      /* A dark page has bright lines all over its land, and a leg as fine as on a light page gets lost among them. */
+      float wide = (1.0 + ${HOLD.widerInDark.toFixed(2)} * uDark) * mix(${HOLD.wide[0].toFixed(2)} * clamp(iPlace.w / ${HOLD.sizes[1].toFixed(1)}, 0.6, 1.0), ${HOLD.wide[1].toFixed(2)}, t);
+      /* Thinner than a pixel, a strip falls between the pixels' middles and the leg breaks into dashes, as it would on any
+         screen with one pixel to the CSS pixel. So the strip is always wide enough to touch every pixel the line does, and
+         how much each pixel shows is how much of it the line covers: a thin line is paler and never broken. */
+      float truePx = wide * uPixels;
+      float stripPx = max(truePx, 0.5) + 0.75;
+      P = vec3(c + vec2(-along.y, along.x) / max(length(along), 1e-5) * aAB.y * stripPx / uPixels / iPlace.w, 0.0);
+      vLit = vec3(truePx, stripPx, 0.0);
       vMark = vec3(0.0);
+    } else {
+      /* The bead faces the page, a disc that its shading makes round. */
+      P = vec3(iHold.xy + aAB * iHold.z, 0.0);
+      vMark = vec3(iHold.w, iTurn.xy);
     }
-    float lit = dot(N, uLight.xyz);
-    float h = pow(abs(dot(N, normalize(uLight.xyz + vec3(0.0, 0.0, 1.0)))), 24.0);
-    vLit = vec3(lit, h, N.z < 0.0 ? 1.0 : 0.0);
-    vKind = vec4(kind, iWho.y, aPart.y, 0.0);
-    vWho = vec4(iPlace.w, iWho.z, iShow, iWho.x);
+    if (kind < 4.5) {
+      float lit = dot(N, uLight.xyz);
+      float h = pow(abs(dot(N, normalize(uLight.xyz + vec3(0.0, 0.0, 1.0)))), 24.0);
+      vLit = vec3(lit, h, abs(N.z));
+    }
+    /* The last place is the bead's radius in CSS pixels. */
+    vKind = vec4(kind, iWho.y, aPart.y, iHold.z * iPlace.w);
+    vWho = vec4(iPlace.w, iWho.z, iShow * (kind > 3.5 ? iTurn.z : 1.0), iWho.x);
 
     /* In homogeneous form, so the GPU interpolates the wing's own place with perspective. */
     float w = (iPlace.z - P.z) / iPlace.z;
@@ -858,16 +1080,18 @@
   uniform sampler2D uShapes;
   uniform sampler2D uInks;
   uniform sampler2D uMarks;
-  uniform vec4 uSpots[${WING_NAMES.length}];
+  uniform sampler2D uLand;
+  uniform vec3 uLandLook;
+  uniform float uPixels;
   uniform vec4 uCells[${WING_NAMES.length}];
   uniform vec2 uForeRange;
   uniform vec2 uHindRange;
   uniform float uShapeRows;
   uniform float uMarkCols;
-  uniform float uPixels;
+  uniform float uMarkInset;
+  uniform float uMarkRange;
   uniform float uTile;
   uniform float uClock;
-  uniform float uDark;
   uniform float uFan;
   uniform float uPitch;
   uniform float uClosest;
@@ -881,6 +1105,8 @@
   uniform float uBeadSize;
   uniform float uBlotch;
   uniform float uGrainStrength;
+  uniform float uDark;
+  uniform vec3 uBeadGlass;
   out vec4 outColor;
   const float FINEST = 8.0;
   ${DICE}
@@ -895,47 +1121,133 @@
     f = f * f * (3.0 - 2.0 * f);
     return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
   }
+  int inkRow = 0;
   vec3 ink(int which) {
-    return texelFetch(uInks, ivec2(which, int(vWho.w)), 0).rgb;
+    return texelFetch(uInks, ivec2(which, inkRow), 0).rgb;
   }
   vec3 overlay(vec3 c, float g, float strength) {
     vec3 o = mix(2.0 * c * g, 1.0 - 2.0 * (1.0 - c) * (1.0 - g), step(0.5, c));
     return mix(c, o, strength);
   }
+  /* How much of a bead or a leg is left at this place in the flock: all of it, until the lens is about to take it. */
+  float beforeGlass() {
+    float into = abs(gl_FragCoord.x - uBeadGlass.x) - uBeadGlass.y;
+    return mix(1.0, ${HOLD.glass[0].toFixed(2)}, smoothstep(-uBeadGlass.z * ${HOLD.glass[2].toFixed(2)}, uBeadGlass.z * ${HOLD.glass[1].toFixed(2)}, into));
+  }
+  /* The colour of the glass for how much of it the light has come through: its pale glow, then its own colours one after
+     another, and past the deepest of them on towards one further colour, so that the far end of a long wing is still
+     changing. The last number is how much it darkens on the way, because a red that only darkens stops being glass and
+     goes to lacquer. */
+  vec3 stain(float t, vec3 glow, vec3 light, vec3 body, vec3 deep, vec3 beyond, float falls) {
+    vec3 c = mix(glow, light, smoothstep(0.0, 0.32, t));
+    c = mix(c, body, smoothstep(0.24, 0.62, t));
+    c = mix(c, deep, smoothstep(0.52, 1.25, t));
+    c = mix(c, beyond, smoothstep(1.1, 2.4, t));
+    return pow(c, vec3(1.0 + falls * (1.0 - exp(-max(t - 0.6, 0.0) * 1.2)) * smoothstep(0.2, 0.8, max(c.r, max(c.g, c.b)))));
+  }
+  /* The same colour with its weaker channels pushed further down, which is cleaner and no darker. */
+  vec3 vivid(vec3 c, float k) {
+    float most = max(max(c.r, c.g), max(c.b, 1e-3));
+    return pow(c / most, vec3(k)) * most;
+  }
   void main() {
     float kind = vKind.x;
-    float grain = texture(uGrain, gl_FragCoord.xy / uTile).r;
-    vec3 deep = ink(0);
-    vec3 body = ink(1);
-    vec3 light = ink(2);
-    vec3 blush = ink(3);
-    vec3 tip = ink(4);
-    vec3 pencil = ink(5);
-    vec3 thorax = ink(6);
+    /* The planet is in its framework's own colours and everything else in the butterfly's pastel, a block of rows further on. */
+    inkRow = int(vWho.w) + (kind > 3.5 && kind < 4.5 ? 0 : ${SPECIES.length});
 
-    if (kind > 2.5) {
-      /* an antenna */
-      float t = abs(vW.y);
-      float a = (1.0 - smoothstep(0.35, 1.0, t)) * vWho.z;
-      outColor = vec4(thorax * a, a);
+    if (kind > 4.5) {
+      /* A leg, with its edge worked out from how much of each pixel the line covers. On a dark page it is lit, or the bead
+         would seem to float. */
+      float a = min(clamp(vLit.x + 0.5 - abs(vW.y) * vLit.y, 0.0, 1.0), 2.0 * vLit.x) * vWho.z * beforeGlass();
+      outColor = vec4(ink(5) * a, a);
+      return;
+    }
+    if (kind > 3.5) {
+      /* The bead: a little planet in the site's own recipe, grainy and with no outline, but lit from above like everything
+         else here, so that it reads as a round thing with some weight to it and not as a badge. */
+      vec2 p = vW;
+      float r = length(p);
+      float cover = clamp((1.0 - r) / max(fwidth(r), 1e-4) + 0.5, 0.0, 1.0);
+      if (cover <= 0.0) {
+        discard;
+      }
+      float flatR = min(r, 1.0);
+      vec3 n = vec3(p / max(r, 1e-4) * flatR, sqrt(max(1.0 - flatR * flatR, 0.0)));
+
+      /* The surface, turned by how far the bead has swung, and a little away from dead centre, as a planet would be: a thing
+         printed dead centre on a disc is a badge. The print and the grain stay on the surface. */
+      float ct = cos(vMark.x);
+      float st = sin(vMark.x);
+      float cy = cos(vMark.y);
+      float sy = sin(vMark.y);
+      vec2 tilted = vec2(ct * n.x + st * n.y, ct * n.y - st * n.x);
+      vec3 on = vec3(cy * tilted.x - sy * n.z, tilted.y, sy * tilted.x + cy * n.z);
+      on = vec3(on.x, 0.994 * on.y + 0.11 * on.z, 0.994 * on.z - 0.11 * on.y);
+
+      vec3 deep = ink(0);
+      vec3 body = ink(1);
+      vec3 light = ink(2);
+      vec3 glow = ink(3);
+      vec3 sheen = ink(4);
+      vec3 pale = ink(5);
+
+      /* The planets' recipe, which is matte: a tint, a heavy grain and a soft light along the bottom, in the colour of the wing's
+         glow. Only the sun is overhead, as anyone would shade a ball, so that it has some weight to it: the top a little lighter,
+         the underside a little deeper. It is lightened and takes a little of its colour out, as the wings have by being glass, so
+         that it is never the densest thing on the butterfly. */
+      vec3 sun = normalize(vec3(-0.34, 0.8, 0.5));
+      float wrap = dot(n, sun) * 0.5 + 0.5;
+      vec3 tint = mix(mix(deep, body, 0.75), light, 0.12);
+      /* A black ball is an eight ball, and a hole in a dark page, so it comes up to the graphite of the site's dark globe. */
+      float lifted = 1.0 - smoothstep(0.03, 0.2, dot(tint, vec3(0.2126, 0.7152, 0.0722)));
+      tint = mix(tint, vec3(0.3, 0.3, 0.325), lifted);
+      vec3 c = mix(tint * 0.78, tint, smoothstep(0.2, 0.62, wrap));
+      c = mix(c, mix(tint, light, 0.3), smoothstep(0.58, 1.0, wrap));
+      float under = smoothstep(0.62, 1.0, r) * (1.0 - smoothstep(-0.8, 0.1, n.y));
+      c = mix(c, mix(glow, sheen, 0.3), under * 0.4);
+      c = mix(vec3(dot(c, vec3(0.2126, 0.7152, 0.0722))), c, 0.8);
+
+      /* The logo, printed: it takes the bead's light and grain, and it goes round with the bead. */
+      vec2 up = vec2(atan(on.x, on.z), -asin(clamp(on.y, -1.0, 1.0))) / ${HOLD.print.toFixed(3)};
+      vec2 cell2 = vec2(mod(vWho.w, uMarkCols), floor(vWho.w / uMarkCols));
+      vec2 uv = (cell2 + up * uMarkInset + 0.5) / uMarkCols;
+      vec2 kept = (cell2 + clamp(up, -1.08, 1.08) * uMarkInset + 0.5) / uMarkCols;
+      float d = (textureGrad(uMarks, kept, dFdx(uv), dFdy(uv)).r - 0.5) * uMarkRange;
+      float markAa = max(max(fwidth(up.x), fwidth(up.y)) * 0.6, 1e-4);
+      /* Towards the rim the ball turns away quickly, the atlas is read at a coarse level and the neighbouring logo comes
+         through, so nothing is printed past a logo's own cell. */
+      float filled = (1.0 - smoothstep(-markAa, markAa, d)) * (1.0 - smoothstep(1.0, 1.06, max(abs(up.x), abs(up.y))));
+      /* White on a globe of a deep colour, and near black on a bright one, as the site's yellow globe has it. */
+      float bright = step(0.6, dot(tint, vec3(0.2126, 0.7152, 0.0722)));
+      vec3 printed = mix(pale, deep * 0.66, bright);
+      c = mix(c, printed * (0.74 + 0.36 * wrap), filled * 0.76);
+
+      float grain = texture(uGrain, (on.xy * vKind.w * 1.6 + vWho.y * vec2(97.0, 53.0)) / 160.0).r;
+      c = overlay(c, grain, 0.8);
+
+      /* Almost nothing shines at rest. A glint so small it is only a point comes up as it swings, and goes again. */
+      float shine = max(dot(n, normalize(sun + vec3(vMark.x * 1.4, 0.0, 1.0))), 0.0);
+      c += vec3(0.025) * pow(shine, 7.0);
+      c += vec3(0.02 + 0.3 * vMark.z) * pow(shine, 240.0) * (0.6 + 0.8 * grain);
+      c += vec3(0.14) * lifted * uDark * smoothstep(0.93, 0.99, r);
+      /* The lens gives everything a soft glow on a dark page, which round a ball looks like a lit bulb, so it is a little dimmer
+         there to make up for that. */
+      c = min(c * (1.0 - 0.1 * uDark), vec3(1.0));
+
+      float show = cover * vWho.z * beforeGlass();
+      outColor = vec4(c * show, show);
       return;
     }
     if (kind > 1.5) {
-      /* The body: a head, a furred thorax and a tapering abdomen, in a single capsule. */
-      float a = vW.x;
-      float w = abs(vW.y);
-      float head = length(vec2(a - 0.17, w)) - 0.03;
-      float chest = length(vec2((a - 0.06) / 1.5, w)) - 0.044;
-      float t = clamp((0.0 - a) / 0.42, 0.0, 1.0);
-      float tail = length(vec2(a + t * 0.42, w)) - mix(0.036, 0.008, t);
-      float d = min(min(head, chest), tail);
-      float edge = fwidth(d);
-      float cover = (1.0 - smoothstep(-edge, edge, d));
-      float bands = 0.5 + 0.5 * sin(a * 86.0);
-      vec3 c = mix(thorax, deep, smoothstep(0.1, -0.3, a) * bands * 0.6);
-      c = mix(c, body, smoothstep(0.55, 0.8, noise(vec2(a, vW.y) * 40.0 + vWho.y * 9.0)) * 0.8);
-      c = overlay(c, grain, uGrainStrength);
-      float show = cover * vWho.z;
+      /* The body is only where the wings' strokes gather: a soft dab with no edge of its own, broken along its length, deepest
+         at its middle and going over to the colour that runs out into the wings. */
+      float along = (vW.x + 0.08) / 0.32;
+      float across = vW.y / mix(0.075, 0.03, smoothstep(0.0, 1.0, -along));
+      float d = along * along + across * across;
+      float streaks = noise(vec2(vW.x * 8.0 + vWho.y * 13.0, vW.y * 90.0));
+      float show = (1.0 - smoothstep(0.05, 1.0, d)) * mix(0.45, 0.9, streaks) * vWho.z;
+      vec3 c = mix(mix(ink(6), ink(5), 0.45), ink(6), smoothstep(0.0, 0.7, d));
+      c = overlay(c, texture(uGrain, gl_FragCoord.xy / uTile).r, uGrainStrength);
       outColor = vec4(c * show, show);
       return;
     }
@@ -945,20 +1257,48 @@
     float ang = atan(p.x, p.y);
     vec2 range = kind < 0.5 ? uForeRange : uHindRange;
     float across = (ang - range.x) / (range.y - range.x);
-    float rim = texture(uShapes, vec2(across, (vKind.y * 2.0 + (kind < 0.5 ? 0.5 : 1.5)) / uShapeRows)).r;
+    float shapeRow = (vKind.y * 2.0 + (kind < 0.5 ? 0.5 : 1.5)) / uShapeRows;
+    float rim = texture(uShapes, vec2(across, shapeRow)).r;
     float edge = rim - r;
-    float edgeWidth = max(fwidth(edge), 1e-4);
-    float inside = clamp(edge / edgeWidth + 0.5, 0.0, 1.0);
+    /* The outline's slope, taken over a little distance, because the table comes in small stairs where the outline runs
+       nearly along a ray. */
+    float rimStep = 7.0 / ${SHAPE_WIDTH}.0;
+    float rimAhead = texture(uShapes, vec2(across + 2.0 * rimStep, shapeRow)).r;
+    float rimBehind = texture(uShapes, vec2(across - 2.0 * rimStep, shapeRow)).r;
+    float rimSlope = (rimAhead - rimBehind) / (4.0 * rimStep * (range.y - range.x));
+    /* The edge against the picture's own pixels, for a clean silhouette. Its gradient goes by the angle and the radius,
+       which are smooth, because the edge's own would carry those stairs and break a steep edge into dashes. */
+    vec2 edgeSlope = rimSlope * vec2(dFdx(ang), dFdy(ang)) - vec2(dFdx(r), dFdy(r));
+    float inside = clamp(edge / max(length(edgeSlope), 1e-5) + 0.5, 0.0, 1.0);
     float pxPer = vWho.x;
     float aaAng = fwidth(ang) * r * pxPer;
-    vec4 spotIn = uSpots[int(vKind.y)];
-    vec2 q = (p - spotIn.xy) / spotIn.z;
-    vec2 spotGrad = fwidth(q);
     if (inside <= 0.0 || across < 0.0 || across > 1.0) {
       discard;
     }
+    /* How far this is from the wing's edge in CSS pixels, straight across it, which a radius is not: along the leading
+       edge a ray from the root nearly runs with the edge. It goes by the outline's slope, so a steep edge has as even a
+       line along it as any other. */
+    /* The bright line is a fine one and would show those stairs as dashes, so where the outline runs steeply it is measured
+       from an average of the outline nearby. The wing's shape stays as it is: this moves the line and not the edge. */
+    float rimSteep = smoothstep(1.5, 4.0, abs(rimSlope) / max(rim, 1e-3));
+    float rimEven = rim;
+    if (rimSteep > 0.0) {
+      float nearby = textureLod(uShapes, vec2(across + rimStep, shapeRow), 0.0).r + textureLod(uShapes, vec2(across - rimStep, shapeRow), 0.0).r;
+      rimEven = mix(rim, (rim + rimAhead + rimBehind + nearby) / 5.0, rimSteep);
+    }
+    float edgePx = (rimEven - r) / sqrt(1.0 + rimSlope * rimSlope / max(r * r, 1e-4)) * pxPer;
+    /* Both wings are in plain view from behind, so the far one is only a little lighter than the near one. */
+    float near = mix(0.7, 1.0, step(vKind.z, 0.0));
+    float isFore = 1.0 - step(0.5, kind);
 
-    float along = r / max(rim, 1e-3);
+    float grain = texture(uGrain, gl_FragCoord.xy / uTile).r;
+    vec3 deep = ink(0);
+    vec3 body = ink(1);
+    vec3 light = ink(2);
+    vec3 glow = ink(3);
+    vec3 sheen = ink(4);
+    vec3 rimInk = ink(5);
+    float along = r / max(rimEven, 1e-3);
 
     /* The strokes fan out from the root, and more of them start as the fan widens. */
     float spread = max(r * pxPer / uFan, 0.001);
@@ -979,40 +1319,9 @@
     float line = (isOdd ? floor(place) * 2.0 + 1.0 : even * 2.0) * exp2(FINEST - level - 1.0);
     vec4 dice = dice4(line);
 
-    /* The cells between the veins. The colour reaches further down the middle of one than along its veins,
-       and each cell ends a little differently from the next. */
-    float cells = kind < 0.5 ? uCells[int(vKind.y)].x : uCells[int(vKind.y)].y;
-    float cellAt = across * cells + vWho.y * 3.0;
-    float cell = abs(fract(cellAt) - 0.5) * 2.0;
-    float cellDice = hash(vec2(floor(cellAt), kind + vWho.y * 31.0));
-    float bodyEnd = mix(0.84, 0.68, cell * cell) + (cellDice - 0.5) * 0.08;
-    float tipFrom = bodyEnd + 0.012;
-    float tipTo = 0.992 - 0.02 * cell;
-
-    float strokeJitter = (dice.x - 0.5) * 0.075;
-    float inBody = 1.0 - smoothstep(bodyEnd - 0.025, bodyEnd + 0.025, along + strokeJitter);
-    float inTip = smoothstep(tipFrom - 0.015, tipFrom + 0.02, along + strokeJitter)
-      * (1.0 - smoothstep(tipTo - 0.02, tipTo + 0.01, along + strokeJitter * 0.5))
-      * (1.0 - smoothstep(0.6, 0.9, cell));
-
-    /* Blotches of other colours from the box, as a pencil leaves them. */
-    vec2 seedAt = vec2(vWho.y * 37.0, vWho.y * 91.0 + kind * 11.0);
-    float blot = noise(p * uBlotch + seedAt) * 0.62 + noise(p * uBlotch * 2.7 - seedAt) * 0.38;
-    float warm = blot + (kind < 0.5 ? 0.0 : 0.07);
-    /* Each stroke is a pencil of its own, chosen from the box by how the blotch lies here, so the colour is
-       broken as it is in the reference and not smoothly shaded. */
-    float pick = warm + (dice.y - 0.5) * 0.42 + along * 0.06;
-    vec3 paint = mix(deep, body, smoothstep(0.3, 0.38, pick));
-    paint = mix(paint, light, smoothstep(0.62, 0.68, pick));
-    paint = mix(paint, blush, smoothstep(0.74, 0.8, pick));
-    /* the root is deeper, and goes over to the body's colour */
-    paint = mix(paint, mix(deep, thorax, 0.4), (1.0 - smoothstep(0.03, 0.17, along)) * 0.82);
-
-    /* Each stroke, with a hair of the ground showing either side of it. */
-    float halfWidth = share * uFill * (0.74 + 0.4 * dice.y) * 0.5;
-    float aa = max(aaAng, 0.3);
+    float halfWidth = share * uFill * (0.88 + 0.2 * dice.y) * 0.5;
+    float aa = max(aaAng * 0.6, 0.16);
     float cover = (1.0 - smoothstep(halfWidth - aa, halfWidth + aa, side)) * min(1.0, halfWidth * 2.4);
-
     /* Each runs slowly out along the wing, in long lengths with short breaks. */
     float travelled = r * pxPer;
     float run = mix(uBrick.x, uBrick.y, dice.w) * (0.5 + 0.5 * min(pxPer / 60.0, 1.4));
@@ -1020,67 +1329,154 @@
     float runFrom = min(fract(runAt), 1.0 - fract(runAt)) * run;
     cover *= smoothstep(uGap - 0.5, uGap + 0.5, runFrom);
 
-    /* The ground the strokes are drawn on is the wing's own colour, not paper, and over it the colour under the
-       strokes, thinned by the grain so it breaks into specks. */
-    vec3 ground = mix(mix(light, blush, 0.35), mix(vec3(0.07), body, 0.5), uDark);
-    float wash = inBody * (0.5 + 0.4 * blot);
-    float dither = smoothstep(grain - 0.2, grain + 0.2, wash);
-    vec3 c = mix(ground, paint, dither * 0.62);
-    c = mix(c, paint * (0.84 + 0.32 * dice.y), cover * inBody);
+    /* The veins fan out from the root as the strokes do, and bend a little on the way. */
+    float cells = kind < 0.5 ? uCells[int(vKind.y)].x : uCells[int(vKind.y)].y;
+    float cellAt = (across + (kind < 0.5 ? 0.05 : -0.05) * r * r) * cells + vWho.y * 3.0;
+    float cell = abs(fract(cellAt) - 0.5) * 2.0;
+    float cellDice = hash(vec2(floor(cellAt), kind + vWho.y * 31.0));
 
-    /* the dashes at the margin */
-    float tipWash = smoothstep(grain - 0.25, grain + 0.25, inTip * 0.62);
-    c = mix(c, mix(ground, tip, 0.8), tipWash * 0.55);
-    c = mix(c, tip * (0.9 + 0.2 * dice.y), cover * inTip);
+    /* Where the lighter hearts of the panes end: one long sweep along a forewing's leading side, and a round end to each pane on
+       the rest of it and on a hindwing. */
+    float petals = isFore * (1.0 - smoothstep(0.34, 0.5, across)) + (1.0 - isFore);
+    float archAt = mix(mix(0.8, 0.84, smoothstep(0.5, 0.85, across)), 0.77 - cell * cell * 0.12 + (cellDice - 0.5) * 0.04, petals);
 
-    c = overlay(c, grain, uGrainStrength);
+    /* How much glass the light has come through to get here: next to none at the root, and more and more towards the
+       tip. Whatever changes the wing's colour changes this, and the colour is read off it at the end, so a ray, a heart
+       or a striation is always the glass itself, thinner or thicker, and never paler paint laid on top of it. */
+    float reach = r / (kind < 0.5 ? 1.25 : 1.0);
+    float pane = (fract(cellAt) - 0.5) * 2.0;
+    float pillow = 1.0 - cell * cell;
+    /* Warm glass holds its light further out: a blue can go very deep and stay clean, where a red that deep is only dark. */
+    float warm = smoothstep(0.0, 0.4, body.r - body.b);
+    float thick = max(reach - 0.08, 0.0) * mix(0.94, 1.36, isFore) * mix(1.0, 0.74, warm);
+    /* The trailing side of a forewing is thinner, so it stays paler. */
+    thick *= 1.0 - isFore * (1.0 - smoothstep(0.26, 0.6, across)) * smoothstep(0.15, 0.6, along) * 0.26;
+    /* Long, slow changes in the thickness, like any glass that was made by hand, and each pane was poured on its own. */
+    vec2 seedAt = vec2(vWho.y * 37.0, vWho.y * 91.0 + kind * 11.0);
+    vec2 streak = vec2(ang * 2.6, r * 0.55) * uBlotch;
+    float blot = noise(streak + seedAt) * 0.62 + noise(streak * 2.7 - seedAt) * 0.38;
+    thick *= 1.0 + ((blot - 0.5) * 0.12 + (cellDice - 0.5) * 0.1) * smoothstep(0.2, 0.6, along);
+    /* Each pane is blown a little, thinnest at its heart and thick along its veins, and the petals show it most. */
+    thick *= 1.0 + cell * cell * cell * 0.18 * smoothstep(0.1, 0.45, along);
+    thick *= 1.0 - petals * pillow * pillow * smoothstep(0.1, 0.34, along) * (1.0 - smoothstep(archAt - 0.2, archAt - 0.02, along)) * 0.3;
+    /* Light pours through the root in long beams, along the veins and between them. */
+    if (reach < 0.62) {
+      float rays = noise(vec2(ang * 17.0 + seedAt.x, kind * 5.0)) * 0.7 + noise(vec2(ang * 43.0 + seedAt.y, kind * 9.0)) * 0.3;
+      float beam = cell * cell;
+      thick *= 1.0 - (smoothstep(0.38, 0.72, rays) * mix(0.46, 0.26, warm) + beam * beam * mix(0.42, 0.3, warm)) * (1.0 - smoothstep(0.08, 0.62, reach));
+    }
+    /* The strokes stay in the glass, as fine striations you find when you look closely. */
+    thick *= 1.0 + ((cover - 0.7) * 0.2 + (dice.y - 0.5) * 0.24) * smoothstep(0.12, 0.5, along);
+    /* A wing turned away from us has a longer way through it, so its colour deepens as it beats, though only by a little, or
+       the whole wing would pump where it should glint. */
+    thick *= mix(1.0, min(1.0 / max(vLit.z, 0.2), 1.6), mix(0.35, 0.5, near)) * mix(1.0, 1.12, near);
+    /* The far forewing is the same glass with more light through it. Its hindwing is not: that anchors the butterfly, so it
+       stays deeper. */
+    thick *= mix(mix(0.82, 0.5, isFore), 1.0, near);
 
-    /* Bright beads running out along the strokes, in the wing's own colour turned up. */
+    /* The land behind the glass. It is read blurred, because its lines are closer together than the strokes and the two would
+       weave into a cloth, and what is left is the big shapes: sky, hills and sand. It is not seen through a near wing, only
+       felt: what matters is how much of it gets through this colour of glass, and less of it is the same as more glass, which
+       keeps it clean. So a wing goes deeper over the land and paler over the white page, where multiplying the two would
+       have been mud. */
+    vec3 seen = textureLod(uLand, gl_FragCoord.xy * uLandLook.xy, uLandLook.z).rgb;
+    float gets = dot(seen, body) / max(body.r + body.g + body.b, 0.05);
+    /* a dark page gives no light to speak of, and there it is the wing's own that we see */
+    float landDeep = 1.0 + (1.0 - max(gets, uDark * 0.55)) * smoothstep(0.12, 0.45, along);
+
+    vec3 far = vivid(mix(deep, sheen, 0.2), 1.4);
+    /* A far wing takes little of its depth from the land, or red glass over green hills would go brown. */
+    vec3 c = stain(thick * mix(1.0, landDeep, mix(mix(0.6, 0.25, isFore), 1.0, near)), glow, light, body, far, vivid(mix(deep, sheen, 0.5), 1.5), mix(1.0, 0.4, warm));
+    /* the core of the light, where the glass has almost no colour */
+    c = mix(c, mix(glow, vec3(1.0), 0.5), (1.0 - smoothstep(0.0, 0.2, thick)) * 0.7);
+
+    /* The body does not stop at its edge. Its colour runs out along the strokes, each a length of its own, which is what joins
+       the wings through the middle. */
+    float runsOut = 0.1 + 0.46 * dice.x * dice.x;
+    c = mix(c, ink(6), (1.0 - smoothstep(0.03, runsOut, r)) * mix(0.55, 1.0, cover) * 0.85);
+
+    c = overlay(c, grain, uGrainStrength * 0.5);
+
+    /* Bright flecks running out along the strokes: the little bubbles in hand-made glass. */
     float spot = (travelled - uClock * uFlow * 1800.0 * (0.6 + 0.8 * dice.y)) / uBeadCell + dice.z * 57.0;
     vec2 roll = dice2(vec2(line, floor(spot)));
     float beadAt = (fract(spot) - 0.2 - 0.6 * roll.y) * uBeadCell;
     float size = fract(roll.y * 7.0);
     float radius = uBeadSize * (0.5 + 0.8 * size * size) * (isOdd ? grow : 1.0);
     float bead = 1.0 - smoothstep(radius - 0.4, radius + 0.4, length(vec2(beadAt, side)));
-    bead *= step(roll.x, uBeadChance) * min(1.0, radius * 1.6) * max(inBody, inTip);
-    c = mix(c, mix(paint, vec3(1.0, 0.95, 0.8), 0.5), bead * 0.8);
+    bead *= step(roll.x, uBeadChance) * min(1.0, radius * 1.6);
+    c = mix(c, mix(c, vec3(1.0), 0.55), bead * 0.6);
 
-    /* the veins, in pencil, and the outline, a touch inside the wing's edge and not quite closed */
-    float veinWidth = 0.42;
-    float veinPx = min(fract(cellAt), 1.0 - fract(cellAt)) / cells * (range.y - range.x) * r * pxPer;
-    float vein = (1.0 - smoothstep(veinWidth - aa, veinWidth + aa, veinPx)) * smoothstep(0.1, 0.22, along) * (1.0 - smoothstep(0.86, 0.93, along));
-    c = mix(c, mix(deep, pencil, 0.3), vein * 0.32);
-    float edgePx = edge * pxPer;
-    float penAa = max(edgeWidth * pxPer, 0.25);
-    float wander = noise(vec2(ang * 22.0 + vWho.y * 41.0, kind)) * 1.1;
-    float pen = 1.0 - smoothstep(0.42 - penAa, 0.42 + penAa, abs(edgePx - 0.7 - wander));
-    pen *= smoothstep(0.08, 0.2, noise(vec2(ang * 15.0 - vWho.y * 13.0, kind + 3.0)));
-    c = mix(c, pencil, pen * 0.85);
+    /* Glass reflects the sky with a hard edge: a sheet of light on one side of the edge that fades away from it, sliding
+       across the wing as it beats. Each pane is blown a little, so it bows the edge and shows it at a place of its own,
+       and it steps at every vein. */
+    vec2 lieAlong = mix(vec2(-0.7, 0.72), vec2(0.7, 0.71), isFore);
+    float lieAt = dot(p, lieAlong);
+    float crossing = dot(p, vec2(-lieAlong.y, lieAlong.x)) * mix(-1.0, 1.0, isFore) + lieAt * lieAt * 0.22;
+    float crossingAa = max(fwidth(crossing) * 0.75, 1e-4);
+    float beat = mix(1.0 - vLit.z, vLit.x + 1.0, near);
+    float edgeAt = mix(mix(-0.24, 0.1, beat), mix(0.04, 0.5, beat), isFore);
+    float edgeOf = (crossing - edgeAt) + pane * pane * 0.012 + (cellDice - 0.5) * 0.024;
+    float sheet = (1.0 - smoothstep(-crossingAa, crossingAa, edgeOf)) * smoothstep(-0.34, 0.0, edgeOf) * smoothstep(0.3, 0.6, along);
+    /* Added light goes grey on very dark glass, and on warm glass it only goes salmon. */
+    float lifts = smoothstep(0.03, 0.3, dot(c, vec3(0.3, 0.55, 0.15)));
+    c += mix(light, vec3(1.0), 0.35) * sheet * 0.22 * lifts * mix(1.0, 0.5, warm);
 
-    /* The mark, where a butterfly wears its eye spot: a ring, a clearing of paper and the mark upright in
-       it, whichever way the wing is turned. */
-    if (kind < 0.5) {
-      float dq = length(q);
-      /* the clearing's edge is rubbed out rather than cut, so it reads as a pale place in the wing */
-      float clearing = smoothstep(grain - 0.3, grain + 0.3, (1.3 - dq) / 0.36);
-      c = mix(c, vec3(0.992, 0.984, 0.968), clearing);
-      vec2 flip = vec2(q.x, q.y * vMark.z);
-      vec2 up = vec2(vMark.x * flip.x - vMark.y * flip.y, vMark.y * flip.x + vMark.x * flip.y);
-      vec2 cell2 = vec2(mod(vWho.w, uMarkCols), floor(vWho.w / uMarkCols));
-      vec2 inCell = up / 1.06 * 0.5 + 0.5;
-      vec2 uv = (cell2 + inCell) / uMarkCols;
-      vec4 mark = textureGrad(uMarks, uv, dFdx(uv), dFdy(uv));
-      float within = step(abs(up.x), 1.06) * step(abs(up.y), 1.06);
-      c = mix(c, mark.rgb / max(mark.a, 0.004), mark.a * within);
-    }
+    /* And no two panes lie quite the same way, so each catches the sky at a moment of its own, all of it at once, with its
+       veins for edges, and brightest against the vein on the side of the light. */
+    float facet = smoothstep(0.6, 0.98, sin(beat * 2.6 + cellDice * 23.0 + kind));
+    c += mix(light, vec3(1.0), 0.45) * facet * (0.3 + 0.7 * smoothstep(-1.0, 1.0, pane * mix(-1.0, 1.0, isFore))) * smoothstep(0.22, 0.55, along) * mix(0.1, 0.2, lifts);
 
-    /* the light on it, and the underside, which is a little lighter and still all colour */
-    c = mix(c, ground, 0.16 * vLit.z);
-    /* the shade is a soft warm one, so colour in shadow does not go grey */
-    c *= mix(vec3(0.95, 0.92, 0.93), vec3(1.02), smoothstep(-0.2, 0.9, vLit.x));
-    c += vec3(0.04) * vLit.y;
+    /* The veins, in light: the glass's own colour, almost clear. They are brightest near the root, where the
+       light comes from, nearly gone at the rim, and brighter as the reflection goes by. */
+    vec3 veinInk = mix(mix(glow, light, smoothstep(0.0, 0.32, thick * 0.3)), vec3(1.0), mix(0.9, 0.3, smoothstep(0.1, 0.5, along)));
+    float veinWidth = 0.34;
+    float paneHalf = 0.5 / cells * (range.y - range.x) * r * pxPer;
+    float veinPx = min(fract(cellAt), 1.0 - fract(cellAt)) * 2.0 * paneHalf;
+    float passing = exp(-edgeOf * edgeOf * 90.0);
+    /* Far off, on a dark glass, lines of light this bright would read as a wire frame, so they ease off. */
+    float wire = mix(1.0, smoothstep(20.0, 44.0, pxPer), mix(0.3, 0.75, 1.0 - smoothstep(0.04, 0.2, dot(body, vec3(0.3, 0.55, 0.15)))));
+    float vein = (1.0 - smoothstep(veinWidth - aa, veinWidth + aa, veinPx)) * smoothstep(0.03, 0.12, along) * wire;
+    /* The glass is a little deeper beside a vein, and in its own colour: a plain grey on a pastel turns it khaki. */
+    vec3 deeper = vec3(1.0) - light;
+    deeper = mix(vec3(1.0), deeper / max((deeper.r + deeper.g + deeper.b) / 3.0, 0.01), 0.75);
+    c *= vec3(1.0) - (cell * cell * 0.1 + (1.0 - smoothstep(0.4, 1.7, veinPx)) * 0.1) * smoothstep(0.2, 0.45, along) * deeper * 0.6;
+    /* They fade on the way out, so that a wing is not ruled like a fan. */
+    c = mix(c, veinInk, vein * min(mix(0.5, 0.0, smoothstep(0.16, 0.72, along)) + passing * 0.2, 1.0));
+    float shrunk = min(pxPer / 80.0, 1.0);
+    c += vec3(0.13) * vLit.y;
 
-    float show = inside * vWho.z;
+    /* Glass turned edge on to us reflects more than it lets through. */
+    float fresnel = 1.0 - min(vLit.z, 1.0);
+    c = mix(c, mix(glow, vec3(1.0), 0.3), fresnel * fresnel * fresnel * 0.5);
+
+    /* The light that came in gathers along the edge it cannot get out of, which is the side away from it, and on the side
+       towards it the glass has a bright lip. */
+    float rimLit = smoothstep(-0.4, 0.7, dot(normalize(edgeSlope + 1e-6), vec2(0.45, -0.89)));
+    /* None of the lines round the edge comes all the way in to the root, or each wing would be a petal outlined on its own. */
+    float awayFromRoot = smoothstep(0.22, 0.62, r);
+    float lipFade = exp(-max(edgePx, 0.0) / (3.5 * shrunk)) * awayFromRoot;
+    c += light * lipFade * (1.0 - rimLit) * 0.34 * smoothstep(0.25, 0.5, along);
+    c = mix(c, mix(mix(light, vec3(1.0), 0.35), vec3(1.0), 1.0 - near), lipFade * rimLit * mix(0.3, 0.55, 1.0 - near));
+    c = mix(c, deep, (1.0 - smoothstep(0.35, 0.95, abs(edgePx - 1.75))) * 0.2 * near * awayFromRoot);
+    /* The line round the edge is bright on the side that faces the light, and away from it takes on the colour of the
+       glass, and is finer, which is also what holds the wing's shape against the white of the page. The colours come
+       apart a little on the way. */
+    vec3 rimGlass = mix(mix(sheen, deep, 0.25), rimInk, max(mix(0.3, 1.0, rimLit), 1.0 - smoothstep(0.12, 0.42, reach)));
+    vec3 fringe = (vec3(edgePx) + vec3(-0.25, 0.0, 0.25)) / mix(0.72, 1.0, rimLit);
+    vec3 rimRgb = vec3(1.0) - smoothstep(vec3(0.5), vec3(1.1), fringe);
+    rimRgb *= awayFromRoot;
+    c = mix(c, rimGlass, rimRgb * 0.62);
+    float rimLine = rimRgb.g;
+
+    /* Red and green add up to brown, so a warm far wing lets a little less of the land through. */
+    float clearness = mix(mix(0.86, mix(0.72, 0.84, warm), smoothstep(0.2, 0.7, along)), mix(0.98, 0.95, smoothstep(0.3, 0.95, along)), near);
+    /* Green hills through a pastel turn it khaki too, so it lets less of them through. */
+    clearness = mix(clearness, 1.0, 0.6);
+    /* The strokes thin out at the edge, each at a place of its own, so that the wing's edge is drawn and not cut. */
+    float strokeEnds = 0.82 + 0.16 * dice.x;
+    clearness *= 1.0 - smoothstep(strokeEnds - 0.05, strokeEnds + 0.05, along) * mix(0.42, 0.26, isFore);
+    float show = inside * vWho.z * max(clearness, rimLine * 0.62);
     outColor = vec4(min(c, vec3(1.0)) * show, show);
   }`
 
@@ -1105,6 +1501,7 @@
   uniform float uAlong;
   uniform float uSoften;
   uniform float uRound;
+  uniform vec2 uHalo;
   out vec4 o;
 
   const int TAPS = 7;
@@ -1114,9 +1511,15 @@
   }
 
   void main() {
+    /* The foot of the hero is not an edge of the screen, and the page carries on under it, so the picture fades out
+       there. Here and not as a mask in the page's styles, which would have the browser composite the whole canvas a
+       second time every frame. */
+    float foot = clamp(gl_FragCoord.y / (uRes.y * 0.1), 0.0, 1.0);
     /* the land is the same size as the screen, and no glass touches it */
     vec3 behind = texelFetch(uLand, ivec2(gl_FragCoord.xy), 0).rgb;
     vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+    /* Glass gives off a little light onto the land around it. A lower mip of the flock is a blurred copy of it already. */
+    vec4 soft = textureLod(uFlock, uvOf(px), uHalo.x);
     vec2 d = px - uCentre;
     /* How far into the band along each edge this pixel is, as the height v of the lens on /products/agent,
        and the two together as a rounded box, so the lens has no seam across its corners. */
@@ -1130,12 +1533,14 @@
        either side of the lens's edge, and draws a line across the picture there. */
     if (t <= 0.0) {
       vec4 here = textureLod(uFlock, uvOf(px), 0.0);
-      o = vec4(here.rgb + (1.0 - here.a) * behind, 1.0);
+      behind += (vec3(1.0) - behind) * (soft.a + soft.rgb * 0.5) * uHalo.y;
+      o = vec4((here.rgb + (1.0 - here.a) * behind) * foot, foot);
       return;
     }
 
     /* Where the lens takes its picture from: magnified more and more towards the edge, and joined to the
        untouched middle without a seam. */
+    behind += (vec3(1.0) - behind) * (soft.a + soft.rgb * 0.5) * uHalo.y * (1.0 - smoothstep(0.0, 0.3, t));
     float vs = uIn + (1.0 - uIn) * (1.0 - exp(-uBend * t)) / uBend;
     vec2 src = d * (vs / max(v, 1e-4));
     vec2 dir = normalize(d);
@@ -1162,34 +1567,40 @@
       acc.g += green.g + (1.0 - green.a) * behind.g;
       acc.b += blue.b + (1.0 - blue.a) * behind.b;
     }
-    o = vec4(acc / float(TAPS), 1.0);
+    o = vec4(acc / float(TAPS) * foot, foot);
   }`
 
-  const compile = (gl, type, src) => {
-    const shader = gl.createShader(type)
-    gl.shaderSource(shader, src)
-    gl.compileShader(shader)
-    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-      throw new Error(gl.getShaderInfoLog(shader) || 'compile failed')
+  /* Compiling shaders is slow, and asking how it went makes the page wait for the answer: half a second on a first
+     visit, with the page frozen. So they are sent off here, and nothing is asked until the browser says that they
+     are done. */
+  const startProgram = (gl, vert, frag) => {
+    const program = gl.createProgram()
+    for (const [type, source] of [
+      [gl.VERTEX_SHADER, vert],
+      [gl.FRAGMENT_SHADER, frag],
+    ]) {
+      const shader = gl.createShader(type)
+      gl.shaderSource(shader, source)
+      gl.compileShader(shader)
+      gl.attachShader(program, shader)
     }
-    return shader
+    gl.linkProgram(program)
+    return { program, uniforms: {} }
   }
 
-  const link = (gl, vert, frag) => {
-    const program = gl.createProgram()
-    gl.attachShader(program, compile(gl, gl.VERTEX_SHADER, vert))
-    gl.attachShader(program, compile(gl, gl.FRAGMENT_SHADER, frag))
-    gl.linkProgram(program)
-    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(program) || 'link failed')
+  const finishProgram = async (gl, built) => {
+    const parallel = gl.getExtension('KHR_parallel_shader_compile')
+    while (parallel && !gl.getProgramParameter(built.program, parallel.COMPLETION_STATUS_KHR)) {
+      await new Promise((resolve) => setTimeout(resolve, 16))
     }
-    const uniforms = {}
-    const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
+    if (!gl.getProgramParameter(built.program, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(built.program) || 'link failed')
+    }
+    const count = gl.getProgramParameter(built.program, gl.ACTIVE_UNIFORMS)
     for (let index = 0; index < count; index += 1) {
-      const name = gl.getActiveUniform(program, index).name.replace('[0]', '')
-      uniforms[name] = gl.getUniformLocation(program, name)
+      const name = gl.getActiveUniform(built.program, index).name.replace('[0]', '')
+      built.uniforms[name] = gl.getUniformLocation(built.program, name)
     }
-    return { program, uniforms }
   }
 
   /* --- shapes and paint --------------------------------------------------------------------------- */
@@ -1246,13 +1657,23 @@
       if (to - from > 1) {
         continue
       }
-      const first = Math.ceil(((from - range[0]) / (range[1] - range[0])) * (count - 1))
-      const last = Math.floor(((to - range[0]) / (range[1] - range[0])) * (count - 1))
+      // Every slot it touches, and the one either side: a piece narrower than a slot would leave a hole in a steep edge.
+      const first = Math.floor(((from - range[0]) / (range[1] - range[0])) * (count - 1))
+      const last = Math.ceil(((to - range[0]) / (range[1] - range[0])) * (count - 1))
       for (let slot = Math.max(0, first); slot <= Math.min(count - 1, last); slot += 1) {
         const angle = range[0] + (slot / (count - 1)) * (range[1] - range[0])
-        const f = to > from ? (angle - ang0) / (ang1 - ang0) : 0
+        const f = to > from ? Math.max(0, Math.min(1, (angle - ang0) / (ang1 - ang0))) : 0
         const radius = Math.hypot(a0 + (a1 - a0) * f, b0 + (b1 - b0) * f)
         radii[slot] = Math.max(radii[slot], radius)
+      }
+    }
+    // A steep edge comes out of that in small stairs, which a line along it would show as dashes, so they are sanded off.
+    for (let pass = 0; pass < 4; pass += 1) {
+      let before = radii[0]
+      for (let slot = 1; slot < count - 1; slot += 1) {
+        const here = radii[slot]
+        radii[slot] = (before + here * 2 + radii[slot + 1]) / 4
+        before = here
       }
     }
     if (waves) {
@@ -1269,6 +1690,10 @@
     return [n >> 16, (n >> 8) & 255, n & 255]
   }
 
+  /* What a butterfly leaves in the air, as [on a light page, on a dark page]: its wing's colour, or its tips' on a wing
+     that is black, whose threads would look like stray ink. */
+  const WAKES = SPECIES.map(({ pastel }) => PASTELS[pastel].wake)
+
   const loadImage = (src) =>
     new Promise((resolve) => {
       const image = new Image()
@@ -1276,6 +1701,50 @@
       image.onerror = () => resolve(null)
       image.src = src
     })
+
+  /* A square grid of squared distances, replaced by the squared distance to the nearest zero, a row at a time and
+     then a column at a time: Felzenszwalb and Huttenlocher's linear distance transform. */
+  const squaredDistances = (grid, size) => {
+    const line = new Float64Array(size)
+    const hull = new Uint16Array(size)
+    const breaks = new Float64Array(size + 1)
+    /* where the parabolas rising from q and from r cross */
+    const crossing = (q, r) => (line[q] + q * q - line[r] - r * r) / (2 * q - 2 * r)
+    const sweep = (start, stride) => {
+      for (let i = 0; i < size; i += 1) {
+        line[i] = grid[start + i * stride]
+      }
+      let k = 0
+      hull[0] = 0
+      breaks[0] = Number.NEGATIVE_INFINITY
+      breaks[1] = Number.POSITIVE_INFINITY
+      for (let q = 1; q < size; q += 1) {
+        let at = crossing(q, hull[k])
+        while (at <= breaks[k]) {
+          k -= 1
+          at = crossing(q, hull[k])
+        }
+        k += 1
+        hull[k] = q
+        breaks[k] = at
+        breaks[k + 1] = Number.POSITIVE_INFINITY
+      }
+      k = 0
+      for (let q = 0; q < size; q += 1) {
+        while (breaks[k + 1] < q) {
+          k += 1
+        }
+        const r = hull[k]
+        grid[start + q * stride] = (q - r) * (q - r) + line[r]
+      }
+    }
+    for (let x = 0; x < size; x += 1) {
+      sweep(x, size)
+    }
+    for (let y = 0; y < size; y += 1) {
+      sweep(y * size, 1)
+    }
+  }
 
   /* Hands the main thread back between pieces of a long job, as an ordinary task, so frames go first. */
   const yieldToPage = () =>
@@ -1292,8 +1761,9 @@
           port2.postMessage(null)
         })
 
-  /* A static mesh for one butterfly: the far wings, the body, the near wings and the antennae, in the order
-     they are painted. A wing is a grid, so that it can bend, and its corners are all a triangle list. */
+  /* A static mesh for one butterfly: the far wings, the near wings, the soft middle where they meet and what it carries, in the
+     order they are painted. There are no antennae and no legs, which only made it look like a bug. A wing is a grid, so that it
+     can bend, and its corners are all a triangle list. */
   const buildMesh = () => {
     const out = []
     const wing = (box, kind, side) => {
@@ -1347,11 +1817,12 @@
     }
     wing(HIND_BOX, 1, 1)
     wing(FORE_BOX, 0, 1)
-    strip(0, 1, 1, 3, 1, 10)
-    strip(-0.6, 0.28, 0.1, 2, 1, 1)
     wing(HIND_BOX, 1, -1)
     wing(FORE_BOX, 0, -1)
-    strip(0, 1, 1, 3, -1, 10)
+    strip(-0.4, 0.24, 0.1, 2, 1, 1)
+    // What it carries comes last, so that its own wings never hide the logo.
+    strip(0, 1, 1, 5, 0, 18)
+    strip(-1.2, 1.2, 1.2, 4, 0, 1)
     return new Float32Array(out)
   }
 
@@ -1368,24 +1839,23 @@
     root.dataset.bfHeroBound = 'true'
 
     // Transparent until the first frame is drawn, so that nothing dark flashes over the page on load.
-    const gl = canvas.getContext('webgl2', { alpha: true, antialias: false, premultipliedAlpha: true })
+    // No depth or stencil: nothing here uses them, and each would be a buffer the size of the canvas.
+    const gl = canvas.getContext('webgl2', {
+      alpha: true,
+      antialias: false,
+      premultipliedAlpha: true,
+      depth: false,
+      stencil: false,
+    })
     if (!gl) {
       root.dataset.bfFallback = 'true'
       return
     }
 
-    let land
-    let fly
-    let lens
-    try {
-      land = link(gl, LAND_VERTEX, LINE_FRAGMENT)
-      fly = link(gl, FLY_VERTEX, FLY_FRAGMENT)
-      lens = link(gl, LENS_VERTEX, LENS_FRAGMENT)
-    } catch (error) {
-      root.dataset.bfFallback = 'true'
-      console.warn('[api-hosting-hero]', error)
-      return
-    }
+    gl.getExtension('KHR_parallel_shader_compile')
+    const land = startProgram(gl, LAND_VERTEX, LINE_FRAGMENT)
+    const fly = startProgram(gl, FLY_VERTEX, FLY_FRAGMENT)
+    const lens = startProgram(gl, LENS_VERTEX, LENS_FRAGMENT)
 
     /* ---- the flock ---- */
     const butterflies = []
@@ -1409,12 +1879,37 @@
           glide: 0,
           flap: 0,
           lastFlap: 0,
-          flapHistory: [0, 0, 0, 0, 0, 0],
+          hindLag: null,
+          parked: false,
+          lift: 0,
+          pose: FLIGHT.pose[0] + (FLIGHT.pose[1] - FLIGHT.pose[0]) * hashed(depth * 7.1 + index * 3.3 + 0.2),
           offX: 0,
           offY: 0,
           velX: 0,
           velY: 0,
           hidden: true,
+          swingX: 0,
+          swingY: 0,
+          swingVX: 0,
+          swingVY: 0,
+          // Numbers from the start, and a flag for the first time round: a field that begins as null is kept as a pointer, and each
+          // fractional number stored in it is an allocation.
+          driven: false,
+          ripple: 0,
+          turn: 0,
+          driveX: 0,
+          driveY: 0,
+          driveVX: 0,
+          driveVY: 0,
+          beadLong: 0.2,
+          beadFade: 1,
+          bob: 0,
+          beadX: 0,
+          beadY: -0.2,
+          beadR: 0.1,
+          beadTilt: 0,
+          beadTwist: 0,
+          beadGlint: 0,
         })
       }
     })
@@ -1431,7 +1926,7 @@
       }
     }
 
-    const FLOATS = 20
+    const FLOATS = 28
     const data = new Float32Array(butterflies.length * FLOATS)
 
     /* ---- the butterfly mesh ---- */
@@ -1455,6 +1950,8 @@
       [5, 4, 40],
       [6, 4, 56],
       [7, 1, 72],
+      [8, 4, 80],
+      [9, 3, 96],
     ]) {
       gl.enableVertexAttribArray(loc)
       gl.vertexAttribPointer(loc, size, gl.FLOAT, false, FLOATS * 4, offset)
@@ -1478,7 +1975,6 @@
     }
 
     // Outlines: a row for each wing, a radius for each angle.
-    const SHAPE_WIDTH = 384
     const shapeRows = WING_NAMES.length * 2
     const shapes = new Float32Array(SHAPE_WIDTH * shapeRows)
     WING_NAMES.forEach((name, row) => {
@@ -1493,15 +1989,17 @@
     clampLinear()
 
     // Inks: a row for each species.
-    const inkData = new Uint8Array(7 * SPECIES.length * 4)
+    const inkData = new Uint8Array(7 * SPECIES.length * 2 * 4)
     SPECIES.forEach((s, row) => {
       s.inks.forEach((hex, col) => {
-        const [r, g, b] = hexToRgb(hex)
-        inkData.set([r, g, b, 255], (row * 7 + col) * 4)
+        inkData.set([...hexToRgb(hex), 255], (row * 7 + col) * 4)
+      })
+      PASTELS[s.pastel].inks.forEach((hex, col) => {
+        inkData.set([...hexToRgb(hex), 255], ((SPECIES.length + row) * 7 + col) * 4)
       })
     })
     const inksTex = texture(0)
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 7, SPECIES.length, 0, gl.RGBA, gl.UNSIGNED_BYTE, inkData)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 7, SPECIES.length * 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, inkData)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 
@@ -1590,32 +2088,78 @@
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
     }
 
+    /* Each logo as a field of distances to its edge, so it can be drawn as a line of any width at any size. A mark
+       is black where the logo has ink and white where it has `holes`, whatever colours it comes in. */
     const buildMarks = async () => {
-      const cell = 192
-      const sheet = document.createElement('canvas')
-      sheet.width = markCols * cell
-      sheet.height = markCols * cell
-      const pen = sheet.getContext('2d')
+      const { cell, gutter, range } = MARK
+      const inner = cell - gutter * 2
+      const atlas = new Uint8Array(markCols * cell * markCols * cell)
+      const paper = document.createElement('canvas')
+      paper.width = cell
+      paper.height = cell
+      const pen = paper.getContext('2d', { willReadFrequently: true })
+      const far = new Float64Array(cell * cell)
+      const near = new Float64Array(cell * cell)
       for (const [index, species] of SPECIES.entries()) {
-        const [from, to] = species.recolour || ['currentColor', species.ink || '#111111']
-        const svg = MARKS[species.slug].replaceAll(from, to).replace('<svg', `<svg width="${cell}" height="${cell}"`)
+        const holes = species.holes || []
+        const [boxLeft, boxTop, boxSize] = species.sign || species.crop || [0, 0, 24]
+        const svg = MARKS[species.slug]
+          .replace(species.without || /^$/, '')
+          .replace(/fill="([^"]*)"/g, (all, value) =>
+            value === 'none' ? all : `fill="${species.sign || holes.includes(value) ? '#fff' : '#000'}"`,
+          )
+          .replace('viewBox="0 0 24 24"', `viewBox="${boxLeft} ${boxTop} ${boxSize} ${boxSize}"`)
+          .replace('<svg', `<svg width="${inner}" height="${inner}"`)
         const image = await loadImage(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`)
+        pen.fillStyle = '#fff'
+        pen.fillRect(0, 0, cell, cell)
         if (image) {
-          pen.drawImage(image, (index % markCols) * cell, Math.floor(index / markCols) * cell, cell, cell)
+          pen.save()
+          pen.beginPath()
+          pen.rect(gutter, gutter, inner, inner)
+          pen.clip()
+          if (species.sign) {
+            // Black under the logo in white, a little inside its rim: all that stays black is what the logo cuts out.
+            const unit = inner / boxSize
+            pen.fillStyle = '#000'
+            pen.beginPath()
+            pen.arc(gutter + (12 - boxLeft) * unit, gutter + (12 - boxTop) * unit, MARK.disc * unit, 0, Math.PI * 2)
+            pen.fill()
+          }
+          pen.drawImage(image, gutter, gutter, inner, inner)
+          pen.restore()
+        }
+        const rgba = pen.getImageData(0, 0, cell, cell).data
+        for (let i = 0; i < far.length; i += 1) {
+          const ink = 1 - rgba[i * 4] / 255
+          // A pixel the edge passes through starts from how far through it the edge passes. Nearly full counts as
+          // full, or a logo drawn at 99% opacity, as Hono's is, is all edge.
+          far[i] = ink > 0.97 ? 0 : ink < 0.03 ? 1e12 : Math.max(0, 0.5 - ink) ** 2
+          near[i] = ink > 0.97 ? 1e12 : ink < 0.03 ? 0 : Math.max(0, ink - 0.5) ** 2
+        }
+        squaredDistances(far, cell)
+        squaredDistances(near, cell)
+        const left = (index % markCols) * cell
+        const top = Math.floor(index / markCols) * cell
+        for (let y = 0; y < cell; y += 1) {
+          for (let x = 0; x < cell; x += 1) {
+            const i = y * cell + x
+            const d = Math.sqrt(far[i]) - Math.sqrt(near[i]) - (species.bold || 0)
+            atlas[(top + y) * markCols * cell + left + x] = Math.max(0, Math.min(255, (d / (2 * range) + 0.5) * 255))
+          }
         }
         await yieldToPage()
       }
+      paper.width = 0
+      paper.height = 0
       marksTex = texture(0)
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true)
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, sheet)
-      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, markCols * cell, markCols * cell, 0, gl.RED, gl.UNSIGNED_BYTE, atlas)
       gl.generateMipmap(gl.TEXTURE_2D)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-      sheet.width = 0
-      sheet.height = 0
     }
 
     /* ---- the stage ---- */
@@ -1626,9 +2170,11 @@
     let h = 0
     let dpr = 1
     let dprCap = 2
+    // Something on screen has changed since the last picture, and everything has to be drawn again.
+    let dirty = true
     // Where the words stand, in CSS pixels from the canvas's top left.
     const words = { x: 0, y: 0, a: 0, b: 0 }
-    let glass = { bandX: 0, bandY: 0, reachX: 0, reachY: 0 }
+    let glass = { bandX: 0, bandY: 0, reachX: 0, reachY: 0, startX: 0, deepX: 20 }
     let fit = 1
 
     const measure = () => {
@@ -1647,7 +2193,9 @@
       const bandX = Math.min(LENS.band[0] * cssW * 0.5, LENS.bandMost[0])
       const bandY = Math.min(LENS.band[1] * cssH * 0.5, LENS.bandMost[1])
       const vs = LENS.in + ((1 - LENS.in) * (1 - Math.exp(-LENS.bend))) / LENS.bend
-      glass = { bandX, bandY, reachX: (cssW / 2) * vs, reachY: (cssH / 2) * vs }
+      const reachX = (cssW / 2) * vs
+      const startX = cssW / 2 - bandX
+      glass = { bandX, bandY, reachX, reachY: (cssH / 2) * vs, startX, deepX: Math.max(reachX - startX, 20) }
       const nw = Math.max(2, Math.round(cssW * dpr))
       const nh = Math.max(2, Math.round(cssH * dpr))
       if (nw === w && nh === h) {
@@ -1660,12 +2208,19 @@
       gl.activeTexture(gl.TEXTURE0)
       gl.bindTexture(gl.TEXTURE_2D, landTex)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+      // The glass reads the land blurred, through these levels, and the lens only ever fetches its exact pixels.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, 4)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      gl.generateMipmap(gl.TEXTURE_2D)
       gl.bindFramebuffer(gl.FRAMEBUFFER, landFbo)
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, landTex, 0)
       gl.bindTexture(gl.TEXTURE_2D, flockTex)
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+      // Only the levels the lens reads. They are remade every frame, and each is a pass of its own.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAX_LEVEL, Math.ceil(LENS.soften + 1))
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
@@ -1674,6 +2229,8 @@
       gl.bindFramebuffer(gl.FRAMEBUFFER, flockFbo)
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, flockTex, 0)
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+      // Both layers came back empty, and the land is not always drawn again by itself.
+      dirty = true
       return true
     }
 
@@ -1860,10 +2417,14 @@
       }
       const step = dyeClock
       dyeClock = 0
-      const keep = DYE.keep ** step
+      // A byte rounds back up once it is small, and a wake would never quite go: so it always loses at least one.
+      const lose = 1 - DYE.keep ** step
       const n = dye.length
       for (let i = 0; i < n; i += 1) {
-        dye[i] *= keep
+        const v = dye[i]
+        if (v > 0) {
+          dye[i] = v - Math.max(1, v * lose)
+        }
       }
       const span = cssW * 0.6
       const dark = isDark()
@@ -1871,10 +2432,11 @@
         if (b.hidden || b.show <= 0) {
           continue
         }
-        const inks = SPECIES[b.species].inks
-        const [r, g, bl] = hexToRgb(inks[dark ? 2 : 1])
-        const u = (b.x / span) * 0.5 + 0.5
-        const v = b.lane
+        const [r, g, bl] = WAKES[b.species][dark ? 1 : 0]
+        const u = ((b.screenX - cssW / 2) / span) * 0.5 + 0.5
+        const n = (b.screenX - cssW / 2) / (cssW / 2)
+        const top = landBase + airTop(n) * landRoom
+        const v = Math.max(0, Math.min(1, (b.screenY - top) / (landBase + airFoot(n) * landRoom - top)))
         const ru = (b.size * 1.1) / span / 2
         const rv = DYE.across * (b.size / 60)
         const cx = u * (DYE.width - 1)
@@ -1918,6 +2480,101 @@
     }
     window.addEventListener('pointermove', onPointer, { passive: true })
 
+    /* ---- what it carries ---- */
+    /* The bead as a damped pendulum on the point it hangs from. All this keeps is how far the bead is from hanging straight
+       down, and how fast that is changing, so a butterfly going across at any speed has it hanging straight: only a change
+       in what the chest is doing moves it, the way the floor of a bus moves a strap. `b.ripple` is the part of the chest's
+       movement that is the beat's push, which reaches the bead only by `HOLD.follow`. It reads what it needs from the butterfly
+       and is not handed it, since each fractional number handed to a function this size would be an allocation. */
+    const carry = (b, dt, still) => {
+      const { size } = b
+      const cp = Math.cos(b.pitch)
+      const ch = Math.cos(b.heading)
+      const sh = Math.sin(b.heading)
+      const fromX = (ch * cp * HOLD.chest[0] + sh * HOLD.chest[1]) * size
+      const fromY = (ch * HOLD.chest[1] - sh * cp * HOLD.chest[0]) * size
+      // What moves it is where the thorax goes, and not the place it hangs from, which also goes round as the body turns. A push
+      // from another butterfly reaches the body's heading a frame late, and going by that would make the swing depend on how
+      // the frames happen to fall.
+      const driveX = b.screenX - b.ripple * (1 - HOLD.follow)
+      const driveY = b.screenY - b.bob * (1 - HOLD.follow)
+      // A butterfly that has gone round to the far side, or a window that has changed size, brings no swing.
+      const jumped = !b.driven || Math.abs(driveX - b.driveX) + Math.abs(driveY - b.driveY) > size * 3
+      const vx = jumped || !(dt > 0) ? b.driveVX : (driveX - b.driveX) / dt
+      const vy = jumped || !(dt > 0) ? b.driveVY : (driveY - b.driveY) / dt
+      if (still || b.hidden || jumped) {
+        b.swingX = 0
+        b.swingY = 0
+        b.swingVX = 0
+        b.swingVY = 0
+        b.driven = true
+        b.driveX = driveX
+        b.driveY = driveY
+        b.driveVX = vx
+        b.driveVY = vy
+        if (b.hidden) {
+          return
+        }
+      }
+      const k = Math.max(0, Math.min(1, (size - HOLD.sizes[0]) / (HOLD.sizes[1] - HOLD.sizes[0])))
+      const across = Math.min(HOLD.across[0] + (HOLD.across[1] - HOLD.across[0]) * k, HOLD.widest / size)
+      b.beadR = across / 2
+      const long = (HOLD.gap + b.beadR) * size
+      b.beadLong = long
+      if (!still && !jumped && dt > 0) {
+        // A change in what the chest is doing, and the bead carries on as it was.
+        b.swingVX -= (vx - b.driveVX) * HOLD.takes
+        b.swingVY -= vy - b.driveVY
+        b.driveVX = vx
+        b.driveVY = vy
+        b.driveX = driveX
+        b.driveY = driveY
+        const swing2 = HOLD.gravity / long
+        const swingRate = Math.sqrt(swing2)
+        const stiff = Math.PI * 2 * b.layer.rate * HOLD.spring
+        const pull = HOLD.gravity * HOLD.rock * b.glide * Math.sin(b.turn * 0.5 + b.seed * 19)
+        // Small steps, since the legs are stiff next to a long frame.
+        const steps = Math.ceil(dt * 120)
+        const h = dt / steps
+        for (let step = 0; step < steps; step += 1) {
+          // Air, in effect: a wide swing loses far more than a small one, so that a small one lives on and a wide one is brief.
+          const wide = (b.swingX * b.swingX) / (long * long * HOLD.calm * HOLD.calm)
+          b.swingVX += (pull - swing2 * b.swingX - 2 * HOLD.damp * (1 + wide) * swingRate * b.swingVX) * h
+          b.swingVY += (-stiff * stiff * b.swingY - 2 * HOLD.springDamp * stiff * b.swingVY) * h
+          b.swingX += b.swingVX * h
+          b.swingY += b.swingVY * h
+        }
+        // However hard the first gust throws it.
+        const most = long * 0.4
+        const fastest = most * swingRate
+        b.swingVX = Math.max(-fastest, Math.min(fastest, b.swingVX))
+        b.swingX = Math.max(-most, Math.min(most, b.swingX))
+        b.swingY = Math.max(-long * 0.3, Math.min(long * 0.3, b.swingY))
+      }
+      // On an arc, so it rises at the ends of its swing.
+      const dropped = long + b.swingY - (b.swingX * b.swingX) / (2 * long)
+      b.beadX = (fromX + b.swingX) / size
+      b.beadY = -(fromY + dropped) / size
+      const angle = (b.swingX / long) * HOLD.tilt
+      b.beadTilt = angle / (1 + Math.abs(angle) / HOLD.tiltMost)
+      const speed = b.swingVX / (long * Math.sqrt(HOLD.gravity / long))
+      // Each is turned a little its own way, and turns slowly as it goes, so that the print slides over the ball.
+      const rest = (b.seed - 0.5) * HOLD.turned
+      b.beadTwist = still
+        ? rest
+        : rest + HOLD.twist * (Math.sin(clock * (0.4 + b.seed * 0.4) + b.seed * 53) * 0.7 + speed * 3)
+      b.beadGlint = Math.min(1, Math.abs(speed) * 10)
+      // A still picture has no flight to explain a ball half gone into the glass, so there it goes faint as a whole, just ahead of it.
+      b.beadFade = 1
+      if (still) {
+        const from = -glass.deepX * HOLD.glass[2] - b.beadR * size
+        const into =
+          (Math.abs(b.screenX + b.beadX * size - cssW / 2) - glass.startX - from) / (glass.deepX * HOLD.glass[1] - from)
+        const t = Math.max(0, Math.min(1, into))
+        b.beadFade = 1 - (1 - HOLD.glass[0]) * t * t * (3 - 2 * t)
+      }
+    }
+
     /* ---- one step of the flight ---- */
     const advance = (dt) => {
       const still = PREFERS_REDUCED.matches
@@ -1929,14 +2586,23 @@
         b.size = size
         // A phone has room for about half the flock, and the nearest are the ones that can be read.
         if (cssW < NARROW && b.depth < 2 && b.index % 2 === 1) {
+          // Its framework goes back in the queue, so that every framework still comes round.
+          if (!b.parked) {
+            b.parked = true
+            waiting.push(b.species)
+          }
           b.hidden = true
           b.show = 0
           continue
         }
+        if (b.parked) {
+          b.parked = false
+          b.species = waiting.shift()
+        }
         // Past the last place the lens can see, by more than the widest wing.
         const exit = glass.reachX + size * 1.5
         const way = exit * 2
-        const speed = layer.speed * Math.max(0.7, fit)
+        const speed = layer.speed * Math.max(0.7, fit) * (1 + FLIGHT.glide * (1 - b.glide))
         b.u += (dt * speed) / way
         // The first gust: everything comes in from the left through the glass, and slows to a float. It is a
         // squeeze of the whole way towards its left end, so the flock keeps its order as it opens out.
@@ -1954,33 +2620,33 @@
         b.x = x
 
         // The beat comes in bursts with a glide between them, each on its own time.
-        const envelope = 0.5 + 0.5 * Math.sin(clock * (0.5 + seed * 0.45) + seed * 91)
-        const wantsGlide = envelope < 0.3 ? 0 : 1
+        const envelope = 0.5 + 0.5 * Math.sin(clock * (FLIGHT.bursts[0] + seed * FLIGHT.bursts[1]) + seed * 91)
+        const wantsGlide = envelope < 0.2 ? 0 : 1
         b.glide += (wantsGlide - b.glide) * Math.min(1, dt * 3.2)
         const rate = layer.rate * (0.85 + seed * 0.3) * (0.3 + 0.7 * b.glide)
         b.phase += dt * rate
         const turn = b.phase * Math.PI * 2
-        // The downstroke is quicker than the upstroke.
-        const stroke = Math.sin(turn + 0.55 * Math.sin(turn))
-        const open = still ? 0.34 + seed * 0.28 : 0.34 + b.glide * 0.74 * stroke + (1 - b.glide) * 0.12
-        const history = b.flapHistory
-        history.unshift(open)
-        history.length = 6
-        const hind = history[Math.min(5, Math.max(1, Math.round(0.035 / Math.max(dt, 0.004))))]
+        // How far shut the wings are, from nought to one. Most of a beat is spent open, and not every beat goes all the way.
+        const shut =
+          (0.5 + 0.5 * Math.sin(turn + 0.35 * Math.sin(turn))) ** FLIGHT.snap *
+          (1 - FLIGHT.shallow * (0.5 + 0.5 * Math.sin(b.phase * 1.37 + seed * 23)))
+        const open = still
+          ? 0.42 + seed * 0.6
+          : FLIGHT.soar + (FLIGHT.open + (FLIGHT.shut - FLIGHT.open) * shut - FLIGHT.soar) * b.glide
+        // The hindwing follows the forewing a moment behind.
+        b.hindLag = b.hindLag === null ? open : b.hindLag + (open - b.hindLag) * (1 - Math.exp(-dt / 0.035))
         const velocity = dt > 0 ? (open - b.lastFlap) / dt : 0
         b.lastFlap = open
         b.flap = open
-        b.hind = hind - 0.06
-        // The tip trails the beat, and a butterfly rises as it beats down.
-        b.lag = Math.max(-0.75, Math.min(0.75, -velocity * 0.1))
-        const bob = (still ? 0 : -Math.cos(turn) * 0.16 * b.glide) * size
+        b.hind = b.hindLag - 0.06
+        // The tip trails the beat.
+        b.lag = Math.max(-0.26, Math.min(0.26, -velocity * 0.04))
+        // It goes up fastest as the wings shut, and hangs for a moment as they open.
+        const bob = (still ? 0 : Math.cos(turn) * FLIGHT.hop * b.glide) * size
+        const climbing = (FLIGHT.sink * (1 - b.glide) - FLIGHT.rise * b.glide) * (size / 64) - b.lift * FLIGHT.settle
+        b.lift += climbing * dt
 
-        let y = laneY(b.lane, x)
-        // Under the words it keeps its wings off the buttons, however far up they beat.
-        const q = Math.max(0, Math.min(1, (Math.abs(x) - words.a) / 140))
-        y += Math.max(0, landBase + size * 1.5 - y) * (1 - q * q * (3 - 2 * q))
-        const slope = (laneY(b.lane, x + 16) - laneY(b.lane, x - 16)) / 32
-        y += bob + Math.sin(clock * (0.47 + seed * 0.3) + seed * 17) * 7 * (0.5 + seed)
+        const y = laneY(b.lane, x) + b.lift + bob + Math.sin(clock * (0.47 + seed * 0.3) + seed * 17) * 7 * (0.5 + seed)
 
         // A soft shy from the pointer: small, and not a show.
         if (pointer.in && !still) {
@@ -1993,21 +2659,41 @@
         }
         b.velX += -b.offX * 2.2 * dt
         b.velY += -b.offY * 2.2 * dt
-        b.velX *= Math.exp(-dt * 3.4)
-        b.velY *= Math.exp(-dt * 3.4)
+        b.velX *= Math.exp(-dt * 4.6)
+        b.velY *= Math.exp(-dt * 4.6)
         b.offX += b.velX * dt * 10
         b.offY += b.velY * dt * 10
 
-        b.screenX = cssW / 2 + x + b.offX
-        b.screenY = y + b.offY
+        b.ripple = still ? 0 : Math.cos(turn) * FLIGHT.surge * size * b.glide
+        b.bob = bob
+        b.turn = turn
+        b.screenX = cssW / 2 + x + b.offX + b.ripple
+        // Under the words it keeps its wings off the buttons, however far up they beat, and it stays clear of the
+        // foot of the picture, where it fades.
+        const q = Math.max(0, Math.min(1, (Math.abs(x) - words.a - size * 0.9) / 140))
+        const free = y + b.offY
+        b.screenY =
+          free +
+          Math.max(0, landBase + size * 1.4 - free) * (1 - q * q * (3 - 2 * q)) -
+          Math.max(0, free - (cssH * 0.9 - size * 0.72))
 
-        // Heading in the plane of the screen, in the usual sense: up the page is positive.
+        // Heading in the plane of the screen, in the usual sense: up the page is positive. It points where it is going.
         const swing = Math.sin(clock * (0.41 + seed * 0.27) + seed * 29)
-        const heading = -Math.atan(slope) * 0.9 + (0.32 * seed - 0.05) + swing * 0.2
-        const pitch = 0.1 + 0.08 * Math.sin(turn + 1)
-        // The roll tips the back of the butterfly up the page: the far wing is face on and the near one
-        // comes round it, as in the reference.
-        const roll = 0.46 + 0.16 * Math.sin(clock * (0.33 + seed * 0.2) + seed * 61) - 0.06 * swing
+        const slope = (laneY(b.lane, x + 16) - laneY(b.lane, x - 16)) / 32 + (climbing + b.velY * 6) / speed
+        const heading =
+          Math.max(
+            FLIGHT.slant - FLIGHT.leans[0],
+            Math.min(
+              FLIGHT.slant + FLIGHT.leans[1],
+              FLIGHT.slant - Math.atan(slope) * 0.3 + FLIGHT.spread * (seed - 0.5) * 2 + swing * 0.07,
+            ),
+          ) + (still ? 0 : 0.05 * b.glide * (1 - 2 * shut))
+        const pitch = FLIGHT.away + 0.1 * (seed - 0.5) + 0.05 * Math.sin(clock * (0.27 + seed * 0.2) + seed * 47)
+        const roll =
+          b.pose +
+          0.05 * Math.sin(clock * (0.33 + seed * 0.2) + seed * 61) -
+          0.02 * swing +
+          (still ? 0 : 0.04 * b.glide * Math.cos(turn))
         b.heading = heading
         b.pitch = pitch
         b.roll = roll
@@ -2015,6 +2701,29 @@
         const edgeGone = Math.abs(x) > exit - 2
         b.hidden = edgeGone
         b.show = edgeGone ? 0 : 1
+        carry(b, dt, still)
+      }
+      // They keep out of each other's way, and the small ones give way to the large. Mostly up and down, since they
+      // are all going the same way. The list runs from the small to the large.
+      for (let i = 0; i < butterflies.length; i += 1) {
+        const a = butterflies[i]
+        for (let j = i + 1; a.show > 0 && j < butterflies.length; j += 1) {
+          const c = butterflies[j]
+          // Measured from the middle of the wings, which is a little above the body.
+          const dx = a.screenX - c.screenX
+          const dy = a.screenY - c.screenY - (a.size - c.size) * 0.1
+          const near = c.show > 0 ? 1 - Math.hypot(dx, dy) / ((a.size + c.size) * FLIGHT.room) : 0
+          if (near > 0) {
+            const push = near * FLIGHT.give * dt
+            const share = c.size / (a.size + c.size)
+            const up = dy >= 0 ? 1 : -1
+            const along = dx >= 0 ? 0.3 : -0.3
+            a.velY += up * push * share
+            c.velY -= up * push * (1 - share)
+            a.velX += along * push * share
+            c.velX -= along * push * (1 - share)
+          }
+        }
       }
       if (!still) {
         stirDye(dt)
@@ -2023,64 +2732,18 @@
 
     /* ---- one picture ---- */
     let ready = false
-    let dirty = true
-    const draw = () => {
-      if (!ready) {
-        return
-      }
-      dirty = false
-      const dark = isDark()
-
-      // Every butterfly's frame, from the far ones to the near.
-      butterflies.forEach((b, i) => {
-        const family = WING_NAMES.indexOf(SPECIES[b.species].wing)
-        const ch = Math.cos(b.heading ?? 0)
-        const sh = Math.sin(b.heading ?? 0)
-        const cp = Math.cos(b.pitch ?? 0)
-        const sp = Math.sin(b.pitch ?? 0)
-        const fx = ch * cp
-        const fy = sh * cp
-        const fz = sp
-        const len = Math.hypot(fx, fy) || 1
-        const s0x = -fy / len
-        const s0y = fx / len
-        // F x S0, with S0 in the plane of the screen.
-        const u0x = -fz * s0y
-        const u0y = fz * s0x
-        const u0z = fx * s0y - fy * s0x
-        const cr = Math.cos(b.roll ?? 0)
-        const sr = Math.sin(b.roll ?? 0)
-        const o = i * FLOATS
-        data[o] = b.screenX ?? 0
-        data[o + 1] = b.screenY ?? 0
-        data[o + 2] = 3.4
-        data[o + 3] = b.size ?? 1
-        data[o + 4] = fx
-        data[o + 5] = fy
-        data[o + 6] = fz
-        data[o + 7] = s0x * cr - u0x * sr
-        data[o + 8] = s0y * cr - u0y * sr
-        data[o + 9] = -u0z * sr
-        data[o + 10] = b.flap ?? 0.4
-        data[o + 11] = b.hind ?? 0.34
-        data[o + 12] = b.lag ?? 0
-        data[o + 13] = (b.lag ?? 0) * 1.2
-        data[o + 14] = b.species
-        data[o + 15] = family
-        data[o + 16] = b.seed
-        // The first group of wings in the mesh is the far one, and with the back tipped up the page that is
-        // the butterfly's left.
-        data[o + 17] = 1
-        data[o + 18] = b.show ?? 1
-      })
-
+    /* The land moves slowly, so a display faster than 60 Hz has it drawn every other frame, and the last drawing of it
+       stands in its texture until then. `landGap` is how long in milliseconds a drawing may stand. */
+    let landGap = 12
+    let landAt = Number.NEGATIVE_INFINITY
+    /* The glass only reads the land blurred, and the big shapes of it hardly move, so its blurred levels can stand for a
+       few drawings. */
+    let landLevelsIn = 0
+    const drawLand = (dark) => {
       // Pass 1: the land and the air, crisp, on the page's colour.
       gl.bindFramebuffer(gl.FRAMEBUFFER, landFbo)
-      gl.viewport(0, 0, w, h)
       gl.clearColor(page[0], page[1], page[2], 1)
       gl.clear(gl.COLOR_BUFFER_BIT)
-      gl.enable(gl.BLEND)
-      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
       if (dark !== painted) {
         painted = dark
@@ -2157,9 +2820,89 @@
         gl.uniform1f(ug.uBreath, AIR.breath)
         gl.drawElements(gl.TRIANGLES, airRange.count, gl.UNSIGNED_INT, airRange.offset)
       }
+    }
+
+    const draw = () => {
+      if (!ready) {
+        return
+      }
+      const fresh = dirty
+      dirty = false
+      const dark = isDark()
+
+      // Every butterfly's frame, from the far ones to the near.
+      butterflies.forEach((b, i) => {
+        const family = WING_NAMES.indexOf(SPECIES[b.species].wing)
+        const ch = Math.cos(b.heading ?? 0)
+        const sh = Math.sin(b.heading ?? 0)
+        const cp = Math.cos(b.pitch ?? 0)
+        const sp = Math.sin(b.pitch ?? 0)
+        const fx = ch * cp
+        const fy = sh * cp
+        const fz = sp
+        const len = Math.hypot(fx, fy) || 1
+        const s0x = -fy / len
+        const s0y = fx / len
+        // F x S0, with S0 in the plane of the screen.
+        const u0x = -fz * s0y
+        const u0y = fz * s0x
+        const u0z = fx * s0y - fy * s0x
+        const cr = Math.cos(b.roll ?? 0)
+        const sr = Math.sin(b.roll ?? 0)
+        const o = i * FLOATS
+        data[o] = b.screenX ?? 0
+        data[o + 1] = b.screenY ?? 0
+        data[o + 2] = 3.4
+        data[o + 3] = b.size ?? 1
+        data[o + 4] = fx
+        data[o + 5] = fy
+        data[o + 6] = fz
+        data[o + 7] = s0x * cr - u0x * sr
+        data[o + 8] = s0y * cr - u0y * sr
+        data[o + 9] = -u0z * sr
+        data[o + 10] = b.flap ?? 0.4
+        data[o + 11] = b.hind ?? 0.34
+        data[o + 12] = b.lag ?? 0
+        data[o + 13] = (b.lag ?? 0) * 1.2
+        data[o + 14] = b.species
+        data[o + 15] = family
+        data[o + 16] = b.seed
+        // The first group of wings in the mesh is the far one, and with the butterfly rolled as it is that is
+        // the butterfly's left.
+        data[o + 17] = 1
+        data[o + 18] = b.show ?? 1
+        // What it carries: where the bead is from the root of the wings, up the page, in sizes, how big it is, how it is
+        // turned, how much it is catching the light, and how much of it shows.
+        data[o + 20] = b.beadX
+        data[o + 21] = b.beadY
+        data[o + 22] = b.beadR
+        data[o + 23] = b.beadTilt
+        data[o + 24] = b.beadTwist
+        data[o + 25] = b.beadGlint
+        data[o + 26] = b.beadFade
+      })
+
+      gl.viewport(0, 0, w, h)
+      gl.enable(gl.BLEND)
+      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+      const at = performance.now()
+      let landLevelsDue = false
+      if (fresh || at - landAt > landGap) {
+        landAt = at
+        drawLand(dark)
+        landLevelsIn -= 1
+        landLevelsDue = fresh || landLevelsIn <= 0
+      }
 
       // Pass 2: the flock, on nothing at all.
       gl.bindFramebuffer(gl.FRAMEBUFFER, flockFbo)
+      /* Only now, because a texture should not have its levels rebuilt while the framebuffer it is attached to is bound. */
+      if (landLevelsDue) {
+        landLevelsIn = 8
+        gl.activeTexture(gl.TEXTURE4)
+        gl.bindTexture(gl.TEXTURE_2D, landTex)
+        gl.generateMipmap(gl.TEXTURE_2D)
+      }
       gl.clearColor(0, 0, 0, 0)
       gl.clear(gl.COLOR_BUFFER_BIT)
       gl.useProgram(fly.program)
@@ -2179,16 +2922,23 @@
       gl.activeTexture(gl.TEXTURE3)
       gl.bindTexture(gl.TEXTURE_2D, marksTex)
       gl.uniform1i(uf.uMarks, 3)
+      gl.activeTexture(gl.TEXTURE4)
+      gl.bindTexture(gl.TEXTURE_2D, landTex)
+      gl.uniform1i(uf.uLand, 4)
+      // A pixel of the land, and the level that is about 5 CSS pixels to the texel, which is wider than its lines are apart.
+      gl.uniform3f(uf.uLandLook, 1 / w, 1 / h, Math.log2(5 * dpr))
+      gl.uniform1f(uf.uPixels, dpr)
+      gl.uniform1f(uf.uDark, dark ? 1 : 0)
       gl.uniform2f(uf.uCanvas, cssW, cssH)
       gl.uniform4f(uf.uLight, -0.32, 0.5, 0.8, 0)
       gl.uniform2f(uf.uForeRange, FORE_RANGE[0], FORE_RANGE[1])
       gl.uniform2f(uf.uHindRange, HIND_RANGE[0], HIND_RANGE[1])
       gl.uniform1f(uf.uShapeRows, shapeRows)
       gl.uniform1f(uf.uMarkCols, markCols)
-      gl.uniform1f(uf.uPixels, dpr)
+      gl.uniform1f(uf.uMarkInset, (MARK.cell - MARK.gutter * 2) / 2 / MARK.cell)
+      gl.uniform1f(uf.uMarkRange, (2 * MARK.range) / ((MARK.cell - MARK.gutter * 2) / 2))
       gl.uniform1f(uf.uTile, GRAIN_TILE * dpr)
       gl.uniform1f(uf.uClock, clock)
-      gl.uniform1f(uf.uDark, dark ? 1 : 0)
       gl.uniform1f(uf.uFan, WING.fan)
       gl.uniform1f(uf.uPitch, WING.pitch)
       gl.uniform1f(uf.uClosest, WING.closest)
@@ -2202,7 +2952,9 @@
       gl.uniform1f(uf.uBeadSize, WING.beadSize)
       gl.uniform1f(uf.uBlotch, WING.blotch)
       gl.uniform1f(uf.uGrainStrength, WING.grain)
-      gl.uniform4fv(uf.uSpots, SPOTS)
+      gl.uniform1f(uf.uDark, dark ? 1 : 0)
+      gl.uniform1f(uf.uPixels, dpr)
+      gl.uniform3f(uf.uBeadGlass, w / 2, glass.startX * dpr, glass.deepX * dpr)
       gl.uniform4fv(uf.uCells, CELLS)
       gl.drawArraysInstanced(gl.TRIANGLES, 0, meshCount, butterflies.length)
       gl.bindVertexArray(null)
@@ -2234,6 +2986,7 @@
       gl.uniform1f(ul.uAlong, LENS.along * h)
       gl.uniform1f(ul.uSoften, LENS.soften + Math.log2(dpr))
       gl.uniform1f(ul.uRound, LENS.round)
+      gl.uniform2f(ul.uHalo, LENS.halo[0] + Math.log2(dpr), LENS.halo[1])
       gl.drawArrays(gl.TRIANGLES, 0, 3)
       gl.bindVertexArray(null)
     }
@@ -2245,6 +2998,7 @@
     let settled = false
     let alive = true
     let slowFrames = 0
+    let stillFlown = false
 
     const frame = (now) => {
       raf = requestAnimationFrame(frame)
@@ -2258,16 +3012,26 @@
       if (still) {
         // The still picture shows the opening finished, so motion switched on later carries on from it.
         intro = Math.max(intro, 99)
+        // Flown for a while first, unseen, so that they have spread out.
+        for (let step = stillFlown ? 0 : 300; step > 0; step -= 1) {
+          advance(1 / 30)
+        }
+        stillFlown = true
         advance(0)
       } else {
         advance(dt)
-        // Too heavy for this machine: one pixel for each CSS pixel, once. It takes slow frames in a run to say
-        // so, and a pause of a tenth of a second or more is the page doing something else.
-        if (dprCap > 1 && gap < 100) {
+        // Too heavy for this machine: first one pixel for each CSS pixel, and then the land less often. It takes slow
+        // frames in a run to say so, and a pause of a tenth of a second or more is the page doing something else.
+        if (gap < 100) {
           slowFrames = gap > 28 ? slowFrames + 1 : Math.max(0, slowFrames - 0.25)
           if (slowFrames > 40) {
-            dprCap = 1
-            measure()
+            slowFrames = 0
+            if (dprCap > 1) {
+              dprCap = 1
+              measure()
+            } else {
+              landGap = 40
+            }
           }
         }
       }
@@ -2417,7 +3181,7 @@
       sync()
     }
 
-    Promise.all([buildGrain(), buildMarks()])
+    Promise.all([finishProgram(gl, land), finishProgram(gl, fly), finishProgram(gl, lens), buildGrain(), buildMarks()])
       .then(() => {
         if (!alive) {
           return
@@ -2429,8 +3193,12 @@
         root.dataset.bfReady = 'true'
       })
       .catch((error) => {
-        console.warn('[api-hosting-hero]', error)
-        root.dataset.bfFallback = 'true'
+        // A hero let go of while it was still getting ready has nothing left to say, and nor does one whose context was
+        // taken from it: the event that says so is on its way, and it binds again.
+        if (alive && !gl.isContextLost()) {
+          console.warn('[api-hosting-hero]', error)
+          root.dataset.bfFallback = 'true'
+        }
       })
   }
 

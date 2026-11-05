@@ -104,10 +104,6 @@ Deploy your API from the server framework you already use: NestJS, Hono, Elysia,
     display: block;
     width: 100%;
     height: 100%;
-    /* The butterflies leave through the sides, which are edges of the screen. The foot of the hero is not, and
-       the page carries on under it, so the picture fades there. */
-    -webkit-mask-image: linear-gradient(to bottom, #000 90%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 90%, transparent 100%);
   }
   .bf-copy > * {
     margin: 0;
