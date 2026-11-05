@@ -40,11 +40,11 @@ const safeFetch = n.safeFn(
     const responseBodyResult = await getBody(response)
 
     if (!response.ok) {
+      // Response URLs can contain credentials, so keep them out of model-visible tool output.
       return {
         success: false,
         error: createError('REQUEST_NOT_OK', {
           status: response.status,
-          url: response.url,
           responseBody: truncateResponse(responseBodyResult.success ? responseBodyResult.data : undefined),
           headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
         }),
