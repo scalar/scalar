@@ -19,12 +19,12 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "go build main.go",
-    "dev": "cross-env ENV=dev PORT=5051 go run main.go",
+    "build": "go build -o main .",
+    "dev": "cross-env ENV=dev PORT=5051 go run .",
     "docker:build": "docker build -t scalar-proxy-server .",
     "docker:run": "pnpm docker:build && docker run --env ENV=dev -p 5051:9033 scalar-proxy-server",
-    "lint:check": "go fmt ./main.go",
-    "lint:fix": "go fmt ./main.go",
+    "lint:check": "go fmt ./...",
+    "lint:fix": "go fmt ./...",
     "preview": "pnpm dev",
     "test": "go test -v",
     "types:build": "pnpm build",

@@ -46,7 +46,7 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 You can start the proxy server in two ways. The default port is 1337:
 
 ```bash
-go run main.go
+go run .
 ```
 
 ```bash
@@ -56,7 +56,7 @@ go run main.go
 But you can customize it using the `PORT` environment variable:
 
 ```bash
-PORT=8080 go run main.go
+PORT=8080 go run .
 ```
 
 ### Example request
