@@ -399,9 +399,6 @@
     const sh = gl.createShader(type)
     gl.shaderSource(sh, src)
     gl.compileShader(sh)
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      throw new Error(gl.getShaderInfoLog(sh) || 'compile failed')
-    }
     return sh
   }
 
@@ -411,10 +408,19 @@
     gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, frag))
     attributes.forEach((name, i) => gl.bindAttribLocation(p, i, name))
     gl.linkProgram(p)
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(p) || 'link failed')
-    }
     return p
+  }
+
+  /**
+   * Shaders compile on other threads, and it is asking how it went that makes the page wait for them: a good part of a
+   * second on a first visit. So nothing is asked until the browser says there is an answer, which it also says of a
+   * context it has lost. A browser without the extension says nothing, and the page waits at the first question, as it
+   * always has.
+   */
+  const whenCompiled = async (gl, parallel, programs, wanted) => {
+    while (parallel && wanted() && !programs.every((p) => gl.getProgramParameter(p, parallel.COMPLETION_STATUS_KHR))) {
+      await new Promise((resolve) => setTimeout(resolve, 16))
+    }
   }
 
   // ------------------------------------------------------------------------------- the pebbles
@@ -913,7 +919,9 @@
 
     let scene
     let lens
+    let parallel
     try {
+      parallel = gl.getExtension('KHR_parallel_shader_compile')
       scene = link(gl, SCENE_VERT, SCENE_FRAG, ['a_corner'])
       lens = link(gl, LENS_VERT, LENS_FRAG)
     } catch (error) {
@@ -922,6 +930,61 @@
       return
     }
 
+    // While they compile the hero holds nothing but the context. Hydration can replace it in that time, and the browser
+    // can take the context back. Either way it lets go and leaves a fresh canvas, as teardown() does once it is running.
+    let waiting = true
+    const letGo = () => {
+      waiting = false
+      canvas.removeEventListener('webglcontextlost', lost)
+      heroes.delete(release)
+      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      canvas.replaceWith(canvas.cloneNode(false))
+      delete root.dataset.agHeroBound
+    }
+    const release = () => {
+      if (!canvas.isConnected) {
+        letGo()
+      }
+    }
+    const lost = (event) => {
+      event.preventDefault()
+      letGo()
+      if (rebuilds < 2) {
+        rebuilds += 1
+        requestAnimationFrame(run)
+      } else {
+        root.dataset.agHeroBound = 'true'
+        root.dataset.agFallback = 'true'
+      }
+    }
+    canvas.addEventListener('webglcontextlost', lost)
+    heroes.add(release)
+
+    whenCompiled(gl, parallel, [scene, lens], () => waiting)
+      .then(() => {
+        // A lost context says it has finished too, and the event that says it was lost is on its way.
+        if (!waiting || gl.isContextLost()) {
+          return
+        }
+        waiting = false
+        canvas.removeEventListener('webglcontextlost', lost)
+        heroes.delete(release)
+        for (const p of [scene, lens]) {
+          if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+            const logs = gl.getAttachedShaders(p).map((sh) => gl.getShaderInfoLog(sh))
+            throw new Error([gl.getProgramInfoLog(p), ...logs].filter(Boolean).join('\n') || 'link failed')
+          }
+        }
+        start(root, canvas, gl, agents, scene, lens)
+      })
+      .catch((error) => {
+        root.dataset.agFallback = 'true'
+        console.warn('[agent-hero]', error)
+      })
+  }
+
+  /** Everything else about a hero, once its shaders have compiled. */
+  const start = (root, canvas, gl, agents, scene, lens) => {
     const { pebbles, queue } = layout(agents)
     let cursor = 0
     let dealt = false
