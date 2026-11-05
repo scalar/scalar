@@ -58,6 +58,20 @@ describe('restore-original-headers', () => {
     })
   })
 
+  it('restores empty upstream headers instead of dropping them', () => {
+    const headers = new Headers({
+      'Cache-Control': 'private',
+      'X-Scalar-Modified-Headers': 'Cache-Control',
+      'X-Scalar-Original-Cache-Control': '',
+      'X-Scalar-Original-Refresh': '',
+    })
+
+    expect(Object.fromEntries(restoreOriginalHeaders(headers))).toStrictEqual({
+      'cache-control': '',
+      'refresh': '',
+    })
+  })
+
   it('does not change the headers it was given', () => {
     const headers = new Headers({
       'Content-Type': 'application/json',

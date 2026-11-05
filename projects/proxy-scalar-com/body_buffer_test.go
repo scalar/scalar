@@ -13,15 +13,15 @@ import (
 
 func TestBufferedBodyLifetime(t *testing.T) {
 	proxy := NewProxyServer(true)
-	body, release, err := proxy.replayableBody(strings.NewReader("request body"))
-	if err != nil {
+	body, release := proxy.replayableBody(io.NopCloser(strings.NewReader("request body")), -1)
+	if _, err := io.Copy(io.Discard, body); err != nil {
 		t.Fatal(err)
 	}
 	defer body.Close()
 	defer release()
 
 	// A redirect can still be uploading when the final response headers arrive.
-	replay, err := body.(*bufferedBodyReader).buffer.newReader()
+	replay, err := body.getBody()
 	if err != nil {
 		t.Fatal(err)
 	}
