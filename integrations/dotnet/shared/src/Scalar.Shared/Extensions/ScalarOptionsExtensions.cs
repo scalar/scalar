@@ -608,7 +608,7 @@ public static partial class ScalarOptionsExtensions
     /// <param name="options">The Scalar options.</param>
     /// <param name="securitySchemeName">The scheme name in the API description.</param>
     /// <param name="configureScheme">Configures the OpenID Connect defaults.</param>
-    public static TOptions AddOpenIdConnectAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarOpenIdConnectSecurityScheme> configureScheme) where TOptions : ScalarOptions
+    public static TOptions AddOpenIdConnectAuthentication<TOptions>(this TOptions options, string securitySchemeName, Action<ScalarOpenIdConnectSecurityScheme> configureScheme) where TOptions : IScalarAuthenticationOptions
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();

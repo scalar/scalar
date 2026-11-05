@@ -5,6 +5,36 @@ namespace Scalar.Shared.Tests;
 public class OpenIdConnectTests
 {
     [Fact]
+    public void AddOpenIdConnectAuthentication_ConfiguresDocumentWithoutMutatingGlobalDefaults()
+    {
+        var options = new ScalarOptions()
+            .AddOpenIdConnectAuthentication("oidc", scheme => scheme.DefaultScopes = ["global"]);
+
+        options.AddDocument("v1", configureDocument: document => document
+            .AddOpenIdConnectAuthentication("oidc", scheme => scheme.Flows = new ScalarFlows
+            {
+                AuthorizationCode = new AuthorizationCodeFlow
+                {
+                    ClientId = "document-client",
+                    Pkce = Pkce.Sha256,
+                    SelectedScopes = ["openid", "profile"]
+                }
+            }));
+
+        var globalScheme = (ScalarOpenIdConnectSecurityScheme) options.Authentication!.SecuritySchemes!["oidc"];
+        globalScheme.DefaultScopes.Should().Equal("global");
+        globalScheme.Flows.Should().BeNull();
+
+        var json = JsonSerializer.SerializeToElement(options.ToScalarConfiguration(), ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        var document = json.GetProperty("sources").EnumerateArray().Single();
+        var flow = document.GetProperty("authentication").GetProperty("securitySchemes").GetProperty("oidc")
+            .GetProperty("flows").GetProperty("authorizationCode");
+        flow.GetProperty("x-scalar-client-id").GetString().Should().Be("document-client");
+        flow.GetProperty("x-usePkce").GetString().Should().Be("SHA-256");
+        flow.GetProperty("selectedScopes").EnumerateArray().Select(scope => scope.GetString()).Should().Equal("openid", "profile");
+    }
+
+    [Fact]
     public void SecuritySchemes_SerializesOpenIdConnectDefaults()
     {
         var options = new ScalarOptions
