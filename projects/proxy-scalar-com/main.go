@@ -213,8 +213,19 @@ func main() {
 	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
 	// Start the server and log any errors that occur
-	if err := http.ListenAndServe(port, handler); err != nil {
+	if err := newHTTPServer(port, handler).ListenAndServe(); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
+	}
+}
+
+// newHTTPServer builds the incoming HTTP listener configuration.
+func newHTTPServer(address string, handler http.Handler) *http.Server {
+	// Whole-request read/write deadlines would interrupt uploads and SSE.
+	return &http.Server{
+		Addr:              address,
+		Handler:           handler,
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 }
 

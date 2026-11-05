@@ -35,6 +35,8 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 - Redirects that reach the browser are never followed: the validated absolute URL is passed on as `X-Scalar-Original-Location`, and redirects to another origin or with more than one `Location` are rejected.
 - Upstream headers that use the proxy's own names (`X-Scalar-Original-*`, `X-Scalar-Modified-Headers`, `X-Scalar-Set-Cookie`) are dropped.
 
+Incoming clients have 10 seconds to finish sending request headers. Idle keep-alive connections close after 60 seconds between requests. These limits do not impose a deadline on active uploads or streaming responses such as SSE.
+
 ## Usage
 
 ### Requirements
