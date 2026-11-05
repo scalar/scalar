@@ -4,7 +4,7 @@
 
 # MCP & Agent
 
-Connect your APIs to LLMs quickly, securely, and with minimal context.
+Connect your APIs to LLMs quickly, securely, and with minimal context. One line connects Claude, ChatGPT or any remote MCP client to the operations you choose, with nothing to deploy.
 
 <div class="ag-cta flex">
   <a class="t-editor__button button__primary ag-pill" href="https://dashboard.scalar.com/register">Get started</a>
@@ -397,11 +397,10 @@ Spin up your first MCP server in under a minute—no boilerplate servers to main
   .ag-copy .notify-container {
     display: none;
   }
-  /* the home page's lede, a little larger: a narrow measure under the heading,
-     widened with the type so it breaks where it did */
+  /* the home page's lede: a narrow measure under the heading */
   .ag-copy p {
-    max-width: 520px;
-    font-size: 16px;
+    max-width: 460px;
+    font-size: 14px;
     line-height: 1.5;
     text-wrap: pretty;
   }
