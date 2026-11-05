@@ -4,15 +4,97 @@
 
 # API Hosting
 
-Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.
+Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more. Every push goes live, it scales with your traffic, and it costs nothing while it sleeps.
 
-<div class="bf-cta flex">
-  <a class="t-editor__button button__primary bf-pill" href="https://dashboard.scalar.com/register">Get started</a>
-  <button type="button" class="bf-pill lp-onboard" data-lp-onboard data-md-exclude aria-label="Onboard your agent: copy the Scalar setup prompt"><span class="lp-onboard-agents" aria-hidden="true"><span class="lp-onboard-agent"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4.709 15.955l4.72-2.647.08-.23-.08-.128H9.2l-.79-.048-2.698-.073-2.339-.097-2.266-.122-.571-.121L0 11.784l.055-.352.48-.321.686.06 1.52.103 2.278.158 1.652.097 2.449.255h.389l.055-.157-.134-.098-.103-.097-2.358-1.596-2.552-1.688-1.336-.972-.724-.491-.364-.462-.158-1.008.656-.722.881.06.225.061.893.686 1.908 1.476 2.491 1.833.365.304.145-.103.019-.073-.164-.274-1.355-2.446-1.446-2.49-.644-1.032-.17-.619a2.97 2.97 0 01-.104-.729L6.283.134 6.696 0l.996.134.42.364.62 1.414 1.002 2.229 1.555 3.03.456.898.243.832.091.255h.158V9.01l.128-1.706.237-2.095.23-2.695.08-.76.376-.91.747-.492.584.28.48.685-.067.444-.286 1.851-.559 2.903-.364 1.942h.212l.243-.242.985-1.306 1.652-2.064.73-.82.85-.904.547-.431h1.033l.76 1.129-.34 1.166-1.064 1.347-.881 1.142-1.264 1.7-.79 1.36.073.11.188-.02 2.856-.606 1.543-.28 1.841-.315.833.388.091.395-.328.807-1.969.486-2.309.462-3.439.813-.042.03.049.061 1.549.146.662.036h1.622l3.02.225.79.522.474.638-.079.485-1.215.62-1.64-.389-3.829-.91-1.312-.329h-.182v.11l1.093 1.068 2.006 1.81 2.509 2.33.127.578-.322.455-.34-.049-2.205-1.657-.851-.747-1.926-1.62h-.128v.17l.444.649 2.345 3.521.122 1.08-.17.353-.608.213-.668-.122-1.374-1.925-1.415-2.167-1.143-1.943-.14.08-.674 7.254-.316.37-.729.28-.607-.461-.322-.747.322-1.476.389-1.924.315-1.53.286-1.9.17-.632-.012-.042-.14.018-1.434 1.967-2.18 2.945-1.726 1.845-.414.164-.717-.37.067-.662.401-.589 2.388-3.036 1.44-1.882.93-1.086-.006-.158h-.055L4.132 18.56l-1.13.146-.487-.456.061-.746.231-.243 1.908-1.312-.006.006z" fill="#D97757" fill-rule="nonzero"></path></svg></span><span class="lp-onboard-agent"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.205 8.658v-2.26c0-.19.072-.333.238-.428l4.543-2.616c.619-.357 1.356-.523 2.117-.523 2.854 0 4.662 2.212 4.662 4.566 0 .167 0 .357-.024.547l-4.71-2.759a.797.797 0 00-.856 0l-5.97 3.473zm10.609 8.8V12.06c0-.333-.143-.57-.429-.737l-5.97-3.473 1.95-1.118a.433.433 0 01.476 0l4.543 2.617c1.309.76 2.189 2.378 2.189 3.948 0 1.808-1.07 3.473-2.76 4.163zM7.802 12.703l-1.95-1.142c-.167-.095-.239-.238-.239-.428V5.899c0-2.545 1.95-4.472 4.591-4.472 1 0 1.927.333 2.712.928L8.23 5.067c-.285.166-.428.404-.428.737v6.898zM12 15.128l-2.795-1.57v-3.33L12 8.658l2.795 1.57v3.33L12 15.128zm1.796 7.23c-1 0-1.927-.332-2.712-.927l4.686-2.712c.285-.166.428-.404.428-.737v-6.898l1.974 1.142c.167.095.238.238.238.428v5.233c0 2.545-1.974 4.472-4.614 4.472zm-5.637-5.303l-4.544-2.617c-1.308-.761-2.188-2.378-2.188-3.948A4.482 4.482 0 014.21 6.327v5.423c0 .333.143.571.428.738l5.947 3.449-1.95 1.118a.432.432 0 01-.476 0zm-.262 3.9c-2.688 0-4.662-2.021-4.662-4.519 0-.19.024-.38.047-.57l4.686 2.71c.286.167.571.167.856 0l5.97-3.448v2.26c0 .19-.07.333-.237.428l-4.543 2.616c-.619.357-1.356.523-2.117.523zm5.899 2.83a5.947 5.947 0 005.827-4.756C22.287 18.339 24 15.84 24 13.296c0-1.665-.713-3.282-1.998-4.448.119-.5.19-.999.19-1.498 0-3.401-2.759-5.947-5.946-5.947-.642 0-1.26.095-1.88.31A5.962 5.962 0 0010.205 0a5.947 5.947 0 00-5.827 4.757C1.713 5.447 0 7.945 0 10.49c0 1.666.713 3.283 1.998 4.448-.119.5-.19 1-.19 1.499 0 3.401 2.759 5.946 5.946 5.946.642 0 1.26-.095 1.88-.309a5.96 5.96 0 004.162 1.713z"></path></svg></span><span class="lp-onboard-agent"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.106 5.68L12.5.135a.998.998 0 00-.998 0L1.893 5.68a.84.84 0 00-.419.726v11.186c0 .3.16.577.42.727l9.607 5.547a.999.999 0 00.998 0l9.608-5.547a.84.84 0 00.42-.727V6.407a.84.84 0 00-.42-.726zm-.603 1.176L12.228 22.92c-.063.108-.228.064-.228-.061V12.34a.59.59 0 00-.295-.51l-9.11-5.26c-.107-.062-.063-.228.062-.228h18.55c.264 0 .428.286.296.514z"></path></svg></span></span><span class="lp-onboard-text" aria-live="polite"><span class="lp-onboard-rest">Onboard your agent</span><span class="lp-onboard-done">Paste to your agent</span></span><span class="lp-onboard-icon" aria-hidden="true"><scalar-icon class="lp-onboard-copy" src="phosphor/regular/copy"></scalar-icon><scalar-icon class="lp-onboard-check" src="phosphor/regular/check"></scalar-icon></span></button>
-</div>
+<form class="bf-waitlist" data-bf-waitlist data-md-exclude action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3" method="post">
+  <input type="hidden" name="userGroup" value="Hosting" />
+  <input type="hidden" name="mailingLists" value="" />
+  <div class="bf-waitlist-row">
+    <div class="bf-combo">
+      <label class="bf-sr" for="bf-waitlist-email">Email</label>
+      <input id="bf-waitlist-email" class="bf-email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
+      <label class="bf-sr" for="bf-waitlist-framework">Framework</label>
+      <span class="bf-select">
+        <select id="bf-waitlist-framework" name="framework">
+          <option value="">Framework</option>
+          <option>.NET</option>
+          <option>AdonisJS</option>
+          <option>Elysia</option>
+          <option>Express</option>
+          <option>FastAPI</option>
+          <option>Fastify</option>
+          <option>Go</option>
+          <option>Hono</option>
+          <option>Laravel</option>
+          <option>Litestar</option>
+          <option>NestJS</option>
+          <option>Next.js</option>
+          <option>Nitro</option>
+          <option>Nuxt</option>
+          <option>Platformatic</option>
+          <option>Rust</option>
+          <option>Other</option>
+        </select>
+        <scalar-icon class="bf-select-caret" src="phosphor/regular/caret-down"></scalar-icon>
+      </span>
+    </div>
+    <button type="submit" class="t-editor__button button__primary bf-pill bf-join">Join Waitlist</button>
+  </div>
+</form>
 
 </div>
 </section>
+
+Bring the app you already have, in the framework it is written in. Every pull request gets a preview of its own, logs and metrics come built in, and you pay by the second for what runs, with no request fees. Start with $5 of free credits, no card needed.
+
+## Everything your API needs to run
+
+<div class="feature">
+  <div class="feature-container">
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/brackets-curly"></scalar-icon>
+        The framework you already use
+      </b>
+      <p class="leading-6">NestJS, Hono, Elysia, .NET, FastAPI, Laravel, Rust and nine more. Bring your app as it is, with nothing to rewrite.</p>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/git-branch"></scalar-icon>
+        Deploys on every push
+      </b>
+      <p class="leading-6">Push to your repository and the new version goes live. Shipping is a git push, not a release day.</p>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/git-pull-request"></scalar-icon>
+        A preview for every pull request
+      </b>
+      <p class="leading-6">Each pull request runs on a preview of its own, so you can try a change before it reaches your users.</p>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/cpu"></scalar-icon>
+        Scales with your traffic
+      </b>
+      <p class="leading-6">From 1 vCPU and 0.5 GB of memory up to 48 vCPU and 48 GB, as your traffic grows.</p>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/moon"></scalar-icon>
+        Sleeps when idle, $0
+      </b>
+      <p class="leading-6">Billed per second for what runs, with no request fees. Quiet hours cost nothing.</p>
+    </div>
+    <div class="feature-item">
+      <b class="flex items-center icon-text gap-3 font-medium min-h-8 text-c-1">
+        <scalar-icon src="phosphor/bold/pulse"></scalar-icon>
+        Logs, metrics and networking
+      </b>
+      <p class="leading-6">Logs and metrics come built in, and private networking connects your API to your other services.</p>
+    </div>
+  </div>
+</div>
 
 <style>
   .t-editor__anchor {
@@ -34,6 +116,22 @@ Deploy your API from the server framework you already use: NestJS, Hono, Elysia,
   .t-editor__button {
     min-width: 160px;
     justify-content: center;
+  }
+
+  /* What hosting includes, laid out as /products/agent lays out its features. */
+  .feature-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 48px;
+    row-gap: 36px;
+    margin-top: 32px;
+  }
+
+  @media screen and (max-width: 1000px) {
+    .feature-container {
+      grid-template-columns: 1fr;
+      row-gap: 28px;
+    }
   }
 
   /* the hero starts right under the header, as the home page's does */
@@ -123,131 +221,169 @@ Deploy your API from the server framework you already use: NestJS, Hono, Elysia,
     line-height: 1.5;
     text-wrap: pretty;
   }
-  /* The calls to action as the home page's pills. landing.js wires any [data-lp-onboard] button, on any
-     page. */
-  .bf-cta {
+  /* The call to action is the hosting waitlist from the API reference's Deploy card: one pill that takes an
+     email, with the framework it would run on picked inside it on the right, and the button beside it, at the
+     home page's 40px. api-hosting-waitlist.js sends it to the same Loops form and user group as the card. */
+  .bf-waitlist {
+    position: relative;
+    /* as wide as the copy, which centres what is in it, so that the row can stretch on a phone */
+    width: 100%;
+    margin-top: 12px;
+  }
+  .bf-waitlist-row {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    margin-top: 12px;
-    flex-wrap: wrap;
+    gap: 8px;
   }
-  .bf-cta .bf-pill {
+  .bf-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .bf-combo {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 320px;
+    height: 40px;
+    padding: 0 5px 0 18px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 999px;
+    background: var(--scalar-background-1);
+    transition: border-color 150ms ease-in-out;
+  }
+  .bf-combo:hover {
+    border-color: color-mix(in srgb, var(--scalar-border-color), var(--scalar-color-1) 20%);
+  }
+  .bf-combo:focus-within {
+    border-color: var(--scalar-color-1);
+  }
+  .bf-email {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--scalar-color-1);
+    font-family: var(--scalar-font);
+    font-size: 14px;
+  }
+  .bf-email::placeholder {
+    color: var(--scalar-color-3);
+  }
+  /* The framework, inside the pill at its right end and only as wide as what it says, with the site's caret in
+     place of the browser's arrow. Where field-sizing is unknown, api-hosting-waitlist.js sizes it instead. */
+  .bf-select {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+  }
+  .bf-select select {
+    appearance: none;
+    field-sizing: content;
+    box-sizing: border-box;
+    height: 30px;
+    margin: 0;
+    padding: 0 28px 0 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--scalar-background-2);
+    color: var(--scalar-color-1);
+    font-family: var(--scalar-font);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 150ms ease-in-out;
+  }
+  .bf-select select:hover {
+    background: var(--scalar-background-3);
+  }
+  .bf-select select:focus-visible {
+    outline: 1px solid var(--scalar-color-1);
+    outline-offset: 1px;
+  }
+  /* no framework picked yet: the placeholder's grey */
+  .bf-select select:has(option[value=""]:checked) {
+    color: var(--scalar-color-2);
+  }
+  .bf-select option {
+    color: var(--scalar-color-1);
+  }
+  .bf-select-caret {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 12px;
+    height: 12px;
+    translate: 0 -50%;
+    color: var(--scalar-color-3);
+    pointer-events: none;
+  }
+  .bf-waitlist .bf-join {
     min-width: 0;
     height: 40px;
     margin: 0;
     padding: 0 20px;
+    border: 0;
     border-radius: 999px;
-  }
-  .bf-cta .lp-onboard {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px 0 8px;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    background: var(--scalar-background-1);
-    color: var(--scalar-color-1);
     font-family: var(--scalar-font);
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1;
     cursor: pointer;
-    transition:
-      background 150ms ease-in-out,
-      border-color 150ms ease-in-out;
   }
-  .bf-cta .lp-onboard:hover {
-    background: var(--scalar-background-2);
+  .bf-waitlist .bf-join[aria-busy="true"] {
+    opacity: 0.6;
+    cursor: progress;
   }
-  .bf-cta .lp-onboard:focus-visible {
-    outline: 1px solid var(--scalar-color-1);
-    outline-offset: 2px;
-  }
-  .lp-onboard-agents {
-    display: flex;
-  }
-  .lp-onboard-agent {
-    display: grid;
-    place-items: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--scalar-background-1);
-    box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
-    color: var(--scalar-color-1);
-    transition:
-      background 200ms,
-      box-shadow 200ms;
-  }
-  .lp-onboard-agent + .lp-onboard-agent {
-    margin-left: -8px;
-  }
-  .lp-onboard:hover .lp-onboard-agent {
-    background: var(--scalar-background-2);
-    box-shadow: inset 0 0 0 var(--scalar-border-width)
-      color-mix(in srgb, var(--scalar-border-color), var(--scalar-color-1) 15%);
-  }
-  .lp-onboard-agent svg {
-    width: 14px;
-    height: 14px;
-  }
-  .lp-onboard-agent svg [fill] {
-    fill: currentColor;
-  }
-  .lp-onboard-text {
-    display: grid;
-  }
-  /* the label keeps the width of its wider wording, so the pill never jumps */
-  .lp-onboard-text > span {
-    grid-area: 1 / 1;
-    white-space: nowrap;
-  }
-  .lp-onboard-done,
-  .lp-onboard.is-copied .lp-onboard-rest {
-    visibility: hidden;
-  }
-  .lp-onboard.is-copied .lp-onboard-done {
-    visibility: visible;
-    animation: bf-onboard-in 220ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  @keyframes bf-onboard-in {
-    from {
-      opacity: 0;
-      translate: 0 4px;
-    }
-  }
-  .lp-onboard-icon {
-    position: relative;
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
-    color: var(--scalar-color-3);
-  }
-  .lp-onboard-icon svg {
+  /* Feedback goes under the row without making the copy taller, because the hero lays its land out from the
+     copy's box. The script adds it, as the page leaves out an empty paragraph. */
+  .bf-waitlist .bf-waitlist-status {
     position: absolute;
-    inset: 0;
-    display: block;
-    width: 16px;
-    height: 16px;
-    transition:
-      opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
-      scale 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    top: 100%;
+    left: 0;
+    right: 0;
+    max-width: none;
+    margin: 8px 0 0;
+    color: var(--scalar-color-2);
+    font-size: 13px;
+    text-align: center;
   }
-  .lp-onboard-check,
-  .lp-onboard.is-copied .lp-onboard-copy {
-    opacity: 0;
-    scale: 0.5;
+  .bf-waitlist .bf-waitlist-status.is-error {
+    color: var(--scalar-color-red);
   }
-  .lp-onboard.is-copied .lp-onboard-check {
-    opacity: 1;
-    scale: 1;
+  /* Once signed up, the thanks takes the row's place at the row's height. */
+  .bf-waitlist.is-done .bf-waitlist-row {
+    display: none;
   }
-  @media (prefers-reduced-motion: reduce) {
-    .lp-onboard-icon svg {
-      transition: none;
+  .bf-waitlist.is-done .bf-waitlist-status {
+    position: static;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    margin: 0;
+    color: var(--scalar-color-1);
+    font-size: 15px;
+    font-weight: 500;
+  }
+  /* On a phone the button goes under the pill, as wide as it. */
+  @media screen and (max-width: 560px) {
+    .bf-waitlist-row {
+      flex-direction: column;
+      align-items: stretch;
+      width: min(100%, 360px);
+      margin: 0 auto;
     }
-    .lp-onboard.is-copied .lp-onboard-done {
-      animation: none;
+    .bf-combo,
+    .bf-waitlist .bf-join {
+      width: 100%;
     }
   }
   /* Where WebGL2 is unavailable the hero is the copy on its own, on the same line, rather than an empty box

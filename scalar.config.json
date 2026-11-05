@@ -1408,6 +1408,10 @@
                     {
                       "path": "documentation/assets/api-hosting-hero.js",
                       "defer": true
+                    },
+                    {
+                      "path": "documentation/assets/api-hosting-waitlist.js",
+                      "defer": true
                     }
                   ],
                   "links": [
