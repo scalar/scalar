@@ -139,6 +139,8 @@ describe('AgentScalarChatInterface', () => {
           await wrapper.get('textarea').setValue('Explain this API')
           await wrapper.get('textarea').trigger('keydown', { key: 'Enter' })
           await flushPromises()
+          expect(wrapper.text()).not.toContain('Selected API description:')
+          expect(wrapper.text()).toContain('Explain this API')
           expect(uploads.at(-1)).toBe(workspaceStore.exportActiveDocument('json'))
         }
         expect(uploads.length).toBe(3)
@@ -152,25 +154,28 @@ describe('AgentScalarChatInterface', () => {
             [
               {
                 type: 'text',
-                text: 'Explain this API\n\nSelected API description: HTTP (OpenAPI, version 1, source http)',
+                text: 'Selected API description: HTTP (OpenAPI, version 1, source http)',
               },
             ],
+            [{ type: 'text', text: 'Explain this API' }],
           ],
           [
             [
               {
                 type: 'text',
-                text: 'Explain this API\n\nSelected API description: Events (AsyncAPI, version 2, source events)',
+                text: 'Selected API description: Events (AsyncAPI, version 2, source events)',
               },
             ],
+            [{ type: 'text', text: 'Explain this API' }],
           ],
           [
             [
               {
                 type: 'text',
-                text: 'Explain this API\n\nSelected API description: HTTP (OpenAPI, version 1, source http)',
+                text: 'Selected API description: HTTP (OpenAPI, version 1, source http)',
               },
             ],
+            [{ type: 'text', text: 'Explain this API' }],
           ],
         ])
         expect(requests).not.toContain('https://api.example.com/vector/registry/documents')
