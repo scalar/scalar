@@ -138,7 +138,7 @@ The command runs:
 - `@scalar/void-server` on its default port
 - `proxy-scalar-com` on its default port
 
-Both servers run with `CI=1` environment variable set. The proxy uses `test:server`, a separate Go test harness bound to `127.0.0.1` that allows private targets for local fixtures. This harness is excluded from normal proxy builds and Docker images; the normal executable always blocks private targets. While the harness runs, local callers, including browser requests, can use it to reach private targets.
+Both servers run with `CI=1` environment variable set. The proxy uses `test:server`, a separate Go test harness bound to `127.0.0.1` that allows private targets for local fixtures. This harness is excluded from normal proxy builds and Docker images; the normal executable always blocks private targets. While the harness runs, local callers, including browser requests, can use it to reach private targets. An existing server on port 5051 is reused only if its health response identifies it as the fixture harness; otherwise the command fails without stopping that server.
 
 ### `update-playwright-docker`
 
