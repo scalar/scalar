@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -441,7 +442,7 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Refuses scalar_url set to proxy root", func(t *testing.T) {
+	t.Run("Handles scalar_url set to proxy root without looping", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -460,16 +461,16 @@ func TestProxyBehavior(t *testing.T) {
 			t.Fatalf("Failed to read response body: %v", err)
 		}
 
-		if resp.StatusCode != http.StatusBadRequest {
-			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
+		if resp.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
 		}
 
-		if !strings.Contains(string(body), proxyTargetError) {
-			t.Errorf("Expected the self-target error, got %q", string(body))
+		if len(body) == 0 {
+			t.Error("Expected non-empty response body")
 		}
 	})
 
-	t.Run("Refuses nested scalar_url chain pointing back to proxy", func(t *testing.T) {
+	t.Run("Stops nested scalar_url chain pointing back to proxy", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -493,12 +494,12 @@ func TestProxyBehavior(t *testing.T) {
 			t.Fatalf("Failed to read response body: %v", err)
 		}
 
-		if resp.StatusCode != http.StatusBadRequest {
-			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
+		if resp.StatusCode != http.StatusLoopDetected {
+			t.Errorf("Expected status code %d, got %d", http.StatusLoopDetected, resp.StatusCode)
 		}
 
-		if !strings.Contains(string(body), proxyTargetError) {
-			t.Errorf("Expected the self-target error, got %q", string(body))
+		if !strings.Contains(string(body), proxyLoopError) {
+			t.Errorf("Expected the loop error, got %q", string(body))
 		}
 	})
 
@@ -979,7 +980,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range blocked {
-		if !isBlockedHost(host) {
+		if !isBlockedHost(context.Background(), host) {
 			t.Errorf("Expected %s to be blocked", host)
 		}
 	}
@@ -991,7 +992,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range allowed {
-		if isBlockedHost(host) {
+		if isBlockedHost(context.Background(), host) {
 			t.Errorf("Expected %s to be allowed", host)
 		}
 	}

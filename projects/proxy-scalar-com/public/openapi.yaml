@@ -67,7 +67,7 @@ components:
             type: string
           example: 'dial tcp: lookup doesnotexist on 0.0.0.0: no such host'
     GatewayTimeout:
-      description: The target server did not respond in time
+      description: The target server did not accept the connection or did not respond in time
       content:
         text/plain:
           schema:

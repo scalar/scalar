@@ -36,8 +36,8 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 - Redirects that reach the browser are never followed: the validated absolute URL is passed on as `X-Scalar-Original-Location`, and redirects to another origin or with more than one `Location` are rejected.
 - Upstream headers that use the proxy's own names (`X-Scalar-Original-*`, `X-Scalar-Modified-Headers`, `X-Scalar-Set-Cookie`) are dropped.
 - Hop-by-hop response headers (`Connection` and every header it names, `Keep-Alive`, `Proxy-*`, `TE`, `Trailer`, `Transfer-Encoding`, `Upgrade`) are not forwarded.
-- A `scalar_url` that points to the proxy itself (the host the request came in on, or one listed in `PROXY_SELF_HOSTS`) is rejected with `400`. Outgoing requests carry `X-Scalar-Proxy-Hop`, and incoming requests that have it are rejected with `508`, which also stops loops through a hostname the proxy does not know.
-- Upstream requests are cancelled when the client disconnects. An upstream that does not send response headers within 5 minutes gets a `504`, and no upstream request runs longer than 30 minutes. Client connections have read and idle timeouts.
+- A `scalar_url` on a host listed in `PROXY_SELF_HOSTS` is rejected with `400`. Outgoing requests carry `X-Scalar-Proxy-Hop`, and incoming requests that have it are rejected with `508`, which stops loops through any name for the proxy. Hop-by-hop request headers are not forwarded either.
+- Upstream requests are cancelled when the client disconnects, and DNS lookups take at most 10 seconds. An upstream that does not accept the connection or send response headers in time (5 minutes for headers) gets a `504`. No upstream request, upload included, runs longer than 30 minutes. When a response breaks off after its status was sent, the connection is closed, so the client sees that the response is incomplete. Client connections have read and idle timeouts.
 
 Incoming clients have 10 seconds to finish sending request headers. Idle keep-alive connections close after 60 seconds between requests. Each incoming body read also has a 60-second idle deadline, refreshed for every read and cleared between reads. These limits do not impose a whole-request deadline on active uploads or streaming responses such as SSE.
 
@@ -79,7 +79,7 @@ PORT=8080 go run main.go
 | `ENV=dev`                     | Development mode: allows targets on private and loopback addresses, skips upstream certificate verification, and listens on `127.0.0.1` only. |
 | `PROXY_LISTEN_HOST`           | The address to listen on, for example `0.0.0.0` to accept connections from outside a container in development mode. Defaults to every interface, or `127.0.0.1` in development mode. |
 | `ALLOW_INSECURE_UPSTREAM_TLS` | Set to `true` to skip upstream certificate verification outside development mode, for example to reach APIs with self-signed certificates. Anyone who can intercept that traffic can then read and change it. |
-| `PROXY_SELF_HOSTS`            | Comma-separated hosts that also reach this proxy, like a custom domain or the Cloud Run URL. Targets on these hosts are rejected. A host without a port matches every port. |
+| `PROXY_SELF_HOSTS`            | Comma-separated hosts that reach this proxy, like its custom domain and the Cloud Run URL (`proxy.example.com,proxy-xyz.a.run.app`; full URLs work too). Targets on these hosts are rejected before any request is sent. A host without a port matches every port. |
 
 ### Example request
 

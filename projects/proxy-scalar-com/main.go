@@ -162,8 +162,38 @@ func effectivePort(u *url.URL) string {
 	}
 }
 
+// dnsTimeout limits a lookup, which the dialer timeout does not cover.
+const dnsTimeout = 10 * time.Second
+
+// resolve looks up a hostname. It stops when ctx is done or after dnsTimeout.
+//
+// Lookups before the request follow the client's request. The transport detaches
+// dials from the request, so a connection can still be reused after it is
+// cancelled. For those, dnsTimeout is the limit, like the dialer timeout.
+func resolve(ctx context.Context, host string) ([]net.IP, error) {
+	ctx, cancel := context.WithTimeout(ctx, dnsTimeout)
+	defer cancel()
+
+	return lookupIP(ctx, host)
+}
+
+// lookupIP is the DNS lookup behind resolve. Tests replace it.
+var lookupIP = func(ctx context.Context, host string) ([]net.IP, error) {
+	addrs, err := net.DefaultResolver.LookupIPAddr(ctx, host)
+	if err != nil {
+		return nil, err
+	}
+
+	ips := make([]net.IP, 0, len(addrs))
+	for _, addr := range addrs {
+		ips = append(ips, addr.IP)
+	}
+
+	return ips, nil
+}
+
 // Check if a given hostname or IP resolves to any blocked CIDR
-func isBlockedHost(host string) bool {
+func isBlockedHost(ctx context.Context, host string) bool {
 	// Strip port if present
 	h := host
 
@@ -177,7 +207,7 @@ func isBlockedHost(host string) bool {
 	}
 
 	// Otherwise resolve via DNS
-	ips, err := net.LookupIP(h)
+	ips, err := resolve(ctx, h)
 
 	if err != nil {
 		// On DNS errors, block
@@ -204,10 +234,10 @@ func main() {
 		port = p
 	}
 
-	dev := os.Getenv("ENV") == "dev"
+	config := proxyConfigFromEnv(os.Getenv)
 
 	// Create a new proxy server instance
-	proxyServer := NewProxyServerWithConfig(proxyConfigFromEnv(os.Getenv))
+	proxyServer := NewProxyServerWithConfig(config)
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()
@@ -216,7 +246,8 @@ func main() {
 	// Add our custom CORS middleware to handle cross-origin requests
 	handler := corsMiddleware(mux)
 
-	server := newHTTPServer(listenAddress(dev, os.Getenv("PROXY_LISTEN_HOST"), port), handler)
+	// A proxy that can reach private networks only listens on this machine
+	server := newHTTPServer(listenAddress(config.BypassCidr, os.Getenv("PROXY_LISTEN_HOST"), port), handler)
 
 	log.Println("🥤 Proxy Server listening on " + server.Addr)
 
@@ -235,7 +266,19 @@ func proxyConfigFromEnv(getenv func(string) string) ProxyConfig {
 
 	selfHosts := []string{}
 	for _, host := range strings.Split(getenv("PROXY_SELF_HOSTS"), ",") {
-		if host = strings.TrimSpace(host); host != "" {
+		host = strings.TrimSpace(host)
+
+		// Accept a URL, like the one Cloud Run shows, and keep its host
+		if strings.Contains(host, "://") {
+			u, err := url.Parse(host)
+			if err != nil || u.Host == "" {
+				log.Printf("⚠️ Ignoring invalid PROXY_SELF_HOSTS entry %q", host)
+				continue
+			}
+			host = u.Host
+		}
+
+		if host != "" {
 			selfHosts = append(selfHosts, host)
 		}
 	}
@@ -302,7 +345,7 @@ func incomingBodyTimeout(next http.Handler, idle time.Duration) http.Handler {
 type ProxyServer struct {
 	transport  *http.Transport
 	bypassCidr bool
-	selfHosts  []string
+	selfHosts  []selfHost
 	// bufferedBodyBytes counts the request body bytes held in memory right now.
 	bufferedBodyBytes atomic.Int64
 }
@@ -361,9 +404,8 @@ type ProxyConfig struct {
 	BypassCidr bool
 	// AllowInsecureUpstreamTLS skips verification of upstream certificates.
 	AllowInsecureUpstreamTLS bool
-	// SelfHosts lists other hosts that reach this proxy, like a custom domain or
-	// the Cloud Run URL. Requests to the host the request came in on are always
-	// refused.
+	// SelfHosts lists the hosts that reach this proxy, like its custom domain and
+	// the Cloud Run URL. Targets on them are refused before any request is sent.
 	SelfHosts []string
 	// ResponseHeaderTimeout limits how long the upstream may take to send its
 	// response headers. Zero uses defaultResponseHeaderTimeout.
@@ -402,7 +444,7 @@ func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 
 	return &ProxyServer{
 		bypassCidr: bypassCidr,
-		selfHosts:  config.SelfHosts,
+		selfHosts:  parseSelfHosts(config.SelfHosts),
 		transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				MinVersion:         tls.VersionTLS12,
@@ -432,7 +474,7 @@ func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 				}
 
 				// Re-resolve hostname on every dial
-				ips, err := net.LookupIP(host)
+				ips, err := resolve(ctx, host)
 
 				if err != nil {
 					return nil, err
@@ -520,7 +562,7 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// A request the proxy sent itself has come back, through a name for the proxy
-	// that targetsProxy does not know. Every pass would hold another connection.
+	// that is not in the configured proxy hosts.
 	if _, present := r.Header[proxyHopHeader]; present {
 		http.Error(w, proxyLoopError, http.StatusLoopDetected)
 		return
@@ -529,14 +571,14 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Get and validate the target URL from the `scalar_url` query parameter
 	target := r.URL.Query().Get("scalar_url")
 
-	remote, validationErrors := ps.validateScalarURL(target)
+	remote, validationErrors := ps.validateScalarURL(r.Context(), target)
 	if len(validationErrors) > 0 {
 		firstError := validationErrors[0]
 		http.Error(w, firstError.message, firstError.statusCode)
 		return
 	}
 
-	if ps.targetsProxy(remote, r.Host) {
+	if ps.targetsProxy(remote) {
 		http.Error(w, proxyTargetError, http.StatusBadRequest)
 		return
 	}
@@ -552,25 +594,17 @@ const proxyLoopError = "Loop Detected: The request already passed through the pr
 
 const proxyTargetError = "Bad Request: The `scalar_url` query parameter must not point to the proxy itself."
 
-// targetsProxy reports whether the target is this proxy: the host the request
-// came in on, or one of the configured proxy hosts. A host without a port
-// matches every port.
-func (ps *ProxyServer) targetsProxy(remote *url.URL, requestHost string) bool {
-	normalize := func(hostname string) string {
-		return strings.TrimSuffix(strings.Trim(hostname, "[]"), ".")
-	}
+// targetsProxy reports whether the target is one of the configured proxy hosts.
+// A host without a port matches every port.
+//
+// The Host header of the request is not used: behind a gateway that routes by
+// path, the proxy shares its host with the APIs it is meant to reach. Loops
+// through any name for the proxy are stopped by proxyHopHeader instead.
+func (ps *ProxyServer) targetsProxy(remote *url.URL) bool {
+	hostname := normalizeHostname(remote.Hostname())
 
-	for _, self := range append([]string{requestHost}, ps.selfHosts...) {
-		hostname, port := strings.TrimSpace(self), ""
-		if h, p, err := net.SplitHostPort(hostname); err == nil {
-			hostname, port = h, p
-		}
-
-		if hostname == "" || !strings.EqualFold(normalize(hostname), normalize(remote.Hostname())) {
-			continue
-		}
-
-		if port == "" || port == effectivePort(remote) {
+	for _, self := range ps.selfHosts {
+		if strings.EqualFold(self.hostname, hostname) && (self.port == "" || self.port == effectivePort(remote)) {
 			return true
 		}
 	}
@@ -599,24 +633,38 @@ func proxyErrorCategory(err error) string {
 	return "request failed"
 }
 
-// loggableError removes credentials, the query string, and the fragment from a
-// target URL in an error. API keys and tokens are often passed in the query
-// string, and they must not end up in the logs.
-func loggableError(err error) error {
-	var urlErr *url.Error
-	if !errors.As(err, &urlErr) {
-		return err
-	}
-
-	redacted := "(invalid URL)"
-	if u, parseErr := url.Parse(urlErr.URL); parseErr == nil {
-		redacted = (&url.URL{Scheme: u.Scheme, Opaque: u.Opaque, Host: u.Host, Path: u.Path, RawPath: u.RawPath}).String()
-	}
-
-	return &url.Error{Op: urlErr.Op, URL: redacted, Err: urlErr.Err}
+// selfHost is a configured proxy host. An empty port matches every port.
+type selfHost struct {
+	hostname string
+	port     string
 }
 
-func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValidationError) {
+// parseSelfHosts splits the configured proxy hosts once, so requests only
+// compare them.
+func parseSelfHosts(hosts []string) []selfHost {
+	parsed := []selfHost{}
+
+	for _, host := range hosts {
+		hostname, port := strings.TrimSpace(host), ""
+		if h, p, err := net.SplitHostPort(hostname); err == nil {
+			hostname, port = h, p
+		}
+
+		if hostname = normalizeHostname(hostname); hostname != "" {
+			parsed = append(parsed, selfHost{hostname: hostname, port: port})
+		}
+	}
+
+	return parsed
+}
+
+// normalizeHostname removes IPv6 brackets and the trailing dot of a fully
+// qualified name, which reach the same host.
+func normalizeHostname(hostname string) string {
+	return strings.TrimSuffix(strings.Trim(hostname, "[]"), ".")
+}
+
+func (ps *ProxyServer) validateScalarURL(ctx context.Context, target string) (*url.URL, []proxyValidationError) {
 	errors := []proxyValidationError{}
 
 	if target == "" {
@@ -640,7 +688,7 @@ func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValida
 	}
 
 	// Deny any private, link-local, or loopback addresses
-	if !ps.bypassCidr && isBlockedHost(remote.Host) {
+	if !ps.bypassCidr && isBlockedHost(ctx, remote.Host) {
 		errors = append(errors, scalarURLValidationErrors[2])
 		return nil, errors
 	}
@@ -688,7 +736,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		Timeout:   upstreamRequestTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Handle private CIDR check again on redirect
-			if !ps.bypassCidr && isBlockedHost(req.URL.Host) {
+			if !ps.bypassCidr && isBlockedHost(req.Context(), req.URL.Host) {
 				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
 			}
 
@@ -779,10 +827,6 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Remove the X-Scalar-Cookie header
 	outreq.Header.Del("X-Scalar-Cookie")
 
-	// Lets the proxy recognize its own requests, when it is the target under a
-	// name it does not know
-	outreq.Header.Set(proxyHopHeader, "1")
-
 	// Browsers strip some forbidden headers from outgoing requests.
 	// For a small allowlist, users can send `X-Scalar-*` and we forward the corresponding header.
 	for _, forbiddenHeader := range forbiddenHeadersForProxy {
@@ -806,6 +850,11 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	releaseBody()
 
 	if err != nil {
+		// The client left, so there is nobody to answer and nothing went wrong
+		if r.Context().Err() != nil {
+			return nil
+		}
+
 		status := http.StatusServiceUnavailable
 		var netErr net.Error
 		if errors.As(err, &netErr) && netErr.Timeout() {
@@ -820,6 +869,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Strip connection-scoped fields before reflecting or replacing any headers.
 	removeHopByHopHeaders(resp.Header, resp.Header.Values("Connection"))
+	removeProxyHeaders(resp.Header)
 
 	redirectLocation := ""
 
@@ -931,7 +981,16 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Copy the body
 	if _, err := io.Copy(responseWriter, resp.Body); err != nil {
-		return err
+		// The client left, which also cancels the upstream request
+		if r.Context().Err() != nil {
+			return nil
+		}
+
+		// The status is sent already. Aborting closes the connection without
+		// ending the body, so the client sees that the response is incomplete.
+		// Returning would end a chunked response as if it were complete.
+		log.Printf("[Proxy Error:] %s\n", proxyErrorCategory(err))
+		panic(http.ErrAbortHandler)
 	}
 
 	return nil
@@ -954,6 +1013,16 @@ func removeHopByHopHeaders(header http.Header, connections []string) {
 		"Proxy-Authorization", "Te", "Trailer", "Transfer-Encoding", "Upgrade",
 	} {
 		header.Del(name)
+	}
+}
+
+// removeProxyHeaders removes Proxy-* response headers. They are meant for the
+// proxy, not for the client.
+func removeProxyHeaders(header http.Header) {
+	for key := range header {
+		if len(key) >= len("Proxy-") && strings.EqualFold(key[:len("Proxy-")], "Proxy-") {
+			delete(header, key)
+		}
 	}
 }
 

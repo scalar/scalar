@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -13,6 +15,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -192,12 +195,18 @@ func TestUpstreamTimeouts(t *testing.T) {
 	t.Run("cancels the upstream request when the client goes away", func(t *testing.T) {
 		server, started, cancelled := blockingServer(t)
 		ps := NewProxyServer(true)
+		logs := captureLogs(t)
 
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(server.URL), nil).WithContext(ctx)
-		go ps.handleRequest(httptest.NewRecorder(), req)
+		w := httptest.NewRecorder()
+		done := make(chan struct{})
+		go func() {
+			ps.handleRequest(w, req)
+			close(done)
+		}()
 
 		select {
 		case <-started:
@@ -212,11 +221,86 @@ func TestUpstreamTimeouts(t *testing.T) {
 		case <-time.After(3 * time.Second):
 			t.Fatal("Expected the upstream request to be cancelled")
 		}
+
+		<-done
+
+		// Nobody is left to read an error, and the client leaving is not one
+		if w.Body.Len() != 0 {
+			t.Errorf("Expected no response, got %q", w.Body.String())
+		}
+		if logs.String() != "" {
+			t.Errorf("Expected nothing to be logged, got %q", logs.String())
+		}
+	})
+
+	t.Run("stays quiet when the client leaves during a stream", func(t *testing.T) {
+		upstreamDone := make(chan struct{})
+		upstream := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			defer close(upstreamDone)
+			w.Header().Set("Content-Type", "text/event-stream")
+			for {
+				fmt.Fprint(w, "data: tick\n\n")
+				w.(http.Flusher).Flush()
+				select {
+				case <-r.Context().Done():
+					return
+				case <-time.After(20 * time.Millisecond):
+				}
+			}
+		})
+		defer upstream.server.Close()
+
+		proxyDone := make(chan struct{})
+		ps := NewProxyServer(true)
+		proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			defer close(proxyDone)
+			ps.handleRequest(w, r)
+		}))
+		defer proxy.Close()
+		logs := captureLogs(t)
+
+		resp, err := http.Get(proxy.URL + "/?scalar_url=" + url.QueryEscape(upstream.url))
+		if err != nil {
+			t.Fatalf("Request failed: %v", err)
+		}
+		if _, err := readSSEEvent(bufio.NewReader(resp.Body)); err != nil {
+			t.Fatalf("Expected an event, got %v", err)
+		}
+		resp.Body.Close()
+
+		for _, done := range []chan struct{}{upstreamDone, proxyDone} {
+			select {
+			case <-done:
+			case <-time.After(3 * time.Second):
+				t.Fatal("Expected the stream to stop when the client left")
+			}
+		}
+
+		if logs.String() != "" {
+			t.Errorf("Expected nothing to be logged, got %q", logs.String())
+		}
 	})
 }
 
 func TestSelfProxying(t *testing.T) {
-	t.Run("refuses a target on the host the request came in on", func(t *testing.T) {
+	t.Run("allows targets on the host the request came in on", func(t *testing.T) {
+		// Behind a gateway that routes by path, the proxy and the API share a host
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("api"))
+		})
+		defer server.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(server.url+"/api/users"), nil)
+		req.Host = strings.TrimPrefix(server.url, "http://")
+		w := httptest.NewRecorder()
+		NewProxyServer(true).handleRequest(w, req)
+
+		if w.Code != http.StatusOK || w.Body.String() != "api" {
+			t.Errorf("Expected the API response, got %d %q", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("stops a loop through the host the request came in on", func(t *testing.T) {
 		ps := NewProxyServer(true)
 		hits := &atomic.Int32{}
 		proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -225,17 +309,64 @@ func TestSelfProxying(t *testing.T) {
 		}))
 		defer proxy.Close()
 
-		resp, err := http.Get(proxy.URL + "/?scalar_url=" + url.QueryEscape(proxy.URL+"/ping"))
+		upstreamHits := &atomic.Int32{}
+		upstream := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			upstreamHits.Add(1)
+		})
+		defer upstream.server.Close()
+
+		inner := proxy.URL + "/?scalar_url=" + url.QueryEscape(upstream.url)
+		resp, err := http.Get(proxy.URL + "/?scalar_url=" + url.QueryEscape(inner))
 		if err != nil {
 			t.Fatalf("Request failed: %v", err)
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode != http.StatusBadRequest {
-			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, resp.StatusCode)
+		if resp.StatusCode != http.StatusLoopDetected {
+			t.Errorf("Expected status code %d, got %d", http.StatusLoopDetected, resp.StatusCode)
 		}
-		if hits.Load() != 1 {
-			t.Errorf("Expected the proxy to receive only the original request, got %d", hits.Load())
+		if hits.Load() != 2 {
+			t.Errorf("Expected the proxy to receive two requests, got %d", hits.Load())
+		}
+		if upstreamHits.Load() != 0 {
+			t.Errorf("Expected the upstream to receive no request, got %d", upstreamHits.Load())
+		}
+	})
+
+	t.Run("does not let the client remove the loop marker", func(t *testing.T) {
+		received := make(chan http.Header, 1)
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			received <- r.Header.Clone()
+		})
+		defer server.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape(server.url), nil)
+		req.Header.Set("Connection", "X-Scalar-Proxy-Hop, X-Listed")
+		req.Header.Set("X-Listed", "1")
+		req.Header.Set("Keep-Alive", "timeout=5")
+		req.Header.Set("Upgrade", "h2c")
+		req.Header.Set("Proxy-Authorization", "Basic dXNlcjpwYXNz")
+		NewProxyServer(true).handleRequest(httptest.NewRecorder(), req)
+
+		var header http.Header
+		select {
+		case header = <-received:
+		case <-time.After(3 * time.Second):
+			t.Fatal("Expected the upstream to receive the request")
+		}
+		if got := header.Get(proxyHopHeader); got != "1" {
+			t.Errorf("Expected the loop marker, got %q", got)
+		}
+		for _, name := range []string{"X-Listed", "Keep-Alive", "Upgrade"} {
+			if value := header.Values(name); len(value) > 0 {
+				t.Errorf("Expected %s to be removed, got %q", name, value)
+			}
+		}
+		if strings.Contains(strings.ToLower(header.Get("Connection")), "proxy-hop") {
+			t.Errorf("Expected Connection not to name the loop marker, got %q", header.Get("Connection"))
+		}
+		if got := header.Get("Proxy-Authorization"); got != "" {
+			t.Errorf("Expected connection-scoped Proxy-Authorization to be removed, got %q", got)
 		}
 	})
 
@@ -404,10 +535,37 @@ func TestHopByHopResponseHeaders(t *testing.T) {
 	}
 }
 
-func TestErrorLogs(t *testing.T) {
-	var logs bytes.Buffer
-	log.SetOutput(&logs)
+// lockedBuffer is a bytes.Buffer that handlers on other goroutines can log to.
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.String()
+}
+
+// captureLogs collects what the proxy logs for the rest of the test.
+func captureLogs(t *testing.T) *lockedBuffer {
+	t.Helper()
+
+	logs := &lockedBuffer{}
+	log.SetOutput(logs)
 	t.Cleanup(func() { log.SetOutput(os.Stderr) })
+
+	return logs
+}
+
+func TestErrorLogs(t *testing.T) {
+	logs := captureLogs(t)
 
 	// Nothing listens on port 1, so the request fails and the error is logged.
 	w := proxyGet(NewProxyServer(true), "http://user:hunter2@127.0.0.1:1/path?api_key=secret-value#fragment")
@@ -415,8 +573,8 @@ func TestErrorLogs(t *testing.T) {
 	if w.Code != http.StatusServiceUnavailable {
 		t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
 	}
-	if !strings.Contains(logs.String(), "127.0.0.1:1/path") {
-		t.Errorf("Expected the log to name the target, got %q", logs.String())
+	if !strings.Contains(logs.String(), "network failure") {
+		t.Errorf("Expected a safe network failure category, got %q", logs.String())
 	}
 	for _, secret := range []string{"secret-value", "api_key", "hunter2", "fragment"} {
 		if strings.Contains(logs.String(), secret) {
@@ -450,40 +608,19 @@ func TestListenAddress(t *testing.T) {
 func TestHTTPServerTimeouts(t *testing.T) {
 	server := newHTTPServer(":0", http.NotFoundHandler())
 
-	if server.ReadHeaderTimeout <= 0 || server.ReadTimeout <= 0 || server.IdleTimeout <= 0 {
-		t.Errorf("Expected read header, read, and idle timeouts, got %v, %v, %v", server.ReadHeaderTimeout, server.ReadTimeout, server.IdleTimeout)
+	if server.ReadHeaderTimeout <= 0 || server.IdleTimeout <= 0 {
+		t.Errorf("Expected read header and idle timeouts, got %v, %v", server.ReadHeaderTimeout, server.IdleTimeout)
+	}
+
+	// Incoming uploads use an idle deadline that refreshes on each body read.
+	if server.ReadTimeout != 0 {
+		t.Errorf("Expected no fixed read timeout, got %v", server.ReadTimeout)
 	}
 
 	// A write timeout would cut off streamed responses
 	if server.WriteTimeout != 0 {
 		t.Errorf("Expected no write timeout, got %v", server.WriteTimeout)
 	}
-}
-
-func TestLoggableError(t *testing.T) {
-	t.Run("keeps errors without a URL as they are", func(t *testing.T) {
-		err := errors.New("failed to read request body")
-
-		if got := loggableError(err); got != err {
-			t.Errorf("Expected the same error, got %v", got)
-		}
-	})
-
-	t.Run("finds a URL error that is wrapped", func(t *testing.T) {
-		err := fmt.Errorf("request failed: %w", &url.Error{Op: "Get", URL: "https://example.com/a?token=secret", Err: errors.New("boom")})
-
-		if got := loggableError(err).Error(); got != `Get "https://example.com/a": boom` {
-			t.Errorf("Expected the URL without its query, got %q", got)
-		}
-	})
-
-	t.Run("hides URLs it cannot parse", func(t *testing.T) {
-		err := &url.Error{Op: "parse", URL: "http://[::1?token=secret", Err: errors.New("invalid")}
-
-		if got := loggableError(err).Error(); strings.Contains(got, "secret") {
-			t.Errorf("Expected the URL to be hidden, got %q", got)
-		}
-	})
 }
 
 func TestProxyConfigFromEnv(t *testing.T) {
@@ -520,11 +657,130 @@ func TestProxyConfigFromEnv(t *testing.T) {
 		}
 	})
 
+	t.Run("keeps the host of a URL", func(t *testing.T) {
+		config := proxyConfigFromEnv(env(map[string]string{"PROXY_SELF_HOSTS": "https://proxy-xyz.a.run.app,http://proxy.example:8080/path, https://"}))
+
+		if got := strings.Join(config.SelfHosts, "|"); got != "proxy-xyz.a.run.app|proxy.example:8080" {
+			t.Errorf("Expected the hosts of the URLs, got %q", got)
+		}
+
+		ps := NewProxyServerWithConfig(config)
+		if !ps.targetsProxy(&url.URL{Scheme: "https", Host: "proxy-xyz.a.run.app", Path: "/ping"}) {
+			t.Error("Expected a target on the Cloud Run host to be refused")
+		}
+	})
+
 	t.Run("reads a comma-separated list of proxy hosts", func(t *testing.T) {
 		config := proxyConfigFromEnv(env(map[string]string{"PROXY_SELF_HOSTS": " proxy.example, ,run.example:443 ,"}))
 
 		if got := strings.Join(config.SelfHosts, "|"); got != "proxy.example|run.example:443" {
 			t.Errorf("Expected the trimmed hosts, got %q", got)
+		}
+	})
+}
+
+func TestTruncatedResponses(t *testing.T) {
+	// The upstream sends part of a chunked event stream, then drops the
+	// connection. The proxy flushes event streams, so the client already has the
+	// status and the first bytes.
+	upstream := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+		conn, buf, err := w.(http.Hijacker).Hijack()
+		if err != nil {
+			t.Errorf("Hijack failed: %v", err)
+			return
+		}
+		defer conn.Close()
+		buf.WriteString("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nTransfer-Encoding: chunked\r\n\r\n5\r\nhello\r\n")
+		buf.Flush()
+	})
+	defer upstream.server.Close()
+
+	proxy := httptest.NewServer(http.HandlerFunc(NewProxyServer(true).handleRequest))
+	defer proxy.Close()
+
+	resp, err := http.Get(proxy.URL + "/?scalar_url=" + url.QueryEscape(upstream.url))
+	if err != nil {
+		t.Fatalf("Request failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err == nil {
+		t.Errorf("Expected the client to see an incomplete response, got the complete body %q", body)
+	}
+	if string(body) != "hello" {
+		t.Errorf("Expected the part that was received, got %q", body)
+	}
+}
+
+// replaceLookup swaps the DNS lookup for the duration of a test.
+func replaceLookup(t *testing.T, lookup func(ctx context.Context, host string) ([]net.IP, error)) {
+	t.Helper()
+
+	original := lookupIP
+	lookupIP = lookup
+	t.Cleanup(func() { lookupIP = original })
+}
+
+func TestDNSLookups(t *testing.T) {
+	t.Run("stops checking the target when the client goes away", func(t *testing.T) {
+		started := make(chan struct{}, 1)
+		stopped := make(chan struct{}, 1)
+		replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+			started <- struct{}{}
+			<-ctx.Done()
+			stopped <- struct{}{}
+			return nil, ctx.Err()
+		})
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape("https://slow-dns.test/"), nil).WithContext(ctx)
+		go NewProxyServer(false).handleRequest(httptest.NewRecorder(), req)
+
+		select {
+		case <-started:
+		case <-time.After(3 * time.Second):
+			t.Fatal("Expected a DNS lookup")
+		}
+
+		cancel()
+
+		select {
+		case <-stopped:
+		case <-time.After(3 * time.Second):
+			t.Fatal("Expected the DNS lookup to stop when the client left")
+		}
+	})
+
+	t.Run("limits how long lookups can take", func(t *testing.T) {
+		// The target check is answered, so the dial resolves the host again
+		deadlines := make(chan time.Duration, 2)
+		replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+			deadline, ok := ctx.Deadline()
+			if !ok {
+				deadlines <- -1
+			} else {
+				deadlines <- time.Until(deadline)
+			}
+			if len(deadlines) == 1 {
+				return []net.IP{net.ParseIP("203.0.113.10")}, nil
+			}
+			return nil, errors.New("no answer")
+		})
+
+		NewProxyServer(false).handleRequest(httptest.NewRecorder(), httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape("https://slow-dns.test/"), nil))
+
+		for _, name := range []string{"target check", "dial"} {
+			select {
+			case remaining := <-deadlines:
+				if remaining <= 0 || remaining > dnsTimeout {
+					t.Errorf("Expected the %s lookup to end within %v, got %v", name, dnsTimeout, remaining)
+				}
+			default:
+				t.Errorf("Expected a %s lookup", name)
+			}
 		}
 	})
 }
