@@ -3224,6 +3224,40 @@ describe('getExampleFromSchema', () => {
       expect(truncate({ type: 'object', allOf: [extension, base] })).toStrictEqual({ id: 'ok' })
     })
 
+    it.each([8, 9, 10, 11])('preserves shared requirements across composition wrappers at depth %i', (depth) => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        allOf: [
+          { required: ['id'] },
+          { type: 'object', allOf: [{ properties: { id: { type: 'string' }, optional: { type: 'string' } } }] },
+        ],
+      })
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf)))).toStrictEqual(
+        depth === 8 ? { id: '', optional: '' } : { id: '' },
+      )
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('keeps shared required properties with optional omission in %s mode', (mode, excludedFlag) => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { required: ['id', 'hidden'] },
+          {
+            properties: {
+              id: { type: 'string' },
+              hidden: { type: 'string', [excludedFlag]: true },
+              optional: { type: 'string' },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf, { omitEmptyAndOptionalProperties: true, mode })).toStrictEqual({ id: '' })
+    })
+
     it('keeps the required properties of the selected oneOf variant only', () => {
       const leaf = {
         type: 'object',
