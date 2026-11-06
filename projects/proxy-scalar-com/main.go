@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -213,9 +214,45 @@ func main() {
 	log.Println("🥤 Proxy Server listening on http://localhost" + port)
 
 	// Start the server and log any errors that occur
-	if err := http.ListenAndServe(port, handler); err != nil {
+	if err := newHTTPServer(port, handler).ListenAndServe(); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
 	}
+}
+
+// newHTTPServer builds the incoming HTTP listener configuration.
+func newHTTPServer(address string, handler http.Handler) *http.Server {
+	// Whole-request read/write deadlines would interrupt uploads and SSE.
+	return &http.Server{
+		Addr:              address,
+		Handler:           incomingBodyTimeout(handler, 60*time.Second),
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+}
+
+// Refresh the read deadline only while consuming the upload. Clearing it after
+// each read keeps response streaming and upstream backpressure unrestricted.
+type idleRequestBody struct {
+	io.ReadCloser
+	controller *http.ResponseController
+	idle       time.Duration
+}
+
+func (body *idleRequestBody) Read(buffer []byte) (int, error) {
+	if err := body.controller.SetReadDeadline(time.Now().Add(body.idle)); err != nil && !errors.Is(err, http.ErrNotSupported) {
+		return 0, err
+	}
+	defer body.controller.SetReadDeadline(time.Time{})
+	return body.ReadCloser.Read(buffer)
+}
+
+func incomingBodyTimeout(next http.Handler, idle time.Duration) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil && r.Body != http.NoBody {
+			r.Body = &idleRequestBody{ReadCloser: r.Body, controller: http.NewResponseController(w), idle: idle}
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // ProxyServer encapsulates the proxy server configuration and handlers.
