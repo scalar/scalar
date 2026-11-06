@@ -23,6 +23,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "dev": "next dev playground -p 5066",
+    "test": "vitest --run",
     "types:check": "tsgo --noEmit"
   },
   "type": "module",
@@ -48,6 +49,7 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "next": "catalog:*",
-    "openapi-types": "^12.1.3"
+    "openapi-types": "^12.1.3",
+    "vitest": "catalog:*"
   }
 }
