@@ -11,9 +11,12 @@ import (
 )
 
 // Shorten configured limits without masking an absent production timeout.
-func startIncomingServer(t *testing.T, handler http.Handler) string {
+func startIncomingServer(t *testing.T, handler http.Handler, bodyIdle ...time.Duration) string {
 	t.Helper()
 	server := newHTTPServer("127.0.0.1:0", handler)
+	if len(bodyIdle) > 0 {
+		server.Handler = incomingBodyTimeout(handler, bodyIdle[0])
+	}
 	if server.ReadHeaderTimeout > 0 {
 		server.ReadHeaderTimeout = 40 * time.Millisecond
 	}
@@ -113,5 +116,49 @@ func TestIncomingTimeoutsPreserveActiveStreams(t *testing.T) {
 	rest, err := io.ReadAll(reader)
 	if err != nil || string(rest) != "\ndata: second\n\n" {
 		t.Fatalf("stream interrupted: %q %v", rest, err)
+	}
+}
+
+func TestIncomingBodyIdleTimeout(t *testing.T) {
+	finished := make(chan error, 1)
+	address := startIncomingServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := io.Copy(io.Discard, r.Body)
+		finished <- err
+	}), 40*time.Millisecond)
+	connection := dialIncomingServer(t, address)
+	fmt.Fprint(connection, "POST / HTTP/1.1\r\nHost: proxy.example\r\nContent-Length: 6\r\n\r\nu")
+	select {
+	case err := <-finished:
+		if timeout, ok := err.(net.Error); !ok || !timeout.Timeout() {
+			t.Fatalf("expected an idle read timeout, got %v", err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("stalled upload kept the handler open")
+	}
+}
+
+func TestIncomingBodyIdleTimeoutRefreshes(t *testing.T) {
+	address := startIncomingServer(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil || string(body) != "upload" {
+			t.Errorf("active upload interrupted: %q %v", body, err)
+		}
+		time.Sleep(160 * time.Millisecond)
+		io.WriteString(w, "done")
+	}), 100*time.Millisecond)
+	connection := dialIncomingServer(t, address)
+	fmt.Fprint(connection, "POST / HTTP/1.1\r\nHost: proxy.example\r\nContent-Length: 6\r\nConnection: close\r\n\r\n")
+	for _, character := range "upload" {
+		fmt.Fprintf(connection, "%c", character)
+		time.Sleep(30 * time.Millisecond)
+	}
+	response, err := http.ReadResponse(bufio.NewReader(connection), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil || string(body) != "done" {
+		t.Fatalf("response interrupted: %q %v", body, err)
 	}
 }
