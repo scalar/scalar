@@ -139,13 +139,19 @@ export const apiReferenceConfigurationSchema = intersection([
     }),
     defaultHttpClient: optional(
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
-      // untouched (a real union would rewrite it to the first client). The cast only tightens
+      // untouched (a union of literal client names would rewrite it). The cast only tightens
       // the type, so config authors get autocomplete and an error on typos like the display
       // title 'Fetch' (the client id is the lowercase 'fetch').
-      object({
-        targetKey: string() as unknown as LiteralSchema<TargetId>,
-        clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
-      }),
+      union([
+        object({
+          targetKey: string() as unknown as LiteralSchema<TargetId>,
+          clientKey: string() as unknown as LiteralSchema<ClientId<TargetId>>,
+        }),
+        object({
+          targetKey: literal('custom'),
+          clientKey: string(),
+        }),
+      ]),
       {
         typeComment: 'Determine the HTTP client that is selected by default',
       },

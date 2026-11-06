@@ -818,10 +818,15 @@ type ExtendedConfiguration = {
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
   /** Determine the HTTP client that is selected by default */
-  defaultHttpClient?: {
-    targetKey: TargetId
-    clientKey: ClientId<TargetId>
-  }
+  defaultHttpClient?:
+    | {
+        targetKey: TargetId
+        clientKey: ClientId<TargetId>
+      }
+    | {
+        targetKey: 'custom'
+        clientKey: string
+      }
   /**
    * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
    */
