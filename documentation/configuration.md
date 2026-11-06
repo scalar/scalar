@@ -501,6 +501,19 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+To select a custom code sample, use `custom` as the target and the sample ID without the `custom/` prefix as the client:
+
+```javascript
+{
+  defaultHttpClient: {
+    targetKey: 'custom',
+    clientKey: 'python',
+  }
+}
+```
+
+This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
+
 ### featuredClients
 
 **Type:** `AvailableClient[]`
