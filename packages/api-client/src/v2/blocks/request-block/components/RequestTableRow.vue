@@ -14,7 +14,7 @@ import type {
 import { computed, ref, useTemplateRef, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
-import { isFileSchema } from '@/v2/blocks/request-block/helpers/is-file-schema'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
 import { CodeInputLite } from '@/v2/components/code-input'
 import {
@@ -78,6 +78,8 @@ export type TableRow = {
   isDisabledByDefault?: boolean
   /** OpenAPI schema object with type, validation rules, examples, etc. */
   schema?: SchemaObject
+  /** Explicit media type for this multipart field. */
+  contentType?: string
   /** Preserve array values even while their JSON text is temporarily invalid. */
   isArray?: boolean
   /** Text representation used by array enum controls. */
@@ -149,7 +151,9 @@ const isFile = computed(() => value.value instanceof File)
 
 /** Whether this row’s schema accepts a file part. */
 const canUploadFile = computed<boolean>(() =>
-  data.schema ? isFileSchema(data.schema) : allowUnknownFileUploads,
+  data.schema
+    ? isFileSchema(data.schema, true, data.contentType)
+    : allowUnknownFileUploads,
 )
 
 /** Display value handles File instances and shows filename instead */

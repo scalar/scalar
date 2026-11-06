@@ -639,6 +639,7 @@ const canGenerateExample = computed(() =>
           <RequestBodyForm
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
+            :encoding="requestBody?.content?.[selectedContentType]?.encoding"
             :environment
             :example
             :selectedContentType

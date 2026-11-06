@@ -3,7 +3,11 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
 import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
-import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type {
+  ExampleObject,
+  MediaTypeObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
@@ -133,6 +137,7 @@ export const getFormBodyRows = (
   contentType: string,
   formBodySchema?: SchemaObject,
   compositionSelection?: Record<string, number>,
+  encoding?: MediaTypeObject['encoding'],
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -175,7 +180,12 @@ export const getFormBodyRows = (
     value: string | File
     isDisabled?: boolean
   }): TableRow => {
-    const row: TableRow = { name, value, isDisabled: isDisabled ?? false }
+    const row: TableRow = {
+      name,
+      value,
+      isDisabled: isDisabled ?? false,
+      ...(encoding?.[name]?.contentType ? { contentType: encoding[name].contentType } : {}),
+    }
     if (!schemaWithProperties || !name) {
       return row
     }

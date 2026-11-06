@@ -1,6 +1,7 @@
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { getExampleValue } from '@scalar/workspace-store/helpers/get-example-value'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { unpackProxyShallow } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { MAX_MULTIPART_NESTING, getMultipartItemSchema } from '@scalar/workspace-store/request-example'
@@ -11,8 +12,6 @@ import type {
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isArraySchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
-
-import { isFileSchema } from './is-file-schema'
 
 /** Keep structured parts and File objects intact until the existing multipart serializer runs. */
 export type MultipartBodyValue = unknown[] | Record<string, unknown>
@@ -76,7 +75,9 @@ export const getMultipartBodyParts = (
           value: unpackProxyShallow(partValue),
           schema: partSchema,
           contentType: partEncoding?.contentType,
-          canUpload: partSchema === undefined || (!isArraySchema(partSchema) && isFileSchema(partSchema, true)),
+          canUpload:
+            partSchema === undefined ||
+            (!isArraySchema(partSchema) && isFileSchema(partSchema, true, partEncoding?.contentType)),
         },
       ]
     }

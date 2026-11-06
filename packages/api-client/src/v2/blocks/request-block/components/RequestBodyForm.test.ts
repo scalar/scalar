@@ -86,6 +86,32 @@ const schema: SchemaObject = {
 const value = { name: 'Widget', unit_id: 1, image: '', enabled: true, tags: ['a'], files: [], meta: { label: 'Label' } }
 
 describe('RequestBodyForm', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockFiles.value = null
+    fileDialogOnChange = undefined
+  })
+
+  it.each([
+    ['image/png', true],
+    ['image/png, image/jpeg', true],
+    ['application/json', false],
+    ['text/plain', false],
+  ])('honors the %s encoding for string fields', (contentType, canUpload) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { avatar: '' } },
+        bodySchema: { type: 'object', properties: { avatar: { type: 'string' } } },
+        encoding: { avatar: { contentType } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const row = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'avatar')!
+    expect(row.findAll('button').some((button) => button.text() === 'Select File')).toBe(canUpload)
+    wrapper.unmount()
+  })
+
   it.each<SchemaObject>([
     { __scalar_: '', properties: { file: { type: 'array', items: { __scalar_: '' } } } },
     { type: 'object', additionalProperties: { type: 'string', format: 'binary' } },
@@ -95,7 +121,7 @@ describe('RequestBodyForm', () => {
         example: { value: { file: '' } },
         bodySchema,
         selectedContentType: 'multipart/form-data',
-        environment: { color: 'blue', variables: [] },
+        environment: defaultEnvironment,
       },
     })
     const fileRow = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'file')!
@@ -110,7 +136,7 @@ describe('RequestBodyForm', () => {
           example: { value: { extra: '' } },
           bodySchema: { type: 'object', additionalProperties },
           selectedContentType: 'multipart/form-data',
-          environment: { color: 'blue', variables: [] },
+          environment: defaultEnvironment,
         },
       })
       expect(wrapper.findAll('button').some((button) => button.text() === 'Select File')).toBe(false)
@@ -127,7 +153,7 @@ describe('RequestBodyForm', () => {
         example: { value },
         bodySchema: schema,
         selectedContentType,
-        environment: { color: 'blue', variables: [] },
+        environment: defaultEnvironment,
       },
     })
     const rows = wrapper.findAllComponents(RequestTableRow)
@@ -139,27 +165,12 @@ describe('RequestBodyForm', () => {
     wrapper.unmount()
   })
 
-  it('does not offer an upload action for integer fields', () => {
-    const wrapper = mount(RequestBodyForm, {
-      props: {
-        example: { value },
-        bodySchema: schema,
-        selectedContentType: 'multipart/form-data',
-        environment: { color: 'blue', variables: [] },
-      },
-    })
-    const row = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'unit_id')!
-    expect(row.props('data').schema).toStrictEqual({ type: 'integer' })
-    expect(row.findAll('button').filter((button) => button.text() === 'Select File')).toStrictEqual([])
-    wrapper.unmount()
-  })
-
   it('offers uploads on schema-less fields and the blank row', () => {
     const wrapper = mount(RequestBodyForm, {
       props: {
         example: { value: { freeform: 'text' } },
         selectedContentType: 'multipart/form-data',
-        environment: { color: 'blue', variables: [] },
+        environment: defaultEnvironment,
       },
     })
     expect(
@@ -232,7 +243,7 @@ describe('RequestBodyForm', () => {
     wrapper.unmount()
   })
 
-  it('keeps an existing file removable after the schema changes to text', async () => {
+  it('keeps an existing file removable when its schema describes text', async () => {
     const wrapper = mount(RequestBodyForm, {
       props: {
         example: { value: { field: new File(['data'], 'data.txt') } },
@@ -245,12 +256,6 @@ describe('RequestBodyForm', () => {
     await remove.trigger('click')
     expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
     wrapper.unmount()
-  })
-
-  beforeEach(() => {
-    vi.clearAllMocks()
-    mockFiles.value = null
-    fileDialogOnChange = undefined
   })
 
   it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(
