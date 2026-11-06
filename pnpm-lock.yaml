@@ -965,6 +965,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      jsdom:
+        specifier: catalog:*
+        version: 29.0.1(@noble/hashes@1.8.0)
       path:
         specifier: ^0.12.7
         version: 0.12.7
