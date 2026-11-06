@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.77.1
+
+### Patch Changes
+
+- [#10873](https://github.com/scalar/scalar/pull/10873): Display the API description version verbatim without adding a `v` prefix, so commit hashes and other version identifiers remain accurate.
+- [#10874](https://github.com/scalar/scalar/pull/10874): Automatically group deep-object query parameters with expandable fields in a collapsed row.
+
+  Keep expanded fields open during navigation within a group, and mark flattened fields as required only when every ancestor is required.
+
 ## 1.77.0
 
 ### Minor Changes

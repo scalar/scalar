@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.48 (2026-11-06)
+
+### OpenID Connect flow defaults and improved configuration
+
+This release adds support for preconfiguring OpenID Connect authentication flows with client IDs, scopes, and PKCE settings that appear after fetching the provider's configuration.
+
+- OpenID Connect flows now support default client IDs, scopes, and PKCE configuration that apply after discovery
+- When a single flow is configured, it is automatically selected after fetching the OpenID Connect configuration
+- Added typed OpenID Connect authentication configuration support for .NET applications
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1148)
+
 ## 1.1.47 (2026-11-05)
 
 ### Authentication overrides, body reset, and response improvements

@@ -9,6 +9,14 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.1 (2026-11-06)
+
+### Fixed mock store isolation from JavaScript host objects
+
+This release resolves a security issue where mock store operations could inadvertently access or modify inherited JavaScript properties instead of treating collection and item names as isolated data keys.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0211)
+
 ## 0.21.0 (2026-11-05)
 
 ### Response hooks and smarter path matching
