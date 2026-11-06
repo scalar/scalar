@@ -37,7 +37,7 @@ version = "0.12.5"
 optional = true
 
 [dependencies.actix-web]
-version = "4.13.0"
+version = "4.18.2"
 optional = true
 
 [dependencies.warp]
