@@ -41,6 +41,7 @@ import perl from 'highlight.js/lib/languages/perl'
 import php from 'highlight.js/lib/languages/php'
 import plaintext from 'highlight.js/lib/languages/plaintext'
 import powershell from 'highlight.js/lib/languages/powershell'
+import protobuf from 'highlight.js/lib/languages/protobuf'
 import python from 'highlight.js/lib/languages/python'
 import r from 'highlight.js/lib/languages/r'
 import ruby from 'highlight.js/lib/languages/ruby'
@@ -90,6 +91,7 @@ export const referenceLanguages: Record<string, LanguageFn> = {
   php,
   plaintext,
   powershell,
+  protobuf,
   python,
   r,
   ruby,

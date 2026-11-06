@@ -47,7 +47,8 @@
     "scala": 1397,
     "sql": 1134,
     "swift": 1473,
-    "yaml": 836
+    "yaml": 836,
+    "protobuf": 724
   },
   "comparisonSizes": {
     "@scalar/code-highlight syntaxHighlight": 130644

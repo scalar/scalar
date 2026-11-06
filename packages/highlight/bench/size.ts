@@ -58,6 +58,7 @@ const languages = [
   'perl',
   'php',
   'powershell',
+  'protobuf',
   'python',
   'r',
   'ruby',

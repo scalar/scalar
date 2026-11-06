@@ -214,3 +214,32 @@ export const HideCredentials: Story = {
     hideCredentials: ['123234324'],
   },
 }
+
+/** Protobuf source is also available through the `proto` language alias. */
+export const Protobuf: Story = {
+  args: {
+    lang: 'protobuf',
+    lineNumbers: true,
+    content: `syntax = "proto3";
+package scalar.catalog.v1;
+
+// A product available in the catalog.
+message Product {
+  string id = 1;
+  optional string name = 2;
+  map<string, string> labels = 3;
+  oneof price {
+    int64 cents = 4;
+    string display_price = 5;
+  }
+}
+
+service Catalog {
+  rpc Watch(Product) returns (stream Product);
+}`,
+  },
+}
+
+export const ProtoAlias: Story = {
+  args: { ...Protobuf.args, lang: 'proto' },
+}

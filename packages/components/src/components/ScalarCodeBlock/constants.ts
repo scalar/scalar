@@ -40,6 +40,8 @@ export const LANGUAGE_LABELS = {
   plaintext: 'Plain Text',
   powershell: 'PowerShell',
   properties: 'Properties',
+  proto: 'Protobuf',
+  protobuf: 'Protobuf',
   python: 'Python',
   r: 'R',
   ruby: 'Ruby',

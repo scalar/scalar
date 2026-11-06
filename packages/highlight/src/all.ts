@@ -34,6 +34,7 @@ import ocaml from './langs/ocaml'
 import perl from './langs/perl'
 import php from './langs/php'
 import powershell from './langs/powershell'
+import protobuf from './langs/protobuf'
 import python from './langs/python'
 import r from './langs/r'
 import ruby from './langs/ruby'
@@ -85,6 +86,7 @@ export const languages: Grammar[] = [
   perl,
   php,
   powershell,
+  protobuf,
   python,
   r,
   ruby,

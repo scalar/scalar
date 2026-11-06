@@ -10,6 +10,31 @@
 const D = '$'
 
 export const samples: Record<string, string> = {
+  protobuf: `syntax = "proto3";
+package scalar.catalog.v1;
+import "google/protobuf/timestamp.proto";
+
+// A product available in the catalog.
+message Product {
+  string id = 1;
+  optional string name = 2;
+  map<string, string> labels = 3;
+  google.protobuf.Timestamp created_at = 4;
+  oneof price {
+    int64 cents = 5;
+    string display_price = 6;
+  }
+  reserved 7 to 9;
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    AVAILABLE = 1;
+  }
+  Status status = 10 [deprecated = true];
+}
+service Catalog {
+  rpc Watch(Product) returns (stream Product);
+}
+`,
   python: `"""Rate limiting for the public API."""
 from __future__ import annotations
 

@@ -42,6 +42,15 @@ beforeEach(() => {
 })
 
 describe('ScalarCodeBlock', () => {
+  it.each(['protobuf', 'proto'] as const)('highlights %s source', (lang) => {
+    const content = 'message Product { string name = 1; }'
+    const wrapper = mount(ScalarCodeBlock, { props: { content, lang } })
+
+    expect(wrapper.get('[role="group"]').text()).toBe(content)
+    expect(wrapper.get('.hljs-keyword').text()).toBe('message')
+    expect(wrapper.get('.hljs-built_in').text()).toBe('string')
+  })
+
   it('names the code region while keeping it keyboard-scrollable', async () => {
     const wrapper = createWrapper()
     const region = wrapper.get('[role="group"]')

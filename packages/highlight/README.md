@@ -20,7 +20,7 @@ Scalar's code highlighter.
 - **No theme system.** Colors come from the `--scalar-*` variables `@scalar/themes` already defines, so a code block follows the app's theme and switches with `.light-mode` / `.dark-mode` — without being re-highlighted.
 - **Zero runtime dependencies.**
 
-Forty-one languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
+Forty-two languages ship today: Python, JavaScript/TypeScript/JSX/TSX, Rust, Go, C, C++, C#, F#, Java, Kotlin, Scala, Swift, Objective-C, OCaml, Haskell, Elixir, Clojure, Dart, Julia, Mojo, PHP, Perl, Ruby, Lua, R, MATLAB, Bash, PowerShell, SQL, GraphQL, Protobuf, HTTP, YAML, JSON, TOML/INI, CSS, HTML, Markdown, Dockerfiles, Makefiles, nginx configs, and diffs.
 
 ```bash
 npm install @scalar/highlight
@@ -58,6 +58,23 @@ highlight(source, 'rust');
 
 Every entry in the loader is a static `import()`, so bundlers split each language into its
 own chunk. The initial chunk with the loader and no languages is 5.0 KB.
+
+### Protobuf
+
+Use `protobuf` or its `proto` alias for `.proto` source, including proto2, proto3,
+and Editions declarations:
+
+```js
+import { highlight } from '@scalar/highlight';
+import { loadLanguage } from '@scalar/highlight/lazy';
+
+await loadLanguage('proto');
+highlight('message Product { string name = 1; }', 'protobuf');
+```
+
+The standalone grammar is `@scalar/highlight/langs/protobuf`. Both language names
+also work with `ScalarCodeBlock`. This highlights source syntax; it does not
+validate schemas or decode binary protobuf messages.
 
 ### Entry points
 
@@ -102,7 +119,7 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 | …lazy loader, initial chunk | 5.05 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.21 KB · `json` 0.29 KB · `html` 0.53 KB · `http` 0.67 KB · `nginx` 0.69 KB · `ini` 0.70 KB · `graphql` 0.73 KB · `css` 0.79 KB · `yaml` 0.82 KB · `rust` 0.88 KB · `go` 0.90 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.95 KB · `bash` 1.03 KB · `sql` 1.11 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `c` 1.31 KB · `clojure` 1.32 KB · `scala` 1.36 KB · `julia` 1.37 KB · `elixir` 1.38 KB · `kotlin` 1.38 KB · `powershell` 1.38 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `swift` 1.44 KB · `ocaml` 1.45 KB · `haskell` 1.50 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.71 KB · `ruby` 1.74 KB · `cpp` 1.78 KB · `perl` 1.87 KB · `php` 2.01 KB · `javascript` 2.11 KB.
+Per language, on top of the core: `diff` 0.21 KB · `json` 0.29 KB · `html` 0.53 KB · `http` 0.67 KB · `nginx` 0.69 KB · `ini` 0.70 KB · `protobuf` 0.71 KB · `graphql` 0.73 KB · `css` 0.79 KB · `yaml` 0.82 KB · `rust` 0.88 KB · `go` 0.90 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.95 KB · `bash` 1.03 KB · `sql` 1.11 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `c` 1.31 KB · `clojure` 1.32 KB · `scala` 1.36 KB · `julia` 1.37 KB · `elixir` 1.38 KB · `kotlin` 1.38 KB · `powershell` 1.38 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `swift` 1.44 KB · `ocaml` 1.45 KB · `haskell` 1.50 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.71 KB · `ruby` 1.74 KB · `cpp` 1.78 KB · `perl` 1.87 KB · `php` 2.01 KB · `javascript` 2.11 KB.
 
 Reproduce with `pnpm size`.
 
@@ -259,8 +276,8 @@ keeps working unchanged and `ScalarCodeBlock` needs one import line changed:
 +import { standardLanguages, syntaxHighlight } from '@scalar/highlight/compat';
 ```
 
-`standardLanguages` is re-exported with the same key set, so `StandardLanguageKey` is
-unchanged and the component's props keep their types.
+`standardLanguages` preserves every legacy key and adds `protobuf` and its `proto`
+alias, so `ScalarCodeBlock` accepts both names.
 
 ### What it covers, and what it does not
 
@@ -270,7 +287,7 @@ first half only:
 | export | status |
 | --- | --- |
 | `syntaxHighlight` | covered |
-| `standardLanguages` | key-compatible; 49 of 50 names have a grammar |
+| `standardLanguages` | legacy keys preserved, plus `protobuf` and `proto` |
 | `basicLanguages`, `jsonYamlLanguages` | **not covered** — never exported here |
 | `lowlightLanguageMappings` | covered |
 | `htmlFromMarkdown`, `getHeadings`, `splitContent`, `isHeading`, `textFromNode` | **not covered** |

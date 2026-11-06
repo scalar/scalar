@@ -355,11 +355,13 @@ describe('colour agreement with code.css', () => {
 // --- the contract the compat layer adds on its own -------------------------
 
 describe('compat surface', () => {
-  it('keeps the standardLanguages key set, so StandardLanguageKey is unchanged', () => {
+  it('keeps every legacy standardLanguages key and adds protobuf names', () => {
     // Compared against the real export rather than a copy of it. A language
     // added to `@scalar/code-highlight` upstream would otherwise drop out of
     // `StandardLanguageKey` silently, with this test still green.
-    expect(Object.keys(standardLanguages).sort()).toEqual(Object.keys(referenceStandardLanguages).sort())
+    expect(Object.keys(standardLanguages).sort()).toEqual(
+      [...Object.keys(referenceStandardLanguages), 'proto', 'protobuf'].sort(),
+    )
   })
 
   it('reports exactly which standard languages have no grammar', () => {

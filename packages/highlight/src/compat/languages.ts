@@ -106,6 +106,8 @@ const GRAMMAR_FOR: Record<string, string> = {
   postgresql: 'sql',
   powershell: 'powershell',
   properties: 'ini',
+  proto: 'protobuf',
+  protobuf: 'protobuf',
   ps: 'powershell',
   ps1: 'powershell',
   pwsh: 'powershell',
@@ -139,11 +141,11 @@ const GRAMMAR_FOR: Record<string, string> = {
 }
 
 /**
- * Every key of `standardLanguages` in `@scalar/code-highlight`.
+ * Every legacy `standardLanguages` key, plus languages added by this package.
  *
  * Kept so `keyof typeof standardLanguages` — which is how `ScalarCodeBlock`
- * derives its `StandardLanguageKey` prop type — resolves to the same union
- * after a swap. The names we have no grammar for stay in the list: they
+ * derives its `StandardLanguageKey` prop type — keeps all legacy names
+ * after a swap and accepts newly supported languages. The names we have no grammar for stay in the list: they
  * render as plain escaped text, which is what an unregistered language does
  * in the lowlight pipeline today.
  */
@@ -186,6 +188,8 @@ export const STANDARD_LANGUAGE_NAMES = [
   'plaintext',
   'powershell',
   'properties',
+  'proto',
+  'protobuf',
   'python',
   'r',
   'ruby',

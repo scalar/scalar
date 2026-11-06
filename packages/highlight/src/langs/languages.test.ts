@@ -89,6 +89,7 @@ describe('every bundled language', () => {
       'perl',
       'php',
       'powershell',
+      'protobuf',
       'python',
       'r',
       'ruby',
