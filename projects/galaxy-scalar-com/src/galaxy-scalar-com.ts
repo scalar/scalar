@@ -99,18 +99,30 @@ export const configureApiReference = (app: Hono): void => {
         {
           title: 'Scalar Galaxy',
           url: isProductionBuild ? 'https://registry.scalar.com/@scalar/apis/galaxy?format=json' : '/openapi.yaml',
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
+          },
         },
         {
           title: 'Scalar Galaxy Events (AsyncAPI)',
           url: '/asyncapi.json',
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiIxODk0YWRkOC03Mzc3LTQ3NjktOWMxMy01ZWY2YzhhYmNhMTYiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUyMDAyLCJpYXQiOjE3OTM5NzIwMDJ9._GjAhfLSfKOQrlRaF99pcmkxx3R25CBEiPafRLfWlxgoMYn3g6QyFvDaQSvQGvgOQy_jbGZMihyNQjzUtj_GDw',
+          },
         },
         {
           title: 'Petstore (OpenAPI 3.1)',
           url: PETSTORE_URL_3_1,
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiI1MzA0NTJkOC1iYjEyLTQxNzUtOWIyMi0yN2Q1YmU0NzYzNTMiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUxOTc0LCJpYXQiOjE3OTM5NzE5NzR9.n4Eiv_mFuIXvotyp0lI6z0iV6S0ie5lO6PVLIMf8NhTviEh6J2Qn7QFOgOfl0V32c8Kc_d_TUTO3zCehh0bKDA',
+          },
         },
         {
           title: 'Petstore (Swagger 2.0)',
           url: PETSTORE_URL_2_0,
+          agent: {
+            key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJmYjMzODlmMC0zYWU0LTQ4MDAtYWI5MS02YTk3MGZmMDA4ZjIiLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTUxNjUxOTIwLCJpYXQiOjE3OTM5NzE5MjB9.Ig_zNAFXEX99o3KHRPuW6Co0fHEH_tOMX5wPxX3q1B-hpNfYHXCMsTRHAsJlxcLcDm2a26we0IuF2f6od3UKCg',
+          },
         },
       ],
       // Read the date in the visitor's own time zone, so a date-only window like Halloween
@@ -118,9 +130,6 @@ export const configureApiReference = (app: Hono): void => {
       theme: getSeasonalTheme(new Date(), { timeZone: getVisitorTimeZone(c.req.raw) }),
       proxyUrl: 'https://proxy.scalar.com',
       persistAuth: true,
-      agent: {
-        key: 'eyJhbGciOiJFZERTQSJ9.eyJ1aWQiOiJKcWpjUkQ0aEZFRGpocGpCNDJEM24iLCJ0ZWFtVWlkIjoiSWxNbm05TXh5LVNhYm1MeEVfaTBMIiwiZXhwIjoxOTI4NTc4NDQ3LCJpYXQiOjE3NzA4OTg0NDd9.URUeP5n-RCTCHk8yJyAwlYZaLgJs0yAnOm6av-QoUD1vAuMd18eaSD3ziJFv9O5Vthcat7ICjJmq-qKe18EjBw',
-      },
       // Staging and PR previews render the reference UI built from this branch;
       // production explicitly loads the published ESM build from jsDelivr.
       bundle: isProductionBuild ? true : LOCAL_BUNDLE_PATH,
