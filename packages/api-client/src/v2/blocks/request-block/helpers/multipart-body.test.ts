@@ -38,7 +38,7 @@ describe('multipart-body', () => {
     const parts = getMultipartBodyParts([{ title: 'Metadata' }, 'description', '', ''], media)
     expect(parts.map(({ path, canUpload, contentType }) => ({ path, canUpload, contentType }))).toStrictEqual([
       { path: [0], canUpload: false, contentType: 'application/json' },
-      { path: [1], canUpload: false, contentType: 'application/octet-stream' },
+      { path: [1], canUpload: true, contentType: 'application/octet-stream' },
       { path: [2], canUpload: true, contentType: 'application/octet-stream' },
       { path: [3], canUpload: true, contentType: 'application/octet-stream' },
     ])

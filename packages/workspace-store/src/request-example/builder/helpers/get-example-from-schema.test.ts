@@ -8,6 +8,17 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it.each([{ type: ['string', 'null'], format: 'binary' }, {}, { allOf: [{ type: 'string' }, { format: 'binary' }] }])(
+    'retains file placeholders for multipart schema %j',
+    (definition) => {
+      const schema = coerceValue(SchemaObjectSchema, { ...definition, example: '@payload.bin' })
+      const result = getExampleFromSchema(schema, { binaryAsFile: true })
+      expect(result).toBeInstanceOf(File)
+      expect((result as File).name).toBe('payload.bin')
+      expect(getExampleFromSchema(schema)).toBe('@payload.bin')
+    },
+  )
+
   it('refreshes generated dates and times in reused nested schemas', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',

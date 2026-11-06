@@ -1,10 +1,14 @@
-import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/schema'
-import { isArraySchema, isStringSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
+import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
+import { isXmlMediaType } from '@scalar/helpers/http/is-xml-media-type'
+import { parseMimeType } from '@scalar/helpers/http/mime-type'
+
+import { resolveSchemaWithAnnotations } from '@/helpers/resolve-schema-with-annotations'
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
+import type { MaybeRefSchemaObject } from '@/schemas/v3.2/strict/schema'
+import { isArraySchema, isStringSchema } from '@/schemas/v3.2/strict/type-guards'
 
 /** Recognize binary multipart fields, including repeated file parts and nullable strings. */
-export const isFileSchema = (schema: SchemaObject, allowUntyped = true): boolean => {
+export const isFileSchema = (schema: SchemaObject, allowUntyped = true, contentType?: string): boolean => {
   const seen = new Set<MaybeRefSchemaObject>()
   const visit = (
     input: MaybeRefSchemaObject | undefined,
@@ -22,6 +26,16 @@ export const isFileSchema = (schema: SchemaObject, allowUntyped = true): boolean
 
     if (isArraySchema(resolved)) {
       return visit(resolved.items, true, allowRawBinary)
+    }
+    // Encoded strings stay editable; raw binary media can override a string's text default.
+    if (contentType && !resolved.contentEncoding && !('format' in resolved && resolved.format === 'byte')) {
+      const binaryMedia = contentType.split(',').some((value) => {
+        const { type } = parseMimeType(value.trim())
+        return !['text', 'multipart'].includes(type) && !isJsonMediaType(value) && !isXmlMediaType(value)
+      })
+      if (binaryMedia) {
+        return true
+      }
     }
     if ('type' in resolved && !isStringSchema(resolved)) {
       return false

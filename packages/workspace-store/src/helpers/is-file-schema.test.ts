@@ -1,10 +1,13 @@
-import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
+
+import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
 import { isFileSchema } from './is-file-schema'
 
 describe('is-file-schema', () => {
   it.each<{ name: string; schema: SchemaObject; expected: boolean }>([
+    { name: 'typeless file', schema: { __scalar_: '' }, expected: true },
+    { name: 'typeless file array', schema: { type: 'array', items: { __scalar_: '' } }, expected: true },
     { name: 'binary string', schema: { type: 'string', format: 'binary' }, expected: true },
     { name: 'nullable binary string', schema: { type: ['string', 'null'], format: 'binary' }, expected: true },
     { name: 'file array', schema: { type: 'array', items: { type: 'string', format: 'binary' } }, expected: true },

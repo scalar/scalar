@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
-import { isFileSchema } from '@/v2/blocks/request-block/helpers/is-file-schema'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ExampleObject,
+  MediaTypeObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed, ref, watch } from 'vue'
@@ -20,6 +21,7 @@ import {
 const {
   example,
   bodySchema,
+  encoding,
   selectedContentType,
   environment,
   compositionSelection,
@@ -27,6 +29,8 @@ const {
   example: ExampleObject | undefined | null
   /** Resolved schema for the form body so the table can show enums and validation per field */
   bodySchema?: SchemaObject
+  /** Encoding overrides for individual multipart fields. */
+  encoding?: MediaTypeObject['encoding']
   /** Selected request-body variants, shared with example generation and serialization. */
   compositionSelection?: Record<string, number>
   selectedContentType: string
@@ -46,13 +50,20 @@ const localFormBodyRows = ref<TableRow[]>([])
 /** Sync the local form body rows with the example and schema */
 watch(
   () =>
-    [example, bodySchema, selectedContentType, compositionSelection] as const,
-  ([newExample, schema, contentType, selection]) => {
+    [
+      example,
+      bodySchema,
+      selectedContentType,
+      compositionSelection,
+      encoding,
+    ] as const,
+  ([newExample, schema, contentType, selection, fieldEncoding]) => {
     localFormBodyRows.value = getFormBodyRows(
       newExample,
       contentType,
       schema,
       selection,
+      fieldEncoding,
     )
   },
   { immediate: true },
