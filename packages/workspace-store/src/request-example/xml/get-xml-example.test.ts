@@ -570,4 +570,18 @@ describe('get-xml-example', () => {
       'unresolved-reference',
     ])
   })
+
+  it('keeps a bounded XML body for a long chain of required objects', () => {
+    // Required properties are filled past the example depth cap, but only to a fixed depth, so the
+    // serializer's own depth limit is never reached and the body survives.
+    let link: unknown = { type: 'string' }
+    for (let index = 0; index < 52; index++) {
+      link = { type: 'object', required: ['next'], properties: { next: link } }
+    }
+
+    const result = getXmlExampleFromSchema(schema(link), { ...compact, rootName: 'root' })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.xml).toMatch(/^<root><next>/)
+  })
 })

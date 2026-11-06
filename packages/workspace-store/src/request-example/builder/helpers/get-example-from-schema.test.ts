@@ -2822,6 +2822,449 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual([])
     })
 
+    it('keeps the required properties of a truncated object', () => {
+      // A strict decoder rejects an object missing a required key, so an empty stand-in is not enough.
+      const leaf = {
+        type: 'object',
+        required: ['field', 'operator', 'values', 'count'],
+        properties: {
+          field: { type: 'string', enum: ['price_id', 'item_id'] },
+          operator: { type: 'string', const: 'includes' },
+          values: { type: 'array', items: { type: 'string' } },
+          count: { type: 'integer', default: 3 },
+          note: { type: 'string', const: 'optional, so left out' },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ field: 'price_id', operator: 'includes', values: [], count: 3 })
+    })
+
+    it.each(['example', 'default', 'const', 'enum', 'examples'] as const)(
+      'preserves a required %s value equal to the depth marker',
+      (keyword) => {
+        const value = '[Max Depth Exceeded]'
+        const leaf = {
+          type: 'object',
+          required: ['value'],
+          properties: {
+            value: { type: 'string', [keyword]: keyword === 'enum' || keyword === 'examples' ? [value] : value },
+          },
+        }
+
+        expect(truncate(leaf)).toStrictEqual({ value })
+      },
+    )
+
+    it('preserves a required variable value equal to the depth marker', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'string', 'x-variable': 'value' } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '[Max Depth Exceeded]' } })).toStrictEqual({
+        value: '[Max Depth Exceeded]',
+      })
+    })
+
+    it.each(['oneOf', 'anyOf'] as const)('collects required names only from the selected %s branch', (keyword) => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        [keyword]: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      }
+      const nested = nestObjects(TRUNCATED_DEPTH, coerceValue(SchemaObjectSchema, leaf))
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      // Reusing the schema catches required-name caches that ignore the selected branch.
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+      expect(
+        deepestNext(getExampleFromSchema(nested, { compositionSelection: { [`${selectionKey}.${keyword}`]: 1 } })),
+      ).toStrictEqual({ second: 'b' })
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+    })
+
+    it('uses allOf choice paths when collecting required names', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { properties: { first: { const: 'a' }, second: { const: 'b' } } },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.oneOf`]: 1 } })).toStrictEqual({
+        second: 'b',
+      })
+    })
+
+    it('collects shared choice requirements at each allOf selection path', () => {
+      const choice = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      })
+      const leaf: SchemaObject = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        allOf: [choice, choice],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(
+        deepestNext(
+          getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf), {
+            compositionSelection: { [`${selectionKey}.1.oneOf`]: 1 },
+          }),
+        ),
+      ).toStrictEqual({ first: 'a', second: 'b' })
+    })
+
+    it('consumes a selection while collecting nested union requirements', () => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { const: 'a' }, second: { const: 'b' }, outer: { const: 'unused' } },
+        oneOf: [
+          { type: 'object', required: ['outer'] },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
+    })
+
+    it('keeps only the required keys of a required child object', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        properties: {
+          child: {
+            type: 'object',
+            required: ['id'],
+            properties: { id: { type: 'string', const: 'kept' }, extra: { type: 'string', const: 'dropped' } },
+          },
+        },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'kept' } })
+    })
+
+    it('terminates on an object that requires itself', () => {
+      const node: Record<string, unknown> = { type: 'object', required: ['self'] }
+      node.properties = { self: node }
+
+      // The cycle guard drops the self-reference, the same answer the walk gives at any depth.
+      expect(truncate(node)).toStrictEqual({})
+    })
+
+    it('leaves out required properties the full walk would leave out', () => {
+      const leaf = {
+        type: 'object',
+        required: ['id', 'secret', 'old'],
+        properties: {
+          id: { type: 'string', const: 'kept' },
+          secret: { type: 'string', const: 'hidden', writeOnly: true },
+          old: { type: 'string', const: 'retired', deprecated: true },
+        },
+      }
+
+      // Deprecated properties are kept, the way the full walk keeps them.
+      expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept', old: 'retired' })
+    })
+
+    it('keeps required properties an object declares through allOf', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [{ type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } }],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ id: 'ok' })
+    })
+
+    it('keeps a required property whose definition lives in another allOf member', () => {
+      const base = { type: 'object', properties: { id: { type: 'string', const: 'ok' }, note: { type: 'string' } } }
+      const extension = { required: ['id'] }
+
+      expect(truncate({ allOf: [base, extension] })).toStrictEqual({ id: 'ok' })
+      expect(truncate({ type: 'object', allOf: [extension, base] })).toStrictEqual({ id: 'ok' })
+    })
+
+    it.each([8, 9, 10, 11])('preserves shared requirements across composition wrappers at depth %i', (depth) => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        allOf: [
+          { required: ['id'] },
+          { type: 'object', allOf: [{ properties: { id: { type: 'string' }, optional: { type: 'string' } } }] },
+        ],
+      })
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf)))).toStrictEqual(
+        depth === 8 ? { id: '', optional: '' } : { id: '' },
+      )
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('keeps shared required properties with optional omission in %s mode', (mode, excludedFlag) => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { required: ['id', 'hidden'] },
+          {
+            properties: {
+              id: { type: 'string' },
+              hidden: { type: 'string', [excludedFlag]: true },
+              optional: { type: 'string' },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf, { omitEmptyAndOptionalProperties: true, mode })).toStrictEqual({ id: '' })
+    })
+
+    it('keeps the required properties of the selected oneOf variant only', () => {
+      const leaf = {
+        type: 'object',
+        oneOf: [
+          { required: ['first'], properties: { first: { type: 'string', const: 'a' } } },
+          { required: ['second'], properties: { second: { type: 'string', const: 'b' } } },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+    })
+
+    it('bounds the stand-in for a branching chain of shared schemas', () => {
+      // Every link requires two properties pointing at the same next link, so without a shared budget
+      // the stand-in would double with each of the forty links. Built by hand rather than through
+      // `truncate`, whose coercion deep-clones and would expand the shared links itself.
+      let link: SchemaObject = { type: 'string', const: 'leaf' }
+      for (let index = 0; index < 40; index++) {
+        link = { type: 'object', required: ['left', 'right'], properties: { left: link, right: link } }
+      }
+
+      /** Count every key in the generated value, however deeply nested. */
+      const countKeys = (value: unknown): number =>
+        value !== null && typeof value === 'object'
+          ? Object.values(value).reduce<number>((total, child) => total + 1 + countKeys(child), 0)
+          : 0
+
+      const example = deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, link)))
+
+      expect(countKeys(example)).toBeGreaterThan(0)
+      expect(countKeys(example)).toBeLessThanOrEqual(10_000)
+    })
+
+    it.each([
+      ['typed', { type: 'object' }],
+      ['untyped', {}],
+    ] as const)('bounds an %s allOf chain that lists each member twice', (_, wrapper) => {
+      // Each link lists the same next link twice, so walking every route to the leaf would take 2^links
+      // steps. Built by hand for the same reason as the branching case above.
+      const chain = (links: number): SchemaObject => {
+        let link: SchemaObject = {
+          type: 'object',
+          required: ['id'],
+          properties: { id: { type: 'string', const: 'ok' } },
+        }
+        for (let index = 0; index < links; index++) {
+          link = { ...wrapper, allOf: [link, link] } as SchemaObject
+        }
+        return link
+      }
+
+      // A short chain still reaches the leaf and keeps its required key.
+      expect(deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, chain(4))))).toStrictEqual({ id: 'ok' })
+      // A long one finishes within the step budget and still answers with an object.
+      expect(deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, chain(40))))).toBeTypeOf('object')
+    })
+
+    it('keeps required properties named like Object.prototype members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['constructor', 'toString', 'id'],
+        properties: {
+          constructor: { type: 'string', const: 'a' },
+          toString: { type: 'string', const: 'b' },
+          id: { type: 'string', const: 'ok' },
+        },
+      }
+
+      expect(Object.entries(truncate(leaf) as object)).toStrictEqual([
+        ['constructor', 'a'],
+        ['toString', 'b'],
+        ['id', 'ok'],
+      ])
+    })
+
+    it('combines the definitions of a property repeated across allOf members', () => {
+      const leaf = {
+        type: 'object',
+        required: ['child'],
+        allOf: [
+          { properties: { child: { type: 'object' } } },
+          {
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
+    })
+
+    it('refines a required property an earlier member of an untyped allOf already filled', () => {
+      // The first member describes `child` on its own and fills it with an empty object, so the
+      // refinement in the second member has to be merged into that key rather than skipped.
+      const leaf = {
+        allOf: [
+          { type: 'object', required: ['child'], properties: { child: { type: 'object' } } },
+          {
+            type: 'object',
+            properties: {
+              child: { type: 'object', required: ['id'], properties: { id: { type: 'string', const: 'ok' } } },
+            },
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ child: { id: 'ok' } })
+    })
+
+    it('describes a property collected from an allOf choice member at that member’s selection path', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          {
+            oneOf: [
+              {
+                type: 'object',
+                required: ['child'],
+                properties: {
+                  child: {
+                    oneOf: [
+                      { type: 'string', const: 'first' },
+                      { type: 'string', const: 'second' },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ child: 'first' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.child.oneOf`]: 1 } })).toStrictEqual({
+        child: 'second',
+      })
+    })
+
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('leaves out a required property of an allOf member flagged %s-excluded (%s)', (mode, flag) => {
+      // The flag sits on the member, not the property, and the walk drops the whole member.
+      const leaf = {
+        type: 'object',
+        allOf: [
+          {
+            type: 'object',
+            [flag]: true,
+            required: ['secret'],
+            properties: { secret: { type: 'string', const: 'hidden' } },
+          },
+        ],
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({})
+    })
+
+    it('consumes a composition selection before descending into the selected variant', () => {
+      // The outer selection picks the nested union, which must then fall back to its own first
+      // variant rather than be steered by the outer key a second time.
+      const leaf = {
+        type: 'object',
+        oneOf: [
+          { type: 'object', required: ['outer'], properties: { outer: { const: 'unused' } } },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'], properties: { first: { const: 'a' } } },
+              { type: 'object', required: ['second'], properties: { second: { const: 'b' } } },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
+    })
+
+    it.each([
+      ['an empty schema', {}],
+      ['a boolean true schema', true],
+      ['an empty selected schema', { oneOf: [{}] }],
+    ])('keeps a required property whose schema is %s as null', (_, value) => {
+      const leaf = { type: 'object', required: ['value'], properties: { value } }
+
+      expect(truncate(leaf)).toStrictEqual({ value: null })
+    })
+
+    it('substitutes a variable for a required property', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'integer', 'x-variable': 'value' } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '42' } })).toStrictEqual({ value: 42 })
+    })
+
+    it('converts a required binary property to a file when asked to', () => {
+      const leaf = {
+        type: 'object',
+        required: ['upload'],
+        properties: { upload: { type: 'string', format: 'binary' } },
+      }
+
+      const example = truncate(leaf, { binaryAsFile: true }) as { upload: unknown }
+
+      expect(example.upload).toBeInstanceOf(File)
+    })
+
+    it('stops filling required properties at a bounded depth', () => {
+      // Every object requires the next, far past the cap. The walk stops at a fixed depth and the
+      // innermost object it reaches stands in empty, rather than following the chain to its end.
+      let link: SchemaObject = { type: 'string', const: 'leaf' }
+      for (let index = 0; index < 60; index++) {
+        link = { type: 'object', required: ['next'], properties: { next: link } }
+      }
+
+      const innermost = deepestNext(getExampleFromSchema(link))
+
+      expect(innermost).toStrictEqual({})
+    })
+
     it('keeps the sentinel when the schema declares no shape', () => {
       expect(truncate({ description: 'anything goes' })).toBe('[Max Depth Exceeded]')
     })
