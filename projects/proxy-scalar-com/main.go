@@ -366,6 +366,8 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 	}
 }
 
+const proxyHopHeader = "X-Scalar-Proxy-Hop"
+
 // Processes all incoming HTTP requests.
 //
 // It serves both as a proxy for API requests, but also provides some utility endpoints.
@@ -436,6 +438,12 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	if len(validationErrors) > 0 {
 		firstError := validationErrors[0]
 		http.Error(w, firstError.message, firstError.statusCode)
+		return
+	}
+
+	// Utility endpoints do not forward, so the proxy can serve its own reference.
+	if _, present := r.Header[proxyHopHeader]; present {
+		http.Error(w, "Proxy loops are not allowed", http.StatusLoopDetected)
 		return
 	}
 
@@ -633,6 +641,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Strip before setting the marker so no intermediary can be told to remove it.
+	removeHopByHopHeaders(outreq.Header, outreq.Header.Values("Connection"))
+
+	// Aliases and other Scalar proxy instances must reject a second proxy hop.
+	outreq.Header.Set(proxyHopHeader, "1")
+
 	// Make the request
 	resp, err := client.Do(outreq)
 
@@ -762,6 +776,26 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	return nil
+}
+
+// removeHopByHopHeaders follows net/http/httputil.ReverseProxy: remove every
+// Connection-nominated field and the legacy connection-scoped header set.
+// Callers can retain nominations across header rewrites so aliases cannot
+// reintroduce a removed field under its destination name.
+func removeHopByHopHeaders(header http.Header, connections []string) {
+	for _, connection := range connections {
+		for _, name := range strings.Split(connection, ",") {
+			if name = strings.TrimSpace(name); name != "" {
+				header.Del(name)
+			}
+		}
+	}
+	for _, name := range []string{
+		"Connection", "Proxy-Connection", "Keep-Alive", "Proxy-Authenticate",
+		"Proxy-Authorization", "Te", "Trailer", "Transfer-Encoding", "Upgrade",
+	} {
+		header.Del(name)
+	}
 }
 
 // untrustedContentSecurityPolicy keeps proxied documents inert when a browser

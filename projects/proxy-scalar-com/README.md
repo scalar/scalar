@@ -38,6 +38,10 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 
 Incoming clients have 10 seconds to finish sending request headers. Idle keep-alive connections close after 60 seconds between requests. Each incoming body read also has a 60-second idle deadline, refreshed for every read and cleared between reads. These limits do not impose a whole-request deadline on active uploads or streaming responses such as SSE.
 
+The proxy adds `X-Scalar-Proxy-Hop: 1` to outbound requests and rejects forwarding requests already containing that header, including empty values, with HTTP 508. Hop-by-hop headers are stripped before setting the marker so intermediaries cannot remove it through `Connection`. APIs on the same host and the proxy's own reference endpoints remain accessible.
+
+A third-party relay that drops unknown headers can remove this marker. Alternating proxy and relay destinations can therefore amplify requests until the nested URL is exhausted; the marker only bounds chains that preserve it.
+
 ## Usage
 
 ### Requirements
