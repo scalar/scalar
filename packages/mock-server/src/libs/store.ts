@@ -46,14 +46,15 @@ export class Store {
    * Returns null if the item is not found.
    */
   update(collection: string, id: string, data: any): any | null {
-    if (!this.data[collection]?.[id]) {
+    const items = this.data[collection]
+    if (!items || !(id in items)) {
       return null
     }
 
     // Handle null/undefined data by defaulting to empty object
     const safeData = data ?? {}
-    const updated = { ...this.data[collection][id], ...safeData, id }
-    this.data[collection][id] = updated
+    const updated = { ...items[id], ...safeData, id }
+    items[id] = updated
 
     return updated
   }
@@ -63,11 +64,12 @@ export class Store {
    * Returns null if the item is not found.
    */
   delete(collection: string, id: string): boolean | null {
-    if (!this.data[collection]?.[id]) {
+    const items = this.data[collection]
+    if (!items || !(id in items)) {
       return null
     }
 
-    delete this.data[collection][id]
+    delete items[id]
 
     return true
   }

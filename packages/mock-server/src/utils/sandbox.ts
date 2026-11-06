@@ -91,6 +91,18 @@ function callFaker(path: string[], args: unknown[]): unknown {
   return fn.apply(receiver, args)
 }
 
+/** Select only the argument used as an item key by the requested store method. */
+const idArgument = (method: string, args: unknown[]): unknown => {
+  const value = args[1]
+  if (method === 'create') {
+    return value !== null && typeof value === 'object' && 'id' in value ? value.id : undefined
+  }
+  if (method === 'get' || method === 'update' || method === 'delete') {
+    return value
+  }
+  return undefined
+}
+
 /**
  * Run a store method requested by the guest and return a JSON envelope.
  */
@@ -105,15 +117,13 @@ function runStoreBridge(store: StoreInterface, method: string, argsJson: string)
       throw new Error('store: arguments must be an array')
     }
 
-    const [collection, value]: unknown[] = args
+    const [collection]: unknown[] = args
     if (typeof collection !== 'string' && !(method === 'clear' && collection == null)) {
       throw new Error('store: collection must be a string')
     }
 
     // Do not coerce guest objects or arrays into property names on the host.
-    const dataId = value !== null && typeof value === 'object' && 'id' in value ? value.id : undefined
-    const lookupId = method === 'get' || method === 'update' || method === 'delete' ? value : undefined
-    const id = method === 'create' ? dataId : lookupId
+    const id = idArgument(method, args)
     if (id != null && typeof id !== 'string' && typeof id !== 'number') {
       throw new Error('store: item ID must be a string or number')
     }
