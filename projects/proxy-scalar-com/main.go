@@ -508,7 +508,15 @@ type redirectReplayTransport struct {
 
 func (t redirectReplayTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	outbound := req.Clone(req.Context())
-	outbound.GetBody = nil
+	if getBody := req.GetBody; getBody != nil {
+		outbound.GetBody = func() (io.ReadCloser, error) {
+			body, err := getBody()
+			if err == nil && body == http.NoBody {
+				return nil, fmt.Errorf("upload is not available for replay")
+			}
+			return body, err
+		}
+	}
 	return t.transport.RoundTrip(outbound)
 }
 
@@ -566,31 +574,30 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		},
 	}
 
-	// Retain a replay copy while the transport consumes the upload. Waiting for the
-	// complete upload here would stall streaming APIs and early responses.
-	body, releaseBody := ps.replayableBody(r.Body, r.ContentLength)
-	body.interruptRead = func() {
-		// Go closes the initial body before checking a redirect. Interrupt an
-		// unfinished HTTP/1 read so Close does not wait for the client to finish.
-		if r.ProtoMajor == 1 {
-			_ = controller.SetReadDeadline(time.Now())
-		}
-	}
-	defer releaseBody()
-	// The transport closes outbound bodies, and the server owns the incoming
-	// body. Closing it here can block behind a Read on an unfinished upload
-	// before the server has flushed the early response.
-
-	outreq, err := http.NewRequest(r.Method, target, body)
+	outreq, err := http.NewRequest(r.Method, target, http.NoBody)
 	if err != nil {
 		http.Error(w, proxyErrorCategory(err), http.StatusInternalServerError)
 		return err
 	}
-	outreq.ContentLength = r.ContentLength
-	outreq.GetBody = body.getBody
-	if r.Body == nil || r.Body == http.NoBody {
-		outreq.Body = http.NoBody
-		outreq.GetBody = nil
+	releaseBody := func() {}
+	if r.Body != nil && r.Body != http.NoBody {
+		// Retain a replay copy as the transport consumes the upload, without
+		// waiting for EOF before forwarding streaming requests.
+		body, release := ps.replayableBody(r.Body, r.ContentLength)
+		releaseBody = release
+		body.interruptRead = func() {
+			// Go closes the initial body before checking a redirect. Interrupt an
+			// unfinished HTTP/1 read so Close does not wait for the client to finish.
+			if r.ProtoMajor == 1 {
+				_ = controller.SetReadDeadline(time.Now())
+			}
+		}
+		defer releaseBody()
+		// The transport closes outbound bodies. Closing here could block on an
+		// unfinished upload before the server flushes an early response.
+		outreq.Body = body
+		outreq.ContentLength = r.ContentLength
+		outreq.GetBody = body.getBody
 	}
 
 	// Copy the headers but exclude Origin and Cookie.
