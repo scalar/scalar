@@ -15,7 +15,7 @@ in browser environments.
 - Full CORS support
 - Follows same-origin HTTP redirects while preserving headers, including 307 and 308 with request bodies up to 10 MiB, while at most 128 MiB of request bodies are buffered in total. Redirects to another scheme, hostname, or effective port are rejected to protect credentials in headers and request bodies.
 - Supports HTTPS (and even self-signed certificates)
-- Request logging with method and target URL
+- Error logging with safe failure categories, without target URLs or free-form error messages
 - Health check endpoint at `/ping`
 - Configurable port via environment variable (`PORT`)
 - Preserves original request headers and body (except `Origin` header)

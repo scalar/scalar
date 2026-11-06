@@ -441,9 +441,30 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
-		// Log any errors
-		log.Printf("[Proxy Error:] %v\n", err)
+		// Error strings can contain credential-bearing URLs or upstream data.
+		log.Printf("[Proxy Error:] %s\n", proxyErrorCategory(err))
 	}
+}
+
+// proxyErrorCategory keeps operational diagnostics without logging untrusted
+// error text, including URLs embedded in wrapped errors or redirect failures.
+func proxyErrorCategory(err error) string {
+	if errors.Is(err, context.Canceled) {
+		return "request canceled"
+	}
+	var networkError net.Error
+	if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &networkError) && networkError.Timeout()) {
+		return "upstream timeout"
+	}
+	var dnsError *net.DNSError
+	if errors.As(err, &dnsError) {
+		return "DNS failure"
+	}
+	var connectionError *net.OpError
+	if errors.As(err, &connectionError) {
+		return "network failure"
+	}
+	return "request failed"
 }
 
 func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValidationError) {
@@ -524,7 +545,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Create the outbound request
 	body, releaseBody, err := ps.replayableBody(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, proxyErrorCategory(err), http.StatusBadRequest)
 		return err
 	}
 	// Release on the way out too, for when the request is never sent.
@@ -537,7 +558,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Return error if request creation fails
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, proxyErrorCategory(err), http.StatusInternalServerError)
 
 		return err
 	}
@@ -594,7 +615,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	releaseBody()
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 		return err
 	}
 
@@ -619,7 +640,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 		if len(locations) > 1 {
 			err := fmt.Errorf("redirect with more than one Location is not allowed")
-			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 			return err
 		}
 
@@ -627,13 +648,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			destination, err := resp.Request.URL.Parse(locations[0])
 			if err != nil {
 				err := fmt.Errorf("redirect with an invalid Location is not allowed: %v", err)
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 				return err
 			}
 
 			if !sameOrigin(remote, destination) {
 				err := fmt.Errorf("redirect to a different origin is not allowed")
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 				return err
 			}
 
