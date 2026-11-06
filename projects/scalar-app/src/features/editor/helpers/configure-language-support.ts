@@ -41,7 +41,7 @@ export const configureYaml = (globPattern: string): void => {
   configureMonacoYaml(monaco, {
     enableSchemaRequest: false,
     validate: true,
-    format: true,
+    format: { enable: true },
     completion: true,
     hover: true,
     schemas: [
