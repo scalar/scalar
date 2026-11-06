@@ -1,3 +1,5 @@
+/// <reference types="vitest/jsdom" />
+
 import type { ApiReferencePlugin, PluginAuthState } from '@scalar/types/api-reference'
 import { renderToString } from '@vue/server-renderer'
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils'
@@ -13,6 +15,7 @@ enableAutoUnmount(afterEach)
 beforeEach(() => {
   vi.resetAllMocks()
   vi.unstubAllGlobals()
+  jsdom.reconfigure({ url: 'http://localhost:3000/' })
 
   // Mock window.location for all tests
   vi.stubGlobal('location', {
@@ -34,6 +37,7 @@ beforeEach(() => {
 })
 
 const stubLocation = (href: string) => {
+  jsdom.reconfigure({ url: href })
   const url = new URL(href)
   vi.stubGlobal('location', {
     href,
@@ -1189,9 +1193,12 @@ describe('localhost shell', () => {
 
   /** jsdom has no scrollIntoView, so the stub is installed per test and removed again afterwards */
   const originalScrollIntoView = Element.prototype.scrollIntoView
+  const originalElementFromPoint = window.document.elementFromPoint
 
   beforeEach(async () => {
     Element.prototype.scrollIntoView = vi.fn()
+    // jsdom does not perform layout hit testing.
+    window.document.elementFromPoint = vi.fn(() => null)
     // Load the Explore chunk once, so the async component resolves within a microtask in every test
     await import('@/features/explore-scalar/components/ExploreScalarModal.vue')
 
@@ -1208,6 +1215,7 @@ describe('localhost shell', () => {
 
   afterEach(() => {
     Element.prototype.scrollIntoView = originalScrollIntoView
+    window.document.elementFromPoint = originalElementFromPoint
   })
 
   /** Mounts, then waits for `onMounted` (where the host is resolved) and the async chunks to settle */
