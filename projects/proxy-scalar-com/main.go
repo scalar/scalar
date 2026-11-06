@@ -193,15 +193,21 @@ func isBlockedHost(host string) bool {
 // behave like server-side requests (or let's say like `curl`).
 func main() {
 	// The default port
-	port := ":1337"
+	port := "1337"
 
 	// Allow to overwrite the port with an environment variable
 	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + p
+		port = p
 	}
 
-	// Create a new proxy server instance
-	proxyServer := NewProxyServer(os.Getenv("ENV") == "dev")
+	// Development servers stay on the local machine. Every runtime mode keeps
+	// private-address checks enabled.
+	host := ""
+	if os.Getenv("ENV") == "dev" {
+		host = "127.0.0.1"
+	}
+	address := net.JoinHostPort(host, port)
+	proxyServer := NewProxyServer(false)
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()
@@ -210,10 +216,10 @@ func main() {
 	// Add our custom CORS middleware to handle cross-origin requests
 	handler := corsMiddleware(mux)
 
-	log.Println("🥤 Proxy Server listening on http://localhost" + port)
+	log.Println("🥤 Proxy Server listening on " + address)
 
 	// Start the server and log any errors that occur
-	if err := http.ListenAndServe(port, handler); err != nil {
+	if err := http.ListenAndServe(address, handler); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
 	}
 }
