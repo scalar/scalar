@@ -1102,6 +1102,15 @@ export type ComponentsHeaders = Record<
 >
 
 export type ApiKeySecuritySchemeObject = {
+  /** Maps {{name}} placeholders to credentials from this security scheme */
+  'x-scalar-credential-placeholders'?: Record<
+    string,
+    {
+      field: 'token' | 'username' | 'password' | 'clientId' | 'clientSecret'
+      /** Mask the field in displayed examples. Defaults to true; copy includes the real value. */
+      mask?: boolean
+    }
+  >
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   type: 'apiKey'
@@ -1115,6 +1124,15 @@ export type ApiKeySecuritySchemeObject = {
 export type HttpSecuritySchemeScheme = 'basic' | 'bearer'
 
 export type HttpSecuritySchemeObject = {
+  /** Maps {{name}} placeholders to credentials from this security scheme */
+  'x-scalar-credential-placeholders'?: Record<
+    string,
+    {
+      field: 'token' | 'username' | 'password' | 'clientId' | 'clientSecret'
+      /** Mask the field in displayed examples. Defaults to true; copy includes the real value. */
+      mask?: boolean
+    }
+  >
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   type: 'http'
@@ -1279,6 +1297,15 @@ export type XDefaultScopes = {
 }
 
 export type OAuth2SecuritySchemeObject = {
+  /** Maps {{name}} placeholders to credentials from this security scheme */
+  'x-scalar-credential-placeholders'?: Record<
+    string,
+    {
+      field: 'token' | 'username' | 'password' | 'clientId' | 'clientSecret'
+      /** Mask the field in displayed examples. Defaults to true; copy includes the real value. */
+      mask?: boolean
+    }
+  >
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   type: 'oauth2'
@@ -1286,6 +1313,15 @@ export type OAuth2SecuritySchemeObject = {
 } & XDefaultScopes
 
 export type OpenIdConnectSecuritySchemeObject = {
+  /** Maps {{name}} placeholders to credentials from this security scheme */
+  'x-scalar-credential-placeholders'?: Record<
+    string,
+    {
+      field: 'token' | 'username' | 'password' | 'clientId' | 'clientSecret'
+      /** Mask the field in displayed examples. Defaults to true; copy includes the real value. */
+      mask?: boolean
+    }
+  >
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
   type: 'openIdConnect'

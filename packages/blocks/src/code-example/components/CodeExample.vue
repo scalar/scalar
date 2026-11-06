@@ -142,7 +142,10 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
-import { ScalarCodeBlock } from '@scalar/components/code-block'
+import {
+  ScalarCodeBlock,
+  ScalarCodeBlockCopy,
+} from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
@@ -157,7 +160,10 @@ import {
   useExampleVisibility,
   useExternalExamples,
 } from '@scalar/workspace-store/helpers/use-external-examples'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import {
+  resolveCredentialPlaceholders,
+  type SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
@@ -405,7 +411,7 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string | null>(() => {
+const generatedTemplate = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
   }
@@ -428,6 +434,35 @@ const generatedCode = computed<string | null>(() => {
     openapiVersion,
     requestBodyCompositionSelection,
   })
+})
+
+/** Resolve custom templates at render time so auth changes never mutate the document. */
+const resolvedCredentials = computed(() =>
+  !isWebhook &&
+  localSelectedClient.value?.id.startsWith('custom/') &&
+  generatedTemplate.value !== null &&
+  securitySchemes.some((scheme) => 'x-scalar-credential-placeholders' in scheme)
+    ? resolveCredentialPlaceholders(generatedTemplate.value, securitySchemes)
+    : undefined,
+)
+
+const generatedCode = computed(
+  () => resolvedCredentials.value?.content ?? generatedTemplate.value,
+)
+
+/** The highlighter skips short values; mask inserted short credentials before highlighting. */
+const displayCode = computed(() => {
+  const resolved = resolvedCredentials.value
+  if (!resolved) return generatedCode.value
+  const shortSecrets = resolved.maskedValues.filter((value) => value.length < 3)
+  return resolved.segments
+    .map((segment) =>
+      segment.credential &&
+      shortSecrets.some((value) => segment.value.includes(value))
+        ? '••••••••'
+        : segment.value,
+    )
+    .join('')
 })
 
 /** The language for the code block, used for syntax highlighting */
@@ -454,7 +489,9 @@ const webhookLanguage = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(securitySchemes))
+const secretCredentials = computed(
+  () => resolvedCredentials.value?.maskedValues ?? getSecrets(securitySchemes),
+)
 
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption) => {
@@ -483,6 +520,19 @@ const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(
   () => (generatedCode.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD,
+)
+
+/** Virtualized text has no highlighter, so mask its display separately from copyable content. */
+const virtualizedCode = computed(() =>
+  resolvedCredentials.value
+    ? [...resolvedCredentials.value.maskedValues]
+        .filter((value) => value.length >= 3)
+        .sort((left, right) => right.length - left.length)
+        .reduce(
+          (content, secret) => content.split(secret).join('••••••••'),
+          displayCode.value ?? '',
+        )
+    : (generatedCode.value ?? ''),
 )
 
 const id = useId()
@@ -571,19 +621,25 @@ const id = useId()
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
           class="bg-b-2 h-full"
-          :content="generatedCode"
+          :content="displayCode ?? ''"
+          :copyContent="resolvedCredentials ? (generatedCode ?? '') : undefined"
           :hideCredentials="secretCredentials"
           :label="codeSampleAriaLabel"
           :lang="codeBlockLanguage"
           lineNumbers />
-        <ScalarVirtualText
-          v-else
-          aria-label="Request code sample"
-          containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-          contentClass="language-plaintext whitespace-pre font-code text-base p-2"
-          :lineHeight="20"
-          role="region"
-          :text="generatedCode" />
+        <template v-else>
+          <ScalarCodeBlockCopy
+            v-if="resolvedCredentials"
+            :content="generatedCode"
+            :lang="codeBlockLanguage" />
+          <ScalarVirtualText
+            aria-label="Request code sample"
+            containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+            contentClass="language-plaintext whitespace-pre font-code text-base p-2"
+            :lineHeight="20"
+            role="region"
+            :text="virtualizedCode" />
+        </template>
       </div>
     </ScalarCardSection>
 
