@@ -24,6 +24,17 @@ describe('InfoVersion', () => {
     expect(wrapper.text()).toBe(version)
   })
 
+  it('displays numeric zero from a YAML document', () => {
+    const wrapper = mount(InfoVersion, {
+      // YAML authors can supply numbers even though OpenAPI requires a string.
+      // @ts-expect-error Test tolerance for an invalid API description.
+      props: { version: 0 },
+    })
+
+    expect(wrapper.findComponent({ name: 'Badge' }).exists()).toBe(true)
+    expect(wrapper.text()).toBe('0')
+  })
+
   it('hides the badge when the version is empty', () => {
     const wrapper = mount(InfoVersion, { props: { version: '' } })
 

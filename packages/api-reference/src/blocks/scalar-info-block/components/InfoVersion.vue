@@ -8,5 +8,5 @@ const { version } = defineProps<{
 }>()
 </script>
 <template>
-  <Badge v-if="version">{{ version }}</Badge>
+  <Badge v-if="version != null && version !== ''">{{ version }}</Badge>
 </template>
