@@ -202,13 +202,14 @@ const shouldOmitProperty = (
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
   options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
+  isRequiredProperty = false,
 ): boolean => {
   // Early exits for schemas that should not be included (readOnly, writeOnly)
   if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
     return true
   }
 
-  if (options?.omitEmptyAndOptionalProperties !== true) {
+  if (isRequiredProperty || options?.omitEmptyAndOptionalProperties !== true) {
     return false
   }
 
@@ -554,10 +555,16 @@ const handleObjectSchema = (
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+  // Carry requirements through composition wrappers before they cross the cap. Property children
+  // start their own scope, since their required names belong to a different object.
+  const memberRequiredScope =
+    requiredScope ?? (isComposed(schema) ? getCompositionRequiredNames(schema, options, schemaPath) : undefined)
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
   const required =
-    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath)) : undefined
+    level > MAX_LEVELS_DEEP
+      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath))
+      : undefined
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -658,7 +665,7 @@ const handleObjectSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
-          requiredScope: required,
+          requiredScope: memberRequiredScope,
         }),
       )
     }
@@ -680,7 +687,7 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
         schemaPath: memberSchemaPath,
-        requiredScope: required,
+        requiredScope: memberRequiredScope,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -1367,7 +1374,7 @@ const generateExampleFromSchema = (
   const makeUpRandomData = !!options?.emptyString
 
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
-  if (shouldOmitProperty(_schema, parentSchema, name, options)) {
+  if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
     seen.delete(targetValue)
     return undefined
   }
@@ -1435,9 +1442,10 @@ const generateExampleFromSchema = (
     truncated = true
   }
 
-  // Past the cap, composition members render only the properties their object requires.
+  // A composition can start above the cap and cross it in a nested member. Keep the shared
+  // requirements available throughout that descent, without filtering properties above the cap.
   const memberRequiredScope =
-    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(_schema, options, schemaPath)) : undefined
+    requiredScope ?? (isComposed(_schema) ? getCompositionRequiredNames(_schema, options, schemaPath) : undefined)
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
