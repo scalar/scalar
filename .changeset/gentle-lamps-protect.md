@@ -2,4 +2,4 @@
 '@scalar/agent-chat': patch
 ---
 
-Omit response URLs from failed request tool output to prevent URL credentials from being sent to the chat model.
+Omit response URLs and redact saved credentials from response headers and bodies before sending request tool output to the chat model.

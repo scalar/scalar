@@ -64,7 +64,7 @@ describe('execute-request.error-url', () => {
         { message: 'Access denied' },
         {
           status: 403,
-          headers: { 'x-request-id': 'request-id' },
+          headers: { 'x-request-id': 'request-id', 'x-forwarded-host': targetUrl },
         },
       )
       // The fetch boundary supplies the final response URL, including any redirects.
@@ -77,7 +77,11 @@ describe('execute-request.error-url', () => {
           detail: {
             status: 403,
             responseBody: { message: 'Access denied' },
-            headers: { 'content-type': 'application/json', 'x-request-id': 'request-id' },
+            headers: {
+              'content-type': 'application/json',
+              'x-request-id': 'request-id',
+              'x-forwarded-host': targetUrl.replace(secret, '[REDACTED]'),
+            },
           },
         },
       }
@@ -85,7 +89,7 @@ describe('execute-request.error-url', () => {
       const result = await executeRequestTool(request)
 
       expect(fetch.mock.calls).toStrictEqual([
-        [expectedRequestUrl, { method: 'GET', body: undefined, headers: { Cookie: '' } }],
+        [expectedRequestUrl, { redirect: 'error', method: 'GET', body: undefined, headers: { Cookie: '' } }],
       ])
       expect(result).toStrictEqual(expectedOutput)
       await vi.waitFor(() => {
@@ -101,22 +105,67 @@ describe('execute-request.error-url', () => {
     },
   )
 
-  it('preserves successful responses and their headers', async () => {
+  it('redacts successful response bodies and headers while preserving non-secret fields', async () => {
     const request = await prepareRequest()
-    const response = Response.json({ pets: [] }, { headers: { 'x-request-id': 'request-id' } })
+    const response = Response.json(
+      { pets: [], requestUrl: targetUrl },
+      { headers: { 'x-request-id': 'request-id', 'x-forwarded-host': targetUrl } },
+    )
     vi.spyOn(response, 'url', 'get').mockReturnValue(targetUrl)
     const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(response)
 
     const result = await executeRequestTool(request)
 
-    expect(fetch.mock.calls).toStrictEqual([[targetUrl, { method: 'GET', body: undefined, headers: { Cookie: '' } }]])
+    expect(fetch.mock.calls).toStrictEqual([
+      [targetUrl, { redirect: 'error', method: 'GET', body: undefined, headers: { Cookie: '' } }],
+    ])
     expect(result).toStrictEqual({
       success: true,
       data: {
         status: 200,
-        responseBody: { pets: [] },
-        headers: { 'content-type': 'application/json', 'x-request-id': 'request-id' },
+        responseBody: { pets: [], requestUrl: targetUrl.replace(secret, '[REDACTED]') },
+        headers: {
+          'content-type': 'application/json',
+          'x-request-id': 'request-id',
+          'x-forwarded-host': targetUrl.replace(secret, '[REDACTED]'),
+        },
       },
     })
+    await vi.waitFor(() =>
+      expect(request.chat.messages[0]?.parts.find((part) => part.type === 'tool-execute-request')?.state).toBe(
+        'output-available',
+      ),
+    )
+    expect(JSON.stringify(request.chat.messages)).not.toContain(secret)
+  })
+
+  it('redacts the target URL in a proxy text/plain 503 response', async () => {
+    const request = await prepareRequest(proxyUrl)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(`Get "${targetUrl}": dial tcp: connection refused`, {
+        status: 503,
+        headers: { 'content-type': 'text/plain', 'x-forwarded-host': targetUrl },
+      }),
+    )
+
+    const result = await executeRequestTool(request)
+
+    expect(result).toStrictEqual({
+      success: false,
+      error: {
+        code: 'REQUEST_NOT_OK',
+        detail: {
+          status: 503,
+          responseBody: `Get "${targetUrl.replace(secret, '[REDACTED]')}": dial tcp: connection refused`,
+          headers: { 'content-type': 'text/plain', 'x-forwarded-host': targetUrl.replace(secret, '[REDACTED]') },
+        },
+      },
+    })
+    await vi.waitFor(() =>
+      expect(request.chat.messages[0]?.parts.find((part) => part.type === 'tool-execute-request')?.state).toBe(
+        'output-available',
+      ),
+    )
+    expect(JSON.stringify(request.chat.messages)).not.toContain(secret)
   })
 })
