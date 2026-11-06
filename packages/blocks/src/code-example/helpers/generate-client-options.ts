@@ -30,7 +30,7 @@ export const getCustomClientIds = (samples: XCodeSample[]): CustomCodeSampleId[]
 
   return samples.map((sample): CustomCodeSampleId => {
     const lang = (sample.lang || 'plaintext').toLowerCase()
-    const group = JSON.stringify([lang, sample.label ?? ''])
+    const group = JSON.stringify([lang, sample.label ?? '', sample.group?.trim() ?? ''])
     const existing = sample.example !== undefined ? linkedGroups.get(group) : undefined
     if (existing) {
       return existing
