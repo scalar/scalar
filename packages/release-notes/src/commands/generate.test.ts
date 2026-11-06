@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -120,6 +120,49 @@ describe('generate', () => {
     await expect(createReleaseNotesGeneratorCommand().parseAsync(['--all'], { from: 'user' })).rejects.toThrow(
       'No products configured.',
     )
+  })
+
+  it.each([
+    { flags: [], writesMarkdown: true },
+    { flags: ['--no-markdown-output'], writesMarkdown: false },
+  ])('controls Markdown regeneration with $flags', async ({ flags, writesMarkdown }) => {
+    process.env.INIT_CWD = import.meta.dirname
+    const { changelogPath, outputPath } = await createTemporaryPackage()
+    const markdownPath = outputPath.replace('.json', '.md')
+    await writeFile(markdownPath, 'Existing Markdown')
+    vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+    const command = createReleaseNotesGeneratorCommand({
+      provider: {
+        name: 'test',
+        generateJson: () => Promise.resolve({ version: '1.0.0', title: 'Imports are easier' }),
+      },
+    })
+
+    await command.parseAsync(
+      [
+        '--package',
+        '@example/client',
+        '--changelog',
+        changelogPath,
+        '--output',
+        outputPath,
+        '--markdown',
+        markdownPath,
+        '--no-pull-request-context',
+        ...flags,
+      ],
+      { from: 'user' },
+    )
+
+    expect(await readFile(outputPath, 'utf-8')).toContain('Imports are easier')
+    const markdown = await readFile(markdownPath, 'utf-8')
+    if (writesMarkdown) {
+      expect(markdown).toContain('Imports are easier')
+      expect(markdown).not.toContain('Existing Markdown')
+    } else {
+      expect(markdown).toBe('Existing Markdown')
+    }
   })
 
   describe('--no-pull-request-context', () => {
