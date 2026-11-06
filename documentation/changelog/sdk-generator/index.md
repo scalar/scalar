@@ -8,6 +8,18 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.39.0 (2026-11-06)
+
+### CLI confirmations, improved pluralization, and form encoding
+
+Generated CLIs can now prompt for confirmation before running destructive commands. This release also fixes how names are derived from plurals like 'analyses' and 'aliases', and improves form-encoded request body handling across multiple targets.
+
+- CLI commands can now ask for confirmation before running. Set `cli.confirm` on a method or use `targets.cli.confirm: "delete"` to prompt before every `DELETE` operation.
+- Names derived from plurals are now singularized correctly. Words like 'analyses', 'aliases', 'warehouses', and 'quizzes' now generate proper singular forms ('analysis', 'alias', 'warehouse', 'quiz').
+- Form-encoded request bodies (`application/x-www-form-urlencoded`) are now properly encoded in C#, Go, Java, Kotlin, and Python SDKs instead of being sent as JSON.
+- TypeScript SDKs and CLIs can now build with pnpm, Yarn, or Bun. Set `targets.typescript.packageManager` or `targets.cli.packageManager` to use an alternative package manager in generated workflows.
+- Request types now include `readOnly` properties that serve as discriminator tags, so polymorphic requests carry the type information needed for dispatch.
+
 ## 0.38.0 (2026-11-04)
 
 ### Improved name pluralization and SDK credential handling

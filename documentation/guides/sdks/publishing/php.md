@@ -1,8 +1,5 @@
 # PHP (Packagist)
 
-> [!NOTE]
-> The PHP target is experimental.
-
 The PHP target publishes to [Packagist](https://packagist.org/), the Composer registry. The package name is the target's `composerPackageName` (for example `acme/api`). See the [PHP configuration](../configuration/php.md#publish) for options.
 
 Packagist serves packages straight from a Git tag, so there is **no upload step**. You connect the repository to Packagist once, and from then on the `vX.Y.Z` tag and GitHub Release that the release workflow cuts when the release pull request merges are the published version. `authMethod` is unused.

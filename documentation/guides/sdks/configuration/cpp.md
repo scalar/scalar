@@ -86,11 +86,11 @@ Primary repository this target's generated output is published to. Setting it tu
 
 ## installOrder
 
-**Type:** `("fetchContent" | "findPackage")[]`
+**Type:** `("fetchContent" | "findPackage" | "vcpkg" | "conan")[]`
 
-Order of the install methods in the generated README's Installation section and the agent skill's Install section. `fetchContent` adds the SDK to a CMake project with `FetchContent` (or with `add_subdirectory` over a checkout, when the target has no GitHub production repository to fetch from); `findPackage` installs the SDK once and uses it through `find_package`, together with the commands that build and install it. Listed methods come first, in the order given; any left out follow in the default order, so a one-item list only moves that method to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed.
+Order of the install methods in the generated README's Installation section and the agent skill's Install section. `fetchContent` adds the SDK to a CMake project with `FetchContent` (or with `add_subdirectory` over a checkout, when the target has no GitHub production repository to fetch from); `findPackage` installs the SDK once and uses it through `find_package`, together with the commands that build and install it; `vcpkg` installs it through the overlay port under `packaging/vcpkg/ports`, and `conan` packages it with the Conan 2 recipe and requires it from a consumer's `conanfile.txt`. `vcpkg` and `conan` are offered only when the target has a production repository (`target.lifecycle`), which is what emits that packaging. Listed methods come first, in the order given; any left out follow in the default order, so a one-item list only moves that method to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed.
 
-**Default:** `["fetchContent", "findPackage"]`
+**Default:** `["fetchContent", "findPackage", "vcpkg", "conan"]`
 
 ## skip
 
