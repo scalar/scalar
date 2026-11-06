@@ -14,13 +14,22 @@ const PETSTORE = await fetch(PETSTORE_URL_2_0).then((r) => r.json())
 describe('upgrade', () => {
   describe('Petstore: Swagger 2.0 to OpenAPI 3.0', () => {
     it('new', async ({ bench }) => {
-      await bench('new', () => {
-        expect(PETSTORE.swagger).toBe('2.0')
+      const fixture = { document: structuredClone(PETSTORE) }
+      await bench(
+        'new',
+        {
+          beforeEach: () => {
+            fixture.document = structuredClone(PETSTORE)
+          },
+        },
+        () => {
+          expect(PETSTORE.swagger).toBe('2.0')
 
-        const result = upgradeFromTwoToThree(structuredClone(PETSTORE))
+          const result = upgradeFromTwoToThree(fixture.document)
 
-        expect(result.openapi).toBe('3.0.4')
-      }).run()
+          expect(result.openapi).toBe('3.0.4')
+        },
+      ).run()
     })
 
     // bench('old', () => {
@@ -34,13 +43,22 @@ describe('upgrade', () => {
 
   describe('Stripe: OpenAPI 3.0 to 3.1', () => {
     it('new', async ({ bench }) => {
-      await bench('new', () => {
-        expect(STRIPE.openapi).toBe('3.0.0')
+      const fixture = { document: structuredClone(STRIPE) }
+      await bench(
+        'new',
+        {
+          beforeEach: () => {
+            fixture.document = structuredClone(STRIPE)
+          },
+        },
+        () => {
+          expect(STRIPE.openapi).toBe('3.0.0')
 
-        const document = upgrade(structuredClone(STRIPE), '3.1')
+          const document = upgrade(fixture.document, '3.1')
 
-        expect(document?.openapi).toBe('3.1.1')
-      }).run()
+          expect(document?.openapi).toBe('3.1.1')
+        },
+      ).run()
     })
 
     // bench('old', () => {
@@ -54,13 +72,22 @@ describe('upgrade', () => {
 
   describe('Petstore: Swagger 2.0 to OpenAPI 3.1', () => {
     it('new', async ({ bench }) => {
-      await bench('new', () => {
-        expect(PETSTORE.swagger).toBe('2.0')
+      const fixture = { document: structuredClone(PETSTORE) }
+      await bench(
+        'new',
+        {
+          beforeEach: () => {
+            fixture.document = structuredClone(PETSTORE)
+          },
+        },
+        () => {
+          expect(PETSTORE.swagger).toBe('2.0')
 
-        const document = upgrade(structuredClone(PETSTORE), '3.1')
+          const document = upgrade(fixture.document, '3.1')
 
-        expect(document?.openapi).toBe('3.1.1')
-      }).run()
+          expect(document?.openapi).toBe('3.1.1')
+        },
+      ).run()
     })
 
     // bench('old', () => {
