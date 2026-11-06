@@ -101,6 +101,14 @@ describe('Header', () => {
     expect(props.path).toBe('/animals')
   })
 
+  it('forwards the resolved display path separately from the operation path', () => {
+    const wrapper = render({ layout: 'modal', path: '/badges/{id}', displayPath: '/badges/42?limit=10' })
+    const addressBar = wrapper.getComponent(AddressBar)
+    expect(addressBar.props('path')).toBe('/badges/{id}')
+    expect(addressBar.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('/badges/42?limit=10')
+    wrapper.unmount()
+  })
+
   it('marks the close button as the initial focus target in modal layout', () => {
     const target = render({ layout: 'modal' }).find('[data-modal-initial-focus]')
     expect(target.exists()).toBe(true)

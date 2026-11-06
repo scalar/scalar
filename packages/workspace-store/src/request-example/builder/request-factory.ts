@@ -208,8 +208,64 @@ export type RequestFactory = {
   }>
 }
 
+/** Inputs for URL preparation, independent of body, header, and cookie construction. */
+type RequestUrlFactoryOptions = Pick<RequestExampleMeta, 'path' | 'exampleName'> & {
+  operation: Pick<OperationObject, 'parameters'>
+  server: ServerObject | null
+  selectedSecuritySchemes: SecuritySchemeObjectSecret[]
+  openapiVersion?: string
+}
+
+/** The URL portion of a request, accepted by both URL resolvers. */
+export type RequestUrl = Pick<
+  RequestFactory,
+  | 'baseUrl'
+  | 'path'
+  | 'query'
+  | 'serializedQuery'
+  | 'querystring'
+  | 'security'
+  | 'allowedReservedQueryParameters'
+  | 'options'
+>
+
+const createRequestUrl = (
+  { exampleName, operation, path, server, selectedSecuritySchemes }: RequestUrlFactoryOptions,
+  params: ReturnType<typeof buildRequestParameters>,
+): RequestUrl => {
+  const querystringParameter = operation.parameters
+    ?.map((parameter) => getResolvedRef(parameter))
+    .find((parameter) => parameter?.in === 'querystring')
+  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
+
+  return {
+    baseUrl: replacePathVariables(server?.url ?? '', getServerVariables(server)),
+    path: {
+      variables: params.pathVariables,
+      ...(params.serializedPathParameters ? { serializedParameters: params.serializedPathParameters } : {}),
+      ...(params.reservedPathParameters ? { reservedParameters: params.reservedPathParameters } : {}),
+      raw: path,
+    },
+    query: params.urlParams,
+    ...(params.serializedQuery ? { serializedQuery: params.serializedQuery } : {}),
+    ...(querystring ? { querystring } : {}),
+    security: buildRequestSecurity(selectedSecuritySchemes),
+    allowedReservedQueryParameters: params.allowReservedQueryParameters,
+    options: {},
+  }
+}
+
+/** Prepare a URL from the live request state without constructing unrelated payloads. */
+export const requestUrlFactory = (options: RequestUrlFactoryOptions): RequestUrl => {
+  const parameters = options.operation.parameters?.filter((parameter) => {
+    const location = getResolvedRef(parameter)?.in
+    return location === 'path' || location === 'query' || location === 'querystring'
+  })
+  return createRequestUrl(options, buildRequestParameters(parameters, options.exampleName, options.openapiVersion))
+}
+
 /**
- * Builds a request object fastory which can be used to build a request object.
+ * Builds a request object factory which can be used to build a request object.
  * @returns A request object factory
  */
 export const requestFactory = ({
@@ -253,11 +309,6 @@ export const requestFactory = ({
 
   /** Build out the request parameters */
   const params = buildRequestParameters(operation.parameters ?? [], exampleName, openapiVersion)
-  const querystringParameter = operation.parameters
-    ?.map((parameter) => getResolvedRef(parameter))
-    .find((parameter) => parameter?.in === 'querystring')
-  const querystring = querystringParameter ? getQuerystringParameter(querystringParameter, exampleName) : undefined
-  const security = buildRequestSecurity(selectedSecuritySchemes)
 
   const headers = new Headers({
     ...filterDisabledDefaultHeaders(operation, exampleName, defaultHeaders),
@@ -273,10 +324,6 @@ export const requestFactory = ({
   if (body?.mode === 'formdata' || body?.mode === 'urlencoded') {
     headers.delete('Content-Type')
   }
-
-  /** Combine the server url, path and url params into a single url */
-  const serverVariables = getServerVariables(server)
-  const baseUrl = replacePathVariables(server?.url ?? '', serverVariables)
 
   const globalCookieFilter = operation['x-scalar-disable-parameters']?.['global-cookies']?.[exampleName] ?? {}
 
@@ -298,28 +345,17 @@ export const requestFactory = ({
   }
 
   const request: RequestFactory = {
+    ...createRequestUrl({ exampleName, operation, path, server, selectedSecuritySchemes }, params),
     ...(params.cookieErrors ? { cookieErrors: params.cookieErrors } : {}),
-    baseUrl,
     proxyUrl,
-    path: {
-      variables: params.pathVariables,
-      ...(params.serializedPathParameters ? { serializedParameters: params.serializedPathParameters } : {}),
-      ...(params.reservedPathParameters ? { reservedParameters: params.reservedPathParameters } : {}),
-      raw: path,
-    },
-    query: params.urlParams,
-    ...(params.serializedQuery ? { serializedQuery: params.serializedQuery } : {}),
-    ...(querystring ? { querystring } : {}),
     method: isHttpMethod(method) && method === method.toLowerCase() ? method.toUpperCase() : method,
     headers,
     body,
     cookies: cookiesList,
     cache: requestCacheMode,
-    security,
     options: {
       isElectron,
     },
-    allowedReservedQueryParameters: params.allowReservedQueryParameters,
   }
 
   return {

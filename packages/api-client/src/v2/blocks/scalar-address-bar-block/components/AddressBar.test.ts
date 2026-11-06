@@ -40,6 +40,7 @@ describe('AddressBar', () => {
     const wrapper = mount(AddressBar, {
       props: {
         path: custom.path ?? '/api/test',
+        displayPath: custom.displayPath,
         method: (custom.method ?? 'get') as HttpMethod,
         isWebhook: custom.isWebhook ?? false,
         server: custom.server ?? baseServer,
@@ -93,6 +94,42 @@ describe('AddressBar', () => {
     const el = document.createElement('div')
     el.id = 'address-bar-test-id'
     document.body.appendChild(el)
+  })
+
+  it('updates the existing embedded path display while preserving its controls', async () => {
+    const { wrapper, eventBus } = mountWithProps({
+      layout: 'modal',
+      path: '/badges/{id}',
+      displayPath: '/badges/42?code=ABC123&limit=10',
+    })
+    const updatePath = vi.fn()
+    eventBus.on('operation:update:pathMethod', updatePath)
+    const input = wrapper.getComponent({ name: 'CodeInput' })
+    expect(input.props('modelValue')).toBe('/badges/42?code=ABC123&limit=10')
+    expect(input.get('[data-testid="code-input-disabled"]').text()).toBe('/badges/42?code=ABC123&limit=10')
+    expect(wrapper.getComponent({ name: 'HttpMethod' }).props('method')).toBe('get')
+    expect(wrapper.getComponent({ name: 'ServerDropdown' }).props('server')).toStrictEqual(baseServer)
+
+    await wrapper.setProps({ displayPath: '/badges/42?code=changed' })
+    expect(input.props('modelValue')).toBe('/badges/42?code=changed')
+    expect(input.get('[data-testid="code-input-disabled"]').text()).toBe('/badges/42?code=changed')
+    expect(updatePath).not.toHaveBeenCalled()
+    expect(wrapper.props('path')).toBe('/badges/{id}')
+    wrapper.unmount()
+  })
+
+  it('keeps the raw editable path in standalone layouts even when a display value is supplied', () => {
+    const { wrapper } = mountWithProps({ path: '/badges/{id}', displayPath: '/badges/42?limit=10' })
+    const input = wrapper.getComponent({ name: 'CodeInput' })
+    expect(input.props('modelValue')).toBe('/badges/{id}')
+    expect(input.props('disabled')).toBe(false)
+    wrapper.unmount()
+  })
+
+  it('falls back to the operation path while the resolved embedded value is unavailable', () => {
+    const { wrapper } = mountWithProps({ layout: 'modal', path: '/badges/{id}' })
+    expect(wrapper.getComponent({ name: 'CodeInput' }).props('modelValue')).toBe('/badges/{id}')
+    wrapper.unmount()
   })
 
   it('offers QUERY and updates the operation when selected', async () => {

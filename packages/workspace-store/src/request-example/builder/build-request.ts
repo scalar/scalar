@@ -9,7 +9,7 @@ import { encode as encodeBase64 } from 'js-base64'
 import { encodeMultipartBody } from '@/request-example/builder/body/encode-multipart-body'
 import { buildRequestCookieHeader } from '@/request-example/builder/header/build-request-cookie-header'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
-import type { RequestFactory } from '@/request-example/builder/request-factory'
+import type { RequestFactory, RequestUrl } from '@/request-example/builder/request-factory'
 import {
   type ResolveRequestFactoryUrlError,
   resolveRequestFactoryUrl,
@@ -70,7 +70,7 @@ const createEnvReplaceFn = (envVariables: Record<string, string>): ((value: stri
  * `allowMissingRequestServerBase: false` to enforce a complete absolute URL.
  */
 export const resolveExecutableRequestUrl = (
-  request: RequestFactory,
+  request: RequestUrl,
   envVariables: Record<string, string>,
   resolveOptions?: { allowMissingRequestServerBase?: boolean },
 ): string => {

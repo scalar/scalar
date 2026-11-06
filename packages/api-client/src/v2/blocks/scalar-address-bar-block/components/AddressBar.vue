@@ -12,6 +12,8 @@ export type AddressBarProps = {
   executionDisabled?: boolean
   /** Current request path */
   path: string
+  /** Resolved presentation value, kept separate from the editable operation path. */
+  displayPath?: string
   /** Current request method */
   method: string
   /** Whether the request target belongs to an OpenAPI webhook. */
@@ -77,6 +79,7 @@ import AddressBarHistory, { type History } from './AddressBarHistory.vue'
 
 const {
   path,
+  displayPath,
   method,
   layout,
   eventBus,
@@ -151,6 +154,11 @@ const pathPlaceholder = computed(() => {
     ? translate('apiClient.addressBar.webhookUrlPlaceholder')
     : translate('apiClient.addressBar.urlPlaceholder')
 })
+
+/** The live value is presentation-only; other layouts retain their editable path. */
+const displayedPath = computed(() =>
+  layout === 'modal' && !isWebhook ? (displayPath ?? path) : path,
+)
 
 /** Whether either dropdown (server or history) is open */
 const isDropdownOpen = computed(
@@ -538,7 +546,7 @@ defineExpose({
           :extensions="[addressBarScrollMargins]"
           importCurl
           :layout="layout"
-          :modelValue="path"
+          :modelValue="displayedPath"
           :placeholder="pathPlaceholder"
           server
           @blur="handlePathBlur"

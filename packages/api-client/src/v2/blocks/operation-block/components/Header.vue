@@ -11,6 +11,8 @@ export type HeaderProps = {
   executionDisabled?: boolean
   /** Current request path */
   path: string
+  /** Resolved path and query for the embedded client's read-only address field. */
+  displayPath?: string
   /** Current request method */
   method: string
   /** Whether this request comes from an OpenAPI webhook. */
@@ -111,6 +113,7 @@ const handleAddEnvironment = () => {
     <div class="flex flex-1"></div>
     <AddressBar
       :activeEnvironment
+      :displayPath
       :documentSlug
       :environment
       :environments

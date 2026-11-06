@@ -8,8 +8,8 @@ import { assert, describe, expect, it } from 'vitest'
 
 import type { SecuritySchemeObjectSecret } from '@/request-example/builder/security/secret-types'
 
-import { buildRequest } from './build-request'
-import { requestFactory } from './request-factory'
+import { buildRequest, resolveExecutableRequestUrl } from './build-request'
+import { requestFactory, requestUrlFactory } from './request-factory'
 
 type ExtendedParameter = ParameterObject & { value: string }
 
@@ -46,6 +46,108 @@ const createBaseArgs = (overrides: Partial<FactoryArgs> = {}): FactoryArgs => ({
 })
 
 describe('requestFactory', () => {
+  it('prepares URLs without reading request bodies or non-URL parameter values', () => {
+    const args = createBaseArgs({
+      server: { url: 'https://example.com/api/{version}', variables: { version: { default: 'v1' } } },
+      path: '/users/{id}',
+      operation: {
+        get requestBody(): never {
+          throw new Error('URL preparation must not read the request body')
+        },
+        parameters: [
+          { name: 'id', in: 'path', required: true, examples: { default: { value: 'a/b' } } },
+          { name: 'q', in: 'query', required: true, examples: { default: { value: '{{term}}' } } },
+          {
+            name: 'X-Large-Header',
+            in: 'header',
+            examples: {
+              default: {
+                get value(): never {
+                  throw new Error('URL preparation must not serialize headers')
+                },
+              },
+            },
+          },
+          {
+            name: 'cookie',
+            in: 'cookie',
+            examples: {
+              default: {
+                get value(): never {
+                  throw new Error('URL preparation must not serialize cookies')
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    expect(resolveExecutableRequestUrl(requestUrlFactory(args), { term: 'a + b' })).toBe(
+      'https://example.com/api/v1/users/a%2Fb?q=a+%2B+b',
+    )
+  })
+
+  it.each([
+    {
+      name: 'repeated query values',
+      parameters: [
+        {
+          name: 'tag',
+          in: 'query',
+          style: 'form',
+          explode: true,
+          required: true,
+          schema: { type: 'array', items: { type: 'string' } },
+          examples: { default: { value: ['one', 'two words'] } },
+        },
+      ],
+      expected: 'https://example.com/users?tag=one&tag=two+words&key=secret',
+    },
+    {
+      name: 'serialized query values',
+      parameters: [
+        {
+          name: 'q',
+          in: 'query',
+          required: true,
+          schema: { type: 'string' },
+          examples: { default: { serializedValue: 'q=already%20encoded' } },
+        },
+      ],
+      expected: 'https://example.com/users?key=secret&q=already%20encoded',
+    },
+    {
+      name: 'whole-query parameters',
+      parameters: [
+        {
+          name: 'query',
+          in: 'querystring',
+          required: true,
+          content: {
+            'application/x-www-form-urlencoded': {
+              examples: { default: { serializedValue: 'tag=one&tag=two%20words' } },
+            },
+          },
+        },
+      ],
+      expected: 'https://example.com/users?tag=one&tag=two%20words&key=secret',
+    },
+  ] satisfies { name: string; parameters: ParameterObject[]; expected: string }[])(
+    'shares URL preparation with the full request factory for $name',
+    ({ parameters, expected }) => {
+      const args = createBaseArgs({
+        path: '/users',
+        server: { url: 'https://example.com' },
+        openapiVersion: '3.2.1',
+        operation: { parameters },
+        selectedSecuritySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': 'secret' }],
+      })
+      const url = resolveExecutableRequestUrl(requestUrlFactory(args), {})
+      expect(url).toBe(expected)
+      expect(resolveExecutableRequestUrl(requestFactory(args).request, {})).toBe(url)
+    },
+  )
+
   it.each([
     { version: '3.2.0', allowReserved: true, expected: 'a:b%2Fc' },
     { version: '3.2.1', allowReserved: false, expected: 'a%3Ab%2Fc' },

@@ -101,6 +101,9 @@ import { ERRORS } from '@scalar/helpers/errors/normalize-error'
 import { isElectron } from '@scalar/helpers/general/is-electron'
 import { buildSafeBodyRequest } from '@scalar/helpers/http/can-method-have-body'
 import { isForbiddenHttpMethod } from '@scalar/helpers/http/is-forbidden-http-method'
+import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
+import { safeRun } from '@scalar/helpers/types/safe-run'
+import { mergeUrls } from '@scalar/helpers/url/merge-urls'
 import {
   executeHook,
   executeResponseHook,
@@ -125,8 +128,10 @@ import {
   createVariablesStoreForRequest,
   getEnvironmentVariables,
   requestFactory,
+  requestUrlFactory,
   resolveExecutableRequestUrl,
   type MergedSecuritySchemes,
+  type RequestUrl,
   type RequestPayload,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -289,30 +294,64 @@ const persistResponseCookies = (sendResult: {
 }
 
 /**
- * Copy the executable URL — same pipeline as Send (`requestFactory` +
- * `resolveExecutableRequestUrl`), including security query params.
+ * Use the same URL preparation and resolution as Send without building its body.
  */
-const copyAddressBarUrl = async (): Promise<void> => {
-  const { request } = requestFactory({
-    defaultHeaders,
-    environment,
+const getAddressBarRequest = (): RequestUrl =>
+  requestUrlFactory({
     exampleName: exampleKey,
-    globalCookies: [...workspaceCookies, ...documentCookies],
-    method,
     operation,
     path: requestPath.value,
-    proxyUrl,
     server: requestServer.value,
     selectedSecuritySchemes,
-    isElectron: isElectron(),
     openapiVersion: document.openapi,
-    requestBodyCompositionSelection,
   })
 
-  await copyToClipboard(
-    resolveExecutableRequestUrl(request, getEnvironmentVariables(environment)),
-  )
+const getAddressBarUrl = (request = getAddressBarRequest()): string =>
+  resolveExecutableRequestUrl(request, getEnvironmentVariables(environment))
+
+const copyAddressBarUrl = async (): Promise<void> => {
+  await copyToClipboard(getAddressBarUrl())
 }
+
+/** Resolve only the path field; the server remains in its existing dropdown. */
+const addressBarPath = computed<string | undefined>(() => {
+  if (layout !== 'modal' || externalExamplesPending || isWebhook) {
+    return undefined
+  }
+  const result = safeRun(() => {
+    const request = getAddressBarRequest()
+    // Mask only authentication values sent in the query, before URL serialization.
+    const url = getAddressBarUrl({
+      ...request,
+      security: request.security.map((credential) =>
+        credential.in === 'query' && credential.value
+          ? { ...credential, value: '*****' }
+          : credential,
+      ),
+    })
+    const resolvedServer = replaceEnvVariables(
+      request.baseUrl,
+      getEnvironmentVariables(environment),
+    )
+    const serverPath = resolvedServer
+      ? new URL(mergeUrls(resolvedServer, ''), url).pathname.replace(/\/$/, '')
+      : ''
+    // Keep the serialized text intact: reparsing would encode reserved query characters again.
+    const path = url.replace(/^[a-z][a-z\d+.-]*:\/\/[^/?#]*/i, '')
+    if (path.startsWith(`${serverPath}/`)) {
+      return path.slice(serverPath.length)
+    }
+    if (
+      path === serverPath ||
+      path.startsWith(`${serverPath}?`) ||
+      path.startsWith(`${serverPath}#`)
+    ) {
+      return `/${path.slice(serverPath.length)}`
+    }
+    return path
+  })
+  return result.ok ? result.data : undefined
+})
 
 /** Execute the current operation example */
 const handleExecute = async () => {
@@ -737,6 +776,7 @@ onBeforeUnmount(() => {
       <!-- Address Bar -->
       <Header
         :activeEnvironment
+        :displayPath="addressBarPath"
         :documentSlug
         :documentUrl
         :environment

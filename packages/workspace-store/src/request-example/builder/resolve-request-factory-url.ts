@@ -10,7 +10,7 @@ import {
   serializeReservedPathParameter,
 } from '@/helpers/encode-path-parameter'
 import { serializeQuerystringParameter } from '@/helpers/querystring-parameter'
-import type { RequestFactory } from '@/request-example/builder/request-factory'
+import type { RequestUrl } from '@/request-example/builder/request-factory'
 
 /**
  * Discriminated error code when the merged request URL is not a complete absolute target
@@ -31,12 +31,12 @@ const INCOMPLETE_MERGED_URL_MESSAGE =
   'No server URL is configured for this request. Add a servers entry to your OpenAPI document (or set a server in the client) before sending.'
 
 /**
- * Resolves the request URL string from a {@link RequestFactory} using the same
+ * Resolves the request URL string from a {@link RequestUrl} using the same
  * rules as {@link buildRequest} (path variables, query, security query params),
  * without proxy rewriting or reserved-query encoding.
  */
 export const resolveRequestFactoryUrl = (
-  request: RequestFactory,
+  request: RequestUrl,
   options: {
     envVariables: Record<string, string> | ((value: string) => string | null)
     securityQueryParams: URLSearchParams

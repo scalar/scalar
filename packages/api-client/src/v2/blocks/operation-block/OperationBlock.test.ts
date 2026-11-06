@@ -16,6 +16,7 @@ import type { OpenApiDocument, ParameterObject } from '@scalar/workspace-store/s
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.2/strict/operation'
 import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, reactive } from 'vue'
 
 import ResponseBodyStreaming from '@/v2/blocks/response-block/components/ResponseBodyStreaming.vue'
 import ResponseBlock from '@/v2/blocks/response-block/ResponseBlock.vue'
@@ -25,6 +26,11 @@ import type { ClientLayout } from '@/v2/types/layout'
 import { responseCache } from './helpers/response-cache'
 import { type ResponseInstance, sendRequest } from './helpers/send-request'
 import OperationBlock, { type OperationBlockProps } from './OperationBlock.vue'
+
+const { mockCopyToClipboard } = vi.hoisted(() => ({ mockCopyToClipboard: vi.fn() }))
+vi.mock('@scalar/use-hooks/useClipboard', () => ({
+  useClipboard: () => ({ copyToClipboard: mockCopyToClipboard }),
+}))
 
 vi.mock('@scalar/workspace-store/request-example', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@scalar/workspace-store/request-example')>()
@@ -63,6 +69,7 @@ vi.mock('@scalar/use-toasts', () => ({
 vi.mock('./components/Header.vue', () => ({
   default: {
     name: 'Header',
+    props: ['displayPath'],
     emits: ['execute', 'select:history:item', 'update:webhook-url'],
     template: '<div data-test="header"></div>',
   },
@@ -225,6 +232,31 @@ const createDefaultProps = (): OperationBlockProps => ({
   document: {} as OpenApiDocument,
 })
 
+/** Exercise the real serializer through the embedded operation view. */
+const mountUrlPreview = async (
+  overrides: Partial<OperationBlockProps> = {},
+): Promise<ReturnType<typeof mount<typeof OperationBlock>>> => {
+  const actual = await vi.importActual<typeof import('@scalar/workspace-store/request-example')>(
+    '@scalar/workspace-store/request-example',
+  )
+  vi.mocked(requestFactory).mockImplementation(actual.requestFactory)
+  return mount(OperationBlock, {
+    props: {
+      ...createDefaultProps(),
+      eventBus: createWorkspaceEventBus(),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Request URL', version: '1' },
+        'x-scalar-original-document-hash': '',
+      },
+      layout: 'modal',
+      path: '/badges',
+      server: { url: 'http://localhost:9000' },
+      ...overrides,
+    },
+  })
+}
+
 describe('OperationBlock', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -249,6 +281,254 @@ describe('OperationBlock', () => {
 
   afterEach(() => {
     responseCache.clear()
+  })
+
+  it('previews enabled query values reactively and keeps Copy URL consistent without executing hooks', async () => {
+    const code = reactive({
+      name: 'code',
+      in: 'query' as const,
+      required: true,
+      schema: { type: 'string' as const },
+      examples: { default: { value: 'ABC123' } },
+    })
+    const limit = reactive({
+      name: 'limit',
+      in: 'query' as const,
+      schema: { type: 'integer' as const },
+      examples: { default: { value: 10, 'x-disabled': false } },
+    })
+    const wrapper = await mountUrlPreview({ operation: { parameters: [code, limit] } })
+    const preview = (): string => wrapper.getComponent({ name: 'Header' }).props('displayPath')
+    expect(preview()).toBe('/badges?code=ABC123&limit=10')
+
+    code.examples.default.value = 'A + B&/é'
+    await nextTick()
+    expect(preview()).toBe('/badges?code=A+%2B+B%26%2F%C3%A9&limit=10')
+
+    limit.examples.default['x-disabled'] = true
+    await nextTick()
+    expect(preview()).toBe('/badges?code=A+%2B+B%26%2F%C3%A9')
+
+    limit.examples.default['x-disabled'] = false
+    await nextTick()
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith(`http://localhost:9000${preview()}`)
+    expect(vi.mocked(executeHook).mock.calls.map(([, hook]) => hook)).toStrictEqual(['onRequestMount'])
+    expect(sendRequest).not.toHaveBeenCalled()
+    wrapper.unmount()
+  })
+
+  it('preserves repeated query values and merges existing queries once, matching Copy URL', async () => {
+    const wrapper = await mountUrlPreview({
+      path: '/badges?tag=old&fixed=1',
+      server: { url: 'https://example.com/api?region=eu' },
+      operation: {
+        parameters: [
+          {
+            name: 'tag',
+            in: 'query',
+            style: 'form',
+            explode: true,
+            schema: { type: 'array', items: { type: 'string' } },
+            examples: { default: { value: ['a+b', 'two words'], 'x-disabled': false } },
+          },
+        ],
+      },
+    })
+    const url = wrapper.getComponent({ name: 'Header' }).props('displayPath')
+    expect(url).toBe('/badges?region=eu&tag=a%2Bb&tag=two+words&fixed=1')
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith(`https://example.com/api${url}`)
+    wrapper.unmount()
+  })
+
+  it('updates the preview for path, server, environment, and example changes', async () => {
+    const wrapper = await mountUrlPreview({
+      path: '/badges/{id}',
+      server: { url: 'https://{{host}}/{{base}}/{version}', variables: { version: { default: 'v1' } } },
+      environment: {
+        color: 'blue',
+        variables: [
+          { name: 'host', value: 'example.com' },
+          { name: 'base', value: 'api' },
+          { name: 'id', value: 'a/b' },
+          { name: 'code', value: 'ABC123' },
+        ],
+      },
+      operation: {
+        parameters: [
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+            examples: { default: { value: '{{id}}' }, second: { value: 'other' } },
+          },
+          {
+            name: 'code',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+            examples: { default: { value: '{{code}}' }, second: { value: 'second' } },
+          },
+        ],
+      },
+    })
+    const preview = (): string => wrapper.getComponent({ name: 'Header' }).props('displayPath')
+    expect(preview()).toBe('/badges/a%2Fb?code=ABC123')
+    await wrapper.setProps({
+      environment: {
+        color: 'blue',
+        variables: [
+          { name: 'host', value: 'staging.example.com' },
+          { name: 'base', value: 'another-base' },
+          { name: 'id', value: '42' },
+          { name: 'code', value: 'A + B' },
+        ],
+      },
+    })
+    expect(preview()).toBe('/badges/42?code=A+%2B+B')
+    await wrapper.setProps({ server: { url: 'https://other.example.com/v2' }, exampleKey: 'second' })
+    expect(preview()).toBe('/badges/other?code=second')
+    wrapper.unmount()
+  })
+
+  it('masks query credentials in the address field while copying their actual value', async () => {
+    const wrapper = await mountUrlPreview({
+      selectedSecuritySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': '{{token}}' }],
+      environment: { color: 'blue', variables: [{ name: 'token', value: 'secret + value' }] },
+    })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/badges?key=*****')
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith('http://localhost:9000/badges?key=secret+%2B+value')
+    wrapper.unmount()
+  })
+
+  it.each([
+    { token: 'secret/with space?', copied: 'secret/with+space%3F' },
+    { token: 'key', copied: 'key' },
+    { token: 'a', copied: 'a' },
+  ])('redacts only the query credential value before reserved serialization ($token)', async ({ token, copied }) => {
+    const wrapper = await mountUrlPreview({
+      operation: {
+        parameters: [
+          {
+            name: 'key',
+            in: 'query',
+            allowReserved: true,
+            schema: { type: 'string' },
+            examples: { default: { value: 'ordinary value', 'x-disabled': false } },
+          },
+        ],
+      },
+      selectedSecuritySchemes: [{ type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': token }],
+    })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/badges?key=*****')
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith(`http://localhost:9000/badges?key=${copied}`)
+    expect(wrapper.props('selectedSecuritySchemes')).toStrictEqual([
+      { type: 'apiKey', in: 'query', name: 'key', 'x-scalar-secret-token': token },
+    ])
+    wrapper.unmount()
+  })
+
+  it('leaves legitimate paths, query names, and values intact when authentication uses a header', async () => {
+    const wrapper = await mountUrlPreview({
+      path: '/admin/users',
+      operation: {
+        parameters: [
+          {
+            name: 'admin',
+            in: 'query',
+            required: true,
+            schema: { type: 'string' },
+            examples: { default: { value: 'admin' } },
+          },
+        ],
+      },
+      selectedSecuritySchemes: [
+        {
+          type: 'http',
+          scheme: 'basic',
+          'x-scalar-secret-username': 'admin',
+          'x-scalar-secret-password': 'users',
+          'x-scalar-secret-token': '',
+        },
+      ],
+    })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/admin/users?admin=admin')
+    wrapper.unmount()
+  })
+
+  it('preserves reserved query encoding exactly as Copy URL', async () => {
+    const wrapper = await mountUrlPreview({
+      server: { url: 'https://example.com/api/' },
+      operation: {
+        parameters: [
+          {
+            name: 'q',
+            in: 'query',
+            required: true,
+            allowReserved: true,
+            schema: { type: 'string' },
+            examples: { default: { value: "O'Reilly" } },
+          },
+        ],
+      },
+    })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe("/badges?q=O'Reilly")
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith("https://example.com/api/badges?q=O'Reilly")
+    wrapper.unmount()
+  })
+
+  it('does not serialize a POST body when rendering or changing query values or copying its URL', async () => {
+    const serializeBody = vi.fn(() => ({ message: 'large request body' }))
+    const query = reactive({
+      name: 'q',
+      in: 'query' as const,
+      required: true,
+      schema: { type: 'string' as const },
+      examples: { default: { value: 'first' } },
+    })
+    const operation: OperationObject = {
+      parameters: [query],
+      requestBody: { content: { 'application/json': { examples: { default: { value: { toJSON: serializeBody } } } } } },
+    }
+    const wrapper = await mountUrlPreview({ method: 'post', operation })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/badges?q=first')
+    expect(serializeBody).not.toHaveBeenCalled()
+    query.examples.default.value = 'second'
+    await nextTick()
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/badges?q=second')
+    wrapper.props('eventBus').emit('copy-url:address-bar')
+    await flushPromises()
+    expect(mockCopyToClipboard).toHaveBeenCalledExactlyOnceWith('http://localhost:9000/badges?q=second')
+    expect(serializeBody).not.toHaveBeenCalled()
+    vi.mocked(sendRequest).mockResolvedValue([new Error('Stop after request construction'), null])
+    await triggerExecute(wrapper)
+    expect(serializeBody).toHaveBeenCalledTimes(1)
+    wrapper.unmount()
+  })
+
+  it('handles incomplete inputs and webhook destinations without duplicating a server prefix', async () => {
+    const wrapper = await mountUrlPreview({ server: { url: 'http://[' } })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBeUndefined()
+    await wrapper.setProps({ server: null, path: '/badges/{id}' })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBe('/badges/%7Bid%7D')
+    await wrapper.setProps({ isWebhook: true, path: 'badge.created', server: { url: 'https://ignored.example.com' } })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBeUndefined()
+    wrapper.getComponent({ name: 'Header' }).vm.$emit('update:webhook-url', 'https://receiver.example.com/hook?tag=one')
+    await nextTick()
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBeUndefined()
+    await wrapper.setProps({ layout: 'web' })
+    expect(wrapper.getComponent({ name: 'Header' }).props('displayPath')).toBeUndefined()
+    wrapper.unmount()
   })
 
   it.each(['CONNECT', 'connect', 'TRACE', 'Trace', 'TRACK', 'tRaCk'])(
