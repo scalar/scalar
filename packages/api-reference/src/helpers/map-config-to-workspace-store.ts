@@ -1,4 +1,4 @@
-import { isClient } from '@scalar/blocks/code-example'
+import { isSelectedClient } from '@scalar/blocks/code-example'
 import type { ApiReferenceConfigurationRaw } from '@scalar/types/api-reference'
 import type { WorkspaceStore } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
@@ -22,7 +22,7 @@ export const mapConfigToWorkspaceStore = ({
         const { targetKey, clientKey } = newValue
 
         const clientId = `${targetKey}/${clientKey}`
-        if (isClient(clientId)) {
+        if (isSelectedClient(clientId)) {
           store.update('x-scalar-default-client', clientId)
         }
       }
