@@ -695,6 +695,40 @@ info:
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
+### Credentials in installation instructions
+
+SDK installation instructions support the same `{{name}}` placeholders as custom code samples. Declare mappings with `x-scalar-credential-placeholders` on a security scheme, then enter credentials in the authentication panel. Installation instructions use the document's current authentication selection.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Example API
+  version: 1.0.0
+  x-scalar-sdk-installation:
+    - lang: shell
+      description: |
+        Configure the CLI:
+        ```sh
+        example-cli configure --api-key "{{apiKey}}"
+        ```
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      x-scalar-credential-placeholders:
+        apiKey:
+          field: token
+paths: {}
+```
+
+Placeholders work in ordinary Markdown text, inline code, fenced code blocks, and the legacy `source` field. Secret values appear masked; a code block's copy button copies the real value. Set `mask: false` in a mapping only for public identifiers. Missing or ambiguous values keep their placeholders.
+
+Substituted values are literal text. They cannot create Markdown formatting, HTML, or new code blocks. Link destinations, raw HTML blocks, and paragraphs containing inline HTML are not substituted. The original API description remains unchanged.
+
 ## x-scalar-links
 
 Add named links next to the contact, license and terms of service links in the introduction. This is handy for the legal texts that some countries require on public websites, like a privacy policy or an imprint.
