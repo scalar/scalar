@@ -1,4 +1,4 @@
-import { Scalar } from '@scalar/hono-api-reference'
+import { type ApiReferenceConfiguration, Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import { type Context, Hono } from 'hono'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -77,12 +77,18 @@ describe('galaxy-scalar-com', () => {
      * The route hands Scalar a resolver so the configuration is built per request. Call it with a
      * request-shaped context to read the configuration a visitor would get.
      */
-    const resolveConfiguration = (request = new Request('https://galaxy.example/')): Record<string, unknown> => {
+    const resolveConfiguration = (
+      request = new Request('https://galaxy.example/'),
+    ): Partial<ApiReferenceConfiguration> => {
       const resolver = vi.mocked(Scalar).mock.calls[0]?.[0]
       if (typeof resolver !== 'function') {
         throw new Error('Expected Scalar to receive a configuration resolver')
       }
-      return resolver({ req: { raw: request } } as Context) as Record<string, unknown>
+      const config = resolver({ req: { raw: request } } as Context)
+      if (config instanceof Promise) {
+        throw new Error('Expected a synchronous Scalar configuration resolver')
+      }
+      return config
     }
 
     /** Build a request that carries the time zone Cloudflare geolocated for the visitor. */
@@ -115,15 +121,15 @@ describe('galaxy-scalar-com', () => {
       )
 
       const config = resolveConfiguration()
-      const sources = config.sources as { title: string; agent: { key: string } }[]
+      const sources = config.sources
       expect(config.agent).toBeUndefined()
-      expect(sources.map(({ title, agent }) => ({ title, key: agent.key }))).toStrictEqual([
+      expect(sources?.map(({ title, agent }) => ({ title, key: agent?.key }))).toStrictEqual([
         { title: 'Scalar Galaxy', key: expect.any(String) },
         { title: 'Scalar Galaxy Events (AsyncAPI)', key: expect.any(String) },
         { title: 'Petstore (OpenAPI 3.1)', key: expect.any(String) },
         { title: 'Petstore (Swagger 2.0)', key: expect.any(String) },
       ])
-      expect(new Set(sources.map(({ agent }) => agent.key)).size).toBe(4)
+      expect(new Set(sources?.map(({ agent }) => agent?.key)).size).toBe(4)
     })
 
     it('mounts the reference UI and bundle routes', () => {
@@ -240,7 +246,7 @@ describe('galaxy-scalar-com', () => {
     it('includes the AsyncAPI document as a source', () => {
       configureApiReference(mockApp as Hono)
 
-      const config = resolveConfiguration() as { sources?: Array<{ title?: string; url?: string }> }
+      const config = resolveConfiguration()
       const asyncApiSource = config.sources?.find((source) => source.title === 'Scalar Galaxy Events (AsyncAPI)')
 
       expect(asyncApiSource?.url).toBe('/asyncapi.json')
