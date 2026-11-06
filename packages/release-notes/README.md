@@ -17,6 +17,8 @@ Scalar is an open-source API platform for teams who want beautiful developer int
 
 ## Install
 
+Requires Node.js 22.12.0 or later.
+
 ```bash
 pnpm add -D @scalar/release-notes
 ```

@@ -66,7 +66,7 @@ catalogs:
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
-    commander: 14.0.3
+    commander: 15.0.0
     concurrently: 10.0.6
     cross-env: 10.1.0
     express: 5.3.0
