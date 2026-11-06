@@ -29,6 +29,7 @@ import {
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
+  MediaTypeObject,
   RequestBodyObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
@@ -37,6 +38,11 @@ import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
+import RequestBodyMultipart from '@/v2/blocks/request-block/components/RequestBodyMultipart.vue'
+import {
+  parseMultipartBody,
+  type MultipartBodyValue,
+} from '@/v2/blocks/request-block/helpers/multipart-body'
 import RequestBodyStructured from '@/v2/blocks/request-block/components/RequestBodyStructured.vue'
 import RequestBodyViewToggle from '@/v2/blocks/request-block/components/RequestBodyViewToggle.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -266,6 +272,19 @@ const bodySchema = computed<SchemaObject | undefined>(() => {
   )
 })
 
+/** Mixed and related bodies keep their ordered parts instead of named form-data rows. */
+const multipartBody = computed<
+  { media: MediaTypeObject; value: MultipartBodyValue } | undefined
+>(() => {
+  const essence = parseMimeType(selectedContentType.value).essence
+  if (essence !== 'multipart/mixed' && essence !== 'multipart/related') {
+    return undefined
+  }
+  const media = requestBody?.content?.[selectedContentType.value]
+  const value = parseMultipartBody(example.value)
+  return media && value !== undefined ? { media, value } : undefined
+})
+
 /** Codec for structured (JSON/YAML) bodies, undefined for everything else */
 const structuredCodec = computed(() =>
   selectedContentType.value === 'none'
@@ -348,7 +367,10 @@ watch(
     const isForm =
       selectedContentType.value === 'multipart/form-data' ||
       selectedContentType.value === 'application/x-www-form-urlencoded'
-    if (!requestBody || (!codec && !isXml && !isForm)) {
+    const isMultipart = ['multipart/mixed', 'multipart/related'].includes(
+      parseMimeType(selectedContentType.value).essence,
+    )
+    if (!requestBody || (!codec && !isXml && !isForm && !isMultipart)) {
       return
     }
 
@@ -380,6 +402,17 @@ watch(
           ...(row.isDisabledByDefault ? { isDisabledByDefault: true } : {}),
           ...(row.isArray ? { isArray: true } : {}),
         })),
+      })
+      return
+    }
+
+    if (isMultipart) {
+      emits('update:value', {
+        payload:
+          Array.isArray(selectedValue) || isObject(selectedValue)
+            ? selectedValue
+            : '',
+        contentType: selectedContentType.value,
       })
       return
     }
@@ -606,6 +639,7 @@ const canGenerateExample = computed(() =>
           <RequestBodyForm
             :bodySchema
             :compositionSelection="requestBodyCompositionSelection"
+            :encoding="requestBody?.content?.[selectedContentType]?.encoding"
             :environment
             :example
             :selectedContentType
@@ -617,6 +651,20 @@ const canGenerateExample = computed(() =>
                 })
             " />
         </template>
+
+        <RequestBodyMultipart
+          v-else-if="multipartBody"
+          :key="selectedContentType"
+          :compositionSelection="requestBodyCompositionSelection"
+          :media="multipartBody.media"
+          :value="multipartBody.value"
+          @update:value="
+            (payload) =>
+              emits('update:value', {
+                payload,
+                contentType: selectedContentType,
+              })
+          " />
 
         <!-- Code/Other -->
         <template v-else>

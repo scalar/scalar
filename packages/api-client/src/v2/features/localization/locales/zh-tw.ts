@@ -95,6 +95,10 @@ export const zhTw = {
     'openAPIClient': '開啟 API 用戶端',
   },
   'requestBody': {
+    'part': '部分 {number}',
+    'addPart': '新增部分',
+    'invalidPart': '請為此部分輸入有效的 JSON。',
+
     'restoreOriginalBody': '還原原始請求主體',
     'createExampleFromSchema': '根據結構描述建立範例',
     'noBody': '無請求主體',
