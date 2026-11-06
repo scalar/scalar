@@ -360,6 +360,10 @@
           "to": "/products/sdk-generator/configuration/overview"
         },
         {
+          "from": "/products/sdk-generator/configuration/signed-urls",
+          "to": "/products/sdk-generator/signed-urls#configuration-reference"
+        },
+        {
           "from": "/products/sdks/configuration/typescript",
           "to": "/products/sdk-generator/configuration/typescript"
         },
@@ -2912,12 +2916,6 @@
                         "title": "C++ (Experimental)",
                         "description": "Configuration reference for the experimental C++ SDK target: naming and generation options.",
                         "filepath": "documentation/guides/sdks/configuration/cpp.md",
-                        "type": "page"
-                      },
-                      "signed-urls": {
-                        "title": "Signed URL methods (Experimental)",
-                        "description": "Configuration reference for experimental signedUrl methods: every key, its default, and the rules it is checked against.",
-                        "filepath": "documentation/guides/sdks/configuration/signed-urls.md",
                         "type": "page"
                       }
                     }
