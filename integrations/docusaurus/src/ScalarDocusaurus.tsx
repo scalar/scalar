@@ -59,6 +59,36 @@ const loadStandaloneScript = (src: string): Promise<void> => {
   return loading
 }
 
+/** Keep in sync with `STANDALONE_STYLE_ID` in `@scalar/api-reference`. */
+const STANDALONE_STYLE_ID = 'scalar-style'
+
+let parkedStandaloneStyle: HTMLElement | null = null
+
+/**
+ * Detach the standalone styles when the bundle finished loading after the user already left the
+ * route. No instance was created, so `destroy()` cannot release them.
+ */
+const parkUnusedStandaloneStyles = (): void => {
+  if (Object.keys(window.__scalarDocusaurusInstances ?? {}).length > 0) {
+    return
+  }
+
+  const style = document.getElementById(STANDALONE_STYLE_ID)
+  if (style) {
+    parkedStandaloneStyle = style
+    style.remove()
+  }
+}
+
+/** Re-attach styles parked by `parkUnusedStandaloneStyles` before the next reference mounts. */
+const restoreParkedStandaloneStyles = (): void => {
+  if (parkedStandaloneStyle && !document.getElementById(STANDALONE_STYLE_ID)) {
+    document.head.appendChild(parkedStandaloneStyle)
+  }
+
+  parkedStandaloneStyle = null
+}
+
 export const ScalarDocusaurus = ({ route }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
   const id = useId()
@@ -70,8 +100,11 @@ export const ScalarDocusaurus = ({ route }: Props) => {
     loadStandaloneScript(route.cdn)
       .then(() => {
         if (isCancelled || !ref.current) {
+          parkUnusedStandaloneStyles()
           return
         }
+
+        restoreParkedStandaloneStyles()
 
         // Inject the init call as a real <script> so the browser parses the serialized configuration —
         // including any functions — as live JavaScript. Passing it as a prop is not an option, because
