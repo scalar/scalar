@@ -3057,6 +3057,117 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf)).toStrictEqual({ field: 'price_id', operator: 'includes', values: [], count: 3 })
     })
 
+    it.each(['example', 'default', 'const', 'enum', 'examples'] as const)(
+      'preserves a required %s value equal to the depth marker',
+      (keyword) => {
+        const value = '[Max Depth Exceeded]'
+        const leaf = {
+          type: 'object',
+          required: ['value'],
+          properties: {
+            value: { type: 'string', [keyword]: keyword === 'enum' || keyword === 'examples' ? [value] : value },
+          },
+        }
+
+        expect(truncate(leaf)).toStrictEqual({ value })
+      },
+    )
+
+    it('preserves a required variable value equal to the depth marker', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { type: 'string', 'x-variable': 'value' } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '[Max Depth Exceeded]' } })).toStrictEqual({
+        value: '[Max Depth Exceeded]',
+      })
+    })
+
+    it.each(['oneOf', 'anyOf'] as const)('collects required names only from the selected %s branch', (keyword) => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        [keyword]: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      }
+      const nested = nestObjects(TRUNCATED_DEPTH, coerceValue(SchemaObjectSchema, leaf))
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      // Reusing the schema catches required-name caches that ignore the selected branch.
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+      expect(
+        deepestNext(getExampleFromSchema(nested, { compositionSelection: { [`${selectionKey}.${keyword}`]: 1 } })),
+      ).toStrictEqual({ second: 'b' })
+      expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ first: 'a' })
+    })
+
+    it('uses allOf choice paths when collecting required names', () => {
+      const leaf = {
+        type: 'object',
+        allOf: [
+          { properties: { first: { const: 'a' }, second: { const: 'b' } } },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf)).toStrictEqual({ first: 'a' })
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.0.oneOf`]: 1 } })).toStrictEqual({
+        second: 'b',
+      })
+    })
+
+    it('collects shared choice requirements at each allOf selection path', () => {
+      const choice = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          { type: 'object', required: ['first'] },
+          { type: 'object', required: ['second'] },
+        ],
+      })
+      const leaf: SchemaObject = {
+        type: 'object',
+        properties: { first: { type: 'string', const: 'a' }, second: { type: 'string', const: 'b' } },
+        allOf: [choice, choice],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(
+        deepestNext(
+          getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf), {
+            compositionSelection: { [`${selectionKey}.1.oneOf`]: 1 },
+          }),
+        ),
+      ).toStrictEqual({ first: 'a', second: 'b' })
+    })
+
+    it('consumes a selection while collecting nested union requirements', () => {
+      const leaf = {
+        type: 'object',
+        properties: { first: { const: 'a' }, second: { const: 'b' }, outer: { const: 'unused' } },
+        oneOf: [
+          { type: 'object', required: ['outer'] },
+          {
+            oneOf: [
+              { type: 'object', required: ['first'] },
+              { type: 'object', required: ['second'] },
+            ],
+          },
+        ],
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
+    })
+
     it('keeps only the required keys of a required child object', () => {
       const leaf = {
         type: 'object',
@@ -3092,8 +3203,8 @@ describe('getExampleFromSchema', () => {
         },
       }
 
-      expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept' })
-      expect(truncate(leaf, { mode: 'read', includeDeprecated: true })).toStrictEqual({ id: 'kept', old: 'retired' })
+      // Deprecated properties are kept, the way the full walk keeps them.
+      expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept', old: 'retired' })
     })
 
     it('keeps required properties an object declares through allOf', () => {
@@ -3296,6 +3407,7 @@ describe('getExampleFromSchema', () => {
     it.each([
       ['an empty schema', {}],
       ['a boolean true schema', true],
+      ['an empty selected schema', { oneOf: [{}] }],
     ])('keeps a required property whose schema is %s as null', (_, value) => {
       const leaf = { type: 'object', required: ['value'], properties: { value } }
 
