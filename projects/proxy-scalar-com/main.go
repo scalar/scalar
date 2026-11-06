@@ -509,7 +509,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Create the outbound request
 	body, releaseBody, err := ps.replayableBody(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, proxyErrorCategory(err), http.StatusBadRequest)
 		return err
 	}
 	// Release on the way out too, for when the request is never sent.
@@ -522,7 +522,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Return error if request creation fails
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, proxyErrorCategory(err), http.StatusInternalServerError)
 
 		return err
 	}
@@ -579,7 +579,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	releaseBody()
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 		return err
 	}
 
@@ -604,7 +604,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 		if len(locations) > 1 {
 			err := fmt.Errorf("redirect with more than one Location is not allowed")
-			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+			http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 			return err
 		}
 
@@ -612,13 +612,13 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			destination, err := resp.Request.URL.Parse(locations[0])
 			if err != nil {
 				err := fmt.Errorf("redirect with an invalid Location is not allowed: %v", err)
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 				return err
 			}
 
 			if !sameOrigin(remote, destination) {
 				err := fmt.Errorf("redirect to a different origin is not allowed")
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 				return err
 			}
 

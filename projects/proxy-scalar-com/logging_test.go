@@ -41,6 +41,9 @@ func TestProxyErrorLogsOmitCredentials(t *testing.T) {
 		t.Fatal("missing proxy error diagnostic")
 	}
 	for _, secret := range []string{"secret-user", "secret-password", "secret-path", "secret-key", "secret-fragment"} {
+		if strings.Contains(response.Body.String(), secret) {
+			t.Errorf("returned credential-bearing URL component %q: %s", secret, response.Body.String())
+		}
 		if strings.Contains(output.String(), secret) {
 			t.Errorf("logged credential-bearing URL component %q: %s", secret, output.String())
 		}
@@ -59,6 +62,9 @@ func TestProxyErrorLogsOmitNestedErrorMessages(t *testing.T) {
 	proxy.handleRequest(response, request)
 	if response.Code != http.StatusServiceUnavailable {
 		t.Fatalf("got status %d", response.Code)
+	}
+	if got := response.Body.String(); got != "network failure\n" {
+		t.Errorf("got response %q", got)
 	}
 	if got := output.String(); got != "[Proxy Error:] network failure\n" {
 		t.Errorf("got log %q", got)
@@ -79,6 +85,9 @@ func TestProxyErrorLogsOmitRedirectURLs(t *testing.T) {
 	proxy.handleRequest(response, request)
 	if response.Code != http.StatusServiceUnavailable {
 		t.Fatalf("got status %d", response.Code)
+	}
+	if got := response.Body.String(); got != "request failed\n" {
+		t.Errorf("got response %q", got)
 	}
 	if got := output.String(); got != "[Proxy Error:] request failed\n" {
 		t.Errorf("got log %q", got)
