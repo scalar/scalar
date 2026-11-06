@@ -1,4 +1,4 @@
-import type { ApiReferenceInstance, CreateApiReference } from '@scalar/types'
+import type { ApiReferenceInstance, CreateApiReference } from '@scalar/types/api-reference'
 
 declare global {
   interface Window {
@@ -51,7 +51,7 @@ type InitializationScript = HTMLScriptElement & {
 /** Mount only for this route and release its instance when React cleans up the effect. */
 export const mountReference = (container: HTMLElement, configuration: string, cdn: string): (() => void) => {
   let disposed = false
-  let reference: ApiReferenceInstance | undefined
+  let destroy: (() => void) | undefined
 
   void loadBundle(cdn)
     .then((createReference) => {
@@ -69,8 +69,17 @@ export const mountReference = (container: HTMLElement, configuration: string, cd
       script.container = container
       script.textContent = `document.currentScript.reference = document.currentScript.createReference(document.currentScript.container, ${configuration})`
       document.body.appendChild(script)
-      reference = script.reference
+      const reference = script.reference
       script.remove()
+      destroy = () => {
+        reference?.destroy()
+        // With pluginUrls, destroy can run before the reference mounts and retains styles.
+        // A temporary instance releases orphaned bundle CSS through the reference-counted API,
+        // preserving styles when another reference is still mounted.
+        if (document.getElementById('scalar-style')) {
+          createReference(document.createElement('div'), {}).destroy()
+        }
+      }
     })
     .catch((error: unknown) => {
       if (!disposed) {
@@ -80,7 +89,7 @@ export const mountReference = (container: HTMLElement, configuration: string, cd
 
   return () => {
     disposed = true
-    reference?.destroy()
-    reference = undefined
+    destroy?.()
+    destroy = undefined
   }
 }

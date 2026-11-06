@@ -1,3 +1,4 @@
+import type { LoadContext, PluginContentLoadedActions } from '@docusaurus/types'
 import { describe, expect, it, vi } from 'vitest'
 
 import ScalarDocusaurus from './index'
@@ -29,12 +30,15 @@ describe('ScalarDocusaurus', () => {
   })
 
   it('passes the custom CDN to the reference route without injecting global scripts', async () => {
-    const plugin = ScalarDocusaurus({ siteConfig: { baseUrl: '/' } } as any, {
+    const plugin = ScalarDocusaurus({ siteConfig: { baseUrl: '/' } } as LoadContext, {
       cdn: 'https://example.com/scalar.js',
       showNavLink: false,
     })
     const addRoute = vi.fn()
-    await plugin.contentLoaded?.({ content: {}, actions: { addRoute } as any })
+    await plugin.contentLoaded?.({
+      content: {},
+      actions: { addRoute, createData: vi.fn<PluginContentLoadedActions['createData']>(), setGlobalData: vi.fn() },
+    })
 
     expect(plugin.injectHtmlTags).toBeUndefined()
     expect(addRoute.mock.calls[0]?.[0].cdn).toBe('https://example.com/scalar.js')

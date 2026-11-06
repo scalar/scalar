@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // @vitest-environment-options {"jsdom":{"runScripts":"dangerously"}}
 
-import type { ApiReferenceInstance, CreateApiReference } from '@scalar/types'
+import type { ApiReferenceInstance, CreateApiReference } from '@scalar/types/api-reference'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const cdn = 'https://example.com/scalar.js'
@@ -34,7 +34,7 @@ describe('mount-reference', () => {
   })
 
   it('loads lazily and destroys the reference when leaving the route', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     expect(document.querySelector('script')).toBeNull()
     const container = document.createElement('div')
     const cleanup = mountReference(container, '{ theme: "purple" }', cdn)
@@ -50,7 +50,7 @@ describe('mount-reference', () => {
   })
 
   it('preserves function-valued configuration without eval', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     const cleanup = mountReference(document.createElement('div'), '{ onBeforeRequest: () => "callback" }', cdn)
     finishDownload()
     await flush()
@@ -61,7 +61,7 @@ describe('mount-reference', () => {
   })
 
   it('shares one download between mounts and destroys each instance independently', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     const first = mountReference(document.createElement('div'), '{}', cdn)
     const second = mountReference(document.createElement('div'), '{}', cdn)
     expect(document.querySelectorAll('script[src]').length).toBe(1)
@@ -77,7 +77,7 @@ describe('mount-reference', () => {
   })
 
   it('reuses the loaded factory on subsequent visits', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     const first = mountReference(document.createElement('div'), '{}', cdn)
     finishDownload()
     await flush()
@@ -92,7 +92,7 @@ describe('mount-reference', () => {
   })
 
   it('releases late-arriving styles without executing abandoned configuration', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     const container = document.createElement('div')
     const cleanup = mountReference(container, '(() => { throw new Error("abandoned") })()', cdn)
     cleanup()
@@ -107,7 +107,7 @@ describe('mount-reference', () => {
   })
 
   it('keeps a concurrent active mount alive when another mount leaves during download', async () => {
-    const { mountReference } = await import('./mount-reference')
+    const { mountReference } = await import('./mount-reference.js')
     const abandoned = mountReference(document.createElement('div'), '{}', cdn)
     const active = mountReference(document.createElement('div'), '{}', cdn)
     abandoned()
@@ -118,9 +118,29 @@ describe('mount-reference', () => {
     active()
   })
 
+  it('releases bundle styles when cleanup precedes deferred plugin mounting', async () => {
+    const { mountReference } = await import('./mount-reference.js')
+    const style = document.createElement('style')
+    style.id = 'scalar-style'
+    document.head.appendChild(style)
+    const cleanup = mountReference(
+      document.createElement('div'),
+      '{ pluginUrls: ["https://example.com/plugin.js"] }',
+      cdn,
+    )
+    finishDownload()
+    await flush()
+
+    cleanup()
+    expect(createReference.mock.results[0]?.value.destroy).toHaveBeenCalledTimes(1)
+    expect(createReference).toHaveBeenCalledTimes(2)
+    expect(createReference.mock.calls[1]?.[1]).toStrictEqual({})
+    expect(createReference.mock.results[1]?.value.destroy).toHaveBeenCalledTimes(1)
+  })
+
   it('reports download failures and retries on the next visit', async () => {
-    const { mountReference } = await import('./mount-reference')
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const { mountReference } = await import('./mount-reference.js')
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     const first = mountReference(document.createElement('div'), '{}', cdn)
     document.querySelector('script[src]')?.dispatchEvent(new Event('error'))
     await flush()

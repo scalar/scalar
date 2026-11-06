@@ -3,7 +3,7 @@ import path from 'node:path'
 import type { LoadContext, Plugin } from '@docusaurus/types'
 import { normalizeUrl } from '@docusaurus/utils'
 import { getConfiguration, serializeConfigToJs } from '@scalar/client-side-rendering'
-import type { AnyApiReferenceConfiguration } from '@scalar/types'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 export type ScalarOptions = {
   label?: string
