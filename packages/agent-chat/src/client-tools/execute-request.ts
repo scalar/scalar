@@ -67,24 +67,40 @@ const safeFetch = n.safeFn(
   (originalError) => createError('FAILED_TO_FETCH', { originalError }),
 )
 
-function createUrl({
-  path,
-  activeServer,
-  proxyUrl,
-  queryParams,
-}: {
-  path: string
-  activeServer: ServerObject | null
-  proxyUrl: string
-  queryParams: URLSearchParams
-}) {
-  const resolvedUrl = getResolvedUrl({
-    path,
-    server: activeServer,
-    urlParams: queryParams,
-  })
+/** Validate the exact destination that will receive credentials before applying the proxy. */
+const createDestination = (
+  path: string,
+  activeServer: ServerObject | null,
+  queryParams: URLSearchParams,
+): { url: string; error?: never } | { url?: never; error: string } => {
+  if (!activeServer?.url?.trim()) {
+    return { error: 'Add a server to the API description before sending an API request.' }
+  }
 
-  return redirectToProxy(proxyUrl, resolvedUrl)
+  const pathname = path.split('?')[0] ?? ''
+  if (
+    !pathname.startsWith('/') ||
+    pathname.startsWith('//') ||
+    pathname.includes('\\') ||
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: Reject characters that URL parsers silently normalize.
+    /[\u0000-\u001f\u007f]/.test(pathname)
+  ) {
+    return { error: 'Request paths must be relative endpoints beginning with a single forward slash.' }
+  }
+
+  try {
+    const serverUrl = new URL(getResolvedUrl({ server: activeServer, path: '' }))
+    const requestUrl = new URL(getResolvedUrl({ server: activeServer, path, urlParams: queryParams }))
+    if (
+      (requestUrl.protocol !== 'http:' && requestUrl.protocol !== 'https:') ||
+      requestUrl.origin !== serverUrl.origin
+    ) {
+      return { error: 'Request destinations must use the selected HTTP or HTTPS server.' }
+    }
+    return { url: requestUrl.href }
+  } catch {
+    return { error: 'Select a valid HTTP or HTTPS server before sending an API request.' }
+  }
 }
 
 /**
@@ -116,6 +132,12 @@ export const executeRequestTool = n.safeFn(
     const settings = documentSettings[documentName]
 
     if (!settings) {
+      void chat.addToolOutput({
+        tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+        toolCallId,
+        state: 'output-error',
+        errorText: 'The selected API could not be found. Select an available API before sending a request.',
+      })
       return {
         success: false,
         error: createError('DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED', {
@@ -160,11 +182,24 @@ export const executeRequestTool = n.safeFn(
       },
     )
 
+    const destination = createDestination(path, settings.activeServer, requestSecurity.queryParams)
+    if (destination.error) {
+      // Tool callbacks run inside the stream queue, so do not await a write to that same queue.
+      void chat.addToolOutput({
+        tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+        toolCallId,
+        state: 'output-error',
+        errorText: destination.error,
+      })
+      return { success: false, error: createError('FAILED_TO_EXECUTE_REQUEST', destination.error) }
+    }
+
     const cookieHeader = Object.entries(requestSecurity.cookies)
       .map(([name, value]) => `${name}=${value}`)
       .join('; ')
 
-    const fetchOptions = {
+    const fetchOptions: RequestInit = {
+      redirect: 'error',
       method,
       body,
       headers: {
@@ -174,12 +209,7 @@ export const executeRequestTool = n.safeFn(
       },
     }
 
-    const url = createUrl({
-      path,
-      activeServer: settings.activeServer,
-      proxyUrl,
-      queryParams: requestSecurity.queryParams,
-    })
+    const url = redirectToProxy(proxyUrl, destination.url)
 
     const result = await safeFetch(url, fetchOptions)
 
