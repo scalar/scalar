@@ -194,18 +194,16 @@ jobs:
           repository: scalarapi/mock-server
           readme-filepath: ./packages/mock-server/docker/README.md
 
-  aspnetcore-publish:
+  aspnetcore-pack:
     if: inputs.published == 'true' && inputs.aspnetcore_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-nuget
     timeout-minutes: 10
-    # We don't want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
-      group: aspnetcore-publish
+      group: aspnetcore-pack
       cancel-in-progress: false
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -252,27 +250,59 @@ jobs:
           dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
           dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: aspnetcore-nuget
+          path: integrations/dotnet/aspnetcore/nupkgs
+          if-no-files-found: error
+          retention-days: 1
+
+  # Keep MSBuild targets in a separate job without OIDC permissions.
+  aspnetcore-publish:
+    needs: aspnetcore-pack
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    concurrency:
+      group: aspnetcore-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download NuGet packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: aspnetcore-nuget
+          path: nupkgs
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
       - name: Log in to NuGet
-        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: nuget-login
         with:
-          user: hanspagel
+          user: ${{ vars.NUGET_USER }}
 
       - name: Publish packages
-        working-directory: integrations/dotnet/aspnetcore
-        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push nupkgs/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
 
-  aspire-publish:
+  aspire-pack:
     if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-nuget
     timeout-minutes: 10
     concurrency:
-      group: aspire-publish
+      group: aspire-pack
       cancel-in-progress: false
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -356,28 +386,59 @@ jobs:
         working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
-      - name: Log in to NuGet
-        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
-        id: nuget-login
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          user: hanspagel
+          name: aspire-nuget
+          path: integrations/dotnet/aspire/src/Scalar.Aspire/nupkgs
+          if-no-files-found: error
+          retention-days: 1
 
-      - name: Publish Scalar.Aspire NuGet package
-        working-directory: integrations/dotnet/aspire/src/Scalar.Aspire
-        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
-
-  azure-functions-publish:
-    if: inputs.published == 'true' && inputs.azure_functions_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
+  # Keep MSBuild targets in a separate job without OIDC permissions.
+  aspire-publish:
+    needs: aspire-pack
     runs-on: blacksmith-2vcpu-ubuntu-2204
     environment: production-nuget
     timeout-minutes: 10
-    # We don't want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
-      group: azure-functions-publish
+      group: aspire-publish
       cancel-in-progress: false
     permissions:
       contents: read
       id-token: write
+    steps:
+      - name: Download NuGet packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: aspire-nuget
+          path: nupkgs
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
+      - name: Log in to NuGet
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
+        id: nuget-login
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: Publish Scalar.Aspire NuGet package
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push nupkgs/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
+
+  azure-functions-pack:
+    if: inputs.published == 'true' && inputs.azure_functions_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    concurrency:
+      group: azure-functions-pack
+      cancel-in-progress: false
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -421,15 +482,48 @@ jobs:
         working-directory: integrations/dotnet/azure-functions
         run: dotnet pack src/Scalar.Azure.Functions -c Release --no-restore --output nupkgs /p:Version=${{ steps.package-version.outputs.VERSION }}
 
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: azure-functions-nuget
+          path: integrations/dotnet/azure-functions/nupkgs
+          if-no-files-found: error
+          retention-days: 1
+
+  # Keep MSBuild targets in a separate job without OIDC permissions.
+  azure-functions-publish:
+    needs: azure-functions-pack
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-nuget
+    timeout-minutes: 10
+    concurrency:
+      group: azure-functions-publish
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download NuGet packages
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: azure-functions-nuget
+          path: nupkgs
+
+      - name: Setup .NET
+        uses: fast-actions/setup-dotnet@a71ae3c1c05fa3c6fae4065438844513d41d893e # v1
+        with:
+          sdk-version: 10.x.x
+
       - name: Log in to NuGet
-        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
         id: nuget-login
         with:
-          user: hanspagel
+          user: ${{ vars.NUGET_USER }}
 
       - name: Publish package
-        working-directory: integrations/dotnet/azure-functions
-        run: dotnet nuget push nupkgs/*.nupkg -k "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push nupkgs/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
 
   fastapi-publish:
     if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
