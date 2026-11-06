@@ -762,6 +762,7 @@ Put your API document in [Registry](../registry/index.md), or import it while cr
 
 <scalar-image
   src="/sdks/sdk-import-api.png"
+  src-dark="/sdks/sdk-import-api-dark.png"
   alt="The new SDK dialog in the Scalar dashboard, ready to import the Scalar Galaxy demo API into Registry"
   size="full">
 </scalar-image>
@@ -774,6 +775,7 @@ Choose one target or a dozen. Generation begins immediately, and each target get
 
 <scalar-image
   src="/sdks/sdk-pick-targets.png"
+  src-dark="/sdks/sdk-pick-targets-dark.png"
   alt="The target picker in the new SDK dialog, with TypeScript, Python, and Go selected"
   size="full">
 </scalar-image>
@@ -786,6 +788,7 @@ Every target gets a preview repository, provisioned automatically. Browse the ge
 
 <scalar-image
   src="/sdks/sdk-studio.png"
+  src-dark="/sdks/sdk-studio-dark.png"
   alt="The SDK studio showing a generated TypeScript SDK's operations, installation command, and configuration, with its preview repository ready to view"
   size="full">
 </scalar-image>
@@ -798,6 +801,7 @@ Connect the repository where the SDK should live. Scalar authors commits through
 
 <scalar-image
   src="/sdks/sdk-git-pipeline.png"
+  src-dark="/sdks/sdk-git-pipeline-dark.png"
   alt="The build pipeline for a linked TypeScript target, from scalar-generated through scalar-next and an open release pull request into main"
   size="full">
 </scalar-image>
