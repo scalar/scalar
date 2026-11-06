@@ -19,37 +19,32 @@ export const getClients = (
   clientOptions: ClientOptionGroup[],
   label: string = CODE_EXAMPLES_GROUP_LABEL,
 ): CustomClientOptionGroup[] => {
-  // Handle custom code examples
-  if (customCodeSamples.length) {
-    // Language-keyed ids so the same sample can be selected across operations
-    const ids = getCustomClientIds(customCodeSamples)
-
-    const customClients = customCodeSamples.flatMap((sample, index) => {
-      const id = ids[index] ?? `custom/${index}`
-      if (ids.indexOf(id) !== index) {
-        return []
-      }
-      const label = sample.label || formatLanguage(sample.lang) || id
-      const lang = (sample.lang as TargetId) || 'plaintext'
-
-      return {
-        id,
-        lang,
-        title: label,
-        label,
-        clientKey: 'custom',
-      } satisfies CustomClientOption
-    })
-
-    return [
-      {
-        label,
-        key: 'custom',
-        options: customClients,
-      },
-      ...clientOptions,
-    ]
+  if (!customCodeSamples.length) {
+    return clientOptions
   }
 
-  return clientOptions
+  const ids = getCustomClientIds(customCodeSamples)
+  const groups = new Map<string, CustomClientOptionGroup>()
+
+  for (const [index, sample] of customCodeSamples.entries()) {
+    const id = ids[index]
+    if (!id || ids.indexOf(id) !== index) {
+      continue
+    }
+
+    // Empty headings retain the source extension's existing default group.
+    const groupLabel = sample.group?.trim() || label
+    const group = groups.get(groupLabel) ?? { label: groupLabel, key: 'custom', options: [] }
+    const optionLabel = sample.label || formatLanguage(sample.lang) || id
+    group.options.push({
+      id,
+      lang: (sample.lang as TargetId) || 'plaintext',
+      title: optionLabel,
+      label: optionLabel,
+      clientKey: 'custom',
+    } satisfies CustomClientOption)
+    groups.set(groupLabel, group)
+  }
+
+  return [...groups.values(), ...clientOptions]
 }
