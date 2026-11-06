@@ -102,12 +102,13 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
     }
   }
   if (node.type === 'object' || /^(record |message )/.test(node.type) || node.children?.length) {
-    const fields = (node.children ?? []).filter((child) => !child.oneofGroup)
-    const required = fields.filter((child) => child.details?.includes('Required')).map((child) => child.name)
-    const base: SchemaObject = {
-      type: 'object',
-      properties: Object.fromEntries(fields.map((child) => [child.name, toDisplaySchema(child)])),
-      ...(required.length ? { required } : {}),
+    const objectFields = (fields: SchemaNode[]): SchemaObject => {
+      const required = fields.filter((child) => child.details?.includes('Required')).map((child) => child.name)
+      return {
+        type: 'object',
+        properties: Object.fromEntries(fields.map((child) => [child.name, toDisplaySchema(child)])),
+        ...(required.length ? { required } : {}),
+      }
     }
     const groups = new Map<string, SchemaNode[]>()
     for (const child of node.children ?? []) {
@@ -116,7 +117,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
       }
     }
     if (!groups.size) {
-      return { ...common, ...base }
+      return { ...common, ...objectFields(node.children ?? []) }
     }
     // Keep ordinary field runs and independent oneof groups in declaration order.
     const segments: SchemaObject[] = []
@@ -125,12 +126,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
       if (!pending.length) {
         return
       }
-      const required = pending.filter((child) => child.details?.includes('Required')).map((child) => child.name)
-      segments.push({
-        type: 'object',
-        properties: Object.fromEntries(pending.map((child) => [child.name, toDisplaySchema(child)])),
-        ...(required.length ? { required } : {}),
-      })
+      segments.push(objectFields(pending))
       pending = []
     }
     const emitted = new Set<string>()
