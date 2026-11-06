@@ -8,6 +8,7 @@ type SdkInstallationList = NonNullable<XScalarSdkInstallation['x-scalar-sdk-inst
 /** A renderable SDK entry whose `description` is the resolved Markdown to show. */
 type RenderableSdk = {
   lang: string
+  label: string
   description: string
 }
 
@@ -39,7 +40,7 @@ const toFencedCodeBlock = (source: string): string => {
  *
  * The value comes straight from an untrusted OpenAPI document, so anything
  * malformed — a non-array extension, a non-object entry, or an entry missing a
- * string `lang` (the tab label and icon key) and any content — is treated as
+ * string `lang` (the language selection and icon key) and any content — is treated as
  * "no instructions" rather than allowed to throw at render time.
  */
 export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | undefined): RenderableSdk[] =>
@@ -61,7 +62,9 @@ export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | 
 
         const resolved = [description, source && toFencedCodeBlock(source)].filter(Boolean).join('\n\n')
 
-        return [{ lang: sdk.lang, description: resolved }]
+        const label = typeof sdk.label === 'string' && sdk.label.trim() ? sdk.label : sdk.lang
+
+        return [{ lang: sdk.lang, label, description: resolved }]
       })
     : []
 

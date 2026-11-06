@@ -103,12 +103,10 @@ watch(
   { immediate: true },
 )
 
-// Re-measure whenever the set of SDKs changes. Keying on the languages (not just
-// the count) also catches documents that swap in a different set of the same
-// size, which would otherwise leave the cached tab widths — and the "More"
-// overflow logic — stale.
+// Re-measure labels as well as languages so renamed SDKs do not leave stale
+// tab widths or an incorrect number of options in the "More" menu.
 watch(
-  () => sdks.value.map((sdk) => sdk.lang).join('\n'),
+  () => JSON.stringify(sdks.value.map(({ lang, label }) => [lang, label])),
   () => void nextTick(measure),
 )
 
@@ -168,7 +166,7 @@ const isMoreActive = computed(() => selectedIndex.value >= visibleCount.value)
 const moreOptions = computed<ScalarComboboxOption[]>(() =>
   sdks.value.slice(visibleCount.value).map((sdk, index) => ({
     id: String(visibleCount.value + index),
-    label: sdk.lang,
+    label: sdk.label,
   })),
 )
 
@@ -309,7 +307,7 @@ onBeforeUnmount(() => {
               v-if="sdk.icon"
               class="client-libraries-icon"
               :icon="sdk.icon" />
-            <span class="client-libraries-text">{{ sdk.lang }}</span>
+            <span class="client-libraries-text">{{ sdk.label }}</span>
           </button>
         </div>
 
@@ -354,7 +352,7 @@ onBeforeUnmount(() => {
               v-if="sdk.icon"
               class="client-libraries-icon"
               :icon="sdk.icon" />
-            <span class="client-libraries-text">{{ sdk.lang }}</span>
+            <span class="client-libraries-text">{{ sdk.label }}</span>
           </span>
           <span class="client-libraries">
             <ScalarIcon
