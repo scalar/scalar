@@ -14,6 +14,7 @@ import {
   isParameter,
   isPropertySignature,
   isTypeLiteralNode,
+  isTypeReferenceNode,
   isVariableStatement,
 } from 'typescript'
 
@@ -48,10 +49,23 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
     isPropertySignature(node.type.members[0]) &&
     isIdentifier(node.type.members[0].name) &&
     node.type.members[0].name.escapedText === 'params' &&
-    node.type.members[0].type &&
-    isTypeLiteralNode(node.type.members[0].type)
+    node.type.members[0].type
   ) {
-    return node.type.members[0].type?.members.flatMap((member) => {
+    const paramsType = node.type.members[0].type
+    // Next.js 16 requires asynchronous route params; keep supporting older handlers too.
+    const resolvedType =
+      isTypeReferenceNode(paramsType) &&
+      isIdentifier(paramsType.typeName) &&
+      paramsType.typeName.text === 'Promise' &&
+      paramsType.typeArguments?.length === 1
+        ? paramsType.typeArguments[0]
+        : paramsType
+
+    if (!resolvedType || !isTypeLiteralNode(resolvedType)) {
+      return []
+    }
+
+    return resolvedType.members.flatMap((member) => {
       if (!isPropertySignature(member) || !member.type) {
         return []
       }
@@ -60,6 +74,7 @@ const extractPathParams = (node: ParameterDeclaration | undefined, program: Prog
         name: member.name?.getText(),
         schema: getSchemaFromTypeNode(member.type, program, fileNameResolver),
         in: 'path',
+        required: true,
       } as OpenAPIV3_1.ParameterObject
     })
   }

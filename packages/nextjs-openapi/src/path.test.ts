@@ -49,7 +49,7 @@ describe('path', () => {
       post: {
         summary: 'Create a resource',
         description: 'Creates the requested resource.',
-        parameters: [{ name: 'id', schema: { type: 'string' }, in: 'path' }],
+        parameters: [{ name: 'id', schema: { type: 'string' }, in: 'path', required: true }],
         responses: {
           '201': {
             description: 'TODO: grab this from jsdoc and add a default',
@@ -59,6 +59,32 @@ describe('path', () => {
       },
     })
   })
+
+  it.each([
+    'export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) { return Response.json(await params) }',
+    'export const GET = async (_request: Request, { params }: { params: Promise<{ id: string }> }) => Response.json(await params)',
+    'export const GET = async function (_request: Request, { params }: { params: Promise<{ id: string }> }) { return Response.json(await params) }',
+  ])('preserves path parameters for asynchronous route contexts: %s', (code) => {
+    const source = createSourceFile('route.ts', code, ScriptTarget.Latest, true)
+
+    expect(getPathSchema(source, program).get?.parameters).toStrictEqual([
+      { name: 'id', schema: { type: 'string' }, in: 'path', required: true },
+    ])
+  })
+
+  it.each(['Array<{ id: string }>', 'Promise<string>', 'Promise'])(
+    'ignores unsupported params types: %s',
+    (paramsType) => {
+      const source = createSourceFile(
+        'route.ts',
+        `export function GET(_request: Request, { params }: { params: ${paramsType} }) {}`,
+        ScriptTarget.Latest,
+        true,
+      )
+
+      expect(getPathSchema(source, program).get?.parameters).toStrictEqual([])
+    },
+  )
 
   it('extracts each method independently when a statement declares multiple variables', () => {
     const source = createSourceFile(
