@@ -361,7 +361,7 @@
         },
         {
           "from": "/products/sdk-generator/configuration/signed-urls",
-          "to": "/products/sdk-generator/signed-urls"
+          "to": "/products/sdk-generator/signed-urls#configuration-reference"
         },
         {
           "from": "/products/sdks/configuration/typescript",
