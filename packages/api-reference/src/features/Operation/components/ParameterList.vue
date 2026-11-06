@@ -16,6 +16,8 @@ import ParameterListItem from './ParameterListItem.vue'
 const { parameters } = defineProps<
   {
     parameters: T[]
+    /** Flattened fields displayed inside their original parameter row. */
+    parameterGroups?: Map<ParameterObject, ParameterObject[]>
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
@@ -67,7 +69,9 @@ const { level: headingLevel } = useDocumentOutline('operationSection')
         v-for="item in parameters"
         :key="item.name"
         :breadcrumb="breadcrumb"
-        :collapsableItems
+        :childParameters="parameterGroups?.get(item)"
+        :collapsableChildItems="collapsableItems"
+        :collapsableItems="parameterGroups?.has(item) || collapsableItems"
         :document="document"
         :eventBus="eventBus"
         :expansion="expansion"

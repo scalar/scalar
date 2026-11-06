@@ -7,6 +7,7 @@ import {
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import { SpecificationExtension } from '@/features/specification-extension'
 import { scrollTargetId } from '@/helpers/lazy-bus'
@@ -22,6 +23,59 @@ const baseOptions = {
 }
 
 describe('ParameterListItem', () => {
+  it('preserves expanded fields when navigating inside an open deep-object group', async () => {
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'filters',
+        eventBus: null,
+        options: baseOptions,
+        breadcrumb: ['operation', 'query'],
+        collapsableItems: true,
+        collapsableChildItems: true,
+        parameter: coerceValue(ParameterObjectSchema, {
+          name: 'filters',
+          in: 'query',
+          schema: { type: 'object' },
+        }),
+        childParameters: ['first', 'second'].map((name) =>
+          coerceValue(ParameterObjectSchema, {
+            name: `filters[${name}]`,
+            in: 'query',
+            schema: { type: 'string', description: `${name} details` },
+          }),
+        ),
+      },
+    })
+
+    try {
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      const firstField = wrapper.findAllComponents(ParameterListItem)[0]!
+      await firstField.get('button[aria-expanded]').trigger('click')
+      expect(firstField.get('button[aria-expanded]').attributes('aria-expanded')).toBe('true')
+
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+      scrollTargetId.value = ''
+      await nextTick()
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+
+      expect(
+        wrapper.findAllComponents(ParameterListItem)[0]!.get('button[aria-expanded]').attributes('aria-expanded'),
+      ).toBe('true')
+
+      await wrapper.get('button[aria-expanded]').trigger('click')
+      scrollTargetId.value = ''
+      await nextTick()
+      scrollTargetId.value = 'operation.query.filters[second]'
+      await nextTick()
+      expect(wrapper.get('button[aria-expanded]').attributes('aria-expanded')).toBe('true')
+    } finally {
+      scrollTargetId.value = ''
+      wrapper.unmount()
+    }
+  })
+
   it('renders selected extensions from both a parameter and its schema', () => {
     const wrapper = mount(ParameterListItem, {
       props: {

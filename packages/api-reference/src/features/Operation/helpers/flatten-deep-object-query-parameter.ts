@@ -59,7 +59,7 @@ const flattenDeepObjectProperties = (
       parameter,
       nestedName,
       resolvedPropertySchema.description ?? parameter.description,
-      requiredProperties.has(propertyName),
+      parameter.required === true && requiredProperties.has(propertyName),
       resolvedPropertySchema,
     )
 

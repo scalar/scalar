@@ -29,7 +29,7 @@ import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -40,6 +40,7 @@ const {
   parameter,
   options,
   collapsableItems,
+  childParameters,
   breadcrumb,
   document,
   eventBus,
@@ -50,6 +51,10 @@ const {
     breadcrumb?: string[]
     eventBus: WorkspaceEventBus | null
     collapsableItems?: boolean
+    /** Flattened fields of a deep-object query parameter. */
+    childParameters?: ParameterObject[]
+    /** Preserve the parameter detail setting inside a collapsed group. */
+    collapsableChildItems?: boolean
     /** The document the operation belongs to, used to resolve schema references for display */
     document?: OpenApiDocument
     options: Pick<
@@ -294,9 +299,29 @@ const headersBreadcrumb = computed<string[] | undefined>(() =>
  * does, the disclosure opens on mount so a fresh navigation can render the target
  * and scroll it into view (mirrors how collapsible schema disclosures behave).
  */
-const isOnTargetPath = computed<boolean>(() =>
-  isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')),
+const isOnTargetPath = computed<boolean>(
+  () =>
+    isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
+    Boolean(
+      breadcrumb &&
+      childParameters &&
+      scrollTargetId.value.startsWith(`${[...breadcrumb, name].join('.')}[`),
+    ),
 )
+
+/** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
+const groupNavigationKey = ref<number>(0)
+const groupOpen = ref<boolean>(false)
+
+/** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
+const trackGroupOpen = (open: boolean): void => {
+  groupOpen.value = open
+}
+watch(isOnTargetPath, (onTargetPath) => {
+  if (childParameters && onTargetPath && !groupOpen.value) {
+    groupNavigationKey.value++
+  }
+})
 
 /**
  * The anchor id for a collapsible item's own row. The schema renders without
@@ -320,6 +345,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
          section heading carries the one rule instead (see ParameterList /
          OperationResponses). -->
     <Disclosure
+      :key="groupNavigationKey"
       v-slot="{ open, close }"
       :defaultOpen="isOnTargetPath">
       <!-- The trigger spans the full row, so its focus ring must too: drawing
@@ -329,6 +355,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
+        :ref="() => trackGroupOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
@@ -412,6 +439,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         <!-- Schema -->
         <SchemaProperty
           is="div"
+          v-if="!childParameters"
           :breadcrumb="schemaBreadcrumb"
           compact
           :description="
@@ -455,6 +483,26 @@ const triggerAnchorId = computed<string | undefined>(() =>
           :schema="getResolvedRef(content[selectedContentType]?.itemSchema)"
           :scrollTargetId="scrollTargetId"
           :specificationExtension="specificationExtension" />
+
+        <!-- Keep the original breadcrumbs so existing links to flattened fields still work. -->
+        <ul
+          v-if="childParameters"
+          class="list-none p-0"
+          role="list">
+          <ParameterListItem
+            v-for="child in childParameters"
+            :key="child.name"
+            :breadcrumb="breadcrumb"
+            :collapsableItems="collapsableChildItems"
+            :document="document"
+            :eventBus="eventBus"
+            :expansion="expansion"
+            :name="child.name"
+            :options="options"
+            :parameter="child"
+            :scrollTargetId="scrollTargetId"
+            :specificationExtension="specificationExtension" />
+        </ul>
 
         <slot />
 
