@@ -10,15 +10,16 @@ const protobuf: Grammar = {
         { include: 'comments' },
         { match: '"', scope: 'string', push: 'double-string' },
         { match: "'", scope: 'string', push: 'single-string' },
-        { match: '\\b(?:message|enum|service|group)\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'type-name' },
-        { match: '\\brpc\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'rpc-name' },
-        { match: '\\bpackage\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'package-name' },
-        { match: '\\boneof\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'field-name' },
-        { match: '\\bimport\\b', scope: 'keyword.import' },
-        { match: '\\b(?:syntax|edition|option)\\b', scope: 'keyword' },
+        { match: '\\b(?:message|enum|service|group)\\b(?!\\s*=)', scope: 'keyword.declaration', push: 'type-name' },
+        { match: '\\brpc\\b(?!\\s*=)', scope: 'keyword.declaration', push: 'rpc-name' },
+        { match: '\\bpackage\\b(?!\\s*=)', scope: 'keyword.declaration', push: 'package-name' },
+        { match: '\\boneof\\b(?!\\s*=)', scope: 'keyword.declaration', push: 'field-name' },
+        { match: '\\bimport\\b(?!\\s*=)', scope: 'keyword.import' },
+        { match: '\\b(?:syntax|edition)\\b(?=\\s*=\\s*["\'])', scope: 'keyword' },
+        { match: '\\boption\\b(?!\\s*=)', scope: 'keyword', push: 'option-name' },
         // A field or option may use a keyword as its name. Its assignment
         // shape takes priority over the remaining keyword and type rules.
-        { match: '\\b[A-Za-z_][\\w]*\\b(?=[ \\t]*=)', scope: 'property' },
+        { match: '\\b[A-Za-z_][\\w]*\\b(?=\\s*=)', scope: 'property' },
         {
           match:
             '\\b(?:optional|required|repeated|reserved|extensions|extend|to|max|returns|stream|public|weak|export|local)\\b',
@@ -38,14 +39,14 @@ const protobuf: Grammar = {
         // User types need not be PascalCase. A name before another name is
         // a field type; RPC and map arguments end at a closing bracket.
         {
-          match: '(?<![\\w.])\\.?[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\b(?=(?:[ \\t]+[A-Za-z_]|[ \\t]*[>)]))',
+          match: '(?<![\\w.])\\.?[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\b(?=(?:\\s+[A-Za-z_]|\\s*[>)]))',
           scope: 'type',
         },
         // Enum constants conventionally use capitals. Assignment names above
         // remain properties, just like field names, without needing a parser.
         { match: '\\b[A-Z][A-Z0-9_]*\\b', scope: 'constant' },
         { match: '\\b[A-Z]\\w*\\b', scope: 'type' },
-        { match: '\\b[A-Za-z_]\\w*(?=[ \\t]*:)', scope: 'property' },
+        { match: '\\b[A-Za-z_]\\w*(?=\\s*:)', scope: 'property' },
         { match: '[{}\\[\\]()<>]', scope: 'punctuation.bracket' },
         { match: '=', scope: 'operator' },
         { match: '[;,:.]', scope: 'punctuation.delimiter' },
@@ -79,6 +80,15 @@ const protobuf: Grammar = {
       rules: [
         { include: 'comments' },
         { match: '[A-Za-z_]\\w*', scope: 'property', pop: true },
+        { match: '(?=\\S)', pop: true },
+      ],
+    },
+    // Custom options may name an extension in parentheses, followed by a
+    // field path. Keep that whole name out of the RPC type heuristic.
+    'option-name': {
+      rules: [
+        { include: 'comments' },
+        { match: '(?:\\([.\\w]+\\)|[A-Za-z_]\\w*)(?:\\.[A-Za-z_]\\w*)*', scope: 'property', pop: true },
         { match: '(?=\\S)', pop: true },
       ],
     },

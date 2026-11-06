@@ -119,7 +119,7 @@ re-exporting it, so tree-shaking runs the way it does in a real app.
 | …lazy loader, initial chunk | 5.05 KB |
 | …`style.css` | 1.26 KB |
 
-Per language, on top of the core: `diff` 0.21 KB · `json` 0.29 KB · `html` 0.53 KB · `http` 0.67 KB · `nginx` 0.69 KB · `ini` 0.70 KB · `protobuf` 0.71 KB · `graphql` 0.73 KB · `css` 0.79 KB · `yaml` 0.82 KB · `rust` 0.88 KB · `go` 0.90 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.95 KB · `bash` 1.03 KB · `sql` 1.11 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `c` 1.31 KB · `clojure` 1.32 KB · `scala` 1.36 KB · `julia` 1.37 KB · `elixir` 1.38 KB · `kotlin` 1.38 KB · `powershell` 1.38 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `swift` 1.44 KB · `ocaml` 1.45 KB · `haskell` 1.50 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.71 KB · `ruby` 1.74 KB · `cpp` 1.78 KB · `perl` 1.87 KB · `php` 2.01 KB · `javascript` 2.11 KB.
+Per language, on top of the core: `diff` 0.21 KB · `json` 0.29 KB · `html` 0.53 KB · `http` 0.67 KB · `nginx` 0.69 KB · `ini` 0.70 KB · `protobuf` 0.74 KB · `graphql` 0.73 KB · `css` 0.79 KB · `yaml` 0.82 KB · `rust` 0.88 KB · `go` 0.90 KB · `makefile` 0.90 KB · `markdown` 0.91 KB · `dockerfile` 0.95 KB · `bash` 1.03 KB · `sql` 1.11 KB · `java` 1.15 KB · `dart` 1.17 KB · `lua` 1.19 KB · `r` 1.28 KB · `c` 1.31 KB · `clojure` 1.32 KB · `scala` 1.36 KB · `julia` 1.37 KB · `elixir` 1.38 KB · `kotlin` 1.38 KB · `powershell` 1.38 KB · `matlab` 1.43 KB · `objectivec` 1.43 KB · `swift` 1.44 KB · `ocaml` 1.45 KB · `haskell` 1.50 KB · `csharp` 1.52 KB · `mojo` 1.54 KB · `fsharp` 1.68 KB · `python` 1.71 KB · `ruby` 1.74 KB · `cpp` 1.78 KB · `perl` 1.87 KB · `php` 2.01 KB · `javascript` 2.11 KB.
 
 Reproduce with `pnpm size`.
 

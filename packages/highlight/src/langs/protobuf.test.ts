@@ -13,6 +13,21 @@ const scopeOf = (source: string, text: string): string | null | undefined => {
 }
 
 describe('protobuf', () => {
+  it('recognizes keyword-named fields and types across newlines', () => {
+    const source =
+      'message Product { string import = 1; string option = 2; string syntax = 3; string edition = 4; product\nitem\n= 5; }'
+    for (const name of ['import', 'option', 'syntax', 'edition', 'item']) {
+      expect(scopeOf(source, name)).toBe('property')
+    }
+    expect(scopeOf(source, 'product')).toBe('type')
+  })
+
+  it('recognizes qualified and custom option names', () => {
+    for (const name of ['features.field_presence', '(custom.setting)', '(custom.setting).field']) {
+      expect(scopeOf(`option ${name} = EXPLICIT;`, name)).toBe('property')
+    }
+  })
+
   it('keeps declaration keywords used as field names as properties', () => {
     const source = 'message Product { string message = 1; string rpc = 2; string oneof = 3; }'
     const properties = tokenize(source, 'protobuf')
