@@ -62,9 +62,10 @@ export {
   serializeSimpleStyle,
   serializeSpaceDelimitedStyle,
 } from './builder'
-export { needsMultipartEncoding } from './builder/body/build-multipart'
+export { getMultipartItemSchema, needsMultipartEncoding } from './builder/body/build-multipart'
 export { buildRequestBody } from './builder/body/build-request-body'
 export { serializeMultipartBody } from './builder/body/encode-multipart-body'
+export { MAX_MULTIPART_NESTING } from './builder/body/multipart-limits'
 export type { MergedSecuritySchemes } from './context'
 export {
   type BuildRequestExampleContext,

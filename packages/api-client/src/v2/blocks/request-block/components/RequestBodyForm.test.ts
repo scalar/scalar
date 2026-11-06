@@ -86,6 +86,38 @@ const schema: SchemaObject = {
 const value = { name: 'Widget', unit_id: 1, image: '', enabled: true, tags: ['a'], files: [], meta: { label: 'Label' } }
 
 describe('RequestBodyForm', () => {
+  it.each<SchemaObject>([
+    { __scalar_: '', properties: { file: { type: 'array', items: { __scalar_: '' } } } },
+    { type: 'object', additionalProperties: { type: 'string', format: 'binary' } },
+  ])('preserves uploads for typeless and free-form file schemas', (bodySchema) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { file: '' } },
+        bodySchema,
+        selectedContentType: 'multipart/form-data',
+        environment: { color: 'blue', variables: [] },
+      },
+    })
+    const fileRow = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'file')!
+    expect(fileRow.findAll('button').some((button) => button.text() === 'Select File')).toBe(true)
+    wrapper.unmount()
+  })
+
+  it('disables unknown uploads for closed and text-only additional properties', () => {
+    for (const additionalProperties of [false, { type: 'string' }] as const) {
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { extra: '' } },
+          bodySchema: { type: 'object', additionalProperties },
+          selectedContentType: 'multipart/form-data',
+          environment: { color: 'blue', variables: [] },
+        },
+      })
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Select File')).toBe(false)
+      wrapper.unmount()
+    }
+  })
+
   it.each([
     ['multipart/form-data', ['image', 'files', 'nullableFiles', 'composedFile']],
     ['application/x-www-form-urlencoded', []],

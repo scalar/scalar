@@ -17,6 +17,7 @@ import { unpackProxyShallow } from './unpack-proxy'
 export const resolveFormSchema = (
   schema: MaybeRefSchemaObject | undefined,
   compositionSelection?: Record<string, number>,
+  schemaPath: string[] = ['requestBody'],
 ): SchemaObject | undefined => {
   const ancestors = new Set<object>()
   const visit = (
@@ -179,5 +180,5 @@ export const resolveFormSchema = (
       ancestors.delete(identity)
     }
   }
-  return visit(schema, ['requestBody'], compositionSelection)
+  return visit(schema, schemaPath, compositionSelection)
 }

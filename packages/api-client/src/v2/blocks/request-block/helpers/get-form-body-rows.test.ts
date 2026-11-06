@@ -452,7 +452,7 @@ describe('getFormBodyRows', () => {
       expect(result[0].isRequired).toBeUndefined()
     })
 
-    it('leaves schema undefined for row names not in schema.properties', () => {
+    it('uses an unconstrained schema for allowed additional multipart fields', () => {
       const example: ExampleObject = {
         value: [
           { name: 'status', value: 'active', isDisabled: false },
@@ -476,7 +476,7 @@ describe('getFormBodyRows', () => {
       expect(result[0].schema?.enum).toEqual(['active', 'inactive'])
       expect(result[0].isRequired).toBe(true)
 
-      expect(result[1].schema).toBeUndefined()
+      expect(result[1].schema).toStrictEqual({ __scalar_: '' })
       expect(result[1].description).toBeUndefined()
       expect(result[1].isRequired).toBe(false)
     })
