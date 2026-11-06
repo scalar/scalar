@@ -1,5 +1,12 @@
 # @scalar/helpers
 
+## 0.17.1
+
+### Patch Changes
+
+- [#10882](https://github.com/scalar/scalar/pull/10882): Skip proxying requests whose origin matches the proxy origin to avoid an unnecessary forwarding hop.
+- [#10880](https://github.com/scalar/scalar/pull/10880): Preserve empty upstream response headers when restoring headers for scripts, request history, and agent results.
+
 ## 0.17.0
 
 ### Minor Changes

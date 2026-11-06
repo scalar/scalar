@@ -1,5 +1,12 @@
 # @scalar/agent-chat
 
+## 0.12.51
+
+### Patch Changes
+
+- [#10876](https://github.com/scalar/scalar/pull/10876): Require approval before executing any AI-generated API request, including GET requests that can send stored credentials or data.
+- [#10878](https://github.com/scalar/scalar/pull/10878): Validate AI request paths and require a usable selected server before attaching stored credentials or sending a request.
+
 ## 0.12.50
 
 ### Patch Changes

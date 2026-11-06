@@ -1,5 +1,11 @@
 # @scalar/openapi-upgrader
 
+## 0.4.8
+
+### Patch Changes
+
+- [#10736](https://github.com/scalar/scalar/pull/10736): Exclude benchmark fixtures from published build output.
+
 ## 0.4.7
 
 ## 0.4.6

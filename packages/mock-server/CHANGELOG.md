@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.21.1
+
+### Patch Changes
+
+- [#10875](https://github.com/scalar/scalar/pull/10875): Keep mock store collections and item IDs isolated from inherited host properties, and validate keys passed through the script sandbox.
+
 ## 0.21.0
 
 ### Minor Changes
