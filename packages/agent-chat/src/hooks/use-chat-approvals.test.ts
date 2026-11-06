@@ -189,7 +189,7 @@ describe('use-chat-approvals', () => {
   })
 
   it('claims an approved request until it finishes so repeated decisions cannot send or deny it', async () => {
-    let resolveResponse: (response: Response) => void = () => {}
+    let resolveResponse: (response: Response) => void = () => undefined
     const response = new Promise<Response>((resolve) => {
       resolveResponse = resolve
     })
