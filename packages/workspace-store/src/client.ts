@@ -37,6 +37,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
@@ -1186,7 +1187,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           await bundle(getRaw(strictDocument), {
             treeShake: false,
             plugins: [
-              ...loaders,
+              ...upgradeLoaders(loaders, clonedRawInputDocument.openapi),
               openApiDocument(),
               normalizeRefs(),
               externalValueResolver({ lazy: true }),
@@ -1684,11 +1685,16 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         treeShake: false,
         plugins: [
           openApiDocument(),
-          fetchUrls({
-            fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
-            limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
-          }),
-          ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+          ...upgradeLoaders(
+            [
+              fetchUrls({
+                fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
+                limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+              }),
+              ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+            ],
+            originalDocuments[getActiveDocumentName()]?.openapi,
+          ),
           loadingStatus(),
           externalValueResolver({ lazy: true }),
         ],
