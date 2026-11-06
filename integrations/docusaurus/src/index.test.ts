@@ -22,14 +22,13 @@ describe('ScalarDocusaurus', () => {
       })
 
       expect(plugin).toHaveProperty('name', '@scalar/docusaurus')
-      expect(plugin).toHaveProperty('injectHtmlTags')
       expect(plugin).toHaveProperty('loadContent')
       expect(plugin).toHaveProperty('contentLoaded')
     })
   })
 
-  describe('injectHtmlTags', () => {
-    it('injects default CDN script when no CDN specified', () => {
+  describe('standalone script', () => {
+    it('does not inject the script into every page', () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -46,21 +45,10 @@ describe('ScalarDocusaurus', () => {
         route: '/scalar',
       })
 
-      const result = (plugin as any).injectHtmlTags()
-
-      expect(result).toEqual({
-        preBodyTags: [
-          {
-            tagName: 'script',
-            attributes: {
-              src: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-            },
-          },
-        ],
-      })
+      expect(plugin).not.toHaveProperty('injectHtmlTags')
     })
 
-    it('injects custom CDN script when specified', () => {
+    it('passes the default CDN to the route when no CDN specified', async () => {
       const mockContext = {
         siteConfig: {
           baseUrl: '/',
@@ -70,6 +58,43 @@ describe('ScalarDocusaurus', () => {
             },
           },
         },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
+      } as any
+
+      const plugin = ScalarDocusaurus(mockContext, {
+        label: 'Scalar',
+        route: '/scalar',
+      })
+
+      await plugin.contentLoaded?.({
+        content: {},
+        actions: mockActions,
+      })
+
+      expect(mockActions.addRoute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+        }),
+      )
+    })
+
+    it('passes a custom CDN to the route when specified', async () => {
+      const mockContext = {
+        siteConfig: {
+          baseUrl: '/',
+          themeConfig: {
+            navbar: {
+              items: [],
+            },
+          },
+        },
+      } as any
+
+      const mockActions = {
+        addRoute: vi.fn(),
       } as any
 
       const plugin = ScalarDocusaurus(mockContext, {
@@ -78,18 +103,16 @@ describe('ScalarDocusaurus', () => {
         cdn: 'https://cdn.example.com/custom-scalar.js',
       })
 
-      const result = (plugin as any).injectHtmlTags()
-
-      expect(result).toEqual({
-        preBodyTags: [
-          {
-            tagName: 'script',
-            attributes: {
-              src: 'https://cdn.example.com/custom-scalar.js',
-            },
-          },
-        ],
+      await plugin.contentLoaded?.({
+        content: {},
+        actions: mockActions,
       })
+
+      expect(mockActions.addRoute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cdn: 'https://cdn.example.com/custom-scalar.js',
+        }),
+      )
     })
   })
 

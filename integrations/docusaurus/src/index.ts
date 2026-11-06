@@ -43,23 +43,6 @@ const ScalarDocusaurus = (
   return {
     name: '@scalar/docusaurus',
 
-    /**
-     * Load the Standalone API Reference script
-     * This is loaded into the dom once for every plugin thats loaded BUT it only downloads the script once
-     */
-    injectHtmlTags() {
-      return {
-        preBodyTags: [
-          {
-            tagName: 'script',
-            attributes: {
-              src: options.cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-            },
-          },
-        ],
-      }
-    },
-
     loadContent() {
       return defaultOptions
     },
@@ -102,6 +85,8 @@ const ScalarDocusaurus = (
         component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
         configuration: serializeConfigToJs(normalizedConfiguration),
+        // The route component loads the standalone script itself, so other pages never run it.
+        cdn: options.cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
       })
     },
   }
