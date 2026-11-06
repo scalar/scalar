@@ -1083,6 +1083,8 @@
     return { data, high }
   }
 
+  /* Shaders compile on other threads, and it is asking how it went that makes the page wait for them: a good part of a
+     second on a first visit. So this only sets them going. */
   const compile = (gl, vertex, fragment) => {
     const program = gl.createProgram()
     for (const [type, source] of [
@@ -1092,22 +1094,34 @@
       const shader = gl.createShader(type)
       gl.shaderSource(shader, source)
       gl.compileShader(shader)
-      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        throw new Error(gl.getShaderInfoLog(shader) || 'shader did not compile')
-      }
       gl.attachShader(program, shader)
     }
     gl.linkProgram(program)
+    return { program, uniforms: {} }
+  }
+
+  /* Nothing is asked until the browser says there is an answer, which it also says of a context it has lost. A browser
+     without the extension says nothing, and the page waits at the first question, as it always has. */
+  const whenCompiled = async (gl, parallel, built, wanted) => {
+    while (
+      parallel &&
+      wanted() &&
+      !built.every(({ program }) => gl.getProgramParameter(program, parallel.COMPLETION_STATUS_KHR))
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 16))
+    }
+  }
+
+  /* Once it has compiled: whether it worked, and where its uniforms are. */
+  const finishCompiling = (gl, { program, uniforms }) => {
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
       throw new Error(gl.getProgramInfoLog(program) || 'program did not link')
     }
-    const uniforms = {}
     const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS)
     for (let index = 0; index < count; index += 1) {
       const { name } = gl.getActiveUniform(program, index)
       uniforms[name] = gl.getUniformLocation(program, name)
     }
-    return { program, uniforms }
   }
 
   /* What the hero currently bound is holding, so a page that drops any of it can be noticed */
@@ -1175,22 +1189,15 @@
           powerPreference: 'high-performance',
           failIfMajorPerformanceCaveat: true,
         })
-    /* A context can still fail to compile, or be lost while it does. Asked here, that is simply one more
-       machine that cannot draw, and not a throw halfway through binding with nothing on the page. */
-    let shaders = null
-    if (gl) {
-      try {
-        shaders = [compile(gl, VERTEX, FRAGMENT), compile(gl, HEAT_VERTEX, HEAT_FRAGMENT)]
-      } catch {
-        shaders = null
-      }
-    }
-    if (!shaders) {
-      /* no pattern on a machine that cannot draw it: the words and the car stand by themselves */
+    /* The car does not wait for the lines, which may be a while compiling, or never come. */
+    const alone = new ResizeObserver(placeCar)
+    alone.observe(flow)
+    placeCar()
+
+    /* no pattern on a machine that cannot draw it: the words and the car stand by themselves */
+    const withoutLines = () => {
       canvas.remove()
       flow.style.cursor = 'auto'
-      const alone = new ResizeObserver(placeCar)
-      alone.observe(flow)
       holding = [flow]
       release = () => {
         release = () => {}
@@ -1199,6 +1206,22 @@
         flow.style.removeProperty('cursor')
         delete flow.dataset.shBound
       }
+    }
+
+    /* A context can still fail to compile, or be lost while it does. Asked here, that is simply one more
+       machine that cannot draw, and not a throw halfway through binding with nothing on the page. */
+    let shaders = null
+    let parallel = null
+    if (gl) {
+      try {
+        parallel = gl.getExtension('KHR_parallel_shader_compile')
+        shaders = [compile(gl, VERTEX, FRAGMENT), compile(gl, HEAT_VERTEX, HEAT_FRAGMENT)]
+      } catch {
+        shaders = null
+      }
+    }
+    if (!shaders) {
+      withoutLines()
       return
     }
     holding = [flow, canvas]
@@ -1216,8 +1239,49 @@
       }
     })
 
+    /* While they compile the hero holds nothing but the context. */
+    const handed = carried
+    let waiting = true
+    release = () => {
+      waiting = false
+      release = () => {}
+      holding = []
+      alone.disconnect()
+      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      canvas.remove()
+      delete flow.dataset.shBound
+    }
+    const compiled = () => {
+      waiting = false
+      try {
+        for (const built of shaders) {
+          finishCompiling(gl, built)
+        }
+      } catch {
+        withoutLines()
+        return
+      }
+      alone.disconnect()
+      startLines(flow, hero, car, placeCar, canvas, gl, shaders, handed)
+    }
+    /* Taking over from a hero whose lines are on the screen, as hydration has it do, this asks at once. The browser has
+       these shaders by now, so the wait is short, and the lines are drawn again before the page can paint without them. */
+    if (handed) {
+      compiled()
+      return
+    }
+    whenCompiled(gl, parallel, shaders, () => waiting).then(() => {
+      /* A lost context says it has finished too, and the event that says it was lost is on its way. */
+      if (waiting && !gl.isContextLost()) {
+        compiled()
+      }
+    })
+  }
+
+  /* The lines and all that goes with them, once their shaders have compiled. */
+  const startLines = (flow, hero, car, placeCar, canvas, gl, shaders, handed) => {
     const [program, heatProgram] = shaders
-    const lofts = carried ? carried.lofts : SHEETS.map(loftSheet)
+    const lofts = handed ? handed.lofts : SHEETS.map(loftSheet)
     const sheets = SHEETS.map((sheet, index) => {
       const { vertices, indices } = lofts[index]
       const vao = gl.createVertexArray()
@@ -1278,7 +1342,7 @@
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, heatIndices, gl.STATIC_DRAW)
     gl.bindVertexArray(null)
 
-    const painted = carried ? carried.painted : paintAtlas()
+    const painted = handed ? handed.painted : paintAtlas()
     const { data: atlasData, high: atlasHigh } = painted
     const atlas = gl.createTexture()
     gl.bindTexture(gl.TEXTURE_2D, atlas)
@@ -1313,9 +1377,9 @@
     let reduced = motion.matches
     /* A swap of the page while it hydrates carries on from where the lines had got to. The clock itself
        starts on the first frame with room to draw in: the room is held back until it has its real width. */
-    let flowed = carried ? carried.flowed : 0
-    let clockAt = carried ? carried.clockAt : 0
-    let began = carried ? carried.began : 0
+    let flowed = handed ? handed.flowed : 0
+    let clockAt = handed ? handed.clockAt : 0
+    let began = handed ? handed.began : 0
 
     /* The pointer, and what it has done to the lines */
     const pointer = { x: -9999, y: -9999, tx: 0, ty: 0, lastX: 0, lastY: 0, inside: false }
@@ -1357,10 +1421,33 @@
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, side, side, 0, gl.RGBA, gl.UNSIGNED_BYTE, image.data)
     }
     grainImage.onload = () => {
-      if (holding.includes(canvas)) {
-        loadGrain()
-        draw()
+      const load = () => {
+        if (holding.includes(canvas)) {
+          loadGrain()
+          draw()
+        }
       }
+      /* Taking over from a hero already on the screen, the lines are not left without their grain for any longer. */
+      if (handed) {
+        load()
+        return
+      }
+      /* On a first visit the lines' first drawing keeps the GPU busy for a moment, and making a canvas of the tile right
+         then would have the page wait for it, up to a good tenth of a second. So this waits until the GPU says it has got
+         through what it has been given, which is an answer that can be asked for without waiting. */
+      const drawn = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)
+      gl.flush()
+      const check = () => {
+        if (holding.includes(canvas)) {
+          if (gl.getSyncParameter(drawn, gl.SYNC_STATUS) === gl.SIGNALED) {
+            gl.deleteSync(drawn)
+            load()
+          } else {
+            setTimeout(check, 16)
+          }
+        }
+      }
+      setTimeout(check, 16)
     }
 
     const size = () => {

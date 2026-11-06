@@ -1388,6 +1388,39 @@
                 "title": "SDKs",
                 "icon": "phosphor/regular/package",
                 "url": "/products/sdk-generator"
+              },
+              "api-hosting": {
+                "type": "page",
+                "title": "Deploy",
+                "icon": "phosphor/regular/butterfly",
+                "filepath": "documentation/guides/api-hosting/index.md",
+                "description": "Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.",
+                "layout": {
+                  "toc": false,
+                  "pageTitle": false,
+                  "pageActions": false,
+                  "feedback": false,
+                  "pageNav": false
+                },
+                "head": {
+                  "title": "API Hosting for server frameworks",
+                  "scripts": [
+                    {
+                      "path": "documentation/assets/api-hosting-hero.js",
+                      "defer": true
+                    },
+                    {
+                      "path": "documentation/assets/api-hosting-waitlist.js",
+                      "defer": true
+                    }
+                  ],
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/products/api-hosting"
+                    }
+                  ]
+                }
               }
             }
           },
