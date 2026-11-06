@@ -16,7 +16,7 @@ type DisplaySchema = SchemaObject & { nullable?: boolean }
  * instead of being combined with them (#9657).
  */
 function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)[]): Record<string, unknown> {
-  const merged: Record<string, unknown> = {}
+  const merged: Record<PropertyKey, unknown> = {}
   const properties: Record<string, unknown> = {}
   const required = new Set<string>()
   let hasProperties = false
@@ -25,6 +25,11 @@ function mergeSchemaProperties(...objects: (Record<string, unknown> | undefined)
   for (const object of objects) {
     if (!object) {
       continue
+    }
+
+    // Renderer-only symbols must survive flattening nullable and single-branch compositions.
+    for (const key of Object.getOwnPropertySymbols(object)) {
+      merged[key] = (object as Record<PropertyKey, unknown>)[key]
     }
 
     for (const [key, val] of Object.entries(object)) {

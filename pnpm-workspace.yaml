@@ -90,6 +90,7 @@ catalogs:
     next: ^15.5.28
     neverpanic: 0.0.8
     picomatch: ^4.0.7
+    protobufjs: 7.5.4
     postcss: ^8.5.30
     quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17

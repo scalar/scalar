@@ -392,6 +392,9 @@ catalogs:
     posthog-js:
       specifier: 1.438.12
       version: 1.438.12
+    protobufjs:
+      specifier: 7.5.4
+      version: 7.5.4
     quickjs-emscripten:
       specifier: 0.32.0
       version: 0.32.0
@@ -1697,6 +1700,9 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.16
+      protobufjs:
+        specifier: catalog:*
+        version: 7.5.4
       vue:
         specifier: catalog:*
         version: 3.5.44(typescript@5.9.3)

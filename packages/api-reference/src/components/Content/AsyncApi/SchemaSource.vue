@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import {
+  ScalarCard,
+  ScalarCardHeader,
+  ScalarCardSection,
+} from '@scalar/components/card'
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarVirtualCodeBlock } from '@scalar/components/virtual-code-block'
 import { prettyPrintJson } from '@scalar/helpers/json/pretty-print-json'
@@ -20,22 +25,37 @@ const content = computed<string>(() => {
     : String(value)
 })
 const language = computed<string>(() =>
-  typeof value === 'string' ? 'plaintext' : 'json',
+  typeof value !== 'string'
+    ? 'json'
+    : format.toLowerCase().startsWith('application/raml+yaml')
+      ? 'yaml'
+      : format.toLowerCase().startsWith('application/vnd.google.protobuf')
+        ? 'protobuf'
+        : 'plaintext',
 )
 </script>
 
 <template>
-  <div class="min-w-0">
-    <div class="text-c-2 font-code mb-2 text-sm break-all">{{ format }}</div>
-    <ScalarVirtualCodeBlock
-      v-if="content.length > 20_000"
-      class="bg-b-2"
-      :content="content"
-      :lang="language" />
-    <ScalarCodeBlock
-      v-else
-      class="bg-b-2"
-      :lang="language"
-      :prettyPrintedContent="content" />
-  </div>
+  <ScalarCard
+    class="min-w-0 text-base"
+    label="Schema source">
+    <ScalarCardHeader class="text-c-2 text-sm font-normal break-all">
+      {{ format }}
+    </ScalarCardHeader>
+    <ScalarCardSection class="flex-col">
+      <ScalarVirtualCodeBlock
+        v-if="content.length > 20_000"
+        class="bg-b-2"
+        :content="content"
+        label="Schema source"
+        :lang="language" />
+      <ScalarCodeBlock
+        v-else
+        class="bg-b-2"
+        copyLabel="Copy schema source"
+        label="Schema source"
+        :lang="language"
+        :prettyPrintedContent="content" />
+    </ScalarCardSection>
+  </ScalarCard>
 </template>
