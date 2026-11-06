@@ -142,6 +142,8 @@ allowBuilds:
 
 # pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
 overrides:
+  # Monaco 0.57 pins DOMPurify before the fixes in 3.4.17.
+  'monaco-editor@0.57.0>dompurify': 3.4.17
   '@types/node': catalog:*
   fast-uri@3.1.2: 4.2.3
   lodash: 4.18.1
