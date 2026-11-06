@@ -95,6 +95,10 @@ export const fr = {
     'openAPIClient': 'Ouvrir le client API',
   },
   'requestBody': {
+    'part': 'Partie {number}',
+    'addPart': 'Ajouter une partie',
+    'invalidPart': 'Saisissez un JSON valide pour cette partie.',
+
     'restoreOriginalBody': 'Restaurer le corps original',
     'createExampleFromSchema': 'Créer un exemple à partir du schéma',
     'noBody': 'Aucun corps',

@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
+import { isFileSchema } from '@/v2/blocks/request-block/helpers/is-file-schema'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ExampleObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
@@ -55,6 +57,25 @@ watch(
   },
   { immediate: true },
 )
+
+/** Undeclared fields follow additionalProperties instead of losing uploads whenever a schema exists. */
+const allowUnknownFileUploads = computed<boolean>(() => {
+  const schema = resolveFormSchema(bodySchema, compositionSelection)
+  if (
+    schema &&
+    'properties' in schema &&
+    Object.keys(schema.properties ?? {}).length
+  ) {
+    return false
+  }
+  const additional =
+    schema && 'additionalProperties' in schema
+      ? schema.additionalProperties
+      : undefined
+  return typeof additional === 'object'
+    ? isFileSchema(resolveFormSchema(additional) ?? { __scalar_: '' })
+    : additional !== false
+})
 
 const handleUpdateFormValue = (rows: TableRow[]) => {
   emit(
@@ -150,7 +171,7 @@ const handleFileUpload = (index: number) => {
   <!-- Form Data -->
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
-      :allowUnknownFileUploads="!bodySchema"
+      :allowUnknownFileUploads="allowUnknownFileUploads"
       :data="localFormBodyRows"
       deferKeyUpdates
       :environment="environment"

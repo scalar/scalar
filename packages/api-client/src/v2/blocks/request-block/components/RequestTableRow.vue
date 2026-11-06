@@ -147,7 +147,7 @@ watch(
 /** Check if the value is a File instance */
 const isFile = computed(() => value.value instanceof File)
 
-/** Keep the upload column aligned even when this field only accepts text. */
+/** Whether this row’s schema accepts a file part. */
 const canUploadFile = computed<boolean>(() =>
   data.schema ? isFileSchema(data.schema) : allowUnknownFileUploads,
 )

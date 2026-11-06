@@ -95,6 +95,10 @@ export const zhCn = {
     'openAPIClient': '打开 API 客户端',
   },
   'requestBody': {
+    'part': '部分 {number}',
+    'addPart': '添加部分',
+    'invalidPart': '请为此部分输入有效的 JSON。',
+
     'restoreOriginalBody': '恢复原始请求体',
     'createExampleFromSchema': '根据模式创建示例',
     'noBody': '无请求体',

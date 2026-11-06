@@ -8,6 +8,7 @@ import {
   updateOperationRequestBodyFormValue,
 } from '@/mutators/operation/body'
 import { buildRequestBody } from '@/request-example/builder/body/build-request-body'
+import { encodeMultipartBody } from '@/request-example/builder/body/encode-multipart-body'
 import { getExampleFromBody } from '@/request-example/builder/body/get-request-body-example'
 import type { OpenApiDocument } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -98,6 +99,54 @@ describe('updateOperationRequestBodyContentType', () => {
 })
 
 describe('updateOperationRequestBodyExample', () => {
+  it.each(['multipart/mixed', 'multipart/related'])(
+    'preserves uploaded bytes, order and headers for %s',
+    async (contentType) => {
+      const file = new File(['uploaded bytes'], 'attachment.txt', { type: 'text/plain' })
+      const document = createDocument({
+        openapi: '3.2.0',
+        paths: {
+          '/upload': {
+            post: {
+              requestBody: {
+                content: {
+                  [contentType]: {
+                    schema: { type: 'array', prefixItems: [{ type: 'object' }, { __scalar_: '' }] },
+                    prefixEncoding: [
+                      { contentType: 'application/json' },
+                      {
+                        contentType: 'text/plain',
+                        headers: {
+                          'Content-ID': { schema: { type: 'string' }, example: '<attachment>' },
+                        },
+                      },
+                    ],
+                    examples: { default: { dataValue: [{ id: 0 }, ''], externalValue: '/old' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+      updateOperationRequestBodyExample(document, {
+        meta: { method: 'post', path: '/upload', exampleKey: 'default' },
+        contentType,
+        payload: [{ id: 1 }, file],
+      })
+      const body = getResolvedRef(getResolvedRef(getResolvedRef(document.paths?.['/upload'])?.post)?.requestBody)
+      assert(body)
+      expect(getExampleFromBody(body, contentType, 'default')).toEqual({ value: [{ id: 1 }, file] })
+      const built = buildRequestBody(body, 'default')
+      assert(built?.mode === 'multipart')
+      const wire = await encodeMultipartBody(built.value, contentType).text()
+      expect(wire).toContain('Content-Type: application/json\r\n\r\n{"id":1}')
+      expect(wire).toContain('Content-ID: <attachment>')
+      expect(wire).toContain('uploaded bytes')
+      expect(wire.indexOf('{"id":1}')).toBeLessThan(wire.indexOf('uploaded bytes'))
+    },
+  )
+
   it('replaces original example fields when a user clears the body', () => {
     const document: OpenApiDocument = {
       openapi: '3.2.0',

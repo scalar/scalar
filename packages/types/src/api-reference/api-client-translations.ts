@@ -96,6 +96,9 @@ export type ApiClientTranslations = {
     noBody: string
     delete: string
     selectFile: string
+    part: string
+    addPart: string
+    invalidPart: string
     multipartForm: string
     formUrlEncoded: string
     binaryFile: string

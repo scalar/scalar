@@ -4,9 +4,13 @@ import type { MaybeRefSchemaObject } from '@scalar/workspace-store/schemas/v3.2/
 import { isArraySchema, isStringSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 /** Recognize binary multipart fields, including repeated file parts and nullable strings. */
-export const isFileSchema = (schema: SchemaObject): boolean => {
+export const isFileSchema = (schema: SchemaObject, allowUntyped = true): boolean => {
   const seen = new Set<MaybeRefSchemaObject>()
-  const visit = (input: MaybeRefSchemaObject | undefined, allowAlternatives = true): boolean => {
+  const visit = (
+    input: MaybeRefSchemaObject | undefined,
+    allowAlternatives = true,
+    allowRawBinary = false,
+  ): boolean => {
     if (!input || seen.has(input)) {
       return false
     }
@@ -17,7 +21,7 @@ export const isFileSchema = (schema: SchemaObject): boolean => {
     }
 
     if (isArraySchema(resolved)) {
-      return visit(resolved.items)
+      return visit(resolved.items, true, allowRawBinary)
     }
     if ('type' in resolved && !isStringSchema(resolved)) {
       return false
@@ -38,7 +42,7 @@ export const isFileSchema = (schema: SchemaObject): boolean => {
       return (resolved.oneOf ?? resolved.anyOf)?.some((member) => visit(member)) ?? false
     }
     // OAS 3.1+ describes raw binary without a JSON type. Encoded strings are text inputs.
-    return Boolean(resolved.contentMediaType) && !resolved.contentEncoding
+    return (allowRawBinary || Boolean(resolved.contentMediaType)) && !resolved.contentEncoding
   }
-  return visit(schema)
+  return visit(schema, true, allowUntyped)
 }
