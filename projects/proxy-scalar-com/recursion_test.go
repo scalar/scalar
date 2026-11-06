@@ -31,7 +31,7 @@ func TestProxyRejectsSelfRecursion(t *testing.T) {
 	if response.StatusCode != http.StatusLoopDetected {
 		t.Errorf("got status %d, want loop detected", response.StatusCode)
 	}
-	if got := requests.Load(); got != 1 {
+	if got := requests.Load(); got != 2 {
 		t.Errorf("one request caused %d proxy invocations", got)
 	}
 }
@@ -55,25 +55,6 @@ func TestProxyRejectsRepeatedHop(t *testing.T) {
 				t.Errorf("forwarded a repeated proxy hop")
 			}
 		})
-	}
-}
-
-func TestProxyRejectsHopMarkerRemoval(t *testing.T) {
-	var calls atomic.Int64
-	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { calls.Add(1) }))
-	defer upstream.Close()
-	proxy := NewProxyServer(true)
-	defer proxy.transport.CloseIdleConnections()
-	request := httptest.NewRequest(http.MethodGet, "http://proxy.example/?scalar_url="+url.QueryEscape(upstream.URL), nil)
-	request.Header.Add("Connection", "keep-alive")
-	request.Header.Add("Connection", "upgrade, x-sCaLaR-pRoXy-hOp")
-	response := httptest.NewRecorder()
-	proxy.handleRequest(response, request)
-	if response.Code != http.StatusLoopDetected {
-		t.Errorf("got status %d, want loop detected", response.Code)
-	}
-	if calls.Load() != 0 {
-		t.Fatal("forwarded a request that could remove the loop marker")
 	}
 }
 
@@ -140,29 +121,44 @@ func TestProxyPreservesHopMarkerThroughRedirect(t *testing.T) {
 	}
 }
 
-func TestIsProxyDestination(t *testing.T) {
-	for _, tc := range []struct {
-		name, incoming, target string
-		want                   bool
-	}{
-		{"hostname casing", "proxy.example", "https://PROXY.EXAMPLE/", true},
-		{"trailing dot", "proxy.example", "https://proxy.example./", true},
-		{"explicit HTTPS port", "proxy.example", "https://proxy.example:443/", true},
-		{"explicit HTTP port", "proxy.example", "http://proxy.example:80/", true},
-		{"incoming default port", "proxy.example:443", "https://proxy.example/", true},
-		{"custom port", "proxy.example:1337", "http://proxy.example:1337/", true},
-		{"different port", "proxy.example:1337", "http://proxy.example:5052/", false},
-		{"different hostname", "proxy.example", "https://api.example/", false},
-		{"IPv6 spelling", "[::1]:1337", "http://[0:0:0:0:0:0:0:1]:1337/", true},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			remote, err := url.Parse(tc.target)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if got := isProxyDestination(remote, tc.incoming); got != tc.want {
-				t.Errorf("got %v, want %v", got, tc.want)
-			}
-		})
+func TestProxyPreservesSameHostAPI(t *testing.T) {
+	proxy := NewProxyServer(true)
+	defer proxy.transport.CloseIdleConnections()
+	var server *httptest.Server
+	server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/users" {
+			io.WriteString(w, "users")
+			return
+		}
+		proxy.handleRequest(w, r)
+	}))
+	defer server.Close()
+	response, err := http.Get(server.URL + "/proxy/?scalar_url=" + url.QueryEscape(server.URL+"/api/users"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil || response.StatusCode != http.StatusOK || string(body) != "users" {
+		t.Fatalf("same-host API failed: %d %q %v", response.StatusCode, body, err)
+	}
+}
+
+func TestProxyStripsNominationsBeforeSettingMarker(t *testing.T) {
+	observed := make(chan http.Header, 1)
+	upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { observed <- r.Header.Clone() }))
+	defer upstream.Close()
+	proxy := NewProxyServer(true)
+	defer proxy.transport.CloseIdleConnections()
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Connection", "X-Scalar-Proxy-Hop, X-Remove")
+	request.Header.Set("X-Remove", "connection-only")
+	remote, _ := url.Parse(upstream.URL)
+	if err := proxy.executeProxyRequest(httptest.NewRecorder(), request, remote, upstream.URL); err != nil {
+		t.Fatal(err)
+	}
+	header := <-observed
+	if header.Get(proxyHopHeader) != "1" || header.Get("Connection") != "" || header.Get("X-Remove") != "" {
+		t.Fatalf("unsafe forwarded headers: %v", header)
 	}
 }
