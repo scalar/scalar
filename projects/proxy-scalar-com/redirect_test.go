@@ -100,6 +100,11 @@ func TestRedirectOriginPolicy(t *testing.T) {
 					if err != nil || response.Code != http.StatusOK {
 						t.Fatalf("same-origin redirect failed: status=%d error=%v", response.Code, err)
 					}
+					for _, sent := range requests {
+						if sent.Header.Get("Proxy-Authorization") != "" {
+							t.Error("forwarded hop-by-hop proxy credentials")
+						}
+					}
 					final := requests[len(requests)-1]
 					for _, header := range []string{"Authorization", "Cookie", "X-Api-Key", "Arbitrary-Credential"} {
 						if final.Header.Get(header) == "" {

@@ -42,6 +42,8 @@ The proxy adds `X-Scalar-Proxy-Hop: 1` to outbound requests and rejects forwardi
 
 A third-party relay that drops unknown headers can remove this marker. Alternating proxy and relay destinations can therefore amplify requests until the nested URL is exhausted; the marker only bounds chains that preserve it.
 
+Hop-by-hop headers, including every field named by `Connection`, are removed from requests and responses. They are removed before response metadata is mirrored and the proxy adds its own security and CORS headers, so an upstream cannot tell a front proxy to discard those protections. Proxy authentication headers are connection-specific and are not forwarded to target APIs.
+
 ## Usage
 
 ### Requirements

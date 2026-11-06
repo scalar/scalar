@@ -570,7 +570,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			// Go can strip credentials when only hostname casing changes.
 			// Restore missing credentials from the preceding trusted hop,
 			// preserving Go's cookie updates and method-specific body headers.
-			for _, header := range []string{"Authorization", "Proxy-Authorization", "Cookie", "Cookie2", "Www-Authenticate", "Proxy-Authenticate"} {
+			for _, header := range []string{"Authorization", "Cookie", "Cookie2", "Www-Authenticate"} {
 				if _, present := req.Header[header]; !present {
 					if values, exists := via[len(via)-1].Header[header]; exists {
 						req.Header[header] = append([]string(nil), values...)
@@ -619,6 +619,10 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Keep the original nominations for a second pass after header rewrites.
+	connectionHeaders := outreq.Header.Values("Connection")
+	removeHopByHopHeaders(outreq.Header, connectionHeaders)
+
 	// The browser advertises compression dictionaries it stored for the proxy
 	// origin. Those came from whichever API set them, so they must not be sent
 	// to every other API called through the proxy.
@@ -626,7 +630,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	outreq.Header.Del("Dictionary-Id")
 
 	// Users need to specifically set their cookies in X-Scalar-Cookie
-	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
+	if xScalarCookie := outreq.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
 		outreq.Header.Set("Cookie", xScalarCookie)
 	}
 	// Remove the X-Scalar-Cookie header
@@ -635,16 +639,16 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Browsers strip some forbidden headers from outgoing requests.
 	// For a small allowlist, users can send `X-Scalar-*` and we forward the corresponding header.
 	for _, forbiddenHeader := range forbiddenHeadersForProxy {
-		if scalarHeaderValue := r.Header.Get(forbiddenHeader.scalarHeader); scalarHeaderValue != "" {
+		if scalarHeaderValue := outreq.Header.Get(forbiddenHeader.scalarHeader); scalarHeaderValue != "" {
 			outreq.Header.Set(forbiddenHeader.header, scalarHeaderValue)
 			outreq.Header.Del(forbiddenHeader.scalarHeader)
 		}
 	}
 
-	// Strip before setting the marker so no intermediary can be told to remove it.
-	removeHopByHopHeaders(outreq.Header, outreq.Header.Values("Connection"))
+	// A Connection token may name either a Scalar alias or its rewritten name.
+	removeHopByHopHeaders(outreq.Header, connectionHeaders)
 
-	// Aliases and other Scalar proxy instances must reject a second proxy hop.
+	// Set the marker after stripping so intermediaries cannot be told to remove it.
 	outreq.Header.Set(proxyHopHeader, "1")
 
 	// Make the request
@@ -661,6 +665,9 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Close response body when done to prevent resource leaks
 	defer resp.Body.Close()
+
+	// Strip connection-scoped fields before reflecting or replacing any headers.
+	removeHopByHopHeaders(resp.Header, resp.Header.Values("Connection"))
 
 	redirectLocation := ""
 
