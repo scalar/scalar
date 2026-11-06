@@ -108,14 +108,22 @@ describe('galaxy-scalar-com', () => {
           theme: expect.any(String),
           proxyUrl: 'https://proxy.scalar.com',
           persistAuth: true,
-          agent: expect.objectContaining({
-            key: expect.any(String),
-          }),
           // Vitest builds run without the production `--define`, so the branch
           // bundle is served from the local route.
           bundle: '/scalar/standalone.esm.js',
         }),
       )
+
+      const config = resolveConfiguration()
+      const sources = config.sources as { title: string; agent: { key: string } }[]
+      expect(config.agent).toBeUndefined()
+      expect(sources.map(({ title, agent }) => ({ title, key: agent.key }))).toStrictEqual([
+        { title: 'Scalar Galaxy', key: expect.any(String) },
+        { title: 'Scalar Galaxy Events (AsyncAPI)', key: expect.any(String) },
+        { title: 'Petstore (OpenAPI 3.1)', key: expect.any(String) },
+        { title: 'Petstore (Swagger 2.0)', key: expect.any(String) },
+      ])
+      expect(new Set(sources.map(({ agent }) => agent.key)).size).toBe(4)
     })
 
     it('mounts the reference UI and bundle routes', () => {
