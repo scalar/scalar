@@ -5,6 +5,30 @@ namespace Scalar.Shared.Tests;
 public class OpenIdConnectTests
 {
     [Fact]
+    public void OAuthHelpers_PreserveOpenIdConnectDefaults()
+    {
+        var options = new ScalarOptions()
+            .AddOpenIdConnectAuthentication("oidc", scheme => scheme.WithFlows(flows =>
+                flows.AuthorizationCode = new AuthorizationCodeFlow { ClientId = "scalar", Pkce = Pkce.Sha256 })
+                .WithDefaultScopes("profile"));
+        var original = options.Authentication!.SecuritySchemes!["oidc"];
+
+        options.AddDefaultScopes("oidc", "openid")
+            .AddOAuth2Flows("oidc", flows => flows.ClientCredentials = new ClientCredentialsFlow { ClientId = "service" })
+            .AddOAuth2Authentication("oidc", scheme => scheme.Description = "Sign in");
+
+        options.Authentication.SecuritySchemes["oidc"].Should().BeSameAs(original);
+        var json = JsonSerializer.SerializeToElement(options.ToScalarConfiguration(), ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+        var scheme = json.GetProperty("authentication").GetProperty("securitySchemes").GetProperty("oidc");
+        scheme.GetProperty("description").GetString().Should().Be("Sign in");
+        scheme.GetProperty("x-default-scopes").EnumerateArray().Select(scope => scope.GetString()).Should().Equal("openid");
+        var flows = scheme.GetProperty("flows");
+        flows.GetProperty("authorizationCode").GetProperty("x-scalar-client-id").GetString().Should().Be("scalar");
+        flows.GetProperty("authorizationCode").GetProperty("x-usePkce").GetString().Should().Be("SHA-256");
+        flows.GetProperty("clientCredentials").GetProperty("x-scalar-client-id").GetString().Should().Be("service");
+    }
+
+    [Fact]
     public void AddOpenIdConnectAuthentication_ConfiguresDocumentWithoutMutatingGlobalDefaults()
     {
         var options = new ScalarOptions()

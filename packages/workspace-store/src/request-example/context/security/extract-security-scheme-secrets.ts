@@ -389,9 +389,15 @@ export const extractSecuritySchemeSecrets = (
     const flows = Object.fromEntries(
       objectEntries(discoveredFlows)
         .filter(([, flow]) => flow !== undefined)
-        // A sole configured flow is the initial tab; all other discovered flows remain available.
-        .sort(([left], [right]) => Number(right === preferredFlow) - Number(left === preferredFlow))
-        .map(([key, flow]) => [key, { ...configuredFlows?.[key], ...flow }]),
+        .map(([key, flow]) => [
+          key,
+          {
+            // Use the auth UI's shared ordering mechanism for the initial tab.
+            ...(key === preferredFlow ? { 'x-order': -1 } : {}),
+            ...configuredFlows?.[key],
+            ...flow,
+          },
+        ]),
     )
     const extracted = extractOAuthFlowSecrets(flows, storeSecrets, oauth2RedirectUri, false)
     // Seed scope defaults even before discovery so selecting an optional scheme keeps them.

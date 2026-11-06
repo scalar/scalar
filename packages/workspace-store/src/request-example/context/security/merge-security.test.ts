@@ -56,7 +56,9 @@ describe('mergeSecurity', () => {
     })
     const after = mergeSecurity(schemes, config, auth, documentSlug).oidc
     assert(after?.type === 'openIdConnect')
-    expect(Object.keys(after.flows ?? {})).toStrictEqual(['authorizationCode', 'implicit'])
+    expect(Object.keys(after.flows ?? {})).toStrictEqual(['implicit', 'authorizationCode'])
+    expect(after.flows?.authorizationCode?.['x-order']).toBe(-1)
+    expect(after.flows?.implicit?.['x-order']).toBeUndefined()
     expect(after.flows?.authorizationCode?.['x-scalar-secret-client-id']).toBe('scalar')
     expect(after.flows?.authorizationCode?.authorizationUrl).toBe('https://example.com/auth')
     expect(after['x-default-scopes']).toStrictEqual(['openid', 'profile'])
