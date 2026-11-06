@@ -29,7 +29,7 @@ import { computed, ref, watch } from 'vue'
 
 import { useLocalization } from '@/features/localization'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { isOnScrollTargetPath } from '@/helpers/lazy-bus'
+import { isOnScrollTargetPath, scrollTargetId } from '@/helpers/lazy-bus'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import Headers from './Headers.vue'
@@ -304,16 +304,21 @@ const isOnTargetPath = computed<boolean>(
     isOnScrollTargetPath(schemaBreadcrumb.value?.join('.')) ||
     Boolean(
       breadcrumb &&
-      childParameters?.some((child) =>
-        isOnScrollTargetPath([...breadcrumb, child.name].join('.')),
-      ),
+      childParameters &&
+      scrollTargetId.value.startsWith(`${[...breadcrumb, name].join('.')}[`),
     ),
 )
 
 /** Headless UI only reads defaultOpen on mount; reopen a group for later navigation too. */
 const groupNavigationKey = ref<number>(0)
+const groupOpen = ref<boolean>(false)
+
+/** Read Headless UI's slot state after rendering, including rail and keyboard closes. */
+const trackGroupOpen = (open: boolean): void => {
+  groupOpen.value = open
+}
 watch(isOnTargetPath, (onTargetPath) => {
-  if (childParameters && onTargetPath) {
+  if (childParameters && onTargetPath && !groupOpen.value) {
     groupNavigationKey.value++
   }
 })
@@ -350,6 +355,7 @@ const triggerAnchorId = computed<string | undefined>(() =>
         :is="shouldCollapse ? DisclosureButton : 'div'"
         v-if="collapsableItems && !isStaticTreeItem"
         :id="isCompactParameter ? undefined : triggerAnchorId"
+        :ref="() => trackGroupOpen(open)"
         class="parameter-item-trigger group/trigger group/tree-control scroll-mt-24 focus-visible:rounded-(--scalar-radius) focus-visible:outline-(length:--scalar-border-width) focus-visible:outline-offset-2 focus-visible:outline-(--scalar-focus-color)"
         :class="{ 'parameter-item-trigger-open': open }">
         <div class="parameter-item-name min-w-0">
