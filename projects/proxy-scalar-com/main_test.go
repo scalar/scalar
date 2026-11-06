@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -441,7 +443,7 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Serves scalar_url set to proxy root", func(t *testing.T) {
+	t.Run("Handles scalar_url set to proxy root without looping", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -465,11 +467,11 @@ func TestProxyBehavior(t *testing.T) {
 		}
 
 		if len(body) == 0 {
-			t.Errorf("Expected loop rejection, got %q", body)
+			t.Error("Expected non-empty response body")
 		}
 	})
 
-	t.Run("Rejects nested scalar_url chains pointing back to proxy", func(t *testing.T) {
+	t.Run("Stops nested scalar_url chain pointing back to proxy", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -497,8 +499,8 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusLoopDetected, resp.StatusCode)
 		}
 
-		if string(body) != "Proxy loops are not allowed\n" {
-			t.Errorf("Expected loop rejection, got %q", body)
+		if !strings.Contains(string(body), proxyLoopError) {
+			t.Errorf("Expected the loop error, got %q", string(body))
 		}
 	})
 
@@ -936,6 +938,10 @@ func TestCidrPolicy(t *testing.T) {
 	})
 
 	t.Run("Should not authorize VPC metadata", func(t *testing.T) {
+		// Resolve deterministically so this exercises address policy, not local DNS.
+		replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+			return []net.IP{net.ParseIP("169.254.169.254")}, nil
+		})
 		// Create a new request
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=https://metadata.google.internal", nil)
 		w := httptest.NewRecorder()
@@ -979,7 +985,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range blocked {
-		if !isBlockedHost(host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || !blocked {
 			t.Errorf("Expected %s to be blocked", host)
 		}
 	}
@@ -991,7 +997,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range allowed {
-		if isBlockedHost(host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || blocked {
 			t.Errorf("Expected %s to be allowed", host)
 		}
 	}
