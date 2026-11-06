@@ -3,6 +3,7 @@ import { intersection, literal, object, optional, record, string, union } from '
 import {
   XDefaultScopes,
   XScalarAuthUrl,
+  XScalarCredentialPlaceholders,
   XScalarCredentialsLocation,
   XScalarSecurityBody,
   XScalarSecurityQuery,
@@ -12,6 +13,7 @@ import {
 } from '@/extensions/security'
 
 const securitySchemeBase = object({
+  ...XScalarCredentialPlaceholders.properties,
   description: optional(
     string({
       typeComment: 'A description for security scheme. CommonMark syntax MAY be used for rich text representation.',

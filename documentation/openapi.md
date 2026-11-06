@@ -199,6 +199,45 @@ paths:
             code: curl https://api.example.com/accounts
 ```
 
+### Credentials in custom code samples
+
+Use `x-scalar-credential-placeholders` on a security scheme to insert the reader's current credentials into custom code samples. Each name matches a case-sensitive `{{name}}` placeholder. Names may contain letters, digits, underscores, dots, and hyphens, and must start with a letter or underscore.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Credential examples
+  version: 1.0.0
+security:
+  - account: []
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          source: client = ExampleClient("{{accountId}}", "{{apiKey}}")
+components:
+  securitySchemes:
+    account:
+      type: http
+      scheme: basic
+      x-scalar-credential-placeholders:
+        accountId:
+          field: username
+          mask: false
+        apiKey:
+          field: password
+```
+
+Available fields are `token` for API keys and bearer authentication, `username` and `password` for basic authentication, and `token`, `clientId`, `clientSecret`, `username`, and `password` where available in OAuth2 or OpenID Connect. OAuth placeholders use the first flow with an access token, matching request authentication; other flows are not used.
+
+Values are masked by default in the displayed example. Copy includes their real values, matching generated code samples. Set `mask: false` only for public values such as an account ID. If a public value is also a secret elsewhere in the selected schemes, it remains masked.
+
+Only the operation's selected authentication schemes supply values. Unknown names, missing credentials, and names declared by multiple selected schemes remain unchanged. Samples update when credentials change, while the original API description keeps its placeholders. Replacement is literal and happens once: it does not evaluate expressions, escape programming-language strings, or expand placeholders contained in credentials. Choose sample syntax appropriate for the credential format your API accepts.
+
 ## x-example / x-examples
 
 For Swagger 2.0 documents, we support `x-example` and `x-examples` extensions on body parameters. These bring OpenAPI 3.x example functionality to older specifications.
