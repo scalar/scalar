@@ -41,7 +41,7 @@ catalogs:
     '@tailwindcss/vite': ^4.3.3
     '@tanstack/vue-query': 5.104.3
     '@types/express': 5.0.6
-    '@types/jsdom': 28.0.3
+    '@types/jsdom': 30.0.0
     '@types/mdast': ^4.0.4
     '@types/node': ^24.19.2
     '@types/picomatch': 4.0.3
