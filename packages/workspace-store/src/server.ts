@@ -35,6 +35,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
+import { upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
@@ -837,7 +838,12 @@ export async function createServerWorkspaceStore(
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
       if (isThreeTwo) {
-        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await bundle(data, {
+          origin,
+          treeShake: false,
+          urlMap: true,
+          plugins: [openApiDocument(), ...upgradeLoaders(loaders, loaded.openapi)],
+        })
         await resolveSecurityRequirements(data, { origin, loaders })
       }
       addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
