@@ -101,7 +101,7 @@ export default defineConfig({
         // `legalComments: 'none'`, which would otherwise strip it.
         comments: { legal: true },
         // Rolldown names a shared chunk after an arbitrary member module. The large
-        // eager chunk that holds the rendering core (highlight.js, zod, typebox, yaml,
+        // eager chunk that holds the rendering core (the highlighter, zod, typebox, yaml,
         // parse5, plus the shared workspace-store/components code) would otherwise be
         // named after `map-hidden-clients-config` — a tiny helper that merely happens
         // to anchor that chunk boundary — which is misleading in bundle stats. Give it

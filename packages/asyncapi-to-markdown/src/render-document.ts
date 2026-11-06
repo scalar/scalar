@@ -1,4 +1,5 @@
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import { createMarkdownSerializer } from '@scalar/markdown'
 import {
   anchor,
   createDescriptionParser,
@@ -14,9 +15,6 @@ import {
 } from '@scalar/openapi-to-markdown/markdown'
 import { resolveTraits } from '@scalar/workspace-store/helpers/resolve-traits'
 import type { Root } from 'mdast'
-import remarkGfm from 'remark-gfm'
-import remarkStringify from 'remark-stringify'
-import { unified } from 'unified'
 
 import { object, own, select, string } from './document'
 import { createContentRenderer } from './render-content'
@@ -24,7 +22,7 @@ import { createSchemaRegistry } from './schema-references'
 import { createSchemaView } from './schema-view'
 import type { AsyncApiMarkdownRenderer } from './types'
 
-const serializer = unified().use(remarkGfm).use(remarkStringify, { bullet: '-' }).freeze()
+const serialize = createMarkdownSerializer({ bullet: '-' })
 
 /** Each render owns its selection, schema expansion state and description reference namespace. */
 export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkdownRenderer => {
@@ -154,7 +152,7 @@ export const createRenderer = (document: Record<string, unknown>): AsyncApiMarkd
         blocks.splice(index + 1, 0, heading(2, text('Contents')), list(contents))
       }
       await expandDescriptions(blocks, descriptions())
-      return serializer.stringify({ type: 'root', children: blocks } satisfies Root)
+      return serialize({ type: 'root', children: blocks } satisfies Root)
     },
   }
 }
