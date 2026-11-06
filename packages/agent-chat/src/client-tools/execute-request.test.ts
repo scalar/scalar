@@ -55,6 +55,42 @@ const prepareRequest = async (
 describe('execute-request', () => {
   afterEach(() => vi.restoreAllMocks())
 
+  it('finishes unknown API requests with a tool error without fetching', async () => {
+    const request = await prepareRequest('/pets')
+    request.input.documentName = 'missing/api'
+    const fetch = vi.spyOn(globalThis, 'fetch')
+
+    const result = await executeRequestTool(request)
+
+    expect(result.success).toBe(false)
+    expect(fetch.mock.calls).toStrictEqual([])
+    await vi.waitFor(() =>
+      expect(request.chat.messages[0]?.parts.find((part) => part.type === 'tool-execute-request')?.state).toBe(
+        'output-error',
+      ),
+    )
+  })
+
+  it('preserves backslashes in query values and rejects redirects before forwarding credentials', async () => {
+    const request = await prepareRequest('/search?q=C:\\temp', [{ url: 'https://api.example.com' }])
+    const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(Response.json({ ok: true }))
+
+    const result = await executeRequestTool(request)
+
+    expect(result.success).toBe(true)
+    expect(fetch.mock.calls).toStrictEqual([
+      [
+        'https://api.example.com/search?q=C%3A%5Ctemp',
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: 'Bearer stored-secret', Cookie: '' },
+        },
+      ],
+    ])
+  })
+
   it.each(['', 'https://proxy.example.com'])(
     'does not send stored credentials to an absolute model URL without a server (proxy %s)',
     async (proxyUrl) => {
@@ -67,7 +103,10 @@ describe('execute-request', () => {
       expect(fetch.mock.calls).toStrictEqual([])
       expect(result).toStrictEqual({
         success: false,
-        error: { code: 'FAILED_TO_EXECUTE_REQUEST', detail: 'Select a server before sending an API request.' },
+        error: {
+          code: 'FAILED_TO_EXECUTE_REQUEST',
+          detail: 'Add a server to the API description before sending an API request.',
+        },
       })
       await vi.waitFor(() =>
         expect(request.chat.messages[0]?.parts.find((part) => part.type === 'tool-execute-request')?.state).toBe(
@@ -79,7 +118,7 @@ describe('execute-request', () => {
         toolCallId: 'request-1',
         state: 'output-error',
         input: request.input,
-        errorText: 'Select a server before sending an API request.',
+        errorText: 'Add a server to the API description before sending an API request.',
         output: undefined,
       })
     },
@@ -153,7 +192,15 @@ describe('execute-request', () => {
 
     expect(result.success).toBe(true)
     expect(fetch.mock.calls).toStrictEqual([
-      [expectedUrl, { method: 'GET', body: undefined, headers: { Authorization: 'Bearer stored-secret', Cookie: '' } }],
+      [
+        expectedUrl,
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: 'Bearer stored-secret', Cookie: '' },
+        },
+      ],
     ])
   })
 
@@ -167,7 +214,12 @@ describe('execute-request', () => {
     expect(fetch.mock.calls).toStrictEqual([
       [
         `${window.location.origin}/api/pets`,
-        { method: 'GET', body: undefined, headers: { Authorization: 'Bearer stored-secret', Cookie: '' } },
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: 'Bearer stored-secret', Cookie: '' },
+        },
       ],
     ])
   })
@@ -187,7 +239,12 @@ describe('execute-request', () => {
     expect(fetch.mock.calls).toStrictEqual([
       [
         'https://api.example.com/v1/pets?next=https%3A%2F%2Fother.example%2Fa',
-        { method: 'GET', body: undefined, headers: { Authorization: 'Bearer stored-secret', Cookie: '' } },
+        {
+          redirect: 'error',
+          method: 'GET',
+          body: undefined,
+          headers: { Authorization: 'Bearer stored-secret', Cookie: '' },
+        },
       ],
     ])
     await vi.waitFor(() =>
