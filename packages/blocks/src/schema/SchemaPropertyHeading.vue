@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
 import { resolve } from '@scalar/workspace-store/resolve'
@@ -19,6 +20,15 @@ import {
 } from './helpers/is-model-linkable'
 import { getModelNameWithArray } from './helpers/schema-name'
 import { useLocalization } from './localization'
+import {
+  protobufFieldNumber,
+  protobufPresence,
+  type ProtobufSchema,
+} from './protobuf-metadata'
+import {
+  schemaRecursiveTarget,
+  type RecursiveSchema,
+} from './recursive-metadata'
 import RenderString from './RenderString.vue'
 import SchemaPropertyDefault from './SchemaPropertyDefault.vue'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
@@ -71,6 +81,25 @@ const props = withDefaults(
 const { translate } = useLocalization()
 
 // Convert to reactive refs for composables
+const fieldNumber = computed(
+  () => (props.value as ProtobufSchema | undefined)?.[protobufFieldNumber],
+)
+
+const recursiveTarget = computed(
+  () =>
+    props.recursiveTo ??
+    (props.value as RecursiveSchema | undefined)?.[schemaRecursiveTarget],
+)
+
+const presence = computed(
+  () => (props.value as ProtobufSchema | undefined)?.[protobufPresence],
+)
+const presenceDescription = computed(() =>
+  presence.value === 'explicit'
+    ? 'Explicit presence: Protobuf distinguishes an unset field from one set to its default value.'
+    : 'Implicit presence: Protobuf does not distinguish an unset field from one set to its default value.',
+)
+
 const valueRef = toRef(props, 'value')
 
 const constValue = computed(() => {
@@ -398,6 +427,16 @@ const patternValue = computed(() => {
       :class="{ deprecated: props.value?.deprecated }">
       <slot name="name" />
     </div>
+    <ScalarTooltip
+      v-if="fieldNumber !== undefined"
+      content="Protobuf field number">
+      <span
+        :aria-label="`Protobuf field number: ${fieldNumber}`"
+        class="text-c-3 font-code mr-2 text-xs"
+        tabindex="0"
+        >#{{ fieldNumber }}</span
+      >
+    </ScalarTooltip>
     <div
       v-if="props.isDiscriminator"
       class="property-discriminator">
@@ -481,13 +520,24 @@ const patternValue = computed(() => {
       <!-- A cycle reads `array of Satellite · recursive`, a modifier like
            `nullable`; the full sentence rides the tooltip. -->
       <SchemaPropertyDetail
-        v-if="props.recursiveTo"
+        v-if="recursiveTarget"
         class="property-recursive"
         :title="
-          translate('schema.recursiveReference', { name: props.recursiveTo })
+          translate('schema.recursiveReference', { name: recursiveTarget })
         ">
         {{ translate('schema.recursive') }}
       </SchemaPropertyDetail>
+
+      <ScalarTooltip
+        v-if="presence"
+        :content="presenceDescription">
+        <span
+          :aria-label="`Optional (${presence} presence)`"
+          class="text-c-2 mr-2 text-xs"
+          tabindex="0"
+          >optional</span
+        >
+      </ScalarTooltip>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->
       <SchemaPropertyDetail
