@@ -641,4 +641,131 @@ describe('bundle-with-diagnostics', () => {
       expect(plain['definition'].$ref).toBe('#/x-ext/external/$defs/Item')
     },
   )
+
+  it('exposes scoped targets to lifecycle hooks without visiting literal examples', async () => {
+    const targets: unknown[] = []
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Scopes', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Root: { type: 'number' },
+          Scoped: {
+            $id: 'https://example.com/scoped',
+            $defs: { value: { type: 'string' } },
+            properties: {
+              local: { $ref: '#/$defs/value' },
+              external: { $ref: '#/x-ext/model' },
+            },
+            example: { $ref: '#/missing' },
+          },
+          Reference: { $ref: '#/components/schemas/Root' },
+        },
+      },
+      'x-ext': { model: { type: 'boolean' } },
+    }
+    const result = await bundleWithDiagnostics(document, {
+      plugins: [],
+      traversal: 'document',
+      treeShake: false,
+      hooks: {
+        onAfterNodeProcess: (node, context) => {
+          if (typeof node.$ref === 'string') {
+            targets.push(context.resolveReference(node.$ref))
+          }
+        },
+      },
+    })
+    expect(result.complete).toBe(true)
+    expect(targets).toStrictEqual([
+      {
+        path: ['components', 'schemas', 'Scoped', '$defs', 'value'],
+        value: { type: 'string' },
+        resourceRelative: true,
+      },
+      { path: ['x-ext', 'model'], value: { type: 'boolean' }, resourceRelative: false },
+      { path: ['components', 'schemas', 'Root'], value: { type: 'number' }, resourceRelative: false },
+    ])
+  })
+
+  it('reports the root target of a back-reference inside a previously bundled document', async () => {
+    const targets: unknown[] = []
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Back references', version: '1' },
+        paths: {},
+        components: { schemas: { Owner: { type: 'string' }, Pet: { $ref: '#/x-ext/pet' } } },
+        'x-ext': { pet: { properties: { owner: { $ref: '#/components/schemas/Owner' } } } },
+      },
+      {
+        plugins: [],
+        traversal: 'document',
+        treeShake: false,
+        hooks: {
+          onAfterNodeProcess: (node, context) => {
+            if (node.$ref === '#/components/schemas/Owner') {
+              targets.push(context.resolveReference(node.$ref))
+            }
+          },
+        },
+      },
+    )
+    expect(result.complete).toBe(true)
+    expect(targets).toEqual([
+      { path: ['components', 'schemas', 'Owner'], value: { type: 'string' }, resourceRelative: false },
+    ])
+  })
+
+  it('keeps prebundled relative identifiers independent when checking missing targets', async () => {
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Scopes', version: '1' },
+        paths: {},
+        components: { schemas: { A: { $ref: '#/x-ext/a' }, B: { $ref: '#/x-ext/b' } } },
+        'x-ext': {
+          a: { $id: 'Pet.yaml', properties: { value: { $ref: '#/$defs/Value' } } },
+          b: { $id: 'Pet.yaml', $defs: { Value: { type: 'string' } } },
+        },
+      },
+      { plugins: [], traversal: 'document', treeShake: false },
+    )
+    expect(result.complete).toBe(false)
+    expect(result.diagnostics).toStrictEqual([
+      {
+        kind: 'missing-target',
+        reference: '#/$defs/Value',
+        source: '/__bundle_a/document',
+        pointer: '#/properties/value/$ref',
+      },
+    ])
+  })
+
+  it('visits retained unreferenced bundled entries with lifecycle hooks', async () => {
+    const visited: string[] = []
+    const result = await bundleWithDiagnostics(
+      {
+        openapi: '3.1.0',
+        info: { title: 'Retained', version: '1' },
+        paths: {},
+        'x-ext': { a: { properties: { self: { $ref: '#/x-ext/a' } }, example: { $ref: '#/literal' } } },
+      },
+      {
+        plugins: [],
+        traversal: 'document',
+        treeShake: false,
+        hooks: {
+          onAfterNodeProcess: (node): void => {
+            if (typeof node.$ref === 'string') {
+              visited.push(node.$ref)
+            }
+          },
+        },
+      },
+    )
+    expect(result.complete).toBe(true)
+    expect(visited).toStrictEqual(['#/x-ext/a'])
+  })
 })
