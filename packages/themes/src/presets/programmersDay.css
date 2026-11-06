@@ -1,0 +1,405 @@
+/* basic theme */
+.light-mode {
+  color-scheme: light;
+  /* Tractor-feed printout paper, fresh off the line printer */
+  --scalar-color-1: #1c2a1f;
+  --scalar-color-2: #4a5a4d;
+  --scalar-color-3: #7b887d;
+  --scalar-color-accent: #19692f;
+
+  --scalar-background-1: #fbf8ec;
+  --scalar-background-2: #eef3e0;
+  --scalar-background-3: #dfe7cd;
+  --scalar-background-accent: #19692f14;
+
+  --scalar-border-color: #dde3cb;
+}
+.dark-mode {
+  color-scheme: dark;
+  /* A retro terminal: a near-black screen with phosphor-green accents, and neutral text to read by */
+  --scalar-color-1: #e3ebe4;
+  --scalar-color-2: #a6b5a9;
+  --scalar-color-3: #6c7b6f;
+  --scalar-color-accent: #39ff6a;
+
+  --scalar-background-1: #0a0f0b;
+  --scalar-background-2: #111a13;
+  --scalar-background-3: #1c2a1f;
+  --scalar-background-accent: #39ff6a1a;
+
+  --scalar-border-color: #c8ffd61a;
+}
+
+/* Sidebar */
+.light-mode .t-doc__sidebar,
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-border-color);
+  --scalar-sidebar-search-color: var(--scalar-color-3);
+}
+.dark-mode .t-doc__sidebar {
+  --scalar-sidebar-background-1: #070b08;
+}
+
+/* advanced */
+.light-mode {
+  --scalar-button-1: #19692f;
+  --scalar-button-1-color: #fff;
+  --scalar-button-1-hover: #135526;
+
+  /* Printer ink in six colours, all dark enough to read off the paper */
+  --scalar-color-green: #1f6b2c;
+  --scalar-color-red: #ae2230;
+  --scalar-color-yellow: #7a5c00;
+  --scalar-color-blue: #1d5a99;
+  --scalar-color-orange: #a3460c;
+  --scalar-color-purple: #6a3aa6;
+  --scalar-color-query: #8a2f6b;
+
+  --scalar-scrollbar-color: #4a5a4d33;
+  --scalar-scrollbar-color-active: #4a5a4d66;
+}
+.dark-mode {
+  --scalar-button-1: #39ff6a;
+  --scalar-button-1-color: #0a0f0b;
+  --scalar-button-1-hover: #74ff95;
+
+  /* The rest of the 16-colour terminal palette */
+  --scalar-color-green: #5cf08a;
+  --scalar-color-red: #ff7b85;
+  --scalar-color-yellow: #f0d65c;
+  --scalar-color-blue: #7cc8ff;
+  --scalar-color-orange: #ffa65e;
+  --scalar-color-purple: #c8a4ff;
+  --scalar-color-query: #e9a6ff;
+
+  --scalar-scrollbar-color: #39ff6a33;
+  --scalar-scrollbar-color-active: #39ff6a66;
+}
+
+/* Radius: squared off, like a character cell */
+:root,
+:host {
+  --scalar-radius: 2px;
+  --scalar-radius-lg: 4px;
+  --scalar-radius-xl: 6px;
+}
+
+/* Custom theme */
+*::selection {
+  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 70%);
+}
+
+/* Headings get a soft phosphor glow, while the letters themselves stay a calm neutral */
+.dark-mode .section-header-label {
+  text-shadow: 0 0 16px #39ff6a40;
+}
+
+/*
+ * Hero section flare: a terminal that has just worked out which day it is, and a 0x100 badge.
+ * The flare, the paper and the falling bits sit behind the content, so their parent needs its
+ * own stacking context or the page background would paint over them.
+ */
+.references-rendered {
+  isolation: isolate;
+}
+.section-flare {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  /* Above the falling bits, so the terminal in the hero hides the ones that drift behind it */
+  z-index: -1;
+}
+.dark-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 85% 0%, #39ff6a1f, transparent 70%), linear-gradient(#0d1f12, transparent);
+}
+.light-mode .section-flare {
+  background:
+    radial-gradient(ellipse 60% 55% at 85% 0%, #d7ebc866, transparent 70%), linear-gradient(#eef3e0, transparent);
+}
+
+/*
+ * Bits and bytes drift down behind the content across the whole page. The layer is one tile taller
+ * than the viewport and slides down by exactly one tile, so the loop is seamless, and it moves with
+ * a transform so the browser never repaints the glyphs. The sidebar and header sit above this
+ * stacking context, so the bits pass behind them.
+ */
+.references-rendered::before {
+  content: "";
+  position: fixed;
+  top: -320px;
+  left: 0;
+  right: 0;
+  height: calc(100vh + 320px);
+  pointer-events: none;
+  z-index: -2;
+  /* Two tiles of different widths, so the glyphs do not line up into an obvious grid */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 320' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='13' fill='%2339ff6a'%3E%3Ctext x='16' y='28'%3E0%3C/text%3E%3Ctext x='120' y='52'%3E1%3C/text%3E%3Ctext x='206' y='30'%3E0x100%3C/text%3E%3Ctext x='58' y='96'%3E101%3C/text%3E%3Ctext x='168' y='118'%3E1%3C/text%3E%3Ctext x='244' y='150'%3E0%3C/text%3E%3Ctext x='22' y='172'%3E0xFF%3C/text%3E%3Ctext x='112' y='202'%3E0%3C/text%3E%3Ctext x='196' y='238'%3E1%3C/text%3E%3Ctext x='40' y='262'%3E1001%3C/text%3E%3Ctext x='138' y='292'%3E0x1F%3C/text%3E%3Ctext x='252' y='302'%3E1%3C/text%3E%3C/svg%3E")
+    0 0 / 280px 320px repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 160' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='11' fill='%2339ff6a'%3E%3Ctext x='30' y='40'%3E1%3C/text%3E%3Ctext x='250' y='70'%3E0x0%3C/text%3E%3Ctext x='140' y='130'%3E0%3C/text%3E%3C/svg%3E")
+    90px 0 / 360px 160px repeat;
+  opacity: 0.12;
+  animation: scalar-programmers-bitfall 40s linear infinite;
+}
+.light-mode .references-rendered::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 320' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='13' fill='%231a6b33'%3E%3Ctext x='16' y='28'%3E0%3C/text%3E%3Ctext x='120' y='52'%3E1%3C/text%3E%3Ctext x='206' y='30'%3E0x100%3C/text%3E%3Ctext x='58' y='96'%3E101%3C/text%3E%3Ctext x='168' y='118'%3E1%3C/text%3E%3Ctext x='244' y='150'%3E0%3C/text%3E%3Ctext x='22' y='172'%3E0xFF%3C/text%3E%3Ctext x='112' y='202'%3E0%3C/text%3E%3Ctext x='196' y='238'%3E1%3C/text%3E%3Ctext x='40' y='262'%3E1001%3C/text%3E%3Ctext x='138' y='292'%3E0x1F%3C/text%3E%3Ctext x='252' y='302'%3E1%3C/text%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 160' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='11' fill='%231a6b33'%3E%3Ctext x='30' y='40'%3E1%3C/text%3E%3Ctext x='250' y='70'%3E0x0%3C/text%3E%3Ctext x='140' y='130'%3E0%3C/text%3E%3C/svg%3E");
+  opacity: 0.08;
+}
+
+/*
+ * The screen itself: very faint scanlines in dark mode, and the green bars and sprocket holes of
+ * tractor-feed paper in light mode. Both scroll with the page and never move on their own.
+ */
+.references-rendered::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -3;
+}
+.dark-mode .references-rendered::after {
+  background: repeating-linear-gradient(#c8ffd607 0 1px, transparent 1px 3px);
+}
+.light-mode .references-rendered::after {
+  background:
+    radial-gradient(circle, #e3e1cf 0 4px, #d5d3bf 4px 4.75px, transparent 5.25px) left 4px top 0 / 14px 24px repeat-y,
+    radial-gradient(circle, #e3e1cf 0 4px, #d5d3bf 4px 4.75px, transparent 5.25px) right 4px top 0 / 14px 24px repeat-y,
+    linear-gradient(#d5d3bf 50%, transparent 0) left 24px top 0 / 1px 6px repeat-y,
+    linear-gradient(#d5d3bf 50%, transparent 0) right 24px top 0 / 1px 6px repeat-y,
+    repeating-linear-gradient(transparent 0 72px, #d7ebc866 72px 144px);
+}
+
+.section-flare-item {
+  position: absolute;
+}
+
+/* The terminal, with the answer to "which day is it?" */
+.section-flare-item:nth-of-type(1) {
+  top: 10px;
+  right: 9%;
+  width: 184px;
+  height: 88px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 184 88' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='13'%3E%3Crect x='0.5' y='0.5' width='183' height='87' rx='4' fill='%2307100acc' stroke='%2339ff6a59'/%3E%3Cpath d='M0.5 18.5h183' stroke='%2339ff6a59'/%3E%3Crect x='1' y='1' width='182' height='17' rx='3.5' fill='%2339ff6a14'/%3E%3Cg fill='%2339ff6a8c'%3E%3Ccircle cx='10' cy='9.5' r='2.6'/%3E%3Ccircle cx='19' cy='9.5' r='2.6'/%3E%3Ccircle cx='28' cy='9.5' r='2.6'/%3E%3C/g%3E%3Ctext x='92' y='13' font-size='9' text-anchor='middle' fill='%2339ff6a8c'%3Etty256%3C/text%3E%3Ctext x='14' y='40' fill='%2339ff6a' textLength='124.8' lengthAdjust='spacingAndGlyphs'%3E$ echo $((2**8))%3C/text%3E%3Ctext x='14' y='59' fill='%23d7ffe0' textLength='23.4' lengthAdjust='spacingAndGlyphs'%3E256%3C/text%3E%3Ctext x='14' y='78' fill='%2339ff6a' textLength='7.8' lengthAdjust='spacingAndGlyphs'%3E$%3C/text%3E%3C/svg%3E")
+    center / contain no-repeat;
+  box-shadow: 0 0 32px #39ff6a1f;
+  border-radius: 4px;
+}
+.light-mode .section-flare-item:nth-of-type(1) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 184 88' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='13'%3E%3Crect x='0.5' y='0.5' width='183' height='87' rx='4' fill='%23fffdf4e6' stroke='%2319692f59'/%3E%3Cpath d='M0.5 18.5h183' stroke='%2319692f59'/%3E%3Crect x='1' y='1' width='182' height='17' rx='3.5' fill='%2319692f14'/%3E%3Cg fill='%2319692fa6'%3E%3Ccircle cx='10' cy='9.5' r='2.6'/%3E%3Ccircle cx='19' cy='9.5' r='2.6'/%3E%3Ccircle cx='28' cy='9.5' r='2.6'/%3E%3C/g%3E%3Ctext x='92' y='13' font-size='9' text-anchor='middle' fill='%2319692fa6'%3Etty256%3C/text%3E%3Ctext x='14' y='40' fill='%2319692f' textLength='124.8' lengthAdjust='spacingAndGlyphs'%3E$ echo $((2**8))%3C/text%3E%3Ctext x='14' y='59' fill='%231c2a1f' textLength='23.4' lengthAdjust='spacingAndGlyphs'%3E256%3C/text%3E%3Ctext x='14' y='78' fill='%2319692f' textLength='7.8' lengthAdjust='spacingAndGlyphs'%3E$%3C/text%3E%3C/svg%3E");
+  box-shadow: 0 2px 10px #19692f14;
+}
+/* The block cursor waits after the second prompt, two character cells in */
+.section-flare-item:nth-of-type(1)::after {
+  content: "";
+  position: absolute;
+  top: 66px;
+  left: 30px;
+  width: 8px;
+  height: 15px;
+  background: #39ff6a;
+  box-shadow: 0 0 6px #39ff6a99;
+  animation: scalar-programmers-blink 1.2s ease-in-out infinite;
+}
+.light-mode .section-flare-item:nth-of-type(1)::after {
+  background: #19692f;
+  box-shadow: none;
+}
+
+/* A 0x100 badge, because 256 in hex is a rounder number */
+.section-flare-item:nth-of-type(2) {
+  top: 34px;
+  right: calc(9% + 212px);
+  width: 72px;
+  height: 26px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 26' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='12' font-weight='600'%3E%3Crect x='0.75' y='0.75' width='70.5' height='24.5' rx='3' fill='%2307100acc' stroke='%2339ff6a8c' stroke-width='1.5' stroke-dasharray='3 2'/%3E%3Ctext x='36' y='17' text-anchor='middle' fill='%2339ff6a' textLength='36' lengthAdjust='spacingAndGlyphs'%3E0x100%3C/text%3E%3C/svg%3E")
+    center / contain no-repeat;
+  rotate: -6deg;
+  opacity: 0.85;
+}
+.light-mode .section-flare-item:nth-of-type(2) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 26' font-family='ui-monospace,SFMono-Regular,Menlo,Consolas,monospace' font-size='12' font-weight='600'%3E%3Crect x='0.75' y='0.75' width='70.5' height='24.5' rx='3' fill='%23fffdf4e6' stroke='%2319692f8c' stroke-width='1.5' stroke-dasharray='3 2'/%3E%3Ctext x='36' y='17' text-anchor='middle' fill='%2319692f' textLength='36' lengthAdjust='spacingAndGlyphs'%3E0x100%3C/text%3E%3C/svg%3E");
+}
+
+.section-flare-item:nth-of-type(n + 3) {
+  display: none;
+}
+
+@keyframes scalar-programmers-bitfall {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(320px);
+  }
+}
+@keyframes scalar-programmers-blink {
+  /* A slow fade rather than a hard flash, a little over one second per cycle */
+  0%,
+  40%,
+  100% {
+    opacity: 1;
+  }
+  55%,
+  85% {
+    opacity: 0.1;
+  }
+}
+
+/*
+ * The API client powers on like an old CRT: when "Test Request" opens the modal, a bright
+ * horizontal line draws across the middle of the screen and opens up into the whole client,
+ * with a soft phosphor glow that fades as the picture settles.
+ *
+ * The modal stays mounted and only toggles `scalar-client--open`, so each animation restarts
+ * whenever the modal opens. The modal uses `backwards` fill only: a transform left on it after
+ * the animation would trap its fixed-position children. The line and the glow have no fill at
+ * all, so when they finish they fall back to their invisible resting state.
+ */
+.scalar-client--open .scalar-client {
+  animation: scalar-programmers-power-on 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+.scalar-client--open::before,
+.scalar-client--open::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+}
+/* The beam: the modal is at most 1390px wide and centred, so the line spans exactly its width */
+.scalar-client--open::before {
+  top: calc(50% - 1px);
+  left: max(0px, calc(50% - 695px));
+  right: max(0px, calc(50% - 695px));
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e6ffec 15%, #fff 50%, #e6ffec 85%, transparent);
+  box-shadow:
+    0 0 8px 1px #39ff6a99,
+    0 0 24px 4px #39ff6a40;
+  animation: scalar-programmers-beam 0.7s ease-out;
+}
+.light-mode .scalar-client--open::before {
+  background: linear-gradient(to right, transparent, #39b85a 15%, #19692f 50%, #39b85a 85%, transparent);
+  box-shadow: 0 0 12px 2px #19692f40;
+}
+/* The phosphor glow over the modal, which settles as the picture comes in */
+.scalar-client--open::after {
+  top: 60px;
+  bottom: 60px;
+  left: max(0px, calc(50% - 695px));
+  right: max(0px, calc(50% - 695px));
+  border-radius: 8px;
+  background: radial-gradient(ellipse at center, #39ff6a24, #39ff6a0a 70%);
+  box-shadow: 0 0 40px 6px #39ff6a26;
+  animation: scalar-programmers-glow 0.9s ease-out;
+}
+.light-mode .scalar-client--open::after {
+  background: radial-gradient(ellipse at center, #19692f14, #19692f05 70%);
+  box-shadow: 0 0 40px 6px #19692f1a;
+}
+
+@keyframes scalar-programmers-power-on {
+  0%,
+  20% {
+    transform: scale(1, 0.004);
+    opacity: 0.6;
+  }
+  65% {
+    transform: scale(1, 1.01);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
+@keyframes scalar-programmers-beam {
+  0% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  20% {
+    transform: scaleX(1);
+    opacity: 0.9;
+  }
+  45% {
+    transform: scaleX(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+@keyframes scalar-programmers-glow {
+  0%,
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*
+ * On small screens the sticky header covers the top of the flare, and the terminal would sit right
+ * beside (or behind) the title. Only the slim badge fits above the title, so it stays on its own.
+ */
+@media (max-width: 1000px) {
+  .section-flare {
+    top: var(--scalar-header-height, 50px) !important;
+  }
+  .section-flare-item:nth-of-type(1) {
+    display: none;
+  }
+  .section-flare-item:nth-of-type(2) {
+    top: 10px;
+    right: 16px;
+    rotate: none;
+  }
+  /* The narrow margins have no room for the sprocket holes, so the paper keeps only its green bars */
+  .light-mode .references-rendered::after {
+    background: repeating-linear-gradient(transparent 0 72px, #d7ebc866 72px 144px);
+  }
+}
+
+/* Keep everything still when motion is unwelcome: the bits hang in place, the cursor stays lit, and the client simply opens */
+@media (prefers-reduced-motion: reduce) {
+  .section-flare-item,
+  .section-flare-item::after,
+  .references-rendered::before,
+  .scalar-client--open .scalar-client {
+    animation: none !important;
+  }
+  .scalar-client--open::before,
+  .scalar-client--open::after {
+    display: none;
+  }
+}
+
+/* Paper and phosphor are for the screen only */
+@media print {
+  .references-rendered::before,
+  .references-rendered::after {
+    display: none;
+  }
+}
