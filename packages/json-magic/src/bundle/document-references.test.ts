@@ -160,4 +160,32 @@ describe('document-references', () => {
       expect(references.resolve(ref, 'https://example.com/api.json')?.preserveReference).toBe(preserved)
     },
   )
+
+  it('distinguishes resource-local storage from relocated bundle targets', () => {
+    const local = { type: 'string' }
+    const external = { type: 'number' }
+    const schema = { $id: 'schema.json', 'x-ext': { same: local } }
+    const registry = documentReferences('x-ext')
+    const root = { schema }
+    registry.register(root, '/root.json')
+    registry.register(external, '/external.json', ['x-ext', 'same'])
+    expect(registry.resolve('#/x-ext/same', '/schema.json')).toStrictEqual({
+      path: 'schema/x-ext/same',
+      document: root,
+      documentPath: [],
+      preserveReference: true,
+      value: local,
+      resourceRelative: true,
+      segments: ['schema', 'x-ext', 'same'],
+    })
+    expect(registry.resolve('#/x-ext/same', '/root.json')).toStrictEqual({
+      path: 'x-ext/same',
+      document: external,
+      documentPath: ['x-ext', 'same'],
+      preserveReference: false,
+      value: external,
+      resourceRelative: false,
+      segments: ['x-ext', 'same'],
+    })
+  })
 })
