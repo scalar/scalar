@@ -11,9 +11,9 @@ export type JsonPath = readonly (string | number)[]
  * @returns The AST node at the specified path, or undefined if not found.
  */
 export const getJsonAstNodeAtPath = (
-  node: monaco.languages.json.ASTNode | undefined,
+  node: monaco.json.ASTNode | undefined,
   path: JsonPath,
-): monaco.languages.json.ASTNode | undefined => {
+): monaco.json.ASTNode | undefined => {
   let current = node
 
   for (const segment of path) {
