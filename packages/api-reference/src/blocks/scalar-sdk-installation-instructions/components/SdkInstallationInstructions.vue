@@ -10,8 +10,8 @@ import {
   type ScalarComboboxOption,
 } from '@scalar/components/combobox'
 import { ScalarIcon } from '@scalar/components/icon'
-import { ScalarMarkdown } from '@scalar/components/markdown'
 import type { AvailableClient } from '@scalar/types/snippetz'
+import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { type WorkspaceEventBus } from '@scalar/workspace-store/events'
 import type { XScalarSdkInstallation } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-sdk-installation'
 import {
@@ -31,17 +31,22 @@ import { getLanguageIcon } from '../helpers/language-icon'
 import { getRenderableSdks } from '../helpers/renderable-sdks'
 import { getVisibleTabCount } from '../helpers/visible-tab-count'
 
+import SdkInstallationMarkdown from './SdkInstallationMarkdown.vue'
+
 const {
   xScalarSdkInstallation,
   selectedClient,
   eventBus,
   clientOptions = [],
   featuredClients,
+  securitySchemes = [],
 } = defineProps<{
   /** Built-in clients to show alongside SDKs when the combined view is enabled. */
   clientOptions?: ClientOptionGroup[]
   /** Built-in clients shown inline, in order, after the SDK tabs. */
   featuredClients?: AvailableClient[]
+  /** Current document authentication selection, including reader credentials. */
+  securitySchemes?: SecuritySchemeObjectSecret[]
   /** Custom SDK installation instructions from `x-scalar-sdk-installation` */
   xScalarSdkInstallation?: XScalarSdkInstallation['x-scalar-sdk-installation']
   /**
@@ -421,8 +426,9 @@ onBeforeUnmount(() => {
       class="selected-client"
       role="tabpanel"
       tabindex="0">
-      <ScalarMarkdown
+      <SdkInstallationMarkdown
         v-if="selected.description"
+        :securitySchemes
         :value="selected.description" />
       <span
         v-else
