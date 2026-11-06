@@ -10,8 +10,21 @@ import { object } from './document'
 import { preserveData } from './preserve-data'
 import type { AsyncApiInput } from './types'
 
+/** Permissions for loading an AsyncAPI description and its external references. */
+export type DocumentLoadOptions = {
+  /** Allow private-network requests only for trusted input. Defaults to false. */
+  allowPrivateNetworks?: boolean
+  /** Approved directory for local files and references. File access is disabled when omitted. */
+  basePath?: string
+}
+
 /** Load once, preserving the source location for relative external references. */
-export const loadDocument = async (input: AsyncApiInput): Promise<Record<string, unknown>> => {
+export const loadDocument = async (
+  input: AsyncApiInput,
+  options: DocumentLoadOptions = {},
+): Promise<Record<string, unknown>> => {
+  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
+  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
   const source = async (): Promise<{ value: unknown; origin?: string }> => {
     if (typeof input !== 'string') {
       return { value: deepClone(getRaw(input)) }
@@ -21,15 +34,22 @@ export const loadDocument = async (input: AsyncApiInput): Promise<Record<string,
       return { value: parsed }
     }
     if (/^https?:\/\//i.test(input)) {
-      const response = await fetch(input)
-      if (!response.ok) {
-        throw new Error(`Failed to load AsyncAPI document (HTTP ${response.status})`)
+      const result = await urlLoader.exec(input)
+      if (!result.ok) {
+        throw new Error('Failed to load AsyncAPI document')
       }
-      return { value: normalize(await response.text()), origin: input }
+      return { value: result.data, origin: input }
     }
-    const [{ resolve }, { readFile }] = await Promise.all([import('node:path'), import('node:fs/promises')])
+    if (!fileLoader) {
+      throw new Error('Local file access requires an explicit basePath')
+    }
+    const { resolve } = await import('node:path')
     const origin = resolve(input)
-    return { value: normalize(await readFile(origin, 'utf8')), origin }
+    const result = await fileLoader.exec(origin)
+    if (!result.ok) {
+      throw new Error('Failed to load AsyncAPI document')
+    }
+    return { value: result.data, origin }
   }
   const { value, origin } = await source()
   if (!isObject(value) || typeof value.asyncapi !== 'string') {
@@ -42,7 +62,7 @@ export const loadDocument = async (input: AsyncApiInput): Promise<Record<string,
   const errors: string[] = []
   const bundled = await bundle(value, {
     origin,
-    plugins: [fetchUrls(), readFiles(), preserveData()],
+    plugins: [...(fileLoader ? [urlLoader, fileLoader] : [urlLoader]), preserveData()],
     treeShake: false,
     hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
   })
