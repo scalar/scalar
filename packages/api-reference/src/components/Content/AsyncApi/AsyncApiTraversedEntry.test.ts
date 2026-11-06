@@ -1,4 +1,3 @@
-import { ScalarCopy } from '@scalar/components/copy'
 import type { AsyncApiDocument } from '@scalar/types/asyncapi/3.1'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
@@ -9,6 +8,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import AsyncApiTraversedEntry from './AsyncApiTraversedEntry.vue'
+import SchemaSource from './SchemaSource.vue'
 
 const document = {
   asyncapi: '3.0.0',
@@ -18,7 +18,7 @@ const document = {
 } as unknown as AsyncApiDocument
 
 describe('AsyncApiTraversedEntry', () => {
-  it.each(['classic', 'modern'] as const)('renders source models and keeps their anchors in %s layout', (layout) => {
+  it.each(['classic', 'modern'] as const)('renders native models and keeps their anchors in %s layout', (layout) => {
     const schema = 'message User { string id = 1; }'
     const wrapper = mount(AsyncApiTraversedEntry, {
       props: {
@@ -40,8 +40,8 @@ describe('AsyncApiTraversedEntry', () => {
       },
     })
     expect(wrapper.text()).toContain('User')
-    expect(wrapper.text()).toContain('application/vnd.google.protobuf;version=3')
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    expect(wrapper.text()).toContain('#1')
+    expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
     expect(wrapper.find('[id="model-user"]').exists()).toBe(true)
   })
 
