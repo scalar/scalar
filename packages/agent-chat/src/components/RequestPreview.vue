@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ScalarCodeBlock } from '@scalar/components/code-block'
 import { ScalarIconCaretDown, ScalarIconCaretRight } from '@scalar/icons'
+import { getResolvedUrl } from '@scalar/workspace-store/request-example'
 import { type DeepPartial } from 'ai'
 import { computed, ref } from 'vue'
 
@@ -20,6 +21,9 @@ import type {
   ExecuteClientSideRequestToolOutput,
 } from '@/entities/tools/execute-request'
 
+import { createDocumentSettings } from '@/helpers'
+import { useState } from '@/state/state'
+
 const { request, response, state } = defineProps<{
   request?:
     | ExecuteClientSideRequestToolInput
@@ -34,6 +38,20 @@ const { request, response, state } = defineProps<{
     | 'rejected'
     | 'buildingRequest'
 }>()
+
+const chatState = useState()
+const requestDestination = computed(() => {
+  if (!request?.documentName || !request.path || !request.method) {
+    return undefined
+  }
+  const settings = createDocumentSettings(chatState.workspaceStore)[
+    request.documentName
+  ]
+  if (!settings?.activeServer?.url) {
+    return `${request.method.toUpperCase()} ${request.path} (no server selected)`
+  }
+  return `${request.method.toUpperCase()} ${getResolvedUrl({ server: settings.activeServer, path: request.path })}`
+})
 
 const responseData = computed(() => {
   if (response?.success) {
@@ -102,6 +120,11 @@ const displayMode = computed(() => {
       open: shouldShowRequest,
       succeeded: state === 'requestSucceeded',
     }">
+    <p
+      v-if="requestDestination"
+      class="text-c-2 py-2 font-mono text-sm break-all">
+      {{ request?.documentName }} · {{ requestDestination }}
+    </p>
     <RequestApproved v-if="state === 'approved'" />
     <div
       v-else-if="state === 'buildingRequest'"
