@@ -13,7 +13,7 @@ const moduleUrl = `data:text/javascript;base64,${Buffer.from(outputText).toStrin
 // jsdom 30 returns visible overflow axes for an auto/scroll shorthand. These cases
 // need a browser's computed styles, including the coupling between the two axes.
 test.describe('findScrollContainer', () => {
-  for (const { name, styles, direction = 'y' as const, expected } of [
+  for (const { name, styles, direction, expected } of [
     { name: 'falls back when no parent scrolls', styles: [''], expected: 'root' },
     { name: 'finds overflow auto', styles: ['overflow: auto'], expected: 'parent-0' },
     { name: 'finds overflow scroll', styles: ['overflow: scroll'], expected: 'parent-0' },
@@ -28,6 +28,7 @@ test.describe('findScrollContainer', () => {
       expected: 'parent-0',
     },
     { name: 'finds vertical overflow', styles: ['overflow-y: auto'], expected: 'parent-0' },
+    { name: 'defaults to the vertical axis', styles: ['overflow: hidden scroll'], expected: 'parent-0' },
     { name: 'finds horizontal overflow', styles: ['overflow-x: auto'], direction: 'x', expected: 'parent-0' },
     { name: 'ignores a clipped vertical axis', styles: ['overflow: scroll hidden'], expected: 'root' },
     {
@@ -72,7 +73,7 @@ test.describe('findScrollContainer', () => {
           }
           const child = document.createElement('div')
           parent.appendChild(child)
-          return findScrollContainer(child, direction).id
+          return direction === undefined ? findScrollContainer(child).id : findScrollContainer(child, direction).id
         },
         { moduleUrl, styles, direction },
       )
