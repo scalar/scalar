@@ -97,7 +97,6 @@
     "electron": "44.9.1",
     "electron-vite": "6.0.0",
     "fake-indexeddb": "catalog:*",
-    "vite": "catalog:*",
-    "vite-plugin-monaco-editor-esm": "catalog:*"
+    "vite": "catalog:*"
   }
 }
