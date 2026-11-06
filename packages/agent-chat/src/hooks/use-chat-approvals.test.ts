@@ -58,6 +58,7 @@ const mountChat = (): {
 
 const prepareChat = async (
   credentialed = true,
+  response?: Promise<Response>,
 ): Promise<
   ReturnType<typeof mountChat> & {
     requests: { url: string; authorization: string | null }[]
@@ -95,7 +96,7 @@ const prepareChat = async (
       )
     }
     requests.push({ url: String(url), authorization: new Headers(init?.headers).get('Authorization') })
-    return Promise.resolve(Response.json({ privateData: 'sensitive-value' }))
+    return response ?? Promise.resolve(Response.json({ privateData: 'sensitive-value' }))
   })
   const chat = mountChat()
   await chat.state.workspaceStore.addDocument({
@@ -183,6 +184,44 @@ describe('use-chat-approvals', () => {
       await vi.waitFor(() => expect(getChatRequests()).toBe(2))
       expect(approvals.approvalRequiredParts.value).toStrictEqual([])
     } finally {
+      unmount()
+    }
+  })
+
+  it('claims an approved request until it finishes so repeated decisions cannot send or deny it', async () => {
+    let resolveResponse: (response: Response) => void = () => {}
+    const response = new Promise<Response>((resolve) => {
+      resolveResponse = resolve
+    })
+    const { state, approvals, requests, unmount } = await prepareChat(true, response)
+    try {
+      await state.chat.sendMessage({ text: 'Read the API' })
+      const pending = approvals.respondToRequestApprovals(true)
+      expect(state.pendingRequestIds.value.has('request-1')).toBe(true)
+      expect(approvals.approvalRequiredParts.value).toStrictEqual([])
+      await approvals.respondToRequestApprovals(true)
+      await approvals.respondToRequestApprovals(false)
+      expect(requests).toStrictEqual([
+        {
+          url: 'https://proxy.scalar.com/?scalar_url=https%3A%2F%2Fprivate.example.com%2Fprivate-data',
+          authorization: 'Bearer stored-secret',
+        },
+      ])
+      expect(
+        state.chat.messages.flatMap((message) => message.parts).find((part) => part.type === 'tool-execute-request')
+          ?.state,
+      ).toBe('input-available')
+      resolveResponse(Response.json({ ok: true }))
+      await pending
+      await vi.waitFor(() =>
+        expect(
+          state.chat.messages.flatMap((message) => message.parts).find((part) => part.type === 'tool-execute-request')
+            ?.state,
+        ).toBe('output-available'),
+      )
+      expect(state.pendingRequestIds.value.has('request-1')).toBe(false)
+    } finally {
+      resolveResponse(Response.json({ ok: true }))
       unmount()
     }
   })

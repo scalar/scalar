@@ -70,6 +70,7 @@ export const STATE_SYMBOL: InjectionKey<State> = Symbol('STATE_SYMBOL')
 const { toast } = useToasts()
 
 type State = {
+  pendingRequestIds: Ref<Set<string>>
   prompt: Ref<string>
   chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
   workspaceStore: WorkspaceStore
@@ -361,6 +362,7 @@ export function createState({
   initialRegistryDocuments.forEach(({ namespace, slug }) => addDocument({ namespace, slug, removable: false }))
 
   return {
+    pendingRequestIds: ref(new Set<string>()),
     prompt,
     chat,
     workspaceStore,
