@@ -193,7 +193,7 @@ var lookupIP = func(ctx context.Context, host string) ([]net.IP, error) {
 }
 
 // Check if a given hostname or IP resolves to any blocked CIDR
-func isBlockedHost(ctx context.Context, host string) bool {
+func isBlockedHost(ctx context.Context, host string) (bool, error) {
 	// Strip port if present
 	h := host
 
@@ -203,24 +203,24 @@ func isBlockedHost(ctx context.Context, host string) bool {
 
 	// Try to parse literal IP first
 	if ip := net.ParseIP(h); ip != nil {
-		return ipIsBlocked(ip)
+		return ipIsBlocked(ip), nil
 	}
 
 	// Otherwise resolve via DNS
 	ips, err := resolve(ctx, h)
 
 	if err != nil {
-		// On DNS errors, block
-		return true
+		// Keep lookup failures distinct from addresses rejected by policy.
+		return false, err
 	}
 
 	for _, ip := range ips {
 		if ipIsBlocked(ip) {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 // Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
@@ -572,6 +572,9 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	target := r.URL.Query().Get("scalar_url")
 
 	remote, validationErrors := ps.validateScalarURL(r.Context(), target)
+	if r.Context().Err() != nil {
+		return
+	}
 	if len(validationErrors) > 0 {
 		firstError := validationErrors[0]
 		http.Error(w, firstError.message, firstError.statusCode)
@@ -610,6 +613,15 @@ func (ps *ProxyServer) targetsProxy(remote *url.URL) bool {
 	}
 
 	return false
+}
+
+// upstreamErrorStatus distinguishes a deadline from other upstream failures.
+func upstreamErrorStatus(err error) int {
+	var netErr net.Error
+	if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &netErr) && netErr.Timeout()) {
+		return http.StatusGatewayTimeout
+	}
+	return http.StatusServiceUnavailable
 }
 
 // proxyErrorCategory keeps operational diagnostics without logging untrusted
@@ -688,9 +700,15 @@ func (ps *ProxyServer) validateScalarURL(ctx context.Context, target string) (*u
 	}
 
 	// Deny any private, link-local, or loopback addresses
-	if !ps.bypassCidr && isBlockedHost(ctx, remote.Host) {
-		errors = append(errors, scalarURLValidationErrors[2])
-		return nil, errors
+	if !ps.bypassCidr {
+		blocked, err := isBlockedHost(ctx, remote.Host)
+		if err != nil {
+			return nil, []proxyValidationError{{statusCode: upstreamErrorStatus(err), message: proxyErrorCategory(err)}}
+		}
+		if blocked {
+			errors = append(errors, scalarURLValidationErrors[2])
+			return nil, errors
+		}
 	}
 
 	return remote, errors
@@ -736,8 +754,14 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		Timeout:   upstreamRequestTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Handle private CIDR check again on redirect
-			if !ps.bypassCidr && isBlockedHost(req.Context(), req.URL.Host) {
-				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
+			if !ps.bypassCidr {
+				blocked, err := isBlockedHost(req.Context(), req.URL.Host)
+				if err != nil {
+					return err
+				}
+				if blocked {
+					return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
+				}
 			}
 
 			if len(via) >= 10 {
@@ -855,12 +879,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return nil
 		}
 
-		status := http.StatusServiceUnavailable
-		var netErr net.Error
-		if errors.As(err, &netErr) && netErr.Timeout() {
-			status = http.StatusGatewayTimeout
-		}
-		http.Error(w, proxyErrorCategory(err), status)
+		http.Error(w, proxyErrorCategory(err), upstreamErrorStatus(err))
 		return err
 	}
 

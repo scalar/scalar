@@ -723,6 +723,42 @@ func replaceLookup(t *testing.T, lookup func(ctx context.Context, host string) (
 }
 
 func TestDNSLookups(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		err    error
+		status int
+	}{
+		{name: "deadline", err: context.DeadlineExceeded, status: http.StatusGatewayTimeout},
+		{name: "DNS timeout", err: &net.DNSError{Err: "timeout", IsTimeout: true}, status: http.StatusGatewayTimeout},
+		{name: "DNS failure", err: &net.DNSError{Err: "no such host", IsNotFound: true}, status: http.StatusServiceUnavailable},
+	} {
+		for _, redirect := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s redirect=%v", tc.name, redirect), func(t *testing.T) {
+				upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+					http.Redirect(w, r, "/next", http.StatusFound)
+				}))
+				defer upstream.Close()
+				ps := NewProxyServer(false)
+				defer ps.transport.CloseIdleConnections()
+				ps.transport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+					return (&net.Dialer{}).DialContext(ctx, network, upstream.Listener.Addr().String())
+				}
+				lookups := 0
+				replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+					lookups++
+					if redirect && lookups == 1 {
+						return []net.IP{net.ParseIP("203.0.113.10")}, nil
+					}
+					return nil, tc.err
+				})
+				w := proxyGet(ps, "http://dns.test/start")
+				if w.Code != tc.status {
+					t.Fatalf("Expected status %d, got %d: %s", tc.status, w.Code, w.Body.String())
+				}
+			})
+		}
+	}
+
 	t.Run("stops checking the target when the client goes away", func(t *testing.T) {
 		started := make(chan struct{}, 1)
 		stopped := make(chan struct{}, 1)
@@ -737,7 +773,12 @@ func TestDNSLookups(t *testing.T) {
 		defer cancel()
 
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+url.QueryEscape("https://slow-dns.test/"), nil).WithContext(ctx)
-		go NewProxyServer(false).handleRequest(httptest.NewRecorder(), req)
+		w := httptest.NewRecorder()
+		done := make(chan struct{})
+		go func() {
+			defer close(done)
+			NewProxyServer(false).handleRequest(w, req)
+		}()
 
 		select {
 		case <-started:
@@ -751,6 +792,14 @@ func TestDNSLookups(t *testing.T) {
 		case <-stopped:
 		case <-time.After(3 * time.Second):
 			t.Fatal("Expected the DNS lookup to stop when the client left")
+		}
+		select {
+		case <-done:
+		case <-time.After(3 * time.Second):
+			t.Fatal("Expected the handler to finish after cancellation")
+		}
+		if w.Body.Len() != 0 {
+			t.Errorf("Expected no response after cancellation, got %q", w.Body.String())
 		}
 	})
 

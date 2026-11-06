@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -937,6 +938,10 @@ func TestCidrPolicy(t *testing.T) {
 	})
 
 	t.Run("Should not authorize VPC metadata", func(t *testing.T) {
+		// Resolve deterministically so this exercises address policy, not local DNS.
+		replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+			return []net.IP{net.ParseIP("169.254.169.254")}, nil
+		})
 		// Create a new request
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=https://metadata.google.internal", nil)
 		w := httptest.NewRecorder()
@@ -980,7 +985,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range blocked {
-		if !isBlockedHost(context.Background(), host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || !blocked {
 			t.Errorf("Expected %s to be blocked", host)
 		}
 	}
@@ -992,7 +997,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range allowed {
-		if isBlockedHost(context.Background(), host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || blocked {
 			t.Errorf("Expected %s to be allowed", host)
 		}
 	}
