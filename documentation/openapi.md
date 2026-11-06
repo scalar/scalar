@@ -617,7 +617,7 @@ Aliases: `x-enumNames`
 
 We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header and they replace the generic HTTP clients in the introduction.
 
-Each entry has a `lang` (used as the tab label and to pick a matching language icon) and a `description`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
+Each entry has a `lang` (used to pick a matching language icon and synchronize code sample selection) and a `description`. Set an optional `label` to customize the tab text, for example `lang: python` with `label: Python SDK`. If `label` is missing or blank, the tab displays `lang`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
 ```diff
 openapi: 3.1.0
@@ -654,6 +654,7 @@ info:
 | Option      | Type   | Description                                                                                        |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------- |
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
+| label | string | Optional display text for the SDK tab. Defaults to `lang` when omitted or blank. |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
 ## x-scalar-links

@@ -3,6 +3,25 @@ import { describe, expect, it } from 'vitest'
 import { getRenderableSdks, hasRenderableSdks } from './renderable-sdks'
 
 describe('getRenderableSdks', () => {
+  it('uses a custom label without changing the language', () => {
+    expect(getRenderableSdks([{ lang: 'python', label: 'Python SDK', source: 'pip install example' }])).toStrictEqual([
+      { lang: 'python', label: 'Python SDK', description: '```\npip install example\n```' },
+    ])
+  })
+
+  it('falls back to lang for blank or malformed labels', () => {
+    expect(
+      getRenderableSdks([
+        { lang: 'Go', label: '  ', description: 'Install' },
+        // @ts-expect-error Exercise an invalid label supplied by an API description.
+        { lang: 'Python', label: 42, description: 'Install' },
+      ]),
+    ).toStrictEqual([
+      { lang: 'Go', label: 'Go', description: 'Install' },
+      { lang: 'Python', label: 'Python', description: 'Install' },
+    ])
+  })
+
   it('returns an empty array for undefined', () => {
     expect(getRenderableSdks(undefined)).toEqual([])
   })
@@ -13,13 +32,13 @@ describe('getRenderableSdks', () => {
       { lang: 'Python', description: 'Install for Python' },
     ]
 
-    expect(getRenderableSdks(sdks)).toEqual(sdks)
+    expect(getRenderableSdks(sdks)).toStrictEqual(sdks.map((sdk) => ({ ...sdk, label: sdk.lang })))
   })
 
   it('drops entries without a description', () => {
     expect(
       getRenderableSdks([{ lang: 'TypeScript', description: 'Install for TypeScript' }, { lang: 'Empty' }]),
-    ).toEqual([{ lang: 'TypeScript', description: 'Install for TypeScript' }])
+    ).toEqual([{ lang: 'TypeScript', label: 'TypeScript', description: 'Install for TypeScript' }])
   })
 
   it('drops entries with an empty description', () => {
@@ -34,7 +53,7 @@ describe('getRenderableSdks', () => {
         { lang: 42, description: 'Install' },
         { lang: 'Go', description: 'Install for Go' },
       ]),
-    ).toEqual([{ lang: 'Go', description: 'Install for Go' }])
+    ).toEqual([{ lang: 'Go', label: 'Go', description: 'Install for Go' }])
   })
 
   it('returns an empty array for malformed (non-array) extension values', () => {
@@ -50,25 +69,25 @@ describe('getRenderableSdks', () => {
 
   it('uses the legacy source as the description when there is no description', () => {
     expect(getRenderableSdks([{ lang: 'Go', source: 'go get example.com/sdk' }])).toEqual([
-      { lang: 'Go', description: '```\ngo get example.com/sdk\n```' },
+      { lang: 'Go', label: 'Go', description: '```\ngo get example.com/sdk\n```' },
     ])
   })
 
   it('appends the legacy source to the description as a fenced code block', () => {
     expect(
       getRenderableSdks([{ lang: 'Node', description: 'Install from npm:', source: 'npm install @scalar/sdk' }]),
-    ).toEqual([{ lang: 'Node', description: 'Install from npm:\n\n```\nnpm install @scalar/sdk\n```' }])
+    ).toEqual([{ lang: 'Node', label: 'Node', description: 'Install from npm:\n\n```\nnpm install @scalar/sdk\n```' }])
   })
 
   it('keeps the description verbatim so indented code blocks survive', () => {
     const description = ['Install with Make:', '', '    make install'].join('\n')
 
-    expect(getRenderableSdks([{ lang: 'C', description }])).toEqual([{ lang: 'C', description }])
+    expect(getRenderableSdks([{ lang: 'C', description }])).toEqual([{ lang: 'C', label: 'C', description }])
   })
 
   it('keeps the source inside one code block even when it contains backticks', () => {
     expect(getRenderableSdks([{ lang: 'Shell', source: 'echo ```nested```' }])).toEqual([
-      { lang: 'Shell', description: '````\necho ```nested```\n````' },
+      { lang: 'Shell', label: 'Shell', description: '````\necho ```nested```\n````' },
     ])
   })
 
