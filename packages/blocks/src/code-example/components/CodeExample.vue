@@ -161,6 +161,7 @@ import {
   useExternalExamples,
 } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
+  maskCredentialPlaceholders,
   resolveCredentialPlaceholders,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -450,20 +451,12 @@ const generatedCode = computed(
   () => resolvedCredentials.value?.content ?? generatedTemplate.value,
 )
 
-/** The highlighter skips short values; mask inserted short credentials before highlighting. */
-const displayCode = computed(() => {
-  const resolved = resolvedCredentials.value
-  if (!resolved) return generatedCode.value
-  const shortSecrets = resolved.maskedValues.filter((value) => value.length < 3)
-  return resolved.segments
-    .map((segment) =>
-      segment.credential &&
-      shortSecrets.some((value) => segment.value.includes(value))
-        ? '••••••••'
-        : segment.value,
-    )
-    .join('')
-})
+/** Mask inserted secrets before escaping or syntax tokenization can split their values. */
+const displayCode = computed(() =>
+  resolvedCredentials.value
+    ? maskCredentialPlaceholders(resolvedCredentials.value)
+    : generatedCode.value,
+)
 
 /** The language for the code block, used for syntax highlighting */
 const codeBlockLanguage = computed(() => {
@@ -520,19 +513,6 @@ const VIRTUALIZATION_THRESHOLD = 20_000
 
 const shouldVirtualize = computed(
   () => (generatedCode.value?.length ?? 0) > VIRTUALIZATION_THRESHOLD,
-)
-
-/** Virtualized text has no highlighter, so mask its display separately from copyable content. */
-const virtualizedCode = computed(() =>
-  resolvedCredentials.value
-    ? [...resolvedCredentials.value.maskedValues]
-        .filter((value) => value.length >= 3)
-        .sort((left, right) => right.length - left.length)
-        .reduce(
-          (content, secret) => content.split(secret).join('••••••••'),
-          displayCode.value ?? '',
-        )
-    : (generatedCode.value ?? ''),
 )
 
 const id = useId()
@@ -638,7 +618,7 @@ const id = useId()
             contentClass="language-plaintext whitespace-pre font-code text-base p-2"
             :lineHeight="20"
             role="region"
-            :text="virtualizedCode" />
+            :text="displayCode ?? ''" />
         </template>
       </div>
     </ScalarCardSection>

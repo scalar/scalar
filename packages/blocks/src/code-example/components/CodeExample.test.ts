@@ -182,12 +182,12 @@ describe('RequestExample', () => {
       props: { ...defaultProps, operation, selectedClient: 'custom/python', securitySchemes: [scheme] },
     })
     const block = wrapper.findComponent({ name: 'ScalarCodeBlock' })
-    expect(block.props('content')).toBe('login("public-id", "first-secret")')
+    expect(block.props('content')).toBe('login("public-id", "••••••••")')
     expect(block.props('hideCredentials')).toStrictEqual(['first-secret', 'cHVibGljLWlkOmZpcnN0LXNlY3JldA=='])
     await wrapper.findComponent({ name: 'ScalarCodeBlockCopy' }).get('button').trigger('click')
     expect(mockCopy).toHaveBeenLastCalledWith('login("public-id", "first-secret")')
     await wrapper.setProps({ securitySchemes: [{ ...scheme, 'x-scalar-secret-password': 'second-secret' }] })
-    expect(block.props('content')).toBe('login("public-id", "second-secret")')
+    expect(block.props('content')).toBe('login("public-id", "••••••••")')
     await wrapper.setProps({ securitySchemes: [] })
     expect(block.props('content')).toBe('login("{{id}}", "{{password}}")')
     expect(operation['x-codeSamples']?.[0]?.source).toBe('login("{{id}}", "{{password}}")')
@@ -218,51 +218,59 @@ describe('RequestExample', () => {
     expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('{{token}}')
   })
 
-  it('masks even short substituted credentials without changing the copied value', async () => {
-    const wrapper = mount(RequestExample, {
-      props: {
-        ...defaultProps,
-        selectedClient: 'custom/python',
-        operation: { 'x-codeSamples': [{ lang: 'python', source: 'login("{{key}}")' }] },
-        securitySchemes: [
-          {
-            type: 'apiKey',
-            name: 'X-Key',
-            in: 'header',
-            'x-scalar-secret-token': 'ab',
-            'x-scalar-credential-placeholders': { key: { field: 'token' } },
-          },
-        ],
-      },
-    })
-    expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('login("••••••••")')
-    await wrapper.findComponent({ name: 'ScalarCodeBlockCopy' }).get('button').trigger('click')
-    expect(mockCopy).toHaveBeenLastCalledWith('login("ab")')
-  })
+  it.each(['ab', 'a&b', '<secret>', '\"quoted\"', 'foo() + bar'])(
+    'masks substituted credential %s without changing the copied value',
+    async (secret) => {
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedClient: 'custom/python',
+          operation: { 'x-codeSamples': [{ lang: 'python', source: 'login("{{key}}")' }] },
+          securitySchemes: [
+            {
+              type: 'apiKey',
+              name: 'X-Key',
+              in: 'header',
+              'x-scalar-secret-token': secret,
+              'x-scalar-credential-placeholders': { key: { field: 'token' } },
+            },
+          ],
+        },
+      })
+      expect(wrapper.findComponent({ name: 'ScalarCodeBlock' }).props('content')).toBe('login("••••••••")')
+      await wrapper.findComponent({ name: 'ScalarCodeBlockCopy' }).get('button').trigger('click')
+      expect(wrapper.text()).not.toContain(secret)
+      expect(wrapper.text()).toContain('••••••••')
+      expect(mockCopy).toHaveBeenLastCalledWith(`login("${secret}")`)
+    },
+  )
 
-  it('masks substituted credentials in virtualized samples while copying the real content', async () => {
-    const source = '{{token}}\n'.repeat(3000)
-    const scheme: SecuritySchemeObjectSecret = {
-      type: 'apiKey',
-      name: 'X-Key',
-      in: 'header',
-      'x-scalar-secret-token': 'private-key',
-      'x-scalar-credential-placeholders': { token: { field: 'token' } },
-    }
-    const wrapper = mount(RequestExample, {
-      props: {
-        ...defaultProps,
-        selectedClient: 'custom/python',
-        operation: { 'x-codeSamples': [{ lang: 'python', source }] },
-        securitySchemes: [scheme],
-      },
-    })
-    const region = wrapper.get('[role="region"][aria-label="Request code sample"]')
-    expect(region.text()).not.toContain('private-key')
-    expect(region.text()).toContain('••••••••')
-    await wrapper.findComponent({ name: 'ScalarCodeBlockCopy' }).get('button').trigger('click')
-    expect(mockCopy).toHaveBeenLastCalledWith('private-key\n'.repeat(3000))
-  })
+  it.each(['a&b<>\"quoted\"', 'foo() + bar'])(
+    'masks virtualized credential %s while copying the real content',
+    async (secret) => {
+      const source = '{{token}}\n'.repeat(3000)
+      const scheme: SecuritySchemeObjectSecret = {
+        type: 'apiKey',
+        name: 'X-Key',
+        in: 'header',
+        'x-scalar-secret-token': secret,
+        'x-scalar-credential-placeholders': { token: { field: 'token' } },
+      }
+      const wrapper = mount(RequestExample, {
+        props: {
+          ...defaultProps,
+          selectedClient: 'custom/python',
+          operation: { 'x-codeSamples': [{ lang: 'python', source }] },
+          securitySchemes: [scheme],
+        },
+      })
+      const region = wrapper.get('[role="region"][aria-label="Request code sample"]')
+      expect(region.text()).not.toContain(secret)
+      expect(region.text()).toContain('••••••••')
+      await wrapper.findComponent({ name: 'ScalarCodeBlockCopy' }).get('button').trigger('click')
+      expect(mockCopy).toHaveBeenLastCalledWith(`${secret}\n`.repeat(3000))
+    },
+  )
 
   it('names the focusable region for a virtualized request example', () => {
     const wrapper = mount(RequestExample, {
