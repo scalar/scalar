@@ -556,7 +556,8 @@ const handleObjectSchema = (
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
-  const required = level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(schema)) : undefined
+  const required =
+    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath)) : undefined
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -571,17 +572,15 @@ const handleObjectSchema = (
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const rendered = getExampleFromSchema(propertySchema, options, {
+      const value = getExampleFromSchema(propertySchema, options, {
         level: level + 1,
         parentSchema: schema,
         name: propertyName,
+        isRequiredProperty: !!required,
         schemaPath: [...schemaPath, propertyName],
         seen,
         dynamicScope: childScope,
       })
-      // A required property whose schema states no shape takes `null`, as it does at any other depth,
-      // rather than the sentinel that only marks where truncation happened.
-      const value = required && rendered === MAX_DEPTH_EXCEEDED ? null : rendered
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -962,50 +961,80 @@ const MAX_REQUIRED_STEPS = 10_000
 /** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
 let requiredSteps = MAX_REQUIRED_STEPS
 
-/** Cache of the property names a schema or any of its compositions marks `required`. */
-const compositionRequiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
+/** Cache required names by schema and selection context, since different choices require different keys. */
+const compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
 
 /**
- * Collect every property name a schema or any of its `allOf`, `oneOf` and `anyOf` members marks
- * `required`.
- *
- * `required` and the property it names often live in different members (a base schema lists the
- * property, the extension marks it required), and the walk renders each member on its own, so the
- * names have to be gathered once for the whole composition. Every member counts, selected or not: an
- * extra name only lets an optional property the rendered members define appear, which is still valid.
+ * Gather requirements across allOf members and the selected alternatives only. A name required by an
+ * unselected alternative may be optional in the chosen one, and emitting it can match both oneOf branches.
  */
-const getCompositionRequiredNames = (schema: SchemaObject): ReadonlySet<string> => {
+const getCompositionRequiredNames = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): ReadonlySet<string> => {
   const root = getSchemaCacheTarget(schema)
-  const cached = compositionRequiredNamesCache.get(root)
+  const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options)])
+  const cached = compositionRequiredNamesCache.get(root)?.get(cacheKey)
   if (cached) {
     return cached
   }
 
   const names = new Set<string>()
-  const visited = new Set<object>()
-  const pending: SchemaObject[] = [schema]
-  while (pending.length > 0) {
+  const visited = new Map<object, Set<string>>()
+  const pending = [{ schema, options, schemaPath, depth: 0 }]
+  // A cycle can change its selection path, so identity and path caching alone cannot bound this walk.
+  let steps = MAX_REQUIRED_STEPS
+  while (pending.length > 0 && steps-- > 0) {
     const current = pending.pop()!
-    const target = getSchemaCacheTarget(current)
-    if (visited.has(target)) {
+    const target = getSchemaCacheTarget(current.schema)
+    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options)])
+    const contexts = visited.get(target) ?? new Set<string>()
+    if (contexts.has(key) || current.depth > MAX_COMPOSITION_DEPTH) {
       continue
     }
-    visited.add(target)
+    contexts.add(key)
+    visited.set(target, contexts)
 
-    if ('required' in current && Array.isArray(current.required)) {
-      for (const name of current.required) {
+    if ('required' in current.schema && Array.isArray(current.schema.required)) {
+      for (const name of current.schema.required) {
         names.add(name)
       }
     }
-    for (const member of [...(current.allOf ?? []), ...(current.oneOf ?? []), ...(current.anyOf ?? [])]) {
+
+    const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
+    if (keyword) {
+      const selected = selectExampleComposition(current.schema, current.schemaPath, current.options)
+      const resolved = selected ? resolve.schema(selected) : undefined
+      if (resolved) {
+        pending.push({
+          schema: resolved,
+          options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
+          schemaPath: current.schemaPath,
+          depth: current.depth + 1,
+        })
+      }
+      continue
+    }
+
+    let choiceIndex = 0
+    for (const member of current.schema.allOf ?? []) {
       const resolved = resolve.schema(member)
       if (resolved) {
-        pending.push(resolved)
+        const isChoiceMember = Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf)
+        pending.push({
+          schema: resolved,
+          options: current.options,
+          schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
+          depth: current.depth + 1,
+        })
       }
     }
   }
 
-  compositionRequiredNamesCache.set(root, names)
+  const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
+  contexts.set(cacheKey, names)
+  compositionRequiredNamesCache.set(root, contexts)
   return names
 }
 
@@ -1017,10 +1046,15 @@ const getCompositionRequiredNames = (schema: SchemaObject): ReadonlySet<string> 
  * anything else has nothing a decoder insists on, and keeps its usual stand-in. Arrays always stand in
  * empty, because their items are what the cap exists to stop descending into.
  */
-const fillsRequiredProperties = (schema: SchemaObject, requiredScope: ReadonlySet<string> | undefined): boolean =>
+const fillsRequiredProperties = (
+  schema: SchemaObject,
+  requiredScope: ReadonlySet<string> | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): boolean =>
   !getDeclaredTypes(schema).includes('array') &&
   ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
-  (requiredScope ?? getCompositionRequiredNames(schema)).size > 0
+  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath)).size > 0
 
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
@@ -1108,10 +1142,11 @@ const describeComposition = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
+  emptySchemaValue: string | null,
 ): unknown => {
   const variant = getSelectedVariant(schema, options, schemaPath)
   if (variant) {
-    return getMaxDepthValue(variant, options, schemaPath, seen)
+    return getMaxDepthValue(variant, options, schemaPath, seen, emptySchemaValue)
   }
 
   if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
@@ -1159,6 +1194,7 @@ const getMaxDepthValue = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object> = new Set(),
+  emptySchemaValue: string | null = MAX_DEPTH_EXCEEDED,
 ): unknown => {
   // A stated value beats any stand-in, and matches what a full render would have produced.
   const declared = getDeclaredValue(schema)
@@ -1191,7 +1227,7 @@ const getMaxDepthValue = (
   // the path guard alone lets double with every link.
   if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && requiredSteps-- > 0) {
     seen.add(target)
-    const composed = describeComposition(schema, options, schemaPath, seen)
+    const composed = describeComposition(schema, options, schemaPath, seen, emptySchemaValue)
     seen.delete(target)
 
     if (composed !== undefined) {
@@ -1219,7 +1255,7 @@ const getMaxDepthValue = (
   }
 
   truncated = true
-  return MAX_DEPTH_EXCEEDED
+  return emptySchemaValue
 }
 
 const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
@@ -1254,6 +1290,7 @@ const generateExampleFromSchema = (
     schemaPath = [],
     dynamicScope = [],
     requiredScope,
+    isRequiredProperty = false,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1265,6 +1302,8 @@ const generateExampleFromSchema = (
     dynamicScope: DynamicScope
     /** Past the depth cap, the required names of the object a composition member belongs to. */
     requiredScope: ReadonlySet<string>
+    /** Use null for an unconstrained required property without confusing explicit values with the depth marker. */
+    isRequiredProperty: boolean
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
@@ -1381,11 +1420,15 @@ const generateExampleFromSchema = (
   // every rule that applies at a shallower level (read/write omission, composition selection, variables,
   // binary files) applies to them too. Arrays, primitives and anything past the bounds stand in.
   if (level > MAX_LEVELS_DEEP) {
-    if (!fillsRequiredProperties(_schema, requiredScope) || level > MAX_REQUIRED_LEVELS_DEEP || requiredSteps <= 0) {
+    if (
+      !fillsRequiredProperties(_schema, requiredScope, options, schemaPath) ||
+      level > MAX_REQUIRED_LEVELS_DEEP ||
+      requiredSteps <= 0
+    ) {
       seen.delete(targetValue)
 
       // Deliberately not cached: the value holds only at this level, and the cache key carries none.
-      return getMaxDepthValue(_schema, options, schemaPath)
+      return getMaxDepthValue(_schema, options, schemaPath, undefined, isRequiredProperty ? null : MAX_DEPTH_EXCEEDED)
     }
     requiredSteps--
     // The rendered value omits optional properties, so it holds only at this level and must not be cached.
@@ -1394,7 +1437,7 @@ const generateExampleFromSchema = (
 
   // Past the cap, composition members render only the properties their object requires.
   const memberRequiredScope =
-    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(_schema)) : undefined
+    level > MAX_LEVELS_DEEP ? (requiredScope ?? getCompositionRequiredNames(_schema, options, schemaPath)) : undefined
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
