@@ -80,7 +80,10 @@ export const resolveCredentialPlaceholders = (
     }
 
     for (const [name, mapping] of mappings) {
-      if (!isObject(mapping) || !Object.hasOwn(values, mapping.field)) {
+      if (
+        !isObject(mapping) ||
+        !['token', 'username', 'password', 'clientId', 'clientSecret'].includes(mapping.field)
+      ) {
         continue
       }
       const value = values[mapping.field]

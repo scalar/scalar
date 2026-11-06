@@ -44,6 +44,20 @@ describe('resolve-credential-placeholders', () => {
     expect(resolveCredentialPlaceholders('{{apiKey}}', [apiKey('first'), apiKey('other')]).content).toBe('{{apiKey}}')
   })
 
+  it('counts duplicate declarations even when OAuth has no active token', () => {
+    const oauth = {
+      type: 'oauth2' as const,
+      flows: {},
+      'x-scalar-credential-placeholders': { apiKey: { field: 'token' as const } },
+    }
+    for (const schemes of [
+      [apiKey('available'), oauth],
+      [oauth, apiKey('available')],
+    ]) {
+      expect(resolveCredentialPlaceholders('{{apiKey}}', schemes).content).toBe('{{apiKey}}')
+    }
+  })
+
   it('keeps a public ID visible while masking the password', () => {
     const result = resolveCredentialPlaceholders('{{id}}:{{password}}', [basic()])
     expect(result.content).toBe('public-id:secret')
