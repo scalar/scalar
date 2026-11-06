@@ -40,8 +40,6 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Optional Node module discovery uses direct eval, which prevents bundle-wide name minification.
-      '@protobufjs/inquire': resolve(import.meta.dirname, './src/helpers/asyncapi-schema/protobuf/inquire-browser.cjs'),
       '@': resolve(import.meta.dirname, './src'),
       '@test': resolve(import.meta.dirname, './test'),
     },

@@ -172,8 +172,6 @@
         "src/features/index.ts",
         "src/helpers/index.ts",
         "src/esm.ts",
-        // Browser-only CommonJS adapter loaded through the standalone Vite aliases
-        "src/helpers/asyncapi-schema/protobuf/inquire-browser.cjs",
         // Short CDN entry point that re-exports the ESM standalone build
         "esm.js",
         // Used by CI deploy-api-reference preview build
