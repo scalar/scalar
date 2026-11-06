@@ -1,5 +1,21 @@
 [
   {
+    "version": "0.21.1",
+    "date": "2026-11-06",
+    "title": "Fixed mock store isolation from JavaScript host objects",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "This release resolves a security issue where mock store operations could inadvertently access or modify inherited JavaScript properties instead of treating collection and item names as isolated data keys."
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0211",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.0",
     "date": "2026-11-05",
     "title": "Response hooks and smarter path matching",

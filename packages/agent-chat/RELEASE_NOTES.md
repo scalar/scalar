@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.51 (2026-11-06)
+
+### AI-generated requests now require approval before execution
+
+This release adds mandatory approval gates for all AI-generated API requests to prevent automatic execution with stored credentials. Every request now shows a preview with the resolved destination and waits for explicit confirmation before sending.
+
+- All AI-generated API requests now require approval before execution, including GET requests that previously ran automatically.
+- Request previews show the resolved method and destination before you approve or reject each call.
+- Path validation now blocks requests to unexpected destinations and requires a configured server before attaching stored credentials.
+- Absolute URLs and protocol-relative paths are rejected to prevent credentials from being sent to model-supplied hosts.
+- APIs without configured servers now show an error directing authors to add a server to the specification.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01251)
+
 ## 0.12.50 (2026-11-05)
 
 ### Security hardening and agent key document fix
