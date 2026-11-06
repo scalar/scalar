@@ -30,7 +30,7 @@ type Resource = {
 }
 
 /** Resolution metadata survives moving documents into the bundle. */
-type DocumentReferences = {
+export type DocumentReferences = {
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[]) => void
   refresh: (document: unknown, targetPath: string[]) => void
@@ -39,10 +39,23 @@ type DocumentReferences = {
   resolve: (
     ref: string,
     base: string,
+    rootFallback?: boolean,
   ) =>
-    | { path: string; value: unknown; preserveReference: boolean; document: unknown; documentPath: string[] }
+    | {
+        path: string
+        segments: string[]
+        resourceRelative: boolean
+        value: unknown
+        preserveReference: boolean
+        document: unknown
+        documentPath: string[]
+      }
     | undefined
 }
+
+/** Give unmapped bundle entries separate bases so relative schema identifiers cannot collide. */
+export const bundledDocumentUri = (origin: string, key: string, source?: string): string =>
+  resolveReferencePath(origin, source ?? `./__bundle_${encodeURIComponent(key)}/document`)
 
 /**
  * Indexes complete documents before following their references. A declared identity
@@ -60,9 +73,14 @@ export const documentReferences = (
   const origins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
+  let rootUri: string | undefined
+
   const registrations = new Map<unknown, { base: string; path: string[] }>()
 
   const register = (document: unknown, retrievalUri: string, path: string[] = []): void => {
+    if (path.length === 0) {
+      rootUri = retrievalUri
+    }
     const identity = resolveDocument?.(document, retrievalUri)
     const base = identity === undefined ? retrievalUri : resolveReferencePath(retrievalUri, identity.baseUri)
     if (identity !== undefined) {
@@ -145,21 +163,24 @@ export const documentReferences = (
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
-    resolve: (ref, base) => {
+    resolve: (ref, base, rootFallback = false) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = decodeUriFragment(authoredFragment)
       const uri = prefix ? resolveReferencePath(base, prefix) : base
       const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
+      const documentResource = resources.get(uri)
+      const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined
+      const ownsBundledKey =
+        documentResource?.schema && isObject(localStorage) && Object.hasOwn(localStorage, pointer[1] ?? '')
       const bundled =
-        (!prefix || resources.get(uri)?.path.length === 0) && pointer[0] === externalDocumentsKey
+        !ownsBundledKey && (!prefix || documentResource?.path.length === 0) && pointer[0] === externalDocumentsKey
           ? bundledResources.get(pointer[1])
           : undefined
-      const documentResource = resources.get(uri)
       const declaredOrigin =
         documentResource?.value !== null && typeof documentResource?.value === 'object'
           ? origins.get(documentResource.value)
           : undefined
-      const resource =
+      let resource =
         bundled ??
         (fragment && !fragment.startsWith('/')
           ? (resources.get(`${uri}#${fragment}`) ??
@@ -169,6 +190,19 @@ export const documentReferences = (
         return undefined
       }
       const segments = bundled ? pointer.slice(2) : pointer
+      // Relocated documents can retain explicit pointers to their enclosing bundle.
+      const rootResource = rootUri === undefined ? undefined : resources.get(rootUri)
+      if (
+        rootFallback &&
+        !prefix &&
+        fragment.startsWith('/') &&
+        !bundled &&
+        rootResource &&
+        getValueByPath(resource.value, segments).value === undefined &&
+        getValueByPath(rootResource.value, pointer).value !== undefined
+      ) {
+        resource = rootResource
+      }
       const location = [...resource.path, ...segments]
       const value = getValueByPath(resource.value, segments).value
       // Missing targets must stay unresolved instead of becoming pointers to absent values.
@@ -184,6 +218,8 @@ export const documentReferences = (
 
       return {
         path: location.map(escapeJsonPointer).join('/'),
+        segments: location,
+        resourceRelative: isLocalSchemaReference && !bundled,
         value,
         document: resource.document,
         documentPath: resource.documentPath,

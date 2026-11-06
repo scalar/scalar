@@ -15,7 +15,7 @@ import type { UnknownObject } from '@/types'
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
 import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
-import { type DocumentResolver, documentReferences } from './document-references'
+import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
 import { documentTraversal } from './document-traversal'
 import { isReferenceContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
@@ -358,6 +358,10 @@ type NodeProcessContext = {
   rootNode: UnknownObject
   loaders: LoaderPlugin[]
   origin: string
+  /** Resolve a reference in this node's resource, including bundled targets. */
+  resolveReference: (
+    reference: string,
+  ) => { path: readonly string[]; value: unknown; resourceRelative: boolean } | undefined
 }
 
 /**
@@ -776,9 +780,10 @@ export const bundleDocument = async (
   const storedDocuments = documentRoot[config.externalDocumentsKey]
   if (isObject(storedDocuments)) {
     for (const [key, document] of Object.entries(storedDocuments)) {
-      const retrievalUri = resolveReferencePath(
+      const retrievalUri = bundledDocumentUri(
         defaultOrigin,
-        documentRoot[config.externalDocumentsMappingsKey][key] ?? key,
+        key,
+        documentRoot[config.externalDocumentsMappingsKey][key],
       )
       traversal.register(document, retrievalUri)
       references.register(document, retrievalUri, [config.externalDocumentsKey, key])
@@ -891,6 +896,9 @@ export const bundleDocument = async (
     const id = getId(root)
     const nodeOrigin = references.origin(root) ?? (id ? resolveReferencePath(origin, id) : origin)
 
+    const resolveReference = (reference: string): ReturnType<typeof references.resolve> =>
+      references.resolve(reference, nodeOrigin, Boolean(diagnostics))
+
     const context = {
       path: currentPath,
       referencedFromPath,
@@ -899,6 +907,12 @@ export const bundleDocument = async (
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
       origin: nodeOrigin,
+      resolveReference: (reference: string): ReturnType<NodeProcessContext['resolveReference']> => {
+        const resolved = resolveReference(reference)
+        return (
+          resolved && { path: resolved.segments, value: resolved.value, resourceRelative: resolved.resourceRelative }
+        )
+      },
     }
 
     const authoredReference = hasRef(root) ? root.$ref : undefined
@@ -949,12 +963,7 @@ export const bundleDocument = async (
       // In case of partial bundling, we still need to ensure that all dependencies
       // of the local reference are bundled to create a complete and self-contained partial bundle
       // This is important to maintain the integrity of the partial bundle
-      const resolvedLocal = references.resolve(ref, nodeOrigin)
-      // Existing consumers retain root pointers beneath embedded schema identifiers.
-      const local =
-        diagnostics && resolvedLocal?.value === undefined && ref.startsWith('#/') && nodeOrigin !== defaultOrigin
-          ? (references.resolve(ref, defaultOrigin) ?? resolvedLocal)
-          : resolvedLocal
+      const local = resolveReference(ref)
       const localRef = local?.path
 
       if (localRef !== undefined) {
@@ -1216,6 +1225,11 @@ export const bundleDocument = async (
   }
 
   await bundler(rawSpecification)
+  if (diagnostics && !config.treeShake && isObject(storedDocuments)) {
+    for (const [key, document] of Object.entries(storedDocuments)) {
+      await bundler(document, defaultOrigin, false, 1, [config.externalDocumentsKey, key], storedDocuments)
+    }
+  }
   await resolvePendingAnchors()
   applyDeferredCopies()
 

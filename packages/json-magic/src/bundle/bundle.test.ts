@@ -3016,6 +3016,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
@@ -3038,6 +3039,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
 
@@ -3062,6 +3064,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
@@ -3082,6 +3085,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
     })
