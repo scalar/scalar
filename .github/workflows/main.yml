@@ -409,6 +409,9 @@ jobs:
       github.ref == 'refs/heads/main' &&
       needs.release.outputs.npm_publish_status == 'success'
     needs: [check-changes, integration-builds, release]
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/publish-integrations.yml
     with:
       published: ${{ needs.release.outputs.published }}
