@@ -13,8 +13,20 @@ describe('seasonal-theme', () => {
     })
 
     it.each([
+      ['the first day of December', '2026-12-01T00:00:00Z'],
+      ['Christmas Day', '2026-12-25T12:00:00Z'],
+      ["New Year's Eve", '2026-12-31T23:59:59Z'],
+      ["New Year's Day", '2027-01-01T00:00:00Z'],
+      ['Twelfth Night', '2027-01-06T23:59:59Z'],
+    ])('uses the Winter Holidays theme on %s', (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('winterHolidays')
+    })
+
+    it.each([
       ['the day before Halloween starts', '2026-09-30T23:59:59Z'],
       ['the day after Halloween ends', '2026-11-01T00:00:00Z'],
+      ['the last day of November', '2026-11-30T23:59:59Z'],
+      ['the day after Twelfth Night', '2027-01-07T00:00:00Z'],
       ['a day with no celebration', '2026-03-14T12:00:00Z'],
     ])('falls back to the default theme on %s', (_, isoDate) => {
       expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
