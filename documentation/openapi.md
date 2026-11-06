@@ -199,6 +199,34 @@ paths:
             code: curl https://api.example.com/accounts
 ```
 
+### Custom sample groups
+
+Set `group` on individual samples to give them separate headings in the code sample picker, for example an SDK and a CLI:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Sample groups
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          label: Python
+          group: SDK
+          source: client.pets.list()
+        - lang: shell
+          label: Command line
+          group: CLI
+          source: example-cli pets list
+```
+
+Groups appear in the order they first occur. Samples without a group, or with a blank group, keep the existing default heading. Grouping does not change sample IDs or the priority between code sample extensions. The same field is supported on `x-scalar-examples`, `x-code-samples`, and `x-custom-examples` entries.
+
 ## x-example / x-examples
 
 For Swagger 2.0 documents, we support `x-example` and `x-examples` extensions on body parameters. These bring OpenAPI 3.x example functionality to older specifications.

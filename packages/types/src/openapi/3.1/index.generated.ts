@@ -771,6 +771,8 @@ export type XCodeSample = {
   lang?: string
   /** Label shown in the code sample picker */
   label?: string
+  /** Optional heading in the code sample picker */
+  group?: string
   /** Source code for the sample */
   source: string
   /** Request body example key used by this sample */
