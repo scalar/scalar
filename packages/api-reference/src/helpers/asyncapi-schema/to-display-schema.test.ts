@@ -4,8 +4,31 @@ import { schemaRecursiveTarget } from '@scalar/blocks/schema'
 import { describe, expect, it } from 'vitest'
 
 import { toDisplaySchema } from './to-display-schema'
+import type { SchemaNode } from './types'
 
 describe('to-display-schema', () => {
+  it('projects deeply nested oneof messages without revisiting ordinary descendants', () => {
+    let reads = 0
+    let node: SchemaNode = {
+      name: 'leaf',
+      type: 'string',
+      get description() {
+        reads++
+        return 'Leaf documentation'
+      },
+    }
+    for (let depth = 0; depth < 12; depth++) {
+      node = {
+        name: `level${depth}`,
+        type: 'message Nested',
+        children: [node, { name: 'choice', type: 'string', oneofGroup: 'selection' }],
+      }
+    }
+    const result = toDisplaySchema(node)
+    expect(reads).toBe(1)
+    expect(JSON.stringify(result)).toContain('Leaf documentation')
+  })
+
   it('uses standard object rows and required markers without changing reader defaults into optionality', () => {
     expect(
       toDisplaySchema({
