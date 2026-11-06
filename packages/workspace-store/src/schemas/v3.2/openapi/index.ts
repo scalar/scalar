@@ -51,6 +51,7 @@ import { XExamples } from '@/schemas/extensions/schema/x-examples'
 import { XOrder } from '@/schemas/extensions/schema/x-order'
 import { XVariable } from '@/schemas/extensions/schema/x-variable'
 import { XDefaultScopes } from '@/schemas/extensions/security/x-default-scopes'
+import { XScalarCredentialPlaceholders } from '@/schemas/extensions/security/x-scalar-credential-placeholders'
 import { XScalarCredentialsLocation } from '@/schemas/extensions/security/x-scalar-credentials-location'
 import { XScalarSecurityBody } from '@/schemas/extensions/security/x-scalar-security-body'
 import { XScalarSecurityQuery } from '@/schemas/extensions/security/x-scalar-security-query'
@@ -484,6 +485,7 @@ export const generateSchema = (maybeRef: (inner: Schema) => Schema, options: Gen
   })
 
   const securitySchemeBase = object({
+    ...XScalarCredentialPlaceholders.properties,
     deprecated: optional(boolean({ typeComment: 'Whether the security scheme is deprecated.' })),
     description: optional(
       string({

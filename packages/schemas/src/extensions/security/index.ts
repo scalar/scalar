@@ -5,6 +5,7 @@
  * placement, PKCE, default scopes, and persisted secrets (not exported with the document).
  */
 export { XDefaultScopes } from './x-default-scopes'
+export { XScalarCredentialPlaceholders } from './x-scalar-credential-placeholders'
 export { XScalarCredentialsLocation } from './x-scalar-credentials-location'
 export { XScalarSecurityBody } from './x-scalar-security-body'
 export { XScalarSecurityQuery } from './x-scalar-security-query'
