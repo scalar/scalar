@@ -5,7 +5,7 @@ import {
   ScalarIconWarning,
   ScalarIconXCircle,
 } from '@scalar/icons'
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor/editor'
 
 const { expanded, diagnosticCounts, visibleDiagnostics } = defineProps<{
   expanded: boolean
