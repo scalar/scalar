@@ -10,10 +10,10 @@ const protobuf: Grammar = {
         { include: 'comments' },
         { match: '"', scope: 'string', push: 'double-string' },
         { match: "'", scope: 'string', push: 'single-string' },
-        { match: '\\b(?:message|enum|service|group)\\b', scope: 'keyword.declaration', push: 'type-name' },
-        { match: '\\brpc\\b', scope: 'keyword.declaration', push: 'rpc-name' },
-        { match: '\\bpackage\\b', scope: 'keyword.declaration', push: 'package-name' },
-        { match: '\\boneof\\b', scope: 'keyword.declaration', push: 'field-name' },
+        { match: '\\b(?:message|enum|service|group)\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'type-name' },
+        { match: '\\brpc\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'rpc-name' },
+        { match: '\\bpackage\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'package-name' },
+        { match: '\\boneof\\b(?![ \\t]*=)', scope: 'keyword.declaration', push: 'field-name' },
         { match: '\\bimport\\b', scope: 'keyword.import' },
         { match: '\\b(?:syntax|edition|option)\\b', scope: 'keyword' },
         // A field or option may use a keyword as its name. Its assignment
@@ -36,9 +36,9 @@ const protobuf: Grammar = {
           scope: 'number',
         },
         // User types need not be PascalCase. A name before another name is
-        // a field type; RPC and map arguments end at a bracket or comma.
+        // a field type; RPC and map arguments end at a closing bracket.
         {
-          match: '(?<![\\w.])\\.?[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\b(?=(?:[ \\t]+[A-Za-z_]|[ \\t]*[>,)]))',
+          match: '(?<![\\w.])\\.?[A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*)*\\b(?=(?:[ \\t]+[A-Za-z_]|[ \\t]*[>)]))',
           scope: 'type',
         },
         // Enum constants conventionally use capitals. Assignment names above

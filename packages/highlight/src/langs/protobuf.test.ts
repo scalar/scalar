@@ -13,6 +13,20 @@ const scopeOf = (source: string, text: string): string | null | undefined => {
 }
 
 describe('protobuf', () => {
+  it('keeps declaration keywords used as field names as properties', () => {
+    const source = 'message Product { string message = 1; string rpc = 2; string oneof = 3; }'
+    const properties = tokenize(source, 'protobuf')
+      .filter((token) => token.scope === 'property')
+      .map((token) => token.text)
+    expect(properties).toStrictEqual(['message', 'rpc', 'oneof'])
+  })
+
+  it('keeps enum values consistent across aggregate option separators', () => {
+    const source = 'option x = { status: ACTIVE, other: INACTIVE };'
+    expect(scopeOf(source, 'ACTIVE')).toBe('constant')
+    expect(scopeOf(source, 'INACTIVE')).toBe('constant')
+  })
+
   it.each(['protobuf', 'proto'])('highlights the source using %s', (lang) => {
     const source = 'message Product { string name = 1; }'
     expect(highlight(source, lang)).toBe(highlight(source, protobuf))
