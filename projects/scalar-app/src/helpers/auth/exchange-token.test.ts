@@ -88,6 +88,19 @@ describe('exchangeToken', () => {
     )
   })
 
+  it('sends the desktop PKCE verifier and abort signal only to the exchange service', async () => {
+    mockFetch(VALID_RESPONSE)
+    const controller = new AbortController()
+    await exchangeToken('exchange-code', { codeVerifier: 'desktop-secret', signal: controller.signal })
+    expect(fetch).toHaveBeenCalledExactlyOnceWith('https://api.scalar.test/core/login/exchange', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ exchangeToken: 'exchange-code', codeVerifier: 'desktop-secret' }),
+      signal: controller.signal,
+    })
+  })
+
   it('succeeds when response includes extra unknown fields beyond the schema', async () => {
     mockFetch({ ...VALID_RESPONSE, extraField: 'ignored', count: 42 })
 

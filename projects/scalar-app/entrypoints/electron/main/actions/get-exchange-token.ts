@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from 'node:crypto'
 import http from 'node:http'
 
 import { shell } from 'electron/common'
@@ -62,64 +63,33 @@ const closeCallbackServer = (server: http.Server): Promise<void> =>
   })
 
 /**
- * Sends the small JSON payload that the dashboard callback expects.
- * Keeping success and error responses in one place makes the CORS headers
- * consistent across every callback outcome.
- */
-const writeCallbackResponse = (
-  response: http.ServerResponse,
-  {
-    corsOrigin,
-    message,
-    statusCode,
-    success,
-  }: {
-    corsOrigin: string
-    message: string
-    statusCode: number
-    success: boolean
-  },
-): void => {
-  response.writeHead(statusCode, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': corsOrigin,
-    Connection: 'close',
-  })
-  response.end(
-    JSON.stringify({
-      error: !success,
-      message,
-      success,
-    }),
-  )
-}
-
-/**
- * Waits for exactly one dashboard callback and exchanges its short-lived token.
- * The server is intentionally one-shot so stale callbacks cannot reuse it.
+ * Receives a top-level browser redirect. State rejects unsolicited callbacks;
+ * the PKCE verifier never leaves this process until the code is redeemed.
  */
 const waitForExchangeTokenCallback = ({
   port,
   server,
+  state,
+  codeVerifier,
 }: {
   port: number
   server: http.Server
+  state: string
+  codeVerifier: string
 }): Promise<ExchangeTokenResult> =>
   new Promise<ExchangeTokenResult>((resolve) => {
-    const dashboardOrigin = new URL(env.VITE_DASHBOARD_URL).origin
+    const controller = new AbortController()
     let isFinished = false
+    let isExchanging = false
 
-    /**
-     * Resolves the callback flow once and closes the local server.
-     * The guard prevents a timeout and a request from competing to finish.
-     */
     const finish = async (result: ExchangeTokenResult): Promise<void> => {
       if (isFinished) {
         return
       }
-
       isFinished = true
       clearTimeout(timeout)
+      controller.abort()
+      server.closeAllConnections()
       await closeCallbackServer(server)
       resolve(result)
     }
@@ -128,60 +98,73 @@ const waitForExchangeTokenCallback = ({
       void finish([new Error('Exchange token callback timed out'), null])
     }, CALLBACK_TIMEOUT_MS)
 
-    /**
-     * Writes a failed callback response before completing the login attempt.
-     * The desktop app treats these as a null token result while the browser
-     * receives a useful status and message.
-     */
-    const fail = (response: http.ServerResponse, message: string, statusCode: number): void => {
-      writeCallbackResponse(response, {
-        corsOrigin: dashboardOrigin,
-        message,
-        statusCode,
-        success: false,
-      })
-      void finish([new Error(message), null])
+    const rejectRequest = (response: http.ServerResponse, statusCode: number): void => {
+      response.writeHead(statusCode, { Connection: 'close', 'Cache-Control': 'no-store' })
+      response.end()
     }
 
-    server.once('request', async (request, response) => {
-      if (request.method !== 'POST') {
-        fail(response, 'Method not allowed', 405)
+    server.on('request', async (request, response) => {
+      if (request.headers.host !== `${CALLBACK_HOST}:${port}`) {
+        rejectRequest(response, 400)
         return
       }
-
       const requestUrl = new URL(request.url ?? '/', `http://${CALLBACK_HOST}:${port}`)
+      if (requestUrl.pathname !== '/callback') {
+        rejectRequest(response, 404)
+        return
+      }
+      if (request.method !== 'GET') {
+        rejectRequest(response, 405)
+        return
+      }
+      if (requestUrl.searchParams.get('state') !== state || requestUrl.searchParams.getAll('state').length !== 1) {
+        rejectRequest(response, 400)
+        return
+      }
       const token = requestUrl.searchParams.get('exchangeToken')
-
-      if (!token) {
-        fail(response, 'Missing exchange token', 400)
+      if (!token || requestUrl.searchParams.getAll('exchangeToken').length !== 1) {
+        rejectRequest(response, 400)
+        return
+      }
+      if (isExchanging || isFinished) {
+        rejectRequest(response, 409)
+        return
+      }
+      isExchanging = true
+      const result = await exchangeToken(token, { codeVerifier, signal: controller.signal })
+      if (isFinished) {
         return
       }
 
-      const result = await exchangeToken(token)
-      const [error] = result
-
-      if (error) {
-        fail(response, 'Failed to exchange token', 400)
+      // Closing the browser must not discard an already redeemed session.
+      if (response.destroyed) {
+        void finish(result)
         return
       }
-
-      writeCallbackResponse(response, {
-        corsOrigin: dashboardOrigin,
-        message: 'Token exchanged.',
-        statusCode: 200,
-        success: true,
+      response.once('close', () => {
+        void finish(result)
       })
-      void finish(result)
+
+      // The destination is fixed, and contains neither the code nor the state.
+      // Only the completed exchange can send the browser to the success page.
+      response.writeHead(303, {
+        Location: new URL(`/login/exchange/${result[0] ? 'failure' : 'success'}`, env.VITE_DASHBOARD_URL).toString(),
+        'Cache-Control': 'no-store',
+        'Referrer-Policy': 'no-referrer',
+        Connection: 'close',
+      })
+      response.end(() => {
+        void finish(result)
+      })
     })
   })
 
-/**
- * Creates a short-lived local callback server for the desktop login/register flow.
- * The dashboard sends the exchange token back to this server after browser auth,
- * then the app trades it for the durable access and refresh tokens it needs.
- */
+/** Opens browser authentication and receives the result on an ephemeral loopback port. */
 export const getExchangeToken = async (flow: 'login' | 'register'): Promise<TokenResponse | null> => {
   const server = http.createServer()
+  const state = randomBytes(32).toString('base64url')
+  const codeVerifier = randomBytes(32).toString('base64url')
+  const codeChallenge = createHash('sha256').update(codeVerifier).digest('base64url')
 
   try {
     await listenForCallback(server)
@@ -190,20 +173,22 @@ export const getExchangeToken = async (flow: 'login' | 'register'): Promise<Toke
       throw new Error('Could not determine the login callback port')
     }
     const port = address.port
-
-    // Arm the callback handler before opening the browser so a fast redirect
-    // cannot arrive before the local server is ready to process it.
-    const tokenResult = waitForExchangeTokenCallback({ port, server })
-
-    void shell.openExternal(`${env.VITE_DASHBOARD_URL}/${flow}?externalRedirect=local&port=${port}`, { activate: true })
+    const tokenResult = waitForExchangeTokenCallback({ port, server, state, codeVerifier })
+    const loginUrl = new URL(`/${flow}`, env.VITE_DASHBOARD_URL)
+    loginUrl.search = new URLSearchParams({
+      externalRedirect: 'local',
+      port: String(port),
+      callback: 'redirect',
+      state,
+      codeChallenge,
+    }).toString()
+    void shell.openExternal(loginUrl.toString(), { activate: true })
 
     const [error, data] = await tokenResult
-
     if (error) {
       console.error(error)
       return null
     }
-
     return data
   } finally {
     await closeCallbackServer(server)
