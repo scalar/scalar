@@ -77,48 +77,6 @@ const initDraggableElements = debounce(() => {
     })
 })
 
-/* Footer Animation */
-function setFooterAnimationActive(item) {
-  const items = document.querySelectorAll('.footer-animation .fa i')
-
-  items.forEach((target) => target.classList.remove('active'))
-  item.classList.add('active')
-}
-
-document.addEventListener(
-  'mouseover',
-  (event) => {
-    const item = event.target.closest?.('.footer-animation .fa i')
-    if (!item) {
-      return
-    }
-
-    setFooterAnimationActive(item)
-  },
-  { passive: true },
-)
-
-const initFooterAnimation = debounce(() => {
-  const items = document.querySelectorAll('.footer-animation .fa i')
-  if (!items.length) {
-    return
-  }
-
-  items.forEach((item) => {
-    if (item.dataset.footerAnimationBound === 'true') {
-      return
-    }
-
-    item.dataset.footerAnimationBound = 'true'
-    item.addEventListener('mouseenter', () => {
-      setFooterAnimationActive(item)
-    })
-    item.addEventListener('mouseover', () => {
-      setFooterAnimationActive(item)
-    })
-  })
-})
-
 /* Slide Gallery */
 const initGallery = debounce(() => {
   const buttons = document.querySelectorAll('button[data-target^="#slide-"]')
@@ -4196,194 +4154,6 @@ const initLandingOrbs = debounce(() => {
   })
 })
 
-/* The enterprise hero's ring turns.
- *
- * The ring is a real disc lying in space, and it turns on all three of
- * its axes:
- *
- *   spin  — about the disc's own axis, so the colours travel round it
- *           and pass behind the planet. A drag across the hero.
- *   tilt  — how far the disc is tipped towards the viewer, from nearly
- *           edge on to well open. A drag up or down near the middle.
- *   roll  — the whole ring tipped over in the plane of the page, so it
- *           can lie at an angle. A drag up or down out at a wing.
- *
- * The last two come off the same gesture because a ring is a rigid
- * thing: pulling on the middle of it tips it, pulling on one end of it
- * rolls it, and pulling in between does some of each — which is what
- * the pull actually does to a hoop you are holding.
- *
- * From the moment the page opens the ring turns on its own, a lap
- * every two and a half minutes — it does not draw itself on first.
- * The drift is only there until someone takes hold of it: after that
- * the ring is theirs, a fling coasts to a stop the way something with
- * weight does, and it stays where they left it.
- *
- * All three turns are transforms on two elements, so a frame of it is
- * work for the compositor and never a repaint or a layout.
- */
-/** degrees a second the ring drifts when it is left alone */
-const ENT_DRIFT = 2.4
-/** degrees the ring turns for each pixel the pointer is dragged across */
-const ENT_DRAG = 0.5
-/** degrees the disc tips for each pixel the pointer is dragged down */
-const ENT_TIP = 0.14
-/** degrees the ring rolls for each pixel a wing of it is dragged down */
-const ENT_ROLL = 0.12
-/** how far the disc may be tipped: nearly edge on, to well open */
-const ENT_TILT_MIN = 66
-const ENT_TILT_MAX = 85
-/** how far out a grab counts as all roll and no tip, as a share of the hero */
-const ENT_WING = 0.38
-/** how fast a fling bleeds back down to the drift, per second */
-const ENT_FRICTION = 1.4
-/** the fastest a fling may leave the hand, in degrees a second */
-const ENT_MAX_FLING = 1500
-/** how far a pointer may travel before it counts as a drag and not a click */
-const ENT_SLOP = 4
-
-const initEnterpriseRing = debounce(() => {
-  const hero = document.querySelector('.ent-hero')
-  if (!hero || hero.dataset.entRingBound === 'true') {
-    return
-  }
-  hero.dataset.entRingBound = 'true'
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-  let angle = 0
-  /** degrees a second: the drift is where this settles */
-  let velocity = 0
-  let tilt = Number.parseFloat(getComputedStyle(hero).getPropertyValue('--ent-tilt')) || ENT_TILT_MAX
-  let roll = 0
-  let seen = false
-  let frame = 0
-  let last = null
-  let grab = null
-  let travelled = 0
-  /** the ring drifts until someone has taken hold of it, and then stops */
-  let handled = false
-
-  const draw = () => {
-    hero.style.setProperty('--ent-spin', `${angle.toFixed(2)}deg`)
-    hero.style.setProperty('--ent-tilt', `${tilt.toFixed(2)}deg`)
-    hero.style.setProperty('--ent-roll', `${roll.toFixed(2)}deg`)
-  }
-
-  const tick = (now) => {
-    frame = 0
-    if (!seen || document.hidden) {
-      last = null
-      return
-    }
-    const dt = last === null ? 0 : Math.min(now - last, 100) / 1000
-    last = now
-    const drift = reduceMotion.matches || handled ? 0 : ENT_DRIFT
-    // a hand on the ring sets the angle itself; otherwise the fling
-    // eases towards the drift, which is nothing once it has been held
-    if (!grab) {
-      velocity += (drift - velocity) * Math.min(1, ENT_FRICTION * dt)
-      angle += velocity * dt
-      draw()
-    }
-    // the drift never runs out, so without it there has to be a fling
-    // left to coast on for the ring to be worth another frame
-    if (grab || drift !== 0 || Math.abs(velocity) > 0.05) {
-      frame = requestAnimationFrame(tick)
-    }
-  }
-
-  const wake = () => {
-    if (seen && !document.hidden && !frame) {
-      last = null
-      frame = requestAnimationFrame(tick)
-    }
-  }
-
-  hero.addEventListener('pointerdown', (event) => {
-    if (event.pointerType === 'mouse' && event.button !== 0) {
-      return
-    }
-    // the copy is for reading, and its links are for following
-    if (event.target.closest('.ent-copy')) {
-      return
-    }
-    grab = { id: event.pointerId, x: event.clientX, y: event.clientY, at: event.timeStamp }
-    travelled = 0
-    velocity = 0
-    // the ring is theirs now: it stops drifting on its own
-    handled = true
-    hero.setPointerCapture(event.pointerId)
-    hero.classList.add('is-spinning')
-    wake()
-  })
-
-  hero.addEventListener('pointermove', (event) => {
-    if (!grab || event.pointerId !== grab.id) {
-      return
-    }
-    const dx = event.clientX - grab.x
-    const dy = event.clientY - grab.y
-    const dt = Math.max(event.timeStamp - grab.at, 8) / 1000
-    travelled += Math.abs(dx) + Math.abs(dy)
-    // across the hero turns the disc about its own axis
-    angle += dx * ENT_DRAG
-    // How far out along the ring the hand is, from nothing at the
-    // middle to all of it at a wing: a pull on the middle tips the
-    // disc towards the viewer, a pull on a wing rolls the ring over,
-    // and a pull in between does some of each.
-    const box = hero.getBoundingClientRect()
-    const out = Math.max(-1, Math.min(1, (event.clientX - (box.left + box.width / 2)) / (box.width * ENT_WING)))
-    tilt = Math.max(ENT_TILT_MIN, Math.min(ENT_TILT_MAX, tilt - dy * ENT_TIP * (1 - Math.abs(out))))
-    roll += dy * ENT_ROLL * out
-    // smoothed, so the speed it leaves the hand at is the speed of the
-    // throw and not of whichever last event happened to land
-    velocity = velocity * 0.6 + ((dx * ENT_DRAG) / dt) * 0.4
-    grab.x = event.clientX
-    grab.y = event.clientY
-    grab.at = event.timeStamp
-    draw()
-    if (travelled > ENT_SLOP) {
-      event.preventDefault()
-    }
-  })
-
-  const letGo = (event) => {
-    if (!grab || event.pointerId !== grab.id) {
-      return
-    }
-    grab = null
-    hero.classList.remove('is-spinning')
-    // a flick carries on; without motion the ring stops where it was put
-    velocity = reduceMotion.matches ? 0 : Math.max(-ENT_MAX_FLING, Math.min(ENT_MAX_FLING, velocity))
-    wake()
-  }
-  hero.addEventListener('pointerup', letGo)
-  hero.addEventListener('pointercancel', letGo)
-
-  const watch = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        seen = entry.isIntersecting
-      })
-      wake()
-    },
-    { threshold: 0 },
-  )
-  watch.observe(hero)
-  document.addEventListener('visibilitychange', wake)
-  holdLanding(hero, () => {
-    watch.disconnect()
-    document.removeEventListener('visibilitychange', wake)
-    if (frame) {
-      cancelAnimationFrame(frame)
-      frame = 0
-    }
-  })
-
-  // the ring's state, for the page's tests
-  hero.entRing = () => ({ angle, tilt, roll, velocity, handled, grabbed: Boolean(grab), running: Boolean(frame) })
-})
-
 /* The light crossing the enterprise page's figures.
  *
  * It only crosses while the band is on screen — there is no sense in
@@ -4635,556 +4405,104 @@ const initTrustedWalls = debounce(() => {
     })
 })
 
-/* The welcome committee under the footer: five of the landing planets
-   (documentation/footer.html, the band's styles in styles.css) wait
-   below the fold and rise when the page is scrolled to its very end,
-   left to right into an arch, each saying hello in a small bubble of
-   its own. They stand round a point on the AI chat bar scalar.com
-   floats over the bottom of every page, centred on it (on a page
-   without one, on the band) and scaled down where the band is narrower
-   than the cluster. They sink back down when the page leaves its end,
-   so the committee is there again for the next arrival.
-
-   Every planet is a button. It waits as a plain globe with its name
-   round it, takes its mark's shape with a face under the pointer or on
-   keyboard focus, and opens the install card for Scalar's own MCP
-   server when it is pressed, flying into the card's hero as it goes.
-
-   The footer is drawn anew on every page the site moves to, so a band
-   whose footer has gone lets go of its listeners and faces at the next
-   scroll or resize */
-/* The committee's patter: as the row lands every planet campaigns for
-   the click, once or twice, each on a clock of its own so they never
-   fall into step. Then they let the reader be — the band only comes up
-   at the very end of a page, and it plays again on the next arrival. */
-const FOOTER_PLANETS_CHANT = ['Pick me!', 'Pick me!', 'Pick me!', 'Pick me!!', 'Me!', 'Pick me!']
-/* from a planet's turn in the rise: when it first calls out */
-const FOOTER_PLANETS_CHANT_FROM = 640
-/* a chant bubble is up for this long, then its planet waits this long,
-   both dealt at random */
-const FOOTER_PLANETS_UP = [800, 1500]
-const FOOTER_PLANETS_GAP = [700, 2200]
-/* how many of the six call out on an arrival. They say it once each:
-   the row is there to be picked, not to shout */
-const FOOTER_PLANETS_VOICES = 3
-/* the cluster's width at full size, bubbles included, with its margins
-   (the stylesheet's --fp-span: the planets' --x and sizes lay it out) */
-const FOOTER_PLANETS_SPAN = 760
-
-const FOOTER_MCP_URL = 'https://mcp.scalar.com/'
-const FOOTER_MCP_CLIENTS = {
-  chatgpt: {
-    name: 'Codex',
-    note: 'Add this to ~/.codex/config.toml.',
-    code: `[mcp_servers.scalar-api]\nurl = "${FOOTER_MCP_URL}"`,
-  },
-  claude: {
-    name: 'Claude Code',
-    note: 'Run this in your terminal to add the server to Claude Code.',
-    code: `claude mcp add scalar-api --transport http '${FOOTER_MCP_URL}'`,
-  },
-  opencode: {
-    name: 'OpenCode',
-    note: 'Add this to your opencode.json.',
-    code: `{\n  "mcp": {\n    "scalar-api": {\n      "type": "remote",\n      "url": "${FOOTER_MCP_URL}"\n    }\n  }\n}`,
-  },
+/* The meadow under the footer. footer.html puts its marker in the band
+   under the card on every page and styles.css holds its rules; the
+   meadow itself is headless-hero.js, which a page with a meadow hero of
+   its own loads in its head. Every other page brings it in from here,
+   once: in the first idle time after the page has loaded, or as soon as
+   the band comes within two screens, whichever is first. On a page of
+   any length that is the idle time, while the reader is still near the
+   top, so the download and the evaluation are long done before they
+   scroll to the footer, and the meadow, which builds itself in idle time
+   as it nears, is ready by the time they get there. Once it has run, the
+   script watches the page for good and makes its root in whatever band
+   the site renders as it moves between pages, so the one script is all
+   there ever is. */
+const FOOTER_MEADOW_SRC = '/headless-hero.js'
+/* how near the band comes before the script is wanted at once */
+const FOOTER_MEADOW_NEAR = '200% 0px'
+/* the longest a busy page holds it back, and the wait that stands in
+   for an idle time where there is no idle callback (Safari) */
+const FOOTER_MEADOW_IDLE = 4000
+const FOOTER_MEADOW_LATE = 1500
+let footerMeadowDone = false
+let footerMeadowLoad = false
+let footerMeadowIdle = 0
+let footerMeadowBand = null
+let footerMeadowNear = null
+/* in already: it has run (and set its flag), or a page has it in its
+   head for a hero and it is on its way */
+const footerMeadowIn = () =>
+  window.__scalarHeadlessHero === true || document.querySelector('script[src*="headless-hero.js"]') !== null
+const footerMeadowStop = () => {
+  footerMeadowDone = true
+  footerMeadowNear?.disconnect()
+  footerMeadowNear = null
+  footerMeadowBand = null
 }
-/* a planet with no recipe of its own takes the plain one */
-const FOOTER_MCP_ANY = {
-  name: '',
-  note: "Add this to your agent's MCP server config.",
-  code: `{\n  "scalar-api": {\n    "type": "http",\n    "url": "${FOOTER_MCP_URL}"\n  }\n}`,
-}
-
-/* how long a copied control holds its tick */
-const FOOTER_MCP_COPIED = 1600
-/* how long a planet takes between the band and the card's hero */
-const FOOTER_MCP_FLIGHT = 520
-
-/* The card a planet opens: the install card for mcp.scalar.com, a sheet
-   fixed over the page with the rest of the document made inert while it
-   is up, so it behaves as a modal without being a <dialog>. It shows
-   the setup for the agent whose planet was pressed, and that planet
-   itself moves into the card's hero and back out again, carried there
-   by a FLIP (see fly below) while the dim and the card fade in under
-   it. `settle` hands a planet back to the band once the card has let go
-   of it. */
-const createFooterCard = (band, reduceMotion, settle) => {
-  const sheet = band.querySelector('.fp-sheet')
-  const card = sheet?.querySelector('.fp-card')
-  const seat = sheet?.querySelector('.fp-card-seat')
-  const note = sheet?.querySelector('[data-fp-note]')
-  const code = sheet?.querySelector('[data-fp-code]')
-  const go = sheet?.querySelector('[data-fp-go]')
-  const goLabel = go?.querySelector('.fp-card-go-rest')
-  const snippetCopy = sheet?.querySelector('[data-fp-copy="code"]')
-  if (!sheet || !card || !seat || !note || !code || !go || !goLabel || !snippetCopy) {
-    return null
-  }
-  // the markup hides it outright so it cannot flash before the
-  // stylesheet lands: from here the rules hold it
-  sheet.removeAttribute('hidden')
-
-  let client = FOOTER_MCP_ANY
-  /* the card on one agent: its snippet, and the button that acts on it */
-  const fill = (icon) => {
-    client = FOOTER_MCP_CLIENTS[icon] ?? FOOTER_MCP_ANY
-    note.textContent = client.note
-    code.textContent = client.code
-    snippetCopy.setAttribute('aria-label', client.name ? `Copy the ${client.name} snippet` : 'Copy the configuration')
-    goLabel.textContent = client.name ? `Copy for ${client.name}` : 'Copy the configuration'
-    go.classList.remove('is-done')
-  }
-
-  /* copying: the control holds a tick for a moment, nothing else moves */
-  const timers = new WeakMap()
-  const copy = (text, control) => {
-    if (!navigator.clipboard) {
-      return
-    }
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        control.classList.add('is-done')
-        window.clearTimeout(timers.get(control))
-        timers.set(
-          control,
-          window.setTimeout(() => control.classList.remove('is-done'), FOOTER_MCP_COPIED),
-        )
-      })
-      .catch(() => {})
-  }
-  // both the icon beside the snippet and the button below it do the one
-  // thing there is to do: the snippet carries the server's URL inside it
-  snippetCopy.addEventListener('click', () => copy(client.code, snippetCopy))
-  go.addEventListener('click', () => copy(client.code, go))
-
-  let planet = null
-  let seated = null
-  let busy = false
-  /* where the focus was when the card took it */
-  let came = null
-  /* The flight: the planet moves between the band and the card's hero,
-     and a FLIP carries it there, measured on both sides of the move and
-     played back from where it stood. Deliberately not a view
-     transition: those paint the whole turn from snapshots, and in this
-     page Chrome tore the frame whenever anything else changed in the
-     same turn (the sheet showing, the document going inert), which left
-     the header and sidebar missing for a beat. A FLIP also leaves the
-     planet live, so its eyes keep following the pointer on the way in. */
-  const fly = (orb, run) => {
-    if (reduceMotion || typeof orb.animate !== 'function') {
-      run()
-      return Promise.resolve()
-    }
-    const from = orb.getBoundingClientRect()
-    run()
-    const to = orb.getBoundingClientRect()
-    if (!from.width || !to.width) {
-      return Promise.resolve()
-    }
-    const dx = from.left + from.width / 2 - (to.left + to.width / 2)
-    const dy = from.top + from.height / 2 - (to.top + to.height / 2)
-    return orb
-      .animate(
-        [
-          {
-            transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px) scale(${(from.width / to.width).toFixed(4)})`,
-          },
-          { transform: 'none' },
-        ],
-        { duration: FOOTER_MCP_FLIGHT, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
-      )
-      .finished.catch(() => {})
-  }
-
-  /* Everything outside the sheet, made inert while the card is up: the
-     tab order then holds inside the card on its own, as a dialog's
-     does, and nothing behind the dim answers a pointer. */
-  let shut = []
-  const seal = (on) => {
-    if (!on) {
-      shut.forEach((el) => {
-        el.inert = false
-      })
-      shut = []
-      return
-    }
-    for (let node = sheet; node && node !== document.body; node = node.parentElement) {
-      for (const other of node.parentElement?.children ?? []) {
-        if (other !== node && !other.inert) {
-          other.inert = true
-          shut.push(other)
-        }
-      }
-    }
-  }
-
-  const open = (next) => {
-    if (busy || planet) {
-      return
-    }
-    busy = true
-    planet = next
-    fill(next.orb.dataset.icon)
-    card.style.setProperty('--fp-card-tint', getComputedStyle(next.orb).getPropertyValue('--fp-wash').trim())
-    // the hero always shows the shape, and smiles there however the
-    // planet was pressed
-    next.face.express('happy')
-    next.face.set(true)
-    next.hi.classList.remove('is-on')
-    seated = document.createComment('fp-planet')
-    next.orb.before(seated)
-    came = document.activeElement
-    const at = window.scrollY
-    fly(next.orb, () => {
-      // inert keeps the hero's planet out of the reading order while it
-      // is only a picture, and blurs the pressed planet on the way
-      next.orb.inert = true
-      seat.appendChild(next.orb)
-      sheet.classList.add('is-open')
-    })
-      .then(() => {
-        busy = false
-        seal(true)
-        // a frame after the sweep: marking the pressed planet inert
-        // sends the focus wandering, and that fixup lands after a
-        // focus() made in the same turn
-        window.requestAnimationFrame(() => card.focus({ preventScroll: true }))
-        // nothing here is meant to move the page, and the band is only
-        // up at its very end: hold the reader where they were
-        if (Math.abs(window.scrollY - at) > 1) {
-          window.scrollTo(0, at)
-        }
-      })
-      .catch(() => {})
-  }
-
-  const close = () => {
-    const leaving = planet
-    if (!leaving || busy) {
-      return
-    }
-    busy = true
-    seal(false)
-    fly(leaving.orb, () => {
-      sheet.classList.remove('is-open')
-      seated?.replaceWith(leaving.orb)
-      leaving.orb.inert = false
-    })
-      .then(() => {
-        planet = null
-        seated = null
-        busy = false
-        // its bubble stays down: the chant it sat out comes back round
-        // on its own and brings the planet's words with it
-        // the pointer may have left while the card stood over it. The
-        // focus goes back in the same turn as the settle, so the planet
-        // never paints a frame between the two
-        window.requestAnimationFrame(() => {
-          if (planet) {
-            return
-          }
-          ;(came?.isConnected ? came : leaving.orb).focus({ preventScroll: true })
-          came = null
-          settle(leaving)
-        })
-      })
-      .catch(() => {})
-  }
-
-  /* Escape, wherever the focus happens to be */
-  const onKey = (event) => {
-    if (planet && event.key === 'Escape') {
-      event.preventDefault()
-      close()
-    }
-  }
-  document.addEventListener('keydown', onKey)
-  sheet.addEventListener('click', (event) => {
-    if (event.target === sheet) {
-      close()
-    }
-  })
-  card.querySelector('.fp-card-close')?.addEventListener('click', close)
-
-  return {
-    open,
-    /* the card has a planet, or is on its way in or out of one */
-    busy: () => busy || Boolean(planet),
-    /* the band has gone: close up and put the planet back where it sat */
-    release: () => {
-      document.removeEventListener('keydown', onKey)
-      seal(false)
-      if (planet) {
-        sheet.classList.remove('is-open')
-        seated?.replaceWith(planet.orb)
-        planet.orb.inert = false
-        planet = null
-        seated = null
-      }
-    },
-  }
-}
-
-const initFooterPlanets = debounce(() => {
-  const bands = [...document.querySelectorAll('.docs-footer-band')].filter((band) => band.dataset.fpBound !== 'true')
-  if (!bands.length) {
+const loadFooterMeadow = () => {
+  if (footerMeadowDone) {
     return
   }
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-  bands.forEach((band) => {
-    band.dataset.fpBound = 'true'
-    /* All that the planets need is read before anything is written. A
-       style read after a write has the browser work out styles again, and
-       a :has() rule in the code block styles makes that the whole page on
-       any page with a code block: read a planet at a time, this took 170ms
-       on the SDK page. */
-    const orbs = [...band.querySelectorAll('.fp-planet')]
-      .map((orb) => {
-        const style = getComputedStyle(orb)
-        const values = Object.fromEntries(
-          ['--x', '--y', '--s', '--d'].map((name) => [name, style.getPropertyValue(name)]),
-        )
-        return { orb, ring: orb.querySelector('.lp-orb-ring'), size: Number.parseFloat(values['--s']), values }
-      })
-      .filter(({ ring, size }) => ring && size)
-    const metrics = measureGlobeNames(orbs.map(({ ring }) => ring))
-    // the marks the globes dress in: templates like the landing page's,
-    // made from the band's hidden copies on a page that has none yet
-    band.querySelectorAll('.fp-marks > svg').forEach((svg) => {
-      const id = `lp-icon-${svg.dataset.icon}`
-      if (document.getElementById(id)) {
-        return
+  // the site has moved on to a page without the footer: the next band asks again
+  if (!document.querySelector('[data-hl-footer-meadow]')) {
+    footerMeadowIdle = 0
+    return
+  }
+  const there = footerMeadowIn()
+  footerMeadowStop()
+  if (there) {
+    return
+  }
+  const script = document.createElement('script')
+  script.src = FOOTER_MEADOW_SRC
+  script.defer = true
+  document.head.appendChild(script)
+}
+const initFooterMeadow = debounce(() => {
+  if (footerMeadowDone) {
+    return
+  }
+  if (footerMeadowIn()) {
+    footerMeadowStop()
+    return
+  }
+  // nothing is asked for while the page is loading: the band is not yet
+  // where it will be, and the load has work enough of its own
+  if (document.readyState !== 'complete') {
+    if (!footerMeadowLoad) {
+      footerMeadowLoad = true
+      window.addEventListener('load', initFooterMeadow, { once: true })
+    }
+    return
+  }
+  // the band the engine would use, which the site may render anew as it
+  // moves between pages: the watch moves with it
+  const band = document.querySelector('[data-hl-footer-meadow]') ? document.querySelector('.docs-footer-band') : null
+  if (band === footerMeadowBand) {
+    return
+  }
+  footerMeadowNear?.disconnect()
+  footerMeadowBand = band
+  if (!band) {
+    return
+  }
+  footerMeadowNear ??= new IntersectionObserver(
+    (entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        loadFooterMeadow()
       }
-      const mark = document.createElement('template')
-      mark.id = id
-      mark.innerHTML = svg.outerHTML
-      band.appendChild(mark)
-    })
-    const stage = band.querySelector('.fp-stage')
-    const planets = orbs
-      .map(({ orb, ring, size, values }, index) => {
-        if (!dressLandingGlobe(orb, ring, size, LANDING_ORB_TURN, metrics[index])) {
-          return null
-        }
-        // its hello: a bubble over its top edge, placed by the planet's
-        // own --x, --y and --s; the left half of the arch opens to the
-        // left, away from the taller neighbour
-        const hi = document.createElement('span')
-        hi.className = 'fp-hi'
-        hi.setAttribute('aria-hidden', 'true')
-        for (const name of ['--x', '--y', '--s']) {
-          hi.style.setProperty(name, values[name])
-        }
-        hi.classList.toggle('is-left', Number.parseFloat(values['--x']) < 0)
-        // its turn in the rise, so its hello follows its landing
-        return { orb, ring, hi, face: null, hover: false, delay: Number.parseFloat(values['--d']) || 0 }
-      })
-      .filter(Boolean)
-    if (!stage || !planets.length) {
-      return
-    }
-    // the hellos after every planet, so each stands over all of them
-    planets.forEach((planet) => stage.appendChild(planet.hi))
-    landingFaces ??= createPlanetFaces({
-      settings: { reduceMotion, body: 'shape', mark: 'hide', shapes: LANDING_SHAPES },
-    })
-    planets.forEach((planet) => {
-      planet.face = landingFaces.attach(planet.orb, planet.ring)
-    })
-
-    /* The row answers as one. The planet the pointer is on (or the
-       keyboard has) takes its shape and smiles; the two standing either
-       side of it take theirs too and take it badly, one put out and the
-       other merely unimpressed, drawn afresh each time the row turns to
-       someone new. Everyone else stays a plain globe. */
-    let card = null
-    let turned = -1
-    const moods = new Map()
-    const settleRow = () => {
-      if (card?.busy()) {
-        return
-      }
-      const at = planets.findIndex((planet) => planet.hover || planet.orb.matches(':focus-visible'))
-      // the reaction is dealt once a planet, when the row turns, and not
-      // again while it holds: the pointer crossing from one to the next
-      // runs this twice and the pair either side must not flicker
-      if (at !== turned) {
-        turned = at
-        moods.clear()
-        planets.forEach((planet, index) => {
-          if (Math.abs(index - at) === 1) {
-            moods.set(planet, Math.random() < 0.5 ? 'sad' : 'straight')
-          }
-        })
-      }
-      planets.forEach((planet, index) => {
-        const mood = at < 0 ? null : index === at ? 'happy' : moods.get(planet)
-        if (!mood) {
-          planet.face.set(false)
-          return
-        }
-        planet.face.express(mood)
-        planet.face.set(true)
-      })
-    }
-    card = createFooterCard(band, reduceMotion, () => {
-      planets.forEach((planet) => {
-        planet.hover = planet.orb.matches(':hover')
-      })
-      settleRow()
-    })
-    planets.forEach((planet) => {
-      // a finger has no hover: a tap goes straight to the card
-      const moved = (event, on) => {
-        if (event.pointerType === 'touch') {
-          return
-        }
-        planet.hover = on
-        settleRow()
-      }
-      planet.orb.addEventListener('pointerenter', (event) => moved(event, true))
-      planet.orb.addEventListener('pointerleave', (event) => moved(event, false))
-      planet.orb.addEventListener('focus', settleRow)
-      planet.orb.addEventListener('blur', settleRow)
-      planet.orb.addEventListener('click', () => card?.open(planet))
-    })
-
-    /* the chant reschedules itself for as long as the band is up, so the
-       timers prune themselves as they fire and clear() ends every chain */
-    const timers = new Set()
-    const later = (fn, ms) => {
-      const id = window.setTimeout(() => {
-        timers.delete(id)
-        fn()
-      }, ms)
-      timers.add(id)
-    }
-    const clear = () => {
-      timers.forEach((id) => window.clearTimeout(id))
-      timers.clear()
-    }
-    const between = ([low, high]) => low + Math.random() * (high - low)
-    const anyOf = (list) => list[Math.floor(Math.random() * list.length)]
-    /* one turn of the chant: a bubble up, a bubble down, and round again
-       until the planet has had its turns. A planet the card has taken
-       waits rather than spending one of them */
-    const chant = (planet, left) => {
-      if (planet.orb.inert) {
-        later(() => chant(planet, left), 800)
-        return
-      }
-      planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
-      planet.hi.classList.add('is-on')
-      later(() => {
-        planet.hi.classList.remove('is-on')
-        if (left > 1) {
-          later(() => chant(planet, left - 1), between(FOOTER_PLANETS_GAP))
-        }
-      }, between(FOOTER_PLANETS_UP))
-    }
-    /* the chat bar's input, when the page has one */
-    const bar = () =>
-      document.querySelector('.chat-widget .chat-composer-input') ?? document.querySelector('.chat-widget')
-    /* the stage's place: centred on the bar, scaled down to fit a band
-       narrower than the cluster and kept inside it, and lifted clear of
-       a bar that reaches into the band */
-    const place = () => {
-      const box = band.getBoundingClientRect()
-      const scale = Math.min(1, (box.width - 32) / FOOTER_PLANETS_SPAN)
-      const half = (FOOTER_PLANETS_SPAN * scale) / 2
-      // the band's bottom padding is the bar's room: the stage stands
-      // above it, so a bar is in the way only past that
-      const clear = Number.parseFloat(getComputedStyle(band).paddingBottom) || 0
-      let x = box.width / 2
-      let lift = 0
-      const rect = bar()?.getBoundingClientRect()
-      if (rect?.width && rect.height) {
-        x = rect.left + rect.width / 2 - box.left
-        lift = Math.max(0, box.bottom - clear - rect.top)
-      }
-      x = Math.min(Math.max(x, half + 16), box.width - half - 16)
-      band.style.setProperty('--fp-x', `${x.toFixed(1)}px`)
-      band.style.setProperty('--fp-lift', `${lift.toFixed(1)}px`)
-      band.style.setProperty('--fp-scale', scale.toFixed(3))
-      return scale
-    }
-    let up = false
-    const show = () => {
-      place()
-      band.classList.add('is-up')
-      planets.forEach((planet) => planet.hi.classList.remove('is-on'))
-      // asked for stillness, the row calls out once and holds
-      if (reduceMotion) {
-        planets.forEach((planet) => {
-          planet.hi.textContent = anyOf(FOOTER_PLANETS_CHANT)
-          planet.hi.classList.add('is-on')
-        })
-        return
-      }
-      // a few of them, drawn afresh each time the row comes up
-      const deck = planets.map((planet, index) => ({ planet, index, at: Math.random() }))
-      deck.sort((a, b) => a.at - b.at)
-      deck.slice(0, FOOTER_PLANETS_VOICES).forEach(({ planet }) => {
-        later(() => chant(planet, 1), FOOTER_PLANETS_CHANT_FROM + planet.delay)
-      })
-    }
-    const hide = () => {
-      clear()
-      band.classList.remove('is-up')
-      planets.forEach((planet) => {
-        planet.hover = false
-        planet.hi.classList.remove('is-on')
-        planet.face.set(false)
-      })
-    }
-    /* how far the page still has to go to its end */
-    const left = () => {
-      const page = document.scrollingElement ?? document.documentElement
-      return page.scrollHeight - window.innerHeight - window.scrollY
-    }
-    const check = () => {
-      if (!band.isConnected) {
-        release()
-        return
-      }
-      // the committee holds its place while the card stands over it
-      if (card?.busy()) {
-        return
-      }
-      const remaining = left()
-      if (!up && remaining <= 1) {
-        up = true
-        show()
-      } else if (up && remaining > 24) {
-        up = false
-        hide()
-      }
-    }
-    const onResize = () => {
-      check()
-      if (up) {
-        place()
-      }
-    }
-    // the page's height changes as it loads and when the site moves on
-    const grown = new ResizeObserver(() => check())
-    const release = () => {
-      window.removeEventListener('scroll', check)
-      window.removeEventListener('resize', onResize)
-      grown.disconnect()
-      clear()
-      card?.release()
-      planets.forEach((planet) => planet.face.detach())
-    }
-    window.addEventListener('scroll', check, { passive: true })
-    window.addEventListener('resize', onResize)
-    grown.observe(document.body)
-    check()
-  })
+    },
+    { rootMargin: FOOTER_MEADOW_NEAR },
+  )
+  footerMeadowNear.observe(band)
+  if (!footerMeadowIdle) {
+    footerMeadowIdle = window.requestIdleCallback
+      ? window.requestIdleCallback(loadFooterMeadow, { timeout: FOOTER_MEADOW_IDLE })
+      : window.setTimeout(loadFooterMeadow, FOOTER_MEADOW_LATE)
+  }
 })
+
 /* Each chat plays every time it scrolls into view. */
 const initLandingChat = debounce(() => {
   const chats = [...document.querySelectorAll('.lp-chat')].filter((chat) => chat.dataset.lpChatBound !== 'true')
@@ -5372,7 +4690,8 @@ const drawLandingFlowEdges = (flow) => {
 
 const createLandingFlowPlayer = (flow) => {
   const layers = [...flow.querySelectorAll(':scope > .lp-flow-lines')]
-  const layer = () => layers.find((svg) => svg.getClientRects().length) || layers[0]
+  // a lone layer is the one: asking which is laid out would wait on a layout every packet
+  const layer = () => (layers.length === 1 ? layers[0] : layers.find((svg) => svg.getClientRects().length) || layers[0])
   const nodes = new Map()
   flow.querySelectorAll('[data-lp-node]').forEach((node) => nodes.set(node.dataset.lpNode, node))
   const products = [...nodes.values()].filter((node) => node.dataset.lpTarget).map((node) => node.dataset.lpNode)
@@ -5391,10 +4710,16 @@ const createLandingFlowPlayer = (flow) => {
      turns it off), so the ring lies still between packets */
   const hubPaints = [...(nodes.get('hub')?.querySelectorAll('[data-lp-stage-host] .lp-sun-halo-paint') ?? [])]
   const beats = hubPaints.length > 0
+  /* A hub with no globe can hold packets too (data-lp-hold: the window on
+     /products/headless). Its own script shows what happens to a packet
+     there: it answers an lp-flow-hold event with what to wait for, and
+     once that is done packets go out to everything on the right at once,
+     as from the globe. */
+  const holds = !beats && nodes.get('hub').dataset.lpHold !== undefined
   let beatGen = 0
 
   const SPEED = 640 // scene units per second
-  const PERIOD = beats ? 5200 : 3600
+  const PERIOD = beats || holds ? 5200 : 3600
   const SVG_NS = 'http://www.w3.org/2000/svg'
   const timers = new Set()
   const packets = new Set()
@@ -5412,6 +4737,28 @@ const createLandingFlowPlayer = (flow) => {
   const FLIP_HOLD = 1700
   let version = 0
 
+  /* Each chip's second face is made once and kept, hidden between flips,
+     with its words in one text node changed in place; the packets below
+     are kept the same way. Once the first round has made them, nothing is
+     added to or taken from the page while the flow plays, so the page's
+     watchers (which bind whatever a change adds) stay asleep and no
+     layout is waited on for them. */
+  const altFaces = new Map()
+  const altFace = (sub) => {
+    let alt = altFaces.get(sub)
+    if (!alt) {
+      const face = document.createElement('span')
+      face.className = 'lp-chip-sub-face lp-chip-sub-face--alt'
+      face.style.display = 'none'
+      const words = document.createTextNode('')
+      face.append(words)
+      sub.appendChild(face)
+      alt = { face, words, gen: 0 }
+      altFaces.set(sub, alt)
+    }
+    return alt
+  }
+
   /* the subtitle flips to the text (one of the chip's data-lp-flip
      options, {v} being this round's version), holds, and flips back */
   const flip = (key) => {
@@ -5421,19 +4768,32 @@ const createLandingFlowPlayer = (flow) => {
     if (!sub || !texts.length) {
       return
     }
-    sub.querySelectorAll('.lp-chip-sub-face--alt').forEach((face) => face.remove())
-    sub.classList.remove('is-in', 'is-out')
-    const face = document.createElement('span')
-    face.className = 'lp-chip-sub-face lp-chip-sub-face--alt'
-    face.textContent = texts[Math.floor(Math.random() * texts.length)].replace('{v}', `v2.4.${version}`)
-    sub.appendChild(face)
-    void sub.offsetWidth
+    const alt = altFace(sub)
+    const gen = ++alt.gen
+    /* A flip still going starts again from the top: the faces' animations
+       have to end before they can start again, which takes a layout. From
+       rest (rounds are further apart than a flip) a shown face starts its
+       animation by itself and nothing is waited on. */
+    if (sub.classList.contains('is-in') || sub.classList.contains('is-out')) {
+      sub.classList.remove('is-in', 'is-out')
+      alt.face.style.display = 'none'
+      void sub.offsetWidth
+    }
+    alt.words.data = texts[Math.floor(Math.random() * texts.length)].replace('{v}', `v2.4.${version}`)
+    alt.face.style.display = ''
     sub.classList.add('is-in')
+    // a later flip of this chip owns it from here
     after(FLIP_HOLD, () => {
+      if (alt.gen !== gen) {
+        return
+      }
       sub.classList.remove('is-in')
       sub.classList.add('is-out')
       after(560, () => {
-        face.remove()
+        if (alt.gen !== gen) {
+          return
+        }
+        alt.face.style.display = 'none'
         sub.classList.remove('is-out')
       })
     })
@@ -5443,6 +4803,28 @@ const createLandingFlowPlayer = (flow) => {
      browser stopped painting), so it is dropped instead of arriving late
      and setting off the rest of its round alongside newer ones */
   const STALE = 1000
+
+  /* Packets between trips, hidden, kept by the layer they were made in */
+  const parked = new Map()
+  const park = (packet) => {
+    packet.el.style.display = 'none'
+    parked.get(packet.svg)?.push(packet.el)
+  }
+
+  /* A line's length only changes with its shape, so it is measured once
+     a shape: measuring waits on a layout whenever the page has changed
+     since the last one, and a packet arriving has just moved the others */
+  const lengths = new WeakMap()
+  const lengthOf = (path) => {
+    const d = path.getAttribute('d')
+    const known = lengths.get(path)
+    if (known && known.d === d) {
+      return known.length
+    }
+    const length = path.getTotalLength()
+    lengths.set(path, { d, length })
+    return length
+  }
 
   // every packet's point is read before any is written, so a frame
   // measures the paths once; arrivals (which may send more) come last
@@ -5459,7 +4841,7 @@ const createLandingFlowPlayer = (flow) => {
     steps.forEach(({ packet, stale, t, point }) => {
       if (stale) {
         packets.delete(packet)
-        packet.el.remove()
+        park(packet)
         return
       }
       packet.el.setAttribute('cx', point.x)
@@ -5467,7 +4849,7 @@ const createLandingFlowPlayer = (flow) => {
       packet.el.style.opacity = Math.min(1, (now - packet.start) / 90)
       if (t >= 1) {
         packets.delete(packet)
-        packet.el.remove()
+        park(packet)
         arrived.push(packet)
       }
     })
@@ -5481,13 +4863,38 @@ const createLandingFlowPlayer = (flow) => {
     if (!path) {
       return
     }
-    const el = document.createElementNS(SVG_NS, 'circle')
-    el.setAttribute('class', 'lp-packet')
-    el.setAttribute('r', '4.5')
+    // measured before anything is written
+    const length = lengthOf(path)
+    if (!parked.has(svg)) {
+      parked.set(svg, [])
+    }
+    let el = parked.get(svg).pop()
+    if (!el) {
+      el = document.createElementNS(SVG_NS, 'circle')
+      el.setAttribute('class', 'lp-packet')
+      el.setAttribute('r', '4.5')
+      svg.appendChild(el)
+    } else {
+      // a line drawn after it was made (an end the layout showed later) would cross it
+      let next = el.nextElementSibling
+      while (next?.classList.contains('lp-packet')) {
+        next = next.nextElementSibling
+      }
+      if (next) {
+        svg.appendChild(el)
+      }
+    }
     el.style.opacity = '0'
-    svg.appendChild(el)
-    const length = path.getTotalLength()
-    packets.add({ el, edge: { path }, length, start: performance.now(), duration: (length / SPEED) * 1000, onArrive })
+    el.style.display = ''
+    packets.add({
+      el,
+      svg,
+      edge: { path },
+      length,
+      start: performance.now(),
+      duration: (length / SPEED) * 1000,
+      onArrive,
+    })
     if (!frame) {
       frame = requestAnimationFrame(tick)
     }
@@ -5562,6 +4969,28 @@ const createLandingFlowPlayer = (flow) => {
         })
         return
       }
+      if (holds) {
+        const gen = ++beatGen
+        const waits = []
+        nodes
+          .get('hub')
+          .dispatchEvent(new CustomEvent('lp-flow-hold', { detail: { wait: (promise) => waits.push(promise) } }))
+        Promise.all(waits).then(
+          () => {
+            // stopped since, or a later round's packet already in: no burst from this one
+            if (!running || gen !== beatGen) {
+              return
+            }
+            leaves('hub').forEach((leaf) => {
+              send(`hub>${leaf}`, () => {
+                flip(leaf)
+              })
+            })
+          },
+          () => {},
+        )
+        return
+      }
       if (!products.length) {
         fanOut('hub')
         return
@@ -5602,9 +5031,12 @@ const createLandingFlowPlayer = (flow) => {
       cancelAnimationFrame(frame)
       frame = 0
     }
-    packets.forEach((packet) => packet.el.remove())
+    packets.forEach(park)
     packets.clear()
-    flow.querySelectorAll('.lp-chip-sub-face--alt').forEach((el) => el.remove())
+    altFaces.forEach((alt) => {
+      alt.gen += 1
+      alt.face.style.display = 'none'
+    })
     flow.querySelectorAll('.lp-chip-sub').forEach((el) => el.classList.remove('is-in', 'is-out'))
   }
 
@@ -6369,6 +5801,9 @@ const CUST_GAP = 12
 const CUST_THROW = 2800
 const CUST_FLICK = 0.35
 const CUST_HAND_ROLL = 24
+// how far into the glass along the top a ball counts as in it, past
+// its lower edge, before the glass may go back to being plain air
+const CUST_GLASS_GIVE = 6
 /* A ball's mark, lying on its surface.
 
    A logo on a real ball is not a sticker on its front: it lies on the
@@ -6505,6 +5940,62 @@ const dressCustomerBall = (ball, size) => {
   return true
 }
 
+/* The glass along the top of the customers hero, where the balls come
+   in. It is the edge of the lens the WebGL heroes look through, made
+   for markup: what lies under it is frosted, more so the nearer the
+   edge, and its red and blue are pulled apart from its green, again
+   more so the nearer the edge, so a ball coming in through it arrives
+   soft and fringed in colour and leaves it crisp.
+
+   The frost is plain backdrop-filter. The fringes are an SVG filter
+   read through backdrop-filter, which only Chromium draws; a browser
+   that cannot simply leaves those layers out and keeps the frost. The
+   layers are siblings, each one working on what the ones before it
+   left, each fading out down the glass by a mask, and none of them is
+   switched on until a ball is on its way in. */
+const CUST_LENS = [
+  // a faint split low in the glass, and the wide one at its very edge:
+  // red pulled up and blue pulled down by this many pixels, then
+  // smeared along the way the edge bends things
+  { name: 'near', split: 2.5, smear: '0.3 1.5' },
+  { name: 'edge', split: 8, smear: '0.6 4' },
+]
+const dressCustomerGlass = (glass) => {
+  if (glass.dataset.custGlass === 'true') {
+    return
+  }
+  glass.dataset.custGlass = 'true'
+  // each colour moved on its own and kept to its own channel, laid on
+  // the page's colour first, so the three add back up to an opaque
+  // picture and nothing at the glass's edges reads as a coloured line
+  const lens = ({ name, split, smear }) =>
+    `<filter id="cust-lens-${name}" x="0" y="-0.5" width="1" height="2" color-interpolation-filters="sRGB">` +
+    '<feFlood class="cust-glass-page" result="page"/>' +
+    '<feMerge result="solid"><feMergeNode in="page"/><feMergeNode in="SourceGraphic"/></feMerge>' +
+    `<feOffset in="solid" dy="${-split}" result="up"/>` +
+    `<feOffset in="solid" dy="${split}" result="down"/>` +
+    '<feColorMatrix in="up" type="matrix" values="1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0" result="red"/>' +
+    '<feColorMatrix in="solid" type="matrix" values="0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 0" result="green"/>' +
+    '<feColorMatrix in="down" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0" result="blue"/>' +
+    '<feComposite in="red" in2="green" operator="arithmetic" k2="1" k3="1" result="yellow"/>' +
+    '<feComposite in="yellow" in2="blue" operator="arithmetic" k2="1" k3="1" result="white"/>' +
+    `<feGaussianBlur in="white" stdDeviation="${smear}"/>` +
+    '</filter>'
+  glass.insertAdjacentHTML(
+    'afterbegin',
+    `<svg class="cust-glass-defs" width="0" height="0" aria-hidden="true" focusable="false">${CUST_LENS.map(lens).join('')}</svg>`,
+  )
+  // frosted first and split after, so the fringes stay over the frost
+  // rather than being blurred back together by it
+  glass.append(
+    ...['frost', 'haze', ...CUST_LENS.map(({ name }) => name)].map((name) => {
+      const layer = document.createElement('i')
+      layer.className = `cust-glass-${name}`
+      return layer
+    }),
+  )
+}
+
 const initCustomerBalls = debounce(() => {
   const fields = [...document.querySelectorAll('.cust-field')].filter((field) => field.dataset.custBound !== 'true')
   if (!fields.length) {
@@ -6565,6 +6056,13 @@ const initCustomerBalls = debounce(() => {
       return
     }
 
+    /* The glass along the hero's top edge, laid over the copy rather
+       than in the field, since a ball comes in through it */
+    const glass = field.parentElement?.querySelector('.cust-glass')
+    if (glass) {
+      dressCustomerGlass(glass)
+    }
+
     /* The field, and where the balls are tipped in: a band across the
        middle of it, each ball a little way along it in an order of its
        own, so they land on one another and heap rather than lining up.
@@ -6572,9 +6070,12 @@ const initCustomerBalls = debounce(() => {
        a heap of them. */
     let width = 0
     let floorY = 0
+    // how far down from the top the glass reaches
+    let glassH = 0
     const measure = () => {
       const box = field.getBoundingClientRect()
       const line = floor.getBoundingClientRect()
+      glassH = glass ? glass.getBoundingClientRect().height : 0
       width = box.width
       floorY = line.top + line.height / 2 - box.top
       const full = balls.reduce((sum, b) => sum + b.base, 0)
@@ -6602,6 +6103,23 @@ const initCustomerBalls = debounce(() => {
     }
     const draw = (b) => {
       b.el.style.translate = `${(b.x - b.r).toFixed(1)}px ${(b.y - b.r).toFixed(1)}px`
+    }
+    /* The glass along the top is only glass while a ball is in it, or
+       on its way in from over the edge. The rest of the time it is
+       plain air and costs nothing, scrolling included. A ball has to
+       clear the glass by a few pixels before it is let go of, so one
+       sitting on its lower edge does not switch it on and off. */
+    let glassy = false
+    const glaze = () => {
+      if (!glass) {
+        return
+      }
+      const top = balls.reduce((most, b) => Math.min(most, b.y - b.r), Number.POSITIVE_INFINITY)
+      const want = top < glassH + (glassy ? CUST_GLASS_GIVE : 0)
+      if (want !== glassy) {
+        glassy = want
+        glass.classList.toggle('is-on', want)
+      }
     }
     const spin = (b) => {
       b.roll.style.setProperty('--roll', `${b.turn.toFixed(1)}deg`)
@@ -6940,6 +6458,7 @@ const initCustomerBalls = debounce(() => {
         draw(b)
         spin(b)
       })
+      glaze()
       const quiet = moved === 0 && balls.every((b) => b.live && !b.held && b.prop)
       still = quiet ? still + 1 : 0
       if (still >= CUST_STILL) {
@@ -6990,6 +6509,7 @@ const initCustomerBalls = debounce(() => {
         draw(b)
         spin(b)
       })
+      glaze()
     }
 
     /* A ball in hand follows the pointer, keeping the speed of the last
@@ -7096,6 +6616,7 @@ const initCustomerBalls = debounce(() => {
         return
       }
       tip()
+      glaze()
       wake()
     }
     // straight away where the hero is already on screen, which it is on
@@ -7220,6 +6741,25 @@ const DOCS_HERO_PREVIEWS = ['zoom', 'clerk', 'supabase']
    all. The suffix is what tells one bake from the other. */
 const DOCS_HERO_SIDES = ['', '-markdown']
 
+/* A page can give its row faces of its own: each .dh-face inside the field
+   names the bitmap for each side of the seam (data-left and data-right, a
+   path without .webp, the dark one being the same path with -dark) and the
+   prompt the hero's prompt box types while that face is at the seam
+   (data-prompt). The headless page's row is apps on the left and Claude
+   doing the same job on the right. A row with none is the docs hero's. */
+const docsHeroFaces = (field) => {
+  const listed = [...field.querySelectorAll('.dh-face')]
+    .map((face) => ({ sides: [face.dataset.left, face.dataset.right], prompt: face.dataset.prompt || '' }))
+    .filter((face) => face.sides.every(Boolean))
+  if (listed.length) {
+    return listed
+  }
+  return DOCS_HERO_PREVIEWS.map((face) => ({
+    sides: DOCS_HERO_SIDES.map((side) => `/docs-hero/${face}${side}`),
+    prompt: '',
+  }))
+}
+
 const DOCS_HERO = {
   /* theirs: the sag the plane rides, and the plane itself */
   curveFrequency: 0.18,
@@ -7281,12 +6821,16 @@ const DOCS_HERO_FRAME = 1000 / 60
 
    The two lengths go on the hero rather than the field because the
    seam's handle and its grip are placed from them as well, and a custom
-   property only reaches down. */
+   property only reaches down.
+
+   A hero in a card of its own (data-dh-contained, the row on
+   /products/headless) keeps the row to its own width instead, so the
+   row is laid out for the card and its windows keep their share of it. */
 const docsHeroBleed = (hero) => {
   const box = hero.getBoundingClientRect()
   const page = document.documentElement.clientWidth || window.innerWidth
   const middle = box.left + box.width / 2
-  const reach = Math.min(middle, page - middle)
+  const reach = hero.dataset.dhContained === 'true' ? box.width / 2 : Math.min(middle, page - middle)
   const space = Math.max(reach * 2, box.width)
   if (!box.width) {
     /* a hero that is not laid out yet measures as nothing; leave the two
@@ -7336,17 +6880,15 @@ const initDocsHero = debounce(() => {
   }
   field.dataset.dhBound = 'true'
 
+  const faces = docsHeroFaces(field)
+  /* a whole number of rounds of the faces, so that where the row comes
+     round no face is followed by itself */
+  const cardCount = faces.length * Math.max(1, Math.round(DOCS_HERO.cards / faces.length))
   const cards = []
-  for (let index = 0; index < DOCS_HERO.cards; index += 1) {
-    const face = DOCS_HERO_PREVIEWS[index % DOCS_HERO_PREVIEWS.length]
-    const copies = stages.map((stage, side) => {
+  for (let index = 0; index < cardCount; index += 1) {
+    const copies = stages.map((stage) => {
       const card = document.createElement('div')
       card.className = 'dh-card'
-      const bake = `${face}${DOCS_HERO_SIDES[side]}`
-      /* both modes are set here and the page's class picks one, so a
-         reader switching modes costs nothing */
-      card.style.setProperty('--dh-src', `url("/docs-hero/${bake}.webp")`)
-      card.style.setProperty('--dh-src-dark', `url("/docs-hero/${bake}-dark.webp")`)
       const slices = []
       for (let slice = 0; slice < DOCS_HERO.slices; slice += 1) {
         const element = document.createElement('div')
@@ -7358,7 +6900,45 @@ const initDocsHero = debounce(() => {
       stage.appendChild(card)
       return { element: card, slices }
     })
-    cards.push({ copies, flat: false })
+    cards.push({ copies, flat: false, off: false, face: index % faces.length })
+  }
+
+  /* The bitmaps go on once the row is within a screen of being seen: a
+     row further down a page, as the headless page's is, is a few hundred
+     kilobytes nobody may scroll to. Both themes are set and the page's
+     class picks one, so a reader switching themes costs nothing. */
+  let painted = false
+  const paint = () => {
+    if (painted) {
+      return
+    }
+    painted = true
+    for (const card of cards) {
+      card.copies.forEach((copy, side) => {
+        const source = faces[card.face].sides[side]
+        copy.element.style.setProperty('--dh-src', `url("${source}.webp")`)
+        copy.element.style.setProperty('--dh-src-dark', `url("${source}-dark.webp")`)
+      })
+    }
+  }
+  const fieldBox = field.getBoundingClientRect()
+  const viewHeight = window.innerHeight || document.documentElement.clientHeight
+  const approach =
+    fieldBox.top < viewHeight * 2 || typeof IntersectionObserver !== 'function'
+      ? null
+      : new IntersectionObserver(
+          (entries) => {
+            if (entries.some((entry) => entry.isIntersecting)) {
+              approach.disconnect()
+              paint()
+            }
+          },
+          { rootMargin: '100% 0px' },
+        )
+  if (approach) {
+    approach.observe(field)
+  } else {
+    paint()
   }
 
   /* px per world unit, and the run of one card plus its gap */
@@ -7375,6 +6955,64 @@ const initDocsHero = debounce(() => {
 
   const hero = field.parentElement
   const copy = hero && hero.querySelector('.dh-copy')
+
+  /* The prompt box, where a hero has one (the headless page's): it types
+     the prompt of whichever face stands at the seam, as someone would ask
+     for what the window right of the seam is answering. */
+  const promptBox = hero?.querySelector('.dh-prompt')
+  const promptText = promptBox ? promptBox.querySelector('.dh-prompt-text') : null
+  const promptStill = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  let promptFace = -1
+  let promptTimer = 0
+  /* The words go into one text node, changed in place. A change to a text
+     node's data inserts nothing and wakes none of the page's childList
+     observers, where setting textContent did both on every keystroke. */
+  const promptWords = document.createTextNode('')
+  const setWords = (words) => {
+    if (promptWords.parentNode !== promptText) {
+      promptText.replaceChildren(promptWords)
+    }
+    promptWords.data = words
+  }
+  /* It types only while the row runs (on screen, the page in front): a
+     prompt typed out of sight would greet the reader already sent. The
+     face nearest the seam is asked for every frame, so it starts on the
+     row's first frame back. */
+  let promptLive = false
+  const showPrompt = (index) => {
+    if (!promptText || index === promptFace || !faces[index] || !faces[index].prompt) {
+      return
+    }
+    if (!promptStill && !promptLive) {
+      return
+    }
+    promptFace = index
+    clearTimeout(promptTimer)
+    const words = faces[index].prompt
+    promptBox.classList.remove('is-sent')
+    if (promptStill) {
+      setWords(words)
+      promptBox.classList.add('is-composing')
+      return
+    }
+    setWords('')
+    promptBox.classList.remove('is-composing')
+    let typed = 0
+    const type = () => {
+      typed += 1
+      setWords(words.slice(0, typed))
+      promptBox.classList.add('is-composing')
+      promptTimer =
+        typed < words.length
+          ? setTimeout(type, 26 + Math.random() * 44)
+          : setTimeout(() => promptBox.classList.add('is-sent'), 600)
+    }
+    promptTimer = setTimeout(type, 280)
+  }
+  /* where the seam stands, as a share of the row, and how wide the row is,
+     so the card nearest the seam can be found as the row moves */
+  let splitShare = DOCS_HERO.split
+  let rowWidth = 0
   let previousStride = 0
 
   const layout = () => {
@@ -7406,8 +7044,9 @@ const initDocsHero = debounce(() => {
     cardHeight = Math.round((width / DOCS_HERO.imageSizeX) * DOCS_HERO.imageSizeY)
     unit = width / DOCS_HERO.imageSizeX
     stride = (DOCS_HERO.imageSizeX + DOCS_HERO.gap) * unit
-    span = DOCS_HERO.cards * stride
+    span = cards.length * stride
     reach = (space + width) / 2
+    rowWidth = space
     field.style.setProperty('--dh-w', `${width}px`)
     field.style.setProperty('--dh-h', `${cardHeight}px`)
     field.style.setProperty('--dh-sh', `${cardHeight / DOCS_HERO.slices}px`)
@@ -7447,6 +7086,10 @@ const initDocsHero = debounce(() => {
     offset = docsHeroMod(offset + travel, span)
     const bending = Math.abs(bow) > DOCS_HERO.bowFloor
     field.classList.toggle('is-bowing', bending)
+    /* the seam, from the row's middle, and the card that lands nearest it */
+    const seamAt = (splitShare - 0.5) * rowWidth
+    let nearest = -1
+    let nearestGap = Number.POSITIVE_INFINITY
 
     for (let index = 0; index < cards.length; index += 1) {
       const card = cards[index]
@@ -7492,7 +7135,24 @@ const initDocsHero = debounce(() => {
          it toward the middle again, so the test has to be made on the
          screen rather than on the stage. */
       const away = DOCS_HERO.cameraDistance * unit
-      if (!bending || Math.abs((at * away) / (away - depth)) > reach) {
+      const seen = (at * away) / (away - depth)
+      /* A card past the row's reach is off the screen, out of the row's
+         box. It keeps its place, so it comes back exactly where it would
+         have been, but renders nothing while it is away: no slices to
+         style, paint or put in layers. The tenth of a card is room for a
+         turned card's near edge. */
+      const off = Math.abs(seen) > reach + unit * DOCS_HERO.imageSizeX * 0.1
+      if (off !== card.off) {
+        card.off = off
+        for (const copy of card.copies) {
+          copy.element.style.contentVisibility = off ? 'hidden' : ''
+        }
+      }
+      if (Math.abs(seen - seamAt) < nearestGap) {
+        nearestGap = Math.abs(seen - seamAt)
+        nearest = card.face
+      }
+      if (!bending || Math.abs(seen) > reach) {
         if (!card.flat) {
           card.flat = true
           for (const copy of card.copies) {
@@ -7514,6 +7174,9 @@ const initDocsHero = debounce(() => {
           copy.slices[slice].style.transform = bent
         }
       }
+    }
+    if (nearest >= 0) {
+      showPrompt(nearest)
     }
   }
 
@@ -7567,8 +7230,13 @@ const initDocsHero = debounce(() => {
   const splitter = hero && hero.querySelector('.dh-split')
   const setSplit = (share) => {
     const next = Math.min(DOCS_HERO.splitMax, Math.max(DOCS_HERO.splitMin, share))
+    splitShare = next
     hero.style.setProperty('--dh-split', String(Math.round(next * 1e4) / 1e4))
     splitter.setAttribute('aria-valuenow', String(Math.round(next * 100)))
+    /* with motion, the next frame finds the face at the seam; without, nothing would */
+    if (promptStill && promptText) {
+      place(0, 0)
+    }
   }
   if (splitter && hero) {
     setSplit(DOCS_HERO.split)
@@ -7643,6 +7311,8 @@ const initDocsHero = debounce(() => {
        sliding is the flourish */
     release = () => {
       watcher?.disconnect()
+      approach?.disconnect()
+      clearTimeout(promptTimer)
       window.removeEventListener('resize', onResize)
     }
     return
@@ -7668,7 +7338,14 @@ const initDocsHero = debounce(() => {
   /* The wheel alone, as theirs does. Listening to scroll as well would
      count a wheel twice on a page that can still scroll, and once on one
      that cannot. The page scrolls as it always did: nothing is taken. */
-  const onWheel = (event) => push(DOCS_HERO.wheelGain * event.deltaY)
+  /* Only while the row runs: friction only acts in its frames, so a wheel
+     turned while the row is out of sight would bank speed it then spends
+     all at once on the way back, bowing every card. */
+  const onWheel = (event) => {
+    if (running) {
+      push(DOCS_HERO.wheelGain * event.deltaY)
+    }
+  }
   window.addEventListener('wheel', onWheel, { passive: true })
 
   let drag = null
@@ -7754,6 +7431,14 @@ const initDocsHero = debounce(() => {
       return
     }
     running = wanted
+    if (promptText) {
+      promptLive = running
+      promptBox.classList.toggle('is-idle', !running)
+      if (!running) {
+        clearTimeout(promptTimer)
+        promptFace = -1
+      }
+    }
     if (running) {
       /* the time the tab spent away is not travel the row has to make up */
       previous = performance.now()
@@ -7779,6 +7464,8 @@ const initDocsHero = debounce(() => {
     running = false
     observer.disconnect()
     watcher?.disconnect()
+    approach?.disconnect()
+    clearTimeout(promptTimer)
     docsHeroSyncs.delete(sync)
     window.removeEventListener('resize', onResize)
     window.removeEventListener('wheel', onWheel)
@@ -7787,14 +7474,13 @@ const initDocsHero = debounce(() => {
 })
 
 initDraggableElements()
-initFooterAnimation()
 initGallery()
 initHeroSdkTabs()
 initHeroScenes()
 initHeroCards()
 initLandingBoxLinks()
 initLandingOrbs()
-initFooterPlanets()
+initFooterMeadow()
 initCustomerBalls()
 initLandingOnboard()
 initLandingChat()
@@ -7804,7 +7490,6 @@ initLandingFunnel()
 initLandingWinTabs()
 initLandingDocsWindows()
 initTrustedWalls()
-initEnterpriseRing()
 initLandingHostStage()
 initEnterpriseSky()
 measureDocsHero()
@@ -7826,14 +7511,13 @@ const observer = new MutationObserver((records) => {
   // the initialisers below bind the one that replaced it
   sweepLanding()
   initDraggableElements()
-  initFooterAnimation()
   initGallery()
   initHeroSdkTabs()
   initHeroScenes()
   initHeroCards()
   initLandingBoxLinks()
   initLandingOrbs()
-  initFooterPlanets()
+  initFooterMeadow()
   initCustomerBalls()
   initLandingOnboard()
   initLandingChat()
@@ -7843,7 +7527,6 @@ const observer = new MutationObserver((records) => {
   initLandingWinTabs()
   initLandingDocsWindows()
   initTrustedWalls()
-  initEnterpriseRing()
   initLandingHostStage()
   initEnterpriseSky()
   docsHeroSyncs.forEach((sync) => sync())

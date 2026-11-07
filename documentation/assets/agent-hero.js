@@ -1090,10 +1090,24 @@
       probe.height = 1
       const ctx = probe.getContext('2d', { willReadFrequently: true })
       // The theme's page colour. A value the canvas cannot parse, light-dark() for one, leaves
-      // the sentinel in place, and the body's resolved background stands in.
+      // the sentinel in place, and the body's resolved background stands in. A hero drawn on a
+      // surface of its own (data-ag-surface, the card on /products/headless) takes that surface's
+      // colour instead, so the marks sit on the card and not on a page-coloured box inside it.
       const sentinel = '#010203'
       ctx.fillStyle = sentinel
-      ctx.fillStyle = getComputedStyle(root).getPropertyValue('--scalar-background-1').trim() || sentinel
+      let surface = ''
+      if (root.dataset.agSurface === 'true') {
+        // A change of theme can start a transition on the surface's colour (the site gives everything a .01ms one
+        // under reduced motion), and until it ends the surface still reports the old theme's colour. The canvas
+        // covers the surface, so finishing it costs nothing, and the colour read is the new theme's.
+        for (const animation of root.getAnimations()) {
+          if (animation.transitionProperty === 'background-color') {
+            animation.finish()
+          }
+        }
+        surface = getComputedStyle(root).backgroundColor
+      }
+      ctx.fillStyle = surface || getComputedStyle(root).getPropertyValue('--scalar-background-1').trim() || sentinel
       if (ctx.fillStyle === sentinel) {
         ctx.fillStyle = getComputedStyle(document.body).backgroundColor
       }
