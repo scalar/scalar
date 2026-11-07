@@ -1,9 +1,5 @@
-<div class="ent-hero container-full">
-
-<div class="ent-ring ent-ring--back" aria-hidden="true" data-md-exclude><div class="ent-ring-disc"><div class="ent-ring-lines"><div class="ent-ring-sheen"></div></div></div></div>
-<div class="ent-globe" aria-hidden="true" data-md-exclude></div>
-
-<div class="ent-hero-copy">
+<section class="ent-scene" data-hl-hero data-hl-mode="enterprise">
+<div class="ent-stage" aria-hidden="true" data-md-exclude><canvas class="ent-canvas" data-hl-canvas></canvas></div>
 <div class="ent-copy">
 <div class="hero flex flex-col gap-3">
   <scalar-heading level="1" slug="enterprise" class="text-balance">
@@ -18,13 +14,7 @@
   </div>
 </div>
 </div>
-</div>
-
-<div class="ent-ring ent-ring--front" aria-hidden="true" data-md-exclude><div class="ent-ring-disc"><div class="ent-ring-lines"><div class="ent-ring-sheen"></div></div></div></div>
-
-</div>
-
-<div class="ent-hero-foot" data-md-exclude>
+<div class="ent-trusted" data-md-exclude>
   <div class="lp-trusted">
     <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
     <div class="lp-trusted-track">
@@ -60,6 +50,7 @@
     </div>
   </div>
 </div>
+</section>
 
 <div class="enterprise-features border-t">
 <div class="enterprise-features-copy">
@@ -151,12 +142,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     <a class="t-editor__button ent-pill" href="https://dashboard.scalar.com/register">Get Started</a>
   </div>
 
-<!-- The marks the scene's planets wear. landing.js finds each one by
-     id when it dresses a globe, so they have to be in the page. -->
-<template id="lp-icon-docs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg"><path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H9a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H3z"/><path d="M21 5.5A1.5 1.5 0 0 0 19.5 4H15a3 3 0 0 0-3 3v13a2 2 0 0 1 2-2h7z"/></svg></template>
-<template id="lp-icon-mcp"><svg fill="currentColor" fill-rule="evenodd" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.688 2.343a2.588 2.588 0 00-3.61 0l-9.626 9.44a.863.863 0 01-1.203 0 .823.823 0 010-1.18l9.626-9.44a4.313 4.313 0 016.016 0 4.116 4.116 0 011.204 3.54 4.3 4.3 0 013.609 1.18l.05.05a4.115 4.115 0 010 5.9l-8.706 8.537a.274.274 0 000 .393l1.788 1.754a.823.823 0 010 1.18.863.863 0 01-1.203 0l-1.788-1.753a1.92 1.92 0 010-2.754l8.706-8.538a2.47 2.47 0 000-3.54l-.05-.049a2.588 2.588 0 00-3.607-.003l-7.172 7.034-.002.002-.098.097a.863.863 0 01-1.204 0 .823.823 0 010-1.18l7.273-7.133a2.47 2.47 0 00-.003-3.537z"></path><path d="M14.485 4.703a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a4.115 4.115 0 000 5.9 4.314 4.314 0 006.016 0l7.12-6.982a.823.823 0 000-1.18.863.863 0 00-1.204 0l-7.119 6.982a2.588 2.588 0 01-3.61 0 2.47 2.47 0 010-3.54l7.12-6.982z"></path></svg></template>
-<template id="lp-icon-scalar"><svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></template>
-<template id="lp-icon-sdk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7z"/><path d="M3.5 7 12 11.5 20.5 7M12 11.5v10"/></svg></template>
 
 <div class="lp-visual lp-visual--host" aria-hidden="true" data-md-exclude>
 <div class="lp-flow" data-lp-edges="api>hub,hub>dev-docs,hub>claude-code,hub>dev-sdk,hub>copilot,hub>claude,hub>chatgpt,hub>gemini">
@@ -169,16 +154,12 @@ Validate contracts early so exploration and testing stay tied to the same API de
 </div>
 </div>
 </div>
-<div class="lp-node lp-node--hub" data-lp-node="hub" style="--x: 560; --y: 276; --w: 480">
-<div class="lp-stage lp-stage--host is-sun" data-lp-stage-host>
-<div class="lp-stage-globe lp-stage-globe--host">
-<div class="lp-sun-halo lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
-<div class="lp-stage-sun" data-lp-anchor><span class="lp-sun" data-label="Scalar" data-icon="scalar"><span class="lp-orb-globe"><span class="lp-orb-ring"></span></span></span></div>
-<div class="lp-sun-halo lp-sun-halo--front lp-stage-halo"><div class="lp-sun-halo-reveal"><div class="lp-sun-halo-paint"></div></div></div>
-</div>
-<div class="lp-orb lp-orb--product lp-orb--docs" data-label="Docs" data-icon="docs"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
-<div class="lp-orb lp-orb--product lp-orb--mcp" data-label="MCP" data-icon="mcp"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
-<div class="lp-orb lp-orb--product lp-orb--sdk" data-label="SDKs" data-icon="sdk"><div class="lp-orb-body"><div class="lp-orb-globe"><div class="lp-orb-ball"><div class="lp-orb-skin"></div></div><div class="lp-orb-ring"></div></div></div></div>
+<div class="lp-node lp-node--hub" data-lp-node="hub" data-lp-hold style="--x: 560; --y: 276; --w: 480">
+<div class="hl-hub" data-hl-hub>
+<div class="hl-window" data-lp-anchor><div class="hl-window-meadow" data-hl-hero data-hl-mode="window" aria-hidden="true"><canvas data-hl-canvas></canvas></div><svg class="hl-window-mark" fill="currentColor" viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></div>
+<span class="hl-tag hl-tag--docs" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">Docs</span></span>
+<span class="hl-tag hl-tag--mcp" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">MCP</span></span>
+<span class="hl-tag hl-tag--sdk" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">SDKs</span></span>
 </div>
 </div>
 <div class="lp-node" data-lp-node="dev-docs" data-lp-parent="hub" data-lp-flip="GET /users|GET /keys|POST /keys" style="--x: 952; --y: 60; --w: 200">
@@ -257,357 +238,103 @@ Validate contracts early so exploration and testing stay tied to the same API de
 
 <style>
   /* ------------------------------------------------------------------
-     The hero: Scalar's ring wrapping it.
-
-     The hero stands on a planet: a globe far taller than the hero, so
-     the hero's top edge crops it and only its flanks are in frame,
-     drawn the way the home page draws Scalar's globe — the page's own
-     surface inside the page's border, nothing else. Its edge fades out
-     as it runs down, so the planet has no closing arc at the bottom
-     and dissolves into the page instead. Round it is the ring from
-     that globe at this scale: an ellipse with a band for a border, the
-     brand's colours running round it with Saturn's own lines cut out
-     of the page over them.
-
-     The globe is opaque, so the back of the ring disappears behind it
-     and comes out again at the flanks; the front of the ring, clipped
-     to its lower half, crosses the globe's face under the copy. That
-     is the whole trick: back ring, globe, copy, front ring, in that
-     order, and the ring reads as going round.
-
-     It draws itself round on arrival and then only a sheen turns over
-     it, so a frame of the hero is compositing work and never layout.
+     The hero: the copy, and under the calls to action a valley among
+     mountains with one sturdy tree on a knoll, very small butterflies
+     sitting in its crown. headless-hero.js draws it into the stage's
+     canvas, to its "enterprise" composition (the engine that draws
+     /products/headless), and the home page's customer logos are the
+     hero's last row, as on /products/headless, /products/api-hosting
+     and /products/agent.
      ------------------------------------------------------------------ */
-  .ent-hero {
-    /* the ring's colours and its grain, as the home page's globe
-       carries them */
-    --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.015 -0.0075 0 0 0 1.015 -0.0075 0 0 0 1.015 -0.0075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    --lp-ring-sheen: #fff;
-    /* The ring: a share of the hero's width, never under the floor,
-       and a height it keeps whatever the viewport does. The copy
-       inside it is always the same 460 by 202, so a ring that shrank
-       with the window would start cutting through the words. */
-    /* The ring sits square on, not tilted: it is a planet seen from
-       its own equator, so the band runs level out of each flank and
-       the ellipse is symmetrical left to right. */
-    /* The ring and the globe are a fixed size, not a share of the
-       page. The hero is always the same height, so a planet that
-       shrank with the window would stop being taller than the hero
-       and close into a dome over the copy. At this size it never
-       does: the window only ever crops more of the same scene, which
-       is what a planet bigger than the frame looks like. */
-    /* the ring's diameter, in its own plane: it is a real disc, lying
-       flat and tipped towards us, not an ellipse drawn flat */
-    /* The disc keeps pace with the hero, down to a floor, so a narrow
-       page shows an arc of ring rather than the middle of a band far
-       too big for it. Measured against the hero itself rather than the
-       window, because the sidebar takes a third of the window away;
-       and in container units rather than per cent, because this is
-       used for a height too, where per cent would mean the wrong box. */
-    --ent-rd: clamp(460px, 102cqw, 1180px);
-    /* the box the disc is projected into, with room for the near half
-       to be drawn wider than the disc and for any roll */
-    --ent-rbox: calc(var(--ent-rd) * 1.45);
-    /* the band's share of that diameter */
-    --ent-rk: 0.08;
-    /* how far the disc is tipped: at this angle it is nearly edge on,
-       so the band is a line across the planet's face and a broad fan
-       where it comes out at the flanks. A drag up or down changes it. */
-    --ent-tilt: 74deg;
-    /* how far round the disc has turned, about its own axis */
-    --ent-spin: 0deg;
-    /* and how far the whole ring is rolled over, so it can lie at an
-       angle across the page rather than always level */
-    --ent-roll: 0deg;
-    /* Far enough back that the near half of the ring is a little
-       wider and lower than the far half, which is what makes the disc
-       read as lying in space rather than drawn on the page, but not so
-       near that it fans out. */
-    --ent-persp: 2600px;
-    /* wide enough that the ring's wings come out past the flanks, and
-       that its crown clears the top of the hero at every width */
-    --ent-gd: 1000px;
-    /* the ring's centre, below the middle of the hero so the band
-       crosses under the copy */
-    --ent-cy: 56%;
-    /* The planet's centre, lower again: the ring sits across its
-       upper half rather than round its equator, so there is a body
-       under the band and not just a hoop. */
-    --ent-gy: calc(var(--ent-cy) + 110px);
+  /* The home page's hero box, so the h1 lands on the same line as the
+     other heroes' (their numbers, measured at 1440 by 900 and 1512 by
+     820); then the scene under the words, as deep as it is drawn,
+     which runs the hero on past the box; and under it the logos, in a
+     row of their own however many lines they take. */
+  .ent-scene {
+    --ent-w: calc(100dvw - var(--scalar-sidebar-width, 0px));
+    --ent-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+    --ent-line: 130.5px;
+    --ent-top: max(48px, calc(var(--ent-box) / 2 - var(--ent-line)));
+    /* How far the scene's canvas reaches below the words. headless-
+       hero.js stands the land on the canvas's foot, 19px above it, in
+       rooms of 256px; this is the depth /products/headless gives its
+       meadow, so the logos come at the same place on both pages. */
+    --ent-land: calc(1.3 * 256px + 19px + 14px - 40px);
+    /* the room under the logos */
+    --ent-under: 24px;
     position: relative;
-    /* the ring is sized against the hero's own width */
-    container-type: inline-size;
-    /* the ring, the globe and the copy stack inside the hero and
-       nowhere else */
-    isolation: isolate;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* the home page's hero, to the pixel: its copy starts 190px under
-       the top of the section, which is flush with the header. The
-       logo slider under it makes up the rest of the height. */
-    min-height: 560px;
-    margin-top: 0;
-    padding: 190px 0 24px;
-    /* the ring reaches past the column on both sides */
-    overflow: clip;
-    /* the whole hero is the ring's handle, except the copy; a finger
-       swiped down the page still scrolls it */
-    cursor: grab;
-    touch-action: pan-y;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    /* one column the width of the box: the slider's track is far wider */
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    /* the prose column caps its children at 680, and the hero is wider */
+    max-width: none;
+    min-height: var(--ent-box);
+    padding: var(--ent-top) 0 var(--ent-under);
+    /* with the room under the logos, 48px to the first section's rule */
+    margin: 0 0 24px;
   }
-  .ent-hero.is-spinning {
-    cursor: grabbing;
-    /* nothing to select out here, and a drag should not try */
-    user-select: none;
+  /* the home page's steps, where its padding grows and its lede rewraps */
+  @media screen and (max-width: 1100px) {
+    .ent-scene {
+      --ent-line: 138.5px;
+    }
   }
-  .dark-mode .ent-hero {
-    --lp-ring-sheen: #000;
+  @media screen and (max-width: 560px) {
+    .ent-scene {
+      --ent-line: 154.4px;
+    }
   }
-  /* The globe: the page's own surface inside the page's border, as on
-     the home page. The surface is the whole circle and hides whatever
-     of the ring is behind it, which is the only job it has — it is the
-     page's own colour, so nothing of it shows. */
-  .ent-globe {
+  @media screen and (max-width: 439px) {
+    .ent-scene {
+      --ent-line: 190.9px;
+    }
+  }
+  /* The scene fills the hero from the header down, across the whole
+     column right of the sidebar, and stops where the logos start: it is
+     placed in the grid's first row and reaches up through the padding
+     above it. It fades in once its first picture is drawn. The pointer
+     reaches it through the page (the butterflies take off when it comes
+     onto the tree), so it takes none itself. */
+  .ent-stage {
     position: absolute;
+    grid-row: 1 / 2;
+    top: calc(-1 * var(--ent-top));
+    bottom: 0;
     left: 50%;
-    top: var(--ent-gy);
-    z-index: 1;
-    width: var(--ent-gd);
-    /* a circle: a percentage height would be read against the hero and
-       give an egg */
-    aspect-ratio: 1;
-    /* a percentage margin is read against the width too, so this is
-       half the globe either way */
-    margin: calc(var(--ent-gd) / -2) 0 0 calc(var(--ent-gd) / -2);
-    border-radius: 50%;
-    background: var(--scalar-background-1);
+    width: var(--ent-w);
+    transform: translateX(-50%);
     pointer-events: none;
+    opacity: 0;
+    transition: opacity 700ms ease-out;
   }
-  /* The edge, on a layer of its own so it can fade where the surface
-     cannot: it is nothing at the crown, full by the shoulders, and
-     gone again by the time the ring's band crosses the face. So the
-     planet never closes into an arc — two flanks rise out of the top
-     of the hero and dissolve at the bottom — and that holds at every
-     width, where a crop would only work while the planet is taller
-     than the hero. */
-  .ent-globe::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    box-sizing: border-box;
-    border: var(--scalar-border-width) solid var(--scalar-border-color);
-    border-radius: inherit;
-    -webkit-mask: linear-gradient(transparent 8%, #000 32% 46%, transparent 58%);
-    mask: linear-gradient(transparent 8%, #000 32% 46%, transparent 58%);
+  .ent-scene[data-hl-ready] .ent-stage {
+    opacity: 1;
   }
-  /* The ring is a real disc: a circle the size of the ring, lying flat
-     and tipped towards the viewer, inside a box that carries the
-     perspective. Everything about it — the band, the ringlets, the
-     colours — is drawn as if seen face on, and the tip is what turns
-     it into the ellipse on the page. Turning it is then one rotation
-     of that disc about its own axis, so the colours travel round it
-     and go behind the planet as they should, and it costs the page a
-     transform rather than a repaint. */
-  .ent-ring {
-    position: absolute;
-    left: 50%;
-    top: var(--ent-cy);
-    /* Comfortably bigger than the disc, because the near half of the
-       disc is drawn nearer and so wider than the disc itself, and
-       because a mask is clipped to this box: at the disc's own size
-       the wings would be cut off at the sides. */
-    width: var(--ent-rbox);
-    height: var(--ent-rbox);
-    margin: calc(var(--ent-rbox) / -2) 0 0 calc(var(--ent-rbox) / -2);
-    perspective: var(--ent-persp);
-    /* The third axis: the whole ring rolled over in the plane of the
-       page. It is here rather than on the disc so that the mask which
-       splits the near half from the far one rolls with it — a mask is
-       taken in the element's own frame, before this turns it. */
-    rotate: var(--ent-roll);
-    pointer-events: none;
-  }
-  /* the band is the padding box masked out of the border box, which
-     leaves the padding itself: an annulus, seen face on; the lines are
-     painted underneath on a child filling the whole disc */
-  .ent-ring-disc {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: var(--ent-rd);
-    height: var(--ent-rd);
-    margin: calc(var(--ent-rd) / -2) 0 0 calc(var(--ent-rd) / -2);
-    box-sizing: border-box;
-    padding: calc(var(--ent-rd) * var(--ent-rk));
-    border-radius: 50%;
-    /* tipped first, then turned about its own axis */
-    transform: rotateX(var(--ent-tilt)) rotateZ(var(--ent-spin));
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask-composite: exclude;
-  }
-  /* the back of the ring under the globe, the front of it — its lower
-     half — over the globe and the copy both */
-  .ent-ring--back {
-    z-index: 0;
-  }
-  /* The near half is everything below the line the disc's own plane
-     draws across the page, which is the middle of this box however far
-     the ring is rolled — a mask is taken in the element's own frame,
-     before the roll turns it. It is feathered rather than cut: at the
-     flanks the near and far halves of the band all but meet, and a
-     hard edge there leaves a step where the band crosses the planet's
-     limb. Fading it instead lets the near half dissolve into the far
-     one, which is what the eye expects of a ring going behind a
-     planet. */
-  .ent-ring--front {
-    z-index: 3;
-    -webkit-mask: linear-gradient(transparent 47.5%, #000 53.5%);
-    mask: linear-gradient(transparent 47.5%, #000 53.5%);
-  }
-  /* The ring's lines, after Saturn's. The brand's colours run round the
-     band underneath and the lines are cut out of the page over them:
-     where a line was, the page's colour is held back and the colour
-     beneath comes through. Drawn that way the band stays solid, so its
-     two halves never show a seam where they overlap.
-
-     The ring is simply there when the page opens — it does not draw
-     itself on. What moves is the ring itself, turning slowly from the
-     first frame. */
-  /* How far the ring has turned, and how far it is tipped. Both are
-     set on the hero, so the two halves of the ring move together, and
-     both are registered so the browser reads them as angles rather
-     than re-parsing a string on every frame. */
-  @property --ent-spin {
-    syntax: '<angle>';
-    inherits: true;
-    initial-value: 0deg;
-  }
-  @property --ent-tilt {
-    syntax: '<angle>';
-    inherits: true;
-    initial-value: 74deg;
-  }
-  @property --ent-roll {
-    syntax: '<angle>';
-    inherits: true;
-    initial-value: 0deg;
-  }
-  .ent-ring-lines {
-    position: absolute;
-    inset: 0;
-    background:
-      var(--lp-grain) 0 0 / 160px 160px,
-      radial-gradient(
-        farthest-side,
-        color-mix(in srgb, var(--scalar-background-1) 69%, transparent) 64% 64.64%,
-        color-mix(in srgb, var(--scalar-background-1) 93%, transparent) 64.82% 65.53%,
-        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 65.71% 66.24%,
-        color-mix(in srgb, var(--scalar-background-1) 66%, transparent) 66.42% 67.15%,
-        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 67.33% 67.69%,
-        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 67.87% 68.57%,
-        color-mix(in srgb, var(--scalar-background-1) 63%, transparent) 68.75% 69.67%,
-        color-mix(in srgb, var(--scalar-background-1) 60%, transparent) 69.85% 70.21%,
-        color-mix(in srgb, var(--scalar-background-1) 88%, transparent) 70.39% 70.74%,
-        color-mix(in srgb, var(--scalar-background-1) 65%, transparent) 70.92% 71.29%,
-        color-mix(in srgb, var(--scalar-background-1) 54%, transparent) 71.47% 72.15%,
-        color-mix(in srgb, var(--scalar-background-1) 90%, transparent) 72.33% 72.91%,
-        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 73.09% 73.53%,
-        color-mix(in srgb, var(--scalar-background-1) 67%, transparent) 73.71% 74.15%,
-        color-mix(in srgb, var(--scalar-background-1) 24%, transparent) 74.33% 74.71%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 74.89% 75.28%,
-        color-mix(in srgb, var(--scalar-background-1) 31%, transparent) 75.46% 75.82%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 76% 76.65%,
-        color-mix(in srgb, var(--scalar-background-1) 39%, transparent) 76.83% 77.13%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 77.31% 77.97%,
-        color-mix(in srgb, var(--scalar-background-1) 40%, transparent) 78.15% 78.89%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 79.07% 79.77%,
-        color-mix(in srgb, var(--scalar-background-1) 28%, transparent) 79.95% 80.8%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 80.98% 81.35%,
-        color-mix(in srgb, var(--scalar-background-1) 27%, transparent) 81.53% 82.09%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 82.27% 82.59%,
-        color-mix(in srgb, var(--scalar-background-1) 33%, transparent) 82.77% 83.29%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 83.47% 84.06%,
-        color-mix(in srgb, var(--scalar-background-1) 36%, transparent) 84.24% 84.99%,
-        color-mix(in srgb, var(--scalar-background-1) 0%, transparent) 85.17% 86.59%,
-        color-mix(in srgb, var(--scalar-background-1) 89%, transparent) 86.77% 87.67%,
-        color-mix(in srgb, var(--scalar-background-1) 68%, transparent) 87.85% 88.1%,
-        color-mix(in srgb, var(--scalar-background-1) 97%, transparent) 88.28% 89.11%,
-        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 89.29% 90.13%,
-        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 90.31% 91.06%,
-        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 91.24% 92.06%,
-        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 92.24% 92.71%,
-        color-mix(in srgb, var(--scalar-background-1) 17%, transparent) 92.89% 93.71%,
-        color-mix(in srgb, var(--scalar-background-1) 58%, transparent) 93.89% 94.91%,
-        color-mix(in srgb, var(--scalar-background-1) 16%, transparent) 95.09% 95.41%,
-        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 95.59% 95.88%,
-        color-mix(in srgb, var(--scalar-background-1) 55%, transparent) 96.06% 97.39%,
-        color-mix(in srgb, var(--scalar-background-1) 95%, transparent) 97.57% 98.65%,
-        color-mix(in srgb, var(--scalar-background-1) 15%, transparent) 98.83% 100%
-      ),
-      conic-gradient(
-        from 0deg,
-        var(--scalar-color-red),
-        var(--scalar-color-orange),
-        var(--scalar-color-yellow),
-        var(--scalar-color-green),
-        var(--scalar-color-blue),
-        var(--scalar-color-purple),
-        var(--scalar-color-red)
-      );
-    background-blend-mode: overlay, normal, normal;
-  }
-  /* A sheen over the lines: a light arc and a fainter one opposite. It
-     lies on the disc, so it turns with it and the turn stays legible
-     where the colours are close together. It has to be square and wide
-     enough to cover the disc however far round it has got. */
-  .ent-ring-sheen {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 110%;
-    aspect-ratio: 1;
-    translate: -50% -50%;
-    background: conic-gradient(
-      from 0deg,
-      transparent,
-      color-mix(in srgb, var(--lp-ring-sheen) 30%, transparent) 50deg,
-      transparent 120deg 160deg,
-      color-mix(in srgb, var(--lp-ring-sheen) 15%, transparent) 230deg,
-      transparent 300deg
-    );
+  .ent-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   /* ---- the copy ----------------------------------------------------- */
-  /* The home page's hero copy, to the letter: 680 wide, centred, the
-     lines balanced, a 460 measure under the heading and the calls to
-     action as pills. It sits on the globe's face, with the ring
-     passing behind the globe above it and across the face below. */
-  .ent-hero-copy {
+  /* The home page's hero copy, to the letter: 680 wide at most, centred,
+     the lines balanced, a 460 measure under the heading and the calls
+     to action as pills, with the scene's room under it. */
+  .ent-copy {
     position: relative;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  .ent-copy {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 12px;
     min-width: 0;
     max-width: 680px;
+    align-self: start;
+    margin: 0 0 var(--ent-land);
     text-wrap: balance;
-    /* the words are for reading and selecting, not for spinning the
-       ring: landing.js leaves drags that start in here alone */
-    cursor: auto;
   }
   .ent-copy .hero {
     align-items: center;
@@ -657,16 +384,23 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
 
   /* ---- the customers ------------------------------------------------ */
-  /* The home page's logo slider, along the bottom edge of the hero, so
-     the names are on screen before any scroll. It stays outside the
-     hero's full-bleed box, in the page's own column, so the row fades
-     out at the same place the home page's does, and so the ring — which
-     is clipped to the hero — can never cross it. */
-  .ent-hero-foot {
-    display: flex;
-    flex-direction: column;
-    /* the room between the logos and the first section's rule */
-    margin-bottom: 48px;
+  /* The home page's logo slider, as the hero's last row, as wide as it
+     is on the home page: its 960px column and up to 76px past it, kept
+     32px clear of the window's edge, its column alone from 1100px down,
+     and 30px in from each edge once the sidebar goes at 1000px. It is
+     centred under the copy, and never narrower than the hero. */
+  .ent-trusted {
+    --ent-trusted-page: calc(100dvw - var(--scalar-sidebar-width, 0px));
+    --ent-trusted-column: min(960px, var(--ent-trusted-page) - 100px);
+    --ent-trusted-width: max(
+      100%,
+      var(--ent-trusted-column) +
+        max(0px, min(76px, (var(--ent-trusted-page) - var(--ent-trusted-column)) / 2 - 32px))
+    );
+    position: relative;
+    z-index: 2;
+    width: var(--ent-trusted-width);
+    margin: 0 calc((100% - var(--ent-trusted-width)) / 2);
   }
   /* Customer logos as one endless row. The track holds three copies of
      the list and slides exactly one copy's width, so the loop has no
@@ -733,20 +467,6 @@ Validate contracts early so exploration and testing stay tied to the same API de
     opacity: 0.4;
   }
 
-  /* Narrow enough that the calls to action fall onto two rows: the
-     hero grows and the ring drops with it, so the band still crosses
-     the face under the copy rather than through the buttons. */
-  @media screen and (max-width: 540px) {
-    .ent-hero {
-      --ent-cy: 64%;
-      /* a shallower band, so the arc does not read as a stripe */
-      --ent-rk: 0.11;
-      /* the ring is already low down here, so dropping the planet
-         further would bring its crown back into the frame */
-      --ent-gy: var(--ent-cy);
-      min-height: 660px;
-    }
-  }
   @media screen and (max-width: 720px) {
     .lp-trusted-item {
       padding-right: 36px;
@@ -768,11 +488,42 @@ Validate contracts early so exploration and testing stay tied to the same API de
       flex: auto;
       min-width: 0;
       flex-wrap: wrap;
+      justify-content: center;
       row-gap: 12px;
       width: auto;
     }
     .lp-trusted-track[aria-hidden] {
       display: none;
+    }
+    .lp-trusted-item {
+      padding-inline: 22px;
+    }
+    .ent-stage {
+      transition: none;
+    }
+  }
+  /* Where WebGL2 is unavailable the hero is the copy and the logos on
+     their own, the logos at least 48px under the words, rather than an
+     empty room where a drawing should be. */
+  [data-hl-fallback="true"] .ent-stage {
+    display: none;
+  }
+  [data-hl-fallback="true"] .ent-copy {
+    margin-bottom: 48px;
+  }
+  @media screen and (max-width: 1100px) {
+    .ent-trusted {
+      --ent-trusted-width: max(100%, var(--ent-trusted-column));
+    }
+  }
+  /* Below 1000px the sidebar goes: the scene takes the whole screen, and
+     the logos come 30px in from each edge of it. */
+  @media screen and (max-width: 1000px) {
+    .ent-scene {
+      --ent-w: 100dvw;
+    }
+    .ent-trusted {
+      --ent-trusted-width: max(100%, min(960px, 100dvw - 60px));
     }
   }
   :root {
@@ -798,18 +549,15 @@ Validate contracts early so exploration and testing stay tied to the same API de
   /* ------------------------------------------------------------------
      The figures, and the ring crossing them.
 
-     Scalar's ring, straightened out: the same paint as the one round
-     the planet in the hero — the brand's colours with the page's own
-     colour laid over them in ringlets, and grain over both — but run
-     along a straight band instead of round an ellipse. The ringlets
-     are the hero's: the outer stops of that same gradient — the ones
-     its band actually shows, the inner ones being hidden under the
-     globe — mirrored about the middle of this band so it reads the
+     Scalar's ring, straightened out: the brand's colours with the
+     page's own colour laid over them in ringlets, and grain over both,
+     run along a straight band instead of round an ellipse. The
+     ringlets are mirrored about the middle of the band so it reads the
      same from either edge inwards.
 
      It fades out to nothing on the left, and on the right it ends at
      a planet: the page's own surface inside the page's border, the
-     way the hero draws its globe. The band stops at the middle of
+     way the home page draws its globe. The band stops at the middle of
      that circle, so it goes behind it rather than across it.
 
      The whole thing crosses the section while it is on screen, over
@@ -817,7 +565,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
      turns over as the planet reaches it.
      ------------------------------------------------------------------ */
   .ent-sky {
-    /* the grain the hero's ring is painted with, so the two match */
+    /* the planets' grain, as the home page paints its globe with */
     --lp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.015 -0.0075 0 0 0 1.015 -0.0075 0 0 0 1.015 -0.0075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     /* how far along the band the planet sits */
     --ent-head: 88%;
@@ -1640,6 +1388,304 @@ Validate contracts early so exploration and testing stay tied to the same API de
     }
     .expander .expander-content {
       visibility: visible;
+    }
+  }
+
+  /* --------------------------------------------------------------------
+     The closing scene, as on /products/headless: the arched window in place of the sun and planets (below), the
+     packets in the page's colour (host-scene.css has none, so they took the lines' fill="none" and travelled unseen),
+     and, where the wide scene does not fit, the home page's phone tree (Your API, the window the full width, the agents
+     in two rows of three), which host-scene.css does not carry, so this scene used to spill off a phone.
+     -------------------------------------------------------------------- */
+  .cta .lp-packet {
+    fill: var(--scalar-color-1);
+  }
+  @media screen and (max-width: 1150px) {
+    .cta .lp-visual.lp-visual--host .lp-node--hub {
+      width: 100%;
+      justify-self: stretch;
+    }
+    .cta .lp-visual {
+      --lp-u: 1px;
+      box-sizing: border-box;
+      aspect-ratio: auto;
+      height: auto;
+      min-height: 0;
+      max-height: none;
+      container-type: normal;
+    }
+    .cta .lp-visual .lp-flow {
+      --lp-flow-dir: column;
+      position: relative;
+      left: auto;
+      top: auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px 8px;
+      justify-items: center;
+      align-items: start;
+      width: 100%;
+      height: auto;
+      margin: 0;
+      font-size: 1px;
+    }
+    .cta .lp-visual .lp-node {
+      position: relative;
+      left: auto;
+      top: auto;
+      width: auto;
+      transform: none;
+    }
+    .cta .lp-visual [data-lp-node="api"],
+    .cta .lp-visual [data-lp-node="hub"] {
+      grid-column: 1 / -1;
+    }
+    .cta .lp-visual [data-lp-node="dev-docs"] {
+      grid-area: 4 / 1;
+    }
+    .cta .lp-visual [data-lp-node="claude-code"] {
+      grid-area: 5 / 1;
+    }
+    .cta .lp-visual [data-lp-node="claude"] {
+      grid-area: 4 / 3;
+    }
+    .cta .lp-visual [data-lp-node="chatgpt"] {
+      grid-area: 5 / 3;
+    }
+    .cta .lp-visual [data-lp-node="gemini"] {
+      grid-area: 5 / 2;
+    }
+    /* one Developer is enough here: the SDK user goes, and the rest
+       stand in two rows of three (landing.js draws no line to it and
+       sends it no packets) */
+    .cta .lp-visual [data-lp-node="dev-sdk"] {
+      display: none;
+    }
+    .cta .lp-visual [data-lp-node="copilot"] {
+      grid-area: 4 / 2;
+    }
+    /* the tree has no room for the lane verbs */
+    .cta .lp-visual .lp-lane {
+      display: none;
+    }
+    /* a tile with its name under it, no card around it */
+    .cta .lp-visual .lp-chip {
+      flex-direction: column;
+      gap: 6px;
+      width: auto;
+      max-width: 100%;
+      padding: 0;
+      overflow: visible;
+      text-align: center;
+      white-space: normal;
+    }
+    .cta .lp-visual .lp-chip-icon {
+      width: 40px;
+      height: 40px;
+    }
+    .cta .lp-visual .lp-chip-label {
+      display: block;
+      font-size: 11px;
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+    .cta .lp-visual .lp-chip-sub {
+      display: none;
+    }
+  }
+  /* --------------------------------------------------------------------
+     The hosting scene's centre on this page: in place of the home page's sun and planets, an arched window onto a sky
+     with a flower and the Scalar mark in it, and Docs, MCP and SDKs as tags scattered round it. headless-hero.js paints
+     the window with the hero's meadow, once per theme and size (the root inside it, data-hl-mode="window"), and
+     headless-window.js answers the flow's hold: when a packet from Your API lands, each tag loads, then shows a check,
+     and the packets go on to the agents once the last check is in. The window carries data-lp-anchor, so landing.js runs
+     the lines into its sides. Sizes are in the scene's unit, as the planets were.
+     -------------------------------------------------------------------- */
+  .hl-hub {
+    position: relative;
+    width: calc(480 * var(--lp-u));
+    height: calc(340 * var(--lp-u));
+  }
+  .hl-window {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(220 * var(--lp-u));
+    height: calc(316 * var(--lp-u));
+    translate: -50% -50%;
+    /* an arch: a half circle on top, the sill's small corners below */
+    border-radius: calc(110 * var(--lp-u)) calc(110 * var(--lp-u)) calc(12 * var(--lp-u)) calc(12 * var(--lp-u));
+    overflow: hidden;
+    isolation: isolate;
+    /* the painted sky's own gradient, which shows until the painting fades in, and without WebGL */
+    background: linear-gradient(to bottom, #2c66cc, #3b78d6 32%, #6198e0 66%, #a9cbf1);
+  }
+  .dark-mode .hl-window {
+    background: linear-gradient(to bottom, #173a85, #21489a 32%, #3762b2 66%, #7092d0);
+  }
+  /* The window's painting: headless-hero.js binds the meadow root in it (data-hl-mode="window") and paints its sky and
+     daisy into the canvas once for each theme and size. The root fades in over the window's own gradient, the same sky
+     in CSS, which is what shows before the first picture and wherever WebGL2 is not there. */
+  .hl-window-meadow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+  }
+  .hl-window-meadow[data-hl-ready] {
+    opacity: 1;
+  }
+  .hl-window-meadow[data-hl-fallback] {
+    display: none;
+  }
+  .hl-window-meadow > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .hl-window-mark {
+    position: absolute;
+    left: 50%;
+    top: 34%;
+    width: calc(54 * var(--lp-u));
+    height: auto;
+    translate: -50% -50%;
+    color: #fff;
+    filter: drop-shadow(0 6px 16px rgb(16 40 96 / 28%));
+  }
+
+  /* Docs, MCP and SDKs: small boxed labels in the code font, set on the window's edge */
+  .hl-tag {
+    position: absolute;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 10px 6px 8px;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    background-color: var(--scalar-background-1);
+    color: var(--scalar-color-1);
+    font-family: var(--scalar-font-code);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 4%),
+      0 8px 20px rgb(0 0 0 / 6%);
+  }
+  .dark-mode .hl-tag {
+    background-color: var(--scalar-background-2);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 30%),
+      0 8px 20px rgb(0 0 0 / 35%);
+  }
+  /* Each tag sits half on the window's edge. It is placed by its side nearest the window, measured from the hub's
+     middle, so the overlap stays the same whatever the tag's width. The window is 220 units wide with its arch's
+     centre 122 units down the hub; above that, the arch's edge comes in (98 units out at Docs' height, not 110).
+     They keep clear of the lines, which meet the window's sides halfway down. */
+  .hl-tag--docs {
+    right: calc(50% + 98 * var(--lp-u) - 34px);
+    top: calc(72 * var(--lp-u) - 12px);
+  }
+  .hl-tag--mcp {
+    left: calc(50% + 108 * var(--lp-u) - 30px);
+    top: calc(104 * var(--lp-u) - 12px);
+  }
+  .hl-tag--sdk {
+    left: calc(50% + 110 * var(--lp-u) - 30px);
+    top: calc(268 * var(--lp-u) - 12px);
+  }
+  /* at rest a dot; loading a turning arc; done a check */
+  .hl-tag-state {
+    display: grid;
+    place-items: center;
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+  .hl-tag-state > * {
+    grid-area: 1 / 1;
+    transition:
+      opacity 160ms ease,
+      scale 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .hl-tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--scalar-color-3);
+  }
+  .hl-tag-spin,
+  .hl-tag-check {
+    width: 12px;
+    height: 12px;
+    opacity: 0;
+    scale: 0.6;
+  }
+  /* the arc turns on the compositor, and only while it shows */
+  .hl-tag-spin {
+    color: var(--scalar-color-2);
+    animation: hl-tag-turn 720ms linear infinite paused;
+  }
+  .hl-tag-check {
+    color: var(--scalar-color-green);
+  }
+  .hl-tag[data-state="loading"] .hl-tag-dot,
+  .hl-tag[data-state="done"] .hl-tag-dot {
+    opacity: 0;
+    scale: 0.4;
+  }
+  .hl-tag[data-state="loading"] .hl-tag-spin {
+    opacity: 1;
+    scale: 1;
+    animation-play-state: running;
+  }
+  .hl-tag[data-state="done"] .hl-tag-check {
+    opacity: 1;
+    scale: 1;
+  }
+  @keyframes hl-tag-turn {
+    to {
+      rotate: 360deg;
+    }
+  }
+  /* the tree, where the wide scene does not fit the card: the hub the column's width, the window at a fixed size */
+  @media screen and (max-width: 1150px) {
+    .cta .hl-hub {
+      width: 100%;
+      height: 300px;
+    }
+    .cta .hl-window {
+      width: 176px;
+      height: 252px;
+      border-radius: 88px 88px 10px 10px;
+    }
+    .cta .hl-window-mark {
+      width: 44px;
+    }
+    /* half on the window's edge here too: the window is 176 px wide, its arch's centre 112 px down the hub */
+    .cta .hl-tag--docs {
+      right: calc(50% + 80px - 30px);
+      top: 64px;
+    }
+    .cta .hl-tag--mcp {
+      left: calc(50% + 88px - 28px);
+      top: 106px;
+    }
+    .cta .hl-tag--sdk {
+      /* on the left here, so the wide layout's left and top give way to right and bottom */
+      left: auto;
+      right: calc(50% + 88px - 30px);
+      top: auto;
+      bottom: 50px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hl-tag-spin {
+      animation: none;
     }
   }
 </style>

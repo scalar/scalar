@@ -570,6 +570,10 @@ Most migrations come down to moving Markdown files and pointing Scalar at your O
     will-change: transform;
   }
   .dh-slice {
+    /* The theme's reset gives every element text-decoration: inherit, and its longhands are not inherited
+       properties, so Chrome restyled every slice whenever its card's style changed, which place() does to every card
+       every frame, and repainted it, since its image comes through var(url()). */
+    text-decoration: none;
     position: absolute;
     left: 0;
     width: 100%;

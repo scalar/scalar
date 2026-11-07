@@ -10,8 +10,9 @@
  * 2. The butterflies. Each follows the land's flow on real wings, in 3D, seen from behind and a little above, with its
  *    wings going from nearly flat to nearly shut. The wings are glass in pastel yellow, orange or blue: pale where the light comes through at the root,
  *    deepening outwards, with fine strokes fanning through them and a soft dab of warm colour where they gather.
- *    They beat in bursts, climbing in hops, and glide down between them. Nothing is painted on a wing: each one carries a little planet on a fine
- *    thread, with its framework's logo printed on it, and the planet swings a little behind it.
+ *    They beat in bursts, climbing in hops, and glide down between them. Nothing is painted on a wing, and they carry
+ *    nothing. (Each used to carry a little planet on a thread with its framework's logo on it; the mesh no longer has
+ *    the thread or the planet, so the code that swung and printed them below is not drawn.)
  * 3. Their wakes. Where a butterfly has just been, a few lines of the air it flies in show its colour, and
  *    let it go.
  *
@@ -1809,8 +1810,8 @@
           port2.postMessage(null)
         })
 
-  /* A static mesh for one butterfly: the far wings, the near wings, the soft middle where they meet, its two fine antennae and
-     what it carries, in the order they are painted. There are no legs, which only made it look like a bug. A wing is a grid, so that it
+  /* A static mesh for one butterfly: the far wings, the near wings, the soft middle where they meet, and its two fine antennae, in the order they are
+     painted. There are no legs, which only made it look like a bug. A wing is a grid, so that it
      can bend, and its corners are all a triangle list. */
   const buildMesh = () => {
     const out = []
@@ -1870,9 +1871,6 @@
     strip(-0.4, 0.24, 0.1, 2, 1, 1)
     strip(0, 1, 1, 6, 1, 12)
     strip(0, 1, 1, 6, -1, 12)
-    // What it carries comes last, so that its own wings never hide the logo.
-    strip(0, 1, 1, 5, 0, 18)
-    strip(-1.2, 1.2, 1.2, 4, 0, 1)
     return new Float32Array(out)
   }
 
