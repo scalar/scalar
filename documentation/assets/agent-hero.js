@@ -111,9 +111,8 @@
   }
 
   /**
-   * The agents the introduction page gives a globe of its own colour (its .lp-orb styles), painted
-   * here as it paints them, so an agent is the same globe on both pages, and in either theme, as
-   * there. A globe is its tint, a little lighter towards the middle, unless `body` gives the
+   * The agents that have a globe of their own colour (as the old home page's planets did), painted
+   * here the same in either theme. A globe is its tint, a little lighter towards the middle, unless `body` gives the
    * brand's own two colours; `glow` is a second colour along the bottom, `light` how strong the
    * white sheen along the bottom is, and `ink` the colour its mark takes.
    */

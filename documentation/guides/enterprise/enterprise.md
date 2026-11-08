@@ -1293,10 +1293,10 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
 
   /* --------------------------------------------------------------------
-     The closing scene, as on the home page: the arched window in place of the sun and planets (below), the
-     packets in the page's colour (host-scene.css has none, so they took the lines' fill="none" and travelled unseen),
-     and, where the wide scene does not fit, the home page's phone tree (Your API, the window the full width, the agents
-     in two rows of three), which host-scene.css does not carry, so this scene used to spill off a phone.
+     The closing scene, as on the home page: the arched window at the hub (below), the packets in the page's colour
+     (host-scene.css has none, so they took the lines' fill="none" and travelled unseen), and, where the wide scene
+     does not fit, the phone tree (Your API, the window the full width, the agents in two rows of three), which
+     host-scene.css does not carry, so this scene used to spill off a phone.
      -------------------------------------------------------------------- */
   .cta .lp-packet {
     fill: var(--scalar-color-1);
@@ -1395,8 +1395,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     }
   }
   /* --------------------------------------------------------------------
-     The hosting scene's centre on this page: in place of the home page's sun and planets, an arched window onto a sky
-     with a flower and the Scalar mark in it, and Docs, MCP and SDKs as tags scattered round it. headless-hero.js paints
+     The hosting scene's centre on this page: an arched window onto a sky with a flower and the Scalar mark in it, and Docs, MCP and SDKs as tags scattered round it. headless-hero.js paints
      the window with the hero's meadow, once per theme and size (the root inside it, data-hl-mode="window"), and
      headless-window.js answers the flow's hold: when a packet from Your API lands, each tag loads, then shows a check,
      and the packets go on to the agents once the last check is in. The window carries data-lp-anchor, so landing.js runs

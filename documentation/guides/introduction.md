@@ -1340,12 +1340,11 @@ The interface is still the product. It has moved to your API, where its newest u
   }
 
   /* --------------------------------------------------------------------
-     At the bottom: the home page's hosting scene, the page's argument in one picture: one OpenAPI document in, the
-     interfaces people and agents use now out, and Scalar between. The markup is the home page's (and /enterprise's),
-     styled by the shared host-scene.css, which this route loads as /enterprise does, and run by landing.js, whose
-     initLandingHostStage and initLandingFlow bind any page that has the markup. The <template id="lp-icon-…"> marks
-     are what landing.js dresses the planets with, found by id. The card is the MCP & Agent card's: as wide as the
-     logo wall, bg-b-1.5, the Scalar border, 2xl corners.
+     At the bottom: the hosting scene, the page's argument in one picture: one OpenAPI document in, the interfaces
+     people and agents use now out, and Scalar between. The markup is shared with /enterprise, styled by the shared
+     host-scene.css, which this route loads as /enterprise does, and run by landing.js, whose initLandingFlow binds
+     any page that has the markup. The card is the MCP & Agent card's: as wide as the logo wall, bg-b-1.5, the Scalar
+     border, 2xl corners.
      -------------------------------------------------------------------- */
   .hl-warp + .hl-infra {
     margin-top: 72px;
@@ -1393,13 +1392,10 @@ The interface is still the product. It has moved to your API, where its newest u
       padding: 32px 16px;
     }
   }
-  /* Where the wide scene does not fit the card, the scene is the home page's phone tree: Your API, the orbit the full
-     width, the agents in two rows of three. The wide scene never shrinks below a unit of 0.74px (0.66px over 1100px),
-     so it needs 873px (779px) and, beside the docs sidebar, first fits the card at about 1140px, the widest flip text
-     included. host-scene.css sizes the orbit for the tree only below 840px and does not carry the tree itself (the
-     home page keeps it inline, and /enterprise goes without, so its scene spills off a phone), so the home page's
-     rules and host-scene.css's stage sizes are here, scoped to the card, less the hero scene's own nodes and the
-     padding and overflow the home page's hosting scene does not take. */
+  /* Where the wide scene does not fit the card, the scene is a phone tree: Your API, the hub the full width, the
+     agents in two rows of three. The wide scene never shrinks below a unit of 0.74px (0.66px over 1100px), so it
+     needs 873px (779px) and, beside the docs sidebar, first fits the card at about 1140px, the widest flip text
+     included. host-scene.css does not carry the tree, so its rules are here, scoped to the card. */
   @media screen and (max-width: 1150px) {
     .hl-infra-card .lp-visual.lp-visual--host .lp-node--hub {
       width: 100%;
@@ -1495,8 +1491,8 @@ The interface is still the product. It has moved to your API, where its newest u
   }
 
   /* --------------------------------------------------------------------
-     The close: a paragraph under the scene that wraps up the page, then the home page's call to action with its own
-     rules (.cta and .expander-hover-link are copied from introduction.md, where they are page rules too).
+     The close: a paragraph under the scene that wraps up the page, then the call to action with its own rules (.cta
+     and .expander-hover-link are page rules here, as on /pricing).
      -------------------------------------------------------------------- */
   .hl-infra-card + .hl-close {
     margin-top: 48px;
@@ -1661,8 +1657,7 @@ The interface is still the product. It has moved to your API, where its newest u
   }
 
   /* --------------------------------------------------------------------
-     The hosting scene's centre on this page: in place of the home page's sun and planets, an arched window onto two
-     hands raised in a lavender dusk, holding up a glowing globe with the Scalar mark on it, and Docs, MCP and SDKs as
+     The hosting scene's centre on this page: an arched window onto two hands raised in a lavender dusk, holding up a glowing globe with the Scalar mark on it, and Docs, MCP and SDKs as
      tags scattered round it. headless-hero.js paints the window (the root inside it, data-hl-mode="globe"), and
      headless-window.js answers the flow's hold: when a packet from Your API lands, the globe flares up, each tag loads,
      then shows a check, and the packets go on to the agents once the last check is in. The window carries data-lp-anchor, so landing.js runs

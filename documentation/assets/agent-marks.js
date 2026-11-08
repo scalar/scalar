@@ -2,8 +2,8 @@
  * The marks drawn in the agent hero, as [slug, label, kind, svg].
  *
  * Kept apart from agent-hero.js so the engine stays readable: this file is only data. To add
- * an agent, add its entry here and give its slug a look in agent-hero.js: GLOBES for one of
- * the home page's planets, otherwise PEBBLE (a mark without one is graphite).
+ * an agent, add its entry here and give its slug a look in agent-hero.js: GLOBES for
+ * an agent with a globe of its own colour, otherwise PEBBLE (a mark without one is graphite).
  */
 window.__scalarAgentMarks = [
   [
