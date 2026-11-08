@@ -1538,9 +1538,9 @@ The interface is still the product. It has moved to your API, where its newest u
     display: grid;
     place-items: center;
     width: var(--hl-finale-width);
-    min-height: 640px;
+    min-height: 780px;
     margin: 72px calc((100% - var(--hl-finale-width)) / 2) 0;
-    padding: 120px 24px;
+    padding: 140px 24px;
     border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   }
   .hl-finale-copy {
@@ -1605,15 +1605,15 @@ The interface is still the product. It has moved to your API, where its newest u
     --hl-piece-ratio: 6 / 7;
     --hl-piece-turn: -4deg;
     --hl-piece-paper: linear-gradient(#e48b6c, #f0904f 42%, #f6a24b 78%, #f8b04f);
-    top: 64px;
+    top: 72px;
     left: 8px;
   }
   .hl-piece--desk {
     --hl-piece-w: 268px;
     --hl-piece-ratio: 5 / 4;
     --hl-piece-turn: 3deg;
-    --hl-piece-paper: linear-gradient(#233115, #5a6c47);
-    bottom: 30px;
+    --hl-piece-paper: linear-gradient(#6f8f62, #8fae6f 50%, #c4dc94);
+    bottom: 56px;
     left: 40px;
   }
   @media screen and (max-width: 1239px) {
