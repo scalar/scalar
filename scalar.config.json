@@ -1345,6 +1345,7 @@
             },
             "layout": {
               "toc": false,
+              "pageTitle": false,
               "feedback": false
             }
           },

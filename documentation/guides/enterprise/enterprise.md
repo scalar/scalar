@@ -75,8 +75,8 @@ Scalar covers the API lifecycle: the versioned registry with breaking-change det
 
 </div>
 
-<div class="ent-sky container-full" data-md-exclude>
-  <div class="ent-flight" data-hl-hero data-hl-mode="flight" aria-hidden="true"><canvas data-hl-canvas></canvas></div>
+<div class="ent-sky container-full">
+  <div class="ent-flight" data-hl-hero data-hl-mode="flight" aria-hidden="true" data-md-exclude><canvas data-hl-canvas></canvas></div>
   <div class="ent-figures" role="list">
     <div class="ent-figure" role="listitem">
       <div class="ent-flip">
