@@ -87,16 +87,17 @@ Looking to move an existing setup across rather than compare? See the [migration
     --cp-line: 130.5px;
     --cp-top: max(48px, calc(var(--cp-box) / 2 - var(--cp-line)));
     /* How far the canvas reaches below the words: the screen under the buttons, and the audience under it, the land's
-       room of 250px at the canvas's foot. */
-    --cp-land: 470px;
+       room of 250px at the canvas's foot. As deep as the window lets it be with the first paragraph still in view under
+       the hero (at 1512x820, 290px), from 260px to 470px. */
+    --cp-land: clamp(260px, calc(100svh - 530px), 470px);
     position: relative;
     display: grid;
     grid-template-rows: 1fr;
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
-    min-height: var(--cp-box);
+    /* unlike the other heroes, no least height: the land above sets how deep it is */
     padding: var(--cp-top) 0 0;
-    margin-bottom: 40px;
+    margin-bottom: 16px;
   }
   /* the home page's steps, where its padding grows and its lede rewraps */
   @media screen and (max-width: 1100px) {
