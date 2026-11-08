@@ -71,6 +71,8 @@ For two decades we obsessed over purpose-built interfaces. Every product earned 
 
 Now the interface people reach for first is a chat box. There is nothing to learn and it fits every job: ask for the issues still open before Thursday, the emails that need a reply or a free half hour with your team, and the answer comes back in the conversation, often as a small piece of the interface you used to open. The interface that matters now is the one an agent can use: your API, and the documentation that explains it.
 
+The internet already has a name for this: going headless. The word used to mean a CMS or a storefront with its front end taken off, an API carrying the content to whatever screen asked for it. Now people say it about software as a whole. Products ship an MCP server beside their app, docs sites publish an `llms.txt` for the agents that read them, and product teams have started to ask what their product is when nobody opens it.
+
 </div>
 
 <div class="hl-essay hl-tools">
@@ -79,7 +81,9 @@ Now the interface people reach for first is a chat box. There is nothing to lear
 
 When the interface is a prompt, an agent does the work your interface used to do, through your API. Scalar gives it what it needs from the OpenAPI document you already maintain: documentation it can read, and an MCP server it can call.
 
-Every docs page is also served as Markdown, with an `llms.txt` and a Docs MCP endpoint. Your OpenAPI document becomes an MCP server that is not yours to run, and any API fits in a fixed tool set of about 0.2% of context. You see call counts, errors and latency per tool and client, with arguments never stored.
+First, an agent has to understand your product. Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from one source, so agents get your API right the first time. Every page is also served as Markdown, with an `llms.txt` and a Docs MCP endpoint, while the people still reading in a browser get your domain, your theme, and access groups for partner portals. Under it all is an open source core with 15.7k GitHub stars and eight framework integrations.
+
+Then your users' agents act on it directly, with no code at all. Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, which is not yours to run, and any API fits in a fixed tool set of about 0.2% of context.
 
 </div>
 
@@ -104,7 +108,7 @@ Every docs page is also served as Markdown, with an `llms.txt` and a Docs MCP en
 
 Your customers' coding agents write the integration now. Scalar generates typed SDKs from your OpenAPI document, one pull request per release, so an agent's code compiles the first time.
 
-TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available, plus a CLI, published to npm, PyPI, Go modules, Maven Central, and RubyGems with changelogs.
+TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available, plus a CLI, published to npm, PyPI, Go modules, Maven Central, and RubyGems with changelogs. Coming from Stainless? Upload your `stainless.yml` as it is and existing call sites keep working.
 
 ### Customer showcase: Warp
 
@@ -180,9 +184,11 @@ func main() {
 
 <div class="hl-essay hl-infra">
 
-## The interface that matters now is your API
+## We run the infrastructure. You run your API.
 
-People ask a chat box, developers ask a coding agent or install an SDK, and every path leads back to your API. From the one OpenAPI document you already maintain, Scalar builds docs to read, an MCP server to call at `mcp.yourcompany.com`, and typed SDKs to build on. The MCP server is not yours to run, so you keep shipping your API.
+People ask a chat box, developers ask a coding agent or install an SDK, and every path leads back to your API. From the one OpenAPI document you already maintain, Scalar builds docs to read, an MCP server to call, and typed SDKs to build on.
+
+Connecting takes one line, from any remote MCP client to the operations you choose. Behind that line, an MCP server is a production service. It must stay up, authenticate callers, absorb agent traffic, and track a protocol that changes every few months. Scalar runs yours at `mcp.yourcompany.com`, with OAuth, rate limits and nothing to deploy, and goes where MCP goes. You see call counts, errors and latency per tool and client, with arguments never stored. You keep shipping your API.
 
 </div>
 
