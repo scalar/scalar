@@ -1146,6 +1146,12 @@
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ],
               "links": [
                 {
                   "rel": "canonical",

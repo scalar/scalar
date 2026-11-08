@@ -4154,20 +4154,28 @@ const initLandingOrbs = debounce(() => {
   })
 })
 
-/* The light crossing the enterprise page's figures.
+/* The butterflies crossing the enterprise page's figures.
  *
- * It only crosses while the band is on screen — there is no sense in
- * it crossing where nobody is looking. The three cards start blank
- * and face down, and each one turns over as the head of the light
- * reaches it: the watcher below follows where the head actually is
- * rather than running the turns off a timer, so it is the light that
- * flips them and not a coincidence of timing. They land once.
+ * They are the meadow's own, the heroes' butterflies, which
+ * headless-hero.js draws into a band laid over the three cards (its
+ * "flight" composition), and they only cross while the band is on
+ * screen — there is no sense in it crossing where nobody is looking.
+ * Each card turns over as the first of the butterflies reaches it: the
+ * watcher below follows where that butterfly actually is (the band's
+ * hlLead) rather than running the turns off a timer, so it is the
+ * butterflies that flip them and not a coincidence of timing.
+ *
+ * The cards are face up until a crossing is on its way to them. A card
+ * whose number has not been on the screen yet is turned face down as a
+ * crossing comes for it, and that crossing turns it up again; a number
+ * that has been on the screen is never hidden, and a crossing spins it
+ * from the number back to the number. So a reader who reaches the
+ * cards between crossings, or while the page is loading, sees the
+ * numbers at once and never sees them taken away.
  */
-/** where the head sits along the light, as a share of its length */
-const ENT_HEAD_AT = 0.88
 /** how long a card takes to turn over and settle */
 const ENT_SPIN_MS = 1500
-/** how far left of a card the head has to get before it counts again */
+/** how far left of a card the first butterfly has to be before it counts again */
 const ENT_REARM = 40
 
 const initEnterpriseSky = debounce(() => {
@@ -4175,19 +4183,16 @@ const initEnterpriseSky = debounce(() => {
     .filter((sky) => sky.dataset.entSkyBound !== 'true')
     .forEach((sky) => {
       sky.dataset.entSkyBound = 'true'
-      const comet = sky.querySelector('.ent-comet')
-      const figures = sky.querySelector('.ent-figures')
+      const flight = sky.querySelector('.ent-flight')
       const cards = [...sky.querySelectorAll('.ent-figure')]
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
       let watching = 0
 
-      /* Four turns, landing face up. The first one starts from the
-         blank side, since that is what is showing; every one after it
-         starts from the number, because the number has been seen and
-         hiding it again would be a step backwards. */
+      /* Four turns, landing face up: from the blank side if that is
+         what is showing, and otherwise from the number. */
       const turn = (card) => {
         const flip = card.querySelector('.ent-flip')
-        const from = card.dataset.entLanded === 'true' ? 0 : 180
+        const from = card.classList.contains('is-armed') && card.dataset.entLanded !== 'true' ? 180 : 0
         card.entTurn?.cancel()
         card.entTurn = flip.animate([{ transform: `rotateY(${from}deg)` }, { transform: 'rotateY(1440deg)' }], {
           duration: ENT_SPIN_MS,
@@ -4197,30 +4202,71 @@ const initEnterpriseSky = debounce(() => {
         card.dataset.entLanded = 'true'
       }
 
-      // a card turns as the head reaches its middle, and is ready to
-      // turn again once the head is back behind it on the next pass
+      /* The cards are face up in the stylesheet, so that a page with no
+         script shows the numbers rather than three blanks, and they stay
+         so until the butterflies are flying: wherever they cannot fly
+         (no WebGL to draw them with), or should not (where motion is
+         unwanted), the numbers simply show. */
+      const flying = () =>
+        !!flight &&
+        flight.dataset.hlReady === 'true' &&
+        flight.dataset.hlFallback !== 'true' &&
+        typeof flight.hlLead === 'function' &&
+        !reduceMotion.matches
+
+      // A card turns as the first butterfly reaches its middle, and is
+      // ready to turn again once they are back behind it on the next
+      // pass. One whose number nobody has seen yet waits face down for
+      // a crossing that is on its way to it.
       const watch = () => {
         watching = 0
-        if (comet) {
-          const box = comet.getBoundingClientRect()
-          const head = box.left + box.width * ENT_HEAD_AT
-          cards.forEach((card) => {
-            const r = card.getBoundingClientRect()
-            if (head >= r.left + r.width / 2) {
-              if (card.dataset.entPassed !== 'true') {
-                card.dataset.entPassed = 'true'
-                turn(card)
-              }
-            } else if (head < r.left - ENT_REARM) {
+        const live = flying()
+        const lead = live ? flight.hlLead() : Number.NEGATIVE_INFINITY
+        const head = live ? flight.getBoundingClientRect().left + lead : lead
+        cards.forEach((card) => {
+          const r = card.getBoundingClientRect()
+          const armed = card.classList.contains('is-armed')
+          const landed = card.dataset.entLanded === 'true'
+          // a number that has been on the screen has been seen
+          const seen = card.dataset.entSeen === 'true'
+          if (!seen && !armed && r.bottom > 0 && r.top < window.innerHeight) {
+            card.dataset.entSeen = 'true'
+          }
+          // (written only when it changes, as this runs every frame)
+          const rearm = () => {
+            if (card.dataset.entPassed === 'true') {
               card.dataset.entPassed = 'false'
             }
-          })
-        }
+          }
+          if (!Number.isFinite(head)) {
+            // between crossings, or with no butterflies at all: a card
+            // still face down (if the band gave up before the crossing
+            // reached it) shows its number again
+            if (armed && !landed) {
+              card.classList.remove('is-armed')
+            }
+            rearm()
+          } else if (head >= r.left + r.width / 2) {
+            if (card.dataset.entPassed !== 'true') {
+              card.dataset.entPassed = 'true'
+              turn(card)
+            }
+          } else {
+            if (!armed && !landed && card.dataset.entSeen !== 'true') {
+              card.classList.add('is-armed')
+            }
+            if (head < r.left - ENT_REARM) {
+              rearm()
+            }
+          }
+        })
         if (sky.classList.contains('is-flying')) {
           watching = requestAnimationFrame(watch)
         }
       }
 
+      // watched while any of the band is on the screen, since that is
+      // when the butterflies cross
       new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
@@ -4234,15 +4280,7 @@ const initEnterpriseSky = debounce(() => {
           })
         },
         { threshold: 0 },
-      ).observe(sky)
-
-      // The cards are face up in the stylesheet, so that a page with
-      // no script shows the numbers rather than three blanks. Turning
-      // them face down is the script's first job — and not one it does
-      // at all where motion is unwanted.
-      if (figures && !reduceMotion.matches) {
-        figures.classList.add('is-armed')
-      }
+      ).observe(flight || sky)
     })
 })
 

@@ -1,11 +1,54 @@
-<div class="flex flex-col gap-3 hero small-test">
+<section class="pr-scene" data-hl-hero data-hl-mode="pricing">
+<div class="pr-stage" aria-hidden="true" data-md-exclude><canvas class="pr-canvas" data-hl-canvas></canvas></div>
+<div class="pr-copy">
+<div class="hero flex flex-col gap-3">
   <scalar-heading level="1" slug="pricing" class="text-balance">
     Plans for every API interface
   </scalar-heading>
-  <p>
- Start with beautiful API docs, then scale into SDKs, MCP servers, and developer portals — with pricing that grows with the size of your API.
-  </p>
+  <p class="pr-lede">Start with beautiful API docs, then scale into SDKs, MCP servers, and developer portals — with pricing that grows with the size of your API.</p>
+  <div class="pr-cta flex gap-2">
+    <a class="t-editor__button pr-pill" href="https://dashboard.scalar.com/register">Get started</a>
+    <a class="t-editor__button pr-pill" href="https://scalar.cal.com/forms/142d1e65-97d2-4d03-94c3-96f98ddef95a" target="_blank" rel="noopener noreferrer">Book a demo</a>
+  </div>
 </div>
+</div>
+<div class="pr-trusted" data-md-exclude>
+  <div class="lp-trusted">
+    <div class="lp-trusted-viewport" role="img" aria-label="Trusted by Thomson Reuters, Maersk, Tailscale, Supabase, Fly.io, Clerk, Bobcat and PAR Technology">
+    <div class="lp-trusted-track">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    <div class="lp-trusted-track" aria-hidden="true">
+      <div class="lp-trusted-item lp-trusted-item-tr"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tr.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-maersk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-tailscale.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-supabase.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-flyio.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-clerk.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-bobcat.svg"></scalar-icon></div>
+      <div class="lp-trusted-item"><scalar-icon class="lp-trusted-logo" src="../assets/remote/logo-partech.svg"></scalar-icon></div>
+    </div>
+    </div>
+  </div>
+</div>
+</section>
 
 <section class="pricing-agent-context" data-agent-context="pricing">
   <h2>Scalar pricing summary</h2>
@@ -61,29 +104,6 @@
   </ul>
 </section>
 
-
-<h4 class="text-c-3 mt-10 font-normal">Trusted by the world's best API teams</h4>
-
-<div class="logowall">
-  <div class="logowall-item logowall-item-tr">
-    <scalar-icon src="../assets/remote/logo-tr.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-maersk.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-bobcat.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-clerk.svg?v=2"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-lufthansa.svg"></scalar-icon>
-  </div>
-  <div class="logowall-item">
-    <scalar-icon src="https://cdn.scalar.com/marketing/landing/logo-partech.svg?v=2"></scalar-icon>
-  </div>
-</div>
 
 <section class="pricing-overview-cards" aria-label="Pricing overview">
   <article class="pricing-overview-card pricing-overview-card-free">
@@ -993,6 +1013,288 @@
   <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
 </div>
 <style>
+  /* ------------------------------------------------------------------
+     The hero: the copy, and under it a lemonade stand in a clearing in
+     the woods, its roof gone over to moss, fairy lights strung from it
+     to the trees, flowers heaped round it and very small butterflies
+     sitting on its roof. headless-hero.js draws it into the stage's
+     canvas, to its "pricing" composition (the engine that draws
+     /products/headless, /enterprise and /company).
+     ------------------------------------------------------------------ */
+  /* The home page's hero box, so the h1 lands on the same line as the
+     other heroes' (their numbers, measured at 1440 by 900 and 1512 by
+     820); then the scene under the words, as deep as it is drawn,
+     which runs the hero on past the box. */
+  .pr-scene {
+    --pr-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+    --pr-line: 130.5px;
+    --pr-top: max(48px, calc(var(--pr-box) / 2 - var(--pr-line)));
+    /* How far the scene's canvas reaches below the words. headless-
+       hero.js stands the land on the canvas's foot, 19px above it, in
+       rooms of 256px, and the floor's foot is 1.6 rooms under the
+       land's top line; the stand stands a little over a room down it,
+       and this is the room it needs to stand as tall as the words
+       allow. On a phone the stand is sized by the width, not by the
+       words, so the land comes up by the room that leaves under them
+       (90px at 360, nothing from 540 up). */
+    --pr-lift: clamp(0px, (540px - 100vw) * 0.5, 100px);
+    --pr-land: calc(1.6 * 256px + 19px + 14px + 40px - var(--pr-lift));
+    /* the room under the logos, as under the home page's: 24px, and
+       40px from 1100px down, where its sections' padding takes over */
+    --pr-under: 24px;
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    /* one column the width of the box: the slider's track is far wider */
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    max-width: none;
+    min-height: var(--pr-box);
+    padding: var(--pr-top) 0 var(--pr-under);
+    margin: 0 0 24px;
+  }
+  /* the home page's steps, where its padding grows and its lede rewraps */
+  @media screen and (max-width: 1100px) {
+    .pr-scene {
+      --pr-line: 138.5px;
+      --pr-under: 40px;
+    }
+  }
+  @media screen and (max-width: 560px) {
+    .pr-scene {
+      --pr-line: 154.4px;
+    }
+  }
+  @media screen and (max-width: 439px) {
+    .pr-scene {
+      --pr-line: 190.9px;
+    }
+  }
+  /* The scene fills the hero from the header down, across the whole
+     window (the page has no sidebar), and stops where the logos start:
+     it is placed in the grid's first row and reaches up through the
+     padding above it. It fades in once its
+     first picture is drawn. The pointer reaches it through the page
+     (the butterflies take off when it comes onto the stand), so it
+     takes none itself. */
+  .pr-stage {
+    position: absolute;
+    grid-row: 1 / 2;
+    top: calc(-1 * var(--pr-top));
+    bottom: 0;
+    left: 50%;
+    width: 100dvw;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+  }
+  .pr-scene[data-hl-ready] .pr-stage {
+    opacity: 1;
+  }
+  .pr-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* The home page's hero copy: 680 wide at most, centred, the lines
+     balanced, a 460 measure under the heading, with the scene's room
+     under it. */
+  .pr-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    max-width: 680px;
+    align-self: start;
+    margin: 0 0 var(--pr-land);
+    text-wrap: balance;
+  }
+  .pr-copy .hero.hero {
+    margin-top: 0;
+    align-items: center;
+    text-align: center;
+  }
+  /* the heading is a flex row (it holds its anchor button) */
+  .pr-copy .hero .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
+    justify-content: center;
+  }
+  .pr-lede {
+    max-width: 460px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
+    text-wrap: balance;
+  }
+  /* The home page's two pills under the lede, as on /company and
+     /enterprise: 12px on top of the hero's 12px gap, so they sit 24px
+     under it, a little apart from the copy. */
+  .pr-cta {
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* no margin: the theme's button carries one, which drops it below the
+     other pill */
+  .pr-cta .pr-pill {
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border-radius: 999px;
+    justify-content: center;
+  }
+  @media (max-width: 760px) {
+    .pr-cta {
+      width: 100%;
+    }
+    .pr-cta .pr-pill {
+      flex: 1 1 auto;
+    }
+  }
+  /* The home page's customer logo slider, as wide as it is there: the
+     home page's 960px column and up to 76px past it, kept 32px clear
+     of the window's edge, its column alone from 1100px down, and 30px
+     in from each edge from 1000px down. It is centred under the copy,
+     so it runs past the copy's narrower column on both sides. */
+  .pr-trusted {
+    --pr-trusted-column: min(960px, 100dvw - 100px);
+    --pr-trusted-width: max(
+      100%,
+      var(--pr-trusted-column) +
+        max(0px, min(76px, (100dvw - var(--pr-trusted-column)) / 2 - 32px))
+    );
+    position: relative;
+    z-index: 2;
+    width: var(--pr-trusted-width);
+    margin: 0 calc((100% - var(--pr-trusted-width)) / 2);
+  }
+  /* Customer logos as one endless row. The track holds three copies of
+     the list and slides exactly one copy's width, so the loop has no
+     seam; the spacing is padding on each item rather than a flex gap
+     for the same reason. The edges fade out so logos never look cut
+     off. landing.js (initTrustedWalls) stops the animation while the
+     row is off screen. */
+  .lp-trusted {
+    --lp-trusted-speed: 36s;
+    padding-top: 28px;
+  }
+  .lp-trusted-viewport {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+  .lp-trusted-track {
+    flex: none;
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: lp-trusted-slide var(--lp-trusted-speed) linear infinite;
+  }
+  /* Only real pointers pause it: a tap leaves :hover stuck on touch screens */
+  @media (hover: hover) {
+    .lp-trusted-viewport:hover .lp-trusted-track {
+      animation-play-state: paused;
+    }
+  }
+  .lp-trusted.is-off .lp-trusted-track {
+    animation-play-state: paused;
+  }
+  @keyframes lp-trusted-slide {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .lp-trusted-item {
+    display: flex;
+    align-items: center;
+    height: 28px;
+    padding-right: 44px;
+    color: var(--scalar-color-1);
+  }
+  .lp-trusted-item .lp-trusted-logo {
+    display: block;
+    width: auto;
+    height: 20px;
+    max-width: none;
+  }
+  /* the stacked Thomson Reuters lockup */
+  .lp-trusted-item-tr .lp-trusted-logo {
+    height: 28px;
+  }
+  /* Clerk's upper arc fades as it does on the home page */
+  .lp-trusted-item svg[viewBox="0 0 441 128"] path:last-of-type {
+    opacity: 0.4;
+  }
+  @media screen and (max-width: 1100px) {
+    .pr-trusted {
+      --pr-trusted-width: max(100%, var(--pr-trusted-column));
+    }
+    .lp-trusted-item {
+      padding-right: 36px;
+    }
+    .lp-trusted-item .lp-trusted-logo {
+      height: 18px;
+    }
+    .lp-trusted-item-tr .lp-trusted-logo {
+      height: 24px;
+    }
+  }
+  @media screen and (max-width: 1000px) {
+    .pr-trusted {
+      --pr-trusted-width: max(100%, min(960px, 100dvw - 60px));
+    }
+  }
+  /* Where WebGL2 is unavailable the hero is the copy on its own, with
+     48px under it, rather than an empty room where a drawing should
+     be. */
+  [data-hl-fallback="true"] .pr-stage {
+    display: none;
+  }
+  [data-hl-fallback="true"] .pr-copy {
+    margin-bottom: 48px;
+  }
+  .pr-scene[data-hl-fallback="true"] {
+    min-height: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pr-stage {
+      transition: none;
+    }
+    /* Without motion, lay the logos out in rows so every one is
+       visible, centred under the copy, each gap split either side of
+       a logo. */
+    .lp-trusted-viewport {
+      mask-image: none;
+    }
+    .lp-trusted-track {
+      animation: none;
+      flex: auto;
+      min-width: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 12px;
+      width: auto;
+    }
+    .lp-trusted-track[aria-hidden] {
+      display: none;
+    }
+    .lp-trusted-item {
+      padding-inline: 22px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) and (max-width: 1100px) {
+    .lp-trusted-item {
+      padding-inline: 18px;
+    }
+  }
 .pricing-agent-context {
   display: none;
 }
@@ -1124,23 +1426,6 @@
   height: 14px;
   margin-top: 3px;
   fill: currentColor;
-}
-.logowall.logowall {
-  margin: 24px 0 0;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  align-items: center;
-  gap: 40px;
-}
-.logowall-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.logowall-item svg {
-  width: 100%;
-  height: auto;
-  max-height: 24px;
 }
 .ign-logo__fill {
   fill: var(--scalar-color-1);
@@ -1729,19 +2014,6 @@ h4.t-editor__heading {
     }
     .pricing-overview-card ul {
       margin-top: 32px;
-    }
-    .logowall.logowall {
-      grid-template-columns: repeat(3, 1fr);
-      column-gap: 20px;
-      row-gap: 40px;
-    }
-    .logowall-item {
-      justify-content: start;
-    }
-    .logowall-item svg {
-      max-width: 100%;
-      height: 100%;
-      max-height: 20px;
     }
     .t-editor.page {
       padding-inline: 30px;
