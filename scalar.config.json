@@ -5060,7 +5060,10 @@
               "filepath": "documentation/compare/index.md",
               "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
               "layout": {
-                "toc": false
+                "toc": false,
+                "pageActions": false,
+                "pageTitle": false,
+                "feedback": false
               },
               "head": {
                 "title": "Scalar Comparison Guides",
@@ -5086,6 +5089,12 @@
                   {
                     "name": "robots",
                     "content": "index, follow"
+                  }
+                ],
+                "scripts": [
+                  {
+                    "path": "documentation/assets/headless-hero.js",
+                    "defer": true
                   }
                 ]
               }
