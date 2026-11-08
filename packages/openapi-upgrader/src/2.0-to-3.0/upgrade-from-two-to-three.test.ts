@@ -190,6 +190,49 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('prefers operation produces over global produces for responses', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/reports/{id}/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': {
+                description: 'CSV export',
+                schema: {
+                  type: 'string',
+                },
+                examples: {
+                  Mars: 'id,name\n1,Mars',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports/{id}/export']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'CSV export',
+        content: {
+          'text/csv': {
+            schema: {
+              type: 'string',
+            },
+            examples: {
+              Mars: {
+                value: 'id,name\n1,Mars',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
