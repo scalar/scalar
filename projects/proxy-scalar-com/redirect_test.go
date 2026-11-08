@@ -100,8 +100,13 @@ func TestRedirectOriginPolicy(t *testing.T) {
 					if err != nil || response.Code != http.StatusOK {
 						t.Fatalf("same-origin redirect failed: status=%d error=%v", response.Code, err)
 					}
+					for _, sent := range requests {
+						if sent.Header.Get("Proxy-Authorization") != "" {
+							t.Error("forwarded hop-by-hop proxy credentials")
+						}
+					}
 					final := requests[len(requests)-1]
-					for _, header := range []string{"Authorization", "Proxy-Authorization", "Cookie", "X-Api-Key", "Arbitrary-Credential"} {
+					for _, header := range []string{"Authorization", "Cookie", "X-Api-Key", "Arbitrary-Credential"} {
 						if final.Header.Get(header) == "" {
 							t.Errorf("same-origin request lost %s", header)
 						}
@@ -235,18 +240,17 @@ func TestBufferedBodyLimit(t *testing.T) {
 			size       int
 			replayable bool
 		}{{maxReplayableBodySize, true}, {maxReplayableBodySize + 1, false}} {
-			body, release, err := proxyServer.replayableBody(iotest.DataErrReader(strings.NewReader(strings.Repeat("a", tc.size))))
-			if err != nil {
-				t.Fatalf("Expected no error, got %v", err)
-			}
+			body, release := proxyServer.replayableBody(io.NopCloser(iotest.DataErrReader(strings.NewReader(strings.Repeat("a", tc.size)))), -1)
+			received, _ := io.ReadAll(body)
+			replay, _ := body.getBody()
+			defer replay.Close()
 			defer release()
 			defer body.Close()
 
-			if _, ok := body.(*bufferedBodyReader); ok != tc.replayable {
+			if _, ok := replay.(*bufferedBodyReader); ok != tc.replayable {
 				t.Errorf("%d bytes: expected replayable to be %v, got %v", tc.size, tc.replayable, ok)
 			}
 
-			received, _ := io.ReadAll(body)
 			if len(received) != tc.size {
 				t.Errorf("Expected %d bytes to be sent, got %d", tc.size, len(received))
 			}
@@ -260,15 +264,15 @@ func TestBufferedBodyLimit(t *testing.T) {
 
 		// Each body stays held, like a client that stalls before finishing
 		for i := 0; i < 100; i++ {
-			body, release, err := proxyServer.replayableBody(strings.NewReader(strings.Repeat("a", maxReplayableBodySize)))
-			if err != nil {
-				t.Fatalf("Expected no error, got %v", err)
-			}
-			if _, ok := body.(*bufferedBodyReader); ok {
+			body, release := proxyServer.replayableBody(io.NopCloser(io.LimitReader(zeroBodyReader{}, maxReplayableBodySize)), -1)
+			io.Copy(io.Discard, body)
+			replay, _ := body.getBody()
+			if _, ok := replay.(*bufferedBodyReader); ok {
 				replayable++
 			}
 			releases = append(releases, func() {
 				body.Close()
+				replay.Close()
 				release()
 			})
 		}

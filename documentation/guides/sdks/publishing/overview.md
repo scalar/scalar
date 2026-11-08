@@ -6,7 +6,8 @@ Publishing is **opt-in** and **off by default**. Nothing is published until you 
 
 <scalar-image
   src="/sdks/sdk-overview.png"
-  alt="The SDK overview page in the Scalar dashboard showing a target with a linked GitHub repository"
+  src-dark="/sdks/sdk-overview-dark.png"
+  alt="The SDK studio in the Scalar dashboard showing a TypeScript target with a linked GitHub repository"
   size="full">
 </scalar-image>
 

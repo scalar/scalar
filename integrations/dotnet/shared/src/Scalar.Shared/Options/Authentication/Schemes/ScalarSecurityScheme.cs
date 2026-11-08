@@ -16,6 +16,7 @@ namespace Scalar.AspNetCore;
 [JsonDerivedType(typeof(ScalarHttpSecurityScheme))]
 [JsonDerivedType(typeof(ScalarApiKeySecurityScheme))]
 [JsonDerivedType(typeof(ScalarOAuth2SecurityScheme))]
+[JsonDerivedType(typeof(ScalarOpenIdConnectSecurityScheme))]
 public abstract class ScalarSecurityScheme
 {
     /// <summary>

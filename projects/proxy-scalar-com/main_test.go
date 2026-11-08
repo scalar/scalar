@@ -2,8 +2,10 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -469,7 +471,7 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Handles nested scalar_url chain pointing back to proxy without looping", func(t *testing.T) {
+	t.Run("Stops nested scalar_url chain pointing back to proxy", func(t *testing.T) {
 		selfProxyServer := httptest.NewServer(http.HandlerFunc(proxyServer.handleRequest))
 		defer selfProxyServer.Close()
 
@@ -493,12 +495,12 @@ func TestProxyBehavior(t *testing.T) {
 			t.Fatalf("Failed to read response body: %v", err)
 		}
 
-		if resp.StatusCode != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, resp.StatusCode)
+		if resp.StatusCode != http.StatusLoopDetected {
+			t.Errorf("Expected status code %d, got %d", http.StatusLoopDetected, resp.StatusCode)
 		}
 
-		if len(body) == 0 {
-			t.Error("Expected non-empty response body")
+		if !strings.Contains(string(body), proxyLoopError) {
+			t.Errorf("Expected the loop error, got %q", string(body))
 		}
 	})
 
@@ -936,6 +938,10 @@ func TestCidrPolicy(t *testing.T) {
 	})
 
 	t.Run("Should not authorize VPC metadata", func(t *testing.T) {
+		// Resolve deterministically so this exercises address policy, not local DNS.
+		replaceLookup(t, func(ctx context.Context, host string) ([]net.IP, error) {
+			return []net.IP{net.ParseIP("169.254.169.254")}, nil
+		})
 		// Create a new request
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=https://metadata.google.internal", nil)
 		w := httptest.NewRecorder()
@@ -979,7 +985,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range blocked {
-		if !isBlockedHost(host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || !blocked {
 			t.Errorf("Expected %s to be blocked", host)
 		}
 	}
@@ -991,7 +997,7 @@ func TestBlockedTransitionAddresses(t *testing.T) {
 	}
 
 	for _, host := range allowed {
-		if isBlockedHost(host) {
+		if blocked, err := isBlockedHost(context.Background(), host); err != nil || blocked {
 			t.Errorf("Expected %s to be allowed", host)
 		}
 	}

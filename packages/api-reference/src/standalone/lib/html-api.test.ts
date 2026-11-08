@@ -21,17 +21,20 @@ vi.mock('@unhead/vue/client', async () => {
 })
 
 beforeEach(() => {
-  global.document = createHtmlDocument(`
+  vi.stubGlobal(
+    'document',
+    createHtmlDocument(`
     <html>
       <body>
         <div id="mount-point"></div>
       </body>
     </html>
-  `)
+  `),
+  )
 })
 
 afterEach(() => {
-  // vi.resetAllMocks()
+  vi.unstubAllGlobals()
 })
 
 const consoleWarnSpy = vi.spyOn(console, 'warn')
@@ -370,13 +373,16 @@ describe('findDataAttributes (legacy)', () => {
 
 describe('getConfigurationFromDataAttributes', () => {
   it('createApiReference', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
         <html>
           <body>
             <script id="api-reference" data-url="/openapi.json"></script>
           </body>
         </html>
-      `)
+      `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -386,13 +392,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles spec content from script tag', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" type="application/json">{"openapi":"3.1.0"}</script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -402,13 +411,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles proxy URL configuration', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-proxy-url="https://proxy.example.com" data-url="/spec.json"></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
       ...baseConfig,
@@ -419,13 +431,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles custom configuration via data-configuration attribute', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-configuration='{"darkMode":true,"spec":{"url":"/custom.json"}}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,
@@ -436,7 +451,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('preserves multiple sources from the data-configuration attribute', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -444,7 +461,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     // toStrictEqual guarantees we do not emit a stray `proxyUrl: undefined` when none is configured.
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
@@ -454,7 +472,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('preserves shared configuration and the proxy url alongside multiple sources', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -463,7 +483,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"theme":"purple","sources":[{"url":"/public.json"},{"url":"/admin.json"}]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
       _integration: 'html',
@@ -474,7 +495,9 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('falls back to single-source parsing when the sources array is empty', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <script
@@ -483,7 +506,8 @@ describe('getConfigurationFromDataAttributes', () => {
             data-configuration='{"sources":[]}'></script>
         </body>
       </html>
-    `)
+    `),
+    )
 
     // An empty sources array carries no documents, so the data-url should still be picked up
     // and the (unusable) sources key should be dropped by the single-source schema.
@@ -495,13 +519,16 @@ describe('getConfigurationFromDataAttributes', () => {
   })
 
   it('handles deprecated data-spec attribute with warning', () => {
-    global.document = createHtmlDocument(`
+    vi.stubGlobal(
+      'document',
+      createHtmlDocument(`
       <html>
         <body>
           <div data-spec='{"openapi":"3.1.0"}'></div>
         </body>
       </html>
-    `)
+    `),
+    )
 
     expect(getConfigurationFromDataAttributes(document)).toEqual({
       ...baseConfig,

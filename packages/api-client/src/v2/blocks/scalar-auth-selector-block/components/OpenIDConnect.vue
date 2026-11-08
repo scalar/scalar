@@ -3,8 +3,8 @@ import { ScalarButton } from '@scalar/components/button'
 import { useLoadingState } from '@scalar/components/loading'
 import { useToasts } from '@scalar/use-toasts'
 import type { WorkspaceEventBus } from '@scalar/workspace-store/events'
+import type { OpenIdConnectObjectSecret } from '@scalar/workspace-store/request-example'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import { type OpenIdConnectObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 
 import type { CustomFetch } from '@/v2/blocks/operation-block/helpers/send-request'
 import { fetchOpenIDConnectDiscovery } from '@/v2/blocks/scalar-auth-selector-block/helpers/fetch-openid-connect-discovery'
@@ -34,7 +34,7 @@ const {
   /** Proxy URL */
   proxyUrl: string
   /** OpenID Connect scheme */
-  scheme: OpenIdConnectObject
+  scheme: OpenIdConnectObjectSecret
   /** Optional fetch override (IPC-backed on desktop) used for discovery requests */
   customFetch?: CustomFetch
 }>()
@@ -73,6 +73,12 @@ const handleOpenIdConnect = async (): Promise<void> => {
 
   /** Set the newly discovered params in the secret store */
   const openIdConnect = openIDDiscoveryToFlows(_discovery)
+  // Seed PKCE once so later user edits keep precedence over the configured default.
+  const configuredPkce =
+    scheme.configuredFlows?.authorizationCode?.['x-usePkce']
+  if (openIdConnect.authorizationCode && configuredPkce !== undefined) {
+    openIdConnect.authorizationCode['x-usePkce'] = configuredPkce
+  }
   eventBus.emit('auth:update:security-scheme-secrets', {
     payload: openIdConnect,
     name,
