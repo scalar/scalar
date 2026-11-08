@@ -1,11 +1,12 @@
 /**
- * The centre of the hosting scene on /products/headless: an arched window onto a sky with a flower, the Scalar mark in
- * it, and Docs, MCP and SDKs as tags set on its edge.
+ * The centre of the hosting scene on /products/headless: an arched window onto two hands holding up a glowing globe
+ * with the Scalar mark on it, and Docs, MCP and SDKs as tags set on its edge.
  *
  * landing.js runs the scene's flow (the lines, the packets, the chips). Its hub here carries data-lp-hold, so when a
  * packet from Your API lands on the window the flow asks this file what to wait for (an lp-flow-hold event) before it
  * sends packets on to everything on the right. The answer is the tags: each one loads, then shows a check, one after
- * another, and the packets go out once the last check is in. The tags go back to rest before the next round.
+ * another, and the packets go out once the last check is in. The tags go back to rest before the next round. As the
+ * packet lands, the globe flares up (a window with a [data-hl-flare] light in it; the enterprise page's has none).
  *
  * The window itself is painted by headless-hero.js, which binds the meadow root inside it (data-hl-mode="window") and
  * paints it once for each theme and size; until then, and without WebGL, the window shows the sky's gradient in CSS.
@@ -43,6 +44,30 @@
     }
     hub.dataset.hlBound = 'true'
     const tags = [...hub.querySelectorAll('[data-hl-tag]')]
+    const flare = hub.querySelector('[data-hl-flare]')
+
+    /* The globe's flare: up to white in a moment as the packet goes in, held a little, then settling back into its
+       glow. With reduced motion it is a softer, shorter brightening that does not grow. */
+    const shine = () => {
+      if (!flare || typeof flare.animate !== 'function') {
+        return
+      }
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      for (const animation of flare.getAnimations()) {
+        animation.cancel()
+      }
+      flare.animate(
+        reduced
+          ? [{ opacity: 0 }, { opacity: 0.6, offset: 0.25 }, { opacity: 0 }]
+          : [
+              { opacity: 0, transform: 'scale(0.6)' },
+              { opacity: 1, transform: 'scale(1)', offset: 0.08 },
+              { opacity: 0.95, transform: 'scale(1.08)', offset: 0.32 },
+              { opacity: 0, transform: 'scale(1.12)' },
+            ],
+        { duration: reduced ? 900 : 2600, easing: 'cubic-bezier(0.2, 0.7, 0.3, 1)' },
+      )
+    }
 
     /* Every timer goes through `later`, so letting go clears them all. */
     const timers = new Set()
@@ -62,6 +87,7 @@
       timers.forEach((id) => clearTimeout(id))
       timers.clear()
       rest()
+      shine()
       const last = tags.length - 1
       const done = new Promise((resolve) => {
         tags.forEach((tag, index) => {

@@ -7099,6 +7099,437 @@
       garden.perch(w * 0.5, h * 0.42, 1)
     },
   }
+
+  /* The window in the closing card of /products/headless, after the picture Cameron sent: two hands raised in a lavender
+     dusk to a light between them, and in that light a globe, glowing, with the Scalar mark on it (the mark and the
+     globe's lines are the page's, over the canvas). The picture is kept as a grid of its colours, a cell for every six of
+     its pixels in 32 tones from violet to cream, and painted a stroke to a cell along its contours, as the collage's
+     hands are; over it the globe, a ball of light painted in rings round its middle, pale pink going to a bright rim,
+     with a warm halo round it that the hands' fingers rise into; and a few small lights twinkling about it. The globe
+     always glows; when a packet from Your API lands, the page lights it up (see headless-window.js). */
+  const GLOBE_PHOTO = {
+    grid: [88, 161],
+    palette: [
+      '#79679e',
+      '#726ca2',
+      '#776ca2',
+      '#756da3',
+      '#786da3',
+      '#7e6ca2',
+      '#7a71a5',
+      '#8471a5',
+      '#7f76a8',
+      '#8d78aa',
+      '#867eb0',
+      '#9482af',
+      '#938ac8',
+      '#9e8ab4',
+      '#9d8dca',
+      '#a891cd',
+      '#a993b9',
+      '#b493cc',
+      '#bf94cd',
+      '#b49fc2',
+      '#b0a0d3',
+      '#c8a1ce',
+      '#c9b5d1',
+      '#e0b1d7',
+      '#dcc6d9',
+      '#fbc4e0',
+      '#e5d6e0',
+      '#fbd2e5',
+      '#fad7d4',
+      '#f9e2e5',
+      '#fcece0',
+      '#fdf3d6',
+    ],
+    cells:
+      '50000000000000022020222222222422244422242444444444443442244333333333333311111111111118ou000000000000000000022222222222223442422222422422422233442222333333133331111111111111111m00000000000000000002222022222222222224232222222222222332222231133111131111111111111111110000000000000000002222222222222222224223224222222222222222222311211111113111111111111111000000000000000000002222222222222222422222222222222242222222233331111111311111111111111100000000000000000000222022222222222222222422222222222222334322313311111111111111111111110000000000000000000222202222222222242224422222222222222233332223113331111111113111111111000000000000020220522222222222222222244422422222422222223433222311113311111111311311111100000000000000052225222222222222442442222422444422222422324333333333331313331133131133310000000000000055255222224222222242244424444444444222222222333223333333331133111333113113000000005000005025524524442244224244442444444442222222222233322333333333333333333331333300000000555555555552255552244422244444244444444422442222322322233333333333333333333333330000000000055555555522552444444444444444342424444444224222222223233133333333333333333333000050555555555555555555244444444444242444244444444444424242322223133333333333333333633300005055555555555555555544444444444444444424444444442444422233422433434433333333466333665000555555555555555555545555544444444444444444444444422444422433433343344444336443636366555555555555555555555556555552444444444444422424444444444442243343444344446466666666666655555555555575555555555455555464444442444444242444444244442444424444444464666666666666665555555555557575557555555555554444444444444444444442244444444444444444466466666666666666555555555577577577777757557555546444444444444424444244424444444444464664666666668668866655555577777777777777777777755555646444444444244444224444444444246446666666666666668888885577777777777777777777777777755665644424444444444424444444444446666666666666668886888888557777777777777777777777777777666564444444244242444444444444666666666666888888888888888877777777777777777777777777777777666664444444424442444244444446666666666888888888888888887777777777777999979977977777777776666444444444444244444646666666666688888888888888888888777777777999999999999997777777777786666644424444244444444666666666888888888888888888888877777779999999999999999999997777776666666444444644446664666666868888888888888888aa88aaa8777779999999999999999999999999977777766666646666444666466666668888888888888a8aaaaaaaaaaa777999999999999999999999999999999777788666666666666666666668888888888a88aaaaaaaaaaaaaaaa7799999999999999999bbbbb9bb99999997777888866666686576666888888888888aaaaaaaaaaaaaaaaaaaa7999999999999bbbbbbbbbbbbbbbb9999999777787788777777778888888888aaaaaaaaaaaaaaaaaaaaaaaaa999999999b9bbbbbbbbbbbbbbbbbbbbb99999999777777777777888888888aaaaaaaaaaaaaaaaaaaaaaaaaaa9999999bbbbbbbbbbbbbbbbdddbbbbbbbbbb9999999999999999999a99999aaaaaaaaaaabbabbbbbbbbbbaaa999999bbbbbbbbbddddddddddddddddbbbbbbbbbbb9999999999999999a9aaaabbbbbbbbbbbbbbbbbbbbbbbb9999bbbbbbbbddddddddddddddddddddddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9999bbbbbbbddddddddddddddgggdddddddddddddddddbdbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb9bbbbbbbddddddddddgggggggggggggggggggdddddddddddddddddbddddddddddddddddddddddddddddddddb9bbbbbbdddddddddgggggggggggggggggggggggggggggggdddddddddddddddddddddddddddddddddddddddddbbbbbddddddddggggggggggggggjjjjjjjjjjjggggggggggggggggggggdddgddddddddddddddddddddddddddbbbbbdddddddgggggigggggjjjjjjjjjjiijiiijjjjjjjjjjjggggggggggggggggggggggggggddddddddddddbbbbbdddddgggggginljjjjjjjjjiillllllllllllliijjjjjjjjjjjjgggggggggggggggggggggggggddddddbbbdddddddgggggghnnjjjjjjllllllllllllllllllllllljjjjjjjjjjjjjjjjgggggggggggggggggggggdddbbddddddggggggggelnijjjlllllllllllllllllllllllllllllljjjjjjjjjjjjjjjjjjggjgggggggggggggdbdddddggggggggjfelplllllllllllllnnnnnnnnnnnnnnmlllllllllljjjjjjjjjjjjjjjjjjjjjggggggggggbdddddgggggggjjcelpnllllllllnnnnnnnnnnnnnnnnnnnnnmmmmlmllllllljjjjjjjjjjjjjjjjjjjjggggggddddddggggggjjfcclpnlllllmnnnnnnnnnnnnnnnnnnnnnnnnnnmmmmmmmmlllljjjjjjjjjjjjjjjjjjjjggggdddddggggggjjjecclpnlllnnnnnnnnnnnnnppppppppppnnnnnnnnmmmmmmmmmmmmllljjjjjjjjjjjjjjjjjjgddddggggggjjjfefenpnlllnnnnnnnnnnpppppppppppppppoooooonnnmmmmmmmmmmmmmljjjjjjjjjjjjjjjjjddddggggggjjjehnlnnllhlpnnnnnnnppppppppppppppppppppooooooonnmmmmmmmmmmmmmmjjjjjjjjjjjjjjddddgggggjjjhehnpnnlfhnpnnnnopppppppppppppppprppppppoooooooooommmmmmmmmmmmmmjjjjjjjjjjjjdddgggggjjjjecinpnlffinpnnoopppppppprprpprrrrrrrrrrrppqooooooooommmmmmmmmmmmmmjjjjjjjjjjddggggggjjjjeeinpnfeilpnnoppppppprrrrrrrrrrrrrrrrrrrrrqqqqooooooooommmmmmmmmmmmmmjjjjjjjddgggggjjjjfcfinnhehinpnoppppprrrrrrrrrrrrrrrrrrrrrrrrrqqqqqoooooooommmmmmmmmmmmmmmjjjjjddgggggjjjjecfinnehilnnoopppprrrrrrrrrrrrrrrrrrrrrrrrrrrrqqqqqoooooooooommmmmmmmmmmmmjjjdgggggjjjjfcchlplfiinnnoopprrrrrrrrrrrrrrrrrrrrrrrrrtrrrrrrqqqqqoooooooommmmmmmmmmmmmmmjdgggggjjjjecehlnffilnnoopprrrrrrrrrrrrrrrrrrrrrrttttttttttrrqqqqqqooooooooommmmmmmmmmmmjdgggggjjjjcceinnehlnnoooprrrrrrrrrrrrrrrrrttrtttttttttttttttrqqqqqqqoooooooommmmmmmmmmmmgggggjjjjiheeinlfinnnooprrrrrrrrrrrrrttttttttttttttttttttttttttqqqqqqqoooooooommmmmmmmmmdggggjjjjillilphhnpnooqqrrrrrrrrtttttttttttttttttttttttttttttttqqqqqqqqoooooooommmmmmmmmdggggjjjhhinnnnflpnoooqqrrrrrtttttttttttttttttttttttttttttttttttqqqqqqqqqoooooommmmmmmmmgggggjjjfhilppnhnpnoooqqrrrtttttttttttttttttttttutttttttttttttttttqqqqqqqqooooooommmmmmmgggggjjffiilpplippoooqqrrrttttttttttttuuuuuuuuuuuuuuuutttttttttttttqqqqqqqqooooooommmmmmdggggjjefiilppllpnoooqqrrtttttttttttuuuuuuuuuuuuuuuuuuuuuutttttttttttqqqqqqqooooooommmmmdggggjfchiilppllpnooqqqrrttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuttttttttqqqqqqqqoooooommmmgggggjechiinpplnpnooqqrrtttttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuutttttttqqqqqqqooooooommmgggggfcehiinpplnpoooqqqttrtttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuutttttttqqqqqqqooooooommdggggeceiiinpplnpoooqqqqmnrttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuutttttttqqqqqqqooooooomdggggeceiiinpplnpooqqqqmknptuuuuuuuuuuuuvvvvvvvvuuuvuutuutqtuuuuuuuttttttqqqqqqqqoooooomdggggcceiiinppnnpooqqqojlpptuuuuuuuuuvvvvvvvvvvvvvvuurlkooikmqtuuuuuutttttqqqqqqqooooooodggggecehiinppnppooqqqmjmpptuuuuuuuuvvvvvvvvvvvvvvvvurniefiheekotuuuuttttttqqqqqqqoooooodggggfcchiinpppppnoqqqklnppsuuuuuvvvvvvvvvvvvvvvvvvvvspnhecefeeefmqtuutttttqqqqqqqoooooodggggjcchiinpppppnoqqoklnpptuuuvvvvvvvvvvvvvvvvvvvvvvuppnhecceeeecfkotutttttqqqqqqqoooooddgggjecfiilpppppnoqqmkmppstuuuvvvvvvvvvvvvvvvvvvvvvvvspplhfecceeeccekqtttttqqqqqqqqooooddgggjfcfiilpppppnoqqmknpsstuuvvvvvvvvvvvvvvvvvvvvttuvvppplhfecceffecckqtttttqqqqqqqooooddggggjeeiilppppppoqqmknpsstuvvvvvvvvvvvvvvvvvvvvvofkmqtppnlhfecceffecckqttttqqqqqqqqoooddggggjfeiilpppppppqqmlnpssuuvvvvvvvvvvvvvvvvvvvvvqiecekmnpnihfecceffeecfottttqqqqqqqooodddgggjjeiilpppppppoqmmnpssuvvvvvvvvvvvvvvvvvvvvvvunleccceinniiheccefhfecfotttqqqqqqqqoodddgggjjfhilppppppppqmmnpssuvvvvvvvvvvvvvvvvvvvvvvvspnfccccflliiheccefhfecfoqtqqqqqqqqoodddggggjjhilppppppppqmmopssuvvvvvvvvvvvvvvvvvvvvvvvvppnhecccehhhihecccehhecemqqqqqqqqqoodddggggjjiiinpppppppqomosssuvvvvvvvvvvvvvvvvvvvvvvvvvppnifecccefhihfcccehhecemqqqqqqqqooddddgggjjiiinpppppppromosssuuvvvvvvvvvvvvvvvvvvvvvvvvvppnlheccccehiifeccefhecemqqqqqqqoobdddgggjjiiilnpppppppomossssvvvvvvvvvvvvvvvvvvvvvvsmouvsppnifecccefhhhecceffcckqqqqqqqoobdddgggjjiiiiinpppppponossssvvvvvvvvvvvvvvvvvvvvvvplfkqutppniheecccehhhfccceeceoqqqqqqqobdddgggjjiiiihhlnppppppossssvvvvvvvvvvvvvvvvvvvvvvpnhfemtuppnihfecccefhheccefeemqqqqqqqobbdddgggjiiiihffkmppppppsssssvvvvvvvvvvvvvvvvvvvvvpniheefourpniihfecccehfecceeemqqqqqqqobbdddgggjiiiiihhfklnppsssssssvvvvvvvvvvvvvvvvvvvvvsplihecemtppniiiheccceheccefekqqqqqqqobbdddgggjjiiiiihffklopsssssssuvvvvvvvvvvvvvvvvvvvvupniihecemtrpniiiheccehfccehffqqqqqqoobbbddgggjjiiiiiihkkkmopssssssuvvvvvvvvvvvvvvvvvvvvvspniihfecktrpniiihecehhecehhfoqqqqqoobbbdddgggjjiiiiiikkkkmosssssssvvvvvvvvvvvvvvvvvvvvvvspniihfecktrpliiihechhfcehhfmqqqqqqobbbdddgggjjiiiiillkkkkmossssssvvvvvvvvvvvvvvvvvvvvvvvspniihfccktrniiiifcfihecfihmqqqqqooabbbddgggjjjiiiilllkkkmmqssssssvvvvvvvvvvvvvvvvvvvvvvvspniihfccktniiiifcfhhfcfihloppppnmabbbddgggjjjjiiilllllkkmmossssssvvvvvvvvvvvvvvvvvvvvvvvrpniihecemniiiiheehiheehilppnnlffabbbdddgggjkkiiillllllmmmmosssssvvvvvvvvvvvvvvvvvvvvvvvvppliiheceliiiiifehiheehiinlheeekaabbdddgggjkkkiiilllllmmmmoosssssvvvvvvvvvvvvvvvvvvvvvvvupniihfccfhiiiihehiifehiiifecekoaabbdddgggjjkkiiilllllmmmmmoosssssvvvvvvvvvvvvvvvvvvvvvvuspniihecchiiiihffiihehiihfcckooaaabbddgggjkkkkiiilllllmmmmmoosssssvvvvvvvvvvvvvvvvvvvvvvupniiifccfiiiiiffiiiffiiifcemooaaabbddegffkkkkliilllllmmmmmmoqsssssvvvvvvvvvvvvvvvvvvvvvvspliihecehiiiihfiiihhiiihekoooaaabbddeeffkkkkkiiilllllmmmmmmooqsssuvvvvvvvvvvvvvvvvvvvuuupliiifccfiiiihfhiiihiiihfmoooaaabbcceeefkkkkkkiiillllmmmmmmmooqssuuvvvvvvvvvvvvvvvvvuuuupniiihecfiiiihhhiiiiiiihkooooaaabbcceeefkkkkkkiiilllllmmmmmmooqqstuuuvvvvvvvvvvvuuuuuuuupniiiifcehiiiihhiiiiiiiimooooaaaabccceeffkkkkkiiiilllllmmmmmmmooqsuuuuvvvvvvvvvuuuuuuuuupniiiiheehiiiiiiiiiiiiiimooooaaaabccceeffkkkkkkhiiilllllmmmmmmoooqtuuuuuuuuvuvuuuuuuuuuupniiiiifefiiiiiiiiiiiiiimooooaaaacccceeffkkkkkkhhhiilllllmmmmmmmootuuuuuuuuuuuuuuuuuuuuurniiiiiheehiiiiiiiiiiiiimooooaaaacccceeffkkkkkkhhhhiilllllmmmmmmnoquuuuuuuuuuuuuuuuuuuuurniiiiiifefiiiiiiiiiiiiimooooaaaacccceeffkkkkkkhhhhiiillllllmmmmmnotuuuuuuuuuuuuuuuuuuutrniiiiiihefiiiiiiiiiiiiimooooaaaacccceeefkkkkkkkhhhhiillllllllllmmotuuuuuuuuuuuuuuuuutttrniiiiiiifehiiiiiiiiiiiloooooaaaccccceeffkkkkkkkhhhhhiiillllllkklmottttttuuuuuuuttttttttrniiiiiiihfhiiiiiiiiiiiloooooaaaccccceeefkkkkkkkffhhhiiillllllkkllotttttttttttttttttttttpniiiiiiihfhiiiiiiiiiiiooooooaaaccccceeffkkkkkkkfffhhhiiilllllkkklotttttttttttttttttttttpliiiiiiihfhiiiiiiiiiimooooooaaaccccceeffkkkkkkkffffhhiiiiiiliffhlotttttttttttttttttttttpiiiiiiiiihhiiiiiiiiiloooooomaacccccceeffkkkkkkkffffhhhiiiiiihffhlqttttttttttttttttttttrniiiiiiiiihhiiiiiiiiiooooooomaaccccceeeffkkkkkkkffffhhhiiiiiihffilqttttttttttttttttttttpliiiiiiiiiiiiiiiiiiimooooooomaaccccceeeffkkkkkkkffffhhhiiiiiihfhilrrrrrrrtrrrtrrrrrrrtrnhiiiiiiiiiiiiiiiiiilooooooommacccccceeeffkkkkkkkffffhhhiiiiiihhhinrrrrrrrrrrrrrrrrrrrrqhhiiiiiiiiiiiiiiiiiimooooooommacccccceefffkkkkkkkffffhhhiiiiiihhilprrrrrrrrrrrrrrrrrrrrmfhiiiiiiiiiiiiiiiiiloooooooommcccccceeefffkkkkkkkffffhhhiiiiiiiilorrrrrrrrrrrrrrrrrrrroffhiiiiiiiiiiiiiiiiinooooooommmaccccceeefffkkkkkkfffffhhhiiiiiiiinrrrrrrrrrrrrrrrrrrrrqkehiiiiiiiiiiiiiiiiiloooooooonmmcccccceeeffkkkkkkkfffffhhiiiiiiiilprrrrrrrrrrrrrrrrrrrrlefhiiiiiiiiiiiiiiiiinooooooonmmmccccceeefffkkkkkkhfffffhhiiiiiiiinrrrrrrrrrrrrrrrrrrrrneefiiiiiiiiiiiiiiiiiloooooooonmmmccccceeefffkkkkkkfffffhhhiiiiiiiinrrrrrrrrrrrrrrrrrrrofcehiiiiiiiiiiiiiiiiinooooooonnmmmccccceeffffkkkkkffffffhhiiiiiiiilprrrrrrrrrrrrrrrrrrpkecfhiiiiiiiiiiiiiiiilooooooonnnmmmcccceeefffkkkkkkffffffhhiiiiiiiinprrrrrrrprrrrrprrrrnecehiiiiiiiiiiiiiiiiinpoooooonnmmmmcccceeefffkkkkkffffffhhhiiiiiiiinrrrrrrpppppppprrrrpfccehiiiiiiiiiiiiiiiilooooooonnmmmmmcccceefffkkkkkkffffffhhiiiiiiiilprrrrrrrrppppppppppneccfiiiiiiiiiiiiiiiiinpoooonnnnmmmmmccceeefffkkkkkfffffffhhhiiiiiiilprrrrprprppppppppppkccehiiiiiiiiiiiiiiiiinooooonnnnmmmmmcceeeffffkkkkfffffffhhhiiiiiiiinpprrrprppppppppppppfccehiiiiiiiiiiiiiiiiinoooonnnnnmmmmmcceeeffffkkkkfffffffhhhiiiiiiiinppppppppppppppppppneccfiiiiiiiiiiiiiiiiiinnnnnnnnnnmmmmlceeeeffffkkkffffffffhhiiiiiiiilppppppppppppppppppplccefiiiiiiiiiiiiiiiiiinnnnnnnnnnmmmmlceeeffffkkkffffeeffhhhiiiiiiiilppprpppppppppppppppkccehiiiiiiiiiiiiiiiiiilnnnnnnnnmmmmmleeeeffffkkkffeeeeffhhhiiiiiiiinppprpppppppppppppppkccehiiiiiiiiiiiiiiiiiilnnnnnnnnmmmmlleeefffffkffffeeefffhhiiiiiiiiinppppppppppppppppppphccehiiiiiiiiiiiiiiiiiillnnnnnnnmmmllleeffffffffffeeeeffhhhiiiiiiiiinpppppppppppppppppppfccehiiiiiiiiiiiiiiiiiilllnnnnnnmmmllleefffffffffeeeeeffhhhiiiiiiiilpppppppppppppppppppphccehiiiiiiiiiiiiiiiiiillllmnnmmmmlllleeffffffffeeeeeeffhhhiiiiiiiilppppppppppppppppppppkccehiiiiiiiiiiiiiiiiiillllllnmmmlllllefffffffffeeeeeffhhhiiiiiiiiinpppppppppppppppppppplccehiiiiiiiiiiiiiiiiiilllllllllllllllffffffffffeeeeeffhhiiiiiiiiiinppppppppppppppppppppnecehiiiiiiiiiiiiiiiiiilllllllllllllllfffffffffeeeeefffhiiiiiiiiiiippppppppppppppppppppppfcehiiiiiiiiiiiiiiiiiilllllllllllllllffffffffeeeeeeffhhiiiiiiiiiilppppppppppppppppppppppkcehiiiiiiiiiiiiiiiiiiillllllllllllllfffffffeeeeeeeffhhiiiiiiiiiilppppppppppppppppppppppmeehiiiiiiiiiiiiiiiiiiillllllllllllllfffffffeeeeeeeffhhiiiiiiiiiinppppppppppppppppppppppnfehiiiiiiiiiiiiiiiiiiillllllllllllllfffffffeeeeeeffhhiiiiiiiiiiinppppppppppppppppppppppphehiiiiiiiiiiiiiiiiiiillllllllllllllffffffeeeeeeefhhhiiiiiiiiiiinppppppppppppppppppppppplfhiiiiiiiiiiiiiiiiiiillllllllllllllfffffeeecceeffhhhiiiiiiiiiiippppppppppppppppppppppppnfhiiiiiiiiiiiiiiiiiiillllllllllllllfffffeeceeeeffhhhiiiiiiiiiilppppppppppppppppppppppppnhhiiiiiiiiiiiiiiiiiiiilllllllllllllffffeecceeefffhiiiiiiiiiiiilppppppppppppppppppppppppnhhiiiiiiiiiiiiiiiiiiiilllllllllllllfffeeeccceeffhhhiiiiiiiiiiinppppppppppppppppppppppppphhiiiiiiiiiiiiiiiiiiiilllllllllllllffeeeccceeeffhhiiiiiiiiiiiinpppppppppppppppppppppppppiiiiiiiiiiiiiiiiiiiiiilllllllllllllffeeeccceeffhhhiiiiiiiiiiiinpppppppppppppppppppppppppiiiiiiiiiiiiiiiiiiiiiiillllllllllllfeeccccceeffhhiiiiiiiiiiiiinpppppppppppppppppppppppppliiiiiiiiiiiiiiiiiiiiiiilllllllllllfeecccceeefhhhhiiiiiiiiiiilppppppppppppppppppppppppppliiiiiiiiiiiiiiiiiiiiiilllllllllllleeecccceeffhhhiiiiiiiiiiiilppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiillllllllllleeccccceeffhhhiiiiiiiiiiiilppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiiilllllllllleeccccceefhhhiiiiiiiiiiiiilppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiillllllllllleccccceeffhhiiiiiiiiiiiiiilpppppppppppppppppppppppppppiiiiiiiiiiiiiiiiiiiiiiiiillllllllicccccceefhhhiiiiiiiiiiiiiinpppppppppppppppppppppppppppiiiiiiiiiiiiiiiiiiiiiiiiilllllllliccccceeffhhhiiiiiiiiiiiiiinpppppppppppppppppppppppppppliiiiiiiiiiiiiiiiiiiiiiiillllllliiccccceeffhhiiiiiiiiiiiiiiinpppppppppppppppppppppppppppliiiiiiiiiiiiiiiiiiiiiiiillllllllicccceeefhhhiiiiiiiiiiiiiiinpppppppppppppppppppppppppppliiiiiiiiiiiiiiiiiiiiiiiiiilllliiicccceeffhhhiiiiiiiiiiiiiiippppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiiillllllllicccceeffhhhiiiiiiiiiiiiiilppppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiccceeefhhhiiiiiiiiiiiiiiilppppppppppppppppppppppppppppniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
+  }
+  const GLOBE_TONES = Object.fromEntries(GLOBE_PHOTO.palette.map((hex, i) => [`tone${i}`, [hex, handsDim(hex)]]))
+  // the globe's middle and size, in shares of the frame's width (x, r) and height (y); the page puts its mark there too
+  const GLOBE_AT = { x: 0.485, y: 0.43, r: 0.155 }
+  // how far down the picture sits in the frame, 0 its top at the frame's top and 1 its foot at the frame's foot
+  const GLOBE_DROP = 0.56
+  const GLOBE_EVEN = 0.005
+  const GLOBE = {
+    ...HERO,
+    intro: false,
+    wake: '300% 0px',
+    near: '100% 0px',
+    words: { at: [0.5, -4], half: [0.001, 0.001] },
+    lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001 },
+    inks: {
+      ...LAND_INK,
+      dusk: [GLOBE_PHOTO.palette[0], handsDim(GLOBE_PHOTO.palette[0])],
+      lilac: [GLOBE_PHOTO.palette[12], handsDim(GLOBE_PHOTO.palette[12])],
+      blush: [GLOBE_PHOTO.palette[22], handsDim(GLOBE_PHOTO.palette[22])],
+    },
+    sky: {
+      stops: [
+        [0, 'dusk'],
+        [0.5, 'lilac'],
+        [1, 'blush'],
+      ],
+      grain: 0.4,
+      brush: 0.06,
+      wash: 'lilac',
+    },
+    land: {
+      ...HERO.land,
+      profile: [
+        [-1.6, 0],
+        [1.6, 0],
+      ],
+      crest: 0,
+      sheets: [],
+      room: 100,
+      foot: ({ h }) => h - 100,
+      head: 0,
+      least: 20,
+    },
+    grass: null,
+    passer: null,
+    pointer: false,
+    flowers: null,
+    glyphs: true,
+    twinkle: true,
+    marks: true,
+    paints: {
+      ...PAINTS,
+      ...GLOBE_TONES,
+      // the globe: a pale pink body, warm white round its middle, and a bright rim
+      orbCore: ['#fff7ee', '#fff3e8'],
+      orbBody: ['#f9ddf1', '#f5d6ed'],
+      orbDeep: ['#e3c1ee', '#dcb9e9'],
+      orbEdge: ['#dcbcec', '#d4b3e6'],
+      orbRim: ['#fff8fc', '#fff6fb'],
+      // its halo, warm near it and pink further out
+      glowWarm: ['#fff1d6', '#ffecca'],
+      glowPink: ['#ffd9ef', '#fcd2ea'],
+      light: ['#ffffff', '#ffffff'],
+      lightWarm: ['#fffaf0', '#fff6e8'],
+      lightGlow: ['#fff3e0', '#ffeed4'],
+      halo: ['#ffd6f0', '#fbcdea'],
+    },
+    clouds: [],
+    flock: [],
+    lens: null,
+    fit: (w) => clamp(w / 300, 0.5, 1),
+    plant: (garden) => {
+      const { w, h, rand } = garden
+      const [gw, gh] = GLOBE_PHOTO.grid
+      const cells = GLOBE_PHOTO.cells
+      // the picture covers the frame, across its width, set a little below the middle so the light is where the globe is
+      const cw = Math.max(w / gw, h / gh)
+      const ox = (w - gw * cw) / 2
+      const oy = (h - gh * cw) * GLOBE_DROP
+      const lum = GLOBE_PHOTO.palette.map((hex) => {
+        const v = Number.parseInt(hex.slice(1), 16)
+        return (0.2126 * ((v >> 16) & 255) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)) / 255
+      })
+      const toneAt = (gx, gy) => Number.parseInt(cells[clamp(gy, 0, gh - 1) * gw + clamp(gx, 0, gw - 1)], 36)
+      const L = (gx, gy) => lum[toneAt(gx, gy)]
+      const toCanvas = (gx, gy) => [ox + gx * cw, oy + gy * cw]
+      const HAZE = 0.4 + GLOBE_EVEN
+      // A stroke's seed sets how much lighter or darker, warmer or cooler than its paint it comes out (see the strokes'
+      // shader): the picture is smooth, so take the first seed near a stroke's own that leaves its tone nearly as it is.
+      const calm = (seed) => {
+        for (let k = 0; k < 60; k += 1) {
+          rand.reseed(seed + k * 104729)
+          rand()
+          rand()
+          rand()
+          const dice = rand()
+          if (Math.abs(((dice * 91.7) % 1) - 0.5) < 0.08 && Math.abs(((dice * 37.3) % 1) - 0.5) < 0.15) {
+            return seed + k * 104729
+          }
+        }
+        return seed
+      }
+      // every stroke rooted straight under it and still
+      const put = (n, { x, y, turn, ...o }) => {
+        rand.reseed(calm(73019 + n * 7919))
+        const root = h + 40
+        garden.dab({ kind: HAZE, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1, turn })
+      }
+      // The picture, a stroke to a cell, laid along its contour there (across the way it changes), a little jittered.
+      for (let gy = 0; gy < gh; gy += 1) {
+        for (let gx = 0; gx < gw; gx += 1) {
+          const n = gy * gw + gx
+          const [cx, cy] = toCanvas(
+            gx + 0.5 + (hashed(n * 1.31) - 0.5) * 0.5,
+            gy + 0.5 + (hashed(n * 2.17) - 0.5) * 0.5,
+          )
+          if (cx < -cw * 2 || cx > w + cw * 2 || cy < -cw * 2 || cy > h + cw * 2) {
+            continue
+          }
+          const tone = toneAt(gx, gy)
+          const ddx = L(gx + 1, gy) - L(gx - 1, gy)
+          const ddy = L(gx, gy + 1) - L(gx, gy - 1)
+          const flat = Math.hypot(ddx, ddy) < 0.012
+          const turn =
+            (flat ? 0.9 + 0.6 * Math.sin(gx * 0.11 + gy * 0.07) : Math.atan2(ddy, ddx) + Math.PI / 2) +
+            (hashed(n * 3.7) - 0.5) * 0.5
+          put(n, {
+            x: cx,
+            y: cy,
+            turn,
+            long: cw * 1.5,
+            wide: 0.9,
+            blur: cw * 1.2,
+            paints: [`tone${tone}`, `tone${tone}`],
+            load: 0.95,
+            order: gy * 0.01,
+          })
+        }
+      }
+      // The globe, in rings round its middle: the halo out to nearly twice its size, warm near it and pink further out,
+      // then its body, warm white round the middle going to pale pink and a little deeper low on the far side, and a
+      // bright rim, then a soft highlight high on the near side.
+      const gx0 = w * GLOBE_AT.x
+      const gy0 = h * GLOBE_AT.y
+      const r = w * GLOBE_AT.r
+      const step = Math.max(1.6, r / 9)
+      let n = 400000
+      for (let ring = 0; ring < 3; ring += 1) {
+        const reach = [1.6, 1.38, 1.18][ring]
+        for (let y = gy0 - r * reach; y <= gy0 + r * reach; y += step * 1.4) {
+          for (let x = gx0 - r * reach; x <= gx0 + r * reach; x += step * 1.4) {
+            n += 1
+            const px = x + (hashed(n * 1.7) - 0.5) * step
+            const py = y + (hashed(n * 2.3) - 0.5) * step
+            const d = Math.hypot(px - gx0, py - gy0) / r
+            if (d < 0.9 || d > reach) {
+              continue
+            }
+            const fade = 1 - smooth(1, reach, d)
+            put(n, {
+              x: px,
+              y: py,
+              turn: Math.atan2(py - gy0, px - gx0) + Math.PI / 2,
+              long: step * 3.2,
+              wide: 1,
+              blur: step * 2.6,
+              paints: d < 1.3 ? ['glowWarm', 'glowWarm'] : ['glowPink', 'glowPink'],
+              load: 0.05 + 0.2 * fade,
+              order: 3000 + ring,
+            })
+          }
+        }
+      }
+      for (let pass = 0; pass < 3; pass += 1) {
+        for (let y = gy0 - r; y <= gy0 + r; y += step * 0.75) {
+          for (let x = gx0 - r; x <= gx0 + r; x += step * 0.9) {
+            n += 1
+            const px = x + (hashed(n * 1.7) - 0.5) * step * 0.7
+            const py = y + (hashed(n * 2.3) - 0.5) * step * 0.7
+            const dx = (px - gx0) / r
+            const dy = (py - gy0) / r
+            const d = Math.hypot(dx, dy)
+            if (d > 0.97) {
+              continue
+            }
+            // A sphere lit from within: warm white round the middle going smoothly to pale pink and, towards the edge, to
+            // lilac, deeper low on the far side, away from where its light seems to come from. Each stroke takes one of
+            // the paints by a dice weighed by how far out it is, so after the blur the change has no line in it.
+            const shade = smooth(0.1, 1, dx * 0.45 + dy * 0.75)
+            const core = 1 - smooth(0.2, 0.78, d + (dx + dy) * 0.12)
+            const edge = smooth(0.55, 1, d) * (0.55 + 0.45 * shade)
+            const dice = hashed(n * 5.1)
+            let paint = 'orbBody'
+            if (dice < core) {
+              paint = 'orbCore'
+            } else if (dice > 1 - edge) {
+              paint = hashed(n * 6.3) < shade ? 'orbDeep' : 'orbEdge'
+            }
+            put(n, {
+              x: px,
+              y: py,
+              turn: Math.atan2(py - gy0, px - gx0) + Math.PI / 2 + (hashed(n * 3.1) - 0.5) * 0.4,
+              long: step * 1.9,
+              wide: 0.9,
+              blur: step * 1.1,
+              paints: [paint, paint],
+              load: 0.55 + 0.25 * (1 - d),
+              order: 4000 + pass,
+            })
+          }
+        }
+      }
+      // the rim: a soft crescent of light along it high on the near side, fading out round the far side
+      const around = Math.ceil((Math.PI * 2 * r) / (step * 0.8))
+      for (let k = 0; k < around; k += 1) {
+        n += 1
+        const a = (k / around) * Math.PI * 2
+        const near = Math.max(0, Math.cos(a + 2.3)) ** 1.5
+        if (near < 0.05) {
+          continue
+        }
+        put(n, {
+          x: gx0 + Math.cos(a) * r * 0.95,
+          y: gy0 + Math.sin(a) * r * 0.95,
+          turn: a + Math.PI / 2,
+          long: step * 1.7,
+          wide: 0.55,
+          blur: step * 0.6,
+          paints: ['orbRim', 'orbRim'],
+          load: 0.55 * near,
+          order: 4100,
+        })
+      }
+      // and the globe's lines, faint: two meridians and two parallels, as light across it, thinning to its edge
+      const lines = [
+        (t) => [Math.sin(t) * 0.42, -Math.cos(t)],
+        (t) => [Math.sin(t) * 0.8, -Math.cos(t)],
+        (t) => [Math.cos(t) * 0.87, -0.42 + Math.sin(t) * 0.12],
+        (t) => [Math.cos(t) * 0.87, 0.42 + Math.sin(t) * 0.12],
+      ]
+      lines.forEach((at, j) => {
+        const count = 34
+        for (let k = 0; k < count; k += 1) {
+          const t0 = (k / count) * Math.PI * 2
+          const t1 = ((k + 1) / count) * Math.PI * 2
+          const [ux, uy] = at(t0)
+          const [vx, vy] = at(t1)
+          // the meridians' far halves, behind the globe, are left out, and so are the parallels' (their upper arcs)
+          if ((j < 2 && Math.sin(t0) < 0) || (j >= 2 && Math.sin(t0) < 0)) {
+            continue
+          }
+          n += 1
+          const mx = (ux + vx) / 2
+          const my = (uy + vy) / 2
+          const out = Math.hypot(mx, my)
+          put(n, {
+            x: gx0 + mx * r * 0.97,
+            y: gy0 + my * r * 0.97,
+            turn: Math.atan2(vy - uy, vx - ux),
+            long: Math.max(step, Math.hypot(vx - ux, vy - uy) * r * 1.3),
+            wide: 0.18,
+            blur: step * 0.35,
+            paints: ['orbRim', 'orbRim'],
+            load: 0.45 * (1 - smooth(0.7, 1, out)),
+            order: 4150,
+          })
+        }
+      })
+      // its light, glowing out from the middle, where the mark is
+      for (let k = 0; k < 14; k += 1) {
+        n += 1
+        const a = hashed(n * 4.1) * Math.PI * 2
+        const rr = r * 0.32 * Math.sqrt(hashed(n * 3.3))
+        put(n, {
+          x: gx0 + Math.cos(a) * rr,
+          y: gy0 + Math.sin(a) * rr,
+          turn: a,
+          long: r * 0.9,
+          wide: 1,
+          blur: r * 0.55,
+          paints: ['glowWarm', 'lightGlow'],
+          load: 0.3,
+          order: 4180,
+        })
+      }
+      // a soft highlight high on the near side
+      for (let k = 0; k < 10; k += 1) {
+        n += 1
+        const a = -2.3 + (hashed(n * 4.3) - 0.5) * 0.9
+        const rr = r * (0.5 + 0.18 * hashed(n * 2.9))
+        put(n, {
+          x: gx0 + Math.cos(a) * rr,
+          y: gy0 + Math.sin(a) * rr,
+          turn: a + Math.PI / 2,
+          long: step * 2.4,
+          wide: 0.8,
+          blur: step * 1.6,
+          paints: ['light', 'lightWarm'],
+          load: 0.4,
+          order: 4200,
+        })
+      }
+      // The fingers that come over the globe, painted again over it, so it is held in them: the picture's cells round the
+      // globe that are the hands' lilac and pink, not the light's cream (more blue in them than green).
+      const rgbOf = GLOBE_PHOTO.palette.map((hex) => {
+        const v = Number.parseInt(hex.slice(1), 16)
+        return [(v >> 16) & 255, (v >> 8) & 255, v & 255]
+      })
+      for (let gy = 0; gy < gh; gy += 1) {
+        for (let gx = 0; gx < gw; gx += 1) {
+          const cell = gy * gw + gx
+          const [cx, cy] = toCanvas(
+            gx + 0.5 + (hashed(cell * 1.31) - 0.5) * 0.5,
+            gy + 0.5 + (hashed(cell * 2.17) - 0.5) * 0.5,
+          )
+          const d = Math.hypot(cx - gx0, cy - gy0) / r
+          if (d > 1.15) {
+            continue
+          }
+          const tone = toneAt(gx, gy)
+          const [cr, cg, cb] = rgbOf[tone]
+          if (cb < cg + 14 || cr + cg + cb > 690) {
+            continue
+          }
+          const ddx = L(gx + 1, gy) - L(gx - 1, gy)
+          const ddy = L(gx, gy + 1) - L(gx, gy - 1)
+          put(600000 + cell, {
+            x: cx,
+            y: cy,
+            turn: Math.atan2(ddy, ddx) + Math.PI / 2 + (hashed(cell * 3.7) - 0.5) * 0.5,
+            long: cw * 1.4,
+            wide: 0.9,
+            blur: cw * 1.05,
+            paints: [`tone${tone}`, `tone${tone}`],
+            load: 0.95,
+            order: 4600 + gy * 0.01,
+          })
+        }
+      }
+      // A few small lights about the globe and among the fingers, each twinkling at its own pace.
+      for (let k = 0; k < 16; k += 1) {
+        n += 1
+        const a = hashed(n * 7.7) * Math.PI * 2
+        const rr = r * (1.25 + 1.1 * hashed(n * 8.9))
+        const x = gx0 + Math.cos(a) * rr
+        const y = gy0 + Math.sin(a) * rr * 1.15
+        if (x < w * 0.06 || x > w * 0.94 || y < h * 0.08 || y > h * 0.92) {
+          continue
+        }
+        const core = Math.max(0.9, w * (0.006 + 0.006 * hashed(n * 4.7)))
+        rand.reseed(51217 + n * 7919)
+        garden.dab({
+          x,
+          y,
+          stem: 0,
+          long: core * 4,
+          wide: 1,
+          turn: 0,
+          blur: core * 3,
+          paints: ['lightGlow', 'halo'],
+          load: 0.5,
+          kind: 3.25,
+          stiff: 1,
+          lean: 0,
+          order: 5000,
+        })
+        rand.reseed(51219 + n * 7919)
+        garden.dab({
+          x,
+          y,
+          stem: 0,
+          long: core,
+          wide: 0.95,
+          turn: 0,
+          blur: 0.4,
+          paints: ['light', 'lightWarm'],
+          load: 0.95,
+          kind: 3.4,
+          stiff: 1,
+          lean: 0,
+          order: 5001,
+        })
+      }
+    },
+  }
   /* --- the compositions, ready --- */
 
   /* What the engine works out once for each composition: stand-ins for what it leaves out, the names of the colours its
@@ -7125,6 +7556,7 @@
     hands: prepare(HANDS),
     mirror: prepare(MIRROR),
     desk: prepare(DESK),
+    globe: prepare(GLOBE),
   }
   const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
 
