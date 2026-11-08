@@ -290,7 +290,7 @@ The interface is still the product. It has moved to your API, where its newest u
 <div class="hl-collage" aria-hidden="true" data-md-exclude>
 <div class="hl-piece hl-piece--hands"><div class="hl-piece-art" data-hl-hero data-hl-mode="hands"><canvas data-hl-canvas></canvas></div></div>
 <div class="hl-piece hl-piece--mirror"><div class="hl-piece-art" data-hl-hero data-hl-mode="mirror"><canvas data-hl-canvas></canvas></div></div>
-<div class="hl-piece hl-piece--desk"><div class="hl-piece-art" data-hl-hero data-hl-mode="desk"><canvas data-hl-canvas></canvas></div></div>
+<div class="hl-piece hl-piece--daisies"><div class="hl-piece-art" data-hl-hero data-hl-mode="daisies"><canvas data-hl-canvas></canvas></div></div>
 </div>
 <div class="cta hl-finale-copy flex flex-col gap-3">
   <scalar-heading level="2" class="text-balance" slug="ready-for-agents">Make your API ready for the agents that are already looking for it.</scalar-heading>
@@ -1609,11 +1609,11 @@ The interface is still the product. It has moved to your API, where its newest u
     --hl-piece-w: 176px;
     --hl-piece-ratio: 9 / 16;
     --hl-piece-turn: 2.5deg;
-    --hl-piece-paper: linear-gradient(#e8edf5, #d2ddf0 40%, #a7c0ea 53%, #3b70d1 56.5%, #2b5dc1);
+    --hl-piece-paper: linear-gradient(#5a90ea, #6c9dee 30%, #a6c0ea 53%, #d6deeb 59.4%, #3b71d3 60%, #2756bb);
     top: 150px;
     right: 28px;
   }
-  .hl-piece--desk {
+  .hl-piece--daisies {
     --hl-piece-w: 268px;
     --hl-piece-ratio: 5 / 4;
     --hl-piece-turn: 3deg;
@@ -1644,7 +1644,7 @@ The interface is still the product. It has moved to your API, where its newest u
     .hl-piece--mirror {
       --hl-piece-w: clamp(76px, 19vw, 150px);
     }
-    .hl-piece--desk {
+    .hl-piece--daisies {
       --hl-piece-w: clamp(124px, 31vw, 220px);
     }
   }

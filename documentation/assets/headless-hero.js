@@ -6255,7 +6255,7 @@
   /* --- the collage compositions ---------------------------------------------------------------------- */
 
   /* The three small pictures scattered round the headless page's closing call to action, as a collage: two hands of
-     light, a butterfly over water, and a desk in the long grass. Each is its own composition, painted with the meadow's
+     light, a butterfly over water, and daisies out of focus. Each is its own composition, painted with the meadow's
      brush and drawn live, in idle time once it is within three screens and painted when within one, as the window is. */
 
   /* Two hands raised in a warm glow, painted after the photograph Cameron sent: the photograph is kept as a grid of its
@@ -6569,108 +6569,45 @@
     },
   }
 
-  /* A desk of light out in a meadow, after the photograph Cameron sent of a desk left in the long grass: a table with a
-     laptop open on it, a monitor and a computer's tower, so bright that only their shape is left, a white heart in a
-     pale gold light, on a soft green that is only the meadow's light, as the hands are only their glow. Butterflies come
-     in through the glass at the frame's sides and land along the tops of the screens and the tower, sit opening and
-     closing their wings, and are off again when the pointer comes onto the desk. A few small lights twinkle near it. */
-  const DESK_INKS = {
+  /* Daisies out of focus, after the photograph Cameron sent: three of them seen from below against the light, so near
+     and so soft that only their shapes are left, white petals going lilac where they turn away, warm yellow hearts,
+     and a stem rising to the nearest one, all on the meadow's soft green instead of the photograph's sky. Each sways a
+     very little on its own stem. Butterflies come in through the glass at the frame's sides and land on the petals,
+     sit opening and closing their wings, and are off again when the pointer comes over the flowers. A few small
+     lights twinkle among them. */
+  const DAISIES_INKS = {
     ...LAND_INK,
-    // the meadow's light behind it, from the top of the frame down: a deep sage, a softer green, and a pale lime glow
-    // low down, where the desk stands
+    // the meadow's light behind them, from the top of the frame down: a deep sage, a softer green, and a pale lime
     sage: ['#6f8f62', '#5f7d54'],
     moss: ['#8fae6f', '#7c9b5f'],
     lime: ['#c4dc94', '#adc683'],
   }
-  /* The desk and what is on it, in shares of the frame's width and height, as the photograph has them: the table's
-     top seen a little from above and its front edge, four legs, the laptop's lid and base, the monitor and its stand,
-     and the tower. Each a list of points round it; the silhouette is all of them together. */
-  const DESK_SHAPE = [
-    [
-      [0.2, 0.575],
-      [0.72, 0.575],
-      [0.78, 0.645],
-      [0.14, 0.645],
-    ],
-    [
-      [0.14, 0.643],
-      [0.78, 0.643],
-      [0.78, 0.672],
-      [0.14, 0.672],
-    ],
-    [
-      [0.152, 0.668],
-      [0.171, 0.668],
-      [0.171, 0.93],
-      [0.152, 0.93],
-    ],
-    [
-      [0.749, 0.668],
-      [0.768, 0.668],
-      [0.768, 0.93],
-      [0.749, 0.93],
-    ],
-    [
-      [0.212, 0.6],
-      [0.226, 0.6],
-      [0.226, 0.86],
-      [0.212, 0.86],
-    ],
-    [
-      [0.694, 0.6],
-      [0.708, 0.6],
-      [0.708, 0.86],
-      [0.694, 0.86],
-    ],
-    [
-      [0.25, 0.402],
-      [0.398, 0.402],
-      [0.404, 0.566],
-      [0.255, 0.566],
-    ],
-    [
-      [0.238, 0.562],
-      [0.418, 0.562],
-      [0.43, 0.592],
-      [0.228, 0.592],
-    ],
-    [
-      [0.426, 0.362],
-      [0.582, 0.362],
-      [0.582, 0.546],
-      [0.426, 0.546],
-    ],
-    [
-      [0.49, 0.54],
-      [0.518, 0.54],
-      [0.527, 0.584],
-      [0.481, 0.584],
-    ],
-    [
-      [0.606, 0.336],
-      [0.694, 0.336],
-      [0.72, 0.318],
-      [0.72, 0.614],
-      [0.694, 0.64],
-      [0.606, 0.64],
-    ],
+  /* The daisies, as the photograph frames them: each heart's place, in shares of the frame's width and height, and how
+     far its petals reach, in shares of its width; the nearest at the top, mostly over the frame's edge, one off the
+     left side and a smaller one low on the right. Each sways about a point well under the frame, at its stem's foot. */
+  const DAISIES_HEADS = [
+    { at: [0.6, 0.12], reach: 0.25, foot: [0.5, 1.9], phase: 0.6, turn: 0.35 },
+    { at: [0.03, 0.58], reach: 0.23, foot: [0.1, 2.1], phase: 2.9, turn: 1.1 },
+    { at: [0.95, 0.84], reach: 0.18, foot: [0.86, 2.3], phase: 4.7, turn: 0.2 },
   ]
-  // where the butterflies sit: along the laptop's lid, on the monitor and on the tower
-  const DESK_PERCHES = [
-    [0.29, 0.402, 1],
-    [0.36, 0.402, -1],
-    [0.505, 0.362, 1],
-    [0.655, 0.336, -1],
+  // where the butterflies sit: on the petals of each, a little out from its heart
+  const DAISIES_PERCHES = [
+    [0.47, 0.25, 1],
+    [0.7, 0.27, -1],
+    [0.16, 0.53, -1],
+    [0.84, 0.7, 1],
   ]
-  const DESK_EVEN = 0.005
-  const DESK = {
+  // how freely the wind turns a flower (the collage's hands: 0.85)
+  const DAISIES_GIVE = 0.25
+  const DAISIES_EVEN = 0.005
+  const DAISIES = {
     ...HERO,
     intro: false,
     wake: '300% 0px',
     near: '100% 0px',
     words: { at: [0.5, -4], half: [0.001, 0.001] },
     lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001 },
-    inks: DESK_INKS,
+    inks: DAISIES_INKS,
     sky: {
       stops: [
         [0, 'sage'],
@@ -6703,15 +6640,25 @@
     marks: true,
     paints: {
       ...PAINTS,
+      // the petals: white in the light, lilac where they turn away, and the soft white glow round them
+      petal: ['#fbfafa', '#f6f4f5'],
+      petalLight: ['#ffffff', '#fdfcfd'],
+      petalShade: ['#e8dcec', '#ded1e4'],
+      petalGlow: ['#f1f3e6', '#e6eadb'],
+      // the hearts: a warm yellow, deeper towards the edge
+      heart: ['#f4c14a', '#efb941'],
+      heartDeep: ['#eaa83c', '#e29f36'],
+      heartLight: ['#f8d26e', '#f4ca62'],
+      // the stem: a deeper, fuller green than the meadow's light behind it
+      stem: ['#5a9445', '#50873d'],
+      stemLight: ['#7fb25e', '#72a454'],
       light: ['#ffffff', '#ffffff'],
       lightWarm: ['#fdfff4', '#f8fbea'],
       lightGlow: ['#f4fbd6', '#ecf5c7'],
       halo: ['#e6f3a8', '#d8e897'],
-      haloDeep: ['#b9d77c', '#a8c56d'],
     },
     clouds: [],
-    // the glass at the frame's sides, which the butterflies come in through, and none at its foot, where a hero's
-    // picture fades into the page under it: this one is framed
+    // the glass at the frame's sides, which the butterflies come in through, and none at its foot: this one is framed
     lens: { ...LENS, foot: false, top: false },
     flock: Array.from({ length: 4 }, (_, k) => ({
       size: 9 + 2 * ((k * 0.7549 + 0.31) % 1),
@@ -6746,145 +6693,171 @@
     fit: (w) => clamp(w / 300, 0.55, 1),
     plant: (garden) => {
       const { w, h, rand } = garden
-      const at = ([x, y]) => [x * w, y * h]
-      const parts = DESK_SHAPE.map((part) => part.map(at))
       const size = Math.min(w, h * 1.25)
-      const HAZE = 0.4 + DESK_EVEN
-      // the first seed near a stroke's own that makes its paint lighter and warmer (see the docs' figure)
-      const bright = (seed) => {
-        for (let k = 0; k < 24; k += 1) {
+      const HAZE = 0.4 + DAISIES_EVEN
+      // A stroke's seed also sets how much lighter or darker, warmer or cooler than its paint it comes out (see the
+      // strokes' shader): take the first seed near its own that leaves its tone nearly as it is.
+      const calm = (seed) => {
+        for (let k = 0; k < 60; k += 1) {
           rand.reseed(seed + k * 104729)
           rand()
           rand()
           rand()
           const dice = rand()
-          if ((dice * 91.7) % 1 >= 0.55 && (dice * 37.3) % 1 >= 0.55) {
+          if (Math.abs(((dice * 91.7) % 1) - 0.5) < 0.08 && Math.abs(((dice * 37.3) % 1) - 0.5) < 0.15) {
             return seed + k * 104729
           }
         }
         return seed
       }
-      const put = (n, { x, y, ...o }) => {
-        rand.reseed(bright(61331 + n * 7919))
+      // A stroke on a flower is rooted at its stem's foot under the frame, its stem leaning just so far that its head
+      // is where it is put, and turns a little in the wind with the rest of the flower; anything else stays still.
+      const put = (n, { x, y, turn = 0, head = null, ...o }) => {
+        rand.reseed(calm(67021 + n * 7919))
+        if (head) {
+          const [fx, fy] = head.foot
+          const dx = x - fx
+          const up = fy - y
+          const lean = Math.atan2(dx, up)
+          garden.dab({
+            kind: HAZE,
+            ...o,
+            x: fx,
+            y: fy,
+            stem: Math.hypot(dx, up),
+            lean,
+            phase: head.phase,
+            stiff: 1 - DAISIES_GIVE,
+            turn: turn - lean * 0.7,
+          })
+          return
+        }
         const root = h + 40
-        garden.dab({ kind: HAZE, blur: 0.6, load: 0.97, turn: 0, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1 })
+        garden.dab({ kind: HAZE, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1, turn })
       }
-      // where a column down the frame crosses the silhouette: each part's run, the overlapping ones merged
-      const runsAt = (x) => {
-        const runs = []
-        for (const ring of parts) {
-          const ys = []
-          for (let i = 0; i < ring.length; i += 1) {
-            const [ax, ay] = ring[i]
-            const [bx, by] = ring[(i + 1) % ring.length]
-            if (ax <= x !== bx <= x) {
-              ys.push(ay + ((x - ax) * (by - ay)) / (bx - ax))
-            }
-          }
-          ys.sort((a, b) => a - b)
-          for (let i = 0; i + 1 < ys.length; i += 2) {
-            runs.push([ys[i], ys[i + 1]])
-          }
-        }
-        runs.sort((a, b) => a[0] - b[0])
-        const merged = []
-        for (const run of runs) {
-          const last = merged[merged.length - 1]
-          if (last && run[0] <= last[1] + 0.5) {
-            last[1] = Math.max(last[1], run[1])
-          } else {
-            merged.push([...run])
-          }
-        }
-        return merged
-      }
-      const left = 0.13 * w
-      const right = 0.79 * w
-      // the silhouette filled in columns, each run in short lengths
-      const fill = (n, { col, blur, load, paints, order }) => {
-        let m = n
-        for (let x = left + col / 2; x < right; x += col) {
-          for (const [a, b] of runsAt(x)) {
-            if (b - a < 0.5) {
-              continue
-            }
-            const segs = Math.max(1, Math.round((b - a) / (col * 4)))
-            const seg = (b - a) / segs
-            for (let q = 0; q < segs; q += 1) {
-              const long = seg / 2 + col * 0.55
-              put(m, {
-                x,
-                y: a + (q + 0.5) * seg,
-                long,
-                wide: clamp((col * 0.78) / long, 0.02, 1.4),
-                turn: Math.PI / 2,
-                paints,
-                load,
-                blur,
-                order,
-              })
-              m += 1
-            }
-          }
+      const heads = DAISIES_HEADS.map((f) => ({
+        x: f.at[0] * w,
+        y: f.at[1] * h,
+        r: f.reach * w,
+        turn: f.turn,
+        foot: [f.foot[0] * w, f.foot[1] * h],
+        phase: f.phase,
+      }))
+      let n = 0
+      // The stem of the nearest, a soft blade of fuller green rising from the frame's foot to a point under its heart, as
+      // the photograph's leaf does, wide at the foot and narrowing, its lit side a little paler.
+      const top = heads[0]
+      const stemTop = [top.x - top.r * 0.3, top.y + top.r * 1.05]
+      const stemFoot = [w * 0.46, h * 1.04]
+      const rows = 22
+      for (let k = 0; k < rows; k += 1) {
+        const t = k / (rows - 1)
+        const y = stemFoot[1] + (stemTop[1] - stemFoot[1]) * t
+        const x = stemFoot[0] + (stemTop[0] - stemFoot[0]) * t
+        const half = (0.15 * (1 - t) ** 1.2 + 0.012) * w
+        const step = (stemFoot[1] - stemTop[1]) / (rows - 1)
+        for (const side of [-1, 1]) {
+          n += 1
+          put(n, {
+            x: x + side * half * 0.45,
+            y,
+            turn: Math.PI / 2 + Math.atan2(stemTop[0] - stemFoot[0], stemFoot[1] - stemTop[1]),
+            long: step * 2.4,
+            wide: clamp((half * 1.15) / (step * 2.4), 0.15, 1.6),
+            blur: Math.max(2, half * 0.55),
+            paints: side > 0 ? ['stemLight', 'stem'] : ['stem', 'stem'],
+            load: 0.5,
+            order: 10 + t,
+            head: top,
+          })
         }
       }
-      // Its light, as the hands': a wide pale gold glow over the green round it, a nearer one, then the desk, white, its
-      // edge soft but its shape clean.
-      const [mx, my] = at([0.46, 0.6])
-      put(1, {
-        x: mx,
-        y: my,
-        long: size * 0.46,
-        wide: 0.62,
-        paints: ['haloDeep', 'halo'],
-        load: 0.5,
-        blur: size * 0.16,
-        order: 10,
-      })
-      put(2, {
-        x: mx,
-        y: my,
-        long: size * 0.36,
-        wide: 0.6,
-        paints: ['halo', 'lightGlow'],
-        load: 0.5,
-        blur: size * 0.08,
-        order: 11,
-      })
-      fill(50000, {
-        col: Math.max(4, size * 0.018),
-        blur: size * 0.04,
-        load: 0.55,
-        paints: ['halo', 'lightGlow'],
-        order: 20,
-      })
-      fill(100000, {
-        col: Math.max(3, size * 0.012),
-        blur: size * 0.016,
-        load: 0.8,
-        paints: ['lightWarm', 'lightGlow'],
-        order: 21,
-      })
-      fill(200000, {
-        col: Math.max(2, size * 0.007),
-        blur: Math.max(1.2, size * 0.005),
-        load: 1,
-        paints: ['light', 'lightWarm'],
-        order: 22,
-      })
-      fill(300000, { col: Math.max(1.5, size * 0.005), blur: 0.9, load: 1, paints: ['light', 'light'], order: 23 })
-      // A few small lights near it, twinkling each at its own pace, clear of the desk.
-      for (let i = 0; i < 12; i += 1) {
-        const n = 5000 + i * 3
-        const a = hashed(n * 1.3) * Math.PI * 2
-        const d = 0.55 + 0.4 * hashed(n * 2.1)
-        const x = mx + Math.cos(a) * d * w * 0.42
-        const y = my + Math.sin(a) * d * h * 0.42
-        if (runsAt(x).some(([p, q]) => y > p - 6 && y < q + 6) || y < 4 || y > h - 4) {
-          continue
+      // Each daisy, the furthest first: a soft white glow round it, then its petals as long soft strokes reaching out
+      // from the heart, white, going lilac at the tips on its far side, twice round so they close into one soft shape,
+      // then the heart, warm yellow, deeper at its edge and paler high on its near side.
+      ;[1, 2, 0].forEach((index, depth) => {
+        const f = heads[index]
+        const base = 100 + depth * 100
+        for (let k = 0; k < 8; k += 1) {
+          n += 1
+          const a = (k / 8) * Math.PI * 2 + f.turn
+          put(n, {
+            x: f.x + Math.cos(a) * f.r * 0.6,
+            y: f.y + Math.sin(a) * f.r * 0.6,
+            turn: a + Math.PI / 2,
+            long: f.r * 0.9,
+            wide: 0.7,
+            blur: f.r * 0.38,
+            paints: ['petalGlow', 'petalGlow'],
+            load: 0.16,
+            order: base,
+            head: f,
+          })
         }
-        const core = Math.max(0.9, size * (0.004 + 0.005 * hashed(n * 4.7)))
-        put(n, {
+        // ten petals, each its own soft lobe, then ten more between them, fainter, so the ring closes softly
+        for (let pass = 0; pass < 2; pass += 1) {
+          const count = 10
+          for (let k = 0; k < count; k += 1) {
+            n += 1
+            const a = ((k + pass * 0.5) / count) * Math.PI * 2 + f.turn + (hashed(n * 1.7) - 0.5) * 0.2
+            const reach = f.r * (0.85 + 0.25 * hashed(n * 2.3))
+            const away = Math.sin(a + 0.9) > 0.35
+            put(n, {
+              x: f.x + Math.cos(a) * reach * 0.56,
+              y: f.y + Math.sin(a) * reach * 0.56,
+              turn: a,
+              long: reach * 0.84,
+              wide: 0.5,
+              blur: f.r * (0.17 + 0.06 * pass),
+              paints: away ? ['petal', 'petalShade'] : ['petalLight', 'petal'],
+              load: pass ? 0.45 : 0.78,
+              order: base + 10 + pass,
+              head: f,
+            })
+          }
+        }
+        const heart = f.r * 0.3
+        put(++n, {
+          x: f.x,
+          y: f.y,
+          long: heart * 1.45,
+          wide: 1,
+          blur: heart * 0.5,
+          paints: ['heartDeep', 'heartDeep'],
+          load: 0.9,
+          order: base + 40,
+          head: f,
+        })
+        put(++n, {
+          x: f.x,
+          y: f.y,
+          long: heart * 1.15,
+          wide: 1,
+          blur: heart * 0.42,
+          paints: ['heart', 'heart'],
+          load: 0.95,
+          order: base + 41,
+          head: f,
+        })
+        put(++n, {
+          x: f.x - heart * 0.15,
+          y: f.y - heart * 0.16,
+          long: heart * 0.7,
+          wide: 1,
+          blur: heart * 0.35,
+          paints: ['heartLight', 'heart'],
+          load: 0.8,
+          order: base + 42,
+          head: f,
+        })
+      })
+      // A few small lights among them, twinkling each at its own pace.
+      for (let i = 0; i < 7; i += 1) {
+        const m = 5000 + i * 3
+        const x = w * (0.12 + 0.76 * hashed(m * 1.3))
+        const y = h * (0.3 + 0.62 * hashed(m * 2.1))
+        const core = Math.max(0.9, size * (0.004 + 0.005 * hashed(m * 4.7)))
+        put(m, {
           x,
           y,
           long: core * 4,
@@ -6893,9 +6866,9 @@
           load: 0.5,
           kind: 3.25,
           blur: core * 3,
-          order: 30,
+          order: 900,
         })
-        put(n + 1, {
+        put(m + 1, {
           x,
           y,
           long: core,
@@ -6904,18 +6877,16 @@
           load: 0.95,
           kind: 3.4,
           blur: 0.4,
-          order: 31,
+          order: 901,
         })
       }
-      // The butterflies' places, and the desk as the shape the pointer sends them off from.
-      for (const [px, py, facing] of DESK_PERCHES) {
-        const [x, y] = at([px, py])
-        garden.perch(x, y, facing)
+      // The butterflies' places, and the flowers as the shape the pointer sends them off from.
+      for (const [px, py, facing] of DAISIES_PERCHES) {
+        garden.perch(px * w, py * h, facing)
       }
-      garden.tree(mx, my, size * 0.32)
+      garden.tree(w * 0.5, h * 0.45, size * 0.48)
     },
   }
-
   /* A butterfly of light over still water, and her light given back by it, after the glowing butterflies Cameron sent:
      a clear blue sky, paler and a little warm down at the horizon, the sea under it a deeper blue, both grainy. She
      keeps to one place in the air, on the wing there (perch.hover), a warm white with a soft halo of light round her
@@ -7698,7 +7669,7 @@
     docs: prepare(DOCS),
     hands: prepare(HANDS),
     mirror: prepare(MIRROR),
-    desk: prepare(DESK),
+    daisies: prepare(DAISIES),
     globe: prepare(GLOBE),
   }
   const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
