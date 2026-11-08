@@ -207,7 +207,7 @@ Connecting takes one line, from any remote MCP client to the operations you choo
 </div>
 <div class="lp-node lp-node--hub" data-lp-node="hub" data-lp-hold style="--x: 560; --y: 276; --w: 480">
 <div class="hl-hub" data-hl-hub>
-<div class="hl-window" data-lp-anchor><div class="hl-window-meadow" data-hl-hero data-hl-mode="globe" aria-hidden="true"><canvas data-hl-canvas></canvas></div><div class="hl-window-aura" aria-hidden="true"></div><div class="hl-window-flare" data-hl-flare aria-hidden="true"></div><svg class="hl-window-mark" fill="currentColor" viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></div>
+<div class="hl-window" data-lp-anchor><div class="hl-window-meadow" data-hl-hero data-hl-mode="globe" aria-hidden="true"><canvas data-hl-canvas></canvas></div><div class="hl-window-flare" data-hl-flare aria-hidden="true"></div><svg class="hl-window-mark" fill="currentColor" viewBox="0 0 48 48" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M28.09 0c.49 0 .97.4.97.97v10.85l7.61-7.69c.4-.4 1.05-.4 1.38 0l5.83 5.83c.32.32.4.97 0 1.3v.08l-7.69 7.61h10.85c.57 0 .97.4.97.97v8.18c0 .57-.4.97-.97.97H36.19l7.69 7.61c.32.4.4 1.05 0 1.38l-5.83 5.83c-.32.32-.97.4-1.3 0h-.08l-7.61-7.69v10.85c0 .57-.4.97-.97.97h-8.18c-.57 0-.97-.4-.97-.97v-5.67c0-1.78.73-3.48 1.94-4.78L31.4 26.08c1.13-1.13 1.13-2.99 0-4.13L20.96 11.51a6.763 6.763 0 01-2.02-4.78V.97c0-.57.4-.97.97-.97h8.18zM11.17 4.21h.08l17.73 17.73c1.13 1.13 1.13 2.99 0 4.13L11.25 43.88c-.32.4-.97.4-1.38 0l-5.75-5.67c-.32-.4-.4-.97 0-1.38l7.69-7.77H.97c-.57 0-.97-.4-.97-.97v-8.18c0-.57.4-.97.97-.97h10.85l-7.69-7.61c-.32-.4-.32-.97 0-1.38L9.88 4.2c.32-.4.97-.4 1.3 0z"></path></svg></div>
 <span class="hl-tag hl-tag--docs" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">Docs</span></span>
 <span class="hl-tag hl-tag--mcp" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">MCP</span></span>
 <span class="hl-tag hl-tag--sdk" data-hl-tag><span class="hl-tag-state"><span class="hl-tag-dot"></span><svg class="hl-tag-spin" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2" stroke-opacity=".22"/><path d="M8 2a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="hl-tag-check" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="hl-tag-name">SDKs</span></span>
@@ -1726,39 +1726,18 @@ The interface is still the product. It has moved to your API, where its newest u
     color: #fff;
     filter: drop-shadow(0 1px 3px rgb(120 72 160 / 45%)) drop-shadow(0 0 10px rgb(255 236 246 / 90%));
   }
-  /* The globe's light: always on, breathing slowly (the aura), and when a packet lands, flaring up to white and
-     settling again (the flare, which headless-window.js plays). Both are light laid over the painting, so they screen
-     it, and neither takes the pointer. */
-  .hl-window-aura,
+  /* The globe glows in the painting itself, so the hands stay in front of its light. When a packet lands it flares up
+     to white and settles again: light laid over the painting (screened), which headless-window.js plays, and which
+     never takes the pointer. */
   .hl-window-flare {
     position: absolute;
     inset: 0;
     pointer-events: none;
     mix-blend-mode: screen;
-  }
-  .hl-window-aura {
-    background: radial-gradient(circle at 48.5% 43%, rgb(255 246 232 / 80%) 0, rgb(255 222 242 / 40%) 13%, rgb(240 200 240 / 0%) 26%);
-    opacity: 0.4;
-    animation: hl-globe-breathe 4.8s ease-in-out infinite alternate;
-  }
-  .hl-window-flare {
     transform-origin: 48.5% 43%;
     background:
       radial-gradient(circle at 48.5% 43%, #fff 0, #fff 15%, rgb(255 244 226 / 92%) 24%, rgb(255 214 240 / 55%) 40%, rgb(230 196 240 / 0%) 68%);
     opacity: 0;
-  }
-  @keyframes hl-globe-breathe {
-    from {
-      opacity: 0.2;
-    }
-    to {
-      opacity: 0.5;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .hl-window-aura {
-      animation: none;
-    }
   }
 
   /* Docs, MCP and SDKs: small boxed labels in the code font, set on the window's edge */

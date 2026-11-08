@@ -7447,8 +7447,9 @@
           order: 4200,
         })
       }
-      // The fingers that come over the globe, painted again over it, so it is held in them: the picture's cells round the
-      // globe that are the hands' lilac and pink, not the light's cream (more blue in them than green).
+      // The hands, painted again over the globe and its halo, so they are in front of it and it is held in them: the
+      // picture's cells as far out as the halo reaches that are the hands' lilac and pink, not the light's cream (more
+      // blue in them than green). Each finger is whole in front of the light, not only its tip over the globe.
       const rgbOf = GLOBE_PHOTO.palette.map((hex) => {
         const v = Number.parseInt(hex.slice(1), 16)
         return [(v >> 16) & 255, (v >> 8) & 255, v & 255]
@@ -7461,7 +7462,7 @@
             gy + 0.5 + (hashed(cell * 2.17) - 0.5) * 0.5,
           )
           const d = Math.hypot(cx - gx0, cy - gy0) / r
-          if (d > 1.15) {
+          if (d > 1.75) {
             continue
           }
           const tone = toneAt(gx, gy)
