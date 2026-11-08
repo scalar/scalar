@@ -289,6 +289,7 @@ The interface is still the product. It has moved to your API, where its newest u
 <section class="hl-finale">
 <div class="hl-collage" aria-hidden="true" data-md-exclude>
 <div class="hl-piece hl-piece--hands"><div class="hl-piece-art" data-hl-hero data-hl-mode="hands"><canvas data-hl-canvas></canvas></div></div>
+<div class="hl-piece hl-piece--mirror"><div class="hl-piece-art" data-hl-hero data-hl-mode="mirror"><canvas data-hl-canvas></canvas></div></div>
 <div class="hl-piece hl-piece--desk"><div class="hl-piece-art" data-hl-hero data-hl-mode="desk"><canvas data-hl-canvas></canvas></div></div>
 </div>
 <div class="cta hl-finale-copy flex flex-col gap-3">
@@ -1567,9 +1568,9 @@ The interface is still the product. It has moved to your API, where its newest u
     margin-top: 28px;
   }
   /* The collage: small pictures, plain rectangles with no frame, edge or shadow, scattered round the call to action,
-     each turned a little as if laid down by hand. headless-hero.js paints each (its data-hl-mode). Wide, they sit in the band's margins round
-     the copy; from 1000px down, in a row over it. Each frame's own gradient shows until its picture fades in, and in
-     place of it without WebGL. */
+     each turned a little as if laid down by hand. headless-hero.js paints each (its data-hl-mode). Wide, they sit in
+     the band's margins round the copy; from 1239px down, where the margins grow too narrow for them, in a row over it.
+     Each frame's own gradient shows until its picture fades in, and in place of it without WebGL. */
   .hl-collage {
     position: absolute;
     inset: 0;
@@ -1608,6 +1609,14 @@ The interface is still the product. It has moved to your API, where its newest u
     top: 72px;
     left: 8px;
   }
+  .hl-piece--mirror {
+    --hl-piece-w: 176px;
+    --hl-piece-ratio: 9 / 16;
+    --hl-piece-turn: 2.5deg;
+    --hl-piece-paper: linear-gradient(#e8edf5, #d2ddf0 40%, #a7c0ea 53%, #3b70d1 56.5%, #2b5dc1);
+    top: 150px;
+    right: 28px;
+  }
   .hl-piece--desk {
     --hl-piece-w: 268px;
     --hl-piece-ratio: 5 / 4;
@@ -1617,14 +1626,6 @@ The interface is still the product. It has moved to your API, where its newest u
     left: 40px;
   }
   @media screen and (max-width: 1239px) {
-    .hl-piece--hands {
-      --hl-piece-w: 176px;
-    }
-    .hl-piece--desk {
-      --hl-piece-w: 220px;
-    }
-  }
-  @media screen and (max-width: 1000px) {
     .hl-collage {
       position: relative;
       inset: auto;
@@ -1643,6 +1644,9 @@ The interface is still the product. It has moved to your API, where its newest u
     }
     .hl-piece--hands {
       --hl-piece-w: clamp(104px, 27vw, 176px);
+    }
+    .hl-piece--mirror {
+      --hl-piece-w: clamp(76px, 19vw, 150px);
     }
     .hl-piece--desk {
       --hl-piece-w: clamp(124px, 31vw, 220px);

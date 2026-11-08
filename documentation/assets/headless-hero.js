@@ -1091,7 +1091,9 @@
                swerving by up to half of `swerve` pixels (120); coming back, they come in from the side as much as `rise`
                pixels (160) above the highest place and drop onto theirs from a little above it, in proportion. With `own`,
                each comes back in from the side its own place is on, and the ones about the crown fly round only the places
-               clear of the glass.
+               clear of the glass. With `hover` ({ pose: [heading, pitch, roll], bob, sway }), one sitting in its place is on
+               the wing there instead, beating its wings at `beat`, held in that pose, rising and sinking `bob` and
+               drifting `sway` pixels (at a fit of 1).
      orbit     null, or how a flock that comes to the pointer does it (see the butterflies that come to the pointer):
                none of its butterflies is in the picture until the pointer rests for `call` seconds (0.25 when not
                given) in the place `zone`, an ellipse given as `words` is, { at: [x, y], half: [a, b] } in shares of the
@@ -6910,6 +6912,193 @@
     },
   }
 
+  /* A butterfly of light over still water, and her light given back by it, after the glowing butterflies Cameron sent:
+     a clear blue sky, paler and a little warm down at the horizon, the sea under it a deeper blue, both grainy. She
+     keeps to one place in the air, on the wing there (perch.hover), a warm white with a soft halo of light round her
+     (lens.glow), and the water gives her light back under her, softer and broken by its ripples (lens.mirror). The
+     pointer leaves her be. */
+  const MIRROR_INKS = {
+    ...LAND_INK,
+    // from the top of the frame down: the sky, paler towards the horizon, a bright rim along it, and the sea
+    zenith: ['#5a90ea', '#4a7ed6'],
+    air: ['#6c9dee', '#5b8ade'],
+    haze: ['#a6c0ea', '#8ba7da'],
+    rim: ['#d6deeb', '#b5c3db'],
+    sea: ['#3b71d3', '#2f5fbf'],
+    deep: ['#2756bb', '#1e48a3'],
+  }
+  // the waterline, as a share of the frame's height down it
+  const MIRROR_WATER = 0.6
+  const MIRROR = {
+    ...HERO,
+    intro: false,
+    wake: '300% 0px',
+    near: '100% 0px',
+    words: { at: [0.5, -4], half: [0.001, 0.001] },
+    lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001 },
+    inks: MIRROR_INKS,
+    sky: {
+      stops: [
+        [0, 'zenith'],
+        [0.3, 'air'],
+        [MIRROR_WATER - 0.07, 'haze'],
+        [MIRROR_WATER - 0.006, 'rim'],
+        [MIRROR_WATER, 'sea'],
+        [1, 'deep'],
+      ],
+      grain: 0.62,
+      brush: 0.04,
+      wash: 'air',
+    },
+    land: {
+      ...HERO.land,
+      profile: [
+        [-1.6, 0],
+        [1.6, 0],
+      ],
+      crest: 0,
+      sheets: [],
+      room: 100,
+      foot: ({ h }) => h - 100,
+      head: 0,
+      least: 20,
+    },
+    grass: null,
+    passer: null,
+    pointer: false,
+    flowers: null,
+    glyphs: true,
+    marks: true,
+    // the small lights about her twinkle (see the glow in the strokes' shader)
+    twinkle: true,
+    paints: {
+      ...PAINTS,
+      shimmer: ['#8db1f0', '#789cdf'],
+      glint: ['#d2e1fb', '#b6cbef'],
+      light: ['#fffdf6', '#fffaf0'],
+      lightWarm: ['#fff4da', '#ffeed0'],
+      lightGlow: ['#fff8e8', '#fff2dc'],
+      halo: ['#e4ecff', '#d4e0fa'],
+    },
+    clouds: [],
+    lens: {
+      ...LENS,
+      foot: false,
+      top: false,
+      glow: {
+        core: [1.0, 0.992, 0.965],
+        cream: [1.0, 0.962, 0.865],
+        halo: [1.0, 0.955, 0.86],
+        body: [0.02, 0.42],
+        soft: 0.0075,
+        near: 0.055,
+        far: 0.15,
+        strength: [1.05, 0.62],
+      },
+      mirror: { at: MIRROR_WATER, strength: 0.75, depth: 0.42, tint: [0.9, 0.93, 1.0], blur: 0.35 },
+    },
+    // one butterfly, large in the frame as in the photographs; the glow, not her pastel, is what shows of her
+    flock: [{ size: 38, seed: 0.41, pastel: 0, wing: 'slim', flit: false }],
+    perch: {
+      stay: [1e6, 1e6],
+      reach: 40,
+      flit: [4, 7],
+      hop: 60,
+      come: 90,
+      flee: 180,
+      back: 3,
+      every: [0.6, 1.2],
+      appear: 0,
+      arrive: 0,
+      first: 0,
+      beat: 3.4,
+      wings: [0.45, 0.2],
+      rest: [3.5, 6.5],
+      sit: [0.12, -0.35, 1.05],
+      lift: 0,
+      flutter: 4,
+      clear: 8,
+      climb: 0.3,
+      swerve: 24,
+      rise: 30,
+      hover: { pose: [1.25, -0.6, 0.25], bob: 3, sway: 2.5 },
+    },
+    fit: (w) => clamp(w / 176, 0.6, 1.3),
+    plant: (garden) => {
+      const { w, h, rand } = garden
+      const water = MIRROR_WATER * h
+      // A few soft streaks of light lying on the water near the horizon, still and faint.
+      for (let i = 0; i < 14; i += 1) {
+        const n = 300 + i
+        rand.reseed(48611 + n * 7919)
+        const x = w * (0.05 + 0.9 * hashed(n * 1.9))
+        const y = water + h * (0.012 + 0.16 * hashed(n * 2.7) ** 1.6)
+        const long = w * (0.06 + 0.16 * hashed(n * 3.3))
+        const root = h + 40
+        garden.dab({
+          x,
+          y: root,
+          stem: root - y,
+          long,
+          wide: 0.05,
+          turn: 0,
+          blur: long * 0.25,
+          paints: ['shimmer', 'glint'],
+          load: 0.2 + 0.14 * hashed(n * 4.1),
+          kind: 0.4,
+          stiff: 1,
+          lean: 0,
+        })
+      }
+      // A few small lights about her, still in the air as she moves, each twinkling at its own pace.
+      const motes = [
+        [-0.31, -0.15],
+        [0.29, -0.21],
+        [0.35, 0.07],
+        [-0.25, 0.14],
+        [0.06, -0.29],
+        [-0.39, -0.03],
+        [0.17, 0.19],
+      ]
+      motes.forEach(([dx, dy], j) => {
+        const n = 700 + j
+        rand.reseed(51217 + n * 7919)
+        const x = w * (0.5 + dx)
+        const y = h * (0.42 + dy * 0.6)
+        const core = Math.max(0.9, w * (0.006 + 0.006 * hashed(n * 4.7)))
+        garden.dab({
+          x,
+          y,
+          stem: 0,
+          long: core * 4,
+          wide: 1,
+          turn: 0,
+          blur: core * 3,
+          paints: ['lightGlow', 'halo'],
+          load: 0.5,
+          kind: 3.25,
+          stiff: 1,
+          lean: 0,
+        })
+        garden.dab({
+          x,
+          y,
+          stem: 0,
+          long: core,
+          wide: 0.95,
+          turn: 0,
+          blur: 0.4,
+          paints: ['light', 'lightWarm'],
+          load: 0.95,
+          kind: 3.4,
+          stiff: 1,
+          lean: 0,
+        })
+      })
+      // her place in the air over the water
+      garden.perch(w * 0.5, h * 0.42, 1)
+    },
+  }
   /* --- the compositions, ready --- */
 
   /* What the engine works out once for each composition: stand-ins for what it leaves out, the names of the colours its
@@ -6934,6 +7123,7 @@
     flight: prepare(FLIGHT_BAND),
     docs: prepare(DOCS),
     hands: prepare(HANDS),
+    mirror: prepare(MIRROR),
     desk: prepare(DESK),
   }
   const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
@@ -8354,6 +8544,78 @@
   }`
   // and one whose top is no edge of the screen either (`lens.top: false`) has no glass along it
   const LENS_TOP = 'each.y *= step(d.y, 0.0);'
+  /* A composition whose butterflies fly over water (`lens.mirror`: { at, strength, depth, tint, blur }) has the glass
+     draw them again in it: under the waterline, `at` of the way down the canvas, the flock as it is above the line,
+     upside down about it, softer (`blur`, a mip of the flock), tinted (`tint`, multiplied into its colour) and paled
+     towards the water's own light blue-white, broken a little by ripples that run across the water, and fading out `depth` of the canvas's height under the line, at most
+     `strength` as strong as the butterfly itself. Only such a composition's lens has it. With a glowing flock
+     (`lens.glow`), it is the glow that the water gives back, its light and halo, the tint multiplying only what the glow
+     adds to the water. */
+  const lensMirror = ({ at, strength = 0.5, depth = 0.4, tint = [0.75, 0.85, 1.05], blur = 0.8 }, glow = false) => {
+    const f = (v) => Number(v).toFixed(4)
+    const k = `        float k = ${f(strength)} * (1.0 - smoothstep(0.0, uRes.y * ${f(depth)}, below)) * (0.82 + 0.18 * sin(px.y * 0.9 / u));\n`
+    if (glow) {
+      return `    {
+      float water = uRes.y * ${f(at)};
+      float below = px.y - water;
+      if (below > 0.0) {
+        float u = uRes.y / 600.0;
+        float wave = sin(px.y * 0.45 / u + px.x * 0.015 / u) * 1.4 * u + sin(px.y * 0.13 / u) * 2.2 * u;
+        vec2 mp = vec2(px.x + wave * (0.5 + below / (uRes.y * 0.2)), water - below);
+${k}        behind += (glowOver(behind, mp, ${f(blur)}) - behind) * vec3(${tint.map(f).join(', ')}) * k;
+      }
+    }
+`
+    }
+    return `    {
+      float water = uRes.y * ${f(at)};
+      float below = px.y - water;
+      if (below > 0.0) {
+        float u = uRes.y / 600.0;
+        float wave = sin(px.y * 0.45 / u + px.x * 0.015 / u) * 1.4 * u + sin(px.y * 0.13 / u) * 2.2 * u;
+        vec2 mp = vec2(px.x + wave * (0.5 + below / (uRes.y * 0.2)), water - below);
+        vec4 m = textureLod(uFlock, uvOf(mp), ${f(blur)});
+${k}        vec3 seen = mix(m.rgb / max(m.a, 1e-3) * vec3(${tint.map(f).join(', ')}), vec3(0.86, 0.92, 1.0), 0.45);
+        behind = mix(behind, seen, m.a * k);
+      }
+    }
+`
+  }
+  /* A composition whose butterflies are light (`lens.glow`: { core, cream, halo, body, soft, near, far, strength })
+     has the glass draw them as a soft shape of light, not glass: where the flock is, a warm white (`core`) going to
+     `cream` towards its thinner parts, its edge softened by a mip `soft` of the canvas's width across; round it a halo
+     of `halo` light laid over the picture as light is (screened), from two rings of the flock's blurred copies, one
+     `near` and one `far` of the canvas's width out, as strong as `strength` gives. The pointer's glass is not drawn over
+     such a flock: light is not bent by it. Only such a composition's lens has it. */
+  const lensGlow = ({
+    core,
+    cream,
+    halo,
+    body = [0.04, 0.4],
+    soft = 0.0045,
+    near = 0.045,
+    far = 0.11,
+    strength = [0.75, 0.45],
+  }) => {
+    const f = (v) => Number(v).toFixed(4)
+    const v3 = (c) => `vec3(${c.map(f).join(', ')})`
+    return `  vec3 glowOver(vec3 land, vec2 p, float lod) {
+    float w = uRes.x;
+    float a = textureLod(uFlock, uvOf(p), log2(max(w * ${f(soft)}, 1.0)) + lod).a;
+    float near = 0.0;
+    float far = 0.0;
+    for (int i = 0; i < 12; i++) {
+      float turn = float(i) * 0.5235988 + 0.2618;
+      vec2 o = vec2(cos(turn), sin(turn));
+      near += textureLod(uFlock, uvOf(p + o * w * ${f(near)}), log2(w * ${f(near)}) + lod).a;
+      far += textureLod(uFlock, uvOf(p + o * w * ${f(far)}), log2(w * ${f(far)}) + lod).a;
+    }
+    float light = 1.0 - (1.0 - min(near / 12.0 * ${f(strength[0])} * 2.0, 1.0)) * (1.0 - min(far / 12.0 * ${f(strength[1])} * 2.0, 1.0));
+    vec3 c = vec3(1.0) - (vec3(1.0) - land) * (vec3(1.0) - ${v3(halo)} * light);
+    return mix(c, mix(${v3(cream)}, ${v3(core)}, smoothstep(0.35, 1.0, a)), smoothstep(${f(body[0])}, ${f(body[1])}, a));
+  }
+`
+  }
   const lensFragment = (mode) => {
     let fragment = mode.lens.foot === false ? LENS_FRAGMENT.replace(LENS_FOOT, 'float foot = 1.0;') : LENS_FRAGMENT
     if (mode.lens.foot === 'ease') {
@@ -8364,6 +8626,29 @@
         return LENS_NONE
       }
       fragment = fragment.replace(LENS_TOP, 'each.y = 0.0;')
+    }
+    if (mode.lens.glow) {
+      const swaps = [
+        ['  void main() {', `${lensGlow(mode.lens.glow)}  void main() {`],
+        ['vec4 soft = textureLod(uFlock, uvOf(px), uHalo.x);', 'vec4 soft = vec4(0.0);'],
+        ['float t = clamp((v - uIn) / (1.0 - uIn), 0.0, 1.0);', 'float t = 0.0;'],
+        ['vec4 here = textureLod(uFlock, uvOf(px), 0.0);', 'vec4 here = vec4(0.0);'],
+      ]
+      if (swaps.some(([from]) => !fragment.includes(from))) {
+        return fragment
+      }
+      for (const [from, to] of swaps) {
+        fragment = fragment.replace(from, to)
+      }
+    }
+    if (mode.lens.mirror || mode.lens.glow) {
+      const anchor = '    vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);\n'
+      if (!fragment.includes(anchor)) {
+        return fragment
+      }
+      const mirror = mode.lens.mirror ? lensMirror(mode.lens.mirror, !!mode.lens.glow) : ''
+      const glow = mode.lens.glow ? '    behind = glowOver(behind, px, 0.0);\n' : ''
+      fragment = fragment.replace(anchor, anchor + mirror + glow)
     }
     if (mode.lens.clear) {
       for (const [from, to] of LENS_CLEAR) {
@@ -11201,6 +11486,12 @@ ${LINE_FILL}`,
         // where it is, and how it is going
         if (b.state === 'perched') {
           ;[b.x, b.y] = perchNow(b.at)
+          if (way.hover) {
+            // on the wing in its place, rising and sinking a little and drifting from side to side
+            aloft = 1
+            b.x += way.hover.sway * fit * Math.sin(clock * 0.83 + seed * 7.1)
+            b.y += way.hover.bob * fit * Math.sin(clock * 1.9 + seed * 3.3)
+          }
         } else if (b.state !== 'away') {
           const t = clamp((clock - b.from) / b.dur, 0, 1)
           const u = easeOf(b.ease, t)
@@ -11260,6 +11551,12 @@ ${LINE_FILL}`,
         b.heading = turnTo(sat, heading, b.air)
         b.pitch = way.sit[1] + (FLIGHT.away + 0.1 * (seed - 0.5) - way.sit[1]) * b.air
         b.roll = sitRoll + ((b.pose + 0.05 * Math.sin(clock * 1.3 + seed * 61)) * leftward - sitRoll) * b.air
+        if (way.hover && b.state === 'perched') {
+          // and seen as it holds there, from a little behind and above, turning a little this way and that
+          b.heading = way.hover.pose[0] + 0.06 * Math.sin(clock * 0.61 + seed * 5.3)
+          b.pitch = way.hover.pose[1] + 0.05 * Math.sin(clock * 0.47 + seed * 2.9)
+          b.roll = way.hover.pose[2] + 0.08 * Math.sin(clock * 1.07 + seed * 9.7)
+        }
         b.screenX = b.x
         // its body sits a little above the leaf it is on
         b.screenY = b.y - size * way.lift * (1 - b.air)
