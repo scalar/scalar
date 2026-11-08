@@ -1774,10 +1774,18 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false,
               "feedback": false
+            },
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ]
             }
           },
           "products": {
