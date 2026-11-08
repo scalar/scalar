@@ -775,86 +775,6 @@
   <a class="expander-hover-link" href="https://github.com/scalar/scalar" target="_blank" aria-label="View Scalar on GitHub">GitHub →</a>
   <a class="expander-hover-link" href="mailto:support@scalar.com" target="_blank" aria-label="Contact Scalar support">Contact Us →</a>
 </div>
-<section class="expander-container" aria-label="Explore Scalar products">
-  <article class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Client Preview" class="light-image" src="/api-client-static.svg" />
-      <img alt="API Client Preview" class="dark-image" src="/api-client-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-client" width="156" height="110"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/JXS6tZ4EbKIkeGpjP6QKc.svg"></object>
-      </div>
-      <h3 class="expander-hover-title">API Client</h3>
-      <div class="expander">
-        <p class="expander-content">
-          Minimal, powerful, fully open-source API Client built on open standards by us + our community.
-        </p>
-      </div>
-      <a class="expander-hover-link" href="https://client.scalar.com/" target="_blank" aria-label="Learn more about API Client">Learn More</a>
-    </div>
-  </article>
-  <article class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="SDKs Preview" class="light-image" src="/sdks-static.svg" />
-      <img alt="SDKs Preview" class="dark-image" src="/sdks-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-sdk" width="145" height="145"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/gM-mqYTBYMkqpnexTIr-r.svg"></object>
-      </div>
-      <h3 class="expander-hover-title">SDKs</h3>
-      <div class="expander">
-        <p class="expander-content">
-          Bring your OpenAPI document and get type-safe client libraries across supported languages.
-        </p>
-      </div>
-      <a class="expander-hover-link" href="/products/sdk-generator" aria-label="Learn more about SDKs">Learn More</a>
-    </div>
-  </article>
-  <article class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Registry Preview" class="light-image" src="/registry-static.svg" />
-      <img alt="API Registry Preview" class="dark-image" src="/registry-static-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-      <object class="sticker-clip-registry" width="136" height="186"
-          data="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/jgGF_IKsu-T_irS-6MMOy.svg"></object>
-      </div>
-      <h3 class="expander-hover-title">API Registry</h3>
-      <div class="expander">
-        <p class="expander-content">
-          Managing & versioning OpenAPI Documents with a deep Git integration.
-        </p>
-      </div>
-      <a class="expander-hover-link" href="/products/registry" aria-label="Learn more about API Registry">Learn More</a>
-    </div>
-  </article>
-  <article class="expander-hover">
-    <div class="expander-hover-preview">
-      <img alt="API Docs Preview" class="light-image" src="/api-docs-static-zoom.svg" />
-      <img alt="API Docs Preview" class="dark-image" src="/api-docs-static-zoom-dark.svg" />
-    </div>
-    <div class="relative">
-      <div class="expander-hover-sticker">
-        <object class="sticker-clip-docs" width="113" height="143" data="https://cdn.scalar.com/marketing/landing/sticker-3.v3.svg"></object>
-      </div>
-      <h3 class="expander-hover-title">API Docs</h3>
-      <div class="expander">
-        <p class="expander-content">
-          Write beautiful documentation with Markdown + MDX + Git Sync.
-        </p>
-      </div>
-      <a class="expander-hover-link" href="/products/docs" aria-label="Learn more about API Docs">Learn More</a>
-    </div>
-  </article>
-</section>
-<div class="sticker-filter-effect">
-  <scalar-icon src="https://api.scalar.com/cdn/images/LByt7m02eR-6wZrXUk5d5/utn6gGF3Iucolqx4jmXmY.svg"></scalar-icon>
-</div>
 <style>
   /* ------------------------------------------------------------------
      The hero: the copy, and under it a sunset after a painting, laid
@@ -1713,13 +1633,12 @@ h4.t-editor__heading {
     align-items: start;
 }
   .pricing-faq {
-    margin-top: 24px;
+    margin-top: 80px;
   }
   /* Everything under the plans' table keeps to the footer card's width (1060px, as the site's footer has it), centred
-     in the page's wider column, so the FAQ, the call to action and the products line up with the footer under them.
-     The call to action keeps its own narrow measure, at that column's left edge. */
-  .pricing-faq,
-  .expander-container {
+     in the page's wider column, so the FAQ and the call to action line up with the footer under them. The call to
+     action keeps its own narrow measure, at that column's left edge. */
+  .pricing-faq {
     width: 100%;
     max-width: 1060px;
     margin-right: auto;
@@ -1836,41 +1755,6 @@ h4.t-editor__heading {
     margin: auto;
     position: relative;
   }
-  /* new stuff  */
-  .expander {
-    display: grid;
-    grid-template-rows: 0fr;
-    overflow: hidden;
-    opacity: 0;
-    transition: grid-template-rows 0.25s, opacity 0.25s ease-in-out;
-  }
-  .expander-content {
-    min-height: 0;
-    margin-bottom: 12px;
-    margin-top: 6px;
-    line-height: 1.45;
-    font-size: 14px;
-  }
-  .expander-hover {
-    height: 370px;
-    width: 25%;
-    position: relative;
-  }
-  .expander-hover:hover .expander {
-    grid-template-rows: 1fr;
-    opacity: 1;
-    transition: grid-template-rows 0.5s, opacity 0.5s ease-in-out;
-  }
-  .expander.expanded .expander-content {
-    visibility: visible;
-  }
-  .expander-hover .expander-hover-title {
-    display: block;
-    font-size: 20px;
-    font-weight: var(--scalar-semibold);
-    line-height: inherit;
-    margin: 24px 0 0;
-  }
   .expander-hover-link {
     --font-color: var(--scalar-color-2);
     --font-visited: var(--scalar-color-2);
@@ -1886,85 +1770,12 @@ h4.t-editor__heading {
     );
     margin-top: 6px;
   }
-  .expander-hover:hover .expander-hover-link {
-    --font-color: var(--scalar-color-1);
-  }
-  .expander-hover-preview {
-    position: absolute;
-    left: -120px;
-    top: -220px;
-    width: 1100px;
-    mask-image: radial-gradient(circle at top left, black 25%, transparent 40%);
-    pointer-events: none;
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-    transform: rotate(1deg) translate3d(-10px, -10px, 0);
-    max-height: 500px;
-    overflow: hidden;
-  }
-  .expander-hover .relative {
-    z-index: 1;
-  }
-  .expander-hover:hover .expander-hover-preview {
-    opacity: 1;
-    transform: rotate(2deg) translate3d(0, 0, 0);
-    transition: all 0.3s ease-in-out 0.2s;
-  }
-  .expander-hover-preview img {
-    margin-left: 0;
-    mask-image: linear-gradient(black, transparent);
-    width: 100%;
-  }
-  .expander-hover-sticker {
-    height: 143px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    position: relative;
-    margin-left: -12px;
-    transition: transform 0.3s ease-in-out;
-    justify-content: flex-start;
-  }
-  .expander-hover-sticker object {
-    pointer-events: none;
-  }
-  .expander-hover-sticker img {
-    max-height: initial;
-    margin-left: initial;
-  }
-  .expander-hover:hover .expander-hover-sticker {
-    transform: rotate(-3deg);
-  }
-  .expander-container {
-    display: flex;
-    gap: 44px;
-    margin-top: 0;
-  }
   .cta {
     padding: 80px 0;
     margin-top: 0 !important;
   }
   .mb-11 {
     margin-bottom: 44px;
-  }
-  .light-mode .dark-image {
-    display: none;
-  }
-  .dark-mode .light-image {
-    display: none;
-  }
-  .sticker-clip-client {
-    clip-path: path("M158 91.9102C158 95.8908 154.773 99.1172 150.792 99.1172L147.269 99.1172L147.269 105.78C147.268 107.948 145.511 109.705 143.343 109.705L86.2051 109.705C84.0373 109.705 82.2795 107.948 82.2793 105.78L82.2793 99.1172L7.208 99.1172C3.22741 99.1172 1.10673e-05 95.8908 -4.01752e-06 91.9101L-3.50643e-06 80.2178C-3.47119e-06 79.4117 0.135571 78.6109 0.400387 77.8496L25.7949 4.83984C26.8028 1.94219 29.5346 -5.6154e-06 32.6025 -5.4813e-06L150.792 -3.15072e-07C154.773 -1.41078e-07 158 3.22654 158 7.20703L158 91.9102Z")
-  }
-  .sticker-clip-sdk {
-    clip-path: path("M60.0562 8.61129C65.9233 -1.83053 81.0294 -1.61478 86.5955 8.99068L142.416 115.353C144.543 119.406 141.567 124.259 136.991 124.201L114.679 123.918L114.138 135.797C113.962 139.654 110.761 142.678 106.9 142.634L32.9393 141.782C29.1212 141.738 26.0084 138.707 25.864 134.891L25.406 122.787L6.28841 122.544C1.70363 122.486 -1.1476 117.543 1.09835 113.545L60.0562 8.61129Z")
-  }
-  .sticker-clip-registry {
-    clip-path: path("M71.0986 1.13334C75.8537 -0.596969 81.1116 1.85514 82.8428 6.6099L90.3037 27.1079H98.5059C104.199 27.108 108.814 31.7235 108.814 37.4165V77.9663L121.32 112.329C119.703 112.128 118.003 112.298 116.351 112.899C110.96 114.861 108.12 120.659 110.009 125.848C111.898 131.038 117.8 133.654 123.191 131.692C124.844 131.091 126.254 130.127 127.364 128.933L134.608 148.835C136.339 153.591 133.887 158.849 129.132 160.58L73.3945 180.866C68.6393 182.596 63.3816 180.145 61.6504 175.39L58.958 167.994H2.29102C1.02582 167.994 0 166.968 0 165.703V29.398C0.000538247 28.1333 1.02616 27.1079 2.29102 27.1079H9.8125C10.6721 24.5603 12.6383 21.4116 15.3613 21.4204L71.0986 1.13334Z")
-  }
-  .sticker-clip-docs {
-    overflow: hidden;
-    border-radius: 20px;
   }
   @media screen and (max-width: 1000px) {
     .t-doc {
@@ -2015,21 +1826,6 @@ h4.t-editor__heading {
     }
     .product-copy .lg-only {
       display: none;
-    }
-    .expander-container {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      row-gap: 0;
-    }
-    .expander-hover {
-      width: auto;
-    }
-    .expander-hover .expander {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-    .expander .expander-content {
-      visibility: visible;
     }
   }
   @media screen and (max-width: 640px) {
