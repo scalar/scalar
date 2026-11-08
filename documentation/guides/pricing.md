@@ -859,13 +859,14 @@
   /* ------------------------------------------------------------------
      The hero: the copy, and under it a sunset after a painting, laid
      in the fine lines and waves of the Warp hero on
-     /products/sdk-generator: a butter and peach sky with a soft column
-     of pink light behind the words, a hot orange horizon and a lavender
-     sea with the light's reflection in it. Rest the pointer on the
-     reflection and butterflies fly in to circle it. headless-hero.js
-     draws it into the stage's canvas, to its "pricing" composition
-     (the engine that draws /products/headless, /enterprise, /company
-     and the docs overview).
+     /products/sdk-generator: the page clear under the header, the
+     sky's lines coming in slowly far below it, a sun going down behind
+     the words so they read on its bright face, a hot orange horizon
+     and a lavender sea with the sun's reflection in it. Rest the
+     pointer on the reflection and butterflies fly in to circle it.
+     headless-hero.js draws it into the stage's canvas, to its
+     "pricing" composition (the engine that draws /products/headless,
+     /enterprise, /company and the docs overview).
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
      other heroes' (their numbers, measured at 1440 by 900 and 1512 by
@@ -912,13 +913,24 @@
       --pr-line: 190.9px;
     }
   }
+  /* Between 390px and 423px wide /products/headless's hero copy wraps
+     to two more lines than this page's (its heading and its lede each
+     take one more), which puts its logo row 31.7px lower; the scene
+     reaches that much further below the words there, so the two logo
+     rows still line up. Measured on both pages at 390, 414 and 423 by
+     844. Drop it if either page's hero copy changes. */
+  @media screen and (min-width: 390px) and (max-width: 423px) {
+    .pr-scene {
+      --pr-land: calc(119px + 220px + 8px + 31.7px);
+    }
+  }
   /* The scene fills the hero from the header down, across the whole
      window (the page has no sidebar), and stops where the logos start:
      it is placed in the grid's first row and reaches up through the
      padding above it. It fades in once its
      first picture is drawn. The pointer reaches it through the page
-     (the butterflies come to it when it rests on the reflection), so
-     it takes none itself. */
+     (the butterflies come to it when it rests on the sun's
+     reflection), so it takes none itself. */
   .pr-stage {
     position: absolute;
     grid-row: 1 / 2;
@@ -1103,11 +1115,12 @@
      home page's 960px column and up to 76px past it, kept 32px clear
      of the window's edge, its column alone from 1100px down, and 30px
      in from each edge from 1000px down. It is centred under the copy,
-     so it runs past the copy's narrower column on both sides. */
+     so it runs past the copy's narrower column on both sides, and it
+     keeps the home page's width although this page's content is wider
+     (1280px). */
   .pr-trusted {
     --pr-trusted-column: min(960px, 100dvw - 100px);
-    --pr-trusted-width: max(
-      100%,
+    --pr-trusted-width: calc(
       var(--pr-trusted-column) +
         max(0px, min(76px, (100dvw - var(--pr-trusted-column)) / 2 - 32px))
     );

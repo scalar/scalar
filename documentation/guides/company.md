@@ -420,12 +420,13 @@ We are the API company, giving you industry-best interfaces for your APIs so you
 
 <style>
   /* ------------------------------------------------------------------
-     The hero: the copy, and under the calls to action an old wooden
-     garage in a meadow, its roof gone over to moss, flowers heaped
-     against its walls and very small butterflies sitting on its roof.
-     headless-hero.js draws it into the stage's canvas, to its
-     "company" composition (the engine that draws /products/headless
-     and /enterprise).
+     The hero: the copy, and under it the footer's rolling hills with a
+     figure of light sitting at a desk on the right, after the docs
+     overview's figure: so bright that only its shape is left, and the
+     light it gives off. Where the words take the whole width it sits
+     under them. headless-hero.js draws it into the stage's canvas, to
+     its "company" composition (the engine that draws
+     /products/headless, /enterprise and the docs overview).
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
      other heroes' (their numbers, measured at 1440 by 900 and 1512 by
@@ -436,12 +437,12 @@ We are the API company, giving you industry-best interfaces for your APIs so you
     --co-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
     --co-line: 130.5px;
     --co-top: max(48px, calc(var(--co-box) / 2 - var(--co-line)));
-    /* How far the scene's canvas reaches below the words. headless-
-       hero.js stands the land on the canvas's foot, 19px above it, in
-       rooms of 256px, and the meadow's foot is 1.6 rooms under the
-       land's top line, which comes a little above the foot of the
-       buttons. */
-    --co-land: calc(1.6 * 256px + 19px + 14px - 40px);
+    /* How far the scene's canvas reaches below the words, as on
+       /enterprise: headless-hero.js stands the land on the canvas's
+       foot, 19px above it, in rooms of 256px, and the land's foot is
+       1.3 rooms under its top line, which comes a little above the
+       foot of the buttons. */
+    --co-land: calc(1.3 * 256px + 19px + 14px - 40px);
     position: relative;
     display: grid;
     grid-template-rows: 1fr;
@@ -477,9 +478,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
   /* The scene fills the hero from the header down, across the whole
      column right of the sidebar: it is placed in the grid's row and
      reaches up through the padding above it. It fades in once its
-     first picture is drawn. The pointer reaches it through the page
-     (the butterflies take off when it comes onto the garage), so it
-     takes none itself. */
+     first picture is drawn. It takes no pointer events, so the page
+     under it keeps them. */
   .co-stage {
     position: absolute;
     grid-row: 1 / 2;

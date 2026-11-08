@@ -1067,7 +1067,8 @@
      clouds    as CLOUDS, or [] for none; and cloudTuck, as CLOUD_TUCK.
      flock     as FLOCK, or [] for no butterflies, which is no lens either: the picture then goes straight to the screen.
      air       as AIR: the band the butterflies fly in.
-     lens      as LENS; `foot: false` keeps the picture's foot, where the hero's fades out into the page under it.
+     lens      as LENS; `foot: false` keeps the picture's foot, where the hero's fades out into the page under it, and
+               `foot: 'ease'` eases that fade in rather than running it evenly (see LENS_FOOT).
      fit       (w, h) => how large the grass, the flowers, the clouds and the butterflies are drawn on a canvas that size.
      stillAt   the clock the still picture is painted at.
      plant     null, or a hook (garden) => {} run each time the meadow is laid out, which can plant more (see growMeadow).
@@ -1081,6 +1082,8 @@
                PR_MIST and PR_EVEN): as mist, which thins into the grain's specks across the band garden.mist gives, as
                everything does round the words, so a trunk standing beside the words on a phone ends in mist; or as even,
                drawn round in its proportions, so a long coat neither bows nor tapers and an outline over it stays true.
+     lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
+               thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
                the composition's planting gives (garden.perch), take off when the pointer comes onto the tree (the shape
                garden.tree draws for it) and come back to land once it has gone. Where the words stand over the places,
@@ -1106,7 +1109,23 @@
                brings them for `stay` seconds (7), and a tap elsewhere on the picture sends them off. Their rings keep
                clear of the words, of the glass at the sides and of the picture's foot, smaller where the place is
                short of room, and they never go over the words; with reduced motion there are none. A flock either
-               perches or comes to the pointer. */
+               perches or comes to the pointer.
+     sun       null, or a disc of light standing behind the words, made of the land's own lines (see sunFragment):
+               `place`, a hook (stage) => { x, y, r } in CSS pixels of the stage { w, h, words, base, room }, its middle
+               and how far out its rim is; `face`, the share of that which is its bright face, the rest its limb; `halo`,
+               how far its glow reaches past the rim, in its radius; `rim`, how wide the light along its rim is, in its
+               radius; `rise`, a hook (stage) => [from, to] in CSS pixels down the canvas, over which its light comes in
+               from nothing (it is light, not lines, so it may come in higher than the lines do); `inks`, five names in
+               `inks`: its middle, its face's edge, its rim, the glow just past the rim and its halo; `light`, how much
+               light of its own it lays under the lines on its face, along its rim and in its halo; `lines`, how strong
+               its face's lines stay and how many of their beads they keep; each of those last two [on a light page, on a
+               dark page] or one number for both; and `breathe`, its rim and halo, as the glow's. A sheet takes its
+               colours as much as its own `sun` says, [into its lines, as light].
+     fade      null, or how the lines of a sheet with `fade: true` come in from nothing down the canvas: `at`, a hook
+               (stage) => [from, to] in CSS pixels down the canvas, above which there are none and below which they are
+               at their full; `ease`, how slowly they come in (the power of the eased ramp between); and how: `pale`, how
+               far towards the page their colour is where they start, `sparse`, how few of them there are (the power of
+               the ramp that keeps them) and `specks`, how few beads (the same). */
   const HERO = {
     draw: 'live',
     wake: null,
@@ -4314,184 +4333,324 @@
 
   /* --- the company composition ----------------------------------------------------------------------- */
 
-  /* The hero of /company: an old wooden garage in a meadow, the kind a company starts in, as a painter would come on it
-     on a spring afternoon. Its boards are weathered brown, board and batten, and its roof has gone over to moss, thick
-     and soft, olive and gold where the sun catches it, with a few bare slates. Its two old green doors are folded back
-     on the workshop inside, after the photograph of one: the day comes in across a pale concrete floor to a desk with a
-     laptop glowing on it under a hanging lamp, a mustard chair pulled out from it, shelves of boxes and jars, and an
-     orange step-ladder. It stands in the meadow right under the calls to action, the peak of its gable on their middle,
-     with the hills going off into the haze behind it, and a worn path leads up to its doorway. Flowers heap up against
-     its walls and spill down to the front of the picture, hollyhocks stand tall against it, and very small butterflies
-     sit in the moss on its roof, opening and closing their wings; when the pointer comes onto the garage they are off,
-     and they come back to it once it has gone (see the butterflies that perch). It is the hero of its page, as the
-     tree is of /enterprise: built as soon as it is bound, in the builder's short steps, live while on the screen, and
-     in a dark theme the same afternoon. */
-  const COMPANY_INKS = {
-    ...LAND_INK,
-    // the far hills in the haze, receding by value: a pale blue-violet on the furthest, a little deeper nearer
-    hazeFar: ['#e4e8f5', '#d4daef'],
-    hazeHill: ['#cbd3ee', '#bcc6e8'],
-    hazeDeep: ['#aeb9e2', '#a0acdb'],
-    // the near hill in the afternoon: its crest lit lime, its body a living green
-    hillLit: ['#c2e16c', '#cbe67d'],
-    hill: ['#7ab84b', '#87c258'],
-    hillDeep: ['#4f9541', '#5ca14d'],
-    // the meadow's warm light where the sun lies on it
-    warm: ['#e9d37a', '#eed98c'],
-  }
-
-  /* Where the garage stands: the peak of its gable across the flowers' stage (see FLOWERS), under the middle of the
-     buttons, and how far down the meadow its front wall stands. */
-  const CO_AT = 0
-  const CO_FOOT = 0.74
-
-  /* The garage, in metres: its front, its depth back from the front, the height of its walls at the eaves and of its
-     ridge, how far its roof reaches past its walls at the eaves and at the gable, and its doorway. */
-  const CO_GARAGE = {
-    wide: 3.7,
-    deep: 5.4,
-    eaves: 2.4,
-    ridge: 3.85,
-    overhang: 0.28,
-    gable: 0.24,
-    doorWide: 3.0,
-    doorTall: 2.1,
-  }
-  /* How it is seen: turned this far (radians) so that its right side shows, from this height, this far off. */
-  const CO_VIEW = { yaw: 0.36, eye: 2.4, dist: 13 }
-
-  /* A line of rolling hills: the highest of a few round humps, each [across, how high above `base` in rooms, how far it
-     reaches to either side], as points close enough together that the land's curve through them keeps their tops. */
-  const coHills = (base, humps) =>
-    Array.from({ length: 129 }, (_, k) => {
-      const across = -1.6 + k * 0.025
-      let up = 0
-      for (const [at, high, wide] of humps) {
-        const d = Math.min(1, Math.abs(across - at) / wide)
-        up = Math.max(up, high * (0.5 + 0.5 * Math.cos(d * Math.PI)))
-      }
-      return [Math.round(across * 1000) / 1000, Math.round((base - up) * 10000) / 10000]
-    })
-  // the far hills, low under the words and rising to either side
-  const CO_FAR = coHills(0.5, [
-    [-1.5, 0.24, 0.5],
-    [-0.98, 0.27, 0.46],
-    [-0.42, 0.18, 0.42],
-    [0.06, 0.13, 0.4],
-    [0.5, 0.2, 0.42],
-    [0.98, 0.26, 0.44],
-    [1.5, 0.22, 0.5],
-  ])
-  // the nearer hill behind the meadow, with woods along it
-  const CO_HILL = coHills(0.68, [
-    [-1.4, 0.22, 0.6],
-    [-0.7, 0.16, 0.5],
-    [0.0, 0.08, 0.46],
-    [0.72, 0.17, 0.5],
-    [1.45, 0.22, 0.6],
-  ])
-  // the meadow the garage stands in, which the flowers grow on
-  const CO_MEADOW = [
-    [-1.6, 0.7],
-    [-1.1, 0.74],
-    [-0.6, 0.78],
-    [0, 0.8],
-    [0.6, 0.78],
-    [1.1, 0.74],
-    [1.6, 0.7],
+  /* The hero of /company: the footer's rolling hills, and on a rise to the right of the words a figure of light sitting
+     at a desk, after the photograph Cameron sent: someone on a chair at a desk with a screen on it, so bright that only
+     its shape is left, and the light it gives off, as the docs overview's figure is. The hills roll in from the left,
+     lit and gilded along their crests, down to a valley under the words, and rise again on the right into the low hill
+     the desk stands on; a far hill closes the view behind, and a field runs along the front. The flowers are the
+     footer's: gold and marigold where the light lies, cornflowers in the shade, a drift of gold round the desk's feet.
+     Where the words take the whole width, as on a phone, the desk stands under them instead. In a dark theme it is the
+     same hills at dusk, where the figure shines the more. */
+  const CO_EVEN = 0.005
+  /* The hills, as lines in the land's room from its top line (0) down, across in shares of the half-width: the far
+     hill, the lit hill coming down from the left into the valley under the words, the rise on the right the desk
+     stands on, and the field along the front. The land runs 1.3 rooms deep, as /enterprise's does. */
+  const CO_FAR = [
+    [-1.6, 0.14],
+    [-1.0, 0.07],
+    [-0.45, 0.1],
+    [0.1, 0.05],
+    [0.6, 0.02],
+    [1.1, 0.06],
+    [1.6, 0.12],
   ]
-  // a band of sky a little over the far hills, smoothed
-  const CO_SKY = CO_FAR.map(([across], k) => {
-    let sum = 0
-    let many = 0
-    for (let j = Math.max(0, k - 5); j <= Math.min(CO_FAR.length - 1, k + 5); j += 1) {
-      sum += CO_FAR[j][1]
-      many += 1
-    }
-    return [across, Math.round((sum / many - 0.09) * 10000) / 10000]
-  })
-
+  const CO_LEFT = [
+    [-1.6, 0.0],
+    [-1.2, 0.05],
+    [-0.85, 0.16],
+    [-0.55, 0.32],
+    [-0.25, 0.52],
+    [0.05, 0.68],
+    [0.4, 0.82],
+    [1.6, 1.05],
+  ]
+  const CO_RISE = [
+    [-1.6, 1.08],
+    [-0.5, 0.94],
+    [-0.12, 0.8],
+    [0.15, 0.62],
+    [0.38, 0.48],
+    [0.6, 0.4],
+    [0.8, 0.38],
+    [1.0, 0.41],
+    [1.25, 0.48],
+    [1.6, 0.58],
+  ]
+  const CO_FIELD = [
+    [-1.6, 0.8],
+    [-0.9, 0.93],
+    [-0.3, 1.0],
+    [0.3, 1.0],
+    [0.9, 0.95],
+    [1.6, 0.86],
+  ]
+  /* The figure at its desk, traced from the photograph (its white pixels, through potrace; see scratchpad co3/trace):
+     its outline as points in its own terms, x across from its middle and y down from the top of its head, both as shares
+     of its height from the top of its head to the feet of the chair and the desk, which stand on the ground. */
+  const CO_DESK = {
+    outer: [
+      [-0.2238, 0.0196],
+      [-0.2403, 0.0718],
+      [-0.2327, 0.1679],
+      [-0.2495, 0.1878],
+      [-0.3022, 0.2171],
+      [-0.3296, 0.2549],
+      [-0.3567, 0.3581],
+      [-0.36, 0.471],
+      [-0.3688, 0.4856],
+      [-0.391, 0.491],
+      [-0.3946, 0.4984],
+      [-0.3664, 0.5472],
+      [-0.3577, 0.6008],
+      [-0.3532, 0.8954],
+      [-0.3492, 0.9469],
+      [-0.3407, 0.9754],
+      [-0.3199, 0.9896],
+      [-0.3071, 0.9773],
+      [-0.2883, 0.8306],
+      [-0.2691, 0.9714],
+      [-0.2597, 1.0],
+      [-0.2474, 0.9938],
+      [-0.2415, 0.9601],
+      [-0.2405, 0.8123],
+      [-0.1069, 0.8123],
+      [-0.1062, 0.8805],
+      [-0.097, 0.9296],
+      [-0.0755, 0.9672],
+      [-0.0507, 0.9875],
+      [-0.0353, 0.962],
+      [-0.0122, 0.845],
+      [0.0008, 0.9476],
+      [0.0121, 0.9684],
+      [0.0374, 0.9618],
+      [0.1166, 0.9216],
+      [0.1281, 0.9011],
+      [0.1305, 0.838],
+      [0.1172, 0.6809],
+      [0.1055, 0.6394],
+      [0.1085, 0.6283],
+      [0.2746, 0.6204],
+      [0.281, 0.9532],
+      [0.2871, 0.9627],
+      [0.3069, 0.9624],
+      [0.3326, 0.9511],
+      [0.3502, 0.9344],
+      [0.362, 0.5418],
+      [0.3686, 0.517],
+      [0.3946, 0.4934],
+      [0.3641, 0.4547],
+      [0.3757, 0.3028],
+      [0.3709, 0.1261],
+      [0.3643, 0.1193],
+      [0.3447, 0.1159],
+      [0.2562, 0.1126],
+      [0.0976, 0.1157],
+      [0.0495, 0.1226],
+      [0.0412, 0.3522],
+      [0.0349, 0.3814],
+      [0.0185, 0.405],
+      [0.0025, 0.3783],
+      [-0.0233, 0.2858],
+      [-0.0372, 0.2558],
+      [-0.0563, 0.2331],
+      [-0.1099, 0.1915],
+      [-0.1277, 0.1656],
+      [-0.1128, 0.0956],
+      [-0.1126, 0.0597],
+      [-0.1196, 0.038],
+      [-0.1466, 0.0104],
+      [-0.17, 0.0],
+      [-0.2014, 0.0005],
+    ],
+  }
+  /* Where it stands: its middle this far across, in shares of the half-width, so its left side keeps clear of the
+     words; as tall as this share of the canvas, at most; in the field in front of the rise, its feet this share of the
+     way down from the field's top line to the canvas's foot; and its head never higher than this share of the way
+     down from the far hill's line to the field's, so the whole figure stands against the green of the hills and never
+     against the page, where its white would be lost. */
+  const CO_AT = 0.67
+  const CO_TALL = 0.36
+  const CO_SINK = 0.25
+  const CO_HEAD = 0.06
+  /* How much of the ground the flowers cover where a drift is thickest, by how near. */
+  const CO_COVER = [
+    [0, 2.2],
+    [0.2, 2.8],
+    [0.45, 3],
+    [0.7, 2.4],
+    [0.85, 2.6],
+    [1, 2.2],
+  ]
+  /* The fields, in the footer's colours: gold along the lit hill's crest and down its slope, cornflowers where the
+     valley turns into shade, gold and marigold round the desk's feet on the rise, cornflowers again in the front
+     corners, and far off, specks of gold on the far hill. */
+  const CO_DRIFTS = [
+    {
+      line: [
+        [-1.75, 0.04],
+        [-1.25, 0.08],
+        [-0.85, 0.18],
+        [-0.55, 0.32],
+      ],
+      wide: [0.08, 0.06],
+      full: [1, 0.8],
+      paints: 'marigolds',
+      patchy: true,
+      patchyFrom: 0.62,
+      own: [0.75, 1.15],
+    },
+    {
+      line: [
+        [-1.6, 0.14],
+        [-1.1, 0.22],
+        [-0.7, 0.36],
+        [-0.42, 0.5],
+      ],
+      wide: [0.06, 0.05],
+      full: [0.9, 0.8],
+      paints: 'sunlit',
+      patchy: true,
+      patchyFrom: 0.66,
+    },
+    // the valley under the words turning into shade
+    {
+      line: [
+        [-0.35, 0.86],
+        [0, 0.9],
+        [0.3, 0.84],
+      ],
+      wide: [0.06, 0.05],
+      full: [0.9, 0.75],
+      paints: 'cornflowers',
+      patchy: true,
+      patchyFrom: 0.6,
+    },
+    // on the rise behind the desk: gold and marigold in its light
+    {
+      line: [
+        [0.4, 0.62],
+        [0.62, 0.56],
+        [0.85, 0.55],
+        [1.1, 0.6],
+      ],
+      wide: [0.05, 0.05],
+      full: [1, 1],
+      paints: 'marigolds',
+      patchy: true,
+      patchyFrom: 0.7,
+    },
+    {
+      line: [
+        [0.5, 0.5],
+        [0.75, 0.47],
+        [1.0, 0.5],
+      ],
+      wide: [0.035, 0.035],
+      full: [0.8, 0.8],
+      paints: 'sunlit',
+      patchy: true,
+    },
+    // round the desk's feet in the field: gold in its light
+    {
+      line: [
+        [0.42, 1.06],
+        [0.67, 1.1],
+        [0.92, 1.06],
+      ],
+      wide: [0.04, 0.04],
+      full: [0.9, 0.9],
+      paints: 'sunlit',
+      patchy: true,
+      patchyFrom: 0.72,
+    },
+    // the front corners in cornflowers
+    {
+      line: [
+        [-1.75, 0.82],
+        [-1.2, 0.92],
+        [-0.6, 0.98],
+      ],
+      wide: [0.12, 0.06],
+      full: [0.9, 0.6],
+      paints: 'cornflowers',
+      patchy: true,
+      patchyFrom: 0.6,
+    },
+    {
+      line: [
+        [1.75, 0.84],
+        [1.25, 0.94],
+        [0.7, 0.99],
+      ],
+      wide: [0.12, 0.06],
+      full: [1, 0.6],
+      paints: 'cornflowers',
+      patchy: true,
+      patchyFrom: 0.6,
+    },
+    // far off, on the far hill: specks of gold where the light reaches
+    {
+      line: [
+        [-0.7, 0.04],
+        [0, 0.03],
+        [0.7, 0.03],
+      ],
+      wide: [0.03, 0.03],
+      full: [0.7, 0.7],
+      paints: 'gold specks',
+      patchy: true,
+    },
+  ]
   const COMPANY = {
     ...HERO,
-    // No opening: the first picture is the finished scene, the butterflies sitting on the roof.
     intro: false,
-    wake: 'idle',
-    near: '100% 0px',
     words: '.co-copy',
-    // the oval of page round the words is shallow under them, where the roof comes up
-    lines: { ...LINES, veil: [96, 48] },
-    inks: COMPANY_INKS,
-    // the roof and the hollyhocks stand against the page as well as the land
-    onPage: true,
+    // the footer's few beads, and the oval of page kept round the words shallow, so the figure's light stays whole
+    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.15 },
+    film: FOOTER.film,
+    inks: FOOTER_INK,
+    // the motes twinkle (see the glow in the strokes' shader), and the figure is drawn in plain round strokes that
+    // neither bow nor taper (the even mark)
+    twinkle: true,
+    marks: true,
+    // its light in the haze kind, which fades smoothly at its edge rather than breaking into the grain's specks
+    glyphs: true,
     land: {
       ...HERO.land,
-      profile: CO_MEADOW,
+      profile: CO_FAR,
       crest: 0,
       relief: [1, 1],
       sheets: [
+        // a haze of sky over the far hill, thinning into the page at its top
         {
           name: 'sky',
-          top: { crest: CO_SKY },
-          foot: [
-            [-1.6, 0.56],
-            [1.6, 0.56],
-          ],
+          top: {
+            crest: [
+              [-1.6, -0.12],
+              [0, -0.16],
+              [1.6, -0.12],
+            ],
+          },
+          foot: {
+            hill: [
+              [-1.6, 0.06],
+              [1.6, 0.06],
+            ],
+          },
           paint: [
             [0, 'pale', 0],
-            [0.2, 'pale', 0.3],
-            [0.55, 'sky', 0.5],
-            [1, 'pale', 0.55],
+            [0.2, 'pale', 0.32],
+            [0.45, 'sky', 0.7],
+            [0.7, 'slateHaze', 0.9],
+            [1, 'slateHaze', 1],
           ],
-          fill: 0.5,
-          under: 0.12,
-          flow: 1,
-          breath: 1,
-        },
-        {
-          name: 'far hills',
-          opaque: true,
-          top: { crest: CO_FAR },
-          foot: [
-            [-1.6, 0.74],
-            [1.6, 0.74],
-          ],
-          paint: [
-            [0, 'hazeFar', 0],
-            [0.04, 'hazeFar', 0.85],
-            [0.2, 'hazeHill', 1],
-            [0.6, 'hazeDeep', 1],
-            [1, 'hazeHill', 1],
-          ],
-          lean: 0.3,
           fill: 0.7,
-          under: 0.55,
-          patch: 0.22,
-          flow: 0.35,
-          breath: 0.4,
+          under: 0.38,
+          flow: 1.2,
+          breath: 2,
         },
-        {
-          name: 'near hill',
-          opaque: true,
-          top: { crest: CO_HILL },
-          foot: [
-            [-1.6, 0.98],
-            [1.6, 0.98],
-          ],
-          paint: [
-            [0, 'hillLit', 0],
-            [0.05, 'hillLit', 0.9],
-            [0.16, 'hill', 1],
-            [0.5, 'hillDeep', 1],
-            [1, 'hill', 1],
-          ],
-          lean: 0.4,
-          fill: 0.74,
-          under: 0.62,
-          patch: 0.3,
-          flow: 0.45,
-          breath: 0.5,
-          sheen: 0.5,
-        },
+        // the far hill closing the view, which the flowers grow on; deep green from just under its crest, so the
+        // figure's head stands out against it
         {
           name: 'meadow',
           opaque: true,
@@ -4503,2112 +4662,364 @@
             ],
           },
           foot: [
-            [-1.6, 1.6],
-            [-0.8, 1.58],
-            [0, 1.56],
-            [0.8, 1.58],
-            [1.6, 1.6],
+            [-1.6, 1.3],
+            [1.6, 1.3],
           ],
           paint: [
-            [0, 'green', 0],
-            [0.05, 'green', 0.86],
-            [0.2, 'green', 1],
-            [0.42, 'sun', 1],
-            [0.58, 'olive', 1],
-            [0.7, 'warm', 0.75],
-            [0.8, 'straw', 0.42],
-            [0.9, 'straw', 0.14],
-            [1, 'straw', 0],
+            [0, 'crest', 0],
+            [0.02, 'crest', 0.9],
+            [0.04, 'mist', 1],
+            [0.12, 'sage', 1],
+            [0.28, 'fern', 1],
+            [0.6, 'sage', 1],
+            [1, 'fern', 1],
           ],
-          fill: 0.68,
-          under: 0.5,
-          patch: 0.22,
+          lean: 0.3,
+          fill: 0.74,
+          under: 0.78,
+          patch: 0.15,
+          flow: 0.6,
+          breath: 1.4,
+        },
+        // the hill rolling in from the left, lit, gilded along its crest
+        {
+          name: 'left hill',
+          opaque: true,
+          top: { crest: CO_LEFT },
+          foot: [
+            [-1.6, 1.32],
+            [1.6, 1.32],
+          ],
+          paint: [
+            [0, 'gilt', 0],
+            [0.025, 'gilt', 0.85],
+            [0.07, 'glow', 1],
+            [0.16, 'lime', 1],
+            [0.3, 'green', 1],
+            [0.55, 'deepGreen', 1],
+            [0.85, 'shade', 1],
+            [1, 'shade', 1],
+          ],
+          lean: 0.3,
+          fill: 0.74,
+          under: 0.7,
+          patch: 0.2,
+          flow: 0.7,
+          breath: 1.5,
+          sheen: 0.6,
+        },
+        // the rise on the right the desk stands on, its crest catching the light, its near slope going into shade
+        {
+          name: 'rise',
+          opaque: true,
+          top: { crest: CO_RISE },
+          foot: [
+            [-1.6, 1.32],
+            [1.6, 1.32],
+          ],
+          paint: [
+            [0, 'gilt', 0],
+            [0.03, 'glow', 0.85],
+            [0.09, 'lime', 1],
+            [0.22, 'green', 1],
+            [0.5, 'deepGreen', 1],
+            [1, 'shade', 1],
+          ],
+          lean: 0.3,
+          fill: 0.74,
+          under: 0.7,
+          patch: 0.2,
+          flow: 0.7,
+          breath: 1.5,
+          sheen: 0.55,
+        },
+        // the field along the front
+        {
+          name: 'field',
+          opaque: true,
+          top: { crest: CO_FIELD },
+          foot: [
+            [-1.6, 1.34],
+            [1.6, 1.34],
+          ],
+          paint: [
+            [0, 'gilt', 0],
+            [0.06, 'glow', 0.9],
+            [0.25, 'lime', 1],
+            [0.55, 'green', 1],
+            [1, 'deepGreen', 1],
+          ],
+          lean: 0.3,
+          fill: 0.72,
+          under: 0.6,
+          patch: 0.2,
           flow: 0.8,
           breath: 1.5,
-          sheen: 1,
+          sheen: 0.8,
         },
       ],
-      foot: LAND_FOOT,
       least: 110,
     },
-    // the meadow's grass, a little shorter, and nothing going through it but the pointer
-    grass: {
-      ...GRASS,
-      tufts: 0.08,
-      lane: 0,
-      singles: 0.3,
-      tall: [7, 34],
-    },
+    grass: FOOTER.grass,
     passer: null,
     flowers: {
-      ...FLOWERS,
-      // the eye is on the flowers heaped at the garage's foot, so they are crisp and the meadow before them soft
-      focus: 0.8,
-      drifts: [
-        /* heaped against the garage: round its front corners and along the foot of its side, thick and in every
-           colour, with a few low ones before its doors */
-        {
-          line: [
-            [-0.17, 0.71],
-            [-0.24, 0.78],
-            [-0.36, 0.87],
-          ],
-          wide: [0.08, 0.11],
-          full: [1, 1],
-          paints: 'cottage',
-        },
-        {
-          line: [
-            [0.11, 0.77],
-            [0.19, 0.67],
-            [0.26, 0.58],
-            [0.33, 0.5],
-          ],
-          wide: [0.08, 0.05],
-          full: [1, 0.9],
-          paints: 'cottage',
-        },
-        /* spilling down from the corners to the front: pale on the left, warm on the right */
-        {
-          line: [
-            [-0.32, 0.84],
-            [-0.48, 0.92],
-            [-0.66, 0.98],
-          ],
-          wide: [0.06, 0.12],
-          full: [1, 0.9],
-          paints: 'daisies',
-          patchy: true,
-          patchyFrom: 0.5,
-        },
-        {
-          line: [
-            [0.16, 0.82],
-            [0.32, 0.9],
-            [0.52, 0.97],
-          ],
-          wide: [0.06, 0.13],
-          full: [1, 0.9],
-          paints: 'poppies',
-        },
-        /* behind it, cosmos along its far side, and the meadow's clumps either side */
-        {
-          line: [
-            [-0.24, 0.6],
-            [-0.32, 0.5],
-          ],
-          wide: [0.04, 0.03],
-          full: [0.8, 0.6],
-          paints: 'cosmos',
-          patchy: true,
-        },
-        {
-          line: [
-            [-2.4, 0.42],
-            [-1.6, 0.5],
-            [-1.0, 0.62],
-            [-0.6, 0.66],
-          ],
-          wide: [0.28, 0.16],
-          full: [0.35, 0.5],
-          paints: 'meadow',
-          patchy: true,
-          gaps: true,
-        },
-        {
-          line: [
-            [0.6, 0.62],
-            [1.0, 0.6],
-            [1.6, 0.5],
-            [2.4, 0.42],
-          ],
-          wide: [0.16, 0.28],
-          full: [0.5, 0.35],
-          paints: 'meadow',
-          patchy: true,
-          gaps: true,
-        },
-        /* a drift climbing on each side towards the woods */
-        {
-          line: [
-            [-1.0, 0.86],
-            [-1.12, 0.66],
-            [-1.26, 0.44],
-            [-1.36, 0.26],
-          ],
-          wide: [0.14, 0.05],
-          full: [1, 0.6],
-          paints: 'cosmos',
-          patchy: true,
-          patchyFrom: 0.4,
-        },
-        {
-          line: [
-            [0.96, 0.88],
-            [1.1, 0.68],
-            [1.24, 0.46],
-            [1.36, 0.28],
-          ],
-          wide: [0.14, 0.05],
-          full: [1, 0.6],
-          paints: 'daisies',
-          patchy: true,
-          patchyFrom: 0.4,
-        },
-        /* and a few soft ones at the very front, between */
-        {
-          line: [
-            [-0.9, 0.97],
-            [-0.78, 0.99],
-          ],
-          wide: [0.05, 0.05],
-          full: [0.7, 0.7],
-          paints: 'cosmos',
-        },
-        {
-          line: [
-            [0.7, 0.96],
-            [0.84, 0.99],
-          ],
-          wide: [0.05, 0.05],
-          full: [0.7, 0.7],
-          paints: 'buttercups',
-        },
-      ],
-      strays: 30,
+      ...FOOTER.flowers,
+      focus: 0.7,
+      front: 1.65,
+      cover: CO_COVER,
+      drifts: CO_DRIFTS,
+      strays: 0,
     },
-    palettes: {
-      ...PALETTES,
-      // a cottage garden's: pinks, roses and whites with butter and a little lilac
-      cottage: [
-        ['coral', 0.6],
-        ['salmon', 0.8],
-        ['peach', 1.2],
-        ['pink', 2.4],
-        ['rose', 1.2],
-        ['lilac', 0.8],
-        ['butter', 1.2],
-        ['cream', 1.2],
-        ['white', 2.2],
-      ],
-    },
-    // The garage's paints, as [on a light page, on a dark page]: weathered redwood boards in the sun, in light, and in
-    // shade; an old green for the doors and the trim; slate-blue shingles where the moss leaves any; the moss from its
-    // deepest to its sunlit tips, and the gold of its spore stalks; ivy; the shade under the eaves; the window's glass;
-    // and the workshop inside when its doors are open.
+    palettes: FOOTER_PALETTES,
+    // the footer's paints, and the light's own: white at its heart, a breath of warmth in its glow
     paints: {
-      ...PAINTS,
-      boardSun: ['#cf9867', '#d4a173'],
-      board: ['#a8714a', '#b07b55'],
-      boardDeep: ['#7f5134', '#8a5c3f'],
-      boardShade: ['#5a3828', '#654332'],
-      doorLit: ['#82b598', '#8cbea2'],
-      door: ['#4c8a6f', '#56947a'],
-      doorDeep: ['#30614d', '#3b6d59'],
-      doorShade: ['#1f4237', '#29503f'],
-      iron: ['#2f2a27', '#3b3532'],
-      shingleLit: ['#a5afc4', '#afb9cd'],
-      shingle: ['#7c88a1', '#8793ab'],
-      shingleDeep: ['#535e76', '#5e6981'],
-      mossSun: ['#dfe39a', '#e4e8a8'],
-      mossLit: ['#b9c96a', '#c1d077'],
-      moss: ['#86a14a', '#90aa55'],
-      mossDeep: ['#5e7340', '#687d4a'],
-      mossDark: ['#3b4a2b', '#455535'],
-      spore: ['#c98a3e', '#d29650'],
-      ivy: ['#2f5b33', '#3a673e'],
-      ivyLit: ['#619553', '#6da05f'],
-      eave: ['#3c2b22', '#47362c'],
-      glass: ['#c4d6ec', '#b0c4df'],
-      glassDeep: ['#5d7593', '#68809e'],
-      lampLit: ['#ffe4a6', '#ffe9b5'],
-      lamp: ['#f4b45c', '#f6bf70'],
-      inside: ['#2b211c', '#352a24'],
-      insideMid: ['#4a3426', '#55402f'],
-      insideWarm: ['#73502f', '#7e5b3b'],
-      ladder: ['#e2663d', '#e6734c'],
-      chair: ['#dcae38', '#e1b84a'],
-      chairDeep: ['#b98a26', '#c29433'],
-      bulb: ['#fff1c9', '#fff4d6'],
-      screen: ['#a9c8ef', '#b6d1f3'],
-      screenLit: ['#cfe3ff', '#dbeaff'],
-      concreteLit: ['#ddd0b5', '#e1d5bc'],
-      concrete: ['#cdbb9c', '#d3c2a5'],
-      concreteDeep: ['#9b8c76', '#a69780'],
-      stalk: ['#4f8a3a', '#5b9646'],
-      pathLit: ['#d2bb90', '#d8c29a'],
-      path: ['#b69d72', '#bea67c'],
-      pathDeep: ['#8e7552', '#987f5c'],
+      ...FOOTER_PAINTS,
+      light: ['#ffffff', '#ffffff'],
+      lightWarm: ['#fffaf0', '#fff6e6'],
+      lightGlow: ['#fff0cf', '#ffe6b0'],
     },
     clouds: [],
-    flock: Array.from({ length: 10 }, (_, k) => ({
-      size: 10 + 3.5 * ((k * 0.7549 + 0.31) % 1),
-      seed: Math.round(((k * 0.618 + 0.13) % 1) * 100) / 100,
-      pastel: k % 3,
-      wing: WING_NAMES[(k * 2) % 3],
-      // none keeps flying about the roof, whose ridge is just under the buttons
-      flit: false,
-    })),
-    perch: {
-      stay: [5, 14],
-      reach: 90,
-      flit: [3, 6],
-      hop: 130,
-      come: 190,
-      flee: 340,
-      back: 2.6,
-      every: [0.45, 1.1],
-      appear: 0,
-      arrive: 0,
-      first: 0,
-      beat: 8,
-      wings: [1.38, 0.3],
-      rest: [3.5, 6.5],
-      sit: [0.12, -0.35, 1.05],
-      lift: 0.35,
-      flutter: 7,
-      clear: 22,
-    },
-    fit: (w, h) => clamp(Math.min(w / 1300, (h + 100) / 760), 0.72, 1.2),
     plant: (garden) => {
-      const { w, rand, words, place } = garden
-      const jitter = (n) => hashed(n * 17.13 + 3.1) - 0.5
-      const half = w / 2
-      const reach = Math.min(half, FLOWERS.stage)
-      const acrossOf = (x) => (x - half) / reach
-      // the stage's scale
+      const { w, h, rand, words, ground } = garden
       const s = clamp(w / 1232, 0.42, 1.12)
-
-      /* The garage in its own terms, in metres: x across its front from the middle (right is +), y up from the
-         ground, and z back from its front wall. */
-      const G = CO_GARAGE
-      const halfW = G.wide / 2
-      const slope = (G.ridge - G.eaves) / halfW
-      const eaveX = halfW + G.overhang
-      const eaveY = G.eaves - G.overhang * slope
-      const back = G.deep + G.gable
-      const doorHalf = G.doorWide / 2
-      const { yaw, eye, dist } = CO_VIEW
-      const cosY = Math.cos(yaw)
-      const sinY = Math.sin(yaw)
-      // seen in perspective, turned about its middle
-      const view = (x, y, z) => {
-        const zc = z - G.deep / 2
-        const Z = dist - x * sinY + zc * cosY
-        return [(x * cosY + zc * sinY) / Z, (eye - y) / Z]
+      const half = w / 2
+      // The figure's own width, in shares of its height.
+      let x0 = Number.POSITIVE_INFINITY
+      let x1 = Number.NEGATIVE_INFINITY
+      for (const [x] of CO_DESK.outer) {
+        x0 = Math.min(x0, x)
+        x1 = Math.max(x1, x)
       }
-      // and put on the canvas: the middle of its front wall's foot at (bx, by), at S pixels a unit
-      let S = 1
-      let bx = 0
-      let by = 0
-      const [ax, ay] = view(0, 0, 0)
-      const screen = (x, y, z) => {
-        const [u, v] = view(x, y, z)
-        return [bx + S * (u - ax), by + S * (v - ay)]
+      // Where it stands. Beside the words where there is room for it at a good size: its middle CO_AT across, its left
+      // side clear of the words, its right side clear of the canvas's edge, its feet on the rise. Otherwise under the
+      // words, a little right of their middle, its head clear of them.
+      const margin = Math.max(20, 24 * s)
+      const want = h * CO_TALL
+      const clearLeft = words.x + words.a + margin
+      const footAt = (x) => ground('field', x) + CO_SINK * (h - ground('field', x))
+      const headAt = (x) => ground('meadow', x) + CO_HEAD * (ground('field', x) - ground('meadow', x))
+      let fx = half + CO_AT * half
+      let feet = footAt(fx)
+      let tall = Math.min(want, feet - headAt(fx), (fx - clearLeft) / -x0, (w - margin - fx) / x1)
+      const beside = tall >= want * 0.72
+      if (!beside) {
+        fx = Math.min(words.x + words.a * 0.3, w - margin - x1 * want)
+        feet = footAt(fx)
+        const headroom = feet - Math.max(headAt(fx), words.y + words.b + Math.max(24, 28 * s))
+        tall = Math.max(40, Math.min(want, headroom, (w - margin * 2) / (x1 - x0)))
+        fx = clamp(fx, margin - x0 * tall, w - margin - x1 * tall)
       }
-      // A stroke is painted at the depth of the ground under it, so the meadow's flowers in front of a wall are painted
-      // over it and the ones behind it under it.
-      const footY = (x, z) => screen(x, 0, z)[1]
-      const point = (o, U, V, u, v) => [
-        o[0] + U[0] * u + V[0] * v,
-        o[1] + U[1] * u + V[1] * v,
-        o[2] + U[2] * u + V[2] * v,
-      ]
-
-      // Its outline, the moss on its roof allowed for, to size it and to keep it clear of the words.
-      const outline = [
-        [-halfW, 0, 0],
-        [halfW, 0, 0],
-        [halfW, 0, G.deep],
-        [-eaveX, eaveY + 0.2, -G.gable],
-        [0, G.ridge + 0.3, -G.gable],
-        [0, G.ridge + 0.3, back],
-        [eaveX, eaveY + 0.15, -G.gable],
-        [eaveX, eaveY + 0.15, back],
-      ]
-      const box = () => {
-        let left = Number.POSITIVE_INFINITY
-        let right = Number.NEGATIVE_INFINITY
-        let top = Number.POSITIVE_INFINITY
-        for (const [x, y, z] of outline) {
-          const [px, py] = screen(x, y, z)
-          left = Math.min(left, px)
-          right = Math.max(right, px)
-          top = Math.min(top, py)
+      const top = feet - tall
+      const at = ([x, y]) => [fx + x * tall, top + y * tall]
+      const rings = [CO_DESK.outer.map(at)]
+      const left = fx + x0 * tall
+      const right = fx + x1 * tall
+      if (window.__coDebug) {
+        window.__coDebug.figure = {
+          beside,
+          fx: Math.round(fx),
+          top: Math.round(top),
+          feet: Math.round(feet),
+          tall: Math.round(tall),
         }
-        return { left, right, top }
       }
-      /* Where it stands and how large it is: its front on the meadow at CO_FOOT of the way down, its whole outline
-         centred on CO_AT across the stage, and as large as it can be with its roof clear of the words by a little (when
-         it is under them), and no wider than most of the stage. */
-      const wordsLeft = words.x - words.a - 30 * s
-      const wordsRight = words.x + words.a + 30 * s
-      const wordsFoot = words.y + words.b + Math.max(36, 44 * s)
-      const target = half + CO_AT * reach
-      let best = null
-      for (let size = 1800 * s; size >= 150; size -= 6) {
-        S = size
-        bx = target
-        by = place(acrossOf(bx), CO_FOOT)[1]
-        // the peak of its gable right under the middle of the buttons
-        bx += target - screen(0, G.ridge, -G.gable)[0]
-        by = place(acrossOf(bx), CO_FOOT)[1]
-        const b = box()
-        const under = b.right > wordsLeft && b.left < wordsRight
-        if (b.right - b.left > w * 0.7 || (under && b.top < wordsFoot) || b.top < 8) {
-          continue
-        }
-        best = { S, bx, by }
-        break
-      }
-      if (!best) {
-        return
-      }
-      ;({ S, bx, by } = best)
-      // pixels to a metre at its front, and the brush's scale from there
-      const m = S / (dist - (G.deep / 2) * cosY)
-
-      // Each stroke from a seed of its own, so no part of the garage changes when another does.
       let laid = 0
+      // A stroke's seed also sets how much lighter or darker, warmer or cooler than its paint it comes out (see the
+      // strokes' shader): for the light, take the first seed near its own that makes it lighter and warmer, so that no
+      // stroke of it comes out a cool grey.
+      const bright = (seed) => {
+        for (let k = 0; k < 24; k += 1) {
+          rand.reseed(seed + k * 104729)
+          // (its sway takes three draws first: lean, phase and growth)
+          rand()
+          rand()
+          rand()
+          const dice = rand()
+          if ((dice * 91.7) % 1 >= 0.55 && (dice * 37.3) % 1 >= 0.55) {
+            return seed + k * 104729
+          }
+        }
+        return seed
+      }
       const put = (n, o) => {
-        rand.reseed(71317 + n * 7919)
+        rand.reseed(o.light ? bright(61871 + n * 7919) : 61871 + n * 7919)
         laid += 1
-        garden.dab({ stiff: 1, lean: 0, blur: 0.4, load: 0.93, kind: 0, ...o, order: o.order + laid * 1e-7 })
-      }
-      // two neighbouring paints from a ramp, at a tone from 0 (its darkest) to 1 (its lightest)
-      const shade = (ramp, t, n) => {
-        const at = clamp(t, 0, 0.999) * (ramp.length - 1)
-        const i = Math.floor(at)
-        const j = Math.min(ramp.length - 1, i + 1)
-        return at - i > 0.5 + jitter(n + 13) * 0.5 ? [ramp[j], ramp[i]] : [ramp[i], ramp[j]]
-      }
-      const BOARD = ['boardShade', 'boardDeep', 'board', 'boardSun']
-      const DOOR = ['doorDeep', 'door', 'doorLit']
-      const SHINGLE = ['shingleDeep', 'shingle', 'shingleLit']
-      const MOSS = ['mossDark', 'mossDeep', 'moss', 'mossLit', 'mossSun']
-
-      /* The brush on a flat part of the garage: the points o + U·u + V·v for u and v from 0 to 1, painted in strokes
-         `len` metres long laid along V and `breadth` wide, so many that they overlap (`along`, `across`). `tone(u, v,
-         n)` is how light each is, `skip(u, v)` leaves a stroke out, and `layer` paints it over what is at the same
-         depth. */
-      const plane = (
-        id,
-        {
-          o,
-          U,
-          V,
-          len,
-          breadth,
-          ramp,
-          tone,
-          skip,
-          layer = 0,
-          load = 0.93,
-          kind = 0,
-          blur = 0.4,
-          along = 0.62,
-          across = 0.72,
-          flip = true,
-          wobble = 0.03,
-          depth = null,
-          top = null,
-          bottom = null,
-          brick = true,
-        },
-      ) => {
-        const lu = Math.hypot(...U)
-        const lv = Math.hypot(...V)
-        const cols = Math.max(1, Math.round(lu / (breadth * across)))
-        const rows = Math.max(1, Math.round(lv / (len * along)))
-        const hv = Math.min(0.5, len / lv / 2)
-        const hu = Math.min(0.5, breadth / lu / 2)
-        for (let c = 0; c < cols; c += 1) {
-          const stagger = brick && rows > 1 ? (c % 2) * 0.5 : 0
-          for (let r = stagger ? -1 : 0; r < rows; r += 1) {
-            const n = id * 100000 + c * 397 + r + 1
-            const u = (c + 0.5 + jitter(n + 7) * 0.2) / cols
-            const v = (r + 0.5 + stagger + jitter(n) * 0.4) / rows
-            if (skip?.(u, v)) {
-              continue
-            }
-            const p = point(o, U, V, u, v)
-            // a stroke stays inside its part, shortened where it would run past an end of it or over its top line
-            const v1 = Math.max(bottom ? bottom(u, v) : 0, v - hv)
-            const v2 = Math.min(top ? top(u) : 1, v + hv)
-            if (v2 - v1 < hv * 0.5) {
-              continue
-            }
-            const [x1, y1] = screen(...point(o, U, V, u, v1))
-            const [x2, y2] = screen(...point(o, U, V, u, v2))
-            const [x3, y3] = screen(...point(o, U, V, u - hu, v))
-            const [x4, y4] = screen(...point(o, U, V, u + hu, v))
-            // a stroke is given by its reach, half its length, as a flower is by its radius
-            const long = Math.hypot(x2 - x1, y2 - y1) / 2
-            const wide = Math.hypot(x4 - x3, y4 - y3) / 2
-            if (long < 0.3 || wide < 0.12) {
-              continue
-            }
-            const at = depth ? depth(p) : footY(p[0], p[2])
-            put(n, {
-              x: (x1 + x2) / 2,
-              y: (y1 + y2) / 2,
-              long,
-              wide: clamp(wide / long, 0.05, 1.3),
-              turn: Math.atan2(y2 - y1, x2 - x1) + (flip && (r + c) % 2 ? Math.PI : 0) + jitter(n + 2) * wobble,
-              paints: shade(ramp, tone(u, v, n), n),
-              load: load + jitter(n + 3) * 0.04,
-              kind,
-              blur,
-              order: at - 1 + layer * 0.02,
-            })
-          }
-        }
-      }
-      // A bar of paint from a to b, `breadth` metres wide, in the front wall's plane or (with `side`) the side's: its
-      // strokes laid along it, `strokes` of them side by side.
-      const bar = (id, a, b, breadth, ramp, tone, { side = false, strokes = 1, ...opts } = {}) => {
-        const V = [b[0] - a[0], b[1] - a[1], b[2] - a[2]]
-        const nrm = side ? [1, 0, 0] : [0, 0, 1]
-        const cross = [V[1] * nrm[2] - V[2] * nrm[1], V[2] * nrm[0] - V[0] * nrm[2], V[0] * nrm[1] - V[1] * nrm[0]]
-        const l = Math.hypot(...cross) || 1
-        const U = cross.map((c) => (c / l) * breadth)
-        plane(id, {
-          o: [a[0] - U[0] / 2, a[1] - U[1] / 2, a[2] - U[2] / 2],
-          U,
-          V,
-          len: 0.4,
-          breadth: breadth / strokes,
-          ramp,
-          tone,
-          across: 1,
-          flip: false,
-          ...opts,
-        })
-      }
-
-      // A first coat under a part, broad and soft in one tone, so that nothing of the land shows between the strokes
-      // laid over it.
-      const under = (id, opts, ramp, t) =>
-        plane(id, {
-          len: 0.8,
-          breadth: 0.22,
-          along: 0.5,
-          across: 0.9,
-          kind: 0.25,
-          blur: 1.2,
-          flip: false,
-          wobble: 0,
+        garden.dab({
+          stiff: 1,
+          lean: 0,
+          blur: 0.6,
           load: 0.97,
-          ...opts,
-          ramp,
-          tone: (u, v, n) => t + jitter(n) * 0.04,
-          layer: (opts.layer || 0) - 2,
+          kind: 0.25 + CO_EVEN,
+          ...o,
+          order: o.order + laid * 1e-7,
         })
-
-      /* ---- the walls ---- */
-      // Board and batten: boards a little over a quarter of a metre wide, each its own shade of the weathered wood, and a
-      // batten over every joint. The sun is high on the left and a little in front: the front is in its light, paler
-      // to the left, and the side in shade; both darken at the ground, under the eaves, and under the gable's boards.
-      const BOARD_W = 0.27
-      const rakeY = (x) => G.eaves + (halfW - Math.abs(x)) * slope
-      const inDoorway = (x, y) => Math.abs(x) < doorHalf + 0.13 && y < G.doorTall + 0.13
-      const frontTone = (x, y, n) => {
-        const board = Math.floor((x + halfW) / BOARD_W)
-        const ground = 1 - smooth(0, 0.4, y)
-        const underRake = 1 - smooth(0.06, 0.42, rakeY(x) - y)
-        return (
-          0.67 +
-          0.16 * (hashed(board * 3.7) - 0.5) -
-          0.07 * (x / halfW) -
-          0.32 * ground -
-          0.38 * underRake +
-          jitter(n) * 0.1
-        )
       }
-      under(
-        1001,
-        {
-          o: [-halfW, 0, 0],
-          U: [G.wide, 0, 0],
-          V: [0, G.ridge, 0],
-          skip: (u, v) => {
-            const x = -halfW + u * G.wide
-            const y = v * G.ridge
-            return y > rakeY(x) - 0.06 || inDoorway(x, y)
-          },
-          top: (u) => (rakeY(-halfW + u * G.wide) - 0.04) / G.ridge,
-          bottom: (u, v) =>
-            Math.abs(-halfW + u * G.wide) < doorHalf + 0.16 && v * G.ridge > G.doorTall
-              ? (G.doorTall + 0.07) / G.ridge
-              : 0,
-        },
-        BOARD,
-        0.45,
-      )
-      plane(1, {
-        o: [-halfW, 0, 0],
-        U: [G.wide, 0, 0],
-        V: [0, G.ridge, 0],
-        len: 0.62,
-        breadth: 0.07,
-        ramp: BOARD,
-        tone: (u, v, n) => frontTone(-halfW + u * G.wide, v * G.ridge, n),
-        skip: (u, v) => {
-          const x = -halfW + u * G.wide
-          const y = v * G.ridge
-          return y > rakeY(x) - 0.04 || inDoorway(x, y)
-        },
-        top: (u) => (rakeY(-halfW + u * G.wide) - 0.02) / G.ridge,
-        bottom: (u, v) =>
-          Math.abs(-halfW + u * G.wide) < doorHalf + 0.16 && v * G.ridge > G.doorTall
-            ? (G.doorTall + 0.07) / G.ridge
-            : 0,
+      // Where a column down the canvas crosses the figure: its runs of figure, top to bottom.
+      const runsAt = (x) => {
+        const ys = []
+        for (const r of rings) {
+          for (let i = 0; i < r.length; i += 1) {
+            const [ax, ay] = r[i]
+            const [bx, by] = r[(i + 1) % r.length]
+            if (ax <= x !== bx <= x) {
+              ys.push(ay + ((x - ax) * (by - ay)) / (bx - ax))
+            }
+          }
+        }
+        ys.sort((a, b) => a - b)
+        const runs = []
+        for (let i = 0; i + 1 < ys.length; i += 2) {
+          runs.push([ys[i], ys[i + 1]])
+        }
+        return runs
+      }
+      const inFigure = (x, y) => runsAt(x).some(([a, b]) => y > a && y < b)
+      const HAZE = 0.4 + CO_EVEN
+      // Its body filled in columns, each run in short lengths so no stroke tapers far from its ends.
+      const fill = (n, { col, blur, load, paints, order }) => {
+        let k = n
+        for (let x = left + col / 2; x < right; x += col) {
+          for (const [a, b] of runsAt(x)) {
+            if (b - a < 0.6) {
+              continue
+            }
+            const segs = Math.max(1, Math.round((b - a) / (col * 4)))
+            const seg = (b - a) / segs
+            for (let q = 0; q < segs; q += 1) {
+              const long = seg / 2 + col * 0.55
+              put(k, {
+                x,
+                y: a + (q + 0.5) * seg,
+                long,
+                wide: clamp((col * 0.78) / long, 0.02, 1.4),
+                turn: Math.PI / 2,
+                paints,
+                load,
+                blur,
+                kind: HAZE,
+                order,
+                light: true,
+              })
+              k += 1
+            }
+          }
+        }
+        return k
+      }
+      // Its light, from the widest to the brightest, all in the smooth haze kind: a wash of light over the hills round
+      // it, and a glow round its body, wide and then close; then the figure, white, its edge soft but its shape clean.
+      // It stands in front of the land and of the flowers behind its feet; the grass and flowers rooted in front of its
+      // feet come up over them, so it stands in the meadow rather than on it.
+      const ord = feet + 4
+      const mid = top + tall * 0.5
+      put(1, {
+        x: fx,
+        y: mid,
+        long: tall * 0.8,
+        wide: 0.9,
+        turn: Math.PI / 2,
+        paints: ['lightGlow', 'lightWarm'],
+        load: 0.1,
+        blur: tall * 0.32,
+        kind: HAZE,
+        order: ord - 0.1,
+        light: true,
       })
-      for (let j = 1; j * BOARD_W < G.wide - 0.1; j += 1) {
-        const x = -halfW + j * BOARD_W
-        const top = rakeY(x) - 0.08
-        const foot = Math.abs(x) < doorHalf + 0.2 ? G.doorTall + 0.08 : 0.02
-        if (top - foot < 0.15) {
+      put(2, {
+        x: fx,
+        y: mid,
+        long: tall * 0.56,
+        wide: 0.82,
+        turn: Math.PI / 2,
+        paints: ['lightWarm', 'lightGlow'],
+        load: 0.24,
+        blur: tall * 0.1,
+        kind: HAZE,
+        order: ord - 0.09,
+        light: true,
+      })
+      // a little light lying on the grass at its feet
+      put(3, {
+        x: fx,
+        y: feet - tall * 0.01,
+        long: (right - left) * 0.62,
+        wide: 0.16,
+        turn: 0,
+        paints: ['lightGlow', 'lightWarm'],
+        load: 0.3,
+        blur: tall * 0.05,
+        kind: HAZE,
+        order: ord - 0.095,
+        light: true,
+      })
+      // Its glow held close, so the shape keeps its neck, the light between its arm and the screen, and the gap under
+      // the desk; then the body, white, with a soft edge only a few pixels wide.
+      fill(50000, {
+        col: Math.max(4, tall * 0.02),
+        blur: tall * 0.045,
+        load: 0.3,
+        paints: ['lightGlow', 'lightWarm'],
+        order: ord - 0.085,
+      })
+      fill(100000, {
+        col: Math.max(3, tall * 0.014),
+        blur: tall * 0.018,
+        load: 0.55,
+        paints: ['lightWarm', 'light'],
+        order: ord - 0.08,
+      })
+      fill(200000, {
+        col: Math.max(2, tall * 0.009),
+        blur: Math.max(1.6, tall * 0.007),
+        load: 0.95,
+        paints: ['light', 'lightWarm'],
+        order: ord - 0.07,
+      })
+      fill(300000, {
+        col: Math.max(1.4, tall * 0.006),
+        blur: 1.1,
+        load: 1,
+        paints: ['light', 'light'],
+        order: ord - 0.06,
+      })
+      // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none on the figure
+      // and none over the words.
+      for (let i = 0; i < 18; i += 1) {
+        const n = 5000 + i * 3
+        const a = hashed(n * 1.3) * Math.PI * 2
+        const d = 0.45 + 0.7 * hashed(n * 2.1)
+        const x = fx + Math.cos(a) * d * tall * 0.8
+        const y = mid + Math.sin(a) * d * tall * 0.5
+        const nearWords = x > words.x - words.a - 30 && x < words.x + words.a + 30 && y < words.y + words.b + 12
+        if (nearWords || inFigure(x, y) || y > feet + 8) {
           continue
         }
-        // the batten, catching the light, and the line of shade it throws on the board to its right
-        plane(10 + j, {
-          o: [x - 0.025, foot, -0.02],
-          U: [0.05, 0, 0],
-          V: [0, top - foot, 0],
-          len: 0.7,
-          breadth: 0.028,
-          ramp: BOARD,
-          tone: (u, v, n) => frontTone(x, foot + v * (top - foot), n) + 0.2,
-          layer: 1,
-          flip: false,
-        })
-        plane(40 + j, {
-          o: [x + 0.03, foot, -0.01],
-          U: [0.018, 0, 0],
-          V: [0, top - foot, 0],
-          len: 0.8,
-          breadth: 0.018,
-          ramp: ['boardShade', 'eave'],
-          tone: () => 0.4,
-          layer: 1,
-          load: 0.72,
-          flip: false,
-        })
-      }
-      // The side, in shade, with its window: boards, battens a touch lighter, and the shade of the eaves along its top.
-      const WIN = { z: 2.55, y: 1.15, wide: 1.0, tall: 0.86 }
-      const inWindow = (z, y) =>
-        Math.abs(z - WIN.z) < WIN.wide / 2 + 0.1 && Math.abs(y - WIN.y - WIN.tall / 2) < WIN.tall / 2 + 0.1
-      const sideTone = (z, y, n) => {
-        const board = Math.floor(z / BOARD_W)
-        const ground = 1 - smooth(0, 0.4, y)
-        const eaves = smooth(G.eaves - 0.5, G.eaves, y)
-        return (
-          0.27 +
-          0.1 * (hashed(board * 5.3 + 1) - 0.5) -
-          0.16 * ground -
-          0.14 * eaves -
-          0.05 * (z / G.deep) +
-          jitter(n) * 0.07
-        )
-      }
-      under(
-        1002,
-        { o: [halfW, 0, 0], U: [0, 0, G.deep], V: [0, G.eaves, 0], skip: (u, v) => inWindow(u * G.deep, v * G.eaves) },
-        BOARD,
-        0.18,
-      )
-      plane(2, {
-        o: [halfW, 0, 0],
-        U: [0, 0, G.deep],
-        V: [0, G.eaves, 0],
-        len: 0.62,
-        breadth: 0.07,
-        ramp: BOARD,
-        tone: (u, v, n) => sideTone(u * G.deep, v * G.eaves, n),
-        skip: (u, v) => inWindow(u * G.deep, v * G.eaves),
-      })
-      for (let j = 1; j * BOARD_W < G.deep - 0.1; j += 1) {
-        const z = j * BOARD_W
-        const cut = Math.abs(z - WIN.z) < WIN.wide / 2 + 0.12
-        const spans = cut
-          ? [
-              [0.02, WIN.y - 0.12],
-              [WIN.y + WIN.tall + 0.12, G.eaves - 0.06],
-            ]
-          : [[0.02, G.eaves - 0.06]]
-        spans.forEach(([foot, top], q) => {
-          plane(80 + j * 2 + q, {
-            o: [halfW + 0.02, foot, z - 0.025],
-            U: [0, 0, 0.05],
-            V: [0, top - foot, 0],
-            len: 0.7,
-            breadth: 0.028,
-            ramp: BOARD,
-            tone: (u, v, n) => sideTone(z, foot + v * (top - foot), n) + 0.09,
-            layer: 1,
-            flip: false,
-          })
-        })
-      }
-      // the corner boards: lit on the front, in shade on the side, and the edge between them
-      plane(150, {
-        o: [-halfW, 0, -0.03],
-        U: [0.12, 0, 0],
-        V: [0, G.eaves - 0.04, 0],
-        len: 0.7,
-        breadth: 0.035,
-        ramp: BOARD,
-        tone: (u, v, n) => frontTone(-halfW + 0.05, v * G.eaves, n) + 0.14,
-        layer: 2,
-        flip: false,
-      })
-      plane(151, {
-        o: [halfW - 0.12, 0, -0.03],
-        U: [0.12, 0, 0],
-        V: [0, G.eaves - 0.04, 0],
-        len: 0.7,
-        breadth: 0.035,
-        ramp: BOARD,
-        tone: (u, v, n) => frontTone(halfW - 0.05, v * G.eaves, n) + 0.1,
-        layer: 2,
-        flip: false,
-      })
-      plane(152, {
-        o: [halfW + 0.03, 0, -0.03],
-        U: [0, 0, 0.12],
-        V: [0, G.eaves - 0.04, 0],
-        len: 0.7,
-        breadth: 0.035,
-        ramp: BOARD,
-        tone: (u, v, n) => sideTone(0.05, v * G.eaves, n) + 0.05,
-        layer: 2,
-        flip: false,
-      })
-      // the dark at the foot of both walls, where the ground meets them
-      plane(153, {
-        o: [-halfW, 0, -0.04],
-        U: [G.wide, 0, 0],
-        V: [0, 0.16, 0],
-        len: 0.3,
-        breadth: 0.09,
-        ramp: ['eave', 'boardShade'],
-        tone: () => 0.3,
-        layer: 3,
-        load: 0.6,
-        kind: 0.25,
-        skip: (u) => Math.abs(-halfW + u * G.wide) < doorHalf + 0.1,
-      })
-      plane(154, {
-        o: [halfW + 0.04, 0, 0],
-        U: [0, 0, G.deep],
-        V: [0, 0.16, 0],
-        len: 0.3,
-        breadth: 0.09,
-        ramp: ['eave', 'boardShade'],
-        tone: () => 0.3,
-        layer: 3,
-        load: 0.6,
-        kind: 0.25,
-      })
-
-      /* ---- the window in the side: a frame of the doors' green, four panes of the sky, a little of a lamp's warm light
-         inside in the lower ones ---- */
-      const wz0 = WIN.z - WIN.wide / 2
-      plane(160, {
-        o: [halfW + 0.03, WIN.y, wz0],
-        U: [0, 0, WIN.wide],
-        V: [0, WIN.tall, 0],
-        len: 0.28,
-        breadth: 0.08,
-        ramp: ['glassDeep', 'glass'],
-        tone: (u, v, n) => 0.15 + v * 0.75 + jitter(n) * 0.2,
-        layer: 2,
-        kind: 0.25,
-      })
-      plane(161, {
-        o: [halfW + 0.035, WIN.y + 0.05, WIN.z - 0.3],
-        U: [0, 0, 0.36],
-        V: [0, 0.26, 0],
-        len: 0.16,
-        breadth: 0.1,
-        ramp: ['lamp', 'lampLit'],
-        tone: (u, v, n) => 0.4 + jitter(n) * 0.4,
-        layer: 3,
-        load: 0.65,
-        kind: 0.25,
-        blur: 1.2,
-      })
-      const trimBar = (id, a, b, breadth, tone, layer = 4) =>
-        bar(id, a, b, breadth, DOOR, (u, v, n) => tone + jitter(n) * 0.12, {
-          layer,
-          side: a[0] > halfW,
-          strokes: breadth > 0.1 ? 2 : 1,
-        })
-      const wx = halfW + 0.045
-      trimBar(162, [wx, WIN.y - 0.04, wz0 - 0.08], [wx, WIN.y - 0.04, wz0 + WIN.wide + 0.08], 0.09, 0.4)
-      trimBar(
-        163,
-        [wx, WIN.y + WIN.tall + 0.04, wz0 - 0.08],
-        [wx, WIN.y + WIN.tall + 0.04, wz0 + WIN.wide + 0.08],
-        0.09,
-        0.3,
-      )
-      trimBar(164, [wx, WIN.y - 0.04, wz0 - 0.04], [wx, WIN.y + WIN.tall + 0.04, wz0 - 0.04], 0.08, 0.32)
-      trimBar(
-        165,
-        [wx, WIN.y - 0.04, wz0 + WIN.wide + 0.04],
-        [wx, WIN.y + WIN.tall + 0.04, wz0 + WIN.wide + 0.04],
-        0.08,
-        0.32,
-      )
-      trimBar(166, [wx, WIN.y, WIN.z], [wx, WIN.y + WIN.tall, WIN.z], 0.045, 0.3)
-      trimBar(167, [wx, WIN.y + WIN.tall / 2, wz0], [wx, WIN.y + WIN.tall / 2, wz0 + WIN.wide], 0.045, 0.3)
-
-      /* ---- the doorway ---- */
-      // its casing, the doors' green
-      const casing = (id, a, b, tone) => trimBar(id, a, b, 0.13, tone, 4)
-      casing(170, [-doorHalf - 0.065, 0, -0.03], [-doorHalf - 0.065, G.doorTall + 0.13, -0.03], 0.72)
-      casing(171, [doorHalf + 0.065, 0, -0.03], [doorHalf + 0.065, G.doorTall + 0.13, -0.03], 0.62)
-      casing(172, [-doorHalf - 0.13, G.doorTall + 0.065, -0.03], [doorHalf + 0.13, G.doorTall + 0.065, -0.03], 0.7)
-      // its lit top edge, and the line of shade under it
-      trimBar(
-        173,
-        [-doorHalf - 0.13, G.doorTall + 0.125, -0.035],
-        [doorHalf + 0.13, G.doorTall + 0.125, -0.035],
-        0.025,
-        0.95,
-        5,
-      )
-      // The sides of the doorway, the wall's thickness, which the doors are set back from: the garage is seen from the
-      // right, so the left one shows between the casing and the door, in shade.
-      for (const side of [-1, 1]) {
-        plane(side < 0 ? 174 : 175, {
-          o: [side * doorHalf, 0, -0.05],
-          U: [0, 0, 0.12],
-          V: [0, G.doorTall + 0.02, 0],
-          len: 0.5,
-          breadth: 0.06,
-          ramp: ['doorShade', 'doorDeep'],
-          tone: () => 0.45,
-          layer: 1,
-          across: 1,
-          flip: false,
-        })
-      }
-
-      const eyeAt = [dist * sinY, eye, G.deep / 2 - dist * cosY]
-      /* The workshop through the open doors, after the photograph of one: the day comes in across a pale concrete floor
-         from the doorway; the walls are warm board, deeper towards the back corners; a bare bulb hangs over a bench
-         along the back with a lamp and a screen glowing on it; shelves of boxes, jars and a radio run along the left
-         wall; an orange step-ladder stands open on the right and a mustard chair waits by the shelves, turned towards
-         the door. The doors fold back to either side, two panels each, in a zig-zag against the wall beside the
-         doorway. */
-      const workshop = () => {
-        // the doorway on the canvas, which is all of the workshop there is to see
-        const corners = [
-          screen(-doorHalf, 0, 0),
-          screen(doorHalf, 0, 0),
-          screen(doorHalf, G.doorTall, 0),
-          screen(-doorHalf, G.doorTall, 0),
-        ]
-        const inDoor = ([x, y]) => {
-          let inside = false
-          for (let i = 0, j = corners.length - 1; i < corners.length; j = i, i += 1) {
-            const [xi, yi] = corners[i]
-            const [xj, yj] = corners[j]
-            if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-              inside = !inside
-            }
-          }
-          return inside
-        }
-        // Everything in it is painted just before the front wall at its foot, so that nothing growing behind the
-        // garage shows through it, and whatever grows in front of it is painted over it; `rank` orders its parts.
-        const hole = (id, opts, rank = 0) =>
-          plane(id, {
-            kind: 0.25,
-            wobble: 0.01,
-            ...opts,
-            skip: (u, v) => !inDoor(screen(...point(opts.o, opts.U, opts.V, u, v))) || opts.skip?.(u, v),
-            depth: (p) => footY(p[0], 0) - 1.6 + rank * 0.01,
-          })
-        const D = G.deep - 0.12
-        const left = -halfW + 0.1
-        const bulb = [-0.55, 1.8, 2.28]
-        // how much of the bulb's light falls at a place, and how much of the day from the doorway
-        const lamp = (x, y, z) =>
-          Math.exp(-((x - bulb[0]) ** 2 + ((y - bulb[1]) * 1.3) ** 2 + (z - bulb[2]) ** 2) / 1.6)
-        const day = (z) => 1 - smooth(0.2, 2.6, z)
-        // first a coat over all of it, so that nothing of the meadow behind shows through
-        for (const [uid, o, U, V, t] of [
-          [1010, [left - 0.15, 0, D], [0, G.eaves, 0], [G.wide + 0.1, 0, 0], 0.35],
-          [1011, [left, 0, 0.05], [0, G.eaves, 0], [0, 0, D + 0.1], 0.4],
-          [1012, [left, 0.01, 0.05], [G.wide - 0.2, 0, 0], [0, 0, D - 0.05], 0.4],
-        ]) {
-          hole(
-            uid,
-            {
-              o,
-              U,
-              V,
-              len: 0.8,
-              breadth: 0.3,
-              along: 0.5,
-              across: 0.9,
-              blur: 1.4,
-              flip: false,
-              ramp: ['inside', 'insideMid', 'insideWarm'],
-              tone: () => t,
-            },
-            -1,
-          )
-        }
-        const WALL = ['inside', 'insideMid', 'insideWarm', 'board', 'boardSun']
-        // the back wall, warm board, deeper into its corners, lit round the bulb
-        hole(400, {
-          o: [left - 0.1, 0, D],
-          U: [0, G.eaves, 0],
-          V: [G.wide - 0.1, 0, 0],
-          len: 0.4,
-          breadth: 0.11,
-          ramp: WALL,
-          tone: (u, v, n) => {
-            const x = left - 0.1 + v * (G.wide - 0.1)
-            const corner = smooth(1.1, 1.75, Math.abs(x + 0.05))
-            return (
-              0.36 +
-              0.6 * lamp(x, u * G.eaves, D) -
-              0.24 * corner -
-              0.12 * smooth(1.8, 2.4, u * G.eaves) +
-              jitter(n) * 0.05
-            )
-          },
-          blur: 0.8,
-        })
-        // the left wall inside, in the day near the door
-        hole(
-          401,
-          {
-            o: [left, 0, 0.12],
-            U: [0, G.eaves, 0],
-            V: [0, 0, D - 0.04],
-            len: 0.4,
-            breadth: 0.11,
-            ramp: WALL,
-            tone: (u, v, n) =>
-              0.3 +
-              0.32 * day(v * D) +
-              0.3 * lamp(left, u * G.eaves, v * D) -
-              0.14 * smooth(1.8, 2.4, u * G.eaves) +
-              jitter(n) * 0.05,
-            blur: 0.8,
-          },
-          1,
-        )
-        // the floor: smooth concrete in long strokes across it, pale in the day from the doorway and warm under the lamp,
-        // going to brown towards the back
-        hole(
-          402,
-          {
-            o: [left, 0.01, 0.05],
-            U: [0, 0, D - 0.05],
-            V: [G.wide - 0.2, 0, 0],
-            len: 0.9,
-            breadth: 0.2,
-            ramp: ['insideWarm', 'concreteDeep', 'concrete', 'concreteLit'],
-            tone: (u, v, n) => {
-              const x = left + v * (G.wide - 0.2)
-              const z = u * D
-              return 0.18 + 0.74 * day(z) + 0.45 * lamp(x, 0.6, z) + jitter(n) * 0.012
-            },
-            blur: 2.2,
-            flip: false,
-            wobble: 0.01,
-            along: 0.45,
-            brick: false,
-          },
-          2,
-        )
-        // The desk, in the middle of the room where the doorway shows it: a wooden top, lit, with its front edge in
-        // shade and four legs; on it an open laptop, its screen towards the door and glowing a pale blue on the desk and
-        // the wall behind.
-        const desk = { x0: -1.05, x1: -0.05, z0: 2.0, z1: 2.55, y: 0.76 }
-        hole(
-          403,
-          {
-            o: [desk.x0, desk.y, desk.z0],
-            U: [0, 0, desk.z1 - desk.z0],
-            V: [desk.x1 - desk.x0, 0, 0],
-            len: 0.4,
-            breadth: 0.09,
-            ramp: ['board', 'boardSun', 'concreteLit'],
-            tone: (u, v, n) => 0.5 + 0.3 * u + 0.25 * lamp(desk.x0 + v, desk.y, desk.z0 + u * 0.55) + jitter(n) * 0.06,
-            kind: 0,
-            flip: false,
-            brick: false,
-          },
-          5,
-        )
-        hole(
-          404,
-          {
-            o: [desk.x0, desk.y - 0.06, desk.z0],
-            U: [0, 0.06, 0],
-            V: [desk.x1 - desk.x0, 0, 0],
-            len: 0.4,
-            breadth: 0.03,
-            ramp: ['boardDeep', 'board'],
-            tone: () => 0.35,
-            kind: 0,
-            flip: false,
-            brick: false,
-          },
-          6,
-        )
-        for (const [lid, x, z] of [
-          [405, desk.x0 + 0.04, desk.z0 + 0.03],
-          [406, desk.x1 - 0.08, desk.z0 + 0.03],
-          [409, desk.x0 + 0.04, desk.z1 - 0.06],
-          [410, desk.x1 - 0.08, desk.z1 - 0.06],
-        ]) {
-          hole(
-            lid,
-            {
-              o: [x, 0, z],
-              U: [0.045, 0, 0],
-              V: [0, desk.y - 0.05, 0],
-              len: 0.3,
-              breadth: 0.045,
-              ramp: ['boardDeep', 'board'],
-              tone: () => 0.4,
-              kind: 0,
-              flip: false,
-              across: 1,
-            },
-            z < 2.2 ? 6 : 4,
-          )
-        }
-        // The laptop. A small thing with straight edges is laid in strokes that overlap by half, so that no taper shows
-        // inside it, with thin bars along its edges over the strokes' ends. Its lid stands up from the back of its
-        // base, tipped back a little: a dark bezel round a bright screen, the thin dark base before it, and the
-        // screen's pale blue light on the desk and the wall.
-        const lap = { x: -0.84, w: 0.52, z: 2.1, d: 0.3, tall: 0.34, tip: 0.1 }
-        const lidFoot = lap.z + lap.d
-        const lid = (t) => [lap.tip * t, lap.tall * t]
-        // a small solid area: round dabs, close enough that they overlap every way, so it is filled to its edges
-        const block = (id, o, U, V, ramp, tone, rank, breadth) =>
-          hole(
-            id,
-            {
-              o,
-              U,
-              V,
-              len: breadth,
-              breadth,
-              ramp,
-              tone,
-              kind: 0.25,
-              blur: 0.35,
-              load: 1,
-              flip: false,
-              across: 0.45,
-              along: 0.45,
-              brick: false,
-              wobble: 0,
-            },
-            rank,
-          )
-        // and a thin bar along an edge of one, over the ends of its strokes
-        const edge = (id, o, V, rank, ramp = ['iron', 'doorShade'], tone = 0.1) =>
-          hole(
-            id,
-            {
-              o,
-              U: [0, 0.02, 0],
-              V,
-              len: Math.hypot(...V) * 1.2,
-              breadth: 0.03,
-              ramp,
-              tone: () => tone,
-              kind: 0.25,
-              blur: 0.35,
-              load: 1,
-              flip: false,
-              across: 1,
-              along: 1,
-              brick: false,
-              wobble: 0,
-            },
-            rank,
-          )
-        const lidTop = lid(1)
-        // the base, a dark slab across the desk
-        block(
-          407,
-          [lap.x, desk.y + 0.02, lap.z],
-          [lap.w, 0, 0],
-          [0, 0, lap.d],
-          ['iron', 'insideMid'],
-          (u) => 0.3 + 0.3 * u,
-          6.5,
-          0.06,
-        )
-        // the lid: its dark back first, the bright screen in it, and the bezel's four edges over the screen's
-        block(
-          408,
-          [lap.x, desk.y + 0.03, lidFoot],
-          [lap.w, 0, 0],
-          [0, lidTop[1], lidTop[0]],
-          ['iron', 'doorShade'],
-          () => 0.1,
-          6.6,
-          0.06,
-        )
-        block(
-          411,
-          [lap.x + 0.035, desk.y + 0.05, lidFoot + 0.004],
-          [lap.w - 0.07, 0, 0],
-          [0, lidTop[1] - 0.05, lidTop[0] * 0.85],
-          ['screen', 'screenLit'],
-          (u, v) => 0.4 + 0.45 * v,
-          6.7,
-          0.05,
-        )
-        edge(412, [lap.x, desk.y + 0.04, lidFoot + 0.006], [lap.w, 0, 0], 6.8)
-        edge(413, [lap.x, desk.y + 0.03 + lidTop[1] - 0.025, lidFoot + lidTop[0] + 0.006], [lap.w, 0, 0], 6.8)
-        for (const [bid, x] of [
-          [414, lap.x + 0.012],
-          [415, lap.x + lap.w - 0.012],
-        ]) {
-          edge(bid, [x, desk.y + 0.03, lidFoot + 0.006], [0, lidTop[1], lidTop[0]], 6.8)
-        }
-        const [glx, gly] = screen(lap.x + lap.w / 2, desk.y + 0.2, lidFoot)
-        put(4100, {
-          x: glx,
-          y: gly,
-          long: 0.4 * m,
-          wide: 0.7,
-          turn: 0,
-          paints: ['screenLit', 'screen'],
-          load: 0.3,
-          kind: 0.25,
-          blur: 7,
-          order: footY(lap.x, 0) - 1.535,
-        })
-        // the lamp hanging over the chair: its cord, a dark cone shade, a warm bulb under it, its glow, and the pool of
-        // its light on the floor
-        const [gx, gy] = screen(...bulb)
-        const [tx, ty] = screen(bulb[0], 2.38, bulb[2])
-        const o = footY(bulb[0], 0) - 1.4
-        put(4105, {
-          x: (tx + gx) / 2,
-          y: (ty + gy) / 2,
-          long: Math.abs(gy - ty) / 2,
-          wide: 0.03,
-          turn: Math.PI / 2,
-          paints: ['inside', 'inside'],
-          kind: 0.25,
-          blur: 0.3,
-          order: o - 0.01,
-        })
-        const [hx, hy] = screen(bulb[0], bulb[1] + 0.05, bulb[2])
-        put(4106, {
-          x: hx,
-          y: hy,
-          long: 0.11 * m,
-          wide: 0.42,
-          turn: 0,
-          paints: ['iron', 'doorShade'],
-          kind: 0.25,
-          blur: 0.4,
-          order: o,
-        })
-        put(4102, {
-          x: gx,
-          y: gy + 0.02 * m,
-          long: 0.05 * m,
-          wide: 0.8,
-          turn: 0,
-          paints: ['bulb', 'white'],
-          kind: 0.25,
-          blur: 0.5,
-          order: o + 0.001,
-        })
-        put(4103, {
-          x: gx,
-          y: gy + 0.14 * m,
-          long: 0.62 * m,
-          wide: 0.85,
-          turn: 0,
-          paints: ['lamp', 'lampLit'],
-          load: 0.5,
-          kind: 0.25,
-          blur: 12,
-          order: o - 0.002,
-        })
-        const [cx, cy] = screen(bulb[0], 0.02, bulb[2])
-        const [cx2] = screen(bulb[0] + 0.6, 0.02, bulb[2])
-        put(4104, {
-          x: cx,
-          y: cy,
-          long: Math.abs(cx2 - cx),
-          wide: 0.3,
-          turn: 0,
-          paints: ['concreteLit', 'lampLit'],
-          load: 0.38,
-          kind: 0.25,
-          blur: 6,
-          order: footY(bulb[0], 0) - 1.585,
-        })
-        // the day from the doorway, spilling out over the doorstep
-        const [dx1, dy1] = screen(0, 0.02, -0.32)
-        const [dx2] = screen(1.2, 0.02, -0.32)
-        put(4107, {
-          x: dx1,
-          y: dy1,
-          long: Math.abs(dx2 - dx1),
-          wide: 0.22,
-          turn: 0,
-          paints: ['concreteLit', 'pathLit'],
-          load: 0.3,
-          kind: 0.25,
-          blur: 6,
-          order: footY(0, -0.32) - 1.2,
-        })
-        // shelves along the left wall, each with things on it: boxes of every size, jars and tins
-        for (let j = 0; j < 3; j += 1) {
-          const y = 0.64 + j * 0.5
-          hole(
-            412 + j,
-            {
-              o: [left + 0.02, y, 0.6],
-              U: [0.32, 0, 0],
-              V: [0, 0, 3.4],
-              len: 0.5,
-              breadth: 0.05,
-              ramp: ['insideWarm', 'boardSun'],
-              tone: () => 0.6,
-              kind: 0,
-              flip: false,
-            },
-            3,
-          )
-          hole(
-            415 + j,
-            {
-              o: [left + 0.02, y - 0.05, 0.6],
-              U: [0, 0.05, 0],
-              V: [0, 0, 3.4],
-              len: 0.5,
-              breadth: 0.05,
-              ramp: ['inside'],
-              tone: () => 0,
-              flip: false,
-            },
-            3,
-          )
-          let z = 0.68 + 0.15 * hashed(j * 3.3)
-          for (let q = 0; q < 7 && z < 3.8; q += 1) {
-            const dice = hashed(j * 17.1 + q * 3.7)
-            const kind = Math.floor(hashed(j * 9.7 + q * 5.1) * 5)
-            const deep = kind === 1 ? 0.14 : 0.24 + 0.2 * dice
-            const tall = { 1: 0.2, 4: 0.22 }[kind] ?? 0.16 + 0.22 * hashed(j * 5.9 + q * 1.3)
-            const o = [left + 0.04, y + 0.03, z]
-            const lidBar = (lid2, ramp2, tone2) =>
-              hole(
-                lid2,
-                {
-                  o: [o[0], o[1] + tall - 0.035, o[2]],
-                  U: [0, 0.035, 0],
-                  V: [0, 0, deep],
-                  len: deep * 1.2,
-                  breadth: 0.035,
-                  ramp: ramp2,
-                  tone: () => tone2,
-                  kind: 0.25,
-                  blur: 0.4,
-                  flip: false,
-                  across: 1,
-                  brick: false,
-                  wobble: 0,
-                },
-                4.5,
-              )
-            if (kind === 1) {
-              // a jar, the light in its glass, with a pale lid
-              hole(
-                420 + j * 10 + q,
-                {
-                  o,
-                  U: [0, 0, deep],
-                  V: [0, tall, 0],
-                  len: tall,
-                  breadth: deep,
-                  ramp: ['glassDeep', 'glass'],
-                  tone: () => 0.6,
-                  kind: 0.25,
-                  flip: false,
-                  across: 1,
-                  along: 1,
-                },
-                4,
-              )
-              lidBar(450 + j * 10 + q, ['cream', 'concreteLit'], 0.5)
-            } else if (kind === 4) {
-              // a tin, its rim catching the light
-              hole(
-                420 + j * 10 + q,
-                {
-                  o,
-                  U: [0, 0, deep * 0.6],
-                  V: [0, tall * 0.8, 0],
-                  len: tall * 0.8,
-                  breadth: deep * 0.6,
-                  ramp: ['insideMid', 'iron', 'concreteDeep'],
-                  tone: () => 0.5,
-                  kind: 0.25,
-                  flip: false,
-                  across: 1,
-                  along: 1,
-                },
-                4,
-              )
-            } else {
-              // a box: a block, lit along its top
-              const tones = [
-                ['board', 'boardSun'],
-                ['boardSun', 'cream'],
-                ['doorDeep', 'door'],
-                ['concreteDeep', 'concrete'],
-              ]
-              const ramp2 = tones[Math.floor(dice * 4)]
-              hole(
-                420 + j * 10 + q,
-                {
-                  o,
-                  U: [0, 0, deep],
-                  V: [0, tall, 0],
-                  len: tall * 1.2,
-                  breadth: Math.min(deep, 0.12),
-                  ramp: ramp2,
-                  tone: () => 0.45,
-                  kind: 0.25,
-                  blur: 0.45,
-                  flip: false,
-                  across: 0.5,
-                  along: 1,
-                  brick: false,
-                  wobble: 0,
-                },
-                4,
-              )
-              lidBar(450 + j * 10 + q, ramp2, 0.95)
-            }
-            z += deep + 0.05 + 0.08 * hashed(q * 2.1 + j)
-          }
-        }
-        // the orange step-ladder, open on the floor towards the right: its two front rails, two back rails and three
-        // treads
-        const lad = [0.6, 0, 1.25]
-        for (const [lid, dx, back] of [
-          [450, 0, false],
-          [451, 0.42, false],
-          [452, 0.04, true],
-          [453, 0.38, true],
-        ]) {
-          const a = [lad[0] + dx, 0, lad[2] + (back ? 0.62 : 0)]
-          const b = [lad[0] + 0.21, 1.6, lad[2] + 0.3]
-          hole(
-            lid,
-            {
-              o: a,
-              U: [0.06, 0, 0],
-              V: [b[0] - a[0], b[1] - a[1], b[2] - a[2]],
-              len: 0.42,
-              breadth: 0.075,
-              ramp: back ? ['ladder', 'salmon'] : ['salmon', 'ladder'],
-              tone: () => (back ? 0.1 : 0.6),
-              kind: 0,
-              flip: false,
-              across: 1,
-            },
-            back ? 5 : 7,
-          )
-        }
-        for (let r = 0; r < 3; r += 1) {
-          const t = (r + 1) / 4
-          const y = 1.6 * t
-          const half = 0.21 * (1 - t) + 0.03
-          hole(
-            454 + r,
-            {
-              o: [lad[0] + 0.21 - half, y, lad[2] + 0.3 * t],
-              U: [0, 0.05, -0.08],
-              V: [half * 2, 0, 0],
-              len: 0.25,
-              breadth: 0.05,
-              ramp: ['salmon', 'ladder'],
-              tone: () => 0.7,
-              kind: 0,
-              flip: false,
-              across: 1,
-            },
-            8,
-          )
-        }
-        // the mustard chair by the shelves, turned three-quarters to the door: four wooden legs, a seat, two uprights
-        // and a rounded back
-        const ch = [-1.42, 0, 1.68]
-        const turnC = 0.7
-        const cc = Math.cos(turnC)
-        const cs = Math.sin(turnC)
-        const chairAt = (x, y, z) => [ch[0] + x * cc - z * cs, ch[1] + y, ch[2] + x * cs + z * cc]
-        for (const [k2, x, z] of [
-          [0, -0.2, -0.2],
-          [1, 0.2, -0.2],
-          [2, -0.2, 0.2],
-          [3, 0.2, 0.2],
-        ]) {
-          const a = chairAt(x, 0, z)
-          hole(
-            460 + k2,
-            {
-              o: a,
-              U: [0.035, 0, 0],
-              V: [0, 0.44, 0],
-              len: 0.24,
-              breadth: 0.035,
-              ramp: ['board', 'boardSun'],
-              tone: () => 0.6,
-              kind: 0,
-              flip: false,
-              across: 1,
-            },
-            z < 0 ? 9 : 6,
-          )
-        }
-        const [ux, uy] = screen(...chairAt(0, 0.02, 0))
-        put(4108, {
-          x: ux,
-          y: uy,
-          long: 0.26 * m,
-          wide: 0.35,
-          turn: 0,
-          paints: ['inside', 'insideMid'],
-          load: 0.45,
-          kind: 0.25,
-          blur: 2.5,
-          order: footY(ch[0], 0) - 1.585,
-        })
-        const s0 = chairAt(-0.23, 0.44, -0.23)
-        const s1 = chairAt(0.23, 0.44, -0.23)
-        const s2 = chairAt(-0.23, 0.44, 0.23)
-        hole(
-          464,
-          {
-            o: s0,
-            U: [s1[0] - s0[0], s1[1] - s0[1], s1[2] - s0[2]],
-            V: [s2[0] - s0[0], s2[1] - s0[1] + 0.04, s2[2] - s0[2]],
-            len: 0.16,
-            breadth: 0.09,
-            ramp: ['chairDeep', 'chair', 'butter'],
-            tone: (u, v) => 0.55 + 0.35 * (1 - v),
-            kind: 0.25,
-            flip: false,
-          },
-          8,
-        )
-        for (const [k2, x] of [
-          [0, -0.2],
-          [1, 0.2],
-        ]) {
-          const a = chairAt(x, 0.44, 0.21)
-          hole(
-            465 + k2,
-            {
-              o: a,
-              U: [0.03, 0, 0],
-              V: [0, 0.34, 0.03],
-              len: 0.2,
-              breadth: 0.03,
-              ramp: ['board', 'boardSun'],
-              tone: () => 0.55,
-              kind: 0,
-              flip: false,
-              across: 1,
-            },
-            7,
-          )
-        }
-        const b0 = chairAt(-0.24, 0.72, 0.23)
-        const b1 = chairAt(0.24, 0.72, 0.23)
-        hole(
-          467,
-          {
-            o: b0,
-            U: [0, 0.2, 0.02],
-            V: [b1[0] - b0[0], b1[1] - b0[1], b1[2] - b0[2]],
-            len: 0.16,
-            breadth: 0.07,
-            ramp: ['chairDeep', 'chair', 'butter'],
-            tone: (u) => 0.4 + 0.4 * u,
-            kind: 0.25,
-            flip: false,
-          },
-          7.5,
-        )
-        // the shade of the head of the doorway on what is under it
-        plane(470, {
-          o: [-doorHalf, G.doorTall - 0.28, 0.02],
-          U: [0, 0.28, 0],
-          V: [G.doorWide, 0, 0],
-          len: 0.4,
-          breadth: 0.09,
-          ramp: ['inside'],
-          tone: () => 0,
-          load: 0.55,
-          kind: 0.25,
-          blur: 2,
-          flip: false,
-          depth: (p) => footY(p[0], 0) - 1.45,
-        })
-        // The doors, folded back to either side against the wall beside the doorway: two panels each, the first swung
-        // out from its hinge on the jamb and the second folded back against it, each a solid board panel with a brace,
-        // a dark line where the two fold, and the face towards us lit as it turns to the sun.
-        const PANEL = doorHalf / 2
-        const out1 = 1.75
-        for (const side of [-1, 1]) {
-          const hinge = [side * doorHalf, 0, -0.03]
-          const d1 = [-side * Math.cos(out1), 0, -Math.sin(out1)]
-          const mid = [hinge[0] + d1[0] * PANEL, 0, hinge[2] + d1[2] * PANEL]
-          // their shade on the ground before the wall, soft
-          const [shx, shy] = screen(side * (doorHalf + 0.14), 0.01, -0.35)
-          put(4300 + side + 1, {
-            x: shx,
-            y: shy,
-            long: 0.32 * m,
-            wide: 0.5,
-            turn: Math.PI / 2,
-            paints: ['shade', 'deepGreen'],
-            load: 0.4,
-            kind: 0.25,
-            blur: 4,
-            order: footY(side * (doorHalf + 0.14), -0.35) - 2,
-          })
-          ;[
-            [hinge, d1],
-            [mid, [-side * Math.cos(out1), 0, Math.sin(out1)]],
-          ].forEach(([o, d], q) => {
-            const id = 480 + (side + 1) * 10 + q * 7
-            const U = [d[0] * PANEL, 0, d[2] * PANEL]
-            let normal = [-U[2] / PANEL, 0, U[0] / PANEL]
-            const centre = [o[0] + U[0] / 2, 1, o[2] + U[2] / 2]
-            if (normal[0] * (eyeAt[0] - centre[0]) + normal[2] * (eyeAt[2] - centre[2]) < 0) {
-              normal = [-normal[0], 0, -normal[2]]
-            }
-            const lift = -0.12 + 0.4 * Math.max(0, -0.55 * normal[0] - 0.42 * normal[2])
-            const depthOf = (p) => footY(p[0], p[2])
-            under(id, { o, U, V: [0, G.doorTall, 0], depth: depthOf, layer: 6 }, DOOR, 0.3 + lift)
-            plane(id + 1, {
-              o,
-              U,
-              V: [0, G.doorTall, 0],
-              len: 0.55,
-              breadth: 0.045,
-              ramp: DOOR,
-              tone: (u, v, n) => 0.48 + lift + 0.12 * v + jitter(n) * 0.08,
-              layer: 6,
-              flip: false,
-              wobble: 0.008,
-              depth: depthOf,
-            })
-            // its brace, from the foot by the hinge to the head by the fold
-            const a = [o[0], 0.15, o[2]]
-            const b = [o[0] + U[0], G.doorTall - 0.15, o[2] + U[2]]
-            plane(id + 2, {
-              o: [a[0], a[1] - 0.04, a[2]],
-              U: [0, 0.08, 0],
-              V: [b[0] - a[0], b[1] - a[1], b[2] - a[2]],
-              len: 0.42,
-              breadth: 0.04,
-              ramp: DOOR,
-              tone: () => 0.72 + lift,
-              layer: 7,
-              flip: false,
-              wobble: 0,
-              depth: depthOf,
-            })
-            // a rail across its middle, lighter
-            plane(id + 4, {
-              o: [o[0], 1.0, o[2]],
-              U: [0, 0.12, 0],
-              V: U,
-              len: 0.3,
-              breadth: 0.06,
-              ramp: DOOR,
-              tone: () => 0.7 + lift,
-              layer: 7.2,
-              flip: false,
-              wobble: 0,
-              depth: depthOf,
-            })
-            // strap hinges on the first panel, by the jamb
-            if (q === 0) {
-              for (const [hid, y] of [
-                [id + 5, 0.5],
-                [id + 6, G.doorTall - 0.5],
-              ]) {
-                plane(hid, {
-                  o: [o[0], y - 0.03, o[2]],
-                  U: [0, 0.06, 0],
-                  V: [U[0] * 0.55, 0, U[2] * 0.55],
-                  len: 0.2,
-                  breadth: 0.03,
-                  ramp: ['iron', 'doorShade'],
-                  tone: () => 0.1,
-                  layer: 7.4,
-                  flip: false,
-                  wobble: 0,
-                  depth: depthOf,
-                })
-              }
-            }
-            // the dark line at its far edge, where it folds or meets the wall
-            plane(id + 3, {
-              o: [o[0] + U[0], 0.02, o[2] + U[2]],
-              U: [0.0001, 0, 0],
-              V: [0, G.doorTall - 0.04, 0],
-              len: 0.6,
-              breadth: 0.025,
-              ramp: ['doorShade', 'iron'],
-              tone: () => 0.3,
-              layer: 7.5,
-              flip: false,
-              wobble: 0,
-              depth: depthOf,
-            })
-          })
-        }
-      }
-
-      workshop()
-
-      /* ---- the gable: the boards along both rakes, and their shade ---- */
-      for (const side of [-1, 1]) {
-        const id = side < 0 ? 340 : 350
-        const foot = [side * eaveX, eaveY, -G.gable]
-        const peak = [0, G.ridge + 0.03, -G.gable]
-        // the board's face, 0.22 deep, from the eave up to the peak
-        plane(id, {
-          o: [foot[0], foot[1] - 0.22, foot[2]],
-          U: [0, 0.22, 0],
-          V: [peak[0] - foot[0], peak[1] - foot[1], 0],
-          len: 0.55,
-          breadth: 0.06,
-          ramp: DOOR,
-          tone: (u, v, n) => (side < 0 ? 0.66 : 0.58) + 0.1 * u + jitter(n) * 0.1,
-          layer: 12,
-          flip: false,
-        })
-        // its lit top edge and its dark foot
-        bar(
-          id + 1,
-          [foot[0], foot[1] + 0.005, foot[2] - 0.01],
-          [peak[0], peak[1] + 0.005, peak[2] - 0.01],
-          0.03,
-          DOOR,
-          () => 0.95,
-          {
-            layer: 12.5,
-          },
-        )
-        bar(
-          id + 2,
-          [foot[0], foot[1] - 0.225, foot[2] - 0.01],
-          [peak[0], peak[1] - 0.225, peak[2] - 0.01],
-          0.025,
-          ['iron', 'doorDeep'],
-          () => 0.4,
-          {
-            layer: 12.5,
-            load: 0.75,
-          },
-        )
-        // and the shade it throws on the gable under it
-        plane(id + 3, {
-          o: [side * halfW * 0.98, G.eaves - 0.36, 0],
-          U: [0, 0.3, 0],
-          V: [-side * halfW * 0.98, G.ridge - G.eaves, 0],
-          len: 0.5,
-          breadth: 0.1,
-          ramp: ['eave', 'boardShade'],
-          tone: () => 0.35,
-          layer: 1.5,
-          load: 0.55,
-          kind: 0.25,
-          flip: false,
-        })
-      }
-
-      /* ---- the roof: the near side in courses of slate-blue shingles, which the moss mostly covers, and the fascia
-         along its eave, with the shade of the eaves on the side under it ---- */
-      // a place on the near side as [along it from the front (0) to the back (1), up it from the eave (0) to the ridge
-      // (1)], and the way out of it
-      const roofAt = (a, b, out = 0) => [
-        eaveX * (1 - b) + out * 0.62,
-        eaveY + (G.ridge - eaveY) * b + out * 0.78,
-        -G.gable + (back + G.gable) * a,
-      ]
-      const roofLong = back + G.gable
-      under(
-        1004,
-        { o: roofAt(0, 0), U: [-eaveX, G.ridge - eaveY, 0], V: [0, 0, roofLong], layer: 9 },
-        ['shingleDeep', 'mossDeep'],
-        0.4,
-      )
-      plane(480, {
-        o: roofAt(0, 0),
-        U: [-eaveX, G.ridge - eaveY, 0],
-        V: [0, 0, roofLong],
-        len: 0.42,
-        breadth: 0.085,
-        ramp: SHINGLE,
-        tone: (u, v, n) => 0.32 + 0.3 * u + 0.18 * (Math.floor(u * 13) % 2) + jitter(n) * 0.2,
-        layer: 9,
-        along: 0.7,
-      })
-      plane(481, {
-        o: [eaveX + 0.01, eaveY - 0.16, -G.gable],
-        U: [0, 0.16, 0],
-        V: [0, 0, roofLong],
-        len: 0.55,
-        breadth: 0.05,
-        ramp: DOOR,
-        tone: (u, v, n) => 0.22 + 0.15 * u + jitter(n) * 0.1,
-        layer: 9.5,
-        flip: false,
-      })
-      plane(482, {
-        o: [halfW + 0.045, G.eaves - 0.5, 0],
-        U: [0, 0.5, 0],
-        V: [0, 0, G.deep],
-        len: 0.5,
-        breadth: 0.12,
-        ramp: ['eave', 'boardShade'],
-        tone: () => 0.35,
-        layer: 4,
-        load: 0.5,
-        kind: 0.25,
-        flip: false,
-      })
-
-      /* ---- the moss ----
-         A soft carpet over the near side of the roof, as a field of how thick it lies: thickest along the ridge and in
-         cushions here and there, thin where the slate shows through. It is painted in three passes from the dark into
-         the light, each stroke lifted off the roof by how thick the moss is there, so that the ridge and the edges go
-         lumpy: first its body in the deep greens, then the light on whatever of it faces the sun, high and to the left
-         and a little in front, and then flecks of the brightest and the gold of its spore stalks. Along the top of the
-         gable's boards and over the ridge, more of it, as a fringe. */
-      const lump = (a, b) => {
-        // cushions, and long soft ridges of it along the courses
-        const c1 = Math.sin(a * 41 + Math.sin(b * 9) * 1.4) * Math.sin(b * 23 + a * 7)
-        const c2 = Math.sin(a * 97 + 1.7) * Math.sin(b * 61 + 0.6)
-        const c3 = Math.sin(a * 13 + 0.4) * Math.sin(b * 7 + 2.1)
-        return 0.5 + 0.28 * c1 + 0.12 * c2 + 0.22 * c3
-      }
-      // and three patches where the shingles are bare
-      const bare = (a, b) =>
-        Math.exp(-(((a - 0.3) / 0.05) ** 2) - ((b - 0.42) / 0.1) ** 2) +
-        Math.exp(-(((a - 0.6) / 0.04) ** 2) - ((b - 0.26) / 0.09) ** 2) +
-        Math.exp(-(((a - 0.84) / 0.045) ** 2) - ((b - 0.58) / 0.1) ** 2)
-      const thick = (a, b) =>
-        clamp(lump(a, b) + 0.38 * smooth(0.72, 1, b) + 0.2 * (1 - smooth(0, 0.12, b)) + 0.08 - 1.1 * bare(a, b), 0, 1.2)
-      // how much it faces the sun: where it falls away towards the light, up the roof and to the front
-      const litAt = (a, b) => {
-        const e = 0.02
-        return clamp(0.5 + 4 * (thick(a + e * 0.5, b - e) - thick(a - e * 0.5, b + e)), 0, 1)
-      }
-      const slopeLong = Math.hypot(eaveX, G.ridge - eaveY)
-      const mossSpots = []
-      // First its body: soft cushions, no bristles, in the deep greens and the moss's own, by how thick it is and how
-      // it faces the light.
-      const coarse = 0.11
-      const ca = Math.round(roofLong / coarse)
-      const cb = Math.round(slopeLong / coarse) + 2
-      for (let i = 0; i < ca; i += 1) {
-        for (let j = 0; j <= cb; j += 1) {
-          const n = 500000 + i * 211 + j
-          const a = (i + 0.5 + jitter(n) * 0.8) / ca
-          const b = (j - 0.5 + jitter(n + 1) * 0.8) / (cb - 1)
-          if (b < -0.03 || b > 1.03) {
-            continue
-          }
-          const h = thick(a, b)
-          if (h < 0.36 + jitter(n + 2) * 0.1) {
-            continue
-          }
-          const lit = litAt(a, b)
-          const p = roofAt(a, b, 0.03 + h * 0.09)
-          const [x, y] = screen(...p)
-          put(n, {
-            x,
-            y,
-            long: (0.075 + 0.04 * hashed(n * 2.9)) * (0.75 + 0.35 * h) * m,
-            wide: 0.66 + 0.2 * jitter(n + 6),
-            turn: jitter(n + 7) * 0.8,
-            paints: shade(MOSS, 0.3 + 0.12 * h + 0.14 * (lit - 0.5) + jitter(n + 4) * 0.06, n),
-            load: 0.95,
-            kind: 0.25,
-            blur: 1,
-            // under all of its texture, which is laid over it from close by
-            order: footY(p[0], p[2]) - 4 + 0.3,
-          })
-        }
-      }
-      // Then its texture, fine and close, darker where it is thin or turned from the light and lighter where it
-      // catches it; then the brightest of its tips and the gold of its spore stalks.
-      const fine = 0.045
-      const fa = Math.round(roofLong / fine)
-      const fb = Math.round(slopeLong / fine) + 2
-      for (let i = 0; i < fa; i += 1) {
-        for (let j = 0; j <= fb; j += 1) {
-          const n = 600000 + i * 211 + j
-          const a = (i + 0.5 + jitter(n) * 0.9) / fa
-          const b = (j - 0.5 + jitter(n + 1) * 0.9) / (fb - 1)
-          if (b < -0.03 || b > 1.03) {
-            continue
-          }
-          const h = thick(a, b)
-          if (h < 0.4 + jitter(n + 2) * 0.12 || hashed(n * 0.37) < 0.3) {
-            continue
-          }
-          const lit = litAt(a, b)
-          const bright = lit > 0.72 + jitter(n + 3) * 0.24 && h > 0.5
-          const p = roofAt(a, b, 0.04 + h * 0.1 + (bright ? 0.02 : 0.01))
-          const [x, y] = screen(...p)
-          let paints = shade(MOSS, 0.16 + 0.3 * h + 0.42 * (lit - 0.5) + jitter(n + 4) * 0.16, n)
-          if (bright) {
-            paints = hashed(n * 1.9) < 0.18 ? ['spore', 'mossSun'] : shade(MOSS, 0.8 + 0.2 * lit, n)
-          }
-          put(n, {
-            x,
-            y,
-            long: (bright ? 0.026 : 0.034) * (0.8 + 0.5 * hashed(n * 2.9)) * m,
-            wide: 0.55 + 0.25 * jitter(n + 6),
-            turn: -Math.PI / 2 + jitter(n + 7) * 2.2,
-            paints,
-            load: 0.92,
-            kind: 0,
-            blur: 0.4,
-            order: footY(p[0], p[2]) - 1 + 0.32 + (bright ? 0.01 : 0),
-          })
-          // a place a butterfly can sit: anywhere the moss is thick
-          if (h > 0.62 && hashed(n * 3.7) < 0.22) {
-            mossSpots.push({ x, y: y - 0.04 * m, a, b, dice: hashed(n * 5.3) })
-          }
-        }
-      }
-      // a fringe of it along the top of the gable's boards, both rakes, lit on the left
-      for (const side of [-1, 1]) {
-        for (let i = 0; i < 46; i += 1) {
-          const t = (i + 0.5 + jitter(i * 7 + side) * 0.6) / 46
-          const base = [side * eaveX * (1 - t), eaveY + (G.ridge - eaveY) * t, -G.gable - 0.02]
-          const r = 0.09 + 0.08 * hashed(i * 3.1 + side * 7)
-          for (let q = 0; q < 8; q += 1) {
-            const n = 700000 + (side + 1) * 3000 + i * 23 + q
-            const lift = r * (0.3 + 0.7 * hashed(n * 1.3))
-            const p = [base[0] + jitter(n) * r * 1.6, base[1] + lift, base[2]]
-            const [x, y] = screen(...p)
-            const lit = q > 5 ? 0.82 : 0.26 + q * 0.09
-            put(n, {
-              x,
-              y,
-              long: (0.028 + 0.022 * hashed(n * 2.2)) * m,
-              wide: 0.65,
-              turn: jitter(n + 3) * 3,
-              paints: shade(MOSS, lit + jitter(n + 4) * 0.1, n),
-              kind: q < 2 ? 0.25 : 0,
-              order: footY(p[0], p[2]) - 1 + 0.6 + q * 0.001,
-            })
-            if (q === 7 && hashed(n * 4.1) < 0.3) {
-              mossSpots.push({ x, y: y - 0.04 * m, a: 0, b: t, dice: hashed(n * 6.1) })
-            }
-          }
-        }
-      }
-      // a few tiny flowers in it, white and butter
-      for (let i = 0; i < 30; i += 1) {
-        const n = 760000 + i
-        const a = hashed(n * 1.7)
-        const b = 0.15 + 0.8 * hashed(n * 2.3)
-        if (thick(a, b) < 0.55) {
-          continue
-        }
-        const p = roofAt(a, b, 0.06 + thick(a, b) * 0.13 + 0.03)
-        const [x, y] = screen(...p)
+        const big = hashed(n * 4.1) < 0.25
+        const core = Math.max(1.2, (big ? 3.4 + 2 * hashed(n * 3.7) : 1.4 + 1.6 * hashed(n * 3.7)) * s)
         put(n, {
           x,
           y,
-          long: 0.018 * m,
-          wide: 0.9,
+          long: core * (big ? 2.6 : 4),
+          wide: 1,
           turn: 0,
-          paints: hashed(n * 3.3) < 0.6 ? ['white', 'cream'] : ['butter', 'gold'],
-          order: footY(p[0], p[2]) - 1 + 0.36,
+          paints: ['lightGlow', 'lightWarm'],
+          load: big ? 0.55 : 0.42,
+          kind: 3.25,
+          blur: core * (big ? 1.6 : 3.2),
+          order: ord + 0.2,
         })
-      }
-
-      // tufts of it hanging over the edges, along the fascia and down the gable's boards, their tips rusty with spore
-      // stalks
-      const tuft = (n, p) => {
-        const [x, y] = screen(...p)
-        const o = footY(p[0], p[2]) - 1 + 0.65
-        for (let q = 0; q < 4; q += 1) {
-          const nn = n * 11 + q
-          const drop = (0.03 + 0.05 * hashed(nn * 1.7)) * m
-          put(nn, {
-            x: x + jitter(nn) * 0.06 * m,
-            y: y + drop * 0.6,
-            long: drop * 0.7,
-            wide: 0.35,
-            turn: Math.PI / 2 + jitter(nn + 1) * 0.6,
-            paints: q === 3 ? ['spore', 'mossLit'] : shade(MOSS, 0.45 + q * 0.12, nn),
-            order: o + q * 0.001,
-          })
-        }
-      }
-      for (let i = 0; i < 9; i += 1) {
-        const a = (i + 0.3 + 0.4 * hashed(i * 5.3)) / 9
-        tuft(780000 + i, [eaveX + 0.02, eaveY - 0.05, -G.gable + roofLong * a])
-      }
-      for (let i = 0; i < 4; i += 1) {
-        for (const side of [-1, 1]) {
-          const t = 0.15 + 0.2 * i + 0.05 * hashed(i * 2.1 + side)
-          tuft(781000 + i * 2 + (side + 1) / 2, [
-            side * eaveX * (1 - t),
-            eaveY + (G.ridge - eaveY) * t - 0.2,
-            -G.gable - 0.03,
-          ])
-        }
-      }
-
-      /* ---- ivy up the front corner and along the side's foot ---- */
-      for (let v = 0; v < 4; v += 1) {
-        let z = 0.04 + v * 0.42
-        let y = 0
-        for (let i = 0; i < 22; i += 1) {
-          const n = 800000 + v * 100 + i
-          y += 0.07 + 0.05 * hashed(n * 1.1)
-          z += (hashed(n * 2.7) - 0.4) * 0.12
-          if (y > G.eaves * (0.75 - v * 0.14)) {
-            break
-          }
-          const p = [halfW + 0.06, y, Math.max(0.03, z)]
-          const [x0, y0] = screen(...p)
-          for (let l = 0; l < 3; l += 1) {
-            const nn = n * 7 + l
-            put(nn, {
-              x: x0 + jitter(nn) * 0.09 * m,
-              y: y0 + jitter(nn + 1) * 0.07 * m,
-              long: (0.035 + 0.025 * hashed(nn * 1.3)) * m,
-              wide: 0.8,
-              turn: jitter(nn + 2) * 3,
-              paints: hashed(nn * 3.7) < 0.3 ? ['ivyLit', 'ivy'] : ['ivy', 'mossDark'],
-              order: footY(p[0], p[2]) - 1 + 0.5,
-            })
-          }
-        }
-      }
-
-      /* ---- hollyhocks against the walls: tall stems with their flowers up them, largest low down and buds at the
-         top, broad leaves at their feet ---- */
-      const hollyhock = (n, x, z, tall, colour) => {
-        const [rx, ry] = screen(x, 0, z)
-        const [, ty] = screen(x, tall, z)
-        const height = ry - ty
-        const order = ry + 0.4
-        const lean = jitter(n) * 0.06
-        const phase = hashed(n * 3.3) * 6
-        rand.reseed(81013 + n * 7919)
-        garden.dab({
-          x: rx,
-          y: ry,
-          stem: height * 0.5,
-          long: height * 0.5,
-          wide: 0.044,
-          turn: -Math.PI / 2,
-          paints: ['stalk', 'leaf'],
-          blur: 0.4,
-          load: 0.9,
-          stiff: 0.92,
-          lean,
-          phase,
-          order,
+        put(n + 1, {
+          x,
+          y,
+          long: core,
+          wide: 0.95,
+          turn: 0,
+          paints: ['light', 'lightWarm'],
+          load: big ? 0.75 : 0.95,
+          kind: 3.4,
+          blur: big ? core * 0.5 : 0.4,
+          order: ord + 0.21,
         })
-        const many = 10 + Math.floor(hashed(n * 1.9) * 5)
-        for (let i = 0; i < many; i += 1) {
-          const t = 0.32 + (0.66 * i) / many
-          const bud = smooth(0.72, 1, t)
-          const nn = n * 31 + i
-          rand.reseed(81013 + nn * 7919)
-          garden.bloom({
-            x: rx + (i % 2 ? 1 : -1) * 0.04 * m * (1 - bud),
-            y: ry,
-            stem: height * t,
-            reach: (0.064 - 0.036 * bud) * m * (0.85 + 0.3 * hashed(nn * 1.3)),
-            petals: 5,
-            blur: 0.5,
-            paints: bud > 0.6 ? [colour[1], 'leaf'] : colour,
-            turn: hashed(nn * 2.1) * 6,
-            stiff: 0.92,
-            lean,
-            phase,
-            order: order + 0.01 + i * 0.001,
-          })
-        }
-        for (let l = 0; l < 4; l += 1) {
-          const nn = n * 53 + l
-          rand.reseed(81013 + nn * 7919)
-          garden.dab({
-            x: rx + (l - 1.5) * 0.07 * m,
-            y: ry,
-            stem: height * (0.05 + 0.07 * l),
-            long: 0.1 * m,
-            wide: 0.6,
-            turn: -Math.PI / 2 + (l - 1.5) * 0.8,
-            paints: ['leaf', 'deepGreen'],
-            kind: 0.25,
-            blur: 0.5,
-            stiff: 0.92,
-            lean,
-            phase,
-            order: order + 0.005,
-          })
-        }
-      }
-      const HOLLY = [
-        ['pink', 'rose'],
-        ['white', 'cream'],
-        ['rose', 'pink'],
-        ['peach', 'salmon'],
-        ['cream', 'butter'],
-      ]
-      // along the side, and either side of the doors
-      ;[0.45, 0.8, 1.3, 3.5, 3.9, 4.6].forEach((z, i) => {
-        hollyhock(
-          1500 + i,
-          halfW + 0.28 + 0.12 * hashed(i * 4.1),
-          z,
-          1.7 + 0.55 * hashed(i * 2.3),
-          HOLLY[i % HOLLY.length],
-        )
-      })
-      ;[-halfW - 0.1, -halfW - 0.32, halfW + 0.08].forEach((x, i) => {
-        hollyhock(1520 + i, x, -0.28 - 0.08 * i, 1.6 + 0.5 * hashed(i * 5.1), HOLLY[(i + 2) % HOLLY.length])
-      })
-
-      /* ---- a cottage border along its walls: flowers heaped against the foot of the front either side of the path
-         and all along the side, three rows deep, painted as the meadow's are, so the nearest are the largest and the
-         softest ---- */
-      // how far either side of the middle the path to the doors reaches, at a place in front of them
-      const pathHalf = (z) => 1.25 + Math.min(1, -z / 4) * 0.7
-      let spot = 0
-      const bed = (x, z) => {
-        spot += 1
-        const [sx, sy] = screen(x, 0, z)
-        const a = acrossOf(sx)
-        const top = place(a, 0)[1]
-        const foot = place(a, 1)[1]
-        const near = clamp((sy - top) / Math.max(1, foot - top), 0, 1.05)
-        rand.reseed(91807 + spot * 7919)
-        garden.flowerAt(sx, sy, near, hashed(spot * 3.1) < 0.72 ? 'cottage' : 'poppies', 1)
-      }
-      for (let row = 0; row < 3; row += 1) {
-        const off = 0.1 + row * 0.2
-        for (let x = -halfW - 0.12; x <= halfW + 0.12; x += 0.085) {
-          // clear of the path to the doors
-          if (Math.abs(x) > pathHalf(-off) - 0.12) {
-            bed(x + jitter(spot * 2 + 1) * 0.05, -off + jitter(spot * 2 + 2) * 0.06)
-          }
-        }
-        for (let z = -0.12; z <= G.deep + 0.2; z += 0.085) {
-          bed(halfW + off + jitter(spot * 2 + 1) * 0.06, z + jitter(spot * 2 + 2) * 0.05)
-        }
-      }
-
-      /* ---- the path to its doors: worn earth, as wide as the doorway at the sill and widening towards us as the
-         ground does, darker under the doors, its edges ragged where the grass comes in, and fading into the meadow
-         well before the picture's foot ---- */
-      const PATH = ['pathDeep', 'path', 'pathLit']
-      for (let j = 0; j < 34; j += 1) {
-        for (let i = 0; i < 11; i += 1) {
-          const n = 900000 + j * 41 + i
-          const t = (j + 0.5 + jitter(n) * 0.5) / 34
-          const z = -0.05 - t * 3.6
-          const halfWay = pathHalf(z)
-          const x = (((i + 0.5 + jitter(n + 1) * 0.5) / 11) * 2 - 1) * halfWay
-          const edge = Math.abs(x) / halfWay
-          if (edge > 0.86 + jitter(n + 2) * 0.24) {
-            continue
-          }
-          const p = [x, 0.01, z]
-          const [sx, sy] = screen(...p)
-          const [x2, y2] = screen(x + 0.22, 0.01, z)
-          const sill = 1 - smooth(0, 0.08, t)
-          put(n, {
-            x: sx,
-            y: sy,
-            long: Math.hypot(x2 - sx, y2 - sy) * 0.75,
-            wide: 0.34,
-            turn: Math.atan2(y2 - sy, x2 - sx) + jitter(n + 3) * 0.12,
-            paints: shade(PATH, 0.55 - 0.3 * edge - 0.45 * sill + jitter(n + 4) * 0.25, n),
-            load: 0.8 * (1 - smooth(0.62, 1, edge)) * (1 - smooth(0.5, 1, t)),
-            kind: 0.25,
-            blur: 0.8,
-            order: footY(x, z) - 1.5,
-          })
-        }
-      }
-
-      /* ---- where the pointer finds the garage, and where the butterflies land ---- */
-      const hits = (o, U, V, us, vs) => {
-        for (let i = 0; i <= us; i += 1) {
-          for (let j = 0; j <= vs; j += 1) {
-            const [x, y] = screen(...point(o, U, V, i / us, j / vs))
-            garden.tree(x, y, 0.42 * m)
-          }
-        }
-      }
-      hits([-halfW, 0, 0], [G.wide, 0, 0], [0, G.eaves, 0], 6, 4)
-      hits([halfW, 0, 0], [0, 0, G.deep], [0, G.eaves, 0], 8, 4)
-      hits(roofAt(0, 0), [0, 0, roofLong], [-eaveX, G.ridge - eaveY, 0], 10, 4)
-      hits([-eaveX * 0.6, G.eaves, 0], [eaveX * 1.2, 0, 0], [0, (G.ridge - G.eaves) * 0.8, 0], 4, 2)
-      // On the moss, in three loose clusters over the near side of the roof, well inside its outline: the lit tops of
-      // its cushions near each cluster's middle, kept a little apart. None on the edges or the ridge, where a butterfly
-      // would stand out against the sky.
-      const inside = mossSpots.filter((spot) => spot.b > 0.18 && spot.b < 0.86 && spot.a > 0.06 && spot.a < 0.95)
-      inside.sort((p, q) => p.dice - q.dice)
-      const taken = []
-      for (const [ca, cb] of [
-        [0.22, 0.62],
-        [0.52, 0.44],
-        [0.8, 0.66],
-      ]) {
-        let count = 0
-        for (const spot of inside) {
-          if (count >= 5) {
-            break
-          }
-          // how far from the cluster's middle, in metres over the roof
-          const d = Math.hypot((spot.a - ca) * roofLong, (spot.b - cb) * slopeLong)
-          if (d > 0.8 || taken.some((t) => Math.hypot(t.x - spot.x, t.y - spot.y) < 0.22 * m)) {
-            continue
-          }
-          taken.push(spot)
-          count += 1
-          garden.perch(spot.x, spot.y, spot.dice > 0.5 ? 1 : -1)
-        }
       }
     },
   }
@@ -6616,15 +5027,18 @@
   /* --- the pricing composition ---------------------------------------------------------------------- */
 
   /* The hero of /pricing: a sunset over the sea, after a painting of one, made of nothing but light, in the fine lines
-     of /products/sdk-generator. The painting's whole sky, from the header down to the horizon: cream high up, butter
-     and peach at the sides, a soft column of pink light in its middle deepening to coral over a narrow band of hot
-     orange along the horizon, and under it a still lavender sea with a faint pink reflection in it. Each is a band of
-     fine lines that sweeps gently across the stage, and the colours run through each other line by line where they meet.
-     The bands run straight on behind the words, as if the words were not there: the sky is only quieter where they
-     stand, its own colours palest there and its lines thinned behind them under a wide, soft veil, so the words read
-     clearly with the lines running on under them. A long wave runs through the horizon and the sea's lines roll gently.
+     of /products/sdk-generator. The painting's sky, butter and peach at the sides, a soft column of pink light in its
+     middle deepening to coral over a narrow band of hot orange along the horizon, and under it a still lavender sea.
+     Each is a band of fine lines that sweeps gently across the stage, and the colours run through each other line by
+     line where they meet. Under the header there is only the page: the sky's lines come in from nothing far below it,
+     thin, few and pale at first, and are at their full only around the words and under them. Behind the words the sun
+     is going down, a disc of light standing in the pink column with its foot behind the horizon: the sky's lines take
+     its light as they run into it, white at its middle where the words stand, a pale gold limb and a glowing rim, a halo
+     of apricot and pink round it, and its light rises softly above the lines; the horizon glows gold where it sets, and
+     its reflection lies in the sea in streaks. A long wave runs through the horizon and the sea's lines roll gently.
      Every band thins into specks at its edges, so nothing is drawn as an edge. It is live, breathing and drifting, and
-     in a dark theme the same sunset at dusk. When the pointer rests on the reflection, the butterflies come to it. */
+     in a dark theme the same sunset at dusk, the sun a deep warm glow, darkest at its middle where the words stand, its
+     light in its rim and its halo. When the pointer rests on the sun's reflection, the butterflies come to it. */
   const PR_INKS = {
     // the land's inks the engine asks for, unused here
     ...LAND_INK,
@@ -6636,7 +5050,7 @@
     peach: ['#f7b386', '#7a4a66'],
     apricot: ['#f5a56c', '#b25e5e'],
     // the glow, from its pale heart to its deep foot over the horizon
-    pale: ['#fad8c8', '#40304f'],
+    pale: ['#fbd6c6', '#40304f'],
     blush: ['#f9c4b6', '#6a4262'],
     // the column's head, over the words, dimmer at dusk
     rose: ['#f5a49a', '#6e4466'],
@@ -6654,10 +5068,18 @@
     lavender: ['#a69aae', '#443e5d'],
     lavenderLow: ['#b4a5b2', '#302b45'],
     sand: ['#c5b1a4', '#1f1c2a'],
-    // the glow's reflection in it
-    rosy: ['#c8939d', '#7d4f6c'],
-    rosyLow: ['#d3a7ad', '#4a3550'],
     sheen: ['#f6dfc2', '#3e3354'],
+    // the sun: its middle, nearly white on a light page and at dusk the deepest of the warm darks, so the words read on
+    // it either way; its face's edge; its rim, pale gold, at dusk glowing; the glow just past it; and its halo, the pink
+    // it fades into
+    sunCore: ['#fffcf6', '#1c0f17'],
+    sunFace: ['#ffecce', '#4a1d2b'],
+    sunRim: ['#ffc98a', '#ff9a5c'],
+    sunGlow: ['#ffa98a', '#f06a62'],
+    sunHalo: ['#f598a0', '#a8406c'],
+    // its reflection in the sea, in streaks
+    sunWater: ['#f8d0a4', '#e08868'],
+    sunWaterLow: ['#efb9a6', '#8f4766'],
   }
 
   /* The places across a guide is given at, past both sides of the stage. */
@@ -6681,16 +5103,38 @@
   /* A long wave along a guide, in CSS pixels: so high, so long, from where; so that it reads the same on any screen. */
   const prWave = (stage, x, high, long, phase = 0) =>
     (high / stage.room) * Math.sin(((x * stage.w) / 2 / long) * Math.PI * 2 + phase)
-  /* How the sky's bands sweep across the stage: rising gently from the left to the right, as the Warp hero's streaks
-     do, by a twentieth of the stage's width, with a long slow wave through them; the same for every band, so the bands
-     stay together and never bend round anything. */
-  const prSweep = (stage, x) =>
-    (-0.025 * stage.w * (x + 0.12 * Math.sin(x * Math.PI))) / stage.room + prWave(stage, x, 6, 1700, 0.6)
+
+  /* The sun: a disc of light behind the words, its middle under theirs a little above the horizon, so that it is going
+     down, and its bright face reaching past every line of the copy: the heading's ends at its top (the heading is never
+     wider than its text, 330 pixels), the lede's at either side, the buttons' at its foot. Worked out from the words
+     each time the land is laid out. */
+  const PR_SUN_FACE = 0.9
+  const prSun = (stage) => {
+    const { w, words, base } = stage
+    const top = words.y - words.b
+    const foot = words.y + words.b
+    const y = foot + (base - foot) * 0.3
+    const reach = Math.max(
+      Math.hypot(Math.min(words.a, 168), y - top),
+      Math.hypot(words.a, y - (top + words.b * 0.7)),
+      Math.hypot(Math.min(words.a, 194), y - foot),
+    )
+    const r = (reach + 10) / PR_SUN_FACE
+    if (2 * r < 0.94 * w) {
+      return { x: words.x, y, r }
+    }
+    // On a phone the copy is as wide as the screen, and a sun holding all of it would be wider still, its rim off the
+    // screen, a white sky rather than a sun. There the heading and the lede stand on the page itself (the sky's lines
+    // only come in under them), and the sun goes down under them: a whole disc as wide as the screen allows, its top
+    // just over the buttons, which stand on its face, and its foot behind the horizon.
+    const small = Math.min(w * 0.46, (base - top) * 0.6)
+    return { x: words.x, y: foot - 100 + small, r: small }
+  }
 
   /* Where the glow is: a soft column of light centred on the words, wider than they are and reaching from the top of
-     the sky to the horizon, worked out from the words each time the land is laid out (see glowPlaces). It breathes, a
-     little larger and smaller, over a long slow breath. It only colours the lines passing through it. Its reflection
-     lies in the sea under it, narrower. */
+     the sky to the horizon, worked out from the words each time the land is laid out (see glowPlaces), the sun standing
+     in it. It breathes, a little larger and smaller, over a long slow breath. It only colours the lines passing through
+     it. The sun's reflection lies in the sea under the sun, narrower than it. */
   const PR_GLOW = {
     place: (stage) => {
       const { at, wide, mid } = prWords(stage)
@@ -6699,10 +5143,17 @@
     breathe: [0.08, 14],
   }
   const prReflection = (stage) => {
-    const { at, wide } = prWords(stage)
-    return { at: [at, 0.32], half: [Math.max(0.2, wide * 0.75), 0.55] }
+    const { w } = stage
+    const sun = prSun(stage)
+    return { at: [(sun.x - w / 2) / (w / 2), 0.32], half: [Math.max(0.2, (sun.r * 0.55) / (w / 2)), 0.6] }
   }
-  /* The place that calls the butterflies: the reflection, under the buttons, in CSS pixels on the canvas. */
+  /* Where the sun goes down behind the horizon, which glows there: as wide as most of the sun, along the horizon. */
+  const prSunset = (stage) => {
+    const { w } = stage
+    const sun = prSun(stage)
+    return { at: [(sun.x - w / 2) / (w / 2), 0], half: [(sun.r * 0.85) / (w / 2), 0.3] }
+  }
+  /* The place that calls the butterflies: the sun's reflection, under the buttons, in CSS pixels on the canvas. */
   const prZone = (stage) => {
     const { w, room, base } = stage
     const half = w / 2
@@ -6720,23 +5171,24 @@
   const prHorizon = (stage, x, lift = 0) => lift + prWave(stage, x, 2, 1900, 0.9)
   const prHorizonTop = (stage, x) =>
     prHorizon(stage, x, -0.16) + prWave(stage, x, 10, 1500, 2.1) + prWave(stage, x, 3, 610, 0.3)
-  /* The two lines the sky's bands meet along: just over the words' top, and a little under their foot. The bands lap
-     over each other by 3 CSS pixels there, so no hairline of page shows between them. */
-  const prHigh = (stage, x, lap = 0) => prWords(stage).top - 0.04 + prSweep(stage, x) + lap / stage.room
-  const prLow = (stage, x, lap = 0) => prWords(stage).foot + 0.1 + prSweep(stage, x) + lap / stage.room
+  /* How far under the canvas's top the sky's top line is, in rooms: a twenty-fifth of the stage's width at its left
+     edge and nothing at its right, with a long slow wave in it; so the sky's lines, which run from it down to the level
+     horizon, sweep up to the right, as the Warp hero's streaks do, the most at the top and less and less down. */
+  const prDip = (stage, x) => (0.02 * stage.w * (1 - x)) / stage.room + prWave(stage, x, 6, 1700, 0.6)
 
   const PRICING = {
     ...HERO,
     words: '.pr-copy',
     // The hero's lines, lifted a little less between them on a light page, so the colour fields read as full as the
-    // painting's; behind the words a wide, soft veil that thins the lines rather than clearing them; and every line
-    // reaching past the canvas's right edge once it is in (`whole`), so none stops short of it in a dash of page.
+    // painting's; round the words a soft veil that thins the lines a little rather than clearing them (the sun does the
+    // rest); and every line reaching past the canvas's right edge once it is in (`whole`), so none stops short of it in
+    // a dash of page.
     lines: {
       ...LINES,
       lift: 0.15,
-      veil: [190, 120],
+      veil: [150, 100],
       veilCore: 0,
-      veilDepth: [0.5, 0.6],
+      veilDepth: [0.25, 0.35],
       sink: 70,
       introMs: 2600,
       whole: true,
@@ -6744,6 +5196,40 @@
     inks: PR_INKS,
     glow: PR_GLOW,
     waves: true,
+    // The sun, behind the words: white at its middle (at dusk the deepest warm dark), a pale gold limb, glowing at its
+    // rim, a halo of apricot and pink round it fading into the column and the peach. Its light comes in from a little
+    // under the header, higher than the lines do, so its top is a soft glow on the page; on a light page it lays none
+    // on its face, where the page is its white, and at dusk it lays its deep glow there.
+    sun: {
+      place: prSun,
+      face: PR_SUN_FACE,
+      halo: 0.45,
+      rim: 0.09,
+      rise: (stage) => [stage.h * 0.04, stage.words.y - stage.words.b * 0.6],
+      inks: ['sunCore', 'sunFace', 'sunRim', 'sunGlow', 'sunHalo'],
+      light: [
+        [0, 0.7],
+        [0.4, 0.6],
+        [0.35, 0.45],
+      ],
+      lines: [
+        [0.8, 0.85],
+        [1, 0.08],
+      ],
+      breathe: [0.06, 13],
+    },
+    // The sky's lines come in from nothing: none at all under the header, then thin, few and pale, with hardly a bead,
+    // and at their full only a little under the words; a long ramp eased in, so the top third of the canvas is the page.
+    fade: {
+      at: (stage) => {
+        const foot = stage.words.y + stage.words.b
+        return [stage.h * 0.05, foot + (stage.base - foot) * 0.15]
+      },
+      ease: 1.6,
+      pale: 0.6,
+      sparse: 0.8,
+      specks: 2.5,
+    },
     land: {
       ...HERO.land,
       // No hill: the land's line is the horizon, level across the stage, and its room the sea under it, the sky above
@@ -6758,89 +5244,49 @@
       head: 0,
       least: 150,
       sheets: [
-        // The high sky, from the header down to the words: only specks at its very top, then cream, butter at the sides
-        // and the column of pink in its middle, paling as it comes down to the words.
+        // The sky, one band of lines from just under the header to the horizon, which hides its foot: cream at its very
+        // top, butter at the sides, peach and apricot lower down; and in its middle the column of pink light, rose over
+        // the words, paling to its heart where the sun stands and deepening under it to salmon and coral over the
+        // horizon. Its lines rise a little to the right, and its colours with them; they come in from nothing (fade),
+        // and take the sun's light as they run into it.
         {
-          name: 'zenith',
-          top: (stage) => PR_ACROSS.map((x) => [x, prTop(stage) + 2 / stage.room]),
-          foot: (stage) => PR_ACROSS.map((x) => [x, prHigh(stage, x, 3)]),
-          paint: [
-            [0, 'cream', 0.12],
-            [0.14, 'cream', 0.55],
-            [0.34, 'cream', 0.92],
-            [0.66, 'butter', 1],
-            [0.9, 'butter', 1],
-            [1, 'light', 1],
-          ],
-          glow: [
-            [0, 'blush', 0.12],
-            [0.14, 'blush', 0.55],
-            [0.4, 'rose', 0.95],
-            [0.72, 'rose', 1],
-            [1, 'blush', 1],
-          ],
-          glowTake: 1.5,
-          fill: 0.6,
-          under: 0.74,
-          patch: 0.24,
-          lean: 0.04,
-          beads: [1, 0.5],
-          flow: 0.6,
-          breath: 4,
-        },
-        // The light the words stand in: the sky's palest, butter-cream at the sides and the glow's pale heart behind
-        // them, its lines thinned there by the veil.
-        {
-          name: 'light',
-          top: (stage) => PR_ACROSS.map((x) => [x, prHigh(stage, x)]),
-          foot: (stage) => PR_ACROSS.map((x) => [x, prLow(stage, x, 3)]),
-          paint: [
-            [0, 'light', 1],
-            [0.5, 'light', 1],
-            [1, 'peach', 1],
-          ],
-          glow: [
-            [0, 'blush', 1],
-            [0.25, 'pale', 1],
-            [0.7, 'pale', 1],
-            [1, 'blush', 1],
-          ],
-          glowTake: 1.5,
-          fill: 0.6,
-          under: 0.74,
-          patch: 0.24,
-          beads: [1, 0.5],
-          flow: 0.6,
-          breath: 4,
-        },
-        // The low sky, from under the words to the horizon: peach and apricot at the sides, the glow's pink deepening
-        // to salmon and coral over the horizon.
-        {
-          name: 'glow',
-          top: (stage) => PR_ACROSS.map((x) => [x, prLow(stage, x)]),
+          name: 'air',
+          top: (stage) => PR_ACROSS.map((x) => [x, prTop(stage) + 2 / stage.room + Math.max(0, prDip(stage, x))]),
           foot: (stage) => PR_ACROSS.map((x) => [x, prHorizon(stage, x, -0.05)]),
           paint: [
-            [0, 'peach', 1],
-            [0.45, 'peach', 1],
-            [0.82, 'apricot', 1],
+            [0, 'cream', 0.08],
+            [0.06, 'cream', 0.6],
+            [0.12, 'cream', 0.95],
+            [0.4, 'butter', 1],
+            [0.62, 'butter', 1],
+            [0.8, 'peach', 1],
+            [0.93, 'apricot', 1],
             [1, 'tangerine', 0.9],
           ],
           glow: [
-            [0, 'blush', 1],
-            [0.3, 'pink', 1],
-            [0.62, 'salmon', 1],
+            [0, 'blush', 0.08],
+            [0.06, 'blush', 0.6],
+            [0.16, 'rose', 0.95],
+            [0.3, 'rose', 1],
+            [0.4, 'pale', 1],
+            [0.72, 'pale', 1],
+            [0.8, 'pink', 1],
+            [0.9, 'salmon', 1],
             [1, 'coral', 0.95],
           ],
-          glowTake: 1.6,
-          fill: 0.62,
-          under: 0.78,
-          patch: 0.26,
+          glowTake: 1.5,
+          sun: [1, 1],
+          fade: true,
+          fill: 0.6,
+          under: 0.76,
+          patch: 0.18,
+          lean: 0.08,
           beads: [1, 0.5],
-          flow: 0.55,
+          flow: 0.6,
           breath: 4,
         },
         // The sea, slate under the horizon, lavender further down and warming to sand towards us, in stripes that run
-        // through each other line by line, with the glow's reflection in it in streaks, and thinning into specks at its
+        // through each other line by line, with the sun's reflection in it in streaks, and thinning into specks at its
         // foot. It runs on up under the horizon, which hides its top. Its lines roll gently on a wave of their own.
         {
           name: 'sea',
@@ -6861,12 +5307,12 @@
             [1, 'sand', 0],
           ],
           glow: [
-            [0, 'rosy', 0.9],
-            [0.3, 'rosy', 1],
-            [0.62, 'rosyLow', 1],
-            [0.82, 'rosyLow', 0.8],
-            [0.92, 'rosyLow', 0.35],
-            [1, 'rosyLow', 0],
+            [0, 'sunWater', 0.9],
+            [0.3, 'sunWater', 1],
+            [0.62, 'sunWaterLow', 1],
+            [0.82, 'sunWaterLow', 0.8],
+            [0.92, 'sunWaterLow', 0.35],
+            [1, 'sunWaterLow', 0],
           ],
           glowAt: prReflection,
           glowTake: 0.85,
@@ -6897,15 +5343,18 @@
             [0.8, 'ember', 1],
             [1, 'ember', 1],
           ],
+          // where the sun goes down behind it, it glows gold
           glow: [
-            [0, 'coral', 0],
-            [0.12, 'coral', 0.7],
-            [0.3, 'flame', 1],
-            [0.4, 'gold', 1],
-            [0.47, 'flame', 1],
+            [0, 'sunGlow', 0],
+            [0.12, 'sunGlow', 0.75],
+            [0.28, 'gold', 1],
+            [0.4, 'sunRim', 1],
+            [0.5, 'gold', 1],
+            [0.75, 'flame', 1],
             [1, 'ember', 1],
           ],
-          glowTake: 0.5,
+          glowAt: prSunset,
+          glowTake: 0.7,
           fill: 0.72,
           under: 0.9,
           patch: 0.15,
@@ -6920,7 +5369,7 @@
     pointer: false,
     flowers: null,
     clouds: [],
-    // Five of the family, at the hero's sizes, none of them in the picture until the pointer rests on the glow's
+    // Five of the family, at the hero's sizes, none of them in the picture until the pointer rests on the sun's
     // reflection in the sea: then each comes in through the glass at the sides and goes round the pointer on a ring of
     // its own, so far out, so fast and that way round (one goes the other way), tipped back so far and leaning so far,
     // and trailing the pointer by so much; and they go when it does.
@@ -6933,9 +5382,9 @@
     ],
     // the glass along the top is left out: the hero's top is the site's header
     lens: { ...LENS, top: false },
-    // The place that calls them is the glow's reflection on the sea, under the buttons and clear of them: the warmest
-    // light in the lower half of the picture, where the eye goes down the column of pink, with the sea's room round it
-    // for their rings.
+    // The place that calls them is the sun's reflection on the sea, under the buttons and clear of them: the warmest
+    // light in the lower half of the picture, where the eye goes down from the sun, with the sea's room round it for
+    // their rings.
     orbit: { zone: prZone },
     stillAt: 6,
   }
@@ -7402,8 +5851,12 @@
     ...HERO,
     intro: false,
     words: '.dc-copy',
-    // the oval of page kept round the words is shallow under them, so the figure's light just under them stays whole
-    lines: { ...LINES, lift: 0.08, veil: [80, 18] },
+    // the oval of page kept round the words is shallow under them, so the figure's light just under them stays whole;
+    // and the lines' beads glint only here and there, as the footer's do, so the motes are the only sparkle near it
+    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.15 },
+    // the picture's foot eased in rather than faded evenly, so that the white figure going into a dark page shows no
+    // line where the fade begins
+    lens: { ...LENS, foot: 'ease' },
     film: FOOTER.film,
     inks: FOOTER_INK,
     // the motes twinkle (see the glow in the strokes' shader), and the figure is drawn in plain round strokes that
@@ -7413,6 +5866,9 @@
     // its light in the haze kind, which fades smoothly at its edge rather than breaking into the grain's specks as paint
     // does (`glyphs` brings it)
     glyphs: true,
+    // and that light goes into the canvas's foot whole, as the photograph's frame cuts the figure off: white into a light
+    // page, fading smoothly into a dark one, never breaking into specks there (see LIGHT_FOOT in the strokes' shader)
+    lightFoot: true,
     land: {
       ...HERO.land,
       profile: DOCS_FAR,
@@ -7447,7 +5903,9 @@
           flow: 1.2,
           breath: 2,
         },
-        // the far hill closing the valley, which the flowers grow on
+        // the far hill closing the valley, which the flowers grow on: lit only along its crest, under the words, and
+        // deepening soon under it, so the figure's head and shoulders stand against saturated green, as the photograph's
+        // white bloom stands against its hills
         {
           name: 'meadow',
           opaque: true,
@@ -7465,9 +5923,9 @@
           paint: [
             [0, 'crest', 0],
             [0.03, 'crest', 0.9],
-            [0.1, 'crest', 1],
-            [0.22, 'mist', 1],
-            [0.4, 'fern', 1],
+            [0.06, 'mist', 1],
+            [0.14, 'sage', 1],
+            [0.3, 'fern', 1],
             [0.6, 'sage', 1],
             [1, 'fern', 1],
           ],
@@ -7578,8 +6036,6 @@
     clouds: [],
     plant: (garden) => {
       const { w, h, rand, words } = garden
-      const half = w / 2
-      const reach = Math.min(half, FLOWERS.stage)
       const s = clamp(w / 1232, 0.42, 1.12)
       // Where it stands: in the valley under the middle of the words, its head just under them, so tall that the
       // canvas's foot cuts it off at the thighs, as the photograph's does.
@@ -7656,7 +6112,7 @@
       const inFigure = (x, y) => runsAt(x).some(([a, b]) => y > a && y < b)
       const HAZE = 0.4 + DOCS_EVEN
       // Its body filled in columns, each run in short lengths so no stroke tapers far from its ends; and down to a little
-      // past the canvas's foot, where the land thins into the page and the figure with it.
+      // past the canvas's foot, which cuts it off there (its light goes into the foot whole: see `lightFoot`).
       const fill = (n, { col, blur, load, paints, order }) => {
         let k = n
         for (let x = left + col / 2; x < right; x += col) {
@@ -7688,49 +6144,12 @@
         }
         return k
       }
-      // Its outline: a fine line of light just inside every edge, so the shape is clean however its body is filled.
-      const outline = (n, { inset, breadth, blur, load, paints, order }) => {
-        let k = n
-        for (const r of rings) {
-          for (let i = 0; i < r.length; i += 1) {
-            const [x1, y1] = r[i]
-            const [x2, y2] = r[(i + 1) % r.length]
-            const len = Math.hypot(x2 - x1, y2 - y1)
-            if (len < 0.3 || (y1 > h + 20 && y2 > h + 20)) {
-              continue
-            }
-            const mx = (x1 + x2) / 2
-            const my = (y1 + y2) / 2
-            // the side of the edge the figure is on
-            let nx = -(y2 - y1) / len
-            let ny = (x2 - x1) / len
-            if (!inFigure(mx + nx * (inset + 0.5), my + ny * (inset + 0.5))) {
-              nx = -nx
-              ny = -ny
-            }
-            put(k, {
-              x: mx + nx * inset,
-              y: my + ny * inset,
-              long: len / 2 + breadth * 0.6,
-              wide: clamp(breadth / (len / 2 + breadth * 0.6), 0.02, 1.2),
-              turn: Math.atan2(y2 - y1, x2 - x1),
-              paints,
-              load,
-              blur,
-              kind: HAZE,
-              order,
-              light: true,
-            })
-            k += 1
-          }
-        }
-        return k
-      }
-      // Its light, from the widest to the brightest, all in the smooth haze kind: a wash of light over the valley round
-      // it, which pales the hills and the flowers there, and an aura round its body; its glow, wide and then close; and
-      // the figure, white, its edge soft but its shape clean. It stands in front of the land and of the flowers but for
-      // those right at the front, which come up over it as it goes into the canvas's foot.
-      const ord = h - 40
+      // Its light, from the widest to the brightest, all in the smooth haze kind: a faint wash of light over the valley
+      // round it and an aura that hugs its body, gone by about a fifth of its height out, as the photograph's is; its
+      // glow, wide and then close; and the figure, white, its edge soft rather than cut out, so its shape is the light's
+      // own. It stands in front of everything, the land, the flowers and the grass, as nothing crosses the figure in the
+      // photograph.
+      const ord = h + 60
       put(1, {
         x: fx,
         y: top + tall * 0.45,
@@ -7738,7 +6157,7 @@
         wide: 0.72,
         turn: Math.PI / 2,
         paints: ['lightGlow', 'lightWarm'],
-        load: 0.26,
+        load: 0.12,
         blur: tall * 0.42,
         kind: HAZE,
         order: ord - 0.1,
@@ -7747,27 +6166,27 @@
       put(2, {
         x: fx,
         y: top + tall * 0.42,
-        long: tall * 0.62,
+        long: tall * 0.55,
         wide: 0.5,
         turn: Math.PI / 2,
         paints: ['lightWarm', 'lightGlow'],
-        load: 0.34,
-        blur: tall * 0.2,
+        load: 0.36,
+        blur: tall * 0.15,
         kind: HAZE,
         order: ord - 0.09,
         light: true,
       })
       fill(50000, {
         col: Math.max(5, tall * 0.026),
-        blur: tall * 0.14,
-        load: 0.32,
+        blur: tall * 0.13,
+        load: 0.38,
         paints: ['lightGlow', 'lightWarm'],
         order: ord - 0.085,
       })
       fill(100000, {
         col: Math.max(3.5, tall * 0.018),
         blur: tall * 0.065,
-        load: 0.6,
+        load: 0.72,
         paints: ['lightWarm', 'light'],
         order: ord - 0.08,
       })
@@ -7778,22 +6197,23 @@
         paints: ['light', 'lightWarm'],
         order: ord - 0.07,
       })
+      // (its edge no softer than this, or the shape goes vague)
       fill(300000, {
         col: Math.max(1.6, tall * 0.0065),
-        blur: 0.9,
+        blur: Math.max(1.6, tall * 0.007),
         load: 1,
         paints: ['light', 'light'],
         order: ord - 0.06,
       })
-      outline(400000, { inset: 1.1, breadth: 1.2, blur: 0.7, load: 1, paints: ['light', 'light'], order: ord - 0.05 })
-      // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none over the words.
+      // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none over the words,
+      // and none on the figure, where one reads as a blinking eye on a blank face.
       for (let i = 0; i < 20; i += 1) {
         const n = 5000 + i * 3
         const a = hashed(n * 1.3) * Math.PI * 2
         const d = 0.4 + 0.75 * hashed(n * 2.1)
         const x = fx + Math.cos(a) * d * tall * 0.75
         const y = top + tall * 0.45 + Math.sin(a) * d * tall * 0.42
-        if (y < top + 6 && Math.abs(x - words.x) < words.a + 30) {
+        if ((y < top + 6 && Math.abs(x - words.x) < words.a + 30) || inFigure(x, y)) {
           continue
         }
         const big = hashed(n * 4.1) < 0.25
@@ -8399,6 +6819,23 @@
       if (abs(${MARK} - 0.501) < 0.05 || abs(${MARK} - 0.751) < 0.05) {
         roundness = 1.0;
       }`
+  /* A composition whose figure of light runs off the canvas's foot (`lightFoot`), as the docs' figure does, keeps that
+     light whole there: its strokes of light, the haze kind marked even, are not thinned into the grain's specks at the
+     hero's foot, as the photograph's frame simply cuts its figure off. On a light page its white goes on into the page
+     whole, white into white, and the rest of its light fades smoothly there, as all of it does into a dark page. Round
+     the words it thins as everything does, and above the foot it fades where the land fades into the page. Only such a
+     composition's shader has this; every other one's last lines are as they were. */
+  const LIGHT_FOOT = (fade) => `float thin = smoothstep(grain - 0.25, grain + 0.25, stay);
+    float fade = smoothstep(0.08, 0.32, land);
+    if (vLook.w > 0.3 && vLook.w < 0.5 && abs(${MARK} - 0.501) < 0.05) {
+      float lightPage = step(0.5, dot(uPage, vec3(0.3, 0.59, 0.11)));
+      float white = smoothstep(0.96, 0.995, min(c.r, min(c.g, c.b)));
+      float words = clamp(smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw)), 0.0, 1.0);
+      float foot = smoothstep(0.0, 1.0, clamp(sink, 0.0, 1.0));
+      thin = smoothstep(grain - 0.25, grain + 0.25, words) * mix(foot, 1.0, lightPage * white);
+      fade = mix(fade, 1.0, 1.0 - step(1.0, sink));
+    }
+    alpha *= thin * smoothstep(0.0, 0.3, vLook.z)${fade ? ' * fade' : ''};`
   const bloomFragment = (mode) => `#version 300 es
   precision highp float;
   in vec2 vLocal;
@@ -8528,7 +6965,7 @@
     float sink = (uCanvas.y - css.y) / uSink;
     float stay = clamp(min(sink, smoothstep(uWordsCore, 1.0, length((css - uWords.xy) / uWords.zw))), 0.0, 1.0);${mode.marks ? MIST_STAY : ''}
     float land = distance(textureLod(uLand, gl_FragCoord.xy / (uCanvas * uPixels), log2(3.0 * uPixels)).rgb, uPage);
-    alpha *= smoothstep(grain - 0.25, grain + 0.25, stay) * smoothstep(0.0, 0.3, vLook.z)${mode.sky || mode.onPage ? '' : ' * smoothstep(0.08, 0.32, land)'};
+    ${mode.lightFoot ? LIGHT_FOOT(!(mode.sky || mode.onPage)) : `alpha *= smoothstep(grain - 0.25, grain + 0.25, stay) * smoothstep(0.0, 0.3, vLook.z)${mode.sky || mode.onPage ? '' : ' * smoothstep(0.08, 0.32, land)'};`}
     outColor = vec4(min(c, vec3(1.0)) * alpha, alpha);
   }`
 
@@ -9224,7 +7661,8 @@
   }`
 
   /* The lens fades the picture out over its foot, where the hero's page carries on under it. A composition whose
-     picture runs on to the foot of the page keeps its foot instead. */
+     picture runs on to the foot of the page keeps its foot instead. One with a bright shape running into its foot eases
+     the fade in (`foot: 'ease'`): over a dark page, where an even fade begins shows across such a shape as a line. */
   const LENS_FOOT = 'float foot = clamp(gl_FragCoord.y / (uRes.y * 0.1), 0.0, 1.0);'
   /* A composition whose canvas lies over the page's own content (`lens.clear`) gives only its butterflies through the
      lens, not the picture behind them, so that the page shows through everywhere else: what the lens passes on keeps the
@@ -9252,6 +7690,9 @@
   const LENS_TOP = 'each.y *= step(d.y, 0.0);'
   const lensFragment = (mode) => {
     let fragment = mode.lens.foot === false ? LENS_FRAGMENT.replace(LENS_FOOT, 'float foot = 1.0;') : LENS_FRAGMENT
+    if (mode.lens.foot === 'ease') {
+      fragment = fragment.replace(LENS_FOOT, 'float foot = smoothstep(0.0, 1.0, gl_FragCoord.y / (uRes.y * 0.1));')
+    }
     if (mode.lens.top === false) {
       if (!fragment.includes(LENS_TOP)) {
         return LENS_NONE
@@ -9324,6 +7765,81 @@
       )
       .replace(LINE_BEADS, 'smoothstep(0.0, 0.5, body)) * (1.0 - veil))')
       .replace(LINE_CLEAR, '    float clear = 1.0;\n')
+  /* A composition with a sun (see the pricing composition) has a disc of light stand behind its words, made of the land's
+     own lines: every sheet that takes it (a sheet's `sun`, [lines, light]) has its lines take its colours as they run
+     into it, white at its middle, warm towards its face's edge, glowing at its rim and in the glow and the halo just
+     past it, and less and less out to the halo's reach, where they are their own colours again; on its face they keep
+     only so much of their strength and of their beads (`lines`), and each is its ink exactly, none of them a shade
+     darker than the next, so that its middle is white rather than grey. Under its lines it lays a light of its own, not lines
+     at all: on its face, along its rim (brightest just inside it, `rim` wide) and in its halo, coming in from nothing
+     down the canvas over `rise`, so that it can rise higher than the lines do, and sweeping in with them on the way in.
+     The light takes the grain, as the sky's own wash does. */
+  const LINE_DARK = '  uniform float uDark;\n'
+  const LINE_SHEEN = '    paint = mix(paint, uSheenInk, vSheen * uSheen * 0.7);\n'
+  const LINE_FILL = '    float fill = uFill * pow(body, 0.7) * (0.82 + 0.36 * dice.y);\n'
+  const LINE_RUNS = '    cover *= step(dice2(vec2(line, floor(runAt))).x, 0.6 + body);\n'
+  const LINE_CHANCE = '    bead *= step(roll.x, uBeadChance * '
+  const LINE_COVERED = '    float covered = smoothstep(grain - 0.25, grain + 0.25, own.a * 1.8);\n'
+  const LINE_SHADE = 'paint * (0.92 + 0.16 * dice.y)'
+  const LINE_HAZE = 'float alpha = max(cover, haze * uUnder);'
+  const LINE_OUT =
+    '    outColor = vec4(min(color, vec3(1.0)) * alpha + wash * solid * (1.0 - alpha), alpha + solid * (1.0 - alpha));\n'
+  const sunFragment = (whole) =>
+    whole
+      .replace(
+        LINE_DARK,
+        `${LINE_DARK}  uniform vec4 uSun;\n  uniform vec4 uSunShape;\n  uniform vec2 uSunRise;\n  uniform vec3 uSunInks[5];\n  uniform vec3 uSunLight;\n  uniform vec2 uSunTake;\n`,
+      )
+      .replace(
+        LINE_SHEEN,
+        `${LINE_SHEEN}    float sunAt = length(css - uSun.xy) / uSun.z;
+    float sunFace = 1.0 - smoothstep(uSun.w, 1.0, sunAt);
+    float sunOut = smoothstep(1.0, 1.0 + uSunShape.x, sunAt);
+    vec3 sunInk = mix(uSunInks[0], uSunInks[1], smoothstep(0.0, uSun.w, sunAt));
+    sunInk = mix(sunInk, uSunInks[2], smoothstep(uSun.w, 1.0, sunAt));
+    sunInk = mix(sunInk, uSunInks[3], smoothstep(1.0, 1.0 + 0.35 * uSunShape.x, sunAt));
+    sunInk = mix(sunInk, uSunInks[4], smoothstep(1.0 + 0.2 * uSunShape.x, 1.0 + uSunShape.x, sunAt));
+    float sunTake = uSunTake.x * (1.0 - sunOut) * (1.0 - sunOut);
+    paint = mix(paint, sunInk, sunTake);
+    body *= mix(1.0, uSunShape.z, sunFace * uSunTake.x);
+`,
+      )
+      .replace(LINE_CHANCE, `${LINE_CHANCE}mix(1.0, uSunShape.w, sunFace * uSunTake.x) * `)
+      .replace(LINE_SHADE, 'paint * mix(0.92 + 0.16 * dice.y, 1.0, sunFace * uSunTake.x)')
+      .replace(LINE_COVERED, `    own.rgb = mix(own.rgb, sunInk, sunTake);\n${LINE_COVERED}`)
+      .replace(
+        LINE_OUT,
+        `${LINE_OUT}    float sunEdge = (sunAt - 1.0 + uSunShape.y) / uSunShape.y;
+    float sunRim = exp(-sunEdge * sunEdge);
+    float sunHalo = (1.0 - sunOut) * (1.0 - sunOut) * smoothstep(uSun.w, 1.0, sunAt);
+    float sunFront = uHead * 1.6 - 0.3;
+    float sunLight = (uSunLight.x * sunFace + uSunLight.y * sunRim + uSunLight.z * sunHalo) * smoothstep(uSunRise.x, uSunRise.y, css.y);
+    sunLight = clamp(sunLight * uSunTake.y * (1.0 - smoothstep(sunFront - 0.3, sunFront, along)), 0.0, 1.0);
+    vec3 sunGrain = mix(2.0 * sunInk * grain, 1.0 - 2.0 * (1.0 - sunInk) * (1.0 - grain), step(0.5, sunInk));
+    outColor += vec4(min(mix(sunInk, sunGrain, 0.3), vec3(1.0)) * sunLight, sunLight) * (1.0 - outColor.a);
+`,
+      )
+  /* A composition can have a sheet's lines (a sheet with `fade`) come in from nothing down the canvas, over a long eased
+     ramp (`fade.at`, `fade.ease`), as a band thins at its own edge: they are finer, and fewer (`sparse`), their colour
+     nearer the page's (`pale`), their haze breaking into the grain's specks and coming in only slowly, so that where it
+     starts is no edge, and fewer beads on them (`specks`); so the top of the picture is the page itself, with at most a
+     speck, and the lines are at their full only further down. */
+  const fadeFragment = (whole) =>
+    whole
+      .replace(LINE_DARK, `${LINE_DARK}  uniform vec4 uFade;\n  uniform vec3 uFadeLook;\n`)
+      .replace(
+        LINE_FILL,
+        `    float fade = mix(1.0, pow(smoothstep(uFade.x, uFade.y, css.y), uFade.z), uFade.w);
+    body *= fade;
+    paint = mix(paint, uPage, (1.0 - fade) * uFadeLook.x * uFade.w);
+${LINE_FILL}`,
+      )
+      .replace(
+        LINE_RUNS,
+        `${LINE_RUNS}    cover *= step(fract(dice.z * 61.7 + dice.w * 17.3), mix(1.0, pow(fade, uFadeLook.y), uFade.w));\n`,
+      )
+      .replace(LINE_HAZE, 'float alpha = max(cover, haze * uUnder * mix(1.0, fade * fade, uFade.w));')
+      .replace(LINE_CHANCE, `${LINE_CHANCE}mix(1.0, pow(fade, uFadeLook.z), uFade.w) * `)
   const lineFragment = (mode) => {
     const whole = mode.lines.whole
       ? LINE_FRAGMENT.replace(
@@ -9334,7 +7850,9 @@
     const lifted =
       mode.lines.lift === undefined ? whole : whole.replace(LINE_LIFT, `mix(${mode.lines.lift.toFixed(3)}, 0.0, uDark)`)
     const glowing = mode.glow ? glowFragment(lifted) : lifted
-    return mode.lines.veilDepth ? veilFragment(glowing, mode.lines.veilDepth) : glowing
+    const veiled = mode.lines.veilDepth ? veilFragment(glowing, mode.lines.veilDepth) : glowing
+    const sunlit = mode.sun ? sunFragment(veiled) : veiled
+    return mode.fade ? fadeFragment(sunlit) : sunlit
   }
   /* --- programs ------------------------------------------------------------------------------------ */
 
@@ -10271,6 +8789,10 @@
     let landKey = ''
     // where the composition's glow is on the canvas as each sheet sees it, [x, y, half across, half down] in CSS pixels
     const glowPlaces = []
+    // where its sun stands, and the band its light comes in over; and the band the lines of a sheet that fades come in over
+    let sunPlace = { x: 0, y: 0, r: 1 }
+    let sunRise = [0, 1]
+    let fadeAt = [0, 1]
     // The crowns of the gorse in flower, in CSS pixels, for the meadow to put flowers on; and where every shrub stands, so
     // that no flower is rooted behind one and painted over it.
     const gorse = []
@@ -10347,6 +8869,13 @@
           const place = resolve(sheet.glowAt || mode.glow.place)
           glowPlaces[row] = [half + place.at[0] * half, down(place.at[1]), place.half[0] * half, place.half[1] * room]
         })
+      }
+      if (mode.sun) {
+        sunPlace = resolve(mode.sun.place)
+        sunRise = resolve(mode.sun.rise)
+      }
+      if (mode.fade) {
+        fadeAt = resolve(mode.fade.at)
       }
       // Without a sky of its own the clouds' band reaches up to the canvas's top.
       skyTop = sky ? landTop : () => -base / room
@@ -12767,9 +11296,39 @@
       gl.uniform1f(u.uBeadChance, lines.beadChance * beads)
     }
 
+    /* The composition's sun, and how its sheets that fade come in (see sunFragment and fadeFragment): its light breathes
+       along its rim and in its halo, as the glow does. A sheet's own part in them is set with the sheet. */
+    const theme = (pair) => (Array.isArray(pair) ? pair[dark ? 1 : 0] : pair)
+    const sunUniforms = (u) => {
+      const { sun, fade } = mode
+      if (sun) {
+        const [amount, period] = sun.breathe || [0, 1]
+        const swell = 1 + amount * Math.sin((clock * Math.PI * 2) / period)
+        gl.uniform4f(u.uSun, sunPlace.x, sunPlace.y, Math.max(1, sunPlace.r), sun.face)
+        gl.uniform4f(u.uSunShape, sun.halo, sun.rim, theme(sun.lines[0]), theme(sun.lines[1]))
+        gl.uniform2f(u.uSunRise, sunRise[0], sunRise[1])
+        gl.uniform3fv(
+          u.uSunInks,
+          sun.inks.flatMap((name) => rgb(mode.inks[name][dark ? 1 : 0])),
+        )
+        gl.uniform3f(u.uSunLight, theme(sun.light[0]), theme(sun.light[1]) * swell, theme(sun.light[2]) * swell)
+      }
+      if (fade) {
+        gl.uniform3f(u.uFadeLook, fade.pale ?? 0, fade.sparse ?? 0, fade.specks ?? 0)
+      }
+    }
+    const sheetSun = (u, sheet) => {
+      const take = sheet.sun || [0, 0]
+      gl.uniform2f(u.uSunTake, take[0], take[1])
+      gl.uniform4f(u.uFade, fadeAt[0], Math.max(fadeAt[1], fadeAt[0] + 1), mode.fade?.ease ?? 1, sheet.fade ? 1 : 0)
+    }
+
     /* The land's sheets, in the order given, each with its own look. */
     const drawSheets = (rows) => {
       const u = land.uniforms
+      if (mode.sun || mode.fade) {
+        sunUniforms(u)
+      }
       rows.forEach((row) => {
         const sheet = sheets[row]
         const range = landRanges[row]
@@ -12789,6 +11348,9 @@
         gl.uniform1f(u.uLean, sheet.lean ?? 0)
         if (mode.glow || mode.waves) {
           sheetGlow(u, sheet, row)
+        }
+        if (mode.sun || mode.fade) {
+          sheetSun(u, sheet)
         }
         gl.drawElements(gl.TRIANGLES, range.count, gl.UNSIGNED_INT, range.offset)
       })
