@@ -1,15 +1,16 @@
 /**
- * The centre of the hosting scene on the home page: an arched window onto two hands holding up a glowing globe
- * with the Scalar mark on it, and Docs, MCP and SDKs as tags set on its edge.
+ * The centre of the hosting scene on the home page and /enterprise: an arched window onto two hands holding up a
+ * glowing globe with the Scalar mark on it, and Docs, MCP and SDKs as tags set on its edge.
  *
  * landing.js runs the scene's flow (the lines, the packets, the chips). Its hub here carries data-lp-hold, so when a
  * packet from Your API lands on the window the flow asks this file what to wait for (an lp-flow-hold event) before it
  * sends packets on to everything on the right. The answer is the tags: each one loads, then shows a check, one after
  * another, and the packets go out once the last check is in. The tags go back to rest before the next round. As the
- * packet lands, the globe flares up (a window with a [data-hl-flare] light in it; the enterprise page's has none).
+ * packet lands, the globe flares up (the window's [data-hl-flare] light) and the hands lean out from it.
  *
- * The window itself is painted by headless-hero.js, which binds the meadow root inside it (data-hl-mode="window") and
- * paints it once for each theme and size; until then, and without WebGL, the window shows the sky's gradient in CSS.
+ * The window itself is painted by headless-hero.js, which binds the root inside it (data-hl-mode="globe") and paints the
+ * hands and the globe live while it is on screen; until then, and without WebGL, the window shows the painting's colours
+ * as a gradient in CSS.
  *
  * Pages on scalar.com render on the client and hydrate over the first copy of the page, so binding goes through a
  * MutationObserver with a dataset flag: a node replaced by hydration comes back unbound and binds again.

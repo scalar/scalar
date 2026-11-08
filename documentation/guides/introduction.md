@@ -1690,9 +1690,9 @@ The interface is still the product. It has moved to your API, where its newest u
       radial-gradient(circle at 48.5% 43%, #f0e1d6 0, #e2c4db 14%, rgb(197 164 204 / 0%) 34%),
       linear-gradient(to bottom, #6f5f91, #8e7ba9 34%, #b899c5 62%, #9b82b4);
   }
-  /* The window's painting: headless-hero.js binds the meadow root in it (data-hl-mode="window") and paints its sky and
-     daisy into the canvas once for each theme and size. The root fades in over the window's own gradient, the same sky
-     in CSS, which is what shows before the first picture and wherever WebGL2 is not there. */
+  /* The window's painting: headless-hero.js binds the root in it (data-hl-mode="globe") and paints the hands and the
+     globe into the canvas, live while it is on screen. The root fades in over the window's own gradient, the painting's
+     colours in CSS, which is what shows before the first picture and wherever WebGL2 is not there. */
   .hl-window-meadow {
     position: absolute;
     inset: 0;
