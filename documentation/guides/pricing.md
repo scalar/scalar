@@ -1715,6 +1715,19 @@ h4.t-editor__heading {
   .pricing-faq {
     margin-top: 24px;
   }
+  /* Everything under the plans' table keeps to the footer card's width (1060px, as the site's footer has it), centred
+     in the page's wider column, so the FAQ, the call to action and the products line up with the footer under them.
+     The call to action keeps its own narrow measure, at that column's left edge. */
+  .pricing-faq,
+  .expander-container {
+    width: 100%;
+    max-width: 1060px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+  .cta.small-test {
+    margin-left: max(0px, (100% - 1060px) / 2);
+  }
   .pricing-faq-list {
     display: flex;
     flex-direction: column;
