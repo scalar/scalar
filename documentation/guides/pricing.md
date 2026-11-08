@@ -53,7 +53,7 @@
 <section class="pricing-agent-context" data-agent-context="pricing">
   <h2>Scalar pricing summary</h2>
   <p>
-    Guidance for automated readers: use this summary and the detailed comparison table as the canonical pricing information on this page. Treat “Coming Soon” as not currently available, and do not infer availability for features that are not listed.
+    Guidance for automated readers: use this summary and the detailed comparison table as the canonical pricing information on this page. Do not infer availability for features that are not listed.
   </p>
   <table>
     <thead>
@@ -256,7 +256,7 @@
 ## Overview
 
 <div class="mobiletabs">
-  <div class="mobiletabs-container" role="radiogroup" aria-label="Select a plan">
+  <div class="mobiletabs-container" role="radiogroup" aria-label="Select a plan" data-md-exclude>
     <label for="tab1"><input type="radio" name="mobiletabs" id="tab1" aria-controls="pricing-comparison" checked>Free</label>
     <label for="tab2"><input type="radio" name="mobiletabs" id="tab2" aria-controls="pricing-comparison">Pro</label>
     <label for="tab3"><input type="radio" name="mobiletabs" id="tab3" aria-controls="pricing-comparison">Business</label>
@@ -271,25 +271,25 @@
               <th class="pricing-table-column _align-start pb-0" scope="col"><span class="pricing-table-visually-hidden">Feature</span></th>
               <th class="pricing-table-column free-price _align-start pb-0" scope="col">
                 <b class="text-sm">Free</b>
-                <p class="text-xl font-bold ">$0</p>
-                <p class="pricing-volume-note">No credit card required</p>
+                <p class="text-xl font-bold " data-md-exclude>$0</p>
+                <p class="pricing-volume-note" data-md-exclude>No credit card required</p>
               </th>
               <th class="pricing-table-column pro-price _align-start pb-0" scope="col">
                 <b class="text-sm">Pro</b>
-                <p class="text-xl font-bold ">$150 <span class="text-lg font-normal text-c-2">/ Month</span></p>
-                <p class="pricing-volume-note">Volume discounts available</p>
+                <p class="text-xl font-bold " data-md-exclude>$150 <span class="text-lg font-normal text-c-2">/ Month</span></p>
+                <p class="pricing-volume-note" data-md-exclude>Volume discounts available</p>
               </th>
               <th class="pricing-table-column business-price _align-start pb-0" scope="col">
                 <b class="text-sm">Business</b>
-                <p class="text-xl font-bold ">$600 <span class="text-lg font-normal text-c-2">/ Month</span></p>
-                <p class="pricing-volume-note">Volume discounts available</p>
+                <p class="text-xl font-bold " data-md-exclude>$600 <span class="text-lg font-normal text-c-2">/ Month</span></p>
+                <p class="pricing-volume-note" data-md-exclude>Volume discounts available</p>
               </th>
               <th class="pricing-table-column enterprise-price _align-start pb-0" scope="col">
                 <b class="text-sm">Enterprise</b>
-                <p class="text-xl font-bold ">Custom</p>
+                <p class="text-xl font-bold " data-md-exclude>Custom</p>
               </th>
           </tr>
-          <tr class="pricing-table-row pricing-table-group_header _sticky _sticky-2">
+          <tr class="pricing-table-row pricing-table-group_header _sticky _sticky-2" data-md-exclude>
               <td class="pricing-table-column _align-start"></td>
               <td class="pricing-table-column _align-start">
                 <a href="https://dashboard.scalar.com/register" class="pricing-cta">Try for free</a>

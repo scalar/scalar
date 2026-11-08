@@ -48,7 +48,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/marc-sticker.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/marc-sticker.svg"></scalar-icon>
@@ -70,7 +71,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/cam-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/cam-sticker-final.svg"></scalar-icon>
@@ -92,7 +94,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/hans-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/hans-sticker-final.svg"></scalar-icon>
@@ -114,7 +117,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/peter-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/peter-sticker-final.svg"></scalar-icon>
@@ -136,7 +140,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/geoff-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
@@ -158,7 +163,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/amrit-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
@@ -180,7 +186,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/brynn-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/brynn-sticker-final.svg"></scalar-icon>
@@ -202,7 +209,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/redis-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/redis-sticker-final.svg"></scalar-icon>
@@ -225,7 +233,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/joinus-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
@@ -252,7 +261,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/gc-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/gc-sticker-final.svg"></scalar-icon>
@@ -274,7 +284,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/kindred-final-converted.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/kindred-final-converted.svg"></scalar-icon>

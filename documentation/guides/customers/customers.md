@@ -49,11 +49,11 @@
 
 <a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
   <div class="featured-story-media" aria-hidden="true">
-    <img src="/warp-branding.png" alt="" />
+    <img src="/warp-branding.png" alt="" data-md-exclude />
   </div>
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
-    <div class="featured-story-logos" aria-label="Warp and Scalar">
+    <div class="featured-story-logos" aria-label="Warp and Scalar" data-md-exclude>
       <scalar-icon class="featured-story-logo-warp" src="../../assets/logos/warp.svg"></scalar-icon>
       <span class="featured-story-logo-separator" aria-hidden="true">×</span>
       <img class="featured-story-logo-scalar" src="/brand/scalar-wordmark-dark.svg" alt="Scalar" />
@@ -71,42 +71,42 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Bobcat"><scalar-icon class="cust-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></span>
     <span class="cust-row-use">developer.bobcat.com</span>
-    <a class="cust-row-out" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer" aria-label="Bobcat: developer.bobcat.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer" aria-label="Bobcat: developer.bobcat.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Thomson Reuters"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.thomsonreuters.com</span>
-    <a class="cust-row-out" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer" aria-label="Thomson Reuters: developers.thomsonreuters.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer" aria-label="Thomson Reuters: developers.thomsonreuters.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Clerk"><scalar-icon class="cust-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></span>
     <span class="cust-row-use">clerk.com/docs</span>
-    <a class="cust-row-out" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer" aria-label="Clerk: clerk.com/docs"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer" aria-label="Clerk: clerk.com/docs"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Lufthansa"><scalar-icon class="cust-logo" src="../../assets/logos/lufthansa.svg"></scalar-icon></span>
     <span class="cust-row-use">developer.lufthansa.com</span>
-    <a class="cust-row-out" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer" aria-label="Lufthansa: developer.lufthansa.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer" aria-label="Lufthansa: developer.lufthansa.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="PAR"><scalar-icon class="cust-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.partech.com</span>
-    <a class="cust-row-out" href="/customers/partech" aria-label="PAR: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="/customers/partech" aria-label="PAR: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Zoom"><scalar-icon class="cust-logo" src="../../assets/logos/zoom.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.zoom.us</span>
-    <a class="cust-row-out" href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer" aria-label="Zoom: developers.zoom.us"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer" aria-label="Zoom: developers.zoom.us"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Tailscale"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></span>
     <span class="cust-row-use">tailscale.com/api</span>
-    <a class="cust-row-out" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer" aria-label="Tailscale: tailscale.com/api"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer" aria-label="Tailscale: tailscale.com/api"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Later"><scalar-icon class="cust-logo" src="../../assets/logos/later.svg"></scalar-icon></span>
     <span class="cust-row-use">docs.reporting.api.later.com</span>
-    <a class="cust-row-out" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer" aria-label="Later: docs.reporting.api.later.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer" aria-label="Later: docs.reporting.api.later.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
 </div>
 
@@ -118,7 +118,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Warp"><scalar-icon class="cust-logo" src="../../assets/logos/warp.svg"></scalar-icon></span>
     <span class="cust-row-use cust-row-use--sdk"><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub">Go</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub">TypeScript</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub">Python</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub">CLI</a></span>
-    <a class="cust-row-out" href="/customers/warp" aria-label="Warp: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="/customers/warp" aria-label="Warp: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Profound"><scalar-icon class="cust-logo" src="../../assets/logos/profound.svg"></scalar-icon></span>
