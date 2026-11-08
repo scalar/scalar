@@ -108,6 +108,10 @@
     "routing": {
       "redirects": [
         {
+          "from": "/products/headless",
+          "to": "/"
+        },
+        {
           "from": "/docs",
           "to": "/products"
         },
@@ -1056,7 +1060,9 @@
             "layout": {
               "toc": false,
               "pageTitle": false,
-              "feedback": false
+              "pageActions": false,
+              "feedback": false,
+              "pageNav": false
             },
             "head": {
               "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
@@ -1127,6 +1133,31 @@
                 {
                   "name": "googlebot",
                   "content": "index, follow, max-image-preview:large"
+                }
+              ],
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/agent-marks.js"
+                },
+                {
+                  "path": "documentation/assets/agent-hero.js"
+                },
+                {
+                  "path": "documentation/assets/sdk-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
                 }
               ]
             }
@@ -1433,54 +1464,6 @@
                     {
                       "rel": "canonical",
                       "href": "https://scalar.com/products/api-hosting"
-                    }
-                  ]
-                }
-              },
-              "headless": {
-                "type": "page",
-                "title": "Headless",
-                "icon": "phosphor/regular/horse",
-                "filepath": "documentation/guides/headless/index.md",
-                "description": "Bring your API reference and API client into the site you already have, rendered by your own frontend from the OpenAPI document you already maintain.",
-                "layout": {
-                  "toc": false,
-                  "pageTitle": false,
-                  "pageActions": false,
-                  "feedback": false,
-                  "pageNav": false
-                },
-                "head": {
-                  "title": "Going headless with Scalar",
-                  "scripts": [
-                    {
-                      "path": "documentation/assets/headless-hero.js",
-                      "defer": true
-                    },
-                    {
-                      "path": "documentation/assets/agent-marks.js"
-                    },
-                    {
-                      "path": "documentation/assets/agent-hero.js"
-                    },
-                    {
-                      "path": "documentation/assets/sdk-hero.js",
-                      "defer": true
-                    },
-                    {
-                      "path": "documentation/assets/headless-window.js",
-                      "defer": true
-                    }
-                  ],
-                  "links": [
-                    {
-                      "rel": "canonical",
-                      "href": "https://scalar.com/products/headless"
-                    }
-                  ],
-                  "styles": [
-                    {
-                      "path": "documentation/assets/host-scene.css"
                     }
                   ]
                 }

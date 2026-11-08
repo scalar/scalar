@@ -203,7 +203,7 @@ Start here to get up and running with Scalar, whether you are building docs, SDK
      The hero: the copy, and under it the headless page's hill and
      meadow, a poppy field, with a figure of light standing in the middle
      of it. headless-hero.js draws it into the stage's canvas, to its
-     "docs" composition (the engine that draws /products/headless).
+     "docs" composition (the engine that draws the home page).
      ------------------------------------------------------------------ */
   main.content {
     overflow-x: clip;
@@ -307,8 +307,8 @@ Start here to get up and running with Scalar, whether you are building docs, SDK
     color: var(--scalar-color-1);
     text-wrap: pretty;
   }
-  /* The home page's two calls to action under the lede, as on
-     /products/headless: 12px on top of the hero's 12px gap, so they sit
+  /* The two calls to action under the lede, as on the home page:
+     12px on top of the hero's 12px gap, so they sit
      24px under it, a little apart from the copy. */
   .dc-cta {
     display: flex;

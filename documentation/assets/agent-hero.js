@@ -1091,7 +1091,7 @@
       const ctx = probe.getContext('2d', { willReadFrequently: true })
       // The theme's page colour. A value the canvas cannot parse, light-dark() for one, leaves
       // the sentinel in place, and the body's resolved background stands in. A hero drawn on a
-      // surface of its own (data-ag-surface, the card on /products/headless) takes that surface's
+      // surface of its own (data-ag-surface, the card on the home page) takes that surface's
       // colour instead, so the marks sit on the card and not on a page-coloured box inside it.
       const sentinel = '#010203'
       ctx.fillStyle = sentinel

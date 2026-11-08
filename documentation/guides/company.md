@@ -426,7 +426,7 @@ We are the API company, giving you industry-best interfaces for your APIs so you
      light it gives off. Where the words take the whole width it sits
      under them. headless-hero.js draws it into the stage's canvas, to
      its "company" composition (the engine that draws
-     /products/headless, /enterprise and the docs overview).
+     the home page, /enterprise and the docs overview).
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
      other heroes' (their numbers, measured at 1440 by 900 and 1512 by

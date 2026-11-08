@@ -1,5 +1,5 @@
 /**
- * The centre of the hosting scene on /products/headless: an arched window onto two hands holding up a glowing globe
+ * The centre of the hosting scene on the home page: an arched window onto two hands holding up a glowing globe
  * with the Scalar mark on it, and Docs, MCP and SDKs as tags set on its edge.
  *
  * landing.js runs the scene's flow (the lines, the packets, the chips). Its hub here carries data-lp-hold, so when a

@@ -242,8 +242,8 @@ Validate contracts early so exploration and testing stay tied to the same API de
      mountains with one sturdy tree on a knoll, very small butterflies
      sitting in its crown. headless-hero.js draws it into the stage's
      canvas, to its "enterprise" composition (the engine that draws
-     /products/headless), and the home page's customer logos are the
-     hero's last row, as on /products/headless, /products/api-hosting
+     the home page), and the customer logos are the
+     hero's last row, as on the home page, /products/api-hosting
      and /products/agent.
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
@@ -258,7 +258,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
     --ent-top: max(48px, calc(var(--ent-box) / 2 - var(--ent-line)));
     /* How far the scene's canvas reaches below the words. headless-
        hero.js stands the land on the canvas's foot, 19px above it, in
-       rooms of 256px; this is the depth /products/headless gives its
+       rooms of 256px; this is the depth the home page gives its
        meadow, so the logos come at the same place on both pages. */
     --ent-land: calc(1.3 * 256px + 19px + 14px - 40px);
     /* the room under the logos */
@@ -1293,7 +1293,7 @@ Validate contracts early so exploration and testing stay tied to the same API de
   }
 
   /* --------------------------------------------------------------------
-     The closing scene, as on /products/headless: the arched window in place of the sun and planets (below), the
+     The closing scene, as on the home page: the arched window in place of the sun and planets (below), the
      packets in the page's colour (host-scene.css has none, so they took the lines' fill="none" and travelled unseen),
      and, where the wide scene does not fit, the home page's phone tree (Your API, the window the full width, the agents
      in two rows of three), which host-scene.css does not carry, so this scene used to spill off a phone.

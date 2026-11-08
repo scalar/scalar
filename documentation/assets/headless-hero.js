@@ -1,5 +1,5 @@
 /**
- * The hero on /products/headless: the old desktop wallpaper's hill, drawn in the fine, grainy lines of
+ * The hero on the home page: the old desktop wallpaper's hill, drawn in the fine, grainy lines of
  * /products/sdk-generator and /products/api-hosting, with wind in its grass.
  *
  * Four things are drawn:
@@ -2249,7 +2249,7 @@
     // Built in idle time once within a little over three screens, and first painted when within three quarters of one.
     // The canvas reaches up only as far as its land does (see `cover`), so its top is about a tenth of a screen lower
     // than it was; woken that much sooner, the build still starts where it always has, where the page's own work is calm
-    // when it asks for its context (a little later down /products/headless, that one step sometimes took 34 ms).
+    // when it asks for its context (a little later down the home page, that one step sometimes took 34 ms).
     wake: '310% 0px',
     near: '75% 0px',
     words: null,
@@ -2959,7 +2959,7 @@
      upper rims, and all of it swaying a very little in the wind. Very small butterflies sit about its crown and its
      limbs, opening and closing their wings; when the pointer comes onto the tree they are off, and they come back to it
      once it has gone (see the butterflies that perch). It is the hero of its page, as the meadow is of
-     /products/headless: built as soon as it is bound (in the builder's short steps, so the page never waits on it), live
+     the home page: built as soon as it is bound (in the builder's short steps, so the page never waits on it), live
      while on the screen, and in a dark theme the same day. */
   const ENTERPRISE_INKS = {
     ...LAND_INK,
@@ -3001,7 +3001,7 @@
     })
 
   /* The sheets, from the furthest, in rooms down from the land's top line, which sits a little above the foot of the
-     buttons (the page gives the canvas the depth for that, as /products/headless does): every crest is about the
+     buttons (the page gives the canvas the depth for that, as the home page does): every crest is about the
      buttons or under them, so the words have the page to themselves. The ranges are measured from the land's crest, so on
      a narrower stage they rise less (the land's `relief`), as they would seen from further off, and the one peak that
      rises higher, far to the left of the words, comes down among the rest on a phone, where the words take the whole
@@ -7100,7 +7100,7 @@
     },
   }
 
-  /* The window in the closing card of /products/headless, after the picture Cameron sent: two hands raised in a lavender
+  /* The window in the closing card of the home page, after the picture Cameron sent: two hands raised in a lavender
      dusk to a light between them, and in that light a globe, glowing, with the Scalar mark on it (the mark and the
      globe's lines are the page's, over the canvas). The picture is kept as a grid of its colours, a cell for every six of
      its pixels in 32 tones from violet to cream, and painted a stroke to a cell along its contours, as the collage's

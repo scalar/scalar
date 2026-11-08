@@ -865,7 +865,7 @@
      and a lavender sea with the sun's reflection in it. Rest the
      pointer on the reflection and butterflies fly in to circle it.
      headless-hero.js draws it into the stage's canvas, to its
-     "pricing" composition (the engine that draws /products/headless,
+     "pricing" composition (the engine that draws the home page,
      /enterprise, /company and the docs overview).
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
@@ -879,7 +879,7 @@
     /* How far the sunset's canvas reaches below the words: its horizon
        119px under the buttons, then the sea, 220px (the pricing
        composition's land room in headless-hero.js), standing 8px above
-       the canvas's foot. The canvas then ends where /products/headless's
+       the canvas's foot. The canvas then ends where the home page's
        does, with the logo row right under it at the same height. */
     --pr-land: calc(119px + 220px + 8px);
     /* the room under the logos, as under the home page's: 24px, and
@@ -913,7 +913,7 @@
       --pr-line: 190.9px;
     }
   }
-  /* Between 390px and 423px wide /products/headless's hero copy wraps
+  /* Between 390px and 423px wide the home page's hero copy wraps
      to two more lines than this page's (its heading and its lede each
      take one more), which puts its logo row 31.7px lower; the scene
      reaches that much further below the words there, so the two logo
@@ -985,8 +985,8 @@
     color: var(--scalar-color-1);
     text-wrap: balance;
   }
-  /* The home page's two calls to action under the lede, as on
-     /products/headless: 12px on top of the hero's 12px gap, so they sit
+  /* The two calls to action under the lede, as on the home page:
+     12px on top of the hero's 12px gap, so they sit
      24px under it, a little apart from the copy. */
   .pr-cta {
     align-items: center;

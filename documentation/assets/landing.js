@@ -4749,7 +4749,7 @@ const createLandingFlowPlayer = (flow) => {
   const hubPaints = [...(nodes.get('hub')?.querySelectorAll('[data-lp-stage-host] .lp-sun-halo-paint') ?? [])]
   const beats = hubPaints.length > 0
   /* A hub with no globe can hold packets too (data-lp-hold: the window on
-     /products/headless). Its own script shows what happens to a packet
+     the home page). Its own script shows what happens to a packet
      there: it answers an lp-flow-hold event with what to wait for, and
      once that is done packets go out to everything on the right at once,
      as from the globe. */
@@ -6862,7 +6862,7 @@ const DOCS_HERO_FRAME = 1000 / 60
    property only reaches down.
 
    A hero in a card of its own (data-dh-contained, the row on
-   /products/headless) keeps the row to its own width instead, so the
+   the home page) keeps the row to its own width instead, so the
    row is laid out for the card and its windows keep their share of it. */
 const docsHeroBleed = (hero) => {
   const box = hero.getBoundingClientRect()
