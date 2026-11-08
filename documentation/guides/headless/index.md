@@ -289,6 +289,7 @@ The interface is still the product. It has moved to your API, where its newest u
 <section class="hl-finale">
 <div class="hl-collage" aria-hidden="true" data-md-exclude>
 <div class="hl-piece hl-piece--hands"><div class="hl-piece-art" data-hl-hero data-hl-mode="hands"><canvas data-hl-canvas></canvas></div></div>
+<div class="hl-piece hl-piece--desk"><div class="hl-piece-art" data-hl-hero data-hl-mode="desk"><canvas data-hl-canvas></canvas></div></div>
 </div>
 <div class="cta hl-finale-copy flex flex-col gap-3">
   <scalar-heading level="2" class="text-balance" slug="ready-for-agents">Make your API ready for the agents that are already looking for it.</scalar-heading>
@@ -1607,9 +1608,20 @@ The interface is still the product. It has moved to your API, where its newest u
     top: 64px;
     left: 8px;
   }
+  .hl-piece--desk {
+    --hl-piece-w: 268px;
+    --hl-piece-ratio: 5 / 4;
+    --hl-piece-turn: 3deg;
+    --hl-piece-paper: linear-gradient(#233115, #5a6c47);
+    bottom: 30px;
+    left: 40px;
+  }
   @media screen and (max-width: 1239px) {
     .hl-piece--hands {
       --hl-piece-w: 176px;
+    }
+    .hl-piece--desk {
+      --hl-piece-w: 220px;
     }
   }
   @media screen and (max-width: 1000px) {
@@ -1631,6 +1643,9 @@ The interface is still the product. It has moved to your API, where its newest u
     }
     .hl-piece--hands {
       --hl-piece-w: clamp(104px, 27vw, 176px);
+    }
+    .hl-piece--desk {
+      --hl-piece-w: clamp(124px, 31vw, 220px);
     }
   }
   @media screen and (max-width: 760px) {

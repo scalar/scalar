@@ -6563,233 +6563,89 @@
     },
   }
 
-  /* A desk left out in the long grass of a wood, after the photograph Cameron sent: a white table, a laptop open on it,
-     a monitor and a computer's tower, the grass grown up round its legs and the wood behind it soft in the shade with
-     the sun coming through. Butterflies come in out of the wood and land along the tops of the screens and the tower,
-     sit opening and closing their wings, and are off again when the pointer comes onto the desk. Everything is painted
-     with the meadow's brush; the grass is the meadow's own. */
-  const DESK_INKS = {
-    ...LAND_INK,
-    // the wood behind, from the top of the frame down: deep shade, leaves, and the light coming into the glade
-    canopy: ['#21341b', '#1a2a16'],
-    understorey: ['#3c5a25', '#314b1f'],
-    glade: ['#6e9441', '#5c7e37'],
-    sunlit: ['#a3c05a', '#89a64b'],
+  /* A desk left out in the long grass of a wood, painted after the photograph Cameron sent, as the hands are: the
+     photograph kept as a grid of its colours (a cell for every twelve of its pixels, in 36 tones), painted a stroke to a
+     cell. A white table with a laptop open on it, a monitor and a computer's tower; the grass grown up round its legs, an
+     office chair in the grass at the front, and the wood behind in the shade with the sun coming through. The grass and
+     the leaves move: each green stroke stands on a short stem of its own and sways with the wind as the meadow's grass
+     does, the leaves above less than the grass; the desk, the screens and the chair keep still. Butterflies come in out of
+     the wood through the glass at the frame's sides and land along the tops of the screens and the tower, sit opening
+     and closing their wings, and are off again when the pointer comes onto the desk. */
+  const DESK_PHOTO = {
+    grid: [115, 119],
+    palette: [
+      '#0b100c',
+      '#10160c',
+      '#151b10',
+      '#1a1e16',
+      '#1c2611',
+      '#22271b',
+      '#233115',
+      '#2a2f23',
+      '#2c351c',
+      '#343a25',
+      '#2f441a',
+      '#3c4136',
+      '#3d4426',
+      '#394f25',
+      '#464d2c',
+      '#435733',
+      '#50534c',
+      '#515931',
+      '#49611e',
+      '#4e643a',
+      '#5c6439',
+      '#5a6c47',
+      '#676d66',
+      '#5d7628',
+      '#67733e',
+      '#6c7a51',
+      '#738242',
+      '#7d8b55',
+      '#77932e',
+      '#888a84',
+      '#8a9b4a',
+      '#92a166',
+      '#a7b857',
+      '#adb983',
+      '#c7cab6',
+      '#f0f0ed',
+    ],
+    cells:
+      'jhk8kkhe9886889cckkuqkchw97kcoq89kkhoh9945cc6ej9corvoopxzttppoquvhquerqokqe8qwuvqorhocprqoehovpppooookooiec884ekuuqkkuruoeh9c88ef99keqqoqceuoohquk88kqoohc954c99ck97ehpkprxzmpoowqvwkrrhvrkeoqhqquuqqqkccekqkohhpkrkopkkhqhkeh68eqkqrqqurruqh9ceccc99elkhkohhhqquqwik88hokkhc975898ef97jcekrvxxkrrouowueruihokkquekquqrhkpceokhkkeoqqokohhohkoqo98cuoqorurrqvvocechhccc9elkkhkroksoqquckc8eqhoh9555889cf95lc9ekoxxruvowquroqqhoqkquqeqqrqrhecchqoqvkkqrvreokqopqrkcc999erqoqvoqokk9ocehhe9ekkphkoqusuuuuuokc8eevhhec7699ecb95j9bxrrrvpkrqwqrrqrophrkqooeohqrrkcekchpkoqooovheoqqnrkkohkocourkqqqkokpccrckec9eckhpopooruuuqvhkrhchookhe5988cfeb95f7txvvoopouuwkkrokrviohopkceeovqrhcke6huqwhhqvqqkkqokpoqckuuuvrooeqkkkkklrhqhc9eopklkpokoqqrpehkqc5hkqh9e858bccfb8599ttovrphkqrvvqqkkrpkohrkccheorqupheecqqooehpwqkkhoopkpockqqrpqokhkehpoq6kepkhhkrppkhlhhkhopeckhce5ehrkee98848eee857cxpkroovkrrvvppkruouokpkcchkqnqqkqkeqkoqqkhrwq9eewruvkkehkocprhhohehokqhhrkoeekrplhckhkp9kqe48h894epokcf99557che577hvrkppopopvvxkkhrvlooheookrqqwqwurqnohrukkorqkhqkkqwuqleehh5eeckkehhqopoorvrechkhhe9fhkp9oqoe9ehceckohcl95557eheekkpvvhlkkphrrvxrrkurohkehkkkruquqqwxuuvkooohpth5kqrrsqiovhoro9l9cacheehohpekprkokkhhhjeflb5qwqwokhwwhewuce976j8qqrkooovrhlhookqqvvrporqpeeclkkhorooquuokkqceocchhlbokerorrqolhqopk6eheleehlohckoqvrrkkhek49c99ewwwqwqwwuuukcqoehehkhkppkvvohkhqqqwrxvokhrrkkeehoprcehuwusqkhohkrqheccrrkekhkohekeoeee89cchlookllrrvrukpclokk89gchhuqouuqxwwuuoehvukhlcepklrrvrokeunquxvvkhokkckeeehkhhouxwhhkoqkokohceeckuookoovpeheh8hehkechehalokklppook8chke98e9cehh79qqwwwuwqquqke74ehvhkpvrrowrwvqrvrrokkhehhhh9cek6kuvkonokqkoh9c99khokekooohhec9hhhkke9hhhpklvppkpqroh89hhcc6899cqohoxwwwuwwwhqo95449lockkrqrroovuqqurrpeehkaee9ekeeeoqqhkookkeke9kkc6rwrkpuoqkorehohocc86choroppqprrrcekh5ce999bceouwwoqususwwrokk9476cecchkoqokprrhorvorpeekkhckkceec8hqkokovqohoeokkkkoqqwuqnkqqvh9hhkc9ehhporporrhprkehkh899c8hhceqwquwwwuwuuuuhoo7468ecccehpqqoprvvqroxrrpkheh9ce898cceevwwuwuvohe8hcekhqoqqqokhrqoehee89cehcporkkhkppphepk89e88lg9krurvuurqooqqheuo955499ee9kprpkkpyxxvooxrhkcoeeeh89hjckkrxxvuvpc6ccohopookhekhhlr8ccecceec9c8cpppkppkehhlkr9heceeg9wuwurrqkekkrqeeel9768ececcepkohkrrxywoovohoooec8k888c88hrwxuykoheoekepvkhahkrhhh988e869chcececclprrkc7b95koklcgl8c9qqwwuqrrhonrrjche9556eccecpkheehppvqqorrokhkoe9hrchehkwvvwwqkhkorqekhhvvkkhahoohc98cc899cecele88ehlc5357ehhje9ff9b8oxxwurqwxuuokoefohlhjeceke9heechkkkkkrrrrhkkkc8epckkkuvquwvuuwuwunoe9ouwrhkhono89c9ec8ec8hhkecc59he755559c489f97979krvrooovrvvoke8ehhjjecceec89cc8hhkhkrvkkkekoke8akeookvquwwuuwwvuuocluoehhahnqqhkcc8chekheeg9jeec7bgb533279gfb9g99778hehkcceckhrkehhkc568cc9e999999ckvvwwvhpoekpoc9khkkervkuxwquuwvqqpeeophhohhohlkccheh98hc99g89c98b5g72232595337999757krbeckkekkhechppeflle9cefcc9ecerrxuqrhokkehkc8khooeuqvwwxwwwokqqqchhqeohccehcccc98ce8c48ce9celgbbb252332571157357549vphoqreelvhkphkkphfc8ckeeohqokkkkqrkhkkkcoohpuuqokruwwuwwwveuvrokeekhqoc69k9958c9ek9989ee99b79bb997333235211557955couvrvrkkpporvrkpohf99ceeeqpkqqororokkhkhkcqhcwuvovvwwuuwuqocuurplkkechna49c888c89cc8889986b977e9b535953773235577458hqwxurrkeekorqqkeke88ceceheekkqxvurokorkrhuuowukquwuwuuvrhperheckhkoachc8e9cceh9hkc998cec97ge5klb559753579747777747povvvrke9chquuohhhkhheeceecekovovrvqokrhrruquvuuwuwwwwwvoqrqveokoohhhkoekkkh8ec9e8kc989heh59b799f7775935777lb797798ceovwqqohekekhhhfhlhhljlce9ekkekrkrrqkrkokhhkohekkouuuqwvxroophehkhheeeekkokekh9cekkehelehg99955bb55755577fefb595458cconniojhkkkohcekppkkolhlllpoopqkrkorqopck7cqockhqrqrokhoheefedcelkechehhlhklc9kkhhhek9ee9bc97755275577bbgj87577559jkhuuoinqkooohlloopoookpvrrvvprrurrorrkphk4cvvckkrkkopeclcddhedadfhfkkfhcjpkkhckolkhep89cb9457b339b797555559b59b775cekknnnssoqurqqqorrrrrrrxvuvvvurvvvoqqooek58okhlhhcheheclcaddhjflfjorhfjfcppeeckkoehlec65bb42277b9b7995337979b798548ckhqnqurruurvrqqrrrvvvvvvvvvruxvrvooqokcpekvohprkeehkeckcedfjfjodfjkpoleelkkh9khkeeppke5959b77374757cf95g9179559c848chkkqqrrwvqqvrvrrprvvurvuqvvqrrrvoqohpep8hrkehkeookhekecfklfakqhehfkofkhkhhh9khhcelljc5lb333775b93gb47975mm35chcc557eokruqququvxvvxpqqxvrqvurvxqqoqqqqoepcp9krpchkhokkkopelljjhkohkodlloophrqol8khhahhdace4522799977b977b9b955559hlg59jcejkooorovvvrvxrquxrvuxwvxxrokqrvvrkpkvcevkhhhhkooorpckpruqrokqvropvqkoquvk8hroeepcfeh25777753442247799757759c9877e95clvvrorrrvvvrrruuvwvxwuwvoqoovxvqqqokekoppookkookrpcokrrqrvpuuvrqrroqrqpokpqhehpdedh7273552335545579279759gflgb7ce99fkokpovxxrxvrqruuxvxwwyvqnvrxyuuuohokhqkorphkjjhprkrrrqrqrruvqqqrqornovrerhoahkhokk57335323399747577427379ee8799e9chhvvrvxxxuxxyvvwxxxywwwxuovrvxvxuqpqecikoovjipprvrkovrvuqovoroorxvvvvqvpeqophkkkkpp793773355313754525457gb9lmf9g8bejlvvqrvvxvuwvxxxxvxywxyxwvvrvruvvovrrdooooqoirvoqqqrrxvruxvqrvkrvvqovqophqvqrpjlprp5ch452232355594723477978577gg9fhferuxxxxvqswwsuwvxyyxxxxwwuuvrvuvvvruvorkovkprvqvuvpvxxvrvvvvvovrqnpooipkqrqpoqrrhj7ec74222449e421213975334557bbcbchjqquxovuquwwwwwxvxxvvxwuvqquqvqvroovrqrqroooprrvvxyxpxvxrrxvvoxrrqvrokqlrqqlrvprpk5cec7433759cb75332531223799b9clllkpoqqjqqqwwvxuwvovxvvxuuvvonrvupppprproorrqovvrxqvqxxxrvvvvrvrvvrvrorrpjrqrllxkrvr59ec85575bghc553133993599957berrpjrpoooohouuqruvroqvpvqsqrrpqrrorrlplponoqvrrxvkrrvrvrrvvvrvvlorprvvrorpklpvrjvpxvrble4c527595fc9732732239f99779ppjllqjppoophruolqppqqojrruqlojovkjqoplopjokoroprrplpvrpqrvrrpppjllpvrvvvvljplvporvvrpebbck772553eg75259995759bb97blpqkjffllloreqrqfoppoqlllopoollprjlljfllljphhpjpppllplprrvrrjorlfjjjlrppvvjfpxxpqrvrvp54bcfbg9575he9957327l7b7fbg9elhvofjjpljfjfjlofjjljppjlpjlpflllfjpllfpjlplplllplpllllpppokllljlfljjlpjprjlvpvvopprpp9gcc82bg9bfej7999bblf9bb9b9blkuohfjfljffjdjjffjjjjpjjlopllljjljjpjffffpljjlljlljljjlprlfjjlfjjfjjjjlfllrlprrpprlppl9fjefbbgbfjclec7cfm997898bfcfqooddfojfffjdffjjjffljdjflljjjjljljljfjjfjlljlllpljljlllpfjlllljjdldjdfjljjllllpjpllrjffppke79flgfljlb7gh9c9cdd69flpoklfdfjddfljjjffdfljjddfllllffffljjlfdjjjpjljlppllllljllfljljdfjdjjjjffdlfjfjjjppljpllhejdc59lkkrhdhlepjbfjfddlfjjelkojffjdadlljfjddddffdfdlldjdffjjfffffjjjljlllppplljljljjjlldfjldfafffdfpjddjfffjpdffkljkhheeoquwoooppljjjqifjddfelkdkdfkjjaajdajlaaaddjfffpldfdfjdffafljljjljjlplpllljjfjdjflfdfldad6ddjaljdddpjadjlfffkofkjofkprnurrqqklrffqojdaajlkkhkhfjifjdjdddlafddaffdjffdadddjfjddffjpjlflyzzzzzyyyjffljldjlfdfaa8fjjjdffajfafdjjjjskhhookoruqunvvqrruojjilfdeklkpokjhfffjlfddajddafadfdjjfdaddallffffldfjlmzzzzzzzzzmlffjllfjjdadljfjjpjjafdffaddfjllusrkkknkpvuqouxvqqqqjcjnlrlkppkploffffjdjfddffaajffffjfddadfffljddfjjfjxzzzzzzzzzmgjjjfjljfjdaaljffjj8ffddfdfdddjjfunqroknoowvqvvvvuwsqqqrooplprkofflfddfddljdddfafptttttmmplmmllmmdffjdmyzzzzzzzzylggffffddfffjdfdffjff8dddfffrfaffffusquoiinrvvurvvuwwuuuqokrhvldjfjfljfffdjljlfafdal757799bbbbggggmmjjljyyzzzzzzzylgggff8djfadlrpjjldfjfddjfdflpdajddlwunnskoqqwuqrxuuvuquuvvvrrofddljjladdjfjifjpfjfap711111111111119mjjflp777b9bbllggffffdfadajflaaddolplafjjdjjppjldljusnosnqvsuuuvvqrquqvxvvrrnnjjjjfdfaadffjkfljljfdl911111111111117mffflp3223223jlgffffddfddadffjddddfdfxvprjddpvllrrjknnqruruuwuqvvrorvvwurvqqnqqjddd9b977bbb755332fdjb11111111111117mdjdlpggmggggllgggfdddffdfdfdfdffdflvvxvvldjrfpfrppqinnqxuvuwuurxvorvxuuvvinnojjihe20000001000000bdjb11111111111115m9f8fpmmttttmplggff9affjdjljfjjffjlfplfrppplrffxrflrvniqvruwuwuvvuvovquuqqoqoiiiqjq300000000000008dlg22225555511115m8dadpmmmmmmmplgfff9cddfdfpfjjladplflpllrjrppdlvxrpvvqqqpvuvuvvvrxvrrovnnquuqkkuuon300000000000007dpg23327979722113m8dddppmmtttmplffffbc6dfjlllpprljjjlldppprfjrprlxpdrronrovvwvxvrnvurovruiuqonnoosoq500000000000007dfm33333353322223t9dfepmmmtttmplffffcc6dfjfjdjvplplkpxvpvrjdjppplpvlrrnovoxxuxxxrxqqrvrqvnrrqqnnwqij500000000000007jpm55555332222222t9aa8pmmmmmmpplffff9b6dfaffadpvrlpjoryvxdhjdjvplpxlroorxqvvuyvxxvorvoovoqruvrnnorqi500000000000009flm77775322222222t86a6pmmmmmmmplffffcf8adddjddlpvljrpoxyxvxkijvrppvjqvqvoorxuyxvrrrrrfkvrvvrnoounqqqb0000000000000gyyt77775333333323tbcc8ppmmmmmmplffffbdajfddfddprljjpvpoxvpxyvrrplpvlvuuvvvrxvwxxrvvrrdprvvvvroqwusno95000000000000gzzt79bb7775333355xxyxttpmmmmmmplffffffdajajjfjjvplprrjlvoffovxvlllrfxxrxwvrrxqvvuvkxroprrrvrhoiknikh833333577bbbggtzzyxttttmmggbbb77xzzzzxpmlllmmplffffmrf8ajldfdjlfjjlvjfjvljfprxvpfpfwxvyuwqvvqxqorvvonkoiiqoorrppojjyymmggggggggmyyzzzyyyyxttmmmmttttzzzzxplmmmmlplffffttddjlffjdjfjlldpjjdpfjfrjdvxxrfyyxxrquxrvvkrqrljkpjoqvqqpppkhexzzyyyyyyyzzzzzzyyxyyyyyyyyyyyyyyyzzzzypgmmmmgplfgggtplfjllfjdapfrpafjddjldfjdfprvrvyxxpxvvwvvuovqvporoqnopooprh9hxzzzzzzzzzzzzzyymggggggbgmmmxtxzzzzzzzzypgljjllplfggtgfjlllrljddprfpldddddfddffjjfvllvyyvxxxxxsoorqxvvxvqorphpkeplyzzyyyyyyzyyzzzyggggggggbbbgggmgmmttyzzzyplmplmlplffmm99jfjlfvjflllfjddddaadjdfaljapjfxxxvxvvyxvnqnwxrxxqqoooioccvllprttxxyyyyzzzzzzzzyyxttmmggbggggmtyzzzzypllllmlplbgt9699faafjlldfljdadaaaarfda6lfdjddxvvwvxvyvxvurquvyrvrikiqeo9rpchhphhkkkkkklllprttxxxyyyyzzyyyxttzzzzzzylllllllplftb668dafddllffdfjaaaaaajfdfa6ajajidxvxopxvyvxqxvuryxxronjnphohpvhharhkidcceeeehhkkkkhkkkklllpprttxxyyyyzypeeefjjlltm888988dffddddfjjdidaaalaaad48faidaoqvovxuyvxrvvrxxyyrvoonrjpkepce9pepn6a844523222345799cefhjkkkhkkkkllllllllkkjflt96499868fd6ddd6aaadid6djaaaf66fdadavjppvvrxxxrvuxvryyxxrrnjhovlpcjlrltk64622422212210011212134547779cbffhjjhfjljkle66c886alj6d86aaaafaniadd666aa9djiaavrlvvvrrvyqvqvvvvyvxxyndjilprplpcrpkc998484421110001111302351111100110029c8j9jl848684dj66d88666aaiiidddd66dj6aajndavvxrfoqpvxvoorxrorxryyvfjrjle9jrctevj946c6434113000111130232211110001000159d1fl664488c686668fnvjaniiiaaa66fd666didaqvpjdjvjoqxroxvvvhvvxyrplvrol9epkvrlpf69a9711311001211111121220110000000044f4jl86648646844666swvaniiid664fhoxxjaid6vvooaqviqoxyxxjurvvrxxrpoprrcfcphxqlfc66a8474410001211111211412111011000048dall8669666a62264aausdinddi466naaixxfda8pvrolqvvqnvyyxojrqovvxxrqqvrdeclvrlkcc9c8664542010121111132241231112011134cddql99488664622448arxsihdai46jndprkvpaa8xuqnrvxqqqoyxrwouqkvpxvxqurpfdcprlehcc8e84464421111411011222227b1315310154fjqolf99888446424466lxnnkaahjaqsialxrofemirvwurundnqxxusqwvjqoovrqxrpoiertcdce9cc64468521101421112203252g5252111554aqvijfa6888888646446fwjiiaadalsnaa6lvjjtyrvuod6nnissvxqnivrqiriooqxuopiqrfcd89e9hh968c422101421110114171j77528e7d4ddsudjdaaa64768816446dvjadaff6ds6afd6lflyzrioodconassvxousjorrqinioxvrpjkoihac8khekc4fh751111441221044674fj247fhc646dnsjjdfd663728666146auj6daddainja444ajxzzvvnnnvnn6inxurqininrsinnnruqooqjnkhhkhaep8964122112621102152cljol498lffd46iisajjdda429989f9846aqrfd6evxyyxp4446tyyxoxxuxvsniinunqsiininsnnnnnwsuouodorhhecekc844442011641102248dfjrqhdf45df44hks6iifdd4857644g4466ovrervxknddfl44gttggvrvqvxisisivvrnsiunnssnnnqwsnnnrqrqjaeceec688481011611105bfbfpjouuok64df4ahnndnddaa8757622bf8aaiqxyxfhdqa89dd8mgb97ixkrpvqsisuwvqinxwinssnqvnnsjnsuroohcqec88686482121612177314fuuuqonokdajfd6qs6naaa8654857bjfddddoyrfdfdshadjhfg9733nsvaoxrwiinwuwiuqnadsswusinnoisrkqikcee864864541121615724122dqnuunqsqrikaa6nsfnaa9888bflmmmggbfkxxppl88nnnidhfb5322anuonxrsunnuwnvqnqvvwwussnnnndqnnqnce68c44444442211655222124fnqnnoiqinsnja4nsiniadc49bgggmmmttmgllldkdjpqsnalb73221asnrdqwnunnsuuvisnuxvssssnnsnfssinoc96c842414572114881142148hljahniiinnsijansiiaja9c755c89777bmmmgglkdhasqijmb93222dsselrwsinssqvsinssqissnssnnnjnsikjjc5cke642454212688304799coeddddijijouqninsnnddd5b5cuh84coe9b7bmmgbb8isnptm972222ousohuxqnsuuvvnsninsoswssnisrknsnaocfclh9646615112542129524kojddjddfopdaannqsndi8pe55kn8444hcprpc77gmgbdrmmmm952222hiskkuunssswxoknsnasnqwsssisninsnhqqorcce98854422353235544hddpppljjpkdaiaaodssin8c9556h1448djvovirf97gmgmmmmgb32222kon6onsssswwvxaanssnsiussnnssaswskfvvr9lhc894554123225744ehehcea8fddnoddqdionukidcc75e8136ifqvqvipjaebgmmmmmbb22222kvqriqnsiuwwnnrkuywssnnussnsndswqhlvvneuicni9ecc952112539or9pkehffa6adnnijdkqvpjvpp979cbbiaerqsojrldd9ggggmmb722222dcquqnisnuuunuxzxwuswnswssnsnjnwoarurqnsnonnc87748985222hoqjjfdf9866afijjdhktyytmrk9bb96cqferinejpgffbbgggmgb522222dhousninunnsnsovwsiiwsswssnniiowiqrnnuquqoua69953237742coe9cff698d8686fidlmttttttmgbbggecflekfbbbgbbbbbbggggb222222aaeqiiousiiuuwiiiniiuuuvusqrqrvwuorquuqohkroke852577237h6c9ea472488a698hltxttttmmmmtmxyxtmbb99ddhvf6dbbbgmgb7222321adcnsnrxsnnswxvoinnqiunusniiinwwvrunkkqqkqrrhhchc95553e948affa87fed98egmttttttttmmmmmtzzytmgb58kixxxfbbgmgb92222321ohuusuvqxnssswwkrqiiisirnniiiinwvorkc8iqihrq8chkceee5986ccdnhke254444gmtmmmmmmmmmttmgtyzzytmgb35hxvvebbgmgb52223222uswsqwwwuxsnusnuviaaisnwisndinnwuopchacenuuokqeoqkec8c9kkfoiahk11729gmmmmgggmmmmmmmttmtzzzytmgbbbyyvpttmgb522232122uswuvwwsuuyinnnondaaainukniiinvwhle9ohee8orhkoooqr9kkkqqornikh872bgmgbbb99777gmgmmxttmbmyzyxtmgyzyyyytbmg9322231122nswwsuqkusxxnsnnohhadisvvdininvscrprvkcecerhoorwurvvkqrvvookoe959mtmmmmgggggbbbgmmmyytmbmyyyxttyyyym72mg73223212112xwwusn8innsyqssssuxrarywvniiivqskphhuvoaepvoppxxwwvkvusucoookttxymmmtmmmmgggbggggttmgttmbgtyyttyymb32bb532222112124uwndnncisussynsssxuqonxxvniqqvosre8couvoxkovvvkkuuwwwqukrquxxxtgmxyzzyttmmmggmmmmmtbgmmmmbbttttmb3215b5222221112146nwsdiurxwunixvniindiwxuunndxxunsq9ccinwyroxykhc6rxxwvwsrqwyprtggbbbgmxyzytmmggmmttmmgmmmgggttg73322375222221112348axyuinwvvwssnnyquqxzvyxdrnnayyqiqkecceoyuqxpplhg8oxwwwwvnvyrrtg7559b7777btyytmggmtgggmmmtmmtg73332235522221111124afdxvunnqvsvuniivvsuwyvniaoinayxndqo8c6kywvxxkevp94rquuiquuvypttg5gxttmmtm957gtttmgggmmgggmmmg742222353222211111129a6dyxniuuioisinnqxnqxwsvh6ojniyxnaqec58vxwsuwv9vkpxuvkrhccqxxtyt39tyttttybbgb75bmtmmgggmmgmb5359ceec95322211111125hjaalcisudoianssnivwuinsx6aqonnyxnkqanoryxxquwxvxvxxuvuxuqoovytym59mzyyyxgbgmmmb757mtmmgmtg7332111355597310011112266daa55aqxxwh6insiaovnion86iqusnyviqnowxyyvurkuxxxxxwwuvvvxuuqxyym7bgyytttttmmmmmggb5bmtmgtg73210135332222220011124c66a6aaiinuxyxrnsiiivniqiiiarusuxvirswwxxvvxuwvwvwxxuxwxxxyuwur7gb9bggtytzzzyxtmmtmmg959b7tym1002553222310001102125a8ac6niniaisnovuuiiuurindiijvuuuwvnqxiuxvrvwuswxyqxwuwyxuwwwssu9237bbgmtmmyzzzzxttttmgbbgtzyyt3155332221111200122246caaerhiiidusinsquinurdaiajuwuwuvusqriwwqrvxxxxxxuwunvyqxxwwuqqq445bgggmm9gtyzzyyxttttttgtzyyyxb232222101101001324k88h8dnainssniiisinqsnufaqaoswsusvqvnuqwwkrvvvwwuuqvqkrxrvrqvqionh947gggggt77gtytgggggggggbgxyyyxb11221021111101248qve9ea',
   }
-  const DESK_EVEN = 0.005
-  /* The desk and what is on it, in shares of the frame's width and height, each a list of points round it: the table's
-     top (its back edge higher, as seen a little from above), the front edge of its top, its legs, the laptop's lid and
-     screen and base, the keyboard, the monitor's frame, screen and stand, and the tower's front, side and top. */
-  const DESK_PARTS = [
-    {
-      name: 'leg',
-      pts: [
-        [0.252, 0.6],
-        [0.262, 0.6],
-        [0.262, 0.83],
-        [0.252, 0.83],
-      ],
-      paints: ['slate', 'slate'],
-    },
-    {
-      name: 'leg',
-      pts: [
-        [0.685, 0.6],
-        [0.695, 0.6],
-        [0.695, 0.83],
-        [0.685, 0.83],
-      ],
-      paints: ['slate', 'slate'],
-    },
-    {
-      name: 'top',
-      pts: [
-        [0.24, 0.575],
-        [0.705, 0.575],
-        [0.765, 0.645],
-        [0.185, 0.645],
-      ],
-      paints: ['deskTop', 'deskLit'],
-    },
-    {
-      name: 'edge',
-      pts: [
-        [0.185, 0.645],
-        [0.765, 0.645],
-        [0.765, 0.665],
-        [0.185, 0.665],
-      ],
-      paints: ['deskEdge', 'deskEdge'],
-    },
-    {
-      name: 'leg',
-      pts: [
-        [0.198, 0.665],
-        [0.21, 0.665],
-        [0.21, 0.895],
-        [0.198, 0.895],
-      ],
-      paints: ['deskLeg', 'deskLeg'],
-    },
-    {
-      name: 'leg',
-      pts: [
-        [0.74, 0.665],
-        [0.752, 0.665],
-        [0.752, 0.895],
-        [0.74, 0.895],
-      ],
-      paints: ['deskLeg', 'deskLeg'],
-    },
-    {
-      name: 'lid',
-      pts: [
-        [0.268, 0.405],
-        [0.415, 0.405],
-        [0.42, 0.565],
-        [0.272, 0.565],
-      ],
-      paints: ['metal', 'metal'],
-    },
-    {
-      name: 'screen',
-      pts: [
-        [0.276, 0.414],
-        [0.407, 0.414],
-        [0.411, 0.553],
-        [0.28, 0.553],
-      ],
-      paints: ['screen', 'screenGlint'],
-    },
-    {
-      name: 'base',
-      pts: [
-        [0.262, 0.565],
-        [0.43, 0.565],
-        [0.442, 0.592],
-        [0.25, 0.592],
-      ],
-      paints: ['metal', 'metalLit'],
-    },
-    {
-      name: 'keys',
-      pts: [
-        [0.44, 0.598],
-        [0.575, 0.598],
-        [0.585, 0.622],
-        [0.432, 0.622],
-      ],
-      paints: ['screen', 'screen'],
-    },
-    {
-      name: 'monitor',
-      pts: [
-        [0.432, 0.37],
-        [0.582, 0.37],
-        [0.582, 0.545],
-        [0.432, 0.545],
-      ],
-      paints: ['metal', 'metalLit'],
-    },
-    {
-      name: 'screen',
-      pts: [
-        [0.442, 0.381],
-        [0.572, 0.381],
-        [0.572, 0.532],
-        [0.442, 0.532],
-      ],
-      paints: ['screen', 'screenGlint'],
-    },
-    {
-      name: 'stand',
-      pts: [
-        [0.494, 0.545],
-        [0.52, 0.545],
-        [0.526, 0.582],
-        [0.488, 0.582],
-      ],
-      paints: ['metal', 'metal'],
-    },
-    {
-      name: 'side',
-      pts: [
-        [0.688, 0.352],
-        [0.712, 0.338],
-        [0.712, 0.615],
-        [0.688, 0.64],
-      ],
-      paints: ['towerShade', 'towerShade'],
-    },
-    {
-      name: 'front',
-      pts: [
-        [0.6, 0.352],
-        [0.688, 0.352],
-        [0.688, 0.64],
-        [0.6, 0.64],
-      ],
-      paints: ['tower', 'towerLit'],
-    },
-    {
-      name: 'roof',
-      pts: [
-        [0.6, 0.352],
-        [0.624, 0.338],
-        [0.712, 0.338],
-        [0.688, 0.352],
-      ],
-      paints: ['towerLit', 'towerLit'],
-    },
-    {
-      name: 'bay',
-      pts: [
-        [0.612, 0.38],
-        [0.676, 0.38],
-        [0.676, 0.392],
-        [0.612, 0.392],
-      ],
-      paints: ['towerShade', 'towerShade'],
-    },
-    {
-      name: 'badge',
-      pts: [
-        [0.628, 0.555],
-        [0.662, 0.555],
-        [0.662, 0.6],
-        [0.628, 0.6],
-      ],
-      paints: ['badge', 'towerShade'],
-    },
-  ]
-  // where the butterflies sit: along the screens' tops and on the tower, facing either way
+  const DESK_TONES = Object.fromEntries(DESK_PHOTO.palette.map((hex, i) => [`desk${i}`, [hex, handsDim(hex)]]))
+  // the point of the photograph the frame keeps in view as it crops it, in shares of its width and height
+  const DESK_FOCUS = [0.5, 0.57]
+  // where the butterflies sit, in shares of the photograph: along the laptop's screen, on the monitor and the tower
   const DESK_PERCHES = [
-    [0.3, 0.405, 1],
-    [0.385, 0.405, -1],
-    [0.5, 0.37, 1],
-    [0.66, 0.338, -1],
+    [0.305, 0.494, 1],
+    [0.372, 0.494, -1],
+    [0.488, 0.462, 1],
+    [0.665, 0.438, -1],
   ]
+  const DESK_EVEN = 0.005
   const DESK = {
     ...HERO,
     intro: false,
     wake: '300% 0px',
     near: '100% 0px',
     words: { at: [0.5, -4], half: [0.001, 0.001] },
-    lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001, beadChance: 0.12 },
-    inks: DESK_INKS,
+    lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001 },
+    inks: {
+      ...LAND_INK,
+      shadeTop: [DESK_PHOTO.palette[6], handsDim(DESK_PHOTO.palette[6])],
+      greenLow: [DESK_PHOTO.palette[20], handsDim(DESK_PHOTO.palette[20])],
+    },
     sky: {
       stops: [
-        [0, 'canopy'],
-        [0.3, 'understorey'],
-        [0.7, 'glade'],
-        [1, 'sunlit'],
+        [0, 'shadeTop'],
+        [1, 'greenLow'],
       ],
-      grain: 0.42,
-      brush: 0.08,
-      wash: 'understorey',
+      grain: 0.4,
+      brush: 0.06,
+      wash: 'shadeTop',
     },
-    // The meadow, flat and seen from just over the grass: its far edge a little over a third of the way down the frame,
-    // its foot at the frame's.
     land: {
       ...HERO.land,
       profile: [
@@ -6797,72 +6653,25 @@
         [1.6, 0],
       ],
       crest: 0,
-      relief: [1, 1],
-      sheets: [
-        {
-          name: 'meadow',
-          opaque: true,
-          top: {
-            hill: [
-              [-1.6, 0],
-              [1.6, 0],
-            ],
-          },
-          foot: [
-            [-1.6, 1.05],
-            [1.6, 1.05],
-          ],
-          paint: [
-            [0, 'olive', 0],
-            [0.04, 'olive', 0.85],
-            [0.18, 'deepGreen', 1],
-            [0.5, 'green', 1],
-            [0.8, 'lime', 1],
-            [1, 'green', 1],
-          ],
-          lean: 0.2,
-          fill: 0.8,
-          under: 0.7,
-          patch: 0.25,
-          flow: 0.6,
-          breath: 1.2,
-          sheen: 0.4,
-        },
-      ],
-      room: ({ h }) => h * 0.6,
-      foot: 0,
+      sheets: [],
+      room: 100,
+      foot: ({ h }) => h - 100,
       head: 0,
       least: 20,
     },
-    grass: { ...GRASS, tall: [10, 62], blades: [5, 10], singles: 0.5, tufts: 0.14, rest: 0.08 },
+    grass: null,
     passer: null,
-    pointer: true,
+    pointer: false,
     flowers: null,
     glyphs: true,
     marks: true,
     paints: {
       ...PAINTS,
-      deskTop: ['#f4f3ee', '#e8e7e2'],
-      deskLit: ['#fdfcf8', '#f3f2ec'],
-      deskEdge: ['#cfcfca', '#c2c2bd'],
-      deskLeg: ['#d9dad6', '#cbccc8'],
-      metal: ['#c9ccd0', '#babdc2'],
-      metalLit: ['#e4e6e9', '#d6d8dc'],
-      screen: ['#16191d', '#121417'],
-      screenGlint: ['#2a3038', '#232830'],
-      tower: ['#d6dcd2', '#c9cfc5'],
-      towerLit: ['#e7ece2', '#dbe0d6'],
-      towerShade: ['#a9b2a6', '#9aa398'],
-      badge: ['#7d9a6a', '#6f8b5d'],
-      slate: ['#9fa29d', '#8e918c'],
-      trunk: ['#2b3420', '#232b1a'],
-      foliage: ['#4f7a2c', '#426a24'],
-      sunfleck: ['#d7e98f', '#c6da7d'],
-      sunlight: ['#fff6cf', '#f4ebc2'],
+      ...DESK_TONES,
     },
     clouds: [],
     flock: Array.from({ length: 4 }, (_, k) => ({
-      size: 12 + 3 * ((k * 0.7549 + 0.31) % 1),
+      size: 8 + 2 * ((k * 0.7549 + 0.31) % 1),
       seed: Math.round(((k * 0.618 + 0.27) % 1) * 100) / 100,
       pastel: k % 3,
       wing: WING_NAMES[(k * 2 + 1) % 3],
@@ -6894,141 +6703,88 @@
     fit: (w) => clamp(w / 300, 0.55, 1),
     plant: (garden) => {
       const { w, h, rand } = garden
-      const at = ([x, y]) => [x * w, y * h]
-      // the desk stands with its feet this far down the frame; whatever grows in front of that is painted over it
-      const feet = 0.895 * h
-      const put = (n, { x, y, order, long, wide, turn = 0, blur, paints, load = 0.97, kind = 0.25 + DESK_EVEN }) => {
-        rand.reseed(61331 + n * 7919)
-        const root = h + 60
-        garden.dab({ x, y: root, stem: root - y, long, wide, turn, blur, paints, load, kind, stiff: 1, lean: 0, order })
-      }
-      const runsAt = (ring, x) => {
-        const ys = []
-        for (let i = 0; i < ring.length; i += 1) {
-          const [ax, ay] = ring[i]
-          const [bx, by] = ring[(i + 1) % ring.length]
-          if (ax <= x !== bx <= x) {
-            ys.push(ay + ((x - ax) * (by - ay)) / (bx - ax))
+      const [gw, gh] = DESK_PHOTO.grid
+      const cells = DESK_PHOTO.cells
+      // the photograph covers the frame, cropped about its focus
+      const cw = Math.max(w / gw, h / gh)
+      const ox = clamp(w / 2 - DESK_FOCUS[0] * gw * cw, w - gw * cw, 0)
+      const oy = clamp(h / 2 - DESK_FOCUS[1] * gh * cw, h - gh * cw, 0)
+      const toCanvas = (gx, gy) => [ox + gx * cw, oy + gy * cw]
+      const rgb = DESK_PHOTO.palette.map((hex) => {
+        const v = Number.parseInt(hex.slice(1), 16)
+        return [(v >> 16) & 255, (v >> 8) & 255, v & 255]
+      })
+      const lum = rgb.map(([r, g, b]) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255)
+      // a green tone is grass or leaves; the rest (white, grey, black) the desk, its machines, the chair and the shade
+      const green = rgb.map(([r, g, b]) => g > r * 1.08 && g > b * 1.15 && Math.max(r, g, b) - Math.min(r, g, b) > 18)
+      const toneAt = (gx, gy) => Number.parseInt(cells[clamp(gy, 0, gh - 1) * gw + clamp(gx, 0, gw - 1)], 36)
+      const L = (gx, gy) => lum[toneAt(gx, gy)]
+      const HAZE = 0.4 + DESK_EVEN
+      // the first seed near a stroke's own that leaves its tone nearly as it is (see the hands)
+      const calm = (seed) => {
+        for (let k = 0; k < 60; k += 1) {
+          rand.reseed(seed + k * 104729)
+          rand()
+          rand()
+          rand()
+          const dice = rand()
+          if (Math.abs(((dice * 91.7) % 1) - 0.5) < 0.08 && Math.abs(((dice * 37.3) % 1) - 0.5) < 0.15) {
+            return seed + k * 104729
           }
         }
-        ys.sort((a, b) => a - b)
-        const runs = []
-        for (let i = 0; i + 1 < ys.length; i += 2) {
-          runs.push([ys[i], ys[i + 1]])
-        }
-        return runs
+        return seed
       }
-      // a part filled in columns of even, unbristled paint, each run in short lengths, twice for a solid coat
-      const coat = (n, ring, paints, order) => {
-        let left = Number.POSITIVE_INFINITY
-        let right = Number.NEGATIVE_INFINITY
-        for (const [x] of ring) {
-          left = Math.min(left, x)
-          right = Math.max(right, x)
-        }
-        const col = Math.max(1.4, w * 0.006)
-        let m = n
-        for (let pass = 0; pass < 2; pass += 1) {
-          for (let x = left + col / 2; x < right; x += col) {
-            for (const [a, b] of runsAt(ring, x)) {
-              if (b - a < 0.4) {
-                continue
-              }
-              const segs = Math.max(1, Math.round((b - a) / (col * 5)))
-              const seg = (b - a) / segs
-              for (let q = 0; q < segs; q += 1) {
-                const long = seg / 2 + col * 0.5
-                put(m, {
-                  x,
-                  y: a + (q + 0.5) * seg,
-                  long,
-                  wide: clamp((col * 0.8) / long, 0.02, 1.4),
-                  turn: Math.PI / 2,
-                  blur: 0.8,
-                  paints,
-                  order: order + pass * 0.001,
-                })
-                m += 1
-              }
-            }
+      for (let gy = 0; gy < gh; gy += 1) {
+        for (let gx = 0; gx < gw; gx += 1) {
+          const n = gy * gw + gx
+          const [x, y] = toCanvas(gx + 0.5 + (hashed(n * 1.31) - 0.5) * 0.5, gy + 0.5 + (hashed(n * 2.17) - 0.5) * 0.5)
+          if (x < -cw * 2 || x > w + cw * 2 || y < -cw * 2 || y > h + cw * 2) {
+            continue
+          }
+          const tone = toneAt(gx, gy)
+          const leafy = green[tone]
+          const low = gy > gh * 0.42
+          const ddx = L(gx + 1, gy) - L(gx - 1, gy)
+          const ddy = L(gx, gy + 1) - L(gx, gy - 1)
+          const flat = Math.hypot(ddx, ddy) < 0.02
+          // grass lies up and down, leaves any way, the rest along the light's contours
+          const turn = leafy
+            ? low
+              ? Math.PI / 2 + (hashed(n * 3.7) - 0.5) * 0.7
+              : hashed(n * 3.7) * Math.PI
+            : (flat ? 0 : Math.atan2(ddy, ddx) + Math.PI / 2) + (hashed(n * 3.7) - 0.5) * 0.3
+          rand.reseed(calm(52583 + n * 7919))
+          // the desk and its machines crisp; the shade, the chair and the wood soft, as they are in the photograph
+          const fx = gx / gw
+          const fy = gy / gh
+          const made = !leafy && fx > 0.26 && fx < 0.74 && fy > 0.42 && fy < 0.67
+          const o = {
+            long: cw * (leafy ? (low ? 2.1 : 1.35) : made ? 1.05 : 1.45),
+            wide: leafy ? (low ? 0.34 : 0.62) : made ? 0.85 : 0.9,
+            blur: cw * (leafy ? (low ? 0.5 : 0.8) : made ? 0.45 : 1.05),
+            paints: [`desk${tone}`, `desk${tone}`],
+            load: 0.97,
+            kind: made ? 0.25 + DESK_EVEN : HAZE,
+            turn,
+            order: gy * 0.01 + gx * 0.00001,
+          }
+          if (leafy) {
+            // on a short stem of its own, which the wind sways: the grass freely, the leaves above a little
+            const stem = cw * (2 + 3 * hashed(n * 5.3))
+            garden.dab({ ...o, x, y: y + stem, stem, lean: 0, stiff: low ? 0.45 : 0.75, phase: hashed(n * 6.1) * 6 })
+          } else {
+            const root = h + 40
+            garden.dab({ ...o, x, y: root, stem: root - y, lean: 0, stiff: 1 })
           }
         }
-        return m
       }
-      // The wood behind, soft as if out of focus: dark trunks going up into the shade, and leaves with the sun on them.
-      for (let i = 0; i < 9; i += 1) {
-        const n = 100 + i
-        const x = w * (0.04 + 0.92 * ((i * 0.6180339 + 0.21) % 1))
-        const thick = w * (0.012 + 0.02 * hashed(n * 3.3))
-        put(n, {
-          x,
-          y: h * 0.18,
-          long: h * 0.26,
-          wide: thick / (h * 0.26),
-          turn: Math.PI / 2 + (hashed(n * 5.1) - 0.5) * 0.12,
-          blur: thick * 0.9,
-          paints: ['trunk', 'trunk'],
-          load: 0.55,
-          kind: 0.4 + DESK_EVEN,
-          order: 1 + i * 0.01,
-        })
-      }
-      for (let i = 0; i < 36; i += 1) {
-        const n = 200 + i
-        const x = w * hashed(n * 1.7)
-        const y = h * (0.02 + 0.36 * hashed(n * 2.9))
-        const r = w * (0.03 + 0.06 * hashed(n * 4.3))
-        const lit = hashed(n * 6.1) > 0.62
-        put(n, {
-          x,
-          y,
-          long: r,
-          wide: 0.8,
-          turn: hashed(n * 7.7) * Math.PI,
-          blur: r * 0.9,
-          paints: lit ? ['sunfleck', 'sunlit'] : ['foliage', 'understorey'],
-          load: lit ? 0.5 : 0.45,
-          kind: 0.4 + DESK_EVEN,
-          order: 2 + i * 0.01,
-        })
-      }
-      // The sun coming into the glade and lying on the desk's top, soft
-      put(400, {
-        x: w * 0.52,
-        y: h * 0.45,
-        long: w * 0.42,
-        wide: 0.5,
-        turn: 0.15,
-        blur: w * 0.2,
-        paints: ['sunlight', 'sunfleck'],
-        load: 0.22,
-        kind: 0.4 + DESK_EVEN,
-        order: 3,
-      })
-      // The desk and what is on it, from the back to the front.
-      let m = 10000
-      DESK_PARTS.forEach((part, i) => {
-        m = coat(m, part.pts.map(at), part.paints, feet - 0.5 + i * 0.002)
-      })
-      // a line of light along the top's front edge, where the sun catches it
-      const [ax, ay] = at([0.19, 0.645])
-      const [bx] = at([0.762, 0.645])
-      put(30000, {
-        x: (ax + bx) / 2,
-        y: ay - 0.6,
-        long: (bx - ax) / 2,
-        wide: 1.4 / ((bx - ax) / 2),
-        turn: 0,
-        blur: 0.8,
-        paints: ['deskLit', 'deskLit'],
-        order: feet - 0.4,
-      })
       // The butterflies' places, and the desk as the shape the pointer sends them off from.
       for (const [px, py, facing] of DESK_PERCHES) {
-        const [x, y] = at([px, py])
+        const [x, y] = toCanvas(px * gw, py * gh)
         garden.perch(x, y, facing)
       }
-      garden.tree(w * 0.48, h * 0.5, w * 0.3)
+      const [tx, ty] = toCanvas(0.5 * gw, 0.5 * gh)
+      garden.tree(tx, ty, cw * gw * 0.3)
     },
   }
 
