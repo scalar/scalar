@@ -1082,6 +1082,10 @@
                PR_MIST and PR_EVEN): as mist, which thins into the grain's specks across the band garden.mist gives, as
                everything does round the words, so a trunk standing beside the words on a phone ends in mist; or as even,
                drawn round in its proportions, so a long coat neither bows nor tapers and an outline over it stays true.
+     push      null, or { amount, at }: the strokes that sway (those with some give) lean out from the place `at` of the
+               way across the canvas, left of it to the left and right of it to the right, by up to `amount` radians at
+               full give, when the page lights it (sets root.hlPushAt to performance.now()): up over a fifth of a
+               second, held a moment, and back over two, as the window's hands answer its globe flaring.
      lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
                thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
@@ -7152,6 +7156,58 @@
   // how far down the picture sits in the frame, 0 its top at the frame's top and 1 its foot at the frame's foot
   const GLOBE_DROP = 0.56
   const GLOBE_EVEN = 0.005
+  /* The two hands, each with its forearm, as rough outlines in the picture's own pixels (528 by 968), and the place
+     under the frame each turns about, at its arm's foot. Each hand sways a very little, slowly and on its own, as one
+     piece with the paint close round it (GLOBE_REACH cells out, thinning), while the light, the globe and the small
+     lights stay where they are. GLOBE_GIVE is how freely the wind turns them (the collage's hands: 0.85). */
+  const GLOBE_HANDS = [
+    {
+      outline: [
+        [95, 235],
+        [150, 275],
+        [150, 330],
+        [128, 392],
+        [150, 394],
+        [170, 420],
+        [178, 500],
+        [215, 560],
+        [240, 640],
+        [292, 760],
+        [300, 968],
+        [100, 968],
+        [62, 700],
+        [35, 500],
+        [28, 400],
+        [58, 330],
+        [80, 290],
+      ],
+      pivot: [215, 1150],
+      phase: 1.3,
+    },
+    {
+      outline: [
+        [320, 404],
+        [372, 410],
+        [442, 440],
+        [492, 500],
+        [526, 545],
+        [500, 572],
+        [472, 640],
+        [470, 760],
+        [482, 968],
+        [305, 968],
+        [318, 760],
+        [330, 660],
+        [300, 560],
+        [294, 470],
+        [300, 438],
+      ],
+      pivot: [392, 1180],
+      phase: 4.4,
+    },
+  ]
+  const GLOBE_GIVE = 0.3
+  const GLOBE_REACH = 5
   const GLOBE = {
     ...HERO,
     intro: false,
@@ -7215,6 +7271,8 @@
     clouds: [],
     flock: [],
     lens: null,
+    // when the page lights the globe (a packet landing), the hands lean out from it a little, and back as it settles
+    push: { amount: 0.09, at: GLOBE_AT.x },
     fit: (w) => clamp(w / 300, 0.5, 1),
     plant: (garden) => {
       const { w, h, rand } = garden
@@ -7232,6 +7290,65 @@
       const L = (gx, gy) => lum[toneAt(gx, gy)]
       const toCanvas = (gx, gy) => [ox + gx * cw, oy + gy * cw]
       const HAZE = 0.4 + GLOBE_EVEN
+      // How much of each cell goes with each hand: 1 inside its outline, thinning to nothing GLOBE_REACH cells out (a
+      // chamfer distance from the outline, two passes).
+      const PX = 528 / gw
+      const inside = (outline, x, y) => {
+        let hit = false
+        for (let i = 0, j = outline.length - 1; i < outline.length; j = i, i += 1) {
+          const [xi, yi] = outline[i]
+          const [xj, yj] = outline[j]
+          if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+            hit = !hit
+          }
+        }
+        return hit
+      }
+      const far = gw + gh
+      const handWeights = GLOBE_HANDS.map((hand) => {
+        const d = new Float32Array(gw * gh).fill(far)
+        for (let gy = 0; gy < gh; gy += 1) {
+          for (let gx = 0; gx < gw; gx += 1) {
+            if (inside(hand.outline, (gx + 0.5) * PX, (gy + 0.5) * PX)) {
+              d[gy * gw + gx] = 0
+            }
+          }
+        }
+        const pass = (dir) => {
+          const ys = dir > 0 ? [...Array(gh).keys()] : [...Array(gh).keys()].reverse()
+          const xs = dir > 0 ? [...Array(gw).keys()] : [...Array(gw).keys()].reverse()
+          for (const gy of ys) {
+            for (const gx of xs) {
+              let v = d[gy * gw + gx]
+              for (const [dx, dy, c] of [
+                [-dir, 0, 1],
+                [0, -dir, 1],
+                [-dir, -dir, 1.414],
+                [dir, -dir, 1.414],
+              ]) {
+                const x = gx + dx
+                const y = gy + dy
+                if (x >= 0 && x < gw && y >= 0 && y < gh) {
+                  v = Math.min(v, d[y * gw + x] + c)
+                }
+              }
+              d[gy * gw + gx] = v
+            }
+          }
+        }
+        pass(1)
+        pass(-1)
+        return d.map((v) => 1 - smooth(0, GLOBE_REACH, v))
+      })
+      const hands = GLOBE_HANDS.map((hand) => ({
+        pivot: toCanvas(hand.pivot[0] / PX, hand.pivot[1] / PX),
+        phase: hand.phase,
+      }))
+      // the hand a cell goes with, and how much
+      const handOf = (cell) => {
+        const [a, b] = handWeights.map((wts) => wts[cell])
+        return a >= b ? [hands[0], a] : [hands[1], b]
+      }
       // A stroke's seed sets how much lighter or darker, warmer or cooler than its paint it comes out (see the strokes'
       // shader): the picture is smooth, so take the first seed near a stroke's own that leaves its tone nearly as it is.
       const calm = (seed) => {
@@ -7247,9 +7364,28 @@
         }
         return seed
       }
-      // every stroke rooted straight under it and still
-      const put = (n, { x, y, turn, ...o }) => {
+      // A stroke on a hand, or close round it, is rooted at the hand's pivot under the frame, its stem leaning just so
+      // far that its head is where it is put, and as free to turn as its share of the hand; anything else is rooted
+      // straight under it and still.
+      const put = (n, { x, y, turn, hand = null, weight = 0, ...o }) => {
         rand.reseed(calm(73019 + n * 7919))
+        if (hand && weight > 0.02) {
+          const dx = x - hand.pivot[0]
+          const up = hand.pivot[1] - y
+          const lean = Math.atan2(dx, up)
+          garden.dab({
+            kind: HAZE,
+            ...o,
+            x: hand.pivot[0],
+            y: hand.pivot[1],
+            stem: Math.hypot(dx, up),
+            lean,
+            phase: hand.phase,
+            stiff: 1 - GLOBE_GIVE * weight,
+            turn: turn - lean * 0.7,
+          })
+          return
+        }
         const root = h + 40
         garden.dab({ kind: HAZE, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1, turn })
       }
@@ -7271,10 +7407,13 @@
           const turn =
             (flat ? 0.9 + 0.6 * Math.sin(gx * 0.11 + gy * 0.07) : Math.atan2(ddy, ddx) + Math.PI / 2) +
             (hashed(n * 3.7) - 0.5) * 0.5
+          const [hand, weight] = handOf(n)
           put(n, {
             x: cx,
             y: cy,
             turn,
+            hand,
+            weight,
             long: cw * 1.5,
             wide: 0.9,
             blur: cw * 1.2,
@@ -7472,9 +7611,12 @@
           }
           const ddx = L(gx + 1, gy) - L(gx - 1, gy)
           const ddy = L(gx, gy + 1) - L(gx, gy - 1)
+          const [hand, weight] = handOf(cell)
           put(600000 + cell, {
             x: cx,
             y: cy,
+            hand,
+            weight,
             turn: Math.atan2(ddy, ddx) + Math.PI / 2 + (hashed(cell * 3.7) - 0.5) * 0.5,
             long: cw * 1.4,
             wide: 0.9,
@@ -8005,6 +8147,19 @@
       twinkle = 1.0 - depth * (1.0 - pow(wave, 1.5) * (0.75 + 0.25 * flick));
     }`
 
+  /* With `push`, a composition's swaying strokes lean out from its light as the page lights it: uPush is [how far, in
+     radians at full give, the place across the canvas they lean away from]. Without it the shader is as it was. */
+  const PUSH_LEAN =
+    'float lean = aBlade.x + windAt(root, uClock + aBlade.y * 0.4) * 0.17 * give + stirred * mix(0.55, 1.0, give);'
+  const bloomVertexOf = (mode) => {
+    const vertex = bloomVertex(mode)
+    if (!mode.push || !vertex.includes(PUSH_LEAN) || !vertex.includes('uniform float uPixels;')) {
+      return vertex
+    }
+    return vertex
+      .replace('uniform float uPixels;', 'uniform float uPixels;\n  uniform vec2 uPush;')
+      .replace(PUSH_LEAN, PUSH_LEAN.replace('give);', 'give) + uPush.x * sign(root.x - uPush.y) * give;'))
+  }
   const bloomVertex = (mode) => `#version 300 es
   precision highp float;
   layout(location = 0) in vec2 aCorner;
@@ -9611,7 +9766,7 @@ ${LINE_FILL}`,
     const wanted = [
       ['land', sheets.length > 0, () => send(landVertex(mode), lineFragment(mode))],
       ['blades', true, () => send(BLADE_VERTEX, bladeFragment(mode))],
-      ['blooms', true, () => send(bloomVertex(mode), bloomFragment(mode))],
+      ['blooms', true, () => send(bloomVertexOf(mode), bloomFragment(mode))],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
       ['fly', mode.lensed, () => send(FLY_VERTEX, FLY_FRAGMENT)],
@@ -12671,6 +12826,19 @@ ${LINE_FILL}`,
       gl.uniform2fv(u.uStirWay, stirWay)
       gl.uniform1f(u.uReach, mode.stir.reach * Math.max(0.8, fit))
       gl.uniform1f(u.uIntro, isStill() ? 99 : intro)
+      if (mode.push && u.uPush) {
+        gl.uniform2f(u.uPush, pushNow(), cssW * mode.push.at)
+      }
+    }
+    // How far the swaying strokes lean out from the light just now (see `push`): up over a fifth of a second from when
+    // the page lit it, held a moment, and back over two; none in a still picture.
+    const pushNow = () => {
+      const lit = root.hlPushAt
+      if (!mode.push || !lit || isStill()) {
+        return 0
+      }
+      const t = (performance.now() - lit) / 1000
+      return mode.push.amount * smooth(0, 0.22, t) * (1 - smooth(0.45, 2.4, t))
     }
 
     /* A sheet's part in the composition's glow: where the glow is on the canvas as the sheet sees it (see glowPlaces),

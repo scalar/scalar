@@ -47,12 +47,18 @@
     const flare = hub.querySelector('[data-hl-flare]')
 
     /* The globe's flare: up to white in a moment as the packet goes in, held a little, then settling back into its
-       glow. With reduced motion it is a softer, shorter brightening that does not grow. */
+       glow, and the painting's hands lean out from it as it flares and back as it settles (root.hlPushAt, the
+       composition's `push` in headless-hero.js). With reduced motion it is a softer, shorter brightening that does
+       not grow, and the hands stay still. */
     const shine = () => {
       if (!flare || typeof flare.animate !== 'function') {
         return
       }
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const art = hub.querySelector('[data-hl-hero]')
+      if (art && !reduced) {
+        art.hlPushAt = performance.now()
+      }
       for (const animation of flare.getAnimations()) {
         animation.cancel()
       }
