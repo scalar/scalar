@@ -287,6 +287,9 @@ The interface is still the product. It has moved to your API, where its newest u
 </div>
 
 <section class="hl-finale">
+<div class="hl-collage" aria-hidden="true" data-md-exclude>
+<div class="hl-piece hl-piece--hands"><div class="hl-piece-art" data-hl-hero data-hl-mode="hands"><canvas data-hl-canvas></canvas></div></div>
+</div>
 <div class="cta hl-finale-copy flex flex-col gap-3">
   <scalar-heading level="2" class="text-balance" slug="ready-for-agents">Make your API ready for the agents that are already looking for it.</scalar-heading>
   <p>
@@ -1561,6 +1564,74 @@ The interface is still the product. It has moved to your API, where its newest u
     justify-content: center;
     gap: 8px 24px;
     margin-top: 28px;
+  }
+  /* The collage: small pictures, plain rectangles with no frame, edge or shadow, scattered round the call to action,
+     each turned a little as if laid down by hand. headless-hero.js paints each (its data-hl-mode). Wide, they sit in the band's margins round
+     the copy; from 1000px down, in a row over it. Each frame's own gradient shows until its picture fades in, and in
+     place of it without WebGL. */
+  .hl-collage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hl-piece {
+    position: absolute;
+    width: var(--hl-piece-w);
+    aspect-ratio: var(--hl-piece-ratio);
+    rotate: var(--hl-piece-turn);
+    overflow: hidden;
+    background: var(--hl-piece-paper);
+    isolation: isolate;
+  }
+  .hl-piece-art,
+  .hl-piece-art canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .hl-piece-art canvas {
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+  }
+  .hl-piece-art[data-hl-ready] canvas {
+    opacity: 1;
+  }
+  .hl-piece--hands {
+    --hl-piece-w: 212px;
+    --hl-piece-ratio: 4 / 5;
+    --hl-piece-turn: -4deg;
+    --hl-piece-paper: linear-gradient(#e48b6c, #f0904f 42%, #f6a24b 78%, #f8b04f);
+    top: 64px;
+    left: 8px;
+  }
+  @media screen and (max-width: 1239px) {
+    .hl-piece--hands {
+      --hl-piece-w: 176px;
+    }
+  }
+  @media screen and (max-width: 1000px) {
+    .hl-collage {
+      position: relative;
+      inset: auto;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      margin-bottom: 44px;
+    }
+    .hl-piece {
+      position: relative;
+      inset: auto;
+      flex: none;
+    }
+    .hl-piece--hands {
+      --hl-piece-w: clamp(104px, 27vw, 176px);
+    }
   }
   @media screen and (max-width: 760px) {
     .hl-finale {
