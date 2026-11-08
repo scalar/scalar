@@ -1601,7 +1601,7 @@ The interface is still the product. It has moved to your API, where its newest u
   }
   .hl-piece--hands {
     --hl-piece-w: 212px;
-    --hl-piece-ratio: 4 / 5;
+    --hl-piece-ratio: 6 / 7;
     --hl-piece-turn: -4deg;
     --hl-piece-paper: linear-gradient(#e48b6c, #f0904f 42%, #f6a24b 78%, #f8b04f);
     top: 64px;

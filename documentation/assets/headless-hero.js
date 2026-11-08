@@ -6248,769 +6248,68 @@
 
   /* --- the collage compositions ---------------------------------------------------------------------- */
 
-  /* The three small pictures scattered round the headless page's closing call to action, each in a frame of its own, as
-     a collage: two hands of light, a butterfly over water, and a desk in the long grass. Each is its own composition,
-     painted with the meadow's brush and drawn live, in idle time once it is within three screens and painted when within
-     one, as the window is. */
+  /* The three small pictures scattered round the headless page's closing call to action, as a collage: two hands of
+     light, a butterfly over water, and a desk in the long grass. Each is its own composition, painted with the meadow's
+     brush and drawn live, in idle time once it is within three screens and painted when within one, as the window is. */
 
-  /* Two hands raised in a warm glow, after the photograph Cameron sent: so bright that only their shape is left, a
-     white heart in a gold light, on an orange that deepens to coral above. Each hand waves, slowly and gently, as one
-     piece: every stroke of it is rooted at its arm's foot under the frame and leans with the same breath of wind, so the
-     whole hand turns a little about its arm, this way and that, and the other in its own time. A few small lights
-     twinkle round the fingers. */
-  const HANDS_INKS = {
-    ...LAND_INK,
-    // the glow behind the hands, from the top of the frame down: coral, then orange, deepening to amber at the foot
-    coral: ['#e48b6c', '#c9775e'],
-    ember: ['#f0904f', '#d97b44'],
-    flame: ['#f6a24b', '#e18d3f'],
-    amber: ['#f8b04f', '#e59c45'],
-  }
-  /* The hands, traced from the photograph (its white, through potrace; see scratchpad cta/trace), as points in shares
-     of its width and height, the arms run on past its foot. */
-  const HANDS_SHAPE = {
-    left: [
-      [0.2127, 0.3612],
-      [0.2113, 0.3652],
-      [0.2113, 0.3702],
-      [0.2119, 0.3762],
-      [0.2129, 0.3822],
-      [0.214, 0.3882],
-      [0.2151, 0.3943],
-      [0.2163, 0.4003],
-      [0.2176, 0.4063],
-      [0.219, 0.4123],
-      [0.2205, 0.4182],
-      [0.2222, 0.4241],
-      [0.2238, 0.4301],
-      [0.2255, 0.436],
-      [0.2269, 0.442],
-      [0.228, 0.448],
-      [0.2288, 0.454],
-      [0.2293, 0.4601],
-      [0.2292, 0.4661],
-      [0.2282, 0.4703],
-      [0.2265, 0.4722],
-      [0.2243, 0.4718],
-      [0.2213, 0.4691],
-      [0.2178, 0.4643],
-      [0.2146, 0.459],
-      [0.2113, 0.4537],
-      [0.2078, 0.4485],
-      [0.2045, 0.4432],
-      [0.2014, 0.4378],
-      [0.1982, 0.4324],
-      [0.195, 0.427],
-      [0.1918, 0.4216],
-      [0.1884, 0.4163],
-      [0.1849, 0.4111],
-      [0.1813, 0.4059],
-      [0.1777, 0.4007],
-      [0.174, 0.3956],
-      [0.17, 0.3907],
-      [0.1656, 0.3863],
-      [0.1606, 0.3827],
-      [0.155, 0.3805],
-      [0.1494, 0.3802],
-      [0.1449, 0.3817],
-      [0.142, 0.3851],
-      [0.1407, 0.3898],
-      [0.141, 0.3953],
-      [0.1423, 0.4012],
-      [0.1441, 0.407],
-      [0.1463, 0.4126],
-      [0.149, 0.4181],
-      [0.1521, 0.4233],
-      [0.1559, 0.4283],
-      [0.1594, 0.4335],
-      [0.1623, 0.4388],
-      [0.1633, 0.4431],
-      [0.1627, 0.4453],
-      [0.1607, 0.4455],
-      [0.1577, 0.4434],
-      [0.1537, 0.4392],
-      [0.1498, 0.4342],
-      [0.1456, 0.4295],
-      [0.1408, 0.4255],
-      [0.1355, 0.4223],
-      [0.1297, 0.4208],
-      [0.1239, 0.4209],
-      [0.1194, 0.4229],
-      [0.1166, 0.4263],
-      [0.1155, 0.4311],
-      [0.116, 0.4364],
-      [0.118, 0.4421],
-      [0.1203, 0.4479],
-      [0.1226, 0.4536],
-      [0.1248, 0.4594],
-      [0.1271, 0.4651],
-      [0.1294, 0.4709],
-      [0.1314, 0.4767],
-      [0.1332, 0.4826],
-      [0.1348, 0.4885],
-      [0.1359, 0.4944],
-      [0.1357, 0.4995],
-      [0.1341, 0.5029],
-      [0.1309, 0.5048],
-      [0.1262, 0.5058],
-      [0.1204, 0.5063],
-      [0.1153, 0.5077],
-      [0.1118, 0.5107],
-      [0.11, 0.5151],
-      [0.1101, 0.5204],
-      [0.1117, 0.5262],
-      [0.1137, 0.532],
-      [0.1157, 0.5378],
-      [0.1176, 0.5437],
-      [0.1195, 0.5495],
-      [0.1218, 0.5552],
-      [0.1244, 0.5608],
-      [0.1273, 0.5663],
-      [0.1305, 0.5717],
-      [0.1338, 0.577],
-      [0.1371, 0.5824],
-      [0.1404, 0.5877],
-      [0.1437, 0.593],
-      [0.147, 0.5984],
-      [0.1508, 0.6034],
-      [0.155, 0.6079],
-      [0.1597, 0.6122],
-      [0.1648, 0.616],
-      [0.1704, 0.6194],
-      [0.176, 0.6229],
-      [0.1816, 0.6263],
-      [0.1873, 0.6298],
-      [0.1929, 0.6332],
-      [0.1985, 0.6366],
-      [0.2042, 0.6399],
-      [0.21, 0.6431],
-      [0.2158, 0.6463],
-      [0.2216, 0.6494],
-      [0.2273, 0.6526],
-      [0.233, 0.6559],
-      [0.2388, 0.6592],
-      [0.2444, 0.6625],
-      [0.2499, 0.6659],
-      [0.2554, 0.6694],
-      [0.2608, 0.6729],
-      [0.2661, 0.6767],
-      [0.2715, 0.6804],
-      [0.2769, 0.6841],
-      [0.2823, 0.6878],
-      [0.2875, 0.6917],
-      [0.2926, 0.6958],
-      [0.2973, 0.7001],
-      [0.3017, 0.7047],
-      [0.3062, 0.7092],
-      [0.3108, 0.7136],
-      [0.3156, 0.7178],
-      [0.3207, 0.7218],
-      [0.3261, 0.7255],
-      [0.3314, 0.7293],
-      [0.3365, 0.7333],
-      [0.3412, 0.7376],
-      [0.3457, 0.7421],
-      [0.3499, 0.7468],
-      [0.3539, 0.7518],
-      [0.3574, 0.7569],
-      [0.3605, 0.7622],
-      [0.3628, 0.7678],
-      [0.3644, 0.7736],
-      [0.3653, 0.7797],
-      [0.3658, 0.7857],
-      [0.3658, 0.7918],
-      [0.3656, 0.7979],
-      [0.3653, 0.804],
-      [0.3648, 0.8101],
-      [0.3642, 0.8162],
-      [0.3637, 0.8223],
-      [0.3632, 0.8284],
-      [0.3627, 0.8345],
-      [0.3622, 0.8406],
-      [0.3616, 0.8467],
-      [0.3611, 0.8528],
-      [0.3606, 0.8589],
-      [0.3601, 0.8649],
-      [0.3596, 0.871],
-      [0.359, 0.8771],
-      [0.3585, 0.8832],
-      [0.3579, 0.8893],
-      [0.3572, 0.8954],
-      [0.3564, 0.9015],
-      [0.3556, 0.9075],
-      [0.3547, 0.9136],
-      [0.3538, 0.9196],
-      [0.3529, 0.9257],
-      [0.352, 0.9318],
-      [0.3511, 0.9378],
-      [0.3502, 0.9439],
-      [0.3493, 0.9499],
-      [0.3484, 0.956],
-      [0.3475, 1.12],
-      [0.3466, 1.12],
-      [0.3457, 1.12],
-      [0.3448, 1.12],
-      [0.344, 1.12],
-      [0.3447, 1.12],
-      [0.3425, 1.12],
-      [0.3493, 1.12],
-      [0.356, 1.12],
-      [0.3628, 1.12],
-      [0.3696, 1.12],
-      [0.3764, 1.12],
-      [0.3832, 1.12],
-      [0.39, 1.12],
-      [0.3968, 1.12],
-      [0.4035, 1.12],
-      [0.4103, 1.12],
-      [0.4171, 1.12],
-      [0.4239, 1.12],
-      [0.4307, 1.12],
-      [0.4375, 1.12],
-      [0.4443, 1.12],
-      [0.4511, 1.12],
-      [0.4579, 1.12],
-      [0.4647, 1.12],
-      [0.4715, 1.12],
-      [0.4717, 1.12],
-      [0.4739, 1.12],
-      [0.4748, 1.12],
-      [0.4754, 1.12],
-      [0.4759, 1.12],
-      [0.4763, 1.12],
-      [0.4765, 0.9586],
-      [0.4766, 0.9525],
-      [0.4767, 0.9464],
-      [0.4768, 0.9403],
-      [0.4768, 0.9341],
-      [0.4769, 0.928],
-      [0.477, 0.9219],
-      [0.4773, 0.9158],
-      [0.4777, 0.9097],
-      [0.4782, 0.9036],
-      [0.4789, 0.8976],
-      [0.4796, 0.8915],
-      [0.4804, 0.8854],
-      [0.4812, 0.8793],
-      [0.482, 0.8733],
-      [0.483, 0.8672],
-      [0.4839, 0.8612],
-      [0.485, 0.8551],
-      [0.4861, 0.8491],
-      [0.4873, 0.8431],
-      [0.4885, 0.8371],
-      [0.4897, 0.8311],
-      [0.4908, 0.825],
-      [0.4918, 0.819],
-      [0.4925, 0.8129],
-      [0.4929, 0.8069],
-      [0.4932, 0.8008],
-      [0.4931, 0.7947],
-      [0.4931, 0.7885],
-      [0.4933, 0.7825],
-      [0.4941, 0.7765],
-      [0.4954, 0.7706],
-      [0.4969, 0.7648],
-      [0.4986, 0.7589],
-      [0.5002, 0.7531],
-      [0.5014, 0.7471],
-      [0.5023, 0.741],
-      [0.5031, 0.735],
-      [0.5039, 0.7289],
-      [0.5048, 0.7228],
-      [0.5056, 0.7168],
-      [0.5064, 0.7107],
-      [0.5072, 0.7046],
-      [0.5082, 0.6986],
-      [0.5093, 0.6926],
-      [0.5106, 0.6866],
-      [0.512, 0.6806],
-      [0.5135, 0.6747],
-      [0.5147, 0.6687],
-      [0.5156, 0.6627],
-      [0.5161, 0.6566],
-      [0.5163, 0.6505],
-      [0.5159, 0.6445],
-      [0.5151, 0.6384],
-      [0.5139, 0.6325],
-      [0.5124, 0.6266],
-      [0.5105, 0.6207],
-      [0.5084, 0.6149],
-      [0.5063, 0.6091],
-      [0.504, 0.6033],
-      [0.5016, 0.5976],
-      [0.4992, 0.5919],
-      [0.4967, 0.5862],
-      [0.4942, 0.5805],
-      [0.4917, 0.5749],
-      [0.4892, 0.5692],
-      [0.4867, 0.5635],
-      [0.4841, 0.5578],
-      [0.4813, 0.5523],
-      [0.4783, 0.5469],
-      [0.4749, 0.5416],
-      [0.4713, 0.5364],
-      [0.4676, 0.5313],
-      [0.4642, 0.5261],
-      [0.4609, 0.5208],
-      [0.4578, 0.5153],
-      [0.4549, 0.5098],
-      [0.452, 0.5043],
-      [0.4492, 0.4987],
-      [0.4461, 0.4933],
-      [0.4429, 0.488],
-      [0.4393, 0.4828],
-      [0.4356, 0.4777],
-      [0.4316, 0.4727],
-      [0.4277, 0.4677],
-      [0.4237, 0.4628],
-      [0.4198, 0.4578],
-      [0.4156, 0.453],
-      [0.4111, 0.4488],
-      [0.4059, 0.4454],
-      [0.4003, 0.4431],
-      [0.3945, 0.4428],
-      [0.3892, 0.4443],
-      [0.3846, 0.4475],
-      [0.3815, 0.452],
-      [0.3799, 0.4576],
-      [0.3796, 0.4634],
-      [0.3803, 0.4693],
-      [0.382, 0.4752],
-      [0.3842, 0.4809],
-      [0.3869, 0.4865],
-      [0.3898, 0.492],
-      [0.393, 0.4974],
-      [0.3963, 0.5027],
-      [0.3995, 0.5081],
-      [0.4028, 0.5134],
-      [0.406, 0.5188],
-      [0.4091, 0.5242],
-      [0.4121, 0.5297],
-      [0.4145, 0.5354],
-      [0.4156, 0.541],
-      [0.415, 0.5457],
-      [0.4125, 0.549],
-      [0.4083, 0.5506],
-      [0.4027, 0.5505],
-      [0.3966, 0.5486],
-      [0.3906, 0.5459],
-      [0.3848, 0.5427],
-      [0.3792, 0.5393],
-      [0.3737, 0.5357],
-      [0.3683, 0.532],
-      [0.363, 0.5282],
-      [0.3577, 0.5244],
-      [0.3524, 0.5206],
-      [0.3471, 0.5168],
-      [0.3418, 0.513],
-      [0.3365, 0.5091],
-      [0.3314, 0.5051],
-      [0.3265, 0.5009],
-      [0.3218, 0.4965],
-      [0.3172, 0.492],
-      [0.3128, 0.4874],
-      [0.3083, 0.4828],
-      [0.3039, 0.4782],
-      [0.2995, 0.4735],
-      [0.2952, 0.4688],
-      [0.291, 0.464],
-      [0.2871, 0.459],
-      [0.2835, 0.4539],
-      [0.2802, 0.4486],
-      [0.2771, 0.4431],
-      [0.2742, 0.4376],
-      [0.2714, 0.432],
-      [0.2686, 0.4265],
-      [0.2658, 0.4209],
-      [0.263, 0.4153],
-      [0.2602, 0.4098],
-      [0.2574, 0.4042],
-      [0.2544, 0.3987],
-      [0.2514, 0.3933],
-      [0.2482, 0.3879],
-      [0.2449, 0.3825],
-      [0.2414, 0.3773],
-      [0.2377, 0.3722],
-      [0.2337, 0.3674],
-      [0.2291, 0.3631],
-      [0.224, 0.3603],
-      [0.2194, 0.3585],
-      [0.2155, 0.3588],
+  /* Two hands raised in a warm glow, painted after the photograph Cameron sent: the photograph is kept as a grid of its
+     colours (a cell for every ten of its pixels, in 32 tones from coral to white), and the frame is painted from it a
+     stroke to a cell, each stroke laid along the light's contours, so the fingers keep the photograph's soft bends and
+     the layers where one curls over another, and the arms go down into the glow as they do there. Each hand waves,
+     slowly and gently, as one piece: the strokes on it and in its glow are rooted together at its arm's foot under the
+     frame and lean with the same breath of wind, the glow less the further it is from the hand, so it bends softly with
+     the hand rather than tearing from the orange round it. A few small lights twinkle round the fingers. */
+  const HANDS_PHOTO = {
+    grid: [100, 116],
+    palette: [
+      '#eb8964',
+      '#ee8b65',
+      '#f08b60',
+      '#f48d5b',
+      '#f88f55',
+      '#fd924d',
+      '#fd9252',
+      '#fd9849',
+      '#fd9d54',
+      '#fda446',
+      '#fda35c',
+      '#fda86a',
+      '#fdaf55',
+      '#fdb347',
+      '#fdb565',
+      '#fdb57a',
+      '#fdbe52',
+      '#fdc65d',
+      '#fdc290',
+      '#fdc96b',
+      '#fdcf78',
+      '#fdd687',
+      '#fddb95',
+      '#fddda4',
+      '#fce4b3',
+      '#fdeac3',
+      '#fdefd1',
+      '#fef3dc',
+      '#fdf5e5',
+      '#fef7ec',
+      '#fef8f2',
+      '#fffaf5',
     ],
-    right: [
-      [0.6449, 0.0791],
-      [0.6406, 0.0823],
-      [0.6373, 0.0864],
-      [0.6341, 0.0917],
-      [0.6314, 0.0972],
-      [0.6292, 0.1029],
-      [0.6273, 0.1088],
-      [0.6254, 0.1147],
-      [0.6238, 0.1206],
-      [0.6222, 0.1265],
-      [0.6207, 0.1325],
-      [0.6192, 0.1384],
-      [0.6177, 0.1444],
-      [0.6162, 0.1504],
-      [0.6149, 0.1563],
-      [0.6137, 0.1624],
-      [0.6128, 0.1684],
-      [0.612, 0.1745],
-      [0.6114, 0.1805],
-      [0.6109, 0.1866],
-      [0.6103, 0.1927],
-      [0.6095, 0.1988],
-      [0.6084, 0.2048],
-      [0.6072, 0.2108],
-      [0.6057, 0.2168],
-      [0.6041, 0.2227],
-      [0.6023, 0.2286],
-      [0.6, 0.2341],
-      [0.5976, 0.2396],
-      [0.5949, 0.2447],
-      [0.5912, 0.2487],
-      [0.5874, 0.2505],
-      [0.5845, 0.2502],
-      [0.5819, 0.2476],
-      [0.5799, 0.243],
-      [0.5792, 0.2371],
-      [0.5788, 0.231],
-      [0.5784, 0.2249],
-      [0.5777, 0.2188],
-      [0.5766, 0.2129],
-      [0.5747, 0.2072],
-      [0.572, 0.2018],
-      [0.5683, 0.1971],
-      [0.5638, 0.1938],
-      [0.5593, 0.1926],
-      [0.5552, 0.1936],
-      [0.5517, 0.1967],
-      [0.5489, 0.2016],
-      [0.5467, 0.2074],
-      [0.5445, 0.2131],
-      [0.5418, 0.2186],
-      [0.5385, 0.2238],
-      [0.5346, 0.2287],
-      [0.5304, 0.2335],
-      [0.5262, 0.2381],
-      [0.5225, 0.2431],
-      [0.5198, 0.2484],
-      [0.5183, 0.254],
-      [0.518, 0.2598],
-      [0.5188, 0.2658],
-      [0.5202, 0.2717],
-      [0.5219, 0.2776],
-      [0.5237, 0.2835],
-      [0.5256, 0.2894],
-      [0.5275, 0.2953],
-      [0.5293, 0.3012],
-      [0.5312, 0.307],
-      [0.5331, 0.3129],
-      [0.5349, 0.3188],
-      [0.5368, 0.3247],
-      [0.5389, 0.3304],
-      [0.5415, 0.336],
-      [0.5446, 0.3413],
-      [0.5481, 0.3464],
-      [0.5521, 0.3513],
-      [0.5563, 0.3561],
-      [0.5604, 0.361],
-      [0.5644, 0.3659],
-      [0.5682, 0.3709],
-      [0.572, 0.376],
-      [0.5758, 0.3811],
-      [0.5797, 0.386],
-      [0.5838, 0.3909],
-      [0.588, 0.3957],
-      [0.5923, 0.4004],
-      [0.5964, 0.4053],
-      [0.6004, 0.4102],
-      [0.6041, 0.4153],
-      [0.6075, 0.4206],
-      [0.6107, 0.426],
-      [0.6137, 0.4314],
-      [0.6166, 0.437],
-      [0.6195, 0.4425],
-      [0.6223, 0.4481],
-      [0.6252, 0.4536],
-      [0.628, 0.4592],
-      [0.6308, 0.4647],
-      [0.6337, 0.4703],
-      [0.6365, 0.4758],
-      [0.6394, 0.4814],
-      [0.6422, 0.4869],
-      [0.6451, 0.4925],
-      [0.6479, 0.498],
-      [0.6509, 0.5035],
-      [0.6539, 0.509],
-      [0.6569, 0.5145],
-      [0.6601, 0.5199],
-      [0.6632, 0.5253],
-      [0.6664, 0.5307],
-      [0.6695, 0.5361],
-      [0.6727, 0.5415],
-      [0.6759, 0.5469],
-      [0.679, 0.5524],
-      [0.682, 0.5578],
-      [0.6849, 0.5633],
-      [0.6878, 0.5689],
-      [0.6906, 0.5745],
-      [0.6933, 0.58],
-      [0.6961, 0.5856],
-      [0.6988, 0.5912],
-      [0.7016, 0.5968],
-      [0.7043, 0.6024],
-      [0.7071, 0.608],
-      [0.7098, 0.6136],
-      [0.7126, 0.6192],
-      [0.7153, 0.6248],
-      [0.7179, 0.6304],
-      [0.7205, 0.6361],
-      [0.723, 0.6417],
-      [0.7254, 0.6475],
-      [0.7278, 0.6532],
-      [0.7303, 0.6588],
-      [0.733, 0.6644],
-      [0.7356, 0.6701],
-      [0.7381, 0.6757],
-      [0.7407, 0.6813],
-      [0.743, 0.687],
-      [0.7452, 0.6928],
-      [0.7475, 0.6986],
-      [0.7495, 0.7044],
-      [0.7513, 0.7103],
-      [0.753, 0.7162],
-      [0.7547, 0.7221],
-      [0.7564, 0.728],
-      [0.7583, 0.7338],
-      [0.7604, 0.7396],
-      [0.7627, 0.7454],
-      [0.7648, 0.7512],
-      [0.7668, 0.757],
-      [0.7685, 0.7629],
-      [0.7701, 0.7688],
-      [0.7716, 0.7748],
-      [0.7731, 0.7807],
-      [0.7749, 0.7866],
-      [0.7772, 0.7923],
-      [0.7799, 0.7978],
-      [0.7827, 1.12],
-      [0.7853, 1.12],
-      [0.7877, 1.12],
-      [0.7897, 1.12],
-      [0.7914, 1.12],
-      [0.793, 1.12],
-      [0.7949, 1.12],
-      [0.7969, 1.12],
-      [0.799, 1.12],
-      [0.8014, 1.12],
-      [0.8041, 1.12],
-      [0.8071, 1.12],
-      [0.8101, 1.12],
-      [0.8129, 1.12],
-      [0.8148, 1.12],
-      [0.8163, 1.12],
-      [0.8183, 1.12],
-      [0.8208, 1.12],
-      [0.8236, 1.12],
-      [0.8268, 1.12],
-      [0.8309, 1.12],
-      [0.8349, 1.12],
-      [0.839, 1.12],
-      [0.8439, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.845, 1.12],
-      [0.8972, 0.7949],
-      [0.8965, 0.789],
-      [0.8954, 0.7837],
-      [0.894, 0.7784],
-      [0.8925, 0.7732],
-      [0.8905, 0.7681],
-      [0.8878, 0.7631],
-      [0.8855, 0.7574],
-      [0.8832, 0.7518],
-      [0.8808, 0.7462],
-      [0.8789, 0.7404],
-      [0.8774, 0.7344],
-      [0.8762, 0.7285],
-      [0.8745, 0.7228],
-      [0.8728, 0.7171],
-      [0.871, 0.7115],
-      [0.8685, 0.7061],
-      [0.8657, 0.7007],
-      [0.8634, 0.6951],
-      [0.861, 0.6894],
-      [0.8588, 0.6837],
-      [0.8569, 0.6778],
-      [0.8552, 0.6719],
-      [0.8535, 0.666],
-      [0.8515, 0.6602],
-      [0.8492, 0.6545],
-      [0.8466, 0.6489],
-      [0.8442, 0.6433],
-      [0.8419, 0.6376],
-      [0.8401, 0.6319],
-      [0.8388, 0.626],
-      [0.8379, 0.6199],
-      [0.8367, 0.6139],
-      [0.8352, 0.608],
-      [0.8336, 0.6021],
-      [0.8319, 0.5962],
-      [0.8299, 0.5904],
-      [0.8278, 0.5847],
-      [0.8255, 0.579],
-      [0.8228, 0.5734],
-      [0.8199, 0.5679],
-      [0.8169, 0.5624],
-      [0.8142, 0.5568],
-      [0.8116, 0.5512],
-      [0.8093, 0.5454],
-      [0.8072, 0.5397],
-      [0.8051, 0.5338],
-      [0.803, 0.528],
-      [0.8007, 0.5223],
-      [0.7983, 0.5166],
-      [0.7953, 0.5112],
-      [0.7928, 0.5057],
-      [0.7907, 0.5002],
-      [0.7888, 0.4945],
-      [0.7872, 0.4888],
-      [0.7862, 0.4828],
-      [0.785, 0.4768],
-      [0.7836, 0.4708],
-      [0.7823, 0.4648],
-      [0.7812, 0.4588],
-      [0.7804, 0.4527],
-      [0.7799, 0.4467],
-      [0.7797, 0.4406],
-      [0.7796, 0.4345],
-      [0.7798, 0.4284],
-      [0.7802, 0.4223],
-      [0.7805, 0.4162],
-      [0.7809, 0.4101],
-      [0.7813, 0.404],
-      [0.7819, 0.3979],
-      [0.7828, 0.3919],
-      [0.784, 0.3859],
-      [0.7853, 0.3799],
-      [0.7868, 0.374],
-      [0.7882, 0.368],
-      [0.7894, 0.362],
-      [0.7904, 0.356],
-      [0.7915, 0.3499],
-      [0.7925, 0.3439],
-      [0.7936, 0.3378],
-      [0.7946, 0.3318],
-      [0.7954, 0.3257],
-      [0.7955, 0.3198],
-      [0.7951, 0.3139],
-      [0.7948, 0.3079],
-      [0.7943, 0.302],
-      [0.7937, 0.2961],
-      [0.7934, 0.2902],
-      [0.7922, 0.2848],
-      [0.7897, 0.2809],
-      [0.786, 0.2789],
-      [0.7813, 0.279],
-      [0.7757, 0.2805],
-      [0.7698, 0.2824],
-      [0.7648, 0.2829],
-      [0.7608, 0.2814],
-      [0.7584, 0.2781],
-      [0.7578, 0.2733],
-      [0.7587, 0.2675],
-      [0.7601, 0.2616],
-      [0.7619, 0.2557],
-      [0.7629, 0.2498],
-      [0.7623, 0.2443],
-      [0.7603, 0.2394],
-      [0.7568, 0.2354],
-      [0.7516, 0.2325],
-      [0.7456, 0.2303],
-      [0.7403, 0.2278],
-      [0.7363, 0.2246],
-      [0.7336, 0.2205],
-      [0.7325, 0.2153],
-      [0.7327, 0.2094],
-      [0.7336, 0.2033],
-      [0.7346, 0.1973],
-      [0.7348, 0.1916],
-      [0.7339, 0.1861],
-      [0.7317, 0.1813],
-      [0.7288, 0.1764],
-      [0.7255, 0.1716],
-      [0.7222, 0.1669],
-      [0.7191, 0.1621],
-      [0.7168, 0.1568],
-      [0.7146, 0.1515],
-      [0.7124, 0.1462],
-      [0.7097, 0.1412],
-      [0.7069, 0.1364],
-      [0.7035, 0.1317],
-      [0.7002, 0.1271],
-      [0.6978, 0.1227],
-      [0.6969, 0.1176],
-      [0.6974, 0.112],
-      [0.6983, 0.1063],
-      [0.6983, 0.1009],
-      [0.6964, 0.0961],
-      [0.693, 0.0929],
-      [0.6882, 0.0915],
-      [0.683, 0.0924],
-      [0.6788, 0.0952],
-      [0.676, 0.0997],
-      [0.6745, 0.105],
-      [0.6742, 0.1108],
-      [0.6743, 0.1169],
-      [0.6742, 0.1229],
-      [0.6736, 0.129],
-      [0.6718, 0.1344],
-      [0.6695, 0.1375],
-      [0.6674, 0.1382],
-      [0.6658, 0.1364],
-      [0.6645, 0.1323],
-      [0.6644, 0.1263],
-      [0.6648, 0.1202],
-      [0.6648, 0.1141],
-      [0.6646, 0.1081],
-      [0.664, 0.102],
-      [0.6633, 0.0959],
-      [0.6622, 0.0899],
-      [0.6603, 0.0846],
-      [0.6572, 0.0807],
-      [0.6538, 0.0781],
-      [0.6496, 0.0776],
-    ],
+    cells:
+      '01000000000000000000011111122222222222222222233333444666655655576788888888888888666666664444333322220000000000000000011011111112222222222222222233333444666655565777788888888aa8aaa88666666644444333322200000000000000000111111111122222222222222223333444466566555657788888aaaaaaaaaaaa888666664444443333220000000000000000011111111111222222222222223334444466555566688888aaaaaaaaaaaaaaaaa8886666664444333322000000000000000011111111111122222222222233333444446655566888888aaaabbbbbbbbbabbaaa88866666664443332200000000000000001111111121111222222222233333444455555556888888aabbbbbfffbbbbbbbbaaaa8666666644443332000000000000001001011111212122222222233333344466655556678888aaabbbfffffffffbbbbbbaaa886666664444333300000000000000111111111101012222222222333334446555555678888aaabbbfiopiffffffffbbbbaaa886666664444333000000000000000111111111110222222222233333444465555567788aaaabbffiqssoiiiifffffbbbbaa888666664444333000000000000000001111111112222222222233344446665555557788aabbbffinstspnqqniiffffbbbaa88866666644443300000000000100001111111111222222222233334444666555555888aaabbfffiptttqrttpiiiffffbbba8886666664444330110000000010000011111111122222222233333444666655777788aabbbfffinrtutqrttqniiifffbbbaa886666666444331111000000000011111111111112222222333334444666577777888aabbfffiiottutqqtspniiiifffbbbaa8666666664433011100000000000011110111112222222233334444666557777888aabbbffiinpuuutqqsrpoiiiifffbbbaa866666666443301100000000000001111021222222222333334444655657777888aaabbfffiinquuutqrtrqpniiifffbbbba88655665644330011000000000000111012222222222233333444665557777788aaabbfffiinosuuutqstttqnniiffffbbbba866556566444001100000000000001111222222222223333444455577777778aaabbbffiiinotvvutrstutroniiffffbbbbaa8665555644401110000000000000112222222222222333444665557777888aaabeefffiinnpuuvutrttttrpnmiiffffbbbba8666555644400110000000000000112222222222233334446665577778888aaeeefffiimnoquuvutrttttsqomliffffbbbbaa86655566440011100000000000222222222222233333446665577777888aaeeefffiiinnoruuuutsttttsronlkkfffbbbbba8865555544000000000000000022222222222233333444555557777888aaeeeeffiiimnopsvuuutstuuttrqomlkffffbbbbaa86555556400000000000000002222222222333334444655555777788aaeeefffimnmmnopsvuuutstvuuttsqnlkjffebbbbaaa8655556400000100000000002222222222233344444555557777888aaeeeffiipronoopsvuuutttvuutsrqnlkkjjeebbbbaa866556640000000000000002222222223323334444655557777888aaeeeffiinstrooopsvuuuttuvvutsrpmlkkjjeeebbbaaa86556560001101111110222222222223333344444655557777888aaeeffiimotutpopqtvvvtttuvvuttspmmlkjjeeeebbaaa8665566000000111111022222222223333344444465555777788aaaeefkimnpuutqopquvvvuttvvvuttspnmmmljjeeebbbaa8666666000000111012222222222233333444444455555777788aceeffimnosuutrppruvvvuttvvuuttrpooonnkjeeeebbaa8866566000000110102222222223333333444444655557777788aeeefkinoqtuutrpqsuvvutttvvutttsrrqponljjeeeebaaa886656000001110122222222333333334444446555557777888aeeefkmortuvttrqqsuuuuutuvuuttuuttsronlkjjeeebbaa886665011111111222222223333334444444666555557777888ceeefimpuvvuttrqrtuuuuuuuuuuutuutttrpnmkjjeeeebaaa8665500111111112223333333344444444466555555777788aceeefinqvvvutsrrrtuuvvuuuvvvvuttttsqomomjjjeeebaaa8666600111021122223333334444444444466555577777778aceejklnqvvvuttrrstuvuuuuuvvvuutttsrqonpnkjjeeebaaa8666601111222222233334444444444444655555777777798ceeejklnpuvvvutsssuuuuuuuuvvvuutttsrpnoqpmjhheeeaaaa866611121222223333444444444444444555557777777798ceeejklnpsvvvuutssuvuuuuuuuvvvuuttsrpprrqmjjheeebaaa866611121222333444444444446666555555557777777798ceeejklnoruvvvutttuuuuuuuuuvvvvuutsrqrsrpnkjhheebaaa86662112222233344444666666555555555555777777999ccceejklmoqtvvvuttttuuuuuvvvvvvvuuuttttsspnkjhheeeaaaa8662222233344444466666665555555555577777777999ccceejklmnpsvvvutttttttuuvvvvvvvvuuutttsrpnkjhheeeaaaa8662222333344466656655566555577777777777779999ccceejkkmnorvvvvuuuuttttuuvvvvvvvvvuuttsrqokhhgceeaaaa8662233334446666666777778887777777777777799999ccceejjklnoqvvvvuuuuuttttuuvvvvvvvvvvuttsqokjhgcceaaaa8662333444466666667888888887777777777777999999ccceejjklmnpuvvvuvvuuttttttuvvvvvvvuuuutsqokjhgcccaaaa8862334444666888888888888888887777779977999999cccehhjklmnotvvvvvvvuuutttttuuvvvvuuuvuusqokjhgcceaaaa8863344466688888aaaaaaaaaaa888999999999999999ccccghhjjklmoquvvvvvvvuuutttttuvvuuuuuuuuspokjhgcceaaaa88634444666aaaaaabbbbffbbbaaa8899999999999999ccccghhjjklmnoruvvvvvvuuuttttttuvvuuuvuuurpnkjhgcceaaaa86634466688abbbbbbffnroffbbbaa899999999999999ccccghhjjkllmnpsvvvvvvvvuuttttttuvvuuvvutrpnkjhhcceaaaa866446688aabbfffffffputoifbbbaa88999999999999ccccghhhjkklmnopsvuvvvvvvuutttttuuvuuuuutqpnkjhhcccaaaa88544688abbfiiiiiiiiouutniffbbaa8899999999999ccccgghhhjkklmopquuvvvvvvvuuttttuvvvvvutsqpmkjhhcccaaaaa866688aabfiptsoiiiiouvuqiifffbaaac999999999cccccggghhjjklmnopruvvvvvvvvuttttuvvvvvutrqpmkjhhgcccaaa88668aaabffiruutoiiintvusoiiffbbbaaccc9999cccccccggghhhjjklmnoqsvvvvvvvvuttttvvvvvvusrqpmkjhhgcccaaa88868abbffiipuvvrnnnotvvuqniiffbbbaccccccccccccccgggghhjjklmnopqtuvvvvuuutttuvvvvvvusrqomkjhhgcccaaa8888aabbfiinotvvupnnosuvusoiiiffbbeeecccccccccccccgggghhjkklmnopqtvuuuuuutttuvvvvvvtsrpomkjhhgcccaaaa888aabffinootvvvsoooquvvtqniiiffbeeeeeeeeccccccccgggghhhjkllmoopruuuuuuuttttvvvvvutsqpnlkjhhgcccaaaa888aabfinstqruvvuqoopuvvvtoniiffbeeeeeeeeeeecccccggggghhjjklmnopqsuvvvvuuuttuvvvuutsqpnlkjhhgcccaaaa888aabfiqvvurruvvspopsvvvvqniiiffffeefffffeeeecccgdggghhhjkklmnoprtvvvvuuuttuvvvuutsqpnlkjhhgccccaaa888abbfiovvvuqtvvvrpprvvvvsoniiifffffffmnmffeeeecgggggghhhjklmnopqsvvvvuuuttuvvvvuusqpnlkjhhgccccaaa888abbfinsvvvrruvvtqpquvvvupnniiifffffiqssokfjeegggggggghhjjklmnopqtvvvuuuttuuuuuuusqpnlkjhhgccccaaaa8aabbfiipvvvurtvvvrqqtvvvusonmiiifffiosttsnlkjeeegggggghhhjklmmopqsvvvuuuttuuuuutttrpnmkjhhgccccaaaa8aabbfiiouvvvtsvvvuqqtvvvuuqnnmiiikiiottttrmlkjeeggggggghhjjklmnoprtvvuuuutttttttttrpomkjhhgcccccaaa8abbffiiosvvvusuvvvrqsvvvvutpnmmiiiilosttttpmkkjehggggggghhjkllnopqsvvuuuutttttttttrqomljhhgcccccaaaaabbffinoquvvvttvvvtqrtvvvvvtpnmmlllmnsttttsolkkjjhgggggghhjkklmnopruvuuuutttttttttrqpnlkjhggccccaaa8abbffinoptvvvusuvvvsqsuvvvvvspnmmllmnqtttttrnlkkjjhgggggghjjkklnopqtvuuuuttttttttsrqpnlkjhggccccaa88abffiinopsvvvvtuvvvurrsuvvvvvsonnmmmmostttttqmlkjjhhggggghhjjklmnopsvuuuuttttttttsrqpomkjhggcccccaa8abffiinoprvvvvutvvvvtrrtvvvvvuronnnnnnqtttttsnllkjjhgggggghhjkklnopquuuuuttttttttsrrpomljhhggcccca88abffinstrrtvvvvttvvvvussuuuuuttrponnnnprsttttpmlkkjhhggggghhjjklmnopsuututttttttsssrqomljhhggcccca88abffintuvtrtvvvutuvvvvussttuutttspoonooqsttttrnmlkjjhgggggghhjklmnopqttttuutttttssssqpnlkhhggccccaa8abffinruvvrsvvvvttuvvvvtssuuuttttsqooooprtttttpmllkjhgggggghhjjklmnoprttttttttttssssrpomkjhgggcccca8abefimpuvvssuvvvutuvvvvvttuuuttttttrppppqsttttromlkjjhgggggghhjklmnopqttttttttttttssrqomljhhggccccaaabefiiotvvustvvvvvuuuvvvuuuuutttttttrpppqrtttttqnmlkjjhggggghhjjklmnoprtttttttttttsssrpnljhhgggcccaaabefiinsvvvssuuvvvvuuuuuuuuuuuuttttttsqqqrtttttspnlkkjhgggggghhjkklmnpqttttttttttttssrpomkhhgggcccc8aaeffinquvvtstuuvvvvuuuuuuuuuuuuuttttttsrstttttsromlkjhhhggggghhjklmnoprtttttttttttssrqpnljhgggdccc8aaeffimptuvutstuvvvvvvuuvvuuuuuuuuttttttttttttttrpnmlkjhhggggghhjkklmnoqsttttttttttsssrpomjhgggddcccaaeefiinquvuutsuuvvvvvuuuuuuuuuuuutttttttuttttttsqnmlkkjhgggggghhjklmnoprtttttttttttssrqomkhhgggdcccaaeeffinotuuutsstuvvvvuuuuuuuuuvuuuttttttuuuuuttsronmlkjhgggggghhjjklmnpqstttttttttttssqpnljhhggddccaaeeffimnqtuuutsttuuvvuuuuuuuuuvuuuttttttuuuuuuttsqnmlkjjhgggggghhjklmnopsttttuttttttssrqomkhhggdddc8aaeeffinostuuuutttuvvuuuuuuuuuuuuuttttuuuuuuuuttsronmlkjhgggggghhjkklnoprsttttutttttssrqpnljhgggddc8aaeeffimnqttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuvuuuuttrpomlkjhhgggggghjjklmnoqstttttttttttsrrpomkhgggddc8aaaeefiimoqstuuuvuuuuuuuuuuuuuuuuuuuuuuvvvvvvvuttsqonmkjjhggggggghjkkmnoprstttttuttttssrqomkhhggddc88aaeeffiinopstttuuuuuuuuuuuuuuuuuuuuuuvvvvvvvvuttsrpnmljjhggdgggghhjklmnoqsttttttttttssrqpnljhggddd88aaeeeffiimnortttttuuuvuuuuuuuuuuuvvvvvvvvvvvvvuttrpnmlkjhggdddggghjjlmnoprsttttttutttsrqpomkhhggdd88aaaeeeffilmnopssttttuuuuuuuuuvvuuuvvvvvvvvvvvvuutsqomlkjhggddddggghjklmnoqstttttuutttsrqponljhgggd888aaeeeefkklmmnorsstttuuuuuuuuvvuuvvvvvvvvvvvvvvutsqomlkjhggdddddgghjklmnopssttttuutttssrqpnmkhgggd888aaaaeeefkkllmnoprstttuuuuuuuuuuvvvvvvvvvvvvvvvutsqomlkjhggddddddghhjklmnprstttttttttssrqponljhggd8888aaaaeeejkkklmnnoqrsttuuuuuuuuvvvvvvvvvvvvvvvvutsromlkjhgcddddddgghjklmnoqsstttttttttsrqqpnmkhggd6888aaaaeeeeejjklmmnopqsttuuuuuvvvvvvvvvvvvvvvvvvutsqomlkjhgdddddddgghhjklmoprstttttttttssrqpomkhggd68888aaccceeeejjkllmmnoqsttuuuuvvvvvvvvvvvvvvvvvuutsqnmlkjhgddddddddgghjklmnoqssttttttttssrqponljhgg5688888aacccceejjkklmmnoprttuuuuuvvvvvvvvvvvvvvvuttrpnmkkjecdddddddddghjjllnoprstttttttttsrqqpomkhhg55688888acccccehjjjkllmnoprtttuuuuvvvvvvvvvvvvvvvttronmkjhecdddddddddgghjklmnprstttttttttssrqppnljhg55558888aaaccccehhjkkklmnoprtttttuuuvvvvvvvvvvvvuttqomlkjhecdddddddddgghjklmnoqssttttttttssrqppomkhg5555688888acccccghhjjkllmnoprtttttuuvvvvvvvvvuuuutsqomlkjeccddddddddddghhjklmoprsttttttttssrqqponljh6555568888aacccccghhjjkllmnopsttttttuuvvvvvvvuutttsqnmlkjecccdddddddddgghjklmnprssttttttttssrqppnmkh6655558888a889cccgghhjjkklmnoprstttttuuuvvvvvuutttspnmkjjecccdddddddddgghjklmnoqrsttttttttssrqqponlj66555568888889ccccgghhhjkllmnopqssstttttuvvvuuttttspnlkjeecccd99ddddddggghjklmoqrsttttttttssrqqppnmk4655555688888899ddcgghhjjkllmnopqssssttttuuuuuttttrpnlkjeeccd9999ddddddgghjklmnprstttttttttsrrqppomk44655555668888999dccgghhhjklmmnopqsssssttttttttttsrpnlkjeccc99999ddddddgghhjkmnoqrsstttttttssrqqponl34465555558888999ddddgghhjkklmnooprsssssttttuttttsronlkjeccc999999ddddddghhjklmoqrsstttttttssrqqppom344465555577888999ddddggghjjklmnopqssssstttuuuttsrqomlkjeccc999999ddddddghhjklmnprsstttttttssrrqppon334466555557777799dddddgghhjkllmnoprsssstttuutttsrqomlkjeccc9999999dddddgghhklmnorrssttttttssrrqqpon3344466555555577999dddddgghhjklmmnorsrssttuuutttsrpnmlkeeccc9999999dddddggghjklmoqrssttttttsssrqqppo33344465555575777999dddddgghjjklmnorsrssttuuutttsrpnmljeecc99999999ddddddgghjklmnprssttttttsssrqqppo333344465555577779999ddddgghhjklmnorrrsstuuuutttsrpnmkjeecc99999999ddddddgghhklmmprssstttttsssrrqppo3333344665555557779999dddggghjkklnorrrsstuuuutttsrpnlkjeecc999999999dddddggghjklmoqrsstttttsssrrqqpo2333344465555555779999ddddgghjkklnorrrsttuuuutttsronlkjeecc9999999999ddddggghjklmnprrsstttttsssrqqpo22333344665555577799999ddddgghjklnorrrsttuuuutttsronlkjeecc9999999999dddddgghjjklmpqrssssssssssrqqpp22333344666555557779999ddddgghjklnpsrrstuuvuutttsqonlkjeccc9999999999dddddgghhjklmoqrssssssssssrqqpp222233346665555577799999dddgghjklnpsssstuuuuutttrqonlkjeccc9999999999dddddggghjkkmnqrrsssssssssrqqpp222233344465555577779999dddcghjklnpsssttuvvvutttrqnmlkeecc999999999999dddddgghhjklmprrsssssssssrqqpp222233344446555557779999dddcghjklnpssstuuuvvutttrpnmlfeeccc99999999999dddddggghjklmoqrsssssssssrrqpp2222333344465555577779999dddghjkmnpssstuvvvvuttsrpnmlfeecc999999999999ddddddgghhjklnqrrssssssssrrqqp2222333334465555557779999ddggjklmnqssstuvvvvuttsrpnmlfeecc999999999999ddddddggghjklmprrssssssssrrqqp2222233334465555577779999ddcgjklmnqssstuvvvvuttsqonlkjeecc9999999999999ddddddgghjklmoqrrssssssssssrr2222223334466555557779999ddchjklmoqssstuuvvvuttsqonlkjeecc9999999999999ddddddgghhjklnqrrssssssstssss2222223334466555557779999ddcejklmoqssttuuvvuuttsqomlkjeecc99999999999999ddddddgghjklmpqrrrsssstttsss2222223334445555557779999dccejklmorssttuuvvuuttsqomlkjeecc99999999999999ddddddgghhkkloqqrrrssttttsss2222222334446555577779999dccejklmorssttuuvvuuttsqomlkfeecc999999999999999dddddggghjklnqqrrrrrtttssss2222222333444555577779999dccejklnorrsttuuuuuuttspnmlkfeecc999999999999999dddddggghjklmpqqrrrrtttssss222222233344455557777999ddcgejklnpsssttuuuuuuttrpnmlkeeccc9999999999999999dddddgghjjkloqqqqrrtttssss222222233344455557777999ddcghjkmnpsssttuuuuutttrpnmkkeecc99999999999999999dddddgghhjkloqqqqrrttssssr',
   }
-  // how far the wind can move a hand (0 none, 1 as freely as the grass), and each hand's pace through it
+  // a tone a little deeper for a dark page
+  const handsDim = (hex) => {
+    const v = Number.parseInt(hex.slice(1), 16)
+    const c = [(v >> 16) & 255, (v >> 8) & 255, v & 255].map((n) => Math.round(n * 0.92))
+    return `#${c.map((n) => n.toString(16).padStart(2, '0')).join('')}`
+  }
+  const HANDS_TONES = Object.fromEntries(HANDS_PHOTO.palette.map((hex, i) => [`tone${i}`, [hex, handsDim(hex)]]))
+  // how far the wind can turn a hand (0 none, 1 as freely as the grass); how far round it, in cells of the photograph,
+  // its glow goes with it whole, and how far it goes with it at all
   const HANDS_GIVE = 0.85
+  const HANDS_HOLD = 7
+  const HANDS_REACH = 22
   const HANDS_EVEN = 0.005
   const HANDS = {
     ...HERO,
@@ -7020,12 +6319,16 @@
     // no words in the frame: the box the paint keeps clear of is off it
     words: { at: [0.5, -4], half: [0.001, 0.001] },
     lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001 },
-    inks: HANDS_INKS,
+    inks: {
+      ...LAND_INK,
+      coral: [HANDS_PHOTO.palette[0], handsDim(HANDS_PHOTO.palette[0])],
+      ember: [HANDS_PHOTO.palette[7], handsDim(HANDS_PHOTO.palette[7])],
+      amber: [HANDS_PHOTO.palette[13], handsDim(HANDS_PHOTO.palette[13])],
+    },
     sky: {
       stops: [
         [0, 'coral'],
-        [0.42, 'ember'],
-        [0.78, 'flame'],
+        [0.5, 'ember'],
         [1, 'amber'],
       ],
       grain: 0.42,
@@ -7054,11 +6357,11 @@
     marks: true,
     paints: {
       ...PAINTS,
+      ...HANDS_TONES,
       light: ['#ffffff', '#ffffff'],
       lightWarm: ['#fffaf0', '#fff6e8'],
       lightGlow: ['#fff3cc', '#ffedbc'],
       halo: ['#ffd25e', '#ffc650'],
-      haloDeep: ['#ffb245', '#f9a33c'],
     },
     clouds: [],
     flock: [],
@@ -7066,53 +6369,538 @@
     fit: (w) => clamp(w / 300, 0.5, 1),
     plant: (garden) => {
       const { w, h, rand } = garden
+      const [gw, gh] = HANDS_PHOTO.grid
+      const cells = HANDS_PHOTO.cells
       // the photograph covers the frame, its middle on the frame's
-      const k = Math.max(w / 736, h / 818)
-      const size = 818 * k
-      const ox = (w - 736 * k) / 2
-      const oy = (h - 818 * k) / 2
-      const at = ([x, y]) => [ox + x * 736 * k, oy + y * 818 * k]
+      const cw = Math.max(w / gw, h / gh)
+      const ox = (w - gw * cw) / 2
+      const oy = (h - gh * cw) / 2
+      const lum = HANDS_PHOTO.palette.map((hex) => {
+        const v = Number.parseInt(hex.slice(1), 16)
+        return (0.2126 * ((v >> 16) & 255) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)) / 255
+      })
+      const toneAt = (gx, gy) => Number.parseInt(cells[clamp(gy, 0, gh - 1) * gw + clamp(gx, 0, gw - 1)], 36)
+      const L = (gx, gy) => lum[toneAt(gx, gy)]
+      // The hands: the photograph's lightest cells, the left hand's left of the gap between them, the right's right of
+      // it. How far each cell is from either, in cells (a chamfer distance, two passes).
+      const BRIGHT = 24
+      // the line between the hands, down the orange between them: clear of the right thumb above and of both arms below
+      const splitAt = (gy) => gw * (0.44 + (0.14 * gy) / gh)
+      const far = gw + gh
+      const dists = [0, 1].map((hand) => {
+        const d = new Float32Array(gw * gh).fill(far)
+        for (let gy = 0; gy < gh; gy += 1) {
+          for (let gx = 0; gx < gw; gx += 1) {
+            const mine = hand === 0 ? gx < splitAt(gy) : gx >= splitAt(gy)
+            if (mine && toneAt(gx, gy) >= BRIGHT) {
+              d[gy * gw + gx] = 0
+            }
+          }
+        }
+        const pass = (dir) => {
+          const ys = dir > 0 ? [...Array(gh).keys()] : [...Array(gh).keys()].reverse()
+          const xs = dir > 0 ? [...Array(gw).keys()] : [...Array(gw).keys()].reverse()
+          for (const gy of ys) {
+            for (const gx of xs) {
+              let v = d[gy * gw + gx]
+              const near = [
+                [-dir, 0, 1],
+                [0, -dir, 1],
+                [-dir, -dir, 1.414],
+                [dir, -dir, 1.414],
+              ]
+              for (const [dx, dy, c] of near) {
+                const x = gx + dx
+                const y = gy + dy
+                if (x >= 0 && x < gw && y >= 0 && y < gh) {
+                  v = Math.min(v, d[y * gw + x] + c)
+                }
+              }
+              d[gy * gw + gx] = v
+            }
+          }
+        }
+        pass(1)
+        pass(-1)
+        return d
+      })
+      const toCanvas = (gx, gy) => [ox + gx * cw, oy + gy * cw]
       const hands = [
-        { ring: HANDS_SHAPE.left.map(at), pivot: at([0.35, 1.32]), phase: 1.3, base: 1000 },
-        { ring: HANDS_SHAPE.right.map(at), pivot: at([0.67, 1.38]), phase: 4.4, base: 2000 },
+        { pivot: toCanvas(gw * 0.42, gh * 1.25), phase: 1.3 },
+        { pivot: toCanvas(gw * 0.74, gh * 1.32), phase: 4.4 },
       ]
       const HAZE = 0.4 + HANDS_EVEN
-      // the first seed near a stroke's own that makes its paint lighter and warmer (see the docs' figure)
-      const bright = (seed) => {
-        for (let n = 0; n < 24; n += 1) {
-          rand.reseed(seed + n * 104729)
+      // A stroke whose middle is at x, y: on a hand or in its glow, rooted at the hand's pivot under the frame, with
+      // its stem leaning just so far that its head is where it is put and a stiffness that lets the wind turn it as
+      // much as its hand, less the further it is from it; anywhere else, rooted straight under it and still.
+      // A stroke's seed also sets how much lighter or darker, warmer or cooler than its paint it comes out (see the
+      // strokes' shader): the photograph is smooth, so take the first seed near a stroke's own that leaves its tone
+      // nearly as it is.
+      const calm = (seed) => {
+        for (let k = 0; k < 60; k += 1) {
+          rand.reseed(seed + k * 104729)
           rand()
           rand()
           rand()
           const dice = rand()
-          if ((dice * 91.7) % 1 >= 0.55 && (dice * 37.3) % 1 >= 0.55) {
-            return seed + n * 104729
+          if (Math.abs(((dice * 91.7) % 1) - 0.5) < 0.08 && Math.abs(((dice * 37.3) % 1) - 0.5) < 0.15) {
+            return seed + k * 104729
           }
         }
         return seed
       }
-      // A stroke whose middle is at x, y, rooted at its hand's pivot under the frame: its stem reaches from there up to
-      // it, leaning just so far that its head is where it is put, and it turns as told, less the turn its lean gives it.
-      // The hand's strokes share the pivot, the stiffness and the phase, so the wind moves them all by the same angle.
-      const put = (n, hand, o) => {
-        rand.reseed(bright(71011 + n * 7919))
-        const dx = o.x - hand.pivot[0]
-        const up = hand.pivot[1] - o.y
-        const stem = Math.hypot(dx, up)
-        const lean = Math.atan2(dx, up)
-        garden.dab({
-          blur: 0.6,
-          load: 0.97,
-          kind: HAZE,
-          ...o,
-          x: hand.pivot[0],
-          y: hand.pivot[1],
-          stem,
-          lean,
-          phase: hand.phase,
-          stiff: 1 - HANDS_GIVE,
-          turn: (o.turn ?? 0) - lean * 0.7,
+      const put = (n, { x, y, hand, weight, turn, ...o }) => {
+        rand.reseed(calm(71011 + n * 7919))
+        if (hand && weight > 0.02) {
+          const dx = x - hand.pivot[0]
+          const up = hand.pivot[1] - y
+          const stem = Math.hypot(dx, up)
+          const lean = Math.atan2(dx, up)
+          garden.dab({
+            kind: HAZE,
+            ...o,
+            x: hand.pivot[0],
+            y: hand.pivot[1],
+            stem,
+            lean,
+            phase: hand.phase,
+            stiff: 1 - HANDS_GIVE * weight,
+            turn: turn - lean * 0.7,
+          })
+          return
+        }
+        const root = h + 40
+        garden.dab({ kind: HAZE, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1, turn })
+      }
+      // A stroke to a cell, laid along the light's contour there (across the way it changes), a little jittered, and
+      // painted in the cell's tone: the background first, then the glow and the hands over it, from the top down.
+      for (let gy = 0; gy < gh; gy += 1) {
+        for (let gx = 0; gx < gw; gx += 1) {
+          const n = gy * gw + gx
+          const [cx, cy] = toCanvas(
+            gx + 0.5 + (hashed(n * 1.31) - 0.5) * 0.5,
+            gy + 0.5 + (hashed(n * 2.17) - 0.5) * 0.5,
+          )
+          if (cx < -cw * 2 || cx > w + cw * 2 || cy < -cw * 2 || cy > h + cw * 2) {
+            continue
+          }
+          const tone = toneAt(gx, gy)
+          const ddx = L(gx + 1, gy) - L(gx - 1, gy)
+          const ddy = L(gx, gy + 1) - L(gx, gy - 1)
+          const flat = Math.hypot(ddx, ddy) < 0.012
+          const turn =
+            (flat ? 0.9 + 0.6 * Math.sin(gx * 0.11 + gy * 0.07) : Math.atan2(ddy, ddx) + Math.PI / 2) +
+            (hashed(n * 3.7) - 0.5) * 0.5
+          // each side of the gap between the hands goes with its own hand, so no stroke of one arm moves with the other,
+          // and along the line between them nothing moves, so the orange there stretches as the hands lean rather than
+          // opening into a seam
+          const which = gx < splitAt(gy) ? 0 : 1
+          const d = dists[which][n]
+          const weight = (1 - smooth(HANDS_HOLD, HANDS_REACH, d)) * smooth(0, 3, Math.abs(gx + 0.5 - splitAt(gy)))
+          const lit = tone >= BRIGHT
+          put(n, {
+            x: cx,
+            y: cy,
+            hand: hands[which],
+            weight,
+            turn,
+            long: cw * (lit ? 1.35 : 1.5),
+            wide: lit ? 0.85 : 0.9,
+            blur: cw * (lit ? 0.9 : 1.25),
+            paints: [`tone${tone}`, `tone${tone}`],
+            load: lit ? 1 : 0.95,
+            // the light in solid strokes, so where they overlap they keep one tone, the rest in the haze kind
+            kind: lit ? 0.25 + HANDS_EVEN : HAZE,
+            order: (weight > 0.02 ? 1000 + which * 1000 : 0) + gy * 0.01 + (lit ? 500 : 0),
+          })
+        }
+      }
+      // A few small lights round the fingers, which keep their places by the hand as it moves and twinkle, each at its
+      // own pace: in the gold just past the fingertips, a few cells out from the hand, never on it.
+      const tips = []
+      for (let gy = 0; gy < gh * 0.55; gy += 1) {
+        for (let gx = 0; gx < gw; gx += 1) {
+          const n = gy * gw + gx
+          const which = gx < splitAt(gy) ? 0 : 1
+          const d = dists[which][n]
+          if (d >= 2 && d <= 5 && hashed(n * 9.1) > 0.965) {
+            tips.push([gx, gy, which, n])
+          }
+        }
+      }
+      tips.slice(0, 16).forEach(([gx, gy, which, n], j) => {
+        const [x, y] = toCanvas(gx + 0.5, gy + 0.5)
+        const core = Math.max(0.9, cw * (0.35 + 0.5 * hashed(n * 4.7)))
+        put(900000 + j * 2, {
+          x,
+          y,
+          hand: hands[which],
+          weight: 1,
+          turn: 0,
+          long: core * 4,
+          wide: 1,
+          paints: ['lightGlow', 'halo'],
+          load: 0.5,
+          kind: 3.25,
+          blur: core * 3,
+          order: 5000,
         })
+        put(900001 + j * 2, {
+          x,
+          y,
+          hand: hands[which],
+          weight: 1,
+          turn: 0,
+          long: core,
+          wide: 0.95,
+          paints: ['light', 'lightWarm'],
+          load: 0.95,
+          kind: 3.4,
+          blur: 0.4,
+          order: 5001,
+        })
+      })
+    },
+  }
+
+  /* A desk left out in the long grass of a wood, after the photograph Cameron sent: a white table, a laptop open on it,
+     a monitor and a computer's tower, the grass grown up round its legs and the wood behind it soft in the shade with
+     the sun coming through. Butterflies come in out of the wood and land along the tops of the screens and the tower,
+     sit opening and closing their wings, and are off again when the pointer comes onto the desk. Everything is painted
+     with the meadow's brush; the grass is the meadow's own. */
+  const DESK_INKS = {
+    ...LAND_INK,
+    // the wood behind, from the top of the frame down: deep shade, leaves, and the light coming into the glade
+    canopy: ['#21341b', '#1a2a16'],
+    understorey: ['#3c5a25', '#314b1f'],
+    glade: ['#6e9441', '#5c7e37'],
+    sunlit: ['#a3c05a', '#89a64b'],
+  }
+  const DESK_EVEN = 0.005
+  /* The desk and what is on it, in shares of the frame's width and height, each a list of points round it: the table's
+     top (its back edge higher, as seen a little from above), the front edge of its top, its legs, the laptop's lid and
+     screen and base, the keyboard, the monitor's frame, screen and stand, and the tower's front, side and top. */
+  const DESK_PARTS = [
+    {
+      name: 'leg',
+      pts: [
+        [0.252, 0.6],
+        [0.262, 0.6],
+        [0.262, 0.83],
+        [0.252, 0.83],
+      ],
+      paints: ['slate', 'slate'],
+    },
+    {
+      name: 'leg',
+      pts: [
+        [0.685, 0.6],
+        [0.695, 0.6],
+        [0.695, 0.83],
+        [0.685, 0.83],
+      ],
+      paints: ['slate', 'slate'],
+    },
+    {
+      name: 'top',
+      pts: [
+        [0.24, 0.575],
+        [0.705, 0.575],
+        [0.765, 0.645],
+        [0.185, 0.645],
+      ],
+      paints: ['deskTop', 'deskLit'],
+    },
+    {
+      name: 'edge',
+      pts: [
+        [0.185, 0.645],
+        [0.765, 0.645],
+        [0.765, 0.665],
+        [0.185, 0.665],
+      ],
+      paints: ['deskEdge', 'deskEdge'],
+    },
+    {
+      name: 'leg',
+      pts: [
+        [0.198, 0.665],
+        [0.21, 0.665],
+        [0.21, 0.895],
+        [0.198, 0.895],
+      ],
+      paints: ['deskLeg', 'deskLeg'],
+    },
+    {
+      name: 'leg',
+      pts: [
+        [0.74, 0.665],
+        [0.752, 0.665],
+        [0.752, 0.895],
+        [0.74, 0.895],
+      ],
+      paints: ['deskLeg', 'deskLeg'],
+    },
+    {
+      name: 'lid',
+      pts: [
+        [0.268, 0.405],
+        [0.415, 0.405],
+        [0.42, 0.565],
+        [0.272, 0.565],
+      ],
+      paints: ['metal', 'metal'],
+    },
+    {
+      name: 'screen',
+      pts: [
+        [0.276, 0.414],
+        [0.407, 0.414],
+        [0.411, 0.553],
+        [0.28, 0.553],
+      ],
+      paints: ['screen', 'screenGlint'],
+    },
+    {
+      name: 'base',
+      pts: [
+        [0.262, 0.565],
+        [0.43, 0.565],
+        [0.442, 0.592],
+        [0.25, 0.592],
+      ],
+      paints: ['metal', 'metalLit'],
+    },
+    {
+      name: 'keys',
+      pts: [
+        [0.44, 0.598],
+        [0.575, 0.598],
+        [0.585, 0.622],
+        [0.432, 0.622],
+      ],
+      paints: ['screen', 'screen'],
+    },
+    {
+      name: 'monitor',
+      pts: [
+        [0.432, 0.37],
+        [0.582, 0.37],
+        [0.582, 0.545],
+        [0.432, 0.545],
+      ],
+      paints: ['metal', 'metalLit'],
+    },
+    {
+      name: 'screen',
+      pts: [
+        [0.442, 0.381],
+        [0.572, 0.381],
+        [0.572, 0.532],
+        [0.442, 0.532],
+      ],
+      paints: ['screen', 'screenGlint'],
+    },
+    {
+      name: 'stand',
+      pts: [
+        [0.494, 0.545],
+        [0.52, 0.545],
+        [0.526, 0.582],
+        [0.488, 0.582],
+      ],
+      paints: ['metal', 'metal'],
+    },
+    {
+      name: 'side',
+      pts: [
+        [0.688, 0.352],
+        [0.712, 0.338],
+        [0.712, 0.615],
+        [0.688, 0.64],
+      ],
+      paints: ['towerShade', 'towerShade'],
+    },
+    {
+      name: 'front',
+      pts: [
+        [0.6, 0.352],
+        [0.688, 0.352],
+        [0.688, 0.64],
+        [0.6, 0.64],
+      ],
+      paints: ['tower', 'towerLit'],
+    },
+    {
+      name: 'roof',
+      pts: [
+        [0.6, 0.352],
+        [0.624, 0.338],
+        [0.712, 0.338],
+        [0.688, 0.352],
+      ],
+      paints: ['towerLit', 'towerLit'],
+    },
+    {
+      name: 'bay',
+      pts: [
+        [0.612, 0.38],
+        [0.676, 0.38],
+        [0.676, 0.392],
+        [0.612, 0.392],
+      ],
+      paints: ['towerShade', 'towerShade'],
+    },
+    {
+      name: 'badge',
+      pts: [
+        [0.628, 0.555],
+        [0.662, 0.555],
+        [0.662, 0.6],
+        [0.628, 0.6],
+      ],
+      paints: ['badge', 'towerShade'],
+    },
+  ]
+  // where the butterflies sit: along the screens' tops and on the tower, facing either way
+  const DESK_PERCHES = [
+    [0.3, 0.405, 1],
+    [0.385, 0.405, -1],
+    [0.5, 0.37, 1],
+    [0.66, 0.338, -1],
+  ]
+  const DESK = {
+    ...HERO,
+    intro: false,
+    wake: '300% 0px',
+    near: '100% 0px',
+    words: { at: [0.5, -4], half: [0.001, 0.001] },
+    lines: { ...LINES, veil: [0, 0], veilCore: 0.5, sink: 0.001, beadChance: 0.12 },
+    inks: DESK_INKS,
+    sky: {
+      stops: [
+        [0, 'canopy'],
+        [0.3, 'understorey'],
+        [0.7, 'glade'],
+        [1, 'sunlit'],
+      ],
+      grain: 0.42,
+      brush: 0.08,
+      wash: 'understorey',
+    },
+    // The meadow, flat and seen from just over the grass: its far edge a little over a third of the way down the frame,
+    // its foot at the frame's.
+    land: {
+      ...HERO.land,
+      profile: [
+        [-1.6, 0],
+        [1.6, 0],
+      ],
+      crest: 0,
+      relief: [1, 1],
+      sheets: [
+        {
+          name: 'meadow',
+          opaque: true,
+          top: {
+            hill: [
+              [-1.6, 0],
+              [1.6, 0],
+            ],
+          },
+          foot: [
+            [-1.6, 1.05],
+            [1.6, 1.05],
+          ],
+          paint: [
+            [0, 'olive', 0],
+            [0.04, 'olive', 0.85],
+            [0.18, 'deepGreen', 1],
+            [0.5, 'green', 1],
+            [0.8, 'lime', 1],
+            [1, 'green', 1],
+          ],
+          lean: 0.2,
+          fill: 0.8,
+          under: 0.7,
+          patch: 0.25,
+          flow: 0.6,
+          breath: 1.2,
+          sheen: 0.4,
+        },
+      ],
+      room: ({ h }) => h * 0.6,
+      foot: 0,
+      head: 0,
+      least: 20,
+    },
+    grass: { ...GRASS, tall: [10, 62], blades: [5, 10], singles: 0.5, tufts: 0.14, rest: 0.08 },
+    passer: null,
+    pointer: true,
+    flowers: null,
+    glyphs: true,
+    marks: true,
+    paints: {
+      ...PAINTS,
+      deskTop: ['#f4f3ee', '#e8e7e2'],
+      deskLit: ['#fdfcf8', '#f3f2ec'],
+      deskEdge: ['#cfcfca', '#c2c2bd'],
+      deskLeg: ['#d9dad6', '#cbccc8'],
+      metal: ['#c9ccd0', '#babdc2'],
+      metalLit: ['#e4e6e9', '#d6d8dc'],
+      screen: ['#16191d', '#121417'],
+      screenGlint: ['#2a3038', '#232830'],
+      tower: ['#d6dcd2', '#c9cfc5'],
+      towerLit: ['#e7ece2', '#dbe0d6'],
+      towerShade: ['#a9b2a6', '#9aa398'],
+      badge: ['#7d9a6a', '#6f8b5d'],
+      slate: ['#9fa29d', '#8e918c'],
+      trunk: ['#2b3420', '#232b1a'],
+      foliage: ['#4f7a2c', '#426a24'],
+      sunfleck: ['#d7e98f', '#c6da7d'],
+      sunlight: ['#fff6cf', '#f4ebc2'],
+    },
+    clouds: [],
+    flock: Array.from({ length: 4 }, (_, k) => ({
+      size: 12 + 3 * ((k * 0.7549 + 0.31) % 1),
+      seed: Math.round(((k * 0.618 + 0.27) % 1) * 100) / 100,
+      pastel: k % 3,
+      wing: WING_NAMES[(k * 2 + 1) % 3],
+      flit: false,
+    })),
+    perch: {
+      stay: [6, 15],
+      reach: 50,
+      flit: [3, 6],
+      hop: 70,
+      come: 120,
+      flee: 220,
+      back: 2.4,
+      every: [0.6, 1.4],
+      appear: 0,
+      arrive: 0,
+      first: 0,
+      beat: 8,
+      wings: [1.38, 0.3],
+      rest: [3.5, 6.5],
+      sit: [0.12, -0.35, 1.05],
+      lift: 0.35,
+      flutter: 5,
+      clear: 10,
+      climb: 0.3,
+      swerve: 30,
+      rise: 40,
+    },
+    fit: (w) => clamp(w / 300, 0.55, 1),
+    plant: (garden) => {
+      const { w, h, rand } = garden
+      const at = ([x, y]) => [x * w, y * h]
+      // the desk stands with its feet this far down the frame; whatever grows in front of that is painted over it
+      const feet = 0.895 * h
+      const put = (n, { x, y, order, long, wide, turn = 0, blur, paints, load = 0.97, kind = 0.25 + DESK_EVEN }) => {
+        rand.reseed(61331 + n * 7919)
+        const root = h + 60
+        garden.dab({ x, y: root, stem: root - y, long, wide, turn, blur, paints, load, kind, stiff: 1, lean: 0, order })
       }
       const runsAt = (ring, x) => {
         const ys = []
@@ -7130,141 +6918,117 @@
         }
         return runs
       }
-      // a hand's body filled in columns, each run in short lengths, down to a little past the frame's foot
-      const fill = (n, hand, { col, blur, load, paints, order }) => {
+      // a part filled in columns of even, unbristled paint, each run in short lengths, twice for a solid coat
+      const coat = (n, ring, paints, order) => {
         let left = Number.POSITIVE_INFINITY
         let right = Number.NEGATIVE_INFINITY
-        for (const [x] of hand.ring) {
+        for (const [x] of ring) {
           left = Math.min(left, x)
           right = Math.max(right, x)
         }
+        const col = Math.max(1.4, w * 0.006)
         let m = n
-        for (let x = left + col / 2; x < right; x += col) {
-          for (const [a, b0] of runsAt(hand.ring, x)) {
-            const b = Math.min(b0, h + 30)
-            if (b - a < 0.6) {
-              continue
-            }
-            const segs = Math.max(1, Math.round((b - a) / (col * 4)))
-            const seg = (b - a) / segs
-            for (let q = 0; q < segs; q += 1) {
-              const long = seg / 2 + col * 0.55
-              put(m, hand, {
-                x,
-                y: a + (q + 0.5) * seg,
-                long,
-                wide: clamp((col * 0.78) / long, 0.02, 1.4),
-                turn: Math.PI / 2,
-                paints,
-                load,
-                blur,
-                order,
-              })
-              m += 1
+        for (let pass = 0; pass < 2; pass += 1) {
+          for (let x = left + col / 2; x < right; x += col) {
+            for (const [a, b] of runsAt(ring, x)) {
+              if (b - a < 0.4) {
+                continue
+              }
+              const segs = Math.max(1, Math.round((b - a) / (col * 5)))
+              const seg = (b - a) / segs
+              for (let q = 0; q < segs; q += 1) {
+                const long = seg / 2 + col * 0.5
+                put(m, {
+                  x,
+                  y: a + (q + 0.5) * seg,
+                  long,
+                  wide: clamp((col * 0.8) / long, 0.02, 1.4),
+                  turn: Math.PI / 2,
+                  blur: 0.8,
+                  paints,
+                  order: order + pass * 0.001,
+                })
+                m += 1
+              }
             }
           }
         }
+        return m
       }
-      hands.forEach((hand, i) => {
-        let top = Number.POSITIVE_INFINITY
-        let sx = 0
-        for (const [x, y] of hand.ring) {
-          top = Math.min(top, y)
-          sx += x
-        }
-        const mx = sx / hand.ring.length
-        const my = (top + h) / 2
-        const o = hand.base
-        // its light: a wide gold glow over the orange round it and a nearer, paler one, both under either hand's body,
-        // then the hand, white
-        const g = 100 + i * 10
-        put(o + 1, hand, {
-          x: mx,
-          y: my,
-          long: (h - top) * 0.7,
-          wide: 0.72,
-          turn: Math.PI / 2,
-          paints: ['haloDeep', 'halo'],
-          load: 0.62,
-          blur: size * 0.13,
-          order: g + 0.1,
-        })
-        put(o + 2, hand, {
-          x: mx,
-          y: my,
-          long: (h - top) * 0.55,
-          wide: 0.56,
-          turn: Math.PI / 2,
-          paints: ['halo', 'lightGlow'],
+      // The wood behind, soft as if out of focus: dark trunks going up into the shade, and leaves with the sun on them.
+      for (let i = 0; i < 9; i += 1) {
+        const n = 100 + i
+        const x = w * (0.04 + 0.92 * ((i * 0.6180339 + 0.21) % 1))
+        const thick = w * (0.012 + 0.02 * hashed(n * 3.3))
+        put(n, {
+          x,
+          y: h * 0.18,
+          long: h * 0.26,
+          wide: thick / (h * 0.26),
+          turn: Math.PI / 2 + (hashed(n * 5.1) - 0.5) * 0.12,
+          blur: thick * 0.9,
+          paints: ['trunk', 'trunk'],
           load: 0.55,
-          blur: size * 0.07,
-          order: g + 0.2,
+          kind: 0.4 + DESK_EVEN,
+          order: 1 + i * 0.01,
         })
-        fill(i * 400000 + 50000, hand, {
-          col: Math.max(4, size * 0.02),
-          blur: size * 0.06,
-          load: 0.62,
-          paints: ['halo', 'lightGlow'],
-          order: o + 0.3,
+      }
+      for (let i = 0; i < 36; i += 1) {
+        const n = 200 + i
+        const x = w * hashed(n * 1.7)
+        const y = h * (0.02 + 0.36 * hashed(n * 2.9))
+        const r = w * (0.03 + 0.06 * hashed(n * 4.3))
+        const lit = hashed(n * 6.1) > 0.62
+        put(n, {
+          x,
+          y,
+          long: r,
+          wide: 0.8,
+          turn: hashed(n * 7.7) * Math.PI,
+          blur: r * 0.9,
+          paints: lit ? ['sunfleck', 'sunlit'] : ['foliage', 'understorey'],
+          load: lit ? 0.5 : 0.45,
+          kind: 0.4 + DESK_EVEN,
+          order: 2 + i * 0.01,
         })
-        fill(i * 400000 + 100000, hand, {
-          col: Math.max(3, size * 0.014),
-          blur: size * 0.02,
-          load: 0.75,
-          paints: ['lightWarm', 'lightGlow'],
-          order: o + 0.4,
-        })
-        fill(i * 400000 + 200000, hand, {
-          col: Math.max(2, size * 0.008),
-          blur: Math.max(1.4, size * 0.006),
-          load: 1,
-          paints: ['light', 'lightWarm'],
-          order: o + 0.5,
-        })
-        fill(i * 400000 + 300000, hand, {
-          col: Math.max(1.6, size * 0.006),
-          blur: 1,
-          load: 1,
-          paints: ['light', 'light'],
-          order: o + 0.55,
-        })
-        // A few small lights round the fingers, which keep their places by the hand as it moves and twinkle, each at its
-        // own pace.
-        for (let j = 0; j < 9; j += 1) {
-          const n = o + 500 + j * 3
-          const p = hand.ring[Math.floor(hashed(n * 1.7) * hand.ring.length)]
-          if (p[1] > top + (h - top) * 0.45) {
-            continue
-          }
-          const a = hashed(n * 2.3) * Math.PI * 2
-          const d = size * (0.03 + 0.07 * hashed(n * 3.1))
-          const x = p[0] + Math.cos(a) * d
-          const y = p[1] + Math.sin(a) * d - size * 0.02
-          const core = Math.max(1, size * (0.004 + 0.006 * hashed(n * 4.7)))
-          put(n, hand, {
-            x,
-            y,
-            long: core * 4,
-            wide: 1,
-            paints: ['lightGlow', 'halo'],
-            load: 0.5,
-            kind: 3.25,
-            blur: core * 3,
-            order: o + 0.8,
-          })
-          put(n + 1, hand, {
-            x,
-            y,
-            long: core,
-            wide: 0.95,
-            paints: ['light', 'lightWarm'],
-            load: 0.95,
-            kind: 3.4,
-            blur: 0.4,
-            order: o + 0.81,
-          })
-        }
+      }
+      // The sun coming into the glade and lying on the desk's top, soft
+      put(400, {
+        x: w * 0.52,
+        y: h * 0.45,
+        long: w * 0.42,
+        wide: 0.5,
+        turn: 0.15,
+        blur: w * 0.2,
+        paints: ['sunlight', 'sunfleck'],
+        load: 0.22,
+        kind: 0.4 + DESK_EVEN,
+        order: 3,
       })
+      // The desk and what is on it, from the back to the front.
+      let m = 10000
+      DESK_PARTS.forEach((part, i) => {
+        m = coat(m, part.pts.map(at), part.paints, feet - 0.5 + i * 0.002)
+      })
+      // a line of light along the top's front edge, where the sun catches it
+      const [ax, ay] = at([0.19, 0.645])
+      const [bx] = at([0.762, 0.645])
+      put(30000, {
+        x: (ax + bx) / 2,
+        y: ay - 0.6,
+        long: (bx - ax) / 2,
+        wide: 1.4 / ((bx - ax) / 2),
+        turn: 0,
+        blur: 0.8,
+        paints: ['deskLit', 'deskLit'],
+        order: feet - 0.4,
+      })
+      // The butterflies' places, and the desk as the shape the pointer sends them off from.
+      for (const [px, py, facing] of DESK_PERCHES) {
+        const [x, y] = at([px, py])
+        garden.perch(x, y, facing)
+      }
+      garden.tree(w * 0.48, h * 0.5, w * 0.3)
     },
   }
 
@@ -7292,6 +7056,7 @@
     flight: prepare(FLIGHT_BAND),
     docs: prepare(DOCS),
     hands: prepare(HANDS),
+    desk: prepare(DESK),
   }
   const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
 
