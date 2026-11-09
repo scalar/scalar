@@ -528,17 +528,21 @@ const getDiscriminatorTag = (
   return mapped?.[0] ?? componentName
 }
 
-/** Check declarations through references and allOf without mistaking generated placeholders for authored values. */
-const hasDeclaredDiscriminatorValue = (
+/** Preserve authored or intentionally omitted values while following the same composition choices as generation. */
+const hasPreservedDiscriminatorValue = (
   schema: NonNullable<SchemaObject['oneOf']>[number] | undefined,
   propertyName: string | undefined,
   options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
   seen: Set<object> = new Set(),
   level: number = 0,
 ): boolean => {
   const resolved = schema && resolve.schema(schema)
   if (!resolved || level > MAX_LEVELS_DEEP) {
     return false
+  }
+  if (propertyName === undefined && shouldOmitProperty(resolved, undefined, undefined, { mode: options?.mode })) {
+    return true
   }
   const target = getSchemaCacheTarget(resolved)
   if (seen.has(target)) {
@@ -555,14 +559,37 @@ const hasDeclaredDiscriminatorValue = (
   }
   if (propertyName !== undefined && 'properties' in resolved) {
     const property = resolved.properties?.[propertyName]
-    if (hasDeclaredDiscriminatorValue(property, undefined, options, nextSeen, level + 1)) {
+    const resolvedProperty = property && resolve.schema(property)
+    if (resolvedProperty && shouldOmitProperty(resolvedProperty, resolved, propertyName, options)) {
+      return true
+    }
+    if (
+      hasPreservedDiscriminatorValue(property, undefined, options, [...schemaPath, propertyName], nextSeen, level + 1)
+    ) {
       return true
     }
   }
+  const anyOfKeyword = resolved.anyOf ? 'anyOf' : undefined
+  const keyword = resolved.oneOf ? 'oneOf' : anyOfKeyword
+  if (keyword) {
+    const selected = selectExampleComposition(resolved, schemaPath, options)
+    return hasPreservedDiscriminatorValue(
+      selected,
+      propertyName,
+      consumeCompositionSelection(options, schemaPath, keyword),
+      schemaPath,
+      nextSeen,
+      level + 1,
+    )
+  }
+  let choiceIndex = 0
   return (
-    resolved.allOf?.some((member) =>
-      hasDeclaredDiscriminatorValue(member, propertyName, options, nextSeen, level + 1),
-    ) ?? false
+    resolved.allOf?.some((member) => {
+      const resolvedMember = resolve.schema(member)
+      const isChoice = !!resolvedMember && !!(resolvedMember.oneOf || resolvedMember.anyOf)
+      const memberPath = isChoice ? [...schemaPath, String(choiceIndex++)] : schemaPath
+      return hasPreservedDiscriminatorValue(member, propertyName, options, memberPath, nextSeen, level + 1)
+    }) ?? false
   )
 }
 
@@ -576,6 +603,7 @@ const withDiscriminatorTag = (
   variant: NonNullable<SchemaObject['oneOf']>[number] | undefined,
   example: unknown,
   options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
 ): unknown => {
   const discriminator = schema.discriminator
   if (
@@ -589,10 +617,7 @@ const withDiscriminatorTag = (
   ) {
     return example
   }
-  if (
-    hasDeclaredDiscriminatorValue(schema, discriminator.propertyName, options) ||
-    hasDeclaredDiscriminatorValue(variant, discriminator.propertyName, options)
-  ) {
+  if (hasPreservedDiscriminatorValue(schema, discriminator.propertyName, options, schemaPath)) {
     return example
   }
   const tag = getDiscriminatorTag(discriminator, variant)
@@ -751,7 +776,7 @@ const handleObjectSchema = (
           dynamicScope: childScope,
         }),
       )
-      Object.assign(response, withDiscriminatorTag(schema, chosen, response, options))
+      Object.assign(response, withDiscriminatorTag(schema, chosen, response, options, schemaPath))
     }
   }
   // allOf — thread a choice-ordinal into schemaPath for each direct oneOf/anyOf
@@ -890,7 +915,7 @@ const handleArraySchema = (
       if (ex === undefined) {
         return undefined
       }
-      const tagged = withDiscriminatorTag(items, selected, ex, options)
+      const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
       return cache(schema, wrapItems ? [{ [itemsXmlTagName]: tagged }] : [tagged], cacheKey, skipCache)
     }
   }
@@ -1495,6 +1520,7 @@ const generateExampleFromSchema = (
               dynamicScope: childScope,
             }),
             options,
+            schemaPath,
           ),
           cacheKey,
           skipCache,
