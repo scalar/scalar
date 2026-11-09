@@ -7088,11 +7088,11 @@
   /* The hero of /resources/compare, after Cameron's concept: a great screen of light, curved as a cinema's is, with a
      face in it giving a speech to an audience in rows before it, all in the periwinkle of the screen's glow. The
      screen is a sheet of the land's own fine lines, its scanlines, lit white in its middle; on it the face, painted
-     from the concept's own in the look of a giant face on a screen in a dark hall (near-white skin, flat deep shadows,
-     a pair of dark glasses), filling the screen from above its glasses to its lower lip above the heads, its mouth
-     opening and shutting as it speaks. The audience is the concept's, traced, and painted in rows of
-     fine strokes, darker the nearer, their outlines lit by the screen; it stands over the screen's foot. The words
-     stand in the pale air above the screen. */
+     from the concept's own in the look of a giant face on a screen in a dark hall (flat shadows, a pair of dark
+     glasses) but in colours only a little lighter and deeper than the screen's own, filling the screen from above its
+     glasses to its lower lip above the heads, its mouth opening and shutting as it speaks. The audience is the
+     concept's, traced, and painted in rows of fine strokes, darker the nearer, their outlines lit by the screen; it
+     stands over the screen's foot. The words stand in the pale air above the screen. */
   // the concept's face (its shadows and light, base-36 cells) and its audience (a mask and its tones, cells of the
   // concept's pixels)
   const CP_FACE = {
@@ -7129,7 +7129,7 @@
      (`vignette`: its radii `rx` and `ry` in cells, more than none, and the thinning from `start` to `end` of them), so
      that no edge of the painted patch shows. It is posterised (`poster`): a cell's shadow, or its light, goes from none
      to full over a soft edge round `[threshold, width]` of its strength in the concept's map, `mix` of the way from the
-     map's own smooth ramp, so the skin is near white and the shadows are flat shapes of the deeper ink; `shade` and
+     map's own smooth ramp, so the skin and the shadows are flat shapes of the face's light and deeper ink; `shade` and
      `light` are their strength and `blur` how much softer than a cell its dabs are. The shadows of the eyes, the nose
      and the upper lip, and the light of the lower lip, are a little weaker or stronger (`boost`). A shadow lies across
      the eyes as a pair of dark glasses' does (`band`: its paint, the rows and columns it spans, how soft its edge is in
@@ -7343,10 +7343,12 @@
       ...PAINTS,
       flare: ['#ffffff', '#f4f5ff'],
       screenHi: ['#e9eaff', '#d3d6fd'],
-      faceShade: ['#787ed0', '#555bbc'],
-      // the face's flat shadows and the inside of its mouth
-      faceDeep: ['#5b61b6', '#3b4096'],
-      faceLight: ['#fbfbff', '#eef0ff'],
+      /* The face's paints, each only a little deeper or lighter than the screen behind it and in its own periwinkle,
+         so that the face is a soft image in the screen and not paint laid on it: its faint brows, its flat shadows and
+         the inside of its mouth, and its light. Each stands as far from the screen in dark mode as in light. */
+      faceShade: ['#9a9fe5', '#757bd0'],
+      faceDeep: ['#8e93db', '#626abb'],
+      faceLight: ['#cccfff', '#a1a6e9'],
       halo: ['#dcdffb', '#b9bdf3'],
       // the audience: dark periwinkle, deeper the nearer, the outlines lit by the screen
       crowdFar: ['#6a6fae', '#272a52'],
@@ -7445,9 +7447,9 @@
           })
         }
       }
-      // The face, after the concept's: its features in the deeper periwinkle and the light on them in white, each a soft
-      // dab a cell wide, as large as the screen lets it show (see cpScreen), and in the room above the heads a little
-      // nearer its top than its foot, where there is more of it than the face needs.
+      // The face, after the concept's: its features in a deeper periwinkle and the light on them in a paler one, each
+      // a soft dab a cell wide, as large as the screen lets it show (see cpScreen), and in the room above the heads a
+      // little nearer its top than its foot, where there is more of it than the face needs.
       const face = CP_FACE
       const [fw, fh] = face.grid
       const cell = face.cell * s.k
@@ -7578,7 +7580,7 @@
               long: cell * 1.35,
               wide: 0.95,
               blur: cell * 1.4 * CP_BLEND.blur,
-              paints: ['faceLight', 'flare'],
+              paints: ['faceLight', 'faceLight'],
               load: look.light * lip * wt,
               order: 501,
               phase,
@@ -7616,7 +7618,7 @@
         long: bloom.radius * cell,
         wide: 1,
         blur: bloom.radius * cell,
-        paints: ['faceLight', 'flare'],
+        paints: ['faceLight', 'faceLight'],
         load: bloom.load,
         order: 498,
         phase: 100,
