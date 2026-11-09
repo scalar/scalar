@@ -4,6 +4,35 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'upgrades schemas named %s while preserving their example and default data',
+    (name) => {
+      const entry = { type: 'string', nullable: true }
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Examples', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            [name]: {
+              type: 'object',
+              example: entry,
+              default: entry,
+              properties: { [name]: { type: 'object', example: entry, default: entry } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.[name]).toStrictEqual({
+        type: 'object',
+        examples: [entry],
+        default: entry,
+        properties: { [name]: { type: 'object', examples: [entry], default: entry } },
+      })
+    },
+  )
+
   it.each([
     ['base64', { contentEncoding: 'base64' }],
     ['byte', { contentEncoding: 'base64' }],

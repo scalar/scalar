@@ -1296,6 +1296,29 @@ describe('upgradeFromTwoToThree', () => {
     },
   )
 
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'preserves example and default data on a schema property named %s',
+    (name) => {
+      const entry = { type: 'file' }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        paths: {},
+        definitions: {
+          Entry: {
+            type: 'object',
+            properties: { [name]: { type: 'object', example: entry, default: entry } },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Entry).toStrictEqual({
+        type: 'object',
+        properties: { [name]: { type: 'object', example: entry, default: entry } },
+      })
+    },
+  )
+
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

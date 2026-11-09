@@ -21,7 +21,8 @@ export function isNamedSchemaMap(path: string[] | undefined): boolean {
     return true
   }
 
-  return NAMED_SCHEMA_MAP_SEGMENTS.has(last)
+  // A member of a named-schema map is a schema, even when its name is another map keyword.
+  return NAMED_SCHEMA_MAP_SEGMENTS.has(last) && !isNamedSchemaMap(path?.slice(0, -1))
 }
 
 /**

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isInsideDataValue } from './is-inside-data-value'
+import { isInsideDataValue, isNamedSchemaMap } from './is-inside-data-value'
 
 describe('isInsideDataValue', () => {
   it.each(['example', 'default', 'const', 'enum', 'x-example'])(
@@ -12,6 +12,22 @@ describe('isInsideDataValue', () => {
         expect(isInsideDataValue([...prefix, name, 'schema', 'default'])).toBe(true)
         expect(isInsideDataValue([...prefix, name, 'examples', 'application/json', 'value'])).toBe(true)
       }
+    },
+  )
+
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'distinguishes schema maps from schemas named %s',
+    (name) => {
+      const schema = ['components', 'schemas', name]
+      const property = [...schema, 'properties', name]
+
+      expect(isNamedSchemaMap(schema)).toBe(false)
+      expect(isNamedSchemaMap([...schema, 'properties'])).toBe(true)
+      expect(isNamedSchemaMap(property)).toBe(false)
+      expect(isNamedSchemaMap([...property, 'properties'])).toBe(true)
+      expect(isInsideDataValue([...property, 'example'])).toBe(true)
+      expect(isInsideDataValue([...property, 'default'])).toBe(true)
+      expect(isInsideDataValue([...property, 'properties', 'example'])).toBe(false)
     },
   )
 
