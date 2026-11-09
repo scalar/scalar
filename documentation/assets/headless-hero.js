@@ -1065,10 +1065,12 @@
                as PAINTS and PALETTES: the flowers' colours, and what each drift is painted in. A new colour needs a
                place in SECOND and PALER as well.
      clouds    as CLOUDS, or [] for none; and cloudTuck, as CLOUD_TUCK.
-     flock     as FLOCK, or [] for no butterflies, which is no lens either: the picture then goes straight to the screen.
+     flock     as FLOCK, or [] for no butterflies, which is no lens either, unless lens.always: the picture then goes
+               straight to the screen.
      air       as AIR: the band the butterflies fly in.
      lens      as LENS; `foot: false` keeps the picture's foot, where the hero's fades out into the page under it, and
-               `foot: 'ease'` eases that fade in rather than running it evenly (see LENS_FOOT).
+               `foot: 'ease'` eases that fade in rather than running it evenly (see LENS_FOOT); `always: true` runs the
+               lens with no flock at all, for that fade at its foot.
      fit       (w, h) => how large the grass, the flowers, the clouds and the butterflies are drawn on a canvas that size.
      stillAt   the clock the still picture is painted at.
      plant     null, or a hook (garden) => {} run each time the meadow is laid out, which can plant more (see growMeadow).
@@ -7158,10 +7160,12 @@
      the audience, and in an ellipse round a point in the middle across and `cy` rows down, between the eyes (`vignette`:
      its radii `rx` and `ry` in cells, more than none, and the thinning from `start` to `end` of them, which reaches the
      sides and the lower corners), so that no edge of the painted patch shows. Its shadow and its light are painted at
-     `shade` and `light` of the concept map's strength, its dabs and the brows `blur` times as soft; the brows and the
-     inside of the mouth at `brow` and `mouth` of their strength, the mouth `mouthBlur` times as soft, so that it still
-     speaks with passion; and a soft light behind the face (`bloom`: its paint, its radius in cells, and the row it is
-     on, in the middle across) is the screen glowing brightest in the face's middle. */
+     `shade` and `light` of the concept map's strength, its dabs `blur` times as soft. The brows are a faint knit at the
+     inner corners of the eyes, no darker than the face's own shadows (`brow` of their paint, `browBlur` times softer
+     again), and the inside of the mouth is the face's own shadow paint at `mouth` of its strength, `mouthBlur` times as
+     soft, so the open mouth is a deeper shadow of the face, not a hole in the screen. A soft light behind the face
+     (`bloom`: its paint, its radius in cells, and the row it is on, in the middle across) is the screen glowing
+     brightest in the face's middle. */
   const CP_BLEND = {
     sides: 26,
     top: 3,
@@ -7170,8 +7174,9 @@
     shade: 0.44,
     light: 0.62,
     blur: 2,
-    brow: 1.3,
-    mouth: 0.5,
+    brow: 0.35,
+    browBlur: 1.8,
+    mouth: 0.9,
     mouthBlur: 1.8,
     bloom: { load: 0.22, radius: 30, row: 40 },
   }
@@ -7259,19 +7264,9 @@
     intro: false,
     words: '.cp-copy',
     lines: { ...LINES, lift: 0.1, veil: [110, 40], veilCore: 0.2, beadChance: 0.12 },
-    lens: { ...LENS, foot: 'ease', split: 0.018 },
-    // the butterflies fly over the audience's heads, under the face's mouth
-    air: {
-      top: [
-        [-1.6, 0.82],
-        [1.6, 0.82],
-      ],
-      foot: [
-        [-1.6, 0.96],
-        [1.6, 0.96],
-      ],
-    },
-    flock: FLOCK.slice(0, 3),
+    // no butterflies here, but the lens all the same, for the fade into the page at the canvas's foot
+    lens: { ...LENS, foot: 'ease', always: true },
+    flock: [],
     inks: CP_INKS,
     glow: CP_GLOW,
     // the face gives a speech (see `talk`), nodding into it
@@ -7367,8 +7362,6 @@
       faceShade: ['#787ed0', '#555bbc'],
       faceLight: ['#fbfbff', '#eef0ff'],
       halo: ['#dcdffb', '#b9bdf3'],
-      // the inside of the mouth, the deepest thing on the face, as on a great screen in a dark hall
-      mouth: ['#2c2f7c', '#1a1c58'],
       // the audience: dark periwinkle, deeper the nearer, the outlines lit by the screen
       crowdFar: ['#6a6fae', '#272a52'],
       crowd: ['#4d5185', '#1b1d3c'],
@@ -7493,7 +7486,7 @@
       // jaw, as far as JAW cells with the mouth open its widest, and the upper lip goes up a little, LIFT of that. At the
       // seam the middle of the mouth opens the most and the opening narrows to nothing OPEN cells either side; further
       // down the whole of the jaw goes down, and the cheeks beside it less the further out. Each of those strokes
-      // carries in its phase how far it goes, down from 100 or up from 300; the inside of the mouth is a row of dark
+      // carries in its phase how far it goes, down from 100 or up from 300; the inside of the mouth is a row of
       // strokes at the seam that fill the gap as it opens, from 200; every other stroke of the face is 100, so that it
       // nods with the rest (see talkVertex).
       const SEAM = 61
@@ -7531,7 +7524,7 @@
           const down = drop(gx, gy)
           const up = rise(gx, gy)
           const phase = up > 0.05 ? 300 + up : 100 + down
-          // the lower lip a little dimmer where the mouth opens, so that under the dark of an open mouth it reads as a
+          // the lower lip a little dimmer where the mouth opens, so that under the shadow of an open mouth it reads as a
           // lip, as it does in the concept, and not as teeth
           const lip = gy >= SEAM && gy <= SEAM + 6 && lens(gx) > 0 ? 0.8 : 1
           // each a soft round dab about three cells across, so the face is light and shade in the screen, not marks on it
@@ -7580,7 +7573,7 @@
           wide: half / (gap / 2),
           turn: Math.PI / 2,
           blur: cell * 2 * CP_BLEND.mouthBlur,
-          paints: ['mouth', 'mouth'],
+          paints: ['faceShade', 'faceShade'],
           load: 0.6 * CP_BLEND.mouth,
           order: 502,
           phase: 200 + Math.min(95, gap),
@@ -7599,7 +7592,7 @@
         order: 498,
         phase: 100,
       })
-      // Brows drawn down towards the nose over the inner half of each eye, as a speaker's are who means it: soft bands
+      // Brows drawn down faintly towards the nose over the inner half of each eye, as a speaker's are who means it: bands
       // of the face's shadow, deeper and wider at their inner ends.
       const brows = [
         [21, 2, 57, 8.5],
@@ -7622,7 +7615,7 @@
             y,
             long: cell * 1.5 * thick,
             wide: 0.75,
-            blur: cell * 1.5 * CP_BLEND.blur,
+            blur: cell * 1.5 * CP_BLEND.blur * CP_BLEND.browBlur,
             turn: Math.atan2(by - ay, bx - ax),
             paints: ['faceShade', 'faceShade'],
             load: (0.16 + 0.22 * f) * CP_BLEND.brow * weight(gx - 0.5, gy - 0.5),
@@ -7742,14 +7735,15 @@
 
   /* What the engine works out once for each composition: stand-ins for what it leaves out, the names of the colours its
      strokes can be painted in (the paints, then the leaves' greens), how a flower painted with its petals is seen, and
-     whether there is a flock, and so a lens. */
+     whether there is a flock, and so a lens. A composition with no flock that has its lens all the same
+     (`lens.always`) has its picture fade out over its foot into the page as every hero with butterflies does. */
   const prepare = (mode) => {
     mode.flowers = mode.flowers || { ...FLOWERS, drifts: [], strays: 0, gorse: 0 }
     mode.grass = mode.grass || { ...GRASS, tufts: 0, lane: 0, singles: 0 }
     mode.paintNames = [...Object.keys(mode.paints), ...LEAVES]
     mode.slant = mode.flowers.slant === undefined ? '0.62' : Number(mode.flowers.slant).toFixed(3)
     mode.lens = mode.lens || LENS
-    mode.lensed = mode.flock.length > 0
+    mode.lensed = mode.flock.length > 0 || !!mode.lens.always
     return mode
   }
   const MODES = {
@@ -8228,7 +8222,7 @@
   /* With `talk`, a composition's face speaks: its strokes that stand still (no give) carry in their phase how they
      move as the mouth opens, uTalk.x being how far it is open (0 to 1). A phase from 100 is the face, which goes down
      by uTalk.x times (phase - 100) pixels (the jaw, the lower lip, the chin; 100 itself stays put); from 300 it goes up
-     by uTalk.x times (phase - 300) (the upper lip). A phase from 200 is the inside of the mouth: a dark stroke stood
+     by uTalk.x times (phase - 300) (the upper lip). A phase from 200 is the inside of the mouth: a stroke stood
      upright at the lips' seam, as long as it was painted (phase - 200, the gap there with the mouth open its widest)
      when the mouth is open, next to nothing and gone when it is shut, fading in over the first third of opening so that
      a mouth barely parted is no sharp line on a soft face. It stands upright so that the wander of a stroke's edge, a
@@ -9858,8 +9852,9 @@ ${LINE_FILL}`,
       return true
     }
 
-    // Only what the composition draws is compiled: no land without sheets, no glass without clouds, no wings or lens
-    // without a flock, and a sky only for a composition with one of its own. Each is sent off in a step of its own.
+    // Only what the composition draws is compiled: no land without sheets, no glass without clouds, no wings without a
+    // flock, no lens without a flock or lens.always, and a sky only for a composition with one of its own. Each is sent
+    // off in a step of its own.
     gl.getExtension('KHR_parallel_shader_compile')
     const { sheets } = mode.land
     const programs = []
@@ -9874,7 +9869,7 @@ ${LINE_FILL}`,
       ['blooms', true, () => send(talkVertex(mode, bloomVertexOf(mode)), bloomFragment(mode))],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
-      ['fly', mode.lensed, () => send(FLY_VERTEX, FLY_FRAGMENT)],
+      ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, FLY_FRAGMENT)],
       ['lens', mode.lensed, () => send(LENS_VERTEX, lensFragment(mode))],
       ['sky', !!mode.sky, () => send(FULL_VERTEX, SKY_FRAGMENT)],
       ['cut', !!(mode.behind && mode.land.front), () => send(FULL_VERTEX, CUT_FRAGMENT)],
@@ -13167,7 +13162,7 @@ ${LINE_FILL}`,
       gl.generateMipmap(gl.TEXTURE_2D)
 
       // Pass 2: the scene the butterflies fly over: the land as it is, the clouds of glass, and the grass and the flowers
-      // painted on it. With no butterflies it is the picture, and goes straight to the screen.
+      // painted on it. With no lens (no butterflies and no lens.always) it is the picture, and goes straight to the screen.
       gl.bindFramebuffer(gl.FRAMEBUFFER, mode.lensed ? sceneFbo : null)
       gl.viewport(0, 0, w, h)
       gl.disable(gl.BLEND)
@@ -13316,56 +13311,61 @@ ${LINE_FILL}`,
           o,
         )
       })
-      // Pass 3: the butterflies, on nothing at all.
-      gl.bindFramebuffer(gl.FRAMEBUFFER, flockFbo)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT)
-      gl.useProgram(fly.program)
-      gl.bindVertexArray(flyVao)
-      gl.bindBuffer(gl.ARRAY_BUFFER, flyBuffer)
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, flyData)
-      u = fly.uniforms
-      gl.activeTexture(gl.TEXTURE0)
-      gl.bindTexture(gl.TEXTURE_2D, grainTex)
-      gl.uniform1i(u.uGrain, 0)
-      gl.activeTexture(gl.TEXTURE1)
-      gl.bindTexture(gl.TEXTURE_2D, shapesTex)
-      gl.uniform1i(u.uShapes, 1)
-      gl.activeTexture(gl.TEXTURE3)
-      gl.bindTexture(gl.TEXTURE_2D, inksTex)
-      gl.uniform1i(u.uInks, 3)
-      gl.uniform1i(u.uLand, 4)
-      gl.uniform3f(u.uLandLook, 1 / w, 1 / h, Math.log2(5 * (w / cssW)))
-      gl.uniform1f(u.uPixels, w / cssW)
-      gl.uniform1f(u.uDark, dark ? 1 : 0)
-      gl.uniform2f(u.uCanvas, cssW, cssH)
-      gl.uniform4f(u.uLight, -0.32, 0.5, 0.8, 0)
-      gl.uniform2f(u.uForeRange, FORE_RANGE[0], FORE_RANGE[1])
-      gl.uniform2f(u.uHindRange, HIND_RANGE[0], HIND_RANGE[1])
-      gl.uniform1f(u.uShapeRows, shapeRows)
-      gl.uniform1f(u.uTile, GRAIN_TILE * (w / cssW))
-      gl.uniform1f(u.uClock, clock)
-      gl.uniform1f(u.uFan, WING.fan)
-      gl.uniform1f(u.uPitch, WING.pitch)
-      gl.uniform1f(u.uClosest, WING.closest)
-      gl.uniform1f(u.uKeep, WING.keep)
-      gl.uniform1f(u.uFill, WING.fill)
-      gl.uniform2f(u.uBrick, WING.brick[0], WING.brick[1])
-      gl.uniform1f(u.uGap, WING.gap)
-      gl.uniform1f(u.uFlow, WING.flow)
-      gl.uniform1f(u.uBeadCell, WING.beadCell)
-      gl.uniform1f(u.uBeadChance, WING.beadChance)
-      gl.uniform1f(u.uBeadSize, WING.beadSize)
-      gl.uniform1f(u.uBlotch, WING.blotch)
-      gl.uniform1f(u.uGrainStrength, WING.grain)
-      gl.uniform4fv(u.uCells, CELLS)
-      gl.drawArraysInstanced(gl.TRIANGLES, 0, meshCount, flock.length)
+      // Pass 3: the butterflies, on nothing at all. With none (a lens kept only for its foot, lens.always) their picture
+      // stays as it was made, empty, and nothing is drawn into it.
+      if (flock.length > 0) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, flockFbo)
+        gl.clearColor(0, 0, 0, 0)
+        gl.clear(gl.COLOR_BUFFER_BIT)
+        gl.useProgram(fly.program)
+        gl.bindVertexArray(flyVao)
+        gl.bindBuffer(gl.ARRAY_BUFFER, flyBuffer)
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, flyData)
+        u = fly.uniforms
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, grainTex)
+        gl.uniform1i(u.uGrain, 0)
+        gl.activeTexture(gl.TEXTURE1)
+        gl.bindTexture(gl.TEXTURE_2D, shapesTex)
+        gl.uniform1i(u.uShapes, 1)
+        gl.activeTexture(gl.TEXTURE3)
+        gl.bindTexture(gl.TEXTURE_2D, inksTex)
+        gl.uniform1i(u.uInks, 3)
+        gl.uniform1i(u.uLand, 4)
+        gl.uniform3f(u.uLandLook, 1 / w, 1 / h, Math.log2(5 * (w / cssW)))
+        gl.uniform1f(u.uPixels, w / cssW)
+        gl.uniform1f(u.uDark, dark ? 1 : 0)
+        gl.uniform2f(u.uCanvas, cssW, cssH)
+        gl.uniform4f(u.uLight, -0.32, 0.5, 0.8, 0)
+        gl.uniform2f(u.uForeRange, FORE_RANGE[0], FORE_RANGE[1])
+        gl.uniform2f(u.uHindRange, HIND_RANGE[0], HIND_RANGE[1])
+        gl.uniform1f(u.uShapeRows, shapeRows)
+        gl.uniform1f(u.uTile, GRAIN_TILE * (w / cssW))
+        gl.uniform1f(u.uClock, clock)
+        gl.uniform1f(u.uFan, WING.fan)
+        gl.uniform1f(u.uPitch, WING.pitch)
+        gl.uniform1f(u.uClosest, WING.closest)
+        gl.uniform1f(u.uKeep, WING.keep)
+        gl.uniform1f(u.uFill, WING.fill)
+        gl.uniform2f(u.uBrick, WING.brick[0], WING.brick[1])
+        gl.uniform1f(u.uGap, WING.gap)
+        gl.uniform1f(u.uFlow, WING.flow)
+        gl.uniform1f(u.uBeadCell, WING.beadCell)
+        gl.uniform1f(u.uBeadChance, WING.beadChance)
+        gl.uniform1f(u.uBeadSize, WING.beadSize)
+        gl.uniform1f(u.uBlotch, WING.blotch)
+        gl.uniform1f(u.uGrainStrength, WING.grain)
+        gl.uniform4fv(u.uCells, CELLS)
+        gl.drawArraysInstanced(gl.TRIANGLES, 0, meshCount, flock.length)
+      }
 
       // Pass 4: the butterflies through the lens, over the scene, onto the screen.
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
       gl.activeTexture(gl.TEXTURE5)
       gl.bindTexture(gl.TEXTURE_2D, flockTex)
-      gl.generateMipmap(gl.TEXTURE_2D)
+      if (flock.length > 0) {
+        gl.generateMipmap(gl.TEXTURE_2D)
+      }
       gl.activeTexture(gl.TEXTURE6)
       gl.bindTexture(gl.TEXTURE_2D, sceneTex)
       gl.viewport(0, 0, w, h)
