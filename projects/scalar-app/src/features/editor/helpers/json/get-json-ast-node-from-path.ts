@@ -8,10 +8,10 @@ const MONACO_JSON_WORKER_NOT_READY = 'JSON not registered!' as const
 
 const MAX_JSON_WORKER_READY_ATTEMPTS = 40
 
-const getMonacoJsonWorker = async (): ReturnType<typeof monaco.languages.json.getWorker> => {
+const getMonacoJsonWorker = async (): ReturnType<typeof monaco.json.getWorker> => {
   for (let attempt = 0; attempt < MAX_JSON_WORKER_READY_ATTEMPTS; attempt++) {
     try {
-      return await monaco.languages.json.getWorker()
+      return await monaco.json.getWorker()
     } catch (error) {
       if (error !== MONACO_JSON_WORKER_NOT_READY) {
         throw error
@@ -22,7 +22,7 @@ const getMonacoJsonWorker = async (): ReturnType<typeof monaco.languages.json.ge
     }
   }
 
-  return await monaco.languages.json.getWorker()
+  return await monaco.json.getWorker()
 }
 
 /**
@@ -38,7 +38,7 @@ const getMonacoJsonWorker = async (): ReturnType<typeof monaco.languages.json.ge
 export const getJsonAstNodeFromPath = async (
   model: monaco.editor.ITextModel,
   path: JsonPath,
-): Promise<monaco.languages.json.ASTNode | null> => {
+): Promise<monaco.json.ASTNode | null> => {
   const worker = await getMonacoJsonWorker()
   const jsonWorker = await worker(model.uri)
 

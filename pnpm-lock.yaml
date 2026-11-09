@@ -369,11 +369,11 @@ catalogs:
       specifier: 1.5.0
       version: 1.5.0
     monaco-editor:
-      specifier: 0.54.0
-      version: 0.54.0
+      specifier: 0.57.0
+      version: 0.57.0
     monaco-yaml:
-      specifier: 5.4.1
-      version: 5.4.1
+      specifier: 5.5.1
+      version: 5.5.1
     nanoid:
       specifier: ^5.1.16
       version: 5.1.16
@@ -449,9 +449,6 @@ catalogs:
     vite-plugin-css-injected-by-js:
       specifier: ^5.0.2
       version: 5.0.2
-    vite-plugin-monaco-editor-esm:
-      specifier: 2.0.3
-      version: 2.0.3
     vite-ssg:
       specifier: 28.3.0
       version: 28.3.0
@@ -481,6 +478,7 @@ catalogs:
       version: 4.6.7
 
 overrides:
+  monaco-editor@0.57.0>dompurify: 3.4.17
   '@types/node': ^24.19.2
   fast-uri@3.1.2: 4.2.3
   lodash: 4.18.1
@@ -3429,10 +3427,10 @@ importers:
         version: 4.0.0
       monaco-editor:
         specifier: catalog:*
-        version: 0.54.0
+        version: 0.57.0
       monaco-yaml:
         specifier: catalog:*
-        version: 5.4.1(monaco-editor@0.54.0)
+        version: 5.5.1(monaco-editor@0.57.0)
       posthog-js:
         specifier: catalog:*
         version: 1.438.12(@types/react@19.3.0)(react@17.0.2)
@@ -3485,9 +3483,6 @@ importers:
       vite:
         specifier: catalog:*
         version: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.1)
-      vite-plugin-monaco-editor-esm:
-        specifier: catalog:*
-        version: 2.0.3(monaco-editor@0.54.0)
 
   tooling/changelog-generator:
     dependencies:
@@ -13035,11 +13030,11 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
-  dompurify@3.1.7:
-    resolution: {integrity: sha512-VaTstWtsneJY8xzy7DekmYWEOZcmzIe3Qb3zPd4STve1OBTa+e+WmS1ITQec1fZYXI3HCsOZZiSMpG6oxoWMWQ==}
-
   dompurify@3.4.16:
     resolution: {integrity: sha512-sqo+pNp3qRhCIpbgRi1y8Tgk27Bo2Ry7w0dC1NBeNTdZChWjz9Xb/KOoZbRP/R6pQZ80Qw8YhXw13hWWBbMRnQ==}
+
+  dompurify@3.4.17:
+    resolution: {integrity: sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==}
 
   domutils@1.7.0:
     resolution: {integrity: sha512-Lgd2XcJ/NjEw+7tFvfKxOzCYKZsdct5lczQ2ZaQY8Djz7pfAD3Gbp8ySJWtreII/vDlMVmxwa6pHmdxIYgttDg==}
@@ -16304,8 +16299,8 @@ packages:
   moment@2.30.1:
     resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
-  monaco-editor@0.54.0:
-    resolution: {integrity: sha512-hx45SEUoLatgWxHKCmlLJH81xBo0uXP4sRkESUpmDQevfi+e7K1VuiSprK6UpQ8u4zOcKNiH0pMvHvlMWA/4cw==}
+  monaco-editor@0.57.0:
+    resolution: {integrity: sha512-5BkI9KGoqrNvBGUe15/QlZq3OooZ8WLg1AxTpaqHRCP3HNpzPPZKE2EDz8M7c+VRmCeUw1Brp4cx/PWm3kI/5A==}
 
   monaco-languageserver-types@0.4.0:
     resolution: {integrity: sha512-QQ3BZiU5LYkJElGncSNb5AKoJ/LCs6YBMCJMAz9EA7v+JaOdn3kx2cXpPTcZfKA5AEsR0vc97sAw+5mdNhVBmw==}
@@ -16321,8 +16316,8 @@ packages:
     peerDependencies:
       monaco-editor: '>=0.30.0'
 
-  monaco-yaml@5.4.1:
-    resolution: {integrity: sha512-YQ6d/Ei98Uk073SJLFbwuSi95qhnl8F8NNmIUqN2XhDt9psZN2LqQ1T7pPQ866NJb2wFj44IrjnANgpa2jTfag==}
+  monaco-yaml@5.5.1:
+    resolution: {integrity: sha512-vLR1EoV7Au0tkuA9T6ZJr2q7CooRP69AvlqzWh9Gui6amuijdTsfCAQHtCFobRMwkhbuly6J1Q16NziTTiWtWQ==}
     peerDependencies:
       monaco-editor: '>=0.36'
 
@@ -18132,6 +18127,9 @@ packages:
   proxy-addr@2.0.8:
     resolution: {integrity: sha512-5nnx0yGyVUcY6t9RnWcARWtwT9F1D8O9rt08htPvnd49W1IgZtmLkhu9WfMzQj1cFxjHIO6connUNVW5k7AVyQ==}
     engines: {node: '>= 0.10'}
+
+  proxy-disposable@1.0.0:
+    resolution: {integrity: sha512-Y673BKpFqk8XkYuoK9DGZ1RIzldz5SkzxTKc/+DkpaMdrDEbEalWlO/uMRMdJsXvdbTybJI26XDwN0KJpZDN4w==}
 
   proxy-from-env@2.1.0:
     resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
@@ -20671,11 +20669,6 @@ packages:
     peerDependenciesMeta:
       '@nuxt/kit':
         optional: true
-
-  vite-plugin-monaco-editor-esm@2.0.3:
-    resolution: {integrity: sha512-9nA73gcWtO+XDsLmBBQXoY4NMv6D2ZKDZHdHgVl1lfADnXEwdBPr1iL8qGqDKXGgEmYo1F12rFPEnymFe2aibA==}
-    peerDependencies:
-      monaco-editor: '>=0.33.0'
 
   vite-plugin-vue-tracer@1.6.0:
     resolution: {integrity: sha512-G07az+X68rtz9ngfBxZH8vVhZ7DOnZvJABnT9nFp/TBV+qfKtGqA00djblqvvbf3VYfwLmJtoqZhFDAx8mLpNw==}
@@ -33699,9 +33692,11 @@ snapshots:
     dependencies:
       domelementtype: 2.3.0
 
-  dompurify@3.1.7: {}
-
   dompurify@3.4.16:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
+
+  dompurify@3.4.17:
     optionalDependencies:
       '@types/trusted-types': 2.0.7
 
@@ -37942,9 +37937,9 @@ snapshots:
   moment@2.30.1:
     optional: true
 
-  monaco-editor@0.54.0:
+  monaco-editor@0.57.0:
     dependencies:
-      dompurify: 3.1.7
+      dompurify: 3.4.17
       marked: 14.0.0
 
   monaco-languageserver-types@0.4.0:
@@ -37959,20 +37954,22 @@ snapshots:
 
   monaco-types@0.1.1: {}
 
-  monaco-worker-manager@2.0.1(monaco-editor@0.54.0):
+  monaco-worker-manager@2.0.1(monaco-editor@0.57.0):
     dependencies:
-      monaco-editor: 0.54.0
+      monaco-editor: 0.57.0
 
-  monaco-yaml@5.4.1(monaco-editor@0.54.0):
+  monaco-yaml@5.5.1(monaco-editor@0.57.0):
     dependencies:
+      '@vscode/l10n': 0.0.18
       jsonc-parser: 3.3.1
-      monaco-editor: 0.54.0
+      monaco-editor: 0.57.0
       monaco-languageserver-types: 0.4.0
       monaco-marker-data-provider: 1.2.5
       monaco-types: 0.1.1
-      monaco-worker-manager: 2.0.1(monaco-editor@0.54.0)
+      monaco-worker-manager: 2.0.1(monaco-editor@0.57.0)
       path-browserify: 1.0.1
       prettier: 3.9.10
+      proxy-disposable: 1.0.0
       vscode-languageserver-textdocument: 1.0.12
       vscode-languageserver-types: 3.17.5
       vscode-uri: 3.1.0
@@ -40607,6 +40604,8 @@ snapshots:
     dependencies:
       forwarded: 0.2.0
       ipaddr.js: 1.9.1
+
+  proxy-disposable@1.0.0: {}
 
   proxy-from-env@2.1.0: {}
 
@@ -43877,10 +43876,6 @@ snapshots:
       vite-dev-rpc: 2.0.0(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))
     optionalDependencies:
       '@nuxt/kit': 4.6.1(@nuxt/schema@4.6.3)(confbox@0.3.1)(dotenv@17.4.2)(giget@3.3.1)(jiti@2.7.0)(magic-string@1.4.3)(mlly@1.8.2)(oxc-parser@0.153.0)(rolldown@1.2.14)(unplugin@3.4.0(esbuild@0.28.2)(rolldown@1.2.14)(rollup@4.64.7)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))(webpack@5.112.0))
-
-  vite-plugin-monaco-editor-esm@2.0.3(monaco-editor@0.54.0):
-    dependencies:
-      monaco-editor: 0.54.0
 
   vite-plugin-vue-tracer@1.6.0(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.31.2)(tsx@4.23.15)(yaml@2.9.0))(vue@3.5.44(typescript@5.9.3)):
     dependencies:
