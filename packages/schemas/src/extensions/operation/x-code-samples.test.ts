@@ -10,6 +10,12 @@ describe('XCodeSamples', () => {
     source: 'console.log("Hello, world!");',
   }
 
+  it('preserves custom sample group headings', () => {
+    const value = { 'x-codeSamples': [{ ...sampleCode, group: 'SDK' }] }
+    expect(validate(XCodeSamples, value)).toBe(true)
+    expect(coerce(XCodeSamples, value)).toStrictEqual(value)
+  })
+
   it('preserves the link to a named request body example', () => {
     const value = { 'x-codeSamples': [{ ...sampleCode, example: 'detailed', contentType: 'application/json' }] }
     expect(validate(XCodeSamples, value)).toBe(true)
