@@ -142,11 +142,28 @@ describe('fsharpHttpclient.generate - postData', () => {
       },
     } as any
     const result = fsharpHttpclient.generate(request, {})
-    expect(result).toContain('let formUrlEncodedContentDictionary = new Dictionary<string, string>()')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("foo", "bar")')
-    expect(result).toContain('formUrlEncodedContentDictionary.Add("baz", "qux")')
-    expect(result).toContain('let content = new FormUrlEncodedContent(formUrlEncodedContentDictionary)')
+    expect(result).toContain(
+      'let formUrlEncodedContentPairs = [\n  KeyValuePair("foo", "bar")\n  KeyValuePair("baz", "qux")\n]',
+    )
+    expect(result).toContain('let content = new FormUrlEncodedContent(formUrlEncodedContentPairs)')
     expect(result).toContain('httpRequestMessage.Content <- content')
+  })
+
+  it('keeps repeated form-urlencoded names', () => {
+    const request = {
+      url: 'https://api.com/',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    } as any
+    const result = fsharpHttpclient.generate(request, {})
+    expect(result).toContain('KeyValuePair("tag", "a")\n  KeyValuePair("tag", "b")')
+    expect(result).not.toContain('Dictionary')
   })
 
   it('adds single string param to MultipartFormDataContent', () => {

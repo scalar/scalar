@@ -67,7 +67,7 @@ const buildBodySection = (postData?: {
       imports,
       setupLines: [
         'postData := neturl.Values{}',
-        ...postData.params.map((param) => `postData.Set(${goString(param.name)}, ${goString(param.value ?? '')})`),
+        ...postData.params.map((param) => `postData.Add(${goString(param.name)}, ${goString(param.value ?? '')})`),
       ],
       requestBody: 'strings.NewReader(postData.Encode())',
       needsMultipartContentTypeHeader: false,

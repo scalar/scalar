@@ -304,7 +304,7 @@ describe('goNative', () => {
 
     expect(result).toContain(`\tneturl "net/url"`)
     expect(result).toContain('postData := neturl.Values{}')
-    expect(result).toContain(`postData.Set("special chars!@#", "value")`)
+    expect(result).toContain(`postData.Add("special chars!@#", "value")`)
     expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
     expect(result).not.toContain('\n\turl :=')
   })
@@ -324,7 +324,23 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`postData.Set("field'name", "value")`)
+    expect(result).toContain(`postData.Add("field'name", "value")`)
+  })
+
+  it('keeps repeated url-encoded names', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toContain('postData.Add("tag", "a")\n\tpostData.Add("tag", "b")')
   })
 
   it('handles binary data', () => {
