@@ -29,13 +29,23 @@ describe('resolve-credential-placeholders', () => {
     const result = resolveCredentialPlaceholders('{{apiKey}} {{unknown}} {{apiKey}}', [apiKey('$&"\\{{apiKey}}')])
     expect(result).toStrictEqual({
       content: '$&"\\{{apiKey}} {{unknown}} $&"\\{{apiKey}}',
-      segments: [
-        { value: '$&"\\{{apiKey}}', credential: true },
-        { value: ' {{unknown}} ', credential: false },
-        { value: '$&"\\{{apiKey}}', credential: true },
-      ],
-      maskedValues: ['$&"\\{{apiKey}}'],
+      displayContent: '•••••••• {{unknown}} ••••••••',
     })
+  })
+
+  it.each(['pet', 'ab', 'a&b', '<secret>', '"quoted"', 'foo() + bar'])(
+    'masks the inserted secret %s without modifying literal code',
+    (secret) => {
+      const result = resolveCredentialPlaceholders('client.pets.list("{{apiKey}}")', [apiKey(secret)])
+      expect(result).toStrictEqual({
+        content: `client.pets.list("${secret}")`,
+        displayContent: 'client.pets.list("••••••••")',
+      })
+    },
+  )
+
+  it('masks a public value containing another secret', () => {
+    expect(resolveCredentialPlaceholders('{{id}}', [basic('id')]).displayContent).toBe('••••••••')
   })
 
   it('leaves missing credentials and ambiguous bindings unchanged', () => {
@@ -61,12 +71,12 @@ describe('resolve-credential-placeholders', () => {
   it('keeps a public ID visible while masking the password', () => {
     const result = resolveCredentialPlaceholders('{{id}}:{{password}}', [basic()])
     expect(result.content).toBe('public-id:secret')
-    expect(result.maskedValues).toStrictEqual(['secret', 'cHVibGljLWlkOnNlY3JldA=='])
+    expect(result.displayContent).toBe('public-id:••••••••')
   })
 
   it('never unmasks a public value that is also a password', () => {
     const result = resolveCredentialPlaceholders('{{id}}:{{password}}', [basic('public-id')])
-    expect(result.maskedValues).toStrictEqual(['public-id', 'cHVibGljLWlkOnB1YmxpYy1pZA=='])
+    expect(result.displayContent).toBe('••••••••:••••••••')
   })
 
   it('does not retain credentials across updates or mutate the original scheme', () => {
@@ -104,6 +114,6 @@ describe('resolve-credential-placeholders', () => {
       },
     ])
     expect(result.content).toBe('active-token client-id')
-    expect(result.maskedValues).toStrictEqual(['active-token', 'client-secret'])
+    expect(result.displayContent).toBe('•••••••• client-id')
   })
 })

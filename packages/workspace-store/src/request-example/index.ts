@@ -85,7 +85,6 @@ export {
   restoreConventionalDefaultHeaderNames,
   restoreConventionalHeaderName,
 } from './context'
-export { maskCredentialPlaceholders } from './context/security/mask-credential-placeholders'
 export { resolveCredentialPlaceholders } from './context/security/resolve-credential-placeholders'
 export {
   CONTEXT_FUNCTION_NAMES,

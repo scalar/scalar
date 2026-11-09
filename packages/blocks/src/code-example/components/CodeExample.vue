@@ -161,7 +161,6 @@ import {
   useExternalExamples,
 } from '@scalar/workspace-store/helpers/use-external-examples'
 import {
-  maskCredentialPlaceholders,
   resolveCredentialPlaceholders,
   type SecuritySchemeObjectSecret,
 } from '@scalar/workspace-store/request-example'
@@ -452,10 +451,8 @@ const generatedCode = computed(
 )
 
 /** Mask inserted secrets before escaping or syntax tokenization can split their values. */
-const displayCode = computed(() =>
-  resolvedCredentials.value
-    ? maskCredentialPlaceholders(resolvedCredentials.value)
-    : generatedCode.value,
+const displayCode = computed(
+  () => resolvedCredentials.value?.displayContent ?? generatedCode.value,
 )
 
 /** The language for the code block, used for syntax highlighting */
@@ -482,8 +479,8 @@ const webhookLanguage = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(
-  () => resolvedCredentials.value?.maskedValues ?? getSecrets(securitySchemes),
+const secretCredentials = computed(() =>
+  resolvedCredentials.value ? [] : getSecrets(securitySchemes),
 )
 
 /** Set custom example, or update the selected HTTP client globally */
@@ -597,7 +594,7 @@ const id = useId()
       <div
         v-else
         :id="`${id}-example`"
-        class="code-snippet">
+        class="code-snippet group/code-block relative">
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
           class="bg-b-2 h-full"
@@ -609,10 +606,12 @@ const id = useId()
           lineNumbers />
         <template v-else>
           <ScalarCodeBlockCopy
-            v-if="resolvedCredentials"
+            :aria-controls="`${id}-virtual-code`"
+            class="scalar-code-copy absolute top-2.5 right-2.5 z-1"
             :content="generatedCode"
             :lang="codeBlockLanguage" />
           <ScalarVirtualText
+            :id="`${id}-virtual-code`"
             aria-label="Request code sample"
             containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
             contentClass="language-plaintext whitespace-pre font-code text-base p-2"

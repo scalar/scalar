@@ -1,8 +1,9 @@
-import { Type } from '@scalar/typebox'
+import { CREDENTIAL_PLACEHOLDER_FIELDS } from '@scalar/helpers/http/credential-placeholder-fields'
+import { type TLiteral, Type } from '@scalar/typebox'
 import { boolean, literal, object, optional, record, string, union } from '@scalar/validation'
 
 /** Credential fields that can be inserted into documentation examples. */
-export type CredentialPlaceholderField = 'token' | 'username' | 'password' | 'clientId' | 'clientSecret'
+export type CredentialPlaceholderField = (typeof CREDENTIAL_PLACEHOLDER_FIELDS)[number]
 
 /** Explicit bindings keep ordinary template syntax unrelated to authentication unchanged. */
 export type XScalarCredentialPlaceholders = {
@@ -14,13 +15,13 @@ export const XScalarCredentialPlaceholdersSchema = Type.Object({
     Type.Record(
       Type.String(),
       Type.Object({
-        field: Type.Union([
-          Type.Literal('token'),
-          Type.Literal('username'),
-          Type.Literal('password'),
-          Type.Literal('clientId'),
-          Type.Literal('clientSecret'),
-        ]),
+        field: Type.Union(
+          // Keep the non-empty tuple shape used by downstream schema transformations.
+          CREDENTIAL_PLACEHOLDER_FIELDS.map((field) => Type.Literal(field)) as [
+            TLiteral<CredentialPlaceholderField>,
+            ...TLiteral<CredentialPlaceholderField>[],
+          ],
+        ),
         mask: Type.Optional(Type.Boolean()),
       }),
     ),
@@ -32,13 +33,7 @@ export const XScalarCredentialPlaceholders = object({
     record(
       string(),
       object({
-        field: union([
-          literal('token'),
-          literal('username'),
-          literal('password'),
-          literal('clientId'),
-          literal('clientSecret'),
-        ]),
+        field: union(CREDENTIAL_PLACEHOLDER_FIELDS.map((field) => literal(field))),
         mask: optional(boolean()),
       }),
     ),

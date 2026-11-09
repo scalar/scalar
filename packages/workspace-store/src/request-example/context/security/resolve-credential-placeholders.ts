@@ -1,3 +1,4 @@
+import { CREDENTIAL_PLACEHOLDER_FIELDS } from '@scalar/helpers/http/credential-placeholder-fields'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { encode } from 'js-base64'
 
@@ -7,14 +8,10 @@ import type {
   XScalarCredentialPlaceholders,
 } from '@/schemas/extensions/security/x-scalar-credential-placeholders'
 
-/** A credential segment can be rendered as text without interpreting its contents as Markdown. */
-export type CredentialPlaceholderSegment = { value: string; credential: boolean }
-
 /** The original template remains in the document; these values are only used for rendering and copying. */
 export type ResolvedCredentialPlaceholders = {
   content: string
-  segments: CredentialPlaceholderSegment[]
-  maskedValues: string[]
+  displayContent: string
 }
 
 type CredentialValues = Partial<Record<CredentialPlaceholderField, string>>
@@ -80,10 +77,7 @@ export const resolveCredentialPlaceholders = (
     }
 
     for (const [name, mapping] of mappings) {
-      if (
-        !isObject(mapping) ||
-        !['token', 'username', 'password', 'clientId', 'clientSecret'].includes(mapping.field)
-      ) {
+      if (!isObject(mapping) || !CREDENTIAL_PLACEHOLDER_FIELDS.some((field) => field === mapping.field)) {
         continue
       }
       const value = values[mapping.field]
@@ -91,25 +85,17 @@ export const resolveCredentialPlaceholders = (
     }
   }
 
-  const segments: CredentialPlaceholderSegment[] = []
-  let position = 0
-  for (const match of template.matchAll(/\{\{([A-Za-z_][A-Za-z0-9_.-]*)\}\}/g)) {
-    const binding = bindings.get(match[1] ?? '')
-    if (!binding) {
-      continue
-    }
-    if (match.index > position) {
-      segments.push({ value: template.slice(position, match.index), credential: false })
-    }
-    segments.push({ value: binding.value, credential: true })
-    if (binding.mask) {
-      maskedValues.add(binding.value)
-    }
-    position = match.index + match[0].length
-  }
-  if (position < template.length) {
-    segments.push({ value: template.slice(position), credential: false })
-  }
+  // Resolve each string once so placeholder-like text inside credentials stays literal.
+  const replace = (mask: boolean): string =>
+    template.replace(/\{\{([A-Za-z_][A-Za-z0-9_.-]*)\}\}/g, (placeholder: string, name: string): string => {
+      const binding = bindings.get(name)
+      if (!binding) {
+        return placeholder
+      }
+      return mask && (binding.mask || [...maskedValues].some((secret) => secret && binding.value.includes(secret)))
+        ? '••••••••'
+        : binding.value
+    })
 
-  return { content: segments.map(({ value }) => value).join(''), segments, maskedValues: [...maskedValues] }
+  return { content: replace(false), displayContent: replace(true) }
 }

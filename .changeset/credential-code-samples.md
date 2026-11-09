@@ -1,4 +1,5 @@
 ---
+"@scalar/helpers": patch
 "@scalar/workspace-store": minor
 "@scalar/blocks": minor
 "@scalar/components": minor
