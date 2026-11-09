@@ -1,6 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -504,6 +505,60 @@ const getDiscriminatorSelectionIndex = (
   return fallbackIndex >= 0 ? fallbackIndex : undefined
 }
 
+const COMPONENT_SCHEMA_PREFIX = '#/components/schemas/'
+
+/**
+ * Find the discriminator value that selects `variant`: the explicit mapping key that targets it,
+ * or the component name, which is the implicit mapping.
+ */
+const getDiscriminatorTag = (
+  discriminator: NonNullable<SchemaObject['discriminator']>,
+  variant: NonNullable<SchemaObject['oneOf']>[number],
+): string | undefined => {
+  if (!('$ref' in variant) || typeof variant.$ref !== 'string') {
+    return undefined
+  }
+  const reference = variant.$ref
+  const componentName = reference.startsWith(COMPONENT_SCHEMA_PREFIX)
+    ? unescapeJsonPointer(reference.slice(COMPONENT_SCHEMA_PREFIX.length))
+    : undefined
+  const mapped = Object.entries(discriminator.mapping ?? {}).find(
+    ([, target]) => target === reference || target === componentName,
+  )
+  return mapped?.[0] ?? componentName
+}
+
+/**
+ * Write the selected variant's discriminator value into the example. Without it the example
+ * carries an empty tag and a server cannot tell which variant it is. Declared values win, and a
+ * `defaultMapping` means the property may be omitted, so selection alone decides the variant there.
+ */
+const withDiscriminatorTag = (
+  schema: SchemaObject,
+  variant: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  example: unknown,
+  options: GetExampleFromSchemaOptions | undefined,
+): unknown => {
+  const discriminator = schema.discriminator
+  if (
+    !discriminator ||
+    discriminator.defaultMapping !== undefined ||
+    !variant ||
+    options?.xml ||
+    !example ||
+    typeof example !== 'object' ||
+    Array.isArray(example)
+  ) {
+    return example
+  }
+  const current = (example as Record<string, unknown>)[discriminator.propertyName]
+  if (current !== undefined && current !== '') {
+    return example
+  }
+  const tag = getDiscriminatorTag(discriminator, variant)
+  return tag === undefined ? example : { ...example, [discriminator.propertyName]: tag }
+}
+
 /**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
@@ -656,6 +711,7 @@ const handleObjectSchema = (
           dynamicScope: childScope,
         }),
       )
+      Object.assign(response, withDiscriminatorTag(schema, chosen, response, options))
     }
   }
   // allOf — thread a choice-ordinal into schemaPath for each direct oneOf/anyOf
@@ -794,7 +850,8 @@ const handleArraySchema = (
       if (ex === undefined) {
         return undefined
       }
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+      const tagged = withDiscriminatorTag(items, selected, ex, options)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: tagged }] : [tagged], cacheKey, skipCache)
     }
   }
 
@@ -1388,12 +1445,17 @@ const generateExampleFromSchema = (
         seen.delete(targetValue)
         return cache(
           _schema,
-          getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
-            level: level + 1,
-            schemaPath,
-            seen,
-            dynamicScope: childScope,
-          }),
+          withDiscriminatorTag(
+            _schema,
+            candidate,
+            getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
+              level: level + 1,
+              schemaPath,
+              seen,
+              dynamicScope: childScope,
+            }),
+            options,
+          ),
           cacheKey,
           skipCache,
         )
