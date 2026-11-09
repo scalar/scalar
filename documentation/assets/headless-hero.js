@@ -7153,6 +7153,28 @@
   const CP_JAW = 12
   // and how far the upper lip goes up as the mouth opens, a share of how far the lower goes down
   const CP_LIFT = 0.55
+  /* How the face sits in the screen: as the concept's does, light coming out of the scanlines more than paint laid on
+     them. Its paint thins to nothing over `sides` cells at its left and right, `top` under the frame and `foot` behind
+     the audience, and in an ellipse round a point in the middle across and `cy` rows down, between the eyes (`vignette`:
+     its radii `rx` and `ry` in cells, more than none, and the thinning from `start` to `end` of them, which reaches the
+     sides and the lower corners), so that no edge of the painted patch shows. Its shadow and its light are painted at
+     `shade` and `light` of the concept map's strength, its dabs and the brows `blur` times as soft; the brows and the
+     inside of the mouth at `brow` and `mouth` of their strength, the mouth `mouthBlur` times as soft, so that it still
+     speaks with passion; and a soft light behind the face (`bloom`: its paint, its radius in cells, and the row it is
+     on, in the middle across) is the screen glowing brightest in the face's middle. */
+  const CP_BLEND = {
+    sides: 26,
+    top: 3,
+    foot: 12,
+    vignette: { start: 0.62, end: 1.12, rx: 74, ry: 80, cy: 20 },
+    shade: 0.44,
+    light: 0.62,
+    blur: 2,
+    brow: 1.3,
+    mouth: 0.5,
+    mouthBlur: 1.8,
+    bloom: { load: 0.22, radius: 30, row: 40 },
+  }
   const CP_SHOWN = [3, 66 + CP_JAW * 0.75]
   const CP_INKS = {
     ...LAND_INK,
@@ -7373,6 +7395,10 @@
         return seed
       }
       const put = (n, { x, y, ...o }) => {
+        // a stroke with next to no paint (at the face's faded edges) changes no pixel, so it is not drawn at all
+        if (o.load !== undefined && o.load < 0.002) {
+          return
+        }
         rand.reseed(calm(88001 + n * 7919))
         const root = h + 40
         garden.dab({ kind: HAZE, blur: 0.6, load: 0.95, turn: 0, ...o, x, y: root, stem: root - y, lean: 0, stiff: 1 })
@@ -7449,6 +7475,18 @@
       const left = s.x - (fw * cell) / 2
       const top = s.top + 6 + Math.max(0, s.room - (CP_SHOWN[1] - CP_SHOWN[0]) * cell) * 0.4 - CP_SHOWN[0] * cell
       const digit = (str, i) => Number.parseInt(str[i], 36)
+      // how much of its paint each cell of the face keeps (see CP_BLEND): none at the patch's edges, all in its middle
+      const weight = (gx, gy) => {
+        const { sides, top: under, foot, vignette: v } = CP_BLEND
+        const r = Math.hypot((gx + 0.5 - fw / 2) / Math.max(1e-3, v.rx), (gy + 0.5 - v.cy) / Math.max(1e-3, v.ry))
+        return (
+          smooth(0, sides, gx + 0.5) *
+          smooth(0, sides, fw - gx - 0.5) *
+          smooth(0, under, gy + 0.5) *
+          smooth(0, foot, fh - gy - 0.5) *
+          (1 - smooth(v.start, v.end, r))
+        )
+      }
       // The face speaks (see `talk`), as a face on a great screen does to a hall: the mouth opens at the seam of its lips
       // (the dark shape across the face under the nose is the upper lip; the concept's lower lip, lit, starts on row
       // SEAM), round and tall in its middle, its corners staying where they are: all under the seam goes down with the
@@ -7496,17 +7534,18 @@
           // the lower lip a little dimmer where the mouth opens, so that under the dark of an open mouth it reads as a
           // lip, as it does in the concept, and not as teeth
           const lip = gy >= SEAM && gy <= SEAM + 6 && lens(gx) > 0 ? 0.8 : 1
-          // laid along the screen's lines, a little longer than a cell and a little less than one high, so the face is
-          // in its scanlines as the concept's is, soft across and drawn in lines down
+          // each a soft round dab about three cells across, so the face is light and shade in the screen, not marks on it
+          const wt = weight(gx, gy)
+          // a faint cell's paint starts from none, so that nothing steps in or out where the map is faint
           if (dark > 2) {
             put(100000 + i, {
               x,
               y,
               long: cell * 1.35,
               wide: 0.95,
-              blur: cell * 1.4,
+              blur: cell * 1.4 * CP_BLEND.blur,
               paints: ['faceShade', 'faceShade'],
-              load: Math.min(0.58, 0.05 + 0.6 * (dark / 35) ** 0.8),
+              load: Math.min(0.58, 0.6 * ((dark - 2) / 33) ** 0.8) * CP_BLEND.shade * wt,
               order: 500,
               phase,
             })
@@ -7516,9 +7555,9 @@
               y,
               long: cell * 1.35,
               wide: 0.95,
-              blur: cell * 1.4,
+              blur: cell * 1.4 * CP_BLEND.blur,
               paints: ['faceLight', 'flare'],
-              load: Math.min(0.5, 0.05 + 0.52 * (lit / 35) ** 0.8) * lip,
+              load: Math.min(0.5, 0.52 * ((lit - 2) / 33) ** 0.8) * lip * CP_BLEND.light * wt,
               order: 501,
               phase,
             })
@@ -7540,13 +7579,26 @@
           long: gap / 2,
           wide: half / (gap / 2),
           turn: Math.PI / 2,
-          blur: cell * 2,
+          blur: cell * 2 * CP_BLEND.mouthBlur,
           paints: ['mouth', 'mouth'],
-          load: 0.6,
+          load: 0.6 * CP_BLEND.mouth,
           order: 502,
           phase: 200 + Math.min(95, gap),
         })
       }
+      // the screen glowing brightest in the face's middle, behind it
+      const { bloom } = CP_BLEND
+      put(265000, {
+        x: s.x,
+        y: top + bloom.row * cell,
+        long: bloom.radius * cell,
+        wide: 1,
+        blur: bloom.radius * cell,
+        paints: ['faceLight', 'flare'],
+        load: bloom.load,
+        order: 498,
+        phase: 100,
+      })
       // Brows drawn down towards the nose over the inner half of each eye, as a speaker's are who means it: soft bands
       // of the face's shadow, deeper and wider at their inner ends.
       const brows = [
@@ -7570,10 +7622,10 @@
             y,
             long: cell * 1.5 * thick,
             wide: 0.75,
-            blur: cell * 1.5,
+            blur: cell * 1.5 * CP_BLEND.blur,
             turn: Math.atan2(by - ay, bx - ax),
             paints: ['faceShade', 'faceShade'],
-            load: 0.16 + 0.22 * f,
+            load: (0.16 + 0.22 * f) * CP_BLEND.brow * weight(gx - 0.5, gy - 0.5),
             order: 503,
             phase: 100,
           })
@@ -8178,11 +8230,12 @@
      by uTalk.x times (phase - 100) pixels (the jaw, the lower lip, the chin; 100 itself stays put); from 300 it goes up
      by uTalk.x times (phase - 300) (the upper lip). A phase from 200 is the inside of the mouth: a dark stroke stood
      upright at the lips' seam, as long as it was painted (phase - 200, the gap there with the mouth open its widest)
-     when the mouth is open, next to nothing and gone when it is shut (upright, so that the wander of a stroke's edge,
-     a share of its width, stays small at its ends, the opening's edge), and moved down by as much more as the lower lip goes down than the
-     upper goes up (talk.lift is how far the upper goes up, a share of how far the lower goes down), so that it fills
-     the gap as it opens. And all of the face nods with the speech, down by uTalk.y pixels. Without it the shader is as
-     it was. */
+     when the mouth is open, next to nothing and gone when it is shut, fading in over the first third of opening so that
+     a mouth barely parted is no sharp line on a soft face. It stands upright so that the wander of a stroke's edge, a
+     share of its width, stays small at its ends, which are the opening's edges; and it goes down by as much more as the
+     lower lip goes down than the upper goes up (talk.lift is how far the upper goes up, a share of how far the lower
+     goes down), so that it fills the gap as it opens. And all of the face nods with the speech, down by uTalk.y pixels.
+     Without it the shader is as it was. */
   const TALK_BREADTH = 'float breadth = aDab.x * scale;'
   const TALK_PLACE = 'vec2 pixel = root + vec2(tip.x, -tip.y) + along * local.x + across * local.y;'
   const talkVertex = (mode, vertex) => {
@@ -8206,7 +8259,7 @@
         TALK_BREADTH,
         `${TALK_BREADTH}\n    float talkCode = aBlade.z >= 0.999 ? aBlade.y : 0.0;\n    bool inside = talkCode >= 199.0 && talkCode < 299.0;\n    if (inside) {\n      reach *= max(uTalk.x, 0.04);\n    }`,
       )
-      .replace(load[0], `${load[0]}\n    if (inside) {\n      vLoad *= smoothstep(0.0, 0.2, uTalk.x);\n    }`)
+      .replace(load[0], `${load[0]}\n    if (inside) {\n      vLoad *= smoothstep(0.05, 0.3, uTalk.x);\n    }`)
       .replace(
         TALK_PLACE,
         `${TALK_PLACE}\n    if (talkCode >= 299.0) {\n      pixel.y -= uTalk.x * (talkCode - 300.0);\n    } else if (inside) {\n      pixel.y += uTalk.x * (talkCode - 200.0) * ${centre};\n    } else if (talkCode >= 99.0) {\n      pixel.y += uTalk.x * (talkCode - 100.0);\n    }\n    if (talkCode >= 99.0) {\n      pixel.y += uTalk.y;\n    }`,
