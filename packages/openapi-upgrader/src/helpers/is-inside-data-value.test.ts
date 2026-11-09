@@ -54,6 +54,15 @@ describe('isInsideDataValue', () => {
     )
   })
 
+  it('distinguishes header maps from reusable objects and headers named headers', () => {
+    expect(isInsideDataValue(['components', 'parameters', 'headers', 'example'], '3.0')).toBe(true)
+    expect(isInsideDataValue(['parameters', 'headers', 'x-example'], '2.0')).toBe(true)
+    expect(isInsideDataValue(['responses', 'headers', 'examples', 'application/json'], '2.0')).toBe(true)
+    const header = ['components', 'responses', 'headers', 'headers', 'headers']
+    expect(isInsideDataValue([...header, 'schema'], '3.0')).toBe(false)
+    expect(isInsideDataValue([...header, 'example'], '3.0')).toBe(true)
+  })
+
   it('limits Swagger-specific data locations to the 2.0 upgrade', () => {
     const extension = ['parameters', 'Filter', 'x-example', 'application/json']
     const responseExample = ['paths', '/items', 'get', 'responses', '200', 'examples', 'application/json']

@@ -6,7 +6,10 @@ const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$
 const isOpenApiObjectName = (path: readonly string[], index: number): boolean =>
   (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
   (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters')) ||
-  (path[index - 1] === 'headers' && !isNamedSchemaMap(path.slice(0, index - 1)))
+  // A reusable object or header named `headers` is not itself a header map.
+  (path[index - 1] === 'headers' &&
+    !isOpenApiObjectName(path, index - 1) &&
+    !isNamedSchemaMap(path.slice(0, index - 1)))
 
 /**
  * Determine if the node at `path` is a map of named subschemas rather than a schema object.

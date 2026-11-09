@@ -4,6 +4,25 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it('preserves example data on a reusable parameter named headers', () => {
+    const example = { type: 'string', nullable: true }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Parameters', version: '1' },
+      paths: {},
+      components: {
+        parameters: { headers: { name: 'filter', in: 'query', schema: { type: 'object' }, example } },
+      },
+    })
+
+    expect(result.components?.parameters?.headers).toStrictEqual({
+      name: 'filter',
+      in: 'query',
+      schema: { type: 'object' },
+      examples: { default: { value: example } },
+    })
+  })
+
   it('upgrades a reusable request body named x-example', () => {
     const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
       openapi: '3.0.4',
@@ -56,7 +75,7 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  it.each(['x-example', 'default', 'properties'])(
+  it.each(['x-example', 'default', 'properties', 'headers'])(
     'upgrades response headers named %s while preserving their data',
     (name) => {
       const example = { type: 'string', nullable: true }

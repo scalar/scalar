@@ -1339,6 +1339,32 @@ describe('upgradeFromTwoToThree', () => {
     },
   )
 
+  it('preserves example data on a reusable response named headers', () => {
+    const example = { type: 'file' }
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Responses', version: '1' },
+      paths: {},
+      responses: {
+        headers: {
+          description: 'File metadata',
+          schema: { type: 'object', properties: { type: { type: 'string' } } },
+          examples: { 'application/json': example },
+        },
+      },
+    })
+
+    expect(result.components?.responses?.headers).toStrictEqual({
+      description: 'File metadata',
+      content: {
+        'application/json': {
+          schema: { type: 'object', properties: { type: { type: 'string' } } },
+          example,
+        },
+      },
+    })
+  })
+
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
