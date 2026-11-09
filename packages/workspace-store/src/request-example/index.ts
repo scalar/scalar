@@ -85,6 +85,7 @@ export {
   restoreConventionalDefaultHeaderNames,
   restoreConventionalHeaderName,
 } from './context'
+export { resolveCredentialPlaceholders } from './context/security/resolve-credential-placeholders'
 export {
   CONTEXT_FUNCTION_NAMES,
   type ContextFunctionEntry,
