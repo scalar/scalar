@@ -108,6 +108,10 @@
     "routing": {
       "redirects": [
         {
+          "from": "/products/headless",
+          "to": "/"
+        },
+        {
           "from": "/docs",
           "to": "/products"
         },
@@ -1060,7 +1064,9 @@
             "layout": {
               "toc": false,
               "pageTitle": false,
-              "feedback": false
+              "pageActions": false,
+              "feedback": false,
+              "pageNav": false
             },
             "head": {
               "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
@@ -1132,6 +1138,31 @@
                   "name": "googlebot",
                   "content": "index, follow, max-image-preview:large"
                 }
+              ],
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/agent-marks.js"
+                },
+                {
+                  "path": "documentation/assets/agent-hero.js"
+                },
+                {
+                  "path": "documentation/assets/sdk-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
+                }
               ]
             }
           },
@@ -1150,6 +1181,12 @@
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ],
               "links": [
                 {
                   "rel": "canonical",
@@ -1246,6 +1283,14 @@
               "scripts": [
                 {
                   "path": "documentation/assets/enterprise-contact-form.js"
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1300,6 +1345,7 @@
             },
             "layout": {
               "toc": false,
+              "pageTitle": false,
               "feedback": false
             }
           },
@@ -1321,7 +1367,8 @@
                   "path": "documentation/assets/company.js"
                 },
                 {
-                  "path": "documentation/assets/company-hero.js"
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1715,10 +1762,18 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false,
               "feedback": false
+            },
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ]
             }
           },
           "products": {
@@ -5005,7 +5060,10 @@
               "filepath": "documentation/compare/index.md",
               "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
               "layout": {
-                "toc": false
+                "toc": false,
+                "pageActions": false,
+                "pageTitle": false,
+                "feedback": false
               },
               "head": {
                 "title": "Scalar Comparison Guides",
@@ -5031,6 +5089,12 @@
                   {
                     "name": "robots",
                     "content": "index, follow"
+                  }
+                ],
+                "scripts": [
+                  {
+                    "path": "documentation/assets/headless-hero.js",
+                    "defer": true
                   }
                 ]
               }
