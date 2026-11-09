@@ -197,11 +197,7 @@ jobs:
   aspnetcore-pack:
     if: inputs.published == 'true' && inputs.aspnetcore_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-nuget
     timeout-minutes: 10
-    concurrency:
-      group: aspnetcore-pack
-      cancel-in-progress: false
     permissions:
       contents: read
     steps:
@@ -296,11 +292,7 @@ jobs:
   aspire-pack:
     if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-nuget
     timeout-minutes: 10
-    concurrency:
-      group: aspire-pack
-      cancel-in-progress: false
     permissions:
       contents: read
     steps:
@@ -432,11 +424,7 @@ jobs:
   azure-functions-pack:
     if: inputs.published == 'true' && inputs.azure_functions_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-nuget
     timeout-minutes: 10
-    concurrency:
-      group: azure-functions-pack
-      cancel-in-progress: false
     permissions:
       contents: read
     steps:
