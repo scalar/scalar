@@ -1,3 +1,4 @@
+export { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 export { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
 export type { Config as BundleConfig, LifecyclePlugin, LoaderPlugin, Plugin, ResolveResult } from './bundle'

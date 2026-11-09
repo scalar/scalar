@@ -2,7 +2,13 @@ import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-p
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
-import { type LoaderPlugin, type Plugin, type ResolveResult, resolveReferencePath } from '@scalar/json-magic/bundle'
+import {
+  type LoaderPlugin,
+  type Plugin,
+  type ResolveResult,
+  decodeUriFragment,
+  resolveReferencePath,
+} from '@scalar/json-magic/bundle'
 import { upgrade } from '@scalar/openapi-upgrader'
 
 import { deepClone } from './deep-clone'
@@ -55,17 +61,39 @@ export const upgradeLoaders = (
 ): Plugin[] => {
   const fragments = new WeakSet<object>()
   const paths = new WeakMap<object, readonly string[]>()
+  // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
+  const resolvedReferences = new WeakMap<object, () => unknown>()
   const indexNodes = (value: unknown, path?: readonly string[]): void => {
     if (value === null || typeof value !== 'object' || paths.has(value) || (!path && fragments.has(value))) {
       return
     }
     if (path) {
       paths.set(value, path)
+      upgradeTarget(resolvedReferences.get(value)?.(), path)
     } else {
       fragments.add(value)
     }
     for (const [key, child] of Object.entries(value)) {
       indexNodes(child, path ? [...path, key] : undefined)
+    }
+  }
+  const upgradeTarget = (target: unknown, path: readonly string[]): void => {
+    if (!isObject(target) || !fragments.has(target) || paths.has(target)) {
+      return
+    }
+    // Mark the path before following cached edges so cyclic references terminate. Walk the existing
+    // children first: their resolver callbacks would otherwise be lost when the upgrader clones them.
+    indexNodes(target, path)
+    const upgraded = upgradeLoadedDocument(target, entryVersion, path)
+    if (!isObject(upgraded) || upgraded === target) {
+      return
+    }
+    for (const key of Object.keys(target)) {
+      delete target[key]
+    }
+    Object.assign(target, upgraded)
+    for (const [key, child] of Object.entries(target)) {
+      indexNodes(child, [...path, key])
     }
   }
   const wrapped: LoaderPlugin[] = loaders.map((loader) => {
@@ -111,7 +139,8 @@ export const upgradeLoaders = (
         if (path[0] === 'x-ext') {
           return
         }
-        const [file, fragment = ''] = reference.split('#')
+        const [file, authoredFragment = ''] = reference.split('#')
+        const fragment = decodeUriFragment(authoredFragment)
         if (fragment && !fragment.startsWith('/')) {
           return
         }
@@ -125,25 +154,22 @@ export const upgradeLoaders = (
           if (!result?.ok) {
             return undefined
           }
-          const targetPath = fragment
-            ? decodeURIComponent(fragment).slice(1).split('/').map(unescapeJsonPointerSegment)
-            : []
+          const targetPath = fragment ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
           return getValueAtPath(result.data, targetPath)
         }
-        const target = await resolveTarget()
-        if (!isObject(target) || !fragments.has(target) || paths.has(target)) {
+        upgradeTarget(await resolveTarget(), path)
+      },
+      onAfterNodeProcess: (node, context): void => {
+        if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
           return
         }
-        const upgraded = upgradeLoadedDocument(target, entryVersion, path)
-        if (!isObject(upgraded) || upgraded === target) {
-          return
+        const reference = node.$ref
+        const resolve = (): unknown => context.resolveReference(reference)?.value
+        resolvedReferences.set(node, resolve)
+        const path = paths.get(node) ?? [...basePath, ...context.path]
+        if (path[0] !== 'x-ext') {
+          upgradeTarget(resolve(), path)
         }
-        // Keep the cached target's identity, including when several pointers address the same file.
-        for (const key of Object.keys(target)) {
-          delete target[key]
-        }
-        Object.assign(target, upgraded)
-        indexNodes(target, path)
       },
     },
   ]
