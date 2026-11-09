@@ -102,7 +102,9 @@ describe('galaxy-scalar-com', () => {
     it('configures Scalar with the expected options', () => {
       configureApiReference(mockApp as Hono)
 
-      expect(resolveConfiguration()).toEqual(
+      const config = resolveConfiguration()
+
+      expect(config).toEqual(
         expect.objectContaining({
           pageTitle: 'Scalar Galaxy',
           sources: expect.arrayContaining([
@@ -120,7 +122,6 @@ describe('galaxy-scalar-com', () => {
         }),
       )
 
-      const config = resolveConfiguration()
       const sources = config.sources
       expect(config.agent).toBeUndefined()
       expect(sources?.map(({ title, agent }) => ({ title, key: agent?.key }))).toStrictEqual([
