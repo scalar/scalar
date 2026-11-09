@@ -72,6 +72,46 @@ describe('path', () => {
     ])
   })
 
+  it.each([
+    'type Params = { id: string }; export function GET(_request: Request, context: { params: Promise<Params> }) {}',
+    "export const GET = async (_request: Request, context: RouteContext<'/characters/[id]'>) => {}",
+    'export const GET = function (_request: Request, context: Context) {}',
+    'export function GET() {}',
+    'export const GET = handlers.get',
+  ])('uses the route path when parameter types cannot be extracted: %s', (code) => {
+    const source = createSourceFile('route.ts', code, ScriptTarget.Latest, true)
+
+    expect(getPathSchema(source, program, '/characters/{id}').get?.parameters).toStrictEqual([
+      { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    ])
+  })
+
+  it('preserves inferred schemas and fills missing parameters for each operation', () => {
+    const source = createSourceFile(
+      'route.ts',
+      `export function GET(_request: Request, context: { params: Promise<{ id: number }> }) {}
+       export const DELETE = () => {}`,
+      ScriptTarget.Latest,
+      true,
+    )
+    const schema = getPathSchema(source, program, '/groups/{groupId}/characters/{id}')
+
+    expect(schema.get?.parameters).toStrictEqual([
+      { name: 'id', schema: { type: 'number' }, in: 'path', required: true },
+      { name: 'groupId', in: 'path', required: true, schema: { type: 'string' } },
+    ])
+    expect(schema.delete?.parameters).toStrictEqual([
+      { name: 'groupId', in: 'path', required: true, schema: { type: 'string' } },
+      { name: 'id', in: 'path', required: true, schema: { type: 'string' } },
+    ])
+  })
+
+  it('does not infer parameters for static paths', () => {
+    const source = createSourceFile('route.ts', 'export function GET() {}', ScriptTarget.Latest, true)
+
+    expect(getPathSchema(source, program, '/characters').get?.parameters).toStrictEqual([])
+  })
+
   it.each(['Array<{ id: string }>', 'Promise<string>', 'Promise'])(
     'ignores unsupported params types: %s',
     (paramsType) => {
