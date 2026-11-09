@@ -1356,4 +1356,108 @@ describe('validate-request', () => {
       message: 'limit is required',
     })
   })
+  describe('read-only properties', () => {
+    const postPet = async (schemas: Record<string, unknown>, body: unknown): Promise<Response> => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Validation', version: '1.0.0' },
+        components: { schemas },
+        paths: {
+          '/pets': {
+            post: {
+              requestBody: {
+                required: true,
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/NewPet' } } },
+              },
+              responses: {
+                '201': { description: 'Created', content: { 'application/json': { example: { ok: true } } } },
+              },
+            },
+          },
+        },
+      }
+      const server = await createMockServer({ document, validateRequest: true })
+      return server.request('/pets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    }
+
+    const pet = {
+      type: 'object',
+      required: ['id', 'createdAt', 'name'],
+      properties: {
+        id: { type: 'integer', readOnly: true },
+        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+        name: { type: 'string' },
+      },
+    }
+
+    it('accepts a body that leaves out required read-only properties', async () => {
+      expect((await postPet({ NewPet: pet }, { name: 'Fido' })).status).toBe(201)
+    })
+
+    it('accepts a body that leaves out read-only properties inherited through allOf', async () => {
+      const schemas = {
+        Pet: pet,
+        NewPet: {
+          allOf: [{ $ref: '#/components/schemas/Pet' }, { required: ['tag'], properties: { tag: { type: 'string' } } }],
+        },
+      }
+
+      expect((await postPet(schemas, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+    })
+
+    it('accepts read-only properties composed through allOf', async () => {
+      const schema = {
+        ...pet,
+        properties: { ...pet.properties, id: { allOf: [{ type: 'integer', readOnly: true }] } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+    })
+
+    it('accepts read-only requirements in dependentSchemas', async () => {
+      const schema = { ...pet, dependentSchemas: { name: { required: ['id', 'tag'] } } }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(422)
+    })
+
+    it('preserves conditional branch selection for omitted read-only properties', async () => {
+      const schema = {
+        ...pet,
+        if: { required: ['id'] },
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then to define the matching conditional branch.
+        then: { required: ['id', 'audit'] },
+        else: { required: ['id', 'draft'] },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', draft: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', audit: true })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', audit: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', draft: true })).status).toBe(422)
+    })
+
+    it('preserves negated read-only requirements during request validation', async () => {
+      const schema = {
+        ...pet,
+        not: { required: ['id'], properties: { id: { type: 'integer', readOnly: true } } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido' })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, {})).status).toBe(422)
+    })
+
+    it('still requires the other properties', async () => {
+      const response = await postPet({ NewPet: pet }, {})
+
+      expect(response.status).toBe(422)
+      expect(await response.json()).toMatchObject({
+        violations: [{ location: 'body', message: "must have required property 'name'" }],
+      })
+    })
+  })
 })
