@@ -264,4 +264,101 @@ describe('upgrade-loaders', () => {
       examples: { default: { value: 10 } },
     })
   })
+
+  it.each([
+    { order: ['A', 'B'], nested: false },
+    { order: ['B', 'A'], nested: false },
+    { order: ['A', 'B'], nested: true },
+    { order: ['B', 'A'], nested: true },
+  ])('propagates context through cached references in order $order (nested: $nested)', async ({ order, nested }) => {
+    const files: Record<string, unknown> = {
+      'https://example.test/shared.json': {
+        A: { type: 'string', nullable: true },
+        B: nested ? { type: 'object', properties: { value: { $ref: './C.json' } } } : { $ref: './C.json' },
+      },
+      'https://example.test/C.json': { type: 'integer', nullable: true },
+    }
+    const loads: string[] = []
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (url) => {
+        loads.push(url)
+        return Promise.resolve({ ok: true, raw: JSON.stringify(files[url]), data: files[url] })
+      },
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: Object.fromEntries(order.map((name) => [name, { $ref: `https://example.test/shared.json#/${name}` }])),
+      },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const b = getValueAtPath<Record<string, unknown>>(
+      document,
+      parseJsonPointerSegments(document.components.schemas.B!.$ref.slice(1)),
+    )
+    const reference = nested ? getValueAtPath<{ $ref: string }>(b, ['properties', 'value']).$ref : (b.$ref as string)
+    expect(getValueAtPath(document, parseJsonPointerSegments(reference.slice(1)))).toStrictEqual({
+      type: ['integer', 'null'],
+    })
+    expect(loads.sort()).toStrictEqual(['https://example.test/C.json', 'https://example.test/shared.json'])
+  })
+
+  it.each([false, true])('propagates context through an already processed local alias (cyclic: %s)', async (cyclic) => {
+    const files: Record<string, unknown> = {
+      'https://example.test/shared.json': { Alias: { $ref: './C.json' }, Item: { $ref: '#/Alias' } },
+      'https://example.test/C.json': cyclic
+        ? { type: 'object', nullable: true, properties: { next: { $ref: './shared.json#/Item' } } }
+        : { type: 'integer', nullable: true },
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (url) => Promise.resolve({ ok: true, raw: JSON.stringify(files[url]), data: files[url] }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { schemas: { Item: { $ref: 'https://example.test/shared.json#/Item' } } },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const item = getValueAtPath<{ $ref: string }>(
+      document,
+      parseJsonPointerSegments(document.components.schemas.Item.$ref.slice(1)),
+    )
+    const alias = getValueAtPath<{ $ref: string }>(document, parseJsonPointerSegments(item.$ref.slice(1)))
+    const target = getValueAtPath<Record<string, unknown>>(document, parseJsonPointerSegments(alias.$ref.slice(1)))
+    expect(target.type).toStrictEqual([cyclic ? 'object' : 'integer', 'null'])
+    expect(target.nullable).toBeUndefined()
+    if (cyclic) {
+      const next = getValueAtPath<{ $ref: string }>(target, ['properties', 'next'])
+      expect(getValueAtPath(document, parseJsonPointerSegments(next.$ref.slice(1)))).toBe(item)
+    }
+  })
+
+  it.each([
+    { fragment: '%2FItem', key: 'Item' },
+    { fragment: '/50%', key: '50%' },
+    { fragment: '/%252F', key: '%2F' },
+  ])('upgrades URI fragment $fragment using the same decoding as the bundler', async ({ fragment, key }) => {
+    const data = { [key]: { type: 'string', nullable: true } }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { schemas: { Item: { $ref: `https://example.test/schemas.json#${fragment}` } } },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const externals = getValueAtPath<Record<string, Record<string, unknown>>>(document, ['x-ext'])
+    expect(Object.values(externals).map((external) => external[key])).toStrictEqual([{ type: ['string', 'null'] }])
+  })
 })
