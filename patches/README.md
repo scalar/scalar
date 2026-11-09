@@ -12,6 +12,9 @@ serialization runtime. Keep the patch while this version is installed:
 - Accept a default syntax supplied by AsyncAPI `schemaFormat` for fragments
   without a `syntax` declaration. An explicit declaration still takes precedence
   and Scalar checks it against `schemaFormat`.
+- Reject duplicate namespace declarations before they overwrite earlier definitions.
+- Use null-prototype dictionaries so schema identifiers such as `constructor`,
+  `toString`, and `__proto__` are ordinary names.
 - Include field discriminants in the JSON AST and correct the corresponding
   TypeScript declarations for options, ranges, groups, and nested definitions.
 
@@ -21,3 +24,7 @@ and semantic validation. Regression coverage lives in
 
 When updating or replacing this dependency, run the schema reader tests before
 removing any part of the patch.
+
+The default library build includes the patched runtime under `dist/vendor/` so
+installed npm consumers do not depend on workspace patch configuration. Standalone
+builds also bundle the corrected parser.

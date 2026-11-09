@@ -61,9 +61,18 @@ index fd54265e1852eb9befb268e4d509beb5fd7adce6..3c38cded422f7ffa5531f3059936ef15
    alternateCommentMode?: boolean;
    resolve?: boolean;
 diff --git a/src/construct.js b/src/construct.js
-index 65166a560a566d59eb116aac239939582cac125b..3556ac0d516e021aee6399440e4c4026a1a8c7f9 100644
+index 65166a560a566d59eb116aac239939582cac125b..88c16b4a5395c150ff895d9aa4209134bf6321d6 100644
 --- a/src/construct.js
 +++ b/src/construct.js
+@@ -32,7 +32,7 @@ class ReflectionObject {
+   setOption(name, value, ifNotSet) {
+     /* istanbul ignore next */
+     if (!ifNotSet || !this.options || this.options[name] === undefined) {
+-      (this.options || (this.options = {}))[name] = value;
++      (this.options || (this.options = Object.create(null)))[name] = value;
+     }
+ 
+     return this;
 @@ -108,7 +108,7 @@ class FieldDefinition extends ReflectionObject {
      }
  
@@ -81,15 +90,60 @@ index 65166a560a566d59eb116aac239939582cac125b..3556ac0d516e021aee6399440e4c4026
        'id',
        'type',
        'rule',
-@@ -490,6 +491,7 @@ class EnumDefinition extends NamespaceDefinition {
+@@ -236,7 +237,10 @@ class NamespaceDefinition extends ReflectionObject {
+       throw TypeError('object must be a valid nested object');
+     }
+ 
+-    if (!this.nested) this.nested = {};
++    if (!this.nested) this.nested = Object.create(null);
++    if (Object.prototype.hasOwnProperty.call(this.nested, object.name)) {
++      throw Error(`duplicate name '${object.name}' in namespace '${this.name}'`);
++    }
+     this.nested[object.name] = object;
+     object.onAdd(this);
+ 
+@@ -367,7 +371,7 @@ class MessageDefinition extends NamespaceDefinition {
+   constructor(name, options) {
+     super(name, options);
+     this.syntaxType = SyntaxType.MessageDefinition;
+-    this.fields = {};
++    this.fields = Object.create(null);
+     this.oneofs = undefined;
+     this.extensions = undefined;
+     this.reserved = undefined;
+@@ -422,7 +426,7 @@ class MessageDefinition extends NamespaceDefinition {
+ 
+     if (object instanceof OneofDefinition) {
+       /* istanbul ignore next */
+-      if (!this.oneofs) this.oneofs = {};
++      if (!this.oneofs) this.oneofs = Object.create(null);
+       this.oneofs[object.name] = object;
+       object.onAdd(this);
+       return this.clearCache();
+@@ -437,7 +441,7 @@ class MessageDefinition extends NamespaceDefinition {
+       return this._fieldsById;
+     }
+ 
+-    this._fieldsById = {};
++    this._fieldsById = Object.create(null);
+     for (let names = Object.keys(this.fields), i = 0; i < names.length; ++i) {
+       const field = this.fields[names[i]];
+       const { id } = field;
+@@ -486,10 +490,11 @@ class EnumDefinition extends NamespaceDefinition {
+       throw TypeError('values must be an object');
+     }
+ 
+-    this.valuesById = {};
++    this.valuesById = Object.create(null);
      this.values = Object.create(this.valuesById);
      this.comment = comment;
-     this.comments = comments || {};
-+    this.valuesOptions = {};
+-    this.comments = comments || {};
++    this.comments = comments || Object.create(null);
++    this.valuesOptions = Object.create(null);
      this.reserved = undefined;
  
      /* istanbul ignore next */
-@@ -542,7 +544,7 @@ class EnumDefinition extends NamespaceDefinition {
+@@ -542,7 +547,7 @@ class EnumDefinition extends NamespaceDefinition {
  
    toJson() {
      const json = NamespaceDefinition.prototype.toJson.call(this);
@@ -98,8 +152,26 @@ index 65166a560a566d59eb116aac239939582cac125b..3556ac0d516e021aee6399440e4c4026
      return json;
    }
  }
+@@ -552,7 +557,7 @@ class ServiceDefinition extends NamespaceDefinition {
+     super(name, options);
+     this.syntaxType = SyntaxType.ServiceDefinition;
+ 
+-    this.methods = {};
++    this.methods = Object.create(null);
+     this._methodsArray = null;
+   }
+ 
+@@ -695,7 +700,7 @@ function copyObject(object, keys) {
+ 
+ function mapToJson(map) {
+   if (!map) return undefined;
+-  const object = {};
++  const object = Object.create(null);
+ 
+   Object.keys(map).forEach(key => {
+     object[key] = map[key].toJson();
 diff --git a/src/parse.js b/src/parse.js
-index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..623bf104c1f92ab7f778b23b1b6fca835ce14e30 100644
+index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..84622a2655375b22c79d420001c48949844afc40 100644
 --- a/src/parse.js
 +++ b/src/parse.js
 @@ -86,8 +86,8 @@ function parse(source, opt) {
@@ -128,7 +200,7 @@ index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..623bf104c1f92ab7f778b23b1b6fca83
      const value = parseId(next(), true);
 -    const dummy = {};
 +    const dummy = {
-+      options: {},
++      options: Object.create(null),
 +      setOption(name, value) { this.options[name] = value; },
 +    };
      ifBlock(
@@ -142,3 +214,16 @@ index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..623bf104c1f92ab7f778b23b1b6fca83
    }
  
    function parseOption(parent, token) {
+diff --git a/src/types.js b/src/types.js
+index e201e9e0c1120d5e3f0682c1135f18621d804afb..c0ae107f0a8c83d6401ea388badcef1e1559e7cf 100644
+--- a/src/types.js
++++ b/src/types.js
+@@ -28,7 +28,7 @@ const s = [
+ 
+ function bake(values, offset) {
+   let i = 0;
+-  const o = {};
++  const o = Object.create(null);
+   offset |= 0;
+   while (i < values.length) o[s[i + offset]] = values[i++];
+   return o;

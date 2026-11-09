@@ -491,7 +491,7 @@ overrides:
   undici@>=8: 8.12.3
 
 patchedDependencies:
-  proto-parser@0.0.9: 46bd5c6f3d813a78b6dad5c3840d81bb4adf79e1d4f4b964b8544a00f9bca784
+  proto-parser@0.0.9: 9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb
 
 importers:
 
@@ -1706,7 +1706,7 @@ importers:
         version: 5.1.16
       proto-parser:
         specifier: catalog:*
-        version: 0.0.9(patch_hash=46bd5c6f3d813a78b6dad5c3840d81bb4adf79e1d4f4b964b8544a00f9bca784)
+        version: 0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb)
       vue:
         specifier: catalog:*
         version: 3.5.44(typescript@5.9.3)
@@ -40595,7 +40595,7 @@ snapshots:
 
   proto-list@1.2.4: {}
 
-  proto-parser@0.0.9(patch_hash=46bd5c6f3d813a78b6dad5c3840d81bb4adf79e1d4f4b964b8544a00f9bca784): {}
+  proto-parser@0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb): {}
 
   protobufjs@7.5.4:
     dependencies:

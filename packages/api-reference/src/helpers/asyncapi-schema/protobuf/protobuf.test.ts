@@ -110,4 +110,78 @@ describe('protobuf', () => {
       { name: 'DONE', type: '1', description: 'Work has finished' },
     ])
   })
+
+  it.each([
+    'message M { string first = 1; } message M { bool last = 2; }',
+    'package sample; message M {} message M {}',
+    'enum E { ZERO = 0; } enum E { ONE = 0; }',
+    'message M {} enum M { ZERO = 0; }',
+    'service API {} message API { string id = 1; }',
+    'message API { string id = 1; } service API {}',
+    'package sample; service API {} message API {}',
+  ])('falls back to source for duplicate declarations: %s', (source) => {
+    expect(readSchema(proto, `syntax = "proto3"; ${source}`)).toBeUndefined()
+  })
+
+  it.each(['constructor', 'toString', 'hasOwnProperty', '__proto__'])(
+    'preserves %s as a field, enum symbol, and type name',
+    (name) => {
+      const result = readSchema(
+        proto,
+        `syntax = "proto3";
+        message ${name} { string ${name} = 1; }
+        message M { ${name} value = 1; }
+        enum E { ${name}_ZERO = 0; }
+      `,
+      )
+      expect(result?.nodes).toStrictEqual([
+        { name, type: `message ${name}`, children: [{ name, type: 'string', fieldNumber: 1, presence: 'implicit' }] },
+        {
+          name: 'M',
+          type: 'message M',
+          children: [
+            {
+              name: 'value',
+              type: `message ${name}`,
+              fieldNumber: 1,
+              presence: 'explicit',
+              children: [{ name, type: 'string', fieldNumber: 1, presence: 'implicit' }],
+            },
+          ],
+        },
+        { name: 'E', type: 'enum E', children: [{ name: `${name}_ZERO`, type: '0' }] },
+      ])
+      expect(readSchema(proto, `syntax = "proto3"; enum E { ${name} = 0; }`)?.nodes[0]?.children).toStrictEqual([
+        { name, type: '0' },
+      ])
+    },
+  )
+
+  it('resolves prototype names through package and oneof dictionaries', () => {
+    const result = readSchema(
+      proto,
+      `syntax = "proto3";
+      package constructor.__proto__;
+      message toString { string id = 1; }
+      message M { oneof hasOwnProperty { toString constructor = 1; } }
+    `,
+    )
+    expect(result?.nodes[1]?.children).toStrictEqual([
+      {
+        name: 'constructor',
+        type: 'message constructor.__proto__.toString',
+        fieldNumber: 1,
+        oneofGroup: 'hasOwnProperty',
+        children: [{ name: 'id', type: 'string', fieldNumber: 1, presence: 'implicit' }],
+      },
+    ])
+  })
+
+  it.each(['constructor', 'toString', 'hasOwnProperty', '__proto__'])(
+    'does not mistake inherited %s properties for valid map key types or enum options',
+    (name) => {
+      expect(readSchema(proto, `syntax = "proto3"; message M { map<${name}, string> values = 1; }`)).toBeUndefined()
+      expect(readSchema(proto, `syntax = "proto3"; enum E { ZERO = 0 [${name} = true]; }`)).toBeUndefined()
+    },
+  )
 })

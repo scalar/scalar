@@ -10,10 +10,13 @@ export const resolveType = (
     return null
   }
   const get = (node: Definition, key: string): Definition | null => {
+    // Schema identifiers can match Object.prototype names such as constructor.
+    const own = (map: Record<string, Definition> | undefined): Definition | null =>
+      map && Object.hasOwn(map, key) ? (map[key] ?? null) : null
     if (isMessage(node)) {
-      return node.fields[key] ?? node.oneofs?.[key] ?? node.nested?.[key] ?? null
+      return own(node.fields) ?? own(node.oneofs) ?? own(node.nested)
     }
-    return 'nested' in node ? (node.nested?.[key] ?? null) : null
+    return 'nested' in node ? own(node.nested) : null
   }
   const descend = (node: Definition, parts: string[]): Definition | null =>
     parts.reduce<Definition | null>((parent, part) => (parent ? get(parent, part) : null), node)
