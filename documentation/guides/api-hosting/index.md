@@ -9,6 +9,7 @@ Deploy your API from the server framework you already use: NestJS, Hono, Elysia,
 <form class="bf-waitlist" data-bf-waitlist data-md-exclude action="https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3" method="post">
   <input type="hidden" name="userGroup" value="Hosting" />
   <input type="hidden" name="mailingLists" value="" />
+  <input type="hidden" name="landing" value="true" />
   <div class="bf-waitlist-row">
     <div class="bf-combo">
       <label class="bf-sr" for="bf-waitlist-email">Email</label>
