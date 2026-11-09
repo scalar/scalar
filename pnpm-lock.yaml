@@ -506,6 +506,9 @@ importers:
       '@playwright/test':
         specifier: catalog:*
         version: 1.62.1
+      '@types/jsdom':
+        specifier: catalog:*
+        version: 30.0.0
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
@@ -527,6 +530,9 @@ importers:
       globals:
         specifier: ^17.13.0
         version: 17.13.0
+      jsdom:
+        specifier: catalog:*
+        version: 30.1.3(@noble/hashes@1.8.0)
       knip:
         specifier: 6.41.0
         version: 6.41.0
