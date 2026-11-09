@@ -1,4 +1,4 @@
-<section class="dc-hero" data-hl-hero data-hl-mode="hero">
+<section class="dc-hero" data-hl-hero data-hl-mode="sky">
 <div class="dc-stage" aria-hidden="true" data-md-exclude><canvas class="dc-canvas" data-hl-canvas></canvas></div>
 <div class="dc-copy">
 
@@ -200,10 +200,13 @@ Start here to get up and running with Scalar, whether you are building docs, SDK
 
 <style>
   /* ------------------------------------------------------------------
-     The hero: the copy, and under it the headless page's hill and
-     meadow, a poppy field, with a figure of light standing in the middle
-     of it. headless-hero.js draws it into the stage's canvas, to its
-     "docs" composition (the engine that draws the home page).
+     The hero: the copy, and under it a clear sky in the land's fine
+     lines, pale under the buttons and deepening to cobalt, cumulus
+     framing it from either side, a veil of light across it (an aurora
+     at night) and a flock of white birds coming in and going out
+     through the glass at the sides. headless-hero.js draws it into the
+     stage's canvas, to its "sky" composition (the engine that draws the
+     home page).
      ------------------------------------------------------------------ */
   main.content {
     overflow-x: clip;
@@ -211,22 +214,22 @@ Start here to get up and running with Scalar, whether you are building docs, SDK
   .t-editor.page {
     position: relative;
   }
-  /* the hero starts right under the header, as the headless page's does */
+  /* the hero starts right under the header, as the home page's does */
   .t-editor .editor-static .page-node,
   .t-editor .page-node,
   .t-editor .content {
     margin-top: 0;
   }
-  /* The headless page's hero box, so the h1 lands on the same line as the other heroes'; then the meadow under the
-     words, as deep as the headless page's, which runs the hero on past the box. */
+  /* The home page's hero box, so the h1 lands on the same line as the other heroes'; then the sky under the words,
+     as deep as the home page's picture, which runs the hero on past the box. */
   .dc-hero {
     --dc-w: calc(100dvw - var(--scalar-sidebar-width, 0px));
     --dc-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
     --dc-line: 130.5px;
     --dc-top: max(48px, calc(var(--dc-box) / 2 - var(--dc-line)));
-    /* How far the meadow's canvas reaches below the words, as on the headless page: the land's deepest foot is 1.3
-       rooms of 256px under its top line and stands 19px above the canvas's foot, and its top line sits a little
-       under the words. */
+    /* How far the sky's canvas reaches below the words, as on the home page: the land's deepest foot is 1.3 rooms
+       of 256px under its top line and stands 19px above the canvas's foot, and its top line sits a little under the
+       words. */
     --dc-land: calc(1.3 * 256px + 19px + 14px - 40px);
     position: relative;
     display: grid;

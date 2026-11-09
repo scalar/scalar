@@ -1065,12 +1065,16 @@
                as PAINTS and PALETTES: the flowers' colours, and what each drift is painted in. A new colour needs a
                place in SECOND and PALER as well.
      clouds    as CLOUDS, or [] for none; and cloudTuck, as CLOUD_TUCK.
-     flock     as FLOCK, or [] for no butterflies, which is no lens either, unless lens.always: the picture then goes
-               straight to the screen.
+     flock     as FLOCK, or [] for no butterflies, which is no lens either, unless lens.always or a school: the picture
+               then goes straight to the screen.
      air       as AIR: the band the butterflies fly in.
      lens      as LENS; `foot: false` keeps the picture's foot, where the hero's fades out into the page under it, and
                `foot: 'ease'` eases that fade in rather than running it evenly (see LENS_FOOT); `always: true` runs the
-               lens with no flock at all, for that fade at its foot.
+               lens with no flock at all, for that fade at its foot; `even: true` has the glass at the sides draw the
+               flock out only across, more and more out to the edge, and never show a part of it twice (its `in` is
+               raised to where its band starts, a share of the half-width), so that a bright thing coming in through
+               it is drawn out level rather than smeared into a comet's tail or tipped; with `along: 0` and `split: 0`
+               nothing is drawn out along the way and its colours stay together.
      fit       (w, h) => how large the grass, the flowers, the clouds and the butterflies are drawn on a canvas that size.
      stillAt   the clock the still picture is painted at.
      plant     null, or a hook (garden) => {} run each time the meadow is laid out, which can plant more (see growMeadow).
@@ -1092,6 +1096,23 @@
                their phase how they move as the mouth opens, and the mouth opens and shuts in a speech of that many
                phrases (see talkScript), written from the seed, which then starts over; the upper lip goes up by `lift`
                of how far the lower goes down, and the face nods down `nod` pixels as the mouth opens wide.
+     school    null, or { fish, band, size, turn, reach, glow, scatter }: a school of fish swims over the composition (see schoolVertex and
+               schoolNow), each fish of `fish` ({ size, speed, lane, phase, drift, period, beat, seed, wag, surge,
+               surgePeriod, flap, glide, from }: a fish surges `surge` pixels ahead of its pace and back every
+               `surgePeriod` seconds; a bird's wings swing `flap` radians either way round its middle with each beat,
+               and it glides on them held still for a while every `glide` seconds; one with `from` swims only on a
+               canvas at least that wide) painted facing right round the canvas's middle with its strokes' phase 400
+               and its index; `band({ w, h, words })` gives the top and foot of the lanes on the canvas and how far they
+               fall across it, `size(w)` scales them all, `turn` is the most a fish ever turns from level, in radians
+               (SCHOOL_TURN if not given), `reach` ([behind, ahead]) how many of its lengths its strokes reach behind
+               and ahead of its middle, its tail and its light ([0.7, 0.7] if not given), so that one held back is out
+               of sight when it comes round and a still picture leaves out one the glass would draw out, `glow`
+               (likewise, `reach` if not given) how far the last of its light carries, with what the glass blurs of it,
+               so that one comes or goes only once that is out of sight too, and `scatter` ({ radius, push, back }) how
+               they swerve from the pointer. Its strokes are drawn after all the others, whatever their order, with the
+               butterflies, so that the fish come in and go out through the glass at the sides as the butterflies do,
+               and a school always has the lens. A school with no fish is none. A composition with a school cannot also
+               talk: both say what they are in their strokes' phase, and the face's codes run on past 400.
      lightFoot whether the light it plants in the haze kind, marked even, goes into the canvas's foot whole rather than
                thinning into specks there, as a figure the picture's foot cuts off does (see LIGHT_FOOT).
      perch     null, or how a flock that lands does it (see the butterflies that perch): its butterflies sit on the places
@@ -3809,694 +3830,640 @@
 
   /* --- the company composition ----------------------------------------------------------------------- */
 
-  /* The hero of /company: the footer's rolling hills, and on a rise to the right of the words a figure of light sitting
-     at a desk, after the photograph Cameron sent: someone on a chair at a desk with a screen on it, so bright that only
-     its shape is left, and the light it gives off, as the docs overview's figure is. The hills roll in from the left,
-     lit and gilded along their crests, down to a valley under the words, and rise again on the right into the low hill
-     the desk stands on; a far hill closes the view behind, and a field runs along the front. The flowers are the
-     footer's: gold and marigold where the light lies, cornflowers in the shade, a drift of gold round the desk's feet.
-     Where the words take the whole width, as on a phone, the desk stands under them instead. In a dark theme it is the
-     same hills at dusk, where the figure shines the more. */
+  /* The hero of /company, after Cameron's two pictures: a sea at the magic hour, painted in pastel, its water a chalky
+     blue in the land's own fine lines, with a path of pink light laid across it in wavy ribbons and stars of light
+     twinkling on it, a low shore far off under a sky that warms just above it; and over the water, in place of the
+     other heroes' butterflies, a school of bright fish, each a few soft strokes of colour with the blur of its own speed
+     trailing behind it, swimming across in three groups and swerving from the pointer. The picture starts under the
+     calls to action. In a dark theme it is the same sea at night, the fish glowing a little. */
   const CO_EVEN = 0.005
-  /* The hills, as lines in the land's room from its top line (0) down, across in shares of the half-width: the far
-     hill, the lit hill coming down from the left into the valley under the words, the rise on the right the desk
-     stands on, and the field along the front. The land runs 1.3 rooms deep, as /enterprise's does. */
-  const CO_FAR = [
-    [-1.6, 0.14],
-    [-1.0, 0.07],
-    [-0.45, 0.1],
-    [0.1, 0.05],
-    [0.6, 0.02],
-    [1.1, 0.06],
-    [1.6, 0.12],
-  ]
-  const CO_LEFT = [
-    [-1.6, 0.0],
-    [-1.2, 0.05],
-    [-0.85, 0.16],
-    [-0.55, 0.32],
-    [-0.25, 0.52],
-    [0.05, 0.68],
-    [0.4, 0.82],
-    [1.6, 1.05],
-  ]
-  const CO_RISE = [
-    [-1.6, 1.08],
-    [-0.5, 0.94],
-    [-0.12, 0.8],
-    [0.15, 0.62],
-    [0.38, 0.48],
-    [0.6, 0.4],
-    [0.8, 0.38],
-    [1.0, 0.41],
-    [1.25, 0.48],
-    [1.6, 0.58],
-  ]
-  const CO_FIELD = [
-    [-1.6, 0.8],
-    [-0.9, 0.93],
-    [-0.3, 1.0],
-    [0.3, 1.0],
-    [0.9, 0.95],
-    [1.6, 0.86],
-  ]
-  /* The figure at its desk, traced from the photograph (its white pixels, through potrace; see scratchpad co3/trace):
-     its outline as points in its own terms, x across from its middle and y down from the top of its head, both as shares
-     of its height from the top of its head to the feet of the chair and the desk, which stand on the ground. */
-  const CO_DESK = {
-    outer: [
-      [-0.2238, 0.0196],
-      [-0.2403, 0.0718],
-      [-0.2327, 0.1679],
-      [-0.2495, 0.1878],
-      [-0.3022, 0.2171],
-      [-0.3296, 0.2549],
-      [-0.3567, 0.3581],
-      [-0.36, 0.471],
-      [-0.3688, 0.4856],
-      [-0.391, 0.491],
-      [-0.3946, 0.4984],
-      [-0.3664, 0.5472],
-      [-0.3577, 0.6008],
-      [-0.3532, 0.8954],
-      [-0.3492, 0.9469],
-      [-0.3407, 0.9754],
-      [-0.3199, 0.9896],
-      [-0.3071, 0.9773],
-      [-0.2883, 0.8306],
-      [-0.2691, 0.9714],
-      [-0.2597, 1.0],
-      [-0.2474, 0.9938],
-      [-0.2415, 0.9601],
-      [-0.2405, 0.8123],
-      [-0.1069, 0.8123],
-      [-0.1062, 0.8805],
-      [-0.097, 0.9296],
-      [-0.0755, 0.9672],
-      [-0.0507, 0.9875],
-      [-0.0353, 0.962],
-      [-0.0122, 0.845],
-      [0.0008, 0.9476],
-      [0.0121, 0.9684],
-      [0.0374, 0.9618],
-      [0.1166, 0.9216],
-      [0.1281, 0.9011],
-      [0.1305, 0.838],
-      [0.1172, 0.6809],
-      [0.1055, 0.6394],
-      [0.1085, 0.6283],
-      [0.2746, 0.6204],
-      [0.281, 0.9532],
-      [0.2871, 0.9627],
-      [0.3069, 0.9624],
-      [0.3326, 0.9511],
-      [0.3502, 0.9344],
-      [0.362, 0.5418],
-      [0.3686, 0.517],
-      [0.3946, 0.4934],
-      [0.3641, 0.4547],
-      [0.3757, 0.3028],
-      [0.3709, 0.1261],
-      [0.3643, 0.1193],
-      [0.3447, 0.1159],
-      [0.2562, 0.1126],
-      [0.0976, 0.1157],
-      [0.0495, 0.1226],
-      [0.0412, 0.3522],
-      [0.0349, 0.3814],
-      [0.0185, 0.405],
-      [0.0025, 0.3783],
-      [-0.0233, 0.2858],
-      [-0.0372, 0.2558],
-      [-0.0563, 0.2331],
-      [-0.1099, 0.1915],
-      [-0.1277, 0.1656],
-      [-0.1128, 0.0956],
-      [-0.1126, 0.0597],
-      [-0.1196, 0.038],
-      [-0.1466, 0.0104],
-      [-0.17, 0.0],
-      [-0.2014, 0.0005],
-    ],
+  const CO_HAZE = 0.4 + CO_EVEN
+  // twinkling (see the twinkle in the strokes' shader): a strong one for the stars' rays, a gentle one for their hearts
+  const CO_TWINKLE = 3.25 + CO_EVEN
+  const CO_GLIMMER = 3.4 + CO_EVEN
+  /* Where the sea meets the sky, in the land's room under its top line: about a fifth of a room, a little way under the
+     buttons' foot (the page lays the land's top line just above it), so the picture starts under the calls to action. */
+  const CO_HORIZON = 0.2
+  /* The sheets' inks, light and dark: the sky warming to the horizon, the far shore, and the water, palest at the
+     horizon and deepening towards the front. */
+  const CO_INKS = {
+    ...LAND_INK,
+    coLilac: ['#e3dcf6', '#2c2a52'],
+    coDawn: ['#f8d9e2', '#4a3d6e'],
+    coPeach: ['#fde3d4', '#5e4775'],
+    coShore: ['#a8c9cf', '#22405a'],
+    coShoreDeep: ['#86b4be', '#1b3550'],
+    coWaterHi: ['#b0d5e2', '#335f86'],
+    coWater: ['#7cb1cc', '#28527a'],
+    coWaterDeep: ['#6198bb', '#1d446c'],
+    coWaterNear: ['#4f88ad', '#173860'],
   }
-  /* Where it stands: its middle this far across, in shares of the half-width, so its left side keeps clear of the
-     words; as tall as this share of the canvas, at most; in the field in front of the rise, its feet this share of the
-     way down from the field's top line to the canvas's foot; and its head never higher than this share of the way
-     down from the far hill's line to the field's, so the whole figure stands against the green of the hills and never
-     against the page, where its white would be lost. */
-  const CO_AT = 0.67
-  const CO_TALL = 0.36
-  const CO_SINK = 0.25
-  const CO_HEAD = 0.06
-  /* How much of the ground the flowers cover where a drift is thickest, by how near. */
-  const CO_COVER = [
-    [0, 2.2],
-    [0.2, 2.8],
-    [0.45, 3],
-    [0.7, 2.4],
-    [0.85, 2.6],
-    [1, 2.2],
-  ]
-  /* The fields, in the footer's colours: gold along the lit hill's crest and down its slope, cornflowers where the
-     valley turns into shade, gold and marigold round the desk's feet on the rise, cornflowers again in the front
-     corners, and far off, specks of gold on the far hill. */
-  const CO_DRIFTS = [
+  // how large the water's strokes and stars are drawn on a canvas this wide, and how much larger again the fish are
+  const CO_SCALE = (w) => clamp(w / 1232, 0.5, 1.15)
+  const CO_FISH_SIZE = 2
+  /* The fish's colours: body, belly, the shade of the back, the tail, and the spots. */
+  const CO_SCALES = [
+    { body: 'coFishPink', belly: 'coFishWhite', back: 'coFishRose', fin: 'coFishPink', spots: [] },
     {
-      line: [
-        [-1.75, 0.04],
-        [-1.25, 0.08],
-        [-0.85, 0.18],
-        [-0.55, 0.32],
-      ],
-      wide: [0.08, 0.06],
-      full: [1, 0.8],
-      paints: 'marigolds',
-      patchy: true,
-      patchyFrom: 0.62,
-      own: [0.75, 1.15],
+      body: 'coFishWhite',
+      belly: 'coFishWhite',
+      back: 'coFishCream',
+      fin: 'coFishWhite',
+      spots: ['coFishRed', 'coFishRed', 'coFishRed', 'coFishOrange'],
+    },
+    { body: 'coFishCoral', belly: 'coFishPeachy', back: 'coFishRed', fin: 'coFishCoral', spots: ['coFishRed'] },
+    {
+      body: 'coFishBlue',
+      belly: 'coFishPale',
+      back: 'coFishNavy',
+      fin: 'coFishBlue',
+      spots: ['coFishNavy', 'coFishNavy', 'coFishNavy', 'coFishWhite'],
     },
     {
-      line: [
-        [-1.6, 0.14],
-        [-1.1, 0.22],
-        [-0.7, 0.36],
-        [-0.42, 0.5],
-      ],
-      wide: [0.06, 0.05],
-      full: [0.9, 0.8],
-      paints: 'sunlit',
-      patchy: true,
-      patchyFrom: 0.66,
-    },
-    // the valley under the words turning into shade
-    {
-      line: [
-        [-0.35, 0.86],
-        [0, 0.9],
-        [0.3, 0.84],
-      ],
-      wide: [0.06, 0.05],
-      full: [0.9, 0.75],
-      paints: 'cornflowers',
-      patchy: true,
-      patchyFrom: 0.6,
-    },
-    // on the rise behind the desk: gold and marigold in its light
-    {
-      line: [
-        [0.4, 0.62],
-        [0.62, 0.56],
-        [0.85, 0.55],
-        [1.1, 0.6],
-      ],
-      wide: [0.05, 0.05],
-      full: [1, 1],
-      paints: 'marigolds',
-      patchy: true,
-      patchyFrom: 0.7,
+      body: 'coFishCream',
+      belly: 'coFishWhite',
+      back: 'coFishGreen',
+      fin: 'coFishCream',
+      spots: ['coFishGreen', 'coFishGreen', 'coFishGreen', 'coFishGreen', 'coFishYellow'],
     },
     {
-      line: [
-        [0.5, 0.5],
-        [0.75, 0.47],
-        [1.0, 0.5],
-      ],
-      wide: [0.035, 0.035],
-      full: [0.8, 0.8],
-      paints: 'sunlit',
-      patchy: true,
-    },
-    // round the desk's feet in the field: gold in its light
-    {
-      line: [
-        [0.42, 1.06],
-        [0.67, 1.1],
-        [0.92, 1.06],
-      ],
-      wide: [0.04, 0.04],
-      full: [0.9, 0.9],
-      paints: 'sunlit',
-      patchy: true,
-      patchyFrom: 0.72,
-    },
-    // the front corners in cornflowers
-    {
-      line: [
-        [-1.75, 0.82],
-        [-1.2, 0.92],
-        [-0.6, 0.98],
-      ],
-      wide: [0.12, 0.06],
-      full: [0.9, 0.6],
-      paints: 'cornflowers',
-      patchy: true,
-      patchyFrom: 0.6,
+      body: 'coFishYellow',
+      belly: 'coFishCream',
+      back: 'coFishOrange',
+      fin: 'coFishYellow',
+      spots: ['coFishOrange', 'coFishOrange', 'coFishRed'],
     },
     {
-      line: [
-        [1.75, 0.84],
-        [1.25, 0.94],
-        [0.7, 0.99],
-      ],
-      wide: [0.12, 0.06],
-      full: [1, 0.6],
-      paints: 'cornflowers',
-      patchy: true,
-      patchyFrom: 0.6,
+      body: 'coFishMint',
+      belly: 'coFishPale',
+      back: 'coFishBlue',
+      fin: 'coFishMint',
+      spots: ['coFishWhite', 'coFishWhite'],
     },
-    // far off, on the far hill: specks of gold where the light reaches
     {
-      line: [
-        [-0.7, 0.04],
-        [0, 0.03],
-        [0.7, 0.03],
-      ],
-      wide: [0.03, 0.03],
-      full: [0.7, 0.7],
-      paints: 'gold specks',
-      patchy: true,
+      body: 'coFishLilac',
+      belly: 'coFishWhite',
+      back: 'coFishBlue',
+      fin: 'coFishLilac',
+      spots: ['coFishPink', 'coFishPink'],
     },
   ]
+  /* The school: three groups, a third of their round apart, so that one is always crossing the sea, each swimming at
+     the same pace so that it stays together, its fish spread through the band from its top at the back of the group to
+     its foot at the front, each surging a little ahead and back and rising and falling at its own rate. For each fish:
+     its length (CSS pixels at a canvas 1232 wide, before CO_FISH_SIZE), pace (pixels a second, likewise), lane (0 at
+     the band's top, 1 at its foot), where it is in the round, how far it rises and falls and how often (seconds), how
+     far it surges and how often, how fast its tail beats (a second), how far its tail swings (a share of its length),
+     its colours (see CO_SCALES), a seed of its own, and, for every third fish of a group, that it swims only on a
+     canvas wider than a phone's, where two groups at once would crowd the sea. Written once, as the script loads. */
+  // (the engine's own hashed and clamp come later in the file than this, which is worked out as it loads)
+  const coHash = (value) => {
+    const x = Math.sin(value * 127.1 + 311.7) * 43758.5453
+    return x - Math.floor(x)
+  }
+  const CO_GROUPS = [8, 7, 7]
+  const CO_FISH = CO_GROUPS.flatMap((count, g) =>
+    Array.from({ length: count }, (_, j) => {
+      const i = CO_GROUPS.slice(0, g).reduce((a, b) => a + b, 0) + j
+      const h = (k) => coHash(i * 13.7 + k * 3.1 + 0.5)
+      const lane = Math.min(1, Math.max(0, (j + 0.5) / count + (h(3) - 0.5) * 0.08))
+      return {
+        size: 42 + 20 * h(1),
+        speed: 37,
+        lane,
+        // further on in the round the lower in the band, so each group leans down to the front, as a school going down
+        phase: g / CO_GROUPS.length + 0.05 + (lane - 0.5) * 0.12 + (h(4) - 0.5) * 0.02,
+        drift: 3 + 4 * h(5),
+        period: 3.5 + 2.5 * h(6),
+        surge: 6 + 6 * h(11),
+        surgePeriod: 2.5 + 2 * h(12),
+        beat: 1.4 + 1 * h(7),
+        wag: 0.05 + 0.03 * h(8),
+        scales: Math.floor(h(9) * CO_SCALES.length),
+        from: j % 3 === 2 ? 600 : 0,
+        seed: h(10),
+      }
+    }),
+  )
   const COMPANY = {
     ...HERO,
     intro: false,
+    /* Its still picture is painted where a group is crossing the middle of the sea on any canvas, a phone's too: at the
+       meadow's clock one group is coming in on a phone and the next going out, both in the glass at the sides, which a
+       still picture leaves out (see `school`), and the sea would be empty. */
+    stillAt: 9.5,
     words: '.co-copy',
-    // the footer's few beads, and the oval of page kept round the words shallow, so the figure's light stays whole
-    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.15 },
+    // a few beads, the oval of page kept round the words shallow, and every line carried to the canvas's edges
+    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.12, whole: true },
     film: FOOTER.film,
-    inks: FOOTER_INK,
-    // the motes twinkle (see the glow in the strokes' shader), and the figure is drawn in plain round strokes that
-    // neither bow nor taper (the even mark)
+    /* The sea's haze and light are large soft strokes that breathe and twinkle every frame, so they cost by the canvas's
+       pixels: on a canvas wider than any laptop's (1800 CSS pixels, a window 2080 wide) it draws at a little less than
+       the screen's density, the less the wider it is, so that it never costs much more than it does there (on a
+       screen 2560 wide at 2x, about 5 milliseconds a frame instead of 6.3). */
+    dprCap: (w) => Math.min(2, 2 * Math.sqrt(1800 / w)),
+    inks: CO_INKS,
+    // the stars on the water twinkle, the strokes are even (neither bowing nor tapering) and soft-edged
     twinkle: true,
     marks: true,
-    // its light in the haze kind, which fades smoothly at its edge rather than breaking into the grain's specks
     glyphs: true,
     land: {
       ...HERO.land,
-      profile: CO_FAR,
+      profile: [
+        [-1.6, 0],
+        [1.6, 0],
+      ],
       crest: 0,
       relief: [1, 1],
       sheets: [
-        // a haze of sky over the far hill, thinning into the page at its top
+        // the sky's glow, a band from the buttons' foot down to the horizon, so that nothing of the picture rises behind
+        // the words (not named 'sky', which the land is laid out from before its room is known, and this one's top is
+        // worked out from it)
         {
-          name: 'sky',
-          top: {
-            crest: [
-              [-1.6, -0.12],
-              [0, -0.16],
-              [1.6, -0.12],
-            ],
+          name: 'air',
+          top: (stage) => {
+            const under = Math.min((stage.words.y + stage.words.b + 3 - stage.base) / stage.room, CO_HORIZON - 0.06)
+            return [
+              [-1.6, under],
+              [1.6, under],
+            ]
           },
-          foot: {
-            hill: [
-              [-1.6, 0.06],
-              [1.6, 0.06],
-            ],
-          },
-          paint: [
-            [0, 'pale', 0],
-            [0.2, 'pale', 0.32],
-            [0.45, 'sky', 0.7],
-            [0.7, 'slateHaze', 0.9],
-            [1, 'slateHaze', 1],
+          foot: [
+            [-1.6, CO_HORIZON],
+            [1.6, CO_HORIZON],
           ],
-          fill: 0.7,
-          under: 0.38,
-          flow: 1.2,
+          paint: [
+            [0, 'coLilac', 0],
+            [0.3, 'coDawn', 0.44],
+            [0.75, 'coPeach', 1],
+            [1, 'coPeach', 1],
+          ],
+          fill: 0.6,
+          under: 0.4,
+          flow: 1.1,
           breath: 2,
         },
-        // the far hill closing the view, which the flowers grow on; deep green from just under its crest, so the
-        // figure's head stands out against it
+        // the far shore, low hills along the horizon
+        {
+          name: 'shore',
+          opaque: true,
+          top: {
+            crest: [
+              [-1.6, CO_HORIZON - 0.07],
+              [-1.15, CO_HORIZON - 0.11],
+              [-0.8, CO_HORIZON - 0.06],
+              [-0.45, CO_HORIZON - 0.03],
+              [0.5, CO_HORIZON - 0.025],
+              [0.85, CO_HORIZON - 0.075],
+              [1.2, CO_HORIZON - 0.1],
+              [1.6, CO_HORIZON - 0.06],
+            ],
+          },
+          foot: [
+            [-1.6, CO_HORIZON + 0.02],
+            [1.6, CO_HORIZON + 0.02],
+          ],
+          paint: [
+            [0, 'coShore', 0],
+            [0.2, 'coShore', 0.9],
+            [1, 'coShoreDeep', 1],
+          ],
+          fill: 0.7,
+          under: 0.6,
+          flow: 0.6,
+          breath: 1.4,
+        },
+        // the sea, from the horizon to the canvas's foot, palest at the horizon
         {
           name: 'meadow',
           opaque: true,
           laid: true,
-          top: {
-            hill: [
-              [-1.6, 0],
-              [1.6, 0],
-            ],
-          },
+          top: [
+            [-1.6, CO_HORIZON],
+            [1.6, CO_HORIZON],
+          ],
           foot: [
             [-1.6, 1.3],
             [1.6, 1.3],
           ],
           paint: [
-            [0, 'crest', 0],
-            [0.02, 'crest', 0.9],
-            [0.04, 'mist', 1],
-            [0.12, 'sage', 1],
-            [0.28, 'fern', 1],
-            [0.6, 'sage', 1],
-            [1, 'fern', 1],
+            [0, 'coWaterHi', 1],
+            [0.18, 'coWater', 1],
+            [0.55, 'coWaterDeep', 1],
+            [1, 'coWaterNear', 1],
           ],
-          lean: 0.3,
-          fill: 0.74,
-          under: 0.78,
-          patch: 0.15,
-          flow: 0.6,
-          breath: 1.4,
-        },
-        // the hill rolling in from the left, lit, gilded along its crest
-        {
-          name: 'left hill',
-          opaque: true,
-          top: { crest: CO_LEFT },
-          foot: [
-            [-1.6, 1.32],
-            [1.6, 1.32],
-          ],
-          paint: [
-            [0, 'gilt', 0],
-            [0.025, 'gilt', 0.85],
-            [0.07, 'glow', 1],
-            [0.16, 'lime', 1],
-            [0.3, 'green', 1],
-            [0.55, 'deepGreen', 1],
-            [0.85, 'shade', 1],
-            [1, 'shade', 1],
-          ],
-          lean: 0.3,
           fill: 0.74,
           under: 0.7,
-          patch: 0.2,
-          flow: 0.7,
-          breath: 1.5,
-          sheen: 0.6,
-        },
-        // the rise on the right the desk stands on, its crest catching the light, its near slope going into shade
-        {
-          name: 'rise',
-          opaque: true,
-          top: { crest: CO_RISE },
-          foot: [
-            [-1.6, 1.32],
-            [1.6, 1.32],
-          ],
-          paint: [
-            [0, 'gilt', 0],
-            [0.03, 'glow', 0.85],
-            [0.09, 'lime', 1],
-            [0.22, 'green', 1],
-            [0.5, 'deepGreen', 1],
-            [1, 'shade', 1],
-          ],
-          lean: 0.3,
-          fill: 0.74,
-          under: 0.7,
-          patch: 0.2,
-          flow: 0.7,
-          breath: 1.5,
-          sheen: 0.55,
-        },
-        // the field along the front
-        {
-          name: 'field',
-          opaque: true,
-          top: { crest: CO_FIELD },
-          foot: [
-            [-1.6, 1.34],
-            [1.6, 1.34],
-          ],
-          paint: [
-            [0, 'gilt', 0],
-            [0.06, 'glow', 0.9],
-            [0.25, 'lime', 1],
-            [0.55, 'green', 1],
-            [1, 'deepGreen', 1],
-          ],
-          lean: 0.3,
-          fill: 0.72,
-          under: 0.6,
-          patch: 0.2,
-          flow: 0.8,
-          breath: 1.5,
-          sheen: 0.8,
+          patch: 0.12,
+          flow: 0.9,
+          breath: 1.6,
         },
       ],
       least: 110,
     },
-    grass: FOOTER.grass,
+    grass: null,
+    flowers: null,
     passer: null,
-    flowers: {
-      ...FOOTER.flowers,
-      focus: 0.7,
-      front: 1.65,
-      cover: CO_COVER,
-      drifts: CO_DRIFTS,
-      strays: 0,
-    },
-    palettes: FOOTER_PALETTES,
-    // the footer's paints, and the light's own: white at its heart, a breath of warmth in its glow
-    paints: {
-      ...FOOTER_PAINTS,
-      light: ['#ffffff', '#ffffff'],
-      lightWarm: ['#fffaf0', '#fff6e6'],
-      lightGlow: ['#fff0cf', '#ffe6b0'],
-    },
+    pointer: false,
     clouds: [],
+    // no butterflies: the fish are this sea's flock, but the lens all the same, for the fade at the canvas's foot
+    flock: [],
+    // and the fish's glass gives off only a little light onto the water round it
+    lens: { ...LENS, foot: 'ease', always: true, halo: [2.6, 0.2] },
+    school: {
+      fish: CO_FISH,
+      size: (w) => CO_SCALE(w) * CO_FISH_SIZE,
+      // from well under the horizon (on a desktop it lies about 25px under the buttons' foot), far enough that a fish
+      // the fall lifts on the left keeps clear of it, to above the canvas's foot, where it fades into the page, falling
+      // across the canvas towards the right, less on a narrow one, where a steep fall would tip the fish over
+      band: ({ w, h, words }) => [
+        Math.max(words.y + words.b + 88, h * 0.4),
+        h * 0.87,
+        h * 0.15 * Math.min(1, w / 1232),
+      ],
+      // the blur of its speed trails nearly two lengths behind its middle, its light a little ahead of its snout, and the
+      // last of its glow, which the glass blurs out further still, about half a length beyond either
+      reach: [1.9, 0.7],
+      glow: [2.35, 1.3],
+      scatter: { radius: 120, push: 340, back: 1.4 },
+    },
+    paints: {
+      ...PAINTS,
+      // the path of light on the water, the waves' glints, the stars
+      coRefPink: ['#f4a9c2', '#e396b8'],
+      coRefPeach: ['#ffd5c0', '#ecb498'],
+      coRefLight: ['#fff1e8', '#efd2c8'],
+      coWave: ['#e2f4f7', '#8fc2d4'],
+      coWaveDeep: ['#a7d0e1', '#4f88aa'],
+      coStar: ['#ffffff', '#ffffff'],
+      coStarGold: ['#ffe46e', '#ffdc55'],
+      coStarGlow: ['#fff5c8', '#fff1b4'],
+      // the fish
+      coFishPink: ['#f6a9c6', '#f19ac0'],
+      coFishRose: ['#e77ea6', '#e070a0'],
+      coFishWhite: ['#fdf7f2', '#f6f0f6'],
+      coFishCream: ['#fff0d4', '#f8e6c6'],
+      coFishRed: ['#e8452f', '#e2422e'],
+      coFishOrange: ['#ff9b3d', '#fb9134'],
+      coFishCoral: ['#ff6e4f', '#fb6448'],
+      coFishPeachy: ['#ffc9b0', '#fbbda2'],
+      coFishBlue: ['#5d8fe2', '#5a8be0'],
+      coFishNavy: ['#2c4a8c', '#2a4686'],
+      coFishPale: ['#dcecf8', '#d2e6f6'],
+      coFishGreen: ['#2f6b42', '#2f6a42'],
+      coFishYellow: ['#ffd650', '#fcce42'],
+      coFishMint: ['#93dcb0', '#86d4a6'],
+      coFishLilac: ['#c3b4ef', '#b8a8ec'],
+      coFishEye: ['#ff4b3a', '#ff5545'],
+      coFishInk: ['#1f2b3c', '#1a2433'],
+      // the light round a fish: lost in the sea by day, a glow at night
+      coFishGlow: ['#a8d2e8', '#fff3e4'],
+      // the water's own colours, washed across it, and the light dappled on its ripples
+      coPoolLime: ['#cfe383', '#4f7a3e'],
+      coPoolGreen: ['#94cc72', '#3a6a4a'],
+      coPoolSky: ['#acd8f4', '#36689a'],
+      coPoolTeal: ['#86cbc4', '#2c6670'],
+      coDapple: ['#fffbea', '#bcd2dc'],
+      coDappleLime: ['#eef7b8', '#93b57e'],
+    },
     plant: (garden) => {
-      const { w, h, rand, words, ground } = garden
-      const s = clamp(w / 1232, 0.42, 1.12)
+      const { w, h, rand, ground } = garden
       const half = w / 2
-      // The figure's own width, in shares of its height.
-      let x0 = Number.POSITIVE_INFINITY
-      let x1 = Number.NEGATIVE_INFINITY
-      for (const [x] of CO_DESK.outer) {
-        x0 = Math.min(x0, x)
-        x1 = Math.max(x1, x)
-      }
-      // Where it stands. Beside the words where there is room for it at a good size: its middle CO_AT across, its left
-      // side clear of the words, its right side clear of the canvas's edge, its feet on the rise. Otherwise under the
-      // words, a little right of their middle, its head clear of them.
-      const margin = Math.max(20, 24 * s)
-      const want = h * CO_TALL
-      const clearLeft = words.x + words.a + margin
-      const footAt = (x) => ground('field', x) + CO_SINK * (h - ground('field', x))
-      const headAt = (x) => ground('meadow', x) + CO_HEAD * (ground('field', x) - ground('meadow', x))
-      let fx = half + CO_AT * half
-      let feet = footAt(fx)
-      let tall = Math.min(want, feet - headAt(fx), (fx - clearLeft) / -x0, (w - margin - fx) / x1)
-      const beside = tall >= want * 0.72
-      if (!beside) {
-        fx = Math.min(words.x + words.a * 0.3, w - margin - x1 * want)
-        feet = footAt(fx)
-        const headroom = feet - Math.max(headAt(fx), words.y + words.b + Math.max(24, 28 * s))
-        tall = Math.max(40, Math.min(want, headroom, (w - margin * 2) / (x1 - x0)))
-        fx = clamp(fx, margin - x0 * tall, w - margin - x1 * tall)
-      }
-      const top = feet - tall
-      const at = ([x, y]) => [fx + x * tall, top + y * tall]
-      const rings = [CO_DESK.outer.map(at)]
-      const left = fx + x0 * tall
-      const right = fx + x1 * tall
-      if (window.__coDebug) {
-        window.__coDebug.figure = {
-          beside,
-          fx: Math.round(fx),
-          top: Math.round(top),
-          feet: Math.round(feet),
-          tall: Math.round(tall),
-        }
-      }
-      let laid = 0
-      // A stroke's seed also sets how much lighter or darker, warmer or cooler than its paint it comes out (see the
-      // strokes' shader): for the light, take the first seed near its own that makes it lighter and warmer, so that no
-      // stroke of it comes out a cool grey.
-      const bright = (seed) => {
-        for (let k = 0; k < 24; k += 1) {
-          rand.reseed(seed + k * 104729)
-          // (its sway takes three draws first: lean, phase and growth)
-          rand()
-          rand()
-          rand()
-          const dice = rand()
-          if ((dice * 91.7) % 1 >= 0.55 && (dice * 37.3) % 1 >= 0.55) {
-            return seed + k * 104729
-          }
-        }
-        return seed
-      }
-      const put = (n, o) => {
-        rand.reseed(o.light ? bright(61871 + n * 7919) : 61871 + n * 7919)
-        laid += 1
+      const sc = CO_SCALE(w)
+      // a stroke standing still where it is painted (rooted under the canvas, its stem up to it); the same seed gives
+      // the same dice, so the two rays and the heart of a star twinkle together
+      const put = (n, { x, y, ...o }) => {
+        rand.reseed(77001 + n * 7919)
+        const root = h + 40
         garden.dab({
-          stiff: 1,
-          lean: 0,
+          kind: CO_HAZE,
           blur: 0.6,
-          load: 0.97,
-          kind: 0.25 + CO_EVEN,
+          load: 0.9,
+          turn: 0,
           ...o,
-          order: o.order + laid * 1e-7,
+          x,
+          y: root,
+          stem: root - y,
+          lean: 0,
+          stiff: 1,
         })
       }
-      // Where a column down the canvas crosses the figure: its runs of figure, top to bottom.
-      const runsAt = (x) => {
-        const ys = []
-        for (const r of rings) {
-          for (let i = 0; i < r.length; i += 1) {
-            const [ax, ay] = r[i]
-            const [bx, by] = r[(i + 1) % r.length]
-            if (ax <= x !== bx <= x) {
-              ys.push(ay + ((x - ax) * (by - ay)) / (bx - ax))
-            }
-          }
+      const horizon = ground('meadow', half)
+      const deep = h - 6
+      let n = 0
+      // how many washes of colour, how strong, how much of them green, and how large; and the ripples' centres, their
+      // rings, how close their dapples lie and how bright they are
+      const pools = { count: 26, load: 1.6, green: 0.7, size: 1.3 }
+      const ripples = { centers: 6, rings: 6, density: 1.3, load: 1.2 }
+      // The water's colours: broad soft washes of lime and green, sky and teal across the sea, as a lagoon's water
+      // takes the colours of what is over it and under it, smaller and flatter towards the horizon.
+      for (let k = 0; k < pools.count; k += 1) {
+        const f = hashed(k * 4.3 + 2.1) ** 0.9
+        const y = horizon + 8 + f * (deep - horizon - 14)
+        const x = hashed(k * 6.7 + 0.8) * w
+        const long = (0.05 + 0.15 * f) * w * pools.size * (0.7 + 0.6 * hashed(k * 2.9))
+        const pick = hashed(k * 8.1 + 0.3)
+        let paint = 'coPoolTeal'
+        if (pick < pools.green * 0.55) {
+          paint = 'coPoolLime'
+        } else if (pick < pools.green) {
+          paint = 'coPoolGreen'
+        } else if (pick < pools.green + (1 - pools.green) * 0.6) {
+          paint = 'coPoolSky'
         }
-        ys.sort((a, b) => a - b)
-        const runs = []
-        for (let i = 0; i + 1 < ys.length; i += 2) {
-          runs.push([ys[i], ys[i + 1]])
-        }
-        return runs
+        put((n += 1), {
+          x,
+          y,
+          long,
+          wide: 0.18 + 0.16 * f,
+          blur: long * 0.6,
+          paints: [paint, paint],
+          load: Math.min(0.9, (0.2 + 0.2 * hashed(k * 5.5)) * pools.load),
+          order: 590 + f,
+        })
       }
-      const inFigure = (x, y) => runsAt(x).some(([a, b]) => y > a && y < b)
-      const HAZE = 0.4 + CO_EVEN
-      // Its body filled in columns, each run in short lengths so no stroke tapers far from its ends.
-      const fill = (n, { col, blur, load, paints, order }) => {
-        let k = n
-        for (let x = left + col / 2; x < right; x += col) {
-          for (const [a, b] of runsAt(x)) {
-            if (b - a < 0.6) {
+      // Ripples spreading from a few places, each a few rings of dappled light, flattened as the sea lies away from us:
+      // short strokes laid along each ring, cream and pale lime, as the light breaks on a ripple; each ring only part
+      // of the way round and its radius wandering, so they swirl rather than stand as targets.
+      const CENTERS = [
+        [0.2, 0.42],
+        [0.46, 0.72],
+        [0.7, 0.5],
+        [0.88, 0.86],
+        [0.08, 0.8],
+        [0.6, 0.25],
+      ]
+      for (let c = 0; c < Math.min(ripples.centers, CENTERS.length); c += 1) {
+        const [across, depth] = CENTERS[c]
+        const cx = across * w
+        const cy = horizon + 8 + depth * (deep - horizon - 14)
+        const flat = 0.2 + 0.18 * depth
+        const r0 = (18 + 30 * depth) * sc
+        for (let ring = 0; ring < ripples.rings; ring += 1) {
+          const rx = r0 * (1 + 0.6 * ring)
+          const ry = rx * flat
+          // the stretch of the ring that is there, and how its radius wanders
+          const from = hashed(c * 31 + ring * 7.3) * Math.PI * 2
+          const span = (0.45 + 0.4 * hashed(c * 17 + ring * 5.1)) * Math.PI * 2
+          const wobble = 0.06 + 0.06 * hashed(c * 13 + ring * 2.9)
+          const around = Math.PI * 2 * Math.sqrt((rx * rx + ry * ry) / 2)
+          const count = Math.floor((around / (14 * sc)) * ripples.density)
+          for (let j = 0; j < count; j += 1) {
+            const q = c * 1000 + ring * 100 + j
+            const a = ((j + hashed(q * 2.3) * 0.6) / count) * Math.PI * 2
+            const into = (a - from + Math.PI * 4) % (Math.PI * 2)
+            if (into > span) {
               continue
             }
-            const segs = Math.max(1, Math.round((b - a) / (col * 4)))
-            const seg = (b - a) / segs
-            for (let q = 0; q < segs; q += 1) {
-              const long = seg / 2 + col * 0.55
-              put(k, {
-                x,
-                y: a + (q + 0.5) * seg,
-                long,
-                wide: clamp((col * 0.78) / long, 0.02, 1.4),
-                turn: Math.PI / 2,
-                paints,
-                load,
-                blur,
-                kind: HAZE,
-                order,
-                light: true,
-              })
-              k += 1
+            const swell = 1 + wobble * Math.sin(a * 3 + c * 1.7 + ring)
+            const px = cx + Math.cos(a) * rx * swell
+            const py = cy + Math.sin(a) * ry * swell
+            if (hashed(q * 1.7) < 0.35 || py < horizon + 4 || py > deep) {
+              continue
             }
+            const fade = 1 - (ring / ripples.rings) * 0.6
+            const long = (3 + 5 * hashed(q * 3.1)) * sc * (0.7 + 0.6 * depth)
+            let ink = 'coWave'
+            if (hashed(q * 4.7) < 0.55) {
+              ink = 'coDapple'
+            } else if (hashed(q * 5.9) < 0.6) {
+              ink = 'coDappleLime'
+            }
+            put((n += 1), {
+              x: px,
+              y: py,
+              long,
+              wide: 0.32,
+              turn: Math.atan2(Math.cos(a) * ry, -Math.sin(a) * rx),
+              blur: 0.9 + 0.6 * depth,
+              paints: [ink, ink],
+              load: Math.min(0.95, (0.45 + 0.35 * hashed(q * 6.1)) * fade * ripples.load),
+              order: 640 + depth,
+            })
           }
         }
-        return k
       }
-      // Its light, from the widest to the brightest, all in the smooth haze kind: a wash of light over the hills round
-      // it, and a glow round its body, wide and then close; then the figure, white, its edge soft but its shape clean.
-      // It stands in front of the land and of the flowers behind its feet; the grass and flowers rooted in front of its
-      // feet come up over them, so it stands in the meadow rather than on it.
-      const ord = feet + 4
-      const mid = top + tall * 0.5
-      put(1, {
-        x: fx,
-        y: mid,
-        long: tall * 0.8,
-        wide: 0.9,
-        turn: Math.PI / 2,
-        paints: ['lightGlow', 'lightWarm'],
-        load: 0.1,
-        blur: tall * 0.32,
-        kind: HAZE,
-        order: ord - 0.1,
-        light: true,
-      })
-      put(2, {
-        x: fx,
-        y: mid,
-        long: tall * 0.56,
-        wide: 0.82,
-        turn: Math.PI / 2,
-        paints: ['lightWarm', 'lightGlow'],
-        load: 0.24,
-        blur: tall * 0.1,
-        kind: HAZE,
-        order: ord - 0.09,
-        light: true,
-      })
-      // a little light lying on the grass at its feet
-      put(3, {
-        x: fx,
-        y: feet - tall * 0.01,
-        long: (right - left) * 0.62,
-        wide: 0.16,
-        turn: 0,
-        paints: ['lightGlow', 'lightWarm'],
-        load: 0.3,
-        blur: tall * 0.05,
-        kind: HAZE,
-        order: ord - 0.095,
-        light: true,
-      })
-      // Its glow held close, so the shape keeps its neck, the light between its arm and the screen, and the gap under
-      // the desk; then the body, white, with a soft edge only a few pixels wide.
-      fill(50000, {
-        col: Math.max(4, tall * 0.02),
-        blur: tall * 0.045,
-        load: 0.3,
-        paints: ['lightGlow', 'lightWarm'],
-        order: ord - 0.085,
-      })
-      fill(100000, {
-        col: Math.max(3, tall * 0.014),
-        blur: tall * 0.018,
-        load: 0.55,
-        paints: ['lightWarm', 'light'],
-        order: ord - 0.08,
-      })
-      fill(200000, {
-        col: Math.max(2, tall * 0.009),
-        blur: Math.max(1.6, tall * 0.007),
-        load: 0.95,
-        paints: ['light', 'lightWarm'],
-        order: ord - 0.07,
-      })
-      fill(300000, {
-        col: Math.max(1.4, tall * 0.006),
-        blur: 1.1,
-        load: 1,
-        paints: ['light', 'light'],
-        order: ord - 0.06,
-      })
-      // The motes: small round lights near it, each twinkling at its own pace, a few large and soft; none on the figure
-      // and none over the words.
-      for (let i = 0; i < 18; i += 1) {
-        const n = 5000 + i * 3
-        const a = hashed(n * 1.3) * Math.PI * 2
-        const d = 0.45 + 0.7 * hashed(n * 2.1)
-        const x = fx + Math.cos(a) * d * tall * 0.8
-        const y = mid + Math.sin(a) * d * tall * 0.5
-        const nearWords = x > words.x - words.a - 30 && x < words.x + words.a + 30 && y < words.y + words.b + 12
-        if (nearWords || inFigure(x, y) || y > feet + 8) {
-          continue
+      // The path of light: wavy ribbons of pink and peach across the water under the words, a few to a row, the rows
+      // closer together and the ribbons shorter and thinner towards the horizon, the path wider towards the front.
+      const ROWS = 26
+      for (let k = 0; k < ROWS; k += 1) {
+        const f = ((k + 0.5) / ROWS) ** 1.45
+        const y = horizon + 5 + f * (deep - horizon - 5)
+        const spread = (0.02875 + 0.184 * f) * w
+        const pieces = 1 + Math.floor(hashed(k * 5.3 + 0.2) * 3)
+        for (let j = 0; j < pieces; j += 1) {
+          const q = k * 17 + j
+          const x = half + (hashed(q * 2.7 + 0.4) - 0.5) * 2 * spread
+          const long = (0.018 + 0.105 * f) * w * (0.55 + 0.9 * hashed(q * 4.1 + 0.6))
+          const thick = (2.398 + 7.848 * f) * sc
+          put((n += 1), {
+            x,
+            y: y + (hashed(q * 6.3) - 0.5) * 4 * sc,
+            long,
+            wide: clamp(thick / long, 0.02, 0.7),
+            turn: (hashed(q * 8.9) - 0.5) * 0.17,
+            blur: 0.8 + 2.2 * f,
+            paints: [hashed(q * 9.7) < 0.7 ? 'coRefPink' : 'coRefPeach', 'coRefLight'],
+            load: Math.min(0.97, 0.65 + 0.455 * hashed(q * 3.3 + 0.9)),
+            order: 600 + f,
+          })
         }
-        const big = hashed(n * 4.1) < 0.25
-        const core = Math.max(1.2, (big ? 3.4 + 2 * hashed(n * 3.7) : 1.4 + 1.6 * hashed(n * 3.7)) * s)
-        put(n, {
+      }
+      // The waves' glints: short pale strokes laid across the water, many, short and thin far off, fewer and longer in
+      // front.
+      for (let k = 0; k < 120; k += 1) {
+        const f = hashed(k * 3.7 + 1.1) ** 1.3
+        const y = horizon + 4 + f * (deep - horizon - 4)
+        const x = hashed(k * 5.9 + 0.3) * w
+        const long = (0.008 + 0.03 * f) * w * (0.6 + 0.8 * hashed(k * 2.3)) * 1.6
+        put((n += 1), {
           x,
           y,
-          long: core * (big ? 2.6 : 4),
-          wide: 1,
-          turn: 0,
-          paints: ['lightGlow', 'lightWarm'],
-          load: big ? 0.55 : 0.42,
-          kind: 3.25,
-          blur: core * (big ? 1.6 : 3.2),
-          order: ord + 0.2,
-        })
-        put(n + 1, {
-          x,
-          y,
-          long: core,
-          wide: 0.95,
-          turn: 0,
-          paints: ['light', 'lightWarm'],
-          load: big ? 0.75 : 0.95,
-          kind: 3.4,
-          blur: big ? core * 0.5 : 0.4,
-          order: ord + 0.21,
+          long,
+          wide: clamp(((0.9 + 2.1 * f) * sc) / long, 0.01, 0.5),
+          turn: (hashed(k * 7.1) - 0.5) * 0.1,
+          blur: 0.6 + 0.8 * f,
+          paints: ['coWave', hashed(k * 1.9) < 0.5 ? 'coWave' : 'coWaveDeep'],
+          load: Math.min(0.97, 0.455 + 0.455 * hashed(k * 4.4)),
+          order: 620 + f,
         })
       }
+      // The stars of light on the water: two rays and a heart each, gold or white, half of them near the path.
+      for (let k = 0; k < 130; k += 1) {
+        const f = hashed(k * 2.9 + 0.7) ** 1.2
+        const y = horizon + 6 + f * (deep - horizon - 12)
+        const nearPath = hashed(k * 6.1 + 0.2) < 0.5
+        const x = nearPath ? half + (hashed(k * 3.3) - 0.5) * (0.1 + 0.4 * f) * w : hashed(k * 4.7 + 0.9) * w
+        const r = (4.95 + 10.35 * hashed(k * 8.3)) * sc * (0.6 + 0.6 * f)
+        const gold = hashed(k * 9.1) < 0.45
+        const ink = gold ? 'coStarGold' : 'coStar'
+        const id = 50000 + k
+        put(id, {
+          x,
+          y,
+          long: r,
+          wide: 0.1,
+          turn: 0,
+          blur: 0.5,
+          paints: [ink, 'coStarGlow'],
+          load: 0.95,
+          kind: CO_TWINKLE,
+          order: 700 + f,
+        })
+        put(id, {
+          x,
+          y,
+          long: r * 0.75,
+          wide: 0.12,
+          turn: Math.PI / 2,
+          blur: 0.5,
+          paints: [ink, 'coStarGlow'],
+          load: 0.95,
+          kind: CO_TWINKLE,
+          order: 700.001 + f,
+        })
+        put(id, {
+          x,
+          y,
+          long: r * 0.38,
+          wide: 1,
+          blur: r * 0.35,
+          paints: ['coStarGlow', ink],
+          load: 0.9,
+          kind: CO_GLIMMER,
+          order: 700.002 + f,
+        })
+      }
+      // The school. Each fish painted facing right round the canvas's middle (the shader carries it where it is, see
+      // schoolVertex), a few soft strokes of colour: a soft light round it, the blur of its speed behind it in its own
+      // colour, its body, belly and the shade of its back, its spots, its tail, its snout and its eye; every stroke of
+      // it with its phase 400 and its index.
+      const hx = half
+      const hy = h / 2
+      const fishScale = sc * CO_FISH_SIZE
+      CO_FISH.forEach((f, i) => {
+        const len = f.size * fishScale
+        const scales = CO_SCALES[f.scales]
+        const phase = 400 + i
+        const base = 2000 + i * 0.1
+        const at = (lx, ly) => ({ x: hx + lx * len, y: hy + ly * len })
+        const id = 90000 + i * 40
+        put(id + 3, {
+          ...at(-0.05, 0),
+          long: len * 0.7,
+          wide: 0.55,
+          blur: len * 0.45,
+          paints: ['coFishGlow', 'coFishGlow'],
+          load: 0.1,
+          order: base - 0.001,
+          phase,
+        })
+        ;[
+          [-0.81, -0.04, 0.567, 0.51],
+          [-1.107, 0.03, 0.486, 0.33],
+          [-1.377, -0.01, 0.405, 0.18],
+        ].forEach(([lx, ly, long, load], j) => {
+          put(id + j, {
+            ...at(lx, ly),
+            long: long * len,
+            wide: 0.2,
+            blur: len * 0.2,
+            paints: [scales.body, scales.body],
+            load,
+            order: base,
+            phase,
+          })
+        })
+        put(id + 4, {
+          ...at(0, 0),
+          long: len * 0.37,
+          wide: 0.36,
+          blur: len * 0.05,
+          paints: [scales.body, scales.body],
+          load: 0.95,
+          order: base + 0.002,
+          phase,
+        })
+        put(id + 5, {
+          ...at(0.02, 0.06),
+          long: len * 0.27,
+          wide: 0.2,
+          blur: len * 0.05,
+          paints: [scales.belly, scales.belly],
+          load: 0.6,
+          order: base + 0.003,
+          phase,
+        })
+        put(id + 6, {
+          ...at(-0.02, -0.07),
+          long: len * 0.28,
+          wide: 0.16,
+          blur: len * 0.05,
+          paints: [scales.back, scales.back],
+          load: 0.45,
+          order: base + 0.004,
+          phase,
+        })
+        // its spots, on its body behind its eye
+        scales.spots.forEach((paint, j) => {
+          const q = i * 11 + j
+          const lx = -0.25 + 0.4 * coHash(q * 2.3 + 0.1)
+          const ly = (coHash(q * 3.9 + 0.7) - 0.6) * 0.14
+          const r = (0.035 + 0.05 * coHash(q * 5.1)) * len
+          put(id + 8 + j, {
+            ...at(lx, ly),
+            long: r,
+            wide: 0.85,
+            blur: r * 0.4,
+            paints: [paint, paint],
+            load: 0.85,
+            order: base + 0.005,
+            phase,
+          })
+        })
+        ;[-1, 1].forEach((side, j) => {
+          put(id + 20 + j, {
+            ...at(-0.43, side * 0.035),
+            long: len * 0.168,
+            wide: 0.42,
+            turn: side * 0.5,
+            blur: len * 0.03,
+            paints: [scales.fin, scales.belly],
+            load: 0.8,
+            order: base + 0.006,
+            phase,
+          })
+        })
+        put(id + 24, {
+          ...at(0.27, 0),
+          long: len * 0.09,
+          wide: 0.75,
+          blur: len * 0.04,
+          paints: [scales.belly, scales.body],
+          load: 0.45,
+          order: base + 0.007,
+          phase,
+        })
+        put(id + 25, {
+          ...at(0.27, -0.035),
+          long: len * 0.034,
+          wide: 1,
+          blur: len * 0.012,
+          paints: ['coFishEye', 'coFishEye'],
+          load: 0.95,
+          order: base + 0.008,
+          phase,
+        })
+        put(id + 26, {
+          ...at(0.28, -0.035),
+          long: len * 0.015,
+          wide: 1,
+          blur: len * 0.006,
+          paints: ['coFishInk', 'coFishInk'],
+          load: 0.9,
+          order: base + 0.009,
+          phase,
+        })
+      })
     },
   }
 
@@ -7793,19 +7760,578 @@
       }
     },
   }
+
+  /* --- the sky composition ----------------------------------------------------------------------------- */
+
+  /* The hero of the docs overview (/products), after Cameron's pictures: a clear sky under the calls to action, in the
+     land's own fine lines, easing in pale under the buttons, deepening to cobalt and paling again to lilac at the
+     horizon; a veil of light across it, as of high cloud lit from beyond (an aurora at night); cumulus framing it from
+     either side, soft and irregular, lit white on their tops and blue in their shade, a lower, bluer bank behind; a few
+     stars; and a flock of white birds crossing it, doves far off, their wings beating and then held as they glide,
+     coming in and going out through the glass at the sides as the butterflies do (a gentler glass than theirs, even
+     and level, since a bright bird drawn through the butterflies' would streak across the sky like a comet). */
+  const SK_EVEN = 0.005
+  const SK_HAZE = 0.4 + SK_EVEN
+  const SK_TWINKLE = 3.25 + SK_EVEN
+  const SK_GLIMMER = 3.4 + SK_EVEN
+  // (the engine's own hashed and clamp come later in the file than this, which is worked out as it loads)
+  const skHash = (value) => {
+    const x = Math.sin(value * 127.1 + 311.7) * 43758.5453
+    return x - Math.floor(x)
+  }
+  // The sky's inks, light and dark: pale where it comes in under the buttons, cobalt above, lilac at the horizon.
+  const SK_INKS = {
+    ...LAND_INK,
+    skTop: ['#78a5e6', '#1c3c86'],
+    skHigh: ['#1450bf', '#0a1b56'],
+    skMid: ['#246bce', '#0f276c'],
+    skLow: ['#5f95e2', '#1b3482'],
+    skHorizon: ['#c0c2ee', '#383f8e'],
+  }
+  // how large the sky's strokes are drawn on a canvas this wide
+  const SK_SCALE = (w) => Math.min(1.15, Math.max(0.5, w / 1232))
+  /* The flock: three groups, a third of their round apart, each flying at one pace so that it keeps together, its birds
+     spread through the upper part of the band and along it, each in a lane of its own and spaced along the round as the
+     golden ratio spaces them, so that no two of a group fly into each other, each rising and falling and surging a
+     little at its own rate; and two nearer, larger and faster, in the lanes under the groups, low over the clouds, so
+     that they overtake the groups below them rather than through them, only on a canvas wider than a phone's (on a
+     phone's, the groups have the whole band, see `band`). For
+     each: its wingspan (CSS pixels at a canvas 1232 wide), pace (pixels a second, likewise), lane (0 at the band's top,
+     1 at its foot), where it is in the round, how far it rises and falls and how often, how far it surges and how
+     often, how fast its wings beat (a second), how far they swing, how often it glides, and a seed of its own. Written
+     once, as the script loads. */
+  const SK_GROUPS = [8, 8, 7]
+  // how much of the band, from its top, the groups fly in, and how wide a canvas the near birds fly on
+  const SK_UPPER = 0.8
+  const SK_NEAR_FROM = 700
+  const skBird = (h, lane, phase) => ({
+    size: 30 + 16 * h(1),
+    speed: 46,
+    lane,
+    phase,
+    drift: 3 + 2.5 * h(5),
+    period: 4 + 3 * h(6),
+    surge: 3 + 4 * h(11),
+    surgePeriod: 3 + 2 * h(12),
+    beat: 2.2 + 0.8 * h(7),
+    wag: 0,
+    flap: 0.36 * (0.85 + 0.3 * h(8)),
+    glide: 3.5 + 3 * h(9),
+    seed: h(10),
+  })
+  const SK_BIRDS = [
+    ...SK_GROUPS.flatMap((count, g) =>
+      Array.from({ length: count }, (_, j) => {
+        const i = SK_GROUPS.slice(0, g).reduce((a, b) => a + b, 0) + j
+        const h = (k) => skHash(i * 11.3 + k * 2.7 + 0.3)
+        const lane = Math.min(1, Math.max(0, ((j + 0.5) / count) * SK_UPPER + (h(3) - 0.5) * 0.08))
+        const along = (((j * 0.618034 + g * 0.31) % 1) - 0.5) * 0.2 + (h(4) - 0.5) * 0.03
+        return skBird(h, lane, g / SK_GROUPS.length + 0.04 + (lane - 0.5) * 0.05 + along)
+      }),
+    ),
+    ...[0, 1].map((j) => {
+      const h = (k) => skHash(j * 23.9 + k * 4.3 + 7.7)
+      const bird = skBird(h, 0.92 + 0.12 * h(3), (j + 0.3 + 0.4 * h(4)) / 2)
+      return { ...bird, size: bird.size * 1.5, speed: bird.speed * 1.6, from: SK_NEAR_FROM }
+    }),
+  ]
+  /* The clouds' towers: where each stands across the canvas (a share of its width), how tall it is (a share of the
+     picture under the buttons) and half how wide (CSS pixels at 1232). Tall at either side, framing the sky, and low in
+     the middle, under the words. */
+  const SK_TOWERS = [
+    [0, 0.36, 200],
+    [0.15, 0.15, 120],
+    [0.36, 0.08, 140],
+    [0.6, 0.1, 120],
+    [0.82, 0.3, 170],
+    [1.02, 0.24, 150],
+  ]
+  const SKY = {
+    ...HERO,
+    intro: false,
+    words: '.dc-copy, .hl-copy',
+    // a few beads, the oval of page kept round the words shallow, and every line carried to the canvas's edges
+    lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.08, whole: true },
+    film: FOOTER.film,
+    // drawn at a little less than the screen's density on a canvas wider than any laptop's, as the company's sea is
+    dprCap: (w) => Math.min(2, 2 * Math.sqrt(1800 / w)),
+    inks: SK_INKS,
+    // the stars twinkle, and the strokes are even (neither bowing nor tapering) and soft-edged
+    twinkle: true,
+    marks: true,
+    glyphs: true,
+    land: {
+      ...HERO.land,
+      profile: [
+        [-1.6, 0],
+        [1.6, 0],
+      ],
+      crest: 0,
+      relief: [1, 1],
+      sheets: [
+        // the sky, from just under the buttons' foot down (not named 'sky', which the land is laid out from before its
+        // room is known, and this one's top is worked out from it)
+        {
+          name: 'air',
+          top: (stage) => {
+            const under = Math.min((stage.words.y + stage.words.b + 3 - stage.base) / stage.room, 0.12)
+            return [
+              [-1.6, under],
+              [1.6, under],
+            ]
+          },
+          foot: [
+            [-1.6, 1.3],
+            [1.6, 1.3],
+          ],
+          paint: [
+            [0, 'skTop', 0],
+            [0.12, 'skTop', 0.78],
+            [0.32, 'skHigh', 1],
+            [0.58, 'skMid', 1],
+            [0.82, 'skLow', 1],
+            [1, 'skHorizon', 1],
+          ],
+          fill: 0.9,
+          under: 0.85,
+          patch: 0.1,
+          flow: 1.1,
+          breath: 2,
+        },
+        // the land's foot, as the other heroes' meadows are, under the clouds: it lays the land out and draws nothing
+        {
+          name: 'meadow',
+          top: [
+            [-1.6, 1.24],
+            [1.6, 1.24],
+          ],
+          foot: [
+            [-1.6, 1.3],
+            [1.6, 1.3],
+          ],
+          paint: [
+            [0, 'skHorizon', 0],
+            [1, 'skHorizon', 0],
+          ],
+          fill: 0,
+          under: 0,
+        },
+      ],
+      least: 110,
+    },
+    grass: null,
+    flowers: null,
+    passer: null,
+    pointer: false,
+    clouds: [],
+    // No butterflies: the birds are this sky's flock, drawn through the lens's glass, which here is gentle and even (see
+    // `lens`): it bends less than the butterflies', only across, never shows a part of the flock twice, neither splits
+    // its colours nor draws them out along the way, blurs them only a little towards the edge and glows only a little
+    // round them, so that a bird comes in drawn out and level and goes out the same, with no comet's tail.
+    flock: [],
+    lens: {
+      ...LENS,
+      foot: 'ease',
+      always: true,
+      even: true,
+      bend: 1,
+      bandMost: [110, 62],
+      split: 0,
+      along: 0,
+      soften: 1,
+      halo: [2.6, 0.2],
+    },
+    school: {
+      fish: SK_BIRDS,
+      // never smaller than this, or on a phone they would be ticks
+      size: (w) => Math.max(0.7, SK_SCALE(w)),
+      // a bird banks and climbs only a little, never tipping as a fish does
+      turn: 0.35,
+      /* From a little under the buttons, so that none flies close under them, down over the clouds' heads, rising a
+         little across the canvas to the right. Its top is that much lower again as the lanes rise to the right, and a
+         little more than a bird rises and falls, so that none flies up into the top of the sky, where it fades into the
+         page. Where the near birds are left out, its foot is lowered so that the groups' part of it reaches the foot,
+         and they have the whole of it. */
+      band: ({ w, h, words }) => {
+        const rise = h * 0.08 * Math.min(1, w / 1232)
+        const top = Math.max(words.y + words.b + 48 + rise / 2 + 8 * Math.max(0.7, SK_SCALE(w)), h * 0.36)
+        const foot = Math.max(top + 90, h * 0.78)
+        return [top, w < SK_NEAR_FROM ? top + (foot - top) / SK_UPPER : foot, -rise]
+      },
+      scatter: { radius: 120, push: 340, back: 1.3 },
+    },
+    paints: {
+      ...PAINTS,
+      // the birds, white, with a little light round them
+      skBird: ['#ffffff', '#ffffff'],
+      skBirdSoft: ['#eef4ff', '#e6eeff'],
+      skBirdGlow: ['#ffffff', '#eaf2ff'],
+      // the veil, and its threads, which are hardly to be told from it by day and are the aurora's faint strands at night
+      skVeil: ['#8cc4f4', '#48acd8'],
+      skThread: ['#a8d2f6', '#74c4dc'],
+      // the clouds, from their lit tops to their shade, the far bank, and the haze at the horizon
+      skCloudLit: ['#fffdf8', '#a2b3e2'],
+      skCloud: ['#f2f6fd', '#8396cf'],
+      skCloudMid: ['#dce5f8', '#687bb8'],
+      skCloudShade: ['#c3d2f1', '#5063a0'],
+      skCloudDeep: ['#a9bdea', '#3d4f8a'],
+      skCloudFar: ['#dbe4fa', '#5a6db0'],
+      skCloudFarShade: ['#c4d2f2', '#43569a'],
+      skDusk: ['#e8def7', '#4a4c9a'],
+      // the stars, faint against the day's blue and bright at night
+      skStar: ['#dce9fb', '#ffffff'],
+      skStarGlow: ['#e8f1fd', '#fff6d6'],
+    },
+    plant: (garden) => {
+      const { w, h, rand, ground } = garden
+      const half = w / 2
+      const sc = SK_SCALE(w)
+      // a stroke standing still where it is painted (rooted under the canvas, its stem up to it); the same seed gives
+      // the same dice, so the two rays and the heart of a star twinkle together
+      const put = (n, { x, y, ...o }) => {
+        rand.reseed(66001 + n * 7919)
+        const root = h + 40
+        garden.dab({
+          kind: SK_HAZE,
+          blur: 0.6,
+          load: 0.9,
+          turn: 0,
+          ...o,
+          x,
+          y: root,
+          stem: root - y,
+          lean: 0,
+          stiff: 1,
+        })
+      }
+      // value noise and a few octaves of it, from the engine's hash
+      const noise = (x, y) => {
+        const xi = Math.floor(x)
+        const yi = Math.floor(y)
+        const u = (x - xi) * (x - xi) * (3 - 2 * (x - xi))
+        const v = (y - yi) * (y - yi) * (3 - 2 * (y - yi))
+        const r = (i, j) => hashed(i * 157.31 + j * 311.73 + 0.17)
+        const a = r(xi, yi) + (r(xi + 1, yi) - r(xi, yi)) * u
+        const b = r(xi, yi + 1) + (r(xi + 1, yi + 1) - r(xi, yi + 1)) * u
+        return a + (b - a) * v
+      }
+      const fbm = (x, y) =>
+        (noise(x, y) * 0.5 +
+          noise(x * 2.03 + 5.2, y * 2.03 + 1.3) * 0.25 +
+          noise(x * 4.07 + 9.7, y * 4.07 + 7.1) * 0.125 +
+          noise(x * 8.11 + 3.3, y * 8.11 + 4.9) * 0.0625) /
+        0.9375
+      const top = ground('air', half)
+      const pic = h - top
+      let n = 0
+
+      // A veil of light across the sky, as of high cloud lit from beyond (at night an aurora): soft broad strokes along
+      // a long curve from high on the left to low on the right, and fine threads along it, sized by the picture as well
+      // as by the width, so that on a phone it is still a broad soft veil and not a ribbon (and thinner, as its strokes
+      // lie closer together there).
+      const vw = Math.max(w, 2.5 * pic)
+      const thin = (w / vw) ** 0.75
+      const veilAt = (f) => [(-0.08 + 1.16 * f) * w, top + (0.1 + 0.36 * f + 0.06 * Math.sin(f * Math.PI * 1.7)) * pic]
+      const veilTurn = (f) => {
+        const [x0, y0] = veilAt(f - 0.01)
+        const [x1, y1] = veilAt(f + 0.01)
+        return Math.atan2(y1 - y0, x1 - x0)
+      }
+      for (let k = 0; k < 26; k += 1) {
+        const f = k / 25
+        const [x, y] = veilAt(f)
+        put((n += 1), {
+          x,
+          y,
+          long: 0.065 * vw,
+          wide: 0.45,
+          turn: veilTurn(f),
+          blur: 0.045 * vw,
+          paints: ['skVeil', 'skVeil'],
+          load: (0.27 + 0.15 * hashed(k * 3.1)) * thin,
+          order: 560,
+        })
+      }
+      for (let k = 0; k < 8; k += 1) {
+        const f = hashed(k * 2.3 + 0.7)
+        const [x, y] = veilAt(f)
+        const turn = veilTurn(f)
+        const off = (hashed(k * 5.9 + 0.2) - 0.5) * 0.11 * pic
+        const long = (0.03 + 0.06 * hashed(k * 4.1)) * vw
+        put((n += 1), {
+          x: x - Math.sin(turn) * off,
+          y: y + Math.cos(turn) * off,
+          long,
+          wide: Math.max(0.006, (0.55 * sc) / long),
+          turn,
+          blur: 0.7,
+          paints: ['skThread', 'skThread'],
+          load: 0.24 + 0.24 * hashed(k * 7.7),
+          order: 561,
+        })
+      }
+
+      // A few stars.
+      for (let k = 0; k < 30; k += 1) {
+        const x = hashed(k * 5.1 + 0.4) * w
+        const y = top + 8 + hashed(k * 3.7 + 0.9) ** 1.5 * pic * 0.55
+        const r = (1.1 + 2.2 * hashed(k * 7.3) ** 2) * sc
+        const id = 40000 + k
+        put(id, {
+          x,
+          y,
+          long: r,
+          wide: 0.12,
+          blur: 0.4,
+          paints: ['skStar', 'skStarGlow'],
+          load: 0.6,
+          kind: SK_TWINKLE,
+          order: 565,
+        })
+        put(id, {
+          x,
+          y,
+          long: r * 0.7,
+          wide: 0.14,
+          turn: Math.PI / 2,
+          blur: 0.4,
+          paints: ['skStar', 'skStarGlow'],
+          load: 0.6,
+          kind: SK_TWINKLE,
+          order: 565.001,
+        })
+        put(id, {
+          x,
+          y,
+          long: r * 0.32,
+          wide: 1,
+          blur: r * 0.3,
+          paints: ['skStarGlow', 'skStar'],
+          load: 0.6,
+          kind: SK_GLIMMER,
+          order: 565.002,
+        })
+      }
+
+      // The clouds: cumulus rising from the foot, a low bank all along and the towers, their edges billowing (the noise
+      // round the skyline). A tower is never much taller than it is wide, but on a narrow canvas it keeps more of its
+      // height than of its width, so that the clouds still frame a phone's sky.
+      const low = 0.085 * pic
+      const skyline = (x) => {
+        let most = low
+        for (const [at, tall, wide] of SK_TOWERS) {
+          const d = (x - at * w) / (wide * sc)
+          if (Math.abs(d) < 1) {
+            most = Math.max(most, Math.min(tall * pic, wide * Math.max(sc, 0.75) * 1.15) * (1 - d * d) ** 0.55)
+          }
+        }
+        return most * (0.88 + 0.24 * fbm(x / (70 * sc), 3.7))
+      }
+      const edge = (x, y) =>
+        20 * sc * (fbm(x / (26 * sc), y / (26 * sc)) - 0.5) + 9 * sc * (noise(x / (9 * sc) + 40, y / (9 * sc)) - 0.5)
+      let highest = 0
+      for (let x = 0; x <= w; x += 4) {
+        highest = Math.max(highest, skyline(x))
+      }
+      // A soft lilac haze low in the sky behind the clouds, as the air near the horizon catches the light.
+      for (let k = 0; k < 14; k += 1) {
+        const x = ((k + 0.5) / 14) * w
+        put((n += 1), {
+          x,
+          y: h - low - 0.12 * pic,
+          long: 0.11 * w,
+          wide: 0.42,
+          blur: 0.06 * w,
+          paints: ['skDusk', 'skDusk'],
+          load: 0.24 + 0.08 * hashed(k * 2.7),
+          order: 562,
+        })
+      }
+      // A far bank behind, lower and flatter and bluer, laid first, in larger dabs than the near clouds', being far.
+      const farStep = 9 * sc
+      const farLine = (x) => low * 1.4 + 0.16 * pic * fbm(x / (110 * sc) + 20, 1.3)
+      const deepest = 110 * Math.max(sc, 0.8)
+      for (let gy = h - 0.45 * pic; gy < h + farStep; gy += farStep) {
+        for (let gx = -farStep; gx < w + farStep; gx += farStep) {
+          const q = Math.round(gx / farStep) * 6113 + Math.round(gy / farStep) * 92821 + 17
+          const x = gx + (hashed(q * 0.013 + 0.3) - 0.5) * farStep * 0.8
+          const y = gy + (hashed(q * 0.017 + 0.2) - 0.5) * farStep * 0.8
+          const depth = farLine(x) + 0.7 * edge(x + 300, y) - (h - y)
+          if (depth < 0) {
+            continue
+          }
+          const f = clamp(depth / deepest, 0, 0.999)
+          const r = farStep * (0.9 + 0.3 * hashed(q * 0.023))
+          put((n += 1), {
+            x,
+            y,
+            long: r,
+            wide: 0.95,
+            turn: 1.2,
+            blur: r * 0.45,
+            paints: f < 0.3 ? ['skCloudFar', 'skCloudFarShade'] : ['skCloudFarShade', 'skCloudFarShade'],
+            load: 0.92,
+            order: 566 - f,
+          })
+        }
+      }
+      /* The near clouds, laid as round soft dabs close together, each shaded from its upper left, white, to its lower
+         right, blue, and the deepest first, so that every billow lies over the one under it with its lit top and casts
+         its shade on it, as cumulus is piled up: the nearer the top, the lighter, and the nearer the canvas's foot, the
+         deeper, so that their feet go into the page in colour, as the other heroes' land does, rather than white. */
+      const PAIRS = [
+        ['skCloudLit', 'skCloud'],
+        ['skCloudLit', 'skCloudMid'],
+        ['skCloud', 'skCloudShade'],
+        ['skCloudMid', 'skCloudShade'],
+        ['skCloudMid', 'skCloudDeep'],
+      ]
+      const step = 6 * sc
+      for (let gy = h - highest - 30 * sc; gy < h + step; gy += step) {
+        for (let gx = -step; gx < w + step; gx += step) {
+          const q = Math.round(gx / step) * 7919 + Math.round(gy / step) * 104729
+          const x = gx + (hashed(q * 0.013 + 0.1) - 0.5) * step * 0.7
+          const y = gy + (hashed(q * 0.017 + 0.6) - 0.5) * step * 0.7
+          const depth = skyline(x) + edge(x, y) - (h - y)
+          if (depth < 0) {
+            continue
+          }
+          const footward = 0.7 * smooth(h - 0.24 * pic, h - 0.02 * pic, y)
+          const f = clamp(Math.max(depth / deepest, footward) + (hashed(q * 0.031) - 0.5) * 0.1, 0, 0.999)
+          const [lit, shaded] = PAIRS[Math.floor(f * PAIRS.length)]
+          const r = step * (1 + 0.6 * hashed(q * 0.023 + 0.4))
+          put((n += 1), {
+            x,
+            y,
+            long: r,
+            wide: 0.95,
+            turn: 1.2,
+            blur: r * 0.35,
+            paints: [lit, shaded],
+            load: 0.95,
+            order: 571 - f,
+          })
+        }
+      }
+
+      // The birds. Each painted round the canvas's middle (the shader carries it where it is, see schoolVertex), as a
+      // white bird far off is drawn: a soft light round it, its wings in a shallow V from its middle, each up and out to
+      // the wrist and then out to a fine tip, a small body, head and tail.
+      const hx = half
+      const hy = h / 2
+      const birdScale = Math.max(0.7, sc)
+      SK_BIRDS.forEach((b, i) => {
+        const len = b.size * birdScale
+        const phase = 400 + i
+        const base = 2000 + i * 0.1
+        const at = (lx, ly) => ({ x: hx + lx * len, y: hy + ly * len })
+        // a stroke from one place to another: its middle, half its length and its turn
+        const span = (a, z) => ({
+          ...at((a[0] + z[0]) / 2, (a[1] + z[1]) / 2),
+          long: (Math.hypot(z[0] - a[0], z[1] - a[1]) / 2) * len,
+          turn: Math.atan2(z[1] - a[1], z[0] - a[0]),
+        })
+        const id = 80000 + i * 20
+        put(id, {
+          ...at(0, -0.04),
+          long: len * 0.4,
+          wide: 0.5,
+          blur: len * 0.28,
+          paints: ['skBirdGlow', 'skBirdGlow'],
+          load: 0.18,
+          order: base,
+          phase,
+        })
+        // the left wing, the far one, a little shorter, and the right
+        put(id + 1, {
+          ...span([0, -0.01], [-0.19, -0.13]),
+          wide: 0.26,
+          blur: len * 0.012,
+          paints: ['skBird', 'skBird'],
+          load: 0.96,
+          order: base + 0.001,
+          phase: phase + 0.2,
+        })
+        put(id + 2, {
+          ...span([-0.18, -0.125], [-0.43, -0.075]),
+          wide: 0.17,
+          blur: len * 0.01,
+          paints: ['skBird', 'skBirdSoft'],
+          load: 0.94,
+          kind: 0,
+          order: base + 0.002,
+          phase: phase + 0.2,
+        })
+        put(id + 3, {
+          ...span([0, -0.01], [0.21, -0.15]),
+          wide: 0.26,
+          blur: len * 0.012,
+          paints: ['skBird', 'skBird'],
+          load: 0.96,
+          order: base + 0.001,
+          phase: phase + 0.4,
+        })
+        put(id + 4, {
+          ...span([0.2, -0.145], [0.49, -0.09]),
+          wide: 0.17,
+          blur: len * 0.01,
+          paints: ['skBird', 'skBirdSoft'],
+          load: 0.94,
+          kind: 0,
+          order: base + 0.002,
+          phase: phase + 0.4,
+        })
+        // its body, head and tail
+        put(id + 5, {
+          ...at(0.005, 0),
+          long: len * 0.075,
+          wide: 0.48,
+          turn: 0.08,
+          blur: len * 0.01,
+          paints: ['skBird', 'skBird'],
+          load: 0.97,
+          order: base + 0.003,
+          phase,
+        })
+        put(id + 6, {
+          ...at(0.075, -0.012),
+          long: len * 0.03,
+          wide: 0.95,
+          blur: len * 0.008,
+          paints: ['skBird', 'skBird'],
+          load: 0.97,
+          order: base + 0.004,
+          phase,
+        })
+        put(id + 7, {
+          ...span([-0.06, 0.006], [-0.14, 0.024]),
+          wide: 0.42,
+          blur: len * 0.01,
+          paints: ['skBird', 'skBirdSoft'],
+          load: 0.95,
+          order: base + 0.005,
+          phase,
+        })
+      })
+    },
+  }
   /* --- the compositions, ready --- */
 
   /* What the engine works out once for each composition: stand-ins for what it leaves out, the names of the colours its
      strokes can be painted in (the paints, then the leaves' greens), how a flower painted with its petals is seen, and
      whether there is a flock, and so a lens. A composition with no flock that has its lens all the same
-     (`lens.always`) has its picture fade out over its foot into the page as every hero with butterflies does. */
+     (`lens.always`), or that has a school, has its picture fade out over its foot into the page as every hero with
+     butterflies does. */
   const prepare = (mode) => {
     mode.flowers = mode.flowers || { ...FLOWERS, drifts: [], strays: 0, gorse: 0 }
     mode.grass = mode.grass || { ...GRASS, tufts: 0, lane: 0, singles: 0 }
     mode.paintNames = [...Object.keys(mode.paints), ...LEAVES]
     mode.slant = mode.flowers.slant === undefined ? '0.62' : Number(mode.flowers.slant).toFixed(3)
     mode.lens = mode.lens || LENS
-    mode.lensed = mode.flock.length > 0 || !!mode.lens.always
+    if (mode.school && !mode.school.fish?.length) {
+      mode.school = null
+    }
+    mode.lensed = mode.flock.length > 0 || !!mode.lens.always || !!mode.school
     return mode
   }
   const MODES = {
@@ -7821,6 +8347,7 @@
     daisies: prepare(DAISIES),
     globe: prepare(GLOBE),
     compare: prepare(COMPARE),
+    sky: prepare(SKY),
   }
   const modeOf = (root) => MODES[root.dataset.hlMode] || MODES.hero
 
@@ -8319,6 +8846,28 @@
       .replace(
         TALK_PLACE,
         `${TALK_PLACE}\n    if (talkCode >= 299.0) {\n      pixel.y -= uTalk.x * (talkCode - 300.0);\n    } else if (inside) {\n      pixel.y += uTalk.x * (talkCode - 200.0) * ${centre};\n    } else if (talkCode >= 99.0) {\n      pixel.y += uTalk.x * (talkCode - 100.0);\n    }\n    if (talkCode >= 99.0) {\n      pixel.y += uTalk.y;\n    }`,
+      )
+  }
+  /* With `school`, a composition's fish swim (see school in the template). Every stroke of a fish is painted facing
+     right round one home for all of them (uSchool), stands still (no give), and carries in its phase 400 and the fish's
+     index. uFish holds two vec4 a fish: where it is just now, its heading and the beat of its tail; and its length, how
+     far its tail swings and how far its wings swing. A stroke of a bird's wing has a part over its index (0.2 the left
+     wing, 0.4 the right) and swings round the bird's middle with the beat, the two wings rising and falling together.
+     The stroke is swung with the tail behind the fish's middle, a wave running down to the tail, then turned to the
+     heading and carried to where the fish is. Without it the shader is as it was. */
+  const schoolVertex = (mode, vertex) => {
+    if (!mode.school || !vertex.includes(TALK_PLACE) || !vertex.includes('uniform float uPixels;')) {
+      return vertex
+    }
+    const n = mode.school.fish.length
+    return vertex
+      .replace(
+        'uniform float uPixels;',
+        `uniform float uPixels;\n  uniform vec4 uFish[${n * 2}];\n  uniform vec2 uSchool;`,
+      )
+      .replace(
+        TALK_PLACE,
+        `${TALK_PLACE}\n    if (aBlade.z >= 0.999 && aBlade.y >= 399.5 && aBlade.y < ${400 + n}.0) {\n      int fish = int(aBlade.y - 400.0 + 0.5) * 2;\n      float part = aBlade.y - 400.0 - float(fish / 2);\n      vec4 now = uFish[fish];\n      vec4 body = uFish[fish + 1];\n      vec2 rel = pixel - uSchool;\n      if (part > 0.1) {\n        float swing = body.z * sin(now.w) * (part > 0.3 ? -1.0 : 1.0);\n        vec2 shoulder = vec2(0.0, -0.01) * body.x;\n        vec2 arm = rel - shoulder;\n        rel = shoulder + vec2(cos(swing) * arm.x - sin(swing) * arm.y, sin(swing) * arm.x + cos(swing) * arm.y);\n      }\n      float behind = 1.0 - smoothstep(-0.5 * body.x, 0.0, rel.x);\n      rel.y += body.y * behind * sin(now.w + rel.x / max(body.x, 1.0) * 5.0);\n      float c = cos(now.z);\n      float s = sin(now.z);\n      pixel = now.xy + vec2(c * rel.x - s * rel.y, s * rel.x + c * rel.y);\n    }`,
       )
   }
   const bloomVertex = (mode) => `#version 300 es
@@ -9269,6 +9818,13 @@
      picture runs on to the foot of the page keeps its foot instead. One with a bright shape running into its foot eases
      the fade in (`foot: 'ease'`): over a dark page, where an even fade begins shows across such a shape as a line. */
   const LENS_FOOT = 'float foot = clamp(gl_FragCoord.y / (uRes.y * 0.1), 0.0, 1.0);'
+  /* Even glass (see `lens`) draws the flock out only across in the bands at the sides, never up or down, which would
+     tip a bird coming in under the middle of the canvas as it goes; it bends both ways only where the top band joins
+     them, easing in from where that band's term begins, so there is no seam. */
+  const LENS_EVEN = [
+    'vec2 src = d * (vs / max(v, 1e-4));',
+    'vec2 src = d * vec2(vs / max(v, 1e-4), mix(1.0, vs / max(v, 1e-4), smoothstep(0.0, uIn, each.y)));',
+  ]
   /* A composition whose canvas lies over the page's own content (`lens.clear`) gives only its butterflies through the
      lens, not the picture behind them, so that the page shows through everywhere else: what the lens passes on keeps the
      flock's own alpha, and every channel of the glass at the edges keeps its colour without the picture under it. The
@@ -9369,6 +9925,9 @@ ${k}        vec3 seen = mix(m.rgb / max(m.a, 1e-3) * vec3(${tint.map(f).join(', 
     let fragment = mode.lens.foot === false ? LENS_FRAGMENT.replace(LENS_FOOT, 'float foot = 1.0;') : LENS_FRAGMENT
     if (mode.lens.foot === 'ease') {
       fragment = fragment.replace(LENS_FOOT, 'float foot = smoothstep(0.0, 1.0, gl_FragCoord.y / (uRes.y * 0.1));')
+    }
+    if (mode.lens.even && fragment.includes(LENS_EVEN[0])) {
+      fragment = fragment.replace(...LENS_EVEN)
     }
     if (mode.lens.top === false) {
       if (!fragment.includes(LENS_TOP)) {
@@ -9915,8 +10474,8 @@ ${LINE_FILL}`,
     }
 
     // Only what the composition draws is compiled: no land without sheets, no glass without clouds, no wings without a
-    // flock, no lens without a flock or lens.always, and a sky only for a composition with one of its own. Each is sent
-    // off in a step of its own.
+    // flock, no lens without a flock, lens.always or a school, and a sky only for a composition with one of its own.
+    // Each is sent off in a step of its own.
     gl.getExtension('KHR_parallel_shader_compile')
     const { sheets } = mode.land
     const programs = []
@@ -9928,7 +10487,7 @@ ${LINE_FILL}`,
     const wanted = [
       ['land', sheets.length > 0, () => send(landVertex(mode), lineFragment(mode))],
       ['blades', true, () => send(BLADE_VERTEX, bladeFragment(mode))],
-      ['blooms', true, () => send(talkVertex(mode, bloomVertexOf(mode)), bloomFragment(mode))],
+      ['blooms', true, () => send(schoolVertex(mode, talkVertex(mode, bloomVertexOf(mode))), bloomFragment(mode))],
       ['clouds', mode.clouds.length > 0, () => send(CLOUD_VERTEX, CLOUD_FRAGMENT)],
       ['copy', true, () => send(FULL_VERTEX, COPY_FRAGMENT)],
       ['fly', mode.lensed && mode.flock.length > 0, () => send(FLY_VERTEX, FLY_FRAGMENT)],
@@ -10148,6 +10707,8 @@ ${LINE_FILL}`,
       gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, count)
     }
     const bladeVao = instanced([4, 4, 4])
+    // the first of the strokes that are a school's fish, all the rest after it (see `school`); none until they are laid
+    let schoolFrom = Number.POSITIVE_INFINITY
     // A stroke of paint: its root, stem and half-length; its half-width, turn, blur and dice; how it sways and when it
     // grows, as a blade's; and its two colours, what it is, and how much paint it carries or how many petals it has.
     const bloomVao = instanced([4, 4, 4, 4])
@@ -10236,7 +10797,7 @@ ${LINE_FILL}`,
     let hidden = null
     let landBase = 0
     let landRoom = 1
-    let glass = { bandX: 0, bandY: 0, reachX: 0 }
+    let glass = { bandX: 0, bandY: 0, reachX: 0, inner: 0, unseen: 0 }
 
     /* What the land in front of the element in front of the canvas keeps clear of, as boxes on the canvas in CSS pixels:
        inside each of the composition's `keep` elements in it, every line of text, and every link, button, picture and
@@ -10328,8 +10889,15 @@ ${LINE_FILL}`,
       fit = mode.fit(cssW, cssH)
       const bandX = Math.min(optics.band[0] * cssW * 0.5, optics.bandMost[0])
       const bandY = Math.min(optics.band[1] * cssH * 0.5, optics.bandMost[1])
-      const vs = optics.in + ((1 - optics.in) * (1 - Math.exp(-optics.bend))) / optics.bend
-      glass = { bandX, bandY, reachX: (cssW / 2) * vs }
+      // even glass (see `lens`) starts its magnifying where its band starts, so that it never shows a part twice
+      const inner = optics.even ? Math.max(optics.in, 1 - bandX / Math.max(1, cssW / 2)) : optics.in
+      const vs = inner + ((1 - inner) * (1 - Math.exp(-optics.bend))) / optics.bend
+      const reachX = (cssW / 2) * vs
+      /* The strip along either side that the glass never shows, as it draws the picture nearer the middle out over it:
+         only even glass that keeps its colours together leaves a strip exactly that wide; other glass folds a little
+         more of the picture in on a wide canvas, and its split colours reach further out, so none is counted on there. */
+      const unseen = optics.even && !optics.split ? Math.max(0, cssW / 2 - reachX) : 0
+      glass = { bandX, bandY, reachX, inner, unseen }
       const nw = Math.max(2, Math.round(cssW * dpr))
       const nh = Math.max(2, Math.round(cssH * dpr))
       dirty = true
@@ -11608,13 +12176,20 @@ ${LINE_FILL}`,
       yield* upload(gl.ARRAY_BUFFER, bladeVao.buffer, bladeData, parts)
       bladeVao.laid = bladeData
       bladeVao.count = blades.length
-      // And the far strokes first, so the near ones are painted over them.
+      // And the far strokes first, so the near ones are painted over them; a school's strokes after all the others,
+      // whatever their order, since they are drawn apart from the scene (see Pass 3).
       yield COST.sort
-      dabs.sort((a, b) => a[0] - b[0])
+      const fishOf = (d) => (d[11] >= 0.999 && d[10] >= 399.5 && d[10] < 400 + mode.school.fish.length ? 1 : 0)
+      dabs.sort(mode.school ? (a, b) => fishOf(a) - fishOf(b) || a[0] - b[0] : (a, b) => a[0] - b[0])
+      // Where the school's strokes start (see `school`): they were sorted last, and they are drawn with the butterflies,
+      // through the glass (see Pass 3), not in the scene, so neither the land in front nor the bands of depth hold them.
+      const firstFish = mode.school ? dabs.findIndex((d) => fishOf(d) === 1) : -1
+      const sceneEnd = firstFish < 0 ? dabs.length : firstFish
       let dabsBehind = dabs.length
       if (frontTops) {
-        const ahead = dabs.filter((d) => inFront(d[1], d[2]))
-        const behind = dabs.filter((d) => !inFront(d[1], d[2]))
+        const scene = dabs.slice(0, sceneEnd)
+        const ahead = scene.filter((d) => inFront(d[1], d[2]))
+        const behind = scene.filter((d) => !inFront(d[1], d[2]))
         dabsBehind = behind.length
         behind.forEach((d, i) => {
           dabs[i] = d
@@ -11634,6 +12209,7 @@ ${LINE_FILL}`,
       yield* upload(gl.ARRAY_BUFFER, bloomVao.buffer, bloomData, parts)
       bloomVao.laid = bloomData
       bloomVao.count = dabs.length
+      schoolFrom = sceneEnd
       yield
       // Where each band of depth starts in the grass and in the strokes, both sorted from the farthest: the grass of a
       // band is drawn over the flowers of every band behind it, so near blades cross the flowers further back. With land
@@ -11670,10 +12246,10 @@ ${LINE_FILL}`,
       }
       if (frontTops) {
         layBands(bladesBehind, dabsBehind, 0, BEHIND)
-        layBands(blades.length, dabs.length, BEHIND, BANDS - BEHIND)
+        layBands(blades.length, sceneEnd, BEHIND, BANDS - BEHIND)
         cutBand = BEHIND
       } else {
-        layBands(blades.length, dabs.length, 0, BANDS)
+        layBands(blades.length, sceneEnd, 0, BANDS)
         cutBand = -1
       }
     }
@@ -11689,12 +12265,13 @@ ${LINE_FILL}`,
        window being dragged. So when the stage changes the land is lofted again at once, and the meadow is laid out
        again only once the stage has been still for a moment. Until then it is moved with the land (see moveMeadow).
        This is the stage it was laid out for. */
-    const grownFor = { key: '', w: 1, base: 0, room: 1 }
+    const grownFor = { key: '', w: 1, h: 1, base: 0, room: 1 }
     let meadowTimer = 0
     // The meadow is laid out for the stage as it is now.
     const grown = () => {
       grownFor.key = landKey
       grownFor.w = cssW
+      grownFor.h = cssH
       grownFor.base = landBase
       grownFor.room = landRoom
       // The frames it holds up say nothing about the GPU.
@@ -11724,7 +12301,8 @@ ${LINE_FILL}`,
     /* Until then each blade and each stroke is moved with the land, which is lofted again at once: across with the
        stage's width, and down from the land's top as far as its room has grown or shrunk. Only where it is rooted
        moves, the first two of its numbers (aRoot.xy to the shaders), so that nothing is squashed and the rest is as it
-       was laid out. */
+       was laid out. A school's strokes stay where they were painted: schoolNow places each fish on the stage as it is,
+       round the place they were painted round (uSchool). */
     const moveMeadow = () => {
       const sx = cssW / grownFor.w
       const sy = landRoom / grownFor.room
@@ -11738,7 +12316,8 @@ ${LINE_FILL}`,
         }
         const moved = run.moved
         moved.set(laid)
-        for (let i = 0; i < laid.length; i += run.stride) {
+        const end = run === bloomVao ? Math.min(laid.length, schoolFrom * run.stride) : laid.length
+        for (let i = 0; i < end; i += run.stride) {
           moved[i] = laid[i] * sx
           moved[i + 1] = landBase + (laid[i + 1] - grownFor.base) * sy
         }
@@ -11841,6 +12420,19 @@ ${LINE_FILL}`,
     }
     if (mode.pointer) {
       window.addEventListener('pointermove', onPointer, { passive: true })
+    }
+    // the fish of a school swerve from the pointer (see schoolNow); only where it is is kept
+    const onSchoolPointer = (event) => {
+      if (PREFERS_REDUCED.matches || !inView) {
+        return
+      }
+      const rect = canvas.getBoundingClientRect()
+      schoolPointer.x = event.clientX - rect.left
+      schoolPointer.y = event.clientY - rect.top
+      schoolPointer.at = clock
+    }
+    if (mode.school) {
+      window.addEventListener('pointermove', onSchoolPointer, { passive: true })
     }
 
     /* ---- the butterflies ---- */
@@ -12773,9 +13365,10 @@ ${LINE_FILL}`,
     const glassAt = (across) => {
       const half = cssW / 2
       const times = (seen) => {
-        const v = optics.in + ((seen - (half - glass.bandX)) / glass.bandX) * (1 - optics.in)
-        const t = clamp((v - optics.in) / (1 - optics.in), 0, 1)
-        return t > 0 ? v / (optics.in + ((1 - optics.in) * (1 - Math.exp(-optics.bend * t))) / optics.bend) : 1
+        const inner = glass.inner
+        const v = inner + ((seen - (half - glass.bandX)) / glass.bandX) * (1 - inner)
+        const t = clamp((v - inner) / (1 - inner), 0, 1)
+        return t > 0 ? v / (inner + ((1 - inner) * (1 - Math.exp(-optics.bend * t))) / optics.bend) : 1
       }
       let near = across
       let far = Math.max(across, half)
@@ -12994,6 +13587,164 @@ ${LINE_FILL}`,
       if (mode.talk && u.uTalk) {
         gl.uniform2f(u.uTalk, ...talkNow())
       }
+      if (mode.school && u.uFish) {
+        gl.uniform4fv(u.uFish, schoolNow())
+        gl.uniform2f(u.uSchool, grownFor.w / 2, grownFor.h / 2)
+      }
+    }
+    /* The school (see `school`): for each fish, where it is just now, its heading and the beat of its tail, then its
+       length, how far its tail swings and how far its wings swing, two vec4 a fish for the strokes' shader. All of them
+       go round one round, right across the canvas and round again from the left, off the canvas, each at its own pace
+       in its own lane of the band the composition gives, rising and falling a little as it goes. One near the pointer
+       swerves away from it and drifts back to its lane. Worked out once a frame; in a still picture they are where the
+       still clock puts them. */
+    // How far a fish of a school ever turns from level, either way, unless the school says (about forty degrees), and
+    // how fast it turns, in radians a second, so that neither a push nor the top of its band snaps it round.
+    const SCHOOL_TURN = 0.7
+    const SCHOOL_TURNING = 4
+    const schoolData = mode.school ? new Float32Array(mode.school.fish.length * 8) : null
+    const schoolState = mode.school
+      ? {
+          clock: -1,
+          w: 0,
+          h: 0,
+          words: 0,
+          away: mode.school.fish.map(() => [0, 0, 0, 0]),
+          round: mode.school.fish.map(() => 0),
+          shown: mode.school.fish.map(() => true),
+        }
+      : null
+    const schoolPointer = { x: -1e5, y: -1e5, at: -1e9 }
+    const schoolLargest = mode.school ? Math.max(...mode.school.fish.map((f) => f.size)) : 0
+    const schoolNow = () => {
+      const wordsFoot = words.y + words.b
+      const still = isStill()
+      if (
+        schoolState.clock === clock &&
+        schoolState.w === cssW &&
+        schoolState.h === cssH &&
+        schoolState.words === wordsFoot &&
+        schoolState.still === still
+      ) {
+        return schoolData
+      }
+      /* A still picture, the first frame and a step back in time (a seek) put every fish where the clock alone puts it
+         on this canvas; a live frame carries each on from where it was, at its pace on this canvas, so that a change of
+         width neither carries a fish on along its way nor sends it back. A step longer than any frame's, which only a
+         seek on makes (a frame steps a twentieth of a second at most, however long the page stalled), turns each fish
+         outright to its heading, as a fresh placement does, rather than easing it round. */
+      const fresh = still || schoolState.clock < 0 || clock < schoolState.clock
+      const step = fresh ? 0 : clock - schoolState.clock
+      const dt = Math.min(step, 0.1)
+      const placed = fresh || step > 0.1
+      schoolState.clock = clock
+      schoolState.w = cssW
+      schoolState.h = cssH
+      schoolState.words = wordsFoot
+      schoolState.still = still
+      const { fish, band, size, turn: most = SCHOOL_TURN, reach = [0.7, 0.7], glow = reach, scatter = {} } = mode.school
+      const [rear, fore] = reach
+      const [rearGlow, foreGlow] = glow
+      const { radius = 120, push = 320, back = 1.4 } = scatter
+      const [top, foot, fall] = band({ w: cssW, h: cssH, words })
+      const scale = size ? size(cssW) : 1
+      /* Every fish goes round the same way: off one side, across, off the other and round again, all of them in one
+         round, as long as the canvas and the largest fish's run in and out at either side, so that a group swimming at
+         one pace stays together however long the page is open. */
+      const margin = schoolLargest * scale * 2.5
+      const span = cssW + margin * 2
+      const half = cssW / 2
+      // the strip along either side that the glass never shows (see measureSteps)
+      const { unseen } = glass
+      // the pointer counts for a moment after it last moved, and never in a still picture
+      const near = !still && clock - schoolPointer.at < 1.2
+      fish.forEach((f, i) => {
+        const o = i * 8
+        const len = f.size * scale
+        const away = schoolState.away[i]
+        if (still) {
+          away.fill(0)
+        }
+        const speed = f.speed * scale
+        const round = fresh ? f.phase + (clock * speed) / span : schoolState.round[i] + (step * speed) / span
+        schoolState.round[i] = round - Math.floor(round)
+        // a fish surges a little ahead of its pace and falls back, so a school swimming at one pace stays together
+        const surge = (f.surge || 0) * scale
+        const sweep = f.surgePeriod ? (Math.PI * 2) / f.surgePeriod : 0
+        const surged = surge * Math.sin(sweep * clock + f.seed * 3.7)
+        const x0 = ((((schoolState.round[i] * span + surged) % span) + span) % span) - margin
+        /* One only for a wide canvas is left out of a narrow one, well off it; when the canvas is made narrower or wider
+           across that width, it goes or comes only once it is out of sight, its tail and the last of its glow, never
+           in the middle of the picture. In a still picture one that the glass at the sides would draw out is left out
+           too, and once the picture moves again it comes back as one out of sight does. */
+        const wanted = !(f.from && cssW < f.from)
+        const x = x0 + away[0]
+        if (fresh || x + foreGlow * len < unseen || x - rearGlow * len > cssW - unseen) {
+          schoolState.shown[i] = wanted
+        }
+        if (still && (x0 + fore * len > cssW - glass.bandX || x0 - rear * len < glass.bandX)) {
+          schoolState.shown[i] = false
+        }
+        if (!schoolState.shown[i]) {
+          schoolData.fill(0, o, o + 8)
+          schoolData[o] = -1e5
+          schoolData[o + 1] = -1e5
+          away.fill(0)
+          return
+        }
+        const lane = top + f.lane * (foot - top) + (fall * (x0 - half)) / Math.max(1, cssW)
+        const turn = (Math.PI * 2) / f.period
+        const rise = f.drift * scale
+        const y0 = lane + rise * Math.sin(turn * clock + f.seed * 6.283)
+        const climb = rise * turn * Math.cos(turn * clock + f.seed * 6.283) + (fall * speed) / Math.max(1, cssW)
+        if (dt > 0) {
+          const dx = x0 + away[0] - schoolPointer.x
+          const dy = y0 + away[1] - schoolPointer.y
+          const d = Math.hypot(dx, dy)
+          let vx = 0
+          let vy = 0
+          if (near && d < radius && d > 0.001) {
+            const k = (1 - d / radius) ** 2 * push
+            vx = (dx / d) * k
+            vy = (dy / d) * k
+          }
+          const keep = Math.exp(-dt * back)
+          /* A push carries a fish back or on no further than its run at the sides allows, so that one held back is
+             still out of sight, tail and all, when its place comes round, and lifts one in the top lane no higher
+             than a little over the top of its band (a fifth of the largest fish's length), above which the picture
+             would cut it off, and each lane further down no higher than halfway from there to its own, so that lifted
+             fish keep their order and some of their spacing; one already swimming above that is not lifted at all. */
+          const ax = clamp(away[0] * keep + vx * dt, rear * len - margin - unseen, margin + unseen - fore * len)
+          const ceiling = top - 0.2 * schoolLargest * scale + f.lane * 0.5 * (foot - top)
+          const ay = Math.max(away[1] * keep + vy * dt, Math.min(0, ceiling - y0))
+          away[2] = (ax - away[0]) / dt
+          away[3] = (ay - away[1]) / dt
+          away[0] = ax
+          away[1] = ay
+        }
+        schoolData[o] = x0 + away[0]
+        schoolData[o + 1] = y0 + away[1]
+        // It heads the way it swims, turned only a little by a push and never further than `most`: pushed back, it backs
+        // away still facing on, as a fish does, rather than spinning round or turning over.
+        const ahead = Math.max(speed * 0.3, speed + surge * sweep * Math.cos(sweep * clock + f.seed * 3.7))
+        const heading = clamp(
+          Math.atan2(climb + away[3] * 0.35, Math.max(ahead * 0.4, ahead + away[2] * 0.35)),
+          -most,
+          most,
+        )
+        const was = schoolData[o + 2]
+        schoolData[o + 2] = placed ? heading : was + clamp(heading - was, -SCHOOL_TURNING * dt, SCHOOL_TURNING * dt)
+        schoolData[o + 3] = clock * Math.PI * 2 * f.beat + f.seed * 4.1
+        schoolData[o + 4] = len
+        schoolData[o + 5] = len * (f.wag ?? 0.06)
+        // a bird beats its wings for a while and then glides on them held still, every `glide` seconds
+        const beating = f.glide
+          ? 0.5 + 0.5 * Math.tanh(3 * Math.sin((clock * Math.PI * 2) / f.glide + f.seed * 5.3))
+          : 1
+        schoolData[o + 6] = (f.flap || 0) * beating
+        schoolData[o + 7] = 0
+      })
+      return schoolData
     }
     /* The face's speech (see `talk`), written out once: phrases of four to ten syllables with a breath between them,
        each syllable [when, how long, how wide its vowel opens the mouth, how open it is as the syllable starts and as it
@@ -13224,7 +13975,8 @@ ${LINE_FILL}`,
       gl.generateMipmap(gl.TEXTURE_2D)
 
       // Pass 2: the scene the butterflies fly over: the land as it is, the clouds of glass, and the grass and the flowers
-      // painted on it. With no lens (no butterflies and no lens.always) it is the picture, and goes straight to the screen.
+      // painted on it. With no lens (no butterflies, no lens.always and no school) it is the picture, and goes straight to
+      // the screen.
       gl.bindFramebuffer(gl.FRAMEBUFFER, mode.lensed ? sceneFbo : null)
       gl.viewport(0, 0, w, h)
       gl.disable(gl.BLEND)
@@ -13314,7 +14066,8 @@ ${LINE_FILL}`,
         gl.useProgram(blades.program)
         drawRun(bladeVao, bands[band * 4], bands[band * 4 + 1])
         gl.useProgram(blooms.program)
-        drawRun(bloomVao, bands[band * 4 + 2], bands[band * 4 + 3])
+        const first = bands[band * 4 + 2]
+        drawRun(bloomVao, first, Math.min(bands[band * 4 + 3], schoolFrom - first))
       }
 
       // The first picture of a root painted ahead of being seen is what lets it fade in.
@@ -13373,12 +14126,16 @@ ${LINE_FILL}`,
           o,
         )
       })
-      // Pass 3: the butterflies, on nothing at all. With none (a lens kept only for its foot, lens.always) their picture
+      // Pass 3: the butterflies, and a school's fish, on nothing at all, so that they come in and go out through the
+      // glass at the sides as the butterflies do. With neither (a lens kept only for its foot, lens.always) their picture
       // stays as it was made, empty, and nothing is drawn into it.
-      if (flock.length > 0) {
+      const fishing = schoolFrom < bloomVao.count
+      if (flock.length > 0 || fishing) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, flockFbo)
         gl.clearColor(0, 0, 0, 0)
         gl.clear(gl.COLOR_BUFFER_BIT)
+      }
+      if (flock.length > 0) {
         gl.useProgram(fly.program)
         gl.bindVertexArray(flyVao)
         gl.bindBuffer(gl.ARRAY_BUFFER, flyBuffer)
@@ -13420,12 +14177,18 @@ ${LINE_FILL}`,
         gl.uniform4fv(u.uCells, CELLS)
         gl.drawArraysInstanced(gl.TRIANGLES, 0, meshCount, flock.length)
       }
+      if (fishing) {
+        gl.enable(gl.BLEND)
+        gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+        gl.useProgram(blooms.program)
+        drawRun(bloomVao, schoolFrom, bloomVao.count - schoolFrom)
+      }
 
       // Pass 4: the butterflies through the lens, over the scene, onto the screen.
       gl.bindFramebuffer(gl.FRAMEBUFFER, null)
       gl.activeTexture(gl.TEXTURE5)
       gl.bindTexture(gl.TEXTURE_2D, flockTex)
-      if (flock.length > 0) {
+      if (flock.length > 0 || fishing) {
         gl.generateMipmap(gl.TEXTURE_2D)
       }
       gl.activeTexture(gl.TEXTURE6)
@@ -13442,7 +14205,7 @@ ${LINE_FILL}`,
       gl.uniform2f(ul.uCentre, w / 2, h / 2)
       gl.uniform2f(ul.uHalf, w / 2, h / 2)
       gl.uniform2f(ul.uBand, glass.bandX * px, glass.bandY * px)
-      gl.uniform1f(ul.uIn, optics.in)
+      gl.uniform1f(ul.uIn, glass.inner)
       gl.uniform1f(ul.uBend, optics.bend)
       gl.uniform1f(ul.uSplit, optics.split)
       gl.uniform1f(ul.uAlong, optics.along * h)
@@ -13755,6 +14518,7 @@ ${LINE_FILL}`,
       PREFERS_REDUCED.removeEventListener('change', motion)
       document.removeEventListener('visibilitychange', sync)
       window.removeEventListener('pointermove', onPointer)
+      window.removeEventListener('pointermove', onSchoolPointer)
       window.removeEventListener('pointerdown', onPress)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('pointermove', onOrbitMove)

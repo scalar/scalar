@@ -431,13 +431,14 @@ We are the API company, giving you industry-best interfaces for your APIs so you
 
 <style>
   /* ------------------------------------------------------------------
-     The hero: the copy, and under it the footer's rolling hills with a
-     figure of light sitting at a desk on the right, after the docs
-     overview's figure: so bright that only its shape is left, and the
-     light it gives off. Where the words take the whole width it sits
-     under them. headless-hero.js draws it into the stage's canvas, to
-     its "company" composition (the engine that draws
-     the home page, /enterprise and the docs overview).
+     The hero: the copy, and under it a sea at the magic hour in the
+     land's fine lines, a path of pink light across it and stars of
+     light twinkling on it, and a school of bright fish swimming across
+     in three groups, coming in and going out through the glass at the
+     sides as the butterflies do and swerving from the pointer.
+     headless-hero.js draws it into the stage's canvas, to its "company"
+     composition (the engine that draws the home page, /enterprise and
+     the docs overview).
      ------------------------------------------------------------------ */
   /* The home page's hero box, so the h1 lands on the same line as the
      other heroes' (their numbers, measured at 1440 by 900 and 1512 by
