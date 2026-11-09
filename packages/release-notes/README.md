@@ -70,6 +70,8 @@ export default defineReleaseNotesConfig({
       changelogPath: 'packages/client/CHANGELOG.md',
       outputPath: 'packages/client/RELEASE_NOTES.json',
       markdownPath: 'packages/client/RELEASE_NOTES.md',
+      // Most highlights a generated note may carry, from 1 to 20. Defaults to 5.
+      maxHighlights: 5,
     },
   ],
 })
@@ -80,6 +82,35 @@ For full control over how a provider is created, pass a provider object instead 
 JavaScript, JSON, and TypeScript config files are discovered by name. TypeScript config loading depends on your runtime being able to import `.ts` files, for example through `tsx`.
 
 The published JSON Schema for `RELEASE_NOTES.json` is available at `@scalar/release-notes/schema`.
+
+## Highlight limit
+
+Each generated note carries at most five highlights by default, which suits a small in-app "What's new" modal. Set `maxHighlights` on a product to allow up to 20 when the notes are shown somewhere with more room, such as a changelog page:
+
+```js
+export default defineReleaseNotesConfig({
+  products: [
+    {
+      slug: 'client',
+      // ...
+      maxHighlights: 10,
+    },
+  ],
+})
+```
+
+The limit is stated in the default system prompt and enforced when the response is validated, and the default output token budget grows with it so a longer note is not cut off. A custom `prompts.systemPrompt` receives the limit as `maxHighlights`. If it builds on the default prompt, forward it so the model is told the same limit its response is checked against:
+
+```js
+import { buildDefaultSystemPrompt, defineReleaseNotesConfig } from '@scalar/release-notes'
+
+export default defineReleaseNotesConfig({
+  prompts: {
+    systemPrompt: ({ product, ...context }) =>
+      [buildDefaultSystemPrompt(product, context), '', 'House style: ...'].join('\n'),
+  },
+})
+```
 
 ## Pull request context
 

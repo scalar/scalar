@@ -18,6 +18,11 @@ export type ReleaseNotesProduct = {
   markdownPath?: string
   /** Dependency CHANGELOGs folded into the parent release note. */
   dependencyChangelogPaths?: readonly string[]
+  /**
+   * The most highlights a generated note for this product may carry, from 1 to 20. Defaults to 5.
+   * Raise it when the notes are shown somewhere with room for a longer list, such as a changelog page.
+   */
+  maxHighlights?: number
 }
 
 export type ProductPromptContext = {
@@ -34,6 +39,11 @@ export type PromptContext = {
    * default system prompt reacts to, so a custom prompt can describe the same inputs.
    */
   includePullRequestContext: boolean
+  /**
+   * The most highlights the response may carry. Responses with more fail validation, so a custom
+   * prompt should state this limit, for example by passing it to `buildDefaultSystemPrompt`.
+   */
+  maxHighlights: number
 }
 
 export type PromptOptions = {
