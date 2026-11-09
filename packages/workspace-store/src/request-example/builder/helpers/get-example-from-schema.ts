@@ -680,12 +680,15 @@ const handleObjectSchema = (
   // Carry requirements through composition wrappers before they cross the cap. Property children
   // start their own scope, since their required names belong to a different object.
   const memberRequiredScope =
-    requiredScope ?? (isComposed(schema) ? getCompositionRequiredNames(schema, options, schemaPath, level) : undefined)
+    requiredScope ??
+    (isComposed(schema)
+      ? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
   const required =
     level > MAX_LEVELS_DEEP
-      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level))
+      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope))
       : undefined
 
   if ('properties' in schema && schema.properties) {
@@ -701,15 +704,30 @@ const handleObjectSchema = (
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const value = getExampleFromSchema(propertySchema, options, {
-        level: level + 1,
-        parentSchema: schema,
-        name: propertyName,
-        isRequiredProperty: !!required,
-        schemaPath: [...schemaPath, propertyName],
-        seen,
-        dynamicScope: childScope,
-      })
+      const discriminatorExample =
+        schema.discriminator?.defaultMapping !== undefined && schema.discriminator.propertyName === propertyName
+          ? evaluateDiscriminator(schema, options, {
+              level,
+              schemaPath,
+              seen,
+              dynamicScope,
+              isRequiredProperty: !!required,
+            })
+          : undefined
+      if (discriminatorExample?.evaluation) {
+        options?.[EXAMPLE_EVALUATION]?.stack.at(-1)?.children.push(discriminatorExample.evaluation)
+      }
+      const value = discriminatorExample
+        ? discriminatorExample.value
+        : getExampleFromSchema(propertySchema, options, {
+            level: level + 1,
+            parentSchema: schema,
+            name: propertyName,
+            isRequiredProperty: !!required,
+            schemaPath: [...schemaPath, propertyName],
+            seen,
+            dynamicScope: childScope,
+          })
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -1092,8 +1110,70 @@ const MAX_REQUIRED_STEPS = 10_000
 /** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
 let requiredSteps = MAX_REQUIRED_STEPS
 
-/** Cache required names by schema and selection context, since different choices require different keys. */
-const compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
+/** Cache requirements within one walk; generated discriminator values may select a new branch next time. */
+let compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
+
+/** The value and optional XML provenance of a discriminator evaluated during requirement collection. */
+type DiscriminatorExample = { value: unknown; evaluation?: ExampleEvaluation }
+
+/** Values are reused only within one call; generated dates and traversal contexts must not leak across calls. */
+let discriminatorExamples = new WeakMap<object, Map<string, DiscriminatorExample>>()
+
+/** Evaluate the discriminator through the same path as any other property, before choosing its branch. */
+const evaluateDiscriminator = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: {
+    level: number
+    schemaPath: string[]
+    seen: WeakSet<object>
+    dynamicScope: DynamicScope
+    isRequiredProperty: boolean
+  },
+): DiscriminatorExample => {
+  const { level, schemaPath, seen, dynamicScope, isRequiredProperty } = context
+  const name = schema.discriminator?.propertyName
+  const property = name !== undefined && 'properties' in schema ? resolve.schema(schema.properties?.[name]) : undefined
+  if (name === undefined || !property) {
+    return { value: undefined }
+  }
+  const target = getSchemaCacheTarget(schema)
+  const key = JSON.stringify([schemaPath, createOptionsCacheKey(options), level, isRequiredProperty])
+  const cached = discriminatorExamples.get(target)?.get(key)
+  if (cached && dynamicScope.length === 0) {
+    return cached
+  }
+  const capture: ExampleEvaluationState | undefined = options?.[EXAMPLE_EVALUATION] ? { stack: [] } : undefined
+  // A composition member may not yet be on the main walk's path when collecting its requirements.
+  const alreadySeen = seen.has(target)
+  seen.add(target)
+  try {
+    const value = getExampleFromSchema(
+      property,
+      { ...options, [EXAMPLE_EVALUATION]: capture },
+      {
+        level: level + 1,
+        parentSchema: schema,
+        name,
+        schemaPath: [...schemaPath, name],
+        seen,
+        dynamicScope: pushDynamicScope(dynamicScope, schema),
+        isRequiredProperty,
+      },
+    )
+    const example: DiscriminatorExample = { value, evaluation: capture?.root }
+    if (dynamicScope.length === 0) {
+      const entries = discriminatorExamples.get(target) ?? new Map<string, DiscriminatorExample>()
+      entries.set(key, example)
+      discriminatorExamples.set(target, entries)
+    }
+    return example
+  } finally {
+    if (!alreadySeen) {
+      seen.delete(target)
+    }
+  }
+}
 
 /**
  * Gather requirements across allOf members and the selected alternatives only. A name required by an
@@ -1104,17 +1184,19 @@ const getCompositionRequiredNames = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
 ): ReadonlySet<string> => {
   const root = getSchemaCacheTarget(schema)
   const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options), level])
   const cached = compositionRequiredNamesCache.get(root)?.get(cacheKey)
-  if (cached) {
+  if (cached && dynamicScope.length === 0) {
     return cached
   }
 
   const names = new Set<string>()
   const visited = new Map<object, Set<string>>()
-  const pending = [{ schema, options, schemaPath, depth: 0 }]
+  const pending = [{ schema, options, schemaPath, dynamicScope, depth: 0 }]
   // A cycle can change its selection path, so identity and path caching alone cannot bound this walk.
   let steps = MAX_REQUIRED_STEPS
   while (pending.length > 0 && steps-- > 0) {
@@ -1137,21 +1219,42 @@ const getCompositionRequiredNames = (
     const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
     if (keyword) {
       const discriminator = current.schema.discriminator
+      const requiredOnly = level + current.depth > MAX_LEVELS_DEEP
       const omittedDiscriminator =
-        level + current.depth > MAX_LEVELS_DEEP &&
+        requiredOnly &&
         discriminator?.defaultMapping !== undefined &&
-        // Include requirements from sibling allOf members before deciding to omit the tag.
-        !getCompositionRequiredNames(schema, options, schemaPath, -MAX_COMPOSITION_DEPTH).has(
+        // The negative level gathers shared requirements without evaluating discriminator values.
+        !getCompositionRequiredNames(schema, options, schemaPath, -MAX_COMPOSITION_DEPTH, seen, dynamicScope).has(
           discriminator.propertyName,
         )
-      // Rendering selects from the filtered object. An omitted discriminator must use its default
-      // mapping here too, rather than collecting requirements from its authored value's branch.
+      // Evaluate once using the ordinary property walk. Rendering reuses both the value and its XML
+      // provenance, so mode omissions, generated strings and composed tags cannot change branches.
+      const evaluated =
+        level >= 0 && discriminator?.defaultMapping !== undefined && !omittedDiscriminator
+          ? evaluateDiscriminator(current.schema, current.options, {
+              level: level + current.depth,
+              schemaPath: current.schemaPath,
+              seen,
+              dynamicScope: current.dynamicScope,
+              isRequiredProperty: requiredOnly,
+            })
+          : undefined
+      const property =
+        discriminator && 'properties' in current.schema
+          ? resolve.schema(current.schema.properties?.[discriminator.propertyName])
+          : undefined
+      const propertyName =
+        current.options?.xml && property && 'xml' in property
+          ? (property.xml?.name ?? discriminator?.propertyName)
+          : discriminator?.propertyName
+      const discriminatorValue =
+        evaluated && propertyName !== undefined ? { [propertyName]: evaluated.value } : undefined
       const selected = selectExampleComposition(
         current.schema,
         current.schemaPath,
         current.options,
         false,
-        omittedDiscriminator ? {} : undefined,
+        omittedDiscriminator ? {} : discriminatorValue,
       )
       const resolved = selected ? resolve.schema(selected) : undefined
       if (resolved) {
@@ -1159,6 +1262,7 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
           schemaPath: current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
           depth: current.depth + 1,
         })
       }
@@ -1174,15 +1278,18 @@ const getCompositionRequiredNames = (
           schema: resolved,
           options: current.options,
           schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
           depth: current.depth + 1,
         })
       }
     }
   }
 
-  const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
-  contexts.set(cacheKey, names)
-  compositionRequiredNamesCache.set(root, contexts)
+  if (dynamicScope.length === 0) {
+    const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
+    contexts.set(cacheKey, names)
+    compositionRequiredNamesCache.set(root, contexts)
+  }
   return names
 }
 
@@ -1200,10 +1307,13 @@ const fillsRequiredProperties = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
 ): boolean =>
   !getDeclaredTypes(schema).includes('array') &&
+  !Array.isArray(getEmptyContainer(schema)) &&
   ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
-  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level)).size > 0
+  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)).size > 0
 
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
@@ -1220,7 +1330,7 @@ const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[
   if ('properties' in schema || types.includes('object')) {
     return {}
   }
-  if ('items' in schema || types.includes('array')) {
+  if ('items' in schema || 'prefixItems' in schema || types.includes('array')) {
     return []
   }
   return undefined
@@ -1460,6 +1570,8 @@ const generateExampleFromSchema = (
     truncated = false
     generatedCurrentTime = false
     requiredSteps = MAX_REQUIRED_STEPS
+    compositionRequiredNamesCache = new WeakMap()
+    discriminatorExamples = new WeakMap()
   }
 
   // Resolve any $ref references to get the actual schema
@@ -1572,7 +1684,7 @@ const generateExampleFromSchema = (
   if (level > MAX_LEVELS_DEEP) {
     if (
       (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
-        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level)) ||
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope)) ||
       level > MAX_REQUIRED_LEVELS_DEEP ||
       requiredSteps <= 0
     ) {
@@ -1590,7 +1702,9 @@ const generateExampleFromSchema = (
   // requirements available throughout that descent, without filtering properties above the cap.
   const memberRequiredScope =
     requiredScope ??
-    (isComposed(_schema) ? getCompositionRequiredNames(_schema, options, schemaPath, level) : undefined)
+    (isComposed(_schema)
+      ? getCompositionRequiredNames(_schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.

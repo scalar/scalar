@@ -3269,6 +3269,64 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf)).toStrictEqual({ kind: 'B', b: 'B' })
     })
 
+    it.each([
+      { kind: { const: 'B', writeOnly: true }, options: { mode: 'read' as const }, expected: { a: 'A' } },
+      { kind: { const: 'B', readOnly: true }, options: { mode: 'write' as const }, expected: { a: 'A' } },
+      { kind: { type: 'string' }, options: { emptyString: 'B' }, expected: { kind: 'B', b: 'B' } },
+      { kind: { allOf: [{ type: 'string' }] }, options: { emptyString: 'B' }, expected: { kind: 'B', b: 'B' } },
+      { kind: { 'x-variable': 'tag' }, options: { variables: { tag: 'B' } }, expected: { kind: 'B', b: 'B' } },
+    ])('collects requirements from the evaluated discriminator $kind with $options', ({ kind, options, expected }) => {
+      for (const depth of [9, 10, 11]) {
+        const leaf = coerceValue(SchemaObjectSchema, {
+          type: 'object',
+          required: ['kind'],
+          properties: { kind },
+          discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+          oneOf: [
+            { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+            { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+          ],
+        })
+
+        expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf), options))).toStrictEqual(expected)
+        expect(
+          deepestNext(
+            getExampleFromSchema(nestObjects(depth, coerceValue(SchemaObjectSchema, { allOf: [leaf] })), options),
+          ),
+        ).toStrictEqual(expected)
+      }
+    })
+
+    it('refreshes discriminator decisions when generated dates change between calls', () => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        required: ['kind'],
+        properties: { kind: { type: 'string', format: 'date' } },
+        discriminator: { propertyName: 'kind', defaultMapping: 'A', mapping: { '2026-01-01': 'A', '2027-01-01': 'B' } },
+        oneOf: [
+          { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+          { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+        ],
+      })
+      const nested = nestObjects(TRUNCATED_DEPTH, leaf)
+      vi.useFakeTimers()
+      try {
+        vi.setSystemTime(new Date('2026-01-01T00:00:00Z'))
+        expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ kind: '2026-01-01', a: 'A' })
+        vi.setSystemTime(new Date('2027-01-01T00:00:00Z'))
+        expect(deepestNext(getExampleFromSchema(nested))).toStrictEqual({ kind: '2027-01-01', b: 'B' })
+      } finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it.each([
+      { prefixItems: [{ type: 'string', const: 'one' }] },
+      { allOf: [{ prefixItems: [{ type: 'string', const: 'one' }] }] },
+    ])('leaves inferred tuple array items out past the cap: %j', (tuple) => {
+      expect(truncate({ type: 'object', required: ['tuple'], properties: { tuple } })).toStrictEqual({ tuple: [] })
+    })
+
     it('keeps only the required keys of a required child object', () => {
       const leaf = {
         type: 'object',
