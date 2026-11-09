@@ -1173,6 +1173,70 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it('keeps type: file inside example data untouched', () => {
+    const entry = { name: 'report.pdf', type: 'file' }
+    const result: any = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1.0' },
+      paths: {
+        '/entries': {
+          get: {
+            produces: ['application/json'],
+            parameters: [{ in: 'query', name: 'filter', type: 'string', 'x-example': { 'application/json': entry } }],
+            responses: {
+              '200': {
+                description: 'Directory listing',
+                schema: { type: 'array', items: { $ref: '#/definitions/Entry' } },
+                examples: { 'application/json': [entry] },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        Entry: {
+          type: 'object',
+          example: entry,
+          default: entry,
+          enum: [entry],
+          properties: { name: { type: 'string' }, type: { type: 'string', enum: ['file', 'dir'] } },
+        },
+      },
+    })
+
+    const operation = result.paths['/entries'].get
+
+    expect(operation.responses['200'].content['application/json'].example).toEqual([entry])
+    expect(operation.parameters[0].examples['application/json'].value).toEqual(entry)
+    expect(result.components.schemas.Entry.example).toEqual(entry)
+    expect(result.components.schemas.Entry.default).toEqual(entry)
+    expect(result.components.schemas.Entry.enum).toEqual([entry])
+  })
+
+  it('still transforms type: file schemas named like data keywords', () => {
+    const result: any = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1.0' },
+      paths: {
+        '/download': {
+          get: {
+            produces: ['application/octet-stream'],
+            responses: { default: { description: 'File', schema: { type: 'file' } } },
+          },
+        },
+      },
+      definitions: {
+        Upload: { type: 'object', properties: { example: { type: 'file' } } },
+      },
+    })
+
+    expect(result.paths['/download'].get.responses.default.content['application/octet-stream'].schema).toEqual({
+      type: 'string',
+      format: 'binary',
+    })
+    expect(result.components.schemas.Upload.properties.example).toEqual({ type: 'string', format: 'binary' })
+  })
+
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

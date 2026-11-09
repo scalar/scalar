@@ -2,6 +2,7 @@ import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
+import { isInsideDataValue } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
 type XExampleExtensions = {
@@ -254,8 +255,8 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   // Transform file type to string with binary format
-  document = traverse(document, (schema) => {
-    if (schema.type === 'file') {
+  document = traverse(document, (schema, path) => {
+    if (schema.type === 'file' && !isInsideDataValue(path)) {
       schema.type = 'string'
       schema.format = 'binary'
     }
