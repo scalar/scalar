@@ -52,6 +52,15 @@ export function isInsideDataValue(path: string[] | undefined): boolean {
   }
 
   for (const [index, segment] of path.entries()) {
+    // Reusable response and parameter names are arbitrary, just like schema names.
+    // Match their document locations so nested data keywords still protect payloads.
+    if (
+      (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
+      (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters'))
+    ) {
+      continue
+    }
+
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
     if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {

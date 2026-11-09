@@ -1175,7 +1175,7 @@ describe('upgradeFromTwoToThree', () => {
 
   it('keeps type: file inside example data untouched', () => {
     const entry = { name: 'report.pdf', type: 'file' }
-    const result: any = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       info: { title: 'Files', version: '1.0' },
       paths: {
@@ -1204,17 +1204,31 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    const operation = result.paths['/entries'].get
+    const operation = result.paths?.['/entries']?.get
 
-    expect(operation.responses['200'].content['application/json'].example).toEqual([entry])
-    expect(operation.parameters[0].examples['application/json'].value).toEqual(entry)
-    expect(result.components.schemas.Entry.example).toEqual(entry)
-    expect(result.components.schemas.Entry.default).toEqual(entry)
-    expect(result.components.schemas.Entry.enum).toEqual([entry])
+    expect(operation?.responses?.['200']).toStrictEqual({
+      description: 'Directory listing',
+      content: {
+        'application/json': {
+          schema: { type: 'array', items: { $ref: '#/components/schemas/Entry' } },
+          example: [entry],
+        },
+      },
+    })
+    expect(operation?.parameters).toStrictEqual([
+      { in: 'query', name: 'filter', schema: { type: 'string' }, examples: { 'application/json': { value: entry } } },
+    ])
+    expect(result.components?.schemas?.Entry).toStrictEqual({
+      type: 'object',
+      example: entry,
+      default: entry,
+      enum: [entry],
+      properties: { name: { type: 'string' }, type: { type: 'string', enum: ['file', 'dir'] } },
+    })
   })
 
   it('still transforms type: file schemas named like data keywords', () => {
-    const result: any = upgradeFromTwoToThree({
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
       info: { title: 'Files', version: '1.0' },
       paths: {
@@ -1230,12 +1244,57 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/download'].get.responses.default.content['application/octet-stream'].schema).toEqual({
-      type: 'string',
-      format: 'binary',
+    expect(result.paths?.['/download']?.get?.responses?.default).toStrictEqual({
+      description: 'File',
+      content: { 'application/octet-stream': { schema: { type: 'string', format: 'binary' } } },
     })
-    expect(result.components.schemas.Upload.properties.example).toEqual({ type: 'string', format: 'binary' })
+    expect(result.components?.schemas?.Upload).toStrictEqual({
+      type: 'object',
+      properties: { example: { type: 'string', format: 'binary' } },
+    })
   })
+
+  it.each(['example', 'default', 'const', 'enum', 'x-example'])('converts reusable file responses named %s', (name) => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Files', version: '1' },
+      paths: { '/download': { get: { responses: { '200': { $ref: `#/responses/${name}` } } } } },
+      responses: { [name]: { description: 'File', schema: { type: 'file' } } },
+    })
+
+    expect(result.components?.responses?.[name]).toStrictEqual({
+      description: 'File',
+      content: { 'application/json': { schema: { type: 'string', format: 'binary' } } },
+    })
+    expect(result.paths?.['/download']?.get?.responses?.['200']).toStrictEqual({
+      $ref: `#/components/responses/${name}`,
+    })
+  })
+
+  it.each(['example', 'default', 'const', 'enum', 'x-example'])(
+    'converts reusable file parameters named %s',
+    (name) => {
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        consumes: ['multipart/form-data'],
+        paths: {
+          '/upload': {
+            post: { parameters: [{ $ref: `#/parameters/${name}` }], responses: { '200': { description: 'OK' } } },
+          },
+        },
+        parameters: { [name]: { in: 'formData', name: 'file', type: 'file' } },
+      })
+
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: {
+          'multipart/form-data': {
+            schema: { type: 'object', properties: { file: { type: 'string', format: 'binary' } }, required: [] },
+          },
+        },
+      })
+    },
+  )
 
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
