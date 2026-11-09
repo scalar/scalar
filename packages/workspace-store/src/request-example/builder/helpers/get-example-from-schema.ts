@@ -680,12 +680,12 @@ const handleObjectSchema = (
   // Carry requirements through composition wrappers before they cross the cap. Property children
   // start their own scope, since their required names belong to a different object.
   const memberRequiredScope =
-    requiredScope ?? (isComposed(schema) ? getCompositionRequiredNames(schema, options, schemaPath) : undefined)
+    requiredScope ?? (isComposed(schema) ? getCompositionRequiredNames(schema, options, schemaPath, level) : undefined)
   // Past the cap only the properties the object requires are rendered: optional ones are what the cap
   // exists to stop descending into. Composition members share the names of the object they belong to.
   const required =
     level > MAX_LEVELS_DEEP
-      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath))
+      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level))
       : undefined
 
   if ('properties' in schema && schema.properties) {
@@ -1103,9 +1103,10 @@ const getCompositionRequiredNames = (
   schema: SchemaObject,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
+  level: number,
 ): ReadonlySet<string> => {
   const root = getSchemaCacheTarget(schema)
-  const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options)])
+  const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options), level])
   const cached = compositionRequiredNamesCache.get(root)?.get(cacheKey)
   if (cached) {
     return cached
@@ -1119,7 +1120,7 @@ const getCompositionRequiredNames = (
   while (pending.length > 0 && steps-- > 0) {
     const current = pending.pop()!
     const target = getSchemaCacheTarget(current.schema)
-    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options)])
+    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options), current.depth])
     const contexts = visited.get(target) ?? new Set<string>()
     if (contexts.has(key) || current.depth > MAX_COMPOSITION_DEPTH) {
       continue
@@ -1135,7 +1136,23 @@ const getCompositionRequiredNames = (
 
     const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
     if (keyword) {
-      const selected = selectExampleComposition(current.schema, current.schemaPath, current.options)
+      const discriminator = current.schema.discriminator
+      const omittedDiscriminator =
+        level + current.depth > MAX_LEVELS_DEEP &&
+        discriminator?.defaultMapping !== undefined &&
+        // Include requirements from sibling allOf members before deciding to omit the tag.
+        !getCompositionRequiredNames(schema, options, schemaPath, -MAX_COMPOSITION_DEPTH).has(
+          discriminator.propertyName,
+        )
+      // Rendering selects from the filtered object. An omitted discriminator must use its default
+      // mapping here too, rather than collecting requirements from its authored value's branch.
+      const selected = selectExampleComposition(
+        current.schema,
+        current.schemaPath,
+        current.options,
+        false,
+        omittedDiscriminator ? {} : undefined,
+      )
       const resolved = selected ? resolve.schema(selected) : undefined
       if (resolved) {
         pending.push({
@@ -1182,10 +1199,11 @@ const fillsRequiredProperties = (
   requiredScope: ReadonlySet<string> | undefined,
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
+  level: number,
 ): boolean =>
   !getDeclaredTypes(schema).includes('array') &&
   ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
-  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath)).size > 0
+  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level)).size > 0
 
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
@@ -1549,10 +1567,12 @@ const generateExampleFromSchema = (
   //
   // An object still renders its required properties for a while past the cap, through this same walk, so
   // every rule that applies at a shallower level (read/write omission, composition selection, variables,
-  // binary files) applies to them too. Arrays, primitives and anything past the bounds stand in.
+  // binary files) applies to them too. Required primitive compositions use the same walk so their
+  // members retain those rules as well; arrays and anything past the bounds still stand in.
   if (level > MAX_LEVELS_DEEP) {
     if (
-      !fillsRequiredProperties(_schema, requiredScope, options, schemaPath) ||
+      (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level)) ||
       level > MAX_REQUIRED_LEVELS_DEEP ||
       requiredSteps <= 0
     ) {
@@ -1569,7 +1589,8 @@ const generateExampleFromSchema = (
   // A composition can start above the cap and cross it in a nested member. Keep the shared
   // requirements available throughout that descent, without filtering properties above the cap.
   const memberRequiredScope =
-    requiredScope ?? (isComposed(_schema) ? getCompositionRequiredNames(_schema, options, schemaPath) : undefined)
+    requiredScope ??
+    (isComposed(_schema) ? getCompositionRequiredNames(_schema, options, schemaPath, level) : undefined)
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
@@ -1607,6 +1628,7 @@ const generateExampleFromSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       seen.delete(targetValue)
@@ -1629,6 +1651,7 @@ const generateExampleFromSchema = (
           schemaPath: [...schemaPath, 'contentSchema'],
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       if (content !== undefined) {
@@ -1680,6 +1703,7 @@ const generateExampleFromSchema = (
               seen,
               dynamicScope: childScope,
               requiredScope: memberRequiredScope,
+              isRequiredProperty,
             }),
             options,
             schemaPath,
@@ -1709,6 +1733,7 @@ const generateExampleFromSchema = (
         seen,
         dynamicScope: childScope,
         requiredScope: memberRequiredScope,
+        isRequiredProperty,
       })
       if (merged === undefined) {
         merged = ex

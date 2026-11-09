@@ -3168,6 +3168,107 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.oneOf`]: 1 } })).toStrictEqual({ first: 'a' })
     })
 
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('omits excluded members of a required primitive composition in %s mode', (mode, flag) => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ type: 'string', const: 'hidden', [flag]: true }] } },
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({ value: null })
+    })
+
+    it('substitutes a variable inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ type: 'integer', 'x-variable': 'value' }] } },
+      }
+
+      expect(truncate(leaf, { variables: { value: '42' }, omitEmptyAndOptionalProperties: true })).toStrictEqual({
+        value: 42,
+      })
+    })
+
+    it('consumes a selection inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: {
+          value: { oneOf: [{ const: 'outer' }, { oneOf: [{ const: 'first' }, { const: 'second' }] }] },
+        },
+      }
+      const selectionKey = new Array(TRUNCATED_DEPTH).fill('next').join('.')
+
+      expect(truncate(leaf, { compositionSelection: { [`${selectionKey}.value.oneOf`]: 1 } })).toStrictEqual({
+        value: 'first',
+      })
+    })
+
+    it('preserves an explicit depth marker inside a required primitive composition', () => {
+      const leaf = {
+        type: 'object',
+        required: ['value'],
+        properties: { value: { allOf: [{ const: '[Max Depth Exceeded]' }] } },
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ value: '[Max Depth Exceeded]' })
+    })
+
+    it.each([9, 10, 11])('collects the rendered discriminator branch requirements at depth %i', (depth) => {
+      const leaf = coerceValue(SchemaObjectSchema, {
+        type: 'object',
+        properties: { kind: { const: 'B' } },
+        discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+        oneOf: [
+          {
+            $ref: '#/components/schemas/A',
+            '$ref-value': { type: 'object', required: ['a'], properties: { a: { const: 'A' } } },
+          },
+          {
+            $ref: '#/components/schemas/B',
+            '$ref-value': { type: 'object', required: ['b'], properties: { b: { const: 'B' } } },
+          },
+        ],
+      })
+
+      expect(deepestNext(getExampleFromSchema(nestObjects(depth, leaf)))).toStrictEqual(
+        depth > 10 ? { a: 'A' } : { kind: 'B', b: 'B' },
+      )
+      // The requirement collector must also account for a composition crossing the cap.
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(depth, coerceValue(SchemaObjectSchema, { allOf: [leaf] })))),
+      ).toStrictEqual(depth >= 10 ? { a: 'A' } : { kind: 'B', b: 'B' })
+    })
+
+    it('keeps a discriminator required by a sibling composition member', () => {
+      const leaf = {
+        allOf: [
+          { required: ['kind'] },
+          {
+            type: 'object',
+            properties: { kind: { const: 'B' } },
+            discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+            oneOf: [
+              {
+                $ref: '#/components/schemas/A',
+                '$ref-value': { type: 'object', required: ['a'], properties: { a: { const: 'A' } } },
+              },
+              {
+                $ref: '#/components/schemas/B',
+                '$ref-value': { type: 'object', required: ['b'], properties: { b: { const: 'B' } } },
+              },
+            ],
+          },
+        ],
+      }
+
+      expect(truncate(leaf)).toStrictEqual({ kind: 'B', b: 'B' })
+    })
+
     it('keeps only the required keys of a required child object', () => {
       const leaf = {
         type: 'object',
