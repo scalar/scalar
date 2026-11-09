@@ -1694,6 +1694,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
               ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
             ],
             originalDocuments[getActiveDocumentName()]?.openapi,
+            path,
           ),
           loadingStatus(),
           externalValueResolver({ lazy: true }),

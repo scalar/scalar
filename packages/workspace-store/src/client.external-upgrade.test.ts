@@ -20,12 +20,12 @@ const files: Record<string, string> = {
   }),
 }
 
-const fetchFile = (input: string | URL | Request) => {
+const fetchFile = (input: string | URL | Request): Promise<Response> => {
   const body = files[String(input)]
   return Promise.resolve(body === undefined ? new Response('', { status: 404 }) : new Response(body))
 }
 
-const getNameSchema = async (version: string, ref: string) => {
+const getNameSchema = async (version: string, ref: string): Promise<Record<string, unknown> | undefined> => {
   const store = createWorkspaceStore()
 
   await store.addDocument({
@@ -54,7 +54,7 @@ const getNameSchema = async (version: string, ref: string) => {
   return schema?.properties?.name
 }
 
-describe('documents reached through $ref', () => {
+describe('client.external-upgrade', () => {
   it('upgrades a complete OpenAPI 3.0 document next to an OpenAPI 3.0 entry document', async () => {
     const name = await getNameSchema('3.0.3', 'https://example.test/schemas/Item.json#/components/schemas/Item')
 

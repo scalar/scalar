@@ -1,30 +1,21 @@
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
-import type { LoaderPlugin } from '@scalar/json-magic/bundle'
+import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
+import { type LoaderPlugin, type Plugin, type ResolveResult, resolveReferencePath } from '@scalar/json-magic/bundle'
 import { upgrade } from '@scalar/openapi-upgrader'
 
-/** Key under which a bare fragment is hosted while it is upgraded as part of a throwaway document. */
-const FRAGMENT_KEY = 'fragment'
+import { deepClone } from './deep-clone'
 
 const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
 
-/**
- * Bring a document that was loaded through a `$ref` to the same OpenAPI version as the entry document.
- *
- * - A complete OpenAPI 3.0 document is upgraded on its own.
- * - A fragment without version header (for example a file that only holds a schema) has no version of
- *   its own, so it inherits the one of the entry document. This only matters for 3.0 entries, any other
- *   version needs no schema changes.
- *
- * Swagger 2.0 documents are left alone: their `definitions` and path items move when upgraded, which
- * would break the pointers other documents use to reach into them.
- */
-export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown): unknown => {
+/** Upgrade complete documents immediately, and fragments only at their referring OpenAPI location. */
+export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown, path?: readonly string[]): unknown => {
   if (!isObject(data) || 'swagger' in data || 'asyncapi' in data) {
     return data
   }
 
   if (typeof data.openapi === 'string') {
-    // Spread first: the upgrader stamps the new version onto the object it is handed.
     return isThreeZero(data.openapi) ? upgrade({ ...data }, '3.1') : data
   }
 
@@ -32,27 +23,128 @@ export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown): unk
     return data
   }
 
-  // Document body without header: upgrade it in place of the document it belongs to.
+  if (path?.length) {
+    // The upgrader distinguishes schema examples from Parameter/Media Type examples and literal
+    // Example Object payloads by their path. A synthetic schema would lose that distinction.
+    const document: Record<string, unknown> = { openapi: entryVersion }
+    setValueAtPath(document, path, data)
+    return getValueAtPath(upgrade(document, '3.1'), [...path])
+  }
+
   if ('paths' in data || 'components' in data || 'webhooks' in data) {
     const { openapi: _openapi, ...body } = upgrade({ openapi: entryVersion, ...data }, '3.1')
     return body
   }
 
-  // Anything else is a bare Schema, Path Item, Response, … Host it as a schema so the schema rules apply.
-  const upgraded = upgrade({ openapi: entryVersion, components: { schemas: { [FRAGMENT_KEY]: data } } }, '3.1')
-  return upgraded.components?.schemas?.[FRAGMENT_KEY] ?? data
+  return data
 }
 
 /**
- * Wrap loaders so every document they return is upgraded like the entry document was.
+ * Wrap loaders and prepare referenced fragments before the bundler indexes them.
  *
- * @param entryVersion - The `openapi` version the entry document was authored in.
+ * Bare files inherit the entry version, but their object kind comes from each referencing location.
+ * Cache loader results so preparing a reference does not fetch it again during bundling.
+ * Swagger 2.0 documents retain their original structure and JSON pointers.
+ *
+ * @param basePath - The selected subtree's path when bundling part of a document lazily.
  */
-export const upgradeLoaders = (loaders: LoaderPlugin[], entryVersion: unknown): LoaderPlugin[] =>
-  loaders.map((loader) => ({
-    ...loader,
-    exec: async (value) => {
-      const result = await loader.exec(value)
-      return result.ok ? { ...result, data: upgradeLoadedDocument(result.data, entryVersion) } : result
+export const upgradeLoaders = (
+  loaders: LoaderPlugin[],
+  entryVersion: unknown,
+  basePath: readonly string[] = [],
+): Plugin[] => {
+  const fragments = new WeakSet<object>()
+  const paths = new WeakMap<object, readonly string[]>()
+  const indexNodes = (value: unknown, path?: readonly string[]): void => {
+    if (value === null || typeof value !== 'object' || paths.has(value) || (!path && fragments.has(value))) {
+      return
+    }
+    if (path) {
+      paths.set(value, path)
+    } else {
+      fragments.add(value)
+    }
+    for (const [key, child] of Object.entries(value)) {
+      indexNodes(child, path ? [...path, key] : undefined)
+    }
+  }
+  const wrapped: LoaderPlugin[] = loaders.map((loader) => {
+    const cache = new Map<string, Promise<ResolveResult>>()
+    return {
+      ...loader,
+      exec: (value): Promise<ResolveResult> => {
+        const existing = cache.get(value)
+        if (existing) {
+          return existing
+        }
+        const pending = loader.exec(value).then((result): ResolveResult => {
+          if (!result.ok) {
+            return result
+          }
+          const input = deepClone(result.data)
+          const data = upgradeLoadedDocument(input, entryVersion)
+          const isFragment =
+            isThreeZero(entryVersion) &&
+            isObject(data) &&
+            data === input &&
+            !('openapi' in data || 'swagger' in data || 'asyncapi' in data)
+          indexNodes(data, isFragment ? undefined : [])
+          return { ...result, data }
+        })
+        cache.set(value, pending)
+        return pending
+      },
+    }
+  })
+
+  return [
+    ...wrapped,
+    {
+      type: 'lifecycle',
+      onBeforeNodeProcess: async (node, context): Promise<void> => {
+        if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
+          return
+        }
+        const reference = node.$ref
+        const path = paths.get(node) ?? [...basePath, ...context.path]
+        // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
+        if (path[0] === 'x-ext') {
+          return
+        }
+        const [file, fragment = ''] = reference.split('#')
+        if (fragment && !fragment.startsWith('/')) {
+          return
+        }
+        const resolveTarget = async (): Promise<unknown> => {
+          if (!file) {
+            return context.resolveReference(reference)?.value
+          }
+          const url = resolveReferencePath(context.origin, file)
+          const loader = wrapped.find((candidate) => candidate.validate(url))
+          const result = await loader?.exec(url)
+          if (!result?.ok) {
+            return undefined
+          }
+          const targetPath = fragment
+            ? decodeURIComponent(fragment).slice(1).split('/').map(unescapeJsonPointerSegment)
+            : []
+          return getValueAtPath(result.data, targetPath)
+        }
+        const target = await resolveTarget()
+        if (!isObject(target) || !fragments.has(target) || paths.has(target)) {
+          return
+        }
+        const upgraded = upgradeLoadedDocument(target, entryVersion, path)
+        if (!isObject(upgraded) || upgraded === target) {
+          return
+        }
+        // Keep the cached target's identity, including when several pointers address the same file.
+        for (const key of Object.keys(target)) {
+          delete target[key]
+        }
+        Object.assign(target, upgraded)
+        indexNodes(target, path)
+      },
     },
-  }))
+  ]
+}
