@@ -7,6 +7,30 @@ import { toDisplaySchema } from './to-display-schema'
 import type { SchemaNode } from './types'
 
 describe('to-display-schema', () => {
+  it('preserves Markdown code spans in descriptions and enum documentation', () => {
+    expect(toDisplaySchema({ name: 'value', type: 'string', description: '`map<string, Foo>`' }).description).toBe(
+      '`map<string, Foo>`',
+    )
+    expect(
+      toDisplaySchema({
+        name: 'State',
+        type: 'enum State',
+        children: [{ name: 'READY', type: '0', description: '`map<string, Foo>`' }],
+      })['x-enum-descriptions'],
+    ).toStrictEqual(['READY: `map<string, Foo>`'])
+  })
+
+  it('renders Avro enum symbols once while preserving authored documentation', () => {
+    expect(
+      toDisplaySchema({
+        name: 'State',
+        type: 'enum State',
+        description: 'Current state.',
+        details: ['Symbols: READY, DONE'],
+      }),
+    ).toStrictEqual({ type: 'string', format: 'enum State', description: 'Current state.', enum: ['READY', 'DONE'] })
+  })
+
   it('projects deeply nested oneof messages without revisiting ordinary descendants', () => {
     let reads = 0
     let node: SchemaNode = {

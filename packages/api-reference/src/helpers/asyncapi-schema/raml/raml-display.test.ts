@@ -30,10 +30,10 @@ describe('raml-display', () => {
     })
   })
 
-  it('keeps unconstrained array items unconstrained and escapes authored HTML', () => {
+  it('keeps unconstrained array items unconstrained and preserves authored Markdown', () => {
     expect(toDisplaySchema(readRaml('array').nodes[0]!)).toStrictEqual({ type: 'array', items: {} })
     expect(
       toDisplaySchema(readRaml({ type: 'string', description: '<img src=x onerror=alert(1)>' }).nodes[0]!).description,
-    ).toBe('&lt;img src=x onerror=alert(1)&gt;')
+    ).toBe('<img src=x onerror=alert(1)>')
   })
 })

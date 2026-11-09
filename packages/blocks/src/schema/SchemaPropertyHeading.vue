@@ -430,12 +430,10 @@ const patternValue = computed(() => {
     <ScalarTooltip
       v-if="fieldNumber !== undefined"
       content="Protobuf field number">
-      <span
-        :aria-label="`Protobuf field number: ${fieldNumber}`"
-        class="text-c-3 font-code mr-2 text-xs"
-        tabindex="0"
-        >#{{ fieldNumber }}</span
-      >
+      <span class="text-c-3 font-code mr-2 text-xs">
+        <span aria-hidden="true">#{{ fieldNumber }}</span>
+        <span class="sr-only">Protobuf field number: {{ fieldNumber }}</span>
+      </span>
     </ScalarTooltip>
     <div
       v-if="props.isDiscriminator"
@@ -531,12 +529,12 @@ const patternValue = computed(() => {
       <ScalarTooltip
         v-if="presence"
         :content="presenceDescription">
-        <span
-          :aria-label="`Optional (${presence} presence)`"
-          class="text-c-2 mr-2 text-xs"
-          tabindex="0"
-          >optional</span
-        >
+        <span class="text-c-2 mr-2 text-xs">
+          <span aria-hidden="true">optional</span>
+          <span class="sr-only"
+            >Optional ({{ presence }} presence). {{ presenceDescription }}</span
+          >
+        </span>
       </ScalarTooltip>
 
       <!-- Key constraints from propertyNames (e.g. "keys: string · uuid") -->

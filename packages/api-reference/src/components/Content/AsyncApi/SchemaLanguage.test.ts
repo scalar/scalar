@@ -6,6 +6,17 @@ import SchemaLanguage from './SchemaLanguage.vue'
 import SchemaSource from './SchemaSource.vue'
 
 describe('SchemaLanguage', () => {
+  it('renders angle brackets literally inside authored Markdown code', () => {
+    const wrapper = mount(SchemaLanguage, {
+      props: {
+        format: 'application/raml+yaml;version=1.0',
+        value: { properties: { values: { type: 'string', description: '`map<string, Foo>`' } } },
+      },
+    })
+    expect(wrapper.get('code').text()).toBe('map<string, Foo>')
+    wrapper.unmount()
+  })
+
   it('renders native fields without a duplicate source block', () => {
     const value = 'syntax = "proto3";\nmessage User { string user_id = 1; }\n'
     const wrapper = mount(SchemaLanguage, { props: { format: 'application/vnd.google.protobuf;version=3', value } })
@@ -96,10 +107,9 @@ describe('SchemaLanguage', () => {
         value: 'syntax = "proto3"; message User { optional string nickname = 1; string name = 2; }',
       },
     })
-    expect(wrapper.get('[aria-label="Optional (explicit presence)"]').text()).toBe('optional')
-    expect(wrapper.get('[aria-label="Optional (implicit presence)"]').text()).toBe('optional')
-    expect(wrapper.text()).not.toContain('Optional (explicit presence)')
-    expect(wrapper.text()).not.toContain('Optional (implicit presence)')
+    expect(wrapper.text()).toContain('Optional (explicit presence)')
+    expect(wrapper.text()).toContain('Optional (implicit presence)')
+    expect(wrapper.find('[tabindex="0"]').exists()).toBe(false)
     wrapper.unmount()
   })
 
@@ -161,7 +171,7 @@ describe('SchemaLanguage', () => {
       },
     })
     expect(wrapper.find('script').exists()).toBe(false)
-    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.find('[onerror]').exists()).toBe(false)
     expect(wrapper.text()).toContain('<script>')
     wrapper.unmount()
   })

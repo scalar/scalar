@@ -14,9 +14,9 @@ describe('SchemaPropertyHeading', () => {
       props: { value: { type: 'string', [protobufPresence]: presence } as ProtobufSchema },
       slots: { name: 'email' },
     })
-    const label = wrapper.get(`[aria-label="Optional (${presence} presence)"]`)
-    expect(label.text()).toBe('optional')
-    expect(label.attributes('tabindex')).toBe('0')
+    const label = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(label.text()).toContain(`Optional (${presence} presence)`)
+    expect(label.find('[tabindex="0"]').exists()).toBe(false)
     expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toContain(
       presence === 'explicit' ? 'Protobuf distinguishes' : 'Protobuf does not distinguish',
     )
@@ -39,9 +39,9 @@ describe('SchemaPropertyHeading', () => {
       props: { value: { type: 'string', [protobufFieldNumber]: 2 } as ProtobufSchema },
       slots: { name: 'email' },
     })
-    const tag = wrapper.get('[aria-label="Protobuf field number: 2"]')
-    expect(tag.text()).toBe('#2')
-    expect(tag.attributes('tabindex')).toBe('0')
+    const tag = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(tag.text()).toContain('Protobuf field number: 2')
+    expect(tag.find('[tabindex="0"]').exists()).toBe(false)
     expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toBe('Protobuf field number')
     wrapper.unmount()
   })

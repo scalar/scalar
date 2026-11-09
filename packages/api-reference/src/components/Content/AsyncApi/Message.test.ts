@@ -231,7 +231,7 @@ describe('Message', () => {
     wrapper.unmount()
   })
 
-  it.each(['payload', 'headers'])('renders referenced native %s fields without duplicate source', (field) => {
+  it.each(['payload', 'headers'])('renders referenced native %s fields without duplicate source', async (field) => {
     const schema = 'message User { string id = 1; }'
     const format = 'application/vnd.google.protobuf;version=3'
     const wrapper = mount(Message, {
@@ -244,7 +244,7 @@ describe('Message', () => {
         }),
       },
     })
-    expect(wrapper.text()).toContain('#1')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('#1'))
     expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
     expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
     expect(wrapper.find(`[id="${MESSAGE_ID}.${field}"]`).exists()).toBe(true)
@@ -257,7 +257,7 @@ describe('Message', () => {
       'user_id',
     ],
     ['application/raml+yaml;version=1.0', { type: 'object', properties: { user_id: 'string' } }, 'required'],
-  ])('renders native payloads and headers for %s', (format, schema, expected) => {
+  ])('renders native payloads and headers for %s', async (format, schema, expected) => {
     for (const field of ['payload', 'headers']) {
       const wrapper = mount(Message, {
         props: {
@@ -269,7 +269,7 @@ describe('Message', () => {
           }),
         },
       })
-      expect(wrapper.text()).toContain(expected)
+      await vi.waitFor(() => expect(wrapper.text()).toContain(expected))
       expect(wrapper.text()).toContain('user_id')
       expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
       expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
@@ -286,7 +286,7 @@ describe('Message', () => {
         document: createDocument({ payload: { schemaFormat: 'application/x-custom', schema: 'source text' } }),
       },
     })
-    expect(wrapper.text()).toContain('source text')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('source text'))
     await wrapper.setProps({
       document: createDocument({ payload: { type: 'object', properties: { userId: { type: 'string' } } } }),
     })

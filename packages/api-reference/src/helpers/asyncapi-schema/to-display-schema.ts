@@ -14,7 +14,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
         'Recursive reference',
         'Optional (explicit presence)',
         'Optional (implicit presence)',
-      ].includes(detail),
+      ].includes(detail) && !(node.type.startsWith('enum ') && detail.startsWith('Symbols: ')),
   )
   const presence = node.details?.includes('Optional (explicit presence)')
     ? 'explicit'
@@ -25,8 +25,6 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
   const description = [node.description, ...details, ...(mapKey ? [`Map keys: ${mapKey}`] : [])]
     .filter(Boolean)
     .join('\n\n')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
   const common = {
     ...(presence ? { [protobufPresence]: presence } : {}),
     ...(node.details?.includes('Recursive reference')
@@ -87,7 +85,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
       children
         .map((child) => {
           const text = [child.description?.trim(), ...(child.details ?? [])].filter(Boolean).join('\n\n')
-          return text ? `${child.name}: ${text}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;') : ''
+          return text ? `${child.name}: ${text}` : ''
         })
         .filter(Boolean)
         .join('\n\n'),

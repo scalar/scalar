@@ -17,7 +17,15 @@ import {
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  ref,
+  useId,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
@@ -36,7 +44,6 @@ import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
-import SchemaLanguage from './SchemaLanguage.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -69,6 +76,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+// Native schema readers are only needed when a non-JSON Schema is displayed.
+const SchemaLanguage = defineAsyncComponent(
+  () => import('./SchemaLanguage.vue'),
+)
 
 const instanceId = useId()
 const renderedId = computed(() => (inline ? `reply-${instanceId}` : message.id))

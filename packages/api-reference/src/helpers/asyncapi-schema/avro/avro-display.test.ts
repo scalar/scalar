@@ -44,7 +44,6 @@ describe('avro-display', () => {
       type: 'string',
       format: 'enum E',
       enum: ['ON', 'OFF'],
-      description: 'Symbols: ON, OFF',
     })
     expect(toDisplaySchema(readAvro({ type: 'enum', name: 'Empty', symbols: [] }).nodes[0]!).enum).toStrictEqual([])
   })
