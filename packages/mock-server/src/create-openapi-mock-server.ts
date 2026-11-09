@@ -1,6 +1,5 @@
 import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { type Context, Hono, type MiddlewareHandler } from 'hono'
 import { every } from 'hono/combine'
@@ -14,6 +13,12 @@ import { handleAuthentication } from '@/utils/handle-authentication'
 import { honoRouteFromPath } from '@/utils/hono-route-from-path'
 import { isAuthenticationRequired } from '@/utils/is-authentication-required'
 import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions'
+import {
+  type MockedOperation,
+  getMatchedOperation,
+  getMockedOperation,
+  setMockedOperation,
+} from '@/utils/mocked-operation'
 import { comparePathSpecificity, getPathSpecificity } from '@/utils/path-specificity'
 import type { ProcessedDocument } from '@/utils/process-document'
 import { requestMatchesPinnedQuery } from '@/utils/request-matches-pinned-query'
@@ -26,47 +31,6 @@ import { store } from './libs/store'
 import { mockAnyResponse } from './routes/mock-any-response'
 import { mockHandlerResponse } from './routes/mock-handler-response'
 import { respondWithOpenApiDocument } from './routes/respond-with-openapi-document'
-
-/** The operation a route mocks, used to name what failed in an error response */
-type MockedOperation = {
-  /** HTTP method with the capitalization sent in the request, for example `GET` or `copy` */
-  method: string
-  /** The OpenAPI path key, for example `/pets/{petId}` (not the Hono route it is registered as) */
-  path: string
-  /** The `operationId` of the operation, when the document declares one */
-  operationId?: string
-}
-
-/**
- * Context variables the mock server sets on a request, so the error handler can read back which
- * operation was being mocked when something threw.
- *
- * The app itself stays a plain `Hono` because that type is part of this package's public API, so
- * the variable is reached through a narrowed view of the context instead.
- */
-type MockServerContext = Context<{
-  Variables: { mockedOperation: MockedOperation; matchedOperation: OpenAPIV3_1.OperationObject }
-}>
-
-/**
- * Record which operation a request matched, so an error escaping it can be named and `onResponse`
- * receives the operation object itself.
- */
-const setMockedOperation = (
-  c: Context,
-  mockedOperation: MockedOperation,
-  operation: OpenAPIV3_1.OperationObject,
-): void => {
-  ;(c as MockServerContext).set('mockedOperation', mockedOperation)
-  ;(c as MockServerContext).set('matchedOperation', operation)
-}
-
-/** Read back the operation a request matched, or `undefined` when it reached no mocked route */
-const getMockedOperation = (c: Context): MockedOperation | undefined => (c as MockServerContext).get('mockedOperation')
-
-/** Read back the operation object a request matched, or `undefined` when it reached no mocked route */
-const getMatchedOperation = (c: Context): OpenAPIV3_1.OperationObject | undefined =>
-  (c as MockServerContext).get('matchedOperation')
 
 /**
  * Make `response` the response of the request, keeping only the headers that were staged before the
