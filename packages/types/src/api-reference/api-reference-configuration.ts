@@ -169,6 +169,8 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     ])
     .optional(),
   /** Determine the HTTP client that's selected by default */
+  // The custom branch widens the inferred type only; the permissive first branch
+  // already accepts custom keys at runtime.
   defaultHttpClient: z
     .union([
       z.object({

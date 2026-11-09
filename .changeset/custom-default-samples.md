@@ -1,5 +1,5 @@
 ---
-"@scalar/api-reference": patch
+"@scalar/api-reference": minor
 "@scalar/types": minor
 "@scalar/schemas": minor
 ---

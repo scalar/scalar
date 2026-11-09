@@ -21,7 +21,7 @@ export const mapConfigToWorkspaceStore = ({
       if (newValue) {
         const { targetKey, clientKey } = newValue
 
-        const clientId = `${targetKey}/${clientKey}`
+        const clientId = `${targetKey}/${targetKey === 'custom' ? clientKey.toLowerCase() : clientKey}`
         if (isSelectedClient(clientId)) {
           store.update('x-scalar-default-client', clientId)
         }

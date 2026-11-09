@@ -141,7 +141,8 @@ export const apiReferenceConfigurationSchema = intersection([
       // The keys stay permissive strings at runtime, so `coerce` leaves an unknown value
       // untouched (a union of literal client names would rewrite it). The cast only tightens
       // the type, so config authors get autocomplete and an error on typos like the display
-      // title 'Fetch' (the client id is the lowercase 'fetch').
+      // title 'Fetch' (the client id is the lowercase 'fetch'). The custom branch widens
+      // the inferred type only; the first branch already accepts custom keys at runtime.
       union([
         object({
           targetKey: string() as unknown as LiteralSchema<TargetId>,
