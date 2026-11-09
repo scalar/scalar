@@ -95,6 +95,8 @@ describe('color-picker', () => {
   it('updates edit positions after the document changes', () => {
     const editor = createEditor('a { color: #ff0000; }')
     editor.dispatch({ changes: { from: 0, insert: '/* prefix */ ' } })
+    // Document edits can also yield parsing before the swatch is rebuilt.
+    expect(forceParsing(editor, editor.state.doc.length, 1000)).toBe(true)
     changeColor(editor, '#00ff00')
     expect(editor.state.doc.toString()).toBe('/* prefix */ a { color: #00ff00; }')
   })
