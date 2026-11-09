@@ -123,9 +123,9 @@ describe('generate', () => {
   })
 
   it.each([
-    { flags: [], writesMarkdown: true },
-    { flags: ['--no-markdown-output'], writesMarkdown: false },
-  ])('controls Markdown regeneration with $flags', async ({ flags, writesMarkdown }) => {
+    { flags: [], expectedMarkdown: expect.stringContaining('Imports are easier') },
+    { flags: ['--no-markdown-output'], expectedMarkdown: 'Existing Markdown' },
+  ])('controls Markdown regeneration with $flags', async ({ flags, expectedMarkdown }) => {
     process.env.INIT_CWD = import.meta.dirname
     const { changelogPath, outputPath } = await createTemporaryPackage()
     const markdownPath = outputPath.replace('.json', '.md')
@@ -157,12 +157,7 @@ describe('generate', () => {
 
     expect(await readFile(outputPath, 'utf-8')).toContain('Imports are easier')
     const markdown = await readFile(markdownPath, 'utf-8')
-    if (writesMarkdown) {
-      expect(markdown).toContain('Imports are easier')
-      expect(markdown).not.toContain('Existing Markdown')
-    } else {
-      expect(markdown).toBe('Existing Markdown')
-    }
+    expect(markdown).toEqual(expectedMarkdown)
   })
 
   describe('--no-pull-request-context', () => {
