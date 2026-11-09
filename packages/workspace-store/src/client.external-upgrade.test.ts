@@ -1,5 +1,5 @@
 import { getActiveOpenApiDocument } from '@test/helpers'
-import { describe, expect, it } from 'vitest'
+import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
@@ -55,6 +55,61 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it.each(['', 'constructor', 'prototype'])('upgrades an external schema for property "%s"', async (name) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response('{"type":"string","nullable":true}')),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        components: {
+          schemas: {
+            Box: { type: 'object', properties: { [name]: { $ref: 'https://example.test/field.json' } } },
+          },
+        },
+      },
+    })
+
+    const document = getActiveOpenApiDocument(store)
+    const box = getResolvedRef(document?.components?.schemas?.Box)
+    assert(box && 'properties' in box)
+    expect(Object.keys(box?.properties ?? {})).toStrictEqual([name])
+    expect(getResolvedRef(box?.properties?.[name])).toStrictEqual({ type: ['string', 'null'] })
+  })
+
+  it.each([
+    ['Child', 'Parent'],
+    ['Parent', 'Child'],
+  ])('preserves literal examples when referencing %s before %s', async (first, second) => {
+    const store = createWorkspaceStore()
+    const literal = { type: 'string', nullable: true }
+    const data = { Parent: { type: 'object', properties: { Child: { type: 'object', example: literal } } } }
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response(JSON.stringify(data))),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        components: {
+          schemas: Object.fromEntries(
+            [first, second].map((name) => [
+              name,
+              { $ref: `https://example.test/shared.json#/Parent${name === 'Child' ? '/properties/Child' : ''}` },
+            ]),
+          ),
+        },
+      },
+    })
+
+    const document = getActiveOpenApiDocument(store)
+    const child = getResolvedRef(document?.components?.schemas?.Child)
+    const parent = getResolvedRef(document?.components?.schemas?.Parent)
+    assert(parent && 'properties' in parent)
+    expect(child).toStrictEqual({ type: 'object', examples: [literal] })
+    expect(getResolvedRef(parent?.properties?.Child)).toStrictEqual(child)
+  })
+
   it('upgrades a complete OpenAPI 3.0 document next to an OpenAPI 3.0 entry document', async () => {
     const name = await getNameSchema('3.0.3', 'https://example.test/schemas/Item.json#/components/schemas/Item')
 

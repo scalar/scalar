@@ -1,6 +1,7 @@
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
+import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import {
   type LoaderPlugin,
@@ -32,9 +33,12 @@ export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown, path
   if (path?.length) {
     // The upgrader distinguishes schema examples from Parameter/Media Type examples and literal
     // Example Object payloads by their path. A synthetic schema would lose that distinction.
+    // Only OpenAPI keywords matter here. Substitute user-defined names that the safe setter
+    // rejects or skips in this temporary wrapper, without changing the actual document's keys.
+    const contextPath = path.map((key) => (!key || isPollutionKey(key) ? 'fragment' : key))
     const document: Record<string, unknown> = { openapi: entryVersion }
-    setValueAtPath(document, path, data)
-    return getValueAtPath(upgrade(document, '3.1'), [...path])
+    setValueAtPath(document, contextPath, data)
+    return getValueAtPath(upgrade(document, '3.1'), contextPath)
   }
 
   if ('paths' in data || 'components' in data || 'webhooks' in data) {
@@ -61,6 +65,7 @@ export const upgradeLoaders = (
 ): Plugin[] => {
   const fragments = new WeakSet<object>()
   const paths = new WeakMap<object, readonly string[]>()
+  const convertedNodes = new WeakSet<object>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
   const indexNodes = (value: unknown, path?: readonly string[]): void => {
@@ -84,14 +89,55 @@ export const upgradeLoaders = (
     // Mark the path before following cached edges so cyclic references terminate. Walk the existing
     // children first: their resolver callbacks would otherwise be lost when the upgrader clones them.
     indexNodes(target, path)
-    const upgraded = upgradeLoadedDocument(target, entryVersion, path)
+    // A descendant may already have been referenced and converted independently. Hide converted
+    // subtrees behind opaque tokens so the recursive 3.0 upgrader cannot reinterpret their 3.1 data.
+    // Restore their original identities afterward to retain the bundler's cached reference targets.
+    const replacements = new Map<symbol, object>()
+    const cloneCache = new WeakMap<object, unknown>()
+    const visited = new WeakSet<object>()
+    const protectConverted = (value: unknown): void => {
+      if (value === null || typeof value !== 'object' || visited.has(value)) {
+        return
+      }
+      visited.add(value)
+      if (convertedNodes.has(value)) {
+        const token = Symbol()
+        replacements.set(token, value)
+        cloneCache.set(value, token)
+        return
+      }
+      Object.values(value).forEach(protectConverted)
+    }
+    protectConverted(target)
+    const input = replacements.size ? deepClone(target, cloneCache) : target
+    const upgraded = upgradeLoadedDocument(input, entryVersion, path)
     if (!isObject(upgraded) || upgraded === target) {
       return
     }
+    const restoreConverted = (value: unknown): unknown => {
+      if (typeof value === 'symbol' && replacements.has(value)) {
+        return replacements.get(value)
+      }
+      if (value === null || typeof value !== 'object' || convertedNodes.has(value)) {
+        return value
+      }
+      convertedNodes.add(value)
+      for (const [key, child] of Object.entries(value)) {
+        Object.defineProperty(value, key, {
+          value: restoreConverted(child),
+          enumerable: true,
+          configurable: true,
+          writable: true,
+        })
+      }
+      return value
+    }
+    restoreConverted(upgraded)
     for (const key of Object.keys(target)) {
       delete target[key]
     }
     Object.assign(target, upgraded)
+    convertedNodes.add(target)
     for (const [key, child] of Object.entries(target)) {
       indexNodes(child, [...path, key])
     }

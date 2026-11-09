@@ -60,6 +60,71 @@ describe('upgrade-loaders', () => {
     expect(result).toEqual({ components: { schemas: { Item: { type: ['string', 'null'] } } } })
   })
 
+  it.each(['', 'constructor', 'prototype', '__proto__'])('upgrades a fragment at property name "%s"', (name) => {
+    expect(
+      upgradeLoadedDocument({ type: 'string', nullable: true }, '3.0.3', [
+        'components',
+        'schemas',
+        'Item',
+        'properties',
+        name,
+      ]),
+    ).toStrictEqual({ type: ['string', 'null'] })
+  })
+
+  it.each([
+    { order: ['Child', 'Parent'], childPath: ['properties', 'Child'] },
+    { order: ['Parent', 'Child'], childPath: ['properties', 'Child'] },
+    { order: ['Child', 'Parent'], childPath: ['allOf', '0'] },
+    { order: ['Parent', 'Child'], childPath: ['allOf', '0'] },
+  ])('preserves overlapping fragments in order $order at $childPath', async ({ order, childPath }) => {
+    const literal = { type: 'string', nullable: true, example: 'payload' }
+    const child = { type: 'object', example: literal }
+    const parent = {
+      type: 'object',
+      nullable: true,
+      ...(childPath[0] === 'allOf' ? { allOf: [child] } : { properties: { Child: child } }),
+    }
+    const data = { Parent: parent }
+    const loads: string[] = []
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (url) => {
+        loads.push(url)
+        return Promise.resolve({ ok: true, raw: JSON.stringify(data), data })
+      },
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: Object.fromEntries(
+          order.map((name) => [
+            name,
+            { $ref: `https://example.test/shared.json#/Parent${name === 'Child' ? `/${childPath.join('/')}` : ''}` },
+          ]),
+        ),
+      },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const resolve = (name: string): unknown =>
+      getValueAtPath(document, parseJsonPointerSegments(document.components.schemas[name]!.$ref.slice(1)))
+    const resolvedParent = resolve('Parent')
+    expect(resolve('Child')).toStrictEqual({ type: 'object', examples: [literal] })
+    expect(getValueAtPath(resolvedParent, childPath)).toBe(resolve('Child'))
+    expect(resolvedParent).toStrictEqual({
+      type: ['object', 'null'],
+      ...(childPath[0] === 'allOf'
+        ? { allOf: [{ type: 'object', examples: [literal] }] }
+        : { properties: { Child: { type: 'object', examples: [literal] } } }),
+    })
+    expect(loads).toStrictEqual(['https://example.test/shared.json'])
+    expect(data.Parent).toStrictEqual(parent)
+    expect(child).toStrictEqual({ type: 'object', example: literal })
+  })
+
   it('does not touch fragments of entry documents that are not OpenAPI 3.0', () => {
     const input = { type: 'string', nullable: true }
 
