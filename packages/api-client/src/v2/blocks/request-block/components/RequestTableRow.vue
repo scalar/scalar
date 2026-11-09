@@ -4,6 +4,7 @@ import { ScalarIcon } from '@scalar/components/icon'
 import { ScalarIconButton } from '@scalar/components/icon-button'
 import { ScalarIconGlobe, ScalarIconTrash } from '@scalar/icons'
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { unpackProxyObject } from '@scalar/workspace-store/helpers/unpack-proxy'
 import { resolve } from '@scalar/workspace-store/resolve'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
@@ -14,7 +15,6 @@ import type {
 import { computed, ref, useTemplateRef, watch } from 'vue'
 
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
-import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
 import { validateParameter } from '@/v2/blocks/request-block/helpers/validate-parameter'
 import { CodeInputLite } from '@/v2/components/code-input'
 import {

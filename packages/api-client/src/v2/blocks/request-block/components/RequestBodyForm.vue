@@ -72,13 +72,6 @@ watch(
 /** Undeclared fields follow additionalProperties instead of losing uploads whenever a schema exists. */
 const allowUnknownFileUploads = computed<boolean>(() => {
   const schema = resolveFormSchema(bodySchema, compositionSelection)
-  if (
-    schema &&
-    'properties' in schema &&
-    Object.keys(schema.properties ?? {}).length
-  ) {
-    return false
-  }
   const additional =
     schema && 'additionalProperties' in schema
       ? schema.additionalProperties

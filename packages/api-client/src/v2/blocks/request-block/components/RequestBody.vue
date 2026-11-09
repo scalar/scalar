@@ -39,10 +39,6 @@ import { computed, ref, watch } from 'vue'
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestBodyForm from '@/v2/blocks/request-block/components/RequestBodyForm.vue'
 import RequestBodyMultipart from '@/v2/blocks/request-block/components/RequestBodyMultipart.vue'
-import {
-  parseMultipartBody,
-  type MultipartBodyValue,
-} from '@/v2/blocks/request-block/helpers/multipart-body'
 import RequestBodyStructured from '@/v2/blocks/request-block/components/RequestBodyStructured.vue'
 import RequestBodyViewToggle from '@/v2/blocks/request-block/components/RequestBodyViewToggle.vue'
 import { getFileName } from '@/v2/blocks/request-block/helpers/files'
@@ -50,6 +46,10 @@ import {
   getFormBodyRows,
   getFormBodyValue,
 } from '@/v2/blocks/request-block/helpers/get-form-body-rows'
+import {
+  parseMultipartBody,
+  type MultipartBodyValue,
+} from '@/v2/blocks/request-block/helpers/multipart-body'
 import { getStructuredBodyCodec } from '@/v2/blocks/request-block/helpers/structured-body-codec'
 import { CodeInput } from '@/v2/components/code-input'
 import {

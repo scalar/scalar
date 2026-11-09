@@ -129,6 +129,34 @@ describe('RequestBodyForm', () => {
     wrapper.unmount()
   })
 
+  it.each<[boolean | SchemaObject | undefined, boolean]>([
+    [undefined, true],
+    [true, true],
+    [false, false],
+    [{ type: 'string' }, false],
+    [{ type: 'string', format: 'binary' }, true],
+  ])('applies additionalProperties %j to both named extras and the blank row', (additionalProperties, canUpload) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { title: 'Photo', extra: '' } },
+        bodySchema: { type: 'object', properties: { title: { type: 'string' } }, additionalProperties },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(
+      wrapper.findAllComponents(RequestTableRow).map((row) => ({
+        name: row.props('data').name,
+        canUpload: row.findAll('button').some((button) => button.text() === 'Select File'),
+      })),
+    ).toStrictEqual([
+      { name: 'title', canUpload: false },
+      { name: 'extra', canUpload },
+      { name: '', canUpload },
+    ])
+    wrapper.unmount()
+  })
+
   it('disables unknown uploads for closed and text-only additional properties', () => {
     for (const additionalProperties of [false, { type: 'string' }] as const) {
       const wrapper = mount(RequestBodyForm, {
@@ -145,7 +173,7 @@ describe('RequestBodyForm', () => {
   })
 
   it.each([
-    ['multipart/form-data', ['image', 'files', 'nullableFiles', 'composedFile']],
+    ['multipart/form-data', ['image', 'files', 'nullableFiles', 'composedFile', '']],
     ['application/x-www-form-urlencoded', []],
   ])('offers file controls only on supported fields for %s', (selectedContentType, expected) => {
     const wrapper = mount(RequestBodyForm, {
@@ -199,11 +227,26 @@ describe('RequestBodyForm', () => {
         environment: defaultEnvironment,
       },
     })
-    expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 1 } })
-    expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(1)
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(1)
     await wrapper.setProps({ compositionSelection: { [selectionKey]: 0 } })
-    expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
     wrapper.unmount()
   })
 
@@ -239,7 +282,12 @@ describe('RequestBodyForm', () => {
         { name: 'image', value: undefined, isDisabled: false },
       ],
     ])
-    expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(1)
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[1]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(1)
     wrapper.unmount()
   })
 
@@ -254,7 +302,12 @@ describe('RequestBodyForm', () => {
     })
     const remove = wrapper.findAll('button').find((button) => button.text() === 'Delete')!
     await remove.trigger('click')
-    expect(wrapper.findAll('button').filter((button) => button.text() === 'Select File').length).toBe(0)
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
     wrapper.unmount()
   })
 
@@ -301,7 +354,6 @@ describe('RequestBodyForm', () => {
             type: 'object',
             properties: {
               files: { type: 'array', items: { type: 'string', format: 'binary' } },
-
               tags: { type: 'array', items: { type: 'string' } },
             },
           },
