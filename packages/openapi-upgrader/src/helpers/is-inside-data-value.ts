@@ -2,10 +2,11 @@
 // arbitrary names (property names, definition names), never schema keywords.
 const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
 
-/** Identify reusable-object names so their spelling cannot turn them into schema keywords. */
-const isReusableObjectName = (path: readonly string[], index: number): boolean =>
+/** Identify response, parameter, and header names so their spelling cannot turn them into schema keywords. */
+const isOpenApiObjectName = (path: readonly string[], index: number): boolean =>
   (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
-  (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters'))
+  (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters')) ||
+  (path[index - 1] === 'headers' && !isNamedSchemaMap(path.slice(0, index - 1)))
 
 /**
  * Determine if the node at `path` is a map of named subschemas rather than a schema object.
@@ -17,7 +18,7 @@ const isReusableObjectName = (path: readonly string[], index: number): boolean =
 export function isNamedSchemaMap(path: string[] | undefined): boolean {
   const last = path?.[path.length - 1]
 
-  if (!path || last === undefined || isReusableObjectName(path, path.length - 1)) {
+  if (!path || last === undefined || isOpenApiObjectName(path, path.length - 1)) {
     return false
   }
 
@@ -58,9 +59,9 @@ export function isInsideDataValue(path: string[] | undefined): boolean {
   }
 
   for (const [index, segment] of path.entries()) {
-    // Reusable response and parameter names are arbitrary, just like schema names.
+    // Response, parameter, and header names are arbitrary, just like schema names.
     // Match their document locations so nested data keywords still protect payloads.
-    if (isReusableObjectName(path, index)) {
+    if (isOpenApiObjectName(path, index)) {
       continue
     }
 

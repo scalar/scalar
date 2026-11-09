@@ -44,6 +44,14 @@ describe('isInsideDataValue', () => {
     },
   )
 
+  it('distinguishes header names from data on schema properties named headers', () => {
+    const header = ['paths', '/items', 'get', 'responses', '200', 'headers', 'x-example']
+    expect(isInsideDataValue([...header, 'schema'])).toBe(false)
+    expect(isInsideDataValue([...header, 'example'])).toBe(true)
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'example'])).toBe(true)
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'x-example'])).toBe(true)
+  })
+
   it('preserves data keywords on schema properties named like reusable maps', () => {
     expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'parameters', 'example'])).toBe(true)
     expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'responses', 'default'])).toBe(true)
