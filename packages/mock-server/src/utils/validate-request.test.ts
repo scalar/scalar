@@ -1357,7 +1357,7 @@ describe('validate-request', () => {
     })
   })
   describe('read-only properties', () => {
-    const postPet = async (schemas: Record<string, unknown>, body: unknown) => {
+    const postPet = async (schemas: Record<string, unknown>, body: unknown): Promise<Response> => {
       const document = {
         openapi: '3.1.0',
         info: { title: 'Validation', version: '1.0.0' },
@@ -1407,6 +1407,37 @@ describe('validate-request', () => {
       }
 
       expect((await postPet(schemas, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+    })
+
+    it('accepts read-only properties composed through allOf', async () => {
+      const schema = {
+        ...pet,
+        properties: { ...pet.properties, id: { allOf: [{ type: 'integer', readOnly: true }] } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+    })
+
+    it('accepts read-only requirements in dependentSchemas', async () => {
+      const schema = { ...pet, dependentSchemas: { name: { required: ['id', 'tag'] } } }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(422)
+    })
+
+    it('preserves conditional branch selection for omitted read-only properties', async () => {
+      const schema = {
+        ...pet,
+        if: { required: ['id'] },
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then to define the matching conditional branch.
+        then: { required: ['id', 'audit'] },
+        else: { required: ['id', 'draft'] },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', draft: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', audit: true })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', audit: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', draft: true })).status).toBe(422)
     })
 
     it('still requires the other properties', async () => {
