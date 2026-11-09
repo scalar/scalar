@@ -39,7 +39,7 @@ export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
 
-export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: false }
+export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: false; status?: number }
 
 /**
  * Resolves a string by finding and executing the appropriate plugin.
