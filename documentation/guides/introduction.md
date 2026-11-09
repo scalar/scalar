@@ -69,9 +69,9 @@ For two decades we obsessed over purpose-built interfaces. Every product earned 
 
 <div class="hl-essay">
 
-Now the interface people reach for first is a chat box. There is nothing to learn and it fits every job: ask for the issues still open before Thursday, the emails that need a reply or a free half hour with your team, and the answer comes back in the conversation, often as a small piece of the interface you used to open. The interface that matters now is the one an agent can use: your API, and the documentation that explains it.
+Now the interface people reach for first is a chat box. There is nothing to learn: ask for the issues still open before Thursday, and the answer comes back in the conversation. The interface that matters is the one an agent can use: your API, and the documentation that explains it.
 
-The internet already has a name for this: going headless. The word used to mean a CMS or a storefront with its front end taken off, an API carrying the content to whatever screen asked for it. Now people say it about software as a whole. Products ship an MCP server beside their app, docs sites publish an `llms.txt` for the agents that read them, and product teams have started to ask what their product is when nobody opens it.
+The internet already has a name for this: going headless. Products ship an MCP server beside their app, and product teams have started to ask what their product is when nobody opens it.
 
 </div>
 
@@ -79,11 +79,11 @@ The internet already has a name for this: going headless. The word used to mean 
 
 ## Scalar gets your product into the chat box
 
-When the interface is a prompt, an agent does the work your interface used to do, through your API. Scalar gives it what it needs from the OpenAPI document you already maintain: documentation it can read, and an MCP server it can call.
+Scalar gives an agent what it needs from the OpenAPI document you already maintain: documentation it can read, and an MCP server it can call.
 
-First, an agent has to understand your product. Agents read docs the way developers do, except they want Markdown, not a rendered page. Scalar serves both from one source, so agents get your API right the first time. Every page is also served as Markdown, with an `llms.txt` and a Docs MCP endpoint, while the people still reading in a browser get your domain, your theme, and access groups for partner portals. Under it all is an open source core with 15.7k GitHub stars and eight framework integrations.
+First, an agent has to understand your product. It wants Markdown, not a rendered page, so Scalar serves both from one source, along with an `llms.txt`. Under it all is an open source core with 15.7k GitHub stars and eight framework integrations.
 
-Then your users' agents act on it directly, with no code at all. Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, which is not yours to run, and any API fits in a fixed tool set of about 0.2% of context.
+Then your users' agents act on it, with no code at all. Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, and any API fits in a fixed tool set of about 0.2% of context.
 
 </div>
 
