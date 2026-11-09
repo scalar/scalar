@@ -1,6 +1,7 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -504,6 +505,125 @@ const getDiscriminatorSelectionIndex = (
   return fallbackIndex >= 0 ? fallbackIndex : undefined
 }
 
+const COMPONENT_SCHEMA_PREFIX = '#/components/schemas/'
+
+/**
+ * Find the discriminator value that selects `variant`: the explicit mapping key that targets it,
+ * or the component name, which is the implicit mapping.
+ */
+const getDiscriminatorTag = (
+  discriminator: NonNullable<SchemaObject['discriminator']>,
+  variant: NonNullable<SchemaObject['oneOf']>[number],
+): string | undefined => {
+  if (!('$ref' in variant) || typeof variant.$ref !== 'string') {
+    return undefined
+  }
+  const reference = variant.$ref
+  const componentName = reference.startsWith(COMPONENT_SCHEMA_PREFIX)
+    ? unescapeJsonPointer(reference.slice(COMPONENT_SCHEMA_PREFIX.length))
+    : undefined
+  const mapped = Object.entries(discriminator.mapping ?? {}).find(
+    ([, target]) => target === reference || target === componentName,
+  )
+  return mapped?.[0] ?? componentName
+}
+
+/** Preserve authored or intentionally omitted values while following the same composition choices as generation. */
+const hasPreservedDiscriminatorValue = (
+  schema: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  propertyName: string | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object> = new Set(),
+  level: number = 0,
+): boolean => {
+  const resolved = schema && resolve.schema(schema)
+  if (!resolved || level > MAX_LEVELS_DEEP) {
+    return false
+  }
+  if (propertyName === undefined && shouldOmitProperty(resolved, undefined, undefined, { mode: options?.mode })) {
+    return true
+  }
+  const target = getSchemaCacheTarget(resolved)
+  if (seen.has(target)) {
+    return false
+  }
+  const nextSeen = new Set(seen).add(target)
+  const variable = resolved['x-variable']
+  const value =
+    variable && options?.variables?.[variable] !== undefined ? options.variables[variable] : getDeclaredValue(resolved)
+  if (value !== undefined) {
+    return (
+      propertyName === undefined || (value !== null && typeof value === 'object' && Object.hasOwn(value, propertyName))
+    )
+  }
+  if (propertyName !== undefined && 'properties' in resolved) {
+    const property = resolved.properties?.[propertyName]
+    const resolvedProperty = property && resolve.schema(property)
+    if (resolvedProperty && shouldOmitProperty(resolvedProperty, resolved, propertyName, options)) {
+      return true
+    }
+    if (
+      hasPreservedDiscriminatorValue(property, undefined, options, [...schemaPath, propertyName], nextSeen, level + 1)
+    ) {
+      return true
+    }
+  }
+  const anyOfKeyword = resolved.anyOf ? 'anyOf' : undefined
+  const keyword = resolved.oneOf ? 'oneOf' : anyOfKeyword
+  if (keyword) {
+    const selected = selectExampleComposition(resolved, schemaPath, options)
+    return hasPreservedDiscriminatorValue(
+      selected,
+      propertyName,
+      consumeCompositionSelection(options, schemaPath, keyword),
+      schemaPath,
+      nextSeen,
+      level + 1,
+    )
+  }
+  let choiceIndex = 0
+  return (
+    resolved.allOf?.some((member) => {
+      const resolvedMember = resolve.schema(member)
+      const isChoice = !!resolvedMember && !!(resolvedMember.oneOf || resolvedMember.anyOf)
+      const memberPath = isChoice ? [...schemaPath, String(choiceIndex++)] : schemaPath
+      return hasPreservedDiscriminatorValue(member, propertyName, options, memberPath, nextSeen, level + 1)
+    }) ?? false
+  )
+}
+
+/**
+ * Write the selected variant's discriminator value into the example. Without it the example
+ * carries an empty tag and a server cannot tell which variant it is. Declared values win, and a
+ * `defaultMapping` means the property may be omitted, so selection alone decides the variant there.
+ */
+const withDiscriminatorTag = (
+  schema: SchemaObject,
+  variant: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  example: unknown,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): unknown => {
+  const discriminator = schema.discriminator
+  if (
+    !discriminator ||
+    discriminator.defaultMapping !== undefined ||
+    !variant ||
+    options?.xml ||
+    !example ||
+    typeof example !== 'object' ||
+    Array.isArray(example)
+  ) {
+    return example
+  }
+  if (hasPreservedDiscriminatorValue(schema, discriminator.propertyName, options, schemaPath)) {
+    return example
+  }
+  const tag = getDiscriminatorTag(discriminator, variant)
+  return tag === undefined ? example : { ...example, [discriminator.propertyName]: tag }
+}
+
 /**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
@@ -656,6 +776,7 @@ const handleObjectSchema = (
           dynamicScope: childScope,
         }),
       )
+      Object.assign(response, withDiscriminatorTag(schema, chosen, response, options, schemaPath))
     }
   }
   // allOf — thread a choice-ordinal into schemaPath for each direct oneOf/anyOf
@@ -794,7 +915,8 @@ const handleArraySchema = (
       if (ex === undefined) {
         return undefined
       }
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+      const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
+      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: tagged }] : [tagged], cacheKey, skipCache)
     }
   }
 
@@ -1388,12 +1510,18 @@ const generateExampleFromSchema = (
         seen.delete(targetValue)
         return cache(
           _schema,
-          getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
-            level: level + 1,
+          withDiscriminatorTag(
+            _schema,
+            candidate,
+            getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
+              level: level + 1,
+              schemaPath,
+              seen,
+              dynamicScope: childScope,
+            }),
+            options,
             schemaPath,
-            seen,
-            dynamicScope: childScope,
-          }),
+          ),
           cacheKey,
           skipCache,
         )

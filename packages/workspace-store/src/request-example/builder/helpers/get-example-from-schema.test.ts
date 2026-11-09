@@ -284,6 +284,213 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema, { variables: { petKind: 'Cat' } })).toStrictEqual([{ result: 'Cat' }])
   })
 
+  describe('discriminator values', () => {
+    const pet = {
+      type: 'object',
+      required: ['petType'],
+      properties: { petType: { type: 'string' }, name: { type: 'string', example: 'Rex' } },
+    }
+    const variant = (
+      name: string,
+      extra: Record<string, unknown>,
+      petType: Record<string, unknown> = {},
+    ): Record<string, unknown> => ({
+      $ref: '#/components/schemas/' + name,
+      '$ref-value': {
+        allOf: [
+          { $ref: '#/components/schemas/Pet', '$ref-value': pet },
+          { type: 'object', properties: { ...extra, ...(Object.keys(petType).length ? { petType } : {}) } },
+        ],
+      },
+    })
+    const cat = variant('Cat', { meow: { type: 'boolean' } })
+    const dog = variant('Dog', { bark: { type: 'boolean' } })
+
+    it.each([
+      {
+        name: 'explicit mapping',
+        discriminator: {
+          propertyName: 'petType',
+          mapping: { cat: '#/components/schemas/Cat', dog: '#/components/schemas/Dog' },
+        },
+        cat: 'cat',
+        dog: 'dog',
+      },
+      {
+        name: 'mapping to a schema name',
+        discriminator: { propertyName: 'petType', mapping: { kitty: 'Cat' } },
+        cat: 'kitty',
+        dog: 'Dog',
+      },
+      { name: 'implicit mapping', discriminator: { propertyName: 'petType' }, cat: 'Cat', dog: 'Dog' },
+    ])('fills the selected variant tag with $name', ({ discriminator, cat: catTag, dog: dogTag }) => {
+      const schema = coerceValue(SchemaObjectSchema, { oneOf: [cat, dog], discriminator })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: catTag, name: 'Rex', meow: true })
+      expect(getExampleFromSchema(schema, { compositionSelection: { oneOf: 1 } })).toStrictEqual({
+        petType: dogTag,
+        name: 'Rex',
+        bark: true,
+      })
+      expect(getExampleFromSchema({ type: 'array', items: schema })).toStrictEqual([
+        { petType: catTag, name: 'Rex', meow: true },
+      ])
+      expect(
+        getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'object', properties: { pet: schema } })),
+      ).toStrictEqual({ pet: { petType: catTag, name: 'Rex', meow: true } })
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: { petType: { type: 'string' } },
+            oneOf: [cat, dog],
+            discriminator,
+          }),
+        ),
+      ).toStrictEqual({ petType: catTag, name: 'Rex', meow: true })
+    })
+
+    it('keeps a declared discriminator value', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [variant('Cat', {}, { type: 'string', example: 'house-cat' })],
+        discriminator: { propertyName: 'petType' },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: 'house-cat', name: 'Rex' })
+    })
+
+    it('leaves inline variants without a tag', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [{ type: 'object', properties: { petType: { type: 'string' } } }],
+        discriminator: { propertyName: 'petType' },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual({ petType: '' })
+    })
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('fills generated discriminator placeholders for %s', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      [composition]: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': { type: 'object', properties: { petType: { type: 'string' } } },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+    const options = { emptyString: 'string', mode: 'read' as const }
+
+    expect(getExampleFromSchema(schema, options)).toStrictEqual({ petType: 'cat' })
+    expect(getExampleFromSchema({ ...schema, type: 'object' }, options)).toStrictEqual({ petType: 'cat' })
+    expect(getExampleFromSchema({ type: 'array', items: schema }, options)).toStrictEqual([{ petType: 'cat' }])
+  })
+
+  it.each([{ const: '' }, { enum: [''] }, { example: '' }, { examples: [''] }, { default: '' }])(
+    'preserves an empty declared discriminator value %j through allOf references',
+    (declaration) => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        oneOf: [
+          {
+            $ref: '#/components/schemas/Cat',
+            '$ref-value': {
+              allOf: [
+                {
+                  $ref: '#/components/schemas/Pet',
+                  '$ref-value': { type: 'object', properties: { petType: { type: 'string', ...declaration } } },
+                },
+              ],
+            },
+          },
+        ],
+        discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+      })
+      const options = { emptyString: 'string' }
+
+      expect(getExampleFromSchema(schema, options)).toStrictEqual({ petType: '' })
+      expect(getExampleFromSchema({ ...schema, type: 'object' }, options)).toStrictEqual({ petType: '' })
+      expect(getExampleFromSchema({ type: 'array', items: schema }, options)).toStrictEqual([{ petType: '' }])
+    },
+  )
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves the selected %s discriminator declaration', (composition) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': {
+            type: 'object',
+            properties: {
+              petType: { type: 'string', [composition]: [{ const: 'house-cat' }, { const: '' }, { type: 'string' }] },
+            },
+          },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual({ petType: 'house-cat' })
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`petType.${composition}`]: 1 } })).toStrictEqual({
+      petType: '',
+    })
+    expect(
+      getExampleFromSchema(schema, { emptyString: 'string', compositionSelection: { [`petType.${composition}`]: 2 } }),
+    ).toStrictEqual({ petType: 'cat' })
+    expect(
+      getExampleFromSchema(
+        { type: 'array', items: schema },
+        { compositionSelection: { [`items.petType.${composition}`]: 1 } },
+      ),
+    ).toStrictEqual([{ petType: '' }])
+    expect(
+      getExampleFromSchema(
+        { type: 'object', properties: { pet: schema } },
+        { compositionSelection: { [`pet.petType.${composition}`]: 1 } },
+      ),
+    ).toStrictEqual({ pet: { petType: '' } })
+  })
+
+  it.each([
+    { property: { readOnly: true }, mode: 'write' as const },
+    { property: { writeOnly: true }, mode: 'read' as const },
+  ])('keeps discriminator omission in $mode mode', ({ property, mode }) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': {
+            allOf: [
+              { type: 'object', properties: { petType: { type: 'string', ...property }, name: { const: 'Milo' } } },
+            ],
+          },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema, { mode })).toStrictEqual({ name: 'Milo' })
+    expect(getExampleFromSchema({ ...schema, type: 'object' }, { mode })).toStrictEqual({ name: 'Milo' })
+    expect(getExampleFromSchema({ type: 'array', items: schema }, { mode })).toStrictEqual([{ name: 'Milo' }])
+    expect(getExampleFromSchema(schema, { mode: mode === 'read' ? 'write' : 'read' })).toStrictEqual({
+      petType: 'cat',
+      name: 'Milo',
+    })
+  })
+
+  it('fills required discriminator properties when optional empty properties are omitted', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      oneOf: [
+        {
+          $ref: '#/components/schemas/Cat',
+          '$ref-value': { type: 'object', required: ['petType'], properties: { petType: { type: 'string' } } },
+        },
+      ],
+      discriminator: { propertyName: 'petType', mapping: { cat: '#/components/schemas/Cat' } },
+    })
+
+    expect(getExampleFromSchema(schema, { omitEmptyAndOptionalProperties: true })).toStrictEqual({ petType: 'cat' })
+  })
+
   it('does not infer discriminator mappings from inline schema titles', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'object',
