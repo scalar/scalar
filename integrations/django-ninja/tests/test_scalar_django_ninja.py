@@ -960,10 +960,17 @@ class TestHtmlEscaping:
 
         parser = ScriptParser()
         parser.feed(response.content.decode())
-        assert len(parser.scripts) == 2
-        initialization = parser.scripts[-1].strip()
+        baseline = ScriptParser()
+        baseline.feed(get_scalar_api_reference(ScalarConfig()).content.decode())
+        assert len(parser.scripts) == len(baseline.scripts)
         prefix = 'Scalar.createApiReference("#app", '
-        assert initialization.startswith(prefix)
+        initializations = [
+            script.strip()
+            for script in parser.scripts
+            if script.strip().startswith(prefix)
+        ]
+        assert len(initializations) == 1
+        initialization = initializations[0]
         assert initialization.endswith(")")
         config_json = initialization[len(prefix) : -1]
         # Also prevent HTML comment/script sequences from changing parser state.
