@@ -1319,6 +1319,26 @@ describe('upgradeFromTwoToThree', () => {
     },
   )
 
+  it.each(['filter', 'properties', 'patternProperties', '$defs', 'definitions'])(
+    'preserves x-example data on a reusable body parameter named %s',
+    (name) => {
+      const entry = { type: 'file' }
+      const schema = { type: 'object', properties: { type: { type: 'string' } } }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Files', version: '1' },
+        paths: {},
+        parameters: {
+          [name]: { in: 'body', name: 'filter', schema, 'x-example': { 'application/json': entry } },
+        },
+      })
+
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: { 'application/json': { schema, example: entry } },
+      })
+    },
+  )
+
   it('transform response headers', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

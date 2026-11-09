@@ -2,6 +2,11 @@
 // arbitrary names (property names, definition names), never schema keywords.
 const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$defs', 'definitions'])
 
+/** Identify reusable-object names so their spelling cannot turn them into schema keywords. */
+const isReusableObjectName = (path: readonly string[], index: number): boolean =>
+  (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
+  (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters'))
+
 /**
  * Determine if the node at `path` is a map of named subschemas rather than a schema object.
  *
@@ -12,7 +17,7 @@ const NAMED_SCHEMA_MAP_SEGMENTS = new Set(['properties', 'patternProperties', '$
 export function isNamedSchemaMap(path: string[] | undefined): boolean {
   const last = path?.[path.length - 1]
 
-  if (last === undefined) {
+  if (!path || last === undefined || isReusableObjectName(path, path.length - 1)) {
     return false
   }
 
@@ -55,10 +60,7 @@ export function isInsideDataValue(path: string[] | undefined): boolean {
   for (const [index, segment] of path.entries()) {
     // Reusable response and parameter names are arbitrary, just like schema names.
     // Match their document locations so nested data keywords still protect payloads.
-    if (
-      (index === 1 && (path[0] === 'responses' || path[0] === 'parameters')) ||
-      (index === 2 && path[0] === 'components' && (path[1] === 'responses' || path[1] === 'parameters'))
-    ) {
+    if (isReusableObjectName(path, index)) {
       continue
     }
 

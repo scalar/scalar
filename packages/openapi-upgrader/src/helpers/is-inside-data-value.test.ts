@@ -31,6 +31,19 @@ describe('isInsideDataValue', () => {
     },
   )
 
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'distinguishes reusable objects named %s from schema maps',
+    (name) => {
+      for (const prefix of [['responses'], ['parameters'], ['components', 'responses'], ['components', 'parameters']]) {
+        const object = [...prefix, name]
+        expect(isNamedSchemaMap(object)).toBe(false)
+        expect(isInsideDataValue([...object, 'x-example', 'application/json'])).toBe(true)
+        expect(isInsideDataValue([...object, 'example'])).toBe(true)
+        expect(isNamedSchemaMap([...object, 'schema', 'properties'])).toBe(true)
+      }
+    },
+  )
+
   it('preserves data keywords on schema properties named like reusable maps', () => {
     expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'parameters', 'example'])).toBe(true)
     expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'responses', 'default'])).toBe(true)
