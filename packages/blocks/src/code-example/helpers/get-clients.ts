@@ -33,7 +33,7 @@ export const getClients = (
     }
 
     // Empty headings retain the source extension's existing default group.
-    const groupLabel = sample.group?.trim() || label
+    const groupLabel = (typeof sample.group === 'string' && sample.group.trim()) || label
     const group = groups.get(groupLabel) ?? { label: groupLabel, key: 'custom', options: [] }
     const optionLabel = sample.label || formatLanguage(sample.lang) || id
     group.options.push({

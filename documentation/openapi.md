@@ -225,7 +225,7 @@ paths:
           source: example-cli pets list
 ```
 
-Groups appear in the order they first occur. Samples without a group, or with a blank group, keep the existing default heading. Grouping does not change sample IDs or the priority between code sample extensions. The same field is supported on `x-scalar-examples`, `x-code-samples`, and `x-custom-examples` entries.
+Groups appear in the order they first occur. Samples without a group, or with a blank group, keep the existing default heading. Grouping does not change IDs of unlinked samples or the priority between code sample extensions. Linked request examples share an ID only when their language, label, and group match. The same field is supported on `x-scalar-examples`, `x-code-samples`, and `x-custom-examples` entries.
 
 ## x-example / x-examples
 

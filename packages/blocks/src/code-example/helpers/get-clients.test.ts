@@ -42,6 +42,25 @@ describe('getClients', () => {
     ])
   })
 
+  it.each([{ group: 42 }, { group: true }, { group: {} }, { group: [] }])(
+    'uses the default heading for a malformed group $group',
+    ({ group }) => {
+      const samples: XCodeSample[] = [
+        // @ts-expect-error Malformed API descriptions can bypass schema validation.
+        { lang: 'shell', label: 'Shell', group, example: 'first', source: 'first' },
+        { lang: 'shell', label: 'Shell', example: 'second', source: 'second' },
+      ]
+
+      expect(getClients(samples, [], 'SDK')).toStrictEqual([
+        {
+          label: 'SDK',
+          key: 'custom',
+          options: [{ id: 'custom/shell', lang: 'shell', title: 'Shell', label: 'Shell', clientKey: 'custom' }],
+        },
+      ])
+    },
+  )
+
   /**
    * Test 1: Verifies that custom code samples are properly transformed and prepended
    * This is critical because it ensures custom examples appear first in the UI
