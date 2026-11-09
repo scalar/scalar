@@ -1210,6 +1210,16 @@ const getCompositionRequiredNames = (
     contexts.add(key)
     visited.set(target, contexts)
 
+    // Requirements behind a dynamic reference constrain the same instance as its composition siblings.
+    // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
+    if (isDynamicRef(current.schema)) {
+      const resolved = resolveDynamicRef(current.schema.$dynamicRef, current.dynamicScope)
+      if (resolved) {
+        pending.push({ ...current, schema: resolved, depth: current.depth + 1 })
+        continue
+      }
+    }
+
     if ('required' in current.schema && Array.isArray(current.schema.required)) {
       for (const name of current.schema.required) {
         names.add(name)
@@ -1596,6 +1606,8 @@ const generateExampleFromSchema = (
         seen: new WeakSet(),
         schemaPath,
         dynamicScope,
+        requiredScope,
+        isRequiredProperty,
       })
     }
   }
@@ -1691,7 +1703,9 @@ const generateExampleFromSchema = (
       seen.delete(targetValue)
 
       // Deliberately not cached: the value holds only at this level, and the cache key carries none.
-      return getMaxDepthValue(_schema, options, schemaPath, undefined, isRequiredProperty ? null : MAX_DEPTH_EXCEEDED)
+      // Constraint-only composition members must not replace a sibling's required fields with the depth marker.
+      const fallback = isRequiredProperty || requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+      return getMaxDepthValue(_schema, options, schemaPath, undefined, fallback)
     }
     requiredSteps--
     // The rendered value omits optional properties, so it holds only at this level and must not be cached.

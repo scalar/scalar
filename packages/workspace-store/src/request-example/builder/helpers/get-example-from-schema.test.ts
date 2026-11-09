@@ -3375,6 +3375,77 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf)).toStrictEqual({ id: 'ok' })
     })
 
+    // Keep raw JSON Schema keywords in these fixtures: coercion drops $defs before dynamic scope can read it.
+    it.each(['object', undefined] as const)(
+      'keeps shared requirements through a dynamic allOf member with type %s',
+      (type) => {
+        const leaf = {
+          type,
+          $defs: {
+            Base: {
+              $dynamicAnchor: 'Base',
+              type: 'object',
+              properties: { id: { const: 'ok' }, optional: { const: 'omitted' } },
+            },
+          },
+          allOf: [{ required: ['id'] }, { $dynamicRef: '#Base' }],
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ id: 'ok' })
+      },
+    )
+
+    it.each(['object', undefined] as const)(
+      'collects requirements from a dynamic allOf member with type %s',
+      (type) => {
+        const leaf = {
+          type,
+          $defs: { Base: { $dynamicAnchor: 'Base', required: ['id'] } },
+          allOf: [{ properties: { id: { const: 'ok' }, optional: { const: 'omitted' } } }, { $dynamicRef: '#Base' }],
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ id: 'ok' })
+      },
+    )
+
+    it('preserves required primitive composition rules through a dynamic reference', () => {
+      const leaf = {
+        type: 'object',
+        $defs: {
+          Value: { $dynamicAnchor: 'Value', oneOf: [{ type: 'string', 'x-variable': 'value' }] },
+          Empty: { $dynamicAnchor: 'Empty' },
+        },
+        required: ['value', 'empty'],
+        properties: { value: { $dynamicRef: '#Value' }, empty: { $dynamicRef: '#Empty' } },
+      }
+
+      expect(
+        deepestNext(
+          getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject), {
+            variables: { value: 'resolved' },
+          }),
+        ),
+      ).toStrictEqual({ value: 'resolved', empty: null })
+    })
+
+    it('bounds recursive dynamic composition while collecting required names', () => {
+      const leaf = {
+        type: 'object',
+        $dynamicAnchor: 'Node',
+        required: ['id'],
+        properties: { id: { const: 'ok' }, optional: { const: 'omitted' } },
+        allOf: [{ $dynamicRef: '#Node' }],
+      }
+
+      expect(
+        deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+      ).toStrictEqual({ id: 'ok' })
+    })
+
     it('keeps a required property whose definition lives in another allOf member', () => {
       const base = { type: 'object', properties: { id: { type: 'string', const: 'ok' }, note: { type: 'string' } } }
       const extension = { required: ['id'] }
