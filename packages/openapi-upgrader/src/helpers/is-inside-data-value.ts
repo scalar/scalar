@@ -44,7 +44,7 @@ function isDefaultResponse(path: string[], index: number): boolean {
 
 // Keywords whose value is arbitrary data rather than a schema. The upgrade rules only make
 // sense for schema keywords, so nothing nested under these may be rewritten.
-const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum', 'x-example'])
+const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum'])
 
 /**
  * Determine if the node at `path` lives inside a data value rather than a schema.
@@ -53,7 +53,7 @@ const DATA_KEYWORDS = new Set(['example', 'default', 'const', 'enum', 'x-example
  * `default` is user data, not a schema. Applying the schema transforms to it would mangle it
  * (turning `nullable: true` into a type array, renaming a nested `x-webhooks`, and so on).
  */
-export function isInsideDataValue(path: string[] | undefined): boolean {
+export function isInsideDataValue(path: string[] | undefined, sourceVersion: '2.0' | '3.0'): boolean {
   if (!path) {
     return false
   }
@@ -67,12 +67,19 @@ export function isInsideDataValue(path: string[] | undefined): boolean {
 
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
-    if (DATA_KEYWORDS.has(segment) && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
+    // Swagger extensions must not classify OpenAPI 3.0 component or callback names as data.
+    const isDataKeyword = DATA_KEYWORDS.has(segment) || (sourceVersion === '2.0' && segment === 'x-example')
+    if (isDataKeyword && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
       return true
     }
 
     // Swagger 2.0 response examples (`responses/<code>/examples/<mime>`) map media types straight to data.
-    if (segment === 'examples' && path[index - 2] === 'responses' && !isNamedSchemaMap(path.slice(0, index - 2))) {
+    if (
+      sourceVersion === '2.0' &&
+      segment === 'examples' &&
+      path[index - 2] === 'responses' &&
+      !isNamedSchemaMap(path.slice(0, index - 2))
+    ) {
       return true
     }
 

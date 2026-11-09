@@ -256,7 +256,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
   // Transform file type to string with binary format
   document = traverse(document, (schema, path) => {
-    if (schema.type === 'file' && !isInsideDataValue(path)) {
+    if (schema.type === 'file' && !isInsideDataValue(path, '2.0')) {
       schema.type = 'string'
       schema.format = 'binary'
     }

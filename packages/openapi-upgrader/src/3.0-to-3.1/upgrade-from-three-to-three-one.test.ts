@@ -4,6 +4,58 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it('upgrades a reusable request body named x-example', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bodies', version: '1' },
+      paths: {},
+      components: {
+        requestBodies: {
+          'x-example': { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+        },
+      },
+    })
+
+    expect(result.components?.requestBodies?.['x-example']).toStrictEqual({
+      content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+    })
+  })
+
+  it('upgrades schemas inside a callback named x-example', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Callbacks', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              'x-example': {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      'x-example': {
+        '{$request.body#/callbackUrl}': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+  })
+
   it.each(['x-example', 'default', 'properties'])(
     'upgrades response headers named %s while preserving their data',
     (name) => {

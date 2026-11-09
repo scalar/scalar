@@ -7,10 +7,10 @@ describe('isInsideDataValue', () => {
     'distinguishes reusable objects named %s from their data values',
     (name) => {
       for (const prefix of [['responses'], ['parameters'], ['components', 'responses'], ['components', 'parameters']]) {
-        expect(isInsideDataValue([...prefix, name, 'schema'])).toBe(false)
-        expect(isInsideDataValue([...prefix, name, 'schema', 'example'])).toBe(true)
-        expect(isInsideDataValue([...prefix, name, 'schema', 'default'])).toBe(true)
-        expect(isInsideDataValue([...prefix, name, 'examples', 'application/json', 'value'])).toBe(true)
+        expect(isInsideDataValue([...prefix, name, 'schema'], '2.0')).toBe(false)
+        expect(isInsideDataValue([...prefix, name, 'schema', 'example'], '2.0')).toBe(true)
+        expect(isInsideDataValue([...prefix, name, 'schema', 'default'], '2.0')).toBe(true)
+        expect(isInsideDataValue([...prefix, name, 'examples', 'application/json', 'value'], '2.0')).toBe(true)
       }
     },
   )
@@ -25,9 +25,9 @@ describe('isInsideDataValue', () => {
       expect(isNamedSchemaMap([...schema, 'properties'])).toBe(true)
       expect(isNamedSchemaMap(property)).toBe(false)
       expect(isNamedSchemaMap([...property, 'properties'])).toBe(true)
-      expect(isInsideDataValue([...property, 'example'])).toBe(true)
-      expect(isInsideDataValue([...property, 'default'])).toBe(true)
-      expect(isInsideDataValue([...property, 'properties', 'example'])).toBe(false)
+      expect(isInsideDataValue([...property, 'example'], '2.0')).toBe(true)
+      expect(isInsideDataValue([...property, 'default'], '2.0')).toBe(true)
+      expect(isInsideDataValue([...property, 'properties', 'example'], '2.0')).toBe(false)
     },
   )
 
@@ -37,8 +37,8 @@ describe('isInsideDataValue', () => {
       for (const prefix of [['responses'], ['parameters'], ['components', 'responses'], ['components', 'parameters']]) {
         const object = [...prefix, name]
         expect(isNamedSchemaMap(object)).toBe(false)
-        expect(isInsideDataValue([...object, 'x-example', 'application/json'])).toBe(true)
-        expect(isInsideDataValue([...object, 'example'])).toBe(true)
+        expect(isInsideDataValue([...object, 'x-example', 'application/json'], '2.0')).toBe(true)
+        expect(isInsideDataValue([...object, 'example'], '2.0')).toBe(true)
         expect(isNamedSchemaMap([...object, 'schema', 'properties'])).toBe(true)
       }
     },
@@ -46,14 +46,32 @@ describe('isInsideDataValue', () => {
 
   it('distinguishes header names from data on schema properties named headers', () => {
     const header = ['paths', '/items', 'get', 'responses', '200', 'headers', 'x-example']
-    expect(isInsideDataValue([...header, 'schema'])).toBe(false)
-    expect(isInsideDataValue([...header, 'example'])).toBe(true)
-    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'example'])).toBe(true)
-    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'x-example'])).toBe(true)
+    expect(isInsideDataValue([...header, 'schema'], '2.0')).toBe(false)
+    expect(isInsideDataValue([...header, 'example'], '2.0')).toBe(true)
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'example'], '2.0')).toBe(true)
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'headers', 'x-example'], '2.0')).toBe(
+      true,
+    )
+  })
+
+  it('limits Swagger-specific data locations to the 2.0 upgrade', () => {
+    const extension = ['parameters', 'Filter', 'x-example', 'application/json']
+    const responseExample = ['paths', '/items', 'get', 'responses', '200', 'examples', 'application/json']
+    expect(isInsideDataValue(extension, '2.0')).toBe(true)
+    expect(isInsideDataValue(extension, '3.0')).toBe(false)
+    expect(isInsideDataValue(responseExample, '2.0')).toBe(true)
+    expect(isInsideDataValue(responseExample, '3.0')).toBe(false)
+    expect(
+      isInsideDataValue(['components', 'requestBodies', 'x-example', 'content', 'application/json', 'schema'], '3.0'),
+    ).toBe(false)
   })
 
   it('preserves data keywords on schema properties named like reusable maps', () => {
-    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'parameters', 'example'])).toBe(true)
-    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'responses', 'default'])).toBe(true)
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'parameters', 'example'], '2.0')).toBe(
+      true,
+    )
+    expect(isInsideDataValue(['components', 'schemas', 'Entry', 'properties', 'responses', 'default'], '2.0')).toBe(
+      true,
+    )
   })
 })
