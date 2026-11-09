@@ -6,9 +6,6 @@ pages outside this reference resolve.
 -->
 # PHP
 
-> [!NOTE]
-> The PHP target is experimental.
-
 Add `php` under `targets` to generate a PHP SDK package.
 
 ```json

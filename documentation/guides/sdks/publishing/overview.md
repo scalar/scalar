@@ -90,7 +90,7 @@ You can enable publishing two ways. Both set the same thing.
   size="full">
 </scalar-image>
 
-The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, PHP, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
+The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
 

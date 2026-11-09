@@ -109,6 +109,14 @@ Must be lowercase letters, digits, and hyphens, starting with a letter. npm also
 
 **Constraints:** `pattern: ^[a-z][a-z0-9-]*$`
 
+## packageManager
+
+**Type:** `string`
+
+Package manager the generated GitHub workflows install dependencies and build with: `npm` (the default), `pnpm`, `yarn`, or `bun`. Each sets up a pinned release (pnpm 12, Yarn 4, Bun 1.4) in CI and the release job and runs its own install and `build`. The install is frozen when that manager's lockfile (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock` or `bun.lockb`) is committed and resolves fresh when it is not, since the generator writes no lockfile; another manager's lockfile is ignored. Yarn installs into `node_modules`, not Plug'n'Play, and a Yarn 1 lockfile must be migrated to Yarn 4 before the frozen install accepts it. `npm` keeps running `npm install` whether or not a `package-lock.json` exists. Publishing still runs through npm, because trusted publishing needs the npm CLI. Only the workflows change: the published package and its README install instructions are the same either way. Any other value is reported and builds with npm.
+
+**Default:** `"npm"`
+
 ## prereleaseType
 
 **Type:** `string`
@@ -148,6 +156,14 @@ How `format: date-time` values are typed. `string` (the default) types them as I
 How `integer` values declared `format: int64` (or the unregistered `format: uint64`) are typed. 'number' (the default) declares them as a JavaScript `number` and parses responses with the platform JSON parser, which is what every generated TypeScript SDK does today: a value past 2^53 - 1, such as `9007199254740993`, silently arrives rounded to the nearest representable `number`. 'bigint' declares them as a JavaScript `bigint` and keeps them exact: response bodies are parsed without loss, and every int64 value on a path the response remap reaches is handed back as a `bigint` built from the digits the server sent. An inline int64 request input accepts `bigint | number`, and the runtime writes a `bigint` as a plain JSON number in a request body (where `JSON.stringify` alone would throw) and as its decimal digits in a query string, a path segment, a header or a `multipart/form-data` part. Where the response remap cannot run — streaming, paginated, websocket, gRPC/Connect and unwrapped responses — and under a union or intersection arm, whose taken arm the schema cannot decide, an inline int64 stays a `number` so the type never promises a `bigint` the runtime does not deliver. The gaps `dateTimeType: 'Date'` documents carry over unchanged, because a shared model is declared once under the SDK-wide setting rather than per use site: a model reached only through a union or intersection arm, through one of those non-remapping methods or through a webhook payload `unwrap` parses declares `bigint` over fields that hold the parsed `number`, and a request that references a model takes that model's plain `bigint`, not `bigint | number`, for its int64 fields. A proto `int64` is unaffected and stays the `string` proto3-JSON writes it as. There is no 'string' value: a request would then need a per-field rule to tell an int64 string from any other string and write it as a JSON number, where a `bigint` is told apart by its `typeof`.
 
 **Default:** `"number"`
+
+### authTokenProvider
+
+**Type:** `boolean`
+
+Whether credential client options also accept a token provider. `true` (the default) types each credential option, such as `apiKey`, as `string | AuthTokenProvider`, where `AuthTokenProvider` is `() => string | Promise<string>` and is exported from the package root; the client calls the provider each time it applies the credential, so a rotating or fetched token needs no new client. `false` types each credential as a plain `string`, on `ClientOptions`, on the client's own properties and in the README, and declares no `AuthTokenProvider`. Set it to `false` when an already-published SDK typed its credentials as `string`, so consumer code that reads `client.apiKey` as a string keeps compiling.
+
+**Default:** `true`
 
 ### backCompat
 
