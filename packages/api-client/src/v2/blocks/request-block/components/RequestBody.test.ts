@@ -12,6 +12,7 @@ import { defineComponent, h, nextTick, readonly, ref } from 'vue'
 import { provideLocalization } from '@/v2/features/localization'
 
 import RequestBody from './RequestBody.vue'
+import RequestBodyMultipart from './RequestBodyMultipart.vue'
 import RequestBodyStructured from './RequestBodyStructured.vue'
 import RequestTable from './RequestTable.vue'
 
@@ -58,6 +59,50 @@ const defaultProps = {
 }
 
 describe('RequestBody', () => {
+  it.each(['multipart/mixed', 'multipart/related; type="application/json"'])(
+    'edits schema-aware parts for %s and forwards files intact',
+    async (contentType) => {
+      const wrapper = mount(RequestBody, {
+        props: {
+          ...defaultProps,
+          requestBody: {
+            content: {
+              [contentType]: {
+                schema: { type: 'array', prefixItems: [{ type: 'object' }, { type: 'string', format: 'binary' }] },
+                examples: { 'example-1': { value: [{ id: 1 }, ''] } },
+              },
+            },
+          },
+        },
+      })
+      expect(wrapper.findComponent(RequestBodyMultipart).exists()).toBe(true)
+      await wrapper.get('button[aria-label="Select File Part 2"]').trigger('click')
+      const event = wrapper.emitted('update:value')?.[0]?.[0] as { payload: unknown[]; contentType: string }
+      expect(event.contentType).toBe(contentType)
+      expect(event.payload[0]).toEqual({ id: 1 })
+      expect(event.payload[1]).toBeInstanceOf(File)
+      wrapper.unmount()
+    },
+  )
+
+  it('keeps explicitly serialized multipart examples in the raw editor', () => {
+    const wrapper = mount(RequestBody, {
+      props: {
+        ...defaultProps,
+        requestBody: {
+          content: {
+            'multipart/mixed': {
+              schema: { type: 'array', items: { type: 'string', format: 'binary' } },
+              examples: { 'example-1': { serializedValue: '--boundary\r\nwire', dataValue: [''] } },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.findComponent(RequestBodyMultipart).exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('requests a reset for the selected content type', async () => {
     const wrapper = mount(RequestBody, {
       props: {

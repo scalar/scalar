@@ -3,6 +3,8 @@ import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import { isFileSchema } from '@/helpers/is-file-schema'
+import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
@@ -81,7 +83,7 @@ const guessFromFormat = (
   fallback: string = '',
 ): string | File => {
   // Binary filename placeholders are converted to File objects only for multipart callers.
-  if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
+  if (isFileSchema(schema, false)) {
     return '@filename'
   }
 
@@ -1444,18 +1446,16 @@ const generateExampleFromSchema = (
 }
 
 /** Keep binary provenance for multipart callers without resolving schemas on the default data path. */
-const asBinaryFile = (schema: SchemaObject, value: unknown, enabled = false): unknown => {
-  if (!enabled || typeof value !== 'string' || !value.startsWith('@')) {
+const asBinaryFile = (
+  schema: SchemaObject,
+  value: unknown,
+  options?: GetExampleFromSchemaOptions,
+  schemaPath: string[] = [],
+): unknown => {
+  if (!options?.binaryAsFile || typeof value !== 'string' || !value.startsWith('@')) {
     return value
   }
-  const resolved = resolve.schema(schema)
-  if (
-    resolved &&
-    'type' in resolved &&
-    resolved.type === 'string' &&
-    'format' in resolved &&
-    resolved.format === 'binary'
-  ) {
+  if (isFileSchema(resolveFormSchema(schema, options.compositionSelection, schemaPath) ?? schema)) {
     return new File([], value.slice(1), { lastModified: 0 })
   }
   return value
@@ -1470,7 +1470,7 @@ export const getExampleFromSchema = (
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
     const value = generateExampleFromSchema(schema, options, context)
-    return asBinaryFile(schema, value, options?.binaryAsFile)
+    return asBinaryFile(schema, value, options, context.schemaPath)
   }
   const node: ExampleEvaluation = {
     schema,
@@ -1488,7 +1488,7 @@ export const getExampleFromSchema = (
   }
   capture.stack.push(node)
   try {
-    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options?.binaryAsFile)
+    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options, context.schemaPath)
     return node.value
   } finally {
     capture.stack.pop()

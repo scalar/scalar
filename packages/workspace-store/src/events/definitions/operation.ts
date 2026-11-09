@@ -284,7 +284,7 @@ export type OperationEvents = {
    */
   'operation:update:requestBody:value': {
     /** The new value for the request body example */
-    payload: string | File | undefined
+    payload: string | File | unknown[] | Record<string, unknown> | undefined
     /** The content type of the request body */
     contentType: string
     /** Identifies the target operation and example variant for the updated request body value */
