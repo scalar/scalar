@@ -1440,6 +1440,17 @@ describe('validate-request', () => {
       expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', draft: true })).status).toBe(422)
     })
 
+    it('preserves negated read-only requirements during request validation', async () => {
+      const schema = {
+        ...pet,
+        not: { required: ['id'], properties: { id: { type: 'integer', readOnly: true } } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido' })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, {})).status).toBe(422)
+    })
+
     it('still requires the other properties', async () => {
       const response = await postPet({ NewPet: pet }, {})
 

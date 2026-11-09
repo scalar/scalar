@@ -9,7 +9,6 @@ const NESTED_INSTANCE_KEYWORDS = new Set([
   'additionalProperties',
   'contains',
   'items',
-  'not',
   'prefixItems',
   'unevaluatedItems',
   'unevaluatedProperties',
@@ -54,9 +53,9 @@ export const dropReadOnlyRequired = (schema: unknown, readOnlyNames: ReadonlySet
 
   return Object.fromEntries(
     Object.entries(schema).map(([keyword, value]) => {
-      // An `if` schema selects a branch rather than requiring fields in the request.
-      // Rewriting it could make an absent read-only property select `then` instead of `else`.
-      if (keyword === 'if') {
+      // These schemas test predicates rather than require fields in the request.
+      // Relaxing them could select a different branch or make a negation reject a valid body.
+      if (keyword === 'if' || keyword === 'not') {
         return [keyword, value]
       }
       if (keyword === 'required' && Array.isArray(value)) {

@@ -141,6 +141,22 @@ describe('drop-read-only-required', () => {
     expect(validate({})).toBe(true)
   })
 
+  it('preserves negated requirements for read-only properties', () => {
+    const schema = {
+      type: 'object',
+      not: {
+        required: ['id'],
+        properties: { id: { type: 'integer', readOnly: true } },
+      },
+    }
+    const original = structuredClone(schema)
+    const validate = new Ajv2020({ strict: false }).compile(dropReadOnlyRequired(schema) as object)
+
+    expect(validate({})).toBe(true)
+    expect(validate({ id: 1 })).toBe(false)
+    expect(schema).toStrictEqual(original)
+  })
+
   it('preserves conditional predicates while relaxing both resulting branches', () => {
     const schema = {
       type: 'object',
