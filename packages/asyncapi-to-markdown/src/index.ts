@@ -16,10 +16,7 @@ export const createMarkdownFromAsyncApi = async (
   input: AsyncApiInput,
   options?: AsyncApiRenderOptions & { documentLoading?: DocumentLoadOptions },
 ): Promise<string> => {
-  const renderer = await createAsyncApiMarkdownRenderer(input, options?.documentLoading)
-  if (options && 'documentLoading' in options) {
-    const { documentLoading: _, ...renderOptions } = options
-    return renderer.render(renderOptions)
-  }
-  return renderer.render(options)
+  const { documentLoading, ...renderOptions } = options ?? {}
+  const renderer = await createAsyncApiMarkdownRenderer(input, documentLoading)
+  return renderer.render(renderOptions)
 }

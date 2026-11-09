@@ -1,8 +1,7 @@
 import { upgrade } from '@scalar/asyncapi-upgrader'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
+import { type DocumentLoadOptions, createDocumentLoader } from '@scalar/json-magic/bundle/plugins/node'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 
@@ -10,48 +9,18 @@ import { object } from './document'
 import { preserveData } from './preserve-data'
 import type { AsyncApiInput } from './types'
 
-/** Permissions for loading an AsyncAPI description and its external references. */
-export type DocumentLoadOptions = {
-  /** Allow private-network requests only for trusted input. Defaults to false. */
-  allowPrivateNetworks?: boolean
-  /** Approved directory for local files and references. File access is disabled when omitted. */
-  basePath?: string
-}
+export type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 
 /** Load once, preserving the source location for relative external references. */
 export const loadDocument = async (
   input: AsyncApiInput,
   options: DocumentLoadOptions = {},
 ): Promise<Record<string, unknown>> => {
-  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
-  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
-  const source = async (): Promise<{ value: unknown; origin?: string }> => {
-    if (typeof input !== 'string') {
-      return { value: deepClone(getRaw(input)) }
-    }
-    const parsed = normalize(input)
-    if (isObject(parsed)) {
-      return { value: parsed }
-    }
-    if (/^https?:\/\//i.test(input)) {
-      const result = await urlLoader.exec(input)
-      if (!result.ok) {
-        throw new Error('Failed to load AsyncAPI document')
-      }
-      return { value: result.data, origin: input }
-    }
-    if (!fileLoader) {
-      throw new Error('Local file access requires an explicit basePath')
-    }
-    const { resolve } = await import('node:path')
-    const origin = resolve(input)
-    const result = await fileLoader.exec(origin)
-    if (!result.ok) {
-      throw new Error('Failed to load AsyncAPI document')
-    }
-    return { value: result.data, origin }
-  }
-  const { value, origin } = await source()
+  const loader = createDocumentLoader(options)
+  const { value, origin } =
+    typeof input === 'string'
+      ? await loader.load(input, 'AsyncAPI')
+      : { value: deepClone(getRaw(input)), origin: undefined }
   if (!isObject(value) || typeof value.asyncapi !== 'string') {
     throw new Error('Expected an AsyncAPI document with an asyncapi version')
   }
@@ -62,7 +31,7 @@ export const loadDocument = async (
   const errors: string[] = []
   const bundled = await bundle(value, {
     origin,
-    plugins: [...(fileLoader ? [urlLoader, fileLoader] : [urlLoader]), preserveData()],
+    plugins: [...loader.plugins, preserveData()],
     treeShake: false,
     hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
   })

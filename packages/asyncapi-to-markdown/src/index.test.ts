@@ -226,7 +226,7 @@ describe('index', () => {
       ).toContain('Remote user')
       await expect(
         createMarkdownFromAsyncApi(`${origin}/missing`, { documentLoading: { allowPrivateNetworks: true } }),
-      ).rejects.toThrow('Failed to load AsyncAPI document')
+      ).rejects.toThrow('Failed to load AsyncAPI document: HTTP 404')
     } finally {
       await new Promise<void>((done, reject) => server.close((error) => (error ? reject(error) : done())))
     }
