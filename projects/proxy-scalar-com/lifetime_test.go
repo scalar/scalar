@@ -174,3 +174,22 @@ func TestProxyResponseBodyIdleTimeout(t *testing.T) {
 		}
 	}
 }
+
+func TestIdleResponseBodyPausesBetweenReads(t *testing.T) {
+	const idle = 20 * time.Millisecond
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	body := &idleResponseBody{reader: strings.NewReader("abc"), cancel: cancel, idle: idle}
+	buffer := make([]byte, 1)
+	for _, want := range []byte("abc") {
+		if n, err := body.Read(buffer); n != 1 || err != nil || buffer[0] != want {
+			t.Fatalf("Read = %d, %v, %q; want byte %q", n, err, buffer, want)
+		}
+		// Slow downstream writes must not consume the upstream read budget.
+		select {
+		case <-ctx.Done():
+			t.Fatal("upstream canceled between reads")
+		case <-time.After(3 * idle):
+		}
+	}
+}

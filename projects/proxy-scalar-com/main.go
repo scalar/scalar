@@ -165,6 +165,9 @@ func effectivePort(u *url.URL) string {
 // dnsTimeout limits lookups, including validation before dialing.
 const dnsTimeout = 10 * time.Second
 
+// dialTimeout is the shared budget for DNS resolution and TCP connection attempts.
+const dialTimeout = 10 * time.Second
+
 // resolve looks up a hostname. It stops when ctx is done or after dnsTimeout.
 //
 // Lookups before the request follow the client's request. The transport detaches
@@ -431,6 +434,9 @@ func NewProxyServer(dev bool) *ProxyServer {
 // its connection and goroutine forever.
 const defaultResponseHeaderTimeout = 5 * time.Minute
 
+// defaultResponseBodyIdleTimeout limits each wait for upstream response data.
+const defaultResponseBodyIdleTimeout = 2 * time.Minute
+
 // NewProxyServerWithConfig creates a new proxy server instance
 func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 	bypassCidr := config.BypassCidr
@@ -443,7 +449,7 @@ func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 
 	responseBodyIdleTimeout := config.ResponseBodyIdleTimeout
 	if responseBodyIdleTimeout == 0 {
-		responseBodyIdleTimeout = 2 * time.Minute
+		responseBodyIdleTimeout = defaultResponseBodyIdleTimeout
 	}
 
 	return &ProxyServer{
@@ -463,7 +469,7 @@ func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 			// Handle custom dial for cidr checks
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 				// Bound DNS resolution as well as the TCP connection attempt.
-				ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+				ctx, cancel := context.WithTimeout(ctx, dialTimeout)
 				defer cancel()
 				host, port, _ := net.SplitHostPort(addr)
 
@@ -1499,10 +1505,15 @@ type idleResponseBody struct {
 	reader io.Reader
 	cancel context.CancelFunc
 	idle   time.Duration
+	timer  *time.Timer
 }
 
 func (body *idleResponseBody) Read(buffer []byte) (int, error) {
-	timer := time.AfterFunc(body.idle, body.cancel)
-	defer timer.Stop()
+	if body.timer == nil {
+		body.timer = time.AfterFunc(body.idle, body.cancel)
+	} else {
+		body.timer.Reset(body.idle)
+	}
+	defer body.timer.Stop()
 	return body.reader.Read(buffer)
 }

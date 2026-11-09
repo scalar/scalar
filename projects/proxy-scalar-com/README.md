@@ -37,7 +37,7 @@ The proxy returns content from arbitrary URLs on its own origin, so it keeps tha
 - Upstream headers that use the proxy's own names (`X-Scalar-Original-*`, `X-Scalar-Modified-Headers`, `X-Scalar-Set-Cookie`) are dropped.
 - Hop-by-hop response headers (`Connection` and every header it names, `Keep-Alive`, `Proxy-*`, `TE`, `Trailer`, `Transfer-Encoding`, `Upgrade`) are not forwarded.
 - A `scalar_url` on a host listed in `PROXY_SELF_HOSTS` is rejected with `400`. Outgoing requests carry `X-Scalar-Proxy-Hop`, and incoming requests that have it are rejected with `508`, which stops loops through any name for the proxy. Hop-by-hop request headers are not forwarded either.
-- Upstream requests are cancelled when the client disconnects, and DNS lookups take at most 10 seconds. An upstream that does not accept the connection or send response headers in time (5 minutes for headers) gets a `504`. Active uploads and responses have no whole-request deadline in the proxy. When a response breaks off after its status was sent, the connection is closed, so the client sees that the response is incomplete. Client connections have read and idle timeouts.
+- Upstream requests are canceled when the caller disconnects. Response headers must arrive within five minutes after the upload completes. Each upstream response body read has a two-minute idle limit, refreshed for every read; active downloads and SSE streams can continue beyond two minutes. Incoming uploads have the separate 60-second per-read idle limit described below. DNS resolution and TCP connection attempts share a 10-second dial budget, while TLS handshakes have a separate 10-second limit. Idle upstream connections close after 90 seconds. There is no per-host active connection cap shared between users. Deployment platforms may impose their own request duration limits. An upstream that does not accept the connection or send response headers in time gets a `504`. When a response breaks off after its status was sent, the connection is closed, so the client sees that the response is incomplete.
 
 Incoming clients have 10 seconds to finish sending request headers. Idle keep-alive connections close after 60 seconds between requests. Each incoming body read also has a 60-second idle deadline, refreshed for every read and cleared between reads. These limits do not impose a whole-request deadline on active uploads or streaming responses such as SSE.
 
@@ -46,8 +46,6 @@ The proxy adds `X-Scalar-Proxy-Hop: 1` to outbound requests and rejects forwardi
 A third-party relay that drops unknown headers can remove this marker. Alternating proxy and relay destinations can therefore amplify requests until the nested URL is exhausted; the marker only bounds chains that preserve it.
 
 Hop-by-hop headers, including every field named by `Connection`, are removed from requests and responses. They are removed before response metadata is mirrored and the proxy adds its own security and CORS headers, so an upstream cannot tell a front proxy to discard those protections. Proxy authentication headers are connection-specific and are not forwarded to target APIs.
-
-Upstream requests are canceled when the caller disconnects. Response headers must arrive within five minutes after the upload completes. Each upstream response body read has a two-minute idle limit, refreshed for every read; active downloads and SSE streams can continue beyond two minutes. Incoming uploads have the separate 60-second per-read idle limit described above. DNS resolution and TCP connection attempts share a 10-second dial budget, while TLS handshakes have a separate 10-second limit. Idle upstream connections close after 90 seconds. There is no per-host active connection cap shared between users. Deployment platforms may impose their own request duration limits.
 
 ## Usage
 
@@ -75,12 +73,12 @@ PORT=8080 go run main.go
 
 ### Configuration
 
-| Environment variable          | Description |
-| ----------------------------- | ----------- |
-| `PORT`                        | The port to listen on. Defaults to `1337`. |
-| `ENV=dev`                     | Development mode: allows targets on private and loopback addresses, skips upstream certificate verification, and listens on `127.0.0.1` only. |
-| `PROXY_LISTEN_HOST`           | The address to listen on, for example `0.0.0.0` to accept connections from outside a container in development mode. Defaults to every interface, or `127.0.0.1` in development mode. |
-| `ALLOW_INSECURE_UPSTREAM_TLS` | Set to `true` to skip upstream certificate verification outside development mode, for example to reach APIs with self-signed certificates. Anyone who can intercept that traffic can then read and change it. |
+| Environment variable          | Description                                                                                                                                                                                                                                                        |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `PORT`                        | The port to listen on. Defaults to `1337`.                                                                                                                                                                                                                         |
+| `ENV=dev`                     | Development mode: allows targets on private and loopback addresses, skips upstream certificate verification, and listens on `127.0.0.1` only.                                                                                                                      |
+| `PROXY_LISTEN_HOST`           | The address to listen on, for example `0.0.0.0` to accept connections from outside a container in development mode. Defaults to every interface, or `127.0.0.1` in development mode.                                                                               |
+| `ALLOW_INSECURE_UPSTREAM_TLS` | Set to `true` to skip upstream certificate verification outside development mode, for example to reach APIs with self-signed certificates. Anyone who can intercept that traffic can then read and change it.                                                      |
 | `PROXY_SELF_HOSTS`            | Comma-separated hosts that reach this proxy, like its custom domain and the Cloud Run URL (`proxy.example.com,proxy-xyz.a.run.app`; full URLs work too). Targets on these hosts are rejected before any request is sent. A host without a port matches every port. |
 
 ### Example request
