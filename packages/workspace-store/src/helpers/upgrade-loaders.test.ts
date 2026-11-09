@@ -1,8 +1,13 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
+import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
+import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
+import { type LoaderPlugin, bundle } from '@scalar/json-magic/bundle'
+import { upgrade } from '@scalar/openapi-upgrader'
 import { describe, expect, it } from 'vitest'
 
 import { upgradeLoadedDocument, upgradeLoaders } from './upgrade-loaders'
 
-describe('upgradeLoadedDocument', () => {
+describe('upgrade-loaders', () => {
   it('upgrades a complete OpenAPI 3.0 document', () => {
     const input = {
       openapi: '3.0.3',
@@ -36,6 +41,7 @@ describe('upgradeLoadedDocument', () => {
     const result = upgradeLoadedDocument(
       { type: 'object', properties: { name: { type: 'string', nullable: true, example: 'Ada' } }, example: { a: 1 } },
       '3.0.3',
+      ['components', 'schemas', 'Item'],
     )
 
     expect(result).toEqual({
@@ -66,11 +72,8 @@ describe('upgradeLoadedDocument', () => {
     expect(upgradeLoadedDocument(['a'], '3.0.3')).toEqual(['a'])
     expect(upgradeLoadedDocument(null, '3.0.3')).toBe(null)
   })
-})
-
-describe('upgradeLoaders', () => {
   it('upgrades what the loader returns and passes failures through', async () => {
-    const [loader] = upgradeLoaders(
+    const plugins = upgradeLoaders(
       [
         {
           type: 'loader',
@@ -88,11 +91,177 @@ describe('upgradeLoaders', () => {
       '3.0.0',
     )
 
+    const loader = plugins.find((plugin) => plugin.type === 'loader')
+
     expect(loader?.validate('x')).toBe(true)
     expect(await loader?.exec('missing')).toEqual({ ok: false })
     expect(await loader?.exec('x')).toMatchObject({
       ok: true,
       data: { components: { schemas: { A: { type: ['string', 'null'] } } } },
+    })
+  })
+  it.each([
+    {
+      kind: 'schema',
+      path: ['components', 'schemas', 'Item'],
+      value: { type: 'string', nullable: true, example: 'hello' },
+    },
+    {
+      kind: 'parameter',
+      path: ['components', 'parameters', 'limit'],
+      value: { name: 'limit', in: 'query', schema: { type: 'integer' }, example: 10 },
+    },
+    { kind: 'header with only an example', path: ['components', 'headers', 'Limit'], value: { example: 10 } },
+    {
+      kind: 'response',
+      path: ['paths', '/items', 'get', 'responses', '200'],
+      value: {
+        description: 'ok',
+        content: { 'application/json': { schema: { type: 'string', nullable: true }, example: 'hello' } },
+      },
+    },
+    {
+      kind: 'path item',
+      path: ['paths', '/items'],
+      value: {
+        get: {
+          parameters: [{ name: 'limit', in: 'query', schema: { type: 'integer' }, example: 10 }],
+          responses: { '200': { description: 'ok' } },
+        },
+      },
+    },
+    {
+      kind: 'example',
+      path: ['components', 'examples', 'Item'],
+      value: { value: { type: 'string', nullable: true, example: 'payload', exclusiveMinimum: true, minimum: 1 } },
+    },
+  ])('matches inline conversion for a bare $kind', async ({ path, value }) => {
+    const original = JSON.stringify(value)
+    const inline: Record<string, unknown> = { openapi: '3.0.3' }
+    setValueAtPath(inline, path, value)
+    const document: Record<string, unknown> = { openapi: '3.1.1' }
+    setValueAtPath(document, path, { $ref: 'https://example.test/fragment.json' })
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: original, data: value }),
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const reference = getValueAtPath<{ $ref: string }>(document, path)
+    expect(getValueAtPath(document, parseJsonPointerSegments(reference.$ref.slice(1)))).toStrictEqual(
+      getValueAtPath(upgrade(inline, '3.1'), path),
+    )
+    expect(JSON.stringify(value)).toBe(original)
+  })
+
+  it('upgrades separate pointers in a shared file without renaming keys or loading it twice', async () => {
+    const data = { example: { type: 'string', nullable: true }, limit: { name: 'limit', in: 'query', example: 10 } }
+    const original = JSON.stringify(data)
+    const loads: string[] = []
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (url) => {
+        loads.push(url)
+        return Promise.resolve({ ok: true, raw: original, data })
+      },
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: { Item: { $ref: 'https://example.test/shared.json#/example' } },
+        parameters: { limit: { $ref: 'https://example.test/shared.json#/limit' } },
+      },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const resolve = (ref: string): unknown => getValueAtPath(document, parseJsonPointerSegments(ref.slice(1)))
+    expect(resolve(document.components.schemas.Item.$ref)).toStrictEqual({ type: ['string', 'null'] })
+    expect(resolve(document.components.parameters.limit.$ref)).toStrictEqual({
+      name: 'limit',
+      in: 'query',
+      examples: { default: { value: 10 } },
+    })
+    expect(loads).toStrictEqual(['https://example.test/shared.json'])
+    expect(JSON.stringify(data)).toBe(original)
+  })
+
+  it('preserves example payloads reached through a second external reference', async () => {
+    const example = { value: { type: 'string', nullable: true, example: 'payload' } }
+    const files: Record<string, unknown> = {
+      'https://example.test/response.json': {
+        description: 'ok',
+        content: { 'application/json': { examples: { item: { $ref: './example.json' } } } },
+      },
+      'https://example.test/example.json': example,
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: (url) => Promise.resolve({ ok: true, raw: JSON.stringify(files[url]), data: files[url] }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { responses: { Item: { $ref: 'https://example.test/response.json' } } },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const response = getValueAtPath<Record<string, unknown>>(
+      document,
+      parseJsonPointerSegments(document.components.responses.Item.$ref.slice(1)),
+    )
+    const reference = getValueAtPath<{ $ref: string }>(response, ['content', 'application/json', 'examples', 'item'])
+    expect(getValueAtPath(document, parseJsonPointerSegments(reference.$ref.slice(1)))).toStrictEqual(example)
+  })
+
+  it('upgrades local references within a bare external file', async () => {
+    const data = { Item: { $ref: '#/Name' }, Name: { type: 'string', nullable: true } }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: '', data }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { schemas: { Item: { $ref: 'https://example.test/schemas.json#/Item' } } },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const reference = getValueAtPath<{ $ref: string }>(
+      document,
+      parseJsonPointerSegments(document.components.schemas.Item.$ref.slice(1)),
+    )
+    expect(getValueAtPath(document, parseJsonPointerSegments(reference.$ref.slice(1)))).toStrictEqual({
+      type: ['string', 'null'],
+    })
+  })
+
+  it('retains the selected subtree context during lazy resolution', async () => {
+    const value = { example: 10 }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: '', data: value }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { headers: { Limit: { $ref: 'https://example.test/header.json' } } },
+    }
+    const target = document.components.headers.Limit
+
+    await bundle(target, {
+      root: document,
+      treeShake: false,
+      plugins: upgradeLoaders([loader], '3.0.3', ['components', 'headers', 'Limit']),
+    })
+
+    expect(getValueAtPath(document, parseJsonPointerSegments(target.$ref.slice(1)))).toStrictEqual({
+      examples: { default: { value: 10 } },
     })
   })
 })
