@@ -13,6 +13,8 @@ import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
 import { createError } from '@/entities/error/helpers'
 import type { Tools } from '@/state/state'
 
+import { createSecretRedactor } from './redact-secrets'
+
 // The maximum number of bytes the requests response can be.
 const MAX_RESPONSE_SIZE = 50_000
 
@@ -40,12 +42,12 @@ const safeFetch = n.safeFn(
     const responseBodyResult = await getBody(response)
 
     if (!response.ok) {
+      // Response URLs can contain credentials, so keep them out of model-visible tool output.
       return {
         success: false,
         error: createError('REQUEST_NOT_OK', {
           status: response.status,
-          url: response.url,
-          responseBody: truncateResponse(responseBodyResult.success ? responseBodyResult.data : undefined),
+          responseBody: responseBodyResult.success ? responseBodyResult.data : undefined,
           headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
         }),
       }
@@ -59,7 +61,7 @@ const safeFetch = n.safeFn(
       success: true,
       data: {
         status: response.status,
-        responseBody: truncateResponse(responseBodyResult.data),
+        responseBody: responseBodyResult.data,
         headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
       },
     }
@@ -211,7 +213,18 @@ export const executeRequestTool = n.safeFn(
 
     const url = redirectToProxy(proxyUrl, destination.url)
 
+    const redact = createSecretRedactor(requestSecurityOptions)
     const result = await safeFetch(url, fetchOptions)
+    // Redact complete values before truncation can split a credential at the size limit.
+    if (result.success) {
+      result.data.responseBody = truncateResponse(redact(result.data.responseBody))
+      result.data.headers = redact(result.data.headers)
+    } else if (result.error.code === 'REQUEST_NOT_OK') {
+      if (result.error.detail.responseBody !== undefined) {
+        result.error.detail.responseBody = truncateResponse(redact(result.error.detail.responseBody))
+      }
+      result.error.detail.headers = redact(result.error.detail.headers)
+    }
 
     void chat.addToolOutput({
       tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
