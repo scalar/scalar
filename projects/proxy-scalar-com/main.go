@@ -162,14 +162,17 @@ func effectivePort(u *url.URL) string {
 	}
 }
 
-// dnsTimeout limits a lookup, which the dialer timeout does not cover.
+// dnsTimeout limits lookups, including validation before dialing.
 const dnsTimeout = 10 * time.Second
+
+// dialTimeout is the shared budget for DNS resolution and TCP connection attempts.
+const dialTimeout = 10 * time.Second
 
 // resolve looks up a hostname. It stops when ctx is done or after dnsTimeout.
 //
 // Lookups before the request follow the client's request. The transport detaches
 // dials from the request, so a connection can still be reused after it is
-// cancelled. For those, dnsTimeout is the limit, like the dialer timeout.
+// cancelled. For those, the dial context bounds DNS and TCP together.
 func resolve(ctx context.Context, host string) ([]net.IP, error) {
 	ctx, cancel := context.WithTimeout(ctx, dnsTimeout)
 	defer cancel()
@@ -343,9 +346,10 @@ func incomingBodyTimeout(next http.Handler, idle time.Duration) http.Handler {
 // It uses a custom transport that checks every dialed address against the
 // blocked networks.
 type ProxyServer struct {
-	transport  *http.Transport
-	bypassCidr bool
-	selfHosts  []selfHost
+	transport               *http.Transport
+	responseBodyIdleTimeout time.Duration
+	bypassCidr              bool
+	selfHosts               []selfHost
 	// bufferedBodyBytes counts the request body bytes held in memory right now.
 	bufferedBodyBytes atomic.Int64
 }
@@ -410,6 +414,9 @@ type ProxyConfig struct {
 	// ResponseHeaderTimeout limits how long the upstream may take to send its
 	// response headers. Zero uses defaultResponseHeaderTimeout.
 	ResponseHeaderTimeout time.Duration
+	// ResponseBodyIdleTimeout bounds each upstream body read, not the stream lifetime.
+	// Zero uses two minutes.
+	ResponseBodyIdleTimeout time.Duration
 }
 
 // proxyHopHeader marks requests the proxy sends upstream.
@@ -427,24 +434,28 @@ func NewProxyServer(dev bool) *ProxyServer {
 // its connection and goroutine forever.
 const defaultResponseHeaderTimeout = 5 * time.Minute
 
-// upstreamRequestTimeout limits a whole upstream request, including reading the
-// response body. It is long enough for streamed responses like server-sent
-// events, and only there so that no request runs forever.
-const upstreamRequestTimeout = 30 * time.Minute
+// defaultResponseBodyIdleTimeout limits each wait for upstream response data.
+const defaultResponseBodyIdleTimeout = 2 * time.Minute
 
 // NewProxyServerWithConfig creates a new proxy server instance
 func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 	bypassCidr := config.BypassCidr
-	dialer := &net.Dialer{Timeout: 10 * time.Second}
+	dialer := &net.Dialer{}
 
 	responseHeaderTimeout := config.ResponseHeaderTimeout
 	if responseHeaderTimeout == 0 {
 		responseHeaderTimeout = defaultResponseHeaderTimeout
 	}
 
+	responseBodyIdleTimeout := config.ResponseBodyIdleTimeout
+	if responseBodyIdleTimeout == 0 {
+		responseBodyIdleTimeout = defaultResponseBodyIdleTimeout
+	}
+
 	return &ProxyServer{
-		bypassCidr: bypassCidr,
-		selfHosts:  parseSelfHosts(config.SelfHosts),
+		responseBodyIdleTimeout: responseBodyIdleTimeout,
+		bypassCidr:              bypassCidr,
+		selfHosts:               parseSelfHosts(config.SelfHosts),
 		transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
 				MinVersion:         tls.VersionTLS12,
@@ -457,6 +468,9 @@ func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
 			MaxIdleConnsPerHost:   16,
 			// Handle custom dial for cidr checks
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// Bound DNS resolution as well as the TCP connection attempt.
+				ctx, cancel := context.WithTimeout(ctx, dialTimeout)
+				defer cancel()
 				host, port, _ := net.SplitHostPort(addr)
 
 				// If bypassCidr is true, skip CIDR checks
@@ -751,7 +765,6 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	client := &http.Client{
 		Transport: redirectReplayTransport{transport: ps.transport},
-		Timeout:   upstreamRequestTimeout,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Handle private CIDR check again on redirect
 			if !ps.bypassCidr {
@@ -797,7 +810,9 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Tie the upstream request to the client, including streaming uploads.
-	outreq, err := http.NewRequestWithContext(r.Context(), r.Method, target, http.NoBody)
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+	outreq, err := http.NewRequestWithContext(ctx, r.Method, target, http.NoBody)
 	if err != nil {
 		http.Error(w, proxyErrorCategory(err), http.StatusInternalServerError)
 		return err
@@ -999,7 +1014,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Copy the body
-	if _, err := io.Copy(responseWriter, resp.Body); err != nil {
+	if _, err := io.Copy(responseWriter, &idleResponseBody{reader: resp.Body, cancel: cancel, idle: ps.responseBodyIdleTimeout}); err != nil {
 		// The client left, which also cancels the upstream request
 		if r.Context().Err() != nil {
 			return nil
@@ -1482,4 +1497,23 @@ func corsMiddleware(next http.Handler) http.Handler {
 		// Pass down the request to the next middleware or handler
 		next.ServeHTTP(w, r)
 	})
+}
+
+// idleResponseBody only times time spent waiting on upstream data. Downstream
+// backpressure between reads must not consume the upstream idle budget.
+type idleResponseBody struct {
+	reader io.Reader
+	cancel context.CancelFunc
+	idle   time.Duration
+	timer  *time.Timer
+}
+
+func (body *idleResponseBody) Read(buffer []byte) (int, error) {
+	if body.timer == nil {
+		body.timer = time.AfterFunc(body.idle, body.cancel)
+	} else {
+		body.timer.Reset(body.idle)
+	}
+	defer body.timer.Stop()
+	return body.reader.Read(buffer)
 }
