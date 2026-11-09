@@ -6,6 +6,7 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 
 import { assertScalarAppEnvPlugin } from './assert-scalar-app-env-plugin'
 import { devLocalhostCspPlugin } from './dev-localhost-csp-plugin'
+import { monacoOptimizeDeps, monacoWorkerAliases } from './monaco-vite-config'
 import packageJson from './package.json' with { type: 'json' }
 
 const { version: scalarAppVersion } = packageJson
@@ -57,8 +58,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': resolve('src'),
-        // monaco-yaml still wraps worker initialization using Monaco's pre-0.56 protocol.
-        'monaco-worker-manager/worker': 'monaco-editor/editor/editor.worker',
+        ...monacoWorkerAliases,
         '@electron': resolve('entrypoints/electron'),
         // PostHog plugin is imported from @scalar/api-client but not declared there as a runtime dep.
         // Alias it to scalar-app's dependency so pnpm + rolldown can resolve it during bundling.
@@ -67,11 +67,7 @@ export default defineConfig({
       dedupe: ['vue', 'monaco-editor', 'monaco-yaml'],
     },
     plugins: [assertScalarAppEnvPlugin(envDir), vue(), tailwindcss(), devLocalhostCspPlugin()],
-    optimizeDeps: {
-      exclude: ['monaco-editor', 'monaco-yaml', 'monaco-worker-manager/worker'],
-      // The YAML worker imports this CommonJS dependency during development.
-      include: ['monaco-yaml > path-browserify'],
-    },
+    optimizeDeps: monacoOptimizeDeps,
     build: {
       minify: true,
       outDir: 'dist/renderer',
