@@ -55,6 +55,8 @@ describe('versioned-types', () => {
         moduleResolution: ts.ModuleResolutionKind.NodeNext,
         noEmit: true,
         strict: true,
+        // Only load the declarations under test, not ambient types from workspace development dependencies.
+        types: [],
       })
 
       expect(formatDiagnostics(program)).toStrictEqual([])
@@ -143,6 +145,8 @@ describe('versioned-types', () => {
         noEmit: true,
         strict: true,
         skipLibCheck: false,
+        // The consumer fixture has no ambient dependencies, regardless of the workspace running this test.
+        types: [],
       })
 
       expect(formatDiagnostics(program)).toStrictEqual([])
