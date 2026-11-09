@@ -52,23 +52,23 @@ You can specify predefined environment variables for the API Client/References t
 ```yaml
 x-scalar-environments:
   production:
-    description: "Production environment"
-    color: "#0082D0"
+    description: 'Production environment'
+    color: '#0082D0'
     # Variables are saved directly to the specification
     variables:
       userId:
-        description: "User ID"
-        default: "1234567890"
+        description: 'User ID'
+        default: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.production.example.com"
+        description: 'API URL'
+        default: 'https://api.production.example.com'
   staging:
-    description: "Staging environment"
+    description: 'Staging environment'
     variables:
-      userId: "1234567890"
+      userId: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.staging.example.com"
+        description: 'API URL'
+        default: 'https://api.staging.example.com'
 ```
 
 ## x-scalar-active-environment
@@ -619,7 +619,7 @@ We generate custom code examples for all languages, but you might have a custom 
 
 Each entry has a `lang` (used to pick a matching language icon and synchronize code sample selection) and a `description`. Set an optional `label` to customize the tab text, for example `lang: python` with `label: Python SDK`. If `label` is missing or blank, the tab displays `lang`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
-```diff
+````diff
 openapi: 3.1.0
 info:
   title: Example
@@ -649,12 +649,12 @@ info:
 +      ```groovy
 +      implementation 'com.your-awesome-company:sdk:1.0.0'
 +      ```
-```
+````
 
-| Option      | Type   | Description                                                                                        |
+| Option      | Type   | Description                                                                                       |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------- |
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
-| label | string | Optional display text for the SDK tab. Defaults to `lang` when omitted or blank. |
+| label       | string | Optional display text for the SDK tab. Defaults to `lang` when omitted or blank.                  |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
 ## x-scalar-links
@@ -673,10 +673,10 @@ info:
 +    url: https://example.com/imprint
 ```
 
-| Option | Type   | Description                                       |
-| ------ | ------ | ------------------------------------------------- |
-| name   | string | **REQUIRED**. The label to display for the link.  |
-| url    | string | **REQUIRED**. The URL the link points to.         |
+| Option | Type   | Description                                      |
+| ------ | ------ | ------------------------------------------------ |
+| name   | string | **REQUIRED**. The label to display for the link. |
+| url    | string | **REQUIRED**. The URL the link points to.        |
 
 ## x-pre-request
 

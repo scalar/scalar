@@ -62,7 +62,7 @@ export const getRenderableSdks = (xScalarSdkInstallation: SdkInstallationList | 
 
         const resolved = [description, source && toFencedCodeBlock(source)].filter(Boolean).join('\n\n')
 
-        const label = typeof sdk.label === 'string' && sdk.label.trim() ? sdk.label : sdk.lang
+        const label = (typeof sdk.label === 'string' && sdk.label.trim()) || sdk.lang
 
         return [{ lang: sdk.lang, label, description: resolved }]
       })

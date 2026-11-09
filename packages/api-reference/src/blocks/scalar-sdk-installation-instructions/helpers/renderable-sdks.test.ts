@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { getRenderableSdks, hasRenderableSdks } from './renderable-sdks'
 
 describe('getRenderableSdks', () => {
-  it('uses a custom label without changing the language', () => {
-    expect(getRenderableSdks([{ lang: 'python', label: 'Python SDK', source: 'pip install example' }])).toStrictEqual([
+  it.each(['Python SDK', '  Python SDK \t\n'])('trims label %j without changing the language', (label) => {
+    expect(getRenderableSdks([{ lang: 'python', label, source: 'pip install example' }])).toStrictEqual([
       { lang: 'python', label: 'Python SDK', description: '```\npip install example\n```' },
     ])
   })
