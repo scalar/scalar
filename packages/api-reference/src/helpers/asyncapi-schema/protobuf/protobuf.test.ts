@@ -65,4 +65,49 @@ describe('protobuf', () => {
       { name: 'ON', type: '1' },
     ])
   })
+
+  it('distinguishes explicit presence across nested scopes without reading comments or strings as declarations', () => {
+    const result = readSchema(
+      proto,
+      `syntax = "proto3";
+      message Outer {
+        // optional string implicit_id = 1;
+        string implicit_id = 1;
+        optional string explicit_id = 2 [json_name = "optional string implicit_id = 1;"];
+        message Inner {
+          string explicit_id = 1;
+          optional string implicit_id = 2;
+        }
+      }`,
+    )
+    expect(result?.nodes.map((node) => node.children?.map(({ name, presence }) => ({ name, presence })))).toStrictEqual(
+      [
+        [
+          { name: 'implicit_id', presence: 'implicit' },
+          { name: 'explicit_id', presence: 'explicit' },
+        ],
+        [
+          { name: 'explicit_id', presence: 'implicit' },
+          { name: 'implicit_id', presence: 'explicit' },
+        ],
+      ],
+    )
+  })
+
+  it('preserves enum value comments and deprecation metadata', () => {
+    const result = readSchema(
+      proto,
+      `syntax = "proto3";
+      enum State {
+        // Ready to process
+        READY = 0 [deprecated = true];
+        // Work has finished
+        DONE = 1;
+      }`,
+    )
+    expect(result?.nodes[0]?.children).toStrictEqual([
+      { name: 'READY', type: '0', description: 'Ready to process', details: ['deprecated: true'] },
+      { name: 'DONE', type: '1', description: 'Work has finished' },
+    ])
+  })
 })

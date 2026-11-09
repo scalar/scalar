@@ -1,23 +1,29 @@
-import protobuf from 'protobufjs'
+import type * as protobuf from 'proto-parser'
+
+import { type Definition, isEnum, isMessage } from './ast'
 
 const int32Min = -2147483648
 const int32Max = 2147483647
 const fieldMax = 536870911
 
-/** protobufjs stores parsed reserved ranges with inclusive endpoints. Check after all declarations. */
-const isReserved = (definition: protobuf.Type | protobuf.Enum, name: string, id: number): boolean =>
+/** proto-parser stores parsed reserved ranges with inclusive endpoints. Check after all declarations. */
+const isReserved = (
+  definition: protobuf.MessageDefinition | protobuf.EnumDefinition,
+  name: string,
+  id: number,
+): boolean =>
   definition.reserved?.some((range) =>
     typeof range === 'string'
       ? range === name
       : range[0] !== undefined && range[1] !== undefined && range[0] <= id && id <= range[1],
   ) ?? false
 
-const validateReservations = (definition: protobuf.Type | protobuf.Enum): void => {
-  const minimum = definition instanceof protobuf.Enum ? int32Min : 1
-  const maximum = definition instanceof protobuf.Enum ? int32Max : fieldMax
+const validateReservations = (definition: protobuf.MessageDefinition | protobuf.EnumDefinition): void => {
+  const minimum = isEnum(definition) ? int32Min : 1
+  const maximum = isEnum(definition) ? int32Max : fieldMax
   for (const range of definition.reserved ?? []) {
-    // protobufjs collapses enum `max` to the field-number limit; the original endpoint is lost.
-    if (definition instanceof protobuf.Enum && typeof range !== 'string' && range[1] === fieldMax) {
+    // proto-parser collapses enum `max` to the field-number limit; the original endpoint is lost.
+    if (isEnum(definition) && typeof range !== 'string' && range[1] === fieldMax) {
       throw new Error('Ambiguous Protobuf enum reserved endpoint')
     }
     if (
@@ -49,31 +55,33 @@ export const checkOptions = (options: Record<string, unknown> | undefined, allow
 }
 
 /** Enum symbols share the enclosing namespace, rather than introducing their own scope. */
-export const validateNamespace = (namespace: protobuf.Namespace): void => {
+export const validateNamespace = (namespace: Definition): void => {
   checkOptions(namespace.options)
-  const names = new Set(namespace.nestedArray.map(({ name }) => name))
+  const names = new Set(
+    Object.values(('nested' in namespace ? namespace.nested : undefined) ?? {}).map(({ name }) => name),
+  )
   const add = (name: string): void => {
     if (names.has(name)) {
       throw new Error('Conflicting Protobuf symbol')
     }
     names.add(name)
   }
-  if (namespace instanceof protobuf.Type) {
+  if (isMessage(namespace)) {
     validateReservations(namespace)
-    for (const field of namespace.fieldsArray) {
+    for (const field of Object.values(namespace.fields)) {
       add(field.name)
-      if (field instanceof protobuf.MapField) {
+      if (field.map) {
         const entryName = `${field.name.replace(/(^|_|[0-9])([a-z])/g, (_match, prefix: string, letter: string) => `${/^\d$/.test(prefix) ? prefix : ''}${letter.toUpperCase()}`).replaceAll('_', '')}Entry`
         add(entryName)
       }
     }
-    for (const oneof of namespace.oneofsArray) {
+    for (const oneof of Object.values(namespace.oneofs ?? {})) {
       add(oneof.name)
       checkOptions(oneof.options, [])
     }
   }
-  for (const nested of namespace.nestedArray) {
-    if (nested instanceof protobuf.Enum) {
+  for (const nested of Object.values(('nested' in namespace ? namespace.nested : undefined) ?? {})) {
+    if (isEnum(nested)) {
       for (const name of Object.keys(nested.values)) {
         add(name)
       }
@@ -82,7 +90,7 @@ export const validateNamespace = (namespace: protobuf.Namespace): void => {
 }
 
 /** Enforce enum value and reservation rules that syntax parsing alone does not guarantee. */
-export const validateEnum = (definition: protobuf.Enum, version: string): void => {
+export const validateEnum = (definition: protobuf.EnumDefinition, version: string): void => {
   validateReservations(definition)
   checkOptions(definition.options, ['allow_alias', 'deprecated'])
   const values = Object.entries(definition.values)
@@ -97,40 +105,41 @@ export const validateEnum = (definition: protobuf.Enum, version: string): void =
   }
 }
 
-const validDefault = (field: protobuf.Field, target: protobuf.ReflectionObject | null, value: unknown): boolean => {
-  if (target instanceof protobuf.Enum) {
+const validDefault = (field: protobuf.FieldDefinition, target: Definition | null, value: unknown): boolean => {
+  if (isEnum(target)) {
     return typeof value === 'string' && Object.hasOwn(target.values, value)
   }
-  if (field.type === 'bool') {
+  if (field.type.value === 'bool') {
     return typeof value === 'boolean'
   }
-  if (['string', 'bytes'].includes(field.type)) {
+  if (['string', 'bytes'].includes(field.type.value)) {
     return typeof value === 'string'
   }
-  if (['double', 'float'].includes(field.type)) {
+  if (['double', 'float'].includes(field.type.value)) {
     return typeof value === 'number'
   }
   if (typeof value !== 'number' || !Number.isSafeInteger(value)) {
     return false
   }
-  if (['uint32', 'fixed32'].includes(field.type)) {
+  if (['uint32', 'fixed32'].includes(field.type.value)) {
     return value >= 0 && value <= 4294967295
   }
-  if (['int32', 'sint32', 'sfixed32'].includes(field.type)) {
+  if (['int32', 'sint32', 'sfixed32'].includes(field.type.value)) {
     return value >= int32Min && value <= int32Max
   }
   // Source fallback preserves 64-bit defaults beyond JavaScript's exact numeric range.
-  return !['uint64', 'fixed64'].includes(field.type) || value >= 0
+  return !['uint64', 'fixed64'].includes(field.type.value) || value >= 0
 }
 
 /** Check semantic field restrictions without resolving features or generating constructors. */
 export const validateField = (
-  definition: protobuf.Type,
-  field: protobuf.Field,
-  target: protobuf.ReflectionObject | null,
+  definition: protobuf.MessageDefinition,
+  field: protobuf.FieldDefinition,
+  target: Definition | null,
   version: string,
 ): void => {
   if (
+    (version === '3' && field.rule === 'required') ||
     field.id < 1 ||
     field.id > fieldMax ||
     (field.id >= 19000 && field.id <= 19999) ||
@@ -142,7 +151,7 @@ export const validateField = (
   checkOptions(options, ['default', 'packed', 'deprecated', 'json_name', 'proto3_optional'])
   if (
     options.packed !== undefined &&
-    (!field.repeated || ['string', 'bytes'].includes(field.type) || target instanceof protobuf.Type)
+    (!field.repeated || ['string', 'bytes'].includes(field.type.value) || isMessage(target))
   ) {
     throw new Error('Only repeated numeric and enum fields can be packed')
   }
@@ -150,9 +159,9 @@ export const validateField = (
     Object.hasOwn(options, 'default') &&
     (version !== '2' ||
       field.repeated ||
-      field.partOf ||
-      field instanceof protobuf.MapField ||
-      target instanceof protobuf.Type ||
+      Object.values(definition.oneofs ?? {}).some((oneof) => oneof.oneof.includes(field.name)) ||
+      field.map ||
+      isMessage(target) ||
       !validDefault(field, target, options.default))
   ) {
     throw new Error('Invalid Protobuf default')

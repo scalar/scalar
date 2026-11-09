@@ -1,51 +1,51 @@
-import protobuf from 'protobufjs'
+import { type EnumDefinition, type MessageDefinition, parse } from 'proto-parser'
 
 import { type SchemaDocument, type SchemaNode, createBudget } from '../types'
+import { type Definition, isEnum, isMessage, isScalar } from './ast'
 import { resolveType } from './resolve-type'
 import { checkOptions, validateEnum, validateField, validateNamespace } from './validate'
 
-/** Read reflection metadata only; never load imports or generate message constructors. */
+/** Read the parser AST without loading imports or a Protobuf serialization runtime. */
 export const readProtobuf = (source: unknown, version: string): SchemaDocument => {
   if (typeof source !== 'string') {
     throw new Error('Expected Protobuf source')
   }
-  const tokenizer = protobuf.tokenize(source, true)
-  const first = tokenizer.next()
-  if (first === 'edition') {
-    throw new Error('Unsupported Protobuf edition')
-  }
-  if (first === 'syntax') {
-    const equals = tokenizer.next()
-    const quote = tokenizer.next()
-    const syntax = tokenizer.next()
-    if (equals !== '=' || !['"', "'"].includes(quote ?? '') || syntax !== `proto${version}`) {
-      throw new Error('Conflicting Protobuf version')
-    }
-  }
-  // schemaFormat supplies the syntax when an inline fragment omits its declaration.
-  const parsed = protobuf.parse(first === 'syntax' ? source : `syntax = "proto${version}";\n${source}`, {
+  const parsed = parse(source, {
     keepCase: true,
     alternateCommentMode: true,
+    defaultSyntax: version === '2' ? 'proto2' : 'proto3',
+    // Scalar resolves names lexically and rejects imports; parser resolution is unnecessary.
+    resolve: false,
+    weakResolve: false,
   })
+  if (parsed.syntaxType === 'ProtoError') {
+    throw parsed.error
+  }
+  if (parsed.syntax !== `proto${version}`) {
+    throw new Error('Conflicting Protobuf version')
+  }
   if (parsed.imports?.length || parsed.weakImports?.length) {
     throw new Error('Unsupported Protobuf imports')
   }
   const budget = createBudget()
-  const definitions: (protobuf.Type | protobuf.Enum)[] = []
-  const collect = (namespace: protobuf.Namespace, depth = 0): void => {
+  const definitions: (MessageDefinition | EnumDefinition)[] = []
+  const parents = new WeakMap<Definition, Definition>()
+  const collect = (namespace: Definition, depth = 0): void => {
     budget(depth)
     validateNamespace(namespace)
-    for (const value of namespace.nestedArray) {
+    for (const value of Object.values(('nested' in namespace ? namespace.nested : undefined) ?? {})) {
+      parents.set(value, namespace)
+      value.fullName = `${namespace.fullName ?? ''}.${value.name}`
       if (value.options && Object.keys(value.options).some((key) => key.startsWith('('))) {
         throw new Error('Unsupported custom Protobuf options')
       }
-      if (value instanceof protobuf.Service || value instanceof protobuf.Field) {
+      if (value.syntaxType === 'ServiceDefinition' || value.syntaxType === 'FieldDefinition') {
         throw new Error('Unsupported Protobuf declaration')
       }
-      if (value instanceof protobuf.Type || value instanceof protobuf.Enum) {
+      if (isMessage(value) || isEnum(value)) {
         definitions.push(value)
       }
-      if (value instanceof protobuf.Namespace) {
+      if ('nested' in value || isMessage(value) || isEnum(value)) {
         collect(value, depth + 1)
       }
     }
@@ -55,15 +55,15 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
     throw new Error('No Protobuf definitions')
   }
   const visit = (
-    definition: protobuf.Type | protobuf.Enum,
+    definition: MessageDefinition | EnumDefinition,
     name: string,
-    ancestors = new Set<protobuf.ReflectionObject>(),
+    ancestors = new Set<Definition>(),
     depth = 0,
   ): SchemaNode => {
     budget(depth)
     const node: SchemaNode = {
       name,
-      type: `${definition instanceof protobuf.Enum ? 'enum' : 'message'} ${definition.fullName.replace(/^\./, '')}`,
+      type: `${isEnum(definition) ? 'enum' : 'message'} ${(definition.fullName ?? definition.name).replace(/^\./, '')}`,
     }
     if (definition.comment) {
       node.description = definition.comment
@@ -71,7 +71,7 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
     if (ancestors.has(definition)) {
       return { ...node, recursive: true }
     }
-    if (definition instanceof protobuf.Enum) {
+    if (isEnum(definition)) {
       validateEnum(definition, version)
       node.children = Object.entries(definition.values).map(([name, value]) => {
         budget(depth + 1)
@@ -86,56 +86,56 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
       })
       return node
     }
-    if (definition.toJSON().group || definition.extensions?.length) {
+    if (definition.group || definition.extensions?.length) {
       throw new Error('Unsupported Protobuf groups or extensions')
     }
     checkOptions(definition.options, ['deprecated'])
     const path = new Set([...ancestors, definition])
-    node.children = definition.fieldsArray.map((field) => {
+    node.children = Object.values(definition.fields).map((field) => {
       budget(depth + 1)
       if (field.extend) {
         throw new Error('Unsupported Protobuf extension')
       }
-      const target = resolveType(definition, field.type)
+      const target = resolveType(definition, field.type.value, parents)
       validateField(definition, field, target, version)
       const valueNode =
-        target instanceof protobuf.Type || target instanceof protobuf.Enum
+        isMessage(target) || isEnum(target)
           ? visit(target, field.name, path, depth + 1)
-          : { name: field.name, type: field.type }
-      if (!target && !Object.hasOwn(protobuf.types.basic, field.type)) {
+          : { name: field.name, type: field.type.value }
+      if (!target && !isScalar(field.type.value)) {
         throw new Error('Unresolved Protobuf type')
       }
-      if (target && !(target instanceof protobuf.Type || target instanceof protobuf.Enum)) {
+      if (target && !(isMessage(target) || isEnum(target))) {
         throw new Error('Invalid Protobuf type')
       }
-      const child: SchemaNode =
-        field instanceof protobuf.MapField
-          ? {
-              name: field.name,
-              type: `map<${field.keyType}, ${field.type}>`,
-              mapKey: field.keyType,
-              mapValue: { ...valueNode, name: 'Values' },
-            }
-          : valueNode
+      const child: SchemaNode = field.map
+        ? {
+            name: field.name,
+            type: `map<${field.keyType?.value}, ${field.type.value}>`,
+            mapKey: field.keyType?.value,
+            mapValue: { ...valueNode, name: 'Values' },
+          }
+        : valueNode
       if (field.comment) {
         child.description = field.comment
       }
       child.fieldNumber = field.id
       const details: string[] = []
-      if (field instanceof protobuf.MapField) {
+      const oneof = Object.values(definition.oneofs ?? {}).find((group) => group.oneof.includes(field.name))
+      if (field.map) {
         // Maps have neither singular presence nor a repeated field label.
       } else if (field.repeated) {
         child.repeated = true
-      } else if (field.toJSON().rule === 'required') {
+      } else if (field.rule === 'required') {
         child.required = true
-      } else if (field.options?.proto3_optional) {
+      } else if (field.rule === 'optional' && version === '3' && !oneof) {
         child.presence = 'explicit'
-      } else if (field.partOf) {
-        child.oneofGroup = field.partOf.name
+      } else if (oneof) {
+        child.oneofGroup = oneof.name
       } else if (version === '2') {
         child.required = false
       } else {
-        child.presence = target instanceof protobuf.Type ? 'explicit' : 'implicit'
+        child.presence = isMessage(target) ? 'explicit' : 'implicit'
       }
       if (field.options?.default !== undefined) {
         details.push(

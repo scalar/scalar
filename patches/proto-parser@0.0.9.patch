@@ -1,0 +1,144 @@
+diff --git a/index.d.ts b/index.d.ts
+index fd54265e1852eb9befb268e4d509beb5fd7adce6..3c38cded422f7ffa5531f3059936ef150c19a346 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -32,7 +32,7 @@ export type KeywordType =
+   | 'string'
+   | 'bytes';
+ 
+-export type FieldRule = 'repeated' | 'required';
++export type FieldRule = 'repeated' | 'required' | 'optional';
+ 
+ export interface BaseType {
+   syntaxType: SyntaxType.BaseType;
+@@ -50,7 +50,7 @@ export type FieldType = BaseType | Identifier;
+ export interface ReflectionObject {
+   name: string;
+   fullName?: string;
+-  options?: Record<string, string>;
++  options?: Record<string, unknown>;
+   comment?: string;
+ }
+ 
+@@ -80,7 +80,7 @@ export interface MethodDefinition extends ReflectionObject {
+ 
+ export interface NamespaceBase extends ReflectionObject {
+   syntaxType: SyntaxType;
+-  nested?: Record<string, NamespaceBase>;
++  nested?: Record<string, NamespaceDefinition | MessageDefinition | EnumDefinition | ServiceDefinition | FieldDefinition>;
+ }
+ 
+ export interface NamespaceDefinition extends NamespaceBase {
+@@ -90,15 +90,18 @@ export interface NamespaceDefinition extends NamespaceBase {
+ export interface MessageDefinition extends NamespaceBase {
+   syntaxType: SyntaxType.MessageDefinition;
+   fields: Record<string, FieldDefinition>;
+-  oneofs: Record<string, OneofDefinition>;
+-  extensions?: string[];
+-  reserved?: number[] | string;
++  oneofs?: Record<string, OneofDefinition>;
++  extensions?: [number, number][];
++  group?: boolean;
++  reserved?: (string | [number, number])[];
+ }
+ 
+ export interface EnumDefinition extends NamespaceBase {
+   syntaxType: SyntaxType.EnumDefinition;
+   values: Record<string, number>;
+-  reserved?: number[] | string;
++  comments?: Record<string, string>;
++  valuesOptions?: Record<string, Record<string, unknown>>;
++  reserved?: (string | [number, number])[];
+ }
+ 
+ export interface ServiceDefinition extends NamespaceBase {
+@@ -127,6 +130,7 @@ export interface ProtoError {
+ }
+ 
+ export interface ParseOption {
++  defaultSyntax?: 'proto2' | 'proto3';
+   keepCase?: boolean;
+   alternateCommentMode?: boolean;
+   resolve?: boolean;
+diff --git a/src/construct.js b/src/construct.js
+index 65166a560a566d59eb116aac239939582cac125b..3556ac0d516e021aee6399440e4c4026a1a8c7f9 100644
+--- a/src/construct.js
++++ b/src/construct.js
+@@ -108,7 +108,7 @@ class FieldDefinition extends ReflectionObject {
+     }
+ 
+     this.type = getFieldType(type);
+-    this.rule = rule && rule !== 'optional' ? rule : undefined;
++    this.rule = rule;
+     this.id = id;
+     this.extend = extend || undefined;
+     this.required = rule === 'required';
+@@ -131,6 +131,7 @@ class FieldDefinition extends ReflectionObject {
+   toJson() {
+     const json = ReflectionObject.prototype.toJson.call(this);
+     const keys = [
++      'syntaxType',
+       'id',
+       'type',
+       'rule',
+@@ -490,6 +491,7 @@ class EnumDefinition extends NamespaceDefinition {
+     this.values = Object.create(this.valuesById);
+     this.comment = comment;
+     this.comments = comments || {};
++    this.valuesOptions = {};
+     this.reserved = undefined;
+ 
+     /* istanbul ignore next */
+@@ -542,7 +544,7 @@ class EnumDefinition extends NamespaceDefinition {
+ 
+   toJson() {
+     const json = NamespaceDefinition.prototype.toJson.call(this);
+-    Object.assign(json, copyObject(this, ['values', 'reserved']));
++    Object.assign(json, copyObject(this, ['values', 'reserved', 'comments', 'valuesOptions']));
+     return json;
+   }
+ }
+diff --git a/src/parse.js b/src/parse.js
+index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..623bf104c1f92ab7f778b23b1b6fca835ce14e30 100644
+--- a/src/parse.js
++++ b/src/parse.js
+@@ -86,8 +86,8 @@ function parse(source, opt) {
+   let pkg;
+   let imports;
+   let weakImports;
+-  let syntax;
+-  let isProto3 = false;
++  let syntax = options.defaultSyntax;
++  let isProto3 = syntax === 'proto3';
+ 
+   let ptr = root;
+ 
+@@ -346,7 +346,7 @@ function parse(source, opt) {
+           if (!isProto3 || !typeRefRe.test(token)) throw illegal(token);
+ 
+           push(token);
+-          parseField(type, 'optional');
++          parseField(type, undefined);
+           break;
+       }
+     });
+@@ -523,7 +523,10 @@ function parse(source, opt) {
+ 
+     skip('=');
+     const value = parseId(next(), true);
+-    const dummy = {};
++    const dummy = {
++      options: {},
++      setOption(name, value) { this.options[name] = value; },
++    };
+     ifBlock(
+       dummy,
+       token => {
+@@ -538,6 +541,7 @@ function parse(source, opt) {
+       }
+     );
+     parent.add(token, value, dummy.comment);
++    parent.valuesOptions[token] = dummy.options;
+   }
+ 
+   function parseOption(parent, token) {

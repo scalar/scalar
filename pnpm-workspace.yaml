@@ -90,7 +90,7 @@ catalogs:
     next: ^16.4.3
     neverpanic: 0.0.8
     picomatch: ^4.0.7
-    protobufjs: 7.6.6
+    proto-parser: 0.0.9
     postcss: ^8.5.30
     quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17
@@ -187,3 +187,5 @@ minimumReleaseAgeExclude:
   - pnpm@10.34.5
   # Renovate security update: @sveltejs/kit@3.0.0
   - '@sveltejs/kit@3.0.0'
+patchedDependencies:
+  proto-parser@0.0.9: patches/proto-parser@0.0.9.patch

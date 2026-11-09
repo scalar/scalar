@@ -1,26 +1,37 @@
-import protobuf from 'protobufjs'
+import { type Definition, isMessage, isScalar } from './ast'
 
-/** Resolve lexically, without protobufjs lookup's root-first shortcut or descendant search. */
-export const resolveType = (scope: protobuf.Namespace, name: string): protobuf.ReflectionObject | null => {
-  if (Object.hasOwn(protobuf.types.basic, name)) {
+/** Resolve lexically; a local prefix shadows an outer type even when its suffix is missing. */
+export const resolveType = (
+  scope: Definition,
+  name: string,
+  parents: WeakMap<Definition, Definition>,
+): Definition | null => {
+  if (isScalar(name)) {
     return null
   }
-  const descend = (object: protobuf.ReflectionObject | null, parts: string[]): protobuf.ReflectionObject | null =>
-    parts.reduce<protobuf.ReflectionObject | null>(
-      (parent, part) => (parent instanceof protobuf.Namespace ? parent.get(part) : null),
-      object,
-    )
+  const get = (node: Definition, key: string): Definition | null => {
+    if (isMessage(node)) {
+      return node.fields[key] ?? node.oneofs?.[key] ?? node.nested?.[key] ?? null
+    }
+    return 'nested' in node ? (node.nested?.[key] ?? null) : null
+  }
+  const descend = (node: Definition, parts: string[]): Definition | null =>
+    parts.reduce<Definition | null>((parent, part) => (parent ? get(parent, part) : null), node)
   if (name.startsWith('.')) {
-    return descend(scope.root, name.slice(1).split('.'))
+    const root = (node: Definition): Definition => {
+      const parent = parents.get(node)
+      return parent ? root(parent) : node
+    }
+    return descend(root(scope), name.slice(1).split('.'))
   }
   const [head, ...tail] = name.split('.')
-  const find = (namespace: protobuf.Namespace): protobuf.ReflectionObject | null => {
-    const first = head ? namespace.get(head) : null
-    // Once a prefix is found in an inner scope, a missing suffix must not select an outer type.
+  const find = (node: Definition): Definition | null => {
+    const first = head ? get(node, head) : null
     if (first) {
       return descend(first, tail)
     }
-    return namespace.parent instanceof protobuf.Namespace ? find(namespace.parent) : null
+    const parent = parents.get(node)
+    return parent ? find(parent) : null
   }
   return find(scope)
 }
