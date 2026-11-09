@@ -192,4 +192,44 @@ ofetch('https://example.com', {
 
 ofetch('https://example.com')`)
   })
+
+  it('keeps repeated urlencoded names', () => {
+    const result = jsOfetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
+  method: 'POST',
+  body: new URLSearchParams([['tag', 'a'], ['tag', 'b']])
+})`)
+  })
+
+  it.each(['__proto__', 'constructor', 'toString'])('sends a urlencoded body with the name %s', (name) => {
+    const snippet = jsOfetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name, value: 'a' }, { name: 'tag', value: 'b' }, { name: 'tag' }],
+      },
+    })
+    let body: unknown
+    new Function('ofetch', snippet.replace("import { ofetch } from 'ofetch'\n", ''))(
+      (_url: string, options: { body?: unknown }): void => {
+        body = options.body
+      },
+    )
+
+    expect(String(body)).toStrictEqual(`${name}=a&tag=b&tag=`)
+  })
 })

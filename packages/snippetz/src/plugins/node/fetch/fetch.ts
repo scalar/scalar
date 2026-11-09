@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { mergeCookieHeaders } from '@/libs/cookies'
-import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
@@ -62,8 +62,7 @@ export const nodeFetch: Plugin = {
         prefix = `${buildFormData(params, 'node').join('\n')}\n\n`
         options.body = new Raw('formData')
       } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
-        const form = Object.fromEntries(params.map((p) => [p.name, p.value]))
-        options.body = new Raw(`new URLSearchParams(${objectToString(form)})`)
+        options.body = new Raw(urlSearchParams(params))
       } else {
         options.body = normalizedRequest.postData.text
       }

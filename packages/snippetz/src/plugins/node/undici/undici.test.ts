@@ -86,6 +86,88 @@ describe('nodeUndici', () => {
     15000,
   )
 
+  it('keeps repeated urlencoded names', () => {
+    const result = nodeUndici.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`import { request } from 'undici'
+
+const { statusCode, body } = await request('https://example.com', {
+  method: 'POST',
+  body: new URLSearchParams([['tag', 'a'], ['tag', 'b']]).toString()
+})`)
+  })
+
+  it.each([
+    [
+      'repeated names',
+      [
+        { name: 'tag', value: 'a' },
+        { name: 'tag', value: 'b' },
+      ],
+      'tag=a&tag=b',
+    ],
+    [
+      'inherited object keys',
+      [
+        { name: '__proto__', value: 'a' },
+        { name: 'toString', value: 'b' },
+      ],
+      '__proto__=a&toString=b',
+    ],
+    ['missing values', [{ name: 'missing' }], 'missing='],
+    ['quotes and separators', [{ name: "it's", value: 'a&b=c ü' }], 'it%27s=a%26b%3Dc+%C3%BC'],
+  ])(
+    'sends a urlencoded body with %s from a fresh Node process',
+    async (_, params, expected) => {
+      let received = ''
+      let contentType = ''
+      const server = createServer((request, response) => {
+        contentType = String(request.headers['content-type'])
+        request.setEncoding('utf8')
+        request.on('data', (chunk: string) => {
+          received += chunk
+        })
+        request.on('end', () => response.end('{}'))
+      })
+      try {
+        await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+        const address = server.address()
+        if (!address || typeof address === 'string') {
+          throw new Error('Expected a local server address')
+        }
+        const snippet = nodeUndici.generate({
+          url: `http://127.0.0.1:${address.port}/`,
+          method: 'POST',
+          headers: [{ name: 'content-type', value: 'application/x-www-form-urlencoded' }],
+          postData: { mimeType: 'application/x-www-form-urlencoded', params },
+        })
+        // Resolve the installed dependency before running from a temporary directory.
+        const undici = import.meta.resolve('undici')
+        const source =
+          snippet.replace("from 'undici'", `from ${JSON.stringify(undici)}`) +
+          `\nawait body.dump();\nawait (await import(${JSON.stringify(undici)})).getGlobalDispatcher().destroy();`
+        await promisify(execFile)(process.execPath, ['--input-type=module', '-e', source], { timeout: 10000 })
+
+        expect(received).toStrictEqual(expected)
+        expect(contentType).toStrictEqual('application/x-www-form-urlencoded')
+      } finally {
+        server.closeAllConnections()
+        await new Promise<void>((resolve) => server.close(() => resolve()))
+      }
+    },
+    15000,
+  )
+
   it('has import', () => {
     const result = nodeUndici.generate({
       url: 'https://example.com',

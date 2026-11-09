@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { mergeCookieHeaders } from '@/libs/cookies'
-import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { Raw, objectToString } from '@/libs/javascript'
 
@@ -53,6 +53,12 @@ export const nodeUndici: Plugin = {
       if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         prefix = `${buildFormData(normalizedRequest.postData.params, 'node').join('\n')}\n\n`
         options.body = new Raw('formData')
+      } else if (
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.params
+      ) {
+        // The undici request API accepts a string body but not a URLSearchParams instance.
+        options.body = new Raw(`${urlSearchParams(normalizedRequest.postData.params)}.toString()`)
       } else {
         options.body = normalizedRequest.postData.text
       }

@@ -3,10 +3,13 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
+import type { HarRequest } from '@scalar/types/snippetz'
 import { describe, expect, it } from 'vitest'
 
 import { clients } from '../clients'
-import { buildFormData } from './form-data'
+import { buildFormData, urlSearchParams } from './form-data'
+
+type Params = NonNullable<NonNullable<HarRequest['postData']>['params']>
 
 const javascriptPlugins = clients
   .filter(({ key }) => key === 'js' || key === 'node')
@@ -121,5 +124,40 @@ describe('form-data', () => {
     }
     expect(file.name).toBe('inline.txt')
     expect(await file.text()).toBe('contents')
+  })
+})
+
+describe('urlSearchParams', () => {
+  it.each<[string, Params, string]>([
+    [
+      'repeated names in order',
+      [
+        { name: 'tag', value: 'a' },
+        { name: 'other', value: 'b' },
+        { name: 'tag', value: 'c' },
+      ],
+      'tag=a&other=b&tag=c',
+    ],
+    [
+      'names that match inherited object keys',
+      [
+        { name: '__proto__', value: 'a' },
+        { name: 'constructor', value: 'b' },
+        { name: 'toString', value: 'c' },
+      ],
+      '__proto__=a&constructor=b&toString=c',
+    ],
+    ['missing and empty values', [{ name: 'missing' }, { name: 'empty', value: '' }], 'missing=&empty='],
+    [
+      'quotes, separators and unicode',
+      [
+        { name: "it's", value: 'a&b=c ü' },
+        { name: 'back\\slash', value: 'line\nbreak' },
+      ],
+      'it%27s=a%26b%3Dc+%C3%BC&back%5Cslash=line%0Abreak',
+    ],
+  ])('serializes %s', (_, params, expected) => {
+    const body: URLSearchParams = new Function(`return ${urlSearchParams(params)};`)()
+    expect(body.toString()).toStrictEqual(expected)
   })
 })

@@ -264,10 +264,26 @@ fetch('https://example.com', {
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded'
   },
-  body: new URLSearchParams({
-    foo: 'bar',
-    baz: 'foo'
+  body: new URLSearchParams([['foo', 'bar'], ['baz', 'foo']])
+})`)
   })
+
+  it('keeps repeated urlencoded names', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com', {
+  method: 'POST',
+  body: new URLSearchParams([['tag', 'a'], ['tag', 'b']])
 })`)
   })
 
