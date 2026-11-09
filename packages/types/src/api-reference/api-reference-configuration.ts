@@ -169,11 +169,19 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
     ])
     .optional(),
   /** Determine the HTTP client that's selected by default */
+  // The custom branch widens the inferred type only; the permissive first branch
+  // already accepts custom keys at runtime.
   defaultHttpClient: z
-    .object({
-      targetKey: z.custom<TargetId>(),
-      clientKey: z.custom<ClientId<TargetId>>(),
-    })
+    .union([
+      z.object({
+        targetKey: z.custom<TargetId>(),
+        clientKey: z.custom<ClientId<TargetId>>(),
+      }),
+      z.object({
+        targetKey: z.literal('custom'),
+        clientKey: z.string(),
+      }),
+    ])
     .optional(),
   /**
    * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
