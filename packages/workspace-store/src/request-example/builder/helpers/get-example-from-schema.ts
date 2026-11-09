@@ -528,6 +528,44 @@ const getDiscriminatorTag = (
   return mapped?.[0] ?? componentName
 }
 
+/** Check declarations through references and allOf without mistaking generated placeholders for authored values. */
+const hasDeclaredDiscriminatorValue = (
+  schema: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  propertyName: string | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  seen: Set<object> = new Set(),
+  level: number = 0,
+): boolean => {
+  const resolved = schema && resolve.schema(schema)
+  if (!resolved || level > MAX_LEVELS_DEEP) {
+    return false
+  }
+  const target = getSchemaCacheTarget(resolved)
+  if (seen.has(target)) {
+    return false
+  }
+  const nextSeen = new Set(seen).add(target)
+  const variable = resolved['x-variable']
+  const value =
+    variable && options?.variables?.[variable] !== undefined ? options.variables[variable] : getDeclaredValue(resolved)
+  if (value !== undefined) {
+    return (
+      propertyName === undefined || (value !== null && typeof value === 'object' && Object.hasOwn(value, propertyName))
+    )
+  }
+  if (propertyName !== undefined && 'properties' in resolved) {
+    const property = resolved.properties?.[propertyName]
+    if (hasDeclaredDiscriminatorValue(property, undefined, options, nextSeen, level + 1)) {
+      return true
+    }
+  }
+  return (
+    resolved.allOf?.some((member) =>
+      hasDeclaredDiscriminatorValue(member, propertyName, options, nextSeen, level + 1),
+    ) ?? false
+  )
+}
+
 /**
  * Write the selected variant's discriminator value into the example. Without it the example
  * carries an empty tag and a server cannot tell which variant it is. Declared values win, and a
@@ -551,8 +589,10 @@ const withDiscriminatorTag = (
   ) {
     return example
   }
-  const current = (example as Record<string, unknown>)[discriminator.propertyName]
-  if (current !== undefined && current !== '') {
+  if (
+    hasDeclaredDiscriminatorValue(schema, discriminator.propertyName, options) ||
+    hasDeclaredDiscriminatorValue(variant, discriminator.propertyName, options)
+  ) {
     return example
   }
   const tag = getDiscriminatorTag(discriminator, variant)
