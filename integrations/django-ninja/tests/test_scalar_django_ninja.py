@@ -3,7 +3,6 @@ Tests for scalar_ninja core functionality.
 """
 
 import json
-from html import unescape
 from html.parser import HTMLParser
 
 import pytest
@@ -716,16 +715,6 @@ class TestEdgeCases:
         assert '"url": ""' in html_content
         assert "<title>Scalar</title>" in html_content
 
-    def test_page_title_cannot_add_markup(self):
-        title = "API & Documentation </title><script>alert(1)</script>"
-        html_content = get_scalar_api_reference(ScalarConfig(title=title)).content.decode()
-
-        _, _, title_and_tail = html_content.partition("<title>")
-        rendered_title, closing_title, tail = title_and_tail.partition("</title>")
-        assert closing_title
-        assert unescape(rendered_title) == title
-        assert "<script>alert(1)</script>" not in tail
-
     @pytest.mark.parametrize("as_string", [False, True], ids=["dictionary", "json"])
     @pytest.mark.parametrize("in_sources", [False, True], ids=["content", "sources"])
     @pytest.mark.parametrize(
@@ -874,3 +863,114 @@ class TestResourceUrlEscaping:
             for name, attrs in baseline.elements
         ]
         assert actual.elements == expected
+
+
+class TestHtmlEscaping:
+    @pytest.mark.parametrize("use_viewer", [False, True])
+    @pytest.mark.parametrize(
+        "title",
+        [
+            "</title><script>window.SCALAR_TITLE_PROBE=1</script><title>",
+            "</TiTlE><script>window.SCALAR_TITLE_PROBE=1</script><title>",
+            'API & <Documentation> "quoted" — 日本語',
+            "",
+            None,
+        ],
+    )
+    def test_title_remains_text(self, title, use_viewer):
+        """Both entry points preserve title text without introducing elements."""
+        config = ScalarConfig(title=title)
+        response = (
+            ScalarViewer(config=config).render_page(None, None)
+            if use_viewer
+            else get_scalar_api_reference(config)
+        )
+
+        class TitleParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.elements = []
+                self.title = ""
+                self.in_title = False
+
+            def handle_starttag(self, tag, attrs):
+                self.elements.append(tag)
+                if tag == "title":
+                    self.in_title = True
+
+            def handle_endtag(self, tag):
+                if tag == "title":
+                    self.in_title = False
+
+            def handle_data(self, data):
+                if self.in_title:
+                    self.title += data
+
+        baseline = TitleParser()
+        baseline.feed(get_scalar_api_reference(ScalarConfig()).content.decode())
+        actual = TitleParser()
+        actual.feed(response.content.decode())
+        assert actual.elements == baseline.elements
+        assert actual.title == (title or "Scalar")
+
+    @pytest.mark.parametrize(
+        "field, js_field",
+        [
+            ("openapi_url", "url"),
+            ("content", "content"),
+            ("custom_css", "customCss"),
+            ("sources", "sources"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "</script><script>window.SCALAR_TITLE_PROBE=1</script>",
+            "</ScRiPt><script>window.SCALAR_TITLE_PROBE=1</script>",
+            '<!--<script> & "quotes" \u2028\u2029日本語',
+        ],
+    )
+    def test_configuration_remains_inside_script(self, field, js_field, payload):
+        """Embedded JSON preserves values without allowing HTML parser breakouts."""
+        value = (
+            [{"title": payload, "url": "/openapi.json"}]
+            if field == "sources"
+            else payload
+        )
+        response = get_scalar_api_reference(ScalarConfig(**{field: value}))
+
+        class ScriptParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+                self.in_script = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.scripts.append("")
+                    self.in_script = True
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.in_script = False
+
+            def handle_data(self, data):
+                if self.in_script:
+                    self.scripts[-1] += data
+
+        parser = ScriptParser()
+        parser.feed(response.content.decode())
+        assert len(parser.scripts) == 2
+        initialization = parser.scripts[-1].strip()
+        prefix = 'Scalar.createApiReference("#app", '
+        assert initialization.startswith(prefix)
+        assert initialization.endswith(")")
+        config_json = initialization[len(prefix) : -1]
+        # Also prevent HTML comment/script sequences from changing parser state.
+        assert "<" not in config_json
+        decoded = json.loads(config_json)
+        if field == "sources":
+            assert decoded[js_field][0]["title"] == payload
+            assert decoded[js_field][0]["url"] == "/openapi.json"
+        else:
+            assert decoded[js_field] == value

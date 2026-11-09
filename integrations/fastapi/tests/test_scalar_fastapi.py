@@ -708,3 +708,69 @@ class TestPlainStringValues:
         ).body.decode()
 
         assert from_string == from_enum
+
+
+class TestHtmlEscaping:
+    @pytest.mark.parametrize(
+        "field, js_field",
+        [
+            ("openapi_url", "url"),
+            ("content", "content"),
+            ("custom_css", "customCss"),
+            ("sources", "sources"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "</script><script>window.SCALAR_TITLE_PROBE=1</script>",
+            "</ScRiPt><script>window.SCALAR_TITLE_PROBE=1</script>",
+            '<!--<script> & "quotes" \u2028\u2029日本語',
+        ],
+    )
+    def test_configuration_remains_inside_script(self, field, js_field, payload):
+        """Embedded JSON preserves values without allowing HTML parser breakouts."""
+        value = (
+            [OpenAPISource(title=payload, url="/openapi.json")]
+            if field == "sources"
+            else payload
+        )
+        response = get_scalar_api_reference(
+            **{"openapi_url": "/openapi.json", "title": "Test API", field: value}
+        )
+
+        class ScriptParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+                self.in_script = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.scripts.append("")
+                    self.in_script = True
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.in_script = False
+
+            def handle_data(self, data):
+                if self.in_script:
+                    self.scripts[-1] += data
+
+        parser = ScriptParser()
+        parser.feed(response.body.decode())
+        assert len(parser.scripts) == 2
+        initialization = parser.scripts[-1].strip()
+        prefix = 'Scalar.createApiReference("#app", '
+        assert initialization.startswith(prefix)
+        assert initialization.endswith(")")
+        config_json = initialization[len(prefix) : -1]
+        # Also prevent HTML comment/script sequences from changing parser state.
+        assert "<" not in config_json
+        decoded = json.loads(config_json)
+        if field == "sources":
+            assert decoded[js_field][0]["title"] == payload
+            assert decoded[js_field][0]["url"] == "/openapi.json"
+        else:
+            assert decoded[js_field] == value

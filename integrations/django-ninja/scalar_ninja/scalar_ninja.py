@@ -7,6 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Dict, Any, Union, Optional
 
 
+def _inline_script_json(value: object) -> str:
+    """Serialize JSON without allowing HTML tokens to change the script context."""
+    return json.dumps(value).replace("<", r"\u003c")
+
+
 class Layout(Enum):
     MODERN = "modern"
     CLASSIC = "classic"
@@ -502,8 +507,7 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
         js_config["agent"] = config.agent.model_dump(exclude_none=True)
 
     page_title = escape(config.title) if config.title else "Scalar"
-    # Keep configuration text from changing how the HTML parser reads the script.
-    config_json = json.dumps(js_config).replace("<", r"\u003c")
+    config_json = _inline_script_json(js_config)
 
     html = f"""
 <!doctype html>
