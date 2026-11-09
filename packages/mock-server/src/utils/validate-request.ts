@@ -18,6 +18,7 @@ import {
   isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
+import { dropReadOnlyRequired } from './drop-read-only-required'
 import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
@@ -249,7 +250,9 @@ const compileValidators = (
   let bodySchema: Record<string, unknown> | null = null
   try {
     const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    bodySchema = jsonSchema ? asCompilableSchema(getResolvedRefDeep(jsonSchema)) : null
+    bodySchema = jsonSchema
+      ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
+      : null
   } catch (error) {
     console.error('Error resolving request body schema, skipping body validation:', error)
   }
