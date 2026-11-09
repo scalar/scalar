@@ -51,6 +51,10 @@
     "image": {
       "url": "https://github.com/scalar/scalar/blob/main/integrations/docusaurus/docusaurus.png?raw=true",
       "altText": "Screenshot of the Docusaurus integration"
+    },
+    "extraContent": {
+      "headline": "CDN compatibility",
+      "content": "Scalar loads only when an API reference route mounts. Sites that call `window.Scalar.createApiReference` on other pages must load the CDN bundle themselves. When pinning `cdn` to an older bundle, upgrade to a release with standalone style cleanup and `Scalar.releaseUnusedStyles`; older bundles can leave styles active after navigation, including when navigation interrupts loading."
     }
   },
   "dependencies": {
@@ -68,6 +72,7 @@
     "@types/react": "catalog:*",
     "@types/react-dom": "catalog:*",
     "clsx": "^2.1.1",
+    "jsdom": "catalog:*",
     "path": "^0.12.7",
     "postcss": "catalog:*",
     "postcss-cli": "^12.0.0",

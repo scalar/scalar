@@ -9,7 +9,13 @@ import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
 
-import { createApiReference, createContainer, findDataAttributes, getConfigurationFromDataAttributes } from './html-api'
+import {
+  createApiReference,
+  createContainer,
+  findDataAttributes,
+  getConfigurationFromDataAttributes,
+  releaseUnusedStyles,
+} from './html-api'
 
 vi.mock('@unhead/vue/client', async () => {
   const actual = await vi.importActual<typeof import('@unhead/vue/client')>('@unhead/vue/client')
@@ -178,6 +184,44 @@ describe('createApiReference', () => {
 
     return style
   }
+
+  it('releases orphaned styles without changing body classes and restores them on mount', () => {
+    const style = injectStandaloneStyle()
+    document.body.className = 'dark-mode host-theme'
+
+    releaseUnusedStyles()
+    releaseUnusedStyles()
+
+    expect(document.getElementById('scalar-style')).toBeNull()
+    expect(document.body.className).toBe('dark-mode host-theme')
+    const instance = createApiReference('#mount-point', {})
+    expect(document.getElementById('scalar-style')).toBe(style)
+    instance.destroy()
+  })
+
+  it('does not release styles owned by an active reference', () => {
+    const style = injectStandaloneStyle()
+    const instance = createApiReference('#mount-point', {})
+    releaseUnusedStyles()
+    releaseUnusedStyles()
+    expect(document.getElementById('scalar-style')).toBe(style)
+    instance.destroy()
+    expect(document.getElementById('scalar-style')).toBeNull()
+  })
+
+  it('releases styles when destroyed before plugins finish loading', async () => {
+    injectStandaloneStyle()
+    const instance = createApiReference('#mount-point', {
+      pluginUrls: ['data:text/javascript,export default () => ({ name: "late", extensions: [] })'],
+    })
+    const bodyClasses = document.body.className
+    instance.destroy()
+    releaseUnusedStyles()
+    await flushPromises()
+    expect(document.getElementById('scalar-style')).toBeNull()
+    expect(document.body.className).toBe(bodyClasses)
+    expect(document.querySelector('#mount-point')?.innerHTML).toBe('')
+  })
 
   it('detaches the injected standalone styles on destroy', () => {
     injectStandaloneStyle()
