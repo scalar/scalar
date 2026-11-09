@@ -203,7 +203,7 @@ The following frameworks have chosen Scalar API Reference as their default OpenA
 - [HappyX](https://github.com/HapticX/happyx)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [Nitro](https://scalar.com/products/api-references/integrations/nitro)
-- [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
+- [oRPC](https://orpc.dev/docs/openapi/plugins/openapi-reference)
 - [Platformatic](https://scalar.com/products/api-references/integrations/platformatic)
 - [Spry](https://scalar.com/products/api-references/integrations/spry)
 
