@@ -1356,6 +1356,132 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(['foobar', 'barfoo'])
   })
 
+  describe('array items with an untyped allOf', () => {
+    const extra = {
+      required: ['extra'],
+      properties: { extra: { type: 'string', example: 'more' } },
+    }
+
+    it('merges a $ref to an untyped allOf base into one item', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/Base',
+              '$ref-value': {
+                allOf: [
+                  { type: 'object', required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+                  { type: 'object', required: ['name'], properties: { name: { type: 'string', example: 'test' } } },
+                ],
+              },
+            },
+            extra,
+          ],
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+    })
+
+    it('merges an inline untyped allOf first member into one item', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              allOf: [
+                { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+                { type: 'object', properties: { name: { type: 'string', example: 'test' } } },
+              ],
+            },
+            extra,
+          ],
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+    })
+
+    it('merges a first member that is an object by shape but has no type', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/Base',
+              '$ref-value': { required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+            },
+            extra,
+          ],
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+    })
+
+    it('merges when a later member is the first one to describe an object', () => {
+      const schema = coerceValue(SchemaObjectSchema, {
+        type: 'array',
+        items: {
+          allOf: [
+            { description: 'A list entry' },
+            { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+            extra,
+          ],
+        },
+      })
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+    })
+
+    it('stops at an allOf cycle while checking whether the members describe an object', () => {
+      const cyclic: Record<string, unknown> = {}
+      cyclic.allOf = [cyclic]
+      const schema = {
+        type: 'array',
+        items: { allOf: [cyclic, extra] },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+    })
+
+    it('keeps one example per member when no member describes an object', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: {
+              allOf: [
+                { type: 'integer', example: 1 },
+                { type: 'integer', example: 2 },
+              ],
+            },
+          }),
+        ),
+      ).toStrictEqual([1, 2])
+    })
+
+    it('already merges an untyped allOf at the root and in a property', () => {
+      const untyped = coerceValue(SchemaObjectSchema, {
+        allOf: [
+          {
+            allOf: [
+              { properties: { id: { type: 'integer', example: 1 } } },
+              { properties: { name: { type: 'string', example: 'test' } } },
+            ],
+          },
+          extra,
+        ],
+      })
+
+      expect(getExampleFromSchema(untyped)).toStrictEqual({ id: 1, name: 'test', extra: 'more' })
+      expect(getExampleFromSchema({ type: 'object', properties: { item: untyped } })).toStrictEqual({
+        item: { id: 1, name: 'test', extra: 'more' },
+      })
+    })
+  })
+
   it('uses the default value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',

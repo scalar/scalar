@@ -813,6 +813,49 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
+/**
+ * Check whether an `allOf` describes a single object, so its members must be merged into one example.
+ *
+ * Only `$ref` and `allOf` are followed, because those are the schemas guaranteed to apply to every
+ * instance (OpenAPI 3.2 "Working with Non-JSON Data"). A member counts as an object when it declares
+ * `type: object`, or when it has no `type` but is written like one (`properties`, `patternProperties`,
+ * `additionalProperties` or `required`). This matches how the rest of the generator infers objects.
+ *
+ * Any member is enough, not only the first one. `allOf` validates one instance against every member,
+ * so once one member makes that instance an object, the others cannot describe separate list items.
+ * Splitting them would produce partial objects that are each missing the other members' required
+ * properties. Leading members that only add a description or constraints are common, too.
+ */
+const allOfDescribesObject = (allOf: readonly unknown[], seen: WeakSet<object> = new WeakSet()): boolean =>
+  allOf.some((member) => {
+    const resolved = resolve.schema(member as SchemaObject)
+    if (!resolved || typeof resolved !== 'object') {
+      return false
+    }
+
+    // Guard against `allOf` cycles, for example a base schema that references itself
+    const target = getSchemaCacheTarget(resolved)
+    if (seen.has(target)) {
+      return false
+    }
+    seen.add(target)
+
+    if ('type' in resolved && resolved.type !== undefined) {
+      return Array.isArray(resolved.type) ? resolved.type.includes('object') : resolved.type === 'object'
+    }
+
+    if (
+      'properties' in resolved ||
+      'patternProperties' in resolved ||
+      'additionalProperties' in resolved ||
+      'required' in resolved
+    ) {
+      return true
+    }
+
+    return Array.isArray(resolved.allOf) && allOfDescribesObject(resolved.allOf, seen)
+  })
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -863,9 +906,7 @@ const handleArraySchema = (
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
-      const first = resolve.schema(allOf[0])
-
-      if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
+      if (allOfDescribesObject(allOf)) {
         const combined: SchemaObject = { type: 'object', allOf }
         const merged = getExampleFromSchema(combined, options, {
           level: level + 1,
