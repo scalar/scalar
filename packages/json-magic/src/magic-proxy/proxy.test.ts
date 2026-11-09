@@ -2137,4 +2137,26 @@ describe('createMagicProxy', () => {
     proxy.schema.properties['value'] = { $ref: '#/$defs/Value' }
     expect(proxy.schema.properties['value']['$ref-value']).toBe(proxy.schema.$defs.Value)
   })
+  it('invalidates cached paths when a resource-local target is added or deleted', () => {
+    const proxy = createMagicProxy({
+      value: { type: 'number' },
+      schema: { $id: 'schema.json', ref: { $ref: '#/value' } },
+    })
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.value)
+    proxy.schema['value'] = { type: 'string' }
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.schema['value'])
+    delete proxy.schema['value']
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.value)
+  })
+
+  it('reads replaced raw targets and changed references after warming the cache', () => {
+    const input = { first: { type: 'string' }, second: { type: 'number' }, ref: { $ref: '#/first' } }
+    const proxy = createMagicProxy(input)
+    expect(proxy.ref['$ref-value']).toBe(proxy.first)
+    input.first = { type: 'boolean' }
+    expect(proxy.ref['$ref-value']).toBe(proxy.first)
+    expect(proxy.ref['$ref-value'].type).toBe('boolean')
+    input.ref.$ref = '#/second'
+    expect(proxy.ref['$ref-value']).toBe(proxy.second)
+  })
 })

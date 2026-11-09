@@ -785,8 +785,17 @@ export const bundleDocument = async (
         key,
         documentRoot[config.externalDocumentsMappingsKey][key],
       )
-      traversal.register(document, retrievalUri)
-      references.register(document, retrievalUri, [config.externalDocumentsKey, key])
+      const source = documentRoot[config.externalDocumentsMappingsKey][key]
+      traversal.register(
+        document,
+        source ? retrievalUri : `#/${escapeJsonPointer(config.externalDocumentsKey)}/${escapeJsonPointer(key)}`,
+      )
+      references.register(
+        document,
+        retrievalUri,
+        [config.externalDocumentsKey, key],
+        resolveReferencePath(defaultOrigin, source ?? key),
+      )
     }
   }
   for (const [uri, pending] of [...cache]) {
@@ -1072,7 +1081,8 @@ export const bundleDocument = async (
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
-      const resolvedPath = resolveReferencePath(nodeOrigin, prefix)
+      const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
+      const resolvedPath = resolveReferencePath(retrievalOrigin, prefix)
       const relativePath = toRelativePath(resolvedPath, defaultOrigin)
 
       // Generate a unique compressed path for the external document
@@ -1129,7 +1139,7 @@ export const bundleDocument = async (
 
         const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
         const finishResolution = async (): Promise<void> => {
-          const target = targetReferences.resolve(ref, nodeOrigin)
+          const target = targetReferences.resolve(ref, retrievalOrigin)
           if (diagnostics && target?.value === undefined) {
             setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
             report('missing-target')

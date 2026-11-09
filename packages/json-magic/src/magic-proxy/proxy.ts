@@ -70,7 +70,15 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
     /** Shared resource index for fragment pointers, identifiers, and anchors. */
     references: DocumentReferences
     origin: string
-  } = ((): { root: T; proxyCache: WeakMap<object, T>; references: DocumentReferences; origin: string } => {
+    /** Invalidates resolved paths when proxy mutations can change fallback targets. */
+    revision: { value: number }
+  } = ((): {
+    root: T
+    proxyCache: WeakMap<object, T>
+    references: DocumentReferences
+    origin: string
+    revision: { value: number }
+  } => {
     const references = documentReferences('x-ext')
     const origin = options?.documentUri ?? '/'
     references.register(target, origin)
@@ -81,7 +89,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         references.register(document, bundledDocumentUri(origin, key, source), ['x-ext', key])
       }
     }
-    return { root: target, proxyCache: new WeakMap(), references, origin }
+    return { root: target, proxyCache: new WeakMap(), references, origin, revision: { value: 0 } }
   })(),
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
@@ -92,6 +100,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   if (args.proxyCache.has(target)) {
     return args.proxyCache.get(target)
   }
+
+  // Cache the path, never the value: callers can replace targets through the raw document.
+  let cached: { ref: string; origin: string; revision: number; segments: string[] } | undefined
 
   const handler: ProxyHandler<T> = {
     /**
@@ -124,17 +135,19 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
       if (prop === REF_VALUE && typeof ref === 'string') {
-        const resolved = args.references.resolve(ref, args.references.origin(target) ?? args.origin, true)
-        if (!resolved) {
-          return undefined
+        const origin = args.references.origin(target) ?? args.origin
+        if (cached?.ref !== ref || cached.origin !== origin || cached.revision !== args.revision.value) {
+          const resolved = args.references.resolve(ref, origin, true)
+          if (!resolved) return undefined
+          cached = { ref, origin, revision: args.revision.value, segments: resolved.segments }
         }
-        const value = getValueByPath(args.root, resolved.segments).value
+        const value = getValueByPath(args.root, cached.segments).value
         if (isMagicProxyObject(value)) {
           return value
         }
         return createMagicProxy(value, options, {
           ...args,
-          origin: isObject(resolved.value) ? (args.references.origin(resolved.value) ?? args.origin) : args.origin,
+          origin: isObject(value) ? (args.references.origin(value) ?? args.origin) : args.origin,
         })
       }
 
@@ -157,6 +170,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Those will be considered private properties by the proxy
      */
     set(target, prop, newValue, receiver) {
+      args.revision.value++
       const ref = Reflect.get(target, REF_KEY, receiver)
 
       if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
@@ -205,6 +219,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     deleteProperty(target, prop) {
+      args.revision.value++
       return Reflect.deleteProperty(target, prop)
     },
     /**

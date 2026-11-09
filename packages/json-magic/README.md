@@ -622,6 +622,20 @@ await bundle(document, {
 })
 ```
 
+#### Resolving targets in lifecycle hooks
+
+`context.resolveReference(reference)` resolves a reference from the current node's
+resource and returns `{ path, value, resourceRelative }`, or `undefined` for an
+unknown resource. `path` contains decoded path segments from the bundle root;
+`value` is `undefined` for a missing target. `resourceRelative` identifies
+fragment references scoped to a schema `$id`, which should retain their local
+spelling when root component names change. Pointers into the bundle's external
+storage return `resourceRelative: false`.
+
+Use `traversal: 'document'` to exclude literal examples and defaults. When renaming
+targets, collect changes during traversal and apply them afterward so subsequent
+references still resolve against the original names.
+
 ## dereference
 
 `dereference` resolves the `$ref` pointers of a document and returns the result wrapped in a [magic proxy](#magic-proxy), so referenced values are read through the `$ref-value` property.
@@ -833,17 +847,3 @@ We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
-
-### Resolving targets in lifecycle hooks
-
-`context.resolveReference(reference)` resolves a reference from the current node's
-resource and returns `{ path, value, resourceRelative }`, or `undefined` for an
-unknown resource. `path` contains decoded path segments from the bundle root;
-`value` is `undefined` for a missing target. `resourceRelative` identifies
-fragment references scoped to a schema `$id`, which should retain their local
-spelling when root component names change. Pointers into the bundle's external
-storage return `resourceRelative: false`.
-
-Use `traversal: 'document'` to exclude literal examples and defaults. When renaming
-targets, collect changes during traversal and apply them afterward so subsequent
-references still resolve against the original names.

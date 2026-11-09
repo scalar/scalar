@@ -32,10 +32,12 @@ type Resource = {
 /** Resolution metadata survives moving documents into the bundle. */
 export type DocumentReferences = {
   identity: (document: unknown) => DocumentIdentity | undefined
-  register: (document: unknown, retrievalUri: string, path?: string[]) => void
+  register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void
   isSchemaResource: (uri: string) => boolean
   origin: (node: object) => string | undefined
+  /** Fetchable base, without the private namespace used to isolate stored schemas. */
+  retrievalOrigin: (node: object) => string | undefined
   resolve: (
     ref: string,
     base: string,
@@ -71,13 +73,19 @@ export const documentReferences = (
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
   const origins = new WeakMap<object, string>()
+  const retrievalOrigins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
 
   let rootUri: string | undefined
 
-  const registrations = new Map<unknown, { base: string; path: string[] }>()
+  const registrations = new Map<unknown, { base: string; path: string[]; retrievalBase: string }>()
 
-  const register = (document: unknown, retrievalUri: string, path: string[] = []): void => {
+  const register = (
+    document: unknown,
+    retrievalUri: string,
+    path: string[] = [],
+    retrievalBase = retrievalUri,
+  ): void => {
     if (path.length === 0) {
       rootUri = retrievalUri
     }
@@ -93,17 +101,30 @@ export const documentReferences = (
     if (path.length > 1) {
       bundledResources.set(path[1], resource)
     }
-    registrations.set(document, { base, path })
-    index(document, base, path)
+    const retrievalOrigin = identity ? resolveReferencePath(retrievalBase, identity.baseUri) : retrievalBase
+    registrations.set(document, { base, path, retrievalBase: retrievalOrigin })
+    index(document, base, path, [], retrievalOrigin)
   }
 
   // Refresh newly exposed fragments without replaying the document identity hook.
-  const index = (document: unknown, base: string, path: string[], targetPath: string[] = []): void => {
+  const index = (
+    document: unknown,
+    base: string,
+    path: string[],
+    targetPath: string[] = [],
+    retrievalBase = base,
+  ): void => {
     // Shared nodes use the first traversal path and base, including for $id and $anchor
     // registration. This also prevents cycles from being indexed repeatedly.
     const visited = new WeakSet<object>()
 
-    const visit = (value: unknown, origin: string, location: string[], inheritedIdentifier = ''): void => {
+    const visit = (
+      value: unknown,
+      origin: string,
+      location: string[],
+      inheritedIdentifier = '',
+      retrievalOrigin = retrievalBase,
+    ): void => {
       if (value === null || typeof value !== 'object' || visited.has(value) || !shouldVisit(value)) {
         return
       }
@@ -111,7 +132,15 @@ export const documentReferences = (
       const id = hasSchemaIdentity(value) ? getId(value) : undefined
       const identifier = id ?? inheritedIdentifier
       const current = id === undefined ? origin : resolveReferencePath(origin, id)
+      // A refresh can encounter an identifier that this index already canonicalized.
+      const currentRetrieval =
+        canonicalizeIds && id === origins.get(value) && retrievalOrigins.has(value)
+          ? retrievalOrigins.get(value)!
+          : id === undefined
+            ? retrievalOrigin
+            : resolveReferencePath(retrievalOrigin, id)
       origins.set(value, current)
+      retrievalOrigins.set(value, currentRetrieval)
       // Relative identifiers would acquire a different identity after serialization elsewhere.
       // Use the indexed base before mutation so nested identifiers are resolved exactly once.
       if (canonicalizeIds && id !== undefined && isObject(value)) {
@@ -138,20 +167,22 @@ export const documentReferences = (
       }
       for (const [key, child] of Object.entries(value)) {
         if (key !== externalDocumentsKey) {
-          visit(child, current, [...location, key], identifier)
+          visit(child, current, [...location, key], identifier, currentRetrieval)
         }
       }
     }
     let target = document
     let origin = base
     let identifier = ''
+    let retrievalOrigin = retrievalBase
     for (const key of targetPath) {
       if (target === null || typeof target !== 'object') return
       origin = origins.get(target) ?? origin
+      retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       identifier = (hasSchemaIdentity(target) ? getId(target) : undefined) ?? identifier
       target = (target as Record<string, unknown>)[key]
     }
-    visit(target, origin, [...path, ...targetPath], identifier)
+    visit(target, origin, [...path, ...targetPath], identifier, retrievalOrigin)
   }
 
   return {
@@ -159,10 +190,11 @@ export const documentReferences = (
     register,
     refresh: (document, targetPath) => {
       const registration = registrations.get(document)
-      if (registration) index(document, registration.base, registration.path, targetPath)
+      if (registration) index(document, registration.base, registration.path, targetPath, registration.retrievalBase)
     },
     isSchemaResource: (uri) => resources.get(uri)?.schema === true,
     origin: (node) => origins.get(node),
+    retrievalOrigin: (node) => retrievalOrigins.get(node),
     resolve: (ref, base, rootFallback = false) => {
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = decodeUriFragment(authoredFragment)

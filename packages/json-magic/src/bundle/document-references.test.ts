@@ -188,4 +188,13 @@ describe('document-references', () => {
       segments: ['x-ext', 'same'],
     })
   })
+  it('retains fetchable bases when refreshing canonicalized stored schemas', () => {
+    const reference = { $ref: './common.yaml' }
+    const document = { $id: 'nested/Pet.yaml', reference }
+    const registry = documentReferences('x-ext', undefined, true)
+    registry.register(document, 'https://example.com/__bundle_a/document', ['x-ext', 'a'], 'https://example.com/a')
+    registry.refresh(document, [])
+    expect(registry.retrievalOrigin(reference)).toBe('https://example.com/nested/Pet.yaml')
+    expect(registry.origin(reference)).toBe('https://example.com/__bundle_a/nested/Pet.yaml')
+  })
 })

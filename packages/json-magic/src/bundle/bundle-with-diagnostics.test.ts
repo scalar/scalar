@@ -737,7 +737,7 @@ describe('bundle-with-diagnostics', () => {
       {
         kind: 'missing-target',
         reference: '#/$defs/Value',
-        source: '/__bundle_a/document',
+        source: '#/x-ext/a',
         pointer: '#/properties/value/$ref',
       },
     ])
