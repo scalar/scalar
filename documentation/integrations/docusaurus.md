@@ -233,3 +233,7 @@ const config: Config = {
   ],
 }
 ```
+
+## CDN compatibility
+
+Scalar loads only when an API reference route mounts. Sites that call `window.Scalar.createApiReference` on other pages must load the CDN bundle themselves. When pinning `cdn` to an older bundle, upgrade to a release with standalone style cleanup and `Scalar.releaseUnusedStyles`; older bundles can leave styles active after navigation, including when navigation interrupts loading.

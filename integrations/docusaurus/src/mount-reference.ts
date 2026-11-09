@@ -4,26 +4,29 @@ declare global {
   interface Window {
     Scalar?: {
       createApiReference: CreateApiReference
+      releaseUnusedStyles?: () => void
     }
   }
 }
 
-const bundles = new Map<string, Promise<CreateApiReference>>()
+type Bundle = NonNullable<Window['Scalar']>
+
+const bundles = new Map<string, Promise<Bundle>>()
 
 /** Share downloads across route mounts, retaining each CDN bundle's factory. */
-const loadBundle = (url: string): Promise<CreateApiReference> => {
+const loadBundle = (url: string): Promise<Bundle> => {
   const existing = bundles.get(url)
   if (existing) {
     return existing
   }
 
-  const promise = new Promise<CreateApiReference>((resolve, reject) => {
+  const promise = new Promise<Bundle>((resolve, reject) => {
     const script = document.createElement('script')
     script.src = url
     script.onload = () => {
       script.remove()
       if (window.Scalar?.createApiReference) {
-        resolve(window.Scalar.createApiReference)
+        resolve(window.Scalar)
       } else {
         reject(new Error(`Scalar did not initialize from ${url}`))
       }
@@ -54,11 +57,9 @@ export const mountReference = (container: HTMLElement, configuration: string, cd
   let destroy: (() => void) | undefined
 
   void loadBundle(cdn)
-    .then((createReference) => {
+    .then(({ createApiReference: createReference, releaseUnusedStyles }) => {
       if (disposed) {
-        // The download can finish after navigation. Balance the standalone style retain/release
-        // without running the abandoned route's configuration or callbacks.
-        createReference(document.createElement('div'), {}).destroy()
+        releaseUnusedStyles?.()
         return
       }
 
@@ -73,12 +74,7 @@ export const mountReference = (container: HTMLElement, configuration: string, cd
       script.remove()
       destroy = () => {
         reference?.destroy()
-        // With pluginUrls, destroy can run before the reference mounts and retains styles.
-        // A temporary instance releases orphaned bundle CSS through the reference-counted API,
-        // preserving styles when another reference is still mounted.
-        if (document.getElementById('scalar-style')) {
-          createReference(document.createElement('div'), {}).destroy()
-        }
+        releaseUnusedStyles?.()
       }
     })
     .catch((error: unknown) => {

@@ -4,6 +4,8 @@
 import type { ApiReferenceInstance, CreateApiReference } from '@scalar/types/api-reference'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+const releaseUnusedStyles = vi.fn()
+
 const cdn = 'https://example.com/scalar.js'
 const createReference = vi.fn<CreateApiReference>(() => ({ destroy: vi.fn() }) as unknown as ApiReferenceInstance)
 
@@ -23,7 +25,8 @@ describe('mount-reference', () => {
   beforeEach(() => {
     vi.resetModules()
     createReference.mockClear()
-    vi.stubGlobal('Scalar', { createApiReference: createReference })
+    releaseUnusedStyles.mockClear()
+    vi.stubGlobal('Scalar', { createApiReference: createReference, releaseUnusedStyles })
   })
 
   afterEach(() => {
@@ -99,11 +102,8 @@ describe('mount-reference', () => {
     finishDownload()
     await flush()
 
-    expect(createReference).toHaveBeenCalledTimes(1)
-    const [element, configuration] = createReference.mock.calls[0] ?? []
-    expect(element).not.toBe(container)
-    expect(configuration).toStrictEqual({})
-    expect(createReference.mock.results[0]?.value.destroy).toHaveBeenCalledTimes(1)
+    expect(createReference).not.toHaveBeenCalled()
+    expect(releaseUnusedStyles).toHaveBeenCalledTimes(1)
   })
 
   it('keeps a concurrent active mount alive when another mount leaves during download', async () => {
@@ -113,8 +113,9 @@ describe('mount-reference', () => {
     abandoned()
     finishDownload()
     await flush()
-    expect(createReference.mock.results[0]?.value.destroy).toHaveBeenCalledTimes(1)
-    expect(createReference.mock.results[1]?.value.destroy).not.toHaveBeenCalled()
+    expect(createReference).toHaveBeenCalledTimes(1)
+    expect(createReference.mock.results[0]?.value.destroy).not.toHaveBeenCalled()
+    expect(releaseUnusedStyles).toHaveBeenCalledTimes(1)
     active()
   })
 
@@ -133,9 +134,19 @@ describe('mount-reference', () => {
 
     cleanup()
     expect(createReference.mock.results[0]?.value.destroy).toHaveBeenCalledTimes(1)
-    expect(createReference).toHaveBeenCalledTimes(2)
-    expect(createReference.mock.calls[1]?.[1]).toStrictEqual({})
-    expect(createReference.mock.results[1]?.value.destroy).toHaveBeenCalledTimes(1)
+    expect(createReference).toHaveBeenCalledTimes(1)
+    expect(releaseUnusedStyles).toHaveBeenCalledTimes(1)
+  })
+
+  it('supports older CDN bundles without the style cleanup helper', async () => {
+    vi.stubGlobal('Scalar', { createApiReference: createReference })
+    const { mountReference } = await import('./mount-reference.js')
+    const cleanup = mountReference(document.createElement('div'), '{}', cdn)
+    finishDownload()
+    await flush()
+    cleanup()
+    expect(createReference).toHaveBeenCalledTimes(1)
+    expect(createReference.mock.results[0]?.value.destroy).toHaveBeenCalledTimes(1)
   })
 
   it('reports download failures and retries on the next visit', async () => {
