@@ -224,8 +224,6 @@ export const executeRequestTool = n.safeFn(
         result.error.detail.responseBody = truncateResponse(redact(result.error.detail.responseBody))
       }
       result.error.detail.headers = redact(result.error.detail.headers)
-    } else {
-      result.error.detail.originalError = redact(result.error.detail.originalError)
     }
 
     void chat.addToolOutput({

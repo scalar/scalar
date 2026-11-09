@@ -23,16 +23,32 @@ describe('redact-secrets', () => {
     expect(output[secret]?.[0]).toBe(secret)
   })
 
-  it('redacts Basic credentials and individually echoed usernames and passwords', () => {
+  it('redacts Basic credentials and passwords while preserving usernames', () => {
     const value = 'private-user:private:password'
     const redact = createSecretRedactor([{ in: 'header', name: 'Authorization', format: 'basic', value }])
 
     expect(redact([value, `Basic ${encodeBase64(value)}`, 'private-user', 'private:password'])).toStrictEqual([
       '[REDACTED]',
       'Basic [REDACTED]',
-      '[REDACTED]',
+      'private-user',
       '[REDACTED]',
     ])
+  })
+
+  it.each(['api', 'admin', 'user'])('preserves response keys and text containing Basic username %s', (username) => {
+    const password = 'p +/secret'
+    const value = `${username}:${password}`
+    const redact = createSecretRedactor([{ in: 'header', name: 'Authorization', format: 'basic', value }])
+
+    expect(
+      redact({
+        [`x-${username}-version`]: `${username} ${password}`,
+        credentials: [value, encodeURIComponent(value), `Basic ${encodeBase64(value)}`],
+      }),
+    ).toStrictEqual({
+      [`x-${username}-version`]: `${username} [REDACTED]`,
+      credentials: ['[REDACTED]', '[REDACTED]', 'Basic [REDACTED]'],
+    })
   })
 
   it('ignores empty credentials and preserves JSON scalar types', () => {

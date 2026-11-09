@@ -48,7 +48,7 @@ const prepareRequest = async (proxy = ''): Promise<Parameters<typeof executeRequ
   return { documentSettings: createDocumentSettings(workspace), chat, input, toolCallId: 'request-1', proxyUrl: proxy }
 }
 
-describe('execute-request.error-url', () => {
+describe('execute-request.redaction', () => {
   afterEach(() => vi.restoreAllMocks())
 
   it.each([

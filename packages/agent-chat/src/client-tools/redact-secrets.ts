@@ -6,10 +6,8 @@ export const createSecretRedactor = (security: ReturnType<typeof buildRequestSec
   const secrets = [
     ...new Set(
       security.flatMap(({ value, format }) => {
-        const values =
-          format === 'basic'
-            ? [value, value.slice(0, value.indexOf(':')), value.slice(value.indexOf(':') + 1), encodeBase64(value)]
-            : [value]
+        // Basic usernames are identifiers and can appear in unrelated response text.
+        const values = format === 'basic' ? [value, value.slice(value.indexOf(':') + 1), encodeBase64(value)] : [value]
         return values
           .filter(Boolean)
           .flatMap((secret) => [
