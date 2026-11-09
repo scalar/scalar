@@ -1,4 +1,4 @@
-<section class="hl-hero" data-hl-hero>
+<section class="hl-hero" data-hl-hero data-hl-mode="docs">
 <div class="hl-stage" aria-hidden="true" data-md-exclude><canvas class="hl-canvas" data-hl-canvas></canvas></div>
 <div class="hl-copy">
 

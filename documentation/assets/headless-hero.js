@@ -1142,7 +1142,8 @@
     draw: 'live',
     wake: null,
     near: null,
-    words: '.hl-copy',
+    // the home page's words, or the docs overview's where this meadow stands in for the docs composition's hero
+    words: '.hl-copy, .dc-copy',
     behind: null,
     lines: LINES,
     inks: LAND_INK,
@@ -5325,7 +5326,8 @@
   const DOCS = {
     ...HERO,
     intro: false,
-    words: '.dc-copy',
+    // the docs overview's words, or the home page's where this figure stands in for the meadow
+    words: '.dc-copy, .hl-copy',
     // the oval of page kept round the words is shallow under them, so the figure's light just under them stays whole;
     // and the lines' beads glint only here and there, as the footer's do, so the motes are the only sparkle near it
     lines: { ...LINES, lift: 0.08, veil: [80, 18], beadChance: 0.15 },
