@@ -190,6 +190,153 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.paths?.['/planets']?.get?.produces).toBeUndefined()
   })
 
+  it('prefers operation produces over global produces for responses', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/reports/{id}/export': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': {
+                description: 'CSV export',
+                schema: {
+                  type: 'string',
+                },
+                examples: {
+                  Mars: 'id,name\n1,Mars',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports/{id}/export']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'CSV export',
+        content: {
+          'text/csv': {
+            schema: {
+              type: 'string',
+            },
+            examples: {
+              Mars: {
+                value: 'id,name\n1,Mars',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
+
+  it('replaces global produces with all operation media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv', 'application/pdf'],
+            responses: {
+              '200': { description: 'Report export', schema: { type: 'string' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'Report export',
+        content: {
+          'text/csv': { schema: { type: 'string' } },
+          'application/pdf': { schema: { type: 'string' } },
+        },
+      },
+    })
+  })
+
+  it('keeps operation produces overrides isolated from sibling operations', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': { description: 'CSV export', schema: { type: 'string' } },
+            },
+          },
+          post: {
+            responses: {
+              '200': { description: 'Created report', schema: { type: 'string' } },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']).toStrictEqual({
+      get: {
+        responses: {
+          '200': {
+            description: 'CSV export',
+            content: { 'text/csv': { schema: { type: 'string' } } },
+          },
+        },
+      },
+      post: {
+        responses: {
+          '200': {
+            description: 'Created report',
+            content: { 'application/json': { schema: { type: 'string' } } },
+          },
+        },
+      },
+    })
+  })
+
+  it('keeps media-type-keyed examples with the operation response schema', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Reports', version: '1.0' },
+      produces: ['application/json'],
+      paths: {
+        '/reports': {
+          get: {
+            produces: ['text/csv'],
+            responses: {
+              '200': {
+                description: 'CSV export',
+                schema: { type: 'string' },
+                examples: { 'text/csv': 'id,name\n1,Mars' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/reports']?.get?.responses).toStrictEqual({
+      '200': {
+        description: 'CSV export',
+        content: {
+          'text/csv': {
+            schema: { type: 'string' },
+            example: 'id,name\n1,Mars',
+          },
+        },
+      },
+    })
+  })
+
   it('uses global produces for responses', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',

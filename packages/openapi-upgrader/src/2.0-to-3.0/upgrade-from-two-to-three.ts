@@ -501,7 +501,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   }
                   if (responseItem.schema) {
                     migrateSchemaNullability(responseItem.schema)
-                    const produces = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
+                    const produces = operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
@@ -524,11 +524,11 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                       responseItem.content = {}
                     }
 
-                    const produces: string[] = document.produces ?? operationItem.produces ?? [DEFAULT_MEDIA_TYPE]
+                    const produces: string[] = operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE]
                     const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
                     for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
                       // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-                      if (isMediaTypeKey(key, operationItem.produces ?? produces)) {
+                      if (isMediaTypeKey(key, produces)) {
                         if (typeof responseItem.content[key] !== 'object') {
                           responseItem.content[key] = {}
                         }
