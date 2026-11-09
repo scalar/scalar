@@ -713,11 +713,9 @@ def get_scalar_api_reference(
     if overrides:  # Default is {}
         config.update(overrides)
 
-    # Escape the title so it cannot inject markup, and escape "</" in the
-    # serialized config so a document that contains "</script>" cannot break
-    # out of the inline <script> block below.
     page_title = escape_html(title) if title else "Scalar"
-    config_json = json.dumps(config).replace("</", "<\\/")
+    # Keep configuration text from changing how the HTML parser reads the script.
+    config_json = json.dumps(config).replace("<", r"\u003c")
 
     html = f"""
 <!doctype html>

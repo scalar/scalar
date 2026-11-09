@@ -2,6 +2,8 @@
 Tests for scalar_ninja core functionality.
 """
 
+import json
+from html import unescape
 from html.parser import HTMLParser
 
 import pytest
@@ -714,17 +716,51 @@ class TestEdgeCases:
         assert '"url": ""' in html_content
         assert "<title>Scalar</title>" in html_content
 
-    def test_special_characters_in_title(self):
-        """Test with special characters in title"""
-        title_with_special_chars = "API & Documentation <script>alert('xss')</script>"
-        config = ScalarConfig(
-            openapi_url="/openapi.json", title=title_with_special_chars
-        )
-        response = get_scalar_api_reference(config)
+    def test_page_title_cannot_add_markup(self):
+        title = "API & Documentation </title><script>alert(1)</script>"
+        html_content = get_scalar_api_reference(ScalarConfig(title=title)).content.decode()
 
-        html_content = response.content.decode()
-        # The title should be included in the HTML
-        assert title_with_special_chars in html_content
+        _, _, title_and_tail = html_content.partition("<title>")
+        rendered_title, closing_title, tail = title_and_tail.partition("</title>")
+        assert closing_title
+        assert unescape(rendered_title) == title
+        assert "<script>alert(1)</script>" not in tail
+
+    @pytest.mark.parametrize("as_string", [False, True], ids=["dictionary", "json"])
+    @pytest.mark.parametrize("in_sources", [False, True], ids=["content", "sources"])
+    @pytest.mark.parametrize(
+        "title",
+        ["</ScRiPt><script>alert(1)</script>", "<!--<script>"],
+        ids=["script-breakout", "script-tokenizer"],
+    )
+    def test_openapi_content_stays_inside_initializer(self, as_string, in_sources, title):
+        document = {
+            "openapi": "3.1.0",
+            "info": {"title": title, "version": "1.0.0"},
+            "paths": {},
+        }
+        content = json.dumps(document) if as_string else document
+        options = (
+            {"sources": [OpenAPISource(content=content)]}
+            if in_sources
+            else {"content": content}
+        )
+        viewer = ScalarViewer(ScalarConfig(**options))
+        html_content = viewer.render_page(None, None).content.decode()
+        _, initializer, script_and_tail = html_content.partition(
+            'Scalar.createApiReference("#app", '
+        )
+        assert initializer
+        config_json, closing_script, tail = script_and_tail.partition("</script>")
+        assert closing_script
+        assert "</body>" in tail
+        assert "<script" not in tail.lower()
+        assert "<" not in config_json
+        config = json.loads(config_json.strip().removesuffix(")"))
+        actual_content = (
+            config["sources"][0]["content"] if in_sources else config["content"]
+        )
+        assert actual_content == content
 
     def test_complex_json_in_configuration(self):
         """Test with complex JSON structures in configuration"""

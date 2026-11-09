@@ -501,11 +501,15 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     if config.agent is not None:
         js_config["agent"] = config.agent.model_dump(exclude_none=True)
 
+    page_title = escape(config.title) if config.title else "Scalar"
+    # Keep configuration text from changing how the HTML parser reads the script.
+    config_json = json.dumps(js_config).replace("<", r"\u003c")
+
     html = f"""
 <!doctype html>
 <html>
     <head>
-        {f"<title>{config.title if config.title else 'Scalar'}</title>"}
+        <title>{page_title}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{escape(config.scalar_favicon_url, quote=True)}">
@@ -526,7 +530,7 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
         <!-- Initialize the Scalar API Reference -->
         <script>
-            Scalar.createApiReference("#app", {json.dumps(js_config)})
+            Scalar.createApiReference("#app", {config_json})
         </script>
     </body>
     </html>
