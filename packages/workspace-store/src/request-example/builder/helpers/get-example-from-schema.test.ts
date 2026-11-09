@@ -1118,6 +1118,88 @@ describe('getExampleFromSchema', () => {
     }
   })
 
+  describe('base64 strings', () => {
+    const decodesStrictly = (value: unknown, alphabet: 'base64' | 'base64url'): boolean => {
+      if (typeof value !== 'string' || value.length % 4 !== 0) {
+        return false
+      }
+      const pattern = alphabet === 'base64' ? /^[A-Za-z0-9+/]*={0,2}$/ : /^[A-Za-z0-9_-]*={0,2}$/
+      return (
+        pattern.test(value) &&
+        Buffer.from(value, alphabet).toString(alphabet).replace(/=+$/, '') === value.replace(/=+$/, '')
+      )
+    }
+
+    it.each([
+      { type: 'string', format: 'byte' },
+      { type: 'string', contentEncoding: 'base64' },
+      { type: 'string', contentEncoding: 'base64url' },
+      { type: 'string', contentEncoding: 'BASE64' },
+      { type: 'string', contentMediaType: 'image/png', contentEncoding: 'base64' },
+      { type: 'string', format: 'custom-format', contentEncoding: 'base64' },
+    ])('generates base64 that decodes under both alphabets for %j', (definition) => {
+      for (const emptyString of [undefined, '', 'string']) {
+        const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), { emptyString })
+        expect(result).toBe('c2NhbGFy')
+        expect(decodesStrictly(result, 'base64')).toBe(true)
+        expect(decodesStrictly(result, 'base64url')).toBe(true)
+        expect(Buffer.from(result as string, 'base64').toString('utf8')).toBe('scalar')
+      }
+    })
+
+    it('generates base64 for encoded properties in a response object', () => {
+      expect(
+        getExampleFromSchema(
+          coerceValue(SchemaObjectSchema, {
+            type: 'object',
+            properties: {
+              legacy: { type: 'string', format: 'byte' },
+              encoded: { type: 'string', contentEncoding: 'base64' },
+              name: { type: 'string' },
+            },
+          }),
+          { emptyString: 'string', mode: 'read' },
+        ),
+      ).toEqual({ legacy: 'c2NhbGFy', encoded: 'c2NhbGFy', name: 'string' })
+    })
+
+    it.each(['examples', 'example', 'default', 'const', 'enum'] as const)(
+      'preserves authored base64 values from %s',
+      (keyword) => {
+        const value = 'aGVsbG8='
+        for (const encoding of [{ format: 'byte' }, { contentEncoding: 'base64' }]) {
+          expect(
+            getExampleFromSchema(
+              coerceValue(SchemaObjectSchema, {
+                type: 'string',
+                ...encoding,
+                [keyword]: keyword === 'examples' || keyword === 'enum' ? [value] : value,
+              }),
+              { emptyString: 'string' },
+            ),
+          ).toBe(value)
+        }
+      },
+    )
+
+    it.each([
+      { type: 'string', format: 'binary' },
+      { type: 'string', format: 'binary', contentEncoding: 'base64' },
+    ])('keeps the file placeholder for binary schema %j', (definition) => {
+      expect(getExampleFromSchema(coerceValue(SchemaObjectSchema, definition), { emptyString: 'string' })).toBe(
+        '@filename',
+      )
+    })
+
+    it.each(['quoted-printable', '7bit', 'base32'])('does not apply base64 to %s content', (contentEncoding) => {
+      expect(
+        getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', contentEncoding }), {
+          emptyString: 'string',
+        }),
+      ).toBe('string')
+    })
+  })
+
   it('generates a UTC time including its timezone', () => {
     const result = getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format: 'time' }))
     expect(result).toEqual(expect.stringMatching(/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d\.\d{3}Z$/))
@@ -2356,7 +2438,7 @@ describe('getExampleFromSchema', () => {
             contentEncoding: 'base64',
           }),
         ),
-      ).toBe('')
+      ).toBe('c2NhbGFy')
       expect(
         getExampleFromSchema(
           coerceValue(SchemaObjectSchema, {
