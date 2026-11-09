@@ -30,7 +30,7 @@ export const readAvro = (source: unknown, version = '1.9.0', encoding: 'json' | 
         throw new Error('Unresolved Avro name')
       }
       if (ancestors.has(target)) {
-        return { name, type: value, details: ['Recursive reference'] }
+        return { name, type: value, recursive: true }
       }
       return visit(target, name, resolvedName.split('.').slice(0, -1).join('.'), ancestors, depth + 1)
     }
@@ -159,7 +159,7 @@ export const readAvro = (source: unknown, version = '1.9.0', encoding: 'json' | 
       ) {
         throw new Error('Invalid Avro enum')
       }
-      details.push(`Symbols: ${value.symbols.join(', ')}`)
+      node.symbols = value.symbols
       if (version === '1.9.0' && value.default !== undefined) {
         if (typeof value.default !== 'string' || !value.symbols.includes(value.default)) {
           throw new Error('Invalid Avro enum default')

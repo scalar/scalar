@@ -13,15 +13,16 @@ describe('protobuf', () => {
       'syntax = "proto3"; message User { string user_id = 1; repeated int64 ids = 2; oneof contact { string email = 3; string phone = 4; } User parent = 5; }',
     )
     expect(result?.nodes[0]?.children).toStrictEqual([
-      { name: 'user_id', type: 'string', fieldNumber: 1, details: ['Optional (implicit presence)'] },
-      { name: 'ids', type: 'int64', fieldNumber: 2, details: ['Repeated'] },
-      { name: 'email', type: 'string', oneofGroup: 'contact', fieldNumber: 3, details: [] },
-      { name: 'phone', type: 'string', oneofGroup: 'contact', fieldNumber: 4, details: [] },
+      { name: 'user_id', type: 'string', fieldNumber: 1, presence: 'implicit' },
+      { name: 'ids', type: 'int64', fieldNumber: 2, repeated: true },
+      { name: 'email', type: 'string', oneofGroup: 'contact', fieldNumber: 3 },
+      { name: 'phone', type: 'string', oneofGroup: 'contact', fieldNumber: 4 },
       {
         name: 'parent',
         type: 'message User',
         fieldNumber: 5,
-        details: ['Optional (explicit presence)', 'Recursive reference'],
+        presence: 'explicit',
+        recursive: true,
       },
     ])
   })
@@ -33,12 +34,12 @@ describe('protobuf', () => {
         'syntax = "proto2"; message User { required string id = 1; optional int32 age = 2 [default = 10]; }',
       )?.nodes[0]?.children,
     ).toStrictEqual([
-      { name: 'id', type: 'string', fieldNumber: 1, details: ['Required'] },
-      { name: 'age', type: 'int32', fieldNumber: 2, details: ['Optional', 'Default: 10'] },
+      { name: 'id', type: 'string', fieldNumber: 1, required: true },
+      { name: 'age', type: 'int32', fieldNumber: 2, required: false, details: ['Default: 10'] },
     ])
     expect(
       readSchema(proto, 'syntax = "proto3"; message User { optional string id = 1; }')?.nodes[0]?.children,
-    ).toStrictEqual([{ name: 'id', type: 'string', fieldNumber: 1, details: ['Optional (explicit presence)'] }])
+    ).toStrictEqual([{ name: 'id', type: 'string', fieldNumber: 1, presence: 'explicit' }])
   })
 
   it('shows all Protobuf definitions and map key types', () => {
@@ -57,7 +58,6 @@ describe('protobuf', () => {
         mapKey: 'string',
         mapValue: { name: 'Values', type: 'int32' },
         fieldNumber: 1,
-        details: [],
       },
     ])
     expect(result?.nodes[1]?.children).toStrictEqual([

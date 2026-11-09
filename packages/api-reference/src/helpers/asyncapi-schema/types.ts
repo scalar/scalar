@@ -3,7 +3,18 @@ export type SchemaNode = {
   name: string
   type: string
   description?: string
+  /** Display-only annotations; wording must not control schema structure. */
   details?: string[]
+  /** Native field requiredness, independent of reader defaults. */
+  required?: boolean
+  /** Protobuf repeated fields project to arrays. */
+  repeated?: boolean
+  /** Stop expanding a reference to an ancestor definition. */
+  recursive?: boolean
+  /** Presence tracking for optional Protobuf fields. */
+  presence?: 'explicit' | 'implicit'
+  /** Avro enum symbols, including an explicitly empty symbol list. */
+  symbols?: string[]
   /** Avro field fallback when reading data without this field; does not imply optional encoding. */
   readerDefault?: unknown
   children?: SchemaNode[]

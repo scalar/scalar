@@ -5,31 +5,13 @@ import type { SchemaNode } from './types'
 
 /** Adapt native documentation for the shared renderer only, never for validation or example generation. */
 export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
-  const details = (node.details ?? []).filter(
-    (detail) =>
-      ![
-        'Required',
-        'Optional',
-        'Repeated',
-        'Recursive reference',
-        'Optional (explicit presence)',
-        'Optional (implicit presence)',
-      ].includes(detail) && !(node.type.startsWith('enum ') && detail.startsWith('Symbols: ')),
-  )
-  const presence = node.details?.includes('Optional (explicit presence)')
-    ? 'explicit'
-    : node.details?.includes('Optional (implicit presence)')
-      ? 'implicit'
-      : undefined
   const mapKey = node.mapKey
-  const description = [node.description, ...details, ...(mapKey ? [`Map keys: ${mapKey}`] : [])]
+  const description = [node.description, ...(node.details ?? []), ...(mapKey ? [`Map keys: ${mapKey}`] : [])]
     .filter(Boolean)
     .join('\n\n')
   const common = {
-    ...(presence ? { [protobufPresence]: presence } : {}),
-    ...(node.details?.includes('Recursive reference')
-      ? { [schemaRecursiveTarget]: node.type.replace(/^(message |record )/, '') }
-      : {}),
+    ...(node.presence ? { [protobufPresence]: node.presence } : {}),
+    ...(node.recursive ? { [schemaRecursiveTarget]: node.type.replace(/^(message |record )/, '') } : {}),
     ...(description ? { description } : {}),
     ...('readerDefault' in node ? { default: node.readerDefault } : {}),
     ...(node.fieldNumber !== undefined ? { [protobufFieldNumber]: node.fieldNumber } : {}),
@@ -37,7 +19,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
   if (node.type === 'any') {
     return common as SchemaObject
   }
-  if (node.details?.includes('Repeated')) {
+  if (node.repeated) {
     return {
       ...common,
       type: 'array',
@@ -45,7 +27,10 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
         ...node,
         description: undefined,
         fieldNumber: undefined,
-        details: node.details?.filter((detail) => detail === 'Recursive reference'),
+        details: undefined,
+        repeated: undefined,
+        required: undefined,
+        presence: undefined,
       }),
     }
   }
@@ -64,17 +49,12 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
     const value = node.mapValue ?? node.children?.[0]
     return { ...common, type: 'object', additionalProperties: value ? toDisplaySchema(value) : true }
   }
-  if (node.details?.includes('Recursive reference')) {
+  if (node.recursive) {
     return { ...common, type: 'object', title: node.type }
   }
   if (node.type.startsWith('enum ')) {
-    const symbols = node.details
-      ?.find((detail) => detail.startsWith('Symbols: '))
-      ?.slice(9)
-      .split(', ')
-      .filter(Boolean)
-    if (symbols) {
-      return { ...common, type: 'string', enum: symbols, format: node.type }
+    if (node.symbols) {
+      return { ...common, type: 'string', enum: node.symbols, format: node.type }
     }
     const groups = new Map<number, SchemaNode[]>()
     for (const child of node.children ?? []) {
@@ -101,7 +81,7 @@ export const toDisplaySchema = (node: SchemaNode): SchemaObject => {
   }
   if (node.type === 'object' || /^(record |message )/.test(node.type) || node.children?.length) {
     const objectFields = (fields: SchemaNode[]): SchemaObject => {
-      const required = fields.filter((child) => child.details?.includes('Required')).map((child) => child.name)
+      const required = fields.filter((child) => child.required).map((child) => child.name)
       return {
         type: 'object',
         properties: Object.fromEntries(fields.map((child) => [child.name, toDisplaySchema(child)])),

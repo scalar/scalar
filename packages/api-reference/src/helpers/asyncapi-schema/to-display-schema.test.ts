@@ -7,6 +7,27 @@ import { toDisplaySchema } from './to-display-schema'
 import type { SchemaNode } from './types'
 
 describe('to-display-schema', () => {
+  it('keeps display annotations from changing field structure', () => {
+    const details = ['Required', 'Repeated', 'Recursive reference', 'Optional (explicit presence)']
+    expect(toDisplaySchema({ name: 'value', type: 'string', details })).toStrictEqual({
+      type: 'string',
+      description: details.join('\n\n'),
+    })
+    expect(
+      toDisplaySchema({
+        name: 'Record',
+        type: 'object',
+        children: [{ name: 'value', type: 'string', details: ['Required'] }],
+      }),
+    ).toStrictEqual({ type: 'object', properties: { value: { type: 'string', description: 'Required' } } })
+  })
+
+  it('uses typed enum symbols independently of annotation wording', () => {
+    expect(
+      toDisplaySchema({ name: 'State', type: 'enum State', symbols: ['READY'], details: ['Symbols: OTHER'] }),
+    ).toStrictEqual({ type: 'string', format: 'enum State', enum: ['READY'], description: 'Symbols: OTHER' })
+  })
+
   it('preserves Markdown code spans in descriptions and enum documentation', () => {
     expect(toDisplaySchema({ name: 'value', type: 'string', description: '`map<string, Foo>`' }).description).toBe(
       '`map<string, Foo>`',
@@ -26,7 +47,7 @@ describe('to-display-schema', () => {
         name: 'State',
         type: 'enum State',
         description: 'Current state.',
-        details: ['Symbols: READY, DONE'],
+        symbols: ['READY', 'DONE'],
       }),
     ).toStrictEqual({ type: 'string', format: 'enum State', description: 'Current state.', enum: ['READY', 'DONE'] })
   })
@@ -60,7 +81,7 @@ describe('to-display-schema', () => {
         type: 'record User',
         children: [
           { name: 'id', type: 'long', readerDefault: 0 },
-          { name: 'email', type: 'string', details: ['Required'] },
+          { name: 'email', type: 'string', required: true },
         ],
       }),
     ).toStrictEqual({
@@ -90,17 +111,17 @@ describe('to-display-schema', () => {
         ],
       }),
     ).toStrictEqual({ type: 'array', items: { anyOf: [{ type: 'string' }, { type: 'null' }] } })
-    expect(toDisplaySchema({ name: 'ids', type: 'int64', details: ['Field number: 1', 'Repeated'] })).toStrictEqual({
-      type: 'array',
-      description: 'Field number: 1',
-      items: { type: 'integer', format: 'int64' },
-    })
+    expect(toDisplaySchema({ name: 'ids', type: 'int64', repeated: true, details: ['Field number: 1'] })).toStrictEqual(
+      {
+        type: 'array',
+        description: 'Field number: 1',
+        items: { type: 'integer', format: 'int64' },
+      },
+    )
   })
 
   it('keeps repeated recursive references as arrays', () => {
-    expect(
-      toDisplaySchema({ name: 'children', type: 'message User', details: ['Repeated', 'Recursive reference'] }),
-    ).toStrictEqual({
+    expect(toDisplaySchema({ name: 'children', type: 'message User', repeated: true, recursive: true })).toStrictEqual({
       type: 'array',
       [schemaRecursiveTarget]: 'User',
       items: { type: 'object', title: 'message User', [schemaRecursiveTarget]: 'User' },
@@ -108,7 +129,7 @@ describe('to-display-schema', () => {
   })
 
   it('keeps recursive references as object leaves and maps as dictionaries', () => {
-    expect(toDisplaySchema({ name: 'parent', type: 'User', details: ['Recursive reference'] })).toStrictEqual({
+    expect(toDisplaySchema({ name: 'parent', type: 'User', recursive: true })).toStrictEqual({
       type: 'object',
       title: 'User',
       [schemaRecursiveTarget]: 'User',

@@ -30,7 +30,7 @@ describe('avro', () => {
               type: 'union',
               children: [
                 { name: 'Variant 1', type: 'null' },
-                { name: 'Variant 2', type: 'User', details: ['Recursive reference'] },
+                { name: 'Variant 2', type: 'User', recursive: true },
               ],
               readerDefault: null,
             },
@@ -59,7 +59,7 @@ describe('avro', () => {
       ],
     })
     expect(readSchema(avro, { type: 'enum', name: 'State', symbols: ['ON', 'OFF'] })).toStrictEqual({
-      nodes: [{ name: 'Schema', type: 'enum State', details: ['Symbols: ON, OFF'] }],
+      nodes: [{ name: 'Schema', type: 'enum State', symbols: ['ON', 'OFF'] }],
     })
     expect(readSchema(avro, { type: 'long', logicalType: 'timestamp-millis' })).toStrictEqual({
       nodes: [{ name: 'Schema', type: 'long', details: ['Logical type: timestamp-millis'] }],

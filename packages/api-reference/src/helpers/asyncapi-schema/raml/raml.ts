@@ -71,7 +71,7 @@ export const readRaml = (source: unknown): SchemaDocument => {
         if (typeof required !== 'boolean') {
           throw new Error('Invalid required facet')
         }
-        child.details = [required ? 'Required' : 'Optional', ...(child.details ?? [])]
+        child.required = required
         return child
       })
     }

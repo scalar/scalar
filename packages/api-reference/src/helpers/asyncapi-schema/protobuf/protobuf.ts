@@ -69,7 +69,7 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
       node.description = definition.comment
     }
     if (ancestors.has(definition)) {
-      return { ...node, details: ['Recursive reference'] }
+      return { ...node, recursive: true }
     }
     if (definition instanceof protobuf.Enum) {
       validateEnum(definition, version)
@@ -125,17 +125,17 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
       if (field instanceof protobuf.MapField) {
         // Maps have neither singular presence nor a repeated field label.
       } else if (field.repeated) {
-        details.push('Repeated')
+        child.repeated = true
       } else if (field.toJSON().rule === 'required') {
-        details.push('Required')
+        child.required = true
       } else if (field.options?.proto3_optional) {
-        details.push('Optional (explicit presence)')
+        child.presence = 'explicit'
       } else if (field.partOf) {
         child.oneofGroup = field.partOf.name
       } else if (version === '2') {
-        details.push('Optional')
+        child.required = false
       } else {
-        details.push(target instanceof protobuf.Type ? 'Optional (explicit presence)' : 'Optional (implicit presence)')
+        child.presence = target instanceof protobuf.Type ? 'explicit' : 'implicit'
       }
       if (field.options?.default !== undefined) {
         details.push(
@@ -147,7 +147,9 @@ export const readProtobuf = (source: unknown, version: string): SchemaDocument =
           details.push(`${key}: ${JSON.stringify(field.options[key])}`)
         }
       }
-      child.details = [...details, ...(child.details ?? [])]
+      if (details.length) {
+        child.details = [...details, ...(child.details ?? [])]
+      }
       return child
     })
     return node

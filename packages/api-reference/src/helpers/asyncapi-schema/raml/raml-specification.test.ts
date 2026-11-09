@@ -46,8 +46,8 @@ describe('raml-specification', () => {
 
   it('treats null property declarations as strings', () => {
     expect(readRaml('properties:\n  name:\n  age?:').nodes[0]?.children).toStrictEqual([
-      { name: 'name', type: 'string', details: ['Required'] },
-      { name: 'age', type: 'string', details: ['Optional'] },
+      { name: 'name', type: 'string', required: true },
+      { name: 'age', type: 'string', required: false },
     ])
   })
 
@@ -61,9 +61,9 @@ describe('raml-specification', () => {
         },
       }).nodes[0]?.children,
     ).toStrictEqual([
-      { name: 'a?', type: 'string', details: ['Required'] },
-      { name: 'b?', type: 'string', details: ['Optional'] },
-      { name: 'c?', type: 'string', details: ['Optional'] },
+      { name: 'a?', type: 'string', required: true },
+      { name: 'b?', type: 'string', required: false },
+      { name: 'c?', type: 'string', required: false },
     ])
   })
 
@@ -208,8 +208,8 @@ describe('raml-specification', () => {
 
   it('preserves YAML aliases without treating shared objects as recursive', () => {
     expect(readRaml('properties:\n  a: &type\n    type: string\n  b: *type').nodes[0]?.children).toStrictEqual([
-      { name: 'a', type: 'string', details: ['Required'] },
-      { name: 'b', type: 'string', details: ['Required'] },
+      { name: 'a', type: 'string', required: true },
+      { name: 'b', type: 'string', required: true },
     ])
   })
 

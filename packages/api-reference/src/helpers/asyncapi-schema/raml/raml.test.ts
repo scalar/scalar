@@ -19,11 +19,11 @@ describe('raml', () => {
           name: 'Schema',
           type: 'object',
           children: [
-            { name: 'name', type: 'string', details: ['Optional'] },
+            { name: 'name', type: 'string', required: false },
             {
               name: 'labels',
               type: 'array',
-              details: ['Optional'],
+              required: false,
               children: [
                 {
                   name: 'Items',
@@ -41,7 +41,7 @@ describe('raml', () => {
     })
     expect(
       readSchema(raml, { properties: { 'id?': { type: 'integer', required: true, minimum: 0 } } })?.nodes[0]?.children,
-    ).toStrictEqual([{ name: 'id?', type: 'integer', details: ['Required', 'minimum: 0'] }])
+    ).toStrictEqual([{ name: 'id?', type: 'integer', required: true, details: ['minimum: 0'] }])
   })
 
   it('reads a RAML DataType fragment and preserves facets', () => {

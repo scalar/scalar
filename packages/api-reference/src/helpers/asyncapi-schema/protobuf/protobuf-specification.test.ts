@@ -36,7 +36,7 @@ describe('protobuf-specification', () => {
           name: 'native_name',
           type,
           fieldNumber: 1,
-          details: [version === '2' ? 'Optional' : 'Optional (implicit presence)'],
+          ...(version === '2' ? { required: false } : { presence: 'implicit' }),
         },
       ])
     }
@@ -76,10 +76,8 @@ describe('protobuf-specification', () => {
       'message sample.A.Inner',
       'message sample.B',
     ])
-    expect(result.nodes[0]?.children?.[0]?.children?.[0]?.details).toStrictEqual([
-      'Optional (explicit presence)',
-      'Recursive reference',
-    ])
+    expect(result.nodes[0]?.children?.[0]?.children?.[0]?.presence).toBe('explicit')
+    expect(result.nodes[0]?.children?.[0]?.children?.[0]?.recursive).toBe(true)
     expect(result.nodes[2]?.children?.[1]?.children?.[0]?.name).toBe('id')
   })
 
@@ -94,10 +92,10 @@ describe('protobuf-specification', () => {
         '3',
       ).nodes[0]?.children,
     ).toStrictEqual([
-      { name: 'id', type: 'string', fieldNumber: 1, details: ['Optional (explicit presence)'] },
-      { name: 'values', type: 'int32', fieldNumber: 2, details: ['Repeated', 'packed: false'] },
-      { name: 'email', type: 'string', oneofGroup: 'contact', fieldNumber: 3, details: [] },
-      { name: 'phone', type: 'bytes', oneofGroup: 'contact', fieldNumber: 4, details: [] },
+      { name: 'id', type: 'string', fieldNumber: 1, presence: 'explicit' },
+      { name: 'values', type: 'int32', fieldNumber: 2, repeated: true, details: ['packed: false'] },
+      { name: 'email', type: 'string', oneofGroup: 'contact', fieldNumber: 3 },
+      { name: 'phone', type: 'bytes', oneofGroup: 'contact', fieldNumber: 4 },
     ])
   })
 
@@ -129,11 +127,7 @@ describe('protobuf-specification', () => {
     )
     expect(result.nodes[0]?.description?.trim()).toBe('A user')
     expect(result.nodes[0]?.children?.[0]?.description?.trim()).toBe('Stable ID')
-    expect(result.nodes[0]?.children?.[0]?.details).toStrictEqual([
-      'Optional (implicit presence)',
-      'deprecated: true',
-      'json_name: "userId"',
-    ])
+    expect(result.nodes[0]?.children?.[0]?.details).toStrictEqual(['deprecated: true', 'json_name: "userId"'])
   })
 
   it.each([1, 18999, 20000, 536870911])('accepts legal field-number boundary %i', (id) => {
@@ -249,8 +243,8 @@ describe('protobuf-specification', () => {
   it('accepts valid reserved fields and hexadecimal field numbers', () => {
     expect(
       readProtobuf('syntax = "proto3"; message M { reserved 2 to 4; reserved "removed"; string value = 0x05; }', '3')
-        .nodes[0]?.children?.[0]?.details,
-    ).toStrictEqual(['Optional (implicit presence)'])
+        .nodes[0]?.children?.[0]?.presence,
+    ).toBe('implicit')
   })
 
   it('preserves proto2 enum defaults and concatenated escaped strings', () => {

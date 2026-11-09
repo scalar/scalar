@@ -74,8 +74,9 @@ describe('avro-specification', () => {
 
   it('retains the 1.9 enum reader default but treats it as metadata in 1.8', () => {
     const schema = { type: 'enum', name: 'State', symbols: ['OFF', 'ON'], default: 'OFF' }
-    expect(readAvro(schema, '1.9.0').nodes[0]?.details).toStrictEqual(['Symbols: OFF, ON', 'Reader enum default: OFF'])
-    expect(readAvro(schema, '1.8.2').nodes[0]?.details).toStrictEqual(['Symbols: OFF, ON'])
+    expect(readAvro(schema, '1.9.0').nodes[0]?.details).toStrictEqual(['Reader enum default: OFF'])
+    expect(readAvro(schema, '1.8.2').nodes[0]?.symbols).toStrictEqual(['OFF', 'ON'])
+    expect(readAvro(schema, '1.8.2').nodes[0]?.details).toBeUndefined()
     expect(() => readAvro({ ...schema, default: 'MISSING' }, '1.9.0')).toThrow()
     expect(readAvro({ ...schema, default: 'MISSING' }, '1.8.2').nodes[0]?.type).toBe('enum State')
   })
@@ -254,7 +255,7 @@ describe('avro-specification', () => {
   })
 
   it('accepts empty records, enums and zero-byte fixed declarations', () => {
-    expect(readAvro({ type: 'enum', name: 'Empty', symbols: [] }).nodes[0]?.details).toStrictEqual(['Symbols: '])
+    expect(readAvro({ type: 'enum', name: 'Empty', symbols: [] }).nodes[0]?.symbols).toStrictEqual([])
     expect(readAvro({ type: 'record', name: 'Empty', fields: [] }).nodes[0]?.children).toStrictEqual([])
     expect(readAvro({ type: 'fixed', name: 'Empty', size: 0 }).nodes[0]?.details).toStrictEqual(['Size: 0 bytes'])
   })
