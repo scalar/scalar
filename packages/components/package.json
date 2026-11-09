@@ -262,6 +262,7 @@
     "storybook": "10.6.2",
     "svglint": "^4.2.1",
     "tailwindcss": "catalog:*",
+    "typescript": "^5.9.3",
     "vite": "catalog:*",
     "vite-svg-loader": "catalog:*",
     "vitest": "catalog:*"
