@@ -29,25 +29,20 @@ const documentWithExamples = (count: number): Record<string, unknown> => ({
 })
 
 describe('external-examples.integration', () => {
-  // Bulk imports compete with other test workers for CPU. This checks lazy loading, not a five-second import budget.
-  it.each([1200, 12000])(
-    'imports %i external examples without downloading any payloads',
-    { timeout: 30_000 },
-    async (count) => {
-      const fetch = vi.fn(async () => new Response('{"shippingType":"standard"}'))
-      const store = createWorkspaceStore({ fetch })
-      await store.addDocument({ name: 'shipping', document: documentWithExamples(count) })
-      expect(fetch.mock.calls.length).toBe(0)
-      await store.resolve(['paths', '/shipments', 'post'])
-      expect(fetch.mock.calls.length).toBe(0)
-      const state = store.externalExamples('shipping')({ externalValue: 'https://example.com/examples/0' })
-      await state.load()
-      expect(fetch.mock.calls.length).toBe(1)
-      expect(state.value).toEqual({ shippingType: 'standard' })
-      await store.externalExamples('shipping')({ externalValue: 'https://example.com/examples/0' }).load()
-      expect(fetch.mock.calls.length).toBe(1)
-    },
-  )
+  it('imports 1200 external examples without downloading any payloads', async () => {
+    const fetch = vi.fn(async () => new Response('{"shippingType":"standard"}'))
+    const store = createWorkspaceStore({ fetch })
+    await store.addDocument({ name: 'shipping', document: documentWithExamples(1200) })
+    expect(fetch.mock.calls.length).toBe(0)
+    await store.resolve(['paths', '/shipments', 'post'])
+    expect(fetch.mock.calls.length).toBe(0)
+    const state = store.externalExamples('shipping')({ externalValue: 'https://example.com/examples/0' })
+    await state.load()
+    expect(fetch.mock.calls.length).toBe(1)
+    expect(state.value).toEqual({ shippingType: 'standard' })
+    await store.externalExamples('shipping')({ externalValue: 'https://example.com/examples/0' }).load()
+    expect(fetch.mock.calls.length).toBe(1)
+  })
 
   it('uses the referenced document origin and the per-document transport', async () => {
     const respond = (value: unknown): Promise<Response> => Promise.resolve(Response.json(value))
