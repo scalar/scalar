@@ -7119,10 +7119,11 @@
   /* --- the compare composition ------------------------------------------------------------------------- */
 
   /* The hero of /resources/compare, after Cameron's concept: a great screen of light, curved as a cinema's is, with a
-     face in it giving a speech to an audience in rows before it, all in the soft periwinkle of the screen's glow. The
+     face in it giving a speech to an audience in rows before it, all in the periwinkle of the screen's glow. The
      screen is a sheet of the land's own fine lines, its scanlines, lit white in its middle; on it the face, painted
-     soft from the concept's own, as large as the screen can show it from its eyes to under its lower lip above the
-     heads, its mouth opening and shutting as it speaks. The audience is the concept's, traced, and painted in rows of
+     from the concept's own in the look of a giant face on a screen in a dark hall (near-white skin, flat deep shadows,
+     a pair of dark glasses), filling the screen from above its glasses to its lower lip above the heads, its mouth
+     opening and shutting as it speaks. The audience is the concept's, traced, and painted in rows of
      fine strokes, darker the nearer, their outlines lit by the screen; it stands over the screen's foot. The words
      stand in the pale air above the screen. */
   // the concept's face (its shadows and light, base-36 cells) and its audience (a mask and its tones, cells of the
@@ -7151,38 +7152,50 @@
   // mouth, where the farthest rows are.
   const CP_SINK = 12
   const CP_HEADS = 696
-  // The face's rows the screen shows above those heads: its eyes to under its lower lip with the mouth open most of its
-  // widest (the lip's last row, 66, and three quarters of the jaw's drop, CP_JAW cells; see plant). Open wider, as
-  // for a held vowel, the lip goes down into the white at the canvas's foot.
+  // How far the jaw drops with the mouth open its widest, in the face map's cells (see plant).
   const CP_JAW = 12
   // and how far the upper lip goes up as the mouth opens, a share of how far the lower goes down
   const CP_LIFT = 0.55
-  /* How the face sits in the screen: as the concept's does, light coming out of the scanlines more than paint laid on
-     them. Its paint thins to nothing over `sides` cells at its left and right, `top` under the frame and `foot` behind
-     the audience, and in an ellipse round a point in the middle across and `cy` rows down, between the eyes (`vignette`:
-     its radii `rx` and `ry` in cells, more than none, and the thinning from `start` to `end` of them, which reaches the
-     sides and the lower corners), so that no edge of the painted patch shows. Its shadow and its light are painted at
-     `shade` and `light` of the concept map's strength, its dabs `blur` times as soft. The brows are a faint knit at the
-     inner corners of the eyes, no darker than the face's own shadows (`brow` of their paint, `browBlur` times softer
-     again), and the inside of the mouth is the face's own shadow paint at `mouth` of its strength, `mouthBlur` times as
-     soft, so the open mouth is a deeper shadow of the face, not a hole in the screen. A soft light behind the face
-     (`bloom`: its paint, its radius in cells, and the row it is on, in the middle across) is the screen glowing
-     brightest in the face's middle. */
+  /* How the face sits in the screen and how it is painted: in the look of a giant face on a screen in a dark hall, but
+     our own face. Its paint thins to nothing over `sides` cells at its left and right, `top` under the frame and `foot`
+     behind the audience, and in an ellipse round a point in the middle across and `cy` rows down, between the eyes
+     (`vignette`: its radii `rx` and `ry` in cells, more than none, and the thinning from `start` to `end` of them), so
+     that no edge of the painted patch shows. It is posterised (`poster`): a cell's shadow, or its light, goes from none
+     to full over a soft edge round `[threshold, width]` of its strength in the concept's map, `mix` of the way from the
+     map's own smooth ramp, so the skin is near white and the shadows are flat shapes of the deeper ink; `shade` and
+     `light` are their strength and `blur` how much softer than a cell its dabs are. The shadows of the eyes, the nose
+     and the upper lip, and the light of the lower lip, are a little weaker or stronger (`boost`). A shadow lies across
+     the eyes as a pair of dark glasses' does (`band`: its paint, the rows and columns it spans, how soft its edge is in
+     cells, and how bright an eye's light must be, of 35, to stay as the glare on the lenses). The brows are all but
+     hidden under it (`brow` of their paint, `browBlur` times softer); the inside of the mouth is the deeper ink at
+     `mouth` of its strength, `mouthBlur` times as soft. The face fills `fill` of the screen's width, a soft light glows
+     behind its middle (`bloom`: its paint, its radius in cells, the row it is on), the screen's scanlines are `scan`
+     strong and `scanPitch` times as far apart as they would be, and the strokes take the footer's heavier film (`film`,
+     see the strokes' shader). */
   const CP_BLEND = {
     sides: 26,
     top: 3,
     foot: 12,
     vignette: { start: 0.62, end: 1.12, rx: 74, ry: 80, cy: 20 },
-    shade: 0.44,
-    light: 0.62,
-    blur: 2,
-    brow: 0.35,
-    browBlur: 1.8,
-    mouth: 0.9,
-    mouthBlur: 1.8,
-    bloom: { load: 0.22, radius: 30, row: 40 },
+    poster: { shade: [0.25, 0.08], light: [0.16, 0.12], mix: 0.85 },
+    shade: 1,
+    light: 1,
+    blur: 1.6,
+    boost: { eyes: 0.85, nose: 1.15, lip: 1.15, lowerLip: 1.4 },
+    band: { load: 0.55, rows: [0, 14], cols: [12, 121], soft: 2, keep: 22 },
+    brow: 0.25,
+    browBlur: 2.25,
+    mouth: 0.95,
+    mouthBlur: 1.3,
+    fill: 0.87,
+    bloom: { load: 0.5, radius: 30, row: 40 },
+    scan: 0.5,
+    scanPitch: 1.5,
+    film: [0.55, 0.45],
   }
-  const CP_SHOWN = [3, 66 + CP_JAW * 0.75]
+  // The face's rows the screen shows above the heads: from just over its glasses to its lower lip; open wide, the lip
+  // goes down behind the heads.
+  const CP_SHOWN = [2, 69]
   const CP_INKS = {
     ...LAND_INK,
     // the air, from the page at the top to the deep periwinkle round the screen
@@ -7204,8 +7217,8 @@
      reaches either side, and how much its top and foot bow, the top up in the middle and the foot down, as a curved
      screen does seen from the seats. The face in it is as large as the room between the screen's top and the heads in
      the middle lets it show its eyes to under its lower lip, but never more than about two thirds of the widest screen
-     (on a phone, most of the canvas's width), and the screen is about half as wide again as the face: `k` is the face's
-     scale (the concept's pixels to the canvas's) and `heads` how high the heads come under it. */
+     (on a phone, most of the canvas's width), and the screen hugs it (the face fills CP_BLEND.fill of its width): `k` is
+     the face's scale (the concept's pixels to the canvas's) and `heads` how high the heads come under it. */
   const cpScreen = (stage) => {
     const { w, h, words } = stage
     // the audience as wide as the canvas, or on a narrow screen no smaller than this, its middle kept
@@ -7219,14 +7232,15 @@
     const widest = clamp(w * 0.32, 170, 720)
     const faceW = CP_FACE.grid[0] * CP_FACE.cell
     const room = heads - 4 - (top + 6)
+    const { fill } = CP_BLEND
     const k = Math.max(
       0.05,
       Math.min(
         room / ((CP_SHOWN[1] - CP_SHOWN[0]) * CP_FACE.cell),
-        narrow ? (0.85 * w) / faceW : (2 * widest * 0.65) / faceW,
+        narrow ? (0.85 * w) / faceW : (2 * widest * fill) / faceW,
       ),
     )
-    const half = narrow ? widest : clamp((faceW * k) / 0.65 / 2, 170, widest)
+    const half = narrow ? widest : clamp((faceW * k) / fill / 2, 170, widest)
     // the sides lean out a little towards the foot (about 7 degrees), as a curved screen seen from below does
     const splay = Math.tan((7 * Math.PI) / 180) * (foot - top)
     return { x: w / 2, top, foot, half, bow: Math.max(8, (foot - top) * 0.07), scale, splay, sink, heads, room, k }
@@ -7273,6 +7287,7 @@
     glow: CP_GLOW,
     // the face gives a speech (see `talk`), nodding into it
     talk: { phrases: 7, seed: 0, lift: CP_LIFT, nod: 2.5 },
+    film: CP_BLEND.film,
     marks: true,
     glyphs: true,
     land: {
@@ -7362,6 +7377,8 @@
       flare: ['#ffffff', '#f4f5ff'],
       screenHi: ['#e9eaff', '#d3d6fd'],
       faceShade: ['#787ed0', '#555bbc'],
+      // the face's flat shadows and the inside of its mouth
+      faceDeep: ['#5b61b6', '#3b4096'],
       faceLight: ['#fbfbff', '#eef0ff'],
       halo: ['#dcdffb', '#b9bdf3'],
       // the audience: dark periwinkle, deeper the nearer, the outlines lit by the screen
@@ -7461,9 +7478,9 @@
           })
         }
       }
-      // The face, after the concept's: its features in a soft deeper periwinkle and the light on them in white, each a
-      // soft dab a cell wide, as large as the screen lets it show (see cpScreen), and in the room above the heads a
-      // little nearer its top than its foot, where there is more of it than the face needs.
+      // The face, after the concept's: its features in the deeper periwinkle and the light on them in white, each a soft
+      // dab a cell wide, as large as the screen lets it show (see cpScreen), and in the room above the heads a little
+      // nearer its top than its foot, where there is more of it than the face needs.
       const face = CP_FACE
       const [fw, fh] = face.grid
       const cell = face.cell * s.k
@@ -7481,6 +7498,48 @@
           smooth(0, foot, fh - gy - 0.5) *
           (1 - smooth(v.start, v.end, r))
         )
+      }
+      // The look of each cell (see CP_BLEND): its shadow and its light, posterised, a little stronger or weaker at the
+      // features, and the glasses' shadow across the eyes, the eyes' own brightest light kept as the glare on them.
+      const { poster, boost, band } = CP_BLEND
+      const lookAt = (gx, gy, dark, lit) => {
+        const m = poster.mix
+        let sh = 0
+        let li = 0
+        if (dark > 2) {
+          const ramp = Math.min(0.58, 0.6 * ((dark - 2) / 33) ** 0.8)
+          sh =
+            ramp * (1 - m) +
+            0.58 * smooth(poster.shade[0] - poster.shade[1], poster.shade[0] + poster.shade[1], dark / 35) * m
+        } else if (lit > 2) {
+          const ramp = Math.min(0.5, 0.52 * ((lit - 2) / 33) ** 0.8)
+          li =
+            ramp * (1 - m) +
+            0.5 * smooth(poster.light[0] - poster.light[1], poster.light[0] + poster.light[1], lit / 35) * m
+        }
+        let feature = 1
+        if (gy <= 20) {
+          feature = boost.eyes
+        } else if (gy >= 28 && gy <= 46) {
+          feature = boost.nose
+        } else if (gy >= 48 && gy <= 60) {
+          feature = boost.lip
+        }
+        sh *= CP_BLEND.shade * feature
+        li *= CP_BLEND.light * (gy >= 61 && gy <= 67 ? boost.lowerLip : 1)
+        const [r0, r1] = band.rows
+        const [c0, c1] = band.cols
+        if (gy >= r0 && gy <= r1 && gx >= c0 && gx <= c1 && lit < band.keep) {
+          const edge = Math.min(
+            smooth(r0 - 0.5, r0 + band.soft, gy),
+            smooth(r1 + 0.5, r1 - band.soft, gy),
+            smooth(c0 - 0.5, c0 + band.soft * 2, gx),
+            smooth(c1 + 0.5, c1 - band.soft * 2, gx),
+          )
+          sh = Math.max(sh, band.load * edge)
+          li = 0
+        }
+        return { shade: Math.min(0.95, sh), light: Math.min(0.95, li) }
       }
       // The face speaks (see `talk`), as a face on a great screen does to a hall: the mouth opens at the seam of its lips
       // (the dark shape across the face under the nose is the upper lip; the concept's lower lip, lit, starts on row
@@ -7531,20 +7590,21 @@
           const lip = gy >= SEAM && gy <= SEAM + 6 && lens(gx) > 0 ? 0.8 : 1
           // each a soft round dab about three cells across, so the face is light and shade in the screen, not marks on it
           const wt = weight(gx, gy)
+          const look = lookAt(gx, gy, dark, lit)
           // a faint cell's paint starts from none, so that nothing steps in or out where the map is faint
-          if (dark > 2) {
+          if (look.shade > 0.002) {
             put(100000 + i, {
               x,
               y,
               long: cell * 1.35,
               wide: 0.95,
               blur: cell * 1.4 * CP_BLEND.blur,
-              paints: ['faceShade', 'faceShade'],
-              load: Math.min(0.58, 0.6 * ((dark - 2) / 33) ** 0.8) * CP_BLEND.shade * wt,
+              paints: ['faceDeep', 'faceDeep'],
+              load: look.shade * wt,
               order: 500,
               phase,
             })
-          } else if (lit > 2) {
+          } else if (look.light > 0.002) {
             put(200000 + i, {
               x,
               y,
@@ -7552,7 +7612,7 @@
               wide: 0.95,
               blur: cell * 1.4 * CP_BLEND.blur,
               paints: ['faceLight', 'flare'],
-              load: Math.min(0.5, 0.52 * ((lit - 2) / 33) ** 0.8) * lip * CP_BLEND.light * wt,
+              load: look.light * lip * wt,
               order: 501,
               phase,
             })
@@ -7575,7 +7635,7 @@
           wide: half / (gap / 2),
           turn: Math.PI / 2,
           blur: cell * 2 * CP_BLEND.mouthBlur,
-          paints: ['faceShade', 'faceShade'],
+          paints: ['faceDeep', 'faceDeep'],
           load: 0.6 * CP_BLEND.mouth,
           order: 502,
           phase: 200 + Math.min(95, gap),
@@ -7627,7 +7687,7 @@
         }
       })
       // The screen's scanlines over the face: fine light lines a few pixels apart, across the screen between its sides.
-      const pitch = Math.max(3, H * 0.011)
+      const pitch = Math.max(3, H * 0.011) * CP_BLEND.scanPitch
       for (let y = s.top + s.bow + pitch; y < s.foot - pitch; y += pitch) {
         const f = (y - s.top - s.bow) / (s.foot - s.top - s.bow)
         const reach = s.half + f * s.splay - 3
@@ -7648,7 +7708,7 @@
           turn: 0,
           blur: 0.5,
           paints: ['flare', 'screenHi'],
-          load: 0.26,
+          load: CP_BLEND.scan,
           order: 650,
         })
       }
