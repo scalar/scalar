@@ -1,21 +1,34 @@
 import Ajv from 'ajv'
 import { describe, expect, it } from 'vitest'
 
-import { decimalMultipleOf } from './decimal-multiple-of'
+import { useDecimalMultipleOf } from './decimal-multiple-of'
 
 describe('decimal-multiple-of', () => {
-  it('checks large integers using their exact value', () => {
-    const ajv = new Ajv().removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
-    const value = Number(1000000000000000128n)
+  it.each([
+    ['12345678901234567000', 1000, true],
+    ['12345678901234567000', 10, true],
+    ['1e23', 1e22, true],
+    ['-1e23', 1e22, true],
+    ['1000000000000000128', 2.5, true],
+    ['1000000000000000100', 1.5, false],
+  ] as const)('checks JSON number %s against %s using decimal semantics', (json, multipleOf, expected) => {
+    const ajv = useDecimalMultipleOf(new Ajv())
+    expect(ajv.compile({ type: 'number', multipleOf })(JSON.parse(json))).toBe(expected)
+  })
 
-    expect(ajv.compile({ type: 'integer', multipleOf: 128 })(value)).toBe(true)
-    expect(ajv.compile({ type: 'integer', multipleOf: 256 })(value)).toBe(false)
-    expect(ajv.compile({ type: 'integer', multipleOf: 1.5 })(value)).toBe(true)
-    expect(ajv.compile({ type: 'integer', multipleOf: 2.5 })(value)).toBe(false)
+  it.each([
+    [6, 3, true],
+    [-6, 3, true],
+    [7, 3, false],
+    [0, 3, true],
+    [Number.MAX_SAFE_INTEGER, 1, true],
+  ] as const)('checks the safe integer %s against %s', (value, multipleOf, expected) => {
+    const ajv = useDecimalMultipleOf(new Ajv())
+    expect(ajv.compile({ type: 'number', multipleOf })(value)).toBe(expected)
   })
 
   it('preserves Ajv error metadata and parameter coercion', () => {
-    const ajv = new Ajv({ coerceTypes: true }).removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
+    const ajv = useDecimalMultipleOf(new Ajv({ coerceTypes: true }))
     const validate = ajv.compile({ type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } })
 
     const price = { price: '19.99' }
@@ -37,7 +50,7 @@ describe('decimal-multiple-of', () => {
 
   it.each([0, -0.01, Number.NaN, Number.POSITIVE_INFINITY])('rejects the invalid divisor %s', (multipleOf) => {
     // Even when callers disable meta-schema validation, a bad divisor must not reach BigInt arithmetic.
-    const ajv = new Ajv({ validateSchema: false }).removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
+    const ajv = useDecimalMultipleOf(new Ajv({ validateSchema: false }))
     expect(() => ajv.compile({ type: 'number', multipleOf })).toThrow(
       'multipleOf must be a finite number greater than 0',
     )

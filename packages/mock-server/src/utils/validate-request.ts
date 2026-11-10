@@ -1,6 +1,6 @@
 import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
-import { decimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
+import { useDecimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -230,12 +230,12 @@ const compileValidators = (
 ): CompiledValidators => {
   // Coerce string parameters to their declared types (integer, boolean, …).
   const parameterAjv = new Ajv2020({ strict: false, allErrors: true, coerceTypes: true })
-  parameterAjv.removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
+  useDecimalMultipleOf(parameterAjv)
   addFormats(parameterAjv)
 
   // Do not coerce the JSON body; a JSON value already carries its type and coercion would mask errors.
   const bodyAjv = new Ajv2020({ strict: false, allErrors: true })
-  bodyAjv.removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
+  useDecimalMultipleOf(bodyAjv)
   addFormats(bodyAjv)
 
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
