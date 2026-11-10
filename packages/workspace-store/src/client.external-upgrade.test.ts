@@ -58,29 +58,33 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
-  it('follows an external reference inside an extension explicitly referenced as a schema', async () => {
-    const store = createWorkspaceStore()
-    const url = 'https://example.test/schema.json'
-    const loads: string[] = []
-    await store.addDocument({
-      name: 'default',
-      fetch: (input): Promise<Response> => {
-        loads.push(String(input))
-        return Promise.resolve(new Response(JSON.stringify({ type: 'string' })))
-      },
-      document: {
-        openapi: '3.0.3',
-        info: { title: 'Example', version: '1' },
-        paths: {},
-        components: { schemas: { Parent: { $ref: '#/x-schemas/Wrapped' } } },
-        'x-schemas': { Wrapped: { $ref: url } },
-      },
-    })
+  it.each([false, true])(
+    'upgrades a schema reached through extension aliases (extension first: %s)',
+    async (extensionFirst) => {
+      const store = createWorkspaceStore()
+      const url = 'https://example.test/schema.json'
+      const loads: string[] = []
+      await store.addDocument({
+        name: 'default',
+        fetch: (input): Promise<Response> => {
+          loads.push(String(input))
+          return Promise.resolve(new Response(JSON.stringify({ type: 'string', nullable: true })))
+        },
+        document: {
+          openapi: '3.0.3',
+          info: { title: 'Example', version: '1' },
+          paths: {},
+          ...(extensionFirst ? { 'x-schemas': { Inner: { $ref: url }, Wrapped: { $ref: '#/x-schemas/Inner' } } } : {}),
+          components: { schemas: { Parent: { $ref: '#/x-schemas/Wrapped' } } },
+          ...(!extensionFirst ? { 'x-schemas': { Inner: { $ref: url }, Wrapped: { $ref: '#/x-schemas/Inner' } } } : {}),
+        },
+      })
 
-    const schema = getActiveOpenApiDocument(store)?.components?.schemas?.Parent
-    expect(getResolvedRef(getResolvedRef(schema))).toStrictEqual({ type: 'string' })
-    expect(loads).toStrictEqual([url])
-  })
+      const schema = getActiveOpenApiDocument(store)?.components?.schemas?.Parent
+      expect(getResolvedRef(getResolvedRef(getResolvedRef(schema)))).toStrictEqual({ type: ['string', 'null'] })
+      expect(loads).toStrictEqual([url])
+    },
+  )
 
   it.each([
     [false, false, false],

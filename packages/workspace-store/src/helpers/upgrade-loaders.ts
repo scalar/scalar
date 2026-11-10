@@ -61,6 +61,8 @@ type RecordRelocation = (from: string[], to: string[]) => void
 type Relocations = Map<string, string[]>
 type FragmentFile = { relocations: Relocations; key?: string }
 type Fragment = { file: FragmentFile; path: string[] }
+type ReferenceTarget = { value: unknown; path: readonly string[] }
+type DeferredReference = { target: readonly string[]; source: readonly string[] }
 
 const remapPointer = (pointer: readonly string[], relocations: Relocations): readonly string[] => {
   let remapped = pointer
@@ -93,7 +95,7 @@ const remapBundlePath = (root: object, path: readonly string[]): readonly string
 // the client can expose those same nodes through proxies after they enter the workspace.
 const fragments = new WeakMap<object, Fragment>()
 const convertedNodes = new WeakSet<object>()
-const deferredReferences = new WeakMap<object, readonly string[]>()
+const deferredReferences = new WeakMap<object, DeferredReference>()
 const pointerRemaps = new WeakMap<object, Relocations>()
 
 /** Upgrade versioned documents immediately, and headerless files only at their referring OpenAPI location. */
@@ -156,7 +158,10 @@ export const upgradeLoaders = (
   const paths = new WeakMap<object, readonly string[]>()
   const movedFiles = new Set<FragmentFile>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
-  const resolvedReferences = new WeakMap<object, () => unknown>()
+  const resolvedReferences = new WeakMap<
+    object,
+    { resolve: () => ReferenceTarget | undefined; source: readonly string[] }
+  >()
   const indexNodes = (value: unknown, path: readonly string[], root?: object, alreadyConverted = false): void => {
     if (value === null || typeof value !== 'object') {
       return
@@ -172,18 +177,20 @@ export const upgradeLoaders = (
     if (root && isObject(value) && typeof value.$ref === 'string' && isReferencePath(path)) {
       const deferred = deferredReferences.get(raw)
       deferredReferences.delete(raw)
+      const cached = resolvedReferences.get(raw)
       const fragment = fragments.get(raw)
-      if (fragment?.file.key !== undefined) {
-        trackExternalReference(
-          unpackProxyShallow(root),
-          ['x-ext', fragment.file.key, ...fragment.path, '$ref'],
-          value.$ref,
-        )
+      const source =
+        cached?.source ??
+        deferred?.source ??
+        (fragment?.file.key !== undefined ? ['x-ext', fragment.file.key, ...fragment.path] : undefined)
+      if (source) {
+        trackExternalReference(unpackProxyShallow(root), [...source, '$ref'], value.$ref)
       }
+      const deferredPath = deferred && remapBundlePath(root, deferred.target)
       const resolved =
-        resolvedReferences.get(raw)?.() ??
-        (deferred ? getValueAtPath(root, [...remapBundlePath(root, deferred)]) : undefined)
-      upgradeTarget(resolved, path, root)
+        cached?.resolve() ??
+        (deferredPath ? { value: getValueAtPath(root, [...deferredPath]), path: deferredPath } : undefined)
+      applyReferenceContext(resolved, path, root, value.$global === true)
     }
     for (const [key, child] of Object.entries(raw)) {
       indexNodes(child, [...path, key], root, alreadyConverted)
@@ -270,6 +277,25 @@ export const upgradeLoaders = (
     for (const [key, child] of Object.entries(target)) {
       indexNodes(child, [...path, key], root)
     }
+  }
+  const applyReferenceContext = (
+    target: ReferenceTarget | undefined,
+    path: readonly string[],
+    root: object,
+    isChunk: boolean,
+  ): void => {
+    if (!target) {
+      return
+    }
+    if (isObject(target.value) && typeof target.value.$ref === 'string') {
+      const raw = unpackProxyShallow(target.value)
+      const location = classifyPath(target.path)
+      if (!fragments.has(raw) && !paths.has(raw) && location.context === 'data' && !location.literal) {
+        // An explicitly referenced extension alias inherits its referring object's kind.
+        indexNodes(raw, path, root)
+      }
+    }
+    upgradeTarget(target.value, path, root, isChunk)
   }
   const wrapped: LoaderPlugin[] = loaders.map((loader) => {
     const cache = new Map<string, Promise<ResolveResult>>()
@@ -375,12 +401,12 @@ export const upgradeLoaders = (
         if (fragment && !fragment.startsWith('/')) {
           return
         }
-        const resolveTarget = async (): Promise<unknown> => {
+        const resolveTarget = async (): Promise<ReferenceTarget | undefined> => {
           // Absolute and relative document URIs can already resolve in the bundler's registry.
           // Reuse them before invoking a loader, just as we do for fragment-only references.
           const resolved = context.resolveReference(reference)
           if (resolved || !file) {
-            return resolved?.value
+            return resolved
           }
           const url = resolveReferencePath(context.origin, file)
           const loader = wrapped.find((candidate) => candidate.validate(url))
@@ -389,9 +415,9 @@ export const upgradeLoaders = (
             return undefined
           }
           const targetPath = fragment ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
-          return getValueAtPath(result.data, targetPath)
+          return { value: getValueAtPath(result.data, targetPath), path: targetPath }
         }
-        upgradeTarget(await resolveTarget(), path, context.rootNode, node.$global === true)
+        applyReferenceContext(await resolveTarget(), path, context.rootNode, node.$global === true)
       },
       onAfterNodeProcess: (node, context): void => {
         if (!isOpenApiThreeZero(entryVersion)) {
@@ -404,17 +430,20 @@ export const upgradeLoaders = (
         const root = unpackProxyShallow(context.rootNode)
         if (typeof node.$ref === 'string') {
           const reference = node.$ref
-          const resolve = (): unknown => context.resolveReference(reference)?.value
+          const resolve = (): ReferenceTarget | undefined => context.resolveReference(reference)
           const raw = unpackProxyShallow(node)
-          resolvedReferences.set(raw, resolve)
           const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
+          resolvedReferences.set(raw, { resolve, source })
           const path = paths.get(raw) ?? source
-          const resolved = context.resolveReference(reference)
+          const resolved = resolve()
           if (path[0] !== 'x-ext' && isReferencePath(path)) {
-            upgradeTarget(resolved?.value, path, context.rootNode, node.$global === true)
+            applyReferenceContext(resolved, path, context.rootNode, node.$global === true)
             trackExternalReference(root, [...source, '$ref'], reference)
-          } else if (path[0] === 'x-ext' && fragments.has(raw) && resolved?.value !== undefined) {
-            deferredReferences.set(raw, resolved.path)
+          } else if (resolved?.value !== undefined) {
+            const location = classifyPath(path)
+            if ((path[0] === 'x-ext' && fragments.has(raw)) || (location.context === 'data' && !location.literal)) {
+              deferredReferences.set(raw, { target: resolved.path, source })
+            }
           }
         }
         if (finishedInput && movedFiles.size) {
