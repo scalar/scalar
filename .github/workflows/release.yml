@@ -69,10 +69,9 @@ jobs:
     # integration publishes, CDN purge, production web deploy) keys off this.
     #
     # We deliberately do NOT use changesets/action's own `published` output:
-    # that action only reports a package as published when the publish command
-    # prints changesets' `New tag:` lines, which only `changeset publish`
-    # emits. Our publish command is `pnpm -r publish`, whose output it cannot
-    # parse, so `steps.changesets.outputs.published` is always 'false' even
+    # that action reads published packages from the CHANGESETS_OUTPUT file
+    # written by `changeset publish`. Our `pnpm -r publish` command does not
+    # write that file, so `steps.changesets.outputs.published` is 'false' even
     # though packages do reach npm. Instead we detect a release by diffing
     # public package.json versions against the previous commit (see the
     # "Detect package release" step).
@@ -171,10 +170,10 @@ jobs:
       # Request provenance explicitly to retain the previous provenance=true behavior.
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           # The pull request title.
-          title: 'chore: release'
+          pr-title: 'chore: release'
           # Bumps versions, updates CHANGELOG.md, and appends an
           # AI-written entry to projects/scalar-app/RELEASE_NOTES.json
           # (the source of truth bundled with the in-app "What's new"
@@ -184,20 +183,19 @@ jobs:
           # headline dependency that ships inside the desktop and web
           # builds. The release-notes step short-circuits silently when
           # ANTHROPIC_API_KEY is not available (forks, contributor PRs).
-          version: 'pnpm release:version'
+          version-script: 'pnpm release:version'
           # The commit message to use.
-          commit: 'chore: version packages'
+          commit-message: 'chore: version packages'
           # The command to use to build and publish packages.
-          publish: 'pnpm -r publish --access public --no-git-checks --provenance'
+          publish-script: 'pnpm -r publish --access public --no-git-checks --provenance'
+          # Pass the app token explicitly so the release PR triggers CI.
+          github-token: ${{ steps.app-token.outputs.token }}
+          # Preserve the existing Git CLI push behavior.
+          push-with-git-cli: true
         env:
-          # The app token (not GITHUB_TOKEN) is what makes the release PR
-          # trigger CI — see the "Generate GitHub App token" step above.
+          # The custom changelog generator also reads the token from the environment.
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          # No NPM_TOKEN on purpose. Without one, changesets/action leaves
-          # ~/.npmrc alone and npm exchanges this job's OIDC id-token for a
-          # short-lived, package-scoped publish token — see the trusted
-          # publishing note at the top of this file. Setting NPM_TOKEN again
-          # would put a static credential back in front of that exchange.
+          # No NPM_TOKEN: pnpm uses this job's OIDC id-token for trusted publishing.
           # Used by `pnpm release:version` to summarise the just-bumped
           # CHANGELOG.md section into a friendly release-notes entry.
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

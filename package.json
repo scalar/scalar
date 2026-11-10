@@ -9,7 +9,7 @@
   "packageManager": "pnpm@12.14.0",
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@changesets/cli": "^2.31.1",
+    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@playwright/test": "catalog:*",
