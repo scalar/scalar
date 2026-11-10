@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 3.25.0
+
+### Minor Changes
+
+- [#10871](https://github.com/scalar/scalar/pull/10871): Add schema-aware file controls for multipart/mixed and multipart/related parts, preserving part order and encodings. Restrict multipart/form-data uploads to file fields when a request body schema is available.
+
+  Honor binary encoding content types on multipart fields and share file-schema detection with example generation, including nullable, composed, and typeless file placeholders.
+
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+
 ## 3.24.0
 
 ### Minor Changes

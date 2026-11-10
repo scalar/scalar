@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.78.0
+
+### Minor Changes
+
+- [#10892](https://github.com/scalar/scalar/pull/10892): Allow defaultHttpClient to select custom code samples with targetKey: 'custom'.
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10902](https://github.com/scalar/scalar/pull/10902): Render self-contained Avro, RAML, and Protobuf schemas as native field and type documentation, retaining copyable source for unsupported schemas.
+
+### Patch Changes
+
+- [#10890](https://github.com/scalar/scalar/pull/10890): Add an Elixir language icon and show it on Elixir SDK installation tabs.
+- [#10936](https://github.com/scalar/scalar/pull/10936): Mark hosting waitlist sign-ups from the developer tools Deploy card with an `oss` contact property.
+- [#10898](https://github.com/scalar/scalar/pull/10898): Preserve browser-native plugin URL imports when bundling API Reference with Next.js Turbopack.
+- [#10908](https://github.com/scalar/scalar/pull/10908): Expose `Scalar.releaseUnusedStyles()` in the standalone bundle to release orphaned CSS without mounting a temporary reference or changing body theme classes. Preserve styles owned by active references and restore detached styles on the next mount.
+- [#10873](https://github.com/scalar/scalar/pull/10873): Display the API description version verbatim without adding a `v` prefix, so commit hashes and other version identifiers remain accurate.
+- [#10874](https://github.com/scalar/scalar/pull/10874): Automatically group deep-object query parameters with expandable fields in a collapsed row.
+
+  Keep expanded fields open during navigation within a group, and mark flattened fields as required only when every ancestor is required.
+
+- [#10949](https://github.com/scalar/scalar/pull/10949): Show response header examples, including media type examples and OpenAPI 3.2 cookie examples, with explicit examples taking precedence over schema examples. Preserve this precedence through composed schemas and fall back to media type examples when header examples have no usable values.
+
+  Keep external example URLs visible and preserve line breaks in displayed string examples. Across all schemas, array-level examples take precedence over item examples.
+
+  Preserve `x-example` and `x-examples` on OpenAPI 2.0 response headers during upgrades.
+
 ## 1.77.0
 
 ### Minor Changes

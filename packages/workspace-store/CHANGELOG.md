@@ -1,5 +1,40 @@
 # @scalar/workspace-store
 
+## 0.71.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10871](https://github.com/scalar/scalar/pull/10871): Add schema-aware file controls for multipart/mixed and multipart/related parts, preserving part order and encodings. Restrict multipart/form-data uploads to file fields when a request body schema is available.
+
+  Honor binary encoding content types on multipart fields and share file-schema detection with example generation, including nullable, composed, and typeless file placeholders.
+
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+- [#10893](https://github.com/scalar/scalar/pull/10893): Allow custom code samples to use separate picker headings with an optional `group` field.
+
+### Patch Changes
+
+- [#10928](https://github.com/scalar/scalar/pull/10928): Fill the discriminator property with the selected variant's mapping value in generated examples.
+- [#10813](https://github.com/scalar/scalar/pull/10813): fix: keep the required properties of an object that the example depth cap truncates, so a deeply nested mock response no longer serves `{}` where its schema requires keys, including keys required through `allOf` members or the selected `oneOf`/`anyOf` variant
+
+  Preserve explicit values equal to the depth marker and exclude requirements from unselected union branches.
+
+  Keep required primitive compositions on the normal traversal and collect discriminator requirements from the branch rendered after depth truncation.
+
+  Reuse evaluated discriminator values for required-property collection and keep inferred tuple arrays empty past the depth cap.
+
+  Preserve shared requirements and required primitive values through dynamic references, including requirements declared in dynamically referenced composition members.
+
+  Collect requirements separately when composition branches reuse a shared template under different dynamic bindings.
+
+  Exclude requirements from composition members omitted by the request or response mode.
+
+- [#10938](https://github.com/scalar/scalar/pull/10938): fix: merge array items whose `allOf` describes an object without `type: object` on the first member into one example instead of one partial object per member
+- [#10955](https://github.com/scalar/scalar/pull/10955): fix: respect array length bounds when generating schema examples
+
+  Preserve cycle detection for selected array branches, pad unrestricted annotated items, and prefer a contains sample when no item constraints are declared.
+
 ## 0.70.0
 
 ### Minor Changes

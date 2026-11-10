@@ -1,5 +1,15 @@
 # @scalar/release-notes
 
+## 0.3.0
+
+### Minor Changes
+
+- [#10935](https://github.com/scalar/scalar/pull/10935): feat(release-notes): add a per-product `maxHighlights` option (1 to 20, default 5) that sets how many highlights a generated note may carry. The limit is stated in the default system prompt, enforced when the response is validated, and passed to custom system prompts, and the default output token budget grows with it.
+
+### Patch Changes
+
+- [#10900](https://github.com/scalar/scalar/pull/10900): Upgrade the CLI to Commander 15 and require Node.js 22.12.0 or later.
+
 ## 0.2.10
 
 ## 0.2.9

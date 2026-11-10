@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.4.13
+
+### Patch Changes
+
+- [#10923](https://github.com/scalar/scalar/pull/10923): Update the bundled mdast-util-to-hast to 13.2.1 to fix CVE-2025-66400 (unsanitized class attribute).
+
 ## 0.4.12
 
 ### Patch Changes

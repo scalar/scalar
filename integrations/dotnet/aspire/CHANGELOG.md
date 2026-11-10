@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.14.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.0
+
+### Minor Changes
+
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+
 ## 0.13.0
 
 ### Bundled API Reference

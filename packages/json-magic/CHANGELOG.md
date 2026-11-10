@@ -1,5 +1,15 @@
 # @scalar/json-magic
 
+## 0.19.0
+
+### Minor Changes
+
+- [#10897](https://github.com/scalar/scalar/pull/10897): Resolve proxy references within their schema resource using the shared bundle resolver, and expose resolved targets to lifecycle hooks for scope-aware transformations.
+
+### Patch Changes
+
+- [#10904](https://github.com/scalar/scalar/pull/10904): Share confined document loading between Markdown converters and include HTTP status codes in load errors.
+
 ## 0.18.0
 
 ### Minor Changes

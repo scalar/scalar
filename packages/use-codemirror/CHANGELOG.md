@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.14.18
+
+### Patch Changes
+
+- [#10925](https://github.com/scalar/scalar/pull/10925): Stabilize the color-picker edit-position regression test by completing syntax parsing after document changes.
+
 ## 0.14.17
 
 ### Patch Changes

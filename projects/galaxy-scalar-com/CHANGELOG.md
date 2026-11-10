@@ -1,5 +1,11 @@
 # galaxy-scalar-com
 
+## 0.2.30
+
+### Patch Changes
+
+- [#10905](https://github.com/scalar/scalar/pull/10905): Configure a separate agent key for each Galaxy and Petstore API description.
+
 ## 0.2.29
 
 ### Patch Changes
