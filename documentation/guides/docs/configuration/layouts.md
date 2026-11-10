@@ -38,7 +38,7 @@ The header and sidebar span the window, with a table of contents beside the cont
 
 `"minimal"` puts the header, sidebar and content in one centered column, as wide as the sidebar and the reading column with its padding. On a wide screen the page keeps a calm, narrow shape instead of stretching to fill it.
 
-The column has no room for a table of contents, so this layout has none: `layout.toc` is ignored, on individual pages too.
+The column has no room for a table of contents, so this layout has none: `layout.toc` is ignored, on individual pages too. The sidebar scrolls as one, so the links at its foot follow the last page in it instead of staying pinned to the bottom of the window.
 
 <scalar-image
   src="/layouts-minimal.png"
