@@ -265,6 +265,44 @@ describe('upgrade', () => {
     },
   )
 
+  it.each(upgradeTargets)(
+    'preserves Swagger response header example extensions when upgrading to %s',
+    (target, upgradeDocument) => {
+      const headers = {
+        'X-Single': { type: 'string', 'x-example': '' },
+        'X-Named': {
+          type: 'string',
+          'x-example': 'fallback',
+          'x-examples': {
+            first: 'hello',
+            second: { value: 'world', summary: 'World' },
+          },
+        },
+      }
+      const document = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Headers', version: '1' },
+        paths: { '/': { get: { responses: { 200: { description: 'OK', headers: structuredClone(headers) } } } } },
+        responses: { Shared: { description: 'OK', headers: structuredClone(headers) } },
+      })
+      const expected = {
+        'X-Single': {
+          schema: { type: 'string' },
+          ...(target === '3.0' ? { example: '' } : { examples: { default: { value: '' } } }),
+        },
+        'X-Named': {
+          schema: { type: 'string' },
+          examples: {
+            first: { value: 'hello' },
+            second: { value: 'world', summary: 'World' },
+          },
+        },
+      }
+      expect(document.paths?.['/']?.get?.responses?.[200]?.headers).toStrictEqual(expected)
+      expect(document.components?.responses?.Shared?.headers).toStrictEqual(expected)
+    },
+  )
+
   it.each(upgradeTargets)('preserves security scheme metadata when upgrading to %s', (_target, upgradeDocument) => {
     const extensions = {
       'x-label': 'Authentication',

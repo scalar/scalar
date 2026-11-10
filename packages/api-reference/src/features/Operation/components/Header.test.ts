@@ -35,12 +35,15 @@ describe('Header', () => {
     })
 
     expect(
-      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      wrapper
+        .findAll('button')
+        .map((button) => button.attributes('aria-label'))
+        .filter((name) => name?.startsWith('Copy example value:')),
     ).toStrictEqual(['Copy example value: header sample'])
     wrapper.unmount()
   })
 
-  it('preserves nested property examples when overriding referenced composition examples', () => {
+  it('shows a two-branch allOf header example once while preserving nested property examples', () => {
     const wrapper = mount(Header, {
       props: {
         ...baseProps,
@@ -55,6 +58,7 @@ describe('Header', () => {
                   properties: { session: { type: 'string', example: 'property sample' } },
                 },
               },
+              { type: 'object', properties: { theme: { type: 'string' } }, example: { theme: 'schema sample' } },
             ],
           }),
           example: { session: 'header sample' },
@@ -63,7 +67,10 @@ describe('Header', () => {
     })
 
     expect(
-      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      wrapper
+        .findAll('button')
+        .map((button) => button.attributes('aria-label'))
+        .filter((name) => name?.startsWith('Copy example value:')),
     ).toStrictEqual(['Copy example value: {"session":"header sample"}', 'Copy example value: property sample'])
     wrapper.unmount()
   })
@@ -87,7 +94,10 @@ describe('Header', () => {
       })
 
       expect(
-        wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+        wrapper
+          .findAll('button')
+          .map((button) => button.attributes('aria-label'))
+          .filter((name) => name?.startsWith('Copy example value:')),
       ).toStrictEqual(['Copy example value: media sample'])
       wrapper.unmount()
     },
@@ -109,7 +119,10 @@ describe('Header', () => {
     })
 
     expect(
-      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      wrapper
+        .findAll('button')
+        .map((button) => button.attributes('aria-label'))
+        .filter((name) => name?.startsWith('Copy example value:')),
     ).toStrictEqual(['Copy example value: alice,bob'])
     wrapper.unmount()
   })
@@ -132,7 +145,10 @@ describe('Header', () => {
     })
 
     expect(
-      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      wrapper
+        .findAll('button')
+        .map((button) => button.attributes('aria-label'))
+        .filter((name) => name?.startsWith('Copy example value:')),
     ).toStrictEqual(['Copy example value: req_123'])
     wrapper.unmount()
   })
@@ -160,7 +176,10 @@ describe('Header', () => {
       })
 
       expect(
-        wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+        wrapper
+          .findAll('button')
+          .map((button) => button.attributes('aria-label'))
+          .filter((name) => name?.startsWith('Copy example value:')),
       ).toStrictEqual([
         'Copy example value: legacy',
         'Copy example value: req_123',
@@ -169,6 +188,7 @@ describe('Header', () => {
         'Copy example value: false',
         'Copy example value: ',
         'Copy example value: null',
+        'Copy example value: https://example.com/pending.txt',
       ])
       wrapper.unmount()
     },
@@ -199,9 +219,12 @@ describe('Header', () => {
     expect(wrapper.text()).toContain('Cookies for this session')
     expect(wrapper.text()).toContain('Session identifier')
     expect(wrapper.text()).toContain('Theme preference')
-    expect(wrapper.get('button[aria-label^="Copy example value:"]').attributes('aria-label')).toBe(
-      `Copy example value: ${serializedValue}`,
-    )
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.attributes('aria-label')?.startsWith('Copy example value:'))
+        ?.attributes('aria-label'),
+    ).toBe(`Copy example value: ${serializedValue}`)
     wrapper.unmount()
   })
 
@@ -222,7 +245,10 @@ describe('Header', () => {
     })
 
     expect(
-      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      wrapper
+        .findAll('button')
+        .map((button) => button.attributes('aria-label'))
+        .filter((name) => name?.startsWith('Copy example value:')),
     ).toStrictEqual(['Copy example value: foo=abc\nbar=dark'])
     wrapper.unmount()
   })
@@ -239,18 +265,24 @@ describe('Header', () => {
           }),
         },
       })
-      expect(wrapper.get('button[aria-label^="Copy example value:"]').attributes('aria-label')).toBe(
-        'Copy example value: schema sample',
-      )
+      expect(
+        wrapper
+          .findAll('button')
+          .find((button) => button.attributes('aria-label')?.startsWith('Copy example value:'))
+          ?.attributes('aria-label'),
+      ).toBe('Copy example value: schema sample')
       wrapper.unmount()
     },
   )
 
   it.each([false, 0, '', null])('preserves a single falsy header example: %j', (example) => {
     const wrapper = mount(Header, { props: { ...baseProps, header: { example } } })
-    expect(wrapper.get('button[aria-label^="Copy example value:"]').attributes('aria-label')).toBe(
-      `Copy example value: ${example}`,
-    )
+    expect(
+      wrapper
+        .findAll('button')
+        .find((button) => button.attributes('aria-label')?.startsWith('Copy example value:'))
+        ?.attributes('aria-label'),
+    ).toBe(`Copy example value: ${example}`)
     wrapper.unmount()
   })
 

@@ -5,6 +5,19 @@ import { describe, expect, it } from 'vitest'
 import { getHeaderSchema } from './get-header-schema'
 
 describe('get-header-schema', () => {
+  it('prefers external-only header examples over media type and schema examples', () => {
+    const result = getHeaderSchema({
+      examples: { external: { externalValue: 'https://example.com/cookie.txt' } },
+      content: {
+        'text/plain': {
+          example: 'media',
+          schema: coerceValue(SchemaObjectSchema, { type: 'string', examples: ['schema'] }),
+        },
+      },
+    })
+    expect(result?.examples).toStrictEqual([{ value: 'https://example.com/cookie.txt' }])
+  })
+
   it('overrides recursive compositions without changing the original schema', () => {
     const schema = coerceValue(SchemaObjectSchema, { type: 'string', examples: ['schema sample'] })
     schema.anyOf = [schema]
