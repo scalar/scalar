@@ -10,6 +10,7 @@ import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
 
 import Message from './Message.vue'
 import MessageExamples from './MessageExamples.vue'
+import SchemaSource from './SchemaSource.vue'
 
 vi.unmock('@/plugins/hooks/usePluginManager')
 
@@ -230,7 +231,7 @@ describe('Message', () => {
     wrapper.unmount()
   })
 
-  it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {
+  it.each(['payload', 'headers'])('renders referenced native %s fields without duplicate source', async (field) => {
     const schema = 'message User { string id = 1; }'
     const format = 'application/vnd.google.protobuf;version=3'
     const wrapper = mount(Message, {
@@ -243,10 +244,37 @@ describe('Message', () => {
         }),
       },
     })
-    expect(wrapper.text()).toContain(format)
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('#1'))
+    expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
     expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
     expect(wrapper.find(`[id="${MESSAGE_ID}.${field}"]`).exists()).toBe(true)
+  })
+
+  it.each([
+    [
+      'application/vnd.apache.avro+json;version=1.9.0',
+      { type: 'record', name: 'User', fields: [{ name: 'user_id', type: 'long' }] },
+      'user_id',
+    ],
+    ['application/raml+yaml;version=1.0', { type: 'object', properties: { user_id: 'string' } }, 'required'],
+  ])('renders native payloads and headers for %s', async (format, schema, expected) => {
+    for (const field of ['payload', 'headers']) {
+      const wrapper = mount(Message, {
+        props: {
+          message: createMessage(),
+          eventBus: null,
+          expandedItems: expanded,
+          document: createDocument({
+            [field]: { $ref: '#/components/schemas/User', '$ref-value': { schemaFormat: format, schema } },
+          }),
+        },
+      })
+      await vi.waitFor(() => expect(wrapper.text()).toContain(expected))
+      expect(wrapper.text()).toContain('user_id')
+      expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
+      expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+      wrapper.unmount()
+    }
   })
 
   it('switches a payload from source rendering back to JSON Schema', async () => {
@@ -258,7 +286,7 @@ describe('Message', () => {
         document: createDocument({ payload: { schemaFormat: 'application/x-custom', schema: 'source text' } }),
       },
     })
-    expect(wrapper.text()).toContain('source text')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('source text'))
     await wrapper.setProps({
       document: createDocument({ payload: { type: 'object', properties: { userId: { type: 'string' } } } }),
     })

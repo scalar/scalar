@@ -199,6 +199,7 @@ const resolvedEntries = computed(() =>
       :isCollapsed="!expandedItems[entry.id]"
       :layout="options.layout"
       :name="entry.name"
+      :options="options"
       :value="schema.value" />
   </Lazy>
 </template>

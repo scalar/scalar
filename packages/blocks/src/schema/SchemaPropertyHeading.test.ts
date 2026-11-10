@@ -4,9 +4,54 @@ import { OpenAPIDocumentSchema, SchemaObjectSchema } from '@scalar/workspace-sto
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import { type ProtobufSchema, protobufFieldNumber, protobufPresence } from './protobuf-metadata'
+import { type RecursiveSchema, schemaRecursiveTarget } from './recursive-metadata'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 describe('SchemaPropertyHeading', () => {
+  it.each(['explicit', 'implicit'] as const)('renders %s presence as an optional label with a tooltip', (presence) => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'string', [protobufPresence]: presence } as ProtobufSchema },
+      slots: { name: 'email' },
+    })
+    const label = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(label.text()).toContain(`Optional (${presence} presence)`)
+    expect(label.find('[tabindex="0"]').exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toContain(
+      presence === 'explicit' ? 'Protobuf distinguishes' : 'Protobuf does not distinguish',
+    )
+    wrapper.unmount()
+  })
+
+  it('uses the existing recursive indicator for native schema cycles', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'object', title: 'User', [schemaRecursiveTarget]: 'User' } as RecursiveSchema },
+      slots: { name: 'parent' },
+    })
+    expect(wrapper.text()).toContain('recursive')
+    expect(wrapper.get('.property-recursive').attributes('title')).toContain('User')
+    expect(wrapper.text()).not.toContain('Recursive reference')
+    wrapper.unmount()
+  })
+
+  it('renders native Protobuf field numbers with an accessible tooltip target', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: { value: { type: 'string', [protobufFieldNumber]: 2 } as ProtobufSchema },
+      slots: { name: 'email' },
+    })
+    const tag = wrapper.getComponent({ name: 'ScalarTooltip' })
+    expect(tag.text()).toContain('Protobuf field number: 2')
+    expect(tag.find('[tabindex="0"]').exists()).toBe(false)
+    expect(wrapper.getComponent({ name: 'ScalarTooltip' }).props('content')).toBe('Protobuf field number')
+    wrapper.unmount()
+  })
+
+  it('does not invent field numbers for ordinary schemas', () => {
+    const wrapper = mount(SchemaPropertyHeading, { props: { value: { type: 'string' } }, slots: { name: 'email' } })
+    expect(wrapper.find('[aria-label^="Protobuf field number:"]').exists()).toBe(false)
+    wrapper.unmount()
+  })
+
   it('renders falsy default values', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {

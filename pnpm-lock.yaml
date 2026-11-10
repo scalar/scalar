@@ -392,6 +392,9 @@ catalogs:
     posthog-js:
       specifier: 1.438.12
       version: 1.438.12
+    proto-parser:
+      specifier: 0.0.9
+      version: 0.0.9
     quickjs-emscripten:
       specifier: 0.32.0
       version: 0.32.0
@@ -486,6 +489,9 @@ overrides:
   property-information: 7.2.0
   undici@<8: 7.30.1
   undici@>=8: 8.12.3
+
+patchedDependencies:
+  proto-parser@0.0.9: 9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb
 
 importers:
 
@@ -1704,6 +1710,9 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.16
+      proto-parser:
+        specifier: catalog:*
+        version: 0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb)
       vue:
         specifier: catalog:*
         version: 3.5.44(typescript@5.9.3)
@@ -18124,6 +18133,9 @@ packages:
 
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
+
+  proto-parser@0.0.9:
+    resolution: {integrity: sha512-1rFsUdeZ1bKOGfhy1Pw2RWNiAPj7luwBIFeVSJQXZA2G3sh4a24sHtNgnYfisdi4YvAe7TsDNq1xREos+Iwfww==}
 
   protobufjs@7.5.4:
     resolution: {integrity: sha512-CvexbZtbov6jW2eXAvLukXjXUW1TzFaivC46BpWc/3BpcCysb5Vffu+B3XHMm8lVEuy2Mm4XGex8hBSg1yapPg==}
@@ -40588,6 +40600,8 @@ snapshots:
       levenshtein-edit-distance: 1.0.0
 
   proto-list@1.2.4: {}
+
+  proto-parser@0.0.9(patch_hash=9a9f39b59d1e305dc00a2afd937042507255aee61b36f8e56836e83741936aeb): {}
 
   protobufjs@7.5.4:
     dependencies:

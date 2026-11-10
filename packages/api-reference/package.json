@@ -143,6 +143,7 @@
     "fuse.js": "catalog:*",
     "microdiff": "catalog:*",
     "nanoid": "catalog:*",
+    "proto-parser": "catalog:*",
     "vue": "catalog:*",
     "yaml": "catalog:*"
   },
