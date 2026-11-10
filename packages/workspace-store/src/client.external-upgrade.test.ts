@@ -71,7 +71,11 @@ describe('client.external-upgrade', () => {
       const store = createWorkspaceStore()
       const schemaUrl = 'https://example.test/shared.json'
       const exampleUrl = shared ? schemaUrl + '#/Example' : 'https://example.test/example.json'
-      const literal = { $ref: alias ? '#/components/schemas/Parent' : schemaUrl + '#/Parent/allOf/0' }
+      const literal = {
+        $ref: alias ? '#/components/schemas/Parent' : schemaUrl + '#/Parent/allOf/0',
+        label: 'payload',
+        details: { count: 1 },
+      }
       const parent = { nullable: true, allOf: [{ type: 'string' }] }
       const example = { value: literal }
       const sharedFile = alias

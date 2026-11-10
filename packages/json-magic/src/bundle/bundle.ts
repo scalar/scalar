@@ -512,7 +512,7 @@ export type Config = {
      * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
      */
     onBeforeNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
-    /** Return false to leave a literal reference field untouched during bundling. */
+    /** Return false to leave an authored literal reference out of node processing and resolution. */
     shouldResolveReference: (node: UnknownObject, context: NodeProcessContext) => boolean
     /**
      * Optional hook invoked after processing a node.
@@ -935,7 +935,10 @@ export const bundleDocument = async (
     }
 
     const authoredReference = hasRef(root) ? root.$ref : undefined
-    await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
+    const processNode = !hasRef(root) || referenceGuards.every((guard) => guard?.(root, context) !== false)
+    if (processNode) {
+      await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
+    }
 
     const visitChildren = async (): Promise<void> => {
       for (const key of Object.keys(root)) {
@@ -953,11 +956,7 @@ export const bundleDocument = async (
         )
       }
     }
-    if (
-      hasRef(root) &&
-      (!location || isReferenceContext(location.context)) &&
-      referenceGuards.every((guard) => guard?.(root, context) !== false)
-    ) {
+    if (processNode && hasRef(root) && (!location || isReferenceContext(location.context))) {
       const ref = root['$ref']
       const report = (kind: ReferenceDiagnostic['kind']): void => {
         diagnostics?.push({
@@ -1266,7 +1265,9 @@ export const bundleDocument = async (
       )
     }
 
-    await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+    if (processNode) {
+      await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
+    }
   }
 
   await bundler(rawSpecification)
