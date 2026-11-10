@@ -38,7 +38,7 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 
 ## Custom Styling
 
-Set `--scalar-code-line-height` on a code component or an ancestor to customize code line spacing. Code blocks and direct users of `@scalar/code-highlight/css/code.css` default to `1.4`; Markdown fenced code keeps its `1.5` default.
+Set `--scalar-code-line-height` on a code component or an ancestor to customize code line spacing. Code blocks and direct users of `@scalar/highlight/compat/code.css` default to `1.4`; Markdown fenced code keeps its `1.5` default.
 
 ```css
 :root {

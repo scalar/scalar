@@ -33,7 +33,9 @@ type HighlightOptions = {
  * wrong one, so an unlabeled block rendering uncoloured is the more honest
  * default.
  */
-export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | undefined) {
+export const rehypeHighlight = (
+  options?: Readonly<HighlightOptions> | null | undefined,
+): ((tree: Root, file: VFile) => void) => {
   const extraClassNames = typeof options?.className === 'string' ? [options.className] : (options?.className ?? [])
 
   return (tree: Root, file: VFile) => {
@@ -110,7 +112,7 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
 }
 
 /** Get the programming language of `node` or an empty string */
-function language(node: Element): string {
+const language = (node: Element): string => {
   const list = node.properties.className
 
   if (!Array.isArray(list)) {
