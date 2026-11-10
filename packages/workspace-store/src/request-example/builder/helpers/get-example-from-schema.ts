@@ -205,13 +205,14 @@ const shouldOmitProperty = (
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
   options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
+  isRequiredProperty = false,
 ): boolean => {
   // Early exits for schemas that should not be included (readOnly, writeOnly)
   if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
     return true
   }
 
-  if (options?.omitEmptyAndOptionalProperties !== true) {
+  if (isRequiredProperty || options?.omitEmptyAndOptionalProperties !== true) {
     return false
   }
 
@@ -670,11 +671,25 @@ const handleObjectSchema = (
   cacheKey: string,
   schemaPath: string[],
   dynamicScope: DynamicScope,
+  requiredScope: ReadonlySet<string> | undefined,
 ): unknown => {
   const response: Record<string, unknown> = {}
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+  // Carry requirements through composition wrappers before they cross the cap. Property children
+  // start their own scope, since their required names belong to a different object.
+  const memberRequiredScope =
+    requiredScope ??
+    (isComposed(schema)
+      ? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
+  // Past the cap only the properties the object requires are rendered: optional ones are what the cap
+  // exists to stop descending into. Composition members share the names of the object they belong to.
+  const required =
+    level > MAX_LEVELS_DEEP
+      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope))
+      : undefined
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -684,19 +699,35 @@ const handleObjectSchema = (
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
       const propertySchema = resolve.schema(properties[propertyName])
-      if (!propertySchema) {
+      if (!propertySchema || (required && !required.has(propertyName))) {
         continue
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const value = getExampleFromSchema(propertySchema, options, {
-        level: level + 1,
-        parentSchema: schema,
-        name: propertyName,
-        schemaPath: [...schemaPath, propertyName],
-        seen,
-        dynamicScope: childScope,
-      })
+      const discriminatorExample =
+        schema.discriminator?.defaultMapping !== undefined && schema.discriminator.propertyName === propertyName
+          ? evaluateDiscriminator(schema, options, {
+              level,
+              schemaPath,
+              seen,
+              dynamicScope,
+              isRequiredProperty: !!required,
+            })
+          : undefined
+      if (discriminatorExample?.evaluation) {
+        options?.[EXAMPLE_EVALUATION]?.stack.at(-1)?.children.push(discriminatorExample.evaluation)
+      }
+      const value = discriminatorExample
+        ? discriminatorExample.value
+        : getExampleFromSchema(propertySchema, options, {
+            level: level + 1,
+            parentSchema: schema,
+            name: propertyName,
+            isRequiredProperty: !!required,
+            schemaPath: [...schemaPath, propertyName],
+            seen,
+            dynamicScope: childScope,
+          })
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -704,7 +735,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('patternProperties' in schema && schema.patternProperties) {
+  if (!required && 'patternProperties' in schema && schema.patternProperties) {
     for (const pattern of Object.keys(schema.patternProperties)) {
       const propertySchema = resolve.schema(schema.patternProperties[pattern])
       if (!propertySchema) {
@@ -721,7 +752,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('additionalProperties' in schema && schema.additionalProperties) {
+  if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
     const additional =
       typeof schema.additionalProperties === 'boolean'
         ? schema.additionalProperties
@@ -774,6 +805,7 @@ const handleObjectSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          requiredScope: memberRequiredScope,
         }),
       )
       Object.assign(response, withDiscriminatorTag(schema, chosen, response, options, schemaPath))
@@ -796,6 +828,7 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
         schemaPath: memberSchemaPath,
+        requiredScope: memberRequiredScope,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -1055,6 +1088,261 @@ const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 /** How long a chain of composition wrappers may be unwrapped before the stack becomes the concern. */
 const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
 
+/**
+ * How deep the walk keeps going past `MAX_LEVELS_DEEP` to fill the properties a truncated object requires.
+ *
+ * Past the cap the walk still renders objects, but only their required properties, so a strict decoder
+ * reading the example finds every key it insists on. This level bounds that, well below the XML
+ * serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
+ * stand in empty again.
+ */
+const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
+
+/**
+ * How many schemas the walk may enter past `MAX_LEVELS_DEEP` in one top-level call.
+ *
+ * Cycle guards stop a schema that requires itself, but not a chain of distinct schemas that each point
+ * at the next one twice, through two required properties or an `allOf` that lists the same member
+ * twice: the work doubles with every link. Once the budget is spent, objects stand in empty.
+ */
+const MAX_REQUIRED_STEPS = 10_000
+
+/** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
+let requiredSteps = MAX_REQUIRED_STEPS
+
+/** Cache requirements within one walk; generated discriminator values may select a new branch next time. */
+let compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
+
+/** The value and optional XML provenance of a discriminator evaluated during requirement collection. */
+type DiscriminatorExample = { value: unknown; evaluation?: ExampleEvaluation }
+
+/** Values are reused only within one call; generated dates and traversal contexts must not leak across calls. */
+let discriminatorExamples = new WeakMap<object, Map<string, DiscriminatorExample>>()
+
+/** Evaluate the discriminator through the same path as any other property, before choosing its branch. */
+const evaluateDiscriminator = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: {
+    level: number
+    schemaPath: string[]
+    seen: WeakSet<object>
+    dynamicScope: DynamicScope
+    isRequiredProperty: boolean
+  },
+): DiscriminatorExample => {
+  const { level, schemaPath, seen, dynamicScope, isRequiredProperty } = context
+  const name = schema.discriminator?.propertyName
+  const property = name !== undefined && 'properties' in schema ? resolve.schema(schema.properties?.[name]) : undefined
+  if (name === undefined || !property) {
+    return { value: undefined }
+  }
+  const target = getSchemaCacheTarget(schema)
+  const key = JSON.stringify([schemaPath, createOptionsCacheKey(options), level, isRequiredProperty])
+  const cached = discriminatorExamples.get(target)?.get(key)
+  if (cached && dynamicScope.length === 0) {
+    return cached
+  }
+  const capture: ExampleEvaluationState | undefined = options?.[EXAMPLE_EVALUATION] ? { stack: [] } : undefined
+  // A composition member may not yet be on the main walk's path when collecting its requirements.
+  const alreadySeen = seen.has(target)
+  seen.add(target)
+  try {
+    const value = getExampleFromSchema(
+      property,
+      { ...options, [EXAMPLE_EVALUATION]: capture },
+      {
+        level: level + 1,
+        parentSchema: schema,
+        name,
+        schemaPath: [...schemaPath, name],
+        seen,
+        dynamicScope: pushDynamicScope(dynamicScope, schema),
+        isRequiredProperty,
+      },
+    )
+    const example: DiscriminatorExample = { value, evaluation: capture?.root }
+    if (dynamicScope.length === 0) {
+      const entries = discriminatorExamples.get(target) ?? new Map<string, DiscriminatorExample>()
+      entries.set(key, example)
+      discriminatorExamples.set(target, entries)
+    }
+    return example
+  } finally {
+    if (!alreadySeen) {
+      seen.delete(target)
+    }
+  }
+}
+
+/**
+ * Gather requirements across allOf members and the selected alternatives only. A name required by an
+ * unselected alternative may be optional in the chosen one, and emitting it can match both oneOf branches.
+ */
+const getCompositionRequiredNames = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
+): ReadonlySet<string> => {
+  const root = getSchemaCacheTarget(schema)
+  const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options), level])
+  const cached = compositionRequiredNamesCache.get(root)?.get(cacheKey)
+  if (cached && dynamicScope.length === 0) {
+    return cached
+  }
+
+  const names = new Set<string>()
+  const visited = new Map<object, Set<string>>()
+  const scopeResourceIds = new Map<object, number>()
+  const pending = [{ schema, options, schemaPath, dynamicScope, depth: 0 }]
+  // A cycle can change its selection path, so identity and path caching alone cannot bound this walk.
+  let steps = MAX_REQUIRED_STEPS
+  while (pending.length > 0 && steps-- > 0) {
+    const current = pending.pop()!
+    const target = getSchemaCacheTarget(current.schema)
+    // A shared template can require different fields under each binding. Include the ordered scope
+    // identities so visiting it in one branch does not suppress another branch's requirements.
+    const scopeKey = current.dynamicScope.map((resource): number => {
+      const identity = getSchemaCacheTarget(resource)
+      const existing = scopeResourceIds.get(identity)
+      if (existing !== undefined) {
+        return existing
+      }
+      const id = scopeResourceIds.size
+      scopeResourceIds.set(identity, id)
+      return id
+    })
+    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options), current.depth, scopeKey])
+    const contexts = visited.get(target) ?? new Set<string>()
+    if (contexts.has(key) || current.depth > MAX_COMPOSITION_DEPTH) {
+      continue
+    }
+    contexts.add(key)
+    visited.set(target, contexts)
+
+    // Requirements behind a dynamic reference constrain the same instance as its composition siblings.
+    // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
+    if (isDynamicRef(current.schema)) {
+      const resolved = resolveDynamicRef(current.schema.$dynamicRef, current.dynamicScope)
+      if (resolved) {
+        pending.push({ ...current, schema: resolved, depth: current.depth + 1 })
+        continue
+      }
+    }
+
+    // An omitted member cannot make a sibling's otherwise optional fields required for this example.
+    if (shouldOmitProperty(current.schema, undefined, undefined, { mode: current.options?.mode })) {
+      continue
+    }
+
+    if ('required' in current.schema && Array.isArray(current.schema.required)) {
+      for (const name of current.schema.required) {
+        names.add(name)
+      }
+    }
+
+    const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
+    if (keyword) {
+      const discriminator = current.schema.discriminator
+      const requiredOnly = level + current.depth > MAX_LEVELS_DEEP
+      const omittedDiscriminator =
+        requiredOnly &&
+        discriminator?.defaultMapping !== undefined &&
+        // The negative level gathers shared requirements without evaluating discriminator values.
+        !getCompositionRequiredNames(schema, options, schemaPath, -MAX_COMPOSITION_DEPTH, seen, dynamicScope).has(
+          discriminator.propertyName,
+        )
+      // Evaluate once using the ordinary property walk. Rendering reuses both the value and its XML
+      // provenance, so mode omissions, generated strings and composed tags cannot change branches.
+      const evaluated =
+        level >= 0 && discriminator?.defaultMapping !== undefined && !omittedDiscriminator
+          ? evaluateDiscriminator(current.schema, current.options, {
+              level: level + current.depth,
+              schemaPath: current.schemaPath,
+              seen,
+              dynamicScope: current.dynamicScope,
+              isRequiredProperty: requiredOnly,
+            })
+          : undefined
+      const property =
+        discriminator && 'properties' in current.schema
+          ? resolve.schema(current.schema.properties?.[discriminator.propertyName])
+          : undefined
+      const propertyName =
+        current.options?.xml && property && 'xml' in property
+          ? (property.xml?.name ?? discriminator?.propertyName)
+          : discriminator?.propertyName
+      const discriminatorValue =
+        evaluated && propertyName !== undefined ? { [propertyName]: evaluated.value } : undefined
+      const selected = selectExampleComposition(
+        current.schema,
+        current.schemaPath,
+        current.options,
+        false,
+        omittedDiscriminator ? {} : discriminatorValue,
+      )
+      const resolved = selected ? resolve.schema(selected) : undefined
+      if (resolved) {
+        pending.push({
+          schema: resolved,
+          options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
+          schemaPath: current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          depth: current.depth + 1,
+        })
+      }
+      continue
+    }
+
+    let choiceIndex = 0
+    for (const member of current.schema.allOf ?? []) {
+      const resolved = resolve.schema(member)
+      if (resolved) {
+        const isChoiceMember = Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf)
+        pending.push({
+          schema: resolved,
+          options: current.options,
+          schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          depth: current.depth + 1,
+        })
+      }
+    }
+  }
+
+  if (dynamicScope.length === 0) {
+    const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
+    contexts.set(cacheKey, names)
+    compositionRequiredNamesCache.set(root, contexts)
+  }
+  return names
+}
+
+/**
+ * Whether the walk keeps rendering a schema past `MAX_LEVELS_DEEP` to fill its required properties.
+ *
+ * Only an object or composition with a property marked `required` qualifies, either somewhere in its
+ * own compositions or, for a composition member, in the object it belongs to (`requiredScope`):
+ * anything else has nothing a decoder insists on, and keeps its usual stand-in. Arrays always stand in
+ * empty, because their items are what the cap exists to stop descending into.
+ */
+const fillsRequiredProperties = (
+  schema: SchemaObject,
+  requiredScope: ReadonlySet<string> | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
+): boolean =>
+  !getDeclaredTypes(schema).includes('array') &&
+  !Array.isArray(getEmptyContainer(schema)) &&
+  ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
+  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)).size > 0
+
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
   if (!('type' in schema) || !schema.type) {
@@ -1070,7 +1358,7 @@ const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[
   if ('properties' in schema || types.includes('object')) {
     return {}
   }
-  if ('items' in schema || types.includes('array')) {
+  if ('items' in schema || 'prefixItems' in schema || types.includes('array')) {
     return []
   }
   return undefined
@@ -1141,10 +1429,11 @@ const describeComposition = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
+  emptySchemaValue: string | null,
 ): unknown => {
   const variant = getSelectedVariant(schema, options, schemaPath)
   if (variant) {
-    return getMaxDepthValue(variant, options, schemaPath, seen)
+    return getMaxDepthValue(variant, options, schemaPath, seen, emptySchemaValue)
   }
 
   if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
@@ -1192,6 +1481,7 @@ const getMaxDepthValue = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object> = new Set(),
+  emptySchemaValue: string | null = MAX_DEPTH_EXCEEDED,
 ): unknown => {
   // A stated value beats any stand-in, and matches what a full render would have produced.
   const declared = getDeclaredValue(schema)
@@ -1220,9 +1510,11 @@ const getMaxDepthValue = (
   // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
   // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
   const target = getSchemaCacheTarget(schema)
-  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH) {
+  // The step budget bounds a wrapper whose members repeat one another (`allOf: [next, next]`), which
+  // the path guard alone lets double with every link.
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && requiredSteps-- > 0) {
     seen.add(target)
-    const composed = describeComposition(schema, options, schemaPath, seen)
+    const composed = describeComposition(schema, options, schemaPath, seen, emptySchemaValue)
     seen.delete(target)
 
     if (composed !== undefined) {
@@ -1250,7 +1542,7 @@ const getMaxDepthValue = (
   }
 
   truncated = true
-  return MAX_DEPTH_EXCEEDED
+  return emptySchemaValue
 }
 
 const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
@@ -1284,6 +1576,8 @@ const generateExampleFromSchema = (
     seen = new WeakSet(),
     schemaPath = [],
     dynamicScope = [],
+    requiredScope,
+    isRequiredProperty = false,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1293,12 +1587,19 @@ const generateExampleFromSchema = (
     schemaPath: string[]
     /** Chain of schema resources entered so far, used to resolve `$dynamicRef` (JSON Schema 2020-12). */
     dynamicScope: DynamicScope
+    /** Past the depth cap, the required names of the object a composition member belongs to. */
+    requiredScope: ReadonlySet<string>
+    /** Use null for an unconstrained required property without confusing explicit values with the depth marker. */
+    isRequiredProperty: boolean
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
+    requiredSteps = MAX_REQUIRED_STEPS
+    compositionRequiredNamesCache = new WeakMap()
+    discriminatorExamples = new WeakMap()
   }
 
   // Resolve any $ref references to get the actual schema
@@ -1323,6 +1624,8 @@ const generateExampleFromSchema = (
         seen: new WeakSet(),
         schemaPath,
         dynamicScope,
+        requiredScope,
+        isRequiredProperty,
       })
     }
   }
@@ -1355,7 +1658,7 @@ const generateExampleFromSchema = (
   const makeUpRandomData = !!options?.emptyString
 
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
-  if (shouldOmitProperty(_schema, parentSchema, name, options)) {
+  if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
     seen.delete(targetValue)
     return undefined
   }
@@ -1403,12 +1706,37 @@ const generateExampleFromSchema = (
   // Stop descending once the walk is too deep to keep going, which also breaks circular references.
   // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
   // any other level; only the children are given up on.
+  //
+  // An object still renders its required properties for a while past the cap, through this same walk, so
+  // every rule that applies at a shallower level (read/write omission, composition selection, variables,
+  // binary files) applies to them too. Required primitive compositions use the same walk so their
+  // members retain those rules as well; arrays and anything past the bounds still stand in.
   if (level > MAX_LEVELS_DEEP) {
-    seen.delete(targetValue)
+    if (
+      (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope)) ||
+      level > MAX_REQUIRED_LEVELS_DEEP ||
+      requiredSteps <= 0
+    ) {
+      seen.delete(targetValue)
 
-    // Deliberately not cached: the value holds only at this level, and the cache key carries none.
-    return getMaxDepthValue(_schema, options, schemaPath)
+      // Deliberately not cached: the value holds only at this level, and the cache key carries none.
+      // Constraint-only composition members must not replace a sibling's required fields with the depth marker.
+      const fallback = isRequiredProperty || requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+      return getMaxDepthValue(_schema, options, schemaPath, undefined, fallback)
+    }
+    requiredSteps--
+    // The rendered value omits optional properties, so it holds only at this level and must not be cached.
+    truncated = true
   }
+
+  // A composition can start above the cap and cross it in a nested member. Keep the shared
+  // requirements available throughout that descent, without filtering properties above the cap.
+  const memberRequiredScope =
+    requiredScope ??
+    (isComposed(_schema)
+      ? getCompositionRequiredNames(_schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
@@ -1446,6 +1774,7 @@ const generateExampleFromSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       seen.delete(targetValue)
@@ -1468,6 +1797,7 @@ const generateExampleFromSchema = (
           schemaPath: [...schemaPath, 'contentSchema'],
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       if (content !== undefined) {
@@ -1479,7 +1809,7 @@ const generateExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope, requiredScope)
     seen.delete(targetValue)
     return result
   }
@@ -1518,6 +1848,8 @@ const generateExampleFromSchema = (
               schemaPath,
               seen,
               dynamicScope: childScope,
+              requiredScope: memberRequiredScope,
+              isRequiredProperty,
             }),
             options,
             schemaPath,
@@ -1546,6 +1878,8 @@ const generateExampleFromSchema = (
         schemaPath: memberSchemaPath,
         seen,
         dynamicScope: childScope,
+        requiredScope: memberRequiredScope,
+        isRequiredProperty,
       })
       if (merged === undefined) {
         merged = ex
