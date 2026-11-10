@@ -8,6 +8,22 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.40.1 (2026-11-10)
+
+### Patch release to complete the previous publish
+
+## 0.40.0 (2026-11-10)
+
+### C# target stable, custom README sections, and signed uploads for more languages
+
+The C# target is now stable and ready for production use. You can now add custom sections to generated READMEs without manual edits between regenerations. Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs.
+
+- The C# target is now marked as stable in the configuration schema and target catalog.
+- Custom README sections can be configured with `readme.sections`, supporting position control and per-target filtering.
+- Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs, with type-safe file handling.
+- Generated CLIs published to npm now check for updates against the npm registry and support upgrade commands.
+- Webhook verification now honors configured signature algorithms and headers across Python, Go, Ruby, Kotlin, Java, Rust, TypeScript, and Dart targets.
+
 ## 0.39.0 (2026-11-06)
 
 ### CLI confirmations, improved pluralization, and form encoding

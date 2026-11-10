@@ -35,7 +35,9 @@ These three channels are independent, and you can enable any combination:
 
 ## Publish to npm
 
-The CLI publishes to [npm](https://www.npmjs.com/) exactly like the TypeScript SDK, so follow the [TypeScript publishing guide](typescript.md) with `cli` in place of `typescript`:
+The npm package is ESM only: unlike the TypeScript SDK it has no CommonJS build, so code that loads it with `require()` (to reach `getProgram()`, for example) needs Node.js 20.19+ or 22.12+. Running the installed command works on any supported Node.js version.
+
+The CLI publishes to [npm](https://www.npmjs.com/) like the TypeScript SDK, so follow the [TypeScript publishing guide](typescript.md) with `cli` in place of `typescript`:
 
 - **First release:** npm can only register a trusted publisher on a package that already exists, so a new package publishes its first version with a granular access token stored as **`NPM_TOKEN`** and `authMethod` set to `access-token`.
 - **After that:** add a trusted publisher on npm for `release-please.yml` (and `sdk-release.yml` if you re-publish tags by hand), then remove the override so releases use OIDC.

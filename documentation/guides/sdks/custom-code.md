@@ -40,6 +40,23 @@ Once resolved, the merge lands on `scalar-next` and the release pull request ref
 ## Tips
 
 - **Keep custom code separate where you can.** New files in their own paths never conflict, so prefer adding a helper file over editing deep inside a generated one.
+- **Add README sections in config instead of editing the README.** A section written under `readme.sections` in your Scalar SDK config is generated into every target's README (or the targets it lists), listed in the table of contents where the README has one, so the README never carries a hand edit that a regeneration can conflict with:
+
+  ````yaml
+  readme:
+    sections:
+      - title: Verify a local package
+        body: |
+          Build the package before importing it from another project:
+
+          ```sh
+          pnpm build
+          ```
+        position: end # or afterUsage, right after the Usage section
+        targets: [typescript, cli] # optional; every target when omitted
+  ````
+
+  The body is markdown and renders as written. Use `###` or deeper headings, close every code fence on a line of its own and every HTML element, keep each HTML comment and tag on one line, close an element such as `<span>` or `<kbd>` on the line it opens, keep tags and code spans on separate lines when the line starts with a tag, and use fenced rather than indented code blocks. A section that breaks one of these rules is reported as [`Readme/InvalidSection`](diagnostics.md), which fails generation by default and lists every case. Code in a body is treated like the README's own samples: the Python README formats Python fences with ruff, the Go README checks `go` fences against the generated types, and the Rust README keeps every fence out of `cargo test`.
 - **Custom CI workflows count as custom code.** A workflow you add under `.github/workflows/` is carried forward like any other file, which is how you publish to an internal registry. See [Private Registries](publishing/private-registries.md).
 - **Review the release pull request.** It is the single place where generated changes and your customizations come together, so it is the natural review point before anything releases or [publishes](publishing/overview.md).
 - **Custom code is per repository.** Each target keeps its own customizations in its own repository.
