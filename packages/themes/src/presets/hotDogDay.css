@@ -310,7 +310,7 @@
  * whenever the modal opens. The settle uses `backwards` fill only: a transform left on the modal
  * afterwards would trap its fixed-position children.
  */
-.scalar-client--open .scalar-client {
+.scalar-client--open > .scalar-client {
   animation: scalar-hot-dog-day-settle 0.6s cubic-bezier(0.3, 0.7, 0.4, 1.2) backwards;
 }
 .scalar-client--open::before,
@@ -414,7 +414,7 @@
 /* Keep everything still when motion is unwelcome: the squiggle is simply there, and the client simply opens */
 @media (prefers-reduced-motion: reduce) {
   .section-flare-item,
-  .scalar-client--open .scalar-client {
+  .scalar-client--open > .scalar-client {
     animation: none !important;
   }
   .scalar-client--open::before,
