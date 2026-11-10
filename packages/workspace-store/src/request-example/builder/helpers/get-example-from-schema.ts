@@ -7,7 +7,7 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
-import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
+import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -814,80 +814,6 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
-/**
- * Infer one object example from the applicable `$ref` and `allOf` members.
- * Object keywords suggest a useful example but do not require an object, so every member's type and
- * value constraints must still allow objects. Walk iteratively so long inheritance chains cannot
- * exhaust the stack.
- */
-const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolean => {
-  const pending: unknown[] = [...allOf]
-  const seen = new WeakSet<object>()
-  let describesObject = false
-
-  while (pending.length > 0) {
-    const member = pending.pop()
-    if (!member || typeof member !== 'object') {
-      continue
-    }
-
-    // Resolving a reference creates a fresh merged view; only the original node has a stable identity.
-    const target = unpackProxyShallow(member)
-    if (seen.has(target)) {
-      continue
-    }
-    seen.add(target)
-
-    const resolved = resolve.schema(member as SchemaObject)
-    const types = getDeclaredTypes(resolved)
-    if (types.length > 0 && !types.includes('object')) {
-      return false
-    }
-
-    // Value constraints can exclude objects even when there is no explicit type.
-    if (resolved.const !== undefined && !isObject(resolved.const)) {
-      return false
-    }
-    if (Array.isArray(resolved.enum) && !resolved.enum.some(isObject)) {
-      return false
-    }
-
-    // A mixed enum or type list may allow objects while the selected example is still a primitive.
-    const declared = getDeclaredValue(resolved)
-    if (declared !== undefined) {
-      if (!isObject(declared)) {
-        return false
-      }
-      // Generation stops at a declared object, so overridden reference annotations do not apply.
-      describesObject = true
-      continue
-    }
-
-    // Annotated aliases are separate resolution hops; inspect every original target as well.
-    if ('$ref' in member && '$ref-value' in member) {
-      pending.push(member['$ref-value'])
-    }
-
-    if (
-      types.includes('object') ||
-      'properties' in resolved ||
-      'patternProperties' in resolved ||
-      'additionalProperties' in resolved ||
-      'required' in resolved
-    ) {
-      describesObject = true
-    }
-
-    if (Array.isArray(resolved.allOf)) {
-      for (const child of resolved.allOf) {
-        pending.push(child)
-      }
-    }
-  }
-
-  return describesObject
-}
-
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -938,7 +864,9 @@ const handleArraySchema = (
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
-      if (allOfDescribesObject(allOf)) {
+      const first = resolve.schema(allOf[0])
+
+      if (first && typeof first === 'object' && 'type' in first && first.type === 'object') {
         const combined: SchemaObject = { type: 'object', allOf }
         const merged = getExampleFromSchema(combined, options, {
           level: level + 1,
@@ -961,7 +889,11 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
-      return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
+      // Let generation resolve references, declarations and union selections before deciding whether
+      // the members describe one object. A primitive contribution keeps the existing per-member result.
+      const result =
+        examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
+      return cache(schema, wrapItems ? result.map((e) => ({ [itemsXmlTagName]: e })) : result, cacheKey, skipCache)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -993,12 +925,12 @@ const handleArraySchema = (
     }
   }
 
-  const isObject =
+  const isObjectItems =
     items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
   const isArray =
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
-  if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
+  if (items && typeof items === 'object' && (('type' in items && items.type) || isObjectItems || isArray)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,

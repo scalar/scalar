@@ -1434,7 +1434,7 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
   })
 
-  it('stops at an allOf cycle while checking whether the members describe an object', () => {
+  it('merges an object example alongside an allOf cycle', () => {
     const cyclic: Record<string, unknown> = {}
     cyclic.allOf = [cyclic]
     const schema = {
@@ -1635,6 +1635,53 @@ describe('getExampleFromSchema', () => {
     } as unknown as SchemaObject
 
     expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'world' }])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves primitive allOf examples selected through %s', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ [keyword]: [{ type: 'string', example: 'hello' }] }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('merges only object examples from a selected %s variant', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            [keyword]: [
+              { type: 'string', example: 'hello' },
+              { type: 'object', example: { id: 1 } },
+            ],
+          },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 0 } })).toStrictEqual([
+      'hello',
+      { name: 'Rex' },
+    ])
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 1 } })).toStrictEqual([
+      { id: 1, name: 'Rex' },
+    ])
+  })
+
+  it('preserves a primitive variable value in untyped allOf array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ 'x-variable': 'value', properties: { id: { type: 'integer' } } }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { variables: { value: 'hello' } })).toStrictEqual(['hello'])
   })
 
   it('still merges array items when a type list allows objects', () => {
