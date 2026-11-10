@@ -101,6 +101,14 @@ const guessFromFormat = (
     return '@filename'
   }
 
+  // Encoded strings need a valid encoding even when a format also supplies a placeholder, such as password.
+  if (
+    typeof schema.contentEncoding === 'string' &&
+    BASE64_CONTENT_ENCODINGS.has(schema.contentEncoding.toLowerCase())
+  ) {
+    return BASE64_EXAMPLE
+  }
+
   if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
     // Do not persist enclosing objects or arrays with generated clock-dependent values.
     generatedCurrentTime = true
@@ -121,14 +129,6 @@ const guessFromFormat = (
     }
 
     return genericExampleValues[schema.format]!
-  }
-
-  // OpenAPI 3.1+ describes encoded binary with contentEncoding, which the 3.0 upgrade uses for `format: byte`.
-  if (
-    typeof schema.contentEncoding === 'string' &&
-    BASE64_CONTENT_ENCODINGS.has(schema.contentEncoding.toLowerCase())
-  ) {
-    return BASE64_EXAMPLE
   }
 
   return fallback

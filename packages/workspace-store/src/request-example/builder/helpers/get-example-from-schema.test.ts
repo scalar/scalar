@@ -1118,6 +1118,18 @@ describe('getExampleFromSchema', () => {
     }
   })
 
+  it.each(['base64', 'base64url'])('prioritizes %s encoding over generated format placeholders', (contentEncoding) => {
+    for (const format of ['password', 'object-id', 'email', 'date-time']) {
+      for (const emptyString of [undefined, '', 'string']) {
+        expect(
+          getExampleFromSchema(coerceValue(SchemaObjectSchema, { type: 'string', format, contentEncoding }), {
+            emptyString,
+          }),
+        ).toBe('c2NhbGFy')
+      }
+    }
+  })
+
   describe('base64 strings', () => {
     const decodesStrictly = (value: unknown, alphabet: 'base64' | 'base64url'): boolean => {
       if (typeof value !== 'string' || value.length % 4 !== 0) {
