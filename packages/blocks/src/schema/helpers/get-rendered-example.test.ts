@@ -26,7 +26,10 @@ describe('get-rendered-example', () => {
     const target = { summary: 'Shared label', value: 'sample' }
     const intermediate = { $ref: '#/components/examples/B', description: 'Annotation', '$ref-value': target }
     const entry = { $ref: '#/components/examples/A', '$ref-value': intermediate }
-    expect(getRenderedExample(entry, 'named')).toMatchObject({ summary: 'Shared label', value: 'sample' })
+    const example = getRenderedExample(entry, 'named')
+    expect(example?.name).toBe('named')
+    expect(example?.summary).toBe('Shared label')
+    expect(example?.value).toBe('sample')
     expect(getExampleSummary({ ...entry, summary: '' })).toBe('')
     const cycle: Record<string, unknown> = { $ref: '#/components/examples/Cycle' }
     cycle['$ref-value'] = cycle
