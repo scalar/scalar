@@ -150,6 +150,27 @@ describe('validate-request', () => {
     expect((await rejected.json()).violations).toMatchObject([{ location: 'path', path: '/to' }])
   })
 
+  it.each([
+    ['1', '5'],
+    ['-1', '5'],
+    ['1', '-5'],
+    ['-1', '-5'],
+  ])('validates and binds signed range parameters: %s to %s', async (from, to) => {
+    const document = documentWith('/range/{from}-{to}', 'get', {
+      parameters: [
+        { name: 'from', in: 'path', required: true, schema: { type: 'integer' } },
+        { name: 'to', in: 'path', required: true, schema: { type: 'integer' } },
+      ],
+      'x-handler': 'return req.params',
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request(`/range/${from}-${to}`)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ from, to })
+  })
+
   it('returns 422 for a missing required header param and coerces a correct one', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } }],

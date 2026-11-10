@@ -36,8 +36,8 @@ const isMergedTemplate = (parts: string[], index: number): boolean => index > 1 
  * Build a regular expression that matches a path segment verbatim.
  *
  * Literal text is escaped and a template matches anything but a slash. Every template except the
- * last one also stops at the first place the literal behind it appears, so its match has exactly one
- * possible end and the engine never has to search: an OpenAPI document is untrusted input, and a
+ * last one also stops at the first place the literal behind it appears after a nonempty prefix, so
+ * its match has exactly one possible end: an OpenAPI document is untrusted input, and a
  * segment made of several plain `[^/]+` groups backtracks exponentially on a crafted request, which
  * would block the event loop of the whole server. Stopping at the whole literal rather than at its
  * first character keeps `{id}-v{version}` matching an id with a dash in it. The last template stays
@@ -70,7 +70,9 @@ const patternFromSegment = (segment: string, capture = false): string => {
       continue
     }
 
-    const group = index === lastTemplate ? '[^/]+' : `(?:(?!${escapeRegExpLiteral(followingLiteral)})[^/])+`
+    // A separator can also start a value, such as the minus sign in `/range/-1-5`. Consume one
+    // character before looking for the separator so the parameter stays nonempty without branching.
+    const group = index === lastTemplate ? '[^/]+' : `[^/](?:(?!${escapeRegExpLiteral(followingLiteral)})[^/])*`
 
     pattern += capture && !isMergedTemplate(parts, index) ? `(${group})` : group
   }
