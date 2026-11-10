@@ -1,6 +1,6 @@
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
-import { isObject } from '@scalar/helpers/object/is-object'
+import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
 import { setValueAtPath } from '@scalar/helpers/object/set-value-at-path'
 import {
@@ -45,7 +45,7 @@ const remapBundlePath = (root: object, path: readonly string[]): readonly string
     return path
   }
   const file = getValueAtPath(root, path.slice(0, 2))
-  const relocations = isObject(file) ? pointerRemaps.get(unpackProxyShallow(file)) : undefined
+  const relocations = isObjectLike(file) ? pointerRemaps.get(unpackProxyShallow(file)) : undefined
   if (!relocations?.size || getValueAtPath(root, [...path]) !== undefined) {
     return path
   }
@@ -228,12 +228,13 @@ export const upgradeLoaders = (
           return existing
         }
         const pending = loader.exec(value).then((result): ResolveResult => {
-          if (!result.ok || !isObject(result.data)) {
+          if (!result.ok || !(isObject(result.data) || Array.isArray(result.data))) {
             return result
           }
-          const header = getVersionHeader(result.data)
+          const header = isObject(result.data) ? getVersionHeader(result.data) : undefined
           const isFragment = !header && isThreeZero(entryVersion)
-          if (!isFragment && !(header === 'openapi' && isThreeZero(result.data.openapi))) {
+          const upgradesDocument = header === 'openapi' && isObject(result.data) && isThreeZero(result.data.openapi)
+          if (!isFragment && !upgradesDocument) {
             if (isThreeZero(entryVersion)) {
               indexNodes(result.data, [])
             }
@@ -244,7 +245,7 @@ export const upgradeLoaders = (
           const data = upgradeLoadedDocument(input, entryVersion, undefined, (from, to) => {
             relocations.set(JSON.stringify(from), to)
           })
-          if (isObject(data) && (isFragment || relocations.size)) {
+          if (isObjectLike(data) && (isFragment || relocations.size)) {
             pointerRemaps.set(data, relocations)
           }
           if (isFragment) {
@@ -265,7 +266,7 @@ export const upgradeLoaders = (
     {
       type: 'lifecycle',
       resolveDocument: (document, retrievalUri) => {
-        const relocations = isObject(document) ? pointerRemaps.get(unpackProxyShallow(document)) : undefined
+        const relocations = isObjectLike(document) ? pointerRemaps.get(unpackProxyShallow(document)) : undefined
         return relocations
           ? { baseUri: retrievalUri, remapPointer: (pointer) => remapPointer(pointer, relocations) }
           : undefined

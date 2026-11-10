@@ -55,12 +55,18 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
-  it.each([false, true])(
-    'updates earlier lazy pointers when a later upgrade moves their target (alias: %s)',
-    async (alias) => {
+  it.each([
+    [false, 'Parent'],
+    [true, 'Parent'],
+    [false, '0'],
+    [true, '0'],
+  ] as const)(
+    'updates earlier lazy pointers when a later upgrade moves their target (alias: %s, key: %s)',
+    async (alias, key) => {
       const store = createWorkspaceStore()
       const url = 'https://example.test/shared.json'
-      const data = { Parent: { nullable: true, allOf: [{ type: 'string', nullable: true }] } }
+      const parent = { nullable: true, allOf: [{ type: 'string', nullable: true }] }
+      const data = key === '0' ? [parent] : { Parent: parent }
       await store.addDocument({
         name: 'default',
         fetch: (): Promise<Response> => Promise.resolve(new Response(JSON.stringify(data))),
@@ -72,8 +78,8 @@ describe('client.external-upgrade', () => {
           components: {
             schemas: {
               Alias: { $ref: '#/components/schemas/Child' },
-              Child: { $ref: url + '#/Parent/allOf/0' },
-              Parent: { $ref: url + '#/Parent' },
+              Child: { $ref: url + `#/${key}/allOf/0` },
+              Parent: { $ref: url + `#/${key}` },
             },
           },
         },

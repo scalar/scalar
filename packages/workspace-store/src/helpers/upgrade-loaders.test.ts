@@ -71,16 +71,22 @@ describe('upgrade-loaders', () => {
     expect(getValueAtPath(standalone, parseJsonPointerSegments(standalonePointer.slice(1)))).toStrictEqual(direct)
   })
 
-  it.each([false, true])('retains pointers to moved headerless children (child first: %s)', async (childFirst) => {
+  it.each([
+    [false, 'Parent'],
+    [true, 'Parent'],
+    [false, '0'],
+    [true, '0'],
+  ] as const)('retains pointers to moved headerless children (child first: %s, key: %s)', async (childFirst, key) => {
     const url = 'https://example.test/shared.json'
-    const data = { Parent: { nullable: true, allOf: [{ type: 'string', nullable: true }] } }
+    const parent = { nullable: true, allOf: [{ type: 'string', nullable: true }] }
+    const data = key === '0' ? [parent] : { Parent: parent }
     const loader: LoaderPlugin = {
       type: 'loader',
       validate: (uri) => uri === url,
       exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
     }
-    const Parent = { $ref: url + '#/Parent' }
-    const Child = { $ref: url + '#/Parent/allOf/0' }
+    const Parent = { $ref: url + `#/${key}` }
+    const Child = { $ref: url + `#/${key}/allOf/0` }
     const document = { openapi: '3.1.1', components: { schemas: childFirst ? { Child, Parent } : { Parent, Child } } }
 
     await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
