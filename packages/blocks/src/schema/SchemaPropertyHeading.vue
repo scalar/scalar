@@ -349,7 +349,12 @@ const exampleValue = computed(() => {
     return props.value.example
   }
 
-  if (props.value && isArraySchema(props.value)) {
+  // An array's own examples take precedence over the fallback from its items.
+  if (
+    props.value &&
+    isArraySchema(props.value) &&
+    !props.value.examples?.length
+  ) {
     const itemsSchema = resolve.schema(props.value.items)
     if (
       itemsSchema &&

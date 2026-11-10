@@ -820,10 +820,16 @@ function transformResponseHeader(
   }
 
   const schema = transformItemsObject(header)
+  const { xExample, xExamples } = extractXExampleExtensions(header)
+  const examples = isNonEmptyObject(xExamples)
+    ? Object.fromEntries(Object.entries(xExamples).map(([name, value]) => [name, wrapAsExampleObject(value)]))
+    : undefined
 
   return {
     ...header,
     schema,
+    ...(examples ? { examples } : {}),
+    ...(!examples && xExample !== undefined ? { example: xExample } : {}),
   }
 }
 

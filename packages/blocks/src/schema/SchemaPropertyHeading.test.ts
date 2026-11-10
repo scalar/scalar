@@ -52,6 +52,27 @@ describe('SchemaPropertyHeading', () => {
     wrapper.unmount()
   })
 
+  it.each([
+    { examples: ['array sample'], expected: ['Copy example value: array sample'] },
+    { examples: [], expected: ['Copy example value: item sample'] },
+    { examples: undefined, expected: ['Copy example value: item sample'] },
+  ])('uses array examples before falling back to the item example: $examples', ({ examples, expected }) => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          examples,
+          items: { type: 'string', example: 'item sample' },
+        }),
+      },
+    })
+
+    expect(
+      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+    ).toStrictEqual(expected)
+    wrapper.unmount()
+  })
+
   it('renders falsy default values', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
