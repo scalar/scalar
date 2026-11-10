@@ -4,6 +4,14 @@ import { describe, expect, it } from 'vitest'
 import { decimalMultipleOf } from './decimal-multiple-of'
 
 describe('decimal-multiple-of', () => {
+  it('checks large integers using their exact value', () => {
+    const ajv = new Ajv().removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
+    const value = Number(1000000000000000128n)
+
+    expect(ajv.compile({ type: 'integer', multipleOf: 128 })(value)).toBe(true)
+    expect(ajv.compile({ type: 'integer', multipleOf: 256 })(value)).toBe(false)
+  })
+
   it('preserves Ajv error metadata and parameter coercion', () => {
     const ajv = new Ajv({ coerceTypes: true }).removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
     const validate = ajv.compile({ type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } })

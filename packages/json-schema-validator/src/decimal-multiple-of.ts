@@ -1,5 +1,4 @@
-import type { FuncKeywordDefinition } from 'ajv'
-import { _, str } from 'ajv/dist/compile/codegen/index.js'
+import { type FuncKeywordDefinition, _, str } from 'ajv'
 
 /** A finite decimal written as an integer coefficient times a power of ten. */
 type Decimal = { coefficient: bigint; exponent: number }
@@ -32,9 +31,15 @@ export const decimalMultipleOf: FuncKeywordDefinition = {
     }
 
     const denominator = toDecimal(divisor)
+    const integerDivisor = Number.isInteger(divisor) ? BigInt(divisor) : undefined
     return (value: number): boolean => {
       if (!Number.isFinite(value)) {
         return false
+      }
+
+      // Shortest decimal strings can change the exact value of large integers.
+      if (integerDivisor !== undefined && Number.isInteger(value)) {
+        return BigInt(value) % integerDivisor === 0n
       }
 
       const numerator = toDecimal(value)
