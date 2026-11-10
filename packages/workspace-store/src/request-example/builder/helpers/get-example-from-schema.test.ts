@@ -136,6 +136,19 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual([[]])
   })
 
+  it('ignores object properties when selecting a nested array branch', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'array',
+        properties: { ignored: { type: 'number' } },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
   it('keeps outer uniqueness when selecting an array branch', () => {
     const schema: SchemaObject = {
       type: 'array',

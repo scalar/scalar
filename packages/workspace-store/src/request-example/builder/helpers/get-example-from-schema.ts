@@ -878,6 +878,10 @@ const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
 const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
   const merged = { ...base, ...variant } as SchemaObject
+  // Object properties would otherwise take precedence in non-object schema dispatch.
+  if ('properties' in merged) {
+    delete merged.properties
+  }
   if (isArray) {
     if ('minItems' in merged && 'minItems' in schema) {
       merged.minItems = Math.max(readArrayLengthBound(schema.minItems, 0), readArrayLengthBound(merged.minItems, 0))
@@ -1861,9 +1865,6 @@ const generateExampleFromSchema = (
     if (selectedType !== undefined && selectedType !== 'object') {
       const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
       // These keywords only constrain their own types, but also drive our type inference.
-      if ('properties' in selectedSchema) {
-        delete selectedSchema.properties
-      }
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
       }
