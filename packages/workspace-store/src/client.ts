@@ -36,7 +36,7 @@ import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
@@ -1526,6 +1526,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCaches = new WeakMap<object, Set<unknown>>()
+  const pendingResolutions = new WeakMap<object, Promise<unknown>>()
 
   return {
     externalExamples: (documentName) => {
@@ -1643,65 +1644,87 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         return getValueAtPath(activeDocument, path)
       }
 
-      const target = getValueAtPath(activeDocument, path)
+      if (!activeDocument) {
+        return undefined
+      }
+      const documentKey = unpackProxyShallow(activeDocument)
+      const documentName = getActiveDocumentName()
+      const fetch = extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch
+      const entryVersion = originalDocuments[documentName]?.openapi
+      const resolveSubtree = (): Promise<unknown> => {
+        const target = getValueAtPath(activeDocument, path)
 
-      if (!isObject(target)) {
-        console.error(
-          `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
-        )
-        return Promise.resolve()
+        if (!isObject(target)) {
+          console.error(
+            `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
+          )
+          return Promise.resolve()
+        }
+
+        if (
+          isAsyncApiDocument(activeDocument) &&
+          path.length === 3 &&
+          path[0] === 'components' &&
+          path[1] === 'schemas'
+        ) {
+          const node = getRaw(target)
+          const name = path[2]
+          if (name && typeof node.$ref === 'string' && node.$global === true) {
+            node.$ref = asyncApiModelChunkReference(node.$ref, name)
+          }
+        }
+
+        // Bundle the target document with the active document as root, resolving any external references
+        // and tracking resolution status through hooks.
+        //
+        // The origin is the URL the document was loaded from. A static server workspace writes its chunk
+        // references relative to the document (`./chunks/…`), and without the origin the loader has
+        // nothing to resolve them against, so every chunk fails before a request is made. SSR
+        // workspaces write absolute URLs and never needed it.
+        const visitedNodes = visitedNodesCaches.get(documentKey) ?? new Set<unknown>()
+        visitedNodesCaches.set(documentKey, visitedNodes)
+
+        return bundle(target, {
+          root: activeDocument,
+          origin: activeDocument?.['x-scalar-original-source-url'],
+          treeShake: false,
+          plugins: [
+            openApiDocument(),
+            ...upgradeLoaders(
+              [
+                fetchUrls({
+                  fetch,
+                  limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+                }),
+                ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+              ],
+              entryVersion,
+              path,
+            ),
+            loadingStatus(),
+            externalValueResolver({ lazy: true }),
+          ],
+          urlMap: true,
+          visitedNodes,
+        }).catch((error: unknown) => {
+          // A failed bundle can mark a node visited before it finishes resolving.
+          visitedNodesCaches.delete(documentKey)
+          throw error
+        })
       }
 
-      if (
-        isAsyncApiDocument(activeDocument) &&
-        path.length === 3 &&
-        path[0] === 'components' &&
-        path[1] === 'schemas'
-      ) {
-        const node = getRaw(target)
-        const name = path[2]
-        if (name && typeof node.$ref === 'string' && node.$global === true) {
-          node.$ref = asyncApiModelChunkReference(node.$ref, name)
+      // Partial bundles mutate the same external file table. Let each call see the
+      // files and converted fragments saved by the preceding call on this document.
+      const previous = pendingResolutions.get(documentKey) ?? Promise.resolve()
+      const resolution = previous.then(resolveSubtree, resolveSubtree)
+      pendingResolutions.set(documentKey, resolution)
+      try {
+        return await resolution
+      } finally {
+        if (pendingResolutions.get(documentKey) === resolution) {
+          pendingResolutions.delete(documentKey)
         }
       }
-
-      // Bundle the target document with the active document as root, resolving any external references
-      // and tracking resolution status through hooks.
-      //
-      // The origin is the URL the document was loaded from. A static server workspace writes its chunk
-      // references relative to the document (`./chunks/…`), and without the origin the loader has
-      // nothing to resolve them against, so every chunk fails before a request is made. SSR
-      // workspaces write absolute URLs and never needed it.
-      const visitedNodes = activeDocument
-        ? (visitedNodesCaches.get(activeDocument) ?? new Set<unknown>())
-        : new Set<unknown>()
-      if (activeDocument) {
-        visitedNodesCaches.set(activeDocument, visitedNodes)
-      }
-
-      return bundle(target, {
-        root: activeDocument,
-        origin: activeDocument?.['x-scalar-original-source-url'],
-        treeShake: false,
-        plugins: [
-          openApiDocument(),
-          ...upgradeLoaders(
-            [
-              fetchUrls({
-                fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
-                limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
-              }),
-              ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
-            ],
-            originalDocuments[getActiveDocumentName()]?.openapi,
-            path,
-          ),
-          loadingStatus(),
-          externalValueResolver({ lazy: true }),
-        ],
-        urlMap: true,
-        visitedNodes,
-      })
     },
     addDocument,
     /**

@@ -55,6 +55,48 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it('upgrades both shared fragments when lazy calls overlap', async () => {
+    const store = createWorkspaceStore()
+    const url = 'https://example.test/shared.json'
+    const loads: string[] = []
+    let release = (): void => {}
+    const responseReady = new Promise<void>((resolve) => {
+      release = resolve
+    })
+    await store.addDocument({
+      name: 'default',
+      fetch: async (input): Promise<Response> => {
+        loads.push(String(input))
+        await responseReady
+        return new Response(
+          JSON.stringify({
+            A: { type: 'string', nullable: true },
+            B: { type: 'integer', nullable: true },
+          }),
+        )
+      },
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        'x-scalar-navigation': { id: 'default', type: 'document', name: 'default', title: 'Example', children: [] },
+        components: { schemas: { A: { $ref: url + '#/A' }, B: { $ref: url + '#/B' } } },
+      },
+    })
+
+    const pending = Promise.all([
+      store.resolve(['components', 'schemas', 'A']),
+      store.resolve(['components', 'schemas', 'B']),
+    ])
+    release()
+    await pending
+
+    const schemas = getActiveOpenApiDocument(store)?.components?.schemas
+    expect(getResolvedRef(schemas?.A)).toStrictEqual({ type: ['string', 'null'] })
+    expect(getResolvedRef(schemas?.B)).toStrictEqual({ type: ['integer', 'null'] })
+    expect(loads).toStrictEqual([url])
+  })
+
   it.each([
     [false, 'Parent'],
     [true, 'Parent'],
