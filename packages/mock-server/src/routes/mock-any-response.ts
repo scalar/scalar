@@ -54,6 +54,13 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Headers
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
+    // The body and transport determine these headers. Generated values can truncate a response or
+    // make clients decode uncompressed data; OpenAPI also requires ignoring declared Content-Type.
+    const name = header.toLowerCase()
+    if (name === 'content-length' || name === 'content-encoding' || name === 'content-type') {
+      return
+    }
+
     const headerObject = getResolvedRef(headers[header])
     // Headers use the generator defaults to preserve their declared values.
     const value = headerObject?.schema

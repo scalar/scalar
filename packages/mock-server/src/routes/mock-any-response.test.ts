@@ -20,6 +20,36 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it('preserves transport headers set by middleware when the document declares different values', async () => {
+    const app = new Hono()
+      .use((c, next) => {
+        c.header('Content-Length', '0')
+        c.header('Content-Encoding', 'identity')
+        c.header('Content-Type', 'text/plain')
+        return next()
+      })
+      .get('/', (c) =>
+        mockAnyResponse(c, {
+          responses: {
+            '200': {
+              description: 'Empty response',
+              headers: {
+                'CONTENT-LENGTH': { schema: { type: 'integer', example: 1024 } },
+                'CONTENT-ENCODING': { schema: { type: 'string', example: 'gzip' } },
+                'CONTENT-TYPE': { schema: { type: 'string', example: 'application/json' } },
+              },
+            },
+          },
+        }),
+      )
+
+    const response = await app.request('/')
+    expect(await response.text()).toBe('')
+    expect(response.headers.get('content-length')).toBe('0')
+    expect(response.headers.get('content-encoding')).toBe('identity')
+    expect(response.headers.get('content-type')).toBe('text/plain')
+  })
+
   it.each([
     [{ $ref: '#/components/schemas/Missing' }, {}, 'unresolved-reference'],
     [
