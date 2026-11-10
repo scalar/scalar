@@ -310,7 +310,7 @@ By default the table of contents is a column of headings beside the page. Set `t
 ```
 
 - Deeper headings draw shorter lines, all lined up on the right, so headings at the same level line up and nested headings sit under their parent. The line of the section the reader is in is highlighted.
-- The stack stays in view as the page scrolls. Click it, or focus it and press Enter, to open the list of headings beside it. Choosing a heading scrolls to it and closes the list; so do Escape and a click anywhere else.
+- The stack stays in view as the page scrolls. Hover over it to open the list of headings beside it; on a touch screen tap it, and from the keyboard focus it and press Enter. Choosing a heading scrolls to it and closes the list, as do moving the pointer away, Escape, and a click anywhere else.
 - Like the column, it is hidden on screens 1000px wide and narrower.
 
 `tocLayout` has no effect where `toc` is `false`. To condense a single page, or keep the column on one page of a condensed site, set it in that page's [layout options](navigation.md#layout-options).
