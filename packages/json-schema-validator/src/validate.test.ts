@@ -178,4 +178,71 @@ describe('validate', () => {
       ],
     })
   })
+
+  it.each([
+    'http://json-schema.org/draft-04/schema#',
+    'http://json-schema.org/draft-07/schema#',
+    'https://json-schema.org/draft/2020-12/schema',
+  ])('validates exact decimal multiples with %s', ($schema) => {
+    const cases = [
+      { value: 0.07, divisor: 0.01, valid: true },
+      { value: 0.29, divisor: 0.01, valid: true },
+      { value: 1.15, divisor: 0.01, valid: true },
+      { value: 4.35, divisor: 0.01, valid: true },
+      { value: 8.2, divisor: 0.01, valid: true },
+      { value: 19.99, divisor: 0.01, valid: true },
+      { value: -19.99, divisor: 0.01, valid: true },
+      { value: 1000000.19, divisor: 0.01, valid: true },
+      { value: 0, divisor: 0.01, valid: true },
+      { value: -0, divisor: 0.01, valid: true },
+      { value: 1.1, divisor: 0.01, valid: true },
+      { value: 0.3, divisor: 0.1, valid: true },
+      { value: 1.5, divisor: 0.5, valid: true },
+      { value: 6, divisor: 2, valid: true },
+      { value: 7, divisor: 2, valid: false },
+      { value: 0.075, divisor: 0.01, valid: false },
+      { value: -0.075, divisor: 0.01, valid: false },
+      { value: 0.010000000001, divisor: 0.01, valid: false },
+      { value: 0.009999999999, divisor: 0.01, valid: false },
+      { value: 0.30000000000000004, divisor: 0.1, valid: false },
+      { value: 7e-7, divisor: 1e-7, valid: true },
+      { value: 7.5e-7, divisor: 1e-7, valid: false },
+      { value: 3e21, divisor: 1e20, valid: true },
+      { value: 3e21, divisor: 2e21, valid: false },
+      { value: 1e-323, divisor: 5e-324, valid: true },
+      { value: 5e-324, divisor: 1e-323, valid: false },
+      { value: Number.MAX_VALUE, divisor: 5e-324, valid: true },
+      { value: 1e-100, divisor: 1e100, valid: false },
+      { value: Number.NaN, divisor: 0.01, valid: false },
+      { value: Number.POSITIVE_INFINITY, divisor: 0.01, valid: false },
+      { value: Number.NEGATIVE_INFINITY, divisor: 0.01, valid: false },
+    ]
+    for (const { value, divisor, valid } of cases) {
+      const numberSchema = { $schema, type: 'number', multipleOf: divisor }
+      expect(validate(value, numberSchema).valid, `${value} / ${divisor}`).toBe(valid)
+      expect(createValidator(numberSchema)(value).valid, `${value} / ${divisor}`).toBe(valid)
+    }
+  })
+
+  it('preserves nested multipleOf errors and throwing behavior', () => {
+    const priceSchema = { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } }
+    expect(validate({ price: 0.075 }, priceSchema)).toStrictEqual({
+      valid: false,
+      errors: [{ message: 'multipleOf must be multiple of 0.01', path: '/price' }],
+    })
+    expect(() => validate({ price: 0.075 }, priceSchema, { throwOnError: true })).toThrow('must be multiple of 0.01')
+    expect(validate({ price: 19.99 }, priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate({ price: '19.99' }, priceSchema).valid).toBe(false)
+    expect(validate({ price: 'text' }, { properties: { price: { multipleOf: 0.01 } } })).toStrictEqual({
+      valid: true,
+      errors: [],
+    })
+  })
+
+  it('validates decimal values read from JSON and YAML', () => {
+    const priceSchema = { properties: { price: { type: 'number', multipleOf: 0.01 } } }
+    expect(validate('{"price":19.99}', priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate('price: 1000000.19', priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate('price: 0.010000000001', priceSchema).valid).toBe(false)
+  })
 })

@@ -5,6 +5,7 @@ import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 import { parse as parseYaml } from 'yaml'
 
+import { decimalMultipleOf } from '@/decimal-multiple-of'
 import type { AjvError } from '@/prettify-ajv-errors'
 import { transformErrors } from '@/transform-errors'
 import type { CreateValidatorOptions, ValidateOptions, ValidationResult } from '@/types'
@@ -36,6 +37,8 @@ const compile = (schema: SchemaObject, formats?: Record<string, unknown>): Valid
     // Show all errors, not just the first one
     allErrors: true,
   })
+
+  ajv.removeKeyword('multipleOf').addKeyword(decimalMultipleOf)
 
   // Register the standard formats, then any caller-provided extras.
   addFormats(ajv)

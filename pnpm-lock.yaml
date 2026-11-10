@@ -2466,6 +2466,9 @@ importers:
       '@scalar/json-magic':
         specifier: workspace:*
         version: link:../json-magic
+      '@scalar/json-schema-validator':
+        specifier: workspace:*
+        version: link:../json-schema-validator
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
