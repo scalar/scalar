@@ -86,35 +86,41 @@ describe('client.external-upgrade', () => {
     },
   )
 
-  it.each([false, true])(
-    'upgrades nested schema references in a referenced extension object (extension first: %s)',
-    async (extensionFirst) => {
+  it.each([
+    { extensionFirst: false, external: false },
+    { extensionFirst: true, external: false },
+    { extensionFirst: false, external: true },
+  ])(
+    'upgrades nested schema references in an extension object (extension first: $extensionFirst, external: $external)',
+    async ({ extensionFirst, external }) => {
       const store = createWorkspaceStore()
-      const url = 'https://example.test/schema.json'
+      const schemaUrl = 'https://example.test/schema.json'
+      const wrapperUrl = 'https://example.test/wrapper.json'
       const loads: string[] = []
       const extension = {
-        'x-schemas': { Wrapped: { type: 'object', properties: { name: { $ref: url } } } },
+        'x-schemas': { Wrapped: { type: 'object', properties: { name: { $ref: schemaUrl } } } },
       }
+      const document = { openapi: '3.0.3', info: { title: 'Example', version: '1' }, paths: {} }
       await store.addDocument({
         name: 'default',
         fetch: (input): Promise<Response> => {
-          loads.push(String(input))
-          return Promise.resolve(new Response(JSON.stringify({ type: 'string', nullable: true })))
+          const url = String(input)
+          loads.push(url)
+          const data = url === wrapperUrl ? { ...document, ...extension } : { type: 'string', nullable: true }
+          return Promise.resolve(new Response(JSON.stringify(data)))
         },
         document: {
-          openapi: '3.0.3',
-          info: { title: 'Example', version: '1' },
-          paths: {},
+          ...document,
           ...(extensionFirst ? extension : {}),
-          components: { schemas: { Parent: { $ref: '#/x-schemas/Wrapped' } } },
-          ...(!extensionFirst ? extension : {}),
+          components: { schemas: { Parent: { $ref: `${external ? wrapperUrl : ''}#/x-schemas/Wrapped` } } },
+          ...(!extensionFirst && !external ? extension : {}),
         },
       })
 
       const schema = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Parent)
       assert(schema && 'properties' in schema)
       expect(getResolvedRef(schema.properties?.name)).toStrictEqual({ type: ['string', 'null'] })
-      expect(loads).toStrictEqual([url])
+      expect(loads).toStrictEqual(external ? [wrapperUrl, schemaUrl] : [schemaUrl])
     },
   )
 

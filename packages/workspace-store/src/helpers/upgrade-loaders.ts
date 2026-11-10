@@ -52,6 +52,10 @@ const classifyPath = (path: readonly string[]): { context: ReferenceContext; lit
   return { context, literal: false }
 }
 const isReferencePath = (path: readonly string[]): boolean => isReferenceContext(classifyPath(path).context)
+const isUnclassifiedPath = (path: readonly string[]): boolean => {
+  const { context, literal } = classifyPath(path)
+  return context === 'data' && !literal
+}
 
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
@@ -167,7 +171,9 @@ export const upgradeLoaders = (
       return
     }
     const raw = unpackProxyShallow(value)
-    if (paths.has(raw)) {
+    const previousPath = paths.get(raw)
+    // An explicit reference can supply context for nodes first indexed under an extension.
+    if (previousPath && (!isUnclassifiedPath(previousPath) || isUnclassifiedPath(path))) {
       return
     }
     paths.set(raw, path)
@@ -289,8 +295,7 @@ export const upgradeLoaders = (
     }
     if (isObject(target.value)) {
       const raw = unpackProxyShallow(target.value)
-      const location = classifyPath(target.path)
-      if (!fragments.has(raw) && !paths.has(raw) && location.context === 'data' && !location.literal) {
+      if (!fragments.has(raw) && isUnclassifiedPath(paths.get(raw) ?? target.path)) {
         // References within an explicitly reached extension object inherit its OpenAPI context.
         indexNodes(raw, path, root)
       }
@@ -440,8 +445,7 @@ export const upgradeLoaders = (
             applyReferenceContext(resolved, path, context.rootNode, node.$global === true)
             trackExternalReference(root, [...source, '$ref'], reference)
           } else if (resolved?.value !== undefined) {
-            const location = classifyPath(path)
-            if ((path[0] === 'x-ext' && fragments.has(raw)) || (location.context === 'data' && !location.literal)) {
+            if ((path[0] === 'x-ext' && fragments.has(raw)) || isUnclassifiedPath(path)) {
               deferredReferences.set(raw, { target: resolved.path, source })
             }
           }
