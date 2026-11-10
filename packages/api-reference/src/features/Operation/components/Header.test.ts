@@ -18,6 +18,81 @@ const baseProps = {
 }
 
 describe('Header', () => {
+  it.each(['oneOf', 'anyOf'] as const)('prefers explicit header examples through %s branches', (keyword) => {
+    const wrapper = mount(Header, {
+      props: {
+        ...baseProps,
+        header: {
+          schema: coerceValue(SchemaObjectSchema, {
+            [keyword]: [
+              { type: 'string', example: 'schema single', examples: ['schema multiple'] },
+              { type: 'integer', example: 42 },
+            ],
+          }),
+          example: 'header sample',
+        },
+      },
+    })
+
+    expect(
+      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+    ).toStrictEqual(['Copy example value: header sample'])
+    wrapper.unmount()
+  })
+
+  it('preserves nested property examples when overriding referenced composition examples', () => {
+    const wrapper = mount(Header, {
+      props: {
+        ...baseProps,
+        header: {
+          schema: coerceValue(SchemaObjectSchema, {
+            allOf: [
+              {
+                $ref: '#/components/schemas/Cookies',
+                '$ref-value': {
+                  type: 'object',
+                  examples: [{ session: 'schema sample' }],
+                  properties: { session: { type: 'string', example: 'property sample' } },
+                },
+              },
+            ],
+          }),
+          example: { session: 'header sample' },
+        },
+      },
+    })
+
+    expect(
+      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+    ).toStrictEqual(['Copy example value: {"session":"header sample"}', 'Copy example value: property sample'])
+    wrapper.unmount()
+  })
+
+  it.each([{}, { pending: { $ref: '#/components/examples/Pending' } }])(
+    'falls back to media type examples when header examples have no usable values: %j',
+    (examples) => {
+      const wrapper = mount(Header, {
+        props: {
+          ...baseProps,
+          header: {
+            examples,
+            content: {
+              'text/plain': {
+                schema: coerceValue(SchemaObjectSchema, { type: 'string', example: 'schema' }),
+                example: 'media sample',
+              },
+            },
+          },
+        },
+      })
+
+      expect(
+        wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+      ).toStrictEqual(['Copy example value: media sample'])
+      wrapper.unmount()
+    },
+  )
+
   it('does not show an array item example alongside an explicit header example', () => {
     const wrapper = mount(Header, {
       props: {
