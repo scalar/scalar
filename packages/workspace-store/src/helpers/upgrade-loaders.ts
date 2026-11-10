@@ -135,13 +135,16 @@ export const upgradeLoaders = (
     }
     references.add(unpackProxyShallow(node))
   }
-  const indexNodes = (value: unknown, path?: readonly string[]): void => {
+  const indexNodes = (value: unknown, path?: readonly string[], alreadyConverted = false): void => {
     if (value === null || typeof value !== 'object') {
       return
     }
     const raw = unpackProxyShallow(value)
     if (paths.has(raw) || (!path && fragments.has(raw))) {
       return
+    }
+    if (alreadyConverted) {
+      convertedNodes.add(raw)
     }
     if (path) {
       paths.set(raw, path)
@@ -155,10 +158,10 @@ export const upgradeLoaders = (
       fragments.add(raw)
     }
     for (const [key, child] of Object.entries(value)) {
-      indexNodes(child, path ? [...path, key] : undefined)
+      indexNodes(child, path ? [...path, key] : undefined, alreadyConverted)
     }
   }
-  const upgradeTarget = (target: unknown, path: readonly string[]): void => {
+  const upgradeTarget = (target: unknown, path: readonly string[], isChunk = false): void => {
     if (!isObject(target)) {
       return
     }
@@ -168,7 +171,11 @@ export const upgradeLoaders = (
     }
     // Mark the path before following cached edges so cyclic references terminate. Walk the existing
     // children first: their resolver callbacks would otherwise be lost when the upgrader clones them.
-    indexNodes(target, path)
+    // Server-generated chunks already use 3.1. Index their context for nested external refs.
+    indexNodes(target, path, isChunk)
+    if (isChunk) {
+      return
+    }
     // A descendant may already have been referenced and converted independently. Hide converted
     // subtrees behind opaque tokens so the recursive 3.0 upgrader cannot reinterpret their 3.1 data.
     // Restore their original identities afterward to retain the bundler's cached reference targets.
@@ -369,7 +376,7 @@ export const upgradeLoaders = (
             isObject(result.data) ? [...(pointerRemaps.get(result.data)?.(targetPath) ?? targetPath)] : targetPath,
           )
         }
-        upgradeTarget(await resolveTarget(), path)
+        upgradeTarget(await resolveTarget(), path, node.$global === true)
       },
       onAfterNodeProcess: (node, context): void => {
         if (!isOpenApiThreeZero(entryVersion) || typeof node.$ref !== 'string') {
@@ -382,7 +389,7 @@ export const upgradeLoaders = (
         const path = paths.get(raw) ?? [...basePath, ...context.path]
         if (path[0] !== 'x-ext' && isReferencePath(path)) {
           rememberBundledReference(node)
-          upgradeTarget(resolve(), path)
+          upgradeTarget(resolve(), path, node.$global === true)
         } else if (path[0] === 'x-ext' && fragments.has(raw)) {
           deferredReferences.set(raw, resolve)
         }

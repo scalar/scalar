@@ -1170,7 +1170,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       {
         ...inputDocument,
         ...meta,
-        'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
+        'x-original-oas-version':
+          clonedRawInputDocument['x-original-oas-version'] ??
+          clonedRawInputDocument.openapi ??
+          clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
@@ -1636,7 +1639,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     resolve: async (path) => {
       const activeDocument = workspace.activeDocument
       const documentName = getActiveDocumentName()
-      const entryVersion = originalDocuments[documentName]?.openapi
+      const original = originalDocuments[documentName]
+      const entryVersion = original?.['x-original-oas-version'] ?? original?.openapi
 
       // The navigation is never a reference: a compact document externalizes its children alone, and
       // loading them is all there is to resolve here. Everything a navigation entry points at, it

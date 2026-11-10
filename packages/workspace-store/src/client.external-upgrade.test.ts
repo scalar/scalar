@@ -3,6 +3,7 @@ import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { createServerWorkspaceStore } from '@/server'
 
 const files: Record<string, string> = {
   // A complete OpenAPI 3.0 document, as in "schemas/Item.yaml#/components/schemas/Item".
@@ -148,6 +149,46 @@ describe('client.external-upgrade', () => {
     const arms = wrapper[keyword]
     assert(Array.isArray(arms))
     expect(getResolvedRef(arms[0])).toStrictEqual({ type: ['string', 'null'] })
+  })
+
+  it('uses the source dialect for bare files reached through a server chunk', async () => {
+    const external = 'https://example.test/schema.json'
+    const literal = { type: 'string', nullable: true }
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.test',
+      documents: [
+        {
+          name: 'default',
+          document: {
+            openapi: '3.0.3',
+            info: { title: 'Example', version: '1' },
+            paths: {},
+            components: {
+              schemas: { Parent: { type: 'object', example: literal, properties: { child: { $ref: external } } } },
+            },
+          },
+        },
+      ],
+    })
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: server.getWorkspace().documents.default!,
+      fetch: (input): Promise<Response> =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify(String(input) === external ? literal : server.get('#/default/components/schemas/Parent')),
+          ),
+        ),
+    })
+
+    await store.resolve(['components', 'schemas', 'Parent'])
+
+    const parent = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Parent)
+    assert(parent && 'properties' in parent)
+    expect(parent.examples).toStrictEqual([literal])
+    expect(getResolvedRef(parent.properties?.child)).toStrictEqual({ type: ['string', 'null'] })
   })
 
   it('upgrades a shared schema map whose names resemble document fields', async () => {
