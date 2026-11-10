@@ -63,8 +63,22 @@ describe('generate-release-note', () => {
     buildSystemPrompt({ product, prompts: { systemPrompt }, includePullRequestContext: false })
     buildSystemPrompt({ product, prompts: { systemPrompt } })
 
-    expect(systemPrompt).toHaveBeenNthCalledWith(1, { product, includePullRequestContext: false })
-    expect(systemPrompt).toHaveBeenNthCalledWith(2, { product, includePullRequestContext: true })
+    expect(systemPrompt).toHaveBeenNthCalledWith(1, { product, includePullRequestContext: false, maxHighlights: 5 })
+    expect(systemPrompt).toHaveBeenNthCalledWith(2, { product, includePullRequestContext: true, maxHighlights: 5 })
+  })
+
+  it('states the highlight limit in the default system prompt', () => {
+    expect(buildSystemPrompt({ product })).toContain('highlights (optional array, max 5)')
+    expect(buildSystemPrompt({ product, maxHighlights: 10 })).toContain('highlights (optional array, max 10)')
+    expect(buildSystemPrompt({ product, maxHighlights: 10 })).toContain('at most 10, each max 280 characters')
+  })
+
+  it('passes the highlight limit to a custom system prompt', () => {
+    const systemPrompt = vi.fn(() => 'custom prompt')
+
+    buildSystemPrompt({ product, prompts: { systemPrompt }, maxHighlights: 10 })
+
+    expect(systemPrompt).toHaveBeenCalledWith({ product, includePullRequestContext: true, maxHighlights: 10 })
   })
 
   it('renders dependency changelog context', () => {
@@ -168,6 +182,76 @@ describe('generate-release-note', () => {
     const retryPrompt = generateJson.mock.calls[1]?.[0]?.userPrompt as string
     expect(retryPrompt).toContain('Your previous response was:')
     expect(retryPrompt).toContain('failed validation')
+  })
+
+  describe('highlight limit', () => {
+    const baseOptions = {
+      packageName: '@example/client',
+      version: '1.2.3',
+      date: '2026-06-19',
+      changelogSection: '- Added many things',
+      releaseUrl: 'https://github.com/example/repo/blob/main/CHANGELOG.md#123',
+      product,
+    }
+
+    const highlights = (count: number): string[] =>
+      Array.from({ length: count }, (_, index) => `Shipped change number ${index + 1}.`)
+
+    it('accepts up to the configured number of highlights', async () => {
+      const note = await generateReleaseNote({
+        ...baseOptions,
+        maxHighlights: 10,
+        provider: {
+          name: 'test',
+          generateJson: async () => ({ version: '1.2.3', title: 'A big release', highlights: highlights(10) }),
+        },
+      })
+
+      expect(note.content).toContainEqual({ type: 'list', items: highlights(10), ordered: false })
+    })
+
+    it('rejects more highlights than the configured limit', async () => {
+      const generateJson = vi
+        .fn()
+        .mockResolvedValue({ version: '1.2.3', title: 'A big release', highlights: highlights(11) })
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await expect(
+        generateReleaseNote({ ...baseOptions, maxHighlights: 10, provider: { name: 'test', generateJson } }),
+      ).rejects.toThrow(/failed validation/)
+      expect(generateJson).toHaveBeenCalledTimes(3)
+    })
+
+    it('rejects more than five highlights by default', async () => {
+      const generateJson = vi
+        .fn()
+        .mockResolvedValue({ version: '1.2.3', title: 'A big release', highlights: highlights(6) })
+      vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+
+      await expect(generateReleaseNote({ ...baseOptions, provider: { name: 'test', generateJson } })).rejects.toThrow(
+        /failed validation/,
+      )
+    })
+
+    it.each([0, 21, 2.5, Number.NaN])('refuses a maxHighlights of %s before calling the provider', async (value) => {
+      const generateJson = vi.fn()
+
+      await expect(
+        generateReleaseNote({ ...baseOptions, maxHighlights: value, provider: { name: 'test', generateJson } }),
+      ).rejects.toThrow(/maxHighlights must be an integer between 1 and 20/)
+      expect(generateJson).not.toHaveBeenCalled()
+    })
+
+    it('sizes the default output token budget for the highlight limit', async () => {
+      const generateJson = vi.fn().mockResolvedValue({ version: '1.2.3', title: 'A release' })
+      const provider = { name: 'test', generateJson }
+
+      await generateReleaseNote({ ...baseOptions, provider })
+      await generateReleaseNote({ ...baseOptions, provider, maxHighlights: 10 })
+      await generateReleaseNote({ ...baseOptions, provider, maxHighlights: 10, maxOutputTokens: 4000 })
+
+      expect(generateJson.mock.calls.map(([call]) => call.maxOutputTokens)).toStrictEqual([1024, 1536, 4000])
+    })
   })
 
   it('gives up after exhausting retries when every response is invalid', async () => {
