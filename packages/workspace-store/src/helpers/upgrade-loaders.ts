@@ -8,7 +8,9 @@ import {
   type LoaderPlugin,
   type Plugin,
   type ResolveResult,
+  childReferenceContext,
   decodeUriFragment,
+  isReferenceContext,
   resolveReferencePath,
 } from '@scalar/json-magic/bundle'
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
@@ -16,7 +18,9 @@ import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 import { deepClone } from './deep-clone'
 import { unpackProxyShallow } from './unpack-proxy'
 
-const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
+/** Whether the source uses the OpenAPI 3.0 schema dialect. */
+export const isOpenApiThreeZero = (version: unknown): version is string =>
+  typeof version === 'string' && version.startsWith('3.0')
 
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
@@ -59,12 +63,12 @@ export const upgradeLoadedDocument = (
 
   const versionHeader = getVersionHeader(data)
   if (versionHeader) {
-    return versionHeader === 'openapi' && isThreeZero(data.openapi)
+    return versionHeader === 'openapi' && isOpenApiThreeZero(data.openapi)
       ? upgradeFromThreeToThreeOne({ ...data }, recordRelocation)
       : data
   }
 
-  if (!isThreeZero(entryVersion)) {
+  if (!isOpenApiThreeZero(entryVersion)) {
     return data
   }
 
@@ -107,6 +111,25 @@ export const upgradeLoaders = (
   const paths = new WeakMap<object, readonly string[]>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
+  const isReferencePath = (path: readonly string[]): boolean =>
+    isReferenceContext(
+      path.reduce<Parameters<typeof childReferenceContext>[0]>(
+        (context, key) => childReferenceContext(context, key, false),
+        'object',
+      ),
+    )
+  const rememberBundledReference = (node: Record<string, unknown>): void => {
+    if (!bundleRoot || typeof node.$ref !== 'string' || !node.$ref.startsWith('#/x-ext/')) {
+      return
+    }
+    const root = unpackProxyShallow(bundleRoot)
+    let references = bundledReferences.get(root)
+    if (!references) {
+      references = new Set()
+      bundledReferences.set(root, references)
+    }
+    references.add(unpackProxyShallow(node))
+  }
   const indexNodes = (value: unknown, path?: readonly string[]): void => {
     if (value === null || typeof value !== 'object') {
       return
@@ -119,7 +142,10 @@ export const upgradeLoaders = (
       paths.set(raw, path)
       const resolve = resolvedReferences.get(raw) ?? deferredReferences.get(raw)
       deferredReferences.delete(raw)
-      upgradeTarget(resolve?.(), path)
+      if (isObject(value) && isReferencePath(path)) {
+        rememberBundledReference(value)
+        upgradeTarget(resolve?.(), path)
+      }
     } else {
       fragments.add(raw)
     }
@@ -271,7 +297,7 @@ export const upgradeLoaders = (
           if (isObject(data) && relocations.size) {
             pointerRemaps.set(data, (pointer) => remap(pointer, relocations))
           }
-          const isFragment = isThreeZero(entryVersion) && isObject(data) && !getVersionHeader(data)
+          const isFragment = isOpenApiThreeZero(entryVersion) && isObject(data) && !getVersionHeader(data)
           if (isFragment) {
             fragmentMoves.set(data, relocations)
             pointerRemaps.set(data, (pointer) => remap(pointer, relocations))
@@ -304,14 +330,14 @@ export const upgradeLoaders = (
         return remapPointer ? { baseUri: retrievalUri, remapPointer } : undefined
       },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
-        if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
+        if (!isOpenApiThreeZero(entryVersion) || typeof node.$ref !== 'string') {
           return
         }
         bundleRoot = context.rootNode
         const reference = node.$ref
         const path = paths.get(unpackProxyShallow(node)) ?? [...basePath, ...context.path]
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
-        if (path[0] === 'x-ext') {
+        if (path[0] === 'x-ext' || !isReferencePath(path)) {
           return
         }
         const [file, authoredFragment = ''] = reference.split('#')
@@ -341,26 +367,18 @@ export const upgradeLoaders = (
         upgradeTarget(await resolveTarget(), path)
       },
       onAfterNodeProcess: (node, context): void => {
-        if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
+        if (!isOpenApiThreeZero(entryVersion) || typeof node.$ref !== 'string') {
           return
         }
         const reference = node.$ref
         const resolve = (): unknown => context.resolveReference(reference)?.value
         const raw = unpackProxyShallow(node)
-        if (reference.startsWith('#/x-ext/')) {
-          const root = unpackProxyShallow(context.rootNode)
-          let references = bundledReferences.get(root)
-          if (!references) {
-            references = new Set()
-            bundledReferences.set(root, references)
-          }
-          references.add(raw)
-        }
         resolvedReferences.set(raw, resolve)
         const path = paths.get(raw) ?? [...basePath, ...context.path]
-        if (path[0] !== 'x-ext') {
+        if (path[0] !== 'x-ext' && isReferencePath(path)) {
+          rememberBundledReference(node)
           upgradeTarget(resolve(), path)
-        } else if (fragments.has(raw)) {
+        } else if (path[0] === 'x-ext' && fragments.has(raw)) {
           deferredReferences.set(raw, resolve)
         }
       },

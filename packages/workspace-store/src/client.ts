@@ -37,7 +37,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
-import { upgradeLoaders } from '@/helpers/upgrade-loaders'
+import { isOpenApiThreeZero, upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
@@ -1707,7 +1707,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           visitedNodes,
         })
 
-      if (!activeDocument || typeof entryVersion !== 'string' || !entryVersion.startsWith('3.0')) {
+      if (!activeDocument || !isOpenApiThreeZero(entryVersion)) {
         return bundleTarget()
       }
 

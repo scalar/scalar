@@ -38,8 +38,9 @@ describe('upgrade-loaders', () => {
       openapi: '3.1.1',
       components: {
         schemas: {
-          ...Object.fromEntries([first, second].map((name) => [name, { $ref: refs[name as keyof typeof refs] }])),
+          [first]: { $ref: refs[first as keyof typeof refs] },
           Literal: { examples: [{ ...literal }] },
+          [second]: { $ref: refs[second as keyof typeof refs] },
         },
       },
     }
@@ -51,7 +52,6 @@ describe('upgrade-loaders', () => {
 
     await bundle(document, {
       treeShake: false,
-      traversal: 'document',
       compress: () => 'shared',
       plugins: upgradeLoaders([loader], '3.0.3'),
     })
