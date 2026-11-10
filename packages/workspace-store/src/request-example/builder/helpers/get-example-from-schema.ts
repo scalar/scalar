@@ -2,6 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -921,7 +922,11 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
-      return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
+      // Let generation resolve references, declarations and union selections before deciding whether
+      // the members describe one object. A primitive contribution keeps the existing per-member result.
+      const result =
+        examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
+      return cache(schema, wrapItems ? result.map((e) => ({ [itemsXmlTagName]: e })) : result, cacheKey, skipCache)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -953,12 +958,12 @@ const handleArraySchema = (
     }
   }
 
-  const isObject =
+  const isObjectItems =
     items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
   const isArray =
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
-  if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
+  if (items && typeof items === 'object' && (('type' in items && items.type) || isObjectItems || isArray)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,

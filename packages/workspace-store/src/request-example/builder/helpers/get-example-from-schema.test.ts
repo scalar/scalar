@@ -1356,6 +1356,348 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(['foobar', 'barfoo'])
   })
 
+  const allOfExtraProperties = {
+    required: ['extra'],
+    properties: { extra: { type: 'string', example: 'more' } },
+  }
+
+  it('merges a $ref to an untyped allOf base into one item', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': {
+              allOf: [
+                { type: 'object', required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+                { type: 'object', required: ['name'], properties: { name: { type: 'string', example: 'test' } } },
+              ],
+            },
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+  })
+
+  it('merges an inline untyped allOf first member into one item', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            allOf: [
+              { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+              { type: 'object', properties: { name: { type: 'string', example: 'test' } } },
+            ],
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'test', extra: 'more' }])
+  })
+
+  it('merges a first member that is an object by shape but has no type', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Base',
+            '$ref-value': { required: ['id'], properties: { id: { type: 'integer', example: 1 } } },
+          },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+  })
+
+  it('merges when a later member is the first one to describe an object', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          { description: 'A list entry' },
+          { type: 'object', properties: { id: { type: 'integer', example: 1 } } },
+          allOfExtraProperties,
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, extra: 'more' }])
+  })
+
+  it('merges an object example alongside an allOf cycle', () => {
+    const cyclic: Record<string, unknown> = {}
+    cyclic.allOf = [cyclic]
+    const schema = {
+      type: 'array',
+      items: { allOf: [cyclic, allOfExtraProperties] },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+  })
+
+  it('keeps one example per member when no member describes an object', () => {
+    expect(
+      getExampleFromSchema(
+        coerceValue(SchemaObjectSchema, {
+          type: 'array',
+          items: {
+            allOf: [
+              { type: 'integer', example: 1 },
+              { type: 'integer', example: 2 },
+            ],
+          },
+        }),
+      ),
+    ).toStrictEqual([1, 2])
+  })
+
+  it('already merges an untyped allOf at the root and in a property', () => {
+    const untyped = coerceValue(SchemaObjectSchema, {
+      allOf: [
+        {
+          allOf: [
+            { properties: { id: { type: 'integer', example: 1 } } },
+            { properties: { name: { type: 'string', example: 'test' } } },
+          ],
+        },
+        allOfExtraProperties,
+      ],
+    })
+
+    expect(getExampleFromSchema(untyped)).toStrictEqual({ id: 1, name: 'test', extra: 'more' })
+    expect(getExampleFromSchema({ type: 'object', properties: { item: untyped } })).toStrictEqual({
+      item: { id: 1, name: 'test', extra: 'more' },
+    })
+  })
+
+  it('merges array items when allOf contains a recursive reference', () => {
+    const base: Record<string, unknown> = {}
+    const reference = { $ref: '#/components/schemas/Base', '$ref-value': base }
+    base.allOf = [reference]
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [reference, { properties: { extra: { type: 'string', example: 'more' } } }],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+  })
+
+  it.each([false, true])('preserves primitive allOf array items with object keywords (reversed: %s)', (reversed) => {
+    const members = [{ type: 'string', example: 'hello' }, { additionalProperties: false }]
+    // Coercion adds an object type to keyword-only members; keep the original untyped input here.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('checks nested referenced type constraints before inferring object array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          { additionalProperties: false },
+          {
+            $ref: '#/components/schemas/Value',
+            '$ref-value': { allOf: [{ type: ['string'], example: 'hello' }] },
+          },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each([
+    { constraint: { const: 'hello' }, reversed: false },
+    { constraint: { const: 'hello' }, reversed: true },
+    { constraint: { enum: ['hello'] }, reversed: false },
+    { constraint: { enum: ['hello'] }, reversed: true },
+  ])('preserves primitive allOf values for $constraint (reversed: $reversed)', ({ constraint, reversed }) => {
+    const members = [constraint, { additionalProperties: false }]
+    // Keep keyword-only members untyped rather than letting coercion assign them an object type.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each([{ const: 'hello' }, { enum: ['hello'] }])(
+    'respects nested referenced allOf value constraints: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            { required: [] },
+            {
+              $ref: '#/components/schemas/Value',
+              '$ref-value': { allOf: [constraint] },
+            },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([{ const: [1, 2] }, { enum: [[1, 2]] }])('preserves array-only allOf value constraints: %j', (constraint) => {
+    const schema = {
+      type: 'array',
+      items: { allOf: [constraint, { additionalProperties: false }] },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([[1, 2]])
+  })
+
+  it.each([{ const: { id: 1 } }, { enum: [{ id: 1 }] }])(
+    'still merges allOf members when value constraints allow objects: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [constraint, { properties: { id: { type: 'integer', example: 1 } } }],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1 }])
+    },
+  )
+
+  it.each([{ const: 'hello' }, { enum: ['hello'] }, { type: 'string', example: 'hello' }])(
+    'follows annotated reference chains before merging allOf array items: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/Alias',
+              '$ref-value': {
+                $ref: '#/components/schemas/Value',
+                description: 'Annotated alias',
+                '$ref-value': constraint,
+              },
+            },
+            { additionalProperties: false },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([
+    { enum: ['hello', { id: 1 }] },
+    { example: 'hello' },
+    { examples: ['hello', { id: 1 }] },
+    { default: 'hello' },
+  ])('preserves a declared primitive when allOf also allows objects: %j', (declared) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { allOf: [{ type: ['object', 'string'], ...declared }] },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('merges an object example that overrides a primitive reference annotation', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Value',
+            example: { id: 1 },
+            '$ref-value': { type: ['object', 'string'], example: 'hello' },
+          },
+          { properties: { name: { type: 'string', example: 'world' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'world' }])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('preserves primitive allOf examples selected through %s', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ [keyword]: [{ type: 'string', example: 'hello' }] }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('merges only object examples from a selected %s variant', (keyword) => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            [keyword]: [
+              { type: 'string', example: 'hello' },
+              { type: 'object', example: { id: 1 } },
+            ],
+          },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 0 } })).toStrictEqual([
+      'hello',
+      { name: 'Rex' },
+    ])
+    expect(getExampleFromSchema(schema, { compositionSelection: { [`items.${keyword}`]: 1 } })).toStrictEqual([
+      { id: 1, name: 'Rex' },
+    ])
+  })
+
+  it('preserves a primitive variable value in untyped allOf array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [{ 'x-variable': 'value', properties: { id: { type: 'integer' } } }, { additionalProperties: false }],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema, { variables: { value: 'hello' } })).toStrictEqual(['hello'])
+  })
+
+  it('still merges array items when a type list allows objects', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          { type: ['object', 'null'], properties: { id: { type: 'integer', example: 1 } } },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'Rex' }])
+  })
+
   it('uses the default value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
