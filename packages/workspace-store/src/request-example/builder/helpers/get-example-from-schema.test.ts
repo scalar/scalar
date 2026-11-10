@@ -71,6 +71,17 @@ describe('getExampleFromSchema', () => {
       schema: { prefixItems: [{ type: 'number' }], items: false, minItems: 2 },
       expected: [1],
     },
+    { name: 'untyped const items', schema: { items: { const: 'fixed' }, minItems: 2 }, expected: ['fixed', 'fixed'] },
+    {
+      name: 'stricter outer maximum',
+      schema: { items: { type: 'number' }, maxItems: 0, anyOf: [{ type: 'array', maxItems: 1 }] },
+      expected: [],
+    },
+    {
+      name: 'stricter outer minimum',
+      schema: { items: { type: 'number' }, minItems: 3, oneOf: [{ type: 'array', minItems: 1 }] },
+      expected: [1, 1, 1],
+    },
     { name: 'omitted items', schema: { minItems: 2 }, expected: [null, null] },
     { name: 'empty item schema', schema: { items: {}, minItems: 2 }, expected: [null, null] },
     { name: 'unique items', schema: { items: { type: 'number' }, minItems: 2, uniqueItems: true }, expected: [1] },

@@ -865,6 +865,10 @@ const countExampleNodes = (value: unknown, limit: number): number => {
   return count
 }
 
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readArrayLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -878,20 +882,12 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  const maxItems =
-    'maxItems' in schema &&
-    typeof schema.maxItems === 'number' &&
-    Number.isInteger(schema.maxItems) &&
-    schema.maxItems >= 0
-      ? schema.maxItems
-      : Number.POSITIVE_INFINITY
-  const minItems =
-    'minItems' in schema &&
-    typeof schema.minItems === 'number' &&
-    Number.isInteger(schema.minItems) &&
-    schema.minItems >= 0
-      ? Math.min(schema.minItems, maxItems, MAX_ARRAY_PADDING_NODES)
-      : 0
+  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const minItems = Math.min(
+    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    maxItems,
+    MAX_ARRAY_PADDING_NODES,
+  )
 
   if (maxItems === 0) {
     return cache(schema, [], cacheKey, skipCache)
@@ -939,7 +935,7 @@ const handleArraySchema = (
     return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
-  const finish = (examples: unknown[], sample: unknown = examples[0]): unknown => {
+  const completeArrayExample = (examples: unknown[], sample: unknown = examples[0]): unknown => {
     for (const example of examples) {
       if (values.length >= maxItems || (prefixes && values.length >= minItems)) {
         break
@@ -975,7 +971,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return finish(isDefined(merged) ? [merged] : [])
+        return completeArrayExample(isDefined(merged) ? [merged] : [])
       }
 
       const examples = allOf
@@ -993,7 +989,7 @@ const handleArraySchema = (
       // the members describe one object. A primitive contribution keeps the existing per-member result.
       const result =
         examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
-      return finish(result)
+      return completeArrayExample(result)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -1021,7 +1017,7 @@ const handleArraySchema = (
         return undefined
       }
       const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
-      return finish([tagged])
+      return completeArrayExample([tagged])
     }
   }
 
@@ -1030,7 +1026,8 @@ const handleArraySchema = (
   const isArray =
     items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
 
-  if (items && typeof items === 'object' && (('type' in items && items.type) || isObjectItems || isArray)) {
+  const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
+  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -1041,11 +1038,11 @@ const handleArraySchema = (
     if (ex === undefined) {
       return undefined
     }
-    return finish([ex])
+    return completeArrayExample([ex])
   }
 
   const unrestricted = itemSchema === undefined || itemSchema === true || Object.keys(itemSchema).length === 0
-  return finish([], unrestricted ? null : undefined)
+  return completeArrayExample([], unrestricted ? null : undefined)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
@@ -1830,6 +1827,21 @@ const generateExampleFromSchema = (
     if (selectedType !== undefined && selectedType !== 'object') {
       const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
       const selectedSchema = { ...base, ...selectedVariant }
+      if (selectedType === 'array') {
+        // The selected branch and the surrounding schema both constrain the array.
+        if ('minItems' in selectedSchema && 'minItems' in _schema && 'minItems' in selectedVariant) {
+          selectedSchema.minItems = Math.max(
+            readArrayLengthBound(_schema.minItems, 0),
+            readArrayLengthBound(selectedVariant.minItems, 0),
+          )
+        }
+        if ('maxItems' in selectedSchema && 'maxItems' in _schema && 'maxItems' in selectedVariant) {
+          selectedSchema.maxItems = Math.min(
+            readArrayLengthBound(_schema.maxItems, Number.POSITIVE_INFINITY),
+            readArrayLengthBound(selectedVariant.maxItems, Number.POSITIVE_INFINITY),
+          )
+        }
+      }
       // These keywords only constrain their own types, but also drive our type inference.
       if ('properties' in selectedSchema) {
         delete selectedSchema.properties
