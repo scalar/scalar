@@ -750,9 +750,7 @@ describe('create-workspace-store', () => {
     expect(getOpenApiDocument(store, 'new')?.info?.title).toEqual(getDocument().info.title)
   })
 
-  // TODO: handle server side preprocessed documents (nested refs)
-  // Detailed explanation (1*)
-  it.skip('handle circular references when we try to resolve all remote chunks recursively', async () => {
+  it('resolves circular references across remote chunks without fetching them again', async () => {
     const getDocument = () => ({
       openapi: '3.0.0',
       info: { title: 'My API', version: '1.0.0' },
@@ -804,7 +802,9 @@ describe('create-workspace-store', () => {
       },
     })
 
+    const requests: string[] = []
     server.get('/*', (req, res) => {
+      requests.push(req.url)
       const path = req.url
       const contents = serverStore.get(path)
 
@@ -839,7 +839,29 @@ describe('create-workspace-store', () => {
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
 
-    expect((getActiveOpenApiDocument(store)?.components?.schemas?.['User'] as any)?.['$ref-value'].type).toBe('object')
+    const user = getResolvedRef<unknown>(getActiveOpenApiDocument(store)?.components?.schemas?.['User'])
+    assert(isObject(user) && isObject(user.properties))
+    expect(user.type).toBe('object')
+
+    const rec = getResolvedRef<unknown>(user.properties.name)
+    assert(isObject(rec) && isObject(rec.properties))
+    expect(rec.type).toBe('object')
+
+    // Follow the return edge too: loading User alone does not prove the cycle resolves.
+    const backToUser = getResolvedRef<unknown>(rec.properties.id)
+    assert(isObject(backToUser) && isObject(backToUser.properties))
+    expect(backToUser.type).toBe('object')
+    const id = getResolvedRef<unknown>(backToUser.properties.id)
+    assert(isObject(id))
+    expect(id.description).toBe('The user ID')
+    expect(requests.slice().sort()).toStrictEqual([
+      '/default/components/schemas/Rec',
+      '/default/components/schemas/User',
+      '/default/operations/~1users/get',
+    ])
+
+    await store.resolve(['paths', '/users', 'get'])
+    expect(requests.length).toBe(3)
   })
 
   it('build the sidebar client side', async () => {
@@ -4767,7 +4789,3 @@ describe('create-workspace-store', () => {
     })
   })
 })
-
-// Notes:
-// (1*) Currently when we do server side bundle, we can end up with refs that will be pointing to other refs
-//      so for now we don't support server side preprocessed documents
