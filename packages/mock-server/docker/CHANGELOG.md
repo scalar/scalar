@@ -1,5 +1,7 @@
 # @scalar/mock-server-docker
 
+## 0.2.78
+
 ## 0.2.77
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/json-schema-validator
 
+## 0.1.19
+
+### Patch Changes
+
+- [#10951](https://github.com/scalar/scalar/pull/10951): Use shortest round-trip decimal values consistently for multipleOf checks, including large JSON integers and positive exponents. Fast-path safe integers and share keyword registration across validators.
+- [#10951](https://github.com/scalar/scalar/pull/10951): Validate decimal `multipleOf` constraints with exact decimal arithmetic, accepting values such as `19.99` and `1000000.19` for `multipleOf: 0.01` while rejecting nonmultiples without a floating-point tolerance.
+- [#10959](https://github.com/scalar/scalar/pull/10959): Reduce repeated schema compilation in decimal validation tests to avoid CI timeouts.
+
 ## 0.1.18
 
 ## 0.1.17

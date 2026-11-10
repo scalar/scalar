@@ -1,5 +1,22 @@
 # @scalar/blocks
 
+## 0.7.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10893](https://github.com/scalar/scalar/pull/10893): Allow custom code samples to use separate picker headings with an optional `group` field.
+
+### Patch Changes
+
+- [#10949](https://github.com/scalar/scalar/pull/10949): Show response header examples, including media type examples and OpenAPI 3.2 cookie examples, with explicit examples taking precedence over schema examples. Preserve this precedence through composed schemas and fall back to media type examples when header examples have no usable values.
+
+  Keep external example URLs visible and preserve line breaks in displayed string examples. Across all schemas, array-level examples take precedence over item examples.
+
+  Preserve `x-example` and `x-examples` on OpenAPI 2.0 response headers during upgrades.
+
+- [#10902](https://github.com/scalar/scalar/pull/10902): Render self-contained Avro, RAML, and Protobuf schemas as native field and type documentation, retaining copyable source for unsupported schemas.
+
 ## 0.6.4
 
 ### Patch Changes

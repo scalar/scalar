@@ -1,5 +1,12 @@
 # @scalar/asyncapi-to-markdown
 
+## 0.2.7
+
+### Patch Changes
+
+- [#10904](https://github.com/scalar/scalar/pull/10904): Block private-network document requests by default and require an explicit basePath for local files. Apply the same permissions to external references, with an opt-in for trusted private-network inputs.
+- [#10904](https://github.com/scalar/scalar/pull/10904): Share confined document loading between Markdown converters and include HTTP status codes in load errors.
+
 ## 0.2.6
 
 ## 0.2.5

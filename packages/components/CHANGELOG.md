@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.34.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10890](https://github.com/scalar/scalar/pull/10890): Add an Elixir language icon and show it on Elixir SDK installation tabs.
+
 ## 0.33.2
 
 ### Patch Changes

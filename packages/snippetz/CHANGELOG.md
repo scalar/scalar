@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.10.16
+
+### Patch Changes
+
+- [#10942](https://github.com/scalar/scalar/pull/10942): Keep application/x-www-form-urlencoded bodies in the ofetch and undici snippets, preserve the order of repeated, empty and prototype-named fields in the fetch, Go, F#, Julia and Clojure snippets, and escape apostrophes in the PHP cURL body.
+
 ## 0.10.15
 
 ### Patch Changes

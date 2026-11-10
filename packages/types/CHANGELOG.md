@@ -1,5 +1,21 @@
 # @scalar/types
 
+## 0.28.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10892](https://github.com/scalar/scalar/pull/10892): Allow defaultHttpClient to select custom code samples with targetKey: 'custom'.
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+- [#10893](https://github.com/scalar/scalar/pull/10893): Allow custom code samples to use separate picker headings with an optional `group` field.
+
+### Patch Changes
+
+- [#10871](https://github.com/scalar/scalar/pull/10871): Add schema-aware file controls for multipart/mixed and multipart/related parts, preserving part order and encodings. Restrict multipart/form-data uploads to file fields when a request body schema is available.
+
+  Honor binary encoding content types on multipart fields and share file-schema detection with example generation, including nullable, composed, and typeless file placeholders.
+
 ## 0.27.0
 
 ### Minor Changes
