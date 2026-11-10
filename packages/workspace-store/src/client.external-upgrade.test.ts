@@ -1,4 +1,5 @@
 import { isObject } from '@scalar/helpers/object/is-object'
+import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -57,6 +58,54 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it.each([false, true])('keeps a literal reference in an external example (lazy: %s)', async (lazy) => {
+    const store = createWorkspaceStore()
+    const schemaUrl = 'https://example.test/shared.json'
+    const exampleUrl = 'https://example.test/example.json'
+    const literal = { $ref: schemaUrl + '#/Parent/allOf/0' }
+    await store.addDocument({
+      name: 'default',
+      fetch: (input): Promise<Response> =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify(
+              String(input) === exampleUrl
+                ? { value: literal }
+                : { Parent: { nullable: true, allOf: [{ type: 'string' }] } },
+            ),
+          ),
+        ),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        ...(lazy
+          ? {
+              'x-scalar-navigation': {
+                id: 'default',
+                type: 'document',
+                name: 'default',
+                title: 'Example',
+                children: [],
+              },
+            }
+          : {}),
+        components: {
+          schemas: { Parent: { $ref: schemaUrl + '#/Parent' } },
+          examples: { Literal: { $ref: exampleUrl } },
+        },
+      },
+    })
+
+    if (lazy) {
+      await store.resolve(['components', 'schemas', 'Parent'])
+      await store.resolve(['components', 'examples', 'Literal'])
+    }
+
+    const example = getResolvedRef(getActiveOpenApiDocument(store)?.components?.examples?.Literal)
+    expect(getRaw(example?.value)).toStrictEqual(literal)
+  })
+
   it('upgrades both shared fragments when lazy calls overlap', async () => {
     const store = createWorkspaceStore()
     const url = 'https://example.test/shared.json'

@@ -23,17 +23,17 @@ export const isOpenApiThreeZero = (version: unknown): version is string =>
   typeof version === 'string' && version.startsWith('3.0')
 
 const schemaArrayKeywords = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
-const isReferencePath = (path: readonly string[]): boolean =>
-  isReferenceContext(
-    path.reduce<Parameters<typeof childReferenceContext>[0]>((context, key, index) => {
-      const parent = path[index - 1]
-      // Composition arrays inherit the schema context at each index.
-      if (context === 'schema' && parent && schemaArrayKeywords.has(parent) && /^\d+$/.test(key)) {
-        return context
-      }
-      return childReferenceContext(context, key, false)
-    }, 'object'),
-  )
+type ReferenceContext = Parameters<typeof childReferenceContext>[0]
+const contextAtPath = (path: readonly string[]): ReferenceContext =>
+  path.reduce<ReferenceContext>((context, key, index) => {
+    const parent = path[index - 1]
+    // Composition arrays inherit the schema context at each index.
+    if (context === 'schema' && parent && schemaArrayKeywords.has(parent) && /^\d+$/.test(key)) {
+      return context
+    }
+    return childReferenceContext(context, key, false)
+  }, 'object')
+const isReferencePath = (path: readonly string[]): boolean => isReferenceContext(contextAtPath(path))
 
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
@@ -283,7 +283,7 @@ export const upgradeLoaders = (
           }
           if (isFragment) {
             indexFragment(data, { file: { relocations }, path: [] })
-          } else if (isOpenApiThreeZero(entryVersion)) {
+          } else {
             indexNodes(data, [])
           }
           return { ...result, data }
@@ -303,6 +303,16 @@ export const upgradeLoaders = (
         return relocations
           ? { baseUri: retrievalUri, remapPointer: (pointer) => remapPointer(pointer, relocations) }
           : undefined
+      },
+      shouldResolveReference: (node, context) => {
+        const indexed = paths.get(unpackProxyShallow(node))
+        if (!indexed && !isOpenApiThreeZero(entryVersion)) {
+          return true
+        }
+        const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
+        const path = indexed ?? source
+        // Unknown portions of shared files can be exposed as schemas by later references.
+        return path[0] === 'x-ext' || contextAtPath(path) !== 'data'
       },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
         if (!isOpenApiThreeZero(entryVersion)) {

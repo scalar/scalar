@@ -61,7 +61,10 @@ function isNullableOnly(schema: UnknownObject): boolean {
  * @param recordRelocation - Receives moved paths in the original document's coordinates,
  * so callers resolving authored pointers can follow moved subtrees.
  */
-export function upgradeFromThreeToThreeOne(originalContent: UnknownObject, recordRelocation?: RecordRelocation) {
+export function upgradeFromThreeToThreeOne(
+  originalContent: UnknownObject,
+  recordRelocation?: RecordRelocation,
+): UnknownObject {
   let content = originalContent
 
   // Version check - early return if not 3.0.x
@@ -77,7 +80,11 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject, recor
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path: string[], recordRelocation?: RecordRelocation) => {
+const applyChangesToDocument = (
+  schema: UnknownObject,
+  path: string[],
+  recordRelocation?: RecordRelocation,
+): UnknownObject => {
   // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
   // schema, so none of the schema transforms below apply and running them would corrupt the data.
   if (isInsideDataValue(path, '3.0')) {

@@ -512,6 +512,8 @@ export type Config = {
      * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
      */
     onBeforeNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
+    /** Return false to leave a literal reference field untouched during bundling. */
+    shouldResolveReference: (node: UnknownObject, context: NodeProcessContext) => boolean
     /**
      * Optional hook invoked after processing a node.
      * Useful for postprocessing, cleanup, or custom logic after the node has been handled by the bundler.
@@ -631,6 +633,10 @@ export const bundleDocument = async (
 
   const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
+  const referenceGuards = [
+    config.hooks?.shouldResolveReference,
+    ...lifecyclePlugin.map((plugin) => plugin.shouldResolveReference),
+  ]
 
   /**
    * Resolves the input value by either returning it directly if it's not a string,
@@ -947,7 +953,11 @@ export const bundleDocument = async (
         )
       }
     }
-    if (hasRef(root) && (!location || isReferenceContext(location.context))) {
+    if (
+      hasRef(root) &&
+      (!location || isReferenceContext(location.context)) &&
+      referenceGuards.every((guard) => guard?.(root, context) !== false)
+    ) {
       const ref = root['$ref']
       const report = (kind: ReferenceDiagnostic['kind']): void => {
         diagnostics?.push({
