@@ -287,11 +287,11 @@ export const upgradeLoaders = (
     if (!target) {
       return
     }
-    if (isObject(target.value) && typeof target.value.$ref === 'string') {
+    if (isObject(target.value)) {
       const raw = unpackProxyShallow(target.value)
       const location = classifyPath(target.path)
       if (!fragments.has(raw) && !paths.has(raw) && location.context === 'data' && !location.literal) {
-        // An explicitly referenced extension alias inherits its referring object's kind.
+        // References within an explicitly reached extension object inherit its OpenAPI context.
         indexNodes(raw, path, root)
       }
     }

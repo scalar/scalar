@@ -86,6 +86,38 @@ describe('client.external-upgrade', () => {
     },
   )
 
+  it.each([false, true])(
+    'upgrades nested schema references in a referenced extension object (extension first: %s)',
+    async (extensionFirst) => {
+      const store = createWorkspaceStore()
+      const url = 'https://example.test/schema.json'
+      const loads: string[] = []
+      const extension = {
+        'x-schemas': { Wrapped: { type: 'object', properties: { name: { $ref: url } } } },
+      }
+      await store.addDocument({
+        name: 'default',
+        fetch: (input): Promise<Response> => {
+          loads.push(String(input))
+          return Promise.resolve(new Response(JSON.stringify({ type: 'string', nullable: true })))
+        },
+        document: {
+          openapi: '3.0.3',
+          info: { title: 'Example', version: '1' },
+          paths: {},
+          ...(extensionFirst ? extension : {}),
+          components: { schemas: { Parent: { $ref: '#/x-schemas/Wrapped' } } },
+          ...(!extensionFirst ? extension : {}),
+        },
+      })
+
+      const schema = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Parent)
+      assert(schema && 'properties' in schema)
+      expect(getResolvedRef(schema.properties?.name)).toStrictEqual({ type: ['string', 'null'] })
+      expect(loads).toStrictEqual([url])
+    },
+  )
+
   it.each([
     [false, false, false],
     [false, true, false],
