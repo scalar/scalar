@@ -1184,7 +1184,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     // This typically applies when the document is not preprocessed by the server and needs local reference resolution.
     // We need to bundle document first before we validate, so we can also validate the external references
     if (strictDocument[extensions.document.navigation] === undefined) {
-      const literalReferences = new Set<object>()
+      const literalData = new Set<object>()
       await withMeasurementAsync(
         'bundle',
         async () =>
@@ -1192,7 +1192,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
             treeShake: false,
             plugins: [
               ...upgradeLoaders(loaders, clonedRawInputDocument.openapi, [], (node) => {
-                literalReferences.add(node)
+                literalData.add(node)
               }),
               openApiDocument(),
               normalizeRefs(),
@@ -1211,12 +1211,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       // Keep schema reference resolution during coercion without copying virtual fields into literal payloads.
       const getSource = (node: object): object => {
         const raw = getRaw(node)
-        return literalReferences.has(raw) ? raw : node
+        return literalData.has(raw) ? raw : node
       }
       const coerced = withMeasurementSync('coerceValue', () =>
         coerce<Schema>(
           openapiSchema,
-          normalizeBooleanSchemas(deepClone(strictDocument, undefined, literalReferences.size ? getSource : undefined)),
+          normalizeBooleanSchemas(deepClone(strictDocument, undefined, literalData.size ? getSource : undefined)),
         ),
       )
       withMeasurementSync('mergeObjects', () => mergeObjects(strictDocument, coerced))

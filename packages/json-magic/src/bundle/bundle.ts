@@ -512,8 +512,8 @@ export type Config = {
      * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
      */
     onBeforeNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
-    /** Return false to leave an authored literal reference out of node processing and resolution. */
-    shouldResolveReference: (node: UnknownObject, context: NodeProcessContext) => boolean
+    /** Return false to leave a literal data subtree untouched by traversal and lifecycle hooks. */
+    shouldProcessNode: (node: object, context: NodeProcessContext) => boolean
     /**
      * Optional hook invoked after processing a node.
      * Useful for postprocessing, cleanup, or custom logic after the node has been handled by the bundler.
@@ -633,10 +633,7 @@ export const bundleDocument = async (
 
   const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
-  const referenceGuards = [
-    config.hooks?.shouldResolveReference,
-    ...lifecyclePlugin.map((plugin) => plugin.shouldResolveReference),
-  ]
+  const nodeGuards = [config.hooks?.shouldProcessNode, ...lifecyclePlugin.map((plugin) => plugin.shouldProcessNode)]
 
   /**
    * Resolves the input value by either returning it directly if it's not a string,
@@ -934,11 +931,11 @@ export const bundleDocument = async (
       },
     }
 
-    const authoredReference = hasRef(root) ? root.$ref : undefined
-    const processNode = !hasRef(root) || referenceGuards.every((guard) => guard?.(root, context) !== false)
-    if (processNode) {
-      await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
+    if (nodeGuards.some((guard) => guard?.(root, context) === false)) {
+      return
     }
+    const authoredReference = hasRef(root) ? root.$ref : undefined
+    await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
     const visitChildren = async (): Promise<void> => {
       for (const key of Object.keys(root)) {
@@ -956,7 +953,7 @@ export const bundleDocument = async (
         )
       }
     }
-    if (processNode && hasRef(root) && (!location || isReferenceContext(location.context))) {
+    if (hasRef(root) && (!location || isReferenceContext(location.context))) {
       const ref = root['$ref']
       const report = (kind: ReferenceDiagnostic['kind']): void => {
         diagnostics?.push({
@@ -1265,9 +1262,7 @@ export const bundleDocument = async (
       )
     }
 
-    if (processNode) {
-      await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
-    }
+    await executeHooks('onAfterNodeProcess', root as UnknownObject, context)
   }
 
   await bundler(rawSpecification)

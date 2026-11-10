@@ -74,7 +74,7 @@ describe('client.external-upgrade', () => {
       const literal = {
         $ref: alias ? '#/components/schemas/Parent' : schemaUrl + '#/Parent/allOf/0',
         label: 'payload',
-        details: { count: 1 },
+        details: { count: 1, externalValue: './raw-value' },
       }
       const parent = { nullable: true, allOf: [{ type: 'string' }] }
       const example = { value: literal }
