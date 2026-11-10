@@ -1,3 +1,4 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
@@ -151,7 +152,7 @@ describe('client.external-upgrade', () => {
     expect(getResolvedRef(arms[0])).toStrictEqual({ type: ['string', 'null'] })
   })
 
-  it('uses the source dialect for bare files reached through a server chunk', async () => {
+  it.each([false, true])('uses the source dialect for server chunks (local alias: %s)', async (alias) => {
     const external = 'https://example.test/schema.json'
     const literal = { type: 'string', nullable: true }
     const server = await createServerWorkspaceStore({
@@ -165,7 +166,14 @@ describe('client.external-upgrade', () => {
             info: { title: 'Example', version: '1' },
             paths: {},
             components: {
-              schemas: { Parent: { type: 'object', example: literal, properties: { child: { $ref: external } } } },
+              schemas: {
+                Parent: {
+                  type: 'object',
+                  example: literal,
+                  properties: { child: { $ref: alias ? '#/components/schemas/Target' : external } },
+                },
+                Target: { type: 'object', properties: { value: { $ref: external } } },
+              },
             },
           },
         },
@@ -178,7 +186,11 @@ describe('client.external-upgrade', () => {
       fetch: (input): Promise<Response> =>
         Promise.resolve(
           new Response(
-            JSON.stringify(String(input) === external ? literal : server.get('#/default/components/schemas/Parent')),
+            JSON.stringify(
+              String(input) === external
+                ? literal
+                : server.get('#/default/components/schemas/' + new URL(String(input)).pathname.split('/').at(-1)),
+            ),
           ),
         ),
     })
@@ -188,7 +200,13 @@ describe('client.external-upgrade', () => {
     const parent = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Parent)
     assert(parent && 'properties' in parent)
     expect(parent.examples).toStrictEqual([literal])
-    expect(getResolvedRef(parent.properties?.child)).toStrictEqual({ type: ['string', 'null'] })
+    const child = getResolvedRef(parent.properties?.child)
+    if (alias) {
+      assert(isObject(child) && isObject(child.properties))
+      expect(getResolvedRef(child.properties.value)).toStrictEqual({ type: ['string', 'null'] })
+    } else {
+      expect(child).toStrictEqual({ type: ['string', 'null'] })
+    }
   })
 
   it('upgrades a shared schema map whose names resemble document fields', async () => {

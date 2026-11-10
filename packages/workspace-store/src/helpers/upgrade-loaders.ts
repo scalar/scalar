@@ -110,6 +110,25 @@ export const upgradeLoaders = (
 ): Plugin[] => {
   let bundleRoot: Record<string, unknown> | undefined
   const paths = new WeakMap<object, readonly string[]>()
+  const referencePath = (
+    node: Record<string, unknown>,
+    context: { path: readonly string[]; rootNode: Record<string, unknown> },
+  ): readonly string[] => {
+    const raw = unpackProxyShallow(node)
+    const indexed = paths.get(raw)
+    if (indexed) {
+      return indexed
+    }
+    // A partial bundle starts at the selected subtree but follows local pointers from the root.
+    if (
+      !basePath.length ||
+      context.path[0] === 'x-ext' ||
+      unpackProxyShallow(getValueAtPath(context.rootNode, [...context.path])) === raw
+    ) {
+      return context.path
+    }
+    return [...basePath, ...context.path]
+  }
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
   const isReferencePath = (path: readonly string[]): boolean =>
@@ -347,7 +366,7 @@ export const upgradeLoaders = (
         }
         bundleRoot = context.rootNode
         const reference = node.$ref
-        const path = paths.get(unpackProxyShallow(node)) ?? [...basePath, ...context.path]
+        const path = referencePath(node, context)
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
         if (path[0] === 'x-ext' || !isReferencePath(path)) {
           return
@@ -386,7 +405,7 @@ export const upgradeLoaders = (
         const resolve = (): unknown => context.resolveReference(reference)?.value
         const raw = unpackProxyShallow(node)
         resolvedReferences.set(raw, resolve)
-        const path = paths.get(raw) ?? [...basePath, ...context.path]
+        const path = referencePath(node, context)
         if (path[0] !== 'x-ext' && isReferencePath(path)) {
           rememberBundledReference(node)
           upgradeTarget(resolve(), path, node.$global === true)
