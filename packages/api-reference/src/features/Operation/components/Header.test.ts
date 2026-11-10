@@ -18,6 +18,27 @@ const baseProps = {
 }
 
 describe('Header', () => {
+  it('does not show an array item example alongside an explicit header example', () => {
+    const wrapper = mount(Header, {
+      props: {
+        ...baseProps,
+        name: 'X-Names',
+        header: {
+          schema: coerceValue(SchemaObjectSchema, {
+            type: 'array',
+            items: { type: 'string', example: 'schema item' },
+          }),
+          examples: { names: { value: 'alice,bob' } },
+        },
+      },
+    })
+
+    expect(
+      wrapper.findAll('button[aria-label^="Copy example value:"]').map((button) => button.attributes('aria-label')),
+    ).toStrictEqual(['Copy example value: alice,bob'])
+    wrapper.unmount()
+  })
+
   it.each(['schema', 'content'] as const)('renders explicit %s examples instead of schema examples', (kind) => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',
