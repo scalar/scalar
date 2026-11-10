@@ -25,6 +25,48 @@ describe('upgrade-loaders', () => {
     expect(input.openapi).toBe('3.0.3')
   })
 
+  it.each([
+    ['Child', 'Parent'],
+    ['Parent', 'Child'],
+  ])('preserves pointers to a relocated bare schema when resolving %s before %s', async (first, second) => {
+    const url = 'https://example.test/shared.json'
+    const data = { Parent: { nullable: true, allOf: [{ type: 'string' }] } }
+    const refs = { Child: `${url}#/Parent/allOf/0`, Parent: `${url}#/Parent` }
+    const literal = { $ref: '#/x-ext/shared/Parent/allOf/0' }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: {
+          [first]: { $ref: refs[first as keyof typeof refs] },
+          Literal: { examples: [{ ...literal }] },
+          [second]: { $ref: refs[second as keyof typeof refs] },
+        },
+      },
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+
+    await bundle(document, {
+      treeShake: false,
+      compress: () => 'shared',
+      plugins: upgradeLoaders([loader], '3.0.3'),
+    })
+
+    const resolve = (name: string): unknown =>
+      getValueAtPath(
+        document,
+        parseJsonPointerSegments(
+          getValueAtPath<{ $ref: string }>(document, ['components', 'schemas', name]).$ref.slice(1),
+        ),
+      )
+    expect(document.components.schemas.Literal.examples).toStrictEqual([literal])
+    expect(resolve('Child')).toStrictEqual({ type: 'string' })
+    expect(getValueAtPath(resolve('Parent'), ['anyOf', '0'])).toBe(resolve('Child'))
+  })
+
   it('resolves external and local pointers to schemas moved during a complete document upgrade', async () => {
     const url = 'https://example.test/external.json'
     const pointer = '#/components/schemas/Parent/allOf/0/allOf/1'

@@ -35,7 +35,7 @@ import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { mergeObjects } from '@/helpers/merge-object'
 import { normalizeBooleanSchemas } from '@/helpers/normalize-boolean-schemas'
 import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirements'
-import { upgradeLoaders } from '@/helpers/upgrade-loaders'
+import { isOpenApiThreeZero, upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
@@ -707,6 +707,7 @@ export async function createServerWorkspaceStore(
       return
     }
 
+    const sourceVersion = document.openapi
     const upgradedDocument = upgrade(document, '3.1')
     // Copy only containers changed by normalization; unchanged x-ext graphs remain shared.
     const normalizedDocument = normalizeBooleanSchemas(upgradedDocument)
@@ -755,6 +756,8 @@ export async function createServerWorkspaceStore(
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
+    // The client needs the authored dialect to upgrade bare files referenced by generated chunks.
+    const sourceDialect = isOpenApiThreeZero(sourceVersion) ? { 'x-original-oas-version': sourceVersion } : {}
     if (workspaceProps.compact) {
       const refs = chunkRefTemplates(options)
 
@@ -773,6 +776,7 @@ export async function createServerWorkspaceStore(
       workspace.documents[meta.name] = {
         ...documentMeta,
         ...documentWithoutChunkedSections,
+        ...sourceDialect,
         [CHUNK_INDEX_KEY]: buildChunkIndex({ mode: options.mode, refs, components, paths }),
         [extensions.document.navigation]: navigationHeader(navigation),
         [extensions.document.navigationChunk]: fillChunkRef(refs.navigation),
@@ -781,6 +785,7 @@ export async function createServerWorkspaceStore(
       workspace.documents[meta.name] = {
         ...documentMeta,
         ...documentV3,
+        ...sourceDialect,
         components,
         paths,
         [extensions.document.navigation]: navigation,

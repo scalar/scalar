@@ -13,3 +13,4 @@ export {
 export type { BundleResult, ReferenceDiagnostic } from './bundle-with-diagnostics'
 export { bundleWithDiagnostics } from './bundle-with-diagnostics'
 export type { DocumentIdentity, DocumentResolver } from './document-references'
+export { childReferenceContext, isReferenceContext } from './reference-context'

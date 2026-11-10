@@ -37,7 +37,7 @@ import { createOverridesProxy } from '@/helpers/overrides-proxy'
 import { resolveSecurityRequirements, restoreSecurityRequirements } from '@/helpers/resolve-security-requirements'
 import { type RequestBodyBaselines, snapshotRequestBodies } from '@/helpers/snapshot-request-bodies'
 import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
-import { upgradeLoaders } from '@/helpers/upgrade-loaders'
+import { isOpenApiThreeZero, upgradeLoaders } from '@/helpers/upgrade-loaders'
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import {
@@ -1170,7 +1170,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       {
         ...inputDocument,
         ...meta,
-        'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
+        'x-original-oas-version':
+          clonedRawInputDocument['x-original-oas-version'] ??
+          clonedRawInputDocument.openapi ??
+          clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
         'x-scalar-original-source-url': input.documentSource,
       },
@@ -1650,7 +1653,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
       const documentKey = unpackProxyShallow(activeDocument)
       const documentName = getActiveDocumentName()
       const fetch = extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch
-      const entryVersion = originalDocuments[documentName]?.openapi
+      const original = originalDocuments[documentName]
+      const entryVersion = original?.['x-original-oas-version'] ?? original?.openapi
       const resolveSubtree = (): Promise<unknown> => {
         const target = getValueAtPath(activeDocument, path)
 
@@ -1711,6 +1715,10 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           visitedNodesCaches.delete(documentKey)
           throw error
         })
+      }
+
+      if (!isOpenApiThreeZero(entryVersion)) {
+        return resolveSubtree()
       }
 
       // Partial bundles mutate the same external file table. Let each call see the

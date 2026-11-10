@@ -7,7 +7,9 @@ import {
   type LoaderPlugin,
   type Plugin,
   type ResolveResult,
+  childReferenceContext,
   decodeUriFragment,
+  isReferenceContext,
   resolveReferencePath,
 } from '@scalar/json-magic/bundle'
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
@@ -16,7 +18,22 @@ import { deepClone } from './deep-clone'
 import { retargetExternalReferences, trackExternalReference } from './external-reference-bindings'
 import { unpackProxyShallow } from './unpack-proxy'
 
-const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
+/** Whether the source uses the OpenAPI 3.0 schema dialect. */
+export const isOpenApiThreeZero = (version: unknown): version is string =>
+  typeof version === 'string' && version.startsWith('3.0')
+
+const schemaArrayKeywords = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
+const isReferencePath = (path: readonly string[]): boolean =>
+  isReferenceContext(
+    path.reduce<Parameters<typeof childReferenceContext>[0]>((context, key, index) => {
+      const parent = path[index - 1]
+      // Composition arrays inherit the schema context at each index.
+      if (context === 'schema' && parent && schemaArrayKeywords.has(parent) && /^\d+$/.test(key)) {
+        return context
+      }
+      return childReferenceContext(context, key, false)
+    }, 'object'),
+  )
 
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
@@ -74,12 +91,12 @@ export const upgradeLoadedDocument = (
 
   const versionHeader = getVersionHeader(data)
   if (versionHeader) {
-    return versionHeader === 'openapi' && isThreeZero(data.openapi)
+    return versionHeader === 'openapi' && isOpenApiThreeZero(data.openapi)
       ? upgradeFromThreeToThreeOne({ ...data }, recordRelocation)
       : data
   }
 
-  if (!isThreeZero(entryVersion)) {
+  if (!isOpenApiThreeZero(entryVersion)) {
     return data
   }
 
@@ -120,7 +137,7 @@ export const upgradeLoaders = (
   const movedFiles = new Set<FragmentFile>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
-  const indexNodes = (value: unknown, path: readonly string[], root?: object): void => {
+  const indexNodes = (value: unknown, path: readonly string[], root?: object, alreadyConverted = false): void => {
     if (value === null || typeof value !== 'object') {
       return
     }
@@ -129,16 +146,27 @@ export const upgradeLoaders = (
       return
     }
     paths.set(raw, path)
-    if (root) {
+    if (alreadyConverted) {
+      convertedNodes.add(raw)
+    }
+    if (root && isObject(value) && typeof value.$ref === 'string' && isReferencePath(path)) {
       const deferred = deferredReferences.get(raw)
       deferredReferences.delete(raw)
+      const fragment = fragments.get(raw)
+      if (fragment?.file.key !== undefined) {
+        trackExternalReference(
+          unpackProxyShallow(root),
+          ['x-ext', fragment.file.key, ...fragment.path, '$ref'],
+          value.$ref,
+        )
+      }
       const resolved =
         resolvedReferences.get(raw)?.() ??
         (deferred ? getValueAtPath(root, [...remapBundlePath(root, deferred)]) : undefined)
       upgradeTarget(resolved, path, root)
     }
     for (const [key, child] of Object.entries(value)) {
-      indexNodes(child, [...path, key], root)
+      indexNodes(child, [...path, key], root, alreadyConverted)
     }
   }
   const indexFragment = (value: unknown, fragment: Fragment): void => {
@@ -150,7 +178,7 @@ export const upgradeLoaders = (
       indexFragment(child, { file: fragment.file, path: [...fragment.path, key] })
     }
   }
-  const upgradeTarget = (target: unknown, path: readonly string[], root: object): void => {
+  const upgradeTarget = (target: unknown, path: readonly string[], root: object, isChunk = false): void => {
     if (!isObject(target)) {
       return
     }
@@ -161,7 +189,11 @@ export const upgradeLoaders = (
     }
     // Mark the path before following cached edges so cyclic references terminate. Walk the existing
     // children first: their resolver callbacks would otherwise be lost when the upgrader clones them.
-    indexNodes(target, path, root)
+    // Server chunks already use 3.1. Their nested external files still need the authored dialect.
+    indexNodes(target, path, root, isChunk)
+    if (isChunk) {
+      return
+    }
     // A descendant may already have been referenced and converted independently. Hide converted
     // subtrees behind opaque tokens so the recursive 3.0 upgrader cannot reinterpret their 3.1 data.
     // Restore their original identities afterward to retain the bundler's cached reference targets.
@@ -232,10 +264,11 @@ export const upgradeLoaders = (
             return result
           }
           const header = isObject(result.data) ? getVersionHeader(result.data) : undefined
-          const isFragment = !header && isThreeZero(entryVersion)
-          const upgradesDocument = header === 'openapi' && isObject(result.data) && isThreeZero(result.data.openapi)
+          const isFragment = !header && isOpenApiThreeZero(entryVersion)
+          const upgradesDocument =
+            header === 'openapi' && isObject(result.data) && isOpenApiThreeZero(result.data.openapi)
           if (!isFragment && !upgradesDocument) {
-            if (isThreeZero(entryVersion)) {
+            if (isOpenApiThreeZero(entryVersion)) {
               indexNodes(result.data, [])
             }
             return result
@@ -250,7 +283,7 @@ export const upgradeLoaders = (
           }
           if (isFragment) {
             indexFragment(data, { file: { relocations }, path: [] })
-          } else if (isThreeZero(entryVersion)) {
+          } else if (isOpenApiThreeZero(entryVersion)) {
             indexNodes(data, [])
           }
           return { ...result, data }
@@ -272,7 +305,7 @@ export const upgradeLoaders = (
           : undefined
       },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
-        if (!isThreeZero(entryVersion)) {
+        if (!isOpenApiThreeZero(entryVersion)) {
           return
         }
         const raw = unpackProxyShallow(node)
@@ -289,7 +322,7 @@ export const upgradeLoaders = (
         const reference = node.$ref
         const path = paths.get(raw) ?? source
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
-        if (path[0] === 'x-ext') {
+        if (path[0] === 'x-ext' || !isReferencePath(path)) {
           return
         }
         const [file, authoredFragment = ''] = reference.split('#')
@@ -313,10 +346,10 @@ export const upgradeLoaders = (
           const targetPath = fragment ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
           return getValueAtPath(result.data, targetPath)
         }
-        upgradeTarget(await resolveTarget(), path, context.rootNode)
+        upgradeTarget(await resolveTarget(), path, context.rootNode, node.$global === true)
       },
       onAfterNodeProcess: (node, context): void => {
-        if (!isThreeZero(entryVersion)) {
+        if (!isOpenApiThreeZero(entryVersion)) {
           return
         }
         const finishedInput = context.pathRelativeToInput && context.path.length === 0
@@ -332,12 +365,12 @@ export const upgradeLoaders = (
           const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
           const path = paths.get(raw) ?? source
           const resolved = context.resolveReference(reference)
-          if (path[0] !== 'x-ext') {
-            upgradeTarget(resolved?.value, path, context.rootNode)
-          } else if (fragments.has(raw) && resolved?.value !== undefined) {
+          if (path[0] !== 'x-ext' && isReferencePath(path)) {
+            upgradeTarget(resolved?.value, path, context.rootNode, node.$global === true)
+            trackExternalReference(root, [...source, '$ref'], reference)
+          } else if (path[0] === 'x-ext' && fragments.has(raw) && resolved?.value !== undefined) {
             deferredReferences.set(raw, resolved.path)
           }
-          trackExternalReference(root, [...source, '$ref'], reference)
         }
         if (finishedInput && movedFiles.size) {
           const keys = [...movedFiles].flatMap(({ key }) => (key === undefined ? [] : [key]))

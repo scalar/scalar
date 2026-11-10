@@ -1,8 +1,10 @@
+import { isObject } from '@scalar/helpers/object/is-object'
 import { getActiveOpenApiDocument } from '@test/helpers'
 import { assert, describe, expect, it } from 'vitest'
 
 import { createWorkspaceStore } from '@/client'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { createServerWorkspaceStore } from '@/server'
 
 const files: Record<string, string> = {
   // A complete OpenAPI 3.0 document, as in "schemas/Item.yaml#/components/schemas/Item".
@@ -170,6 +172,85 @@ describe('client.external-upgrade', () => {
     expect(getResolvedRef(schemas?.First)).toStrictEqual({ type: ['string', 'null'] })
     expect(getResolvedRef(schemas?.Second)).toStrictEqual({ type: ['integer', 'null'] })
     expect(loads).toStrictEqual([url])
+  })
+
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('upgrades a bare schema referenced from %s', async (keyword) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response('{"type":"string","nullable":true}')),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        components: {
+          schemas: { Wrapper: { [keyword]: [{ $ref: 'https://example.test/schema.json' }] } },
+        },
+      },
+    })
+
+    const wrapper = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Wrapper)
+    assert(wrapper && keyword in wrapper)
+    const arms = wrapper[keyword]
+    assert(Array.isArray(arms))
+    expect(getResolvedRef(arms[0])).toStrictEqual({ type: ['string', 'null'] })
+  })
+
+  it.each([false, true])('uses the source dialect for server chunks (local alias: %s)', async (alias) => {
+    const external = 'https://example.test/schema.json'
+    const literal = { type: 'string', nullable: true }
+    const server = await createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: 'https://example.test',
+      documents: [
+        {
+          name: 'default',
+          document: {
+            openapi: '3.0.3',
+            info: { title: 'Example', version: '1' },
+            paths: {},
+            components: {
+              schemas: {
+                Parent: {
+                  type: 'object',
+                  example: literal,
+                  properties: { child: { $ref: alias ? '#/components/schemas/Target' : external } },
+                },
+                Target: { type: 'object', properties: { value: { $ref: external } } },
+              },
+            },
+          },
+        },
+      ],
+    })
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      document: server.getWorkspace().documents.default!,
+      fetch: (input): Promise<Response> =>
+        Promise.resolve(
+          new Response(
+            JSON.stringify(
+              String(input) === external
+                ? literal
+                : server.get('#/default/components/schemas/' + new URL(String(input)).pathname.split('/').at(-1)),
+            ),
+          ),
+        ),
+    })
+
+    await store.resolve(['components', 'schemas', 'Parent'])
+
+    const parent = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Parent)
+    assert(parent && 'properties' in parent)
+    expect(parent.examples).toStrictEqual([literal])
+    const child = getResolvedRef(parent.properties?.child)
+    if (alias) {
+      assert(isObject(child) && isObject(child.properties))
+      expect(getResolvedRef(child.properties.value)).toStrictEqual({ type: ['string', 'null'] })
+    } else {
+      expect(child).toStrictEqual({ type: ['string', 'null'] })
+    }
   })
 
   it('upgrades a shared schema map whose names resemble document fields', async () => {
