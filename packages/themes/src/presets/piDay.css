@@ -274,7 +274,7 @@
  * whenever the modal opens. The serve uses `backwards` fill only: a transform left on the modal
  * after it lands would trap its fixed-position children.
  */
-.scalar-client--open .scalar-client {
+.scalar-client--open > .scalar-client {
   animation: scalar-piday-serve 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
 }
 .scalar-client--open::after {
@@ -347,7 +347,7 @@
 @media (prefers-reduced-motion: reduce) {
   .section-flare-item,
   .references-rendered::after,
-  .scalar-client--open .scalar-client {
+  .scalar-client--open > .scalar-client {
     animation: none !important;
   }
   .scalar-client--open::after {
