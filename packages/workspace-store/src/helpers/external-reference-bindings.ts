@@ -1,8 +1,7 @@
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
-import { decodeUriFragment } from '@scalar/json-magic/bundle'
+import { decodeUriFragment, parseJsonPointer } from '@scalar/json-magic/bundle'
 
 type Binding = {
   field: readonly string[]
@@ -48,7 +47,7 @@ export const trackExternalReference = (root: object, field: readonly string[], r
     return
   }
   const bindings = documents.get(root) ?? { byField: new Map(), byFile: new Map() }
-  const target = decodeUriFragment(fragment).slice(1).split('/').map(unescapeJsonPointerSegment)
+  const target = parseJsonPointer(decodeUriFragment(fragment))
   setBinding(bindings, { field, reference, target })
   documents.set(root, bindings)
 }

@@ -1,10 +1,10 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 import { escapeJsonPointer } from '@/helpers/escape-json-pointer'
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
+import { parseJsonPointer } from '@/helpers/parse-json-pointer'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
 /** Format-specific document identity, supplied by the caller. */
@@ -203,7 +203,7 @@ export const documentReferences = (
       const [prefix, authoredFragment = ''] = ref.split('#', 2)
       const fragment = decodeUriFragment(authoredFragment)
       const uri = prefix ? resolveReferencePath(base, prefix) : base
-      const pointer = fragment.startsWith('/') ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
+      const pointer = fragment.startsWith('/') ? parseJsonPointer(fragment) : []
       const documentResource = resources.get(uri)
       const localStorage = isObject(documentResource?.value) ? documentResource.value[externalDocumentsKey] : undefined
       const ownsBundledKey =

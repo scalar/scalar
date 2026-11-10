@@ -1,4 +1,3 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 
@@ -7,6 +6,7 @@ import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
+import { parseJsonPointer } from '@/helpers/parse-json-pointer'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
@@ -692,9 +692,8 @@ export const bundleDocument = async (
     return '/'
   }
 
-  // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
-  const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
-  const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
+  const setPath = (target: object, path: string, value: unknown): void =>
+    setValueAtPath(target, path, value, parseJsonPointer)
   const traversal = documentTraversal(
     config.traversal === 'document',
     documentRoot['swagger'] === '2.0',
@@ -728,7 +727,7 @@ export const bundleDocument = async (
           const target = references.resolve(ref, references.origin(node) ?? defaultOrigin)
           return target?.value !== undefined ? `#/${target.path}` : ref
         },
-        parsePath,
+        parseJsonPointer,
       )
     if (diagnostics) deferredCopies.push(copy)
     else copy()
@@ -1012,13 +1011,13 @@ export const bundleDocument = async (
           traversal.location(local.value)?.context !== location.context
         ) {
           const source = isObject(local.document) ? traversal.location(local.document)?.source : undefined
-          const targetPath = parsePath(`/${localRef}`).slice(local.documentPath.length)
+          const targetPath = parseJsonPointer(`/${localRef}`).slice(local.documentPath.length)
           traversal.register(local.document, source ?? location.source, location.context, targetPath)
           references.refresh(local.document, targetPath)
         }
         const visitTarget = references.identity(local.document)?.visitReferencedSubtrees
         if (visitTarget || isPartialBundling || (diagnostics && config.traversal === 'document')) {
-          const segments = parsePath(`/${localRef}`)
+          const segments = parseJsonPointer(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
           const targetValue = {
@@ -1119,7 +1118,7 @@ export const bundleDocument = async (
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
-          const fragmentPath = parsePath(decodeUriFragment(path))
+          const fragmentPath = parseJsonPointer(decodeUriFragment(path))
           traversal.register(result.data, resolvedPath, location?.context ?? 'generic', fragmentPath)
           // Index the whole external document before following references within it.
           // Chunks retain the referring context because they are already self-contained.

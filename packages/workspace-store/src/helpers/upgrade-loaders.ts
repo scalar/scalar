@@ -1,4 +1,3 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject, isObjectLike } from '@scalar/helpers/object/is-object'
 import { isPollutionKey } from '@scalar/helpers/object/prevent-pollution'
@@ -10,6 +9,7 @@ import {
   childReferenceContext,
   decodeUriFragment,
   isReferenceContext,
+  parseJsonPointer,
   resolveReferencePath,
 } from '@scalar/json-magic/bundle'
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
@@ -419,7 +419,7 @@ export const upgradeLoaders = (
           if (!result?.ok) {
             return undefined
           }
-          const targetPath = fragment ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
+          const targetPath = parseJsonPointer(fragment)
           return { value: getValueAtPath(result.data, targetPath), path: targetPath }
         }
         applyReferenceContext(await resolveTarget(), path, context.rootNode, node.$global === true)

@@ -1,4 +1,5 @@
 export { decodeUriFragment } from '@/helpers/decode-uri-fragment'
+export { parseJsonPointer } from '@/helpers/parse-json-pointer'
 export { resolveReferencePath } from '@/helpers/resolve-reference-path'
 
 export type { Config as BundleConfig, LifecyclePlugin, LoaderPlugin, Plugin, ResolveResult } from './bundle'
