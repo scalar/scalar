@@ -352,6 +352,8 @@ export type LoaderPlugin = {
  */
 type NodeProcessContext = {
   path: readonly string[]
+  /** True when path is relative to the input subtree instead of the document root. */
+  pathRelativeToInput: boolean
   referencedFromPath?: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
@@ -879,6 +881,7 @@ export const bundleDocument = async (
     currentPath: readonly string[] = [],
     parent: UnknownObject = null,
     referencedFromPath?: readonly string[],
+    pathRelativeToInput = depth === 0,
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -910,6 +913,7 @@ export const bundleDocument = async (
 
     const context = {
       path: currentPath,
+      pathRelativeToInput,
       referencedFromPath,
       resolutionCache: cache,
       parentNode: parent,
@@ -939,6 +943,7 @@ export const bundleDocument = async (
           [...currentPath, key],
           root as UnknownObject,
           referencedFromPath,
+          pathRelativeToInput,
         )
       }
     }
@@ -1228,6 +1233,7 @@ export const bundleDocument = async (
         [...currentPath, key],
         root as UnknownObject,
         referencedFromPath,
+        pathRelativeToInput,
       )
     }
 

@@ -1,4 +1,3 @@
-import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -14,6 +13,7 @@ import {
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 import { deepClone } from './deep-clone'
+import { retargetExternalReferences, trackExternalReference } from './external-reference-bindings'
 import { unpackProxyShallow } from './unpack-proxy'
 
 const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
@@ -24,8 +24,8 @@ const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders
 
 type RecordRelocation = (from: string[], to: string[]) => void
 type Relocations = Map<string, string[]>
-type Fragment = { relocations: Relocations; path: string[] }
-type BoundReference = { field: readonly string[]; reference: string }
+type FragmentFile = { relocations: Relocations; key?: string }
+type Fragment = { file: FragmentFile; path: string[] }
 
 const remapPointer = (pointer: readonly string[], relocations: Relocations): readonly string[] => {
   let remapped = pointer
@@ -60,7 +60,6 @@ const fragments = new WeakMap<object, Fragment>()
 const convertedNodes = new WeakSet<object>()
 const deferredReferences = new WeakMap<object, readonly string[]>()
 const pointerRemaps = new WeakMap<object, Relocations>()
-const boundReferences = new WeakMap<object, Map<string, BoundReference>>()
 
 /** Upgrade versioned documents immediately, and headerless files only at their referring OpenAPI location. */
 export const upgradeLoadedDocument = (
@@ -118,7 +117,7 @@ export const upgradeLoaders = (
   basePath: readonly string[] = [],
 ): Plugin[] => {
   const paths = new WeakMap<object, readonly string[]>()
-  let movedFragments = false
+  const movedFiles = new Set<FragmentFile>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
   const indexNodes = (value: unknown, path: readonly string[], root?: object): void => {
@@ -148,7 +147,7 @@ export const upgradeLoaders = (
     }
     fragments.set(value, fragment)
     for (const [key, child] of Object.entries(value)) {
-      indexFragment(child, { relocations: fragment.relocations, path: [...fragment.path, key] })
+      indexFragment(child, { file: fragment.file, path: [...fragment.path, key] })
     }
   }
   const upgradeTarget = (target: unknown, path: readonly string[], root: object): void => {
@@ -185,8 +184,8 @@ export const upgradeLoaders = (
     protectConverted(target)
     const input = replacements.size ? deepClone(target, cloneCache) : target
     const upgraded = upgradeLoadedDocument(input, entryVersion, path, (from, to) => {
-      fragment.relocations.set(JSON.stringify([...fragment.path, ...from]), [...fragment.path, ...to])
-      movedFragments = true
+      fragment.file.relocations.set(JSON.stringify([...fragment.path, ...from]), [...fragment.path, ...to])
+      movedFiles.add(fragment.file)
     })
     if (!isObject(upgraded) || upgraded === target) {
       return
@@ -229,7 +228,15 @@ export const upgradeLoaders = (
           return existing
         }
         const pending = loader.exec(value).then((result): ResolveResult => {
-          if (!result.ok) {
+          if (!result.ok || !isObject(result.data)) {
+            return result
+          }
+          const header = getVersionHeader(result.data)
+          const isFragment = !header && isThreeZero(entryVersion)
+          if (!isFragment && !(header === 'openapi' && isThreeZero(result.data.openapi))) {
+            if (isThreeZero(entryVersion)) {
+              indexNodes(result.data, [])
+            }
             return result
           }
           const input = deepClone(result.data)
@@ -237,13 +244,12 @@ export const upgradeLoaders = (
           const data = upgradeLoadedDocument(input, entryVersion, undefined, (from, to) => {
             relocations.set(JSON.stringify(from), to)
           })
-          const isFragment = isThreeZero(entryVersion) && isObject(data) && !getVersionHeader(data)
           if (isObject(data) && (isFragment || relocations.size)) {
             pointerRemaps.set(data, relocations)
           }
           if (isFragment) {
-            indexFragment(data, { relocations, path: [] })
-          } else {
+            indexFragment(data, { file: { relocations }, path: [] })
+          } else if (isThreeZero(entryVersion)) {
             indexNodes(data, [])
           }
           return { ...result, data }
@@ -265,12 +271,22 @@ export const upgradeLoaders = (
           : undefined
       },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
-        if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
+        if (!isThreeZero(entryVersion)) {
+          return
+        }
+        const raw = unpackProxyShallow(node)
+        const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
+        if (source[0] === 'x-ext' && source.length === 2) {
+          const fragment = fragments.get(raw)
+          if (fragment) {
+            fragment.file.key = source[1]
+          }
+        }
+        if (typeof node.$ref !== 'string') {
           return
         }
         const reference = node.$ref
-        const source = context.path[0] === 'x-ext' ? context.path : [...basePath, ...context.path]
-        const path = paths.get(unpackProxyShallow(node)) ?? source
+        const path = paths.get(raw) ?? source
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
         if (path[0] === 'x-ext') {
           return
@@ -299,20 +315,20 @@ export const upgradeLoaders = (
         upgradeTarget(await resolveTarget(), path, context.rootNode)
       },
       onAfterNodeProcess: (node, context): void => {
-        if (
-          !isThreeZero(entryVersion) ||
-          (typeof node.$ref !== 'string' && !(context.path.length === 0 && movedFragments))
-        ) {
+        if (!isThreeZero(entryVersion)) {
+          return
+        }
+        const finishedInput = context.pathRelativeToInput && context.path.length === 0
+        if (typeof node.$ref !== 'string' && !(finishedInput && movedFiles.size)) {
           return
         }
         const root = unpackProxyShallow(context.rootNode)
-        const bindings = boundReferences.get(root) ?? new Map<string, BoundReference>()
         if (typeof node.$ref === 'string') {
           const reference = node.$ref
           const resolve = (): unknown => context.resolveReference(reference)?.value
           const raw = unpackProxyShallow(node)
           resolvedReferences.set(raw, resolve)
-          const source = context.path[0] === 'x-ext' ? context.path : [...basePath, ...context.path]
+          const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
           const path = paths.get(raw) ?? source
           const resolved = context.resolveReference(reference)
           if (path[0] !== 'x-ext') {
@@ -320,35 +336,11 @@ export const upgradeLoaders = (
           } else if (fragments.has(raw) && resolved?.value !== undefined) {
             deferredReferences.set(raw, resolved.path)
           }
-          const [, fragment] = reference.split('#', 2)
-          if (fragment?.startsWith('/x-ext/')) {
-            const field = [...source, '$ref']
-            bindings.set(JSON.stringify(field), { field, reference })
-            boundReferences.set(root, bindings)
-          }
+          trackExternalReference(root, [...source, '$ref'], reference)
         }
-        if (context.path.length === 0 && movedFragments) {
-          // Earlier edges may already point into the pre-upgrade layout. Rewrite only
-          // reference fields the bundler processed, including edges from prior lazy calls.
-          for (const [key, { field, reference }] of [...bindings]) {
-            const currentField = remapBundlePath(root, field)
-            const owner = getValueAtPath(root, currentField.slice(0, -1))
-            bindings.delete(key)
-            if (!isObject(owner) || owner.$ref !== reference) {
-              continue
-            }
-            const [uri, authoredFragment = ''] = reference.split('#', 2)
-            const pointer = decodeUriFragment(authoredFragment).slice(1).split('/').map(unescapeJsonPointerSegment)
-            const target = remapBundlePath(root, pointer)
-            const updatedReference =
-              target === pointer
-                ? reference
-                : `${uri}#/${target.map((key) => encodeURIComponent(escapeJsonPointer(key))).join('/')}`
-            if (updatedReference !== reference) {
-              owner.$ref = updatedReference
-            }
-            bindings.set(JSON.stringify(currentField), { field: currentField, reference: updatedReference })
-          }
+        if (finishedInput && movedFiles.size) {
+          const keys = [...movedFiles].flatMap(({ key }) => (key === undefined ? [] : [key]))
+          retargetExternalReferences(root, keys, (path) => remapBundlePath(root, path))
         }
       },
     },
