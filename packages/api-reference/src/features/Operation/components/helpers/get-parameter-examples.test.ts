@@ -1,3 +1,4 @@
+import { getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { ParameterObjectSchema, SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { describe, expect, it } from 'vitest'
@@ -19,7 +20,7 @@ describe('get-parameter-examples', () => {
           },
         },
       }),
-    ).toStrictEqual([{ value: 'https://example.com/cookie.txt' }])
+    ).toStrictEqual([getRenderedExample({ value: 'https://example.com/cookie.txt' }, 'external')])
   })
 
   it('unwraps named parameter examples without losing false or null', () => {
@@ -36,7 +37,12 @@ describe('get-parameter-examples', () => {
           },
         },
       }),
-    ).toStrictEqual([{ value: { id: 1 } }, { value: 'term=a%20b' }, { value: false }, { value: null }])
+    ).toStrictEqual([
+      getRenderedExample({ value: { id: 1 } }, 'data'),
+      getRenderedExample({ value: 'term=a%20b' }, 'wire'),
+      getRenderedExample({ value: false }, 'no'),
+      getRenderedExample({ value: null }, 'empty'),
+    ])
   })
 
   it('renders querystring data examples and prefers parameter examples', () => {
@@ -50,7 +56,7 @@ describe('get-parameter-examples', () => {
         },
         contentExamples: { default: { dataValue: true } },
       }),
-    ).toStrictEqual([{ value: false }, { value: '%7B%7D' }])
+    ).toStrictEqual([getRenderedExample({ value: false }, 'default'), getRenderedExample({ value: '%7B%7D' }, 'wire')])
   })
 
   it('preserves object fields named value and externalValue for the example renderer', () => {
@@ -64,7 +70,7 @@ describe('get-parameter-examples', () => {
           examples: { default: { dataValue: value } },
         },
       }),
-    ).toStrictEqual([{ value }])
+    ).toStrictEqual([getRenderedExample({ value }, 'default')])
   })
 
   it('ignores undefined example keys and returns no examples', () => {
@@ -105,7 +111,7 @@ describe('get-parameter-examples', () => {
       contentExamples: undefined,
     })
 
-    expect(examples).toStrictEqual(['active'])
+    expect(examples).toStrictEqual(normalizeRenderedExamples(['active']))
   })
 
   it('prefers schema examples and removes undefined entries', () => {
@@ -128,6 +134,18 @@ describe('get-parameter-examples', () => {
       contentExamples: undefined,
     })
 
-    expect(examples).toStrictEqual(['archived'])
+    expect(examples).toStrictEqual(normalizeRenderedExamples(['archived']))
+  })
+  it('preserves names and summaries from parameter and body content examples', () => {
+    const examples = getParameterExamples({
+      parameter: { name: 'status', in: 'query', examples: { active: { summary: 'Active records', value: 'active' } } },
+      contentExamples: { archived: { summary: 'Archived records', value: 'archived' } },
+      schemaExamples: [{ value: 'raw', summary: 'payload' }],
+    })
+    expect(examples.map(({ name, summary, value }) => ({ name, summary, value }))).toStrictEqual([
+      { name: 'active', summary: 'Active records', value: 'active' },
+      { name: 'archived', summary: 'Archived records', value: 'archived' },
+      { name: undefined, summary: undefined, value: { value: 'raw', summary: 'payload' } },
+    ])
   })
 })

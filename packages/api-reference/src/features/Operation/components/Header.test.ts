@@ -123,7 +123,7 @@ describe('Header', () => {
         .findAll('button')
         .map((button) => button.attributes('aria-label'))
         .filter((name) => name?.startsWith('Copy example value:')),
-    ).toStrictEqual(['Copy example value: alice,bob'])
+    ).toStrictEqual(['Copy example value: names: alice,bob'])
     wrapper.unmount()
   })
 
@@ -181,14 +181,14 @@ describe('Header', () => {
           .map((button) => button.attributes('aria-label'))
           .filter((name) => name?.startsWith('Copy example value:')),
       ).toStrictEqual([
-        'Copy example value: legacy',
-        'Copy example value: req_123',
-        'Copy example value: {"value":"cookie","externalValue":"local"}',
-        'Copy example value: 0',
-        'Copy example value: false',
-        'Copy example value: ',
-        'Copy example value: null',
-        'Copy example value: https://example.com/pending.txt',
+        'Copy example value: legacy: legacy',
+        'Copy example value: reference: req_123',
+        'Copy example value: data: {"value":"cookie","externalValue":"local"}',
+        'Copy example value: zero: 0',
+        'Copy example value: no: false',
+        'Copy example value: empty: ',
+        'Copy example value: nullable: null',
+        'Copy example value: external: https://example.com/pending.txt',
       ])
       wrapper.unmount()
     },
@@ -224,7 +224,7 @@ describe('Header', () => {
         .findAll('button')
         .find((button) => button.attributes('aria-label')?.startsWith('Copy example value:'))
         ?.attributes('aria-label'),
-    ).toBe(`Copy example value: ${serializedValue}`)
+    ).toBe(`Copy example value: cookies: ${serializedValue}`)
     wrapper.unmount()
   })
 
@@ -249,7 +249,7 @@ describe('Header', () => {
         .findAll('button')
         .map((button) => button.attributes('aria-label'))
         .filter((name) => name?.startsWith('Copy example value:')),
-    ).toStrictEqual(['Copy example value: foo=abc\nbar=dark'])
+    ).toStrictEqual(['Copy example value: cookies: foo=abc\nbar=dark'])
     wrapper.unmount()
   })
 

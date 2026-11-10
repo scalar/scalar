@@ -1,9 +1,6 @@
+import { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-
-import { getRenderedExample } from './get-rendered-example'
-
-const filterUndefined = (example: unknown): example is unknown => example !== undefined
 
 type GetParameterExamplesArgs = {
   parameter: ParameterObject | ResponseObject
@@ -19,37 +16,35 @@ export const getParameterExamples = ({
   parameter,
   schemaExamples,
   contentExamples,
-}: GetParameterExamplesArgs): unknown[] => {
+}: GetParameterExamplesArgs): RenderedExample[] => {
   const paramExamples = 'examples' in parameter && isObjectLike(parameter.examples) ? parameter.examples : {}
 
   if ('in' in parameter && parameter.in === 'querystring') {
-    const examples = Object.values({
+    const examples = Object.entries({
       ...(isObjectLike(contentExamples) ? contentExamples : {}),
       ...paramExamples,
-    }).flatMap((entry) => {
-      const example = getRenderedExample(entry, true)
+    }).flatMap(([name, entry]) => {
+      const example = getRenderedExample(entry, name, true)
       return example ? [example] : []
     })
     if (examples.length) {
       return examples
     }
-    return (parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []))
-      .filter(filterUndefined)
-      .map((value) => ({ value }))
+    return normalizeRenderedExamples(parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []))
   }
 
-  const recordExamples = Object.values({
+  const recordExamples = Object.entries({
     ...paramExamples,
     ...(isObjectLike(contentExamples) ? contentExamples : {}),
-  }).flatMap((entry) => {
-    const example = getRenderedExample(entry)
+  }).flatMap(([name, entry]) => {
+    const example = getRenderedExample(entry, name)
     return example ? [example] : []
   })
 
   const fallbackExample =
     recordExamples.length === 0 && 'example' in parameter && parameter.example !== undefined ? [parameter.example] : []
 
-  const arrayExamples = (schemaExamples ?? fallbackExample).filter(filterUndefined)
+  const arrayExamples = normalizeRenderedExamples(schemaExamples ?? fallbackExample)
 
   return [...recordExamples, ...arrayExamples]
 }

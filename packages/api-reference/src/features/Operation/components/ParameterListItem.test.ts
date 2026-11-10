@@ -396,4 +396,32 @@ describe('ParameterListItem', () => {
       expect(headerAnchorIds()).toEqual(['tag/pets/GET/pets.responses.200.headers.X-Rate-Limit'])
     })
   })
+  it.each(['parameter', 'response'] as const)('preserves named %s example labels and payloads', (surface) => {
+    const examples = {
+      first: { summary: 'Friendly summary', value: { value: 'payload', summary: 'ordinary data' } },
+      second: { value: 'fallback sample' },
+    }
+    const schema = coerceValue(SchemaObjectSchema, { type: 'string' })
+    const wrapper = mount(ParameterListItem, {
+      props: {
+        name: 'example',
+        eventBus: null,
+        options: baseOptions,
+        parameter:
+          surface === 'parameter'
+            ? { name: 'example', in: 'query', schema, examples }
+            : { description: 'Response body', content: { 'application/json': { schema, examples } } },
+      },
+    })
+    expect(
+      wrapper
+        .findAll('button[aria-label]')
+        .map((button) => button.attributes('aria-label'))
+        .filter((label) => label?.startsWith('Copy example value:')),
+    ).toStrictEqual([
+      'Copy example value: Friendly summary: {"value":"payload","summary":"ordinary data"}',
+      'Copy example value: second: fallback sample',
+    ])
+    wrapper.unmount()
+  })
 })

@@ -187,4 +187,19 @@ describe('ExamplePicker', () => {
     expect(items![0]?.textContent).toBe('null-example')
     expect(items![1]?.textContent).toBe('undefined-example')
   })
+  it('uses resolved summaries and falls back to names for empty summaries', async () => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        examples: {
+          referenced: { $ref: '#/components/examples/Body', '$ref-value': { summary: 'Body summary', value: 'same' } },
+          fallback: { summary: '', value: 'same' },
+        },
+        modelValue: 'referenced',
+      },
+    })
+    expect(wrapper.get('button').text()).toBe('Body summary')
+    await wrapper.setProps({ modelValue: 'fallback' })
+    expect(wrapper.get('button').text()).toBe('fallback')
+    wrapper.unmount()
+  })
 })
