@@ -2,6 +2,7 @@ import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
@@ -815,8 +816,9 @@ const handleObjectSchema = (
 
 /**
  * Infer one object example from the applicable `$ref` and `allOf` members.
- * Object keywords suggest a useful example but do not require an object, so every member's declared
- * type must still allow objects. Walk iteratively so long inheritance chains cannot exhaust the stack.
+ * Object keywords suggest a useful example but do not require an object, so every member's type and
+ * value constraints must still allow objects. Walk iteratively so long inheritance chains cannot
+ * exhaust the stack.
  */
 const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolean => {
   const pending = [...allOf]
@@ -839,6 +841,14 @@ const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolea
     const resolved = resolve.schema(member)
     const types = getDeclaredTypes(resolved)
     if (types.length > 0 && !types.includes('object')) {
+      return false
+    }
+
+    // Value constraints can exclude objects even when there is no explicit type.
+    if (resolved.const !== undefined && !isObject(resolved.const)) {
+      return false
+    }
+    if (Array.isArray(resolved.enum) && !resolved.enum.some(isObject)) {
       return false
     }
 

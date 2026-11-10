@@ -1524,6 +1524,65 @@ describe('getExampleFromSchema', () => {
     expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
   })
 
+  it.each([
+    { constraint: { const: 'hello' }, reversed: false },
+    { constraint: { const: 'hello' }, reversed: true },
+    { constraint: { enum: ['hello'] }, reversed: false },
+    { constraint: { enum: ['hello'] }, reversed: true },
+  ])('preserves primitive allOf values for $constraint (reversed: $reversed)', ({ constraint, reversed }) => {
+    const members = [constraint, { additionalProperties: false }]
+    // Keep keyword-only members untyped rather than letting coercion assign them an object type.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it.each([{ const: 'hello' }, { enum: ['hello'] }])(
+    'respects nested referenced allOf value constraints: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            { required: [] },
+            {
+              $ref: '#/components/schemas/Value',
+              '$ref-value': { allOf: [constraint] },
+            },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([{ const: [1, 2] }, { enum: [[1, 2]] }])('preserves array-only allOf value constraints: %j', (constraint) => {
+    const schema = {
+      type: 'array',
+      items: { allOf: [constraint, { additionalProperties: false }] },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([[1, 2]])
+  })
+
+  it.each([{ const: { id: 1 } }, { enum: [{ id: 1 }] }])(
+    'still merges allOf members when value constraints allow objects: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [constraint, { properties: { id: { type: 'integer', example: 1 } } }],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1 }])
+    },
+  )
+
   it('still merges array items when a type list allows objects', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'array',
