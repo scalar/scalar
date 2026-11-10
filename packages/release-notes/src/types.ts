@@ -157,7 +157,17 @@ export const assertValidMaxHighlights = (maxHighlights: number): void => {
  * merged in. The highlight limit is a parameter because products render highlights in different
  * places: a small in-app modal wants a short list, while a changelog page can take a longer one.
  */
-export const createAiReleaseNoteSchema = (maxHighlights: number = DEFAULT_MAX_HIGHLIGHTS) => {
+export const createAiReleaseNoteSchema = (
+  maxHighlights: number = DEFAULT_MAX_HIGHLIGHTS,
+): z.ZodObject<
+  {
+    version: typeof versionSchema
+    title: typeof titleSchema
+    description: z.ZodOptional<typeof descriptionSchema>
+    highlights: z.ZodOptional<z.ZodArray<typeof highlightItemSchema>>
+  },
+  z.core.$strict
+> => {
   assertValidMaxHighlights(maxHighlights)
 
   return z
