@@ -847,6 +847,24 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
+/** Bound the serialized expansion from padding nested arrays, including repeated references. */
+const MAX_ARRAY_PADDING_NODES = 1_000
+
+const countExampleNodes = (value: unknown, limit: number): number => {
+  if (limit <= 1 || value === null || typeof value !== 'object') {
+    return 1
+  }
+
+  let count = 1
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    count += countExampleNodes(child, limit - count)
+    if (count >= limit) {
+      break
+    }
+  }
+  return count
+}
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -860,19 +878,46 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  if ('prefixItems' in schema && Array.isArray(schema.prefixItems)) {
-    const values = schema.prefixItems.map((item, index) =>
+  const maxItems =
+    'maxItems' in schema &&
+    typeof schema.maxItems === 'number' &&
+    Number.isInteger(schema.maxItems) &&
+    schema.maxItems >= 0
+      ? schema.maxItems
+      : Number.POSITIVE_INFINITY
+  const minItems =
+    'minItems' in schema &&
+    typeof schema.minItems === 'number' &&
+    Number.isInteger(schema.minItems) &&
+    schema.minItems >= 0
+      ? Math.min(schema.minItems, maxItems, MAX_ARRAY_PADDING_NODES)
+      : 0
+
+  if (maxItems === 0) {
+    return cache(schema, [], cacheKey, skipCache)
+  }
+
+  const prefixes = 'prefixItems' in schema && Array.isArray(schema.prefixItems) ? schema.prefixItems : undefined
+  const values =
+    prefixes?.slice(0, maxItems).map((item, index) =>
       getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         schemaPath: [...schemaPath, 'prefixItems', String(index)],
         seen,
         dynamicScope: childScope,
       }),
-    )
+    ) ?? []
+
+  if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
   }
 
-  let items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  const itemSchema = 'items' in schema ? (schema.items as typeof schema.items | boolean) : undefined
+  if (itemSchema === false) {
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
+  let items = resolve.schema(itemSchema)
   // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
   // Crossing a `$dynamicRef` leaves the static schema graph, so the cycle guard built up by the outer
   // walk no longer applies to the bound type. Restart `seen` for the item recursion so recursive trees
@@ -894,6 +939,28 @@ const handleArraySchema = (
     return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
+  const finish = (examples: unknown[], sample: unknown = examples[0]): unknown => {
+    for (const example of examples) {
+      if (values.length >= maxItems || (prefixes && values.length >= minItems)) {
+        break
+      }
+      values.push(wrapItems ? { [itemsXmlTagName]: example } : example)
+    }
+
+    // Repeating the same value cannot satisfy uniqueItems.
+    if (sample !== undefined && values.length < minItems && !('uniqueItems' in schema && schema.uniqueItems)) {
+      const value = wrapItems ? { [itemsXmlTagName]: sample } : sample
+      const remaining = MAX_ARRAY_PADDING_NODES - countExampleNodes(values, MAX_ARRAY_PADDING_NODES)
+      const size = countExampleNodes(value, MAX_ARRAY_PADDING_NODES)
+      const copies = Math.min(minItems - values.length, Math.floor(remaining / size))
+      for (let index = 0; index < copies; index++) {
+        values.push(value)
+      }
+    }
+
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
@@ -908,7 +975,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: merged }] : [merged], cacheKey, skipCache)
+        return finish(isDefined(merged) ? [merged] : [])
       }
 
       const examples = allOf
@@ -926,7 +993,7 @@ const handleArraySchema = (
       // the members describe one object. A primitive contribution keeps the existing per-member result.
       const result =
         examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
-      return cache(schema, wrapItems ? result.map((e) => ({ [itemsXmlTagName]: e })) : result, cacheKey, skipCache)
+      return finish(result)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -954,7 +1021,7 @@ const handleArraySchema = (
         return undefined
       }
       const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: tagged }] : [tagged], cacheKey, skipCache)
+      return finish([tagged])
     }
   }
 
@@ -974,10 +1041,11 @@ const handleArraySchema = (
     if (ex === undefined) {
       return undefined
     }
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+    return finish([ex])
   }
 
-  return cache(schema, [], cacheKey, skipCache)
+  const unrestricted = itemSchema === undefined || itemSchema === true || Object.keys(itemSchema).length === 0
+  return finish([], unrestricted ? null : undefined)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
