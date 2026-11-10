@@ -12,6 +12,8 @@ const jsonContent = {
   },
 }
 const length = { 'Content-Length': { schema: { type: 'integer', example: 3 } } }
+const transfer = { 'tRaNsFeR-EnCoDiNg': { schema: { type: 'string', example: 'gzip' } } }
+const trailer = { Trailer: { schema: { type: 'string', example: 'X-Checksum' } } }
 const encoding = { 'Content-Encoding': { schema: { type: 'string', enum: ['gzip', 'br'] } } }
 
 type ResponseCase = {
@@ -21,10 +23,27 @@ type ResponseCase = {
   body?: string
   contentType?: string | null
   status?: number
+  absentHeader?: string
   openapi?: string
 }
 
 const cases: ResponseCase[] = [
+  { name: 'transfer encoding', headers: transfer, absentHeader: 'transfer-encoding' },
+  { name: 'trailer', headers: trailer, absentHeader: 'trailer' },
+  ...['Connection', 'Keep-Alive', 'Upgrade', 'TE', 'Proxy-Connection'].map(
+    (header): ResponseCase => ({
+      name: header,
+      headers: { [header]: { schema: { type: 'string', example: 'invalid-transport-setting' } } },
+    }),
+  ),
+  ...['bad\r\nvalue', 'bad\0value', 'bad\x01value', 'snowman ☃'].map(
+    (example): ResponseCase => ({
+      name: `malformed value ${JSON.stringify(example)}`,
+      headers: { 'X-Invalid': { schema: { type: 'string', example } } },
+      absentHeader: 'x-invalid',
+    }),
+  ),
+  { name: 'malformed name', headers: { 'Bad Name': { schema: { type: 'string', example: 'value' } } } },
   { name: 'generated length', headers: { 'Content-Length': { schema: { type: 'integer' } } } },
   { name: 'short length', headers: length },
   { name: 'long length', headers: { 'content-length': { schema: { type: 'integer', example: 1024 } } } },
@@ -38,18 +57,18 @@ const cases: ResponseCase[] = [
     body: '<name>café</name>',
     contentType: 'application/xml',
   },
-  ...[length, encoding].map(
+  ...[length, encoding, transfer, trailer].map(
     (headers, index): ResponseCase => ({
-      name: `SSE with declared ${index === 0 ? 'length' : 'encoding'}`,
+      name: `SSE with declared ${['length', 'encoding', 'transfer encoding', 'trailer'][index]}`,
       headers,
       content: { 'text/event-stream': { example: [{ id: 1 }, { id: 2 }] } },
       body: 'data: {"id":1}\n\ndata: {"id":2}\n\n',
       contentType: 'text/event-stream',
     }),
   ),
-  ...[length, encoding].map(
+  ...[length, encoding, transfer, trailer].map(
     (headers, index): ResponseCase => ({
-      name: `NDJSON with declared ${index === 0 ? 'length' : 'encoding'}`,
+      name: `NDJSON with declared ${['length', 'encoding', 'transfer encoding', 'trailer'][index]}`,
       headers,
       openapi: '3.2.0',
       content: { 'application/x-ndjson': { itemSchema: { type: 'object', properties: { id: { const: 1 } } } } },
@@ -102,6 +121,15 @@ describe('create-mock-server.response-headers', () => {
 
       expect(response.status).toBe(testCase.status ?? 200)
       expect(body).toBe(testCase.body ?? '{"name":"café"}')
+      if (testCase.absentHeader) {
+        expect(response.headers.get(testCase.absentHeader)).toBeNull()
+      }
+      expect(response.headers.get('trailer')).toBeNull()
+      expect(response.headers.get('upgrade')).toBeNull()
+      expect(response.headers.get('te')).toBeNull()
+      expect(response.headers.get('proxy-connection')).toBeNull()
+      expect(response.headers.get('connection')).not.toBe('invalid-transport-setting')
+      expect(response.headers.get('keep-alive')).not.toBe('invalid-transport-setting')
       expect(response.headers.get('content-encoding')).toBeNull()
       expect(response.headers.get('content-type')).toBe(
         testCase.contentType === undefined ? 'application/json' : testCase.contentType,
