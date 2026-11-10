@@ -34,9 +34,7 @@ const documentWithOnePet = (operationId?: string): Record<string, unknown> => ({
 })
 
 /**
- * A response header name that is not a valid HTTP token. Building the response throws while the
- * mock handler runs, which is how a valid-looking document realistically produces a `500`: nothing
- * validates the header name up front, so the failure only surfaces on the request.
+ * Invalid declared headers must not prevent the operation from returning its response.
  */
 const documentWithBrokenResponseHeader: Record<string, unknown> = {
   openapi: '3.1.0',
@@ -2225,25 +2223,15 @@ describe('createMockServer', () => {
     expect(consoleErrorSpy.mock.calls[0]?.[1]).toStrictEqual(new Error('Boom'))
   })
 
-  it('names the operation when building the mock response fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
+  it('skips an invalid declared header and explains why', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const server = await createMockServer({ document: documentWithBrokenResponseHeader })
-
     const response = await server.request('/pets/1')
-    // The runtime words this failure, so it is the one field matched loosely, on the header name.
-    const { message, ...body } = (await response.json()) as { message: string }
 
-    expect(response.status).toBe(500)
-    expect(body).toStrictEqual({
-      error: 'Internal Server Error',
-      operation: {
-        method: 'GET',
-        path: '/pets/{petId}',
-        operationId: 'getPet',
-      },
-    })
-    expect(message).toContain('X Invalid Name')
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('')
+    expect([...response.headers.keys()]).not.toContain('X Invalid Name')
+    expect(warn).toHaveBeenCalledWith('Skipping invalid response header "X Invalid Name" from the API description.')
   })
 
   it('omits the operation when the failing route is not a mocked operation', async () => {
