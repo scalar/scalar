@@ -4,6 +4,7 @@ import { isRelativePath } from './is-relative-path'
 /**
  * Redirects the request to a proxy server with a given URL. But not for:
  *
+ * - URLs on the same origin as the proxy
  * - Relative URLs
  * - URLs that seem to point to a local IP (except the proxy is on the same domain)
  * - URLs that don't look like a domain
@@ -58,6 +59,11 @@ export const shouldUseProxy = (proxyUrl?: string, url?: string): url is string =
     // It's more likely (not guaranteed, though) that the proxy has access to local domains.
     if (isRelativePath(proxyUrl)) {
       return true
+    }
+
+    // The proxy already permits cross-origin requests, so its own origin needs no extra hop.
+    if (new URL(proxyUrl).origin === new URL(url).origin) {
+      return false
     }
 
     // ✅ Proxy URL is local

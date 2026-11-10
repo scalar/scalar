@@ -28,7 +28,6 @@ export type ExecuteClientSideRequestToolOutput = Result<
       'REQUEST_NOT_OK',
       {
         status: number
-        url: string
         responseBody: unknown
         headers: Record<string, string>
       }

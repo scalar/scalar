@@ -108,8 +108,7 @@ describe('render-examples', () => {
       expect(result).toContain('**`value`**: `string`')
       expect(result).not.toContain('[Alias](')
       const example = /```json\n([\s\S]*?)\n```/.exec(result)
-      // The shared generator omits deprecated properties in both converters.
-      expect(JSON.parse(example![1]!)).toStrictEqual(annotation === 'deprecated' ? {} : { value: 'hello' })
+      expect(JSON.parse(example![1]!)).toStrictEqual({ value: 'hello' })
       expect(result).toContain(`${annotation}:`)
     },
   )

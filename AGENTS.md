@@ -417,7 +417,12 @@ Then, before opening or updating a PR, also run:
 # In a fresh worktree, build the packages loaded by tooling configurations.
 # Turbo also builds @scalar/themes; no integration build is needed.
 pnpm turbo --filter @scalar/helpers --filter @scalar/validation build
-pnpm knip          # Detect unused exports, files, and dependencies
+# Nuxt configs extend generated .nuxt/tsconfig.json files, including the Playwright config.
+pnpm --filter @scalar/nuxt exec nuxi prepare
+# The example loads the local Nuxt module, so generate its entry point without a full build.
+pnpm --filter @scalar/nuxt exec nuxt-module-build build --stub
+pnpm --filter @scalar-examples/nuxt-playground exec nuxi prepare
+pnpm lint:knip     # Detect unused exports, files, and dependencies
 ```
 
 > All checks must pass cleanly. Do not commit code that has lint errors, type errors, or unused exports.

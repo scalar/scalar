@@ -7,6 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Dict, Any, Union, Optional
 
 
+def _inline_script_json(value: object) -> str:
+    """Serialize JSON without allowing HTML tokens to change the script context."""
+    return json.dumps(value).replace("<", r"\u003c")
+
+
 class Layout(Enum):
     MODERN = "modern"
     CLASSIC = "classic"
@@ -501,11 +506,14 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
     if config.agent is not None:
         js_config["agent"] = config.agent.model_dump(exclude_none=True)
 
+    page_title = escape(config.title) if config.title else "Scalar"
+    config_json = _inline_script_json(js_config)
+
     html = f"""
 <!doctype html>
 <html>
     <head>
-        {f"<title>{config.title if config.title else 'Scalar'}</title>"}
+        <title>{page_title}</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{escape(config.scalar_favicon_url, quote=True)}">
@@ -526,7 +534,7 @@ def get_scalar_api_reference(config: ScalarConfig) -> HttpResponse:
 
         <!-- Initialize the Scalar API Reference -->
         <script>
-            Scalar.createApiReference("#app", {json.dumps(js_config)})
+            Scalar.createApiReference("#app", {config_json})
         </script>
     </body>
     </html>

@@ -1,6 +1,6 @@
 import type { AsyncApiDocument, AsyncApiOperationObject } from '@scalar/types/asyncapi/3.1'
 import { getNameFromRef } from '@scalar/workspace-store/helpers/get-name-from-ref'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { isHidden } from '@scalar/workspace-store/helpers/is-hidden'
 import type { XInternal } from '@scalar/workspace-store/schemas/extensions/document/x-internal'
 import type { XScalarIgnore } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-ignore'
@@ -18,6 +18,8 @@ type ReplyLink = { title: string; id?: string }
 
 /** The reply metadata shown beside the originating operation. */
 export type OperationReply = {
+  /** Resolved reply metadata, kept intact for specification extension rendering. */
+  source?: Exclude<NonNullable<AsyncApiOperationObject['reply']>, { $ref: string }>
   channel?: ReplyLink
   address?: string
   dynamicAddress: boolean
@@ -47,17 +49,17 @@ export const getOperationReply = (
   operation: AsyncApiOperationObject | undefined,
   operationMessages: TraversedAsyncApiMessage[] = [],
 ): OperationReply | undefined => {
-  const reply = getResolvedRef(operation?.reply)
+  const reply = getResolvedAsyncApiRef(operation?.reply)
   if (!reply) {
     return undefined
   }
-  const address = getResolvedRef(reply.address)
+  const address = getResolvedAsyncApiRef(reply.address)
   const channelRef = reply.channel
-  const referencedChannel = getResolvedRef(channelRef)
+  const referencedChannel = getResolvedAsyncApiRef(channelRef)
   const channelName = channelRef
     ? (getNameFromRef(channelRef.$ref, ['channels']) ??
       Object.keys(document.channels ?? {}).find(
-        (name) => referencedChannel && getResolvedRef(document.channels?.[name]) === referencedChannel,
+        (name) => referencedChannel && getResolvedAsyncApiRef(document.channels?.[name]) === referencedChannel,
       ))
     : undefined
   const channel = channelName ? resolveAsyncApiChannel(document, channelName) : referencedChannel
@@ -79,7 +81,7 @@ export const getOperationReply = (
     const message =
       name && channelName
         ? resolveAsyncApiMessage(document, channelName, name)
-        : getResolvedRef(getResolvedRef(reference))
+        : getResolvedAsyncApiRef(getResolvedAsyncApiRef(reference))
     if (message && isHidden(message as XInternal & XScalarIgnore)) {
       return []
     }
@@ -113,6 +115,7 @@ export const getOperationReply = (
   })
 
   return {
+    source: reply,
     channel: channelRef
       ? {
           title: pickHeading(channel?.title, channel?.address ?? undefined, channelName ?? channelRef.$ref),

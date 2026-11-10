@@ -6,6 +6,7 @@ import { resetSecretField, updateClearedSecretFields } from '@/helpers/auth-secr
 import { deepClone } from '@/helpers/deep-clone'
 import { forEachPathItemOperation, getPathItemOperation } from '@/helpers/for-each-path-item-operation'
 import { generateUniqueValue } from '@/helpers/generate-unique-value'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isNonOptionalSecurityRequirement } from '@/helpers/is-non-optional-security-requirement'
 import { mergeObjects } from '@/helpers/merge-object'
@@ -564,7 +565,7 @@ const walkSelectedSchemes = (
 
   // Operation-level selections only exist for OpenAPI documents (path / method).
   if (isOpenApiDocument(document)) {
-    Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+    getPathEntries(document.paths).forEach(([path, pathItemRef]) => {
       forEachPathItemOperation(pathItemRef, (method) => {
         apply({ type: 'operation', documentName, path, method })
       })
@@ -757,7 +758,7 @@ export const deleteSecurityScheme = (
   }
 
   // -- For each path and operation, remove deleted security schemes from operation-level security and custom extension
-  Object.entries(document.paths ?? {}).forEach(([path, pathItemRef]) => {
+  getPathEntries(document.paths).forEach(([path, pathItemRef]) => {
     forEachPathItemOperation(pathItemRef, (method, operationRef) => {
       // Get mutable reference for the operation (could resolve $ref proxies)
       const resolvedOperation = getResolvedRef(operationRef)

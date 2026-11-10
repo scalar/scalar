@@ -1,4 +1,5 @@
 import type { Chat } from '@ai-sdk/vue'
+import { restoreOriginalHeaders } from '@scalar/helpers/http/restore-original-headers'
 import { redirectToProxy } from '@scalar/helpers/url/redirect-to-proxy'
 import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
 import { buildRequestSecurity, getResolvedUrl } from '@scalar/workspace-store/request-example'
@@ -11,6 +12,8 @@ import truncateJson from 'truncate-json'
 import { EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME } from '@/entities'
 import { createError } from '@/entities/error/helpers'
 import type { Tools } from '@/state/state'
+
+import { createSecretRedactor } from './redact-secrets'
 
 // The maximum number of bytes the requests response can be.
 const MAX_RESPONSE_SIZE = 50_000
@@ -39,13 +42,13 @@ const safeFetch = n.safeFn(
     const responseBodyResult = await getBody(response)
 
     if (!response.ok) {
+      // Response URLs can contain credentials, so keep them out of model-visible tool output.
       return {
         success: false,
         error: createError('REQUEST_NOT_OK', {
           status: response.status,
-          url: response.url,
-          responseBody: truncateResponse(responseBodyResult.success ? responseBodyResult.data : undefined),
-          headers: Object.fromEntries(response.headers.entries()),
+          responseBody: responseBodyResult.success ? responseBodyResult.data : undefined,
+          headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
         }),
       }
     }
@@ -58,32 +61,48 @@ const safeFetch = n.safeFn(
       success: true,
       data: {
         status: response.status,
-        responseBody: truncateResponse(responseBodyResult.data),
-        headers: Object.fromEntries(response.headers.entries()),
+        responseBody: responseBodyResult.data,
+        headers: Object.fromEntries(restoreOriginalHeaders(response.headers).entries()),
       },
     }
   },
   (originalError) => createError('FAILED_TO_FETCH', { originalError }),
 )
 
-function createUrl({
-  path,
-  activeServer,
-  proxyUrl,
-  queryParams,
-}: {
-  path: string
-  activeServer: ServerObject | null
-  proxyUrl: string
-  queryParams: URLSearchParams
-}) {
-  const resolvedUrl = getResolvedUrl({
-    path,
-    server: activeServer,
-    urlParams: queryParams,
-  })
+/** Validate the exact destination that will receive credentials before applying the proxy. */
+const createDestination = (
+  path: string,
+  activeServer: ServerObject | null,
+  queryParams: URLSearchParams,
+): { url: string; error?: never } | { url?: never; error: string } => {
+  if (!activeServer?.url?.trim()) {
+    return { error: 'Add a server to the API description before sending an API request.' }
+  }
 
-  return redirectToProxy(proxyUrl, resolvedUrl)
+  const pathname = path.split('?')[0] ?? ''
+  if (
+    !pathname.startsWith('/') ||
+    pathname.startsWith('//') ||
+    pathname.includes('\\') ||
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: Reject characters that URL parsers silently normalize.
+    /[\u0000-\u001f\u007f]/.test(pathname)
+  ) {
+    return { error: 'Request paths must be relative endpoints beginning with a single forward slash.' }
+  }
+
+  try {
+    const serverUrl = new URL(getResolvedUrl({ server: activeServer, path: '' }))
+    const requestUrl = new URL(getResolvedUrl({ server: activeServer, path, urlParams: queryParams }))
+    if (
+      (requestUrl.protocol !== 'http:' && requestUrl.protocol !== 'https:') ||
+      requestUrl.origin !== serverUrl.origin
+    ) {
+      return { error: 'Request destinations must use the selected HTTP or HTTPS server.' }
+    }
+    return { url: requestUrl.href }
+  } catch {
+    return { error: 'Select a valid HTTP or HTTPS server before sending an API request.' }
+  }
 }
 
 /**
@@ -115,6 +134,12 @@ export const executeRequestTool = n.safeFn(
     const settings = documentSettings[documentName]
 
     if (!settings) {
+      void chat.addToolOutput({
+        tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+        toolCallId,
+        state: 'output-error',
+        errorText: 'The selected API could not be found. Select an available API before sending a request.',
+      })
       return {
         success: false,
         error: createError('DOCUMENT_SETTINGS_COULD_NOT_BE_DETERMINED', {
@@ -159,11 +184,24 @@ export const executeRequestTool = n.safeFn(
       },
     )
 
+    const destination = createDestination(path, settings.activeServer, requestSecurity.queryParams)
+    if (destination.error) {
+      // Tool callbacks run inside the stream queue, so do not await a write to that same queue.
+      void chat.addToolOutput({
+        tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,
+        toolCallId,
+        state: 'output-error',
+        errorText: destination.error,
+      })
+      return { success: false, error: createError('FAILED_TO_EXECUTE_REQUEST', destination.error) }
+    }
+
     const cookieHeader = Object.entries(requestSecurity.cookies)
       .map(([name, value]) => `${name}=${value}`)
       .join('; ')
 
-    const fetchOptions = {
+    const fetchOptions: RequestInit = {
+      redirect: 'error',
       method,
       body,
       headers: {
@@ -173,14 +211,20 @@ export const executeRequestTool = n.safeFn(
       },
     }
 
-    const url = createUrl({
-      path,
-      activeServer: settings.activeServer,
-      proxyUrl,
-      queryParams: requestSecurity.queryParams,
-    })
+    const url = redirectToProxy(proxyUrl, destination.url)
 
+    const redact = createSecretRedactor(requestSecurityOptions)
     const result = await safeFetch(url, fetchOptions)
+    // Redact complete values before truncation can split a credential at the size limit.
+    if (result.success) {
+      result.data.responseBody = truncateResponse(redact(result.data.responseBody))
+      result.data.headers = redact(result.data.headers)
+    } else if (result.error.code === 'REQUEST_NOT_OK') {
+      if (result.error.detail.responseBody !== undefined) {
+        result.error.detail.responseBody = truncateResponse(redact(result.error.detail.responseBody))
+      }
+      result.error.detail.headers = redact(result.error.detail.headers)
+    }
 
     void chat.addToolOutput({
       tool: EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME,

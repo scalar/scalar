@@ -132,7 +132,7 @@ The SDK repository's own release assets also have to be downloadable anonymously
 }
 ```
 
-- **`homepage`** defaults to the SDK repository. **`description`** defaults to `Command-line interface for <binary>`. `brew audit` rejects a description that starts with the package name, an article, or a lowercase letter.
+- **`homepage`** defaults to `organization.homepage`, then to the SDK repository. **`description`** defaults to `Command-line interface for <binary>`. `brew audit` rejects a description that starts with the package name, an article, or a lowercase letter.
 - **`pullRequest`** opens a pull request against the tap instead of committing to its default branch.
 - **`cask`** publishes a cask (`Casks/<formula>.rb`) instead of a formula, installed with `brew install --cask`. It requires `signing.macos` set to `sign-and-notarize`, because Homebrew quarantines what a cask downloads.
 - **`replaceCask`** retires a same-named cask the tap already ships, moving its users to this formula. **`replaceFormula`** does the reverse when `cask` is on.

@@ -8,6 +8,7 @@ import {
   joinUrlAndQuery,
   normalizeMethod,
   normalizeUrl,
+  processHeaders,
   reduceQueryParams,
 } from './http'
 
@@ -156,6 +157,23 @@ describe('joinUrlAndQuery', () => {
 })
 
 describe('collectHeaders', () => {
+  it('merges repeated mixed-case cookie headers without re-encoding their values', () => {
+    const headers = [
+      { name: 'cookie', value: 'existing=a+b==' },
+      { name: 'Cookie', value: 'escaped=%2F' },
+      { name: 'X-Test', value: 'kept' },
+    ]
+    const cookies = [{ name: 'session', value: 'a b;c' }]
+    expect(collectHeaders(headers, cookies)).toStrictEqual([
+      { name: 'X-Test', value: 'kept' },
+      { name: 'Cookie', value: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc' },
+    ])
+    expect(processHeaders({ headers, cookies })).toStrictEqual({
+      'X-Test': 'kept',
+      Cookie: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc',
+    })
+  })
+
   it('deduplicates headers by name while preserving last value', () => {
     expect(
       collectHeaders([

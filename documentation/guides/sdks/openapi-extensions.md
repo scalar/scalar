@@ -142,6 +142,14 @@ The following arrays are aligned with the enum's `enum` values by index. Values 
 | `x-scalar-enum-deprecations` | Array | Per-member deprecation metadata. |
 | `x-scalar-enum-format` | `union` | Requests a union-style enum where supported. |
 
+### Security schemes
+
+This is read when a configuration is derived from the document. With a configuration of your own, set `targets.cli.credentialStore.oauth.clientId` instead.
+
+| Extension | Where | Effect |
+| --- | --- | --- |
+| `x-scalar-client-id` | `authorizationCode` or `deviceAuthorization` flow of an OAuth 2.0 scheme | Names the public OAuth client a generated CLI signs in with. On an `authorizationCode` flow this turns on browser sign-in, and the client must have the CLI's loopback redirect registered with your provider. On a `deviceAuthorization` flow it means users are not asked for a client id; it is read there only when the document has no `authorizationCode` flow and no OpenID Connect scheme, because any client id also turns on browser sign-in for those. The value is written into the generated source, so never use a confidential client. A configuration holds one client id: an `authorizationCode` flow's id wins over a `deviceAuthorization` one, the first scheme in document order wins among equals, and the CLI uses it for every OAuth sign-in it offers. That includes a `clientCredentials` or `password` flow, which then sends this id instead of asking for one, whether the id came from this extension or from `targets.cli.credentialStore.oauth`. |
+
 ### Generated OpenAPI additions
 
 These extensions are written to an augmented OpenAPI document by the generator. They may also be preserved when already present in a source document.
@@ -182,7 +190,7 @@ When a build has no SDK configuration and the document carries `x-fern-*` extens
 | `x-fern-sdk-variables` | Document root | Declares SDK variables. |
 | `x-fern-sdk-variable` | Parameter | Binds a parameter to an SDK variable. |
 | `x-fern-webhook` | Operation | Prevents an inbound webhook operation from becoming an outbound client call. |
-| `x-fern-webhook-signature` | Document root or webhook | Webhook signature-verification settings where Scalar has an equivalent. |
+| `x-fern-webhook-signature` | Document root or webhook | Webhook signature-verification settings where Scalar has an equivalent. See [Webhooks](webhooks.md#importing-a-fern-project). |
 | `x-fern-type-name` | Schema | Generated type name. |
 | `x-fern-property-name` | Property schema | Generated property name. |
 | `x-fern-parameter-name` | Parameter Object | Generated parameter name. |
@@ -222,5 +230,6 @@ With `openapi.tags: "resources"`, the augmented OpenAPI document labels each der
 
 - [Configuration](configuration.md) — the config blocks mirrored by root-level extensions
 - [Pagination](pagination.md) — the scheme shape `x-scalar-pagination` carries, and the helpers it generates
+- [Webhooks](webhooks.md) — the helpers generated from the document's `webhooks`, and how Fern's webhook extensions map onto them
 - [Diagnostics](diagnostics.md) — messages for invalid, ignored, or incomplete input
 - [AsyncAPI](asyncapi.md) — SDK generation from AsyncAPI documents

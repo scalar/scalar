@@ -1,5 +1,13 @@
 # scalar-app
 
+## 1.1.48
+
+### Patch Changes
+
+- [#10903](https://github.com/scalar/scalar/pull/10903): Upgrade Monaco Editor and YAML support, migrate language APIs, and use Vite-managed workers in web and desktop editors.
+
+## 1.1.47
+
 ## 1.1.46
 
 ## 1.1.45

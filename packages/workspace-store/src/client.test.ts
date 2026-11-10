@@ -107,6 +107,41 @@ const REGISTRY_META = {
 } as const
 
 describe('create-workspace-store', () => {
+  it.each(['3.0.4', '3.1.2', '3.2.1'])('preserves arbitrary Paths extensions when importing %s', async (openapi) => {
+    const store = createWorkspaceStore()
+    const extensions = {
+      'x-owner': 'Pet platform team',
+      'x-enabled': false,
+      'x-count': 0,
+      'x-empty': null,
+      'x-meta': { post: { requestBody: { description: 'm' } } },
+      'x-template-{id}': { get: { parameters: [{ name: 'keep', in: 'path' }] } },
+      'x-origins': ['https://example.com'],
+      'x-methods': { get: { tags: ['metadata'], security: [{ token: [] }] } },
+    }
+    await store.addDocument({
+      name: 'extensions',
+      document: {
+        openapi,
+        info: { title: 'Pets', version: '1' },
+        paths: {
+          ...extensions,
+          '/pet': { 'x-owner': 'Path owner', get: { responses: { '200': { description: 'OK' } } } },
+        },
+      },
+    })
+    const document = getOpenApiDocument(store, 'extensions')
+    for (const [key, value] of Object.entries(extensions)) {
+      expect(document?.paths?.[key]).toStrictEqual(value)
+    }
+    expect(
+      Object.entries(getResolvedRef(document?.paths?.['/pet']) ?? {}).find(([key]) => key === 'x-owner'),
+    ).toStrictEqual(['x-owner', 'Path owner'])
+    expect(
+      getResolvedRef(getResolvedRef(getResolvedRef(document?.paths?.['/pet'])?.get)?.responses?.['200'])?.description,
+    ).toBe('OK')
+  })
+
   it('preserves and resolves streaming item schemas when importing OpenAPI 3.2', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({
@@ -3318,6 +3353,41 @@ describe('create-workspace-store', () => {
       })
 
       expect(mockFetch).toHaveBeenCalledWith('examples/openapi.json', { headers: undefined })
+    })
+
+    it('resolves external refs of a relative url against the page', async () => {
+      vi.stubGlobal('window', { location: { href: 'https://example.com/docs/' } })
+
+      const store = createWorkspaceStore()
+
+      const responses: Record<string, unknown> = {
+        'examples/openapi.json': {
+          openapi: '3.1.0',
+          info: { title: 'Relative API', version: '1.0.0' },
+          components: { schemas: { Item: { $ref: 'schemas/item.json' } } },
+        },
+        'https://example.com/docs/examples/schemas/item.json': { type: 'object' },
+      }
+      const mockFetch = vi
+        .fn()
+        .mockImplementation((input: string) =>
+          Promise.resolve({ ok: true, text: () => Promise.resolve(JSON.stringify(responses[input])) }),
+        )
+
+      await store.addDocument({
+        name: 'relative-doc',
+        url: 'examples/openapi.json',
+        fetch: mockFetch,
+      })
+
+      vi.unstubAllGlobals()
+
+      expect(mockFetch).toHaveBeenCalledWith('https://example.com/docs/examples/schemas/item.json', {
+        headers: undefined,
+      })
+      expect(getOpenApiDocument(store, 'relative-doc')?.components?.schemas?.Item).toMatchObject({
+        '$ref-value': { type: 'object' },
+      })
     })
 
     it('logs different errors for different failure conditions', async () => {

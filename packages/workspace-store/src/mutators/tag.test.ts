@@ -90,6 +90,22 @@ describe('createTag', () => {
 })
 
 describe('deleteTag', () => {
+  it('leaves method-shaped Paths extensions unchanged', async () => {
+    const store = createWorkspaceStore()
+    const extension = { get: { tags: ['pets'] } }
+    await store.addDocument({
+      name: 'test',
+      document: createDocument({
+        tags: [{ name: 'pets' }],
+        paths: { 'x-metadata': extension, '/pets': { get: { tags: ['pets'] } } },
+      }),
+    })
+    deleteTag(store, { documentName: 'test', name: 'pets' })
+    const document = getOpenApiDocument(store, 'test')
+    expect(document?.paths?.['x-metadata']).toStrictEqual(extension)
+    expect(getResolvedRef(getPathItemOperation(document?.paths?.['/pets'], 'get'))?.tags).toStrictEqual([])
+  })
+
   it('removes a tag from the document tags array', async () => {
     const store = createWorkspaceStore()
     await store.addDocument({

@@ -1,6 +1,6 @@
 import type { HarRequest } from '@scalar/types/snippetz'
 
-import { Raw } from './javascript'
+import { Raw, objectToString } from './javascript'
 import { dispositionValue } from './prepare-request'
 
 type MultipartParams = NonNullable<NonNullable<HarRequest['postData']>['params']>
@@ -62,6 +62,10 @@ export const buildFormData = (params: MultipartParams, target: 'js' | 'node', va
   }
   return lines
 }
+
+/** Pass name and value pairs because an object literal cannot hold repeated names or a name such as __proto__. */
+export const urlSearchParams = (params: MultipartParams): string =>
+  `new URLSearchParams(${objectToString(params.map(({ name, value }): string[] => [name, value ?? '']))})`
 
 /** Match encoder-owned boundaries and preserve raw multipart headers. */
 export const formDataHeaders = (

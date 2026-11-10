@@ -1,5 +1,27 @@
 # @scalar/json-magic
 
+## 0.19.0
+
+### Minor Changes
+
+- [#10897](https://github.com/scalar/scalar/pull/10897): Resolve proxy references within their schema resource using the shared bundle resolver, and expose resolved targets to lifecycle hooks for scope-aware transformations.
+
+### Patch Changes
+
+- [#10904](https://github.com/scalar/scalar/pull/10904): Share confined document loading between Markdown converters and include HTTP status codes in load errors.
+
+## 0.18.0
+
+### Minor Changes
+
+- [#10619](https://github.com/scalar/scalar/pull/10619): Add `bundleWithDiagnostics` to report reference failures with authored source locations, retain incomplete output, and defer pruning until resolution succeeds. Add opt-in document-aware traversal for OpenAPI, AsyncAPI, and JSON Schema, including literal data boundaries and applicable reference siblings. Preserve cached sources across diagnostic bundle calls.
+
+  Use consistent URI fragment decoding across bundling and the magic proxy, and index newly exposed document fragments without revisiting unrelated subtrees.
+
+### Patch Changes
+
+- [#10786](https://github.com/scalar/scalar/pull/10786): Resolve `$ref` pointers with percent-encoded reserved characters, so `#/paths/~1items%23list` now points at the `/items#list` path instead of resolving to nothing. Preserve literal property names when resolving schema IDs and anchors, including keys containing `/`, `~`, or percent sequences.
+
 ## 0.17.0
 
 ### Minor Changes

@@ -307,7 +307,7 @@ export const syncPathParameters = (): LifecyclePlugin => {
       const { path } = context
 
       // Only process path items (e.g., paths -> /users/{id} -> operations)
-      if (path.length !== 2 || path[0] !== 'paths' || typeof path[1] !== 'string') {
+      if (path.length !== 2 || path[0] !== 'paths' || typeof path[1] !== 'string' || path[1].startsWith('x-')) {
         return
       }
 

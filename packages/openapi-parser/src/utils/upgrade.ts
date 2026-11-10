@@ -1,3 +1,4 @@
+import { normalize } from '@scalar/json-magic/helpers/normalize'
 import type { Document as OpenApiDocumentV3_1 } from '@scalar/openapi-types/3.1'
 import { upgrade as originalUpgrade } from '@scalar/openapi-upgrader'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -7,7 +8,6 @@ import type { Filesystem, UpgradeResult } from '@/types/index'
 import { details } from './details'
 import { getEntrypoint } from './get-entrypoint'
 import { isFilesystem } from './is-filesystem'
-import { normalize } from './normalize'
 
 /**
  * Upgrade older documents to OpenAPI 3.1 and preserve documents that are already newer.

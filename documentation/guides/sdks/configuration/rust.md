@@ -38,7 +38,7 @@ Setting up publishing: [Rust publishing guide](../publishing/rust.md). How relea
 
 **Type:** `string`
 
-Rust crate name.
+Rust crate name. Defaults to the bare SDK slug; a name whose crate identifier would be a Rust keyword, a standard-library crate (`std`, `core`, `alloc`, `test`, `proc_macro`), or one of the crate's own dependencies (`url`, `bytes`, `serde`, ...) gets a `-sdk` suffix.
 
 ## destinations
 
@@ -100,7 +100,7 @@ Rust generation options: naming overrides, date-time mapping, TLS backend, retri
 
 **Type:** `string`
 
-Cargo crate name override (kebab-case). Defaults to the target packageName.
+Cargo crate name override (kebab-case). Defaults to the target packageName, then the bare SDK slug. Gets the same `-sdk` suffix as `packageName` when its crate identifier would be a Rust keyword, a standard-library crate, or one of the crate's own dependencies.
 
 ### package_repository
 

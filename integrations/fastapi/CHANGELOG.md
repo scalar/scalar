@@ -1,5 +1,11 @@
 # scalar-fastapi
 
+## 1.9.2
+
+### Patch Changes
+
+- [#10934](https://github.com/scalar/scalar/pull/10934): Keep embedded API descriptions inside the API reference configuration script and escape the Django Ninja page title.
+
 ## 1.9.1
 
 ### Patch Changes

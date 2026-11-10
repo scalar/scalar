@@ -303,9 +303,9 @@ describe('goNative', () => {
     })
 
     expect(result).toContain(`\tneturl "net/url"`)
-    expect(result).toContain('postData := neturl.Values{}')
-    expect(result).toContain(`postData.Set("special chars!@#", "value")`)
-    expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData.Encode()))`)
+    expect(result).toContain('postData := strings.Join([]string{')
+    expect(result).toContain(`neturl.QueryEscape("special chars!@#") + "=" + neturl.QueryEscape("value"),`)
+    expect(result).toContain(`req, _ := http.NewRequest("POST", requestUrl, strings.NewReader(postData))`)
     expect(result).not.toContain('\n\turl :=')
   })
 
@@ -324,7 +324,33 @@ describe('goNative', () => {
       },
     })
 
-    expect(result).toContain(`postData.Set("field'name", "value")`)
+    expect(result).toContain(`neturl.QueryEscape("field'name") + "=" + neturl.QueryEscape("value"),`)
+  })
+
+  it('keeps interleaved repeated url-encoded names in order', () => {
+    const result = goNative.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'other', value: 'b' },
+          { name: 'tag', value: 'c' },
+          { name: 'missing' },
+          { name: '', value: 'a&b=c ü' },
+        ],
+      },
+    })
+
+    expect(result).toContain(`postData := strings.Join([]string{
+		neturl.QueryEscape("tag") + "=" + neturl.QueryEscape("a"),
+		neturl.QueryEscape("other") + "=" + neturl.QueryEscape("b"),
+		neturl.QueryEscape("tag") + "=" + neturl.QueryEscape("c"),
+		neturl.QueryEscape("missing") + "=" + neturl.QueryEscape(""),
+		neturl.QueryEscape("") + "=" + neturl.QueryEscape("a&b=c ü"),
+	}, "&")`)
+    expect(result).toContain('strings.NewReader(postData)')
   })
 
   it('handles binary data', () => {

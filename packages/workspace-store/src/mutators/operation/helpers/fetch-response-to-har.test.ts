@@ -119,6 +119,33 @@ describe('fetchResponseToHar', () => {
     expect(result.status).toBe(302)
   })
 
+  it('stores the headers the API sent instead of the ones the proxy replaced', async () => {
+    const response = new Response('{}', {
+      status: 307,
+      headers: {
+        'Cache-Control': 'private, max-age=60',
+        'Content-Security-Policy': "default-src 'none'; sandbox",
+        'Content-Type': 'application/json',
+        'Vary': 'Accept, Sec-Fetch-Mode, Sec-Fetch-Dest',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Scalar-Modified-Headers': 'Cache-Control, Content-Security-Policy, Vary, X-Content-Type-Options',
+        'X-Scalar-Original-Cache-Control': 'public, max-age=60',
+        'X-Scalar-Original-Location': 'https://api.example.com/items/',
+        'X-Scalar-Original-Vary': 'Accept',
+      },
+    })
+
+    const result = await fetchResponseToHar({ response })
+
+    expect(result.headers).toStrictEqual([
+      { name: 'cache-control', value: 'public, max-age=60' },
+      { name: 'content-type', value: 'application/json' },
+      { name: 'location', value: 'https://api.example.com/items/' },
+      { name: 'vary', value: 'Accept' },
+    ])
+    expect(result.redirectURL).toBe('https://api.example.com/items/')
+  })
+
   it('handles response without Location header', async () => {
     const response = new Response('test', {
       status: 200,

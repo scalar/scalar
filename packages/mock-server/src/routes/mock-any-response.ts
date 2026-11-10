@@ -11,6 +11,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 import { collectSseEvents, isEventStreamContentType } from '@/utils/collect-sse-events'
 import { findPreferredResponseKey } from '@/utils/find-preferred-response-key'
 import { generateResponseExample } from '@/utils/generate-response-example'
+import { isSettableResponseHeader } from '@/utils/is-settable-response-header'
 import { negotiateContentType } from '@/utils/negotiate-content-type'
 import { normalizeResponseBody } from '@/utils/normalize-response-body'
 import { parsePreferHeader } from '@/utils/parse-prefer-header'
@@ -18,6 +19,20 @@ import { pathParameters } from '@/utils/path-parameters'
 import { selectResponseExample } from '@/utils/select-response-example'
 import { serializeResponseBody } from '@/utils/serialize-response-body'
 import { getStreamingResponse, sendStreamingResponse } from '@/utils/streaming-response'
+
+/** These fields are owned by the response serializer and transport, never the API description. */
+const IGNORED_RESPONSE_HEADERS = new Set([
+  'content-length',
+  'content-encoding',
+  'content-type',
+  'transfer-encoding',
+  'trailer',
+  'connection',
+  'keep-alive',
+  'upgrade',
+  'te',
+  'proxy-connection',
+])
 
 /**
  * Mock any response
@@ -54,17 +69,29 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
   // Headers
   const headers = selectedResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
+    // The body and transport determine these headers. Generated values can truncate a response or
+    // make clients decode uncompressed data; OpenAPI also requires ignoring declared Content-Type.
+    if (IGNORED_RESPONSE_HEADERS.has(header.toLowerCase())) {
+      return
+    }
+
     const headerObject = getResolvedRef(headers[header])
-    // Headers need `includeDeprecated` but none of `generateResponseExample`'s other options — see
-    // the note on that helper for why passing them would change what declared headers emit.
-    const value = headerObject?.schema
-      ? (getExampleFromSchema(getResolvedRefDeep(headerObject.schema), { includeDeprecated: true }) as string)
-      : null
+    // Headers use the generator defaults to preserve their declared values.
+    const value = headerObject?.schema ? getExampleFromSchema(getResolvedRefDeep(headerObject.schema)) : null
     // Loose check on purpose: Hono *deletes* a header when handed `undefined`. This loop is the first
     // thing to set the declared headers, so in practice a delete removes a header set earlier by
     // middleware — `cors()` sets `Access-Control-Allow-Origin` before the handler runs.
     if (value != null) {
-      c.header(header, value)
+      try {
+        const text = String(value)
+        if (isSettableResponseHeader(header, text)) {
+          c.header(header, text)
+          return
+        }
+      } catch {
+        // An authored object can also shadow toString and prevent string conversion.
+      }
+      console.warn(`Skipping invalid response header ${JSON.stringify(header)} from the API description.`)
     }
   })
 
@@ -115,9 +142,8 @@ export function mockAnyResponse(c: Context, operation: OpenAPIV3_1.OperationObje
 
     c.status(statusCode)
 
-    // `streamSSE` sets the transport headers itself (`Content-Type`, `Cache-Control`, `Connection`,
-    // `Transfer-Encoding`), so those win over a value the document declared for the same header —
-    // they are what makes the stream readable. Every other declared header set above survives.
+    // Transport headers are never copied from the API description. `streamSSE` adds the framing
+    // and cache policy needed for an event stream; ordinary custom headers survive.
     return streamSSE(c, async (stream) => {
       for (const event of events) {
         if (event.framed) {

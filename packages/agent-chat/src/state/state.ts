@@ -13,7 +13,6 @@ import { n } from 'neverpanic'
 import { type ComputedRef, type InjectionKey, type Ref, computed, inject, reactive, ref, watch } from 'vue'
 
 import { type Api, createApi, createAuthorizationHeaders } from '@/api'
-import { executeRequestTool } from '@/client-tools/execute-request'
 import { URLS } from '@/consts/urls'
 import { createError } from '@/entities'
 import type { ApiMetadata } from '@/entities/registry/document'
@@ -35,7 +34,6 @@ import type {
   SearchOpenAPIOperationsToolInput,
   SearchOpenAPIOperationsToolOutput,
 } from '@/entities/tools/search-openapi-operations'
-import { createDocumentSettings } from '@/helpers'
 import { useTermsAndConditions } from '@/hooks/use-term-and-conditions'
 import { type UploadTmpDocumentState, removeTmpDocFromLocalStorage } from '@/hooks/use-upload-tmp-document'
 import { persistencePlugin } from '@/plugins/persistance'
@@ -72,6 +70,7 @@ export const STATE_SYMBOL: InjectionKey<State> = Symbol('STATE_SYMBOL')
 const { toast } = useToasts()
 
 type State = {
+  pendingRequestIds: Ref<Set<string>>
   prompt: Ref<string>
   chat: Chat<UIMessage<unknown, UIDataTypes, Tools>>
   workspaceStore: WorkspaceStore
@@ -108,14 +107,12 @@ function createChat({
   registryDocuments,
   workspaceStore,
   baseUrl,
-  proxyUrl,
   getAccessToken,
   getAgentKey,
 }: {
   registryDocuments: Ref<ApiMetadata[]>
   workspaceStore: WorkspaceStore
   baseUrl: string
-  proxyUrl: ComputedRef<string>
   getAccessToken?: () => string
   getAgentKey?: () => string
 }) {
@@ -128,7 +125,7 @@ function createChat({
         registryDocuments: registryDocuments.value,
       }),
     }),
-    async onToolCall({ toolCall }): Promise<any> {
+    onToolCall({ toolCall }): void {
       if (toolCall.dynamic) {
         return
       }
@@ -147,19 +144,6 @@ function createChat({
             'Live AsyncAPI messaging and authentication are not supported in Ask AI. Ask for an explanation or code example instead.',
         })
         return
-      }
-
-      if (
-        toolCall.toolName === EXECUTE_CLIENT_SIDE_REQUEST_TOOL_NAME &&
-        toolCall.input.method.toLowerCase() === 'get'
-      ) {
-        await executeRequestTool({
-          documentSettings: createDocumentSettings(workspaceStore),
-          input: toolCall.input,
-          toolCallId: toolCall.toolCallId,
-          chat,
-          proxyUrl: proxyUrl.value,
-        })
       }
     },
   })
@@ -225,7 +209,6 @@ export function createState({
     registryDocuments,
     workspaceStore,
     baseUrl,
-    proxyUrl,
     getAccessToken,
     getAgentKey,
   })
@@ -379,6 +362,7 @@ export function createState({
   initialRegistryDocuments.forEach(({ namespace, slug }) => addDocument({ namespace, slug, removable: false }))
 
   return {
+    pendingRequestIds: ref(new Set<string>()),
     prompt,
     chat,
     workspaceStore,

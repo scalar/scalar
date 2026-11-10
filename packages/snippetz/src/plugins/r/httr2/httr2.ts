@@ -1,6 +1,7 @@
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { HarRequest, Plugin, PluginConfiguration } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /** Quotes a value as an R string literal, escaping backslashes and double quotes. */
@@ -83,16 +84,8 @@ export const rHttr2: Plugin = {
     // Headers
     const headers: Record<string, string> = {}
 
-    if (normalizedRequest.headers?.length) {
-      for (const header of normalizedRequest.headers) {
-        headers[header.name] = header.value
-      }
-    }
-
-    // Cookies as Cookie header
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies.map((c) => `${c.name}=${c.value}`).join('; ')
-      headers['Cookie'] = cookieString
+    for (const header of mergeCookieHeaders(normalizedRequest)) {
+      headers[header.name] = header.value
     }
 
     // Auth

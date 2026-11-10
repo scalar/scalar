@@ -3,6 +3,20 @@ import { describe, expect, it } from 'vitest'
 import { nodeOfetch } from './ofetch'
 
 describe('nodeOfetch', () => {
+  it.each(['cookie', 'Cookie', 'cOoKiE'])('merges an existing %s header with encoded cookies', (name) => {
+    const result = nodeOfetch.generate({
+      url: 'https://example.com',
+      headers: [{ name, value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`headers: {
+    Cookie: 'existing=a+b==; escaped=%2F; session=a%20b%3Bc; empty='
+  }`)
+  })
+
   it('returns a basic request', () => {
     const result = nodeOfetch.generate({
       url: 'https://example.com',
@@ -145,7 +159,7 @@ ofetch('https://example.com', {
 
 ofetch('https://example.com', {
   headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
+    Cookie: 'foo=bar; bar=foo'
   }
 })`)
   })
@@ -159,5 +173,45 @@ ofetch('https://example.com', {
     expect(result).toBe(`import { ofetch } from 'ofetch'
 
 ofetch('https://example.com')`)
+  })
+
+  it('keeps repeated urlencoded names', () => {
+    const result = nodeOfetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
+  method: 'POST',
+  body: new URLSearchParams([['tag', 'a'], ['tag', 'b']])
+})`)
+  })
+
+  it.each(['__proto__', 'constructor', 'toString'])('sends a urlencoded body with the name %s', (name) => {
+    const snippet = nodeOfetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [{ name, value: 'a' }, { name: 'tag', value: 'b' }, { name: 'tag' }],
+      },
+    })
+    let body: unknown
+    new Function('ofetch', snippet.replace("import { ofetch } from 'ofetch'\n", ''))(
+      (_url: string, options: { body?: unknown }): void => {
+        body = options.body
+      },
+    )
+
+    expect(String(body)).toStrictEqual(`${name}=a&tag=b&tag=`)
   })
 })

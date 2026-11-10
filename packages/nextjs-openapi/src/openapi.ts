@@ -87,8 +87,6 @@ export const OpenAPI = (config: OpenAPIConfig = {}) => {
     const sourceFile = program.getSourceFile(fileName)
 
     if (sourceFile) {
-      const resp = getPathSchema(sourceFile, program)
-
       // Grab the path from the fileName
       const rawPath = fileName
         .replace(/^(?:src\/)?app|\/route\.ts$/g, '')
@@ -97,7 +95,7 @@ export const OpenAPI = (config: OpenAPIConfig = {}) => {
         .replace(/]/g, '}')
       const path = rawPath.startsWith('/') ? rawPath : '/' + rawPath
 
-      spec.paths[path] = resp
+      spec.paths[path] = getPathSchema(sourceFile, program, path)
     }
   })
 

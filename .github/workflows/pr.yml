@@ -37,7 +37,9 @@ jobs:
   # We only build the packages and integrations as everything else depends on them
   # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    # Every other JS job waits on this one, and a PR's first push builds with
+    # an empty turbo cache, so the extra cores pay for themselves here.
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
     permissions:
       contents: read
@@ -81,7 +83,8 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+      # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
+      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
         with:
@@ -232,12 +235,41 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - name: Setup Node
-        uses: ./.github/actions/setup-node
-      - name: Install dependencies
-        run: pnpm install
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      # `--only` skips the `build` dependencies of types:check: restore-build
+      # already put every package dist/ in place, and turbo used to rebuild
+      # whatever missed its cache before it could start checking types.
+      #
+      # `--cache=local:` turns the turbo cache off for this run, and it must
+      # stay off. With `--only`, a task's hash no longer covers the packages
+      # it depends on, so a cached pass would be replayed even after an
+      # upstream package changed its types.
       - name: Check types
-        run: pnpm turbo ${{ env.TURBO_FLAGS }} types:check
+        run: |
+          pnpm turbo ${{ env.TURBO_FLAGS }} --only --cache=local: types:check
+
+  # Builds the examples, projects and tooling that the build job leaves out
+  # (it only builds packages and integrations). They depend on those packages,
+  # so this restores their dist/ and builds just the apps on top. Without it,
+  # an example or scalar-app that no longer builds would only fail after merge.
+  # The cache stays off for the same reason as in the types job above.
+  build-apps:
+    needs: [build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - name: Restore pre-built workspace
+        uses: ./.github/actions/restore-build
+      - name: Build examples, projects and tooling
+        run: >-
+          pnpm turbo --only --cache=local:
+          --filter './examples/**'
+          --filter './projects/*'
+          --filter '!./projects/proxy-scalar-com'
+          --filter './tooling/**'
+          build
 
   knip:
     if: github.event_name == 'pull_request'
@@ -282,7 +314,7 @@ jobs:
       - name: Restore pre-built workspace
         uses: ./.github/actions/restore-build
       - name: Run tests
-        run: pnpm turbo --filter './integrations/**' test
+        run: pnpm turbo --filter './integrations/**' --only test
         # For now we will integrate the E2E tests with the integrations tests as they are quite fast and this avoids another job.
       - name: Run e2e tests
         run: pnpm --filter @scalar/nuxt test:e2e
@@ -602,8 +634,7 @@ jobs:
     # Only run for PRs from the same repository
     if: |
       always() &&
-      (needs.deploy-previews.outputs.examples-url != '' ||
-       needs.deploy-previews.outputs.api-reference-url != '' ||
+      (needs.deploy-previews.outputs.api-reference-url != '' ||
        needs.deploy-previews.outputs.components-url != '' ||
        needs.deploy-previews.outputs.api-client-url != '' ||
        needs.deploy-previews.outputs.galaxy-url != '' ||
@@ -620,7 +651,6 @@ jobs:
       - name: Build comment message
         id: build-message
         env:
-          EXAMPLES_URL: ${{ needs.deploy-previews.outputs.examples-url }}
           API_REFERENCE_URL: ${{ needs.deploy-previews.outputs.api-reference-url }}
           COMPONENTS_URL: ${{ needs.deploy-previews.outputs.components-url }}
           API_CLIENT_URL: ${{ needs.deploy-previews.outputs.api-client-url }}
@@ -628,7 +658,6 @@ jobs:
           REGISTRY_PREVIEW_URL: ${{ needs.deploy-previews.outputs.registry-preview-url }}
         run: |
           MESSAGE=""
-          [ -n "$EXAMPLES_URL" ] && MESSAGE="${MESSAGE}**Preview Examples**\n\n${EXAMPLES_URL}\n\n"
           [ -n "$API_REFERENCE_URL" ] && MESSAGE="${MESSAGE}**Preview API Reference**\n\n${API_REFERENCE_URL}\n\n"
           [ -n "$COMPONENTS_URL" ] && MESSAGE="${MESSAGE}**Preview Storybook**\n\n${COMPONENTS_URL}\n\n"
           [ -n "$API_CLIENT_URL" ] && MESSAGE="${MESSAGE}**Preview API Client**\n\n${API_CLIENT_URL}\n\n"
@@ -693,6 +722,7 @@ jobs:
     needs:
       [
         build,
+        build-apps,
         test-server-side-rendering,
         format,
         knip,

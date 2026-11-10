@@ -142,7 +142,10 @@ import {
   ScalarCardHeader,
   ScalarCardSection,
 } from '@scalar/components/card'
-import { ScalarCodeBlock } from '@scalar/components/code-block'
+import {
+  ScalarCodeBlock,
+  ScalarCodeBlockCopy,
+} from '@scalar/components/code-block'
 import { ScalarCombobox } from '@scalar/components/combobox'
 import { ScalarVirtualText } from '@scalar/components/virtual-text'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
@@ -157,7 +160,10 @@ import {
   useExampleVisibility,
   useExternalExamples,
 } from '@scalar/workspace-store/helpers/use-external-examples'
-import type { SecuritySchemeObjectSecret } from '@scalar/workspace-store/request-example'
+import {
+  resolveCredentialPlaceholders,
+  type SecuritySchemeObjectSecret,
+} from '@scalar/workspace-store/request-example'
 import type { XScalarCookie } from '@scalar/workspace-store/schemas/extensions/general/x-scalar-cookies'
 import type {
   OperationObject,
@@ -405,7 +411,7 @@ const webhookHar = computed(() => {
 })
 
 /** Generate the code snippet for the selected example */
-const generatedCode = computed<string | null>(() => {
+const generatedTemplate = computed<string | null>(() => {
   if (isWebhook) {
     return webhookHar.value?.postData?.text ?? ''
   }
@@ -429,6 +435,25 @@ const generatedCode = computed<string | null>(() => {
     requestBodyCompositionSelection,
   })
 })
+
+/** Resolve custom templates at render time so auth changes never mutate the document. */
+const resolvedCredentials = computed(() =>
+  !isWebhook &&
+  localSelectedClient.value?.id.startsWith('custom/') &&
+  generatedTemplate.value !== null &&
+  securitySchemes.some((scheme) => 'x-scalar-credential-placeholders' in scheme)
+    ? resolveCredentialPlaceholders(generatedTemplate.value, securitySchemes)
+    : undefined,
+)
+
+const generatedCode = computed(
+  () => resolvedCredentials.value?.content ?? generatedTemplate.value,
+)
+
+/** Mask inserted secrets before escaping or syntax tokenization can split their values. */
+const displayCode = computed(
+  () => resolvedCredentials.value?.displayContent ?? generatedCode.value,
+)
 
 /** The language for the code block, used for syntax highlighting */
 const codeBlockLanguage = computed(() => {
@@ -454,7 +479,9 @@ const webhookLanguage = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() => getSecrets(securitySchemes))
+const secretCredentials = computed(() =>
+  resolvedCredentials.value ? [] : getSecrets(securitySchemes),
+)
 
 /** Set custom example, or update the selected HTTP client globally */
 const selectClient = (option: ClientOption) => {
@@ -567,23 +594,31 @@ const id = useId()
       <div
         v-else
         :id="`${id}-example`"
-        class="code-snippet">
+        class="code-snippet group/code-block relative">
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
           class="bg-b-2 h-full"
-          :content="generatedCode"
+          :content="displayCode ?? ''"
+          :copyContent="resolvedCredentials ? (generatedCode ?? '') : undefined"
           :hideCredentials="secretCredentials"
           :label="codeSampleAriaLabel"
           :lang="codeBlockLanguage"
           lineNumbers />
-        <ScalarVirtualText
-          v-else
-          aria-label="Request code sample"
-          containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
-          contentClass="language-plaintext whitespace-pre font-code text-base p-2"
-          :lineHeight="20"
-          role="region"
-          :text="generatedCode" />
+        <template v-else>
+          <ScalarCodeBlockCopy
+            :aria-controls="`${id}-virtual-code`"
+            class="scalar-code-copy absolute top-2.5 right-2.5 z-1"
+            :content="generatedCode"
+            :lang="codeBlockLanguage" />
+          <ScalarVirtualText
+            :id="`${id}-virtual-code`"
+            aria-label="Request code sample"
+            containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+            contentClass="language-plaintext whitespace-pre font-code text-base p-2"
+            :lineHeight="20"
+            role="region"
+            :text="displayCode ?? ''" />
+        </template>
       </div>
     </ScalarCardSection>
 
@@ -632,9 +667,13 @@ const id = useId()
           :method="method" />
         <slot name="header" />
       </div>
-      <slot
-        :exampleName="localExampleKey"
-        name="footer" />
+      <div
+        v-if="$slots.footer"
+        class="request-card-actions relative max-w-full">
+        <slot
+          :exampleName="localExampleKey"
+          name="footer" />
+      </div>
     </ScalarCardSection>
   </ScalarCard>
 </template>
@@ -680,12 +719,23 @@ const id = useId()
 }
 .request-card-simple {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
 
   padding: 8px 8px 8px 12px;
 
   font-size: var(--scalar-small);
+}
+.request-header {
+  /* Give spare inline space to the path, while actions fill their own row after wrapping. */
+  flex: 999 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.request-card-actions {
+  flex: 1 0 auto;
 }
 .code-snippet {
   display: flex;

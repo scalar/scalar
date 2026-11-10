@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 
 const escapeRubyDoubleQuoted = (value: string): string => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
@@ -98,17 +99,8 @@ export const rubyNative: Plugin = {
       lines.push(`request.basic_auth("${username}", "${password}")`)
     }
 
-    if (normalizedRequest.headers?.length) {
-      normalizedRequest.headers.forEach((header) => {
-        lines.push(`request["${escapeRubyDoubleQuoted(header.name)}"] = '${escapeRubySingleQuoted(header.value)}'`)
-      })
-    }
-
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => `${encodeFormComponent(cookie.name)}=${encodeFormComponent(cookie.value)}`)
-        .join('; ')
-      lines.push(`request["Cookie"] = '${escapeRubySingleQuoted(cookieString)}'`)
+    for (const header of mergeCookieHeaders(normalizedRequest)) {
+      lines.push(`request["${escapeRubyDoubleQuoted(header.name)}"] = '${escapeRubySingleQuoted(header.value)}'`)
     }
 
     if (normalizedRequest.postData) {

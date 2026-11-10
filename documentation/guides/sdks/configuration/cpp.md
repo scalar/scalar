@@ -84,6 +84,14 @@ Primary repository this target's generated output is published to. Setting it tu
 | `branch` | Default branch of the destination repository, which release pull requests target. Generated output is pushed to the `scalar-generated` branch and merged with your custom code on the integration branch (`integrationBranch`, `scalar-next` by default); the release pull request is opened from there against this branch. Defaults to a `#branch` suffix on `repo`, then `main`. A value that is not a safe git branch name is skipped in favor of the next one. |
 | `integrationBranch` | Branch where generated output is combined with your custom code; defaults to `scalar-next`. Commit customizations here: each regeneration is merged into it, release pull requests are opened from it, and each released version is synced back to it. An empty string means the default. The name must be a safe git branch name, and it cannot be the default branch or collide with the branches Scalar and release-please manage, such as `scalar-generated`. |
 
+## installOrder
+
+**Type:** `("fetchContent" | "findPackage" | "vcpkg" | "conan")[]`
+
+Order of the install methods in the generated README's Installation section and the agent skill's Install section. `fetchContent` adds the SDK to a CMake project with `FetchContent` (or with `add_subdirectory` over a checkout, when the target has no GitHub production repository to fetch from); `findPackage` installs the SDK once and uses it through `find_package`, together with the commands that build and install it; `vcpkg` installs it through the overlay port under `packaging/vcpkg/ports`, and `conan` packages it with the Conan 2 recipe and requires it from a consumer's `conanfile.txt`. `vcpkg` and `conan` are offered only when the target has a production repository (`target.lifecycle`), which is what emits that packaging. Listed methods come first, in the order given; any left out follow in the default order, so a one-item list only moves that method to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed.
+
+**Default:** `["fetchContent", "findPackage", "vcpkg", "conan"]`
+
 ## skip
 
 **Type:** `boolean`

@@ -6,7 +6,6 @@ You can pass a - what we call universal - configuration object to fine-tune your
 >
 > This is NOT the `scalar.config.json` (used for the [Docs](guides/docs/configuration/scalar.config.json.md)).
 
-
 ## Universal Configuration
 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one of our integrations.
@@ -379,6 +378,35 @@ The `authentication` configuration accepts:
   - An array containing strings or arrays of strings (AND/OR relationship)
 - `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 - `createAnySecurityScheme`: When `true`, shows generic "Add new authentication" options (API Key, HTTP Basic, OAuth2 flows, etc.) in the auth dropdown alongside the schemes defined in your OpenAPI document. Default: `false`.
+- `allowedSecuritySchemes`: Optional array of scheme names to show in authentication choices and forms. Omit to show all schemes; `[]` hides all choices. When provided, generic authentication creation is hidden. An AND combination is hidden if any member is excluded. This is a visibility setting: it does not change credentials sent with requests, saved selections, or server authorization.
+
+Individual `sources` can override `authentication`. These overrides merge recursively with the shared authentication configuration; document values win and arrays replace shared arrays:
+
+```js
+Scalar.createApiReference('#app', {
+  authentication: {
+    securitySchemes: { Basic: { username: 'demo' } },
+  },
+  sources: [
+    {
+      url: '/public.json',
+      authentication: {
+        preferredSecurityScheme: 'OAuth',
+        allowedSecuritySchemes: ['OAuth'],
+      },
+    },
+    {
+      url: '/internal.json',
+      authentication: {
+        preferredSecurityScheme: 'Basic',
+        allowedSecuritySchemes: ['Basic'],
+      },
+    },
+  ],
+})
+```
+
+Keep the preferred scheme consistent with the allowlist. User selections still take precedence over the configured preferred scheme.
 
 ### baseServerURL
 
@@ -472,6 +500,19 @@ You can explicitly set the default HTTP client, though:
   }
 }
 ```
+
+To select a custom code sample, use `custom` as the target and the sample ID without the `custom/` prefix as the client:
+
+```javascript
+{
+  defaultHttpClient: {
+    targetKey: 'custom',
+    clientKey: 'python',
+  }
+}
+```
+
+This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
 
 ### featuredClients
 
@@ -577,6 +618,8 @@ Show parameter details by default. Set to `false` to start path, query, header, 
 
 The default is `true`. This does not change response or nested schema expansion settings.
 
+Deep-object query parameters with expandable fields start as one collapsed group, regardless of the number of fields. Open the group to see its bracket-named fields. Parameters without expandable fields keep their ordinary presentation. Grouping does not change the API client.
+
 ```js
 Scalar.createApiReference('#app', {
   url: 'https://registry.scalar.com/@scalar/apis/galaxy/latest?format=json',
@@ -597,7 +640,6 @@ By default response sections are closed in the operations. This flag will open t
   expandAllResponses: true
 }
 ```
-
 
 ### maxVisibleRequestBodyProperties
 
@@ -687,7 +729,7 @@ Whether to show the dark mode toggle.
 
 ### showExtensions
 
-Display selected OpenAPI extensions on operations, parameters, response headers, and schema fields without writing a plugin. Disabled by default.
+Display selected OpenAPI extensions on Paths Object and Path Item values within each operation, as well as operations, parameters, response headers, and schema fields without writing a plugin. For AsyncAPI, selected extensions also appear on channels, operations, messages, servers, and replies. Trait extensions follow the existing merge rules, including null deletion. Disabled by default.
 Works in both layouts and the standalone browser build:
 
 ```js
