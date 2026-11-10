@@ -5,7 +5,7 @@
     "electron.vite.config.*",
     "assert-scalar-app-env.ts",
     "assert-scalar-app-env-plugin.ts",
-    "monaco-vite-plugin-options.ts",
+    "monaco-vite-config.ts",
     "vite.config.ts",
     "entrypoints/electron/main/**/*",
     "entrypoints/electron/preload/**/*",

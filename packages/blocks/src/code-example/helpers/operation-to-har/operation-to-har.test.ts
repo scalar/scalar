@@ -300,8 +300,10 @@ describe('operationToHar', () => {
       expect(snippet).toContain(entry)
     }
     expect(snippet).not.toContain('Hello%252C%2520world')
-    if (target === 'js' && (client === 'xhr' || client === 'jquery')) {
-      expect(snippet).toContain('document.cookie')
+    if (target === 'js') {
+      for (const entry of expected.split('; ')) {
+        expect(snippet).toContain(`document.cookie = ${JSON.stringify(`${entry}; path=/`)};`)
+      }
     } else {
       expect(snippet).toContain(expected)
     }

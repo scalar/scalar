@@ -1,5 +1,13 @@
 # @scalar/scripts
 
+## 0.4.63
+
+## 0.4.62
+
+### Patch Changes
+
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+
 ## 0.4.61
 
 ## 0.4.60

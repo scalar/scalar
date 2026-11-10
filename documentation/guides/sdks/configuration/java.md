@@ -82,6 +82,14 @@ Maven artifact ID the JVM SDK publishes under, e.g. `acme-java`. Defaults to `<s
 
 Release environment name used by generated publishing workflows. It renders as the publish job's `environment:`, so the destination repository's environment protection rules apply to the release, and this registry's secrets can come from that environment — one there overrides a repository secret of the same name.
 
+## installOrder
+
+**Type:** `("gradle" | "maven" | "source")[]`
+
+Order of the install methods in the generated README's Installation section, the agent skill's Install section and the augmented OpenAPI document's `x-scalar-sdk-installation`, which all follow it. `gradle` is the Gradle `implementation` dependency and `maven` the `pom.xml` dependency, both offered once `publish.maven` is on; `source` is building the SDK with its own Gradle build, which the README and skill offer (the augmented document does not, since a reader there has no checkout to build). Listed methods come first, in the order given; any left out follow in the default order, so a one-item list only moves that method to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed.
+
+**Default:** `["gradle", "maven", "source"]`
+
 ## prereleaseType
 
 **Type:** `string`

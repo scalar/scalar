@@ -5,7 +5,8 @@
 type StoreData = Record<string, Record<string, any>>
 
 export class Store {
-  private data: StoreData = {}
+  // Collection names and item IDs come from guest code, so neither lookup may inherit host properties.
+  private data: StoreData = Object.create(null)
 
   /**
    * Get all items in a collection.
@@ -27,16 +28,15 @@ export class Store {
    * Auto-generates an ID if not provided.
    */
   create(collection: string, data: any): any {
-    if (!this.data[collection]) {
-      this.data[collection] = {}
-    }
+    const items: StoreData[string] = this.data[collection] ?? Object.create(null)
+    this.data[collection] = items
 
     // Handle null/undefined data by defaulting to empty object
     const safeData = data ?? {}
     const id = safeData.id ?? crypto.randomUUID()
     const item = { ...safeData, id }
 
-    this.data[collection][id] = item
+    items[id] = item
 
     return item
   }
@@ -46,14 +46,15 @@ export class Store {
    * Returns null if the item is not found.
    */
   update(collection: string, id: string, data: any): any | null {
-    if (!this.data[collection]?.[id]) {
+    const items = this.data[collection]
+    if (!items || !(id in items)) {
       return null
     }
 
     // Handle null/undefined data by defaulting to empty object
     const safeData = data ?? {}
-    const updated = { ...this.data[collection][id], ...safeData, id }
-    this.data[collection][id] = updated
+    const updated = { ...items[id], ...safeData, id }
+    items[id] = updated
 
     return updated
   }
@@ -63,11 +64,12 @@ export class Store {
    * Returns null if the item is not found.
    */
   delete(collection: string, id: string): boolean | null {
-    if (!this.data[collection]?.[id]) {
+    const items = this.data[collection]
+    if (!items || !(id in items)) {
       return null
     }
 
-    delete this.data[collection][id]
+    delete items[id]
 
     return true
   }
@@ -79,7 +81,7 @@ export class Store {
     if (collection) {
       delete this.data[collection]
     } else {
-      this.data = {}
+      this.data = Object.create(null)
     }
   }
 }

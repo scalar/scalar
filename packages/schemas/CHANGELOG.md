@@ -1,5 +1,16 @@
 # @scalar/schemas
 
+## 0.17.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10892](https://github.com/scalar/scalar/pull/10892): Allow defaultHttpClient to select custom code samples with targetKey: 'custom'.
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10893](https://github.com/scalar/scalar/pull/10893): Allow custom code samples to use separate picker headings with an optional `group` field.
+
+## 0.16.1
+
 ## 0.16.0
 
 ### Minor Changes

@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "3.23.6",
+  "version": "3.25.0",
   "engines": {
     "node": ">=22"
   },
@@ -28,9 +28,6 @@
     "dev": "vite ./playground/modal -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest --run",
-    "test:benchmark": "vitest bench",
-    "test:benchmark:compare": "vitest bench --compare test-results/test-benchmark.json",
-    "test:benchmark:save": "vitest bench --outputJson test-results/test-benchmark.json",
     "test:watch": "vitest",
     "types:check": "vue-tsc --noEmit"
   },

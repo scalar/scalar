@@ -108,6 +108,10 @@
     "routing": {
       "redirects": [
         {
+          "from": "/products/headless",
+          "to": "/"
+        },
+        {
           "from": "/docs",
           "to": "/products"
         },
@@ -358,6 +362,10 @@
         {
           "from": "/products/sdks/configuration/overview",
           "to": "/products/sdk-generator/configuration/overview"
+        },
+        {
+          "from": "/products/sdk-generator/configuration/signed-urls",
+          "to": "/products/sdk-generator/signed-urls#configuration-reference"
         },
         {
           "from": "/products/sdks/configuration/typescript",
@@ -1056,7 +1064,9 @@
             "layout": {
               "toc": false,
               "pageTitle": false,
-              "feedback": false
+              "pageActions": false,
+              "feedback": false,
+              "pageNav": false
             },
             "head": {
               "title": "Scalar — API Documentation, SDKs & Hosted MCP Servers",
@@ -1128,6 +1138,31 @@
                   "name": "googlebot",
                   "content": "index, follow, max-image-preview:large"
                 }
+              ],
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/agent-marks.js"
+                },
+                {
+                  "path": "documentation/assets/agent-hero.js"
+                },
+                {
+                  "path": "documentation/assets/sdk-hero.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
+                }
               ]
             }
           },
@@ -1146,6 +1181,12 @@
             },
             "head": {
               "title": "Scalar Pricing — Free & Paid Plans for API Docs & SDKs",
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ],
               "links": [
                 {
                   "rel": "canonical",
@@ -1242,6 +1283,14 @@
               "scripts": [
                 {
                   "path": "documentation/assets/enterprise-contact-form.js"
+                },
+                {
+                  "path": "documentation/assets/headless-window.js",
+                  "defer": true
+                },
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1287,10 +1336,16 @@
                   "name": "robots",
                   "content": "index, follow"
                 }
+              ],
+              "styles": [
+                {
+                  "path": "documentation/assets/host-scene.css"
+                }
               ]
             },
             "layout": {
               "toc": false,
+              "pageTitle": false,
               "feedback": false
             }
           },
@@ -1300,6 +1355,8 @@
             "filepath": "documentation/guides/company.md",
             "type": "page",
             "layout": {
+              "toc": false,
+              "pageTitle": false,
               "pageActions": false,
               "feedback": false
             },
@@ -1308,6 +1365,10 @@
               "scripts": [
                 {
                   "path": "documentation/assets/company.js"
+                },
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
                 }
               ],
               "links": [
@@ -1378,6 +1439,39 @@
                 "title": "SDKs",
                 "icon": "phosphor/regular/package",
                 "url": "/products/sdk-generator"
+              },
+              "api-hosting": {
+                "type": "page",
+                "title": "Deploy",
+                "icon": "phosphor/regular/butterfly",
+                "filepath": "documentation/guides/api-hosting/index.md",
+                "description": "Deploy your API from the server framework you already use: NestJS, Hono, Elysia, .NET and more.",
+                "layout": {
+                  "toc": false,
+                  "pageTitle": false,
+                  "pageActions": false,
+                  "feedback": false,
+                  "pageNav": false
+                },
+                "head": {
+                  "title": "API Hosting for server frameworks",
+                  "scripts": [
+                    {
+                      "path": "documentation/assets/api-hosting-hero.js",
+                      "defer": true
+                    },
+                    {
+                      "path": "documentation/assets/api-hosting-waitlist.js",
+                      "defer": true
+                    }
+                  ],
+                  "links": [
+                    {
+                      "rel": "canonical",
+                      "href": "https://scalar.com/products/api-hosting"
+                    }
+                  ]
+                }
               }
             }
           },
@@ -1668,10 +1762,18 @@
             "icon": "phosphor/regular/house",
             "showInSidebar": true,
             "layout": {
-              "toc": true,
+              "toc": false,
               "pageActions": false,
               "pageTitle": false,
               "feedback": false
+            },
+            "head": {
+              "scripts": [
+                {
+                  "path": "documentation/assets/headless-hero.js",
+                  "defer": true
+                }
+              ]
             }
           },
           "products": {
@@ -1713,12 +1815,35 @@
                           "content": "Publish API references and guides in one developer portal. Markdown and MDX in Git, previews on every PR, custom domains, llms.txt, and a free plan to start."
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/docs-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "robots",
                           "content": "index, follow"
                         }
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -2188,6 +2313,12 @@
                         "type": "page",
                         "title": "Tables"
                       },
+                      "fields": {
+                        "description": "Document parameters, properties, and response values as labelled rows with the field, param field, and response field components.",
+                        "filepath": "documentation/guides/docs/components/fields.mdx",
+                        "type": "page",
+                        "title": "Fields"
+                      },
                       "steps": {
                         "description": "Guide readers through sequential instructions with step components.",
                         "filepath": "documentation/guides/docs/components/steps.mdx",
@@ -2211,6 +2342,12 @@
                         "filepath": "documentation/guides/docs/components/details.mdx",
                         "type": "page",
                         "title": "Details"
+                      },
+                      "tooltips": {
+                        "description": "Attach a short explanation to a word or phrase in running text with the tooltip component.",
+                        "filepath": "documentation/guides/docs/components/tooltips.mdx",
+                        "type": "page",
+                        "title": "Tooltips"
                       },
                       "page-link": {
                         "description": "Link to other documentation pages with rich page-link previews.",
@@ -2254,6 +2391,14 @@
                     "description": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication.",
                     "head": {
                       "title": "Scalar MCP & Agent — MCP Servers from OpenAPI for LLMs",
+                      "scripts": [
+                        {
+                          "path": "documentation/assets/agent-marks.js"
+                        },
+                        {
+                          "path": "documentation/assets/agent-hero.js"
+                        }
+                      ],
                       "links": [
                         {
                           "rel": "canonical",
@@ -2274,12 +2419,35 @@
                           "content": "OpenAPI-backed MCP servers and SDKs that connect your APIs to LLMs with just-in-time tools and delegated authentication."
                         },
                         {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/agent-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
+                        },
+                        {
                           "name": "robots",
                           "content": "index, follow"
                         }
                       ]
                     },
                     "layout": {
+                      "toc": false,
+                      "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     }
                   },
@@ -2496,14 +2664,17 @@
                     "filepath": "documentation/guides/sdks/index.md",
                     "description": "Generate idiomatic SDKs and a CLI from OpenAPI. TypeScript, Python, Go, Java, Kotlin, Ruby, and CLI are GA, plus experimental C#, PHP, and more. Your custom code survives.",
                     "layout": {
+                      "toc": false,
                       "pageTitle": false,
+                      "pageActions": false,
                       "feedback": false
                     },
                     "head": {
                       "title": "SDK generator from OpenAPI — TypeScript, Python, Go & more",
                       "scripts": [
                         {
-                          "path": "documentation/assets/sdk-demo.js"
+                          "path": "documentation/assets/sdk-hero.js",
+                          "defer": true
                         }
                       ],
                       "links": [
@@ -2529,6 +2700,26 @@
                           "property": "og:image",
                           "name": "og:image",
                           "content": "https://cdn.scalar.com/images/twitter-image.png"
+                        },
+                        {
+                          "property": "og:video",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:secure_url",
+                          "content": "https://cdn.scalar.com/marketing/landing/sdk-og-video.mp4"
+                        },
+                        {
+                          "property": "og:video:type",
+                          "content": "video/mp4"
+                        },
+                        {
+                          "property": "og:video:width",
+                          "content": "1200"
+                        },
+                        {
+                          "property": "og:video:height",
+                          "content": "630"
                         },
                         {
                           "name": "twitter:title",
@@ -2599,7 +2790,6 @@
                     "title": "Publishing",
                     "type": "group",
                     "mode": "nested",
-                    "icon": "phosphor/regular/rocket-launch",
                     "children": {
                       "overview": {
                         "filepath": "documentation/guides/sdks/publishing/overview.md",
@@ -2825,6 +3015,30 @@
                         {
                           "name": "description",
                           "content": "Generate webhook helpers that verify a delivery's signature and decode its body into a typed event, declared with a webhookUnwrap method over your OpenAPI document's webhooks."
+                        },
+                        {
+                          "name": "robots",
+                          "content": "index, follow"
+                        }
+                      ]
+                    }
+                  },
+                  "signed-urls": {
+                    "filepath": "documentation/guides/sdks/signed-urls.md",
+                    "type": "page",
+                    "title": "Signed URLs (Experimental)",
+                    "description": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out.",
+                    "head": {
+                      "links": [
+                        {
+                          "rel": "canonical",
+                          "href": "https://scalar.com/products/sdk-generator/signed-urls"
+                        }
+                      ],
+                      "meta": [
+                        {
+                          "name": "description",
+                          "content": "Generate SDK methods that get a signed URL and return it, download from it, or upload a file to it, whether your side signs the link or the API hands it out."
                         },
                         {
                           "name": "robots",
@@ -4846,7 +5060,10 @@
               "filepath": "documentation/compare/index.md",
               "description": "Honest comparisons of Scalar against other API documentation and SDK generation platforms.",
               "layout": {
-                "toc": false
+                "toc": false,
+                "pageActions": false,
+                "pageTitle": false,
+                "feedback": false
               },
               "head": {
                 "title": "Scalar Comparison Guides",
@@ -4872,6 +5089,12 @@
                   {
                     "name": "robots",
                     "content": "index, follow"
+                  }
+                ],
+                "scripts": [
+                  {
+                    "path": "documentation/assets/headless-hero.js",
+                    "defer": true
                   }
                 ]
               }

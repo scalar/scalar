@@ -3,6 +3,45 @@ import { describe, expect, it } from 'vitest'
 import { jsFetch } from './fetch'
 
 describe('jsFetch', () => {
+  it.each([true, false, 0, 42, 'true', 'false', 'null', 'hello', null])('preserves the root JSON value %j', (value) => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/json', text: JSON.stringify(value) },
+    })
+    expect(result).toContain(`body: JSON.stringify(${JSON.stringify(value)})`)
+  })
+
+  it('preserves raw Cookie headers and encodes structured cookies for the browser', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      headers: [{ name: 'cOoKiE', value: 'existing=a+b==; escaped=%2F' }],
+      cookies: [
+        { name: 'session', value: 'a b;c' },
+        { name: 'empty', value: '' },
+      ],
+    })
+    expect(result).toContain(`document.cookie = "session=a%20b%3Bc; path=/";
+document.cookie = "empty=; path=/";
+document.cookie = "existing=a+b==; path=/";
+document.cookie = "escaped=%2F; path=/";`)
+    expect(result).toContain("credentials: 'include'")
+    expect(result.includes('headers:')).toBe(false)
+  })
+
+  it('keeps cookie setup when generating a multipart body', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      cookies: [{ name: 'session', value: 'abc123' }],
+      postData: { mimeType: 'multipart/form-data', params: [{ name: 'note', value: 'hello' }] },
+    })
+    expect(result).toContain('document.cookie = "session=abc123; path=/";')
+    expect(result).toContain('const formData = new FormData();')
+    expect(result).toContain("credentials: 'include'")
+    expect(result).toContain('body: formData')
+  })
+
   it('returns a basic request', () => {
     const result = jsFetch.generate({
       url: 'https://example.com',
@@ -177,10 +216,12 @@ describe('jsFetch', () => {
       ],
     })
 
-    expect(result).toBe(`fetch('https://example.com', {
-  headers: {
-    'Set-Cookie': 'foo=bar; bar=foo'
-  }
+    expect(result).toBe(`// Run on the request origin; document.cookie writes cookies for the current page's domain.
+document.cookie = "foo=bar; path=/";
+document.cookie = "bar=foo; path=/";
+
+fetch('https://example.com', {
+  credentials: 'include'
 })`)
   })
 
@@ -223,10 +264,26 @@ describe('jsFetch', () => {
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded'
   },
-  body: new URLSearchParams({
-    foo: 'bar',
-    baz: 'foo'
+  body: new URLSearchParams([['foo', 'bar'], ['baz', 'foo']])
+})`)
   })
+
+  it('keeps repeated urlencoded names', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          { name: 'tag', value: 'a' },
+          { name: 'tag', value: 'b' },
+        ],
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com', {
+  method: 'POST',
+  body: new URLSearchParams([['tag', 'a'], ['tag', 'b']])
 })`)
   })
 

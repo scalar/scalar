@@ -533,17 +533,40 @@ class TestEdgeCases:
         ]
         assert actual.elements == expected
 
-    def test_content_with_closing_script_tag_cannot_break_out(self):
-        """A document containing </script> must not break out of the inline script"""
-        response = get_scalar_api_reference(
-            content='{"openapi": "3.1.0", "info": {"title": "</script><script>alert(1)</script>"}}',
+    @pytest.mark.parametrize("as_string", [False, True], ids=["dictionary", "json"])
+    @pytest.mark.parametrize("in_sources", [False, True], ids=["content", "sources"])
+    @pytest.mark.parametrize(
+        "title",
+        ["</ScRiPt><script>alert(1)</script>", "<!--<script>"],
+        ids=["script-breakout", "script-tokenizer"],
+    )
+    def test_openapi_content_stays_inside_initializer(self, as_string, in_sources, title):
+        document = {
+            "openapi": "3.1.0",
+            "info": {"title": title, "version": "1.0.0"},
+            "paths": {},
+        }
+        content = json.dumps(document) if as_string else document
+        options = (
+            {"sources": [OpenAPISource(content=content)]}
+            if in_sources
+            else {"content": content}
         )
-
-        html_content = response.body.decode()
-        # The closing tag is neutralized as <\/script> inside the config ...
-        assert "<\\/script>" in html_content
-        # ... so the raw breakout sequence never appears.
-        assert "</script><script>alert(1)</script>" not in html_content
+        html_content = get_scalar_api_reference(**options).body.decode()
+        _, initializer, script_and_tail = html_content.partition(
+            'Scalar.createApiReference("#app", '
+        )
+        assert initializer
+        config_json, closing_script, tail = script_and_tail.partition("</script>")
+        assert closing_script
+        assert "</body>" in tail
+        assert "<script" not in tail.lower()
+        assert "<" not in config_json
+        config = json.loads(config_json.strip().removesuffix(")"))
+        actual_content = (
+            config["sources"][0]["content"] if in_sources else config["content"]
+        )
+        assert actual_content == content
 
     def test_complex_json_in_configuration(self):
         """Test with complex JSON structures in configuration"""
@@ -685,3 +708,80 @@ class TestPlainStringValues:
         ).body.decode()
 
         assert from_string == from_enum
+
+
+class TestHtmlEscaping:
+    @pytest.mark.parametrize(
+        "field, js_field",
+        [
+            ("openapi_url", "url"),
+            ("content", "content"),
+            ("custom_css", "customCss"),
+            ("sources", "sources"),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "payload",
+        [
+            "</script><script>window.SCALAR_TITLE_PROBE=1</script>",
+            "</ScRiPt><script>window.SCALAR_TITLE_PROBE=1</script>",
+            '<!--<script> & "quotes" \u2028\u2029日本語',
+        ],
+    )
+    def test_configuration_remains_inside_script(self, field, js_field, payload):
+        """Embedded JSON preserves values without allowing HTML parser breakouts."""
+        value = (
+            [OpenAPISource(title=payload, url="/openapi.json")]
+            if field == "sources"
+            else payload
+        )
+        response = get_scalar_api_reference(
+            **{"openapi_url": "/openapi.json", "title": "Test API", field: value}
+        )
+
+        class ScriptParser(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+                self.in_script = False
+
+            def handle_starttag(self, tag, attrs):
+                if tag == "script":
+                    self.scripts.append("")
+                    self.in_script = True
+
+            def handle_endtag(self, tag):
+                if tag == "script":
+                    self.in_script = False
+
+            def handle_data(self, data):
+                if self.in_script:
+                    self.scripts[-1] += data
+
+        parser = ScriptParser()
+        parser.feed(response.body.decode())
+        baseline = ScriptParser()
+        baseline.feed(
+            get_scalar_api_reference(
+                openapi_url="/openapi.json", title="Test API"
+            ).body.decode()
+        )
+        assert len(parser.scripts) == len(baseline.scripts)
+        prefix = 'Scalar.createApiReference("#app", '
+        initializations = [
+            script.strip()
+            for script in parser.scripts
+            if script.strip().startswith(prefix)
+        ]
+        assert len(initializations) == 1
+        initialization = initializations[0]
+        assert initialization.endswith(")")
+        config_json = initialization[len(prefix) : -1]
+        # Also prevent HTML comment/script sequences from changing parser state.
+        assert "<" not in config_json
+        decoded = json.loads(config_json)
+        if field == "sources":
+            assert decoded[js_field][0]["title"] == payload
+            assert decoded[js_field][0]["url"] == "/openapi.json"
+        else:
+            assert decoded[js_field] == value

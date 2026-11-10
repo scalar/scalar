@@ -95,6 +95,12 @@ export const pt = {
     'openAPIClient': 'Abrir cliente de API',
   },
   'requestBody': {
+    'part': 'Parte {number}',
+    'addPart': 'Adicionar parte',
+    'invalidPart': 'Insira JSON válido para esta parte.',
+
+    'restoreOriginalBody': 'Restaurar o corpo original',
+    'createExampleFromSchema': 'Criar exemplo a partir do esquema',
     'noBody': 'Sem corpo',
     'delete': 'Excluir',
     'selectFile': 'Selecionar arquivo',

@@ -1,5 +1,46 @@
 # @scalar/mock-server
 
+## 0.21.1
+
+### Patch Changes
+
+- [#10951](https://github.com/scalar/scalar/pull/10951): Use shortest round-trip decimal values consistently for multipleOf checks, including large JSON integers and positive exponents. Fast-path safe integers and share keyword registration across validators.
+- [#10951](https://github.com/scalar/scalar/pull/10951): Validate decimal `multipleOf` constraints with exact decimal arithmetic, accepting values such as `19.99` and `1000000.19` for `multipleOf: 0.01` while rejecting nonmultiples without a floating-point tolerance.
+- [#10813](https://github.com/scalar/scalar/pull/10813): fix: keep the required properties of an object that the example depth cap truncates, so a deeply nested mock response no longer serves `{}` where its schema requires keys, including keys required through `allOf` members or the selected `oneOf`/`anyOf` variant
+
+  Preserve explicit values equal to the depth marker and exclude requirements from unselected union branches.
+
+  Keep required primitive compositions on the normal traversal and collect discriminator requirements from the branch rendered after depth truncation.
+
+  Reuse evaluated discriminator values for required-property collection and keep inferred tuple arrays empty past the depth cap.
+
+  Preserve shared requirements and required primitive values through dynamic references, including requirements declared in dynamically referenced composition members.
+
+  Collect requirements separately when composition branches reuse a shared template under different dynamic bindings.
+
+  Exclude requirements from composition members omitted by the request or response mode.
+
+- [#10950](https://github.com/scalar/scalar/pull/10950): Ignore declared Content-Length, Content-Encoding, and Content-Type response headers so generated bodies remain readable and empty responses do not inherit a declared content type.
+
+  Ignore other transport-managed headers, including Transfer-Encoding and Trailer. Skip and warn about malformed declared header names and values instead of failing the response.
+
+- [#10938](https://github.com/scalar/scalar/pull/10938): fix: merge array items whose `allOf` describes an object without `type: object` on the first member into one example instead of one partial object per member
+- [#10940](https://github.com/scalar/scalar/pull/10940): Route path segments that mix parameters with literal text, such as `{id}.json`, `{id}:cancel` and `v{version}`, only to requests that carry the literal text, and pass their parameters to request validation, `x-handler` and `x-variable`.
+- [#10930](https://github.com/scalar/scalar/pull/10930): Accept request bodies that leave out required `readOnly` properties during request validation.
+- [#10875](https://github.com/scalar/scalar/pull/10875): Keep mock store collections and item IDs isolated from inherited host properties, and validate keys passed through the script sandbox.
+
+## 0.21.0
+
+### Minor Changes
+
+- [#10809](https://github.com/scalar/scalar/pull/10809): feat: add an `onResponse` hook to observe or replace the response for each request
+
+### Patch Changes
+
+- [#10808](https://github.com/scalar/scalar/pull/10808): fix: match concrete paths before templated ones, so `/pets/mine` is answered by its own operation even when the document declares `/pets/{petId}` first
+- [#10810](https://github.com/scalar/scalar/pull/10810): fix: leave an object document passed to `createMockServer` unchanged instead of bundling it in place
+- [#10812](https://github.com/scalar/scalar/pull/10812): fix(mock-server): include deprecated schemas in XML responses, so a response whose schema is deprecated no longer comes back with an empty XML body
+
 ## 0.20.3
 
 ## 0.20.2

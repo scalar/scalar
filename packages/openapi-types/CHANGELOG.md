@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.9.9
+
+### Patch Changes
+
+- [#10921](https://github.com/scalar/scalar/pull/10921): Isolate declaration compatibility tests from ambient workspace types.
+
 ## 0.9.8
 
 ### Patch Changes

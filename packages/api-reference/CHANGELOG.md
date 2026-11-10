@@ -1,5 +1,63 @@
 # @scalar/api-reference
 
+## 1.78.0
+
+### Minor Changes
+
+- [#10892](https://github.com/scalar/scalar/pull/10892): Allow defaultHttpClient to select custom code samples with targetKey: 'custom'.
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10902](https://github.com/scalar/scalar/pull/10902): Render self-contained Avro, RAML, and Protobuf schemas as native field and type documentation, retaining copyable source for unsupported schemas.
+
+### Patch Changes
+
+- [#10890](https://github.com/scalar/scalar/pull/10890): Add an Elixir language icon and show it on Elixir SDK installation tabs.
+- [#10936](https://github.com/scalar/scalar/pull/10936): Mark hosting waitlist sign-ups from the developer tools Deploy card with an `oss` contact property.
+- [#10898](https://github.com/scalar/scalar/pull/10898): Preserve browser-native plugin URL imports when bundling API Reference with Next.js Turbopack.
+- [#10908](https://github.com/scalar/scalar/pull/10908): Expose `Scalar.releaseUnusedStyles()` in the standalone bundle to release orphaned CSS without mounting a temporary reference or changing body theme classes. Preserve styles owned by active references and restore detached styles on the next mount.
+- [#10873](https://github.com/scalar/scalar/pull/10873): Display the API description version verbatim without adding a `v` prefix, so commit hashes and other version identifiers remain accurate.
+- [#10874](https://github.com/scalar/scalar/pull/10874): Automatically group deep-object query parameters with expandable fields in a collapsed row.
+
+  Keep expanded fields open during navigation within a group, and mark flattened fields as required only when every ancestor is required.
+
+- [#10949](https://github.com/scalar/scalar/pull/10949): Show response header examples, including media type examples and OpenAPI 3.2 cookie examples, with explicit examples taking precedence over schema examples. Preserve this precedence through composed schemas and fall back to media type examples when header examples have no usable values.
+
+  Keep external example URLs visible and preserve line breaks in displayed string examples. Across all schemas, array-level examples take precedence over item examples.
+
+  Preserve `x-example` and `x-examples` on OpenAPI 2.0 response headers during upgrades.
+
+## 1.77.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Render Paths Object and Path Item extensions alongside operation extensions within each operation in both layouts. Preserve arbitrary Paths Object extension values during browser loading and server preprocessing, and exclude them from operation navigation and tag/auth edits.
+- [#10662](https://github.com/scalar/scalar/pull/10662): Supply the plugin-aware specification extension renderer by default in API reference components while preserving custom renderer overrides. Export scrollTargetId from the helpers entry point for custom layouts.
+- [#10733](https://github.com/scalar/scalar/pull/10733): Render configured and plugin extensions on AsyncAPI channels, operations, messages, servers, and replies.
+
+### Patch Changes
+
+- [#10841](https://github.com/scalar/scalar/pull/10841): Fix the "Auth Required" badge panel briefly overflowing the viewport on hover by mounting the floating panel together with its content, so Floating UI positions it at its real width on first render.
+- [#10755](https://github.com/scalar/scalar/pull/10755): fix: add space below section dividers and between the last untagged operation and the next section in the classic layout
+- [#10733](https://github.com/scalar/scalar/pull/10733): Align AsyncAPI message and server extensions with their surrounding content and reduce excess spacing.
+- [#10734](https://github.com/scalar/scalar/pull/10734): Select an available server when a live API description update removes the previously selected server URL.
+- [#10805](https://github.com/scalar/scalar/pull/10805): fix: keep the page on the newest navigation target while an earlier target is still rendering
+- [#10771](https://github.com/scalar/scalar/pull/10771): Wrap operation titles without spaces, such as webhook names, on narrow screens instead of pushing the page wider than the viewport.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Keep Paths extensions out of request-body snapshots, resets, default routing, and path parameter synchronization. Hide unselected Paths and Path Item extension sections in the classic layout.
+- [#10735](https://github.com/scalar/scalar/pull/10735): Preserve server-rendered API content during hydration by restoring the preloaded document state before the first browser render.
+- [#10869](https://github.com/scalar/scalar/pull/10869): Revert selected API description uploads in full mode until the backend supports them with agent-key authorization. Full mode uses the agent key's registered documents again.
+- [#10818](https://github.com/scalar/scalar/pull/10818): Open search much faster for API descriptions whose models reference each other by expanding each schema only once while building the search index. Preserve property descriptions through shared reference aliases and stop reading wide compositions at the traversal budget.
+- [#10820](https://github.com/scalar/scalar/pull/10820): Keep search responsive for API descriptions whose models reference each other by indexing schema fields up to 6 edges deep instead of 64. Fields nested more deeply no longer match their operations in search.
+- [#10819](https://github.com/scalar/scalar/pull/10819): Open search faster by reading each schema once per search index build, however many operations reference it.
+- [#10735](https://github.com/scalar/scalar/pull/10735): Reduce embedded hydration state, recover from damaged state, and preserve the client button during server rendering.
+- [#10771](https://github.com/scalar/scalar/pull/10771): Place request actions below the method and path in narrow fallback cards, keeping button labels readable without clipping.
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
+## 1.76.4
+
+### Patch Changes
+
+- [#10796](https://github.com/scalar/scalar/pull/10796): feat: send the server framework with hosting waitlist sign-ups
+
 ## 1.76.3
 
 ### Patch Changes

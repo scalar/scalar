@@ -1,5 +1,15 @@
 # @scalar/docusaurus
 
+## 0.8.57
+
+### Patch Changes
+
+- [#10908](https://github.com/scalar/scalar/pull/10908): Load Scalar only on API reference routes and destroy its instances when leaving, preventing standalone styles from affecting other Docusaurus pages.
+
+  The CDN bundle is no longer injected on every page. Sites using `window.Scalar.createApiReference` outside an API reference route must load the bundle explicitly. Upgrade pinned CDN bundles to a release with `Scalar.releaseUnusedStyles` for cleanup when navigation interrupts loading.
+
+## 0.8.56
+
 ## 0.8.55
 
 ## 0.8.54

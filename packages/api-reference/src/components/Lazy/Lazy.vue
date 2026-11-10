@@ -9,7 +9,15 @@
  */
 
 import { useIntersectionObserver } from '@vueuse/core'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  getCurrentInstance,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 
 import {
   getLazyPlaceholderHeight,
@@ -33,6 +41,17 @@ const VIEWPORT_OVERSCAN_PX = 1200
 const VIEWPORT_ROOT_MARGIN = `${VIEWPORT_OVERSCAN_PX}px 0px`
 
 const { isReady } = useLazyBus(id)
+
+// SSR already rendered this section; do not replace it with a placeholder during hydration.
+const hydrationElement = getCurrentInstance()?.vnode.el
+if (
+  typeof Element !== 'undefined' &&
+  hydrationElement instanceof Element &&
+  hydrationElement.getAttribute('data-placeholder') === 'false'
+) {
+  requestLazyRender(id, true)
+}
+
 const lazyContainerRef = ref<HTMLElement | null>(null)
 
 const placeholderHeight = ref(

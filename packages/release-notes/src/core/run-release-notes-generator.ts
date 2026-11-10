@@ -195,6 +195,7 @@ export const runReleaseNotesGeneratorForProduct = async (
     pullRequests,
     dependencyChangelogs,
     prompts: options.prompts,
+    maxHighlights: product.maxHighlights,
     product: {
       displayName: product.displayName,
       description: product.description,

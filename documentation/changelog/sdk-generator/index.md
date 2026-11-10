@@ -8,6 +8,78 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.39.0 (2026-11-06)
+
+### CLI confirmations, improved pluralization, and form encoding
+
+Generated CLIs can now prompt for confirmation before running destructive commands. This release also fixes how names are derived from plurals like 'analyses' and 'aliases', and improves form-encoded request body handling across multiple targets.
+
+- CLI commands can now ask for confirmation before running. Set `cli.confirm` on a method or use `targets.cli.confirm: "delete"` to prompt before every `DELETE` operation.
+- Names derived from plurals are now singularized correctly. Words like 'analyses', 'aliases', 'warehouses', and 'quizzes' now generate proper singular forms ('analysis', 'alias', 'warehouse', 'quiz').
+- Form-encoded request bodies (`application/x-www-form-urlencoded`) are now properly encoded in C#, Go, Java, Kotlin, and Python SDKs instead of being sent as JSON.
+- TypeScript SDKs and CLIs can now build with pnpm, Yarn, or Bun. Set `targets.typescript.packageManager` or `targets.cli.packageManager` to use an alternative package manager in generated workflows.
+- Request types now include `readOnly` properties that serve as discriminator tags, so polymorphic requests carry the type information needed for dispatch.
+
+## 0.38.0 (2026-11-04)
+
+### Improved name pluralization and SDK credential handling
+
+This release improves how array elements and model names are derived from plural nouns, and refines security credential selection across multiple targets.
+
+- Array elements named from `-ie` plurals now use the proper singular form: `cookies` generates `Cookie` instead of `Cooky`, and the same applies to `movies`, `zombies`, `ties` and similar words across all naming.
+- Generated CLIs with `openapi.operationSecurity` now send only the credentials each command's security requirements select, so conflicting schemes no longer overwrite each other.
+- The CLI install script now updates your shell's startup file to put the command on `PATH`, so it works by name after installation without manual configuration.
+- SDKs in C++, C#, Go, Kotlin, Java, Python, Ruby, Rust, Swift and TypeScript honor `openapi.operationSecurity`, sending each request only the credentials its operation requires rather than every configured credential.
+- Experimental signed-URL methods landed in C++, Go, Rust and Swift SDKs for generating and fetching presigned URLs, with shared signing rules across all targets.
+
+## 0.37.1 (2026-11-01)
+
+### Signed URL methods ship for C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript
+
+Experimental signed URL methods now generate across ten languages. Each target builds, signs and fetches secure URLs following shared byte rules so every SDK signs consistently. TypeScript and Python also render CLI commands for these methods.
+
+- C++, C#, Dart, Go, Java, Kotlin, PHP, Python, Ruby and TypeScript SDKs now render `kind: signedUrl` methods for the `sign → return`, `sign → fetch` and `request → fetch` flows.
+- Every SDK follows the same byte rules when signing: declaration-order JSON payload, absent properties left out, RFC 3986 percent-encoding, HMAC-SHA256 keyed with UTF-8 bytes over exactly the bytes in the URL.
+- Generated CLIs for TypeScript SDKs now include commands for signed URL methods, calling the embedded SDK to build, sign and fetch URLs with per-param flags.
+- New `clientSettings.idempotency` block lets you configure the idempotency key format as `uuid-v4` or time-ordered `uuid-v7`, with optional hyphens and custom prefix.
+- CLI `upgrade` command now runs the owning package manager itself instead of printing instructions, and standalone binaries get an `install.sh` script for one-command installation.
+
+## 0.37.0 (2026-10-29)
+
+### PHP signed uploads, backward pagination, and hardened runtimes
+
+This release brings file uploads to PHP SDKs, backward pagination to cursor schemes, and runtime security improvements across all targets.
+
+- PHP SDKs now generate signed upload methods that handle the full upload flow, from initiation through pre-signed URL upload to confirmation.
+- Cursor pagination can now step backward when the caller sets a backward parameter, with support landing in TypeScript, Python, CLI, C#, Swift, Dart, C++ and PHP SDKs.
+- TypeScript and CLI SDKs gained hardened redirect handling that drops credentials when leaving the API origin, caps response bodies at 64 MiB, and masks secrets in logs.
+- Swift SDKs changed scalar typing: `uuid` format is now `String`, `int32` is `Int`, and watchOS is no longer a supported platform.
+- Generated package manifests now link homepage, repository, issue tracker, changelog and documentation, and list configured keywords.
+
+## 0.36.11 (2026-10-26)
+
+### PHP SDK enhancements and webhook verification improvements
+
+This release brings significant improvements to generated PHP SDKs, including file downloads, date-time parsing, and webhook signature verification with no external dependencies. It also adds webhook companion methods and signed upload support across multiple targets.
+
+- PHP SDKs now write raw responses to files with `toFile($path)` and parse date-times using configured fallback formats before falling back to PHP's own parser.
+- PHP SDKs verify webhook signatures with a built-in verifier and no longer require the standardwebhooks package.
+- PHP SDKs expose `getRequestID()` on raw responses and API exceptions, and add client conveniences like `withOptions()` and idempotency key support.
+- Webhook helpers now generate `verify_signature` and `parse_unsafe` companion methods alongside the parse method across TypeScript, Python, Go, Java, Kotlin, Ruby and PHP.
+- Signed upload methods are now generated for Go, Java, Kotlin, Ruby and the CLI, uploading files to pre-signed URLs returned by the API.
+
+## 0.36.10 (2026-10-23)
+
+### TypeScript webhook verification improvements and C++ SDK updates
+
+This release brings a faster, built-in webhook verifier to TypeScript SDKs and extends signed upload support to TypeScript and Python. The experimental C++ SDK adds comprehensive features including client options, logging, and webhook handling.
+
+- TypeScript SDKs now verify webhook signatures with a built-in verifier that is 2–6× faster than the previous library dependency.
+- Signed upload methods are now available in TypeScript and Python SDKs for two-step file upload flows.
+- The experimental C++ SDK can now authenticate requests, validate credentials at build time, and log requests at configurable levels.
+- Generated Go, Java, Kotlin, and Rust SDKs can parse date-time responses in custom formats through `dateTimeSettings.fallbackFormats`.
+- Method aliases can now point to methods on any resource, with independent control over positional parameters.
+
 ## 0.36.9 (2026-10-21)
 
 ### Configuration handling improvements and code generation refinements

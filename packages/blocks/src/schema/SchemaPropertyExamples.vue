@@ -292,7 +292,7 @@ onKeyStroke('Escape', () => {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: pre;
 }
 .property-example-value :deep(svg) {
   color: var(--scalar-color-3);

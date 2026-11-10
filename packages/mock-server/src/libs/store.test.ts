@@ -7,6 +7,50 @@ describe('store', () => {
     store.clear()
   })
 
+  it.each(['__proto__', 'constructor', 'toString'])('treats %s as an ordinary collection name', (collection) => {
+    expect(store.get(collection, 'missing')).toBeUndefined()
+    expect(store.list(collection)).toStrictEqual([])
+    const item = { id: 'scalarStoreRegression', name: 'Ada' }
+
+    try {
+      store.create(collection, item)
+      expect(store.get(collection, item.id)).toStrictEqual(item)
+      expect(Object.hasOwn(Object.prototype, item.id)).toBe(false)
+      expect(Object.hasOwn(Object, item.id)).toBe(false)
+      expect(Object.hasOwn(Object.prototype.toString, item.id)).toBe(false)
+      expect(store.list(collection)).toStrictEqual([item])
+      expect(store.update(collection, item.id, { name: 'Alan' })).toStrictEqual({ ...item, name: 'Alan' })
+      expect(store.delete(collection, item.id)).toBe(true)
+      expect(store.list(collection)).toStrictEqual([])
+    } finally {
+      // Keep a failing regression from leaking prototype changes into other tests.
+      Reflect.deleteProperty(Object.prototype, item.id)
+      Reflect.deleteProperty(Object, item.id)
+      Reflect.deleteProperty(Object.prototype.toString, item.id)
+    }
+  })
+
+  it.each(['__proto__', 'constructor', 'toString'])('does not read inherited item ID %s', (id) => {
+    store.create('users', { id: '1' })
+
+    expect(store.get('users', id)).toBeUndefined()
+    expect(store.update('users', id, { name: 'Ada' })).toBeNull()
+    expect(store.delete('users', id)).toBeNull()
+    expect(store.list('users')).toStrictEqual([{ id: '1' }])
+  })
+
+  it.each(['__proto__', 'constructor', 'toString'])('stores and deletes item ID %s', (id) => {
+    const item = { id, name: 'Ada' }
+    store.create('users', item)
+
+    expect(store.list('users')).toStrictEqual([item])
+    expect(store.get('users', id)).toStrictEqual(item)
+    expect(store.update('users', id, { name: 'Alan' })).toStrictEqual({ id, name: 'Alan' })
+    expect(store.delete('users', id)).toBe(true)
+    expect(store.get('users', id)).toBeUndefined()
+    expect(store.list('users')).toStrictEqual([])
+  })
+
   it('list returns empty array for non-existent collection', () => {
     const result = store.list('items')
     expect(result).toEqual([])

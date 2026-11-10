@@ -95,6 +95,12 @@ export const ru = {
     'openAPIClient': 'Открыть API-клиент',
   },
   'requestBody': {
+    'part': 'Часть {number}',
+    'addPart': 'Добавить часть',
+    'invalidPart': 'Введите корректный JSON для этой части.',
+
+    'restoreOriginalBody': 'Восстановить исходное тело',
+    'createExampleFromSchema': 'Создать пример из схемы',
     'noBody': 'Без тела',
     'delete': 'Удалить',
     'selectFile': 'Выбрать файл',
