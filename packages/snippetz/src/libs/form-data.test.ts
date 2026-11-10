@@ -125,9 +125,7 @@ describe('form-data', () => {
     expect(file.name).toBe('inline.txt')
     expect(await file.text()).toBe('contents')
   })
-})
 
-describe('urlSearchParams', () => {
   it.each<[string, Params, string]>([
     [
       'repeated names in order',

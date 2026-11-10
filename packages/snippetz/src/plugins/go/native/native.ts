@@ -66,10 +66,15 @@ const buildBodySection = (postData?: {
     return {
       imports,
       setupLines: [
-        'postData := neturl.Values{}',
-        ...postData.params.map((param) => `postData.Add(${goString(param.name)}, ${goString(param.value ?? '')})`),
+        // Values.Encode sorts keys, so encode each pair without grouping repeated names.
+        'postData := strings.Join([]string{',
+        ...postData.params.map(
+          (param) =>
+            `\tneturl.QueryEscape(${goString(param.name)}) + "=" + neturl.QueryEscape(${goString(param.value ?? '')}),`,
+        ),
+        '}, "&")',
       ],
-      requestBody: 'strings.NewReader(postData.Encode())',
+      requestBody: 'strings.NewReader(postData)',
       needsMultipartContentTypeHeader: false,
     }
   }

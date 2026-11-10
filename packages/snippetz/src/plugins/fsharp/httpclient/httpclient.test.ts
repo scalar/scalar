@@ -160,7 +160,7 @@ describe('fsharpHttpclient.generate - postData', () => {
           { name: 'tag', value: 'b' },
         ],
       },
-    } as any
+    }
     const result = fsharpHttpclient.generate(request, {})
     expect(result).toContain('KeyValuePair("tag", "a")\n  KeyValuePair("tag", "b")')
     expect(result).not.toContain('Dictionary')

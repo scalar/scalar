@@ -2,7 +2,7 @@ import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { mergeCookieHeaders } from '@/libs/cookies'
-import { accumulateRepeatedValue, normalizeMethod, reduceQueryParams } from '@/libs/http'
+import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 
 /**
  * Escapes a string so it stays a valid EDN string literal. Backslashes are
@@ -173,14 +173,8 @@ export const clojureCljhttp: Plugin = {
         break
       }
       case 'application/x-www-form-urlencoded': {
-        // clj-http writes a vector value as a repeated key, and a name such as __proto__ needs a prototype-free map.
-        const formParams: Record<string, string | string[]> = Object.create(null)
-        for (const param of postData.params ?? []) {
-          if (param.name) {
-            accumulateRepeatedValue(formParams, param.name, param.value ?? '')
-          }
-        }
-        params['form-params'] = formParams
+        // clj-http accepts pairs, preserving repeated names and their positions relative to other fields.
+        params['form-params'] = (postData.params ?? []).map(({ name, value }) => [name, value ?? ''])
         deleteHeader(headers, 'content-type')
         break
       }
