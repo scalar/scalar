@@ -5,6 +5,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { isInsideDataValue } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
+import { migrateDiscriminatorMappings } from './migrate-discriminator-mappings'
+
 type XExampleExtensions = {
   xExample: unknown
   xExamples: unknown
@@ -236,6 +238,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     for (const schema of Object.values(document.definitions)) {
       migrateSchema(schema)
     }
+    migrateDiscriminatorMappings(document.definitions)
 
     document.components = Object.assign({}, document.components, {
       schemas: document.definitions,

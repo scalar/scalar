@@ -12,6 +12,98 @@ const upgradeTargets = [
 ] as const
 
 describe('upgrade', () => {
+  it.each(upgradeTargets)('maps vendor discriminator values when upgrading to %s', (_target, upgradeDocument) => {
+    const input = {
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      paths: {},
+      definitions: {
+        Pet: { type: 'object', discriminator: 'kind', properties: { kind: { type: 'string' } } },
+        Mammal: { allOf: [{ $ref: '#/definitions/Pet' }] },
+        'Dog/~ breed': {
+          'x-ms-discriminator-value': 'hound',
+          'x-discriminator-value': 'dog',
+          allOf: [{ $ref: '#/definitions/Mammal' }],
+        },
+        Cat: { 'x-discriminator-value': '', allOf: [{ $ref: '#/definitions/Pet' }] },
+        Plain: { allOf: [{ $ref: '#/definitions/Pet' }] },
+        Unrelated: { 'x-ms-discriminator-value': 'unrelated', type: 'object' },
+      },
+    }
+    const result = upgradeDocument(input)
+    expect((result.components?.schemas?.Pet as OpenAPIV3.SchemaObject | undefined)?.discriminator).toStrictEqual({
+      propertyName: 'kind',
+      mapping: {
+        hound: '#/components/schemas/Dog~1~0%20breed',
+        dog: '#/components/schemas/Dog~1~0%20breed',
+        '': '#/components/schemas/Cat',
+      },
+    })
+    expect(result.components?.schemas?.['Dog/~ breed']).toStrictEqual({
+      'x-ms-discriminator-value': 'hound',
+      'x-discriminator-value': 'dog',
+      allOf: [{ $ref: '#/components/schemas/Mammal' }],
+    })
+  })
+
+  it.each(upgradeTargets)(
+    'keeps authored mappings and ignores ambiguous aliases when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        paths: {},
+        definitions: {
+          'Pet/~': {
+            type: 'object',
+            required: ['kind'],
+            discriminator: { propertyName: 'kind', mapping: { dog: '#/components/schemas/Existing' } },
+          },
+          Existing: { type: 'object' },
+          Dog: {
+            'x-ms-discriminator-value': 'dog',
+            'x-discriminator-value': '__proto__',
+            allOf: [{ $ref: '#/definitions/Pet~1~0' }],
+          },
+          First: { 'x-ms-discriminator-value': 'ambiguous', allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Second: { 'x-discriminator-value': 'ambiguous', allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Invalid: { 'x-ms-discriminator-value': 42, allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Missing: {
+            'x-ms-discriminator-value': 'missing',
+            allOf: [{ $ref: '#/definitions/Absent' }, { $ref: '#/definitions/%ZZ' }],
+          },
+          External: { 'x-ms-discriminator-value': 'external', allOf: [{ $ref: 'other.json#/definitions/Pet' }] },
+        },
+      })
+      expect(
+        (result.components?.schemas?.['Pet/~'] as OpenAPIV3.SchemaObject | undefined)?.discriminator,
+      ).toStrictEqual({
+        propertyName: 'kind',
+        mapping: { dog: '#/components/schemas/Existing', ['__proto__']: '#/components/schemas/Dog' },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'terminates cyclic inheritance while mapping aliases when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        paths: {},
+        definitions: {
+          Pet: { discriminator: 'kind', allOf: [{ $ref: '#/definitions/Loop' }] },
+          Loop: { allOf: [{ $ref: '#/definitions/Pet' }] },
+          Dog: { 'x-discriminator-value': 'dog', allOf: [{ $ref: '#/definitions/Loop' }] },
+        },
+      })
+      expect((result.components?.schemas?.Pet as OpenAPIV3.SchemaObject | undefined)?.discriminator).toStrictEqual({
+        propertyName: 'kind',
+        mapping: { dog: '#/components/schemas/Dog' },
+      })
+    },
+  )
+
   it.each(upgradeTargets)(
     'requires converted discriminator properties when upgrading to %s',
     (_target, upgradeDocument) => {
