@@ -13,6 +13,44 @@ const upgradeTargets = [
 
 describe('upgrade', () => {
   it.each(upgradeTargets)(
+    'preserves literal references in shared body x-examples when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const payload = { $ref: '#/parameters/50%', nested: { $ref: '#/parameters/Body' }, type: 'file' }
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: ['application/json'],
+        parameters: {
+          Body: {
+            name: 'body',
+            in: 'body',
+            schema: { type: 'object' },
+            'x-examples': { 'application/json': { pet: { value: payload } } },
+          },
+        },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/Body' }],
+              responses: { '200': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.requestBodies?.Body).toStrictEqual({
+        content: {
+          'application/json': { schema: { type: 'object' }, examples: { pet: { value: payload } } },
+        },
+      })
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        requestBody: { $ref: '#/components/requestBodies/Body' },
+        responses: { '200': { description: 'ok' } },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
     'moves shared body references into requestBody when upgrading to %s',
     (_target, upgradeDocument) => {
       const result = upgradeDocument({
