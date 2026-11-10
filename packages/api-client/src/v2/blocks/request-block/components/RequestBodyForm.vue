@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
+import { isFileSchema } from '@scalar/workspace-store/helpers/is-file-schema'
+import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
 import type {
   ExampleObject,
+  MediaTypeObject,
   SchemaObject,
 } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { useFileDialog } from '@/hooks/use-file-dialog'
 import RequestTable from '@/v2/blocks/request-block/components/RequestTable.vue'
@@ -18,6 +21,7 @@ import {
 const {
   example,
   bodySchema,
+  encoding,
   selectedContentType,
   environment,
   compositionSelection,
@@ -25,6 +29,8 @@ const {
   example: ExampleObject | undefined | null
   /** Resolved schema for the form body so the table can show enums and validation per field */
   bodySchema?: SchemaObject
+  /** Encoding overrides for individual multipart fields. */
+  encoding?: MediaTypeObject['encoding']
   /** Selected request-body variants, shared with example generation and serialization. */
   compositionSelection?: Record<string, number>
   selectedContentType: string
@@ -44,17 +50,36 @@ const localFormBodyRows = ref<TableRow[]>([])
 /** Sync the local form body rows with the example and schema */
 watch(
   () =>
-    [example, bodySchema, selectedContentType, compositionSelection] as const,
-  ([newExample, schema, contentType, selection]) => {
+    [
+      example,
+      bodySchema,
+      selectedContentType,
+      compositionSelection,
+      encoding,
+    ] as const,
+  ([newExample, schema, contentType, selection, fieldEncoding]) => {
     localFormBodyRows.value = getFormBodyRows(
       newExample,
       contentType,
       schema,
       selection,
+      fieldEncoding,
     )
   },
   { immediate: true },
 )
+
+/** Undeclared fields follow additionalProperties instead of losing uploads whenever a schema exists. */
+const allowUnknownFileUploads = computed<boolean>(() => {
+  const schema = resolveFormSchema(bodySchema, compositionSelection)
+  const additional =
+    schema && 'additionalProperties' in schema
+      ? schema.additionalProperties
+      : undefined
+  return typeof additional === 'object'
+    ? isFileSchema(resolveFormSchema(additional) ?? { __scalar_: '' })
+    : additional !== false
+})
 
 const handleUpdateFormValue = (rows: TableRow[]) => {
   emit(
@@ -150,6 +175,7 @@ const handleFileUpload = (index: number) => {
   <!-- Form Data -->
   <template v-if="selectedContentType === 'multipart/form-data'">
     <RequestTable
+      :allowUnknownFileUploads="allowUnknownFileUploads"
       :data="localFormBodyRows"
       deferKeyUpdates
       :environment="environment"

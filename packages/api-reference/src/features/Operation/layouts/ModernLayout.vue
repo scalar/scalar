@@ -40,8 +40,11 @@ import {
   isOperationDeprecated,
 } from '@/features/Operation/helpers/operation-stability'
 import type { OperationProps } from '@/features/Operation/Operation.vue'
-import { getXKeysFromObject } from '@/features/specification-extension'
-import SpecificationExtension from '@/features/specification-extension/SpecificationExtension.vue'
+import {
+  getXKeysFromObject,
+  SpecificationExtension,
+} from '@/features/specification-extension'
+import { usePathsExtensions } from '@/features/specification-extension/use-paths-extensions'
 import { TestRequestButton } from '@/features/test-request-button'
 import { XBadges } from '@/features/x-badges'
 
@@ -54,6 +57,7 @@ const {
   operation,
   options,
   path,
+  pathValue,
   requiredSecurity,
   selectedServer,
   selectedSecuritySchemes,
@@ -62,12 +66,7 @@ const {
 } = defineProps<
   Omit<
     OperationProps,
-    | 'document'
-    | 'pathValue'
-    | 'server'
-    | 'isCollapsed'
-    | 'securitySchemes'
-    | 'authStore'
+    'document' | 'server' | 'isCollapsed' | 'securitySchemes' | 'authStore'
   > & {
     /** Operation object with path params */
     operation: OperationObject
@@ -90,6 +89,9 @@ const { translate } = useLocalization()
 const operationTitle = computed(() => operation.summary || path || '')
 
 const labelId = useId()
+
+const pathsExtensions = usePathsExtensions(() => document?.paths)
+const pathExtensions = computed(() => getXKeysFromObject(pathValue))
 
 const operationExtensions = computed(() => getXKeysFromObject(operation))
 
@@ -199,6 +201,15 @@ const { level: headingLevel } = useDocumentOutline('operation')
         <!-- Description -->
         <div class="operation-description">
           <SpecificationExtension
+            v-if="!isWebhook"
+            :showExtensions="options.showExtensions"
+            :value="pathsExtensions" />
+          <SpecificationExtension
+            v-if="!isWebhook"
+            :showExtensions="options.showExtensions"
+            :value="pathExtensions" />
+
+          <SpecificationExtension
             :showExtensions="options.showExtensions"
             :value="operationExtensions" />
           <ScalarMarkdown
@@ -304,8 +315,9 @@ const { level: headingLevel } = useDocumentOutline('operation')
                   :path="path" />
               </template>
               <template #footer="{ exampleName }">
-                <div class="flex">
-                  <AskAgentButton />
+                <div
+                  class="operation-request-actions grid auto-cols-fr grid-flow-col gap-1 whitespace-nowrap">
+                  <AskAgentButton class="h-auto!" />
                   <TestRequestButton
                     v-if="!options.hideTestRequestButton"
                     :id
@@ -360,6 +372,7 @@ const { level: headingLevel } = useDocumentOutline('operation')
 
 .operation-title {
   grid-area: heading;
+  min-width: 0;
   margin-bottom: 12px;
 
   /* Mirror the shared section header typography (see SectionHeader.vue) */
@@ -367,6 +380,12 @@ const { level: headingLevel } = useDocumentOutline('operation')
   font-weight: var(--font-weight, var(--scalar-bold));
   color: var(--scalar-color-1);
   line-height: 1.45;
+  overflow-wrap: break-word;
+}
+
+.operation-request-actions :deep(.agent-button-container) {
+  margin-right: 0;
+  justify-content: center;
 }
 
 .operation-auth {

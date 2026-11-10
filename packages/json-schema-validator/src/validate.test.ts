@@ -178,4 +178,115 @@ describe('validate', () => {
       ],
     })
   })
+
+  for (const $schema of [
+    'http://json-schema.org/draft-04/schema#',
+    'http://json-schema.org/draft-07/schema#',
+    'https://json-schema.org/draft/2020-12/schema',
+  ]) {
+    it.each([
+      {
+        divisor: 0.01,
+        cases: [
+          { value: 0.07, valid: true },
+          { value: 0.29, valid: true },
+          { value: 1.15, valid: true },
+          { value: 4.35, valid: true },
+          { value: 8.2, valid: true },
+          { value: 19.99, valid: true },
+          { value: -19.99, valid: true },
+          { value: 1000000.19, valid: true },
+          { value: 0, valid: true },
+          { value: -0, valid: true },
+          { value: 1.1, valid: true },
+          { value: 0.075, valid: false },
+          { value: -0.075, valid: false },
+          { value: 0.010000000001, valid: false },
+          { value: 0.009999999999, valid: false },
+          { value: Number.NaN, valid: false },
+          { value: Number.POSITIVE_INFINITY, valid: false },
+          { value: Number.NEGATIVE_INFINITY, valid: false },
+        ],
+      },
+      {
+        divisor: 0.1,
+        cases: [
+          { value: 0.3, valid: true },
+          { value: 0.30000000000000004, valid: false },
+        ],
+      },
+      {
+        divisor: 0.5,
+        cases: [{ value: 1.5, valid: true }],
+      },
+      {
+        divisor: 2,
+        cases: [
+          { value: 6, valid: true },
+          { value: 7, valid: false },
+        ],
+      },
+      {
+        divisor: 1e-7,
+        cases: [
+          { value: 7e-7, valid: true },
+          { value: 7.5e-7, valid: false },
+        ],
+      },
+      {
+        divisor: 1e20,
+        cases: [{ value: 3e21, valid: true }],
+      },
+      {
+        divisor: 2e21,
+        cases: [{ value: 3e21, valid: false }],
+      },
+      {
+        divisor: 5e-324,
+        cases: [
+          { value: 1e-323, valid: true },
+          { value: Number.MAX_VALUE, valid: true },
+        ],
+      },
+      {
+        divisor: 1e-323,
+        cases: [{ value: 5e-324, valid: false }],
+      },
+      {
+        divisor: 1e100,
+        cases: [{ value: 1e-100, valid: false }],
+      },
+    ])(`validates exact decimal multiples of $divisor with ${$schema}`, ({ divisor, cases }) => {
+      // Reuse each schema so these cases do not repeatedly pay Ajv's compilation cost in CI.
+      const numberSchema = { $schema, type: 'number', multipleOf: divisor }
+      const validateNumber = createValidator(numberSchema)
+
+      for (const { value, valid } of cases) {
+        expect(validate(value, numberSchema).valid, `${value} / ${divisor}`).toBe(valid)
+        expect(validateNumber(value).valid, `${value} / ${divisor}`).toBe(valid)
+      }
+    })
+  }
+
+  it('preserves nested multipleOf errors and throwing behavior', () => {
+    const priceSchema = { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } }
+    expect(validate({ price: 0.075 }, priceSchema)).toStrictEqual({
+      valid: false,
+      errors: [{ message: 'multipleOf must be multiple of 0.01', path: '/price' }],
+    })
+    expect(() => validate({ price: 0.075 }, priceSchema, { throwOnError: true })).toThrow('must be multiple of 0.01')
+    expect(validate({ price: 19.99 }, priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate({ price: '19.99' }, priceSchema).valid).toBe(false)
+    expect(validate({ price: 'text' }, { properties: { price: { multipleOf: 0.01 } } })).toStrictEqual({
+      valid: true,
+      errors: [],
+    })
+  })
+
+  it('validates decimal values read from JSON and YAML', () => {
+    const priceSchema = { properties: { price: { type: 'number', multipleOf: 0.01 } } }
+    expect(validate('{"price":19.99}', priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate('price: 1000000.19', priceSchema)).toStrictEqual({ valid: true, errors: [] })
+    expect(validate('price: 0.010000000001', priceSchema).valid).toBe(false)
+  })
 })

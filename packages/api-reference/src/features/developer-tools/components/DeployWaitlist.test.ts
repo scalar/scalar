@@ -53,7 +53,7 @@ describe('DeployWaitlist', () => {
     expect(url).toBe('https://app.loops.so/api/newsletter-form/clksm7aj203tclb0olg1z2xb3')
     expect(init.method).toBe('POST')
     expect(init.headers['Content-Type']).toBe('application/x-www-form-urlencoded')
-    expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io')
+    expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&oss=true')
     expect(wrapper.get('[role="status"]').text()).toContain("Thanks! We'll be in touch!")
   })
 
@@ -119,7 +119,7 @@ describe('DeployWaitlist', () => {
       await submitEmail(wrapper, 'dev@acme.io')
 
       const [, init] = fetchMock.mock.calls[0]!
-      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&framework=Express')
+      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&oss=true&framework=Express')
     })
 
     it('leaves the framework out for integrations that only render docs', async () => {
@@ -129,7 +129,7 @@ describe('DeployWaitlist', () => {
       await submitEmail(wrapper, 'dev@acme.io')
 
       const [, init] = fetchMock.mock.calls[0]!
-      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io')
+      expect(init.body).toBe('userGroup=Hosting&mailingLists=&email=dev%40acme.io&oss=true')
     })
 
     it('offers to run a server framework app on Scalar, with what hosting includes', () => {

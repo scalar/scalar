@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createApiReference } from './html-api'
+import { createApiReference, releaseUnusedStyles } from './html-api'
 import { registerGlobals } from './register-globals'
 
 describe('registerGlobals', () => {
@@ -10,6 +10,7 @@ describe('registerGlobals', () => {
 
     expect(window.Scalar).toBeDefined()
     expect(window.Scalar.createApiReference).toStrictEqual(createApiReference)
+    expect(window.Scalar.releaseUnusedStyles).toBe(releaseUnusedStyles)
     expect(window.Scalar.createApiReference('#something', {})).toBeDefined()
   })
 })

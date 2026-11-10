@@ -5,6 +5,7 @@ import { typeCommentWithExample } from '../type-comment'
 const XScalarSdkInstallationItem = object(
   {
     lang: string({ typeComment: 'Programming language or platform (for example `TypeScript`, `Java`, `Python`)' }),
+    label: optional(string({ typeComment: 'Display label for the SDK tab. Defaults to lang.' })),
     description: optional(
       string({ typeComment: 'Installation instructions in Markdown (supports fenced code blocks)' }),
     ),

@@ -34,9 +34,7 @@ const documentWithOnePet = (operationId?: string): Record<string, unknown> => ({
 })
 
 /**
- * A response header name that is not a valid HTTP token. Building the response throws while the
- * mock handler runs, which is how a valid-looking document realistically produces a `500`: nothing
- * validates the header name up front, so the failure only surfaces on the request.
+ * Invalid declared headers must not prevent the operation from returning its response.
  */
 const documentWithBrokenResponseHeader: Record<string, unknown> = {
   openapi: '3.1.0',
@@ -143,6 +141,86 @@ describe('createMockServer', () => {
       }
     })
 
+    /** Freeze a value and everything inside it, so any write to it throws in strict mode. */
+    const deepFreeze = <T>(value: T): T => {
+      if (typeof value === 'object' && value !== null && !Object.isFrozen(value)) {
+        Object.freeze(value)
+        Object.values(value).forEach(deepFreeze)
+      }
+      return value
+    }
+
+    it.each([false, true])(
+      'leaves a preloaded document with external references unchanged (frozen: %s)',
+      async (frozen) => {
+        const directory = await mkdtemp(join(tmpdir(), 'mock-unchanged-'))
+        const file = join(directory, 'openapi.json')
+        try {
+          await writeFile(file, JSON.stringify(document))
+          await writeFile(join(directory, 'pets.json'), JSON.stringify(pathItem))
+          const input = {
+            ...structuredClone(document),
+            // Bundling reads these mappings and removes them from the document it is handed.
+            'x-ext-urls': { abc1234: 'https://example.com/unused.json' },
+          }
+          const original = structuredClone(input)
+          if (frozen) {
+            deepFreeze(input)
+          }
+
+          const app = await createMockServer({ document: input, origin: file, logger: false })
+
+          expect(input).toStrictEqual(original)
+          expect(input).not.toHaveProperty('x-ext')
+          expect(input.paths['/pets']).toStrictEqual({ $ref: './pets.json' })
+          await assertExports(app)
+        } finally {
+          await rm(directory, { recursive: true, force: true })
+        }
+      },
+    )
+
+    it.each([false, true])('leaves an OpenAPI 3.0 object document unchanged (frozen: %s)', async (frozen) => {
+      const input = {
+        openapi: '3.0.3',
+        info: { title: 'Pets', version: '1.0.0' },
+        'x-ext-urls': { abc1234: 'https://example.com/unused.json' },
+        paths: {
+          '/pets': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'Pets',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        nullable: true,
+                        properties: { name: { type: 'string', example: 'Fido' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+      const original = structuredClone(input)
+      if (frozen) {
+        deepFreeze(input)
+      }
+
+      const app = await createMockServer({ document: input, logger: false })
+
+      expect(input).toStrictEqual(original)
+      const response = await app.request('/pets')
+      expect(response.status).toBe(200)
+      expect(await response.json()).toStrictEqual({ name: 'Fido' })
+      // The export serves the document as it was passed, 3.0 version and `x-ext-urls` included.
+      expect(await (await app.request('/openapi.json')).json()).toStrictEqual(original)
+    })
+
     it.each(['object', 'json', 'yaml'])(
       'preserves the original OpenAPI version for inline %s input',
       async (format) => {
@@ -195,6 +273,29 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toBe(contentType)
     expect(await response.text()).toBe(chunk.repeat(3))
+  })
+
+  it('passes the parameters of a segment with literal text to a custom handler', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Files', version: '1' },
+        paths: {
+          '/files/{name}.{ext}': {
+            get: {
+              'x-handler': 'return req.params',
+              responses: { '200': { description: 'OK', content: { 'application/json': {} } } },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/files/report.pdf')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ name: 'report', ext: 'pdf' })
   })
 
   it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
@@ -498,6 +599,46 @@ describe('createMockServer', () => {
     expect(await response.json()).toMatchObject({
       foo: 'bar',
     })
+  })
+
+  it.each([
+    ['3.0.4', { type: 'string', format: 'byte' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64' }],
+    ['3.1.2', { type: 'string', contentEncoding: 'base64url' }],
+  ])('serves valid base64 for encoded strings in OpenAPI %s %j', async (openapi, encoded) => {
+    const app = await createMockServer({
+      document: {
+        openapi,
+        info: { title: 'Files', version: '1.0.0' },
+        paths: {
+          '/files/{id}': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          content: encoded,
+                          thumbnail: { ...encoded, example: 'aGVsbG8=' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await app.request('/files/1')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ content: 'c2NhbGFy', thumbnail: 'aGVsbG8=' })
   })
 
   it('GET /foobar -> example JSON', async () => {
@@ -1550,6 +1691,39 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
   })
 
+  it('fills x-variable from a path parameter that shares its segment with literal text', async () => {
+    const server = await createMockServer({
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/foobar/{id}.json': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { 'type': 'number', 'example': 1, 'x-variable': 'id' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/foobar/123.json')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 123 })
+  })
+
   it('GET /foobar -> example from schema', async () => {
     const document = {
       openapi: '3.1.0',
@@ -2089,25 +2263,15 @@ describe('createMockServer', () => {
     expect(consoleErrorSpy.mock.calls[0]?.[1]).toStrictEqual(new Error('Boom'))
   })
 
-  it('names the operation when building the mock response fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
+  it('skips an invalid declared header and explains why', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const server = await createMockServer({ document: documentWithBrokenResponseHeader })
-
     const response = await server.request('/pets/1')
-    // The runtime words this failure, so it is the one field matched loosely, on the header name.
-    const { message, ...body } = (await response.json()) as { message: string }
 
-    expect(response.status).toBe(500)
-    expect(body).toStrictEqual({
-      error: 'Internal Server Error',
-      operation: {
-        method: 'GET',
-        path: '/pets/{petId}',
-        operationId: 'getPet',
-      },
-    })
-    expect(message).toContain('X Invalid Name')
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('')
+    expect([...response.headers.keys()]).not.toContain('X Invalid Name')
+    expect(warn).toHaveBeenCalledWith('Skipping invalid response header "X Invalid Name" from the API description.')
   })
 
   it('omits the operation when the failing route is not a mocked operation', async () => {
@@ -2262,6 +2426,55 @@ describe('createMockServer', () => {
       expect(response.status).toBe(200)
 
       expect(await response.text()).toBe('{"name":"string","legacyName":"string"}')
+    })
+
+    it('serves a generated XML body for a response whose schema is deprecated', async () => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Finetuning API', version: '1.0.0' },
+        paths: {
+          '/finetuning': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: { 'application/xml': { schema: { $ref: '#/components/schemas/FinetunedModel' } } },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            FinetunedModel: {
+              deprecated: true,
+              type: 'object',
+              required: ['id', 'legacyName'],
+              properties: {
+                id: { type: 'string', example: 'ft-1' },
+                legacyName: { type: 'string', example: 'old', deprecated: true },
+              },
+            },
+          },
+        },
+      }
+
+      const server = await createMockServer({ document })
+
+      const response = await server.request('/finetuning')
+
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Type')).toBe('application/xml')
+      expect(response.headers.get('X-Scalar-XML-Error')).toBeNull()
+      expect(await response.text()).toBe(
+        [
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<FinetunedModel>',
+          '  <id>ft-1</id>',
+          '  <legacyName>old</legacyName>',
+          '</FinetunedModel>',
+        ].join('\n'),
+      )
     })
 
     it('sets a response header whose schema is deprecated', async () => {
@@ -2481,6 +2694,157 @@ describe('createMockServer', () => {
 
       expect((await server.request('/a/1/b?q=1')).status).toBe(200)
       expect((await server.request('/a/1/b/2?q=1')).status).toBe(200)
+    })
+  })
+
+  describe('path precedence', () => {
+    /** Build a document whose operations each answer with the path key they were declared under. */
+    const documentWithPaths = (paths: string[]) => ({
+      openapi: '3.1.0',
+      info: { title: 'Hello World', version: '1.0.0' },
+      paths: Object.fromEntries(
+        paths.map((path) => [
+          path,
+          {
+            get: {
+              responses: {
+                '200': { description: 'OK', content: { 'application/json': { example: { path } } } },
+              },
+            },
+          },
+        ]),
+      ),
+    })
+
+    /** Request a path and read back which path key answered it. */
+    const answeredBy = async (server: { request: (path: string) => Response | Promise<Response> }, path: string) =>
+      ((await (await server.request(path)).json()) as { path: string }).path
+
+    it('matches a concrete path before a templated one the document declares first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/profiles/{profileId}', '/profiles/legacy-search']),
+      })
+
+      expect(await answeredBy(server, '/profiles/legacy-search')).toBe('/profiles/legacy-search')
+      expect(await answeredBy(server, '/profiles/42')).toBe('/profiles/{profileId}')
+    })
+
+    it('matches a concrete path before a templated one the document declares after it', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/profiles/legacy-search', '/profiles/{profileId}']),
+      })
+
+      expect(await answeredBy(server, '/profiles/legacy-search')).toBe('/profiles/legacy-search')
+      expect(await answeredBy(server, '/profiles/42')).toBe('/profiles/{profileId}')
+    })
+
+    it('lets the first segment that differs decide between nested paths', async () => {
+      for (const paths of [
+        ['/a/{x}/b', '/a/literal/{y}'],
+        ['/a/literal/{y}', '/a/{x}/b'],
+      ]) {
+        const server = await createMockServer({ document: documentWithPaths(paths) })
+
+        expect(await answeredBy(server, '/a/literal/b')).toBe('/a/literal/{y}')
+        expect(await answeredBy(server, '/a/literal/c')).toBe('/a/literal/{y}')
+        expect(await answeredBy(server, '/a/other/b')).toBe('/a/{x}/b')
+      }
+    })
+
+    it('ranks a segment mixing a template with literal text between a literal and a bare template', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/jobs/{jobId}', '/jobs/{jobId}:cancel', '/jobs/batch:cancel']),
+      })
+
+      expect(await answeredBy(server, '/jobs/batch:cancel')).toBe('/jobs/batch:cancel')
+      expect(await answeredBy(server, '/jobs/1:cancel')).toBe('/jobs/{jobId}:cancel')
+      expect(await answeredBy(server, '/jobs/1')).toBe('/jobs/{jobId}')
+    })
+
+    it('matches a segment with literal text behind a template only when the request carries it', async () => {
+      for (const paths of [
+        ['/files/{id}', '/files/{name}.json'],
+        ['/files/{name}.json', '/files/{id}'],
+      ]) {
+        const server = await createMockServer({ document: documentWithPaths(paths) })
+
+        expect(await answeredBy(server, '/files/1.json')).toBe('/files/{name}.json')
+        expect(await answeredBy(server, '/files/1.xml')).toBe('/files/{id}')
+        expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+      }
+    })
+
+    it('does not answer a request that lacks the literal text of a mixed segment', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/files/{name}.json']) })
+
+      expect((await server.request('/files/1.xml')).status).toBe(404)
+    })
+
+    it('matches a segment with literal text in front of a template', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/api/v{version}/status']) })
+
+      expect(await answeredBy(server, '/api/v2/status')).toBe('/api/v{version}/status')
+      expect((await server.request('/api/2/status')).status).toBe(404)
+    })
+
+    it('keeps query-pinned variants with their path while concrete paths go first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/things/{id}', '/things/{id}?beta=true', '/things/latest']),
+      })
+
+      expect(await answeredBy(server, '/things/latest')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/latest?beta=true')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/1?beta=true')).toBe('/things/{id}?beta=true')
+      expect(await answeredBy(server, '/things/1')).toBe('/things/{id}')
+    })
+
+    it('matches a concrete query-pinned variant before a templated path the document declares first', async () => {
+      const server = await createMockServer({
+        document: documentWithPaths(['/things/{id}', '/things/latest', '/things/latest?beta=true']),
+      })
+
+      expect(await answeredBy(server, '/things/latest?beta=true')).toBe('/things/latest?beta=true')
+      expect(await answeredBy(server, '/things/latest')).toBe('/things/latest')
+      expect(await answeredBy(server, '/things/1?beta=true')).toBe('/things/{id}')
+    })
+
+    it('orders path items that are references and keeps HEAD and method case working', async () => {
+      // Each operation answers with its own status, so a HEAD request without a body still shows
+      // which operation served it.
+      const operation = (status: string, value: string): Record<string, unknown> => ({
+        responses: { [status]: { description: 'OK', content: { 'application/json': { example: value } } } },
+      })
+
+      const server = await createMockServer({
+        document: {
+          openapi: '3.2.1',
+          info: { title: 'Hello World', version: '1.0.0' },
+          paths: {
+            '/items/{id}': {
+              get: operation('200', 'templated'),
+              additionalOperations: { copy: operation('200', 'x') },
+            },
+            '/items/latest': { $ref: '#/components/pathItems/latest' },
+          },
+          components: {
+            pathItems: {
+              latest: {
+                get: operation('201', 'literal'),
+                additionalOperations: { copy: operation('201', 'copy'), COPY: operation('202', 'COPY') },
+              },
+            },
+          },
+        },
+      })
+
+      expect(await (await server.request('/items/latest')).json()).toBe('literal')
+      expect((await server.request('/items/latest', { method: 'HEAD' })).status).toBe(201)
+      expect((await server.request('/items/latest', { method: 'copy' })).status).toBe(201)
+      expect((await server.request('/items/latest', { method: 'COPY' })).status).toBe(202)
+      expect(await (await server.request('/items/1')).json()).toBe('templated')
+      expect((await server.request('/items/1', { method: 'HEAD' })).status).toBe(200)
+      expect((await server.request('/items/1', { method: 'copy' })).status).toBe(200)
+      expect((await server.request('/items/1', { method: 'COPY' })).status).toBe(404)
     })
   })
 

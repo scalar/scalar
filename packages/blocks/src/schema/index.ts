@@ -2,6 +2,8 @@ export { type DiscriminatorSchema, schemaDiscriminator } from './discriminator-m
 export { inferDiscriminatorMappingComposition } from './helpers/get-compositions-to-render'
 export { default as LinkButton } from './LinkButton.vue'
 export { schemaTranslations } from './localization/translations'
+export { type ProtobufSchema, protobufFieldNumber, protobufPresence } from './protobuf-metadata'
+export { type RecursiveSchema, schemaRecursiveTarget } from './recursive-metadata'
 export {
   REQUEST_BODY_COMPOSITION_INDEX_SYMBOL,
   type RequestBodyCompositionSelection,

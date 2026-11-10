@@ -1,5 +1,13 @@
 # @scalar/openapi-to-markdown
 
+## 1.7.5
+
+### Patch Changes
+
+- [#10904](https://github.com/scalar/scalar/pull/10904): Share confined document loading between Markdown converters and include HTTP status codes in load errors.
+
+## 1.7.4
+
 ## 1.7.3
 
 ## 1.7.2

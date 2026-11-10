@@ -296,7 +296,7 @@ describe('search-quality', () => {
     }
     const body = search('field0', document)[0]?.item.body
     expect(Array.isArray(body)).toBe(true)
-    expect(body?.length).toBe(9_998)
+    expect(body?.length).toBe(9_999)
     expect(body?.includes('field11999')).toBe(false)
 
     const verbose: SchemaObject = {

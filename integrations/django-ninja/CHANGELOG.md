@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.3.2
+
+### Patch Changes
+
+- [#10934](https://github.com/scalar/scalar/pull/10934): Keep embedded API descriptions inside the API reference configuration script and escape the Django Ninja page title.
+
 ## 0.3.1
 
 ### Patch Changes

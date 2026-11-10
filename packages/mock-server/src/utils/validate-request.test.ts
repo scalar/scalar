@@ -114,6 +114,63 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it.each([
+    ['/files/{id}.json', '/files/42.json', '/files/abc.json'],
+    ['/jobs/{id}:cancel', '/jobs/42:cancel', '/jobs/abc:cancel'],
+    ['/api/v{id}/status', '/api/v42/status', '/api/vabc/status'],
+    ['/users:batchGet/{id}', '/users:batchGet/42', '/users:batchGet/abc'],
+  ])('validates a path param that shares its segment with literal text: %s', async (path, valid, invalid) => {
+    const document = documentWith(path, 'get', {
+      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request(valid)).status).toBe(200)
+
+    const rejected = await server.request(invalid)
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toMatchObject([{ location: 'path', path: '/id' }])
+  })
+
+  it('validates every path param of a segment that holds several', async () => {
+    const document = documentWith('/range/{from}-{to}', 'get', {
+      parameters: [
+        { name: 'from', in: 'path', required: true, schema: { type: 'integer' } },
+        { name: 'to', in: 'path', required: true, schema: { type: 'integer' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/range/1-5')).status).toBe(200)
+
+    const rejected = await server.request('/range/1-x')
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toMatchObject([{ location: 'path', path: '/to' }])
+  })
+
+  it.each([
+    ['1', '5'],
+    ['-1', '5'],
+    ['1', '-5'],
+    ['-1', '-5'],
+  ])('validates and binds signed range parameters: %s to %s', async (from, to) => {
+    const document = documentWith('/range/{from}-{to}', 'get', {
+      parameters: [
+        { name: 'from', in: 'path', required: true, schema: { type: 'integer' } },
+        { name: 'to', in: 'path', required: true, schema: { type: 'integer' } },
+      ],
+      'x-handler': 'return req.params',
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request(`/range/${from}-${to}`)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ from, to })
+  })
+
   it('returns 422 for a missing required header param and coerces a correct one', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } }],
@@ -1354,6 +1411,213 @@ describe('validate-request', () => {
       location: 'query',
       path: '/limit',
       message: 'limit is required',
+    })
+  })
+  describe('read-only properties', () => {
+    const postPet = async (schemas: Record<string, unknown>, body: unknown): Promise<Response> => {
+      const document = {
+        openapi: '3.1.0',
+        info: { title: 'Validation', version: '1.0.0' },
+        components: { schemas },
+        paths: {
+          '/pets': {
+            post: {
+              requestBody: {
+                required: true,
+                content: { 'application/json': { schema: { $ref: '#/components/schemas/NewPet' } } },
+              },
+              responses: {
+                '201': { description: 'Created', content: { 'application/json': { example: { ok: true } } } },
+              },
+            },
+          },
+        },
+      }
+      const server = await createMockServer({ document, validateRequest: true })
+      return server.request('/pets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    }
+
+    const pet = {
+      type: 'object',
+      required: ['id', 'createdAt', 'name'],
+      properties: {
+        id: { type: 'integer', readOnly: true },
+        createdAt: { type: 'string', format: 'date-time', readOnly: true },
+        name: { type: 'string' },
+      },
+    }
+
+    it('accepts a body that leaves out required read-only properties', async () => {
+      expect((await postPet({ NewPet: pet }, { name: 'Fido' })).status).toBe(201)
+    })
+
+    it('accepts a body that leaves out read-only properties inherited through allOf', async () => {
+      const schemas = {
+        Pet: pet,
+        NewPet: {
+          allOf: [{ $ref: '#/components/schemas/Pet' }, { required: ['tag'], properties: { tag: { type: 'string' } } }],
+        },
+      }
+
+      expect((await postPet(schemas, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+    })
+
+    it('accepts read-only properties composed through allOf', async () => {
+      const schema = {
+        ...pet,
+        properties: { ...pet.properties, id: { allOf: [{ type: 'integer', readOnly: true }] } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+    })
+
+    it('accepts read-only requirements in dependentSchemas', async () => {
+      const schema = { ...pet, dependentSchemas: { name: { required: ['id', 'tag'] } } }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', tag: 'dog' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(422)
+    })
+
+    it('preserves conditional branch selection for omitted read-only properties', async () => {
+      const schema = {
+        ...pet,
+        if: { required: ['id'] },
+        // biome-ignore lint/suspicious/noThenProperty: JSON Schema uses then to define the matching conditional branch.
+        then: { required: ['id', 'audit'] },
+        else: { required: ['id', 'draft'] },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', draft: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { name: 'Fido', audit: true })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', audit: true })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido', draft: true })).status).toBe(422)
+    })
+
+    it('preserves negated read-only requirements during request validation', async () => {
+      const schema = {
+        ...pet,
+        not: { required: ['id'], properties: { id: { type: 'integer', readOnly: true } } },
+      }
+
+      expect((await postPet({ NewPet: schema }, { name: 'Fido' })).status).toBe(201)
+      expect((await postPet({ NewPet: schema }, { id: 1, name: 'Fido' })).status).toBe(422)
+      expect((await postPet({ NewPet: schema }, {})).status).toBe(422)
+    })
+
+    it('still requires the other properties', async () => {
+      const response = await postPet({ NewPet: pet }, {})
+
+      expect(response.status).toBe(422)
+      expect(await response.json()).toMatchObject({
+        violations: [{ location: 'body', message: "must have required property 'name'" }],
+      })
+    })
+  })
+
+  it('accepts exact decimal multiples in JSON bodies and rejects near multiples', async () => {
+    const document = documentWith('/orders', 'post', {
+      'x-handler': 'return req.body',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } },
+          },
+        },
+      },
+    })
+    const server = await createMockServer({ document, logger: false })
+    for (const price of [0, 0.07, 0.29, 1.1, 1.15, 4.35, 8.2, 19.99, -19.99, 1000000.19]) {
+      const response = await server.request('/orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ price }),
+      })
+      expect(response.status, String(price)).toBe(200)
+      expect(await response.json()).toStrictEqual({ price })
+    }
+    for (const price of [0.075, -0.075, 0.010000000001, 0.009999999999]) {
+      const response = await server.request('/orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ price }),
+      })
+      expect(response.status, String(price)).toBe(422)
+      expect(await response.json()).toStrictEqual({
+        error: 'Request validation failed',
+        violations: [{ location: 'body', path: '/price', message: 'must be multiple of 0.01' }],
+      })
+    }
+    const stringPrice = await server.request('/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"price":"19.99"}',
+    })
+    expect(stringPrice.status).toBe(422)
+    expect(await stringPrice.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'body', path: '/price', message: 'must be number' }],
+    })
+  })
+
+  it.each(['query', 'path', 'header', 'cookie'] as const)(
+    'validates decimal multiples in %s parameters',
+    async (location) => {
+      const document = documentWith(location === 'path' ? '/orders/{price}' : '/orders', 'get', {
+        parameters: [{ name: 'price', in: location, required: true, schema: { type: 'number', multipleOf: 0.01 } }],
+      })
+      const server = await createMockServer({ document, logger: false })
+      for (const [price, status] of [
+        [19.99, 200],
+        [-19.99, 200],
+        [1000000.19, 200],
+        [0.075, 422],
+        [0.010000000001, 422],
+      ] as const) {
+        const response = await server.request(
+          location === 'path' ? `/orders/${price}` : location === 'query' ? `/orders?price=${price}` : '/orders',
+          {
+            headers:
+              location === 'header'
+                ? { price: String(price) }
+                : location === 'cookie'
+                  ? { cookie: `price=${price}` }
+                  : {},
+          },
+        )
+        expect(response.status, String(price)).toBe(status)
+        if (status === 422) {
+          expect(await response.json()).toStrictEqual({
+            error: 'Request validation failed',
+            violations: [{ location, path: '/price', message: 'price must be multiple of 0.01' }],
+          })
+        }
+      }
+    },
+  )
+
+  it('validates decimal multiples in referenced array items', async () => {
+    const document = {
+      ...documentWith('/prices', 'post', {
+        requestBody: {
+          content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Price' } } } },
+        },
+      }),
+      components: { schemas: { Price: { type: 'number', multipleOf: 0.01 } } },
+    }
+    const server = await createMockServer({ document, logger: false })
+    const request = async (body: string): Promise<Response> =>
+      await server.request('/prices', { method: 'POST', headers: { 'content-type': 'application/json' }, body })
+    expect((await request('[19.99,1000000.19]')).status).toBe(200)
+    const invalid = await request('[19.99,0.010000000001]')
+    expect(invalid.status).toBe(422)
+    expect(await invalid.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'body', path: '/1', message: 'must be multiple of 0.01' }],
     })
   })
 })

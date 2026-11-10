@@ -4,6 +4,13 @@ import { describe, expect, it } from 'vitest'
 import { XScalarSdkInstallationSchema } from './x-scalar-sdk-installation'
 
 describe('XScalarSdkInstallationSchema', () => {
+  it('preserves the optional tab label', () => {
+    const value = {
+      'x-scalar-sdk-installation': [{ lang: 'python', label: 'Python SDK', source: 'pip install example' }],
+    }
+    expect(Value.Parse(XScalarSdkInstallationSchema, value)).toStrictEqual(value)
+  })
+
   it('supports an array of installation instructions', () => {
     const result = Value.Parse(XScalarSdkInstallationSchema, {
       'x-scalar-sdk-installation': [

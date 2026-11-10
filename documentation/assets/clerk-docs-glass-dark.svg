@@ -223,23 +223,34 @@
         --font-code: "JetBrains Mono", ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         --c-bg-1: rgba(18, 18, 21, 0.98);            /* --scalar-background-1 */
         --c-bg-2: #2f3037;         /* --scalar-background-2 */
-        --c-text-1: rgba(255, 255, 255, 0.9);       /* --scalar-color-1 */
-        --c-text-2: rgba(255, 255, 255, 0.62);       /* --scalar-color-2 */
-        --c-text-3: rgba(255, 255, 255, 0.44);       /* --scalar-color-3 */
+        /* the three greys of the default theme, so this drawing's ink is
+           the ink of the page it sits on */
+        --scalar-color-1: rgba(255, 255, 255, 0.9);
+        --scalar-color-2: rgba(255, 255, 255, 0.62);
+        --scalar-color-3: rgba(255, 255, 255, 0.44);
+        --c-text-1: var(--scalar-color-1);
+        --c-text-2: var(--scalar-color-2);
+        --c-text-3: var(--scalar-color-3);
         --c-border: rgba(255, 255, 255, 0.1);       /* --scalar-border-color */
-        --c-orange: #f36b16;       /* --scalar-color-orange (required) */
-        --c-blue-500: #3b82f6;     /* GET badge */
-        --c-yellow-500: #eab308;   /* PATCH badge */
+        --c-orange: var(--scalar-color-3);     /* Required, an aside beside the type */
+        --c-blue-500: var(--scalar-color-1);   /* GET badge */
+        --c-yellow-500: var(--scalar-color-1); /* PATCH badge */
         /* dark card context (.scalar-card): */
         --d-card: #212126;         /* card bg (--scalar-background-2 dark) */
         --d-panel: #2f3037;        /* inner panel (--scalar-background-3 dark) */
-        --d-text-1: #fff;
-        --d-text-2: #9394a1;
-        --d-blue: #93c5fd;         /* strings, method symbol (blue-300) */
-        --d-orange: #fdb674;       /* numbers (orange-300) */
-        --d-purple: #bab1ff;       /* curl keyword (purple-300) */
-        --d-yellow: #fde047;       /* PATCH in card header (yellow-300) */
-        --d-tab-active: #5de3ff;   /* Clerk: .tab-list{--scalar-color-1:#5de3ff} (sky-300) */
+        /* the same two greys the rest of the drawing uses, read against the
+           dark card rather than the page */
+        --d-text-1: rgba(255, 255, 255, 0.9);
+        --d-text-2: rgba(255, 255, 255, 0.62);
+        /* The code card stays dark whichever theme the page is in, so its
+           words cannot take --scalar-color-1 -- that is near-black on a
+           light page. They take the card's own two greys instead, which
+           is the same ramp one step along. */
+        --d-blue: var(--d-text-1);         /* strings, method symbol */
+        --d-orange: var(--d-text-1);       /* numbers */
+        --d-purple: var(--d-text-1);       /* curl keyword */
+        --d-yellow: var(--d-text-1);       /* PATCH in card header */
+        --d-tab-active: var(--d-text-1);   /* Clerk: .tab-list{--scalar-color-1:#5de3ff} (sky-300) */
         position: fixed;
         top: 0;
         left: 0;

@@ -12,7 +12,7 @@
   "version": "0.0.0",
   "private": true,
   "engines": {
-    "node": ">=22"
+    "node": ">=22.17"
   },
   "scripts": {
     "build:disable": "pnpm prepare && vite build",
@@ -27,12 +27,12 @@
     "@scalar/sveltekit": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^7.0.1",
-    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/adapter-auto": "^8.0.0",
+    "@sveltejs/kit": "^3.1.0",
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "svelte": "^5.57.2",
     "svelte-check": "^4.7.6",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "vite": "catalog:*"
   }
 }

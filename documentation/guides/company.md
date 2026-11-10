@@ -1,12 +1,22 @@
-# Company
+<section class="co-scene" data-hl-hero data-hl-mode="company">
+<div class="co-stage" aria-hidden="true" data-md-exclude><canvas class="co-canvas" data-hl-canvas></canvas></div>
+<div class="co-copy">
+<div class="hero flex flex-col gap-3">
+  <scalar-heading level="1" slug="company" class="text-balance">
+    The API Company
+  </scalar-heading>
+  <p class="co-lede">Ten people who care a lot about the same thing: making every API a joy to build on.</p>
+  <div class="co-cta flex gap-2">
+    <a class="t-editor__button co-pill" href="#careers">Explore careers</a>
+    <a class="t-editor__button co-pill" href="https://github.com/scalar/scalar" target="_blank" rel="noopener noreferrer">Scalar on GitHub</a>
+  </div>
+</div>
+</div>
+</section>
 
 Building on a great API is one of the best feelings in software: every desired interface is right there and it all just works. Building on a bad one is the opposite: out-of-date docs, no SDK in your favourite language and no MCP server. We started Scalar to solve this.
 
 As a small team (10) of engineers and designers, we wear a lot of hats and obsess over our craft. We think every company deserves Stripe-level docs, SDKs, and MCP servers from day zero, not just the ones with a platform team to build them.
-
-
-<a href="#careers" aria-label="Join Scalar community on Discord" class="expander-hover-link t-editor__anchor">Explore Careers  →</a>
-
 
 ## Our Story
 
@@ -38,7 +48,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/marc-sticker.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/marc-sticker.svg"></scalar-icon>
@@ -60,7 +71,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/cam-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/cam-sticker-final.svg"></scalar-icon>
@@ -82,7 +94,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/hans-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/hans-sticker-final.svg"></scalar-icon>
@@ -104,7 +117,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/peter-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/peter-sticker-final.svg"></scalar-icon>
@@ -126,7 +140,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/geoff-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/geoff-sticker-final.svg"></scalar-icon>
@@ -148,7 +163,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/amrit-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/amrit-sticker-final.svg"></scalar-icon>
@@ -170,7 +186,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/brynn-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/brynn-sticker-final.svg"></scalar-icon>
@@ -192,7 +209,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/redis-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/redis-sticker-final.svg"></scalar-icon>
@@ -215,7 +233,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/joinus-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/joinus-sticker-final.svg"></scalar-icon>
@@ -242,7 +261,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/gc-sticker-final.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/gc-sticker-final.svg"></scalar-icon>
@@ -264,7 +284,8 @@ We are the API company, giving you industry-best interfaces for your APIs so you
           src="https://cdn.scalar.com/marketing/landing/kindred-final-converted.svg"
           alt=""
           decoding="async"
-          loading="lazy" />
+          loading="lazy"
+          data-md-exclude />
         <scalar-icon
           class="company-team-sticker-interactive"
           src="https://cdn.scalar.com/marketing/landing/kindred-final-converted.svg"></scalar-icon>
@@ -409,6 +430,189 @@ We are the API company, giving you industry-best interfaces for your APIs so you
 </div>
 
 <style>
+  /* ------------------------------------------------------------------
+     The hero: the copy, and under it a sea at the magic hour in the
+     land's fine lines, a path of pink light across it and stars of
+     light twinkling on it, and a school of bright fish swimming across
+     in three groups, coming in and going out through the glass at the
+     sides as the butterflies do and swerving from the pointer.
+     headless-hero.js draws it into the stage's canvas, to its "company"
+     composition (the engine that draws the home page, /enterprise and
+     the docs overview).
+     ------------------------------------------------------------------ */
+  /* The home page's hero box, so the h1 lands on the same line as the
+     other heroes' (their numbers, measured at 1440 by 900 and 1512 by
+     820); then the scene under the words, as deep as it is drawn,
+     which runs the hero on past the box. */
+  .co-scene {
+    --co-w: calc(100dvw - var(--scalar-sidebar-width, 0px));
+    --co-box: min(calc(90dvh - var(--scalar-header-height, 48px)), 640px);
+    --co-line: 130.5px;
+    --co-top: max(48px, calc(var(--co-box) / 2 - var(--co-line)));
+    /* How far the scene's canvas reaches below the words, as on
+       /enterprise: headless-hero.js stands the land on the canvas's
+       foot, 19px above it, in rooms of 256px, and the land's foot is
+       1.3 rooms under its top line, which comes a little above the
+       foot of the buttons. */
+    --co-land: calc(1.3 * 256px + 19px + 14px - 40px);
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    /* the prose column caps its children at 680, and the hero is wider */
+    max-width: none;
+    min-height: var(--co-box);
+    padding: var(--co-top) 0 0;
+    margin: 0 0 24px;
+  }
+  /* The hero starts at the header, as the home page's does: the page's
+     content otherwise starts 60px further down. */
+  .t-editor .content {
+    margin-top: 0;
+  }
+  /* the home page's steps, where its padding grows and its lede rewraps */
+  @media screen and (max-width: 1100px) {
+    .co-scene {
+      --co-line: 138.5px;
+    }
+  }
+  @media screen and (max-width: 560px) {
+    .co-scene {
+      --co-line: 154.4px;
+    }
+  }
+  @media screen and (max-width: 439px) {
+    .co-scene {
+      --co-line: 190.9px;
+    }
+  }
+  /* The scene fills the hero from the header down, across the whole
+     column right of the sidebar: it is placed in the grid's row and
+     reaches up through the padding above it. It fades in once its
+     first picture is drawn. It takes no pointer events, so the page
+     under it keeps them. */
+  .co-stage {
+    position: absolute;
+    grid-row: 1 / 2;
+    top: calc(-1 * var(--co-top));
+    bottom: 0;
+    left: 50%;
+    width: var(--co-w);
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 700ms ease-out;
+  }
+  .co-scene[data-hl-ready] .co-stage {
+    opacity: 1;
+  }
+  .co-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- the copy ------------------------------------------------------ */
+  /* The home page's hero copy: 680 wide at most, centred, the lines
+     balanced, a 460 measure under the heading and the calls to action
+     as pills, with the scene's room under it. */
+  .co-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+    max-width: 680px;
+    align-self: start;
+    margin: 0 0 var(--co-land);
+    text-wrap: balance;
+  }
+  .co-copy .hero {
+    align-items: center;
+    text-align: center;
+  }
+  /* the heading is a flex row (it holds its anchor button) */
+  .co-copy .hero .t-editor__heading {
+    --font-size: var(--scalar-heading-1);
+    justify-content: center;
+  }
+  /* The heading is centred, so the button that appears beside it on
+     hover (the one that copies a link to it) would push the words off
+     centre as it comes and goes. The headings further down the page are
+     ranged left and keep theirs. */
+  .co-copy .t-editor__heading .notify-container {
+    display: none;
+  }
+  .co-copy .hero > .flex {
+    justify-content: center;
+  }
+  .co-lede {
+    /* a narrow measure, as on the home page */
+    max-width: 460px;
+    margin: 0;
+    /* 14px, a step under the body size */
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--scalar-color-1);
+    /* balanced rather than pretty: this lede runs to two lines and the
+       break reads better even than uneven */
+    text-wrap: balance;
+  }
+  .co-cta {
+    align-items: center;
+    gap: 12px;
+    /* 12px on top of the hero's 12px gap: the pills sit 24px under the
+       subhead, a little apart from the copy */
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  /* no margin: the theme's button carries one, which drops it below the
+     other pill */
+  .co-cta .co-pill {
+    min-width: 0;
+    height: 40px;
+    margin: 0;
+    padding: 0 20px;
+    border-radius: 999px;
+    justify-content: center;
+  }
+  /* Where WebGL2 is unavailable the hero is the copy on its own, with
+     48px under it, rather than an empty room where a drawing should
+     be: the box that holds the picture goes too, so the page carries on
+     under the buttons. */
+  [data-hl-fallback="true"] .co-stage {
+    display: none;
+  }
+  [data-hl-fallback="true"] .co-copy {
+    margin-bottom: 48px;
+  }
+  .co-scene[data-hl-fallback="true"] {
+    min-height: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .co-stage {
+      transition: none;
+    }
+  }
+  /* Below 1000px the sidebar goes, and the scene takes the whole
+     screen. */
+  @media screen and (max-width: 1000px) {
+    .co-scene {
+      --co-w: 100dvw;
+    }
+  }
+  @media (max-width: 760px) {
+    .co-cta {
+      width: 100%;
+    }
+    .co-cta .co-pill {
+      flex: 1 1 auto;
+    }
+  }
+
   .company-hero-image {
     display: block;
     width: 100%;

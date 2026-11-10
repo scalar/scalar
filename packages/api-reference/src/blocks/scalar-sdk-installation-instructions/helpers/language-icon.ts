@@ -16,6 +16,7 @@ const LANGUAGE_ICONS: Record<string, Icon> = {
   css: 'programming-language-css3',
   css3: 'programming-language-css3',
   dart: 'programming-language-dart',
+  elixir: 'programming-language-elixir',
   fsharp: 'programming-language-fsharp',
   'f#': 'programming-language-fsharp',
   go: 'programming-language-go',

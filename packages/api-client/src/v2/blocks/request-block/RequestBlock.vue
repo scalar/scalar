@@ -56,6 +56,8 @@ type Filter =
   'All' | 'Auth' | 'Variables' | 'Cookies' | 'Headers' | 'Query' | 'Body'
 
 export type RequestBlockProps = {
+  /** Security scheme names visible in the authentication UI. */
+  allowedSecuritySchemes?: string[]
   authMeta: AuthMeta
   clientOptions: ClientOptionGroup[]
   environment: XScalarEnvironment
@@ -90,6 +92,7 @@ export type RequestBlockProps = {
 }
 
 const {
+  allowedSecuritySchemes,
   authMeta = { type: 'document' },
   clientOptions,
   environment,
@@ -508,6 +511,18 @@ const parameterHandlers = computed(() => ({
   }),
 }))
 
+/** Apply pending typing before the reset event so a delayed edit cannot undo the reset. */
+const handleResetBody = ({ contentType }: { contentType: string }): void => {
+  eventBus.flushDebouncedEmits?.()
+  eventBus.emit('operation:reset:requestBody', {
+    documentName: documentSlug,
+    meta: meta.value,
+    contentType,
+    requestBodyCompositionSelection,
+    openapiVersion,
+  })
+}
+
 /** Handle request body content type update */
 const handleUpdateContentType = (payload: { value: string }): void =>
   eventBus.emit('operation:update:requestBody:contentType', {
@@ -711,6 +726,7 @@ const filterLabels = computed(() => ({
       <AuthSelector
         v-show="isSectionVisible('Auth') && !isAuthHidden"
         :id="filterIds.Auth"
+        :allowedSecuritySchemes
         :createAnySecurityScheme="layout !== 'modal'"
         :defaultOpen="isAuthDefaultOpen"
         :environment
@@ -795,6 +811,7 @@ const filterLabels = computed(() => ({
         :requestBodyCompositionSelection
         :title="translate('apiClient.requestBlock.requestBody')"
         @generate:example="handleGenerateExample"
+        @reset="handleResetBody"
         @update:contentType="handleUpdateContentType"
         @update:formValue="handleUpdateBodyFormValue"
         @update:value="handleUpdateBodyValue" />

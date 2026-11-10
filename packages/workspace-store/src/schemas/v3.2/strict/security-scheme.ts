@@ -3,6 +3,10 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
+import {
+  type XScalarCredentialPlaceholders,
+  XScalarCredentialPlaceholdersSchema,
+} from '@/schemas/extensions/security/x-scalar-credential-placeholders'
 import type { OAuthFlowsObject } from '@/schemas/v3.2/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.2/strict/ref-definitions'
 
@@ -16,6 +20,7 @@ const DescriptionSchema = compose(
     deprecated: Type.Optional(Type.Boolean()),
   }),
   XScalarIgnoreSchema,
+  XScalarCredentialPlaceholdersSchema,
 )
 
 type Description = {
@@ -23,7 +28,8 @@ type Description = {
   description?: string
   /** Declares this security scheme to be deprecated. Consumers SHOULD refrain from usage of the declared scheme. Added in OpenAPI 3.2. */
   deprecated?: boolean
-} & XScalarIgnore
+} & XScalarIgnore &
+  XScalarCredentialPlaceholders
 
 const ApiKeySchema = compose(
   DescriptionSchema,

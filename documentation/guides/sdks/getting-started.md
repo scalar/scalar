@@ -34,9 +34,9 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 </scalar-steps>
 
 <scalar-image
-  src="/sdk-dashboard-static.svg"
-  src-dark="/sdk-dashboard-static-dark.svg"
-  alt="Scalar SDK dashboard"
+  src="/sdks/sdk-studio.png"
+  src-dark="/sdks/sdk-studio-dark.png"
+  alt="The SDK studio for a new SDK, showing the generated TypeScript reference, its configuration, and the build drawer"
   size="full">
 </scalar-image>
 
@@ -46,6 +46,7 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 - [Build, version, and download](managing.md) your targets
 - [Configure](configuration.md) each SDK or CLI
 - [Add pagination helpers](pagination.md) to your list endpoints
+- [Add webhook helpers](webhooks.md) that verify and decode the events your API sends
 - [Publish to a package registry](publishing/overview.md)
 - [Add custom code](custom-code.md) that survives regeneration
 - [Read the diagnostics](diagnostics.md) each build reports about your API description

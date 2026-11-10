@@ -1,5 +1,15 @@
 # @scalar/openapi-parser
 
+## 0.29.21
+
+## 0.29.20
+
+### Patch Changes
+
+- [#10792](https://github.com/scalar/scalar/pull/10792): Reuse the JSON/YAML normalizer from `@scalar/json-magic` so JSON documents with a leading UTF-8 BOM parse correctly. Malformed JSON arrays no longer fall back to YAML parsing.
+
+  The exported `normalize` function now uses the shared signature `(content: unknown) => unknown`; callers must narrow the parsed result before accessing its properties.
+
 ## 0.29.19
 
 ## 0.29.18

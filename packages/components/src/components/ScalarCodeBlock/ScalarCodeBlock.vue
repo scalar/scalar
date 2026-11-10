@@ -23,6 +23,7 @@ registerLanguage(...languages)
  *
  * Renders syntax-highlighted code using @scalar/highlight.
  * Supports line numbers, credential masking, and an optional copy button.
+ * Set --scalar-code-line-height on the component or an ancestor to override its 1.4 line height.
  *
  * @example
  * <ScalarCodeBlock content="const x = 1" lang="javascript" />
@@ -47,6 +48,8 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /** Original content to copy when the displayed content has been masked. */
+  copyContent?: string
   /**
    * Accessible name for the code scroller. Long code scrolls inside a focusable region so
    * keyboard users can reach it, and a focusable region needs a name or screen readers announce
@@ -71,6 +74,7 @@ const {
   copy = 'hover',
   label = 'Code sample',
   copyLabel,
+  copyContent,
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -155,7 +159,7 @@ const { cx } = useBindCx()
       tabindex="0">
       <pre
         :id="id"
-        class="m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
+        class="scalar-code-block-pre m-0 w-fit border-0 bg-transparent p-0 text-nowrap whitespace-pre"
         :class="{ 'pr-6': reserveCopySpace }"
         v-html="highlightedCode" />
     </div>
@@ -169,7 +173,7 @@ const { cx } = useBindCx()
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
-      :content="prettyContent"
+      :content="copyContent ?? prettyContent"
       :copyLabel="copyLabel"
       :lang="lang"
       :showLang="!isOneLine">
@@ -189,8 +193,10 @@ const { cx } = useBindCx()
 @reference '../../style.css';
 @import '@scalar/code-highlight/css/code.css';
 
-/** Disable font ligatures so code renders with literal characters */
-.scalar-code-block pre {
+/** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
+.scalar-code-block-pre {
+  font-family: var(--scalar-font-code);
+  /* Disable ligatures so code characters remain distinct. */
   font-variant-ligatures: none;
 }
 

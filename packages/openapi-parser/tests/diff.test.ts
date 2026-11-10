@@ -98,7 +98,7 @@ test.concurrent.each(fetched)('diff $file', { timeout: 15_000 }, async ({ file, 
     console.error('[@apidevtools/swagger-parser]', error.message)
   })) as any
 
-  const { filesystem } = await load(structuredClone(specification))
+  const { filesystem } = await load(content)
   const { schema: newSchema, errors } = dereference(filesystem)
 
   // Errors expected

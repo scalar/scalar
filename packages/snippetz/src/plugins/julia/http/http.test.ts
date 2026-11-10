@@ -253,10 +253,62 @@ println(String(response.body))`)
 response = HTTP.post(
     "https://example.com",
     ["Content-Type" => "application/x-www-form-urlencoded"],
-    Dict(
+    HTTP.URIs.escapeuri([
         "foo" => "bar",
         "baz" => "qux"
-    )
+    ])
+)
+
+println(String(response.body))`)
+  })
+
+  it.each([
+    [
+      'repeated names',
+      [
+        { name: 'tag', value: 'a' },
+        { name: 'tag', value: 'b' },
+      ],
+      `[
+        "tag" => "a",
+        "tag" => "b"
+    ]`,
+    ],
+    [
+      'empty values',
+      [{ name: 'empty', value: '' }, { name: 'missing' }],
+      `[
+        "empty" => "",
+        "missing" => ""
+    ]`,
+    ],
+    ['apostrophes and unicode', [{ name: "it's", value: 'café' }], `["it's" => "café"]`],
+    ['interpolation characters', [{ name: '$name', value: '$(value)' }], '["\\$name" => "\\$(value)"]'],
+  ])('keeps %s in a form url encoded body', (_, params, encoded) => {
+    const result = juliaHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [{ name: 'Content-Type', value: 'application/x-www-form-urlencoded' }],
+      postData: { mimeType: 'application/x-www-form-urlencoded', params },
+    })
+
+    expect(result).toContain(`HTTP.URIs.escapeuri(${encoded})`)
+    expect(result).not.toContain('Dict(')
+  })
+
+  it('adds the form content type when the request has none', () => {
+    const result = juliaHttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/x-www-form-urlencoded', params: [{ name: 'foo', value: 'bar' }] },
+    })
+
+    expect(result).toBe(`using HTTP
+
+response = HTTP.post(
+    "https://example.com",
+    ["Content-Type" => "application/x-www-form-urlencoded"],
+    HTTP.URIs.escapeuri(["foo" => "bar"])
 )
 
 println(String(response.body))`)

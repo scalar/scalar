@@ -1,5 +1,6 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { objectToString } from '@/libs/php'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
@@ -55,7 +56,8 @@ export const phpCurl: Plugin = {
 
     // Collect all headers to emit once, avoiding duplicate CURLOPT_HTTPHEADER calls.
     // Body processing may add a Content-Type header, so we determine it first.
-    const allHeaders = multipart?.headers ?? [...(normalizedRequest.headers || [])]
+    const mergedHeaders = multipart?.headers ?? mergeCookieHeaders(normalizedRequest)
+    const allHeaders = mergedHeaders.filter(({ name }) => name.toLowerCase() !== 'cookie')
 
     // Helper to add Content-Type header if not already present
     const hasContentType = () => allHeaders.some((h) => h.name.toLowerCase() === 'content-type')
@@ -89,16 +91,9 @@ export const phpCurl: Plugin = {
       }
     }
 
-    // Cookies
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => {
-          const encodedName = encodeURIComponent(cookie.name)
-          const encodedValue = encodeURIComponent(cookie.value)
-          return `${encodedName}=${encodedValue}`
-        })
-        .join('; ')
-      parts.push(`curl_setopt($ch, CURLOPT_COOKIE, '${cookieString}');`)
+    const cookieHeader = mergedHeaders.find(({ name }) => name.toLowerCase() === 'cookie')
+    if (cookieHeader) {
+      parts.push(`curl_setopt($ch, CURLOPT_COOKIE, ${objectToString(cookieHeader.value)});`)
     }
 
     // Body
@@ -137,7 +132,7 @@ export const phpCurl: Plugin = {
             return `${encodedName}=${encodedValue}`
           })
           .join('&')
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(formData)});`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text || '')});`)
       } else if (normalizedRequest.postData.text) {

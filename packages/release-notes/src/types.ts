@@ -26,10 +26,15 @@ const highlightItemSchema = z
   .max(280)
   .describe('A single-sentence highlight rendered as a bullet point.')
 
-const aiHighlightsSchema = z
-  .array(highlightItemSchema)
-  .max(5)
-  .describe('Optional bullet list of single-sentence highlights (at most five items for generated notes).')
+/** Highlights a generated note may carry when the product does not set `maxHighlights`. */
+export const DEFAULT_MAX_HIGHLIGHTS = 5
+
+/**
+ * The most highlights a generated note may carry. Highlights land in a stored `list` block, and
+ * the published `RELEASE_NOTES.json` schema caps list blocks at this many items, so a larger limit
+ * would produce notes that validate here and then fail when they are written.
+ */
+export const MAX_HIGHLIGHTS_LIMIT = 20
 
 const paragraphBlockSchema = z
   .object({
@@ -59,7 +64,7 @@ const listBlockSchema = z
     items: z
       .array(z.string().min(1).max(280).describe('A single-sentence list item.'))
       .min(1)
-      .max(20)
+      .max(MAX_HIGHLIGHTS_LIMIT)
       .describe('Bullet items rendered as a list. Keep each item to a single sentence.'),
     ordered: z.boolean().optional().describe('Render as a numbered list when `true`. Defaults to a bullet list.'),
   })
@@ -136,17 +141,55 @@ const contentBlockSchema = z
   .describe('Rich content block rendered inside a release note (paragraph, heading, list, image, video, or href).')
 
 /**
- * JSON object returned by an AI provider before trusted release metadata is merged in.
+ * Check a highlight limit before it reaches the schema, so a bad config value fails with a message
+ * that names the setting instead of a confusing validation error on every generated note.
  */
-export const aiReleaseNoteSchema = z
-  .object({
-    version: versionSchema,
-    title: titleSchema,
-    description: descriptionSchema.optional(),
-    highlights: aiHighlightsSchema.optional(),
-  })
-  .strict()
-  .describe('Minimal AI-generated release note payload before merge with trusted metadata.')
+export const assertValidMaxHighlights = (maxHighlights: number): void => {
+  if (!Number.isInteger(maxHighlights) || maxHighlights < 1 || maxHighlights > MAX_HIGHLIGHTS_LIMIT) {
+    throw new Error(
+      `maxHighlights must be an integer between 1 and ${MAX_HIGHLIGHTS_LIMIT}, received ${String(maxHighlights)}.`,
+    )
+  }
+}
+
+/**
+ * Build the schema for the JSON object an AI provider returns, before trusted release metadata is
+ * merged in. The highlight limit is a parameter because products render highlights in different
+ * places: a small in-app modal wants a short list, while a changelog page can take a longer one.
+ */
+export const createAiReleaseNoteSchema = (
+  maxHighlights: number = DEFAULT_MAX_HIGHLIGHTS,
+): z.ZodObject<
+  {
+    version: typeof versionSchema
+    title: typeof titleSchema
+    description: z.ZodOptional<typeof descriptionSchema>
+    highlights: z.ZodOptional<z.ZodArray<typeof highlightItemSchema>>
+  },
+  z.core.$strict
+> => {
+  assertValidMaxHighlights(maxHighlights)
+
+  return z
+    .object({
+      version: versionSchema,
+      title: titleSchema,
+      description: descriptionSchema.optional(),
+      highlights: z
+        .array(highlightItemSchema)
+        .max(maxHighlights)
+        .optional()
+        .describe(`Optional bullet list of single-sentence highlights (at most ${maxHighlights} items).`),
+    })
+    .strict()
+    .describe('Minimal AI-generated release note payload before merge with trusted metadata.')
+}
+
+/**
+ * JSON object returned by an AI provider before trusted release metadata is merged in, with the
+ * default highlight limit. Use `createAiReleaseNoteSchema` for a different limit.
+ */
+export const aiReleaseNoteSchema = createAiReleaseNoteSchema()
 
 export const releaseNoteSchema = z
   .object({

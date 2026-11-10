@@ -65,7 +65,7 @@ jobs:
           commit-message: 'docs: update monthly contributors'
           title: 'docs: update monthly contributors'
           body: Auto-generated image of last month's top contributors.
-          draft: true
+          draft: false
           add-paths: |
             README.md
             .github/assets/contributors/*.svg

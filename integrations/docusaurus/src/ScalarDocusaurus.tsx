@@ -1,7 +1,8 @@
 import type { RouteConfig } from '@docusaurus/types'
-import type { CreateApiReference } from '@scalar/types'
 import Layout from '@theme/Layout'
-import React, { useEffect, useId, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
+
+import { mountReference } from './mount-reference'
 
 import './theme.css'
 
@@ -13,45 +14,25 @@ type Props = {
      * props, which drops function-valued options like `onBeforeRequest`. See issue #6933.
      */
     configuration: string
-  }
-}
-
-// Register the createApiReference function in the global Scalar object (new)
-declare global {
-  interface Window {
-    Scalar: {
-      createApiReference: CreateApiReference
-    }
+    /** Standalone bundle URL configured for this route. */
+    cdn: string
   }
 }
 
 export const ScalarDocusaurus = ({ route }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
-  const id = useId()
 
   useEffect(() => {
-    if (!window.Scalar || !ref.current) {
+    if (!ref.current) {
       return
     }
 
-    // Inject the init call as a real <script> so the browser parses the serialized configuration —
-    // including any functions — as live JavaScript. Passing it as a prop is not an option, because
-    // functions do not survive Docusaurus' JSON serialization of route props (see #6933).
-    const script = document.createElement('script')
-    script.textContent = `window.Scalar.createApiReference(document.getElementById(${JSON.stringify(id)}), ${route.configuration})`
-    document.body.appendChild(script)
-
-    return () => {
-      script.remove()
-    }
-  }, [id, route.configuration])
+    return mountReference(ref.current, route.configuration, route.cdn)
+  }, [route.configuration, route.cdn])
 
   return (
     <Layout>
-      <div
-        id={id}
-        ref={ref}
-      />
+      <div ref={ref} />
     </Layout>
   )
 }

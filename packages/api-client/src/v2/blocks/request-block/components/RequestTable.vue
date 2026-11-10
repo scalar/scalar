@@ -18,6 +18,7 @@ const {
   hasCheckboxDisabled,
   deferKeyUpdates,
   showUploadButton,
+  allowUnknownFileUploads = true,
   showAddRowPlaceholder = true,
   environment,
 } = defineProps<{
@@ -29,6 +30,8 @@ const {
   invalidParams?: Set<string>
   label?: string
   showUploadButton?: boolean
+  /** Keep manual uploads available for multipart requests without a body schema. */
+  allowUnknownFileUploads?: boolean
   showAddRowPlaceholder?: boolean
   environment: XScalarEnvironment
 }>()
@@ -208,6 +211,7 @@ defineExpose({
       v-for="(row, index) in keyedRows"
       :key="row.key"
       :ref="(el) => setRowRef(row.key, el)"
+      :allowUnknownFileUploads="allowUnknownFileUploads"
       :data="row.data"
       :deferKeyUpdates="deferKeyUpdates"
       :environment="environment"

@@ -1,6 +1,7 @@
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import type { Plugin } from '@scalar/types/snippetz'
 
+import { mergeCookieHeaders } from '@/libs/cookies'
 import { joinUrlAndQuery, normalizeMethod } from '@/libs/http'
 import { multipartFileBoundary, prepareRequest } from '@/libs/prepare-request'
 import { escapeSingleQuotes } from '@/libs/shell'
@@ -55,7 +56,7 @@ export const shellWget: Plugin = {
     const boundary = multipartFileBoundary(multipart)
 
     // Headers
-    const headers = multipart?.headers ?? normalizedRequest.headers
+    const headers = multipart?.headers ?? mergeCookieHeaders(normalizedRequest)
     if (headers?.length) {
       headers.forEach((header) => {
         const headerValue = quoteShellBoundary(
@@ -64,14 +65,6 @@ export const shellWget: Plugin = {
         )
         parts.push(`--header ${headerValue}`)
       })
-    }
-
-    // Cookies (wget sends cookies through a Cookie header)
-    if (normalizedRequest.cookies?.length) {
-      const cookieString = normalizedRequest.cookies
-        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
-        .join('; ')
-      parts.push(`--header 'Cookie: ${escapeSingleQuotes(cookieString)}'`)
     }
 
     // Body

@@ -1,23 +1,37 @@
 import galaxy from '@scalar/galaxy/3.1.json'
-import { bench, describe, expect, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('standalone', () => {
-  bench(
-    'first operation is rendered',
-    async () => {
-      // We need the reset modules here otherwise they get cached, for some reason doesn't work in the beforeEach
-      vi.resetModules()
-      const mountPoint = document.createElement('div')
-      document.body.appendChild(mountPoint)
+  it('first operation is rendered', { timeout: 30000 }, async ({ bench }) => {
+    const baseline = 'test-results/standalone-benchmark.json'
+    const runOptions = { iterations: 1, warmupIterations: 1 }
+    const current = bench(
+      'first operation is rendered',
+      {
+        writeResult: import.meta.env.MODE === 'benchmark-save' ? baseline : undefined,
+      },
+      async () => {
+        // Include module loading in the measurement on every iteration.
+        vi.resetModules()
+        const mountPoint = document.createElement('div')
+        document.body.appendChild(mountPoint)
 
-      // We want to import in here so we include the import time in the benchmark
-      const { createApiReference } = await import('@/standalone/lib/html-api')
-      createApiReference(mountPoint, { content: galaxy })
+        const { createApiReference } = await import('@/standalone/lib/html-api')
+        const reference = createApiReference(mountPoint, { content: galaxy })
 
-      // We wait for the first operation to be rendered
-      // TODO: we should option in disabling lazy loading
-      await vi.waitFor(() => expect(mountPoint.textContent).toContain('Time to create a user account, eh?'))
-    },
-    { iterations: 1, warmupIterations: 1 },
-  )
+        try {
+          await vi.waitFor(() => expect(mountPoint.textContent).toContain('Time to create a user account, eh?'))
+        } finally {
+          reference.destroy()
+          mountPoint.remove()
+        }
+      },
+    )
+
+    if (import.meta.env.MODE === 'benchmark-compare') {
+      await bench.compare(current, bench.from('saved baseline', baseline), runOptions)
+    } else {
+      await current.run(runOptions)
+    }
+  })
 })

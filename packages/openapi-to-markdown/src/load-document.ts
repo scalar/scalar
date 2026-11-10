@@ -1,10 +1,10 @@
 import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
+import type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 import { convertToLocalRef } from '@scalar/json-magic/helpers/convert-to-local-ref'
 import { getId, getSchemas } from '@scalar/json-magic/helpers/get-schemas'
 import { getValueByPath } from '@scalar/json-magic/helpers/get-value-by-path'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
 import { getRaw } from '@scalar/json-magic/magic-proxy'
 import { upgrade } from '@scalar/openapi-upgrader'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
@@ -206,56 +206,20 @@ const attachRefValues = (
   return hasExternalReferences
 }
 
-/** Permissions for loading an API description and its external references. */
-export type DocumentLoadOptions = {
-  /** Allow private-network requests only for trusted input. Defaults to false. */
-  allowPrivateNetworks?: boolean
-  /** Approved directory for local files and references. File access is disabled when omitted. */
-  basePath?: string
-}
+export type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
 
 /** Coerce one plain document and keep references linked to shared targets. */
 export const loadDocument = async (
   input: OpenApiDocument | Record<string, unknown> | string,
   options: DocumentLoadOptions = {},
 ): Promise<OpenApiDocument> => {
-  let raw: unknown
-  let origin: string | undefined
-  const { fetchUrls, readFiles } = await import('@scalar/json-magic/bundle/plugins/node')
-  const urlLoader = fetchUrls({ blockPrivateNetworks: !options.allowPrivateNetworks })
-  const fileLoader = options.basePath === undefined ? undefined : readFiles({ basePath: options.basePath })
-
+  const { createDocumentLoader } = await import('@scalar/json-magic/bundle/plugins/node')
+  const loader = createDocumentLoader(options)
   // Reference links are attached below, so never mutate the caller's document.
-  if (typeof input !== 'string') {
-    raw = deepClone(getRaw(input))
-  }
-
-  // Inline JSON and YAML avoid the I/O path; URLs and files are loaded afterward.
-  else {
-    const normalized = normalize(input)
-
-    if (isObject(normalized)) {
-      raw = normalized
-    } else if (/^https?:\/\//i.test(input)) {
-      const result = await urlLoader.exec(input)
-      if (!result.ok) {
-        throw new Error('Failed to load OpenAPI document')
-      }
-      raw = result.data
-      origin = input
-    } else {
-      if (!fileLoader) {
-        throw new Error('Local file access requires an explicit basePath')
-      }
-      const { resolve } = await import('node:path')
-      origin = resolve(input)
-      const result = await fileLoader.exec(origin)
-      if (!result.ok) {
-        throw new Error('Failed to load OpenAPI document')
-      }
-      raw = result.data
-    }
-  }
+  const { value: raw, origin } =
+    typeof input === 'string'
+      ? await loader.load(input, 'OpenAPI')
+      : { value: deepClone(getRaw(input)), origin: undefined }
   if (!isObject(raw)) {
     throw new Error('Failed to load OpenAPI document')
   }
@@ -272,9 +236,8 @@ export const loadDocument = async (
   // Resolve external targets only when the initial local-reference pass finds them.
   if (hasExternalReferences) {
     const errors: string[] = []
-    const plugins = fileLoader ? [urlLoader, fileLoader] : [urlLoader]
     document = await bundle(upgraded, {
-      plugins,
+      plugins: loader.plugins,
       origin,
       treeShake: false,
       hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },

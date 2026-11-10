@@ -1,3 +1,4 @@
+import { createServer } from 'node:http'
 import { runInNewContext } from 'node:vm'
 
 import request from 'supertest'
@@ -41,5 +42,26 @@ describe('nestJSApiReference', () => {
     } finally {
       await app.close()
     }
+  })
+
+  it('sets the HTML content type when the adapter sends strings as plain text', async () => {
+    const handler = apiReference({})
+    // Mimics @nestjs/platform-node, whose send() defaults strings to text/plain
+    const server = createServer((req, res) => {
+      const response = Object.assign(res, {
+        type: (type: string) => response.setHeader('Content-Type', type),
+        send: (body: string) => {
+          if (!response.hasHeader('Content-Type')) {
+            response.setHeader('Content-Type', 'text/plain; charset=utf-8')
+          }
+          return response.end(body)
+        },
+      })
+      handler(req as never, response as never)
+    })
+
+    const response = await request(server).get('/reference')
+    expect(response.status).toBe(200)
+    expect(response.type).toBe('text/html')
   })
 })

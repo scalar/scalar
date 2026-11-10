@@ -5,7 +5,11 @@ import type { ApiReferenceLocalization } from '@scalar/types/api-reference'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import type { OperationObject, ServerObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
-import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import {
+  OpenAPIDocumentSchema,
+  PathItemObjectSchema,
+  SchemaObjectSchema,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { type VueWrapper, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, defineComponent, h, nextTick, ref } from 'vue'
@@ -105,6 +109,7 @@ const nestedOperation: OperationObject = {
 
 const props: ExtractComponentProps<typeof ClassicLayout> = {
   id: 'create-widget',
+  pathValue: undefined,
   clientOptions: [
     {
       label: 'Shell',
@@ -166,6 +171,28 @@ const getRequestBodyCompositionSelection = <T>(wrapper: VueWrapper<T>) =>
     | undefined
 
 describe('ClassicLayout', () => {
+  it('mounts Paths and Path Item extension sections only when selected', async () => {
+    const wrapper = mount(ClassicLayout, {
+      props: {
+        ...props,
+        document: coerceValue(OpenAPIDocumentSchema, {
+          openapi: '3.2.1',
+          info: { title: 'Pets', version: '1' },
+          paths: { 'x-owner': 'Paths owner' },
+        }),
+        pathValue: coerceValue(PathItemObjectSchema, { 'x-owner': 'Path owner' }),
+      },
+    })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(0)
+    await wrapper.setProps({ options: { ...props.options, showExtensions: ['x-owner'] } })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(2)
+    expect(wrapper.text()).toContain('Paths owner')
+    expect(wrapper.text()).toContain('Path owner')
+    await wrapper.setProps({ options: { ...props.options, showExtensions: ['x-missing'] } })
+    expect(wrapper.findAllComponents({ name: 'SpecificationExtension' }).length).toBe(0)
+    wrapper.unmount()
+  })
+
   it.each([
     { name: 'classic', Layout: ClassicLayout },
     { name: 'modern', Layout: ModernLayout },

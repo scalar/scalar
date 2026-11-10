@@ -1,6 +1,5 @@
 <div class="cust-hero">
 <div class="cust-field" aria-hidden="true" data-md-exclude>
-<div class="cust-ground"></div>
 <div class="cust-floor"></div>
 <div class="cust-ball cust-ball--bobcat" data-icon="bobcat"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
 <div class="cust-ball cust-ball--warp cust-ball--dark" data-icon="warp"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
@@ -14,6 +13,8 @@
 <div class="cust-ball cust-ball--partech" data-icon="partech"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
 <div class="cust-ball cust-ball--dedalus" data-icon="dedalus"><div class="cust-ball-paint"></div><div class="cust-ball-roll"></div><div class="cust-ball-gloss"></div><div class="cust-ball-grain"></div></div>
 </div>
+<div class="cust-sun" aria-hidden="true" data-md-exclude></div>
+<div class="cust-glass" aria-hidden="true" data-md-exclude></div>
 <div class="cust-copy">
 <div class="hero relative flex flex-col gap-3">
   <scalar-heading level="1" slug="customers" class="text-balance">
@@ -48,11 +49,11 @@
 
 <a class="featured-story-card" href="/customers/warp" aria-label="Read the Warp customer story">
   <div class="featured-story-media" aria-hidden="true">
-    <img src="/warp-branding.png" alt="" />
+    <img src="/warp-branding.png" alt="" data-md-exclude />
   </div>
   <div class="featured-story-copy">
     <p class="featured-story-eyebrow">Featured Story</p>
-    <div class="featured-story-logos" aria-label="Warp and Scalar">
+    <div class="featured-story-logos" aria-label="Warp and Scalar" data-md-exclude>
       <scalar-icon class="featured-story-logo-warp" src="../../assets/logos/warp.svg"></scalar-icon>
       <span class="featured-story-logo-separator" aria-hidden="true">×</span>
       <img class="featured-story-logo-scalar" src="/brand/scalar-wordmark-dark.svg" alt="Scalar" />
@@ -70,42 +71,42 @@ These teams use Scalar Docs to give developers a direct, dependable path from re
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Bobcat"><scalar-icon class="cust-logo" src="../../assets/remote/logo-bobcat.svg"></scalar-icon></span>
     <span class="cust-row-use">developer.bobcat.com</span>
-    <a class="cust-row-out" href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer" aria-label="Bobcat: developer.bobcat.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developer.bobcat.com/" target="_blank" rel="noopener noreferrer" aria-label="Bobcat: developer.bobcat.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Thomson Reuters"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tr.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.thomsonreuters.com</span>
-    <a class="cust-row-out" href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer" aria-label="Thomson Reuters: developers.thomsonreuters.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developers.thomsonreuters.com/pages/api-reference/19232a0d-5cf9-53a9-a215-efe481550832" target="_blank" rel="noopener noreferrer" aria-label="Thomson Reuters: developers.thomsonreuters.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Clerk"><scalar-icon class="cust-logo" src="../../assets/remote/logo-clerk.svg"></scalar-icon></span>
     <span class="cust-row-use">clerk.com/docs</span>
-    <a class="cust-row-out" href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer" aria-label="Clerk: clerk.com/docs"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://clerk.com/docs/reference/frontend-api" target="_blank" rel="noopener noreferrer" aria-label="Clerk: clerk.com/docs"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Lufthansa"><scalar-icon class="cust-logo" src="../../assets/logos/lufthansa.svg"></scalar-icon></span>
     <span class="cust-row-use">developer.lufthansa.com</span>
-    <a class="cust-row-out" href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer" aria-label="Lufthansa: developer.lufthansa.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developer.lufthansa.com/" target="_blank" rel="noopener noreferrer" aria-label="Lufthansa: developer.lufthansa.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="PAR"><scalar-icon class="cust-logo" src="../../assets/remote/logo-partech.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.partech.com</span>
-    <a class="cust-row-out" href="/customers/partech" aria-label="PAR: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="/customers/partech" aria-label="PAR: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Zoom"><scalar-icon class="cust-logo" src="../../assets/logos/zoom.svg"></scalar-icon></span>
     <span class="cust-row-use">developers.zoom.us</span>
-    <a class="cust-row-out" href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer" aria-label="Zoom: developers.zoom.us"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://developers.zoom.us/docs/api/" target="_blank" rel="noopener noreferrer" aria-label="Zoom: developers.zoom.us"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Tailscale"><scalar-icon class="cust-logo" src="../../assets/remote/logo-tailscale.svg"></scalar-icon></span>
     <span class="cust-row-use">tailscale.com/api</span>
-    <a class="cust-row-out" href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer" aria-label="Tailscale: tailscale.com/api"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://tailscale.com/api" target="_blank" rel="noopener noreferrer" aria-label="Tailscale: tailscale.com/api"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Later"><scalar-icon class="cust-logo" src="../../assets/logos/later.svg"></scalar-icon></span>
     <span class="cust-row-use">docs.reporting.api.later.com</span>
-    <a class="cust-row-out" href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer" aria-label="Later: docs.reporting.api.later.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="https://docs.reporting.api.later.com/" target="_blank" rel="noopener noreferrer" aria-label="Later: docs.reporting.api.later.com"><scalar-icon src="phosphor/bold/arrow-up-right"></scalar-icon></a>
   </div>
 </div>
 
@@ -117,7 +118,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Warp"><scalar-icon class="cust-logo" src="../../assets/logos/warp.svg"></scalar-icon></span>
     <span class="cust-row-use cust-row-use--sdk"><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-go" target="_blank" rel="noopener noreferrer" aria-label="Warp Go SDK on GitHub">Go</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-typescript" target="_blank" rel="noopener noreferrer" aria-label="Warp TypeScript SDK on GitHub">TypeScript</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-sdk-python" target="_blank" rel="noopener noreferrer" aria-label="Warp Python SDK on GitHub">Python</a><a class="cust-sdk t-editor__anchor" href="https://github.com/TeamWarp/warp-cli" target="_blank" rel="noopener noreferrer" aria-label="Warp CLI SDK on GitHub">CLI</a></span>
-    <a class="cust-row-out" href="/customers/warp" aria-label="Warp: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
+    <a class="cust-row-out" data-md-exclude href="/customers/warp" aria-label="Warp: read the story"><scalar-icon src="phosphor/bold/arrow-right"></scalar-icon></a>
   </div>
   <div class="cust-row">
     <span class="cust-row-logo" role="img" aria-label="Profound"><scalar-icon class="cust-logo" src="../../assets/logos/profound.svg"></scalar-icon></span>
@@ -364,48 +365,6 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     overflow: clip;
     pointer-events: none;
   }
-  /* The ground the hairline is the near edge of. A grid of small dots is
-     laid out flat and tipped away from the reader, so the rows crowd
-     together and the dots shrink as they go back, the way a floor does.
-     Perspective and tilt together put the far edge about 120px above
-     the line; the mask thins the dots out well before that, so the
-     field has dissolved a hundred-odd pixels under the buttons rather
-     than ending on an edge. It is painted once and never moves. */
-  .cust-ground {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    height: 100%;
-    perspective: 335px;
-    perspective-origin: 50% 100%;
-  }
-  .cust-ground::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      radial-gradient(
-        circle at center,
-        color-mix(in srgb, var(--scalar-color-3) 80%, transparent) 0 1.4px,
-        transparent 2px
-      ),
-      radial-gradient(
-        circle at center,
-        color-mix(in srgb, var(--scalar-color-3) 80%, transparent) 0 1.4px,
-        transparent 2px
-      );
-    /* the second lattice sits in the gaps of the first, which keeps the
-       columns from lining up into rays as they converge */
-    background-position:
-      50% 100%,
-      calc(50% + 15px) calc(100% - 15px);
-    background-size: 30px 30px;
-    transform: rotateX(54deg);
-    transform-origin: 50% 100%;
-    -webkit-mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / 0.8) 24%, rgb(0 0 0 / 0.28) 56%, transparent 84%);
-    mask-image: linear-gradient(to top, #000 0%, rgb(0 0 0 / 0.8) 24%, rgb(0 0 0 / 0.28) 56%, transparent 84%);
-  }
   /* the floor: the hairline the balls settle on, drawn like every other
      border on the page */
   .cust-floor {
@@ -428,7 +387,7 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     /* a tile of grey noise round mid-grey, the same one the home page's
        planets carry, laid over the whole ball with overlay so white
        stays white and the colours take the grain */
-    --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 1.15 -0.075 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --lp-grain-ball: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.25' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0.805 0.0975 0 0 0 0.805 0.0975 0 0 0 0.805 0.0975 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     position: absolute;
     /* the room the ball's surface turns in: seven times the ball across,
        deep enough that a piece near the front is not blown up past the
@@ -606,6 +565,127 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     --s: 98px;
     --tint: #3b2e7e;
   }
+  /* ------------------------------------------------------------------
+     The window. Low sun comes in through a venetian blind off to the
+     left of the hero and lies across its upper part, over the words and
+     the buttons: broad soft bands of light and shade at a gentle slant,
+     softer the further they fall from the window (the near corner, top
+     left, is the sharpest), and gone well before the heap. It is meant
+     to be seen on a second look, not the first: the slats darken the
+     white page by about five per cent at most.
+
+     The slats are a still picture drawn once (a mask: the blind as an
+     SVG, blurred into its penumbra), and nothing about it ever moves.
+     On the white page the shade is multiplied over everything under it,
+     the way shade is. On the dark page shade cannot show, so the light
+     carries it instead: a faint warm wash of window light added to the
+     page, with the slats cut out of it.
+     ------------------------------------------------------------------ */
+  .cust-hero {
+    /* the shade is multiplied over the hero alone, not the whole page */
+    isolation: isolate;
+  }
+  .cust-sun {
+    --cust-blinds: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='900' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3Cfilter id='n' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='9'/%3E%3C/filter%3E%3Cfilter id='f' x='-10%25' y='-10%25' width='120%25' height='120%25'%3E%3CfeGaussianBlur stdDeviation='24'/%3E%3C/filter%3E%3ClinearGradient id='gn' x1='542' y1='180' x2='1410' y2='662' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='.1' stop-color='%23fff'/%3E%3Cstop offset='.9' stop-color='%23000'/%3E%3C/linearGradient%3E%3ClinearGradient id='gf' x1='542' y1='180' x2='1410' y2='662' gradientUnits='userSpaceOnUse'%3E%3Cstop offset='.1' stop-color='%23000'/%3E%3Cstop offset='.9' stop-color='%23fff'/%3E%3C/linearGradient%3E%3Cmask id='mn'%3E%3Crect width='1600' height='900' fill='url(%23gn)'/%3E%3C/mask%3E%3Cmask id='mf'%3E%3Crect width='1600' height='900' fill='url(%23gf)'/%3E%3C/mask%3E%3Cg id='s'%3E%3Cpath d='M-293 1103L2059 772L2064 740L-288 1072Z'/%3E%3Cpath d='M-281 1034L2071 703L2077 671L-275 1003Z'/%3E%3Cpath d='M-268 965L2084 634L2089 603L-263 934Z'/%3E%3Cpath d='M-256 897L2096 565L2102 534L-250 865Z'/%3E%3Cpath d='M-244 828L2108 497L2114 465L-238 796Z'/%3E%3Cpath d='M-231 759L2121 428L2127 396L-225 727Z'/%3E%3Cpath d='M-219 690L2133 359L2139 327L-213 658Z'/%3E%3Cpath d='M-206 621L2146 290L2152 258L-200 589Z'/%3E%3Cpath d='M-194 552L2158 221L2164 189L-188 520Z'/%3E%3Cpath d='M-181 483L2171 152L2176 120L-176 452Z'/%3E%3Cpath d='M-169 414L2183 83L2189 51L-163 383Z'/%3E%3Cpath d='M-156 345L2196 14L2201 -17L-151 314Z'/%3E%3Cpath d='M-144 277L2208 -55L2214 -86L-138 245Z'/%3E%3Cpath d='M-132 208L2220 -123L2226 -155L-126 176Z'/%3E%3Cpath d='M-119 139L2233 -192L2239 -224L-113 107Z'/%3E%3C/g%3E%3C/defs%3E%3Cg mask='url(%23mn)'%3E%3Cuse href='%23s' filter='url(%23n)'/%3E%3C/g%3E%3Cg mask='url(%23mf)'%3E%3Cuse href='%23s' filter='url(%23f)'/%3E%3C/g%3E%3C/svg%3E");
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: clip;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    /* where the light falls: in under the glass, full round the
+       heading, and fading out down the words, well before the heap and
+       well before the hero's sides, so nothing stops at the box */
+    -webkit-mask-image:
+      linear-gradient(to right, transparent, #000 20%, #000 80%, transparent),
+      linear-gradient(to bottom, transparent 4%, #000 22%, #000 40%, transparent 64%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent, #000 20%, #000 80%, transparent),
+      linear-gradient(to bottom, transparent 4%, #000 22%, #000 40%, transparent 64%);
+    mask-composite: intersect;
+  }
+  /* the blind's picture is drawn for a hero of about a thousand by five
+     hundred and sixty, and centred on the one it lies on */
+  .cust-sun::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1600px;
+    height: 900px;
+    margin: -450px 0 0 -800px;
+    background: rgb(34 38 50 / 0.05);
+    -webkit-mask: var(--cust-blinds) 0 0 / 100% 100% no-repeat;
+    mask: var(--cust-blinds) 0 0 / 100% 100% no-repeat;
+  }
+  .dark-mode .cust-sun {
+    mix-blend-mode: screen;
+  }
+  /* the dark page: the window's light, with the slats cut out of it */
+  .dark-mode .cust-sun::before {
+    background: rgb(255 212 158 / 0.05);
+    -webkit-mask-image: linear-gradient(#000 0 0), var(--cust-blinds);
+    -webkit-mask-composite: source-out;
+    mask-image: linear-gradient(#000 0 0), var(--cust-blinds);
+    mask-composite: subtract;
+  }
+  /* The glass along the top edge, where the balls come in (landing.js
+     dresses it with its layers and its lens). It is plain air until a
+     ball is in it, and only then frosted and split into its colours. */
+  .cust-glass {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: 76px;
+    pointer-events: none;
+  }
+  .cust-glass-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .cust-glass-page {
+    flood-color: var(--scalar-background-1);
+  }
+  .cust-glass > i {
+    position: absolute;
+    inset: 0;
+  }
+  /* each layer fades out down the glass, the frost over the top half,
+     the fine split most of the way down and the wide one near the edge */
+  .cust-glass-frost {
+    -webkit-mask-image: linear-gradient(#000 30%, transparent 85%);
+    mask-image: linear-gradient(#000 30%, transparent 85%);
+  }
+  .cust-glass-haze {
+    -webkit-mask-image: linear-gradient(#000, transparent 45%);
+    mask-image: linear-gradient(#000, transparent 45%);
+  }
+  .cust-glass-near {
+    -webkit-mask-image: linear-gradient(#000 45%, transparent);
+    mask-image: linear-gradient(#000 45%, transparent);
+  }
+  .cust-glass-edge {
+    -webkit-mask-image: linear-gradient(#000, transparent 60%);
+    mask-image: linear-gradient(#000, transparent 60%);
+  }
+  .cust-glass.is-on .cust-glass-frost {
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+  }
+  .cust-glass.is-on .cust-glass-haze {
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+  }
+  .cust-glass.is-on .cust-glass-near {
+    backdrop-filter: url(#cust-lens-near);
+  }
+  .cust-glass.is-on .cust-glass-edge {
+    backdrop-filter: url(#cust-lens-edge);
+  }
   .fill-current-bg {
     fill: var(--scalar-background-1);
   }
@@ -627,7 +707,9 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     display: grid;
     grid-template-areas: 'stack';
     width: calc(100% + 2 * var(--featured-story-inset));
-    margin: 48px calc(-1 * var(--featured-story-inset));
+    /* a good gap over the card: the hero's heap of logo balls ends
+       close to the fold, and the card crowded it */
+    margin: 148px calc(-1 * var(--featured-story-inset)) 48px;
     overflow: hidden;
     color: #fff;
     text-decoration: none;
@@ -884,6 +966,14 @@ These teams use Scalar SDKs to turn their APIs into polished client libraries.
     }
     .cust-hero .lp-hero-cta {
       width: 100%;
+    }
+    /* the glass in proportion to the smaller balls */
+    .cust-glass {
+      height: 60px;
+    }
+    /* and the blind in proportion to the narrower hero */
+    .cust-sun::before {
+      transform: scale(0.62);
     }
     .cust-hero .lp-hero-cta .lp-pill {
       flex: 1 1 auto;
