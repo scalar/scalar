@@ -139,8 +139,8 @@ describe('upgrade-loaders', () => {
     expect(resolve(Child.$ref)).toBe(getValueAtPath(resolve(Parent.$ref), ['anyOf', '0']))
   })
 
-  it('leaves OpenAPI 3.1 and 3.2 documents alone', () => {
-    const input = { openapi: '3.1.0', components: { schemas: { Item: { type: 'string', nullable: true } } } }
+  it.each(['3.1.0', '3.2.0'])('leaves OpenAPI %s documents alone', (openapi) => {
+    const input = { openapi, components: { schemas: { Item: { type: 'string', nullable: true } } } }
 
     expect(upgradeLoadedDocument(input, '3.0.3')).toBe(input)
   })
