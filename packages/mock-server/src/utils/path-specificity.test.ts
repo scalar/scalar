@@ -20,15 +20,12 @@ describe('path-specificity', () => {
       expect(getPathSpecificity('/users/{userId}{postId}')).toStrictEqual([0, 0, 2])
     })
 
-    it('ranks a template mixed with literal text the router enforces in between', () => {
+    it('ranks a template mixed with literal text in between', () => {
       expect(getPathSpecificity('/jobs/{jobId}:cancel')).toStrictEqual([0, 0, 1])
       expect(getPathSpecificity('/api/v-{version}')).toStrictEqual([0, 0, 1])
-    })
-
-    it('ranks a mixed segment the router matches against any value like a bare template', () => {
-      // These compile to the whole-segment parameters `:name.json` and `:a-:b`, which match anything.
-      expect(getPathSpecificity('/files/{name}.json')).toStrictEqual([0, 0, 2])
-      expect(getPathSpecificity('/files/{a}-{b}')).toStrictEqual([0, 0, 2])
+      expect(getPathSpecificity('/api/v{version}')).toStrictEqual([0, 0, 1])
+      expect(getPathSpecificity('/files/{name}.json')).toStrictEqual([0, 0, 1])
+      expect(getPathSpecificity('/files/{a}-{b}')).toStrictEqual([0, 0, 1])
     })
 
     it('ranks literal text the router has to escape as a literal', () => {
@@ -62,11 +59,15 @@ describe('path-specificity', () => {
         '/jobs/{jobId}:cancel',
         '/jobs/{jobId}',
       ])
+      expect(sortBySpecificity(['/files/{id}', '/files/{name}.json'])).toStrictEqual([
+        '/files/{name}.json',
+        '/files/{id}',
+      ])
     })
 
     it('keeps the document order of paths that rank the same', () => {
-      expect(sortBySpecificity(['/files/{id}', '/files/{name}.json'])).toStrictEqual([
-        '/files/{id}',
+      expect(sortBySpecificity(['/files/{name}.xml', '/files/{name}.json'])).toStrictEqual([
+        '/files/{name}.xml',
         '/files/{name}.json',
       ])
       expect(sortBySpecificity(['/b/{id}', '/a/{id}'])).toStrictEqual(['/b/{id}', '/a/{id}'])

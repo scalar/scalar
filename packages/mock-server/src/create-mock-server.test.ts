@@ -277,6 +277,29 @@ describe('createMockServer', () => {
     expect(await response.text()).toBe(chunk.repeat(3))
   })
 
+  it('passes the parameters of a segment with literal text to a custom handler', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Files', version: '1' },
+        paths: {
+          '/files/{name}.{ext}': {
+            get: {
+              'x-handler': 'return req.params',
+              responses: { '200': { description: 'OK', content: { 'application/json': {} } } },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/files/report.pdf')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ name: 'report', ext: 'pdf' })
+  })
+
   it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
     'streams custom handler responses with itemSchema: %s',
     async (handler) => {
@@ -1630,6 +1653,39 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
   })
 
+  it('fills x-variable from a path parameter that shares its segment with literal text', async () => {
+    const server = await createMockServer({
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/foobar/{id}.json': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { 'type': 'number', 'example': 1, 'x-variable': 'id' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/foobar/123.json')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 123 })
+  })
+
   it('GET /foobar -> example from schema', async () => {
     const document = {
       openapi: '3.1.0',
@@ -2677,12 +2733,30 @@ describe('createMockServer', () => {
       expect(await answeredBy(server, '/jobs/1')).toBe('/jobs/{jobId}')
     })
 
-    it('keeps a mixed segment the router matches against any value from taking over a bare template', async () => {
-      // `{name}.json` compiles to a whole-segment parameter, so it matches `/files/1` as well. Ranking
-      // it as more specific than `{id}` would let it answer every request the document gave to `{id}`.
-      const server = await createMockServer({ document: documentWithPaths(['/files/{id}', '/files/{name}.json']) })
+    it('matches a segment with literal text behind a template only when the request carries it', async () => {
+      for (const paths of [
+        ['/files/{id}', '/files/{name}.json'],
+        ['/files/{name}.json', '/files/{id}'],
+      ]) {
+        const server = await createMockServer({ document: documentWithPaths(paths) })
 
-      expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+        expect(await answeredBy(server, '/files/1.json')).toBe('/files/{name}.json')
+        expect(await answeredBy(server, '/files/1.xml')).toBe('/files/{id}')
+        expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+      }
+    })
+
+    it('does not answer a request that lacks the literal text of a mixed segment', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/files/{name}.json']) })
+
+      expect((await server.request('/files/1.xml')).status).toBe(404)
+    })
+
+    it('matches a segment with literal text in front of a template', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/api/v{version}/status']) })
+
+      expect(await answeredBy(server, '/api/v2/status')).toBe('/api/v{version}/status')
+      expect((await server.request('/api/2/status')).status).toBe(404)
     })
 
     it('keeps query-pinned variants with their path while concrete paths go first', async () => {

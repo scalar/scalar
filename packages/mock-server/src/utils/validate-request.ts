@@ -9,6 +9,8 @@ import addFormats from 'ajv-formats'
 import type { Context, MiddlewareHandler } from 'hono'
 import { getCookie } from 'hono/cookie'
 
+import { pathParameters } from '@/utils/path-parameters'
+
 import {
   type ParameterLocation,
   deserializeArrayParameter,
@@ -413,6 +415,7 @@ export const validateRequest = (
     //    survives deserialization;
     //  - cookie supplies a `getMap` (each exploded `form` object property is its own cookie);
     //  - header names are matched case-insensitively by Hono's `c.req.header`.
+    const requestPathParameters = pathParameters(c)
     const parameterLocations: Array<{
       validator: ValidateFunction | null
       descriptors: ParameterDescriptor[]
@@ -425,7 +428,7 @@ export const validateRequest = (
         validator: validators.path,
         descriptors: validators.pathParameters,
         location: 'path',
-        getValue: (name) => c.req.param(name),
+        getValue: (name) => requestPathParameters[name],
       },
       {
         validator: validators.query,

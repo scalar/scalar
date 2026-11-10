@@ -114,6 +114,63 @@ describe('validate-request', () => {
     expect(valid.status).toBe(200)
   })
 
+  it.each([
+    ['/files/{id}.json', '/files/42.json', '/files/abc.json'],
+    ['/jobs/{id}:cancel', '/jobs/42:cancel', '/jobs/abc:cancel'],
+    ['/api/v{id}/status', '/api/v42/status', '/api/vabc/status'],
+    ['/users:batchGet/{id}', '/users:batchGet/42', '/users:batchGet/abc'],
+  ])('validates a path param that shares its segment with literal text: %s', async (path, valid, invalid) => {
+    const document = documentWith(path, 'get', {
+      parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request(valid)).status).toBe(200)
+
+    const rejected = await server.request(invalid)
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toMatchObject([{ location: 'path', path: '/id' }])
+  })
+
+  it('validates every path param of a segment that holds several', async () => {
+    const document = documentWith('/range/{from}-{to}', 'get', {
+      parameters: [
+        { name: 'from', in: 'path', required: true, schema: { type: 'integer' } },
+        { name: 'to', in: 'path', required: true, schema: { type: 'integer' } },
+      ],
+    })
+
+    const server = await createMockServer({ document, validateRequest: true })
+
+    expect((await server.request('/range/1-5')).status).toBe(200)
+
+    const rejected = await server.request('/range/1-x')
+    expect(rejected.status).toBe(422)
+    expect((await rejected.json()).violations).toMatchObject([{ location: 'path', path: '/to' }])
+  })
+
+  it.each([
+    ['1', '5'],
+    ['-1', '5'],
+    ['1', '-5'],
+    ['-1', '-5'],
+  ])('validates and binds signed range parameters: %s to %s', async (from, to) => {
+    const document = documentWith('/range/{from}-{to}', 'get', {
+      parameters: [
+        { name: 'from', in: 'path', required: true, schema: { type: 'integer' } },
+        { name: 'to', in: 'path', required: true, schema: { type: 'integer' } },
+      ],
+      'x-handler': 'return req.params',
+    })
+    const server = await createMockServer({ document, validateRequest: true })
+
+    const response = await server.request(`/range/${from}-${to}`)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ from, to })
+  })
+
   it('returns 422 for a missing required header param and coerces a correct one', async () => {
     const document = documentWith('/items', 'get', {
       parameters: [{ name: 'X-Api-Version', in: 'header', required: true, schema: { type: 'integer' } }],
