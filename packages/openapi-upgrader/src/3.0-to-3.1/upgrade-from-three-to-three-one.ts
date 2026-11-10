@@ -97,6 +97,7 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[], recordRel
   else if (schema.nullable === true && schema.type === undefined) {
     if (typeof schema.$ref === 'string') {
       const { nullable: _nullable, $ref, ...rest } = schema
+      recordRelocation?.([...path, '$ref'], [...path, 'anyOf', '0', '$ref'])
       return { ...rest, anyOf: [{ $ref }, { type: 'null' }] }
     }
 

@@ -71,6 +71,26 @@ describe('upgrade-loaders', () => {
     expect(getValueAtPath(standalone, parseJsonPointerSegments(standalonePointer.slice(1)))).toStrictEqual(direct)
   })
 
+  it.each([false, true])('retains pointers to moved headerless children (child first: %s)', async (childFirst) => {
+    const url = 'https://example.test/shared.json'
+    const data = { Parent: { nullable: true, allOf: [{ type: 'string', nullable: true }] } }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: (uri) => uri === url,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+    const Parent = { $ref: url + '#/Parent' }
+    const Child = { $ref: url + '#/Parent/allOf/0' }
+    const document = { openapi: '3.1.1', components: { schemas: childFirst ? { Child, Parent } : { Parent, Child } } }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const resolve = (reference: string): unknown =>
+      getValueAtPath(document, parseJsonPointerSegments(reference.slice(1)))
+    expect(resolve(Parent.$ref)).toStrictEqual({ anyOf: [{ type: ['string', 'null'] }, { type: 'null' }] })
+    expect(resolve(Child.$ref)).toBe(getValueAtPath(resolve(Parent.$ref), ['anyOf', '0']))
+  })
+
   it('leaves OpenAPI 3.1 and 3.2 documents alone', () => {
     const input = { openapi: '3.1.0', components: { schemas: { Item: { type: 'string', nullable: true } } } }
 

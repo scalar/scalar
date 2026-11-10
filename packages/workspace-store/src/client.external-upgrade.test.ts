@@ -55,6 +55,32 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it('updates earlier lazy pointers when a later lazy upgrade moves their target', async () => {
+    const store = createWorkspaceStore()
+    const url = 'https://example.test/shared.json'
+    const data = { Parent: { nullable: true, allOf: [{ type: 'string', nullable: true }] } }
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response(JSON.stringify(data))),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        'x-scalar-navigation': { id: 'default', type: 'document', name: 'default', title: 'Example', children: [] },
+        components: {
+          schemas: { Child: { $ref: url + '#/Parent/allOf/0' }, Parent: { $ref: url + '#/Parent' } },
+        },
+      },
+    })
+
+    await store.resolve(['components', 'schemas', 'Child'])
+    await store.resolve(['components', 'schemas', 'Parent'])
+
+    const schemas = getActiveOpenApiDocument(store)?.components?.schemas
+    expect(getResolvedRef(schemas?.Child)).toStrictEqual({ type: ['string', 'null'] })
+    expect(getResolvedRef(schemas?.Parent)).toStrictEqual({ anyOf: [{ type: ['string', 'null'] }, { type: 'null' }] })
+  })
+
   it.each([false, true])('upgrades cached fragments across lazy calls (local alias: %s)', async (alias) => {
     const store = createWorkspaceStore()
     const loads: string[] = []
