@@ -17,10 +17,12 @@
     "documentation/assets/apollo.js",
     "documentation/assets/vector.js",
     "documentation/assets/brand.js",
-    "documentation/assets/enterprise-contact-form.js",
     "documentation/assets/company.js",
-    "documentation/assets/company-hero.js",
-    "documentation/assets/sdk-demo.js",
+    "documentation/assets/sdk-hero.js",
+    "documentation/assets/api-hosting-hero.js",
+    "documentation/assets/api-hosting-waitlist.js",
+    "documentation/assets/headless-hero.js",
+    "documentation/assets/headless-window.js",
     "documentation/assets/structured-data.js",
     // Free tool widgets: the page scripts are referenced in scalar.config.json and
     // load their modules with dynamic import() at runtime, which knip cannot trace

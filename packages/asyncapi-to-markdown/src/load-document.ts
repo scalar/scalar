@@ -1,8 +1,7 @@
 import { upgrade } from '@scalar/asyncapi-upgrader'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { bundle } from '@scalar/json-magic/bundle'
-import { fetchUrls, readFiles } from '@scalar/json-magic/bundle/plugins/node'
-import { normalize } from '@scalar/json-magic/helpers/normalize'
+import { type DocumentLoadOptions, createDocumentLoader } from '@scalar/json-magic/bundle/plugins/node'
 import { createMagicProxy, getRaw } from '@scalar/json-magic/magic-proxy'
 import { deepClone } from '@scalar/workspace-store/helpers/deep-clone'
 
@@ -10,28 +9,18 @@ import { object } from './document'
 import { preserveData } from './preserve-data'
 import type { AsyncApiInput } from './types'
 
+export type { DocumentLoadOptions } from '@scalar/json-magic/bundle/plugins/node'
+
 /** Load once, preserving the source location for relative external references. */
-export const loadDocument = async (input: AsyncApiInput): Promise<Record<string, unknown>> => {
-  const source = async (): Promise<{ value: unknown; origin?: string }> => {
-    if (typeof input !== 'string') {
-      return { value: deepClone(getRaw(input)) }
-    }
-    const parsed = normalize(input)
-    if (isObject(parsed)) {
-      return { value: parsed }
-    }
-    if (/^https?:\/\//i.test(input)) {
-      const response = await fetch(input)
-      if (!response.ok) {
-        throw new Error(`Failed to load AsyncAPI document (HTTP ${response.status})`)
-      }
-      return { value: normalize(await response.text()), origin: input }
-    }
-    const [{ resolve }, { readFile }] = await Promise.all([import('node:path'), import('node:fs/promises')])
-    const origin = resolve(input)
-    return { value: normalize(await readFile(origin, 'utf8')), origin }
-  }
-  const { value, origin } = await source()
+export const loadDocument = async (
+  input: AsyncApiInput,
+  options: DocumentLoadOptions = {},
+): Promise<Record<string, unknown>> => {
+  const loader = createDocumentLoader(options)
+  const { value, origin } =
+    typeof input === 'string'
+      ? await loader.load(input, 'AsyncAPI')
+      : { value: deepClone(getRaw(input)), origin: undefined }
   if (!isObject(value) || typeof value.asyncapi !== 'string') {
     throw new Error('Expected an AsyncAPI document with an asyncapi version')
   }
@@ -42,7 +31,7 @@ export const loadDocument = async (input: AsyncApiInput): Promise<Record<string,
   const errors: string[] = []
   const bundled = await bundle(value, {
     origin,
-    plugins: [fetchUrls(), readFiles(), preserveData()],
+    plugins: [...loader.plugins, preserveData()],
     treeShake: false,
     hooks: { onResolveError: (node) => errors.push(`Failed to resolve ${node.$ref}`) },
   })

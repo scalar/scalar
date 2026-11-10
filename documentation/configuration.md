@@ -501,6 +501,19 @@ You can explicitly set the default HTTP client, though:
 }
 ```
 
+To select a custom code sample, use `custom` as the target and the sample ID without the `custom/` prefix as the client:
+
+```javascript
+{
+  defaultHttpClient: {
+    targetKey: 'custom',
+    clientKey: 'python',
+  }
+}
+```
+
+This selects `custom/python`, matching a Python entry in `x-codeSamples`. The language is lowercased in the ID. Repeated languages use suffixes such as `python/1`. An operation without that sample falls back to its first custom sample, then an available built-in client. An explicit default takes precedence over a previously saved selection.
+
 ### featuredClients
 
 **Type:** `AvailableClient[]`
@@ -604,6 +617,8 @@ By default the models are all closed in the model section at the bottom, this fl
 Show parameter details by default. Set to `false` to start path, query, header, and cookie parameters collapsed. Click a parameter to show its details. Names, types, and required markers stay visible.
 
 The default is `true`. This does not change response or nested schema expansion settings.
+
+Deep-object query parameters with expandable fields start as one collapsed group, regardless of the number of fields. Open the group to see its bracket-named fields. Parameters without expandable fields keep their ordinary presentation. Grouping does not change the API client.
 
 ```js
 Scalar.createApiReference('#app', {

@@ -1,5 +1,24 @@
 # @scalar/helpers
 
+## 0.17.1
+
+### Patch Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10882](https://github.com/scalar/scalar/pull/10882): Skip proxying requests whose origin matches the proxy origin to avoid an unnecessary forwarding hop.
+- [#10880](https://github.com/scalar/scalar/pull/10880): Preserve empty upstream response headers when restoring headers for scripts, request history, and agent results.
+
+## 0.17.0
+
+### Minor Changes
+
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+
+### Patch Changes
+
+- [#10865](https://github.com/scalar/scalar/pull/10865): Show empty response headers under their own name, instead of the internal `X-Scalar-Original-*` name the Scalar proxy uses.
+- [#10845](https://github.com/scalar/scalar/pull/10845): Prevent custom CSS and themes from closing style elements in generated HTML.
+
 ## 0.16.4
 
 ### Patch Changes

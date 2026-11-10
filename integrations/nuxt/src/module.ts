@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { addComponent, createResolver, defineNuxtModule, extendPages, extendViteConfig } from '@nuxt/kit'
+import type { NuxtModule } from '@nuxt/schema'
 
 import type { Configuration } from './types'
 
@@ -15,7 +16,7 @@ export type ModuleOptions = {
   layout: string | false
 } & Configuration
 
-export default defineNuxtModule<ModuleOptions>({
+const scalarModule: NuxtModule<ModuleOptions, ModuleOptions> = defineNuxtModule<ModuleOptions>({
   meta: {
     name: '@scalar/nuxt',
     configKey: 'scalar',
@@ -146,3 +147,5 @@ export default defineNuxtModule<ModuleOptions>({
     }
   },
 })
+
+export default scalarModule

@@ -444,7 +444,7 @@ describe('clojureCljhttp', () => {
 
     expect(result).toBe(`${REQUIRE}
 
-(client/post "https://example.com" {:form-params {"special chars!@#" "value"}})`)
+(client/post "https://example.com" {:form-params [["special chars!@#" "value"]]})`)
   })
 
   it('handles binary data as a raw body', () => {
@@ -647,5 +647,47 @@ describe('clojureCljhttp', () => {
 
 (client/get "https://example.com" {:headers {"X Custom" "a"}
                                    :query-params {"filter[name]" "b"}})`)
+  })
+
+  it.each<[string, { name: string; value?: string }[], string]>([
+    [
+      'repeated names',
+      [
+        { name: 'tag', value: 'a' },
+        { name: 'tag', value: 'b' },
+        { name: 'tag', value: 'c' },
+      ],
+      '[["tag" "a"] ["tag" "b"] ["tag" "c"]]',
+    ],
+    [
+      'interleaved repeated names in order',
+      [
+        { name: 'tag', value: 'a' },
+        { name: 'other', value: 'b' },
+        { name: 'tag', value: 'c' },
+      ],
+      '[["tag" "a"] ["other" "b"] ["tag" "c"]]',
+    ],
+    ['an empty name', [{ name: '', value: 'value' }], '[["" "value"]]'],
+    ['an empty value', [{ name: 'empty', value: '' }], '[["empty" ""]]'],
+    ['a missing value', [{ name: 'missing' }], '[["missing" ""]]'],
+    ['an apostrophe and unicode', [{ name: "it's", value: 'café' }], `[["it's" "café"]]`],
+    ['a name with a space', [{ name: 'a b', value: '1' }], '[["a b" "1"]]'],
+    ['a name with brackets', [{ name: 'filter[name]', value: '1' }], '[["filter[name]" "1"]]'],
+    ['a name that starts with a digit', [{ name: '1st', value: '1' }], '[["1st" "1"]]'],
+    ['a name with a slash', [{ name: 'a/b', value: '1' }], '[["a/b" "1"]]'],
+    ['the name __proto__', [{ name: '__proto__', value: '1' }], '[["__proto__" "1"]]'],
+    ['the name constructor', [{ name: 'constructor', value: '1' }], '[["constructor" "1"]]'],
+    ['the name toString', [{ name: 'toString', value: '1' }], '[["toString" "1"]]'],
+  ])('writes %s in the form params', (_, params, expected) => {
+    const result = clojureCljhttp.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/x-www-form-urlencoded', params },
+    })
+
+    expect(result).toStrictEqual(`${REQUIRE}
+
+(client/post "https://example.com" {:form-params ${expected}})`)
   })
 })

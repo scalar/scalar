@@ -17,7 +17,7 @@
     "validator",
     "typescript"
   ],
-  "version": "0.1.17",
+  "version": "0.1.19",
   "engines": {
     "node": ">=22"
   },
@@ -31,6 +31,11 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./decimal-multiple-of": {
+      "import": "./dist/decimal-multiple-of.js",
+      "types": "./dist/decimal-multiple-of.d.ts",
+      "default": "./dist/decimal-multiple-of.js"
+    },
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",

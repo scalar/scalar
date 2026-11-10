@@ -1,5 +1,27 @@
 # @scalar/java-integration
 
+## 0.7.1
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.0
+
+## 0.7.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
+### Minor Changes
+
+- [#10825](https://github.com/scalar/scalar/pull/10825): Expose additional UI, code sample, OAuth redirect, and service URL configuration in the Java integrations.
+- [#10825](https://github.com/scalar/scalar/pull/10825): Support inline API descriptions, document titles and slugs, and grouped authentication preferences in the Java integrations.
+
+  Escape HTML page titles and preserve configured source URLs while applying inline-content precedence during rendering.
+
+- [#10821](https://github.com/scalar/scalar/pull/10821): Add Spring Boot localization options for locale, text direction, and custom UI translations in WebMVC and WebFlux.
+- [#10827](https://github.com/scalar/scalar/pull/10827): Support path-based API Reference navigation and deep-link reloads in Spring WebMVC and WebFlux.
+
 ## 0.6.87
 
 ### Bundled API Reference

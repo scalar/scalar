@@ -52,23 +52,23 @@ You can specify predefined environment variables for the API Client/References t
 ```yaml
 x-scalar-environments:
   production:
-    description: "Production environment"
-    color: "#0082D0"
+    description: 'Production environment'
+    color: '#0082D0'
     # Variables are saved directly to the specification
     variables:
       userId:
-        description: "User ID"
-        default: "1234567890"
+        description: 'User ID'
+        default: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.production.example.com"
+        description: 'API URL'
+        default: 'https://api.production.example.com'
   staging:
-    description: "Staging environment"
+    description: 'Staging environment'
     variables:
-      userId: "1234567890"
+      userId: '1234567890'
       apiUrl:
-        description: "API URL"
-        default: "https://api.staging.example.com"
+        description: 'API URL'
+        default: 'https://api.staging.example.com'
 ```
 
 ## x-scalar-active-environment
@@ -198,6 +198,73 @@ paths:
             name: Custom cURL
             code: curl https://api.example.com/accounts
 ```
+
+### Custom sample groups
+
+Set `group` on individual samples to give them separate headings in the code sample picker, for example an SDK and a CLI:
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Sample groups
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          label: Python
+          group: SDK
+          source: client.pets.list()
+        - lang: shell
+          label: Command line
+          group: CLI
+          source: example-cli pets list
+```
+
+Groups appear in the order they first occur. Samples without a group, or with a blank group, keep the existing default heading. Grouping does not change IDs of unlinked samples or the priority between code sample extensions. Linked request examples share an ID only when their language, label, and group match. The same field is supported on `x-scalar-examples`, `x-code-samples`, and `x-custom-examples` entries.
+
+### Credentials in custom code samples
+
+Use `x-scalar-credential-placeholders` on a security scheme to insert the reader's current credentials into custom code samples. Each name matches a case-sensitive `{{name}}` placeholder. Names may contain letters, digits, underscores, dots, and hyphens, and must start with a letter or underscore.
+
+```yaml
+openapi: 3.1.0
+info:
+  title: Credential examples
+  version: 1.0.0
+security:
+  - account: []
+paths:
+  /pets:
+    get:
+      responses:
+        '200':
+          description: A list of pets
+      x-codeSamples:
+        - lang: python
+          source: client = ExampleClient("{{accountId}}", "{{apiKey}}")
+components:
+  securitySchemes:
+    account:
+      type: http
+      scheme: basic
+      x-scalar-credential-placeholders:
+        accountId:
+          field: username
+          mask: false
+        apiKey:
+          field: password
+```
+
+Available fields are `token` for API keys and bearer authentication, `username` and `password` for basic authentication, and `token`, `clientId`, `clientSecret`, `username`, and `password` where available in OAuth2 or OpenID Connect. OAuth placeholders use the first flow with an access token, matching request authentication; other flows are not used.
+
+Values are masked by default in the displayed example. Copy includes their real values, matching generated code samples. Set `mask: false` only for public values such as an account ID. If a public value is also a secret elsewhere in the selected schemes, it remains masked.
+
+Only the operation's selected authentication schemes supply values. Unknown names, missing credentials, and names declared by multiple selected schemes remain unchanged. Samples update when credentials change, while the original API description keeps its placeholders. Replacement is literal and happens once: it does not evaluate expressions, escape programming-language strings, or expand placeholders contained in credentials. Choose sample syntax appropriate for the credential format your API accepts.
 
 ## x-example / x-examples
 
@@ -617,9 +684,9 @@ Aliases: `x-enumNames`
 
 We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header and they replace the generic HTTP clients in the introduction.
 
-Each entry has a `lang` (used as the tab label and to pick a matching language icon) and a `description`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
+Each entry has a `lang` (used to pick a matching language icon and synchronize code sample selection) and a `description`. Set an optional `label` to customize the tab text, for example `lang: python` with `label: Python SDK`. If `label` is missing or blank, the tab displays `lang`. The `description` supports Markdown, including fenced code blocks with syntax highlighting, so a single tab can show multiple snippets (for example Maven and Gradle for Java).
 
-```diff
+````diff
 openapi: 3.1.0
 info:
   title: Example
@@ -649,11 +716,12 @@ info:
 +      ```groovy
 +      implementation 'com.your-awesome-company:sdk:1.0.0'
 +      ```
-```
+````
 
-| Option      | Type   | Description                                                                                        |
+| Option      | Type   | Description                                                                                       |
 | ----------- | ------ | ------------------------------------------------------------------------------------------------- |
 | lang        | string | **REQUIRED**. The language or platform of the SDK (for example `TypeScript`, `Java`, `Python`).   |
+| label       | string | Optional display text for the SDK tab. Defaults to `lang` when omitted or blank.                  |
 | description | string | The installation instructions for this language. Supports Markdown, including fenced code blocks. |
 
 ## x-scalar-links
@@ -672,10 +740,10 @@ info:
 +    url: https://example.com/imprint
 ```
 
-| Option | Type   | Description                                       |
-| ------ | ------ | ------------------------------------------------- |
-| name   | string | **REQUIRED**. The label to display for the link.  |
-| url    | string | **REQUIRED**. The URL the link points to.         |
+| Option | Type   | Description                                      |
+| ------ | ------ | ------------------------------------------------ |
+| name   | string | **REQUIRED**. The label to display for the link. |
+| url    | string | **REQUIRED**. The URL the link points to.        |
 
 ## x-pre-request
 

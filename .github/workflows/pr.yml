@@ -83,7 +83,8 @@ jobs:
           # The tarball is already gzip-compressed; skip the upload action's
           # outer zip-compression pass.
           compression-level: 0
-      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+      # Dependabot runs cannot read Actions secrets, including the RelativeCI key.
+      - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
         name: Upload webpack stats to RelativeCI
         uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
         with:

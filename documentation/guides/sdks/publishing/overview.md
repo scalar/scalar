@@ -6,7 +6,8 @@ Publishing is **opt-in** and **off by default**. Nothing is published until you 
 
 <scalar-image
   src="/sdks/sdk-overview.png"
-  alt="The SDK overview page in the Scalar dashboard showing a target with a linked GitHub repository"
+  src-dark="/sdks/sdk-overview-dark.png"
+  alt="The SDK studio in the Scalar dashboard showing a TypeScript target with a linked GitHub repository"
   size="full">
 </scalar-image>
 
@@ -89,7 +90,7 @@ You can enable publishing two ways. Both set the same thing.
   size="full">
 </scalar-image>
 
-The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, PHP, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
+The registry key depends on the target (`npm`, `pypi`, `cargo`, `maven`, and so on). The C#, Swift, Rust, Dart, and C++ targets are experimental. For the full list and each registry's setup, see [Package Registries](registries.md); each target's [configuration page](../configuration.md#targets) documents its `publish` options. The CLI's three channels (npm, standalone binaries, and Homebrew) are covered in the [CLI guide](cli.md).
 
 Publishing requires a [linked repository](github.md): a target with no `destinations.production` gets no workflows at all.
 
@@ -109,10 +110,15 @@ Only absolute `http` or `https` URLs are linked. Each target writes the links it
 
 `settings.keywords` lists up to five search keywords for every registry that takes them (`package.json`, `pyproject.toml`, Composer, Cargo, pubspec `topics`, NuGet `PackageTags`). One list serves every registry, so each keyword must meet the strictest of their rules: 2 to 20 lowercase ASCII letters, digits and `-`, starting with a letter, ending with a letter or digit, with no `--`. A config that breaks these rules fails validation.
 
+`settings.description` sets the one-line package description: `pyproject.toml` `description`, the `package.json` `description` of the TypeScript SDK and the CLI, Composer `description`, the Maven POM `description` the Java and Kotlin targets publish, and the CLI man page. When it is unset, those take the OpenAPI `info.summary`, then the first prose paragraph of `info.description`, then a generic sentence naming the SDK. Line breaks, repeated spaces and control characters collapse to single spaces, and it can be at most 512 characters, PyPI's limit. Cargo, RubyGems, pub.dev and NuGet keep their fixed sentence naming the API.
+
 ```json
 {
   "organization": { "name": "acme", "homepage": "https://acme.example", "docs": "https://docs.acme.example" },
-  "settings": { "keywords": ["payments", "rest-api"] }
+  "settings": {
+    "description": "The official client for the Acme payments API.",
+    "keywords": ["payments", "rest-api"]
+  }
 }
 ```
 

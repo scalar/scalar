@@ -109,6 +109,14 @@ Must be lowercase letters, digits, and hyphens, starting with a letter. npm also
 
 **Constraints:** `pattern: ^[a-z][a-z0-9-]*$`
 
+## packageManager
+
+**Type:** `string`
+
+Package manager the generated GitHub workflows install dependencies and build with: `npm` (the default), `pnpm`, `yarn`, or `bun`. Each sets up a pinned release (pnpm 12, Yarn 4, Bun 1.4) in CI and the release job and runs its own install and `build`. The install is frozen when that manager's lockfile (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock` or `bun.lockb`) is committed and resolves fresh when it is not, since the generator writes no lockfile; another manager's lockfile is ignored. Yarn installs into `node_modules`, not Plug'n'Play, and a Yarn 1 lockfile must be migrated to Yarn 4 before the frozen install accepts it. `npm` keeps running `npm install` whether or not a `package-lock.json` exists. Publishing still runs through npm, because trusted publishing needs the npm CLI. Only the workflows change: the published package and its README install instructions are the same either way. Any other value is reported and builds with npm.
+
+**Default:** `"npm"`
+
 ## prereleaseType
 
 **Type:** `string`
@@ -149,6 +157,14 @@ How `integer` values declared `format: int64` (or the unregistered `format: uint
 
 **Default:** `"number"`
 
+### authTokenProvider
+
+**Type:** `boolean`
+
+Whether credential client options also accept a token provider. `true` (the default) types each credential option, such as `apiKey`, as `string | AuthTokenProvider`, where `AuthTokenProvider` is `() => string | Promise<string>` and is exported from the package root; the client calls the provider each time it applies the credential, so a rotating or fetched token needs no new client. `false` types each credential as a plain `string`, on `ClientOptions`, on the client's own properties and in the README, and declares no `AuthTokenProvider`. Set it to `false` when an already-published SDK typed its credentials as `string`, so consumer code that reads `client.apiKey` as a string keeps compiling.
+
+**Default:** `true`
+
 ### backCompat
 
 **Type:** `object`
@@ -159,7 +175,7 @@ Legacy public names an already-published TypeScript SDK keeps declaring so its c
 
 **Type:** `object[]`
 
-Extra type names declared in generated resource modules, so an import or annotation an already-published TypeScript SDK shipped keeps compiling after the type it named moved or was renamed, e.g. `PartListResponse` for `PartList.Data` in `resources/widgets/parts`. Each entry appends `export type <name> = <to>;` to `module`, and the name is re-exported wherever that module's types are: the resource's own `export declare namespace`, its direct parent's namespace, and the resource barrels beside it. For a root resource module that parent is the client namespace. Deeper ancestors reach a nested module's alias through the nested namespace path (`Client.Widgets.Parts.PartListResponse`), not under their own name. Generation fails when `module` is not a resource module this SDK generates, when `to` is not a type `module` itself declares, when `module` already binds `name`, when another module already exports `name` or a generated class carries it (the shared namespaces and barrels would otherwise rename that type), or when `name` is a global type generated modules may use unqualified, such as `Array`, `Response`, `Blob` or `Date`. A stale entry is therefore caught when it stops resolving, rather than shipping without the name or renaming another type.
+Extra type names declared in generated resource modules, so an import or annotation an already-published TypeScript SDK shipped keeps compiling after the type it named moved or was renamed, e.g. `PartListResponse` for `PartList.Data` in `resources/widgets/parts`. Each entry appends `export type <name> = <to>;` to `module`. When `to` is a page type the module declares, it also appends `export const <name> = <PageClass>;`, binding the page class that type instantiates (such as `CursorPage`) so `page instanceof <name>` keeps compiling. The resource namespaces attach that value at runtime and the resource barrels re-export it as a value; the client namespace keeps only the type. The name is re-exported wherever that module's types are: the resource's own `export declare namespace`, its direct parent's namespace, and the resource barrels beside it. For a root resource module that parent is the client namespace. Deeper ancestors reach a nested module's alias through the nested namespace path (`Client.Widgets.Parts.PartListResponse`), not under their own name. Generation fails when `module` is not a resource module this SDK generates, when `to` is not a type `module` itself declares, when `module` already binds `name`, when another module already exports `name` or a generated class carries it (the shared namespaces and barrels would otherwise rename that type), or when `name` is a global type generated modules may use unqualified, such as `Array`, `Response`, `Blob` or `Date`. A stale entry is therefore caught when it stops resolving, rather than shipping without the name or renaming another type.
 
 ##### module
 

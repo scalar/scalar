@@ -5,6 +5,62 @@ import type { ClientOptionGroup, CustomClientOption } from '../types'
 import { getClients } from './get-clients'
 
 describe('getClients', () => {
+  it('groups samples by their heading and preserves sample ids', () => {
+    const samples: XCodeSample[] = [
+      { lang: 'python', label: 'Python', group: 'SDK', source: 'sdk()' },
+      { lang: 'shell', label: 'CLI', group: 'CLI', source: 'cli' },
+      { lang: 'js', label: 'JavaScript', group: ' SDK ', source: 'sdk()' },
+      { lang: 'ruby', label: 'Ruby', group: '  ', source: 'example' },
+    ]
+    expect(
+      getClients(samples, []).map(({ label, options }) => ({
+        label,
+        ids: options.map(({ id }) => id),
+      })),
+    ).toStrictEqual([
+      { label: 'SDK', ids: ['custom/python', 'custom/js'] },
+      { label: 'CLI', ids: ['custom/shell'] },
+      { label: 'Code Examples', ids: ['custom/ruby'] },
+    ])
+  })
+
+  it('keeps linked examples with the same language and label in separate groups', () => {
+    const samples: XCodeSample[] = [
+      { lang: 'shell', label: 'Shell', group: 'SDK', example: 'first', source: 'sdk first' },
+      { lang: 'shell', label: 'Shell', group: 'CLI', example: 'first', source: 'cli first' },
+      { lang: 'shell', label: 'Shell', group: 'SDK', example: 'second', source: 'sdk second' },
+      { lang: 'shell', label: 'Shell', group: 'CLI', example: 'second', source: 'cli second' },
+    ]
+    expect(
+      getClients(samples, []).map(({ label, options }) => ({
+        label,
+        ids: options.map(({ id }) => id),
+      })),
+    ).toStrictEqual([
+      { label: 'SDK', ids: ['custom/shell'] },
+      { label: 'CLI', ids: ['custom/shell/1'] },
+    ])
+  })
+
+  it.each([{ group: 42 }, { group: true }, { group: {} }, { group: [] }])(
+    'uses the default heading for a malformed group $group',
+    ({ group }) => {
+      const samples: XCodeSample[] = [
+        // @ts-expect-error Malformed API descriptions can bypass schema validation.
+        { lang: 'shell', label: 'Shell', group, example: 'first', source: 'first' },
+        { lang: 'shell', label: 'Shell', example: 'second', source: 'second' },
+      ]
+
+      expect(getClients(samples, [], 'SDK')).toStrictEqual([
+        {
+          label: 'SDK',
+          key: 'custom',
+          options: [{ id: 'custom/shell', lang: 'shell', title: 'Shell', label: 'Shell', clientKey: 'custom' }],
+        },
+      ])
+    },
+  )
+
   /**
    * Test 1: Verifies that custom code samples are properly transformed and prepended
    * This is critical because it ensures custom examples appear first in the UI

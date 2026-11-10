@@ -1145,6 +1145,11 @@ paths:
 
     try {
       const result = await createMarkdownFromOpenApi(documentUrl, { documentLoading: { allowPrivateNetworks: true } })
+      await expect(
+        createMarkdownFromOpenApi(`http://127.0.0.1:${port}/missing.yaml`, {
+          documentLoading: { allowPrivateNetworks: true },
+        }),
+      ).rejects.toThrow('Failed to load OpenAPI document: HTTP 404')
       expect(result).toContain('List users')
       expect(result).toContain('id')
       expect(result).toContain('name')

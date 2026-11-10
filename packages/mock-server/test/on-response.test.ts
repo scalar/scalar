@@ -286,7 +286,7 @@ describe('on-response', () => {
     }
   })
 
-  it('receives the error handler response when mocking fails', async () => {
+  it('receives the successful response when a malformed declared header is skipped', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
     try {
       const onResponse = vi.fn<MockServerResponseHook>()
@@ -314,9 +314,10 @@ describe('on-response', () => {
 
       const response = await server.request('/broken')
 
-      expect(response.status).toBe(500)
+      expect(response.status).toBe(200)
+      expect(await response.json()).toStrictEqual({})
       expect(onResponse).toHaveBeenCalledOnce()
-      expect(onResponse.mock.lastCall?.[0].response.status).toBe(500)
+      expect(onResponse.mock.lastCall?.[0].response.status).toBe(200)
     } finally {
       error.mockRestore()
     }

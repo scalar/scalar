@@ -34,9 +34,9 @@ Once created, you will be redirected to the SDK overview page. From there you ca
 </scalar-steps>
 
 <scalar-image
-  src="/sdk-dashboard-static.svg"
-  src-dark="/sdk-dashboard-static-dark.svg"
-  alt="Scalar SDK dashboard"
+  src="/sdks/sdk-studio.png"
+  src-dark="/sdks/sdk-studio-dark.png"
+  alt="The SDK studio for a new SDK, showing the generated TypeScript reference, its configuration, and the build drawer"
   size="full">
 </scalar-image>
 

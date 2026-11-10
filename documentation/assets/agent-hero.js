@@ -50,6 +50,16 @@
   ]
 
   /**
+   * How far apart neighbouring marks are at least, centre to centre, in marks' widths, where a
+   * ring runs down a side of the stage. The marks grow with the stage's width and the rings with
+   * its height, and the stage stops growing taller at 560px, so on a wide screen the outer ring's
+   * marks ran into each other down the sides (1.09 widths apart at 1512 by 820, overlapping from
+   * 1920 across). A ring is made at least tall enough to keep this, which is the inner ring's own
+   * spacing at 1512 by 820, and turns more slowly by as much, so its marks move as fast as before.
+   */
+  const SPACING = 1.5
+
+  /**
    * On a phone the copy fills the width and there is no room beside it for the arcs. Vitra's
    * page, measured at 390 by 844 and 430 by 932, then turns its circles into true circles of
    * 0.636 and 0.886 of the width, a little wider than the screen, so their tops and bottoms
@@ -101,9 +111,8 @@
   }
 
   /**
-   * The agents the introduction page gives a globe of its own colour (its .lp-orb styles), painted
-   * here as it paints them, so an agent is the same globe on both pages, and in either theme, as
-   * there. A globe is its tint, a little lighter towards the middle, unless `body` gives the
+   * The agents that have a globe of their own colour (as the old home page's planets did), painted
+   * here the same in either theme. A globe is its tint, a little lighter towards the middle, unless `body` gives the
    * brand's own two colours; `glow` is a second colour along the bottom, `light` how strong the
    * white sheen along the bottom is, and `ink` the colour its mark takes.
    */
@@ -399,9 +408,6 @@
     const sh = gl.createShader(type)
     gl.shaderSource(sh, src)
     gl.compileShader(sh)
-    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-      throw new Error(gl.getShaderInfoLog(sh) || 'compile failed')
-    }
     return sh
   }
 
@@ -411,10 +417,19 @@
     gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, frag))
     attributes.forEach((name, i) => gl.bindAttribLocation(p, i, name))
     gl.linkProgram(p)
-    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
-      throw new Error(gl.getProgramInfoLog(p) || 'link failed')
-    }
     return p
+  }
+
+  /**
+   * Shaders compile on other threads, and it is asking how it went that makes the page wait for them: a good part of a
+   * second on a first visit. So nothing is asked until the browser says there is an answer, which it also says of a
+   * context it has lost. A browser without the extension says nothing, and the page waits at the first question, as it
+   * always has.
+   */
+  const whenCompiled = async (gl, parallel, programs, wanted) => {
+    while (parallel && wanted() && !programs.every((p) => gl.getProgramParameter(p, parallel.COMPLETION_STATUS_KHR))) {
+      await new Promise((resolve) => setTimeout(resolve, 16))
+    }
   }
 
   // ------------------------------------------------------------------------------- the pebbles
@@ -913,7 +928,9 @@
 
     let scene
     let lens
+    let parallel
     try {
+      parallel = gl.getExtension('KHR_parallel_shader_compile')
       scene = link(gl, SCENE_VERT, SCENE_FRAG, ['a_corner'])
       lens = link(gl, LENS_VERT, LENS_FRAG)
     } catch (error) {
@@ -922,6 +939,61 @@
       return
     }
 
+    // While they compile the hero holds nothing but the context. Hydration can replace it in that time, and the browser
+    // can take the context back. Either way it lets go and leaves a fresh canvas, as teardown() does once it is running.
+    let waiting = true
+    const letGo = () => {
+      waiting = false
+      canvas.removeEventListener('webglcontextlost', lost)
+      heroes.delete(release)
+      gl.getExtension('WEBGL_lose_context')?.loseContext()
+      canvas.replaceWith(canvas.cloneNode(false))
+      delete root.dataset.agHeroBound
+    }
+    const release = () => {
+      if (!canvas.isConnected) {
+        letGo()
+      }
+    }
+    const lost = (event) => {
+      event.preventDefault()
+      letGo()
+      if (rebuilds < 2) {
+        rebuilds += 1
+        requestAnimationFrame(run)
+      } else {
+        root.dataset.agHeroBound = 'true'
+        root.dataset.agFallback = 'true'
+      }
+    }
+    canvas.addEventListener('webglcontextlost', lost)
+    heroes.add(release)
+
+    whenCompiled(gl, parallel, [scene, lens], () => waiting)
+      .then(() => {
+        // A lost context says it has finished too, and the event that says it was lost is on its way.
+        if (!waiting || gl.isContextLost()) {
+          return
+        }
+        waiting = false
+        canvas.removeEventListener('webglcontextlost', lost)
+        heroes.delete(release)
+        for (const p of [scene, lens]) {
+          if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+            const logs = gl.getAttachedShaders(p).map((sh) => gl.getShaderInfoLog(sh))
+            throw new Error([gl.getProgramInfoLog(p), ...logs].filter(Boolean).join('\n') || 'link failed')
+          }
+        }
+        start(root, canvas, gl, agents, scene, lens)
+      })
+      .catch((error) => {
+        root.dataset.agFallback = 'true'
+        console.warn('[agent-hero]', error)
+      })
+  }
+
+  /** Everything else about a hero, once its shaders have compiled. */
+  const start = (root, canvas, gl, agents, scene, lens) => {
     const { pebbles, queue } = layout(agents)
     let cursor = 0
     let dealt = false
@@ -1017,10 +1089,24 @@
       probe.height = 1
       const ctx = probe.getContext('2d', { willReadFrequently: true })
       // The theme's page colour. A value the canvas cannot parse, light-dark() for one, leaves
-      // the sentinel in place, and the body's resolved background stands in.
+      // the sentinel in place, and the body's resolved background stands in. A hero drawn on a
+      // surface of its own (data-ag-surface, the card on the home page) takes that surface's
+      // colour instead, so the marks sit on the card and not on a page-coloured box inside it.
       const sentinel = '#010203'
       ctx.fillStyle = sentinel
-      ctx.fillStyle = getComputedStyle(root).getPropertyValue('--scalar-background-1').trim() || sentinel
+      let surface = ''
+      if (root.dataset.agSurface === 'true') {
+        // A change of theme can start a transition on the surface's colour (the site gives everything a .01ms one
+        // under reduced motion), and until it ends the surface still reports the old theme's colour. The canvas
+        // covers the surface, so finishing it costs nothing, and the colour read is the new theme's.
+        for (const animation of root.getAnimations()) {
+          if (animation.transitionProperty === 'background-color') {
+            animation.finish()
+          }
+        }
+        surface = getComputedStyle(root).backgroundColor
+      }
+      ctx.fillStyle = surface || getComputedStyle(root).getPropertyValue('--scalar-background-1').trim() || sentinel
       if (ctx.fillStyle === sentinel) {
         ctx.fillStyle = getComputedStyle(document.body).backgroundColor
       }
@@ -1039,7 +1125,12 @@
     const reach = (LENS_IN + ((1 - LENS_IN) * (1 - Math.exp(-BEND))) / BEND) * (1 + SPLIT)
 
     let atlas = null
-    let clock = 0
+    // How far each ring has turned, in degrees. It is kept, and not worked out from a clock,
+    // because a stretched ring turns more slowly: worked out from the time so far, a resize that
+    // changed the pace would send every mark round to wherever the new pace would have had it.
+    let turns = RINGS.map(() => 0)
+    // How fast each ring turns, as a share of its speed: under 1 where SPACING stretches it.
+    let pace = RINGS.map(() => 1)
     let intro = 0
     let last = null
     let raf = 0
@@ -1049,7 +1140,7 @@
     // Something on screen has changed since the last picture was drawn.
     let dirty = true
 
-    // One picture at the clock as it stands. frame() below moves the clock and calls this; a
+    // One picture with the rings as they have turned. frame() below turns them and calls this; a
     // resize, or a change while the hero is away, calls it straight away.
     const draw = () => {
       if (!atlas) {
@@ -1072,18 +1163,32 @@
       // On a phone the circles are centred on the copy, as Vitra centres them on its title, so
       // the inner one frames it. The lens stays on the stage's own middle.
       const ringY = narrow && copy ? holeY : cy
+      // Down, each ring is at least tall enough to keep its marks SPACING apart along its sides.
+      const heights = [Math.max(RINGS[0].down * half, clear), RINGS[1].down * half]
+      const spaced = heights.map((down, r) =>
+        Math.max(down, (SPACING * 2 * RINGS[r].size * w * RINGS[r].count) / (Math.PI * 2)),
+      )
+      // A stretched ring runs straighter, so its marks would meet the glass further out, at the very
+      // edge of the stage, where little of their comets shows. It is pulled in by as much, so that they
+      // meet the glass, halfway into the lens, where they did before. The copy and the gap between the
+      // two rings still hold it out, and a ring that was not stretched stays where it was.
+      const glassY = ((LENS_IN + 1) / 2) * half
+      const outAt = (down) => Math.sqrt(Math.max(0, 1 - (glassY / down) ** 2))
+      const pulled = (rx, r) => (rx * outAt(heights[r])) / Math.max(outAt(spaced[r]), 1e-3)
+      const innerRx = Math.max(pulled(innerX, 0), clear)
       const radii = narrow
         ? NARROW.radii.map((share) => [share * w, share * w])
         : [
-            [innerX, Math.max(RINGS[0].down * half, clear)],
-            [Math.max(RINGS[1].across * w, innerX + RINGS[1].size * w * 3.2), RINGS[1].down * half],
+            [innerRx, spaced[0]],
+            [Math.max(pulled(RINGS[1].across * w, 1), innerRx + RINGS[1].size * w * 3.2), spaced[1]],
           ]
+      pace = narrow ? RINGS.map(() => 1) : spaced.map((down, r) => heights[r] / down)
 
-      // Where a mark is at the clock, and whether it is out of sight: beyond the lens, or past a
-      // side of a phone. Judged by the disc's near edge, so no part of it is still in view.
+      // Where a mark is as its ring has turned, and whether it is out of sight: beyond the lens, or
+      // past a side of a phone. Judged by the disc's near edge, so no part of it is still in view.
       const place = (p) => {
         const ring = RINGS[p.ring]
-        const a = p.angle + ring.speed * (Math.PI / 180) * clock
+        const a = p.angle + turns[p.ring] * (Math.PI / 180)
         const [rx, ry] = radii[p.ring]
         const x = rx * Math.cos(a)
         const y = ry * Math.sin(a)
@@ -1203,7 +1308,7 @@
         // from it instead of replaying it from an empty stage.
         intro = Math.max(intro, 99)
       } else {
-        clock += dt
+        turns = turns.map((turned, r) => turned + RINGS[r].speed * pace[r] * dt)
         intro += dt
       }
       draw()
@@ -1405,7 +1510,7 @@
 
     // A hook for captures and tests: jump the turn to a moment, with the opening finished.
     root.agSeek = (seconds) => {
-      clock = seconds
+      turns = RINGS.map((ring, r) => ring.speed * pace[r] * seconds)
       intro = 99
       dirty = true
       settled = false

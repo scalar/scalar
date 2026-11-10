@@ -160,6 +160,138 @@ Every property the schema requires, with a real value apiece. `$schema` is the o
   "resources": {
     "widgets": {
       "methods": {
+        "embed": "get /v1/embed/widget",
+        "get_embed_url": {
+          "kind": "signedUrl",
+          "params": {
+            "type": "object",
+            "required": [
+              "token"
+            ],
+            "properties": {
+              "token": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "css": {
+                "type": "string"
+              },
+              "expiration": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "target_origin": {
+                "type": "string"
+              }
+            }
+          },
+          "signedUrl": {
+            "source": {
+              "sign": {
+                "endpoint": "get /v1/embed/widget",
+                "signature": {
+                  "key": {
+                    "clientOption": "api_key"
+                  },
+                  "signatureBase": [
+                    "payload"
+                  ],
+                  "encoding": "base64",
+                  "queryField": "hmac"
+                },
+                "query": {
+                  "embed_request": {
+                    "payload": "base64"
+                  }
+                },
+                "defaults": {
+                  "expiration": {
+                    "now": "PT1M"
+                  }
+                }
+              }
+            },
+            "action": "return"
+          }
+        },
+        "get_embed_html": {
+          "kind": "signedUrl",
+          "returns": {
+            "type": "string"
+          },
+          "signedUrl": {
+            "source": {
+              "method": "get_embed_url"
+            },
+            "action": {
+              "fetch": {
+                "accept": "text/html"
+              }
+            }
+          }
+        }
+      }
+    },
+    "exports": {
+      "methods": {
+        "download": {
+          "kind": "signedUrl",
+          "returns": {
+            "type": "string",
+            "format": "binary"
+          },
+          "signedUrl": {
+            "source": {
+              "request": {
+                "endpoint": "post /v1/exports/{export_id}/download",
+                "urlField": "download_url"
+              }
+            },
+            "action": {
+              "fetch": {}
+            }
+          }
+        }
+      }
+    },
+    "images": {
+      "methods": {
+        "signed_image_url": {
+          "kind": "signedUrl",
+          "signedUrl": {
+            "source": {
+              "sign": {
+                "endpoint": "get /images/{path}",
+                "signature": {
+                  "key": {
+                    "param": "signing_key"
+                  },
+                  "signatureBase": [
+                    "path",
+                    {
+                      "literal": "?"
+                    },
+                    "query"
+                  ],
+                  "encoding": "hex",
+                  "queryField": "signature"
+                }
+              }
+            },
+            "action": "return"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "resources": {
+    "widgets": {
+      "methods": {
         "list": "get /widgets",
         "all": {
           "kind": "alias",
@@ -189,7 +321,7 @@ Each resource can carry generated methods, public models, nested subresources, d
 
 Use `skip` to omit a method, model, or resource globally or for specific targets. Use `only` to restrict it to a list of targets.
 
-Signed uploads, dotted `aliasTo` addresses and an alias's own `positionalParams` are experimental, and may change in a later release.
+Signed uploads, signed URLs, dotted `aliasTo` addresses and an alias's own `positionalParams` are experimental, and may change in a later release.
 
 A method with `"kind": "signedUpload"` wraps a two-step upload into one SDK method, as in the second example: it calls the operation at `endpoint`, sends a file to the pre-signed URL in the response property `signedUpload.urlField`, then calls the optional `confirm` endpoint (its path parameters filled from the first response by `confirm.pathParams`) and returns its response — or the first response when there is no confirm step. The operation at `endpoint` can also be placed as a method of its own, or kept out with `skip` or `ignoredEndpoints`.
 
@@ -197,13 +329,96 @@ The upload never carries the client's credentials: no auth headers, cookies, que
 
 Signed uploads are generated for TypeScript, Python, Go, Java, Kotlin, Ruby and PHP, and the CLI offers each one as a command; other targets leave the method out and report `Unsupported/SignedUploadMethod`. A configuration the generator cannot honour, such as a `urlField` the response does not declare, leaves the method out everywhere and reports `Config/InvalidSignedUpload`.
 
-A method with `"kind": "alias"` gives an existing method a second public name, as in the third example. It is generated as a full method of the resource that declares it, under its own name, calling the target's endpoint with the target's request and response shape. `aliasTo` is either a sibling method's key (`list` in the example) or a dotted config address that names a method on any resource: resource keys as written, then the method key, as in `widgets.parts.archive`. Write `$client.<name>` for a method on the root client. A dotted address is always read from the root of `resources`, never relative to the alias's own resource.
+A method with `"kind": "alias"` gives an existing method a second public name, as in the fourth example. It is generated as a full method of the resource that declares it, under its own name, calling the target's endpoint with the target's request and response shape. `aliasTo` is either a sibling method's key (`list` in the example) or a dotted config address that names a method on any resource: resource keys as written, then the method key, as in `widgets.parts.archive`. Write `$client.<name>` for a method on the root client. A dotted address is always read from the root of `resources`, never relative to the alias's own resource.
 
 An alias takes the target's `positionalParams` unless it lists its own, so the same call can take a different positional argument on each resource. In the example, the TypeScript SDK has `widgets.archive(widgetID, { part_id })` beside `widgets.parts.archive(partID, { widget_id })`. Positional arguments still follow the order the path declares them in. Set `deprecationMessage` to ship the alias as a deprecated name: a plain rename on the same resource points callers at the method it renames, and any other alias shows the message as written.
 
-An alias whose `aliasTo` is missing, names no method, names a `webhookUnwrap` or `signedUpload` method, names another alias or closes a cycle of aliases, or whose `positionalParams` name a parameter the target has no path parameter for, is left out and reported as `Config/InvalidAlias`. An alias of a method that `skip`, `only` or `ignoredEndpoints` removes for a target is left out of that target with it.
+An alias whose `aliasTo` is missing, names no method, names a `webhookUnwrap`, `signedUpload` or `signedUrl` method, names another alias or closes a cycle of aliases, or whose `positionalParams` name a parameter the target has no path parameter for, is left out and reported as `Config/InvalidAlias`. An alias of a method that `skip`, `only` or `ignoredEndpoints` removes for a target is left out of that target with it.
+
+To expose one endpoint under several request media types, place it once with one `bodyContentType` and declare each other method as an alias with `aliasTo` naming it and a `bodyContentType` of its own, as in `notes.create` sending `application/json` beside `notes.create_text` sending `text/plain`, both on `post /notes`. Like any alias, each takes everything but its name, media type, `positionalParams` and deprecation from the method it names. A second plain placement of the endpoint on the same resource is generated the same way, as an alias of the first one declared without a `deprecationMessage`, and its other settings (`streaming`, `bodyParamName`, `positionalParams` and the rest) are not applied; in different resources only the later placement is kept, and `Config/DuplicateEndpoint` is reported. A method or alias whose `bodyContentType` names a media type the operation does not declare is left out and reported as `Config/UnknownBodyContentType`. When that is the method the endpoint is generated from, every other method and alias placed on the endpoint is left out with it; when it is a second placement on the same resource, only an alias naming it that sets no `bodyContentType` of its own is, and that alias is reported too.
 
 A method with `"kind": "webhookUnwrap"` generates a helper that verifies and decodes the webhook deliveries your server receives, configured under its `webhook` property; see [Webhooks](webhooks.md).
+
+#### Signed URLs
+
+> [!WARNING]
+> Experimental: `kind: "signedUrl"` may change in a later release, before it is stable. Every target renders it today. An upload renders only where signed uploads do; other targets leave it out and report `Unsupported/SignedUploadMethod`.
+
+A signed URL is a link that carries its own permission. The server checks a signature or token in the URL instead of a credential, so whoever holds the link can use it until it expires, without an API key. A method with `"kind": "signedUrl"` gets such a URL and does one thing with it, as in the third example. [Signed URLs](signed-urls.md) explains the feature, with more examples and every error message, and [Signed URL methods](configuration/signed-urls.md) lists every key.
+
+`signedUrl.source` says where the URL comes from:
+
+| Source | Use it when | Example |
+| --- | --- | --- |
+| `sign` | The API documents how to sign its URLs, and the SDK holds the secret. | An embed link, a CDN image link. |
+| `request` | An API operation hands out the URL. | A presigned download or upload link to an object store. |
+| `method` | Another `kind: signedUrl` method already gets the same URL. | Fetching the page that an embed-URL method returns. |
+
+`signedUrl.action` says what the method does with it:
+
+| Action | The method | Returns |
+| --- | --- | --- |
+| `"return"` | Makes no request. It is synchronous. | The URL, as a string. |
+| `{ "fetch": { "accept": "text/html" } }` | Sends a `GET` to the URL. | The body, read as `returns` says. |
+| `{ "upload": { … } }` | Sends a file to the URL. | The response that issued the URL, or the confirm step's. |
+
+`kind: "signedUpload"` is the simple preset for uploads: it is a `request` source with the `upload` action, and both generate the same SDK.
+
+##### How a signed URL is built
+
+Take the `signed_image_url` method from the third example, called with `{ "path": "cat.png", "w": 400, "expires": 1767225600, "signing_key": "cdn_vector_key" }`:
+
+1. **Path.** Each placeholder of `get /images/{path}` is filled from the param of the same name, percent-encoded: `/images/cat.png`.
+2. **Query.** With no `query` set, the endpoint's query parameters (here `w`, `expires` and `signature`) are written in the order the API description declares them, each from the param of the same name, leaving out the `signature.queryField` one for now: `w=400&expires=1767225600`. A param the caller leaves out is left out of the URL. With no `params` set either, the params are the endpoint's path and query parameters, then the `signing_key` the key names.
+3. **Signature base.** The `signatureBase` parts `["path", { "literal": "?" }, "query"]` are joined into the bytes to sign: `/images/cat.png?w=400&expires=1767225600`.
+4. **HMAC.** HMAC-SHA256 of those bytes, keyed with `cdn_vector_key`, written as `hex`: `41c6b11e80333433c2736df263541315393eaa1f2b2ed736cd209f0c76b6ce2a`.
+5. **URL.** The signature goes into the field `signature.queryField` names, after every other field: `<base URL>/images/cat.png?w=400&expires=1767225600&signature=41c6b11e80333433c2736df263541315393eaa1f2b2ed736cd209f0c76b6ce2a`.
+
+The `get_embed_url` method signs a payload instead. Called with `{ "token": "3fa85f64-5717-4562-b3fc-2c963f66afa6", "expiration": "2026-01-01T00:00:00Z" }`, it serializes the params as compact JSON in declaration order, `{"token":"3fa85f64-5717-4562-b3fc-2c963f66afa6","expiration":"2026-01-01T00:00:00Z"}`. `embed_request` carries that JSON in Base64, and `hmac` carries its HMAC-SHA256 under the API key `sk_test_embed_vector` in Base64: `Us35rpnRp1AXfogcXlY+o/Ch7ZmoVrjcYdPcflylpwU=`, written into the query as `Us35rpnRp1AXfogcXlY%2Bo%2FCh7ZmoVrjcYdPcflylpwU%3D`.
+
+##### Signing keys
+
+The key is never sent: it appears in neither the URL nor the payload, so build signed URLs server-side and never ship the key to a browser.
+
+| `signature.key` | Use it when |
+| --- | --- |
+| `{ "clientOption": "api_key" }` | The key is a client setting, configured once: the API key, or a signing secret read from an environment variable. |
+| `{ "param": "signing_key" }` | The caller passes the key on each call, such as a different secret per bucket or per tenant. |
+
+A `clientOption` must name an option the client never sends to the API: a plain string option that sets none of `sendAsQueryParam`, `sendAsBodyParam`, `sendAsPathParam`, `sendInHeader`, `serverVariable` or `overridable`, or the one option bound to an `apiKey` or bearer security scheme. Any other option is refused.
+
+##### Encodings
+
+| `encoding` | Written as | What the server must expect |
+| --- | --- | --- |
+| `hex` | Lowercase hexadecimal, 64 characters for HMAC-SHA256. | The hex string as is. |
+| `base64` | Standard Base64 with `+`, `/` and `=` padding. | The value percent-decoded first: the query writes `%2B`, `%2F` and `%3D`. |
+| `base64url` | Base64 with `-` and `_`, without padding. | The value as is: nothing in it needs escaping. |
+
+A `{ "payload": "<encoding>" }` query field takes the same three encodings for the payload.
+
+##### Defaults and shared sources
+
+Leave out what has one answer. `signature.format` defaults to `hmac`, the only signing scheme so far, and `signature.algorithm` to `hmac-sha256`, the only algorithm. `sign.payload` defaults to `json` when a query field or the signature base reads the payload. A `return` method's `returns` defaults to `{ "type": "string", "format": "uri" }`. A `fetch` method must still say what its body is in `returns`.
+
+`sign.defaults` fills a param the caller leaves out with the current time plus an ISO 8601 duration: `{ "expiration": { "now": "PT1M" } }` makes the link expire one minute after it is built. The duration must be longer than zero and at most 100 years (`P36525D`). A JSON Schema `default` in `params` is never filled in.
+
+`source: { "method": "get_embed_url" }` takes another method's whole source, its defaults and its params, so the method writes only its own `action`, `returns`, `summary` and `description`. Name a sibling by its key, or a method on another resource by its dotted address, `widgets.get_embed_url`. The named method must exist, must be a `kind: signedUrl` method, and must write its own `sign` or `request` source; this method must not declare `params`.
+
+##### Fetching
+
+A fetched URL is its own credential. The request carries none of the client's credentials, cookies, default headers or default query: only `accept` and, for a `request` source, the headers named by `headersField`. A redirect is refused rather than followed, and the URL's query is kept out of logs and errors. A signed URL is built on the client's base URL, so it goes through the client's own HTTP function. A requested URL points at another host, so it goes through the platform's HTTP function rather than a custom one set on the client, which might add the API's credentials. Both use the client's timeout and retries. A requested URL must be `https:` (plain `http:` only to a loopback host).
+
+##### Common mistakes
+
+- **No delimiter in the signature base.** `["path", "query"]` lets two different URLs join to the same bytes. Write `["path", { "literal": "?" }, "query"]`.
+- **Fixed text as a bare string.** A bare string must be `payload`, `path` or `query`, so `"?"` fails to load. Write `{ "literal": "?" }`.
+- **A key the client sends.** A `clientOption` that is sent as a header, query or body parameter would leak the key to the API, and is refused. Use a plain option, or the scheme's one credential.
+- **Expecting a JSON Schema `default` to be filled in.** It is documentation only. Use `sign.defaults` for a time relative to the call.
+- **A path placeholder from an optional param.** A placeholder's param must be listed in `params.required`, or the URL cannot be built.
+- **A nested object or fractional number in what is signed.** Every SDK must write the same bytes, so the path, `{ "param": … }` fields and the payload take only strings, integers and booleans.
+
+Signed URLs are generated for every target (`sign` → `return`, `sign` → `fetch`, `request` → `fetch`), and `request` → `upload` wherever signed uploads are. A target that does not render a method's flow leaves it out and reports `Unsupported/SignedUrlMethod`. A configuration the API description cannot honour, such as a query field the endpoint does not declare, leaves the method out everywhere and reports `Config/InvalidSignedUrl`. A block that does not fit together fails when the config loads, with a pointer to the key.
 
 ### targets
 
@@ -283,6 +498,8 @@ Set `promotion: "manual"` on a target to hold each build at staging until you pr
 ```
 
 Client options can send values in headers, query parameters, body parameters, or path parameters, though not every target supports every location. They can also map to OpenAPI security schemes or server variables.
+
+Set `idempotency.header` and the generated client sends a key in that header with every request except a `GET`, unless the caller supplied one. The key is generated once per call and resent unchanged on every retry of it. By default each SDK writes a random value after an SDK-specific prefix such as `scalar-go-`: a UUID, except in PHP, which writes 64 hex characters. `idempotency.key` changes that format, for an API that validates the key: `format` is `uuid-v4` (the default, random) or `uuid-v7` (RFC 9562, which starts with a 48-bit Unix millisecond timestamp so keys sort by creation time); `hyphens: false` writes the UUID as 32 lowercase hex characters; and `prefix` replaces the SDK's prefix, with `""` sending the bare UUID. The prefix may contain only letters, digits and `!#%&*+.^_|~-`. For example, `"idempotency": { "header": "Idempotency-Key", "key": { "format": "uuid-v7", "hyphens": false, "prefix": "" } }` sends keys like `0192f7c4e8a77b3c9d2e4f6a8b0c1d2e`. Leave `key` out to keep each SDK's existing keys. The older `idempotencyHeader` is deprecated: a config that sets it loads as `idempotency.header`.
 
 ### pagination
 

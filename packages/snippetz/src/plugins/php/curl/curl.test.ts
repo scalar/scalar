@@ -845,4 +845,17 @@ curl_close($ch);`)
 
     expect(result).toContain("curl_setopt($ch, CURLOPT_POSTFIELDS, 'it\\'s binary');")
   })
+
+  it.each([
+    ["it's", 'value', "'it\\'s=value'"],
+    ['name', "O'Reilly", "'name=O\\'Reilly'"],
+  ])('escapes the apostrophe in the urlencoded body %s=%s', (name, value, literal) => {
+    const result = phpCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: { mimeType: 'application/x-www-form-urlencoded', params: [{ name, value }] },
+    })
+
+    expect(result).toContain(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${literal});`)
+  })
 })

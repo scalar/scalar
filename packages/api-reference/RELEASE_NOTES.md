@@ -9,6 +9,34 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.78.0 (2026-11-10)
+
+### Schema rendering, SDK customization, and response header examples
+
+This release brings native rendering for Avro, RAML, and Protobuf schemas in AsyncAPI messages, with field-level documentation that preserves declaration order. SDK installation tabs now support custom display labels while retaining language-based icons and code sample selection. Response headers display examples with proper precedence and support for OpenAPI 3.2 cookie examples.
+
+- Render Avro, RAML, and Protobuf schemas as native field and type documentation with copyable source for unsupported constructs
+- Add optional display labels for SDK installation tabs while keeping language-based selection and icons
+- Show response header examples with proper precedence, including OpenAPI 3.2 cookie examples with preserved line breaks
+- Group deep-object query parameters with expandable fields in a single collapsed row that preserves expansion during navigation
+- Select custom code samples with defaultHttpClient using targetKey custom and a clientKey that matches your sample language
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1780)
+
+## 1.77.0 (2026-11-05)
+
+### Custom authentication per document and extension rendering improvements
+
+This release brings per-document authentication configuration, rendering for specification extensions across OpenAPI and AsyncAPI objects, and significant performance improvements for search on API descriptions with interconnected models.
+
+- Configure authentication separately for each document in ASP.NET Core references with merged defaults and optional security scheme allowlists
+- Render specification extensions on Paths objects, Path Items, and AsyncAPI channels, operations, messages, servers, and replies
+- Open search much faster on API descriptions with interconnected models by expanding and walking each schema only once per index build
+- Preserve server-rendered content during hydration so titles and operations stay in place when the browser takes over
+- Wrap operation titles without spaces, such as webhook names, on narrow screens instead of pushing the page wider than the viewport
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1770)
+
 ## 1.76.4 (2026-10-30)
 
 ### Hosting waitlist sign-ups now capture server framework

@@ -47,27 +47,38 @@ const selectedContentType = defineModel<string>('selectedContentType')
 
 type ParameterLocation = Exclude<ParameterObject['in'], 'querystring'>
 
-/** Use a single loop to reduce parameters by type(in) */
-const splitParameters = computed(() =>
-  (parameters ?? []).reduce<Record<ParameterLocation, ParameterObject[]>>(
-    (acc, p) => {
-      const parameter = getResolvedRef(p)
-      // Filter out ignored parameters
-      if (parameter && !isHidden(parameter)) {
-        const flattenedParameters = flattenDeepObjectQueryParameter(parameter)
-        flattenedParameters.forEach((flattenedParameter) => {
-          const location =
-            flattenedParameter.in === 'querystring'
-              ? 'query'
-              : flattenedParameter.in
-          acc[location].push(flattenedParameter)
-        })
-      }
-      return acc
-    },
-    { cookie: [], header: [], path: [], query: [] },
-  ),
-)
+/** Keep filter objects together without changing their request representation. */
+const parameterSections = computed<{
+  locations: Record<ParameterLocation, ParameterObject[]>
+  groups: Map<ParameterObject, ParameterObject[]>
+}>(() => {
+  const locations: Record<ParameterLocation, ParameterObject[]> = {
+    cookie: [],
+    header: [],
+    path: [],
+    query: [],
+  }
+  const groups = new Map<ParameterObject, ParameterObject[]>()
+
+  for (const reference of parameters) {
+    const parameter = getResolvedRef(reference)
+    if (!parameter || isHidden(parameter)) {
+      continue
+    }
+
+    const flattened = flattenDeepObjectQueryParameter(parameter)
+    const location = parameter.in === 'querystring' ? 'query' : parameter.in
+    // An unexpandable parameter is returned unchanged by the flattening helper.
+    if (flattened.some((field) => field.name !== parameter.name)) {
+      locations[location].push(parameter)
+      groups.set(parameter, flattened)
+    } else {
+      locations[location].push(...flattened)
+    }
+  }
+
+  return { locations, groups }
+})
 </script>
 <template>
   <!-- Path parameters-->
@@ -78,7 +89,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['path']"
+    :parameters="parameterSections.locations['path']"
     :scrollTargetId="scrollTargetId"
     :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.pathParameters') }}</template>
@@ -92,7 +103,8 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['query']"
+    :parameterGroups="parameterSections.groups"
+    :parameters="parameterSections.locations['query']"
     :scrollTargetId="scrollTargetId"
     :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.queryParameters') }}</template>
@@ -106,7 +118,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['header']"
+    :parameters="parameterSections.locations['header']"
     :scrollTargetId="scrollTargetId"
     :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.headers') }}</template>
@@ -120,7 +132,7 @@ const splitParameters = computed(() =>
     :eventBus="eventBus"
     :expansion="expansion"
     :options="options"
-    :parameters="splitParameters['cookie']"
+    :parameters="parameterSections.locations['cookie']"
     :scrollTargetId="scrollTargetId"
     :specificationExtension="specificationExtension">
     <template #title>{{ translate('operation.cookies') }}</template>

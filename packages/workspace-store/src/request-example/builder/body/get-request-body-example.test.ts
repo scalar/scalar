@@ -10,6 +10,18 @@ import { describe, expect, it, vi } from 'vitest'
 import { getExampleFromBody, getSchemaExampleFromBody } from './get-request-body-example'
 
 describe('get-request-body-example', () => {
+  it('generates the required number of coordinates in a JSON request body', () => {
+    const schema: SchemaObject = {
+      type: 'object',
+      properties: { coordinates: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 } },
+      required: ['coordinates'],
+    }
+    const contentType = 'application/json'
+    expect(getSchemaExampleFromBody({ content: { [contentType]: { schema } } }, contentType)).toStrictEqual({
+      coordinates: [1, 1],
+    })
+  })
+
   it.each(['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data'])(
     'generates formatted strings in %s bodies while preserving other fallbacks',
     (contentType) => {

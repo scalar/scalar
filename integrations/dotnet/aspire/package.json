@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/dotnet/aspire"
   },
-  "version": "0.12.7",
+  "version": "0.14.0",
   "private": true,
   "engines": {
     "node": ">=22"
@@ -18,7 +18,7 @@
   "scripts": {
     "build:docker": "docker build --no-cache -t scalarapi/aspire-api-reference:latest -f src/Scalar.Aspire.Service/Dockerfile ../",
     "copy:standalone": "shx cp ../../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.Aspire.Service/wwwroot/scalar.js",
-    "test": "vitest --run"
+    "test": "vitest --run --passWithNoTests"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*",

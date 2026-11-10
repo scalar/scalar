@@ -64,6 +64,12 @@ const releaseStandaloneStyles = (doc: Document): void => {
   const state = getStandaloneStyleState(doc)
   state.count = Math.max(0, state.count - 1)
 
+  releaseUnusedStyles(doc)
+}
+
+/** Detach orphaned bundle CSS without mounting an app or changing active instance counts. */
+export const releaseUnusedStyles = (doc: Document = document): void => {
+  const state = getStandaloneStyleState(doc)
   if (state.count > 0) {
     return
   }

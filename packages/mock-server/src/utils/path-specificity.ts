@@ -1,4 +1,3 @@
-import { LITERAL_PARAMETER_PREFIX, honoRouteSegmentsFromPath } from '@/utils/hono-route-from-path'
 import { PATH_KEY_TEMPLATE, splitPathKey } from '@/utils/split-path-key'
 
 /**
@@ -10,32 +9,20 @@ import { PATH_KEY_TEMPLATE, splitPathKey } from '@/utils/split-path-key'
  */
 type SegmentSpecificity = 0 | 1 | 2
 
-/** Matches a segment the route compiler turned into a parameter with an explicit pattern. */
-const PATTERN_SEGMENT = new RegExp(`^:${LITERAL_PARAMETER_PREFIX}\\d+\\{`)
-
 /**
- * Rank one segment of a path key, given the Hono route segment it compiles to.
+ * Rank one segment of a path key.
  *
- * A segment that mixes a template with literal text ranks between the two, as long as the router
- * actually enforces that literal text. Not every mixed segment compiles that way: `{name}.json`
- * becomes the whole-segment parameter `:name.json`, which Hono matches against any value. Such a
- * segment ranks like a bare template, because ranking it higher would let it answer requests meant
- * for a plain `{id}` sibling that the document may well have declared first.
+ * A segment that mixes a template with literal text ranks between the two, because the router
+ * enforces its literal text (see `honoRouteFromPath`).
  */
-const segmentSpecificity = (segment: string, routeSegment: string): SegmentSpecificity => {
+const segmentSpecificity = (segment: string): SegmentSpecificity => {
   const literalText = segment.replace(PATH_KEY_TEMPLATE, '')
 
   if (literalText === segment) {
     return 0
   }
 
-  if (literalText === '') {
-    return 2
-  }
-
-  const matchesAnyValue = routeSegment.startsWith(':') && !PATTERN_SEGMENT.test(routeSegment)
-
-  return matchesAnyValue ? 2 : 1
+  return literalText === '' ? 2 : 1
 }
 
 /**
@@ -46,9 +33,8 @@ const segmentSpecificity = (segment: string, routeSegment: string): SegmentSpeci
  */
 export const getPathSpecificity = (pathKey: string): readonly SegmentSpecificity[] => {
   const { path: pathname } = splitPathKey(pathKey)
-  const routeSegments = honoRouteSegmentsFromPath(pathname)
 
-  return pathname.split('/').map((segment, index) => segmentSpecificity(segment, routeSegments[index] ?? ''))
+  return pathname.split('/').map((segment) => segmentSpecificity(segment))
 }
 
 /**

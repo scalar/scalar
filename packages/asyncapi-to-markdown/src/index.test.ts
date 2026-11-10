@@ -193,7 +193,7 @@ describe('index', () => {
       const path = join(directory, 'api.json')
       await writeFile(path, JSON.stringify({ ...minimal, components: { schemas: { User: { $ref: './user.json' } } } }))
       await writeFile(join(directory, 'user.json'), JSON.stringify({ type: 'string', description: 'External user' }))
-      const renderer = await createAsyncApiMarkdownRenderer(path)
+      const renderer = await createAsyncApiMarkdownRenderer(path, { basePath: directory })
       await rm(join(directory, 'user.json'))
       expect(await renderer.render({ model: 'User' })).toContain('External user')
     } finally {
@@ -218,8 +218,15 @@ describe('index', () => {
         throw new Error('Expected a TCP address')
       }
       const origin = `http://127.0.0.1:${address.port}`
-      expect(await createMarkdownFromAsyncApi(`${origin}/api.json`, { model: 'User' })).toContain('Remote user')
-      await expect(createMarkdownFromAsyncApi(`${origin}/missing`)).rejects.toThrow('HTTP 404')
+      expect(
+        await createMarkdownFromAsyncApi(`${origin}/api.json`, {
+          model: 'User',
+          documentLoading: { allowPrivateNetworks: true },
+        }),
+      ).toContain('Remote user')
+      await expect(
+        createMarkdownFromAsyncApi(`${origin}/missing`, { documentLoading: { allowPrivateNetworks: true } }),
+      ).rejects.toThrow('Failed to load AsyncAPI document: HTTP 404')
     } finally {
       await new Promise<void>((done, reject) => server.close((error) => (error ? reject(error) : done())))
     }
@@ -252,7 +259,9 @@ describe('index', () => {
         }),
       )
       await writeFile(join(directory, 'binding.json'), JSON.stringify({ topic: 'orders', bindingVersion: '0.5.0' }))
-      expect(await createMarkdownFromAsyncApi(path)).toContain('"topic": "orders"')
+      expect(await createMarkdownFromAsyncApi(path, { documentLoading: { basePath: directory } })).toContain(
+        '"topic": "orders"',
+      )
     } finally {
       await rm(directory, { recursive: true, force: true })
     }
@@ -267,7 +276,9 @@ describe('index', () => {
         join(directory, 'user.json'),
         JSON.stringify({ type: 'object', examples: [{ $ref: './literal.json' }] }),
       )
-      expect(await createMarkdownFromAsyncApi(path, { model: 'User' })).toContain('"$ref": "./literal.json"')
+      expect(
+        await createMarkdownFromAsyncApi(path, { model: 'User', documentLoading: { basePath: directory } }),
+      ).toContain('"$ref": "./literal.json"')
     } finally {
       await rm(directory, { recursive: true, force: true })
     }
@@ -294,7 +305,10 @@ describe('index', () => {
         join(directory, 'server.json'),
         JSON.stringify({ url: 'kafka://broker.example.com:9092', protocol: 'kafka' }),
       )
-      const result = await createMarkdownFromAsyncApi(path, { operation: 'consume' })
+      const result = await createMarkdownFromAsyncApi(path, {
+        operation: 'consume',
+        documentLoading: { basePath: directory },
+      })
       expect(result).toContain('**action:** `receive`')
       expect(result).toContain('broker.example.com:9092')
       expect(result).toContain('## Message 1\n\n<a id="scalar-section-payload"></a>\n\n### Payload\n\n`string`')

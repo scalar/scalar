@@ -4,7 +4,7 @@ Scalar generates a Ruby gem from your OpenAPI document with a `Client` object, `
 
 ## What the generated code looks like
 
-This is the Ruby quickstart shown for Warp's HR API in the [SDK Generator demo](/products/sdk-generator). The gem is installed with `bundle add warp`:
+This is the Ruby quickstart for Warp's HR API. The gem is installed with `bundle add warp`:
 
 ```ruby
 require "warp"

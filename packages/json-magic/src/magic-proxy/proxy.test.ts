@@ -2049,4 +2049,114 @@ describe('createMagicProxy', () => {
       expect(keys).toContain('normal_property')
     })
   })
+
+  it('keeps identical pointers and anchors independent and writes to their own resources', () => {
+    const resource = (
+      $id: string,
+      type: string,
+    ): {
+      $id: string
+      $defs: { value: { $anchor: string; type: string } }
+      pointer: { $ref: string }
+      anchor: { $ref: string }
+      self: { $ref: string }
+    } => ({
+      $id,
+      $defs: { value: { $anchor: 'value', type } },
+      pointer: { $ref: '#/$defs/value' },
+      anchor: { $ref: '#value' },
+      self: { $ref: '#' },
+    })
+    const input = { a: resource('a.json', 'string'), b: resource('b.json', 'number') }
+    const proxy = createMagicProxy(input)
+    expect(proxy.a.pointer['$ref-value']).toBe(proxy.a.$defs.value)
+    expect(proxy.b.pointer['$ref-value']).toBe(proxy.b.$defs.value)
+    expect(proxy.a.anchor['$ref-value']).toBe(proxy.a.$defs.value)
+    expect(proxy.b.anchor['$ref-value']).toBe(proxy.b.$defs.value)
+    expect(proxy.a.self['$ref-value']).toBe(proxy.a)
+    proxy.a.pointer['$ref-value'] = { type: 'boolean' }
+    expect(proxy.a.pointer['$ref-value'].type).toBe('boolean')
+    expect(proxy.b.pointer['$ref-value'].type).toBe('number')
+  })
+
+  it('resolves nested relative identifiers against the enclosing resource', () => {
+    const input = {
+      $id: 'https://example.com/schemas/root.json',
+      $defs: {
+        child: { $id: 'nested/child.json', $defs: { value: { type: 'string' } }, local: { $ref: '#/$defs/value' } },
+      },
+      child: { $ref: 'nested/child.json' },
+    }
+    const proxy = createMagicProxy(input)
+    expect(proxy.child['$ref-value']).toBe(proxy.$defs.child)
+    expect(proxy.child['$ref-value'].local['$ref-value']).toBe(proxy.$defs.child.$defs.value)
+  })
+
+  it('resolves bundled targets inside schemas without conflating relative identifiers', () => {
+    const resource = (
+      type: string,
+    ): { $id: string; $defs: { value: { type: string } }; local: { $ref: string }; other: { $ref: string } } => ({
+      $id: 'Pet.json',
+      $defs: { value: { type } },
+      local: { $ref: '#/$defs/value' },
+      other: { $ref: '#/x-ext/b' },
+    })
+    const proxy = createMagicProxy({ 'x-ext': { a: resource('string'), b: resource('number') } })
+    expect(proxy['x-ext'].a.local['$ref-value'].type).toBe('string')
+    expect(proxy['x-ext'].b.local['$ref-value'].type).toBe('number')
+    expect(proxy['x-ext'].a.other['$ref-value']).toBe(proxy['x-ext'].b)
+  })
+
+  it('resolves root component back-references from an embedded document', () => {
+    const proxy = createMagicProxy({
+      components: { schemas: { Owner: { type: 'string' } } },
+      'x-ext': { pet: { properties: { owner: { $ref: '#/components/schemas/Owner' } } } },
+    })
+    expect(proxy['x-ext'].pet.properties.owner['$ref-value']).toBe(proxy.components.schemas.Owner)
+    proxy['x-ext'].pet.properties.owner['$ref-value'] = { type: 'number' }
+    expect(proxy.components.schemas.Owner.type).toBe('number')
+  })
+
+  it('reads current values after replacing identifier and bundled targets', () => {
+    const proxy = createMagicProxy({
+      schema: { $id: 'thing', type: 'string' },
+      ref: { $ref: 'thing' },
+      bundled: { $ref: '#/x-ext/model' },
+      'x-ext': { model: { type: 'string' } },
+    })
+    proxy.ref['$ref-value'] = { type: 'number' }
+    expect(proxy.ref['$ref-value']).toBe(proxy.schema)
+    expect(proxy.ref['$ref-value'].type).toBe('number')
+    proxy.bundled['$ref-value'] = { type: 'boolean' }
+    expect(proxy.bundled['$ref-value']).toBe(proxy['x-ext'].model)
+    expect(proxy.bundled['$ref-value'].type).toBe('boolean')
+  })
+
+  it('inherits schema scope for references added after proxy creation', () => {
+    const proxy = createMagicProxy({ schema: { $id: 'thing', $defs: { Value: { type: 'string' } }, properties: {} } })
+    proxy.schema.properties['value'] = { $ref: '#/$defs/Value' }
+    expect(proxy.schema.properties['value']['$ref-value']).toBe(proxy.schema.$defs.Value)
+  })
+  it('invalidates cached paths when a resource-local target is added or deleted', () => {
+    const proxy = createMagicProxy({
+      value: { type: 'number' },
+      schema: { $id: 'schema.json', ref: { $ref: '#/value' } },
+    })
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.value)
+    proxy.schema['value'] = { type: 'string' }
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.schema['value'])
+    delete proxy.schema['value']
+    expect(proxy.schema.ref['$ref-value']).toBe(proxy.value)
+  })
+
+  it('reads replaced raw targets and changed references after warming the cache', () => {
+    const input = { first: { type: 'string' }, second: { type: 'number' }, ref: { $ref: '#/first' } }
+    const proxy = createMagicProxy(input)
+    expect(proxy.ref['$ref-value']).toBe(proxy.first)
+    input.first = { type: 'boolean' }
+    expect(proxy.ref['$ref-value']).toBe(proxy.first)
+    expect(proxy.ref['$ref-value'].type).toBe('boolean')
+    input.ref.$ref = '#/second'
+    expect(proxy.ref['$ref-value']).toBe(proxy.second)
+  })
 })

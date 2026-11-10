@@ -54,10 +54,40 @@ describe('flatten-deep-object-query-parameter', () => {
     const result = flattenDeepObjectQueryParameter(parameter)
 
     expect(result.map((item) => item.name)).toStrictEqual(['page[number]', 'page[size]'])
-    expect(result.map((item) => item.required)).toStrictEqual([true, false])
+    expect(result.map((item) => item.required)).toStrictEqual([false, false])
     expect(result.map((item) => item.description)).toStrictEqual(['Page number', 'Page size'])
     expect(result.every((item) => !('example' in item))).toBe(true)
     expect(result.every((item) => !('examples' in item))).toBe(true)
+  })
+
+  it.each([false, true])('requires a leaf only when every ancestor is required (parameter=%s)', (required) => {
+    const parameter = coerceValue(ParameterObjectSchema, {
+      in: 'query',
+      name: 'filter',
+      style: 'deepObject',
+      required,
+      schema: {
+        type: 'object',
+        required: ['requiredGroup'],
+        properties: {
+          requiredGroup: {
+            type: 'object',
+            required: ['value'],
+            properties: { value: { type: 'string' } },
+          },
+          optionalGroup: {
+            type: 'object',
+            required: ['value'],
+            properties: { value: { type: 'string' } },
+          },
+        },
+      },
+    })
+
+    expect(flattenDeepObjectQueryParameter(parameter).map(({ name, required }) => ({ name, required }))).toStrictEqual([
+      { name: 'filter[requiredGroup][value]', required },
+      { name: 'filter[optionalGroup][value]', required: false },
+    ])
   })
 
   it('does not re-add the top-level parameter for empty nested object properties', () => {

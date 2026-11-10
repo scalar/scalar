@@ -44,5 +44,20 @@ describe('ApiReferenceConfiguration', () => {
         },
       },
     })
+    assertType<AuthenticationConfiguration>({
+      securitySchemes: {
+        oidc: {
+          type: 'openIdConnect',
+          'x-default-scopes': ['openid'],
+          flows: {
+            authorizationCode: {
+              'x-scalar-client-id': 'scalar',
+              'x-usePkce': 'SHA-256',
+              selectedScopes: ['openid', 'profile'],
+            },
+          },
+        },
+      },
+    })
   })
 })

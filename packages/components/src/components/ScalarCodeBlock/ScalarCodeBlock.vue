@@ -48,6 +48,8 @@ type BaseProps = {
   lineNumbers?: boolean
   hideCredentials?: string | string[]
   copy?: 'always' | 'hover' | false
+  /** Original content to copy when the displayed content has been masked. */
+  copyContent?: string
   /**
    * Accessible name for the code scroller. Long code scrolls inside a focusable region so
    * keyboard users can reach it, and a focusable region needs a name or screen readers announce
@@ -72,6 +74,7 @@ const {
   copy = 'hover',
   label = 'Code sample',
   copyLabel,
+  copyContent,
   content,
   prettyPrintedContent,
   hideCredentials,
@@ -170,7 +173,7 @@ const { cx } = useBindCx()
           : 'top-2.5 right-2.5',
         { 'opacity-100': copy === 'always' },
       ]"
-      :content="prettyContent"
+      :content="copyContent ?? prettyContent"
       :copyLabel="copyLabel"
       :lang="lang"
       :showLang="!isOneLine">

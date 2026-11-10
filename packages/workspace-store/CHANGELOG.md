@@ -1,5 +1,63 @@
 # @scalar/workspace-store
 
+## 0.71.0
+
+### Minor Changes
+
+- [#10894](https://github.com/scalar/scalar/pull/10894): Substitute explicitly mapped reader credentials into custom code samples with default masking, public field opt-outs, and real values on copy.
+- [#10871](https://github.com/scalar/scalar/pull/10871): Add schema-aware file controls for multipart/mixed and multipart/related parts, preserving part order and encodings. Restrict multipart/form-data uploads to file fields when a request body schema is available.
+
+  Honor binary encoding content types on multipart fields and share file-schema detection with example generation, including nullable, composed, and typeless file placeholders.
+
+- [#10891](https://github.com/scalar/scalar/pull/10891): Support optional display labels for SDK installation tabs while retaining language-based selection and icons.
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+- [#10893](https://github.com/scalar/scalar/pull/10893): Allow custom code samples to use separate picker headings with an optional `group` field.
+
+### Patch Changes
+
+- [#10928](https://github.com/scalar/scalar/pull/10928): Fill the discriminator property with the selected variant's mapping value in generated examples.
+- [#10813](https://github.com/scalar/scalar/pull/10813): fix: keep the required properties of an object that the example depth cap truncates, so a deeply nested mock response no longer serves `{}` where its schema requires keys, including keys required through `allOf` members or the selected `oneOf`/`anyOf` variant
+
+  Preserve explicit values equal to the depth marker and exclude requirements from unselected union branches.
+
+  Keep required primitive compositions on the normal traversal and collect discriminator requirements from the branch rendered after depth truncation.
+
+  Reuse evaluated discriminator values for required-property collection and keep inferred tuple arrays empty past the depth cap.
+
+  Preserve shared requirements and required primitive values through dynamic references, including requirements declared in dynamically referenced composition members.
+
+  Collect requirements separately when composition branches reuse a shared template under different dynamic bindings.
+
+  Exclude requirements from composition members omitted by the request or response mode.
+
+- [#10938](https://github.com/scalar/scalar/pull/10938): fix: merge array items whose `allOf` describes an object without `type: object` on the first member into one example instead of one partial object per member
+- [#10955](https://github.com/scalar/scalar/pull/10955): fix: respect array length bounds when generating schema examples
+
+  Preserve cycle detection for selected array branches, pad unrestricted annotated items, and prefer a contains sample when no item constraints are declared.
+
+## 0.70.0
+
+### Minor Changes
+
+- [#10729](https://github.com/scalar/scalar/pull/10729): Add a request body reset action that restores the original example, falling back to schema-generated values, without refreshing the page.
+
+  Expose `ObjectDoc.documentSource` as the base URI for resolving relative references in object documents. Add translation keys for restoring a body and creating an example from its schema.
+
+  Resolved request body baselines are included in workspace exports but are not persisted in IndexedDB. After an IndexedDB reload or loading an older export, the first reset reconstructs the baseline from the original document, which may refetch external references and does not reapply configured overrides.
+
+### Patch Changes
+
+- [#10730](https://github.com/scalar/scalar/pull/10730): Generate valid examples for known string formats in request bodies, including dates, times, durations, addresses, URIs, pointers, regular expressions, and version-specific UUIDs. Preserve existing password, binary, and unknown-format fallbacks.
+
+  Also generate formatted query and header values in code samples and querystring parameters. Versioned UUID formats (`uuid1`–`uuid8`) now use matching version bits instead of the generic UUID, including in mock-server and response examples. Generate date/time values at request time so reused schemas stay current in long-lived tabs.
+
+- [#10732](https://github.com/scalar/scalar/pull/10732): Render Paths Object and Path Item extensions alongside operation extensions within each operation in both layouts. Preserve arbitrary Paths Object extension values during browser loading and server preprocessing, and exclude them from operation navigation and tag/auth edits.
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+- [#10732](https://github.com/scalar/scalar/pull/10732): Keep Paths extensions out of request-body snapshots, resets, default routing, and path parameter synchronization. Hide unselected Paths and Path Item extension sections in the classic layout.
+- [#10787](https://github.com/scalar/scalar/pull/10787): Resolve a relative document URL against the page before bundling, so external references in that document are fetched instead of being resolved to a root path that no loader handles.
+- [#10804](https://github.com/scalar/scalar/pull/10804): perf: build with the TypeScript 7 native compiler
+- [#10812](https://github.com/scalar/scalar/pull/10812): Keep deprecated schemas and properties in generated JSON and XML examples by default. Remove the `includeDeprecated` option; deprecation no longer filters example values. Read/write and optional-property filtering still apply.
+
 ## 0.69.3
 
 ## 0.69.2

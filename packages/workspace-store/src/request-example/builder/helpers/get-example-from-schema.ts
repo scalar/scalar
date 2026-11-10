@@ -1,8 +1,13 @@
 import { isDefined } from '@scalar/helpers/array/is-defined'
 import { isJsonMediaType } from '@scalar/helpers/http/is-json-media-type'
 import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
+import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
+import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { isFileSchema } from '@/helpers/is-file-schema'
+import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
@@ -81,7 +86,7 @@ const guessFromFormat = (
   fallback: string = '',
 ): string | File => {
   // Binary filename placeholders are converted to File objects only for multipart callers.
-  if ('type' in schema && schema.type === 'string' && 'format' in schema && schema.format === 'binary') {
+  if (isFileSchema(schema, false)) {
     return '@filename'
   }
 
@@ -136,7 +141,7 @@ let generatedCurrentTime = false
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 })
+const getSchemaCacheTarget = (schema: object): object => unpackProxyObject(schema, { depth: 1 })
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -202,13 +207,14 @@ const shouldOmitProperty = (
   parentSchema: SchemaObject | undefined,
   propertyName: string | undefined,
   options: Pick<GetExampleFromSchemaOptions, 'omitEmptyAndOptionalProperties' | 'mode'> | undefined,
+  isRequiredProperty = false,
 ): boolean => {
   // Early exits for schemas that should not be included (readOnly, writeOnly)
   if ((options?.mode === 'write' && schema.readOnly) || (options?.mode === 'read' && schema.writeOnly)) {
     return true
   }
 
-  if (options?.omitEmptyAndOptionalProperties !== true) {
+  if (isRequiredProperty || options?.omitEmptyAndOptionalProperties !== true) {
     return false
   }
 
@@ -502,6 +508,125 @@ const getDiscriminatorSelectionIndex = (
   return fallbackIndex >= 0 ? fallbackIndex : undefined
 }
 
+const COMPONENT_SCHEMA_PREFIX = '#/components/schemas/'
+
+/**
+ * Find the discriminator value that selects `variant`: the explicit mapping key that targets it,
+ * or the component name, which is the implicit mapping.
+ */
+const getDiscriminatorTag = (
+  discriminator: NonNullable<SchemaObject['discriminator']>,
+  variant: NonNullable<SchemaObject['oneOf']>[number],
+): string | undefined => {
+  if (!('$ref' in variant) || typeof variant.$ref !== 'string') {
+    return undefined
+  }
+  const reference = variant.$ref
+  const componentName = reference.startsWith(COMPONENT_SCHEMA_PREFIX)
+    ? unescapeJsonPointer(reference.slice(COMPONENT_SCHEMA_PREFIX.length))
+    : undefined
+  const mapped = Object.entries(discriminator.mapping ?? {}).find(
+    ([, target]) => target === reference || target === componentName,
+  )
+  return mapped?.[0] ?? componentName
+}
+
+/** Preserve authored or intentionally omitted values while following the same composition choices as generation. */
+const hasPreservedDiscriminatorValue = (
+  schema: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  propertyName: string | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  seen: Set<object> = new Set(),
+  level: number = 0,
+): boolean => {
+  const resolved = schema && resolve.schema(schema)
+  if (!resolved || level > MAX_LEVELS_DEEP) {
+    return false
+  }
+  if (propertyName === undefined && shouldOmitProperty(resolved, undefined, undefined, { mode: options?.mode })) {
+    return true
+  }
+  const target = getSchemaCacheTarget(resolved)
+  if (seen.has(target)) {
+    return false
+  }
+  const nextSeen = new Set(seen).add(target)
+  const variable = resolved['x-variable']
+  const value =
+    variable && options?.variables?.[variable] !== undefined ? options.variables[variable] : getDeclaredValue(resolved)
+  if (value !== undefined) {
+    return (
+      propertyName === undefined || (value !== null && typeof value === 'object' && Object.hasOwn(value, propertyName))
+    )
+  }
+  if (propertyName !== undefined && 'properties' in resolved) {
+    const property = resolved.properties?.[propertyName]
+    const resolvedProperty = property && resolve.schema(property)
+    if (resolvedProperty && shouldOmitProperty(resolvedProperty, resolved, propertyName, options)) {
+      return true
+    }
+    if (
+      hasPreservedDiscriminatorValue(property, undefined, options, [...schemaPath, propertyName], nextSeen, level + 1)
+    ) {
+      return true
+    }
+  }
+  const anyOfKeyword = resolved.anyOf ? 'anyOf' : undefined
+  const keyword = resolved.oneOf ? 'oneOf' : anyOfKeyword
+  if (keyword) {
+    const selected = selectExampleComposition(resolved, schemaPath, options)
+    return hasPreservedDiscriminatorValue(
+      selected,
+      propertyName,
+      consumeCompositionSelection(options, schemaPath, keyword),
+      schemaPath,
+      nextSeen,
+      level + 1,
+    )
+  }
+  let choiceIndex = 0
+  return (
+    resolved.allOf?.some((member) => {
+      const resolvedMember = resolve.schema(member)
+      const isChoice = !!resolvedMember && !!(resolvedMember.oneOf || resolvedMember.anyOf)
+      const memberPath = isChoice ? [...schemaPath, String(choiceIndex++)] : schemaPath
+      return hasPreservedDiscriminatorValue(member, propertyName, options, memberPath, nextSeen, level + 1)
+    }) ?? false
+  )
+}
+
+/**
+ * Write the selected variant's discriminator value into the example. Without it the example
+ * carries an empty tag and a server cannot tell which variant it is. Declared values win, and a
+ * `defaultMapping` means the property may be omitted, so selection alone decides the variant there.
+ */
+const withDiscriminatorTag = (
+  schema: SchemaObject,
+  variant: NonNullable<SchemaObject['oneOf']>[number] | undefined,
+  example: unknown,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+): unknown => {
+  const discriminator = schema.discriminator
+  if (
+    !discriminator ||
+    discriminator.defaultMapping !== undefined ||
+    !variant ||
+    options?.xml ||
+    !example ||
+    typeof example !== 'object' ||
+    Array.isArray(example)
+  ) {
+    return example
+  }
+  if (hasPreservedDiscriminatorValue(schema, discriminator.propertyName, options, schemaPath)) {
+    return example
+  }
+  const tag = getDiscriminatorTag(discriminator, variant)
+  return tag === undefined ? example : { ...example, [discriminator.propertyName]: tag }
+}
+
 /**
  * Read the numeric `x-order` extension value from a raw property entry, if present.
  * The entry may be a schema or a `$ref` object, so we check membership before reading.
@@ -548,11 +673,25 @@ const handleObjectSchema = (
   cacheKey: string,
   schemaPath: string[],
   dynamicScope: DynamicScope,
+  requiredScope: ReadonlySet<string> | undefined,
 ): unknown => {
   const response: Record<string, unknown> = {}
   // Children are evaluated with this schema added to the dynamic scope so nested `$dynamicRef`s bind here.
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
+  // Carry requirements through composition wrappers before they cross the cap. Property children
+  // start their own scope, since their required names belong to a different object.
+  const memberRequiredScope =
+    requiredScope ??
+    (isComposed(schema)
+      ? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
+  // Past the cap only the properties the object requires are rendered: optional ones are what the cap
+  // exists to stop descending into. Composition members share the names of the object they belong to.
+  const required =
+    level > MAX_LEVELS_DEEP
+      ? (memberRequiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope))
+      : undefined
 
   if ('properties' in schema && schema.properties) {
     const properties = schema.properties
@@ -562,19 +701,35 @@ const handleObjectSchema = (
     for (let i = 0; i < limit; i++) {
       const propertyName = propertyNames[i]!
       const propertySchema = resolve.schema(properties[propertyName])
-      if (!propertySchema) {
+      if (!propertySchema || (required && !required.has(propertyName))) {
         continue
       }
 
       const propertyXmlName = options?.xml && 'xml' in propertySchema ? propertySchema.xml?.name : undefined
-      const value = getExampleFromSchema(propertySchema, options, {
-        level: level + 1,
-        parentSchema: schema,
-        name: propertyName,
-        schemaPath: [...schemaPath, propertyName],
-        seen,
-        dynamicScope: childScope,
-      })
+      const discriminatorExample =
+        schema.discriminator?.defaultMapping !== undefined && schema.discriminator.propertyName === propertyName
+          ? evaluateDiscriminator(schema, options, {
+              level,
+              schemaPath,
+              seen,
+              dynamicScope,
+              isRequiredProperty: !!required,
+            })
+          : undefined
+      if (discriminatorExample?.evaluation) {
+        options?.[EXAMPLE_EVALUATION]?.stack.at(-1)?.children.push(discriminatorExample.evaluation)
+      }
+      const value = discriminatorExample
+        ? discriminatorExample.value
+        : getExampleFromSchema(propertySchema, options, {
+            level: level + 1,
+            parentSchema: schema,
+            name: propertyName,
+            isRequiredProperty: !!required,
+            schemaPath: [...schemaPath, propertyName],
+            seen,
+            dynamicScope: childScope,
+          })
 
       if (typeof value !== 'undefined') {
         response[propertyXmlName ?? propertyName] = value
@@ -582,7 +737,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('patternProperties' in schema && schema.patternProperties) {
+  if (!required && 'patternProperties' in schema && schema.patternProperties) {
     for (const pattern of Object.keys(schema.patternProperties)) {
       const propertySchema = resolve.schema(schema.patternProperties[pattern])
       if (!propertySchema) {
@@ -599,7 +754,7 @@ const handleObjectSchema = (
     }
   }
 
-  if ('additionalProperties' in schema && schema.additionalProperties) {
+  if (!required && 'additionalProperties' in schema && schema.additionalProperties) {
     const additional =
       typeof schema.additionalProperties === 'boolean'
         ? schema.additionalProperties
@@ -652,8 +807,10 @@ const handleObjectSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          requiredScope: memberRequiredScope,
         }),
       )
+      Object.assign(response, withDiscriminatorTag(schema, chosen, response, options, schemaPath))
     }
   }
   // allOf — thread a choice-ordinal into schemaPath for each direct oneOf/anyOf
@@ -673,6 +830,7 @@ const handleObjectSchema = (
         seen,
         dynamicScope: childScope,
         schemaPath: memberSchemaPath,
+        requiredScope: memberRequiredScope,
       })
       merged = mergeExamples(merged, ex)
     }
@@ -690,6 +848,91 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
+/** Bound padding per array, counting repeated values by their serialized size; not a global output limit. */
+const MAX_ARRAY_PADDING_NODES = 1_000
+
+const countExampleNodes = (value: unknown, limit: number): number => {
+  if (limit <= 1 || value === null || typeof value !== 'object') {
+    return 1
+  }
+
+  let count = 1
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    count += countExampleNodes(child, limit - count)
+    if (count >= limit) {
+      break
+    }
+  }
+  return count
+}
+
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readArrayLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
+/** Recognize an array described by its item keywords when no type was declared. */
+const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
+  !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
+
+/** Apply the same explicit-type and inference precedence at either union selection site. */
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
+  (variant && 'type' in variant ? variant.type : undefined) ??
+  ('type' in holder ? holder.type : undefined) ??
+  (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+
+/** These keywords describe values without restricting which values the schema accepts. */
+const ITEM_ANNOTATIONS = new Set([
+  '$ref',
+  '$id',
+  '$schema',
+  '$anchor',
+  '$comment',
+  '$defs',
+  'definitions',
+  'title',
+  'description',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  'examples',
+  'default',
+  'example',
+  'xml',
+  'externalDocs',
+])
+
+/** Keep constraints from the surrounding array when selecting a composition branch. */
+const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+  const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
+  const merged = { ...base, ...variant } as SchemaObject
+  // Object properties would otherwise take precedence in non-object schema dispatch.
+  if ('properties' in merged) {
+    delete merged.properties
+  }
+  if (isArray) {
+    if ('minItems' in schema) {
+      Object.assign(merged, {
+        minItems: Math.max(
+          readArrayLengthBound(schema.minItems, 0),
+          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+        ),
+      })
+    }
+    if ('maxItems' in schema) {
+      Object.assign(merged, {
+        maxItems: Math.min(
+          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+        ),
+      })
+    }
+    if ('uniqueItems' in schema && schema.uniqueItems) {
+      Object.assign(merged, { uniqueItems: true })
+    }
+  }
+  return merged
+}
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -703,19 +946,38 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  if ('prefixItems' in schema && Array.isArray(schema.prefixItems)) {
-    const values = schema.prefixItems.map((item, index) =>
+  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const minItems = Math.min(
+    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    maxItems,
+    MAX_ARRAY_PADDING_NODES,
+  )
+
+  if (maxItems === 0) {
+    return cache(schema, [], cacheKey, skipCache)
+  }
+
+  const prefixes = 'prefixItems' in schema && Array.isArray(schema.prefixItems) ? schema.prefixItems : undefined
+  const values =
+    prefixes?.slice(0, maxItems).map((item, index) =>
       getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         schemaPath: [...schemaPath, 'prefixItems', String(index)],
         seen,
         dynamicScope: childScope,
       }),
-    )
+    ) ?? []
+
+  if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
   }
 
-  let items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  const itemSchema = 'items' in schema ? (schema.items as typeof schema.items | boolean) : undefined
+  if (itemSchema === false) {
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
+  let items = resolve.schema(itemSchema)
   // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
   // Crossing a `$dynamicRef` leaves the static schema graph, so the cycle guard built up by the outer
   // walk no longer applies to the bound type. Restart `seen` for the item recursion so recursive trees
@@ -737,6 +999,29 @@ const handleArraySchema = (
     return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
+  const completeArrayExample = (examples: unknown[], sample: unknown = examples[0]): unknown => {
+    for (const example of examples) {
+      if (values.length >= maxItems || (prefixes && values.length >= minItems)) {
+        break
+      }
+      values.push(wrapItems ? { [itemsXmlTagName]: example } : example)
+    }
+
+    // Intentionally leave minItems unsatisfied for uniqueItems: repeating a sample violates
+    // uniqueness, and inventing distinct values can violate enum, bounds, or other constraints.
+    if (sample !== undefined && values.length < minItems && !('uniqueItems' in schema && schema.uniqueItems)) {
+      const value = wrapItems ? { [itemsXmlTagName]: sample } : sample
+      const remaining = MAX_ARRAY_PADDING_NODES - countExampleNodes(values, MAX_ARRAY_PADDING_NODES)
+      const size = countExampleNodes(value, MAX_ARRAY_PADDING_NODES)
+      const copies = Math.min(minItems - values.length, Math.floor(remaining / size))
+      for (let index = 0; index < copies; index++) {
+        values.push(value)
+      }
+    }
+
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
@@ -751,7 +1036,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: merged }] : [merged], cacheKey, skipCache)
+        return completeArrayExample(isDefined(merged) ? [merged] : [])
       }
 
       const examples = allOf
@@ -765,7 +1050,11 @@ const handleArraySchema = (
           }),
         )
         .filter(isDefined)
-      return cache(schema, wrapItems ? examples.map((e) => ({ [itemsXmlTagName]: e })) : examples, cacheKey, skipCache)
+      // Let generation resolve references, declarations and union selections before deciding whether
+      // the members describe one object. A primitive contribution keeps the existing per-member result.
+      const result =
+        examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
+      return completeArrayExample(result)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -778,8 +1067,18 @@ const handleArraySchema = (
         getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
+      const selectedTarget = getResolvedRef(selected)
+      const variant = resolve.schema(selected)
+      // Merging creates a new identity, so check the original branch before losing its cycle marker.
+      if (
+        (selectedTarget && typeof selectedTarget === 'object' && itemsSeen.has(getSchemaCacheTarget(selectedTarget))) ||
+        (variant && itemsSeen.has(getSchemaCacheTarget(variant)))
+      ) {
+        return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
+      }
+      const selectedType = getSelectedType(variant, items)
       const ex = getExampleFromSchema(
-        resolve.schema(selected),
+        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,
@@ -790,18 +1089,22 @@ const handleArraySchema = (
         },
       )
       if (ex === undefined) {
-        return undefined
+        return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+      const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
+      return completeArrayExample([tagged])
     }
   }
 
-  const isObject =
+  const isObjectItems =
     items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
   const isArray =
-    items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
+    items &&
+    typeof items === 'object' &&
+    (('type' in items && items.type === 'array') || 'items' in items || 'prefixItems' in items)
 
-  if (items && typeof items === 'object' && (('type' in items && items.type) || isObject || isArray)) {
+  const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
+  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -810,12 +1113,31 @@ const handleArraySchema = (
     })
     // Propagate an omitted recursive item so optional arrays do not serialize it as null.
     if (ex === undefined) {
-      return undefined
+      return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
     }
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+    return completeArrayExample([ex])
   }
 
-  return cache(schema, [], cacheKey, skipCache)
+  const target = getResolvedRef(itemSchema)
+  const unrestricted =
+    itemSchema === undefined ||
+    target === true ||
+    (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
+  // The strict model does not yet expose contains, but runtime 3.1+ descriptions can provide it.
+  const contains =
+    'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
+      ? resolve.schema(schema.contains as SchemaObject)
+      : undefined
+  if (unrestricted && contains) {
+    const sample = getExampleFromSchema(contains, options, {
+      level: level + 1,
+      schemaPath: [...schemaPath, 'contains'],
+      seen: itemsSeen,
+      dynamicScope: childScope,
+    })
+    return completeArrayExample(sample === undefined ? [] : [sample])
+  }
+  return completeArrayExample([], unrestricted ? null : undefined)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
@@ -931,6 +1253,261 @@ const MAX_DEPTH_EXCEEDED = '[Max Depth Exceeded]'
 /** How long a chain of composition wrappers may be unwrapped before the stack becomes the concern. */
 const MAX_COMPOSITION_DEPTH = MAX_LEVELS_DEEP * 5
 
+/**
+ * How deep the walk keeps going past `MAX_LEVELS_DEEP` to fill the properties a truncated object requires.
+ *
+ * Past the cap the walk still renders objects, but only their required properties, so a strict decoder
+ * reading the example finds every key it insists on. This level bounds that, well below the XML
+ * serializer's depth limit of 50 (which discards the whole body when crossed), and past it objects
+ * stand in empty again.
+ */
+const MAX_REQUIRED_LEVELS_DEEP = MAX_LEVELS_DEEP * 2
+
+/**
+ * How many schemas the walk may enter past `MAX_LEVELS_DEEP` in one top-level call.
+ *
+ * Cycle guards stop a schema that requires itself, but not a chain of distinct schemas that each point
+ * at the next one twice, through two required properties or an `allOf` that lists the same member
+ * twice: the work doubles with every link. Once the budget is spent, objects stand in empty.
+ */
+const MAX_REQUIRED_STEPS = 10_000
+
+/** Schemas the walk may still enter past `MAX_LEVELS_DEEP` in the current top-level call. */
+let requiredSteps = MAX_REQUIRED_STEPS
+
+/** Cache requirements within one walk; generated discriminator values may select a new branch next time. */
+let compositionRequiredNamesCache = new WeakMap<object, Map<string, ReadonlySet<string>>>()
+
+/** The value and optional XML provenance of a discriminator evaluated during requirement collection. */
+type DiscriminatorExample = { value: unknown; evaluation?: ExampleEvaluation }
+
+/** Values are reused only within one call; generated dates and traversal contexts must not leak across calls. */
+let discriminatorExamples = new WeakMap<object, Map<string, DiscriminatorExample>>()
+
+/** Evaluate the discriminator through the same path as any other property, before choosing its branch. */
+const evaluateDiscriminator = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  context: {
+    level: number
+    schemaPath: string[]
+    seen: WeakSet<object>
+    dynamicScope: DynamicScope
+    isRequiredProperty: boolean
+  },
+): DiscriminatorExample => {
+  const { level, schemaPath, seen, dynamicScope, isRequiredProperty } = context
+  const name = schema.discriminator?.propertyName
+  const property = name !== undefined && 'properties' in schema ? resolve.schema(schema.properties?.[name]) : undefined
+  if (name === undefined || !property) {
+    return { value: undefined }
+  }
+  const target = getSchemaCacheTarget(schema)
+  const key = JSON.stringify([schemaPath, createOptionsCacheKey(options), level, isRequiredProperty])
+  const cached = discriminatorExamples.get(target)?.get(key)
+  if (cached && dynamicScope.length === 0) {
+    return cached
+  }
+  const capture: ExampleEvaluationState | undefined = options?.[EXAMPLE_EVALUATION] ? { stack: [] } : undefined
+  // A composition member may not yet be on the main walk's path when collecting its requirements.
+  const alreadySeen = seen.has(target)
+  seen.add(target)
+  try {
+    const value = getExampleFromSchema(
+      property,
+      { ...options, [EXAMPLE_EVALUATION]: capture },
+      {
+        level: level + 1,
+        parentSchema: schema,
+        name,
+        schemaPath: [...schemaPath, name],
+        seen,
+        dynamicScope: pushDynamicScope(dynamicScope, schema),
+        isRequiredProperty,
+      },
+    )
+    const example: DiscriminatorExample = { value, evaluation: capture?.root }
+    if (dynamicScope.length === 0) {
+      const entries = discriminatorExamples.get(target) ?? new Map<string, DiscriminatorExample>()
+      entries.set(key, example)
+      discriminatorExamples.set(target, entries)
+    }
+    return example
+  } finally {
+    if (!alreadySeen) {
+      seen.delete(target)
+    }
+  }
+}
+
+/**
+ * Gather requirements across allOf members and the selected alternatives only. A name required by an
+ * unselected alternative may be optional in the chosen one, and emitting it can match both oneOf branches.
+ */
+const getCompositionRequiredNames = (
+  schema: SchemaObject,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
+): ReadonlySet<string> => {
+  const root = getSchemaCacheTarget(schema)
+  const cacheKey = JSON.stringify([schemaPath, createOptionsCacheKey(options), level])
+  const cached = compositionRequiredNamesCache.get(root)?.get(cacheKey)
+  if (cached && dynamicScope.length === 0) {
+    return cached
+  }
+
+  const names = new Set<string>()
+  const visited = new Map<object, Set<string>>()
+  const scopeResourceIds = new Map<object, number>()
+  const pending = [{ schema, options, schemaPath, dynamicScope, depth: 0 }]
+  // A cycle can change its selection path, so identity and path caching alone cannot bound this walk.
+  let steps = MAX_REQUIRED_STEPS
+  while (pending.length > 0 && steps-- > 0) {
+    const current = pending.pop()!
+    const target = getSchemaCacheTarget(current.schema)
+    // A shared template can require different fields under each binding. Include the ordered scope
+    // identities so visiting it in one branch does not suppress another branch's requirements.
+    const scopeKey = current.dynamicScope.map((resource): number => {
+      const identity = getSchemaCacheTarget(resource)
+      const existing = scopeResourceIds.get(identity)
+      if (existing !== undefined) {
+        return existing
+      }
+      const id = scopeResourceIds.size
+      scopeResourceIds.set(identity, id)
+      return id
+    })
+    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options), current.depth, scopeKey])
+    const contexts = visited.get(target) ?? new Set<string>()
+    if (contexts.has(key) || current.depth > MAX_COMPOSITION_DEPTH) {
+      continue
+    }
+    contexts.add(key)
+    visited.set(target, contexts)
+
+    // Requirements behind a dynamic reference constrain the same instance as its composition siblings.
+    // Follow the same binding as the example walk, within this collector's existing depth and step bounds.
+    if (isDynamicRef(current.schema)) {
+      const resolved = resolveDynamicRef(current.schema.$dynamicRef, current.dynamicScope)
+      if (resolved) {
+        pending.push({ ...current, schema: resolved, depth: current.depth + 1 })
+        continue
+      }
+    }
+
+    // An omitted member cannot make a sibling's otherwise optional fields required for this example.
+    if (shouldOmitProperty(current.schema, undefined, undefined, { mode: current.options?.mode })) {
+      continue
+    }
+
+    if ('required' in current.schema && Array.isArray(current.schema.required)) {
+      for (const name of current.schema.required) {
+        names.add(name)
+      }
+    }
+
+    const keyword = current.schema.oneOf ? 'oneOf' : current.schema.anyOf ? 'anyOf' : undefined
+    if (keyword) {
+      const discriminator = current.schema.discriminator
+      const requiredOnly = level + current.depth > MAX_LEVELS_DEEP
+      const omittedDiscriminator =
+        requiredOnly &&
+        discriminator?.defaultMapping !== undefined &&
+        // The negative level gathers shared requirements without evaluating discriminator values.
+        !getCompositionRequiredNames(schema, options, schemaPath, -MAX_COMPOSITION_DEPTH, seen, dynamicScope).has(
+          discriminator.propertyName,
+        )
+      // Evaluate once using the ordinary property walk. Rendering reuses both the value and its XML
+      // provenance, so mode omissions, generated strings and composed tags cannot change branches.
+      const evaluated =
+        level >= 0 && discriminator?.defaultMapping !== undefined && !omittedDiscriminator
+          ? evaluateDiscriminator(current.schema, current.options, {
+              level: level + current.depth,
+              schemaPath: current.schemaPath,
+              seen,
+              dynamicScope: current.dynamicScope,
+              isRequiredProperty: requiredOnly,
+            })
+          : undefined
+      const property =
+        discriminator && 'properties' in current.schema
+          ? resolve.schema(current.schema.properties?.[discriminator.propertyName])
+          : undefined
+      const propertyName =
+        current.options?.xml && property && 'xml' in property
+          ? (property.xml?.name ?? discriminator?.propertyName)
+          : discriminator?.propertyName
+      const discriminatorValue =
+        evaluated && propertyName !== undefined ? { [propertyName]: evaluated.value } : undefined
+      const selected = selectExampleComposition(
+        current.schema,
+        current.schemaPath,
+        current.options,
+        false,
+        omittedDiscriminator ? {} : discriminatorValue,
+      )
+      const resolved = selected ? resolve.schema(selected) : undefined
+      if (resolved) {
+        pending.push({
+          schema: resolved,
+          options: consumeCompositionSelection(current.options, current.schemaPath, keyword),
+          schemaPath: current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          depth: current.depth + 1,
+        })
+      }
+      continue
+    }
+
+    let choiceIndex = 0
+    for (const member of current.schema.allOf ?? []) {
+      const resolved = resolve.schema(member)
+      if (resolved) {
+        const isChoiceMember = Array.isArray(resolved.oneOf) || Array.isArray(resolved.anyOf)
+        pending.push({
+          schema: resolved,
+          options: current.options,
+          schemaPath: isChoiceMember ? [...current.schemaPath, String(choiceIndex++)] : current.schemaPath,
+          dynamicScope: pushDynamicScope(current.dynamicScope, current.schema),
+          depth: current.depth + 1,
+        })
+      }
+    }
+  }
+
+  if (dynamicScope.length === 0) {
+    const contexts = compositionRequiredNamesCache.get(root) ?? new Map<string, ReadonlySet<string>>()
+    contexts.set(cacheKey, names)
+    compositionRequiredNamesCache.set(root, contexts)
+  }
+  return names
+}
+
+/**
+ * Whether the walk keeps rendering a schema past `MAX_LEVELS_DEEP` to fill its required properties.
+ *
+ * Only an object or composition with a property marked `required` qualifies, either somewhere in its
+ * own compositions or, for a composition member, in the object it belongs to (`requiredScope`):
+ * anything else has nothing a decoder insists on, and keeps its usual stand-in. Arrays always stand in
+ * empty, because their items are what the cap exists to stop descending into.
+ */
+const fillsRequiredProperties = (
+  schema: SchemaObject,
+  requiredScope: ReadonlySet<string> | undefined,
+  options: GetExampleFromSchemaOptions | undefined,
+  schemaPath: string[],
+  level: number,
+  seen: WeakSet<object>,
+  dynamicScope: DynamicScope,
+): boolean =>
+  !getDeclaredTypes(schema).includes('array') &&
+  !Array.isArray(getEmptyContainer(schema)) &&
+  ('properties' in schema || ('type' in schema && schema.type === 'object') || isComposed(schema)) &&
+  (requiredScope ?? getCompositionRequiredNames(schema, options, schemaPath, level, seen, dynamicScope)).size > 0
+
 /** Read a schema's declared types as a list, so `type: 'object'` and `type: ['object']` behave alike. */
 const getDeclaredTypes = (schema: SchemaObject): readonly SchemaPrimitiveType[] => {
   if (!('type' in schema) || !schema.type) {
@@ -946,7 +1523,7 @@ const getEmptyContainer = (schema: SchemaObject): Record<string, never> | never[
   if ('properties' in schema || types.includes('object')) {
     return {}
   }
-  if ('items' in schema || types.includes('array')) {
+  if ('items' in schema || 'prefixItems' in schema || types.includes('array')) {
     return []
   }
   return undefined
@@ -1017,10 +1594,11 @@ const describeComposition = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object>,
+  emptySchemaValue: string | null,
 ): unknown => {
   const variant = getSelectedVariant(schema, options, schemaPath)
   if (variant) {
-    return getMaxDepthValue(variant, options, schemaPath, seen)
+    return getMaxDepthValue(variant, options, schemaPath, seen, emptySchemaValue)
   }
 
   if (!Array.isArray(schema.allOf) || schema.allOf.length === 0) {
@@ -1068,6 +1646,7 @@ const getMaxDepthValue = (
   options: GetExampleFromSchemaOptions | undefined,
   schemaPath: string[],
   seen: Set<object> = new Set(),
+  emptySchemaValue: string | null = MAX_DEPTH_EXCEEDED,
 ): unknown => {
   // A stated value beats any stand-in, and matches what a full render would have produced.
   const declared = getDeclaredValue(schema)
@@ -1096,9 +1675,11 @@ const getMaxDepthValue = (
   // inheritance chain may be. `seen` holds exactly the path, so its size bounds the stack against a
   // pathological chain, the way `schemaAllowsValue` bounds its own recursion.
   const target = getSchemaCacheTarget(schema)
-  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH) {
+  // The step budget bounds a wrapper whose members repeat one another (`allOf: [next, next]`), which
+  // the path guard alone lets double with every link.
+  if (!seen.has(target) && seen.size < MAX_COMPOSITION_DEPTH && requiredSteps-- > 0) {
     seen.add(target)
-    const composed = describeComposition(schema, options, schemaPath, seen)
+    const composed = describeComposition(schema, options, schemaPath, seen, emptySchemaValue)
     seen.delete(target)
 
     if (composed !== undefined) {
@@ -1126,7 +1707,7 @@ const getMaxDepthValue = (
   }
 
   truncated = true
-  return MAX_DEPTH_EXCEEDED
+  return emptySchemaValue
 }
 
 const hasUnencodedJsonContent = (schema: SchemaObject): boolean => {
@@ -1160,6 +1741,8 @@ const generateExampleFromSchema = (
     seen = new WeakSet(),
     schemaPath = [],
     dynamicScope = [],
+    requiredScope,
+    isRequiredProperty = false,
   }: Partial<{
     level: number
     parentSchema: SchemaObject
@@ -1169,12 +1752,19 @@ const generateExampleFromSchema = (
     schemaPath: string[]
     /** Chain of schema resources entered so far, used to resolve `$dynamicRef` (JSON Schema 2020-12). */
     dynamicScope: DynamicScope
+    /** Past the depth cap, the required names of the object a composition member belongs to. */
+    requiredScope: ReadonlySet<string>
+    /** Use null for an unconstrained required property without confusing explicit values with the depth marker. */
+    isRequiredProperty: boolean
   }> = {},
 ): unknown => {
   // Cache restrictions only apply to the current traversal, so every top-level call starts clean.
   if (level === 0) {
     truncated = false
     generatedCurrentTime = false
+    requiredSteps = MAX_REQUIRED_STEPS
+    compositionRequiredNamesCache = new WeakMap()
+    discriminatorExamples = new WeakMap()
   }
 
   // Resolve any $ref references to get the actual schema
@@ -1199,6 +1789,8 @@ const generateExampleFromSchema = (
         seen: new WeakSet(),
         schemaPath,
         dynamicScope,
+        requiredScope,
+        isRequiredProperty,
       })
     }
   }
@@ -1231,7 +1823,7 @@ const generateExampleFromSchema = (
   const makeUpRandomData = !!options?.emptyString
 
   // Early exits for schemas that should not be included (readOnly, writeOnly, omitEmptyAndOptionalProperties)
-  if (shouldOmitProperty(_schema, parentSchema, name, options)) {
+  if (shouldOmitProperty(_schema, parentSchema, name, options, isRequiredProperty)) {
     seen.delete(targetValue)
     return undefined
   }
@@ -1279,12 +1871,37 @@ const generateExampleFromSchema = (
   // Stop descending once the walk is too deep to keep going, which also breaks circular references.
   // Everything above still applied, so an explicit example, `const` or `enum` wins here as it would at
   // any other level; only the children are given up on.
+  //
+  // An object still renders its required properties for a while past the cap, through this same walk, so
+  // every rule that applies at a shallower level (read/write omission, composition selection, variables,
+  // binary files) applies to them too. Required primitive compositions use the same walk so their
+  // members retain those rules as well; arrays and anything past the bounds still stand in.
   if (level > MAX_LEVELS_DEEP) {
-    seen.delete(targetValue)
+    if (
+      (!(isRequiredProperty && getEmptyContainer(_schema) === undefined) &&
+        !fillsRequiredProperties(_schema, requiredScope, options, schemaPath, level, seen, dynamicScope)) ||
+      level > MAX_REQUIRED_LEVELS_DEEP ||
+      requiredSteps <= 0
+    ) {
+      seen.delete(targetValue)
 
-    // Deliberately not cached: the value holds only at this level, and the cache key carries none.
-    return getMaxDepthValue(_schema, options, schemaPath)
+      // Deliberately not cached: the value holds only at this level, and the cache key carries none.
+      // Constraint-only composition members must not replace a sibling's required fields with the depth marker.
+      const fallback = isRequiredProperty || requiredScope?.size ? null : MAX_DEPTH_EXCEEDED
+      return getMaxDepthValue(_schema, options, schemaPath, undefined, fallback)
+    }
+    requiredSteps--
+    // The rendered value omits optional properties, so it holds only at this level and must not be cached.
+    truncated = true
   }
+
+  // A composition can start above the cap and cross it in a nested member. Keep the shared
+  // requirements available throughout that descent, without filtering properties above the cap.
+  const memberRequiredScope =
+    requiredScope ??
+    (isComposed(_schema)
+      ? getCompositionRequiredNames(_schema, options, schemaPath, level, seen, dynamicScope)
+      : undefined)
 
   // Resolve non-object unions before type dispatch so shared root keywords do not
   // hide the selected member. Use the same selection and discriminator rules as other unions.
@@ -1292,28 +1909,19 @@ const generateExampleFromSchema = (
   const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
-    const rootType = 'type' in _schema ? _schema.type : undefined
-    const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
-    const selectedType =
-      variantType ??
-      rootType ??
-      (hasUnencodedJsonContent(_schema)
-        ? 'string'
-        : 'items' in _schema && !('properties' in _schema)
-          ? 'array'
-          : undefined)
+    const selectedType = getSelectedType(selectedVariant, _schema)
     if (selectedType !== undefined && selectedType !== 'object') {
-      const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
-      const selectedSchema = { ...base, ...selectedVariant }
-      // These keywords only constrain their own types, but also drive our type inference.
-      if ('properties' in selectedSchema) {
-        delete selectedSchema.properties
+      if (seen.has(getSchemaCacheTarget(selectedVariant))) {
+        seen.delete(targetValue)
+        return undefined
       }
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
+      // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
       }
       const result = getExampleFromSchema(
-        selectedSchema as SchemaObject,
+        selectedSchema,
         consumeCompositionSelection(options, schemaPath, selectedComposition),
         {
           level: level + 1,
@@ -1322,6 +1930,7 @@ const generateExampleFromSchema = (
           schemaPath,
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       seen.delete(targetValue)
@@ -1344,6 +1953,7 @@ const generateExampleFromSchema = (
           schemaPath: [...schemaPath, 'contentSchema'],
           seen,
           dynamicScope: childScope,
+          isRequiredProperty,
         },
       )
       if (content !== undefined) {
@@ -1355,7 +1965,7 @@ const generateExampleFromSchema = (
 
   // Handle object types - check for properties to identify objects
   if ('properties' in _schema || ('type' in _schema && _schema.type === 'object')) {
-    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope)
+    const result = handleObjectSchema(_schema, options, level, seen, cacheKey, schemaPath, dynamicScope, requiredScope)
     seen.delete(targetValue)
     return result
   }
@@ -1386,12 +1996,20 @@ const generateExampleFromSchema = (
         seen.delete(targetValue)
         return cache(
           _schema,
-          getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
-            level: level + 1,
+          withDiscriminatorTag(
+            _schema,
+            candidate,
+            getExampleFromSchema(resolved, consumeCompositionSelection(options, schemaPath, compositionKeyword), {
+              level: level + 1,
+              schemaPath,
+              seen,
+              dynamicScope: childScope,
+              requiredScope: memberRequiredScope,
+              isRequiredProperty,
+            }),
+            options,
             schemaPath,
-            seen,
-            dynamicScope: childScope,
-          }),
+          ),
           cacheKey,
           skipCache,
         )
@@ -1416,6 +2034,8 @@ const generateExampleFromSchema = (
         schemaPath: memberSchemaPath,
         seen,
         dynamicScope: childScope,
+        requiredScope: memberRequiredScope,
+        isRequiredProperty,
       })
       if (merged === undefined) {
         merged = ex
@@ -1444,24 +2064,25 @@ const generateExampleFromSchema = (
 }
 
 /** Keep binary provenance for multipart callers without resolving schemas on the default data path. */
-const asBinaryFile = (schema: SchemaObject, value: unknown, enabled = false): unknown => {
-  if (!enabled || typeof value !== 'string' || !value.startsWith('@')) {
+const asBinaryFile = (
+  schema: SchemaObject,
+  value: unknown,
+  options?: GetExampleFromSchemaOptions,
+  schemaPath: string[] = [],
+): unknown => {
+  if (!options?.binaryAsFile || typeof value !== 'string' || !value.startsWith('@')) {
     return value
   }
-  const resolved = resolve.schema(schema)
-  if (
-    resolved &&
-    'type' in resolved &&
-    resolved.type === 'string' &&
-    'format' in resolved &&
-    resolved.format === 'binary'
-  ) {
+  if (isFileSchema(resolveFormSchema(schema, options.compositionSelection, schemaPath) ?? schema)) {
     return new File([], value.slice(1), { lastModified: 0 })
   }
   return value
 }
 
-/** Generate data, optionally retaining the exact schema decisions for another output format. */
+/**
+ * Generate data, optionally retaining the exact schema decisions for another output format.
+ * Treat returned values as read-only: cached results and padded items can share object references.
+ */
 export const getExampleFromSchema = (
   schema: SchemaObject,
   options?: GetExampleFromSchemaOptions,
@@ -1470,7 +2091,7 @@ export const getExampleFromSchema = (
   const capture = options?.[EXAMPLE_EVALUATION]
   if (!capture) {
     const value = generateExampleFromSchema(schema, options, context)
-    return asBinaryFile(schema, value, options?.binaryAsFile)
+    return asBinaryFile(schema, value, options, context.schemaPath)
   }
   const node: ExampleEvaluation = {
     schema,
@@ -1488,7 +2109,7 @@ export const getExampleFromSchema = (
   }
   capture.stack.push(node)
   try {
-    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options?.binaryAsFile)
+    node.value = asBinaryFile(schema, generateExampleFromSchema(schema, options, context), options, context.schemaPath)
     return node.value
   } finally {
     capture.stack.pop()

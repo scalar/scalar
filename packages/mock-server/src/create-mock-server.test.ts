@@ -34,9 +34,7 @@ const documentWithOnePet = (operationId?: string): Record<string, unknown> => ({
 })
 
 /**
- * A response header name that is not a valid HTTP token. Building the response throws while the
- * mock handler runs, which is how a valid-looking document realistically produces a `500`: nothing
- * validates the header name up front, so the failure only surfaces on the request.
+ * Invalid declared headers must not prevent the operation from returning its response.
  */
 const documentWithBrokenResponseHeader: Record<string, unknown> = {
   openapi: '3.1.0',
@@ -275,6 +273,29 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toBe(contentType)
     expect(await response.text()).toBe(chunk.repeat(3))
+  })
+
+  it('passes the parameters of a segment with literal text to a custom handler', async () => {
+    const server = await createMockServer({
+      logger: false,
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Files', version: '1' },
+        paths: {
+          '/files/{name}.{ext}': {
+            get: {
+              'x-handler': 'return req.params',
+              responses: { '200': { description: 'OK', content: { 'application/json': {} } } },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/files/report.pdf')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ name: 'report', ext: 'pdf' })
   })
 
   it.each(['return undefined', "return res['200']", 'return [{ data: "handler" }]'])(
@@ -1630,6 +1651,39 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
   })
 
+  it('fills x-variable from a path parameter that shares its segment with literal text', async () => {
+    const server = await createMockServer({
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Hello World', version: '1.0.0' },
+        paths: {
+          '/foobar/{id}.json': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: { id: { 'type': 'number', 'example': 1, 'x-variable': 'id' } },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await server.request('/foobar/123.json')
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ id: 123 })
+  })
+
   it('GET /foobar -> example from schema', async () => {
     const document = {
       openapi: '3.1.0',
@@ -2169,25 +2223,15 @@ describe('createMockServer', () => {
     expect(consoleErrorSpy.mock.calls[0]?.[1]).toStrictEqual(new Error('Boom'))
   })
 
-  it('names the operation when building the mock response fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
-
+  it('skips an invalid declared header and explains why', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const server = await createMockServer({ document: documentWithBrokenResponseHeader })
-
     const response = await server.request('/pets/1')
-    // The runtime words this failure, so it is the one field matched loosely, on the header name.
-    const { message, ...body } = (await response.json()) as { message: string }
 
-    expect(response.status).toBe(500)
-    expect(body).toStrictEqual({
-      error: 'Internal Server Error',
-      operation: {
-        method: 'GET',
-        path: '/pets/{petId}',
-        operationId: 'getPet',
-      },
-    })
-    expect(message).toContain('X Invalid Name')
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('')
+    expect([...response.headers.keys()]).not.toContain('X Invalid Name')
+    expect(warn).toHaveBeenCalledWith('Skipping invalid response header "X Invalid Name" from the API description.')
   })
 
   it('omits the operation when the failing route is not a mocked operation', async () => {
@@ -2677,12 +2721,30 @@ describe('createMockServer', () => {
       expect(await answeredBy(server, '/jobs/1')).toBe('/jobs/{jobId}')
     })
 
-    it('keeps a mixed segment the router matches against any value from taking over a bare template', async () => {
-      // `{name}.json` compiles to a whole-segment parameter, so it matches `/files/1` as well. Ranking
-      // it as more specific than `{id}` would let it answer every request the document gave to `{id}`.
-      const server = await createMockServer({ document: documentWithPaths(['/files/{id}', '/files/{name}.json']) })
+    it('matches a segment with literal text behind a template only when the request carries it', async () => {
+      for (const paths of [
+        ['/files/{id}', '/files/{name}.json'],
+        ['/files/{name}.json', '/files/{id}'],
+      ]) {
+        const server = await createMockServer({ document: documentWithPaths(paths) })
 
-      expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+        expect(await answeredBy(server, '/files/1.json')).toBe('/files/{name}.json')
+        expect(await answeredBy(server, '/files/1.xml')).toBe('/files/{id}')
+        expect(await answeredBy(server, '/files/1')).toBe('/files/{id}')
+      }
+    })
+
+    it('does not answer a request that lacks the literal text of a mixed segment', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/files/{name}.json']) })
+
+      expect((await server.request('/files/1.xml')).status).toBe(404)
+    })
+
+    it('matches a segment with literal text in front of a template', async () => {
+      const server = await createMockServer({ document: documentWithPaths(['/api/v{version}/status']) })
+
+      expect(await answeredBy(server, '/api/v2/status')).toBe('/api/v{version}/status')
+      expect((await server.request('/api/2/status')).status).toBe(404)
     })
 
     it('keeps query-pinned variants with their path while concrete paths go first', async () => {

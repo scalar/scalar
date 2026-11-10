@@ -65,7 +65,7 @@ describe('fetchUrl', () => {
 
     const result = await fetchUrl(url, noLimit)
 
-    expect(result.ok).toBe(false)
+    expect(result).toStrictEqual({ ok: false, status: 404 })
   })
 
   it('send headers to the specified domain', async () => {

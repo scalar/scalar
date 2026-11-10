@@ -3,7 +3,11 @@ import { objectEntries } from '@scalar/helpers/object/object-entries'
 import { resolveFormSchema } from '@scalar/workspace-store/helpers/resolve-form-schema'
 import { resolveSchemaWithAnnotations } from '@scalar/workspace-store/helpers/resolve-schema-with-annotations'
 import { coerceLeafValueToSchemaType } from '@scalar/workspace-store/request-example'
-import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type {
+  ExampleObject,
+  MediaTypeObject,
+  SchemaObject,
+} from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { isObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/type-guards'
 
 import type { TableRow } from '@/v2/blocks/request-block/components/RequestTableRow.vue'
@@ -133,6 +137,7 @@ export const getFormBodyRows = (
   contentType: string,
   formBodySchema?: SchemaObject,
   compositionSelection?: Record<string, number>,
+  encoding?: MediaTypeObject['encoding'],
 ): TableRow[] => {
   // Forms use structured data even when the raw example also supplies wire text.
   const value = example?.dataValue !== undefined ? example.dataValue : example?.value
@@ -143,7 +148,13 @@ export const getFormBodyRows = (
 
   // Get all the schema properties if the schema is an object schema
   const resolvedBodySchema = resolveFormSchema(formBodySchema, compositionSelection)
-  const schemaWithProperties = resolvedBodySchema && isObjectSchema(resolvedBodySchema) ? resolvedBodySchema : undefined
+  const schemaWithProperties =
+    resolvedBodySchema &&
+    (isObjectSchema(resolvedBodySchema) ||
+      'properties' in resolvedBodySchema ||
+      'additionalProperties' in resolvedBodySchema)
+      ? { ...resolvedBodySchema, type: 'object' as const }
+      : undefined
   // The request builder preserves composed fields because members can make them required.
   // Keep those fields checked so the initial form matches the body that will be sent.
   const isComposed = Boolean(schemaWithProperties?.allOf || schemaWithProperties?.oneOf || schemaWithProperties?.anyOf)
@@ -169,14 +180,28 @@ export const getFormBodyRows = (
     value: string | File
     isDisabled?: boolean
   }): TableRow => {
-    const row: TableRow = { name, value, isDisabled: isDisabled ?? false }
+    const row: TableRow = {
+      name,
+      value,
+      isDisabled: isDisabled ?? false,
+      ...(encoding?.[name]?.contentType ? { contentType: encoding[name].contentType } : {}),
+    }
     if (!schemaWithProperties || !name) {
       return row
     }
     // Prefer the pre-resolved leaf (handles dotted names like `props.name`); fall back
     // to a top-level property lookup so user-added rows keep working.
     const leaf = leafByDottedName.get(name)
-    const propSchema = leaf?.schema ?? resolveSchemaWithAnnotations(schemaWithProperties.properties?.[name])
+    const propSchema =
+      leaf?.schema ??
+      resolveSchemaWithAnnotations(
+        schemaWithProperties.properties?.[name] ??
+          (typeof schemaWithProperties.additionalProperties === 'object'
+            ? schemaWithProperties.additionalProperties
+            : schemaWithProperties.additionalProperties === false
+              ? undefined
+              : { __scalar_: '' }),
+      )
     row.schema = propSchema
     row.description = leaf?.description ?? propSchema?.description
     row.isRequired = leaf?.isRequired ?? requiredSet?.has(name) ?? false

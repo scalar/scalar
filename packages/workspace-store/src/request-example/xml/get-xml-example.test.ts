@@ -9,6 +9,19 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('pads array items through XML serialization', () => {
+    const input: SchemaObject = {
+      type: 'array',
+      items: { type: 'number', xml: { name: 'coordinate' } },
+      minItems: 2,
+      xml: { name: 'coordinates', wrapped: true },
+    }
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<coordinates><coordinate>1</coordinate><coordinate>1</coordinate></coordinates>',
+      diagnostics: [],
+    })
+  })
+
   it.each([
     {
       xml: { nodeType: 'element', name: 'wrapper', namespace: 'relative' },
@@ -569,5 +582,40 @@ describe('get-xml-example', () => {
     expect(result.diagnostics.filter(({ severity }) => severity === 'error').map(({ code }) => code)).toStrictEqual([
       'unresolved-reference',
     ])
+  })
+
+  it('retains discriminator XML provenance when collecting deep required properties', () => {
+    let input = schema({
+      type: 'object',
+      required: ['kind'],
+      properties: { kind: { type: 'string', xml: { name: 'tag', attribute: true } } },
+      discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+      oneOf: [
+        { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+        { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+      ],
+    })
+    for (let depth = 0; depth < 11; depth++) {
+      input = schema({ type: 'object', properties: { next: input } })
+    }
+
+    const result = getXmlExampleFromSchema(input, { ...compact, rootName: 'root', emptyString: 'B' })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.xml).toBe(`<root>${'<next>'.repeat(10)}<next tag="B"><b>B</b></next>${'</next>'.repeat(10)}</root>`)
+  })
+
+  it('keeps a bounded XML body for a long chain of required objects', () => {
+    // Required properties are filled past the example depth cap, but only to a fixed depth, so the
+    // serializer's own depth limit is never reached and the body survives.
+    let link: unknown = { type: 'string' }
+    for (let index = 0; index < 52; index++) {
+      link = { type: 'object', required: ['next'], properties: { next: link } }
+    }
+
+    const result = getXmlExampleFromSchema(schema(link), { ...compact, rootName: 'root' })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.xml).toMatch(/^<root><next>/)
   })
 })

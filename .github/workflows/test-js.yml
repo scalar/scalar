@@ -36,6 +36,11 @@ jobs:
         run: |
           pnpm exec tsc --project .github/actions/update-contributors/tsconfig.json
           pnpm vitest .github/actions/update-contributors --run
+      - name: Check documentation scripts
+        if: matrix.shard-index == 1
+        run: |
+          pnpm exec tsc --project documentation/assets/tsconfig.test.json
+          pnpm vitest documentation/assets --run
       # Packages are spread across shards by their rough test duration, so the
       # few slow suites never pile up on one shard. Every shard runs the same
       # deterministic greedy assignment (heaviest package to the lightest

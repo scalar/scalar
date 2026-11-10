@@ -17,7 +17,15 @@ import {
 import { getResolvedAsyncApiRef } from '@scalar/workspace-store/helpers/get-resolved-async-api-ref'
 import { resolveAsyncApiSchema } from '@scalar/workspace-store/helpers/resolve-async-api-schema'
 import type { TraversedAsyncApiMessage } from '@scalar/workspace-store/schemas/navigation'
-import { computed, nextTick, ref, useId, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  ref,
+  useId,
+  useTemplateRef,
+  watch,
+} from 'vue'
 
 import { CompactSection, SectionHeaderTag } from '@/components/Section'
 import { useDocumentOutline } from '@/features/document-outline'
@@ -36,7 +44,6 @@ import { getCorrelationIdTarget } from './helpers/get-correlation-id-target'
 import { pickHeading } from './helpers/pick-heading'
 import { resolveAsyncApiMessage } from './helpers/resolve-async-api-nodes'
 import MessageExamples from './MessageExamples.vue'
-import SchemaSource from './SchemaSource.vue'
 
 /** Subset of the configuration the shared `Schema` renderer needs. */
 type SchemaRenderOptions = AsyncApiSchemaRenderOptions
@@ -69,6 +76,11 @@ const {
     expandedItems?: Record<string, boolean>
   } & SchemaRenderingProps
 >()
+
+// Native schema readers are only needed when a non-JSON Schema is displayed.
+const SchemaLanguage = defineAsyncComponent(
+  () => import('./SchemaLanguage.vue'),
+)
 
 const instanceId = useId()
 const renderedId = computed(() => (inline ? `reply-${instanceId}` : message.id))
@@ -276,11 +288,11 @@ const { level: headingLevel } = useDocumentOutline(
           {{ headingText }}
         </SectionHeaderTag>
       </template>
-      <div class="space-y-4 pt-2 pb-4">
+      <div class="space-y-4 pt-4 pb-6">
         <div class="message-layout">
           <div
             v-if="hasDetails"
-            class="message-schemas min-w-0 space-y-4">
+            class="message-schemas flex min-w-0 flex-col gap-8">
             <p
               v-if="summary"
               class="text-c-1 [overflow-wrap:anywhere]">
@@ -347,9 +359,11 @@ const { level: headingLevel } = useDocumentOutline(
                 "
                 :scrollTargetId="activeScrollTarget"
                 :specificationExtension="specificationExtension" />
-              <SchemaSource
+              <SchemaLanguage
                 v-else
                 :format="headersSchema.format"
+                headers
+                :options="schemaOptions"
                 :value="headersSchema.value" />
             </div>
 
@@ -382,9 +396,10 @@ const { level: headingLevel } = useDocumentOutline(
                 "
                 :scrollTargetId="activeScrollTarget"
                 :specificationExtension="specificationExtension" />
-              <SchemaSource
+              <SchemaLanguage
                 v-else-if="payloadSchema"
                 :format="payloadSchema.format"
+                :options="schemaOptions"
                 :value="payloadSchema.value" />
             </div>
           </div>
@@ -416,12 +431,6 @@ const { level: headingLevel } = useDocumentOutline(
 .message-description {
   padding-bottom: 4px;
   text-align: left;
-}
-.message-schema {
-  margin-top: 12px;
-}
-.message-schema:first-child {
-  margin-top: 0;
 }
 .message-schema-title {
   font-size: var(--scalar-small);

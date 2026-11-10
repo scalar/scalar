@@ -59,6 +59,10 @@ type OasSecurityOpenIdConnect = {
   /** REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS. */
   openIdConnectUrl: string
+  /** Defaults applied to matching flows after OpenID Connect discovery. */
+  flows?: PartialDeep<OasSecurityOauth2FlowImplicit['flows']>
+  /** Scopes selected by default after discovery. */
+  'x-default-scopes'?: string[]
 }
 export type SecuritySchemeOpenIdConnect = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOpenIdConnect
 
@@ -814,10 +818,15 @@ type ExtendedConfiguration = {
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
   /** Determine the HTTP client that is selected by default */
-  defaultHttpClient?: {
-    targetKey: TargetId
-    clientKey: ClientId<TargetId>
-  }
+  defaultHttpClient?:
+    | {
+        targetKey: TargetId
+        clientKey: ClientId<TargetId>
+      }
+    | {
+        targetKey: 'custom'
+        clientKey: string
+      }
   /**
    * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
    */

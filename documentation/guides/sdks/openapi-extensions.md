@@ -142,6 +142,14 @@ The following arrays are aligned with the enum's `enum` values by index. Values 
 | `x-scalar-enum-deprecations` | Array | Per-member deprecation metadata. |
 | `x-scalar-enum-format` | `union` | Requests a union-style enum where supported. |
 
+### Security schemes
+
+This is read when a configuration is derived from the document. With a configuration of your own, set `targets.cli.credentialStore.oauth.clientId` instead.
+
+| Extension | Where | Effect |
+| --- | --- | --- |
+| `x-scalar-client-id` | `authorizationCode` or `deviceAuthorization` flow of an OAuth 2.0 scheme | Names the public OAuth client a generated CLI signs in with. On an `authorizationCode` flow this turns on browser sign-in, and the client must have the CLI's loopback redirect registered with your provider. On a `deviceAuthorization` flow it means users are not asked for a client id; it is read there only when the document has no `authorizationCode` flow and no OpenID Connect scheme, because any client id also turns on browser sign-in for those. The value is written into the generated source, so never use a confidential client. A configuration holds one client id: an `authorizationCode` flow's id wins over a `deviceAuthorization` one, the first scheme in document order wins among equals, and the CLI uses it for every OAuth sign-in it offers. That includes a `clientCredentials` or `password` flow, which then sends this id instead of asking for one, whether the id came from this extension or from `targets.cli.credentialStore.oauth`. |
+
 ### Generated OpenAPI additions
 
 These extensions are written to an augmented OpenAPI document by the generator. They may also be preserved when already present in a source document.

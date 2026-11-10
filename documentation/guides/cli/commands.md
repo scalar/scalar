@@ -73,6 +73,7 @@ Manage shared schemas in the Scalar Registry.
 - [`scalar schema list`](commands/schema.md#list): List shared schemas in a team namespace
 - [`scalar schema get`](commands/schema.md#get): Download a shared schema version from the Scalar Registry
 - [`scalar schema publish`](commands/schema.md#publish): Publish a shared schema to the Scalar Registry
+- [`scalar schema diff`](commands/schema.md#diff): Compare two schema versions, files, or URLs
 
 ## [scalar sdk](commands/sdk.md)
 
@@ -87,7 +88,7 @@ Manage Scalar SDKs (Enterprise only).
 
 ## [scalar access-group](commands/access-group.md)
 
-Manage access groups and allowed email domains for the current team.
+Manage access groups, allowed emails and domains for the current team.
 
 - [`scalar access-group list`](commands/access-group.md#list): List access groups for the current team
 - [`scalar access-group create`](commands/access-group.md#create): Create an access group (Pro or above)
@@ -96,6 +97,18 @@ Manage access groups and allowed email domains for the current team.
 - [`scalar access-group delete`](commands/access-group.md#delete): Delete an access group and remove its project assignments
 - [`scalar access-group domain add`](commands/access-group.md#domain-add): Add an exact email domain to an access group
 - [`scalar access-group domain remove`](commands/access-group.md#domain-remove): Remove an exact email domain from an access group
+- [`scalar access-group email add`](commands/access-group.md#email-add): Add an email address to an access group
+- [`scalar access-group email remove`](commands/access-group.md#email-remove): Remove an email address from an access group
+
+## [scalar mcp](commands/mcp.md)
+
+Manage Scalar-hosted MCP servers.
+
+- [`scalar mcp list`](commands/mcp.md#list): List MCP servers in the current team
+- [`scalar mcp get`](commands/mcp.md#get): Get an MCP server and its environment versions
+- [`scalar mcp create`](commands/mcp.md#create): Create an MCP server from an existing Registry API or Docs project
+- [`scalar mcp update`](commands/mcp.md#update): Change an MCP server name or slug
+- [`scalar mcp delete`](commands/mcp.md#delete): Delete an MCP server and stop its endpoints
 
 ## [General](commands/general.md)
 

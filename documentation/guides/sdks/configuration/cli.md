@@ -139,6 +139,8 @@ There is no registry and no account to set up: the binaries are uploaded to the 
 
 Each release builds `linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, and `windows-x64`, attached as `<binary>-<platform>.tar.gz` (`.zip` on Windows). The asset names carry no version, so `https://github.com/<owner>/<repo>/releases/latest/download/<binary>-<platform>.tar.gz` always points at the newest release; re-running a release replaces the assets.
 
+When the destination is a GitHub `owner/repo`, the generated repository also gets an `install.sh` at its root, attached to every release beside a `checksums.txt` that covers it and the archives, so `curl -fsSL https://github.com/<owner>/<repo>/releases/latest/download/install.sh | bash` installs the binary for the machine into `~/.local/bin` (`<COMMAND>_INSTALL_DIR` picks another directory). When that directory is not on `PATH`, the script appends one line to the startup file of the user's shell — `.zshrc` in `$ZDOTDIR` (or `~`) for zsh, `~/.bashrc` for bash on Linux, the login file bash already reads on macOS (`~/.bash_profile` when there is none), `conf.d/<binary>.fish` for fish, and `~/.profile` for other POSIX shells — and prints the line that does the same in the current terminal. The line names the directory's real location, with any symlink resolved, so a link cannot later be pointed elsewhere. Re-running the script adds nothing, and `<binary> uninstall` names the line among what removing the executable leaves behind. The script leaves startup files alone, and says which check declined, when `<COMMAND>_NO_MODIFY_PATH` is set or when the shell is not one of those above; it then prints the line to add by hand. As root with a `$HOME` root does not own, as `sudo` can leave it, it declines without judging the directory, offers no line to paste, and says to run it as the home directory's owner; root in a home of its own, as in a container build or under `sudo -i`, is treated like any user. It also declines, and offers no line to paste whatever else declined, when the directory is relative, when it or any directory above it is not owned by the user or root or is writable by everyone (which rules out anything under `/tmp`), or when the directory contains a colon or — outside the home directory, which is written as `$HOME` — anything but ASCII letters, digits and `/ . _ + @ -`.
+
 #### releaseEnvironment
 
 **Type:** `string`
@@ -253,6 +255,14 @@ The release workflow reads fixed repository secrets, the names goreleaser's nota
 
 The three `MACOS_NOTARY_*` secrets are read only for `sign-and-notarize`. Every secret the release reads is checked at the start of the publish job, before the compile and any npm publish.
 
+## packageManager
+
+**Type:** `string`
+
+Package manager the generated GitHub workflows install dependencies and build with: `npm` (the default), `pnpm`, `yarn`, or `bun`. Each sets up a pinned release (pnpm 12, Yarn 4, Bun 1.4) in CI and the release job and runs its own install and `build`. The install is frozen when that manager's lockfile (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock` or `bun.lockb`) is committed and resolves fresh when it is not, since the generator writes no lockfile; another manager's lockfile is ignored. Yarn installs into `node_modules`, not Plug'n'Play, and a Yarn 1 lockfile must be migrated to Yarn 4 before the frozen install accepts it. `npm` keeps running `npm install` whether or not a `package-lock.json` exists. Publishing still runs through npm, because trusted publishing needs the npm CLI. Only the workflows change: the published package and its README install instructions are the same either way. Any other value is reported and builds with npm.
+
+**Default:** `"npm"`
+
 ## defaultFormat
 
 **Type:** `string`
@@ -273,6 +283,12 @@ Whether the generated CLI ships shell completion scripts and the `completion` su
 
 **Default:** `true`
 
+## confirm
+
+**Type:** `"delete"`
+
+Turns on `cli.confirm` for every method whose HTTP verb is `DELETE`, so each of those commands asks before it runs (see `resources.<name>.methods.<method>.cli.confirm`). A method's own `cli.confirm` wins: `false` keeps a delete command promptless, and a `message` words its question. Off when unset. Turning it on is a breaking change for scripts that run those commands without `--yes`.
+
 ## subresourceSeparator
 
 **Type:** `"colon" | "space"`
@@ -280,6 +296,14 @@ Whether the generated CLI ships shell completion scripts and the `completion` su
 How the generated CLI spells a command under a nested resource. `colon` joins the resource chain into one command group (`projects:tasks create`), the shape Heroku-style `oclif` CLIs use. `space` nests each subresource as a subcommand of its parent (`projects tasks create`), the shape `gh`, `kubectl`, and `gcloud` use; `--help`, shell completion, man pages, the README, and the smoke test all follow the nested tree. Under `space` a subresource and a method of its parent resource would be the same command if they shared a name, and so would a root method and a top-level resource that has only subresources. A subresource whose accessor clashes with a method is already renamed for every target (`policies-resource`); a clash that survives that, such as a method whose `publicIdentifier` differs from its name, fails generation naming both commands rather than silently renaming either. Top-level resources and root methods are spelled the same either way.
 
 **Default:** `"colon"`
+
+## installOrder
+
+**Type:** `("npm" | "installScript" | "homebrew" | "download")[]`
+
+Order of the install methods in the generated README's Installation section, the agent skill's Install section and the augmented OpenAPI document's `x-scalar-sdk-installation`, which all follow it. `npm` is `npm install -g`; `installScript` is the `curl … | bash` one-liner for the release's `install.sh`; `homebrew` is the tap's `brew install`; `download` is the manual archive download, including the Windows `.zip`. Listed methods come first, in the order given; any left out follow in the default order, so `["homebrew"]` only moves Homebrew to the top. A method listed twice keeps its first position. A method the config does not publish is skipped wherever it is listed: the order never adds an install line for a channel no release produces.
+
+**Default:** `["installScript", "npm", "homebrew", "download"]`
 
 ## credentialStore
 
@@ -319,7 +343,7 @@ Even under `keychain`, a small index of *which base URLs are signed in* is writt
 
 **Type:** `object`
 
-Identifies this CLI to an OAuth provider, for the browser-redirect flows. Required for `authorizationCode`: the OpenAPI flow object carries the authorization and token URLs but never a `client_id`, because that identifies the *application* rather than the API, so no document can supply it. Without this block those flows are unavailable and `login` falls back to the next usable flow, or to reading a token the user supplies.
+Identifies this CLI to an OAuth provider, for the browser-redirect flows. Required for `authorizationCode`: the OpenAPI flow object carries the authorization and token URLs but has no field for a `client_id`, because that identifies the *application* rather than the API. A starter config derived from a document fills in `clientId` from an `x-scalar-client-id` extension on the flow. Without this block those flows are unavailable and `login` falls back to the next usable flow, or to reading a token the user supplies.
 
 #### clientId
 
@@ -434,3 +458,16 @@ Set `cli` on a method in `resources` to include or exclude the command generated
 | Property | Description |
 | --- | --- |
 | `enabled` | Enables or disables CLI command generation for this method. |
+| [`confirm`](#confirm-1) | Asks for confirmation before the generated CLI command runs. On a terminal (stdin and stderr are TTYs, `CI` is unset and `--no-input` was not passed) the command asks on stderr — by default a sentence naming the command and the path parameters it was given, such as `Delete registry "acme" "petstore"? [y/N]`, or `message` followed by those values — and runs only on `y` or `yes`. Any other answer, an empty line or end of input prints `Cancelled.` and exits 1; Ctrl-C exits 130. Neither sends a request. Anywhere else (a pipe, a body read from stdin, CI, `--no-input`) the command fails as a usage error (exit 2, written in the `--format-error` format) unless `--yes`/`-y` is passed after the command name. The check runs before credentials are resolved, so a cancelled command never refreshes a token. `false` turns off a confirmation `targets.cli.confirm` would otherwise add. Turning confirmation on for an existing command is a breaking change for scripts that run it without `--yes`. Other targets ignore it. |
+
+### confirm
+
+#### message
+
+**Type:** `string`
+
+**Required**
+
+Question the command asks in place of the default sentence, written exactly as given (no templating). The path parameters the command was given (as arguments or flags) still follow it, on the next line, before ` [y/N]`.
+
+**Constraints:** `pattern: \S`, `minLength: 1`
