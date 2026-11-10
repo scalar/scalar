@@ -1526,6 +1526,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCaches = new WeakMap<object, Set<unknown>>()
+  const pendingUpgradedBundles = new WeakMap<object, Promise<unknown>>()
 
   return {
     externalExamples: (documentName) => {
@@ -1634,12 +1635,14 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     },
     resolve: async (path) => {
       const activeDocument = workspace.activeDocument
+      const documentName = getActiveDocumentName()
+      const entryVersion = originalDocuments[documentName]?.openapi
 
       // The navigation is never a reference: a compact document externalizes its children alone, and
       // loading them is all there is to resolve here. Everything a navigation entry points at, it
       // points at with a `ref` string of its own, so the bundler has nothing left to follow.
       if (path[0] === extensions.document.navigation) {
-        await loadNavigationChildren(getActiveDocumentName())
+        await loadNavigationChildren(documentName)
         return getValueAtPath(activeDocument, path)
       }
 
@@ -1679,29 +1682,47 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         visitedNodesCaches.set(activeDocument, visitedNodes)
       }
 
-      return bundle(target, {
-        root: activeDocument,
-        origin: activeDocument?.['x-scalar-original-source-url'],
-        treeShake: false,
-        plugins: [
-          openApiDocument(),
-          ...upgradeLoaders(
-            [
-              fetchUrls({
-                fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,
-                limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
-              }),
-              ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
-            ],
-            originalDocuments[getActiveDocumentName()]?.openapi,
-            path,
-          ),
-          loadingStatus(),
-          externalValueResolver({ lazy: true }),
-        ],
-        urlMap: true,
-        visitedNodes,
-      })
+      const bundleTarget = (): ReturnType<typeof bundle> =>
+        bundle(target, {
+          root: activeDocument,
+          origin: activeDocument?.['x-scalar-original-source-url'],
+          treeShake: false,
+          plugins: [
+            openApiDocument(),
+            ...upgradeLoaders(
+              [
+                fetchUrls({
+                  fetch: extraDocumentConfigurations[documentName]?.fetch ?? workspaceProps?.fetch,
+                  limit: EXTERNAL_FETCH_CONCURRENCY_LIMIT,
+                }),
+                ...(workspaceProps?.fileLoader ? [workspaceProps.fileLoader] : []),
+              ],
+              entryVersion,
+              path,
+            ),
+            loadingStatus(),
+            externalValueResolver({ lazy: true }),
+          ],
+          urlMap: true,
+          visitedNodes,
+        })
+
+      if (!activeDocument || typeof entryVersion !== 'string' || !entryVersion.startsWith('3.0')) {
+        return bundleTarget()
+      }
+
+      // Concurrent upgrades can load separate copies of the same external file. Let each pass
+      // see the previous one's cached fragments and pointer relocations before loading more.
+      const previous = pendingUpgradedBundles.get(activeDocument)
+      const pending = previous ? previous.then(bundleTarget, bundleTarget) : bundleTarget()
+      pendingUpgradedBundles.set(activeDocument, pending)
+      try {
+        return await pending
+      } finally {
+        if (pendingUpgradedBundles.get(activeDocument) === pending) {
+          pendingUpgradedBundles.delete(activeDocument)
+        }
+      }
     },
     addDocument,
     /**

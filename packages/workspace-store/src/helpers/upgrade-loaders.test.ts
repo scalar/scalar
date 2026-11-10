@@ -133,7 +133,7 @@ describe('upgrade-loaders', () => {
       ['components', 'schemas', 'Item'],
     )
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       type: 'object',
       properties: { name: { type: ['string', 'null'], examples: ['Ada'] } },
       examples: [{ a: 1 }],
@@ -307,7 +307,7 @@ describe('upgrade-loaders', () => {
 
   it('ignores values that are not objects', () => {
     expect(upgradeLoadedDocument('text', '3.0.3')).toBe('text')
-    expect(upgradeLoadedDocument(['a'], '3.0.3')).toEqual(['a'])
+    expect(upgradeLoadedDocument(['a'], '3.0.3')).toStrictEqual(['a'])
     expect(upgradeLoadedDocument(null, '3.0.3')).toBe(null)
   })
   it('upgrades what the loader returns and passes failures through', async () => {
@@ -332,7 +332,7 @@ describe('upgrade-loaders', () => {
     const loader = plugins.find((plugin) => plugin.type === 'loader')
 
     expect(loader?.validate('x')).toBe(true)
-    expect(await loader?.exec('missing')).toEqual({ ok: false })
+    expect(await loader?.exec('missing')).toStrictEqual({ ok: false })
     expect(await loader?.exec('x')).toStrictEqual({
       ok: true,
       raw: '',

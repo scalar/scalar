@@ -91,6 +91,43 @@ describe('client.external-upgrade', () => {
     expect(loads).toStrictEqual([url])
   })
 
+  it.each([
+    ['Child', 'Parent'],
+    ['Parent', 'Child'],
+  ])('resolves concurrent lazy references to %s and %s from one file', async (first, second) => {
+    const store = createWorkspaceStore()
+    const url = 'https://example.test/shared.json'
+    const loads: string[] = []
+    await store.addDocument({
+      name: 'default',
+      fetch: (input): Promise<Response> => {
+        loads.push(String(input))
+        return Promise.resolve(
+          new Response(JSON.stringify({ Parent: { nullable: true, allOf: [{ type: 'string' }] } })),
+        )
+      },
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        'x-scalar-navigation': { id: 'default', type: 'document', name: 'default', title: 'Example', children: [] },
+        components: {
+          schemas: { Child: { $ref: url + '#/Parent/allOf/0' }, Parent: { $ref: url + '#/Parent' } },
+        },
+      },
+    })
+
+    await Promise.all([
+      store.resolve(['components', 'schemas', first]),
+      store.resolve(['components', 'schemas', second]),
+    ])
+
+    const schemas = getActiveOpenApiDocument(store)?.components?.schemas
+    expect(getResolvedRef(schemas?.Child)).toStrictEqual({ type: 'string' })
+    expect(getResolvedRef(schemas?.Parent)).toStrictEqual({ anyOf: [{ type: 'string' }, { type: 'null' }] })
+    expect(loads).toStrictEqual([url])
+  })
+
   it('upgrades a shared schema map whose names resemble document fields', async () => {
     const store = createWorkspaceStore()
     const data = {

@@ -80,7 +80,11 @@ export function upgradeFromThreeToThreeOne(
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path: string[], recordRelocation?: RecordRelocation) => {
+const applyChangesToDocument = (
+  schema: UnknownObject,
+  path: string[],
+  recordRelocation?: RecordRelocation,
+): UnknownObject => {
   // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
   // schema, so none of the schema transforms below apply and running them would corrupt the data.
   if (isInsideDataValue(path, '3.0')) {
