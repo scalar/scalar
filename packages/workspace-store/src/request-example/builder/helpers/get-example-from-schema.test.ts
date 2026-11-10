@@ -1482,6 +1482,62 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it('merges array items when allOf contains a recursive reference', () => {
+    const base: Record<string, unknown> = {}
+    const reference = { $ref: '#/components/schemas/Base', '$ref-value': base }
+    base.allOf = [reference]
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [reference, { properties: { extra: { type: 'string', example: 'more' } } }],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ extra: 'more' }])
+  })
+
+  it.each([false, true])('preserves primitive allOf array items with object keywords (reversed: %s)', (reversed) => {
+    const members = [{ type: 'string', example: 'hello' }, { additionalProperties: false }]
+    // Coercion adds an object type to keyword-only members; keep the original untyped input here.
+    const schema = {
+      type: 'array',
+      items: { allOf: reversed ? [...members].reverse() : members },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('checks nested referenced type constraints before inferring object array items', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          { additionalProperties: false },
+          {
+            $ref: '#/components/schemas/Value',
+            '$ref-value': { allOf: [{ type: ['string'], example: 'hello' }] },
+          },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('still merges array items when a type list allows objects', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        allOf: [
+          { type: ['object', 'null'], properties: { id: { type: 'integer', example: 1 } } },
+          { properties: { name: { type: 'string', example: 'Rex' } } },
+        ],
+      },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'Rex' }])
+  })
+
   it('uses the default value', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'string',

@@ -6,7 +6,7 @@ import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
-import { unpackProxyObject } from '@/helpers/unpack-proxy'
+import { unpackProxyObject, unpackProxyShallow } from '@/helpers/unpack-proxy'
 import { resolve } from '@/resolve'
 import type { SchemaObject } from '@/schemas/v3.2/strict/openapi-document'
 
@@ -814,47 +814,53 @@ const handleObjectSchema = (
 }
 
 /**
- * Check whether an `allOf` describes a single object, so its members must be merged into one example.
- *
- * Only `$ref` and `allOf` are followed, because those are the schemas guaranteed to apply to every
- * instance (OpenAPI 3.2 "Working with Non-JSON Data"). A member counts as an object when it declares
- * `type: object`, or when it has no `type` but is written like one (`properties`, `patternProperties`,
- * `additionalProperties` or `required`). This matches how the rest of the generator infers objects.
- *
- * Any member is enough, not only the first one. `allOf` validates one instance against every member,
- * so once one member makes that instance an object, the others cannot describe separate list items.
- * Splitting them would produce partial objects that are each missing the other members' required
- * properties. Leading members that only add a description or constraints are common, too.
+ * Infer one object example from the applicable `$ref` and `allOf` members.
+ * Object keywords suggest a useful example but do not require an object, so every member's declared
+ * type must still allow objects. Walk iteratively so long inheritance chains cannot exhaust the stack.
  */
-const allOfDescribesObject = (allOf: readonly unknown[], seen: WeakSet<object> = new WeakSet()): boolean =>
-  allOf.some((member) => {
-    const resolved = resolve.schema(member as SchemaObject)
-    if (!resolved || typeof resolved !== 'object') {
-      return false
+const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolean => {
+  const pending = [...allOf]
+  const seen = new WeakSet<object>()
+  let describesObject = false
+
+  while (pending.length > 0) {
+    const member = pending.pop()
+    if (!member || typeof member !== 'object') {
+      continue
     }
 
-    // Guard against `allOf` cycles, for example a base schema that references itself
-    const target = getSchemaCacheTarget(resolved)
+    // Resolving a reference creates a fresh merged view; only the original node has a stable identity.
+    const target = unpackProxyShallow(member)
     if (seen.has(target)) {
-      return false
+      continue
     }
     seen.add(target)
 
-    if ('type' in resolved && resolved.type !== undefined) {
-      return Array.isArray(resolved.type) ? resolved.type.includes('object') : resolved.type === 'object'
+    const resolved = resolve.schema(member)
+    const types = getDeclaredTypes(resolved)
+    if (types.length > 0 && !types.includes('object')) {
+      return false
     }
 
     if (
+      types.includes('object') ||
       'properties' in resolved ||
       'patternProperties' in resolved ||
       'additionalProperties' in resolved ||
       'required' in resolved
     ) {
-      return true
+      describesObject = true
     }
 
-    return Array.isArray(resolved.allOf) && allOfDescribesObject(resolved.allOf, seen)
-  })
+    if (Array.isArray(resolved.allOf)) {
+      for (const child of resolved.allOf) {
+        pending.push(child)
+      }
+    }
+  }
+
+  return describesObject
+}
 
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
