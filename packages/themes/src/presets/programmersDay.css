@@ -272,7 +272,7 @@
  * the animation would trap its fixed-position children. The line and the glow have no fill at
  * all, so when they finish they fall back to their invisible resting state.
  */
-.scalar-client--open .scalar-client {
+.scalar-client--open > .scalar-client {
   animation: scalar-programmers-power-on 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 .scalar-client--open::before,
@@ -387,7 +387,7 @@
   .section-flare-item,
   .section-flare-item::after,
   .references-rendered::before,
-  .scalar-client--open .scalar-client {
+  .scalar-client--open > .scalar-client {
     animation: none !important;
   }
   .scalar-client--open::before,
