@@ -23,17 +23,35 @@ export const isOpenApiThreeZero = (version: unknown): version is string =>
   typeof version === 'string' && version.startsWith('3.0')
 
 const schemaArrayKeywords = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
+const literalDataKeywords = new Set([
+  'example',
+  'examples',
+  'default',
+  'enum',
+  'const',
+  'value',
+  'dataValue',
+  'serializedValue',
+])
 type ReferenceContext = Parameters<typeof childReferenceContext>[0]
-const contextAtPath = (path: readonly string[]): ReferenceContext =>
-  path.reduce<ReferenceContext>((context, key, index) => {
+const classifyPath = (path: readonly string[]): { context: ReferenceContext; literal: boolean } => {
+  let context: ReferenceContext = 'object'
+  for (const [index, key] of path.entries()) {
     const parent = path[index - 1]
     // Composition arrays inherit the schema context at each index.
     if (context === 'schema' && parent && schemaArrayKeywords.has(parent) && /^\d+$/.test(key)) {
-      return context
+      continue
     }
-    return childReferenceContext(context, key, false)
-  }, 'object')
-const isReferencePath = (path: readonly string[]): boolean => isReferenceContext(contextAtPath(path))
+    context = childReferenceContext(context, key, false)
+    if (context === 'data') {
+      // An extension can contain schemas reached by explicit pointers. Its unknown
+      // context does not make it a literal instance value.
+      return { context, literal: literalDataKeywords.has(key) }
+    }
+  }
+  return { context, literal: false }
+}
+const isReferencePath = (path: readonly string[]): boolean => isReferenceContext(classifyPath(path).context)
 
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
@@ -325,7 +343,7 @@ export const upgradeLoaders = (
         const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
         const path = indexed ?? source
         // Unknown portions of shared files can be exposed as schemas by later references.
-        const literal = path[0] !== 'x-ext' && contextAtPath(path) === 'data'
+        const literal = path[0] !== 'x-ext' && classifyPath(path).literal
         if (literal) {
           onLiteralData?.(raw)
         }

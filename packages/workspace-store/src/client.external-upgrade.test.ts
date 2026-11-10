@@ -58,6 +58,30 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it('follows an external reference inside an extension explicitly referenced as a schema', async () => {
+    const store = createWorkspaceStore()
+    const url = 'https://example.test/schema.json'
+    const loads: string[] = []
+    await store.addDocument({
+      name: 'default',
+      fetch: (input): Promise<Response> => {
+        loads.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify({ type: 'string' })))
+      },
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        components: { schemas: { Parent: { $ref: '#/x-schemas/Wrapped' } } },
+        'x-schemas': { Wrapped: { $ref: url } },
+      },
+    })
+
+    const schema = getActiveOpenApiDocument(store)?.components?.schemas?.Parent
+    expect(getResolvedRef(getResolvedRef(schema))).toStrictEqual({ type: 'string' })
+    expect(loads).toStrictEqual([url])
+  })
+
   it.each([
     [false, false, false],
     [false, true, false],
