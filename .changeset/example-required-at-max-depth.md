@@ -12,3 +12,5 @@ Keep required primitive compositions on the normal traversal and collect discrim
 Reuse evaluated discriminator values for required-property collection and keep inferred tuple arrays empty past the depth cap.
 
 Preserve shared requirements and required primitive values through dynamic references, including requirements declared in dynamically referenced composition members.
+
+Collect requirements separately when composition branches reuse a shared template under different dynamic bindings.

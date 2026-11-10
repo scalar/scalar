@@ -1196,13 +1196,26 @@ const getCompositionRequiredNames = (
 
   const names = new Set<string>()
   const visited = new Map<object, Set<string>>()
+  const scopeResourceIds = new Map<object, number>()
   const pending = [{ schema, options, schemaPath, dynamicScope, depth: 0 }]
   // A cycle can change its selection path, so identity and path caching alone cannot bound this walk.
   let steps = MAX_REQUIRED_STEPS
   while (pending.length > 0 && steps-- > 0) {
     const current = pending.pop()!
     const target = getSchemaCacheTarget(current.schema)
-    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options), current.depth])
+    // A shared template can require different fields under each binding. Include the ordered scope
+    // identities so visiting it in one branch does not suppress another branch's requirements.
+    const scopeKey = current.dynamicScope.map((resource): number => {
+      const identity = getSchemaCacheTarget(resource)
+      const existing = scopeResourceIds.get(identity)
+      if (existing !== undefined) {
+        return existing
+      }
+      const id = scopeResourceIds.size
+      scopeResourceIds.set(identity, id)
+      return id
+    })
+    const key = JSON.stringify([current.schemaPath, createOptionsCacheKey(current.options), current.depth, scopeKey])
     const contexts = visited.get(target) ?? new Set<string>()
     if (contexts.has(key) || current.depth > MAX_COMPOSITION_DEPTH) {
       continue

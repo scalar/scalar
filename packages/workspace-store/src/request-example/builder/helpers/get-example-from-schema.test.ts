@@ -3432,6 +3432,31 @@ describe('getExampleFromSchema', () => {
       ).toStrictEqual({ value: 'resolved', empty: null })
     })
 
+    it.each([false, true])(
+      'collects shared template requirements under distinct dynamic bindings (reverse: %s)',
+      (reverse) => {
+        const template = {
+          $id: 'urn:template',
+          $defs: { Item: { $dynamicAnchor: 'Item', type: 'object' } },
+          allOf: [{ $dynamicRef: '#Item' }],
+        }
+        const bindings = ['a', 'b'].map((name) => ({
+          $id: `urn:binding:${name}`,
+          $defs: { Item: { $dynamicAnchor: 'Item', type: 'object', required: [name] } },
+          allOf: [{ $ref: 'urn:template', '$ref-value': template }],
+        }))
+        const leaf = {
+          type: 'object',
+          properties: { a: { const: 'a' }, b: { const: 'b' }, optional: { const: 'omitted' } },
+          allOf: reverse ? [...bindings].reverse() : bindings,
+        }
+
+        expect(
+          deepestNext(getExampleFromSchema(nestObjects(TRUNCATED_DEPTH, leaf as unknown as SchemaObject))),
+        ).toStrictEqual({ a: 'a', b: 'b' })
+      },
+    )
+
     it('bounds recursive dynamic composition while collecting required names', () => {
       const leaf = {
         type: 'object',
