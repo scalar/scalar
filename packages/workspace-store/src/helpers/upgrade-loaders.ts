@@ -127,11 +127,13 @@ export const upgradeLoadedDocument = (
  * Swagger 2.0 documents retain their original structure and JSON pointers.
  *
  * @param basePath - The selected subtree's path when bundling part of a document lazily.
+ * @param onLiteralReference - Report authored data objects so coercion can copy them without virtual reference fields.
  */
 export const upgradeLoaders = (
   loaders: LoaderPlugin[],
   entryVersion: unknown,
   basePath: readonly string[] = [],
+  onLiteralReference?: (node: object) => void,
 ): Plugin[] => {
   const paths = new WeakMap<object, readonly string[]>()
   const movedFiles = new Set<FragmentFile>()
@@ -315,14 +317,19 @@ export const upgradeLoaders = (
         }
       },
       shouldResolveReference: (node, context) => {
-        const indexed = paths.get(unpackProxyShallow(node))
+        const raw = unpackProxyShallow(node)
+        const indexed = paths.get(raw)
         if (!indexed && !isOpenApiThreeZero(entryVersion)) {
           return true
         }
         const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
         const path = indexed ?? source
         // Unknown portions of shared files can be exposed as schemas by later references.
-        return path[0] === 'x-ext' || contextAtPath(path) !== 'data'
+        const literal = path[0] !== 'x-ext' && contextAtPath(path) === 'data'
+        if (literal) {
+          onLiteralReference?.(raw)
+        }
+        return !literal
       },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
         if (!isOpenApiThreeZero(entryVersion)) {
