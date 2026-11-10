@@ -1583,6 +1583,62 @@ describe('getExampleFromSchema', () => {
     },
   )
 
+  it.each([{ const: 'hello' }, { enum: ['hello'] }, { type: 'string', example: 'hello' }])(
+    'follows annotated reference chains before merging allOf array items: %j',
+    (constraint) => {
+      const schema = {
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              $ref: '#/components/schemas/Alias',
+              '$ref-value': {
+                $ref: '#/components/schemas/Value',
+                description: 'Annotated alias',
+                '$ref-value': constraint,
+              },
+            },
+            { additionalProperties: false },
+          ],
+        },
+      } as unknown as SchemaObject
+
+      expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+    },
+  )
+
+  it.each([
+    { enum: ['hello', { id: 1 }] },
+    { example: 'hello' },
+    { examples: ['hello', { id: 1 }] },
+    { default: 'hello' },
+  ])('preserves a declared primitive when allOf also allows objects: %j', (declared) => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: { allOf: [{ type: ['object', 'string'], ...declared }] },
+    })
+
+    expect(getExampleFromSchema(schema)).toStrictEqual(['hello'])
+  })
+
+  it('merges an object example that overrides a primitive reference annotation', () => {
+    const schema = {
+      type: 'array',
+      items: {
+        allOf: [
+          {
+            $ref: '#/components/schemas/Value',
+            example: { id: 1 },
+            '$ref-value': { type: ['object', 'string'], example: 'hello' },
+          },
+          { properties: { name: { type: 'string', example: 'world' } } },
+        ],
+      },
+    } as unknown as SchemaObject
+
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1, name: 'world' }])
+  })
+
   it('still merges array items when a type list allows objects', () => {
     const schema = coerceValue(SchemaObjectSchema, {
       type: 'array',

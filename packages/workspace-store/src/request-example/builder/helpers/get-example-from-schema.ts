@@ -821,7 +821,7 @@ const handleObjectSchema = (
  * exhaust the stack.
  */
 const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolean => {
-  const pending = [...allOf]
+  const pending: unknown[] = [...allOf]
   const seen = new WeakSet<object>()
   let describesObject = false
 
@@ -838,7 +838,7 @@ const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolea
     }
     seen.add(target)
 
-    const resolved = resolve.schema(member)
+    const resolved = resolve.schema(member as SchemaObject)
     const types = getDeclaredTypes(resolved)
     if (types.length > 0 && !types.includes('object')) {
       return false
@@ -850,6 +850,22 @@ const allOfDescribesObject = (allOf: NonNullable<SchemaObject['allOf']>): boolea
     }
     if (Array.isArray(resolved.enum) && !resolved.enum.some(isObject)) {
       return false
+    }
+
+    // A mixed enum or type list may allow objects while the selected example is still a primitive.
+    const declared = getDeclaredValue(resolved)
+    if (declared !== undefined) {
+      if (!isObject(declared)) {
+        return false
+      }
+      // Generation stops at a declared object, so overridden reference annotations do not apply.
+      describesObject = true
+      continue
+    }
+
+    // Annotated aliases are separate resolution hops; inspect every original target as well.
+    if ('$ref' in member && '$ref-value' in member) {
+      pending.push(member['$ref-value'])
     }
 
     if (
