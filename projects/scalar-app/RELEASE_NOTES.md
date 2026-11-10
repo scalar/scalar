@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.48 (2026-11-10)
+
+### Improved multipart uploads and OpenID Connect configuration
+
+This release upgrades the Monaco editor and adds schema-aware file controls for multipart requests. OpenID Connect flows now support preconfigured defaults for client IDs, scopes, and PKCE.
+
+- Schema-aware file controls for multipart/mixed and multipart/related requests preserve part order and encoding headers
+- File uploads in multipart/form-data are now restricted to file fields when a request body schema is available
+- OpenID Connect flows support preconfigured client IDs, selected scopes, and PKCE settings that apply after discovery
+- Upgraded Monaco editor to version 0.57.0 with improved YAML support and modernized language APIs
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1148)
+
 ## 1.1.47 (2026-11-05)
 
 ### Authentication overrides, body reset, and response improvements

@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.51 (2026-11-10)
+
+### Require approval for all API requests and redact credentials
+
+Agent Chat now requires explicit approval before executing any AI-generated API request, including GET requests. Saved credentials are validated and redacted from response data before being sent to the chat model.
+
+- All API requests now require approval before execution, preventing automatic data access with stored credentials.
+- Request destinations are validated before attaching credentials to prevent sending them to model-supplied URLs.
+- Saved credentials are redacted from response URLs, headers, and bodies before sending results to the chat backend.
+- The approval preview shows the resolved API destination and method before the request is sent.
+- Requests are rejected when no usable server is configured, prompting API authors to add a server to their description.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01251)
+
 ## 0.12.50 (2026-11-05)
 
 ### Security hardening and agent key document fix

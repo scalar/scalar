@@ -9,6 +9,20 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.1 (2026-11-10)
+
+### Decimal validation and deep nesting fixes
+
+This release fixes how the mock server validates decimal constraints and generates deeply nested responses. Required properties now appear correctly in truncated objects, decimal multiples are checked with exact arithmetic, and path parameters work reliably when mixed with literal text.
+
+- Decimal multipleOf constraints now accept valid values like 19.99 for multipleOf: 0.01 using exact arithmetic instead of floating-point division.
+- Deeply nested mock responses keep their required properties instead of serving empty objects that violate the schema.
+- Path segments mixing parameters with literal text, such as {id}.json or v{version}, now route correctly and pass their parameters to validation.
+- Request validation no longer rejects bodies that omit required readOnly properties, so create endpoints with auto-generated IDs work without disabling validation.
+- Array items with allOf compositions merge into single objects instead of splitting into multiple partial objects per member.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0211)
+
 ## 0.21.0 (2026-11-05)
 
 ### Response hooks and smarter path matching
