@@ -870,6 +870,31 @@ const countExampleNodes = (value: unknown, limit: number): number => {
 const readArrayLengthBound = (value: unknown, fallback: number): number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
 
+/** Recognize an array described by its item keywords when no type was declared. */
+const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
+  !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
+
+/** Keep constraints from the surrounding array when selecting a composition branch. */
+const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+  const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
+  const merged = { ...base, ...variant } as SchemaObject
+  if (isArray) {
+    if ('minItems' in merged && 'minItems' in schema) {
+      merged.minItems = Math.max(readArrayLengthBound(schema.minItems, 0), readArrayLengthBound(merged.minItems, 0))
+    }
+    if ('maxItems' in merged && 'maxItems' in schema) {
+      merged.maxItems = Math.min(
+        readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+        readArrayLengthBound(merged.maxItems, Number.POSITIVE_INFINITY),
+      )
+    }
+    if ('uniqueItems' in schema && schema.uniqueItems) {
+      Object.assign(merged, { uniqueItems: true })
+    }
+  }
+  return merged
+}
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -1003,8 +1028,14 @@ const handleArraySchema = (
         getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
+      const variant = resolve.schema(selected)
+      const selectedType =
+        (variant && 'type' in variant ? variant.type : undefined) ??
+        ('type' in items ? items.type : undefined) ??
+        (variant && inferArrayType(variant)) ??
+        inferArrayType(items)
       const ex = getExampleFromSchema(
-        resolve.schema(selected),
+        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,
@@ -1826,29 +1857,9 @@ const generateExampleFromSchema = (
     const selectedType =
       variantType ??
       rootType ??
-      (hasUnencodedJsonContent(_schema)
-        ? 'string'
-        : 'items' in _schema && !('properties' in _schema)
-          ? 'array'
-          : undefined)
+      (hasUnencodedJsonContent(_schema) ? 'string' : (inferArrayType(selectedVariant) ?? inferArrayType(_schema)))
     if (selectedType !== undefined && selectedType !== 'object') {
-      const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
-      const selectedSchema = { ...base, ...selectedVariant }
-      if (selectedType === 'array') {
-        // The selected branch and the surrounding schema both constrain the array.
-        if ('minItems' in selectedSchema && 'minItems' in _schema && 'minItems' in selectedVariant) {
-          selectedSchema.minItems = Math.max(
-            readArrayLengthBound(_schema.minItems, 0),
-            readArrayLengthBound(selectedVariant.minItems, 0),
-          )
-        }
-        if ('maxItems' in selectedSchema && 'maxItems' in _schema && 'maxItems' in selectedVariant) {
-          selectedSchema.maxItems = Math.min(
-            readArrayLengthBound(_schema.maxItems, Number.POSITIVE_INFINITY),
-            readArrayLengthBound(selectedVariant.maxItems, Number.POSITIVE_INFINITY),
-          )
-        }
-      }
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
       // These keywords only constrain their own types, but also drive our type inference.
       if ('properties' in selectedSchema) {
         delete selectedSchema.properties
@@ -1857,7 +1868,7 @@ const generateExampleFromSchema = (
         delete selectedSchema.items
       }
       const result = getExampleFromSchema(
-        selectedSchema as SchemaObject,
+        selectedSchema,
         consumeCompositionSelection(options, schemaPath, selectedComposition),
         {
           level: level + 1,

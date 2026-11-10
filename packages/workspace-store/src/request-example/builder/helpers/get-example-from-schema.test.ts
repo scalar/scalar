@@ -36,9 +36,9 @@ describe('getExampleFromSchema', () => {
       name: 'anyOf items',
       schema: {
         items: coerceValue(SchemaObjectSchema, { anyOf: [{ type: 'number' }, { type: 'string' }] }),
-        maxItems: 0,
+        minItems: 2,
       },
-      expected: [],
+      expected: [1, 1],
     },
     {
       name: 'object allOf items',
@@ -114,6 +114,38 @@ describe('getExampleFromSchema', () => {
       expect(getExampleFromSchema({ type: 'array', ...schema })).toStrictEqual(expected)
     },
   )
+
+  it('keeps outer bounds when selecting a tuple inferred from prefixes', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      maxItems: 0,
+      anyOf: [{ prefixItems: [{ type: 'number' }], maxItems: 1 }],
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([])
+  })
+
+  it('keeps outer bounds when selecting an array inside items', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: { type: 'number' },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
+  it('keeps outer uniqueness when selecting an array branch', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: { type: 'number' },
+      minItems: 2,
+      uniqueItems: true,
+      anyOf: [{ type: 'array', uniqueItems: false }],
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+  })
 
   it('retains the tuple prefix when tail items are omitted in write mode', () => {
     const schema: SchemaObject = {
