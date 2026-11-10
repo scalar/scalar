@@ -22,6 +22,7 @@ import { unpackProxyShallow } from './unpack-proxy'
 export const isOpenApiThreeZero = (version: unknown): version is string =>
   typeof version === 'string' && version.startsWith('3.0')
 
+const schemaArrayKeywords = new Set(['allOf', 'anyOf', 'oneOf', 'prefixItems'])
 const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
 const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
   versionHeaders.find((key) => typeof data[key] === 'string')
@@ -113,10 +114,14 @@ export const upgradeLoaders = (
   const resolvedReferences = new WeakMap<object, () => unknown>()
   const isReferencePath = (path: readonly string[]): boolean =>
     isReferenceContext(
-      path.reduce<Parameters<typeof childReferenceContext>[0]>(
-        (context, key) => childReferenceContext(context, key, false),
-        'object',
-      ),
+      path.reduce<Parameters<typeof childReferenceContext>[0]>((context, key, index) => {
+        // Composition arrays inherit the schema context at each index.
+        const parent = path[index - 1]
+        if (context === 'schema' && parent && schemaArrayKeywords.has(parent) && /^\d+$/.test(key)) {
+          return context
+        }
+        return childReferenceContext(context, key, false)
+      }, 'object'),
     )
   const rememberBundledReference = (node: Record<string, unknown>): void => {
     if (!bundleRoot || typeof node.$ref !== 'string' || !node.$ref.startsWith('#/x-ext/')) {

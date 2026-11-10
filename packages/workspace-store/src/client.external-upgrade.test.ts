@@ -128,6 +128,28 @@ describe('client.external-upgrade', () => {
     expect(loads).toStrictEqual([url])
   })
 
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)('upgrades a bare schema referenced from %s', async (keyword) => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response('{"type":"string","nullable":true}')),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        components: {
+          schemas: { Wrapper: { [keyword]: [{ $ref: 'https://example.test/schema.json' }] } },
+        },
+      },
+    })
+
+    const wrapper = getResolvedRef(getActiveOpenApiDocument(store)?.components?.schemas?.Wrapper)
+    assert(wrapper && keyword in wrapper)
+    const arms = wrapper[keyword]
+    assert(Array.isArray(arms))
+    expect(getResolvedRef(arms[0])).toStrictEqual({ type: ['string', 'null'] })
+  })
+
   it('upgrades a shared schema map whose names resemble document fields', async () => {
     const store = createWorkspaceStore()
     const data = {
