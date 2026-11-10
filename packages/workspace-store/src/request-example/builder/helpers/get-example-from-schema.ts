@@ -141,7 +141,7 @@ let generatedCurrentTime = false
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 })
+const getSchemaCacheTarget = (schema: object): object => unpackProxyObject(schema, { depth: 1 })
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -848,7 +848,7 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
-/** Bound the serialized expansion from padding nested arrays, including repeated references. */
+/** Bound padding per array, counting repeated values by their serialized size; not a global output limit. */
 const MAX_ARRAY_PADDING_NODES = 1_000
 
 const countExampleNodes = (value: unknown, limit: number): number => {
@@ -874,6 +874,33 @@ const readArrayLengthBound = (value: unknown, fallback: number): number =>
 const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
   !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
 
+/** Apply the same explicit-type and inference precedence at either union selection site. */
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
+  (variant && 'type' in variant ? variant.type : undefined) ??
+  ('type' in holder ? holder.type : undefined) ??
+  (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+
+/** These keywords describe values without restricting which values the schema accepts. */
+const ITEM_ANNOTATIONS = new Set([
+  '$ref',
+  '$id',
+  '$schema',
+  '$anchor',
+  '$comment',
+  '$defs',
+  'definitions',
+  'title',
+  'description',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  'examples',
+  'default',
+  'example',
+  'xml',
+  'externalDocs',
+])
+
 /** Keep constraints from the surrounding array when selecting a composition branch. */
 const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
   const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
@@ -883,14 +910,21 @@ const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArra
     delete merged.properties
   }
   if (isArray) {
-    if ('minItems' in merged && 'minItems' in schema) {
-      merged.minItems = Math.max(readArrayLengthBound(schema.minItems, 0), readArrayLengthBound(merged.minItems, 0))
+    if ('minItems' in schema) {
+      Object.assign(merged, {
+        minItems: Math.max(
+          readArrayLengthBound(schema.minItems, 0),
+          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+        ),
+      })
     }
-    if ('maxItems' in merged && 'maxItems' in schema) {
-      merged.maxItems = Math.min(
-        readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
-        readArrayLengthBound(merged.maxItems, Number.POSITIVE_INFINITY),
-      )
+    if ('maxItems' in schema) {
+      Object.assign(merged, {
+        maxItems: Math.min(
+          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+        ),
+      })
     }
     if ('uniqueItems' in schema && schema.uniqueItems) {
       Object.assign(merged, { uniqueItems: true })
@@ -973,7 +1007,8 @@ const handleArraySchema = (
       values.push(wrapItems ? { [itemsXmlTagName]: example } : example)
     }
 
-    // Repeating the same value cannot satisfy uniqueItems.
+    // Intentionally leave minItems unsatisfied for uniqueItems: repeating a sample violates
+    // uniqueness, and inventing distinct values can violate enum, bounds, or other constraints.
     if (sample !== undefined && values.length < minItems && !('uniqueItems' in schema && schema.uniqueItems)) {
       const value = wrapItems ? { [itemsXmlTagName]: sample } : sample
       const remaining = MAX_ARRAY_PADDING_NODES - countExampleNodes(values, MAX_ARRAY_PADDING_NODES)
@@ -1032,12 +1067,16 @@ const handleArraySchema = (
         getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
+      const selectedTarget = getResolvedRef(selected)
       const variant = resolve.schema(selected)
-      const selectedType =
-        (variant && 'type' in variant ? variant.type : undefined) ??
-        ('type' in items ? items.type : undefined) ??
-        (variant && inferArrayType(variant)) ??
-        inferArrayType(items)
+      // Merging creates a new identity, so check the original branch before losing its cycle marker.
+      if (
+        (selectedTarget && typeof selectedTarget === 'object' && itemsSeen.has(getSchemaCacheTarget(selectedTarget))) ||
+        (variant && itemsSeen.has(getSchemaCacheTarget(variant)))
+      ) {
+        return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
+      }
+      const selectedType = getSelectedType(variant, items)
       const ex = getExampleFromSchema(
         variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
@@ -1083,7 +1122,21 @@ const handleArraySchema = (
   const unrestricted =
     itemSchema === undefined ||
     target === true ||
-    (target !== undefined && items && Object.keys(items).every((key) => key === '$ref'))
+    (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
+  // The strict model does not yet expose contains, but runtime 3.1+ descriptions can provide it.
+  const contains =
+    'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
+      ? resolve.schema(schema.contains as SchemaObject)
+      : undefined
+  if (unrestricted && contains) {
+    const sample = getExampleFromSchema(contains, options, {
+      level: level + 1,
+      schemaPath: [...schemaPath, 'contains'],
+      seen: itemsSeen,
+      dynamicScope: childScope,
+    })
+    return completeArrayExample(sample === undefined ? [] : [sample])
+  }
   return completeArrayExample([], unrestricted ? null : undefined)
 }
 
@@ -1856,13 +1909,12 @@ const generateExampleFromSchema = (
   const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
-    const rootType = 'type' in _schema ? _schema.type : undefined
-    const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
-    const selectedType =
-      variantType ??
-      rootType ??
-      (hasUnencodedJsonContent(_schema) ? 'string' : (inferArrayType(selectedVariant) ?? inferArrayType(_schema)))
+    const selectedType = getSelectedType(selectedVariant, _schema)
     if (selectedType !== undefined && selectedType !== 'object') {
+      if (seen.has(getSchemaCacheTarget(selectedVariant))) {
+        seen.delete(targetValue)
+        return undefined
+      }
       const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
       // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
@@ -2027,7 +2079,10 @@ const asBinaryFile = (
   return value
 }
 
-/** Generate data, optionally retaining the exact schema decisions for another output format. */
+/**
+ * Generate data, optionally retaining the exact schema decisions for another output format.
+ * Treat returned values as read-only: cached results and padded items can share object references.
+ */
 export const getExampleFromSchema = (
   schema: SchemaObject,
   options?: GetExampleFromSchemaOptions,

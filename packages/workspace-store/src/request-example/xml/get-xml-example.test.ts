@@ -9,6 +9,19 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('pads array items through XML serialization', () => {
+    const input: SchemaObject = {
+      type: 'array',
+      items: { type: 'number', xml: { name: 'coordinate' } },
+      minItems: 2,
+      xml: { name: 'coordinates', wrapped: true },
+    }
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<coordinates><coordinate>1</coordinate><coordinate>1</coordinate></coordinates>',
+      diagnostics: [],
+    })
+  })
+
   it.each([
     {
       xml: { nodeType: 'element', name: 'wrapper', namespace: 'relative' },

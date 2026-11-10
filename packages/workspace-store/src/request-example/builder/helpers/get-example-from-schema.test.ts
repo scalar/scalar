@@ -9,6 +9,27 @@ import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
   it.each([
+    {
+      minItems: 2,
+      maxItems: 2,
+      expected: [
+        { id: 1, active: true },
+        { id: 1, active: true },
+      ],
+    },
+    { minItems: 0, maxItems: 1, expected: [{ id: 1, active: true }] },
+  ])('applies bounds after merging untyped allOf items: $minItems/$maxItems', ({ minItems, maxItems, expected }) => {
+    // Runtime schemas can omit type even though the strict model requires it.
+    const schema = {
+      type: 'array',
+      minItems,
+      maxItems,
+      items: { allOf: [{ properties: { id: { type: 'number' } } }, { properties: { active: { type: 'boolean' } } }] },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
+  it.each([
     { name: 'numeric items', schema: { items: { type: 'number' }, minItems: 2, maxItems: 2 }, expected: [1, 1] },
     { name: 'zero maximum', schema: { items: { type: 'number' }, maxItems: 0 }, expected: [] },
     {
@@ -102,6 +123,11 @@ describe('getExampleFromSchema', () => {
     },
     { name: 'omitted items', schema: { minItems: 2 }, expected: [null, null] },
     {
+      name: 'annotation-only items',
+      schema: { items: { description: 'Any', title: 'Any value' } as SchemaObject, minItems: 2 },
+      expected: [null, null],
+    },
+    {
       name: 'empty item schema',
       schema: { items: {} as SchemaObject, minItems: 2 },
       expected: [null, null],
@@ -121,6 +147,24 @@ describe('getExampleFromSchema', () => {
       anyOf: [{ prefixItems: [{ type: 'number' }], maxItems: 1 }],
     })
     expect(getExampleFromSchema(schema)).toStrictEqual([])
+  })
+
+  it('uses contains as the padding sample when items are unrestricted', () => {
+    const schema = {
+      type: 'array',
+      contains: { type: 'string', const: 'match' },
+      minItems: 2,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(['match', 'match'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('stops recursive array items selected through %s', (keyword) => {
+    const tree: SchemaObject = { type: 'array' }
+    tree.items = {
+      [keyword]: [{ $ref: '#/$defs/Tree', '$ref-value': tree }, { type: 'string' }],
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
   })
 
   it('keeps outer bounds when selecting an array inside items', () => {
