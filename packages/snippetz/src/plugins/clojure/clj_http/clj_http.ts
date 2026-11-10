@@ -173,12 +173,8 @@ export const clojureCljhttp: Plugin = {
         break
       }
       case 'application/x-www-form-urlencoded': {
-        params['form-params'] = (postData.params ?? []).reduce<Record<string, string>>((accumulator, param) => {
-          if (param.name && param.value !== undefined) {
-            accumulator[param.name] = param.value
-          }
-          return accumulator
-        }, {})
+        // clj-http accepts pairs, preserving repeated names and their positions relative to other fields.
+        params['form-params'] = (postData.params ?? []).map(({ name, value }) => [name, value ?? ''])
         deleteHeader(headers, 'content-type')
         break
       }

@@ -1,7 +1,7 @@
 import type { Plugin } from '@scalar/types/snippetz'
 
 import { prepareBrowserCookies } from '@/libs/browser-request'
-import { buildFormData, formDataHeaders } from '@/libs/form-data'
+import { buildFormData, formDataHeaders, urlSearchParams } from '@/libs/form-data'
 import { normalizeMethod, reduceQueryParams } from '@/libs/http'
 import { Raw, formatSetup, objectToString } from '@/libs/javascript'
 
@@ -60,6 +60,11 @@ export const jsOfetch: Plugin = {
       if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         prefix = `${buildFormData(normalizedRequest.postData.params, 'js').join('\n')}\n\n`
         options.body = new Raw('formData')
+      } else if (
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.params
+      ) {
+        options.body = new Raw(urlSearchParams(normalizedRequest.postData.params))
       } else {
         options.body = normalizedRequest.postData.text
       }

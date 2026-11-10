@@ -132,7 +132,7 @@ export const phpCurl: Plugin = {
             return `${encodedName}=${encodedValue}`
           })
           .join('&')
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(formData)});`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, ${objectToString(normalizedRequest.postData.text || '')});`)
       } else if (normalizedRequest.postData.text) {
