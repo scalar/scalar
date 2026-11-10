@@ -12,6 +12,49 @@ const upgradeTargets = [
 ] as const
 
 describe('upgrade', () => {
+  it.each(upgradeTargets)(
+    'requires converted discriminator properties when upgrading to %s',
+    (_target, upgradeDocument) => {
+      for (const propertyName of ['petType', '']) {
+        for (const required of [undefined, [], ['name'], [propertyName]]) {
+          const schema = {
+            type: 'object',
+            discriminator: propertyName,
+            properties: { [propertyName]: { type: 'string' }, name: { type: 'string' } },
+            ...(required === undefined ? {} : { required }),
+          }
+          const input = {
+            swagger: '2.0',
+            info: { title: 'Pets', version: '1' },
+            paths: {},
+            definitions: { Pet: schema },
+          }
+          expect(upgradeDocument(structuredClone(input)).components?.schemas?.Pet).toStrictEqual({
+            ...schema,
+            discriminator: { propertyName },
+            required: required?.includes(propertyName) ? required : [...(required ?? []), propertyName],
+          })
+        }
+      }
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'preserves invalid non-string discriminators when upgrading to %s',
+    (_target, upgradeDocument) => {
+      for (const discriminator of [null, false, 42, []]) {
+        const schema = { type: 'object', discriminator }
+        const document = upgradeDocument({
+          swagger: '2.0',
+          info: { title: 'Pets', version: '1' },
+          paths: {},
+          definitions: { Pet: schema },
+        })
+        expect(document.components?.schemas?.Pet).toStrictEqual(schema)
+      }
+    },
+  )
+
   it.each(upgradeTargets)('converts Swagger discriminators when upgrading to %s', (_target, upgradeDocument) => {
     const pet = {
       type: 'object',

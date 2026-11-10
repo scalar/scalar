@@ -658,7 +658,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
 /**
  * Converts Swagger discriminator and nullability fields to their OpenAPI 3.0 forms.
- * Visit only subschemas so example/default values and custom extensions remain user data.
+ * Visit only OpenAPI 2.0 subschema keywords so example/default values and custom extensions remain user data.
  */
 const migrateSchema = (schema: unknown): void => {
   if (!isObjectLike(schema)) {
@@ -666,7 +666,14 @@ const migrateSchema = (schema: unknown): void => {
   }
 
   if (typeof schema.discriminator === 'string') {
-    schema.discriminator = { propertyName: schema.discriminator }
+    const propertyName = schema.discriminator
+    schema.discriminator = { propertyName }
+    // OpenAPI 2.0 requires the discriminating property, including an empty property name.
+    if (schema.required === undefined) {
+      schema.required = [propertyName]
+    } else if (Array.isArray(schema.required) && !schema.required.includes(propertyName)) {
+      schema.required.push(propertyName)
+    }
   }
 
   if (typeof schema['x-nullable'] === 'boolean') {
