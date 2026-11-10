@@ -18,6 +18,8 @@ const ANNOTATION_KEYWORDS = new Set([
   'writeOnly',
 ])
 
+type RecordRelocation = (from: string[], to: string[]) => void
+
 /**
  * Determine if the node at `path` is one arm of a `oneOf` or `anyOf`.
  *
@@ -55,8 +57,11 @@ function isNullableOnly(schema: UnknownObject): boolean {
  * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
+ *
+ * @param recordRelocation - Receives moved paths in the original document's coordinates,
+ * so callers resolving authored pointers can follow moved subtrees.
  */
-export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
+export function upgradeFromThreeToThreeOne(originalContent: UnknownObject, recordRelocation?: RecordRelocation) {
   let content = originalContent
 
   // Version check - early return if not 3.0.x
@@ -67,12 +72,12 @@ export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
   content.openapi = '3.1.1'
 
   // Single traversal that handles all transformations
-  content = traverse(content, applyChangesToDocument)
+  content = traverse(content, (node, path) => applyChangesToDocument(node, path ?? [], recordRelocation))
 
   return content as OpenAPIV3_1.Document
 }
 
-const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
+const applyChangesToDocument = (schema: UnknownObject, path: string[], recordRelocation?: RecordRelocation) => {
   // 0. Bail out inside data values (example, default, const, enum). These hold user data, not a
   // schema, so none of the schema transforms below apply and running them would corrupt the data.
   if (isInsideDataValue(path, '3.0')) {
@@ -98,6 +103,11 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
     if (Array.isArray(schema.allOf)) {
       const { nullable: _nullable, allOf, ...rest } = schema
       // A single-member `allOf` unwraps so the union reads `anyOf: [<member>, { type: 'null' }]`.
+      if (allOf.length === 1) {
+        recordRelocation?.([...path, 'allOf', '0'], [...path, 'anyOf', '0'])
+      } else {
+        recordRelocation?.([...path, 'allOf'], [...path, 'anyOf', '0', 'allOf'])
+      }
       const base = allOf.length === 1 ? allOf[0] : { allOf }
       return { ...rest, anyOf: [base, { type: 'null' }] }
     }
@@ -145,12 +155,14 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   if (schema.example !== undefined && !isInsideExamplesMap && !isNamedSchemaMap(path)) {
     if (isSchemaPath(path)) {
       schema.examples = [schema.example]
+      recordRelocation?.([...path, 'example'], [...path, 'examples', '0'])
     } else {
       schema.examples = {
         default: {
           value: schema.example,
         },
       }
+      recordRelocation?.([...path, 'example'], [...path, 'examples', 'default', 'value'])
     }
 
     delete schema.example
@@ -183,9 +195,10 @@ const applyChangesToDocument = (schema: UnknownObject, path?: string[]) => {
   // 5. Handle x-webhooks
   // `x-webhooks` is a document-root extension, so only rename it there. Anywhere else (a schema
   // property, an example) a key named `x-webhooks` is unrelated and must be left alone.
-  if (schema['x-webhooks'] !== undefined && (path === undefined || path.length === 0)) {
+  if (schema['x-webhooks'] !== undefined && path.length === 0) {
     schema.webhooks = schema['x-webhooks']
     delete schema['x-webhooks']
+    recordRelocation?.(['x-webhooks'], ['webhooks'])
   }
 
   return schema

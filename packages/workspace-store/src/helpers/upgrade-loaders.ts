@@ -11,19 +11,43 @@ import {
   resolveReferencePath,
 } from '@scalar/json-magic/bundle'
 import { upgrade } from '@scalar/openapi-upgrader'
+import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 import { deepClone } from './deep-clone'
+import { unpackProxyShallow } from './unpack-proxy'
 
 const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
 
+const versionHeaders = ['swagger', 'asyncapi', 'openapi'] as const
+const getVersionHeader = (data: Record<string, unknown>): (typeof versionHeaders)[number] | undefined =>
+  versionHeaders.find((key) => typeof data[key] === 'string')
+
+type RecordRelocation = (from: string[], to: string[]) => void
+type RemapPointer = (pointer: readonly string[]) => readonly string[]
+
+// A lazy bundle can reuse files loaded by an earlier call. Use raw object identity because
+// the client can expose those same nodes through proxies after they enter the workspace.
+const fragments = new WeakSet<object>()
+const convertedNodes = new WeakSet<object>()
+const deferredReferences = new WeakMap<object, () => unknown>()
+const pointerRemaps = new WeakMap<object, RemapPointer>()
+
 /** Upgrade versioned documents immediately, and headerless files only at their referring OpenAPI location. */
-export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown, path?: readonly string[]): unknown => {
-  if (!isObject(data) || typeof data.swagger === 'string' || typeof data.asyncapi === 'string') {
+export const upgradeLoadedDocument = (
+  data: unknown,
+  entryVersion: unknown,
+  path?: readonly string[],
+  recordRelocation?: RecordRelocation,
+): unknown => {
+  if (!isObject(data)) {
     return data
   }
 
-  if (typeof data.openapi === 'string') {
-    return isThreeZero(data.openapi) ? upgrade({ ...data }, '3.1') : data
+  const versionHeader = getVersionHeader(data)
+  if (versionHeader) {
+    return versionHeader === 'openapi' && isThreeZero(data.openapi)
+      ? upgradeFromThreeToThreeOne({ ...data }, recordRelocation)
+      : data
   }
 
   if (!isThreeZero(entryVersion)) {
@@ -60,27 +84,35 @@ export const upgradeLoaders = (
   entryVersion: unknown,
   basePath: readonly string[] = [],
 ): Plugin[] => {
-  const fragments = new WeakSet<object>()
   const paths = new WeakMap<object, readonly string[]>()
-  const convertedNodes = new WeakSet<object>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
   const indexNodes = (value: unknown, path?: readonly string[]): void => {
-    if (value === null || typeof value !== 'object' || paths.has(value) || (!path && fragments.has(value))) {
+    if (value === null || typeof value !== 'object') {
+      return
+    }
+    const raw = unpackProxyShallow(value)
+    if (paths.has(raw) || (!path && fragments.has(raw))) {
       return
     }
     if (path) {
-      paths.set(value, path)
-      upgradeTarget(resolvedReferences.get(value)?.(), path)
+      paths.set(raw, path)
+      const resolve = resolvedReferences.get(raw) ?? deferredReferences.get(raw)
+      deferredReferences.delete(raw)
+      upgradeTarget(resolve?.(), path)
     } else {
-      fragments.add(value)
+      fragments.add(raw)
     }
     for (const [key, child] of Object.entries(value)) {
       indexNodes(child, path ? [...path, key] : undefined)
     }
   }
   const upgradeTarget = (target: unknown, path: readonly string[]): void => {
-    if (!isObject(target) || !fragments.has(target) || paths.has(target)) {
+    if (!isObject(target)) {
+      return
+    }
+    const raw = unpackProxyShallow(target)
+    if (!fragments.has(raw) || paths.has(raw) || convertedNodes.has(raw)) {
       return
     }
     // Mark the path before following cached edges so cyclic references terminate. Walk the existing
@@ -97,7 +129,7 @@ export const upgradeLoaders = (
         return
       }
       visited.add(value)
-      if (convertedNodes.has(value)) {
+      if (convertedNodes.has(unpackProxyShallow(value))) {
         const token = Symbol()
         replacements.set(token, value)
         cloneCache.set(value, token)
@@ -134,7 +166,7 @@ export const upgradeLoaders = (
       delete target[key]
     }
     Object.assign(target, upgraded)
-    convertedNodes.add(target)
+    convertedNodes.add(raw)
     for (const [key, child] of Object.entries(target)) {
       indexNodes(child, [...path, key])
     }
@@ -153,14 +185,25 @@ export const upgradeLoaders = (
             return result
           }
           const input = deepClone(result.data)
-          const data = upgradeLoadedDocument(input, entryVersion)
-          const isFragment =
-            isThreeZero(entryVersion) &&
-            isObject(data) &&
-            data === input &&
-            typeof data.openapi !== 'string' &&
-            typeof data.swagger !== 'string' &&
-            typeof data.asyncapi !== 'string'
+          const relocations = new Map<string, string[]>()
+          const data = upgradeLoadedDocument(input, entryVersion, undefined, (from, to) => {
+            relocations.set(JSON.stringify(from), to)
+          })
+          if (isObject(data) && relocations.size) {
+            pointerRemaps.set(data, (pointer) => {
+              let remapped = pointer
+              // The upgrader visits children first. Apply moves in that order so a
+              // pointer below two moved ancestors follows both of them.
+              for (let length = pointer.length; length > 0; length--) {
+                const destination = relocations.get(JSON.stringify(pointer.slice(0, length)))
+                if (destination) {
+                  remapped = [...destination, ...remapped.slice(length)]
+                }
+              }
+              return remapped
+            })
+          }
+          const isFragment = isThreeZero(entryVersion) && isObject(data) && !getVersionHeader(data)
           indexNodes(data, isFragment ? undefined : [])
           return { ...result, data }
         })
@@ -174,12 +217,16 @@ export const upgradeLoaders = (
     ...wrapped,
     {
       type: 'lifecycle',
+      resolveDocument: (document, retrievalUri) => {
+        const remapPointer = isObject(document) ? pointerRemaps.get(unpackProxyShallow(document)) : undefined
+        return remapPointer ? { baseUri: retrievalUri, remapPointer } : undefined
+      },
       onBeforeNodeProcess: async (node, context): Promise<void> => {
         if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
           return
         }
         const reference = node.$ref
-        const path = paths.get(node) ?? [...basePath, ...context.path]
+        const path = paths.get(unpackProxyShallow(node)) ?? [...basePath, ...context.path]
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
         if (path[0] === 'x-ext') {
           return
@@ -213,10 +260,13 @@ export const upgradeLoaders = (
         }
         const reference = node.$ref
         const resolve = (): unknown => context.resolveReference(reference)?.value
-        resolvedReferences.set(node, resolve)
-        const path = paths.get(node) ?? [...basePath, ...context.path]
+        const raw = unpackProxyShallow(node)
+        resolvedReferences.set(raw, resolve)
+        const path = paths.get(raw) ?? [...basePath, ...context.path]
         if (path[0] !== 'x-ext') {
           upgradeTarget(resolve(), path)
+        } else if (fragments.has(raw)) {
+          deferredReferences.set(raw, resolve)
         }
       },
     },

@@ -25,6 +25,52 @@ describe('upgrade-loaders', () => {
     expect(input.openapi).toBe('3.0.3')
   })
 
+  it('resolves external and local pointers to schemas moved during a complete document upgrade', async () => {
+    const url = 'https://example.test/external.json'
+    const pointer = '#/components/schemas/Parent/allOf/0/allOf/1'
+    const data = {
+      openapi: '3.0.3',
+      info: { title: 'External', version: '1' },
+      paths: {},
+      components: {
+        schemas: {
+          Parent: {
+            nullable: true,
+            allOf: [{ nullable: true, allOf: [{ type: 'object' }, { type: 'string', nullable: true }] }],
+          },
+          Alias: { $ref: pointer },
+        },
+      },
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: (uri) => uri === url,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: { Direct: { $ref: url + pointer }, Indirect: { $ref: url + '#/components/schemas/Alias' } },
+      },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.1.1') })
+
+    const resolve = (reference: string): unknown =>
+      getValueAtPath(document, parseJsonPointerSegments(reference.slice(1)))
+    const direct = resolve(document.components.schemas.Direct.$ref)
+    const alias = resolve(document.components.schemas.Indirect.$ref) as { $ref: string }
+    expect(direct).toStrictEqual({ type: ['string', 'null'] })
+    expect(resolve(alias.$ref)).toBe(direct)
+
+    const standalone = (await bundle(url, {
+      treeShake: false,
+      plugins: upgradeLoaders([loader], '3.0.3'),
+    })) as typeof data
+    const standalonePointer = standalone.components.schemas.Alias.$ref
+    expect(getValueAtPath(standalone, parseJsonPointerSegments(standalonePointer.slice(1)))).toStrictEqual(direct)
+  })
+
   it('leaves OpenAPI 3.1 and 3.2 documents alone', () => {
     const input = { openapi: '3.1.0', components: { schemas: { Item: { type: 'string', nullable: true } } } }
 
