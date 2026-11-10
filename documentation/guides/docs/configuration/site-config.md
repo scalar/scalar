@@ -282,6 +282,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
 | `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
+| `tocLayout`   | `"default" \| "condensed"` | `"default"` | How the table of contents is laid out. See [Table of contents layout](#table-of-contents-layout) |
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |
@@ -290,6 +291,29 @@ The `layout` property controls global layout options that apply to all pages unl
 | `feedback`    | `boolean` | `false`  | Whether to ask readers if each page was helpful, between the last updated date and the previous and next links. See [Page feedback](#page-feedback) |
 | `search`      | `object`  | —        | Search bar configuration                       |
 | `colorSchemeToggle` | `"sidebar" \| "header" \| "tabs" \| false` | `"sidebar"` | Where to show the light/dark toggle. See [Where the Toggle Appears](#where-the-toggle-appears) |
+
+### Table of contents layout
+
+By default the table of contents is a column of headings beside the page. Set `tocLayout` to `"condensed"` to swap the column for a small stack of lines at the right edge of the page, one line per heading. The reading column keeps the full width of the page.
+
+```json
+// scalar.config.json
+{
+  "$schema": "https://registry.scalar.com/@scalar/schemas/config",
+  "scalar": "2.0.0",
+  "siteConfig": {
+    "layout": {
+      "tocLayout": "condensed"
+    }
+  }
+}
+```
+
+- Deeper headings draw shorter lines, all lined up on the right, so headings at the same level line up and nested headings sit under their parent. The line of the section the reader is in is highlighted.
+- The stack stays in view as the page scrolls. Click it, or focus it and press Enter, to open the list of headings beside it. Choosing a heading scrolls to it and closes the list; so do Escape and a click anywhere else.
+- Like the column, it is hidden on screens 1000px wide and narrower.
+
+`tocLayout` has no effect where `toc` is `false`. To condense a single page, or keep the column on one page of a condensed site, set it in that page's [layout options](navigation.md#layout-options).
 
 ### Last updated date
 
