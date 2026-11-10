@@ -71,6 +71,26 @@ info:
     expect(removeSpy).toHaveBeenCalled()
   })
 
+  it('converts YAML whose merges exceed the old alias limit of 10,000 to JSON', async () => {
+    // `headers` is referenced ten times (nine `use` keys and `params`), so its count is 11 and every
+    // merge of `base` costs 11. With yaml 2.9.1, 1,000 merges need a `maxAliasCount` of 11,011.
+    const yamlContent = [
+      'headers: &headers',
+      '  accept: application/json',
+      ...Array.from({ length: 9 }, (_, index) => `use${index}: *headers`),
+      'base: &base',
+      '  type: aws',
+      '  params: *headers',
+      ...Array.from({ length: 1000 }, (_, index) => `item${index}:\n  <<: *base\n  title: item${index}`),
+    ].join('\n')
+
+    await downloadDocument(yamlContent, 'merges', 'json')
+
+    const blobArg = createObjectURLSpy.mock.calls[0]![0] as Blob
+    const body = JSON.parse(String(await readBlobBody(blobArg)))
+    expect(body.item999).toMatchObject({ type: 'aws', params: { accept: 'application/json' }, title: 'item999' })
+  })
+
   it('downloads YAML when format is explicitly set to yaml', async () => {
     const jsonContent = JSON.stringify({
       openapi: '3.0.0',
