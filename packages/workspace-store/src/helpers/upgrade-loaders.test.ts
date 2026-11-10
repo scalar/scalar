@@ -33,10 +33,14 @@ describe('upgrade-loaders', () => {
     const url = 'https://example.test/shared.json'
     const data = { Parent: { nullable: true, allOf: [{ type: 'string' }] } }
     const refs = { Child: `${url}#/Parent/allOf/0`, Parent: `${url}#/Parent` }
+    const literal = { $ref: '#/x-ext/shared/Parent/allOf/0' }
     const document = {
       openapi: '3.1.1',
       components: {
-        schemas: Object.fromEntries([first, second].map((name) => [name, { $ref: refs[name as keyof typeof refs] }])),
+        schemas: {
+          ...Object.fromEntries([first, second].map((name) => [name, { $ref: refs[name as keyof typeof refs] }])),
+          Literal: { examples: [{ ...literal }] },
+        },
       },
     }
     const loader: LoaderPlugin = {
@@ -45,10 +49,21 @@ describe('upgrade-loaders', () => {
       exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
     }
 
-    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+    await bundle(document, {
+      treeShake: false,
+      traversal: 'document',
+      compress: () => 'shared',
+      plugins: upgradeLoaders([loader], '3.0.3'),
+    })
 
     const resolve = (name: string): unknown =>
-      getValueAtPath(document, parseJsonPointerSegments(document.components.schemas[name]!.$ref.slice(1)))
+      getValueAtPath(
+        document,
+        parseJsonPointerSegments(
+          getValueAtPath<{ $ref: string }>(document, ['components', 'schemas', name]).$ref.slice(1),
+        ),
+      )
+    expect(document.components.schemas.Literal.examples).toStrictEqual([literal])
     expect(resolve('Child')).toStrictEqual({ type: 'string' })
     expect(getValueAtPath(resolve('Parent'), ['anyOf', '0'])).toBe(resolve('Child'))
   })

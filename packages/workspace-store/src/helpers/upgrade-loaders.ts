@@ -1,3 +1,4 @@
+import { escapeJsonPointer } from '@scalar/helpers/json/escape-json-pointer'
 import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { getValueAtPath } from '@scalar/helpers/object/get-value-at-path'
 import { isObject } from '@scalar/helpers/object/is-object'
@@ -32,6 +33,7 @@ const deferredReferences = new WeakMap<object, () => unknown>()
 const pointerRemaps = new WeakMap<object, RemapPointer>()
 const fragmentLocations = new WeakMap<object, { document: object; path: string[] }>()
 const fragmentMoves = new WeakMap<object, Map<string, string[]>>()
+const bundledReferences = new WeakMap<object, Set<Record<string, unknown>>>()
 
 const remap = (pointer: readonly string[], moves: Map<string, string[]>): readonly string[] => {
   let remapped = pointer
@@ -183,6 +185,31 @@ export const upgradeLoaders = (
       return value
     }
     restoreConverted(upgraded)
+    const references = bundleRoot && bundledReferences.get(unpackProxyShallow(bundleRoot))
+    if (references?.size) {
+      const visited = new WeakSet<object>()
+      const transfer = (value: unknown, path: string[]): void => {
+        if (typeof value !== 'object' || value === null || visited.has(value)) {
+          return
+        }
+        visited.add(value)
+        if (path.length && isObject(value) && references.has(unpackProxyShallow(value))) {
+          const replacement = getValueAtPath(upgraded, [...remap(path, moves)])
+          if (isObject(replacement) && typeof replacement.$ref === 'string') {
+            references.add(unpackProxyShallow(replacement))
+          } else if (isObject(replacement) && Array.isArray(replacement.anyOf)) {
+            const arm = replacement.anyOf[0]
+            if (isObject(arm) && typeof value.$ref === 'string' && arm.$ref === value.$ref) {
+              references.add(unpackProxyShallow(arm))
+            }
+          }
+        }
+        for (const [key, child] of Object.entries(value)) {
+          transfer(child, [...path, key])
+        }
+      }
+      transfer(target, [])
+    }
     for (const key of Object.keys(target)) {
       delete target[key]
     }
@@ -200,31 +227,23 @@ export const upgradeLoaders = (
       const key = isObject(external)
         ? Object.keys(external).find((name) => unpackProxyShallow(external[name]) === location.document)
         : undefined
-      if (key !== undefined) {
+      if (key !== undefined && references) {
         const prefix = ['x-ext', key, ...location.path]
-        const seen = new WeakSet<object>()
-        const rewrite = (value: unknown): void => {
-          if (typeof value !== 'object' || value === null || seen.has(value)) {
-            return
+        for (const node of references) {
+          if (typeof node.$ref !== 'string' || !node.$ref.startsWith('#/x-ext/')) {
+            continue
           }
-          seen.add(value)
-          if (isObject(value) && typeof value.$ref === 'string' && value.$ref.startsWith('#/x-ext/')) {
-            const pointer = decodeUriFragment(value.$ref.slice(1)).slice(1).split('/').map(unescapeJsonPointerSegment)
-            if (prefix.every((segment, index) => pointer[index] === segment)) {
-              const relative = pointer.slice(prefix.length)
-              const relocated = remap(relative, moves)
-              if (relative !== relocated) {
-                value.$ref =
-                  '#/' +
-                  [...prefix, ...relocated]
-                    .map((segment) => encodeURIComponent(segment.replaceAll('~', '~0').replaceAll('/', '~1')))
-                    .join('/')
-              }
+          const pointer = decodeUriFragment(node.$ref.slice(1)).slice(1).split('/').map(unescapeJsonPointerSegment)
+          if (prefix.every((segment, index) => pointer[index] === segment)) {
+            const relative = pointer.slice(prefix.length)
+            const relocated = remap(relative, moves)
+            if (relative !== relocated) {
+              node.$ref =
+                '#/' +
+                [...prefix, ...relocated].map((segment) => encodeURIComponent(escapeJsonPointer(segment))).join('/')
             }
           }
-          Object.values(value).forEach(rewrite)
         }
-        rewrite(bundleRoot)
       }
     }
     for (const [key, child] of Object.entries(target)) {
@@ -328,6 +347,15 @@ export const upgradeLoaders = (
         const reference = node.$ref
         const resolve = (): unknown => context.resolveReference(reference)?.value
         const raw = unpackProxyShallow(node)
+        if (reference.startsWith('#/x-ext/')) {
+          const root = unpackProxyShallow(context.rootNode)
+          let references = bundledReferences.get(root)
+          if (!references) {
+            references = new Set()
+            bundledReferences.set(root, references)
+          }
+          references.add(raw)
+        }
         resolvedReferences.set(raw, resolve)
         const path = paths.get(raw) ?? [...basePath, ...context.path]
         if (path[0] !== 'x-ext') {

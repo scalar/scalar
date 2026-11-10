@@ -61,7 +61,10 @@ function isNullableOnly(schema: UnknownObject): boolean {
  * @param recordRelocation - Receives moved paths in the original document's coordinates,
  * so callers resolving authored pointers can follow moved subtrees.
  */
-export function upgradeFromThreeToThreeOne(originalContent: UnknownObject, recordRelocation?: RecordRelocation) {
+export function upgradeFromThreeToThreeOne(
+  originalContent: UnknownObject,
+  recordRelocation?: RecordRelocation,
+): UnknownObject {
   let content = originalContent
 
   // Version check - early return if not 3.0.x
