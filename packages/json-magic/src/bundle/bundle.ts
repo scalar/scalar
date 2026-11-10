@@ -1020,7 +1020,8 @@ export const bundleDocument = async (
           traversal.register(local.document, source ?? location.source, location.context, targetPath)
           references.refresh(local.document, targetPath)
         }
-        if (isPartialBundling || (diagnostics && config.traversal === 'document')) {
+        const visitTarget = references.identity(local.document)?.visitReferencedSubtrees
+        if (visitTarget || isPartialBundling || (diagnostics && config.traversal === 'document')) {
           const segments = parsePath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
@@ -1051,7 +1052,9 @@ export const bundleDocument = async (
         if (local.documentPath.length > 0) {
           const origin =
             isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
-          await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          if (!visitTarget) {
+            await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          }
           if (config.treeShake) {
             const [key, documentKey] = local.documentPath
             copyReferences(
@@ -1132,16 +1135,18 @@ export const bundleDocument = async (
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(
-            result.data,
-            isChunk ? origin : resolvedPath,
-            isChunk,
-            depth + 1,
-            [config.externalDocumentsKey, compressedPath],
-            null,
-            // Keep the referring document path across external hops, replacing the storage wrapper.
-            referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
-          )
+          if (isChunk || !references.identity(result.data)?.visitReferencedSubtrees) {
+            await bundler(
+              result.data,
+              isChunk ? origin : resolvedPath,
+              isChunk,
+              depth + 1,
+              [config.externalDocumentsKey, compressedPath],
+              null,
+              // Keep the referring document path across external hops, replacing the storage wrapper.
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+          }
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -1154,7 +1159,21 @@ export const bundleDocument = async (
 
         const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
         const finishResolution = async (): Promise<void> => {
-          const target = targetReferences.resolve(ref, retrievalOrigin)
+          let target = targetReferences.resolve(ref, retrievalOrigin)
+          if (target && !isChunk && references.identity(target.document)?.visitReferencedSubtrees) {
+            const relative = target.segments.slice(target.documentPath.length)
+            const parent = relative.length > 0 ? getValueByPath(target.document, relative.slice(0, -1)).value : null
+            await bundler(
+              target.value,
+              resolvedPath,
+              false,
+              depth + 1,
+              target.segments,
+              parent,
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+            target = targetReferences.resolve(ref, retrievalOrigin)
+          }
           if (diagnostics && target?.value === undefined) {
             setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
             report('missing-target')

@@ -13,6 +13,8 @@ export type DocumentIdentity = {
   baseUri: string
   /** Translate an authored document pointer when a loader moved its target before registration. */
   remapPointer?: (segments: readonly string[]) => readonly string[]
+  /** Visit only referenced subtrees when the rest of the file has no known object context. */
+  visitReferencedSubtrees?: boolean
   /** Root properties retained on copies embedded in the bundle; never applied to the source document. */
   metadata?: Record<string, unknown>
 }

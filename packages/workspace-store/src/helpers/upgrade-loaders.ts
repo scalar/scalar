@@ -165,7 +165,7 @@ export const upgradeLoaders = (
         (deferred ? getValueAtPath(root, [...remapBundlePath(root, deferred)]) : undefined)
       upgradeTarget(resolved, path, root)
     }
-    for (const [key, child] of Object.entries(value)) {
+    for (const [key, child] of Object.entries(raw)) {
       indexNodes(child, [...path, key], root, alreadyConverted)
     }
   }
@@ -190,7 +190,7 @@ export const upgradeLoaders = (
     // Mark the path before following cached edges so cyclic references terminate. Walk the existing
     // children first: their resolver callbacks would otherwise be lost when the upgrader clones them.
     // Server chunks already use 3.1. Their nested external files still need the authored dialect.
-    indexNodes(target, path, root, isChunk)
+    indexNodes(raw, path, root, isChunk)
     if (isChunk) {
       return
     }
@@ -213,13 +213,14 @@ export const upgradeLoaders = (
       }
       Object.values(value).forEach(protectConverted)
     }
-    protectConverted(target)
-    const input = replacements.size ? deepClone(target, cloneCache) : target
+    // Reading a magic proxy would also copy its virtual `$ref-value` into literal data.
+    protectConverted(raw)
+    const input = replacements.size ? deepClone(raw, cloneCache) : raw
     const upgraded = upgradeLoadedDocument(input, entryVersion, path, (from, to) => {
       fragment.file.relocations.set(JSON.stringify([...fragment.path, ...from]), [...fragment.path, ...to])
       movedFiles.add(fragment.file)
     })
-    if (!isObject(upgraded) || upgraded === target) {
+    if (!isObject(upgraded) || upgraded === raw) {
       return
     }
     const restoreConverted = (value: unknown): unknown => {
@@ -241,7 +242,7 @@ export const upgradeLoaders = (
       return value
     }
     restoreConverted(upgraded)
-    for (const key of Object.keys(target)) {
+    for (const key of Object.keys(raw)) {
       delete target[key]
     }
     Object.assign(target, upgraded)
@@ -299,10 +300,19 @@ export const upgradeLoaders = (
     {
       type: 'lifecycle',
       resolveDocument: (document, retrievalUri) => {
-        const relocations = isObjectLike(document) ? pointerRemaps.get(unpackProxyShallow(document)) : undefined
-        return relocations
-          ? { baseUri: retrievalUri, remapPointer: (pointer) => remapPointer(pointer, relocations) }
-          : undefined
+        if (!isObjectLike(document)) {
+          return undefined
+        }
+        const raw = unpackProxyShallow(document)
+        const relocations = pointerRemaps.get(raw)
+        if (!relocations) {
+          return undefined
+        }
+        return {
+          baseUri: retrievalUri,
+          remapPointer: (pointer) => remapPointer(pointer, relocations),
+          visitReferencedSubtrees: fragments.has(raw),
+        }
       },
       shouldResolveReference: (node, context) => {
         const indexed = paths.get(unpackProxyShallow(node))
@@ -320,9 +330,9 @@ export const upgradeLoaders = (
         }
         const raw = unpackProxyShallow(node)
         const source = context.pathRelativeToInput ? [...basePath, ...context.path] : context.path
-        if (source[0] === 'x-ext' && source.length === 2) {
+        if (source[0] === 'x-ext') {
           const fragment = fragments.get(raw)
-          if (fragment) {
+          if (fragment && fragment.file.key === undefined) {
             fragment.file.key = source[1]
           }
         }
