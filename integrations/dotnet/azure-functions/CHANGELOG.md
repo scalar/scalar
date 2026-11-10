@@ -1,5 +1,31 @@
 # @scalar/azure-functions
 
+## 0.5.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.0
+
+### Minor Changes
+
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+
+## 0.4.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+
+## 0.3.7
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.4
+
 ## 0.3.6
 
 ### Bundled API Reference

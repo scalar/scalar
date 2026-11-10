@@ -6,8 +6,13 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { nextTick, reactive } from 'vue'
 
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
+
 import Message from './Message.vue'
 import MessageExamples from './MessageExamples.vue'
+import SchemaSource from './SchemaSource.vue'
+
+vi.unmock('@/plugins/hooks/usePluginManager')
 
 const MESSAGE_ID = 'doc/channel/userSignedUp/operation/onUserSignedUp/message/userSignedUp'
 
@@ -39,7 +44,72 @@ function createDocument(message: Record<string, unknown>): AsyncApiDocument {
 /** Expand this message's accordion so the body (description, schemas) renders. */
 const expanded = { [MESSAGE_ID]: true }
 
+vi.unmock('@/plugins/hooks/usePluginManager')
+
 describe('Message', () => {
+  it('renders plugin-only extensions without default selection', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        document: createDocument({ 'x-owner': 'team' }),
+        eventBus: null,
+        expandedItems: expanded,
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Custom owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+    expect(wrapper.text()).toContain('Custom owner')
+    expect(wrapper.text()).not.toContain('x-owner:')
+  })
+
+  it('renders referenced trait extensions with overrides and null deletion', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        options: { showExtensions: ['x-array', 'x-own', 'x-null', 'x-removed', 'x-literal'] },
+        document: createDocument({
+          $ref: '#/components/example',
+          'x-own': 'ignored sibling',
+          '$ref-value': {
+            traits: [
+              {
+                $ref: '#/components/traits/common',
+                '$ref-value': {
+                  'x-array': [false, 0, null],
+                  'x-own': 'inherited',
+                  'x-removed': 'remove me',
+                  'x-literal': { $ref: 'literal-data' },
+                },
+              },
+            ],
+            'x-own': 'local-value',
+            'x-null': null,
+            'x-removed': null,
+          },
+        }),
+      },
+    })
+    expect(wrapper.text()).toContain('local-value')
+    expect(wrapper.text()).toContain('literal-data')
+    expect(wrapper.text()).toContain('x-null:null')
+    expect(wrapper.text()).toContain('false')
+    expect(wrapper.text()).not.toContain('ignored sibling')
+    expect(wrapper.text()).not.toContain('inherited')
+    expect(wrapper.text()).not.toContain('x-removed')
+  })
+
   it.each([
     { title: 'Event title', summary: 'Event summary', description: 'Event description', heading: 'Event title' },
     { title: 'Event title', summary: 'Event summary', description: undefined, heading: 'Event title' },
@@ -128,7 +198,40 @@ describe('Message', () => {
     }
   })
 
-  it.each(['payload', 'headers'])('renders referenced non-JSON %s as copyable source', (field) => {
+  it('renders payload extension plugins without a supplied renderer', () => {
+    const wrapper = mount(Message, {
+      props: {
+        message: createMessage(),
+        eventBus: null,
+        expandedItems: expanded,
+        document: createDocument({
+          payload: {
+            type: 'object',
+            properties: { userId: { type: 'string', 'x-owner': 'message-team', 'x-hidden': 'hidden-team' } },
+          },
+        }),
+      },
+      global: {
+        provide: {
+          [PLUGIN_MANAGER_SYMBOL]: createPluginManager({
+            plugins: [
+              () => ({
+                name: 'owner',
+                extensions: [{ name: 'x-owner', component: { render: () => 'Plugin owner' } }],
+              }),
+            ],
+          }),
+        },
+      },
+    })
+
+    expect(wrapper.text()).toContain('Plugin owner')
+    expect(wrapper.text()).not.toContain('message-team')
+    expect(wrapper.text()).not.toContain('hidden-team')
+    wrapper.unmount()
+  })
+
+  it.each(['payload', 'headers'])('renders referenced native %s fields without duplicate source', async (field) => {
     const schema = 'message User { string id = 1; }'
     const format = 'application/vnd.google.protobuf;version=3'
     const wrapper = mount(Message, {
@@ -141,10 +244,37 @@ describe('Message', () => {
         }),
       },
     })
-    expect(wrapper.text()).toContain(format)
-    expect(wrapper.getComponent(ScalarCopy).props('content')).toBe(schema)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('#1'))
+    expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
     expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
     expect(wrapper.find(`[id="${MESSAGE_ID}.${field}"]`).exists()).toBe(true)
+  })
+
+  it.each([
+    [
+      'application/vnd.apache.avro+json;version=1.9.0',
+      { type: 'record', name: 'User', fields: [{ name: 'user_id', type: 'long' }] },
+      'user_id',
+    ],
+    ['application/raml+yaml;version=1.0', { type: 'object', properties: { user_id: 'string' } }, 'required'],
+  ])('renders native payloads and headers for %s', async (format, schema, expected) => {
+    for (const field of ['payload', 'headers']) {
+      const wrapper = mount(Message, {
+        props: {
+          message: createMessage(),
+          eventBus: null,
+          expandedItems: expanded,
+          document: createDocument({
+            [field]: { $ref: '#/components/schemas/User', '$ref-value': { schemaFormat: format, schema } },
+          }),
+        },
+      })
+      await vi.waitFor(() => expect(wrapper.text()).toContain(expected))
+      expect(wrapper.text()).toContain('user_id')
+      expect(wrapper.findComponent(SchemaSource).exists()).toBe(false)
+      expect(wrapper.getComponent(MessageExamples).props('generatedPayload')).toBeUndefined()
+      wrapper.unmount()
+    }
   })
 
   it('switches a payload from source rendering back to JSON Schema', async () => {
@@ -156,7 +286,7 @@ describe('Message', () => {
         document: createDocument({ payload: { schemaFormat: 'application/x-custom', schema: 'source text' } }),
       },
     })
-    expect(wrapper.text()).toContain('source text')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('source text'))
     await wrapper.setProps({
       document: createDocument({ payload: { type: 'object', properties: { userId: { type: 'string' } } } }),
     })

@@ -10,6 +10,36 @@ describe('SdkInstallationInstructions', () => {
     ScalarIcon: true,
   }
 
+  it('uses display labels while preserving language selection', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        selectedClient: 'custom/typescript',
+        xScalarSdkInstallation: [
+          { lang: 'TypeScript', label: 'JavaScript SDK', description: 'Install JavaScript' },
+          { lang: 'Python', label: 'Python SDK', description: 'Install Python' },
+        ],
+      },
+    })
+    expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toStrictEqual(['JavaScript SDK', 'Python SDK'])
+    await wrapper.findAll('[role="tab"]')[1]?.trigger('click')
+    expect(listener.mock.calls).toStrictEqual([['custom/python']])
+    await wrapper.setProps({
+      selectedClient: 'custom/python',
+      xScalarSdkInstallation: [
+        { lang: 'TypeScript', label: 'JS SDK', description: 'Install JavaScript' },
+        { lang: 'Python', label: 'Python client library', description: 'Install Python' },
+      ],
+    })
+    const selectedTab = wrapper.get('[role="tab"][aria-selected="true"]')
+    expect(selectedTab.text()).toBe('Python client library')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install Python')
+    wrapper.unmount()
+  })
+
   it('renders nothing without any SDK installation instructions', () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {},

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -10,7 +12,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -137,26 +142,61 @@ func dialAddr(ip net.IP, port string) string {
 // following a redirect. Arbitrary headers and request bodies can carry secrets,
 // so a list of known credential headers cannot safely authorize another origin.
 func sameOrigin(initial, destination *url.URL) bool {
-	effectivePort := func(u *url.URL) string {
-		if port := u.Port(); port != "" {
-			return port
-		}
-		switch strings.ToLower(u.Scheme) {
-		case "http":
-			return "80"
-		case "https":
-			return "443"
-		default:
-			return ""
-		}
-	}
 	return strings.EqualFold(initial.Scheme, destination.Scheme) &&
 		strings.EqualFold(initial.Hostname(), destination.Hostname()) &&
 		effectivePort(initial) == effectivePort(destination)
 }
 
+// effectivePort returns the port a URL connects to, including the scheme default.
+func effectivePort(u *url.URL) string {
+	if port := u.Port(); port != "" {
+		return port
+	}
+	switch strings.ToLower(u.Scheme) {
+	case "http":
+		return "80"
+	case "https":
+		return "443"
+	default:
+		return ""
+	}
+}
+
+// dnsTimeout limits lookups, including validation before dialing.
+const dnsTimeout = 10 * time.Second
+
+// dialTimeout is the shared budget for DNS resolution and TCP connection attempts.
+const dialTimeout = 10 * time.Second
+
+// resolve looks up a hostname. It stops when ctx is done or after dnsTimeout.
+//
+// Lookups before the request follow the client's request. The transport detaches
+// dials from the request, so a connection can still be reused after it is
+// cancelled. For those, the dial context bounds DNS and TCP together.
+func resolve(ctx context.Context, host string) ([]net.IP, error) {
+	ctx, cancel := context.WithTimeout(ctx, dnsTimeout)
+	defer cancel()
+
+	return lookupIP(ctx, host)
+}
+
+// lookupIP is the DNS lookup behind resolve. Tests replace it.
+var lookupIP = func(ctx context.Context, host string) ([]net.IP, error) {
+	addrs, err := net.DefaultResolver.LookupIPAddr(ctx, host)
+	if err != nil {
+		return nil, err
+	}
+
+	ips := make([]net.IP, 0, len(addrs))
+	for _, addr := range addrs {
+		ips = append(ips, addr.IP)
+	}
+
+	return ips, nil
+}
+
 // Check if a given hostname or IP resolves to any blocked CIDR
-func isBlockedHost(host string) bool {
+func isBlockedHost(ctx context.Context, host string) (bool, error) {
 	// Strip port if present
 	h := host
 
@@ -166,39 +206,41 @@ func isBlockedHost(host string) bool {
 
 	// Try to parse literal IP first
 	if ip := net.ParseIP(h); ip != nil {
-		return ipIsBlocked(ip)
+		return ipIsBlocked(ip), nil
 	}
 
 	// Otherwise resolve via DNS
-	ips, err := net.LookupIP(h)
+	ips, err := resolve(ctx, h)
 
 	if err != nil {
-		// On DNS errors, block
-		return true
+		// Keep lookup failures distinct from addresses rejected by policy.
+		return false, err
 	}
 
 	for _, ip := range ips {
 		if ipIsBlocked(ip) {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 // Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
 // behave like server-side requests (or let's say like `curl`).
 func main() {
 	// The default port
-	port := ":1337"
+	port := "1337"
 
 	// Allow to overwrite the port with an environment variable
 	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + p
+		port = p
 	}
 
+	config := proxyConfigFromEnv(os.Getenv)
+
 	// Create a new proxy server instance
-	proxyServer := NewProxyServer(os.Getenv("ENV") == "dev")
+	proxyServer := NewProxyServerWithConfig(config)
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()
@@ -207,21 +249,109 @@ func main() {
 	// Add our custom CORS middleware to handle cross-origin requests
 	handler := corsMiddleware(mux)
 
-	log.Println("🥤 Proxy Server listening on http://localhost" + port)
+	// A proxy that can reach private networks only listens on this machine
+	server := newHTTPServer(listenAddress(config.BypassCidr, os.Getenv("PROXY_LISTEN_HOST"), port), handler)
+
+	log.Println("🥤 Proxy Server listening on " + server.Addr)
 
 	// Start the server and log any errors that occur
-	if err := http.ListenAndServe(port, handler); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
 	}
 }
 
+// proxyConfigFromEnv reads the proxy configuration from environment variables.
+// The README lists them.
+func proxyConfigFromEnv(getenv func(string) string) ProxyConfig {
+	dev := getenv("ENV") == "dev"
+	// Anything but an explicit true keeps verification on
+	allowInsecureUpstreamTLS, _ := strconv.ParseBool(getenv("ALLOW_INSECURE_UPSTREAM_TLS"))
+
+	selfHosts := []string{}
+	for _, host := range strings.Split(getenv("PROXY_SELF_HOSTS"), ",") {
+		host = strings.TrimSpace(host)
+
+		// Accept a URL, like the one Cloud Run shows, and keep its host
+		if strings.Contains(host, "://") {
+			u, err := url.Parse(host)
+			if err != nil || u.Host == "" {
+				log.Printf("⚠️ Ignoring invalid PROXY_SELF_HOSTS entry %q", host)
+				continue
+			}
+			host = u.Host
+		}
+
+		if host != "" {
+			selfHosts = append(selfHosts, host)
+		}
+	}
+
+	return ProxyConfig{
+		BypassCidr: dev,
+		// Local test APIs often use self-signed certificates
+		AllowInsecureUpstreamTLS: dev || allowInsecureUpstreamTLS,
+		SelfHosts:                selfHosts,
+	}
+}
+
+// listenAddress returns the address to listen on. In development mode the proxy
+// can reach private networks, so it only accepts connections from this machine,
+// unless a host is set explicitly (for example 0.0.0.0 inside a container).
+func listenAddress(dev bool, host string, port string) string {
+	if host == "" && dev {
+		host = "127.0.0.1"
+	}
+
+	return net.JoinHostPort(host, port)
+}
+
+// newHTTPServer builds the incoming HTTP listener configuration.
+func newHTTPServer(address string, handler http.Handler) *http.Server {
+	// Whole-request read/write deadlines would interrupt uploads and SSE.
+	return &http.Server{
+		Addr:              address,
+		Handler:           incomingBodyTimeout(handler, 60*time.Second),
+		ReadHeaderTimeout: 10 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+}
+
+// Refresh the read deadline only while consuming the upload. Clearing it after
+// each read keeps response streaming and upstream backpressure unrestricted.
+type idleRequestBody struct {
+	io.ReadCloser
+	controller *http.ResponseController
+	idle       time.Duration
+}
+
+func (body *idleRequestBody) Read(buffer []byte) (int, error) {
+	if err := body.controller.SetReadDeadline(time.Now().Add(body.idle)); err != nil && !errors.Is(err, http.ErrNotSupported) {
+		return 0, err
+	}
+	defer body.controller.SetReadDeadline(time.Time{})
+	return body.ReadCloser.Read(buffer)
+}
+
+func incomingBodyTimeout(next http.Handler, idle time.Duration) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Body != nil && r.Body != http.NoBody {
+			r.Body = &idleRequestBody{ReadCloser: r.Body, controller: http.NewResponseController(w), idle: idle}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 // ProxyServer encapsulates the proxy server configuration and handlers.
 //
-// It uses a custom transport to handle HTTPS connections, including those
-// with self-signed certificates for development environments.
+// It uses a custom transport that checks every dialed address against the
+// blocked networks.
 type ProxyServer struct {
-	transport  *http.Transport
-	bypassCidr bool
+	transport               *http.Transport
+	responseBodyIdleTimeout time.Duration
+	bypassCidr              bool
+	selfHosts               []selfHost
+	// bufferedBodyBytes counts the request body bytes held in memory right now.
+	bufferedBodyBytes atomic.Int64
 }
 
 type forbiddenHeaderRewrite struct {
@@ -271,18 +401,76 @@ func (s streamingResponseWriter) Write(p []byte) (int, error) {
 	return n, err
 }
 
-// NewProxyServer creates a new proxy server instance
-func NewProxyServer(bypassCidr bool) *ProxyServer {
-	dialer := &net.Dialer{Timeout: 10 * time.Second}
+// ProxyConfig holds the settings that differ between development, tests, and
+// production.
+type ProxyConfig struct {
+	// BypassCidr allows targets on private, link-local, and loopback addresses.
+	BypassCidr bool
+	// AllowInsecureUpstreamTLS skips verification of upstream certificates.
+	AllowInsecureUpstreamTLS bool
+	// SelfHosts lists the hosts that reach this proxy, like its custom domain and
+	// the Cloud Run URL. Targets on them are refused before any request is sent.
+	SelfHosts []string
+	// ResponseHeaderTimeout limits how long the upstream may take to send its
+	// response headers. Zero uses defaultResponseHeaderTimeout.
+	ResponseHeaderTimeout time.Duration
+	// ResponseBodyIdleTimeout bounds each upstream body read, not the stream lifetime.
+	// Zero uses two minutes.
+	ResponseBodyIdleTimeout time.Duration
+}
+
+// proxyHopHeader marks requests the proxy sends upstream.
+const proxyHopHeader = "X-Scalar-Proxy-Hop"
+
+// NewProxyServer creates a new proxy server instance. Development mode allows
+// private targets and self-signed upstream certificates.
+func NewProxyServer(dev bool) *ProxyServer {
+	return NewProxyServerWithConfig(ProxyConfig{BypassCidr: dev, AllowInsecureUpstreamTLS: dev})
+}
+
+// defaultResponseHeaderTimeout is how long the upstream may take to start its
+// response. It is generous because some APIs do a lot of work before they
+// answer, but without it a request to an upstream that never answers would hold
+// its connection and goroutine forever.
+const defaultResponseHeaderTimeout = 5 * time.Minute
+
+// defaultResponseBodyIdleTimeout limits each wait for upstream response data.
+const defaultResponseBodyIdleTimeout = 2 * time.Minute
+
+// NewProxyServerWithConfig creates a new proxy server instance
+func NewProxyServerWithConfig(config ProxyConfig) *ProxyServer {
+	bypassCidr := config.BypassCidr
+	dialer := &net.Dialer{}
+
+	responseHeaderTimeout := config.ResponseHeaderTimeout
+	if responseHeaderTimeout == 0 {
+		responseHeaderTimeout = defaultResponseHeaderTimeout
+	}
+
+	responseBodyIdleTimeout := config.ResponseBodyIdleTimeout
+	if responseBodyIdleTimeout == 0 {
+		responseBodyIdleTimeout = defaultResponseBodyIdleTimeout
+	}
 
 	return &ProxyServer{
-		bypassCidr: bypassCidr,
+		responseBodyIdleTimeout: responseBodyIdleTimeout,
+		bypassCidr:              bypassCidr,
+		selfHosts:               parseSelfHosts(config.SelfHosts),
 		transport: &http.Transport{
-			// Skip TLS verification. This is useful for development environments
-			// where the target API might use self-signed certificates.
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			TLSClientConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: config.AllowInsecureUpstreamTLS,
+			},
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: responseHeaderTimeout,
+			ExpectContinueTimeout: 1 * time.Second,
+			IdleConnTimeout:       90 * time.Second,
+			MaxIdleConnsPerHost:   16,
 			// Handle custom dial for cidr checks
 			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				// Bound DNS resolution as well as the TCP connection attempt.
+				ctx, cancel := context.WithTimeout(ctx, dialTimeout)
+				defer cancel()
 				host, port, _ := net.SplitHostPort(addr)
 
 				// If bypassCidr is true, skip CIDR checks
@@ -300,7 +488,7 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 				}
 
 				// Re-resolve hostname on every dial
-				ips, err := net.LookupIP(host)
+				ips, err := resolve(ctx, host)
 
 				if err != nil {
 					return nil, err
@@ -362,24 +550,147 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// The answer depends on how the browser loads the URL, so a shared cache
+	// must not serve a response to a fetch() for a page load, or the other way
+	// around.
+	w.Header().Add("Vary", "Sec-Fetch-Mode, Sec-Fetch-Dest")
+
+	// Before document requests were refused, a page on the proxy origin could
+	// register any proxied script as a service worker. A worker like that answers
+	// navigations itself, so the checks below never see them. Refusing its update
+	// check would keep it installed, so replace it with one that removes itself.
+	if isServiceWorkerRequest(r) {
+		w.Header().Set("Content-Type", "text/javascript")
+		// Old upstreams could grant root scope to scripts under any path.
+		w.Header().Set("Service-Worker-Allowed", "/")
+		w.Header().Set("Cache-Control", "no-store")
+		w.Write([]byte(unregisterServiceWorkerScript))
+		return
+	}
+
+	// Only programmatic requests (fetch, XHR) are proxied. Opening a proxy URL as
+	// a page would render attacker-controlled content on the proxy origin.
+	if isDocumentRequest(r) {
+		http.Error(w, documentRequestError, http.StatusForbidden)
+		return
+	}
+
+	// A request the proxy sent itself has come back, through a name for the proxy
+	// that is not in the configured proxy hosts.
+	if _, present := r.Header[proxyHopHeader]; present {
+		http.Error(w, proxyLoopError, http.StatusLoopDetected)
+		return
+	}
+
 	// Get and validate the target URL from the `scalar_url` query parameter
 	target := r.URL.Query().Get("scalar_url")
 
-	remote, validationErrors := ps.validateScalarURL(target)
+	remote, validationErrors := ps.validateScalarURL(r.Context(), target)
+	if r.Context().Err() != nil {
+		return
+	}
 	if len(validationErrors) > 0 {
 		firstError := validationErrors[0]
 		http.Error(w, firstError.message, firstError.statusCode)
 		return
 	}
 
+	if ps.targetsProxy(remote) {
+		http.Error(w, proxyTargetError, http.StatusBadRequest)
+		return
+	}
+
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
 		// Log any errors
-		log.Printf("[Proxy Error:] %v\n", err)
+		log.Printf("[Proxy Error:] %s\n", proxyErrorCategory(err))
 	}
 }
 
-func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValidationError) {
+const proxyLoopError = "Loop Detected: The request already passed through the proxy."
+
+const proxyTargetError = "Bad Request: The `scalar_url` query parameter must not point to the proxy itself."
+
+// targetsProxy reports whether the target is one of the configured proxy hosts.
+// A host without a port matches every port.
+//
+// The Host header of the request is not used: behind a gateway that routes by
+// path, the proxy shares its host with the APIs it is meant to reach. Loops
+// through any name for the proxy are stopped by proxyHopHeader instead.
+func (ps *ProxyServer) targetsProxy(remote *url.URL) bool {
+	hostname := normalizeHostname(remote.Hostname())
+
+	for _, self := range ps.selfHosts {
+		if strings.EqualFold(self.hostname, hostname) && (self.port == "" || self.port == effectivePort(remote)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// upstreamErrorStatus distinguishes a deadline from other upstream failures.
+func upstreamErrorStatus(err error) int {
+	var netErr net.Error
+	if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &netErr) && netErr.Timeout()) {
+		return http.StatusGatewayTimeout
+	}
+	return http.StatusServiceUnavailable
+}
+
+// proxyErrorCategory keeps operational diagnostics without logging untrusted
+// error text, including URLs embedded in wrapped errors or redirect failures.
+func proxyErrorCategory(err error) string {
+	if errors.Is(err, context.Canceled) {
+		return "request canceled"
+	}
+	var networkError net.Error
+	if errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &networkError) && networkError.Timeout()) {
+		return "upstream timeout"
+	}
+	var dnsError *net.DNSError
+	if errors.As(err, &dnsError) {
+		return "DNS failure"
+	}
+	var connectionError *net.OpError
+	if errors.As(err, &connectionError) {
+		return "network failure"
+	}
+	return "request failed"
+}
+
+// selfHost is a configured proxy host. An empty port matches every port.
+type selfHost struct {
+	hostname string
+	port     string
+}
+
+// parseSelfHosts splits the configured proxy hosts once, so requests only
+// compare them.
+func parseSelfHosts(hosts []string) []selfHost {
+	parsed := []selfHost{}
+
+	for _, host := range hosts {
+		hostname, port := strings.TrimSpace(host), ""
+		if h, p, err := net.SplitHostPort(hostname); err == nil {
+			hostname, port = h, p
+		}
+
+		if hostname = normalizeHostname(hostname); hostname != "" {
+			parsed = append(parsed, selfHost{hostname: hostname, port: port})
+		}
+	}
+
+	return parsed
+}
+
+// normalizeHostname removes IPv6 brackets and the trailing dot of a fully
+// qualified name, which reach the same host.
+func normalizeHostname(hostname string) string {
+	return strings.TrimSuffix(strings.Trim(hostname, "[]"), ".")
+}
+
+func (ps *ProxyServer) validateScalarURL(ctx context.Context, target string) (*url.URL, []proxyValidationError) {
 	errors := []proxyValidationError{}
 
 	if target == "" {
@@ -403,27 +714,67 @@ func (ps *ProxyServer) validateScalarURL(target string) (*url.URL, []proxyValida
 	}
 
 	// Deny any private, link-local, or loopback addresses
-	if !ps.bypassCidr && isBlockedHost(remote.Host) {
-		errors = append(errors, scalarURLValidationErrors[2])
-		return nil, errors
+	if !ps.bypassCidr {
+		blocked, err := isBlockedHost(ctx, remote.Host)
+		if err != nil {
+			return nil, []proxyValidationError{{statusCode: upstreamErrorStatus(err), message: proxyErrorCategory(err)}}
+		}
+		if blocked {
+			errors = append(errors, scalarURLValidationErrors[2])
+			return nil, errors
+		}
 	}
 
 	return remote, errors
 }
 
+// redirectReplayTransport leaves replay decisions to CheckRedirect. The transport
+// must not use a placeholder replay body to retry a failed connection, where no
+// redirect callback would get a chance to reject the incomplete upload.
+type redirectReplayTransport struct {
+	transport *http.Transport
+}
+
+func (t redirectReplayTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	outbound := req.Clone(req.Context())
+	if getBody := req.GetBody; getBody != nil {
+		outbound.GetBody = func() (io.ReadCloser, error) {
+			body, err := getBody()
+			if err == nil && body == http.NoBody {
+				return nil, fmt.Errorf("upload is not available for replay")
+			}
+			return body, err
+		}
+	}
+	return t.transport.RoundTrip(outbound)
+}
+
 // executeProxyRequest handles the proxying logic
 //
-// 1. Preserves all original headers (except CORS headers)
-// 2. Maintains session state through redirects
-// 3. Adds consistent CORS headers to allow browser access
-// 4. Tracks the final URL after any redirects
+//  1. Forwards the request headers, except Origin, Cookie (sent through
+//     X-Scalar-Cookie instead) and headers the browser adds for the proxy origin
+//  2. Follows same-origin redirects and maintains session state through them
+//  3. Passes on the upstream response, minus headers that would act on the
+//     proxy origin (see untrustedResponseHeaders), with consistent CORS headers
+//  4. Tracks the final URL after any redirects
 func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
+	// HTTP/1 otherwise drains the incoming upload before writing a response.
+	// HTTP/2 already permits concurrent reads and writes.
+	controller := http.NewResponseController(w)
+	_ = controller.EnableFullDuplex()
+
 	client := &http.Client{
-		Transport: ps.transport,
+		Transport: redirectReplayTransport{transport: ps.transport},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Handle private CIDR check again on redirect
-			if !ps.bypassCidr && isBlockedHost(req.URL.Host) {
-				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
+			if !ps.bypassCidr {
+				blocked, err := isBlockedHost(req.Context(), req.URL.Host)
+				if err != nil {
+					return err
+				}
+				if blocked {
+					return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
+				}
 			}
 
 			if len(via) >= 10 {
@@ -437,10 +788,16 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 				return fmt.Errorf("redirect to a different origin is not allowed")
 			}
 
+			// GetBody returns NoBody when the upload is incomplete or exceeds the
+			// replay budget. Do not send that placeholder to the redirect target.
+			if req.Body == http.NoBody {
+				return http.ErrUseLastResponse
+			}
+
 			// Go can strip credentials when only hostname casing changes.
 			// Restore missing credentials from the preceding trusted hop,
 			// preserving Go's cookie updates and method-specific body headers.
-			for _, header := range []string{"Authorization", "Proxy-Authorization", "Cookie", "Cookie2", "Www-Authenticate", "Proxy-Authenticate"} {
+			for _, header := range []string{"Authorization", "Cookie", "Cookie2", "Www-Authenticate"} {
 				if _, present := req.Header[header]; !present {
 					if values, exists := via[len(via)-1].Header[header]; exists {
 						req.Header[header] = append([]string(nil), values...)
@@ -452,14 +809,33 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		},
 	}
 
-	// Create the outbound request
-	outreq, err := http.NewRequest(r.Method, target, r.Body)
-
-	// Return error if request creation fails
+	// Tie the upstream request to the client, including streaming uploads.
+	ctx, cancel := context.WithCancel(r.Context())
+	defer cancel()
+	outreq, err := http.NewRequestWithContext(ctx, r.Method, target, http.NoBody)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
+		http.Error(w, proxyErrorCategory(err), http.StatusInternalServerError)
 		return err
+	}
+	releaseBody := func() {}
+	if r.Body != nil && r.Body != http.NoBody {
+		// Retain a replay copy as the transport consumes the upload, without
+		// waiting for EOF before forwarding streaming requests.
+		body, release := ps.replayableBody(r.Body, r.ContentLength)
+		releaseBody = release
+		body.interruptRead = func() {
+			// Go closes the initial body before checking a redirect. Interrupt an
+			// unfinished HTTP/1 read so Close does not wait for the client to finish.
+			if r.ProtoMajor == 1 {
+				_ = controller.SetReadDeadline(time.Now())
+			}
+		}
+		defer releaseBody()
+		// The transport closes outbound bodies. Closing here could block on an
+		// unfinished upload before the server flushes an early response.
+		outreq.Body = body
+		outreq.ContentLength = r.ContentLength
+		outreq.GetBody = body.getBody
 	}
 
 	// Copy the headers but exclude Origin and Cookie.
@@ -473,8 +849,18 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
+	// Keep the original nominations for a second pass after header rewrites.
+	connectionHeaders := outreq.Header.Values("Connection")
+	removeHopByHopHeaders(outreq.Header, connectionHeaders)
+
+	// The browser advertises compression dictionaries it stored for the proxy
+	// origin. Those came from whichever API set them, so they must not be sent
+	// to every other API called through the proxy.
+	outreq.Header.Del("Available-Dictionary")
+	outreq.Header.Del("Dictionary-Id")
+
 	// Users need to specifically set their cookies in X-Scalar-Cookie
-	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
+	if xScalarCookie := outreq.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
 		outreq.Header.Set("Cookie", xScalarCookie)
 	}
 	// Remove the X-Scalar-Cookie header
@@ -483,36 +869,93 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Browsers strip some forbidden headers from outgoing requests.
 	// For a small allowlist, users can send `X-Scalar-*` and we forward the corresponding header.
 	for _, forbiddenHeader := range forbiddenHeadersForProxy {
-		if scalarHeaderValue := r.Header.Get(forbiddenHeader.scalarHeader); scalarHeaderValue != "" {
+		if scalarHeaderValue := outreq.Header.Get(forbiddenHeader.scalarHeader); scalarHeaderValue != "" {
 			outreq.Header.Set(forbiddenHeader.header, scalarHeaderValue)
 			outreq.Header.Del(forbiddenHeader.scalarHeader)
 		}
 	}
 
+	// A Connection token may name either a Scalar alias or its rewritten name.
+	removeHopByHopHeaders(outreq.Header, connectionHeaders)
+
+	// Set the marker after stripping so intermediaries cannot be told to remove it.
+	outreq.Header.Set(proxyHopHeader, "1")
+
 	// Make the request
 	resp, err := client.Do(outreq)
 
+	// Redirects are done, so discard the replay copy. If the transport is still
+	// uploading, its reader keeps the bytes counted until it closes the body.
+	releaseBody()
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		// The client left, so there is nobody to answer and nothing went wrong
+		if r.Context().Err() != nil {
+			return nil
+		}
+
+		http.Error(w, proxyErrorCategory(err), upstreamErrorStatus(err))
 		return err
 	}
 
 	// Close response body when done to prevent resource leaks
 	defer resp.Body.Close()
 
-	// A 307/308 with a non-replayable body is returned without CheckRedirect.
-	// Reject cross-origin Locations here too so the browser cannot replay the
-	// original request outside the proxy's origin policy.
-	if resp.StatusCode >= 300 && resp.StatusCode < 400 && resp.Header.Get("Location") != "" {
-		destination, err := resp.Location()
-		if err != nil || !sameOrigin(remote, destination) {
-			err := fmt.Errorf("redirect to a different origin is not allowed")
-			http.Error(w, err.Error(), http.StatusServiceUnavailable)
+	// Strip connection-scoped fields before reflecting or replacing any headers.
+	removeHopByHopHeaders(resp.Header, resp.Header.Values("Connection"))
+	removeProxyHeaders(resp.Header)
+
+	redirectLocation := ""
+
+	// A 3xx reaches this point when Go did not follow it: a 300, or a 307/308
+	// whose request body was too large to replay. Reject cross-origin Locations
+	// here too, so the response never points the client outside the proxy's
+	// origin policy.
+	if resp.StatusCode >= 300 && resp.StatusCode < 400 && len(resp.Header.Values("Location")) > 0 {
+		// Header.Get only looks at the first value. An empty first value followed
+		// by a real one would skip this check, so look at all of them.
+		locations := []string{}
+		for _, location := range resp.Header.Values("Location") {
+			if strings.TrimSpace(location) != "" {
+				locations = append(locations, location)
+			}
+		}
+
+		if len(locations) > 1 {
+			err := fmt.Errorf("redirect with more than one Location is not allowed")
+			http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
 			return err
 		}
+
+		if len(locations) == 1 {
+			destination, err := resp.Request.URL.Parse(locations[0])
+			if err != nil {
+				err := fmt.Errorf("redirect with an invalid Location is not allowed: %v", err)
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
+				return err
+			}
+
+			if !sameOrigin(remote, destination) {
+				err := fmt.Errorf("redirect to a different origin is not allowed")
+				http.Error(w, proxyErrorCategory(err), http.StatusServiceUnavailable)
+				return err
+			}
+
+			redirectLocation = destination.String()
+		}
+
+		// The upstream picked the target, so letting the browser follow it
+		// would be an open redirect for browsers that do not send Sec-Fetch-*
+		// headers. Pass on the absolute URL we validated as
+		// X-Scalar-Original-Location instead, which the API client shows as
+		// Location. That also avoids parser differences: Go resolves
+		// `/\attacker.example/` to a path on the upstream host, while browsers
+		// treat the backslash as a slash.
+		resp.Header.Del("Location")
 	}
 
-	// Copy headers from final response, but skip CORS headers
+	// Copy headers from final response, but skip CORS headers and headers the
+	// browser would act on for the proxy origin (see untrustedResponseHeaders).
 	for key, values := range resp.Header {
 
 		// Check if header is a CORS headers
@@ -520,10 +963,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 			return strings.HasPrefix(strings.ToLower(header), "access-control-")
 		}
 
-		if !isCorsHeader(key) {
-			for _, value := range values {
-				w.Header().Add(key, value)
-			}
+		if isCorsHeader(key) || isUntrustedResponseHeader(key) || isReservedProxyHeader(key) {
+			continue
+		}
+
+		for _, value := range values {
+			w.Header().Add(key, value)
 		}
 	}
 
@@ -545,6 +990,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
 
+	setUntrustedContentHeaders(w.Header(), resp.Header)
+
+	if redirectLocation != "" {
+		w.Header().Set("X-Scalar-Original-Location", redirectLocation)
+	}
+
 	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
 
@@ -563,11 +1014,466 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Copy the body
-	if _, err := io.Copy(responseWriter, resp.Body); err != nil {
-		return err
+	if _, err := io.Copy(responseWriter, &idleResponseBody{reader: resp.Body, cancel: cancel, idle: ps.responseBodyIdleTimeout}); err != nil {
+		// The client left, which also cancels the upstream request
+		if r.Context().Err() != nil {
+			return nil
+		}
+
+		// The status is sent already. Aborting closes the connection without
+		// ending the body, so the client sees that the response is incomplete.
+		// Returning would end a chunked response as if it were complete.
+		log.Printf("[Proxy Error:] %s\n", proxyErrorCategory(err))
+		panic(http.ErrAbortHandler)
 	}
 
 	return nil
+}
+
+// removeHopByHopHeaders follows net/http/httputil.ReverseProxy: remove every
+// Connection-nominated field and the legacy connection-scoped header set.
+// Callers can retain nominations across header rewrites so aliases cannot
+// reintroduce a removed field under its destination name.
+func removeHopByHopHeaders(header http.Header, connections []string) {
+	for _, connection := range connections {
+		for _, name := range strings.Split(connection, ",") {
+			if name = strings.TrimSpace(name); name != "" {
+				header.Del(name)
+			}
+		}
+	}
+	for _, name := range []string{
+		"Connection", "Proxy-Connection", "Keep-Alive", "Proxy-Authenticate",
+		"Proxy-Authorization", "Te", "Trailer", "Transfer-Encoding", "Upgrade",
+	} {
+		header.Del(name)
+	}
+}
+
+// removeProxyHeaders removes Proxy-* response headers. They are meant for the
+// proxy, not for the client.
+func removeProxyHeaders(header http.Header) {
+	for key := range header {
+		if len(key) >= len("Proxy-") && strings.EqualFold(key[:len("Proxy-")], "Proxy-") {
+			delete(header, key)
+		}
+	}
+}
+
+// untrustedContentSecurityPolicy keeps proxied documents inert when a browser
+// renders them anyway, for example one that does not send Sec-Fetch-* headers.
+//
+// `sandbox` gives the document an opaque origin and blocks scripts, forms,
+// popups, and `<meta>` refresh. `default-src 'none'` blocks scripts and
+// subresources in its own right. `base-uri` and `form-action` do not fall back
+// to `default-src`, so they are listed explicitly. It does not stop a user from
+// clicking a plain link, and it does not cover the HTTP `Refresh` header, which
+// is removed separately.
+const untrustedContentSecurityPolicy = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; sandbox"
+
+const documentRequestError = "Forbidden: The proxy only handles requests made with fetch() or XMLHttpRequest. It does not serve pages to open in the browser."
+
+// unregisterServiceWorkerScript removes the service worker that is being updated.
+const unregisterServiceWorkerScript = "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.registration.unregister()));"
+
+// isServiceWorkerRequest reports whether the browser is fetching a service worker
+// script. Browsers only register same-origin scripts, so this is an update check
+// for a worker registered earlier. New pages cannot register one, because the
+// proxy no longer serves them.
+func isServiceWorkerRequest(r *http.Request) bool {
+	return strings.EqualFold(r.Header.Get("Sec-Fetch-Dest"), "serviceworker")
+}
+
+// isDocumentRequest reports whether the browser is loading the proxy URL as a
+// page (a link, a redirect, a form submission, or an iframe) rather than
+// reading it with fetch() or XMLHttpRequest.
+//
+// The API client only reads the proxy programmatically, so refusing these
+// requests costs nothing and stops attackers from using the proxy origin to
+// host pages, run scripts, redirect visitors, set cookies, or serve downloads.
+// Non-browser clients (curl, servers) do not send these headers and are not
+// affected.
+func isDocumentRequest(r *http.Request) bool {
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Mode")) {
+	// Chrome 76 to 79 sent `nested-navigate` for iframes
+	case "navigate", "nested-navigate":
+		return true
+	}
+
+	switch strings.ToLower(r.Header.Get("Sec-Fetch-Dest")) {
+	case "document", "iframe", "frame", "embed", "object", "fencedframe":
+		return true
+	// Workers run with the origin of their script URL. Browsers only allow
+	// same-origin worker scripts, so this only matters if the proxy origin were
+	// compromised another way, but there is no reason to serve them.
+	case "worker", "sharedworker":
+		return true
+	}
+
+	return false
+}
+
+// untrustedResponseHeaders are upstream headers that browsers act on for the
+// proxy origin, whatever the response body is, and that the API client does
+// not need to receive as-is:
+//
+//   - Refresh redirects the page, even when it is sandboxed (open redirect)
+//   - Clear-Site-Data wipes the proxy origin's storage
+//   - Set-Cookie can set cookies on the proxy host or its parent domain.
+//     fetch() never exposes it, so the API client reads X-Scalar-Set-Cookie.
+//   - Content-Security-Policy(-Report-Only) would sit next to our own policy.
+//     Per the HTML spec only the last `sandbox` directive applies, and report
+//     endpoints would still be pinged.
+//   - X-Content-Type-Options is replaced with our own `nosniff`.
+//
+// Browsers also apply these to the proxy origin from fetch() responses:
+//
+//   - NEL, Report-To, and Reporting-Endpoints would have the browser report
+//     later proxy requests, including their `scalar_url`, to the attacker
+//   - Strict-Transport-Security and Alt-Svc change how the browser connects
+//     to the proxy
+//   - No-Vary-Search makes the browser cache ignore the query string. Every
+//     proxied URL is `/?scalar_url=...`, so one API could answer for all others.
+//   - Use-As-Dictionary stores the response as a compression dictionary for
+//     the proxy origin. The browser then sends its hash and an ID the upstream
+//     picked on later proxy requests, which works like a cookie.
+//   - Cache-Control is replaced with a private one (see privateCacheControl),
+//     and CDN-specific cache headers are dropped, so shared caches never store
+//     a response that may depend on the caller's credentials
+//   - X-Accel-*, X-Sendfile, and X-Lighttpd-Send-File tell a front server
+//     (nginx, Apache, lighttpd) to serve a local file or internal location
+//     instead of the response. proxy.scalar.com runs on Cloud Run with nothing
+//     in front (see cloudbuild.yaml), but self-hosted proxies may sit behind
+//     one of these.
+//   - Set-Login, Observe-Browsing-Topics, Activate-Storage-Access, and the
+//     prefixes below record state or grant access for the proxy origin
+//   - Speculation-Rules makes Chromium fetch a rule set from any URL when it
+//     renders the response, which neither `sandbox` nor `default-src` stops
+var untrustedResponseHeaders = []string{
+	"Refresh",
+	"Clear-Site-Data",
+	"Set-Cookie",
+	"Content-Security-Policy",
+	"Content-Security-Policy-Report-Only",
+	"X-Content-Type-Options",
+	"Nel",
+	"Report-To",
+	"Reporting-Endpoints",
+	"Strict-Transport-Security",
+	"Alt-Svc",
+	"No-Vary-Search",
+	"Use-As-Dictionary",
+	"Cache-Control",
+	"Cdn-Cache-Control",
+	"Surrogate-Control",
+	"Edge-Control",
+	"X-Sendfile",
+	"X-Lighttpd-Send-File",
+	"Set-Login",
+	"Observe-Browsing-Topics",
+	"Activate-Storage-Access",
+	"Speculation-Rules",
+}
+
+// untrustedResponseHeaderPrefixes cover header families that browsers keep
+// adding to. A blocklist of single names keeps missing new members.
+var untrustedResponseHeaderPrefixes = []string{
+	// Attribution-Reporting-Register-Source, -Trigger, -OS-Source, ...
+	"Attribution-Reporting-",
+	// Ad-Auction-Signals, Ad-Auction-Allowed, Ad-Auction-Additional-Bid, ...
+	"Ad-Auction-",
+	// Sec-Session-Registration, Sec-Private-State-Token, ... Servers do not
+	// send `Sec-` headers to describe their API, only to talk to browsers.
+	"Sec-",
+	// Device-bound session credentials
+	"Secure-Session-",
+	"Shared-Storage-",
+	// X-Accel-Redirect, X-Accel-Expires, ... for nginx in front of the proxy
+	"X-Accel-",
+}
+
+// proxyModifiedHeaders are headers the proxy sets itself. Listing them in
+// X-Scalar-Modified-Headers lets the API client hide the proxy's values, and it
+// restores the upstream values from X-Scalar-Original-* (see normalizeHeaders
+// in @scalar/helpers).
+var proxyModifiedHeaders = []string{
+	"Cache-Control",
+	"Content-Security-Policy",
+	"Vary",
+	"X-Content-Type-Options",
+}
+
+func isUntrustedResponseHeader(key string) bool {
+	for _, header := range untrustedResponseHeaders {
+		if strings.EqualFold(key, header) {
+			return true
+		}
+	}
+
+	for _, prefix := range untrustedResponseHeaderPrefixes {
+		if len(key) >= len(prefix) && strings.EqualFold(key[:len(prefix)], prefix) {
+			return true
+		}
+	}
+
+	// Cloudflare-CDN-Cache-Control and similar per-CDN variants
+	return len(key) >= len("-Cdn-Cache-Control") && strings.EqualFold(key[len(key)-len("-Cdn-Cache-Control"):], "-Cdn-Cache-Control")
+}
+
+// isReservedProxyHeader reports whether an upstream header uses a name the
+// proxy uses to talk to the API client. The upstream could otherwise hide or
+// fake the headers the client shows, or send a name the client cannot handle.
+func isReservedProxyHeader(key string) bool {
+	return strings.EqualFold(key, "X-Scalar-Modified-Headers") ||
+		strings.EqualFold(key, "X-Scalar-Set-Cookie") ||
+		(len(key) >= len("X-Scalar-Original-") && strings.EqualFold(key[:len("X-Scalar-Original-")], "X-Scalar-Original-"))
+}
+
+// privateCacheControl keeps the upstream's caching directives for the browser,
+// but marks the response private so shared caches (a CDN in front of the proxy)
+// never store it. Shared caches key on the URL only, not on the Authorization
+// or X-Scalar-Cookie headers the request was made with.
+func privateCacheControl(upstream []string) string {
+	directives := []string{"private"}
+
+	for _, value := range upstream {
+		for _, directive := range splitDirectives(value) {
+			name := strings.ToLower(strings.TrimSpace(strings.SplitN(directive, "=", 2)[0]))
+
+			switch name {
+			case "", "public", "private", "s-maxage", "proxy-revalidate":
+				continue
+			}
+
+			directives = append(directives, directive)
+		}
+	}
+
+	return strings.Join(directives, ", ")
+}
+
+// splitDirectives splits a Cache-Control value on commas outside quoted
+// strings, so `private="Set-Cookie, X-Foo", max-age=60` stays two directives.
+func splitDirectives(value string) []string {
+	directives := []string{}
+	start := 0
+	quoted := false
+	escaped := false
+
+	for i, char := range value {
+		switch {
+		case escaped:
+			escaped = false
+		case quoted && char == '\\':
+			escaped = true
+		case char == '"':
+			quoted = !quoted
+		case char == ',' && !quoted:
+			if directive := strings.TrimSpace(value[start:i]); directive != "" {
+				directives = append(directives, directive)
+			}
+			start = i + 1
+		}
+	}
+
+	if directive := strings.TrimSpace(value[start:]); directive != "" {
+		directives = append(directives, directive)
+	}
+
+	return directives
+}
+
+// maxReplayableBodySize is how much of a request body the proxy buffers so Go
+// can resend it when following a same-origin 307 or 308, like `curl -L`.
+// All bodies stream immediately; incomplete or larger uploads cannot be replayed.
+const maxReplayableBodySize = 10 << 20
+
+// maxBufferedBodyBytes limits the memory all requests can hold in buffered bodies
+// together. Without it, clients that send a body and then stall would each pin
+// up to maxReplayableBodySize, without any authentication. Past the limit bodies
+// are streamed, which costs no memory and only loses 307 and 308 replays. The
+// process uses about three times this at saturation, because of the room the
+// garbage collector leaves on top of the live heap.
+const maxBufferedBodyBytes = 128 << 20
+
+// bufferedBody owns the replay copy and counts readers still used by the transport.
+// A response can arrive before an upload finishes, so releasing replay ownership
+// alone must not return those bytes to the budget.
+type bufferedBody struct {
+	mu           sync.Mutex
+	data         []byte
+	readers      int
+	released     bool
+	complete     bool
+	releaseBytes func()
+}
+
+func (b *bufferedBody) release() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.releaseLocked()
+}
+
+func (b *bufferedBody) releaseLocked() {
+	b.released = true
+	b.data = nil
+	if b.readers == 0 {
+		b.releaseBytes()
+	}
+}
+
+// bufferedBodyReader clears its own reference on Close, even if net/http keeps
+// the request reachable for the lifetime of a streaming response.
+type bufferedBodyReader struct {
+	mu     sync.Mutex
+	buffer *bufferedBody
+	reader *bytes.Reader
+}
+
+func (r *bufferedBodyReader) Read(p []byte) (int, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return 0, io.ErrClosedPipe
+	}
+	return r.reader.Read(p)
+}
+
+func (r *bufferedBodyReader) Close() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.reader == nil {
+		return nil
+	}
+	r.reader = nil
+	r.buffer.mu.Lock()
+	defer r.buffer.mu.Unlock()
+	r.buffer.readers--
+	if r.buffer.released && r.buffer.readers == 0 {
+		r.buffer.releaseBytes()
+	}
+	return nil
+}
+
+// streamingReplayBody records bytes as they are consumed by the transport.
+// Close must unblock Read, so the source is read outside the buffer mutex.
+// Closing the initial upload keeps replay ownership until redirects finish.
+type streamingReplayBody struct {
+	source        io.ReadCloser
+	buffer        *bufferedBody
+	proxy         *ProxyServer
+	length        int64
+	held          int64
+	consumed      int64
+	finished      bool
+	interruptRead func()
+	closeOnce     sync.Once
+	closeErr      error
+}
+
+func (r *streamingReplayBody) Read(p []byte) (int, error) {
+	n, err := r.source.Read(p)
+	r.buffer.mu.Lock()
+	defer r.buffer.mu.Unlock()
+	r.consumed += int64(n)
+	r.finished = err != nil || (r.length > 0 && r.consumed == r.length)
+	if r.buffer.released {
+		return n, err
+	}
+	if (err != nil && err != io.EOF) || len(r.buffer.data)+n > maxReplayableBodySize {
+		r.buffer.releaseLocked()
+		return n, err
+	}
+	if r.proxy.bufferedBodyBytes.Add(int64(n)) > maxBufferedBodyBytes {
+		r.proxy.bufferedBodyBytes.Add(-int64(n))
+		r.buffer.releaseLocked()
+		return n, err
+	}
+	r.held += int64(n)
+	r.buffer.data = append(r.buffer.data, p[:n]...)
+	// Known-length uploads may finish without a separate EOF read.
+	r.buffer.complete = r.finished && (r.length <= 0 || r.consumed == r.length)
+	return n, err
+}
+
+func (r *streamingReplayBody) Close() error {
+	r.closeOnce.Do(func() {
+		r.buffer.mu.Lock()
+		finished := r.finished
+		r.buffer.mu.Unlock()
+		if !finished && r.interruptRead != nil {
+			r.interruptRead()
+		}
+		r.closeErr = r.source.Close()
+	})
+	return r.closeErr
+}
+
+func (r *streamingReplayBody) getBody() (io.ReadCloser, error) {
+	r.buffer.mu.Lock()
+	defer r.buffer.mu.Unlock()
+	if !r.buffer.complete || r.buffer.released {
+		// net/http asks for the replay body before invoking CheckRedirect.
+		// That callback recognizes this sentinel and returns the redirect as-is.
+		return http.NoBody, nil
+	}
+	r.buffer.readers++
+	return &bufferedBodyReader{buffer: r.buffer, reader: bytes.NewReader(r.buffer.data)}, nil
+}
+
+// replayableBody retains at most the per-request and shared budgets without
+// reading ahead. The caller releases replay ownership after the redirect chain.
+func (ps *ProxyServer) replayableBody(body io.ReadCloser, length int64) (*streamingReplayBody, func()) {
+	if body == nil {
+		body = http.NoBody
+	}
+	reader := &streamingReplayBody{source: body, proxy: ps, length: length}
+	reader.buffer = &bufferedBody{releaseBytes: sync.OnceFunc(func() {
+		ps.bufferedBodyBytes.Add(-reader.held)
+	})}
+	return reader, reader.buffer.release
+}
+
+// setUntrustedContentHeaders protects the proxy origin from proxied content.
+//
+// The proxy returns whatever the target URL responds with. Without these
+// headers, anyone could link to `/?scalar_url=https://attacker.example/evil.svg`
+// and the browser would render that SVG or HTML as a document on the proxy
+// origin, running its scripts there. Document requests are already refused in
+// handleRequest; this is the fallback for browsers that do not send
+// Sec-Fetch-* headers.
+//
+// Browsers ignore CSP on responses read through fetch(), so the API client
+// keeps working. When the upstream does not send a Content-Type, Go sniffs one
+// before writing; `nosniff` cannot prevent that, which is one more reason the
+// CSP applies to every response.
+//
+// Upstream values of the removed headers are passed on as X-Scalar-Original-*,
+// which browsers ignore, so the API client can still show what the API sent.
+func setUntrustedContentHeaders(header http.Header, upstream http.Header) {
+	for key, values := range upstream {
+		// Set-Cookie is already mirrored in X-Scalar-Set-Cookie
+		if !isUntrustedResponseHeader(key) || strings.EqualFold(key, "Set-Cookie") {
+			continue
+		}
+
+		header.Set("X-Scalar-Original-"+http.CanonicalHeaderKey(key), strings.Join(values, ", "))
+	}
+
+	// Vary is forwarded, because the browser cache needs it, but the proxy adds
+	// its own values. Every modified header is hidden by the client, so pass on
+	// what the upstream sent.
+	for _, key := range proxyModifiedHeaders {
+		if values := upstream.Values(key); len(values) > 0 {
+			header.Set("X-Scalar-Original-"+key, strings.Join(values, ", "))
+		}
+	}
+
+	header.Set("Cache-Control", privateCacheControl(upstream.Values("Cache-Control")))
+	header.Set("Content-Security-Policy", untrustedContentSecurityPolicy)
+	// Stop browsers from sniffing a mislabeled response into an active type
+	header.Set("X-Content-Type-Options", "nosniff")
+	header.Set("X-Scalar-Modified-Headers", strings.Join(proxyModifiedHeaders, ", "))
 }
 
 // Handle preflight requests and ensures browsers can access the proxy regardless of where the request originates from.
@@ -591,4 +1497,23 @@ func corsMiddleware(next http.Handler) http.Handler {
 		// Pass down the request to the next middleware or handler
 		next.ServeHTTP(w, r)
 	})
+}
+
+// idleResponseBody only times time spent waiting on upstream data. Downstream
+// backpressure between reads must not consume the upstream idle budget.
+type idleResponseBody struct {
+	reader io.Reader
+	cancel context.CancelFunc
+	idle   time.Duration
+	timer  *time.Timer
+}
+
+func (body *idleResponseBody) Read(buffer []byte) (int, error) {
+	if body.timer == nil {
+		body.timer = time.AfterFunc(body.idle, body.cancel)
+	} else {
+		body.timer.Reset(body.idle)
+	}
+	defer body.timer.Stop()
+	return body.reader.Read(buffer)
 }

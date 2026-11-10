@@ -1,8 +1,13 @@
 package com.scalar.maven.core;
 
+
 import com.scalar.maven.core.authentication.ScalarAuthenticationOptions;
 import com.scalar.maven.core.config.DefaultHttpClient;
+import com.scalar.maven.core.config.ScalarHiddenClients;
+import com.scalar.maven.core.config.ScalarExternalUrls;
+import com.scalar.maven.core.config.ScalarPathRouting;
 import com.scalar.maven.core.config.ScalarAgentOptions;
+import com.scalar.maven.core.config.ScalarLocalizationOptions;
 import com.scalar.maven.core.config.ScalarMcpOptions;
 import com.scalar.maven.core.config.ScalarServer;
 import com.scalar.maven.core.config.ScalarSource;
@@ -35,6 +40,53 @@ import java.util.Map;
  * </pre>
  */
 public class ScalarProperties {
+
+    /** The application-relative base path for path-based navigation. */
+    private ScalarPathRouting pathRouting;
+
+    /** The document slug used in navigation URLs. */
+    private String slug;
+
+    /** The document title, separate from the HTML page title. */
+    private String title;
+
+    /** The inline API description, as text or an object. */
+    private Object content;
+
+    private Map<String, Object> contentMap;
+
+    /** The URLs of external Scalar services. */
+    private ScalarExternalUrls externalUrls;
+
+    /** The default OAuth 2.0 redirect URI. */
+    private String oauth2RedirectUri;
+
+    /** Whether navigation updates the browser URL and history. */
+    private Boolean urlRouting;
+
+    /** The clients hidden from code sample selection. */
+    private ScalarHiddenClients hiddenClients;
+
+    /** The full client identifiers shown as tabs, in order. */
+    private List<String> featuredClients;
+
+    /** The extension keys to display, each beginning with x-. */
+    private List<String> showExtensions;
+
+    /** The initial request body view: form or raw. */
+    private ScalarRequestBodyView defaultRequestBodyView;
+
+    /** The maximum initially visible request body properties; zero shows all. */
+    private Integer maxVisibleRequestBodyProperties;
+
+    /** Whether parameter details are initially expanded. */
+    private Boolean expandAllParameters;
+
+    /** Whether to enable arrow-key navigation for schema disclosures. */
+    private Boolean schemaKeyboardNav;
+
+    /** Whether to show structural types instead of model names. */
+    private Boolean hideModelNames;
 
     /**
      * The URL of the OpenAPI specification to display in the API Reference.
@@ -305,6 +357,11 @@ public class ScalarProperties {
      * disabled to true to turn off the agent for the entire reference.
      */
     private ScalarAgentOptions agent;
+
+    /**
+     * UI localization options. When omitted, the frontend uses English.
+     */
+    private ScalarLocalizationOptions localization;
 
     // Getters and setters
 
@@ -628,6 +685,24 @@ public class ScalarProperties {
         this.showDeveloperTools = showDeveloperTools;
     }
 
+    /**
+     * Gets UI localization options.
+     *
+     * @return the localization options, or null
+     */
+    public ScalarLocalizationOptions getLocalization() {
+        return localization;
+    }
+
+    /**
+     * Sets UI localization options.
+     *
+     * @param localization the localization options, or null to use frontend defaults
+     */
+    public void setLocalization(ScalarLocalizationOptions localization) {
+        this.localization = localization;
+    }
+
     public ScalarAgentOptions getAgent() {
         return agent;
     }
@@ -667,5 +742,298 @@ public class ScalarProperties {
     public void setMcp(ScalarMcpOptions mcp) {
         this.mcp = mcp;
     }
-}
 
+    /**
+     * Gets whether to show structural types instead of model names.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getHideModelNames() {
+        return hideModelNames;
+    }
+
+    /**
+     * Sets whether to show structural types instead of model names.
+     *
+     * @param hideModelNames the configured value, or null to use the frontend default
+     */
+    public void setHideModelNames(Boolean hideModelNames) {
+        this.hideModelNames = hideModelNames;
+    }
+
+    /**
+     * Gets whether to enable arrow-key navigation for schema disclosures.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getSchemaKeyboardNav() {
+        return schemaKeyboardNav;
+    }
+
+    /**
+     * Sets whether to enable arrow-key navigation for schema disclosures.
+     *
+     * @param schemaKeyboardNav the configured value, or null to use the frontend default
+     */
+    public void setSchemaKeyboardNav(Boolean schemaKeyboardNav) {
+        this.schemaKeyboardNav = schemaKeyboardNav;
+    }
+
+    /**
+     * Gets whether parameter details are initially expanded.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getExpandAllParameters() {
+        return expandAllParameters;
+    }
+
+    /**
+     * Sets whether parameter details are initially expanded.
+     *
+     * @param expandAllParameters the configured value, or null to use the frontend default
+     */
+    public void setExpandAllParameters(Boolean expandAllParameters) {
+        this.expandAllParameters = expandAllParameters;
+    }
+
+    /**
+     * Gets the maximum initially visible request body properties; zero shows all.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Integer getMaxVisibleRequestBodyProperties() {
+        return maxVisibleRequestBodyProperties;
+    }
+
+    /**
+     * Sets the maximum initially visible request body properties; zero shows all.
+     *
+     * @param maxVisibleRequestBodyProperties the configured value, or null to use the frontend default
+     */
+    public void setMaxVisibleRequestBodyProperties(Integer maxVisibleRequestBodyProperties) {
+        this.maxVisibleRequestBodyProperties = maxVisibleRequestBodyProperties;
+    }
+
+    /**
+     * Gets the initial request body view: form or raw.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarRequestBodyView getDefaultRequestBodyView() {
+        return defaultRequestBodyView;
+    }
+
+    /**
+     * Sets the initial request body view: form or raw.
+     *
+     * @param defaultRequestBodyView the configured value, or null to use the frontend default
+     */
+    public void setDefaultRequestBodyView(ScalarRequestBodyView defaultRequestBodyView) {
+        this.defaultRequestBodyView = defaultRequestBodyView;
+    }
+
+    /**
+     * Gets the extension keys to display, each beginning with x-.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public List<String> getShowExtensions() {
+        return showExtensions;
+    }
+
+    /**
+     * Sets the extension keys to display, each beginning with x-.
+     *
+     * @param showExtensions the configured value, or null to use the frontend default
+     */
+    public void setShowExtensions(List<String> showExtensions) {
+        this.showExtensions = showExtensions;
+    }
+
+    /**
+     * Gets the full client identifiers shown as tabs, in order.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public List<String> getFeaturedClients() {
+        return featuredClients;
+    }
+
+    /**
+     * Sets the full client identifiers shown as tabs, in order.
+     *
+     * @param featuredClients the configured value, or null to use the frontend default
+     */
+    public void setFeaturedClients(List<String> featuredClients) {
+        this.featuredClients = featuredClients;
+    }
+
+    /**
+     * Gets the clients hidden from code sample selection.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarHiddenClients getHiddenClients() {
+        return hiddenClients;
+    }
+
+    /**
+     * Sets the clients hidden from code sample selection.
+     *
+     * @param hiddenClients the configured value, or null to use the frontend default
+     */
+    public void setHiddenClients(ScalarHiddenClients hiddenClients) {
+        this.hiddenClients = hiddenClients;
+    }
+
+    /**
+     * Gets whether navigation updates the browser URL and history.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Boolean getUrlRouting() {
+        return urlRouting;
+    }
+
+    /**
+     * Sets whether navigation updates the browser URL and history.
+     *
+     * @param urlRouting the configured value, or null to use the frontend default
+     */
+    public void setUrlRouting(Boolean urlRouting) {
+        this.urlRouting = urlRouting;
+    }
+
+    /**
+     * Gets the default OAuth 2.0 redirect URI.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getOauth2RedirectUri() {
+        return oauth2RedirectUri;
+    }
+
+    /**
+     * Sets the default OAuth 2.0 redirect URI.
+     *
+     * @param oauth2RedirectUri the configured value, or null to use the frontend default
+     */
+    public void setOauth2RedirectUri(String oauth2RedirectUri) {
+        this.oauth2RedirectUri = oauth2RedirectUri;
+    }
+
+    /**
+     * Gets the URLs of external Scalar services.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarExternalUrls getExternalUrls() {
+        return externalUrls;
+    }
+
+    /**
+     * Sets the URLs of external Scalar services.
+     *
+     * @param externalUrls the configured value, or null to use the frontend default
+     */
+    public void setExternalUrls(ScalarExternalUrls externalUrls) {
+        this.externalUrls = externalUrls;
+    }
+
+    /**
+     * Gets the inline API description, as text or an object.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public Object getContent() {
+        return contentMap == null ? content : contentMap;
+    }
+
+    /**
+     * Sets the inline API description, as text or an object.
+     *
+     * @param content the configured value, or null to use the frontend default
+     */
+    public void setContent(Object content) {
+        if (content != null && !(content instanceof String) && !(content instanceof java.util.Map<?, ?>)) {
+            throw new IllegalArgumentException("Content must be text or an object");
+        }
+        this.content = content;
+        this.contentMap = null;
+    }
+
+    /**
+     * Gets the document title, separate from the HTML page title.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Sets the document title, separate from the HTML page title.
+     *
+     * @param title the configured value, or null to use the frontend default
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Gets the document slug used in navigation URLs.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public String getSlug() {
+        return slug;
+    }
+
+    /**
+     * Sets the document slug used in navigation URLs.
+     *
+     * @param slug the configured value, or null to use the frontend default
+     */
+    public void setSlug(String slug) {
+        this.slug = slug;
+    }
+
+    /**
+     * Gets inline object content for Spring binding.
+     *
+     * @return the object content, or null when text or programmatic content is used
+     */
+    public Map<String, Object> getContentMap() {
+        return contentMap;
+    }
+
+    /**
+     * Sets inline object content through Spring properties, replacing text content.
+     * Serialized as content; contentMap is never sent to the frontend.
+     *
+     * @param contentMap the API description object, or null
+     */
+    public void setContentMap(Map<String, Object> contentMap) {
+        this.contentMap = contentMap;
+        this.content = null;
+    }
+
+    /**
+     * Gets the application-relative base path for path-based navigation.
+     *
+     * @return the configured value, or null to use the frontend default
+     */
+    public ScalarPathRouting getPathRouting() {
+        return pathRouting;
+    }
+
+    /**
+     * Sets the application-relative base path for path-based navigation.
+     *
+     * @param pathRouting the configured value, or null to use the frontend default
+     */
+    public void setPathRouting(ScalarPathRouting pathRouting) {
+        this.pathRouting = pathRouting;
+    }
+}

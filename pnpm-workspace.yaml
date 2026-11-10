@@ -41,7 +41,7 @@ catalogs:
     '@tailwindcss/vite': ^4.3.3
     '@tanstack/vue-query': 5.104.3
     '@types/express': 5.0.6
-    '@types/jsdom': 28.0.3
+    '@types/jsdom': 30.0.0
     '@types/mdast': ^4.0.4
     '@types/node': ^24.19.2
     '@types/picomatch': 4.0.3
@@ -66,7 +66,7 @@ catalogs:
     remark-gfm: ^4.0.1
     remark-stringify: ^11.0.0
     unified: ^11.0.5
-    commander: 14.0.3
+    commander: 15.0.0
     concurrently: 10.0.6
     cross-env: 10.1.0
     express: 5.3.0
@@ -80,16 +80,17 @@ catalogs:
     github-slugger: 2.0.0
     highlight.js: ^11.12.0
     js-base64: ^3.9.4
-    jsdom: 29.0.1
+    jsdom: 30.1.3
     jsonc-parser: 3.3.1
     jwt-decode: 4.0.0
     microdiff: 1.5.0
-    monaco-editor: 0.54.0
-    monaco-yaml: 5.4.1
+    monaco-editor: 0.57.0
+    monaco-yaml: 5.5.1
     nanoid: ^5.1.16
-    next: ^15.5.28
+    next: ^16.4.3
     neverpanic: 0.0.8
     picomatch: ^4.0.7
+    proto-parser: 0.0.9
     postcss: ^8.5.30
     quickjs-emscripten: 0.32.0
     radix-vue: ^1.9.17
@@ -105,12 +106,11 @@ catalogs:
     truncate-json: 3.0.1
     tsx: 4.23.15
     undici: 8.12.3
-    vite-plugin-monaco-editor-esm: 2.0.3
     vite-ssg: 28.3.0
     vite-svg-loader: 5.1.3
     vite-plugin-css-injected-by-js: ^5.0.2
     vite: 8.3.4
-    vitest: 4.1.12
+    vitest: 5.0.5
     vue-router: 5.4.0
     vue-tsc: 3.3.11
     vue: ^3.5.44
@@ -143,8 +143,10 @@ allowBuilds:
 
 # pnpm 12 no longer reads the "pnpm" field in package.json; overrides live here now.
 overrides:
+  # Monaco 0.57 pins DOMPurify before the fixes in 3.4.17.
+  'monaco-editor@0.57.0>dompurify': 3.4.17
   '@types/node': catalog:*
-  fast-uri@3.1.2: 3.0.1
+  fast-uri@3.1.2: 4.2.3
   lodash: 4.18.1
   # Keep Mermaid's transitive Lodash ES dependency on the patched release.
   lodash-es: 4.18.1
@@ -171,9 +173,19 @@ minimumReleaseAgeExclude:
   - next@15.5.14
   # Renovate security update: ajv@8.18.0
   - ajv@8.18.0
-  # Electron runtime update, released September 29, 2026
-  - electron@44.5.1
+  # Electron runtime update, released September 29, 2026 || 44.9.1
+  - electron@44.5.1 || 44.9.1
   # Security patches for the October 2026 Undici advisories.
   - undici@7.30.1
   # Explicitly reviewed Undici 8 upgrade.
   - undici@8.12.3
+  # Renovate security update: fast-uri@3.1.9 || 4.2.3
+  - fast-uri@3.1.9 || 4.2.3
+  # Renovate security update: nuxt@4.6.3
+  - nuxt@4.6.3
+  # Renovate security update: pnpm@10.34.5
+  - pnpm@10.34.5
+  # Renovate security update: @sveltejs/kit@3.0.0
+  - '@sveltejs/kit@3.0.0'
+patchedDependencies:
+  proto-parser@0.0.9: patches/proto-parser@0.0.9.patch

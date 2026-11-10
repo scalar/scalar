@@ -5,9 +5,9 @@ import { beforeEach, vi } from 'vitest'
  * jsdom does not implement it, which can surface as unhandled rejections after
  * Monaco initializes asynchronously.
  *
- * Do not `vi.mock('monaco-editor')` here: `App` and `config.ts` load real
- * `monaco-editor/esm/...` contributions, which expect full `editor.api`
- * exports such as `Emitter`. A stub module breaks those imports.
+ * Do not `vi.mock('monaco-editor')` here: `config.ts` imports `monaco-editor`
+ * directly to register its language and editor contributions. The app needs
+ * the real editor API; a stub module breaks initialization.
  */
 const cssEscapeIdent = (value: string): string => {
   let out = ''

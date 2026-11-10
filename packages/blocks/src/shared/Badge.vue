@@ -32,7 +32,7 @@ const badgeStyle = computed(() =>
 </template>
 
 <style scoped>
-.badge-colored {
+.badge.badge-colored {
   background-color: var(--badge-color);
   /* Fallback for browsers without relative color syntax: a darker shade of the
      background, which is readable on pale colors but muddy on mid-tones. */
@@ -44,7 +44,7 @@ const badgeStyle = computed(() =>
    and letting the channel clamp turns that into 0 or 100, with no color parsing
    in JavaScript and no opinion about which format the color was written in. */
 @supports (color: lch(from red calc((50 - l) * infinity) 0 0)) {
-  .badge-colored {
+  .badge.badge-colored {
     /* Keep text opaque even when the background color is transparent. */
     color: lch(from var(--badge-color) calc((50 - l) * infinity) 0 0 / 1);
   }

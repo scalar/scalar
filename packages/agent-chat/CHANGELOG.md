@@ -1,5 +1,20 @@
 # @scalar/agent-chat
 
+## 0.12.51
+
+### Patch Changes
+
+- [#10879](https://github.com/scalar/scalar/pull/10879): Omit response URLs and redact saved credentials from response headers and bodies before sending request tool output to the chat model.
+- [#10876](https://github.com/scalar/scalar/pull/10876): Require approval before executing any AI-generated API request, including GET requests that can send stored credentials or data.
+- [#10878](https://github.com/scalar/scalar/pull/10878): Validate AI request paths and require a usable selected server before attaching stored credentials or sending a request.
+
+## 0.12.50
+
+### Patch Changes
+
+- [#10862](https://github.com/scalar/scalar/pull/10862): Show post-response scripts, the agent and request history the response headers the API sent, instead of the values the Scalar proxy sets to protect its origin.
+- [#10869](https://github.com/scalar/scalar/pull/10869): Revert selected API description uploads in full mode until the backend supports them with agent-key authorization. Full mode uses the agent key's registered documents again.
+
 ## 0.12.49
 
 ## 0.12.48

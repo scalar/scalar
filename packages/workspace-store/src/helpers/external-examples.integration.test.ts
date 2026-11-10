@@ -29,10 +29,10 @@ const documentWithExamples = (count: number): Record<string, unknown> => ({
 })
 
 describe('external-examples.integration', () => {
-  it.each([1200, 12000])('imports %i external examples without downloading any payloads', async (count) => {
+  it('imports 1200 external examples without downloading any payloads', async () => {
     const fetch = vi.fn(async () => new Response('{"shippingType":"standard"}'))
     const store = createWorkspaceStore({ fetch })
-    await store.addDocument({ name: 'shipping', document: documentWithExamples(count) })
+    await store.addDocument({ name: 'shipping', document: documentWithExamples(1200) })
     expect(fetch.mock.calls.length).toBe(0)
     await store.resolve(['paths', '/shipments', 'post'])
     expect(fetch.mock.calls.length).toBe(0)

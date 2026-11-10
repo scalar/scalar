@@ -85,6 +85,7 @@ export async function fetchUrl(
     console.warn(`[WARN] Fetch failed with status ${result.status} ${result.statusText} for URL: ${url}`)
     return {
       ok: false,
+      status: result.status,
     }
   } catch {
     console.warn(`[WARN] Failed to parse JSON/YAML from URL: ${url}`)

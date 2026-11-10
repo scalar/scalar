@@ -5,6 +5,23 @@ import { describe, expect, it } from 'vitest'
 import { getParameterExamples } from './get-parameter-examples'
 
 describe('get-parameter-examples', () => {
+  it('resolves external-only examples without dropping their URL', () => {
+    expect(
+      getParameterExamples({
+        parameter: {
+          name: 'cookie',
+          in: 'header',
+          examples: {
+            external: {
+              $ref: '#/components/examples/Cookie',
+              '$ref-value': { externalValue: 'https://example.com/cookie.txt' },
+            },
+          },
+        },
+      }),
+    ).toStrictEqual([{ value: 'https://example.com/cookie.txt' }])
+  })
+
   it('unwraps named parameter examples without losing false or null', () => {
     expect(
       getParameterExamples({
@@ -111,6 +128,6 @@ describe('get-parameter-examples', () => {
       contentExamples: undefined,
     })
 
-    expect(examples).toStrictEqual([{ value: undefined }, 'archived'])
+    expect(examples).toStrictEqual(['archived'])
   })
 })

@@ -27,6 +27,9 @@ export const firstLazyLoadComplete = ref(false)
 /**
  * The id of the element we are currently scrolling to (the anchor target).
  *
+ * Custom layouts should observe this ref without assigning to it. Use
+ * scrollToLazy to navigate so the lazy bus can manage the scroll lifecycle.
+ *
  * Schema properties live inside collapsible disclosures that are not part of the
  * navigation tree, so the lazy bus cannot expand them the way it expands sidebar
  * parents. Instead we publish the active target here and let each collapsible
@@ -68,6 +71,12 @@ const clearScrollTarget = (id: string): void => {
 const intersectionBlockers = reactive<Set<string>>(new Set())
 
 const onRenderComplete = new Set<() => void>()
+
+/**
+ * Identifies the freeze that currently holds the page on its target.
+ * Only one navigation can own the scroll position, so a newer one ends the older freeze.
+ */
+let activeFreeze: symbol | undefined
 
 /** Cached content heights so placeholders can match when not rendered. */
 const lazyPlaceholderHeights = reactive<Map<string, number>>(new Map())
@@ -279,6 +288,8 @@ export const scrollToLazy = (
    */
   const isLazy = !readyQueue.has(id) || item?.children?.some((child) => !readyQueue.has(child.id))
 
+  // End the freeze of an earlier navigation, or it would pull the page back to its target
+  activeFreeze = undefined
   const unfreeze = isLazy ? freeze(id) : undefined
   addLazyCompleteCallback(unfreeze)
 
@@ -482,14 +493,22 @@ const tryScroll = (
 }
 
 const freeze = (id: string): (() => void) => {
+  const token = Symbol(id)
+  activeFreeze = token
   let stop = false
 
   const runFrame = (stopAfterFrame: boolean) => {
+    // A newer navigation owns the scroll position now
+    if (activeFreeze !== token) {
+      return
+    }
     const element = document.getElementById(id)
     if (element) {
       scrollToElement(element)
     }
-    if (!stopAfterFrame) {
+    if (stopAfterFrame) {
+      activeFreeze = undefined
+    } else {
       requestAnimationFrame(() => runFrame(stop))
     }
   }

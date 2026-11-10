@@ -161,7 +161,9 @@ A shared object used by this API.
                       "field1": "value1",
                       "field2": "value2",
                       "owner": {},
-                      "parent": {}
+                      "parent": {
+                        "field0": "value0"
+                      }
                     }
                   }
                 }
@@ -275,7 +277,9 @@ A shared object used by this API.
                       "field1": "value1",
                       "field2": "value2",
                       "owner": {},
-                      "parent": {}
+                      "parent": {
+                        "field0": "value0"
+                      }
                     }
                   }
                 }
@@ -497,7 +501,9 @@ A shared object used by this API.
                       "field1": "value1",
                       "field2": "value2",
                       "owner": {},
-                      "parent": {}
+                      "parent": {
+                        "field0": "value0"
+                      }
                     }
                   }
                 }

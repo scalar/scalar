@@ -1,5 +1,13 @@
 # @scalar/mock-server-docker
 
+## 0.2.78
+
+## 0.2.77
+
+### Patch Changes
+
+- [#10811](https://github.com/scalar/scalar/pull/10811): feat(mock-server): allow disabling request validation in the Docker image with the `--no-validate-request` flag or the `VALIDATE_REQUEST=false` environment variable, so requests that violate the API description get a mock response instead of a `422`
+
 ## 0.2.76
 
 ## 0.2.75

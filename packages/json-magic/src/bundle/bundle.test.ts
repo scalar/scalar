@@ -22,11 +22,52 @@ import {
   prefixInternalRefRecursive,
   resolveAndCopyReferences,
 } from './bundle'
+import { bundleWithDiagnostics } from './bundle-with-diagnostics'
 import { documentReferences } from './document-references'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 
 describe('bundle', () => {
+  it.each([
+    [undefined, false],
+    ['nested/Pet.yaml', false],
+    [undefined, true],
+    ['nested/Pet.yaml', true],
+  ] as const)(
+    'loads stored document relatives from their retrieval base with id %s (strict: %s)',
+    async ($id, strict) => {
+      const reads: string[] = []
+      const run = strict ? bundleWithDiagnostics : bundle
+      const result = await run(
+        {
+          entry: { $ref: '#/x-ext/a' },
+          'x-ext': { a: { ...($id ? { $id } : {}), value: { $ref: './common.yaml#/Value' } } },
+        },
+        {
+          origin: 'https://example.com/api/root.json',
+          treeShake: false,
+          plugins: [
+            {
+              type: 'loader',
+              validate: () => true,
+              exec: (uri) => {
+                reads.push(uri)
+                return Promise.resolve({ ok: true, data: { Value: { type: 'string' } }, raw: '' })
+              },
+            },
+          ],
+        },
+      )
+      expect(reads).toStrictEqual([
+        $id ? 'https://example.com/api/nested/common.yaml' : 'https://example.com/api/common.yaml',
+      ])
+      if (strict) expect(result['complete']).toBe(true)
+      const reference = (strict ? result['document'] : result)['x-ext'].a.value.$ref
+      expect(reference.startsWith('#/x-ext/')).toBe(true)
+      expect(reference.endsWith('/Value')).toBe(true)
+    },
+  )
+
   it.each([true, false])(
     'preserves authored URL edges while loading remote relatives (treeShake: %s)',
     async (treeShake) => {
@@ -3016,6 +3057,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onBeforeNodeProcess).toHaveBeenNthCalledWith(
@@ -3038,6 +3080,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
 
@@ -3062,6 +3105,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
       expect(onAfterNodeProcess).toHaveBeenNthCalledWith(
@@ -3082,6 +3126,7 @@ describe('bundle', () => {
           },
           loaders: [],
           origin: '/',
+          resolveReference: expect.any(Function),
         },
       )
     })

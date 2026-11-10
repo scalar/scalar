@@ -1,4 +1,4 @@
-import { X_SCALAR_SET_COOKIE } from '@/http/scalar-headers'
+import { X_SCALAR_MODIFIED_HEADERS, X_SCALAR_ORIGINAL_PREFIX, X_SCALAR_SET_COOKIE } from '@/http/scalar-headers'
 
 /**
  * Normalize headers:
@@ -31,7 +31,7 @@ export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false):
   delete headers[X_SCALAR_SET_COOKIE]
 
   /** Exact key of the modified headers header */
-  const modifiedHeaderKey = Object.keys(headers).find((key) => key.toLowerCase() === 'x-scalar-modified-headers')
+  const modifiedHeaderKey = Object.keys(headers).find((key) => key.toLowerCase() === X_SCALAR_MODIFIED_HEADERS)
 
   /** List of modified headers */
   const modifiedHeaders = modifiedHeaderKey
@@ -55,23 +55,24 @@ export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false):
 
   // Restore original headers (remove the `X-Scalar-Original-` prefix)
   Object.keys(headers).forEach((key) => {
-    // Case-insensitive regular expression
-    const ORIGINAL_KEY_REGEX = /^x-scalar-original-/i
-
-    if (ORIGINAL_KEY_REGEX.test(key)) {
-      const originalKey = key.replace(ORIGINAL_KEY_REGEX, '')
-      if (headers[key]) {
-        headers[originalKey] = headers[key]
+    if (key.toLowerCase().startsWith(X_SCALAR_ORIGINAL_PREFIX)) {
+      const originalKey = key.slice(X_SCALAR_ORIGINAL_PREFIX.length)
+      // A bare `X-Scalar-Original-` has no name to restore
+      if (!originalKey) {
         delete headers[key]
+        return
       }
+      // An upstream header can be empty, and our internal name must not show up for it
+      headers[originalKey] = headers[key] ?? ''
+      delete headers[key]
     }
   })
 
   // Normalizes the header keys
   Object.keys(headers).forEach((key) => {
     const formattedKey = formatHeaderKey(key)
-    if (key !== formattedKey && headers[key]) {
-      headers[formattedKey] = headers[key]
+    if (key !== formattedKey) {
+      headers[formattedKey] = headers[key] ?? ''
       delete headers[key]
     }
   })

@@ -7,6 +7,13 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves a custom default client', () => {
+    const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
+    expect(apiReferenceConfigurationSchema.parse({ defaultHttpClient }).defaultHttpClient).toStrictEqual(
+      defaultHttpClient,
+    )
+  })
+
   it('preserves an explicit extension allowlist and disables it by default', () => {
     expect(apiReferenceConfigurationSchema.parse({}).showExtensions).toBeUndefined()
     expect(apiReferenceConfigurationSchema.parse({ showExtensions: ['x-scopes'] }).showExtensions).toStrictEqual([

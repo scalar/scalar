@@ -39,6 +39,16 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 
 ## Custom Styling
 
+Set `--scalar-code-line-height` on a code component or an ancestor to customize code line spacing. Code blocks and direct users of `@scalar/code-highlight/css/code.css` default to `1.4`; Markdown fenced code keeps its `1.5` default.
+
+```css
+:root {
+  --scalar-code-line-height: 1.6;
+}
+```
+
+Prefer unitless values so spacing scales with the code font size. An `em` value resolves against the `pre` element, which uses the prose font size in Markdown rather than the code font size.
+
 You can pretty much style everything you see.
 [Here's an extreme example of what's possible.](https://windows98.apidocumentation.com/)
 

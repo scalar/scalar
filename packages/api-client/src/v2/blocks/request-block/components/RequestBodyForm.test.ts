@@ -1,6 +1,6 @@
 import type { ApiReferenceEvents } from '@scalar/workspace-store/events'
 import type { XScalarEnvironment } from '@scalar/workspace-store/schemas/extensions/document/x-scalar-environments'
-import type { ExampleObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
+import type { ExampleObject, SchemaObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, readonly, ref } from 'vue'
@@ -65,11 +65,250 @@ const mountRequestBodyForm = ({
     },
   })
 
+const schema: SchemaObject = {
+  type: 'object',
+  required: ['name', 'unit_id'],
+  properties: {
+    name: { type: 'string' },
+    unit_id: { type: 'integer' },
+    image: { type: 'string', format: 'binary' },
+    enabled: { type: 'boolean' },
+    tags: { type: 'array', items: { type: 'string' } },
+    files: { type: 'array', items: { type: 'string', format: 'binary' } },
+    nullableFiles: {
+      type: 'array',
+      items: { __scalar_: '', anyOf: [{ type: 'string', format: 'binary' }, { type: 'null' }] },
+    },
+    composedFile: { __scalar_: '', allOf: [{ type: 'string' }, { __scalar_: '', format: 'binary' }] },
+    meta: { type: 'object', properties: { label: { type: 'string' } } },
+  },
+}
+const value = { name: 'Widget', unit_id: 1, image: '', enabled: true, tags: ['a'], files: [], meta: { label: 'Label' } }
+
 describe('RequestBodyForm', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockFiles.value = null
     fileDialogOnChange = undefined
+  })
+
+  it.each([
+    ['image/png', true],
+    ['image/png, image/jpeg', true],
+    ['application/json', false],
+    ['text/plain', false],
+  ])('honors the %s encoding for string fields', (contentType, canUpload) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { avatar: '' } },
+        bodySchema: { type: 'object', properties: { avatar: { type: 'string' } } },
+        encoding: { avatar: { contentType } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const row = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'avatar')!
+    expect(row.findAll('button').some((button) => button.text() === 'Select File')).toBe(canUpload)
+    wrapper.unmount()
+  })
+
+  it.each<SchemaObject>([
+    { __scalar_: '', properties: { file: { type: 'array', items: { __scalar_: '' } } } },
+    { type: 'object', additionalProperties: { type: 'string', format: 'binary' } },
+  ])('preserves uploads for typeless and free-form file schemas', (bodySchema) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { file: '' } },
+        bodySchema,
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const fileRow = wrapper.findAllComponents(RequestTableRow).find((row) => row.props('data').name === 'file')!
+    expect(fileRow.findAll('button').some((button) => button.text() === 'Select File')).toBe(true)
+    wrapper.unmount()
+  })
+
+  it.each<[boolean | SchemaObject | undefined, boolean]>([
+    [undefined, true],
+    [true, true],
+    [false, false],
+    [{ type: 'string' }, false],
+    [{ type: 'string', format: 'binary' }, true],
+  ])('applies additionalProperties %j to both named extras and the blank row', (additionalProperties, canUpload) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { title: 'Photo', extra: '' } },
+        bodySchema: { type: 'object', properties: { title: { type: 'string' } }, additionalProperties },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(
+      wrapper.findAllComponents(RequestTableRow).map((row) => ({
+        name: row.props('data').name,
+        canUpload: row.findAll('button').some((button) => button.text() === 'Select File'),
+      })),
+    ).toStrictEqual([
+      { name: 'title', canUpload: false },
+      { name: 'extra', canUpload },
+      { name: '', canUpload },
+    ])
+    wrapper.unmount()
+  })
+
+  it('disables unknown uploads for closed and text-only additional properties', () => {
+    for (const additionalProperties of [false, { type: 'string' }] as const) {
+      const wrapper = mount(RequestBodyForm, {
+        props: {
+          example: { value: { extra: '' } },
+          bodySchema: { type: 'object', additionalProperties },
+          selectedContentType: 'multipart/form-data',
+          environment: defaultEnvironment,
+        },
+      })
+      expect(wrapper.findAll('button').some((button) => button.text() === 'Select File')).toBe(false)
+      wrapper.unmount()
+    }
+  })
+
+  it.each([
+    ['multipart/form-data', ['image', 'files', 'nullableFiles', 'composedFile', '']],
+    ['application/x-www-form-urlencoded', []],
+  ])('offers file controls only on supported fields for %s', (selectedContentType, expected) => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value },
+        bodySchema: schema,
+        selectedContentType,
+        environment: defaultEnvironment,
+      },
+    })
+    const rows = wrapper.findAllComponents(RequestTableRow)
+    expect(
+      rows
+        .filter((row) => row.findAll('button').some((button) => button.text() === 'Select File'))
+        .map((row) => row.props('data').name),
+    ).toStrictEqual(expected)
+    wrapper.unmount()
+  })
+
+  it('offers uploads on schema-less fields and the blank row', () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { freeform: 'text' } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)
+        .filter((row) => row.text().includes('Select File'))
+        .map((row) => row.props('data').name),
+    ).toStrictEqual(['freeform', ''])
+    wrapper.unmount()
+  })
+
+  it.each(['direct', 'intersection'])('updates file controls when the selected %s branch changes', async (kind) => {
+    const choice: SchemaObject = { __scalar_: '', oneOf: [{ type: 'string' }, { type: 'string', format: 'binary' }] }
+    const selectionKey = kind === 'direct' ? 'requestBody.payload.oneOf' : 'requestBody.payload.0.oneOf'
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { payload: '' } },
+        bodySchema: {
+          type: 'object',
+          properties: {
+            payload: kind === 'direct' ? choice : { __scalar_: '', allOf: [{ type: 'string' }, choice] },
+          },
+        },
+        compositionSelection: { [selectionKey]: 0 },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
+    await wrapper.setProps({ compositionSelection: { [selectionKey]: 1 } })
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(1)
+    await wrapper.setProps({ compositionSelection: { [selectionKey]: 0 } })
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
+    wrapper.unmount()
+  })
+
+  it('uploads and removes a declared file without changing text fields', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { name: 'Widget', image: '' } },
+        bodySchema: {
+          type: 'object',
+          required: ['name', 'image'],
+          properties: { name: { type: 'string' }, image: { type: 'string', format: 'binary' } },
+        },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const upload = wrapper.findAll('button').find((button) => button.text() === 'Select File')!
+    await upload.trigger('click')
+    const file = new File(['test content'], 'test.txt', { type: 'text/plain' })
+    expect(wrapper.emitted('update:formValue')).toStrictEqual([
+      [
+        [
+          { name: 'name', value: 'Widget', isDisabled: false },
+          { name: 'image', value: file, isDisabled: false },
+        ],
+      ],
+    ])
+    const remove = wrapper.findAll('button').find((button) => button.text() === 'Delete')!
+    await remove.trigger('click')
+    expect(wrapper.emitted('update:formValue')?.at(-1)).toStrictEqual([
+      [
+        { name: 'name', value: 'Widget', isDisabled: false },
+        { name: 'image', value: undefined, isDisabled: false },
+      ],
+    ])
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[1]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(1)
+    wrapper.unmount()
+  })
+
+  it('keeps an existing file removable when its schema describes text', async () => {
+    const wrapper = mount(RequestBodyForm, {
+      props: {
+        example: { value: { field: new File(['data'], 'data.txt') } },
+        bodySchema: { type: 'object', properties: { field: { type: 'string' } } },
+        selectedContentType: 'multipart/form-data',
+        environment: defaultEnvironment,
+      },
+    })
+    const remove = wrapper.findAll('button').find((button) => button.text() === 'Delete')!
+    await remove.trigger('click')
+    expect(
+      wrapper
+        .findAllComponents(RequestTableRow)[0]!
+        .findAll('button')
+        .filter((button) => button.text() === 'Select File').length,
+    ).toBe(0)
+    wrapper.unmount()
   })
 
   it.each(['multipart/form-data', 'application/x-www-form-urlencoded'])(

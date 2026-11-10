@@ -148,9 +148,11 @@ const isOrAlternatives = computed(
         weight="bold" />
       <span v-if="!hideLabel">{{ label }}</span>
     </button>
-    <template #floating>
+    <!-- Mount the wrapper with its content so Floating UI measures the full width immediately. -->
+    <template
+      v-if="isOpen"
+      #floating>
       <div
-        v-if="isOpen"
         ref="panelRef"
         :aria-label="panelLabel"
         class="bg-b-1 dark:bg-b-1.5 inset-shadow-border relative flex flex-col rounded-xl p-0.75 shadow-md"

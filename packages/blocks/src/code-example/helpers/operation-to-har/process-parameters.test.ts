@@ -11,6 +11,27 @@ import { describe, expect, it, vi } from 'vitest'
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
+  it('generates formatted query and header values while preserving authored examples', () => {
+    const result = processParameters({
+      harRequest: createHarRequest('https://example.com/events'),
+      defaultDisabled: false,
+      parameters: [
+        { name: 'email', in: 'query', schema: { type: 'string', format: 'email' } },
+        { name: 'X-Id', in: 'header', schema: { type: 'string', format: 'uuid4' } },
+        { name: 'contact', in: 'query', schema: { type: 'string', format: 'email', example: 'custom@example.org' } },
+        { name: 'plain', in: 'header', schema: { type: 'string' } },
+      ],
+    })
+    expect(result.queryString).toStrictEqual([
+      { name: 'email', value: 'hello@example.com' },
+      { name: 'contact', value: 'custom@example.org' },
+    ])
+    expect(result.headers).toStrictEqual([
+      { name: 'X-Id', value: '919108f7-52d1-4320-9bac-f847db4148a8' },
+      { name: 'plain', value: '' },
+    ])
+  })
+
   it.each([true, false])(
     'omits disabled nested properties from snippets with defaultDisabled %s',
     (defaultDisabled) => {

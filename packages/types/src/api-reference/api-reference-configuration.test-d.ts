@@ -1,8 +1,28 @@
 import { assertType, describe, it } from 'vitest'
 
 import type { ApiReferenceConfiguration } from './api-reference-configuration'
+import type { ApiReferenceConfiguration as PublicConfiguration } from './types'
 
 describe('defaultHttpClient', () => {
+  it('accepts custom samples in the public configuration type', () => {
+    assertType<PublicConfiguration['defaultHttpClient']>({ targetKey: 'custom', clientKey: 'python' })
+  })
+
+  it('keeps public built-in client ids narrow', () => {
+    assertType<PublicConfiguration['defaultHttpClient']>({
+      targetKey: 'node',
+      // @ts-expect-error Unknown client ids are only allowed for the custom target.
+      clientKey: 'not-a-client',
+    })
+  })
+
+  it('accepts a custom sample id', () => {
+    assertType<ApiReferenceConfiguration['defaultHttpClient']>({
+      targetKey: 'custom',
+      clientKey: 'python/1',
+    })
+  })
+
   it('accepts a target with one of its client ids', () => {
     assertType<ApiReferenceConfiguration['defaultHttpClient']>({
       targetKey: 'node',

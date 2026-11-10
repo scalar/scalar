@@ -1,6 +1,7 @@
 import type { WorkspaceStore } from '@/client'
 import type { TagEvents } from '@/events/definitions/tag'
 import { forEachPathItemOperation, getPathItemOperation } from '@/helpers/for-each-path-item-operation'
+import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
 import { getNavigationOptions } from '@/navigation/get-navigation-options'
@@ -128,7 +129,7 @@ export const deleteTag = (workspace: WorkspaceStore | null, payload: TagEvents['
   }
 
   // Clear tags from all operations that have this tag
-  Object.values(document.paths ?? {}).forEach((pathItemRef) => {
+  getPathEntries(document.paths).forEach(([, pathItemRef]) => {
     forEachPathItemOperation(pathItemRef, (_method, operationRef) => {
       const resolvedOperation = getResolvedRef(operationRef)
       if (!resolvedOperation) {

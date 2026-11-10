@@ -33,7 +33,7 @@ A few consequences worth knowing:
 - **A document where no channel speaks a supported protocol fails to load**, rather than quietly producing an SDK with no methods. The error names the protocols it found.
 - **Mixed documents still generate.** A document with a `wss` channel and a `kafka` channel produces a client for the first and a warning for the second.
 - **When a channel's servers disagree, the first supported protocol in declaration order wins.** A channel served over `wss` and `kafka` becomes a WebSocket method in either order, and one served over `https` and `wss` takes whichever is declared first. `AsyncApi/AmbiguousProtocol` names what was dropped. Order the `servers` map — or scope the channel with `channel.servers` — to control which transport survives.
-- **A channel records only the servers matching its transport.** The connection itself is still opened from the client's selected base URL, not from the channel's servers. That holds for every target with a WebSocket runtime (TypeScript, Python, Rust, and the CLI); Python also accepts a separate `websocket_base_url` client option for the socket. So do not select an environment built from a broker server such as a Kafka host. Other targets open no connection at all; see [Target support](#target-support).
+- **A channel records only the servers matching its transport.** The connection itself is still opened from the client's selected base URL, not from the channel's servers. That holds for every target with a WebSocket runtime (TypeScript, Python, Rust, PHP, and the CLI); Python also accepts a separate `websocket_base_url` client option for the socket. So do not select an environment built from a broker server such as a Kafka host. Other targets open no connection at all; see [Target support](#target-support).
 
 ## Send and receive
 
@@ -109,12 +109,12 @@ What feeds that method:
 
 - **The channel address** is the endpoint, and every `{braced}` segment becomes a required path parameter. `channel.parameters` supplies each one's description, default, and allowed values — an AsyncAPI parameter is always a string substituted into the address, with an optional enum.
 - **The `ws` binding** describes the handshake. Its `query` and `headers` object schemas become ordinary query parameters and headers on the connect call, with the schema's `required` list deciding which are mandatory. A binding on an operation refines the channel's, key by key.
-- **Reconnection, send queueing, and raw frame access depend on the target.** TypeScript (and the CLI) and Python queue sends and can reconnect once you supply a reconnect handler; Rust connects, sends, and receives typed events, with no reconnection. In TypeScript and the CLI, iterating a connection also yields lifecycle items (`connecting`, `open`, `closing`, `close`, `reconnecting`, `reconnected`, `raw`, `error`) alongside `{ type: 'message', message }` for each event received; Python and Rust yield the received events directly. This is the same WebSocket runtime used for WebSocket operations declared in an OpenAPI document.
+- **Reconnection, send queueing, and raw frame access depend on the target.** TypeScript (and the CLI), Python, and PHP queue sends and can reconnect once you supply a reconnect handler (PHP's is the `onReconnecting` option); Rust connects, sends, and receives typed events, with no reconnection. In TypeScript and the CLI, iterating a connection also yields lifecycle items (`connecting`, `open`, `closing`, `close`, `reconnecting`, `reconnected`, `raw`, `error`) alongside `{ type: 'message', message }` for each event received; Python, PHP, and Rust yield the received events directly; PHP also dispatches them, and its lifecycle events, to listeners registered with `on()`. This is the same WebSocket runtime used for WebSocket operations declared in an OpenAPI document.
 - The handshake is always a `GET`, because that is what a WebSocket upgrade is. A `ws` binding asking for another method is reported.
 
 ### Target support
 
-WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, and the generated **CLI**. Other targets generate the event types but nothing that opens a connection, which is why generated starter configs limit every connect method to those four targets with `only`.
+WebSocket runtimes ship in **TypeScript**, **Python**, **Rust**, **PHP**, and the generated **CLI**. Go, Ruby, C#, Kotlin, Java, and Dart generate the event types but nothing that opens a connection, and Swift and C++ leave the connect method out with no event types, which is why generated starter configs limit every connect method to those five targets with `only`.
 
 If you generate a target outside that list from an all-WebSocket document, you get `AsyncApi/NoMethodsGenerated` for the target: models, auth, and a client, but nothing to call. A connect method you do not limit with `only` or `skip` also reports `Unsupported/WebSocketMethod` for that target.
 
@@ -232,7 +232,7 @@ As with OpenAPI, the config is the source of truth for the SDK's public shape: a
           "endpoint": "get /chat/{roomId}",
           "verb": "get",
           "path": "/chat/{roomId}",
-          "only": ["typescript", "python", "rust", "cli"],
+          "only": ["typescript", "python", "rust", "php", "cli"],
           "asyncapi": { "channel": "chat" }
         }
       }
@@ -277,7 +277,7 @@ Every AsyncAPI-specific rule, gradable and suppressible through the [`diagnostic
 | `Unsupported/AsyncApiSecurityScheme` | `info` | A security scheme family has no HTTP-shaped credential to generate. |
 | `Unsupported/AsyncApiContentType` | `warn` | An HTTP channel's messages state a media type no runtime decodes. |
 | `Unsupported/AsyncApiFeature` | `info` | The channel declares something not modelled yet. The specific gap rides in `data.feature`. |
-| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection. |
+| `Unsupported/WebSocketMethod` | `warn` | A WebSocket method is configured for a target with no WebSocket runtime, so that target's SDK carries the method's event types but nothing that opens a connection (Swift and C++ leave the method out entirely). |
 | `AsyncApi/AmbiguousProtocol` | `warn` | A channel's servers disagree on protocol; names which one won. |
 | `AsyncApi/ChannelNotConfigured` | `warn` | The document declares a channel no configured method binds. |
 | `AsyncApi/NoMethodsGenerated` | `warn` | A target ends up with models and a client but no methods. |
@@ -305,7 +305,7 @@ Parts of the specification that are read and reported rather than generated. Mos
 The starter config a first run writes treats every channel as a WebSocket channel, HTTP channels included: each gets a `connect` method with `"kind": "websocket"`. That leaves three rough edges for HTTP channels, all fixable by hand. Only the first is reported:
 
 - Every channel is written with `"verb": "get"`. A channel whose SDK-sent messages carry payloads needs a body-carrying verb — change it to `post` — or those payloads are dropped, which is what `AsyncApi/UnsendablePayload` reports.
-- Every channel is limited with `only: ["typescript", "python", "rust", "cli"]`, including HTTP channels that every target could generate. Remove `only` on those channels and change their `kind` to `http` to generate them everywhere. Nothing reports this.
+- Every channel is limited with `only: ["typescript", "python", "rust", "php", "cli"]`, including HTTP channels that every target could generate. Remove `only` on those channels and change their `kind` to `http` to generate them everywhere. Nothing reports this.
 - Every channel's method is keyed `connect`. Rename the key (for example to `stream`) for a more natural method name. Nothing reports this either.
 
 **Not produced**

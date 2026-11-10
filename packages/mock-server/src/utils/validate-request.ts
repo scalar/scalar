@@ -1,5 +1,6 @@
 import { getFirstMediaType } from '@scalar/helpers/http/get-first-media-type'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
+import { useDecimalMultipleOf } from '@scalar/json-schema-validator/decimal-multiple-of'
 import type { OpenAPIV3_1, OpenAPIV3_2 } from '@scalar/openapi-types'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
@@ -8,6 +9,8 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import type { Context, MiddlewareHandler } from 'hono'
 import { getCookie } from 'hono/cookie'
+
+import { pathParameters } from '@/utils/path-parameters'
 
 import {
   type ParameterLocation,
@@ -18,6 +21,7 @@ import {
   isObjectSchema,
   resolveSerialization,
 } from './deserialize-parameter'
+import { dropReadOnlyRequired } from './drop-read-only-required'
 import { findQuerystringParameter, getQuerystringJsonSchema, parseQuerystringParameter } from './querystring-parameter'
 import { replaceCircularMarkers } from './replace-circular-markers'
 
@@ -226,10 +230,12 @@ const compileValidators = (
 ): CompiledValidators => {
   // Coerce string parameters to their declared types (integer, boolean, …).
   const parameterAjv = new Ajv2020({ strict: false, allErrors: true, coerceTypes: true })
+  useDecimalMultipleOf(parameterAjv)
   addFormats(parameterAjv)
 
   // Do not coerce the JSON body; a JSON value already carries its type and coercion would mask errors.
   const bodyAjv = new Ajv2020({ strict: false, allErrors: true })
+  useDecimalMultipleOf(bodyAjv)
   addFormats(bodyAjv)
 
   // Path-item parameters apply to every operation, so fold them in before building the schemas.
@@ -249,7 +255,9 @@ const compileValidators = (
   let bodySchema: Record<string, unknown> | null = null
   try {
     const jsonSchema = getResolvedRef(requestBody?.content?.['application/json'])?.schema
-    bodySchema = jsonSchema ? asCompilableSchema(getResolvedRefDeep(jsonSchema)) : null
+    bodySchema = jsonSchema
+      ? (dropReadOnlyRequired(asCompilableSchema(getResolvedRefDeep(jsonSchema))) as Record<string, unknown>)
+      : null
   } catch (error) {
     console.error('Error resolving request body schema, skipping body validation:', error)
   }
@@ -410,6 +418,7 @@ export const validateRequest = (
     //    survives deserialization;
     //  - cookie supplies a `getMap` (each exploded `form` object property is its own cookie);
     //  - header names are matched case-insensitively by Hono's `c.req.header`.
+    const requestPathParameters = pathParameters(c)
     const parameterLocations: Array<{
       validator: ValidateFunction | null
       descriptors: ParameterDescriptor[]
@@ -422,7 +431,7 @@ export const validateRequest = (
         validator: validators.path,
         descriptors: validators.pathParameters,
         location: 'path',
-        getValue: (name) => c.req.param(name),
+        getValue: (name) => requestPathParameters[name],
       },
       {
         validator: validators.query,

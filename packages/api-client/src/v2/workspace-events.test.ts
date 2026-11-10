@@ -1,6 +1,10 @@
 import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
 import { createWorkspaceStore } from '@scalar/workspace-store/client'
 import { createWorkspaceEventBus } from '@scalar/workspace-store/events'
+import { getPathItemOperation } from '@scalar/workspace-store/helpers/for-each-path-item-operation'
+import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
+import { getExampleFromBody } from '@scalar/workspace-store/request-example'
+import { isOpenApiDocument } from '@scalar/workspace-store/schemas/type-guards'
 import { flushPromises } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
@@ -8,6 +12,48 @@ import { ref } from 'vue'
 import { initializeWorkspaceEventHandlers } from './workspace-events'
 
 describe('workspace-events', () => {
+  it('resets after flushing queued typing without reverting other request data', async () => {
+    const store = createWorkspaceStore()
+    await store.addDocument({
+      name: 'api',
+      document: {
+        openapi: '3.1.0',
+        info: { title: 'Reset', version: '1' },
+        paths: {
+          '/items': {
+            post: {
+              requestBody: { content: { 'application/json': { example: { name: 'original' } } } },
+              responses: { '200': { description: 'OK' } },
+            },
+          },
+        },
+      },
+    })
+    const eventBus = createWorkspaceEventBus()
+    const stop = initializeWorkspaceEventHandlers({ eventBus, store: ref(store), hooks: {} })
+    const meta = { path: '/items', method: 'post', exampleKey: 'default' } as const
+    eventBus.emit(
+      'operation:update:requestBody:value',
+      { meta, contentType: 'application/json', payload: 'changed' },
+      { debounceKey: 'body' },
+    )
+    eventBus.flushDebouncedEmits?.()
+    eventBus.emit('operation:reset:requestBody', { documentName: 'api', meta, contentType: 'application/json' })
+    await vi.waitFor(() => {
+      const document = store.workspace.documents.api
+      if (!isOpenApiDocument(document)) {
+        throw new Error('Missing document')
+      }
+      const body = getResolvedRef(getResolvedRef(getPathItemOperation(document.paths?.['/items'], 'post'))?.requestBody)
+      // A concrete example is created by reset, so this cannot pass on the initial media example.
+      expect(getResolvedRef(body?.content['application/json']?.examples?.default)?.value).toStrictEqual({
+        name: 'original',
+      })
+      expect(getExampleFromBody(body!, 'application/json', 'default')?.value).toStrictEqual({ name: 'original' })
+    })
+    stop()
+  })
+
   it.each([false, true])('persists API key name edits with configuration enabled: %s', async (configured) => {
     const store = createWorkspaceStore()
     await store.addDocument({
