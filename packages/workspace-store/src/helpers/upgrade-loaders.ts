@@ -10,7 +10,6 @@ import {
   decodeUriFragment,
   resolveReferencePath,
 } from '@scalar/json-magic/bundle'
-import { upgrade } from '@scalar/openapi-upgrader'
 import { upgradeFromThreeToThreeOne } from '@scalar/openapi-upgrader/3.0-to-3.1'
 
 import { deepClone } from './deep-clone'
@@ -31,6 +30,19 @@ const fragments = new WeakSet<object>()
 const convertedNodes = new WeakSet<object>()
 const deferredReferences = new WeakMap<object, () => unknown>()
 const pointerRemaps = new WeakMap<object, RemapPointer>()
+const fragmentLocations = new WeakMap<object, { document: object; path: string[] }>()
+const fragmentMoves = new WeakMap<object, Map<string, string[]>>()
+
+const remap = (pointer: readonly string[], moves: Map<string, string[]>): readonly string[] => {
+  let remapped = pointer
+  for (let length = pointer.length; length > 0; length--) {
+    const destination = moves.get(JSON.stringify(pointer.slice(0, length)))
+    if (destination) {
+      remapped = [...destination, ...remapped.slice(length)]
+    }
+  }
+  return remapped
+}
 
 /** Upgrade versioned documents immediately, and headerless files only at their referring OpenAPI location. */
 export const upgradeLoadedDocument = (
@@ -62,7 +74,12 @@ export const upgradeLoadedDocument = (
     const contextPath = path.map((key) => (!key || isPollutionKey(key) ? 'fragment' : key))
     const document: Record<string, unknown> = { openapi: entryVersion }
     setValueAtPath(document, contextPath, data)
-    return getValueAtPath(upgrade(document, '3.1'), contextPath)
+    return getValueAtPath(
+      upgradeFromThreeToThreeOne(document, (from, to) =>
+        recordRelocation?.(from.slice(contextPath.length), to.slice(contextPath.length)),
+      ),
+      contextPath,
+    )
   }
 
   // A shared schema map can contain names such as `components` or `paths`. Without a
@@ -84,6 +101,7 @@ export const upgradeLoaders = (
   entryVersion: unknown,
   basePath: readonly string[] = [],
 ): Plugin[] => {
+  let bundleRoot: Record<string, unknown> | undefined
   const paths = new WeakMap<object, readonly string[]>()
   // Resolvers retain the originating resource and follow current objects after an upgrade replaces children.
   const resolvedReferences = new WeakMap<object, () => unknown>()
@@ -139,7 +157,10 @@ export const upgradeLoaders = (
     }
     protectConverted(target)
     const input = replacements.size ? deepClone(target, cloneCache) : target
-    const upgraded = upgradeLoadedDocument(input, entryVersion, path)
+    const moves = new Map<string, string[]>()
+    const upgraded = upgradeLoadedDocument(input, entryVersion, path, (from, to) => {
+      moves.set(JSON.stringify(from), to)
+    })
     if (!isObject(upgraded) || upgraded === target) {
       return
     }
@@ -167,6 +188,45 @@ export const upgradeLoaders = (
     }
     Object.assign(target, upgraded)
     convertedNodes.add(raw)
+    const location = fragmentLocations.get(raw)
+    const documentMoves = location && fragmentMoves.get(location.document)
+    if (location && documentMoves && moves.size) {
+      for (const [from, to] of moves) {
+        const segments = JSON.parse(from) as string[]
+        documentMoves.set(JSON.stringify([...location.path, ...segments]), [...location.path, ...to])
+      }
+      // References bundled before this ancestor was upgraded already point into x-ext.
+      const external = bundleRoot?.['x-ext']
+      const key = isObject(external)
+        ? Object.keys(external).find((name) => unpackProxyShallow(external[name]) === location.document)
+        : undefined
+      if (key !== undefined) {
+        const prefix = ['x-ext', key, ...location.path]
+        const seen = new WeakSet<object>()
+        const rewrite = (value: unknown): void => {
+          if (typeof value !== 'object' || value === null || seen.has(value)) {
+            return
+          }
+          seen.add(value)
+          if (isObject(value) && typeof value.$ref === 'string' && value.$ref.startsWith('#/x-ext/')) {
+            const pointer = decodeUriFragment(value.$ref.slice(1)).slice(1).split('/').map(unescapeJsonPointerSegment)
+            if (prefix.every((segment, index) => pointer[index] === segment)) {
+              const relative = pointer.slice(prefix.length)
+              const relocated = remap(relative, moves)
+              if (relative !== relocated) {
+                value.$ref =
+                  '#/' +
+                  [...prefix, ...relocated]
+                    .map((segment) => encodeURIComponent(segment.replaceAll('~', '~0').replaceAll('/', '~1')))
+                    .join('/')
+              }
+            }
+          }
+          Object.values(value).forEach(rewrite)
+        }
+        rewrite(bundleRoot)
+      }
+    }
     for (const [key, child] of Object.entries(target)) {
       indexNodes(child, [...path, key])
     }
@@ -190,20 +250,23 @@ export const upgradeLoaders = (
             relocations.set(JSON.stringify(from), to)
           })
           if (isObject(data) && relocations.size) {
-            pointerRemaps.set(data, (pointer) => {
-              let remapped = pointer
-              // The upgrader visits children first. Apply moves in that order so a
-              // pointer below two moved ancestors follows both of them.
-              for (let length = pointer.length; length > 0; length--) {
-                const destination = relocations.get(JSON.stringify(pointer.slice(0, length)))
-                if (destination) {
-                  remapped = [...destination, ...remapped.slice(length)]
-                }
-              }
-              return remapped
-            })
+            pointerRemaps.set(data, (pointer) => remap(pointer, relocations))
           }
           const isFragment = isThreeZero(entryVersion) && isObject(data) && !getVersionHeader(data)
+          if (isFragment) {
+            fragmentMoves.set(data, relocations)
+            pointerRemaps.set(data, (pointer) => remap(pointer, relocations))
+            const indexLocations = (value: unknown, path: string[]): void => {
+              if (typeof value !== 'object' || value === null || fragmentLocations.has(value)) {
+                return
+              }
+              fragmentLocations.set(value, { document: data, path })
+              for (const [key, child] of Object.entries(value)) {
+                indexLocations(child, [...path, key])
+              }
+            }
+            indexLocations(data, [])
+          }
           indexNodes(data, isFragment ? undefined : [])
           return { ...result, data }
         })
@@ -225,6 +288,7 @@ export const upgradeLoaders = (
         if (!isThreeZero(entryVersion) || typeof node.$ref !== 'string') {
           return
         }
+        bundleRoot = context.rootNode
         const reference = node.$ref
         const path = paths.get(unpackProxyShallow(node)) ?? [...basePath, ...context.path]
         // Unreferenced portions of a bare file have no known OpenAPI object kind yet.
@@ -250,7 +314,10 @@ export const upgradeLoaders = (
             return undefined
           }
           const targetPath = fragment ? fragment.slice(1).split('/').map(unescapeJsonPointerSegment) : []
-          return getValueAtPath(result.data, targetPath)
+          return getValueAtPath(
+            result.data,
+            isObject(result.data) ? [...(pointerRemaps.get(result.data)?.(targetPath) ?? targetPath)] : targetPath,
+          )
         }
         upgradeTarget(await resolveTarget(), path)
       },

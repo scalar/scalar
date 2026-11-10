@@ -17,12 +17,40 @@ describe('upgrade-loaders', () => {
 
     const result = upgradeLoadedDocument(input, '3.1.0')
 
-    expect(result).toMatchObject({
+    expect(result).toStrictEqual({
       openapi: '3.1.1',
+      info: input.info,
       components: { schemas: { Item: { type: ['string', 'null'] } } },
     })
     // The loaded object is not modified
     expect(input.openapi).toBe('3.0.3')
+  })
+
+  it.each([
+    ['Child', 'Parent'],
+    ['Parent', 'Child'],
+  ])('preserves pointers to a relocated bare schema when resolving %s before %s', async (first, second) => {
+    const url = 'https://example.test/shared.json'
+    const data = { Parent: { nullable: true, allOf: [{ type: 'string' }] } }
+    const refs = { Child: `${url}#/Parent/allOf/0`, Parent: `${url}#/Parent` }
+    const document = {
+      openapi: '3.1.1',
+      components: {
+        schemas: Object.fromEntries([first, second].map((name) => [name, { $ref: refs[name as keyof typeof refs] }])),
+      },
+    }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    const resolve = (name: string): unknown =>
+      getValueAtPath(document, parseJsonPointerSegments(document.components.schemas[name]!.$ref.slice(1)))
+    expect(resolve('Child')).toStrictEqual({ type: 'string' })
+    expect(getValueAtPath(resolve('Parent'), ['anyOf', '0'])).toBe(resolve('Child'))
   })
 
   it('resolves external and local pointers to schemas moved during a complete document upgrade', async () => {
@@ -290,9 +318,10 @@ describe('upgrade-loaders', () => {
 
     expect(loader?.validate('x')).toBe(true)
     expect(await loader?.exec('missing')).toEqual({ ok: false })
-    expect(await loader?.exec('x')).toMatchObject({
+    expect(await loader?.exec('x')).toStrictEqual({
       ok: true,
-      data: { components: { schemas: { A: { type: ['string', 'null'] } } } },
+      raw: '',
+      data: { openapi: '3.1.1', components: { schemas: { A: { type: ['string', 'null'] } } } },
     })
   })
   it.each([

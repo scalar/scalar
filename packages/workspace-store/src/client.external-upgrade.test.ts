@@ -200,20 +200,18 @@ describe('client.external-upgrade', () => {
   it('upgrades a complete OpenAPI 3.0 document next to an OpenAPI 3.0 entry document', async () => {
     const name = await getNameSchema('3.0.3', 'https://example.test/schemas/Item.json#/components/schemas/Item')
 
-    expect(name).toMatchObject({ type: ['string', 'null'] })
-    expect(name).not.toHaveProperty('nullable')
+    expect(name).toStrictEqual({ type: ['string', 'null'] })
   })
 
   it('upgrades a complete OpenAPI 3.0 document next to an OpenAPI 3.1 entry document', async () => {
     const name = await getNameSchema('3.1.0', 'https://example.test/schemas/Item.json#/components/schemas/Item')
 
-    expect(name).toMatchObject({ type: ['string', 'null'] })
+    expect(name).toStrictEqual({ type: ['string', 'null'] })
   })
 
   it('upgrades a bare schema file referenced from an OpenAPI 3.0 entry document', async () => {
     const name = await getNameSchema('3.0.3', 'https://example.test/schemas/Bare.json')
 
-    expect(name).toMatchObject({ type: ['string', 'null'] })
-    expect(name).not.toHaveProperty('nullable')
+    expect(name).toStrictEqual({ type: ['string', 'null'] })
   })
 })
