@@ -340,19 +340,14 @@ export type LoaderPlugin = {
 /**
  * Context information for a node during traversal or processing.
  *
- * Note: The `path` parameter represents the path to the current node being processed.
- * If you are performing a partial bundle (i.e., providing a custom root), this path will be relative
- * to the root you provide, not the absolute root of the original document. You may need to prefix
- * it with your own base path if you want to construct a full path from the absolute document root.
- *
- * - `path`: The JSON pointer path (as an array of strings) from the document root to the current node.
  * - `resolutionCache`: A cache for storing promises of resolved references.
  * - `origin`: The origin (URL or file path) of the document this node lives in. Lifecycle plugins can
  *   use it to resolve relative references (for example an example's `externalValue`) into absolute URLs.
  */
 type NodeProcessContext = {
+  /** JSON Pointer segments to this node, relative to the root identified by `pathRelativeToInput`. */
   path: readonly string[]
-  /** True when path is relative to the input subtree instead of the document root. */
+  /** True for input-subtree-relative paths and false for document-root-relative paths. */
   pathRelativeToInput: boolean
   referencedFromPath?: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
