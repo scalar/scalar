@@ -386,7 +386,7 @@ jobs:
     uses: ./.github/workflows/release.yml
     secrets: inherit
 
-  # Fan out to every non-JS integration registry (DockerHub, NuGet, PyPI,
+  # Fan out to non-Python, non-JS integration registries (DockerHub, NuGet,
   # crates.io, Maven Central). Invoked here rather than inside release.yml so
   # the web and galaxy deploys below — which need release outputs, available
   # only when every release.yml job has finished — do not wait behind slow
@@ -420,17 +420,140 @@ jobs:
       aspnetcore_package_changed: ${{ needs.check-changes.outputs.aspnetcore_package_changed }}
       aspire_package_changed: ${{ needs.check-changes.outputs.aspire_package_changed }}
       azure_functions_package_changed: ${{ needs.check-changes.outputs.azure_functions_package_changed }}
-      fastapi_package_changed: ${{ needs.check-changes.outputs.fastapi_package_changed }}
-      django_ninja_package_changed: ${{ needs.check-changes.outputs.django_ninja_package_changed }}
       rust_package_changed: ${{ needs.check-changes.outputs.rust_package_changed }}
       java_package_changed: ${{ needs.check-changes.outputs.java_package_changed }}
       docker_build_passed: ${{ needs.integration-builds.outputs.docker_build_passed }}
       dotnet_build_passed: ${{ needs.integration-builds.outputs.dotnet_build_passed }}
-      fastapi_build_passed: ${{ needs.integration-builds.outputs.fastapi_build_passed }}
-      django_ninja_build_passed: ${{ needs.integration-builds.outputs.django_ninja_build_passed }}
       rust_build_passed: ${{ needs.integration-builds.outputs.rust_build_passed }}
       java_build_passed: ${{ needs.integration-builds.outputs.java_build_passed }}
     secrets: inherit
+
+  # PyPI trusted publishing runs here because the publishing action does not
+  # support OIDC inside reusable workflows. Build packages without OIDC access.
+  # See .github/PYPI_PUBLISHING.md for the required PyPI publisher registrations.
+  fastapi-pack:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      needs.release.outputs.npm_publish_status == 'success' &&
+      needs.release.outputs.published == 'true' &&
+      needs.check-changes.outputs.fastapi_package_changed == 'true' &&
+      needs.integration-builds.outputs.fastapi_build_passed == 'true'
+    needs: [check-changes, integration-builds, release]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/fastapi
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build FastAPI package
+        working-directory: integrations/fastapi
+        run: python -m build
+
+      - name: Upload FastAPI distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: fastapi-pypi
+          path: integrations/fastapi/dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  fastapi-publish:
+    if: ${{ !cancelled() && needs.fastapi-pack.result == 'success' }}
+    needs: fastapi-pack
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
+    timeout-minutes: 10
+    concurrency:
+      group: fastapi-publish
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+    steps:
+      - name: Download FastAPI distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: fastapi-pypi
+          path: dist/
+
+      - name: Publish FastAPI package to PyPI
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          attestations: true
+
+  django-ninja-pack:
+    if: |
+      !cancelled() &&
+      github.ref == 'refs/heads/main' &&
+      needs.release.outputs.npm_publish_status == 'success' &&
+      needs.release.outputs.published == 'true' &&
+      needs.check-changes.outputs.django_ninja_package_changed == 'true' &&
+      needs.integration-builds.outputs.django_ninja_build_passed == 'true'
+    needs: [check-changes, integration-builds, release]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        working-directory: integrations/django-ninja
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+
+      - name: Build Django Ninja package
+        working-directory: integrations/django-ninja
+        run: python -m build
+
+      - name: Upload Django Ninja distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: django-ninja-pypi
+          path: integrations/django-ninja/dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  django-ninja-publish:
+    if: ${{ !cancelled() && needs.django-ninja-pack.result == 'success' }}
+    needs: django-ninja-pack
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-pypi
+    timeout-minutes: 10
+    concurrency:
+      group: django-ninja-publish
+      cancel-in-progress: false
+    permissions:
+      id-token: write
+    steps:
+      - name: Download Django Ninja distributions
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: django-ninja-pypi
+          path: dist/
+
+      - name: Publish Django Ninja package to PyPI
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          attestations: true
 
   # Desktop build via ToDesktop when scalar-app's version bumped on this
   # commit. Hoisted out of release.yml for the same reason as

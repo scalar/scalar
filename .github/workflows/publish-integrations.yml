@@ -1,7 +1,7 @@
 name: Publish Integrations
 
-# Reusable workflow that publishes every non-JS integration to its registry
-# (DockerHub, NuGet, PyPI, crates.io, Maven Central). Only ever invoked from
+# Reusable workflow that publishes non-Python, non-JS integrations to their registries
+# (DockerHub, NuGet, crates.io, Maven Central). Only ever invoked from
 # main.yml on pushes to `main`, after the npm-publish job in release.yml
 # succeeded — the pr.yml / main.yml trigger split still keeps this workflow
 # unreachable from pull requests. Each job is gated by the per-package
@@ -30,12 +30,6 @@ on:
       azure_functions_package_changed:
         type: string
         required: true
-      fastapi_package_changed:
-        type: string
-        required: true
-      django_ninja_package_changed:
-        type: string
-        required: true
       rust_package_changed:
         type: string
         required: true
@@ -52,12 +46,6 @@ on:
         type: string
         required: true
       dotnet_build_passed:
-        type: string
-        required: true
-      fastapi_build_passed:
-        type: string
-        required: true
-      django_ninja_build_passed:
         type: string
         required: true
       rust_build_passed:
@@ -512,72 +500,6 @@ jobs:
         env:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: dotnet nuget push nupkgs/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
-
-  fastapi-publish:
-    if: inputs.published == 'true' && inputs.fastapi_package_changed == 'true' && inputs.fastapi_build_passed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-pypi
-    timeout-minutes: 10
-    concurrency:
-      group: fastapi-publish
-      cancel-in-progress: false
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-
-      - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.11'
-
-      - name: Install build dependencies
-        working-directory: integrations/fastapi
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Build FastAPI package
-        working-directory: integrations/fastapi
-        run: python -m build
-
-      - name: Publish FastAPI package to PyPI
-        working-directory: integrations/fastapi
-        run: |
-          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
-
-  django-ninja-publish:
-    if: inputs.published == 'true' && inputs.django_ninja_package_changed == 'true' && inputs.django_ninja_build_passed == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    environment: production-pypi
-    timeout-minutes: 10
-    concurrency:
-      group: django-ninja-publish
-      cancel-in-progress: false
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-
-      - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.11'
-
-      - name: Install build dependencies
-        working-directory: integrations/django-ninja
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Build Django Ninja package
-        working-directory: integrations/django-ninja
-        run: python -m build
-
-      - name: Publish Django Ninja package to PyPI
-        working-directory: integrations/django-ninja
-        run: |
-          twine upload --username __token__ --password ${{ secrets.PYPI_TOKEN }} dist/*
 
   rust-publish:
     if: inputs.published == 'true' && inputs.rust_package_changed == 'true' && inputs.rust_build_passed == 'true'
