@@ -383,6 +383,18 @@
 }
 
 /* Keep everything still when motion is unwelcome: the bits hang in place, the cursor stays lit, and the client simply opens */
+/*
+ * On short, narrow screens (about 200% zoom) the modal grows to fill the screen, so there is no
+ * room around it for the API client decorations and they would cover its header. Keep this query
+ * in step with the `zoomed` variant in packages/themes/src/tailwind/variants.css.
+ */
+@media (max-width: 720px) and (max-height: 480px) {
+  .scalar-client--open::before,
+  .scalar-client--open::after {
+    content: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .section-flare-item,
   .section-flare-item::after,
