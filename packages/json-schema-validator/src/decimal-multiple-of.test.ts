@@ -10,6 +10,8 @@ describe('decimal-multiple-of', () => {
 
     expect(ajv.compile({ type: 'integer', multipleOf: 128 })(value)).toBe(true)
     expect(ajv.compile({ type: 'integer', multipleOf: 256 })(value)).toBe(false)
+    expect(ajv.compile({ type: 'integer', multipleOf: 1.5 })(value)).toBe(true)
+    expect(ajv.compile({ type: 'integer', multipleOf: 2.5 })(value)).toBe(false)
   })
 
   it('preserves Ajv error metadata and parameter coercion', () => {

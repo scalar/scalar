@@ -4,6 +4,11 @@ import { type FuncKeywordDefinition, _, str } from 'ajv'
 type Decimal = { coefficient: bigint; exponent: number }
 
 const toDecimal = (value: number): Decimal => {
+  // Shortest decimal strings can change the exact value of large integers.
+  if (Number.isInteger(value)) {
+    return { coefficient: BigInt(value), exponent: 0 }
+  }
+
   const [mantissa = '', exponent = '0'] = value.toString().split('e')
   const [integer = '', fraction = ''] = mantissa.split('.')
   return { coefficient: BigInt(integer + fraction), exponent: Number(exponent) - fraction.length }
@@ -12,7 +17,7 @@ const toDecimal = (value: number): Decimal => {
 /**
  * Replace Ajv's floating-point multipleOf check with exact decimal divisibility.
  *
- * Use the decimal representation of each JavaScript number, including scientific notation.
+ * Preserve exact integer values and use the decimal representation for fractional numbers.
  * This avoids both rounding-error rejections and tolerance-based false positives. Precision
  * already lost when parsing JSON into JavaScript numbers cannot be recovered here.
  */
@@ -31,15 +36,9 @@ export const decimalMultipleOf: FuncKeywordDefinition = {
     }
 
     const denominator = toDecimal(divisor)
-    const integerDivisor = Number.isInteger(divisor) ? BigInt(divisor) : undefined
     return (value: number): boolean => {
       if (!Number.isFinite(value)) {
         return false
-      }
-
-      // Shortest decimal strings can change the exact value of large integers.
-      if (integerDivisor !== undefined && Number.isInteger(value)) {
-        return BigInt(value) % integerDivisor === 0n
       }
 
       const numerator = toDecimal(value)
