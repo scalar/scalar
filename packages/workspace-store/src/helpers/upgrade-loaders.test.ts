@@ -51,14 +51,98 @@ describe('upgrade-loaders', () => {
     })
   })
 
-  it('upgrades a headerless document body of an OpenAPI 3.0 entry document', () => {
-    const result = upgradeLoadedDocument(
-      { components: { schemas: { Item: { type: 'string', nullable: true } } } },
-      '3.0.3',
-    )
+  it('waits for reference context before upgrading a headerless file', () => {
+    const input = { components: { schemas: { Item: { type: 'string', nullable: true } } } }
 
-    expect(result).toEqual({ components: { schemas: { Item: { type: ['string', 'null'] } } } })
+    expect(upgradeLoadedDocument(input, '3.0.3')).toBe(input)
   })
+
+  it('upgrades a schema referenced within a headerless document body', async () => {
+    const data = { components: { schemas: { Item: { type: 'string', nullable: true, example: 'hello' } } } }
+    const loader: LoaderPlugin = {
+      type: 'loader',
+      validate: () => true,
+      exec: () => Promise.resolve({ ok: true, raw: JSON.stringify(data), data }),
+    }
+    const document = {
+      openapi: '3.1.1',
+      components: { schemas: { Item: { $ref: 'https://example.test/shared.json#/components/schemas/Item' } } },
+    }
+
+    await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+    expect(
+      getValueAtPath(document, parseJsonPointerSegments(document.components.schemas.Item.$ref.slice(1))),
+    ).toStrictEqual({ type: ['string', 'null'], examples: ['hello'] })
+    expect(data.components.schemas.Item).toStrictEqual({ type: 'string', nullable: true, example: 'hello' })
+  })
+
+  it.each(['openapi', 'swagger', 'asyncapi', 'paths', 'components', 'webhooks'])(
+    'retains reference context for a shared schema map containing "%s"',
+    async (name) => {
+      const schema = { type: 'string', nullable: true, example: 'hello' }
+      const data = { [name]: schema, Item: schema }
+      const loads: string[] = []
+      const loader: LoaderPlugin = {
+        type: 'loader',
+        validate: () => true,
+        exec: (url) => {
+          loads.push(url)
+          return Promise.resolve({ ok: true, raw: JSON.stringify(data), data })
+        },
+      }
+      const document = {
+        openapi: '3.1.1',
+        components: {
+          schemas: {
+            Named: { $ref: `https://example.test/shared.json#/${name}` },
+            Item: { $ref: 'https://example.test/shared.json#/Item' },
+          },
+        },
+      }
+
+      await bundle(document, { treeShake: false, plugins: upgradeLoaders([loader], '3.0.3') })
+
+      for (const reference of Object.values(document.components.schemas)) {
+        expect(getValueAtPath(document, parseJsonPointerSegments(reference.$ref.slice(1)))).toStrictEqual({
+          type: ['string', 'null'],
+          examples: ['hello'],
+        })
+      }
+      expect(loads).toStrictEqual(['https://example.test/shared.json'])
+      expect(schema).toStrictEqual({ type: 'string', nullable: true, example: 'hello' })
+    },
+  )
+
+  it.each(['https://example.test/openapi.json', './openapi.json'])(
+    'resolves references to the loaded entry URI "%s" without fetching it again',
+    async (uri) => {
+      const loads: string[] = []
+      const loader: LoaderPlugin = {
+        type: 'loader',
+        validate: () => true,
+        exec: (url) => {
+          loads.push(url)
+          return Promise.reject(new Error('The entry document is already loaded'))
+        },
+      }
+      const document = {
+        openapi: '3.1.1',
+        components: {
+          schemas: { Item: { type: 'string' }, Alias: { $ref: `${uri}#/components/schemas/Item` } },
+        },
+      }
+
+      await bundle(document, {
+        origin: 'https://example.test/openapi.json',
+        treeShake: false,
+        plugins: upgradeLoaders([loader], '3.0.3'),
+      })
+
+      expect(document.components.schemas.Alias).toStrictEqual({ $ref: '#/components/schemas/Item' })
+      expect(loads).toStrictEqual([])
+    },
+  )
 
   it.each(['', 'constructor', 'prototype', '__proto__'])('upgrades a fragment at property name "%s"', (name) => {
     expect(
