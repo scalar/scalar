@@ -319,7 +319,7 @@
  * whenever the modal opens. The arrival uses `backwards` fill only: a transform left on the
  * modal afterwards would trap its fixed-position children.
  */
-.scalar-client--open .scalar-client {
+.scalar-client--open > .scalar-client {
   animation: scalar-valentine-arrive 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) 0.25s backwards;
 }
 .scalar-client--open::before,
@@ -431,7 +431,7 @@
   .section-flare-item,
   .references-rendered::before,
   .references-rendered::after,
-  .scalar-client--open .scalar-client {
+  .scalar-client--open > .scalar-client {
     animation: none !important;
   }
   /* No arrow or burst over the modal; it simply opens */
