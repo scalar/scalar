@@ -11,6 +11,8 @@ import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 export type DocumentIdentity = {
   /** Declared base URI, resolved relative to the retrieval URI when necessary. */
   baseUri: string
+  /** Translate an authored document pointer when a loader moved its target before registration. */
+  remapPointer?: (segments: readonly string[]) => readonly string[]
   /** Root properties retained on copies embedded in the bundle; never applied to the source document. */
   metadata?: Record<string, unknown>
 }
@@ -221,7 +223,13 @@ export const documentReferences = (
       if (!resource) {
         return undefined
       }
-      const segments = bundled ? pointer.slice(2) : pointer
+      // Bundle-local pointers already address the upgraded document's layout.
+      let segments: readonly string[] = pointer
+      if (bundled) {
+        segments = pointer.slice(2)
+      } else if (!resource.schema) {
+        segments = identities.get(resource.document)?.remapPointer?.(pointer) ?? pointer
+      }
       // Relocated documents can retain explicit pointers to their enclosing bundle.
       const rootResource = rootUri === undefined ? undefined : resources.get(rootUri)
       if (
@@ -234,6 +242,7 @@ export const documentReferences = (
         getValueByPath(rootResource.value, pointer).value !== undefined
       ) {
         resource = rootResource
+        segments = pointer
       }
       const location = [...resource.path, ...segments]
       const value = getValueByPath(resource.value, segments).value
@@ -246,7 +255,7 @@ export const documentReferences = (
       const isDeclaredRootSchemaReference =
         !resource.embedded && resource.schema && Boolean(prefix) && prefix === resource.identifier
       // Fragment-only document references already address the root without relocation.
-      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix
+      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix && segments === pointer
 
       return {
         path: location.map(escapeJsonPointer).join('/'),

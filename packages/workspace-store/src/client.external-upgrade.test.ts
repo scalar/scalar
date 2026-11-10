@@ -55,6 +55,42 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it.each([false, true])('upgrades cached fragments across lazy calls (local alias: %s)', async (alias) => {
+    const store = createWorkspaceStore()
+    const loads: string[] = []
+    const url = 'https://example.test/shared.json'
+    const data = {
+      First: { type: 'string', nullable: true },
+      Second: alias ? { $ref: '#/Target' } : { type: 'integer', nullable: true },
+      Target: { type: 'integer', nullable: true },
+    }
+    await store.addDocument({
+      name: 'default',
+      fetch: (input): Promise<Response> => {
+        loads.push(String(input))
+        return Promise.resolve(new Response(JSON.stringify(data)))
+      },
+      document: {
+        openapi: '3.0.3',
+        info: { title: 'Example', version: '1' },
+        paths: {},
+        'x-scalar-navigation': { id: 'default', type: 'document', name: 'default', title: 'Example', children: [] },
+        components: {
+          schemas: { First: { $ref: url + '#/First' }, Second: { $ref: url + '#/Second' } },
+        },
+      },
+    })
+
+    expect(loads).toStrictEqual([])
+    await store.resolve(['components', 'schemas', 'First'])
+    await store.resolve(['components', 'schemas', 'Second'])
+
+    const schemas = getActiveOpenApiDocument(store)?.components?.schemas
+    expect(getResolvedRef(schemas?.First)).toStrictEqual({ type: ['string', 'null'] })
+    expect(getResolvedRef(schemas?.Second)).toStrictEqual({ type: ['integer', 'null'] })
+    expect(loads).toStrictEqual([url])
+  })
+
   it('upgrades a shared schema map whose names resemble document fields', async () => {
     const store = createWorkspaceStore()
     const data = {
