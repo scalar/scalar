@@ -5,6 +5,7 @@ import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -140,7 +141,7 @@ let generatedCurrentTime = false
 const requiredNamesCache = new WeakMap<object, ReadonlySet<string>>()
 
 /** Normalize schema identity for cache and cycle tracking */
-const getSchemaCacheTarget = (schema: SchemaObject): object => unpackProxyObject(schema, { depth: 1 })
+const getSchemaCacheTarget = (schema: object): object => unpackProxyObject(schema, { depth: 1 })
 
 /**
  * Retrieves the set of required property names from a schema.
@@ -847,6 +848,91 @@ const handleObjectSchema = (
   return cache(schema, response, cacheKey, skipCache)
 }
 
+/** Bound padding per array, counting repeated values by their serialized size; not a global output limit. */
+const MAX_ARRAY_PADDING_NODES = 1_000
+
+const countExampleNodes = (value: unknown, limit: number): number => {
+  if (limit <= 1 || value === null || typeof value !== 'object') {
+    return 1
+  }
+
+  let count = 1
+  for (const child of Array.isArray(value) ? value : Object.values(value)) {
+    count += countExampleNodes(child, limit - count)
+    if (count >= limit) {
+      break
+    }
+  }
+  return count
+}
+
+/** Ignore malformed bounds from unvalidated descriptions. */
+const readArrayLengthBound = (value: unknown, fallback: number): number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : fallback
+
+/** Recognize an array described by its item keywords when no type was declared. */
+const inferArrayType = (schema: SchemaObject): 'array' | undefined =>
+  !('properties' in schema) && ('items' in schema || 'prefixItems' in schema) ? 'array' : undefined
+
+/** Apply the same explicit-type and inference precedence at either union selection site. */
+const getSelectedType = (variant: SchemaObject | undefined, holder: SchemaObject): string | string[] | undefined =>
+  (variant && 'type' in variant ? variant.type : undefined) ??
+  ('type' in holder ? holder.type : undefined) ??
+  (hasUnencodedJsonContent(holder) ? 'string' : ((variant && inferArrayType(variant)) ?? inferArrayType(holder)))
+
+/** These keywords describe values without restricting which values the schema accepts. */
+const ITEM_ANNOTATIONS = new Set([
+  '$ref',
+  '$id',
+  '$schema',
+  '$anchor',
+  '$comment',
+  '$defs',
+  'definitions',
+  'title',
+  'description',
+  'deprecated',
+  'readOnly',
+  'writeOnly',
+  'examples',
+  'default',
+  'example',
+  'xml',
+  'externalDocs',
+])
+
+/** Keep constraints from the surrounding array when selecting a composition branch. */
+const mergeSelectedSchema = (schema: SchemaObject, variant: SchemaObject, isArray: boolean): SchemaObject => {
+  const { oneOf: _oneOf, anyOf: _anyOf, ...base } = schema
+  const merged = { ...base, ...variant } as SchemaObject
+  // Object properties would otherwise take precedence in non-object schema dispatch.
+  if ('properties' in merged) {
+    delete merged.properties
+  }
+  if (isArray) {
+    if ('minItems' in schema) {
+      Object.assign(merged, {
+        minItems: Math.max(
+          readArrayLengthBound(schema.minItems, 0),
+          readArrayLengthBound('minItems' in variant ? variant.minItems : undefined, 0),
+        ),
+      })
+    }
+    if ('maxItems' in schema) {
+      Object.assign(merged, {
+        maxItems: Math.min(
+          readArrayLengthBound(schema.maxItems, Number.POSITIVE_INFINITY),
+          readArrayLengthBound('maxItems' in variant ? variant.maxItems : undefined, Number.POSITIVE_INFINITY),
+        ),
+      })
+    }
+    if ('uniqueItems' in schema && schema.uniqueItems) {
+      Object.assign(merged, { uniqueItems: true })
+    }
+  }
+  return merged
+}
+
 /** Build an example for an array schema, including items, allOf, oneOf/anyOf, and XML wrapping */
 const handleArraySchema = (
   schema: SchemaObject,
@@ -860,19 +946,38 @@ const handleArraySchema = (
   const childScope = pushDynamicScope(dynamicScope, schema)
   const skipCache = dynamicScope.length > 0 || !!options?.[EXAMPLE_EVALUATION]
 
-  if ('prefixItems' in schema && Array.isArray(schema.prefixItems)) {
-    const values = schema.prefixItems.map((item, index) =>
+  const maxItems = readArrayLengthBound('maxItems' in schema ? schema.maxItems : undefined, Number.POSITIVE_INFINITY)
+  const minItems = Math.min(
+    readArrayLengthBound('minItems' in schema ? schema.minItems : undefined, 0),
+    maxItems,
+    MAX_ARRAY_PADDING_NODES,
+  )
+
+  if (maxItems === 0) {
+    return cache(schema, [], cacheKey, skipCache)
+  }
+
+  const prefixes = 'prefixItems' in schema && Array.isArray(schema.prefixItems) ? schema.prefixItems : undefined
+  const values =
+    prefixes?.slice(0, maxItems).map((item, index) =>
       getExampleFromSchema(item as SchemaObject, options, {
         level: level + 1,
         schemaPath: [...schemaPath, 'prefixItems', String(index)],
         seen,
         dynamicScope: childScope,
       }),
-    )
+    ) ?? []
+
+  if (prefixes && values.length >= minItems) {
     return cache(schema, values, cacheKey, skipCache)
   }
 
-  let items = 'items' in schema ? resolve.schema(schema.items) : undefined
+  const itemSchema = 'items' in schema ? (schema.items as typeof schema.items | boolean) : undefined
+  if (itemSchema === false) {
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
+  let items = resolve.schema(itemSchema)
   // Bind a dynamic item type (e.g. the generic `PaginatedResponse<T>` pattern) before inspecting it.
   // Crossing a `$dynamicRef` leaves the static schema graph, so the cycle guard built up by the outer
   // walk no longer applies to the bound type. Restart `seen` for the item recursion so recursive trees
@@ -894,6 +999,29 @@ const handleArraySchema = (
     return cache(schema, wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example, cacheKey, skipCache)
   }
 
+  const completeArrayExample = (examples: unknown[], sample: unknown = examples[0]): unknown => {
+    for (const example of examples) {
+      if (values.length >= maxItems || (prefixes && values.length >= minItems)) {
+        break
+      }
+      values.push(wrapItems ? { [itemsXmlTagName]: example } : example)
+    }
+
+    // Intentionally leave minItems unsatisfied for uniqueItems: repeating a sample violates
+    // uniqueness, and inventing distinct values can violate enum, bounds, or other constraints.
+    if (sample !== undefined && values.length < minItems && !('uniqueItems' in schema && schema.uniqueItems)) {
+      const value = wrapItems ? { [itemsXmlTagName]: sample } : sample
+      const remaining = MAX_ARRAY_PADDING_NODES - countExampleNodes(values, MAX_ARRAY_PADDING_NODES)
+      const size = countExampleNodes(value, MAX_ARRAY_PADDING_NODES)
+      const copies = Math.min(minItems - values.length, Math.floor(remaining / size))
+      for (let index = 0; index < copies; index++) {
+        values.push(value)
+      }
+    }
+
+    return cache(schema, values, cacheKey, skipCache)
+  }
+
   if (items && typeof items === 'object') {
     if (Array.isArray(items.allOf) && items.allOf.length > 0) {
       const allOf = items.allOf.filter(isDefined)
@@ -908,7 +1036,7 @@ const handleArraySchema = (
           seen: itemsSeen,
           dynamicScope: childScope,
         })
-        return cache(schema, wrapItems ? [{ [itemsXmlTagName]: merged }] : [merged], cacheKey, skipCache)
+        return completeArrayExample(isDefined(merged) ? [merged] : [])
       }
 
       const examples = allOf
@@ -926,7 +1054,7 @@ const handleArraySchema = (
       // the members describe one object. A primitive contribution keeps the existing per-member result.
       const result =
         examples.length > 0 && examples.every(isObject) ? [examples.reduce<unknown>(mergeExamples, {})] : examples
-      return cache(schema, wrapItems ? result.map((e) => ({ [itemsXmlTagName]: e })) : result, cacheKey, skipCache)
+      return completeArrayExample(result)
     }
 
     const anyOfKeyword = items.anyOf ? 'anyOf' : undefined
@@ -939,8 +1067,18 @@ const handleArraySchema = (
         getDiscriminatorSelectionIndex(items, union, options) ??
         0
       const selected = union[selectedIndex]!
+      const selectedTarget = getResolvedRef(selected)
+      const variant = resolve.schema(selected)
+      // Merging creates a new identity, so check the original branch before losing its cycle marker.
+      if (
+        (selectedTarget && typeof selectedTarget === 'object' && itemsSeen.has(getSchemaCacheTarget(selectedTarget))) ||
+        (variant && itemsSeen.has(getSchemaCacheTarget(variant)))
+      ) {
+        return values.length > 0 || level === 0 ? cache(schema, values, cacheKey, skipCache) : undefined
+      }
+      const selectedType = getSelectedType(variant, items)
       const ex = getExampleFromSchema(
-        resolve.schema(selected),
+        variant && selectedType === 'array' ? mergeSelectedSchema(items, variant, true) : variant,
         consumeCompositionSelection(options, itemsSchemaPath, compositionKeyword),
         {
           level: level + 1,
@@ -951,19 +1089,22 @@ const handleArraySchema = (
         },
       )
       if (ex === undefined) {
-        return undefined
+        return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
       const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
-      return cache(schema, wrapItems ? [{ [itemsXmlTagName]: tagged }] : [tagged], cacheKey, skipCache)
+      return completeArrayExample([tagged])
     }
   }
 
   const isObjectItems =
     items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
   const isArray =
-    items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
+    items &&
+    typeof items === 'object' &&
+    (('type' in items && items.type === 'array') || 'items' in items || 'prefixItems' in items)
 
-  if (items && typeof items === 'object' && (('type' in items && items.type) || isObjectItems || isArray)) {
+  const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
+  if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
     const ex = getExampleFromSchema(items, options, {
       level: level + 1,
       schemaPath: itemsSchemaPath,
@@ -972,12 +1113,31 @@ const handleArraySchema = (
     })
     // Propagate an omitted recursive item so optional arrays do not serialize it as null.
     if (ex === undefined) {
-      return undefined
+      return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
     }
-    return cache(schema, wrapItems ? [{ [itemsXmlTagName]: ex }] : [ex], cacheKey, skipCache)
+    return completeArrayExample([ex])
   }
 
-  return cache(schema, [], cacheKey, skipCache)
+  const target = getResolvedRef(itemSchema)
+  const unrestricted =
+    itemSchema === undefined ||
+    target === true ||
+    (target !== undefined && items && Object.keys(items).every((key) => ITEM_ANNOTATIONS.has(key)))
+  // The strict model does not yet expose contains, but runtime 3.1+ descriptions can provide it.
+  const contains =
+    'contains' in schema && schema.contains && typeof schema.contains === 'object' && !Array.isArray(schema.contains)
+      ? resolve.schema(schema.contains as SchemaObject)
+      : undefined
+  if (unrestricted && contains) {
+    const sample = getExampleFromSchema(contains, options, {
+      level: level + 1,
+      schemaPath: [...schemaPath, 'contains'],
+      seen: itemsSeen,
+      dynamicScope: childScope,
+    })
+    return completeArrayExample(sample === undefined ? [] : [sample])
+  }
+  return completeArrayExample([], unrestricted ? null : undefined)
 }
 
 /** Return primitive example value for single-type schemas, or undefined if not primitive */
@@ -1749,28 +1909,19 @@ const generateExampleFromSchema = (
   const selectedComposition = _schema.oneOf ? 'oneOf' : selectedAnyOf
   const selectedVariant = getSelectedVariant(_schema, options, schemaPath)
   if (selectedComposition && selectedVariant) {
-    const rootType = 'type' in _schema ? _schema.type : undefined
-    const variantType = 'type' in selectedVariant ? selectedVariant.type : undefined
-    const selectedType =
-      variantType ??
-      rootType ??
-      (hasUnencodedJsonContent(_schema)
-        ? 'string'
-        : 'items' in _schema && !('properties' in _schema)
-          ? 'array'
-          : undefined)
+    const selectedType = getSelectedType(selectedVariant, _schema)
     if (selectedType !== undefined && selectedType !== 'object') {
-      const { oneOf: _oneOf, anyOf: _anyOf, ...base } = _schema
-      const selectedSchema = { ...base, ...selectedVariant }
-      // These keywords only constrain their own types, but also drive our type inference.
-      if ('properties' in selectedSchema) {
-        delete selectedSchema.properties
+      if (seen.has(getSchemaCacheTarget(selectedVariant))) {
+        seen.delete(targetValue)
+        return undefined
       }
+      const selectedSchema = mergeSelectedSchema(_schema, selectedVariant, selectedType === 'array')
+      // These keywords only constrain their own types, but also drive our type inference.
       if (selectedType !== 'array' && 'items' in selectedSchema) {
         delete selectedSchema.items
       }
       const result = getExampleFromSchema(
-        selectedSchema as SchemaObject,
+        selectedSchema,
         consumeCompositionSelection(options, schemaPath, selectedComposition),
         {
           level: level + 1,
@@ -1928,7 +2079,10 @@ const asBinaryFile = (
   return value
 }
 
-/** Generate data, optionally retaining the exact schema decisions for another output format. */
+/**
+ * Generate data, optionally retaining the exact schema decisions for another output format.
+ * Treat returned values as read-only: cached results and padded items can share object references.
+ */
 export const getExampleFromSchema = (
   schema: SchemaObject,
   options?: GetExampleFromSchemaOptions,

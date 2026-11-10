@@ -8,6 +8,247 @@ import { type SchemaObject, SchemaObjectSchema } from '@/schemas/v3.2/strict/ope
 import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
+  it.each([
+    {
+      minItems: 2,
+      maxItems: 2,
+      expected: [
+        { id: 1, active: true },
+        { id: 1, active: true },
+      ],
+    },
+    { minItems: 0, maxItems: 1, expected: [{ id: 1, active: true }] },
+  ])('applies bounds after merging untyped allOf items: $minItems/$maxItems', ({ minItems, maxItems, expected }) => {
+    // Runtime schemas can omit type even though the strict model requires it.
+    const schema = {
+      type: 'array',
+      minItems,
+      maxItems,
+      items: { allOf: [{ properties: { id: { type: 'number' } } }, { properties: { active: { type: 'boolean' } } }] },
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(expected)
+  })
+
+  it.each([
+    { name: 'numeric items', schema: { items: { type: 'number' }, minItems: 2, maxItems: 2 }, expected: [1, 1] },
+    { name: 'zero maximum', schema: { items: { type: 'number' }, maxItems: 0 }, expected: [] },
+    {
+      name: 'object items',
+      schema: { items: { type: 'object', properties: { id: { type: 'number' } } }, minItems: 2 },
+      expected: [{ id: 1 }, { id: 1 }],
+    },
+    {
+      name: 'nested arrays',
+      schema: { items: { type: 'array', items: { type: 'number' }, minItems: 2 }, minItems: 2 },
+      expected: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+    {
+      name: 'oneOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { oneOf: [{ type: 'number' }, { type: 'string' }] }),
+        minItems: 2,
+      },
+      expected: [1, 1],
+    },
+    {
+      name: 'anyOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { anyOf: [{ type: 'number' }, { type: 'string' }] }),
+        minItems: 2,
+      },
+      expected: [1, 1],
+    },
+    {
+      name: 'object allOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, {
+          allOf: [
+            { type: 'object', properties: { id: { type: 'number' } } },
+            { type: 'object', properties: { active: { type: 'boolean' } } },
+          ],
+        }),
+        minItems: 2,
+      },
+      expected: [
+        { id: 1, active: true },
+        { id: 1, active: true },
+      ],
+    },
+    {
+      name: 'scalar allOf items',
+      schema: {
+        items: coerceValue(SchemaObjectSchema, { allOf: [{ type: 'number' }, { type: 'number' }] }),
+        maxItems: 1,
+      },
+      expected: [1],
+    },
+    {
+      name: 'shortened tuple',
+      schema: { prefixItems: [{ type: 'number' }, { type: 'string' }], maxItems: 1 },
+      expected: [1],
+    },
+    {
+      name: 'tuple with typed tail',
+      schema: { prefixItems: [{ type: 'string' }], items: { type: 'number' }, minItems: 3 },
+      expected: ['', 1, 1],
+    },
+    { name: 'empty prefixes', schema: { prefixItems: [], items: { type: 'number' }, minItems: 2 }, expected: [1, 1] },
+    {
+      name: 'nested tuple inferred from prefixes',
+      schema: { items: coerceValue(SchemaObjectSchema, { prefixItems: [{ type: 'number' }] }), minItems: 2 },
+      expected: [[1], [1]],
+    },
+    {
+      name: 'reference to an empty item schema',
+      schema: { items: { $ref: '#/$defs/Any', '$ref-value': {} }, minItems: 2 },
+      expected: [null, null],
+    },
+    {
+      name: 'untyped const items',
+      schema: { items: coerceValue(SchemaObjectSchema, { const: 'fixed' }), minItems: 2 },
+      expected: ['fixed', 'fixed'],
+    },
+    {
+      name: 'stricter outer maximum',
+      schema: { items: { type: 'number' }, maxItems: 0, anyOf: [{ type: 'array', maxItems: 1 }] },
+      expected: [],
+    },
+    {
+      name: 'stricter outer minimum',
+      schema: { items: { type: 'number' }, minItems: 3, oneOf: [{ type: 'array', minItems: 1 }] },
+      expected: [1, 1, 1],
+    },
+    { name: 'omitted items', schema: { minItems: 2 }, expected: [null, null] },
+    {
+      name: 'annotation-only items',
+      schema: { items: { description: 'Any', title: 'Any value' } as SchemaObject, minItems: 2 },
+      expected: [null, null],
+    },
+    {
+      name: 'empty item schema',
+      schema: { items: {} as SchemaObject, minItems: 2 },
+      expected: [null, null],
+    },
+    { name: 'unique items', schema: { items: { type: 'number' }, minItems: 2, uniqueItems: true }, expected: [1] },
+    { name: 'explicit example', schema: { items: { type: 'number' }, maxItems: 0, example: [4, 5] }, expected: [4, 5] },
+  ] satisfies { name: string; schema: Omit<Extract<SchemaObject, { type: 'array' }>, 'type'>; expected: unknown[] }[])(
+    'applies array length bounds for $name',
+    ({ schema, expected }) => {
+      expect(getExampleFromSchema({ type: 'array', ...schema })).toStrictEqual(expected)
+    },
+  )
+
+  it('keeps outer bounds when selecting a tuple inferred from prefixes', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      maxItems: 0,
+      anyOf: [{ prefixItems: [{ type: 'number' }], maxItems: 1 }],
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([])
+  })
+
+  it('uses contains as the padding sample when items are unrestricted', () => {
+    const schema = {
+      type: 'array',
+      contains: { type: 'string', const: 'match' },
+      minItems: 2,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual(['match', 'match'])
+  })
+
+  it.each(['oneOf', 'anyOf'] as const)('stops recursive array items selected through %s', (keyword) => {
+    const tree: SchemaObject = { type: 'array' }
+    tree.items = {
+      [keyword]: [{ $ref: '#/$defs/Tree', '$ref-value': tree }, { type: 'string' }],
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
+    expect(getExampleFromSchema(tree)).toStrictEqual([])
+  })
+
+  it('keeps outer bounds when selecting an array inside items', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: {
+        type: 'array',
+        items: { type: 'number' },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
+  it('ignores object properties when selecting a nested array branch', () => {
+    const schema = coerceValue(SchemaObjectSchema, {
+      type: 'array',
+      items: {
+        type: 'array',
+        properties: { ignored: { type: 'number' } },
+        maxItems: 0,
+        anyOf: [{ type: 'array', items: { type: 'number' }, maxItems: 1 }],
+      },
+    })
+    expect(getExampleFromSchema(schema)).toStrictEqual([[]])
+  })
+
+  it('keeps outer uniqueness when selecting an array branch', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: { type: 'number' },
+      minItems: 2,
+      uniqueItems: true,
+      anyOf: [{ type: 'array', uniqueItems: false }],
+    }
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+  })
+
+  it('retains the tuple prefix when tail items are omitted in write mode', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      items: { type: 'number', readOnly: true },
+      minItems: 2,
+    }
+    expect(getExampleFromSchema(schema, { mode: 'write' })).toStrictEqual([1])
+  })
+
+  it('keeps the prefix when the runtime schema forbids additional items', () => {
+    // The runtime accepts boolean items even though the strict OpenAPI type does not model them.
+    const schema = {
+      type: 'array',
+      prefixItems: [{ type: 'number' }],
+      items: false,
+      minItems: 2,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([1])
+  })
+
+  it('pads items referencing a runtime boolean true schema', () => {
+    const items = { $ref: '#/$defs/Any', '$ref-value': true } as unknown as Extract<
+      SchemaObject,
+      { type: 'array' }
+    >['items']
+    expect(getExampleFromSchema({ type: 'array', items, minItems: 2 })).toStrictEqual([null, null])
+  })
+
+  it('limits padding for nested arrays with very large minima', () => {
+    const inner: SchemaObject = { type: 'array', items: { type: 'number' }, minItems: 1_000_000 }
+    const value = getExampleFromSchema({ type: 'array', items: inner, minItems: 1_000_000 })
+    expect(value).toStrictEqual([Array.from({ length: 999 }, () => 1)])
+  })
+
+  it('pads generated XML items without changing their wrapper', () => {
+    const schema: SchemaObject = {
+      type: 'array',
+      items: { type: 'number', xml: { name: 'coordinate' } },
+      minItems: 2,
+      xml: { wrapped: true },
+    }
+    expect(getExampleFromSchema(schema, { xml: true })).toStrictEqual([{ coordinate: 1 }, { coordinate: 1 }])
+  })
+
   it.each([{ type: ['string', 'null'], format: 'binary' }, {}, { allOf: [{ type: 'string' }, { format: 'binary' }] }])(
     'retains file placeholders for multipart schema %j',
     (definition) => {

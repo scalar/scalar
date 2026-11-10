@@ -50,6 +50,20 @@ describe('mock-any-response', () => {
     expect(response.headers.get('content-type')).toBe('text/plain')
   })
 
+  it('sends generated arrays within their declared bounds', async () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        coordinates: { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 2 },
+        empty: { type: 'array', items: { type: 'number' }, maxItems: 0 },
+      },
+    }
+    const app = new Hono().get('/', (c) => mockAnyResponse(c, operation('application/json', { schema })))
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(await response.json()).toStrictEqual({ coordinates: [1, 1], empty: [] })
+  })
+
   it.each([
     [{ $ref: '#/components/schemas/Missing' }, {}, 'unresolved-reference'],
     [
