@@ -21,10 +21,21 @@ const MAX_LEVELS_DEEP = 10
 const DEFAULT_ADDITIONAL_PROPERTIES_NAME = 'additionalProperty'
 
 /**
+ * Base64 of the bytes "scalar". Six bytes encode without `=` padding and the output avoids `+`, `/`,
+ * `-` and `_`, so strict decoders accept it under both the standard and URL-safe alphabets (RFC 4648).
+ */
+const BASE64_EXAMPLE = 'c2NhbGFy'
+
+/** Content encodings whose example is the base64 placeholder (compared case-insensitively, as in RFC 2045). */
+const BASE64_CONTENT_ENCODINGS = new Set(['base64', 'base64url'])
+
+/**
  * Mapping of OpenAPI string formats to example values.
  * Used to generate realistic examples for different string formats.
  */
 const genericExampleValues: Record<string, string> = {
+  // OpenAPI 3.0 base64 encoded characters. A plain placeholder like "string" is not valid base64.
+  'byte': BASE64_EXAMPLE,
   'duration': 'P1D',
   'email': 'hello@example.com',
   'hostname': 'example.com',
@@ -88,6 +99,14 @@ const guessFromFormat = (
   // Binary filename placeholders are converted to File objects only for multipart callers.
   if (isFileSchema(schema, false)) {
     return '@filename'
+  }
+
+  // Encoded strings need a valid encoding even when a format also supplies a placeholder, such as password.
+  if (
+    typeof schema.contentEncoding === 'string' &&
+    BASE64_CONTENT_ENCODINGS.has(schema.contentEncoding.toLowerCase())
+  ) {
+    return BASE64_EXAMPLE
   }
 
   if ('format' in schema && ['date', 'date-time', 'time'].includes(schema.format ?? '')) {
