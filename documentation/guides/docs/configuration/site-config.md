@@ -30,6 +30,8 @@ Your logo renders on the first of these surfaces your site has:
 2. The **tabs**, if you have `navigation.tabs` but no header
 3. The **sidebar**, if you have neither
 
+On the [contained layout](layouts.md#pages-with-tabs-and-no-header), a page with tabs but no header shows the logo at the top of the sidebar instead of in the tabs.
+
 To force the logo to go in the header, set `layout.header` to `true`. If a page hides all three surfaces through its [layout options](navigation.md#layout-options), the logo does not render on that page.
 
 If you do not set a `logo`, your project title from `info.title` renders in the same place instead.
@@ -261,6 +263,7 @@ The `layout` property controls global layout options that apply to all pages unl
   "scalar": "2.0.0",
   "siteConfig": {
     "layout": {
+      "preset": "default",
       "toc": true,
       "header": true,
       "pageTitle": true,
@@ -281,7 +284,8 @@ The `layout` property controls global layout options that apply to all pages unl
 
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
-| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
+| `preset`      | `"default" \| "minimal" \| "contained"` | `"default"` | How the whole page is arranged. Site-wide only. See [Layouts](layouts.md) |
+| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally. Ignored on the [minimal layout](layouts.md#minimal) |
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |

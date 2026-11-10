@@ -1987,6 +1987,12 @@
                           ]
                         }
                       },
+                      "layouts": {
+                        "title": "Layouts",
+                        "type": "page",
+                        "description": "Arrange your documentation site with a layout preset: centered in one column, or with the content in a raised panel.",
+                        "filepath": "documentation/guides/docs/configuration/layouts.md"
+                      },
                       "social-cards": {
                         "title": "Social Cards",
                         "type": "page",
