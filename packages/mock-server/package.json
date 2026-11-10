@@ -59,6 +59,7 @@
     "@faker-js/faker": "catalog:*",
     "@scalar/helpers": "workspace:*",
     "@scalar/json-magic": "workspace:*",
+    "@scalar/json-schema-validator": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-upgrader": "workspace:*",
     "@scalar/types": "workspace:*",

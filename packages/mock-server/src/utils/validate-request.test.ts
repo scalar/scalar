@@ -1517,4 +1517,107 @@ describe('validate-request', () => {
       })
     })
   })
+
+  it('accepts exact decimal multiples in JSON bodies and rejects near multiples', async () => {
+    const document = documentWith('/orders', 'post', {
+      'x-handler': 'return req.body',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { type: 'object', properties: { price: { type: 'number', multipleOf: 0.01 } } },
+          },
+        },
+      },
+    })
+    const server = await createMockServer({ document, logger: false })
+    for (const price of [0, 0.07, 0.29, 1.1, 1.15, 4.35, 8.2, 19.99, -19.99, 1000000.19]) {
+      const response = await server.request('/orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ price }),
+      })
+      expect(response.status, String(price)).toBe(200)
+      expect(await response.json()).toStrictEqual({ price })
+    }
+    for (const price of [0.075, -0.075, 0.010000000001, 0.009999999999]) {
+      const response = await server.request('/orders', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ price }),
+      })
+      expect(response.status, String(price)).toBe(422)
+      expect(await response.json()).toStrictEqual({
+        error: 'Request validation failed',
+        violations: [{ location: 'body', path: '/price', message: 'must be multiple of 0.01' }],
+      })
+    }
+    const stringPrice = await server.request('/orders', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: '{"price":"19.99"}',
+    })
+    expect(stringPrice.status).toBe(422)
+    expect(await stringPrice.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'body', path: '/price', message: 'must be number' }],
+    })
+  })
+
+  it.each(['query', 'path', 'header', 'cookie'] as const)(
+    'validates decimal multiples in %s parameters',
+    async (location) => {
+      const document = documentWith(location === 'path' ? '/orders/{price}' : '/orders', 'get', {
+        parameters: [{ name: 'price', in: location, required: true, schema: { type: 'number', multipleOf: 0.01 } }],
+      })
+      const server = await createMockServer({ document, logger: false })
+      for (const [price, status] of [
+        [19.99, 200],
+        [-19.99, 200],
+        [1000000.19, 200],
+        [0.075, 422],
+        [0.010000000001, 422],
+      ] as const) {
+        const response = await server.request(
+          location === 'path' ? `/orders/${price}` : location === 'query' ? `/orders?price=${price}` : '/orders',
+          {
+            headers:
+              location === 'header'
+                ? { price: String(price) }
+                : location === 'cookie'
+                  ? { cookie: `price=${price}` }
+                  : {},
+          },
+        )
+        expect(response.status, String(price)).toBe(status)
+        if (status === 422) {
+          expect(await response.json()).toStrictEqual({
+            error: 'Request validation failed',
+            violations: [{ location, path: '/price', message: 'price must be multiple of 0.01' }],
+          })
+        }
+      }
+    },
+  )
+
+  it('validates decimal multiples in referenced array items', async () => {
+    const document = {
+      ...documentWith('/prices', 'post', {
+        requestBody: {
+          content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/Price' } } } },
+        },
+      }),
+      components: { schemas: { Price: { type: 'number', multipleOf: 0.01 } } },
+    }
+    const server = await createMockServer({ document, logger: false })
+    const request = async (body: string): Promise<Response> =>
+      await server.request('/prices', { method: 'POST', headers: { 'content-type': 'application/json' }, body })
+    expect((await request('[19.99,1000000.19]')).status).toBe(200)
+    const invalid = await request('[19.99,0.010000000001]')
+    expect(invalid.status).toBe(422)
+    expect(await invalid.json()).toStrictEqual({
+      error: 'Request validation failed',
+      violations: [{ location: 'body', path: '/1', message: 'must be multiple of 0.01' }],
+    })
+  })
 })
