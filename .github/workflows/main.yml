@@ -430,7 +430,6 @@ jobs:
 
   # PyPI trusted publishing runs here because the publishing action does not
   # support OIDC inside reusable workflows. Build packages without OIDC access.
-  # See .github/PYPI_PUBLISHING.md for the required PyPI publisher registrations.
   fastapi-pack:
     if: |
       !cancelled() &&
