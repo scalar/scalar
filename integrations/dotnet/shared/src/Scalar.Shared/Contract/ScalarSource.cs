@@ -20,4 +20,6 @@ internal sealed class ScalarSource
     public required bool Default { get; init; }
 
     public ScalarAgentOptions? Agent { get; init; }
+
+    public ScalarAuthenticationOptions? Authentication { get; init; }
 }

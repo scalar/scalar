@@ -22,7 +22,7 @@ scalar auth login [options]
 
 | Option | Description |
 | --- | --- |
-| `--token <token>` | Personal token for authentication. |
+| `--token <token>` | Personal token for authentication (overrides SCALAR_API_KEY; must not be empty). |
 | `--no-input` | Disable prompts and browser launches. |
 
 ## whoami

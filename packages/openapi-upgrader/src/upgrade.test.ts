@@ -12,6 +12,297 @@ const upgradeTargets = [
 ] as const
 
 describe('upgrade', () => {
+  it.each(upgradeTargets)('maps vendor discriminator values when upgrading to %s', (_target, upgradeDocument) => {
+    const input = {
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      paths: {},
+      definitions: {
+        Pet: { type: 'object', discriminator: 'kind', properties: { kind: { type: 'string' } } },
+        Mammal: { allOf: [{ $ref: '#/definitions/Pet' }] },
+        'Dog/~ breed': {
+          'x-ms-discriminator-value': 'hound',
+          'x-discriminator-value': 'dog',
+          allOf: [{ $ref: '#/definitions/Mammal' }],
+        },
+        Cat: { 'x-discriminator-value': '', allOf: [{ $ref: '#/definitions/Pet' }] },
+        Plain: { allOf: [{ $ref: '#/definitions/Pet' }] },
+        Unrelated: { 'x-ms-discriminator-value': 'unrelated', type: 'object' },
+      },
+    }
+    const result = upgradeDocument(input)
+    expect((result.components?.schemas?.Pet as OpenAPIV3.SchemaObject | undefined)?.discriminator).toStrictEqual({
+      propertyName: 'kind',
+      mapping: {
+        hound: '#/components/schemas/Dog~1~0%20breed',
+        dog: '#/components/schemas/Dog~1~0%20breed',
+        '': '#/components/schemas/Cat',
+      },
+    })
+    expect(result.components?.schemas?.['Dog/~ breed']).toStrictEqual({
+      'x-ms-discriminator-value': 'hound',
+      'x-discriminator-value': 'dog',
+      allOf: [{ $ref: '#/components/schemas/Mammal' }],
+    })
+  })
+
+  it.each(upgradeTargets)(
+    'keeps authored mappings and ignores ambiguous aliases when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        paths: {},
+        definitions: {
+          'Pet/~': {
+            type: 'object',
+            required: ['kind'],
+            discriminator: { propertyName: 'kind', mapping: { dog: '#/components/schemas/Existing' } },
+          },
+          Existing: { type: 'object' },
+          Dog: {
+            'x-ms-discriminator-value': 'dog',
+            'x-discriminator-value': '__proto__',
+            allOf: [{ $ref: '#/definitions/Pet~1~0' }],
+          },
+          First: { 'x-ms-discriminator-value': 'ambiguous', allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Second: { 'x-discriminator-value': 'ambiguous', allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Invalid: { 'x-ms-discriminator-value': 42, allOf: [{ $ref: '#/definitions/Pet~1~0' }] },
+          Missing: {
+            'x-ms-discriminator-value': 'missing',
+            allOf: [{ $ref: '#/definitions/Absent' }, { $ref: '#/definitions/%ZZ' }],
+          },
+          External: { 'x-ms-discriminator-value': 'external', allOf: [{ $ref: 'other.json#/definitions/Pet' }] },
+        },
+      })
+      expect(
+        (result.components?.schemas?.['Pet/~'] as OpenAPIV3.SchemaObject | undefined)?.discriminator,
+      ).toStrictEqual({
+        propertyName: 'kind',
+        mapping: { dog: '#/components/schemas/Existing', ['__proto__']: '#/components/schemas/Dog' },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'terminates cyclic inheritance while mapping aliases when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const result = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        paths: {},
+        definitions: {
+          Pet: { discriminator: 'kind', allOf: [{ $ref: '#/definitions/Loop' }] },
+          Loop: { allOf: [{ $ref: '#/definitions/Pet' }] },
+          Dog: { 'x-discriminator-value': 'dog', allOf: [{ $ref: '#/definitions/Loop' }] },
+        },
+      })
+      expect((result.components?.schemas?.Pet as OpenAPIV3.SchemaObject | undefined)?.discriminator).toStrictEqual({
+        propertyName: 'kind',
+        mapping: { dog: '#/components/schemas/Dog' },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'requires converted discriminator properties when upgrading to %s',
+    (_target, upgradeDocument) => {
+      for (const propertyName of ['petType', '']) {
+        for (const required of [undefined, [], ['name'], [propertyName]]) {
+          const schema = {
+            type: 'object',
+            discriminator: propertyName,
+            properties: { [propertyName]: { type: 'string' }, name: { type: 'string' } },
+            ...(required === undefined ? {} : { required }),
+          }
+          const input = {
+            swagger: '2.0',
+            info: { title: 'Pets', version: '1' },
+            paths: {},
+            definitions: { Pet: schema },
+          }
+          expect(upgradeDocument(structuredClone(input)).components?.schemas?.Pet).toStrictEqual({
+            ...schema,
+            discriminator: { propertyName },
+            required: required?.includes(propertyName) ? required : [...(required ?? []), propertyName],
+          })
+        }
+      }
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'preserves invalid non-string discriminators when upgrading to %s',
+    (_target, upgradeDocument) => {
+      for (const discriminator of [null, false, 42, []]) {
+        const schema = { type: 'object', discriminator }
+        const document = upgradeDocument({
+          swagger: '2.0',
+          info: { title: 'Pets', version: '1' },
+          paths: {},
+          definitions: { Pet: schema },
+        })
+        expect(document.components?.schemas?.Pet).toStrictEqual(schema)
+      }
+    },
+  )
+
+  it.each(upgradeTargets)('converts Swagger discriminators when upgrading to %s', (_target, upgradeDocument) => {
+    const pet = {
+      type: 'object',
+      discriminator: 'petType',
+      required: ['petType'],
+      properties: { petType: { type: 'string' } },
+    }
+    const convertedPet = { ...pet, discriminator: { propertyName: 'petType' } }
+    const document = upgradeDocument({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      paths: {},
+      definitions: {
+        Pet: structuredClone(pet),
+        Dog: { allOf: [{ $ref: '#/definitions/Pet' }, { type: 'object' }] },
+        Container: {
+          type: 'object',
+          properties: {
+            pet: structuredClone(pet),
+            list: { type: 'array', items: structuredClone(pet) },
+            map: { type: 'object', additionalProperties: structuredClone(pet) },
+            composed: { allOf: [structuredClone(pet)] },
+            discriminator: { type: 'string' },
+          },
+        },
+      },
+    })
+
+    expect(document.components?.schemas).toStrictEqual({
+      Pet: convertedPet,
+      Dog: { allOf: [{ $ref: '#/components/schemas/Pet' }, { type: 'object' }] },
+      Container: {
+        type: 'object',
+        properties: {
+          pet: convertedPet,
+          list: { type: 'array', items: convertedPet },
+          map: { type: 'object', additionalProperties: convertedPet },
+          composed: { allOf: [convertedPet] },
+          discriminator: { type: 'string' },
+        },
+      },
+    })
+  })
+
+  it.each(upgradeTargets)(
+    'converts discriminators in request and response schemas when upgrading to %s',
+    (_target, upgradeDocument) => {
+      const pet = {
+        type: 'object',
+        discriminator: 'petType',
+        required: ['petType'],
+        properties: { petType: { type: 'string' } },
+      }
+      const convertedPet = { ...pet, discriminator: { propertyName: 'petType' } }
+      const document = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        parameters: { Pet: { name: 'pet', in: 'body', schema: structuredClone(pet) } },
+        responses: { Pet: { description: 'A pet', schema: structuredClone(pet) } },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ name: 'pet', in: 'body', schema: structuredClone(pet) }],
+              responses: { 200: { description: 'A pet', schema: structuredClone(pet) } },
+            },
+          },
+        },
+      })
+
+      expect(document.paths?.['/pets']?.post?.requestBody?.content?.['application/json']?.schema).toStrictEqual(
+        convertedPet,
+      )
+      expect(document.paths?.['/pets']?.post?.responses?.[200]?.content?.['application/json']?.schema).toStrictEqual(
+        convertedPet,
+      )
+      expect(document.components?.requestBodies?.Pet?.content?.['application/json']?.schema).toStrictEqual(convertedPet)
+      expect(document.components?.responses?.Pet?.content?.['application/json']?.schema).toStrictEqual(convertedPet)
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'preserves discriminator-shaped data and existing objects when upgrading to %s',
+    (target, upgradeDocument) => {
+      const data = { discriminator: 'literal', properties: { nested: { discriminator: 'literal' } } }
+      const discriminator = { propertyName: 'petType', mapping: { Dog: '#/components/schemas/Dog' } }
+      const document = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        paths: {},
+        definitions: {
+          Pet: {
+            type: 'object',
+            discriminator: structuredClone(discriminator),
+            required: ['petType'],
+            properties: { petType: { type: 'string' } },
+            example: structuredClone(data),
+            default: structuredClone(data),
+            'x-data': structuredClone(data),
+          },
+          Plain: { type: 'object' },
+        },
+      })
+
+      expect(document.components?.schemas).toStrictEqual({
+        Pet: {
+          type: 'object',
+          discriminator,
+          required: ['petType'],
+          properties: { petType: { type: 'string' } },
+          ...(target === '3.0' ? { example: data } : { examples: [data] }),
+          default: data,
+          'x-data': data,
+        },
+        Plain: { type: 'object' },
+      })
+    },
+  )
+
+  it.each(upgradeTargets)(
+    'preserves Swagger response header example extensions when upgrading to %s',
+    (target, upgradeDocument) => {
+      const headers = {
+        'X-Single': { type: 'string', 'x-example': '' },
+        'X-Named': {
+          type: 'string',
+          'x-example': 'fallback',
+          'x-examples': {
+            first: 'hello',
+            second: { value: 'world', summary: 'World' },
+          },
+        },
+      }
+      const document = upgradeDocument({
+        swagger: '2.0',
+        info: { title: 'Headers', version: '1' },
+        paths: { '/': { get: { responses: { 200: { description: 'OK', headers: structuredClone(headers) } } } } },
+        responses: { Shared: { description: 'OK', headers: structuredClone(headers) } },
+      })
+      const expected = {
+        'X-Single': {
+          schema: { type: 'string' },
+          ...(target === '3.0' ? { example: '' } : { examples: { default: { value: '' } } }),
+        },
+        'X-Named': {
+          schema: { type: 'string' },
+          examples: {
+            first: { value: 'hello' },
+            second: { value: 'world', summary: 'World' },
+          },
+        },
+      }
+      expect(document.paths?.['/']?.get?.responses?.[200]?.headers).toStrictEqual(expected)
+      expect(document.components?.responses?.Shared?.headers).toStrictEqual(expected)
+    },
+  )
+
   it.each(upgradeTargets)('preserves security scheme metadata when upgrading to %s', (_target, upgradeDocument) => {
     const extensions = {
       'x-label': 'Authentication',

@@ -14,7 +14,7 @@ namespace Scalar.AspNetCore;
 /// Represents all available options for the Scalar API Reference.
 /// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
 /// </summary>
-public partial class ScalarOptions
+public partial class ScalarOptions : IScalarAuthenticationOptions
 {
     internal List<ScalarDocument> Documents { get; } = [];
 

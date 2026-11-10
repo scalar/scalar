@@ -4,6 +4,7 @@ import { type CliConfigOverrides, hasBuiltInProviderApiKey, readReleaseNotesConf
 import type { BuiltInProviderName, ReleaseNotesConfig, ReleaseNotesProduct } from '../config/types'
 import { getChangedPathsForReleaseFiltering } from '../core/detect-versioned-changelog-paths'
 import { runReleaseNotesGeneratorForProduct } from '../core/run-release-notes-generator'
+import { assertValidMaxHighlights } from '../types'
 
 type CommandOptions = {
   all?: boolean
@@ -123,6 +124,14 @@ export const createReleaseNotesGeneratorCommand = (baseConfig: ReleaseNotesConfi
         throw new Error(
           options.product ? `No configured product found for slug ${options.product}.` : 'No products configured.',
         )
+      }
+
+      // Check every product before generating any, so a typo in one product's limit does not
+      // leave a multi-product run half-written after the earlier products already called the provider.
+      for (const product of products) {
+        if (product.maxHighlights !== undefined) {
+          assertValidMaxHighlights(product.maxHighlights)
+        }
       }
 
       const changedPaths =

@@ -1,5 +1,9 @@
 # @scalar/import
 
+## 0.5.36
+
+## 0.5.35
+
 ## 0.5.34
 
 ### Patch Changes

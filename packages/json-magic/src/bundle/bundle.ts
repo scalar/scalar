@@ -1,6 +1,8 @@
+import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 
+import { decodeUriFragment } from '@/helpers/decode-uri-fragment'
 import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
@@ -12,7 +14,10 @@ import type { UnknownObject } from '@/types'
 
 import { escapeJsonPointer } from '../helpers/escape-json-pointer'
 import { getSegmentsFromPath } from '../helpers/get-segments-from-path'
-import { type DocumentResolver, documentReferences } from './document-references'
+import type { ReferenceDiagnostic } from './bundle-with-diagnostics'
+import { type DocumentResolver, bundledDocumentUri, documentReferences } from './document-references'
+import { documentTraversal } from './document-traversal'
+import { isReferenceContext } from './reference-context'
 import { getHash, uniqueValueGeneratorFactory } from './value-generator'
 
 /** Type guard to check if a value is an object with a $ref property */
@@ -34,7 +39,7 @@ export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
 
-export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: false }
+export type ResolveResult = { ok: true; data: unknown; raw: string } | { ok: false; status?: number }
 
 /**
  * Resolves a string by finding and executing the appropriate plugin.
@@ -213,8 +218,11 @@ export const resolveAndCopyReferences = (
   bundleLocalRefs = false,
   processedNodes = new Set(),
   documentMetadata: Record<string, unknown> = {},
+  shouldVisit: (node: object) => boolean = () => true,
+  resolveReference: (node: object, reference: string) => string | undefined = (_node, reference) => reference,
+  parsePath: (path: string) => string[] = getSegmentsFromPath,
 ) => {
-  const referencedValue = getValueByPath(sourceDocument, getSegmentsFromPath(referencePath)).value
+  const referencedValue = getValueByPath(sourceDocument, parsePath(referencePath)).value
 
   if (processedNodes.has(referencedValue)) {
     return
@@ -222,7 +230,7 @@ export const resolveAndCopyReferences = (
   processedNodes.add(referencedValue)
 
   // Only relocated copies need canonical metadata; keep the authored source unchanged.
-  const segments = getSegmentsFromPath(referencePath)
+  const segments = parsePath(referencePath)
   const copiedValue =
     segments.length === 2 && isObject(referencedValue) && Object.keys(documentMetadata).length > 0
       ? { ...referencedValue, ...documentMetadata }
@@ -239,35 +247,45 @@ export const resolveAndCopyReferences = (
     }
     if (length === 2) {
       for (const [key, value] of Object.entries(documentMetadata)) {
-        setValueAtPath(targetDocument, `/${[...ancestorPath, key].map(escapeJsonPointer).join('/')}`, value)
+        setValueAtPath(targetDocument, `/${[...ancestorPath, key].map(escapeJsonPointer).join('/')}`, value, parsePath)
       }
     }
     if (typeof ancestor.$id === 'string') {
-      setValueAtPath(targetDocument, `/${[...ancestorPath, '$id'].map(escapeJsonPointer).join('/')}`, ancestor.$id)
+      setValueAtPath(
+        targetDocument,
+        `/${[...ancestorPath, '$id'].map(escapeJsonPointer).join('/')}`,
+        ancestor.$id,
+        parsePath,
+      )
     }
   }
 
   // Do the same for each local ref
   const traverse = (node: unknown) => {
-    if (!node || typeof node !== 'object') {
+    if (!node || typeof node !== 'object' || !shouldVisit(node)) {
       return
     }
 
-    if ('$ref' in node && typeof node['$ref'] === 'string') {
+    const reference =
+      '$ref' in node && typeof node['$ref'] === 'string' ? resolveReference(node, node['$ref']) : undefined
+    if (reference !== undefined) {
       // We only process references from the same external document because:
       // 1. Other documents will be handled in separate recursive branches
       // 2. The source document only contains the current document's content
       // This prevents undefined behavior and maintains proper document boundaries
-      if (node['$ref'].startsWith(`#/${externalRefsKey}/${escapeJsonPointer(documentKey)}`)) {
+      if (reference.startsWith(`#/${externalRefsKey}/${escapeJsonPointer(documentKey)}`)) {
         resolveAndCopyReferences(
           targetDocument,
           sourceDocument,
-          node['$ref'].substring(1),
+          reference.substring(1),
           externalRefsKey,
           documentKey,
           bundleLocalRefs,
           processedNodes,
           documentMetadata,
+          shouldVisit,
+          resolveReference,
+          parsePath,
         )
       }
       // Bundle the local refs as well
@@ -275,12 +293,15 @@ export const resolveAndCopyReferences = (
         resolveAndCopyReferences(
           targetDocument,
           sourceDocument,
-          node['$ref'].substring(1),
+          reference.substring(1),
           externalRefsKey,
           documentKey,
           bundleLocalRefs,
           processedNodes,
           documentMetadata,
+          shouldVisit,
+          resolveReference,
+          parsePath,
         )
       }
     }
@@ -337,6 +358,10 @@ type NodeProcessContext = {
   rootNode: UnknownObject
   loaders: LoaderPlugin[]
   origin: string
+  /** Resolve a reference in this node's resource, including bundled targets. */
+  resolveReference: (
+    reference: string,
+  ) => { path: readonly string[]; value: unknown; resourceRelative: boolean } | undefined
 }
 
 /**
@@ -364,7 +389,10 @@ export type Plugin = LoaderPlugin | LifecyclePlugin
  * Configuration options for the bundler.
  * Controls how external references are resolved and processed during bundling.
  */
-type Config = {
+export type Config = {
+  /** Opt in to OpenAPI/AsyncAPI and JSON Schema literal-data boundaries. */
+  traversal?: 'document' | 'generic'
+
   /**
    * Array of plugins that handle resolving references from different sources.
    * Each plugin is responsible for fetching and processing data from specific sources
@@ -579,7 +607,14 @@ type HookFn<T extends keyof Config['hooks']> =
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
-export async function bundle(input: UnknownObject | string, config: Config) {
+export const bundle = (input: UnknownObject | string, config: Config): Promise<object> => bundleDocument(input, config)
+
+/** Shared engine; diagnostics are opt-in through bundleWithDiagnostics. */
+export const bundleDocument = async (
+  input: UnknownObject | string,
+  config: Config,
+  diagnostics?: ReferenceDiagnostic[],
+): Promise<object> => {
   // Set the default external documents key and mappings key if not provided in the config
   config.externalDocumentsKey = config.externalDocumentsKey ?? extensions.externalDocuments
   config.externalDocumentsMappingsKey = config.externalDocumentsMappingsKey ?? extensions.externalDocumentsMappings
@@ -606,7 +641,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     }
     const result = await resolveContents(input, loaderPlugins)
 
-    if (result.ok && typeof result.data === 'object') {
+    if (result.ok && typeof result.data === 'object' && (!diagnostics || isObject(result.data))) {
       return result.data
     }
 
@@ -652,6 +687,47 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     return '/'
   }
 
+  // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
+  const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
+  const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
+  const traversal = documentTraversal(
+    config.traversal === 'document',
+    documentRoot['swagger'] === '2.0',
+    documentRoot['swagger'] !== '2.0' && !String(documentRoot['openapi']).startsWith('3.0.'),
+    config.traversal === 'document' || diagnostics !== undefined,
+  )
+  traversal.register(
+    documentRoot,
+    getDefaultOrigin(),
+    config.traversal === 'document' &&
+      !('openapi' in documentRoot || 'swagger' in documentRoot || 'asyncapi' in documentRoot)
+      ? 'schema'
+      : 'object',
+  )
+  const deferredCopies: (() => void)[] = []
+  const copyReferences = (...args: Parameters<typeof resolveAndCopyReferences>): void => {
+    const copy = (): void =>
+      resolveAndCopyReferences(
+        args[0],
+        args[1],
+        args[2],
+        args[3],
+        args[4],
+        args[5],
+        args[6],
+        args[7],
+        (node) => traversal.location(node)?.context !== 'data',
+        (node, ref) => {
+          const context = traversal.location(node)?.context
+          if (context && !isReferenceContext(context)) return undefined
+          const target = references.resolve(ref, references.origin(node) ?? defaultOrigin)
+          return target?.value !== undefined ? `#/${target.path}` : ref
+        },
+        parsePath,
+      )
+    if (diagnostics) deferredCopies.push(copy)
+    else copy()
+  }
   const references = documentReferences(
     config.externalDocumentsKey,
     (document, retrievalUri) => {
@@ -667,14 +743,20 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return undefined
     },
     config.preserveReference !== undefined,
+    (node) => traversal.location(node)?.context !== 'data',
+    (node) => config.traversal !== 'document' || traversal.location(node)?.context === 'schema',
   )
   references.register(documentRoot, getDefaultOrigin())
   const defaultOrigin = references.origin(documentRoot) ?? getDefaultOrigin()
   const hasRootIdentity = references.identity(documentRoot) !== undefined || getId(documentRoot) !== undefined
   const referenceToRoot = (pointer: string, sourceOrigin: string): string => {
+    const fragment = pointer
+      .split('/')
+      .map((segment, index) => (index === 0 ? segment : encodeURI(segment).replace(/#/g, '%23')))
+      .join('/')
     return hasRootIdentity && references.isSchemaResource(sourceOrigin) && sourceOrigin !== defaultOrigin
-      ? `${defaultOrigin}${pointer}`
-      : pointer
+      ? `${defaultOrigin}${fragment}`
+      : fragment
   }
 
   // Copy only owned mappings so writes cannot reach an inherited or shared object.
@@ -698,19 +780,32 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   const storedDocuments = documentRoot[config.externalDocumentsKey]
   if (isObject(storedDocuments)) {
     for (const [key, document] of Object.entries(storedDocuments)) {
-      const retrievalUri = resolveReferencePath(
+      const retrievalUri = bundledDocumentUri(
         defaultOrigin,
-        documentRoot[config.externalDocumentsMappingsKey][key] ?? key,
+        key,
+        documentRoot[config.externalDocumentsMappingsKey][key],
       )
-      references.register(document, retrievalUri, [config.externalDocumentsKey, key])
+      const source = documentRoot[config.externalDocumentsMappingsKey][key]
+      traversal.register(
+        document,
+        source ? retrievalUri : `#/${escapeJsonPointer(config.externalDocumentsKey)}/${escapeJsonPointer(key)}`,
+      )
+      references.register(
+        document,
+        retrievalUri,
+        [config.externalDocumentsKey, key],
+        resolveReferencePath(defaultOrigin, source ?? key),
+      )
     }
   }
-  for (const [uri, pending] of cache) {
+  for (const [uri, pending] of [...cache]) {
     const result = await pending
     if (result.ok) {
       const retrievalUri = resolveReferencePath(defaultOrigin, uri)
       const relativeUri = toRelativePath(retrievalUri, defaultOrigin)
+      if (diagnostics) cache.set(relativeUri, pending)
       const key = await generate(relativeUri)
+      traversal.register(result.data, retrievalUri)
       references.register(result.data, retrievalUri, [config.externalDocumentsKey, key])
     }
   }
@@ -744,6 +839,38 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     }
   }
 
+  const chunkReferences = new Map<string, ReturnType<typeof documentReferences>>()
+
+  /** Chunks keep their internal origin, so validate their targets in a separate registry. */
+  const getTargetReferences = (
+    isChunk: boolean,
+    document: unknown,
+    origin: string,
+    key: string,
+  ): ReturnType<typeof documentReferences> => {
+    if (!isChunk) return references
+    const existing = chunkReferences.get(origin)
+    if (existing) return existing
+    const targets = documentReferences(config.externalDocumentsKey)
+    targets.register(document, origin, [config.externalDocumentsKey, key])
+    chunkReferences.set(origin, targets)
+    return targets
+  }
+
+  const pendingAnchors: (() => Promise<void>)[] = []
+  /** Anchors can become visible when a later reference exposes a literal-data subtree. */
+  const resolvePendingAnchors = async (): Promise<void> => {
+    for (const resolveAnchor of pendingAnchors) await resolveAnchor()
+  }
+
+  /** Retain complete source documents until every reference has been checked. */
+  const applyDeferredCopies = (): void => {
+    if (!diagnostics || !config.treeShake || diagnostics.length > 0) return
+    if (storedDocuments === undefined) delete documentRoot[config.externalDocumentsKey]
+    else documentRoot[config.externalDocumentsKey] = storedDocuments
+    for (const copy of deferredCopies) copy()
+  }
+
   const bundler = async (
     root: unknown,
     origin: string = defaultOrigin,
@@ -762,6 +889,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return
     }
 
+    const location = traversal.location(root)
+    if (location?.context === 'data') return
+
     // Skip if this node has already been processed to prevent infinite recursion
     // and duplicate processing of the same node
     if (processedNodes.has(root)) {
@@ -775,6 +905,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     const id = getId(root)
     const nodeOrigin = references.origin(root) ?? (id ? resolveReferencePath(origin, id) : origin)
 
+    const resolveReference = (reference: string): ReturnType<typeof references.resolve> =>
+      references.resolve(reference, nodeOrigin, Boolean(diagnostics))
+
     const context = {
       path: currentPath,
       referencedFromPath,
@@ -783,12 +916,53 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       rootNode: documentRoot as UnknownObject,
       loaders: loaderPlugins,
       origin: nodeOrigin,
+      resolveReference: (reference: string): ReturnType<NodeProcessContext['resolveReference']> => {
+        const resolved = resolveReference(reference)
+        return (
+          resolved && { path: resolved.segments, value: resolved.value, resourceRelative: resolved.resourceRelative }
+        )
+      },
     }
 
+    const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
-    if (hasRef(root) && !config.preserveReference?.(root.$ref, { origin: nodeOrigin })) {
+    const visitChildren = async (): Promise<void> => {
+      for (const key of Object.keys(root)) {
+        if (key === '$ref' || key === config.externalDocumentsKey || key === config.externalDocumentsMappingsKey)
+          continue
+        await bundler(
+          root[key],
+          nodeOrigin,
+          isChunkParent,
+          depth + 1,
+          [...currentPath, key],
+          root as UnknownObject,
+          referencedFromPath,
+        )
+      }
+    }
+    if (hasRef(root) && (!location || isReferenceContext(location.context))) {
       const ref = root['$ref']
+      const report = (kind: ReferenceDiagnostic['kind']): void => {
+        diagnostics?.push({
+          kind,
+          reference: authoredReference ?? ref,
+          source: location?.source ?? origin,
+          pointer: `${location?.pointer ?? '#/' + currentPath.map(escapeJsonPointer).join('/')}/$ref`,
+        })
+      }
+      // Schema and Path Item siblings retain their authored structure; they are not merged.
+      if (
+        config.traversal === 'document' &&
+        (location?.context === 'path-item' || (location?.context === 'schema' && location.schemaSiblings))
+      )
+        await visitChildren()
+      if (config.preserveReference?.(ref, { origin: nodeOrigin })) {
+        if (config.traversal !== 'document') await visitChildren()
+        await executeHooks('onAfterNodeProcess', root, context)
+        return
+      }
       const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       // Try to convert the reference to a local reference if possible
@@ -798,10 +972,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // In case of partial bundling, we still need to ensure that all dependencies
       // of the local reference are bundled to create a complete and self-contained partial bundle
       // This is important to maintain the integrity of the partial bundle
-      const local = references.resolve(ref, nodeOrigin)
+      const local = resolveReference(ref)
       const localRef = local?.path
 
       if (localRef !== undefined) {
+        if (diagnostics && local.value === undefined) {
+          report('missing-target')
+          await executeHooks('onResolveError', root)
+          await executeHooks('onAfterNodeProcess', root, context)
+          return
+        }
         // A fragment under an embedded $id resolves within that schema, not the document.
         // Without a declared root identity, retain references to root resources rather
         // than baking a retrieval location into an otherwise portable bundle.
@@ -813,8 +993,20 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         if (!local.preserveReference && !preserveRootResourceReference) {
           root.$ref = referenceToRoot(localRef ? `#/${localRef}` : '#', nodeOrigin)
         }
-        if (isPartialBundling) {
-          const segments = getSegmentsFromPath(`/${localRef}`)
+        if (
+          config.traversal === 'document' &&
+          location &&
+          isObject(local.value) &&
+          local.value !== root &&
+          traversal.location(local.value)?.context !== location.context
+        ) {
+          const source = isObject(local.document) ? traversal.location(local.document)?.source : undefined
+          const targetPath = parsePath(`/${localRef}`).slice(local.documentPath.length)
+          traversal.register(local.document, source ?? location.source, location.context, targetPath)
+          references.refresh(local.document, targetPath)
+        }
+        if (isPartialBundling || (diagnostics && config.traversal === 'document')) {
+          const segments = parsePath(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
           const targetValue = {
@@ -847,7 +1039,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
           if (config.treeShake) {
             const [key, documentKey] = local.documentPath
-            resolveAndCopyReferences(
+            copyReferences(
               documentRoot,
               { [key]: { [documentKey]: local.document } },
               `/${localRef}`,
@@ -857,9 +1049,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
               new Set(),
               references.identity(local.document)?.metadata,
             )
-          } else {
+          }
+          if (!config.treeShake || diagnostics) {
             const metadata = references.identity(local.document)?.metadata
-            setValueAtPath(
+            setPath(
               documentRoot,
               `/${local.documentPath.map(escapeJsonPointer).join('/')}`,
               isObject(local.document) && metadata ? { ...local.document, ...metadata } : local.document,
@@ -871,10 +1064,25 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       }
 
       const [prefix, path = ''] = ref.split('#', 2)
+      if (diagnostics && !prefix) {
+        // A later fragment may expose an anchor in a document already loaded in memory.
+        pendingAnchors.push(async () => {
+          const target = references.resolve(ref, nodeOrigin)
+          if (target?.value !== undefined) {
+            if (!target.preserveReference) root.$ref = referenceToRoot(`#/${target.path}`, nodeOrigin)
+          } else {
+            report('missing-target')
+            await executeHooks('onResolveError', root)
+          }
+          await executeHooks('onAfterNodeProcess', root, context)
+        })
+        return
+      }
 
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
-      const resolvedPath = resolveReferencePath(nodeOrigin, prefix)
+      const retrievalOrigin = references.retrievalOrigin(root) ?? nodeOrigin
+      const resolvedPath = resolveReferencePath(retrievalOrigin, prefix)
       const relativePath = toRelativePath(resolvedPath, defaultOrigin)
 
       // Generate a unique compressed path for the external document
@@ -893,10 +1101,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Resolve the remote document
       const result = await cache.get(relativePath)
 
-      if (result.ok) {
+      if (result.ok && (!diagnostics || result.data !== undefined)) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
+          const fragmentPath = parsePath(decodeUriFragment(path))
+          traversal.register(result.data, resolvedPath, location?.context ?? 'generic', fragmentPath)
           // Index the whole external document before following references within it.
           // Chunks retain the referring context because they are already self-contained.
           if (!isChunk) {
@@ -920,58 +1130,83 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
-          setValueAtPath(
+          setPath(
             documentRoot,
             `/${config.externalDocumentsMappingsKey}/${escapeJsonPointer(compressedPath)}`,
             relativePath,
           )
         }
 
-        if (config.treeShake === true) {
-          // Store only the subtree that is actually used
-          // This optimizes the bundle size by only including the parts of the external document
-          // that are referenced, rather than the entire document
-          resolveAndCopyReferences(
-            documentRoot,
-            { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
-            prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]).substring(1),
-            config.externalDocumentsKey,
-            compressedPath,
-            false,
-            new Set(),
-            references.identity(result.data)?.metadata,
-          )
-        } else if (!seen) {
-          // Store the external document in the main document's x-ext key
-          // When tree shaking is disabled, we include the entire external document
-          // This preserves all content and is faster since we don't need to analyze and copy
-          // specific parts. This approach is ideal when storing the result in memory
-          // as it avoids the overhead of tree shaking operations
-          const metadata = references.identity(result.data)?.metadata
-          setValueAtPath(
-            documentRoot,
-            `/${config.externalDocumentsKey}/${compressedPath}`,
-            isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
-          )
+        const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
+        const finishResolution = async (): Promise<void> => {
+          const target = targetReferences.resolve(ref, retrievalOrigin)
+          if (diagnostics && target?.value === undefined) {
+            setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
+            report('missing-target')
+            await executeHooks('onResolveError', root)
+            await executeHooks('onAfterNodeProcess', root, context)
+            return
+          }
+          const bundledReference = target
+            ? `#/${target.path}`
+            : prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath])
+          if (config.treeShake === true) {
+            // Store only the subtree that is actually used
+            // This optimizes the bundle size by only including the parts of the external document
+            // that are referenced, rather than the entire document
+            copyReferences(
+              documentRoot,
+              { [config.externalDocumentsKey]: { [compressedPath]: result.data } },
+              bundledReference.substring(1),
+              config.externalDocumentsKey,
+              compressedPath,
+              false,
+              new Set(),
+              references.identity(result.data)?.metadata,
+            )
+          }
+          if ((!config.treeShake || diagnostics) && !seen) {
+            // Store the external document in the main document's x-ext key
+            // When tree shaking is disabled, we include the entire external document
+            // This preserves all content and is faster since we don't need to analyze and copy
+            // specific parts. This approach is ideal when storing the result in memory
+            // as it avoids the overhead of tree shaking operations
+            const metadata = references.identity(result.data)?.metadata
+            setPath(
+              documentRoot,
+              `/${config.externalDocumentsKey}/${compressedPath}`,
+              isObject(result.data) && metadata ? { ...result.data, ...metadata } : result.data,
+            )
+          }
+
+          // Update the $ref to point to the embedded document in x-ext
+          // This is necessary because we need to maintain the correct path context
+          // for the embedded document while preserving its internal structure
+          root.$ref = referenceToRoot(bundledReference, nodeOrigin)
+
+          await executeHooks('onResolveSuccess', root)
+
+          await executeHooks('onAfterNodeProcess', root, context)
+          return
         }
-
-        // Update the $ref to point to the embedded document in x-ext
-        // This is necessary because we need to maintain the correct path context
-        // for the embedded document while preserving its internal structure
-        root.$ref = referenceToRoot(
-          prefixInternalRef(`#${path}`, [config.externalDocumentsKey, compressedPath]),
-          nodeOrigin,
-        )
-
-        await executeHooks('onResolveSuccess', root)
-
-        await executeHooks('onAfterNodeProcess', root, context)
+        if (
+          diagnostics &&
+          path &&
+          !path.startsWith('/') &&
+          targetReferences.resolve(ref, nodeOrigin)?.value === undefined
+        ) {
+          pendingAnchors.push(finishResolution)
+        } else {
+          await finishResolution()
+        }
         return
       }
 
+      report('unresolved-document')
       await executeHooks('onResolveError', root)
 
       await executeHooks('onAfterNodeProcess', root, context)
+      if (diagnostics) return
       return console.warn(
         `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -1000,6 +1235,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   }
 
   await bundler(rawSpecification)
+  if (diagnostics && !config.treeShake && isObject(storedDocuments)) {
+    for (const [key, document] of Object.entries(storedDocuments)) {
+      await bundler(document, defaultOrigin, false, 1, [config.externalDocumentsKey, key], storedDocuments)
+    }
+  }
+  await resolvePendingAnchors()
+  applyDeferredCopies()
 
   // Cache indexing reserves keys before we know which edges will be preserved.
   // Do not expose reservations for resources that were never included in the output.

@@ -95,6 +95,12 @@ export const ar = {
     'openAPIClient': 'فتح عميل API',
   },
   'requestBody': {
+    'part': 'الجزء {number}',
+    'addPart': 'إضافة جزء',
+    'invalidPart': 'أدخل JSON صالحًا لهذا الجزء.',
+
+    'restoreOriginalBody': 'استعادة المحتوى الأصلي',
+    'createExampleFromSchema': 'إنشاء مثال من المخطط',
     'noBody': 'بدون جسم',
     'delete': 'حذف',
     'selectFile': 'اختيار ملف',

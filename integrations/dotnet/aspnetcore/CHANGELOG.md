@@ -1,5 +1,31 @@
 # @scalar/aspnetcore
 
+## 2.20.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.0
+
+### Minor Changes
+
+- [#10731](https://github.com/scalar/scalar/pull/10731): Support OpenID Connect flow defaults, including client ID, selected scopes, and PKCE, after discovery. Prefer a sole configured flow while retaining other discovered flows. Add typed OpenID Connect authentication configuration for .NET.
+
+## 2.19.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.77.0
+
+### Minor Changes
+
+- [#10728](https://github.com/scalar/scalar/pull/10728): Add per-document authentication overrides merged with global defaults and an optional security scheme allowlist for the authentication UI.
+
+## 2.18.7
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.76.4
+
 ## 2.18.6
 
 ### Bundled API Reference

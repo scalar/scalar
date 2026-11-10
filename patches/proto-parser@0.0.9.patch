@@ -1,0 +1,229 @@
+diff --git a/index.d.ts b/index.d.ts
+index fd54265e1852eb9befb268e4d509beb5fd7adce6..3c38cded422f7ffa5531f3059936ef150c19a346 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -32,7 +32,7 @@ export type KeywordType =
+   | 'string'
+   | 'bytes';
+ 
+-export type FieldRule = 'repeated' | 'required';
++export type FieldRule = 'repeated' | 'required' | 'optional';
+ 
+ export interface BaseType {
+   syntaxType: SyntaxType.BaseType;
+@@ -50,7 +50,7 @@ export type FieldType = BaseType | Identifier;
+ export interface ReflectionObject {
+   name: string;
+   fullName?: string;
+-  options?: Record<string, string>;
++  options?: Record<string, unknown>;
+   comment?: string;
+ }
+ 
+@@ -80,7 +80,7 @@ export interface MethodDefinition extends ReflectionObject {
+ 
+ export interface NamespaceBase extends ReflectionObject {
+   syntaxType: SyntaxType;
+-  nested?: Record<string, NamespaceBase>;
++  nested?: Record<string, NamespaceDefinition | MessageDefinition | EnumDefinition | ServiceDefinition | FieldDefinition>;
+ }
+ 
+ export interface NamespaceDefinition extends NamespaceBase {
+@@ -90,15 +90,18 @@ export interface NamespaceDefinition extends NamespaceBase {
+ export interface MessageDefinition extends NamespaceBase {
+   syntaxType: SyntaxType.MessageDefinition;
+   fields: Record<string, FieldDefinition>;
+-  oneofs: Record<string, OneofDefinition>;
+-  extensions?: string[];
+-  reserved?: number[] | string;
++  oneofs?: Record<string, OneofDefinition>;
++  extensions?: [number, number][];
++  group?: boolean;
++  reserved?: (string | [number, number])[];
+ }
+ 
+ export interface EnumDefinition extends NamespaceBase {
+   syntaxType: SyntaxType.EnumDefinition;
+   values: Record<string, number>;
+-  reserved?: number[] | string;
++  comments?: Record<string, string>;
++  valuesOptions?: Record<string, Record<string, unknown>>;
++  reserved?: (string | [number, number])[];
+ }
+ 
+ export interface ServiceDefinition extends NamespaceBase {
+@@ -127,6 +130,7 @@ export interface ProtoError {
+ }
+ 
+ export interface ParseOption {
++  defaultSyntax?: 'proto2' | 'proto3';
+   keepCase?: boolean;
+   alternateCommentMode?: boolean;
+   resolve?: boolean;
+diff --git a/src/construct.js b/src/construct.js
+index 65166a560a566d59eb116aac239939582cac125b..88c16b4a5395c150ff895d9aa4209134bf6321d6 100644
+--- a/src/construct.js
++++ b/src/construct.js
+@@ -32,7 +32,7 @@ class ReflectionObject {
+   setOption(name, value, ifNotSet) {
+     /* istanbul ignore next */
+     if (!ifNotSet || !this.options || this.options[name] === undefined) {
+-      (this.options || (this.options = {}))[name] = value;
++      (this.options || (this.options = Object.create(null)))[name] = value;
+     }
+ 
+     return this;
+@@ -108,7 +108,7 @@ class FieldDefinition extends ReflectionObject {
+     }
+ 
+     this.type = getFieldType(type);
+-    this.rule = rule && rule !== 'optional' ? rule : undefined;
++    this.rule = rule;
+     this.id = id;
+     this.extend = extend || undefined;
+     this.required = rule === 'required';
+@@ -131,6 +131,7 @@ class FieldDefinition extends ReflectionObject {
+   toJson() {
+     const json = ReflectionObject.prototype.toJson.call(this);
+     const keys = [
++      'syntaxType',
+       'id',
+       'type',
+       'rule',
+@@ -236,7 +237,10 @@ class NamespaceDefinition extends ReflectionObject {
+       throw TypeError('object must be a valid nested object');
+     }
+ 
+-    if (!this.nested) this.nested = {};
++    if (!this.nested) this.nested = Object.create(null);
++    if (Object.prototype.hasOwnProperty.call(this.nested, object.name)) {
++      throw Error(`duplicate name '${object.name}' in namespace '${this.name}'`);
++    }
+     this.nested[object.name] = object;
+     object.onAdd(this);
+ 
+@@ -367,7 +371,7 @@ class MessageDefinition extends NamespaceDefinition {
+   constructor(name, options) {
+     super(name, options);
+     this.syntaxType = SyntaxType.MessageDefinition;
+-    this.fields = {};
++    this.fields = Object.create(null);
+     this.oneofs = undefined;
+     this.extensions = undefined;
+     this.reserved = undefined;
+@@ -422,7 +426,7 @@ class MessageDefinition extends NamespaceDefinition {
+ 
+     if (object instanceof OneofDefinition) {
+       /* istanbul ignore next */
+-      if (!this.oneofs) this.oneofs = {};
++      if (!this.oneofs) this.oneofs = Object.create(null);
+       this.oneofs[object.name] = object;
+       object.onAdd(this);
+       return this.clearCache();
+@@ -437,7 +441,7 @@ class MessageDefinition extends NamespaceDefinition {
+       return this._fieldsById;
+     }
+ 
+-    this._fieldsById = {};
++    this._fieldsById = Object.create(null);
+     for (let names = Object.keys(this.fields), i = 0; i < names.length; ++i) {
+       const field = this.fields[names[i]];
+       const { id } = field;
+@@ -486,10 +490,11 @@ class EnumDefinition extends NamespaceDefinition {
+       throw TypeError('values must be an object');
+     }
+ 
+-    this.valuesById = {};
++    this.valuesById = Object.create(null);
+     this.values = Object.create(this.valuesById);
+     this.comment = comment;
+-    this.comments = comments || {};
++    this.comments = comments || Object.create(null);
++    this.valuesOptions = Object.create(null);
+     this.reserved = undefined;
+ 
+     /* istanbul ignore next */
+@@ -542,7 +547,7 @@ class EnumDefinition extends NamespaceDefinition {
+ 
+   toJson() {
+     const json = NamespaceDefinition.prototype.toJson.call(this);
+-    Object.assign(json, copyObject(this, ['values', 'reserved']));
++    Object.assign(json, copyObject(this, ['values', 'reserved', 'comments', 'valuesOptions']));
+     return json;
+   }
+ }
+@@ -552,7 +557,7 @@ class ServiceDefinition extends NamespaceDefinition {
+     super(name, options);
+     this.syntaxType = SyntaxType.ServiceDefinition;
+ 
+-    this.methods = {};
++    this.methods = Object.create(null);
+     this._methodsArray = null;
+   }
+ 
+@@ -695,7 +700,7 @@ function copyObject(object, keys) {
+ 
+ function mapToJson(map) {
+   if (!map) return undefined;
+-  const object = {};
++  const object = Object.create(null);
+ 
+   Object.keys(map).forEach(key => {
+     object[key] = map[key].toJson();
+diff --git a/src/parse.js b/src/parse.js
+index 51fe46b2d98444a0ccd063c33b56c0f0581e61a7..84622a2655375b22c79d420001c48949844afc40 100644
+--- a/src/parse.js
++++ b/src/parse.js
+@@ -86,8 +86,8 @@ function parse(source, opt) {
+   let pkg;
+   let imports;
+   let weakImports;
+-  let syntax;
+-  let isProto3 = false;
++  let syntax = options.defaultSyntax;
++  let isProto3 = syntax === 'proto3';
+ 
+   let ptr = root;
+ 
+@@ -346,7 +346,7 @@ function parse(source, opt) {
+           if (!isProto3 || !typeRefRe.test(token)) throw illegal(token);
+ 
+           push(token);
+-          parseField(type, 'optional');
++          parseField(type, undefined);
+           break;
+       }
+     });
+@@ -523,7 +523,10 @@ function parse(source, opt) {
+ 
+     skip('=');
+     const value = parseId(next(), true);
+-    const dummy = {};
++    const dummy = {
++      options: Object.create(null),
++      setOption(name, value) { this.options[name] = value; },
++    };
+     ifBlock(
+       dummy,
+       token => {
+@@ -538,6 +541,7 @@ function parse(source, opt) {
+       }
+     );
+     parent.add(token, value, dummy.comment);
++    parent.valuesOptions[token] = dummy.options;
+   }
+ 
+   function parseOption(parent, token) {
+diff --git a/src/types.js b/src/types.js
+index e201e9e0c1120d5e3f0682c1135f18621d804afb..c0ae107f0a8c83d6401ea388badcef1e1559e7cf 100644
+--- a/src/types.js
++++ b/src/types.js
+@@ -28,7 +28,7 @@ const s = [
+ 
+ function bake(values, offset) {
+   let i = 0;
+-  const o = {};
++  const o = Object.create(null);
+   offset |= 0;
+   while (i < values.length) o[s[i + offset]] = values[i++];
+   return o;

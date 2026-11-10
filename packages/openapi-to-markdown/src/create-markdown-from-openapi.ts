@@ -32,10 +32,7 @@ export const createMarkdownFromOpenApi = async (
   input: AnyDocument,
   options?: OpenApiRenderOptions & { documentLoading?: DocumentLoadOptions },
 ): Promise<string> => {
-  const renderer = await createOpenApiMarkdownRenderer(input, options?.documentLoading)
-  if (options && 'documentLoading' in options) {
-    const { documentLoading: _, ...renderOptions } = options
-    return renderer.render(renderOptions)
-  }
-  return renderer.render(options)
+  const { documentLoading, ...renderOptions } = options ?? {}
+  const renderer = await createOpenApiMarkdownRenderer(input, documentLoading)
+  return renderer.render(renderOptions)
 }

@@ -59,6 +59,10 @@ type OasSecurityOpenIdConnect = {
   /** REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS. */
   openIdConnectUrl: string
+  /** Defaults applied to matching flows after OpenID Connect discovery. */
+  flows?: PartialDeep<OasSecurityOauth2FlowImplicit['flows']>
+  /** Scopes selected by default after discovery. */
+  'x-default-scopes'?: string[]
 }
 export type SecuritySchemeOpenIdConnect = SecuirtySchemeCommon & ExtendedSecurityScheme & OasSecurityOpenIdConnect
 
@@ -86,6 +90,10 @@ type FlowsCommon = {
   'x-scalar-security-body'?: Record<string, string>
   /** Extension to specify custom token name in the response (defaults to 'access_token') */
   'x-tokenName'?: string
+  /** Display order of this flow's tab in the auth UI (ascending). Flows with an order come first. */
+  'x-order'?: number
+  /** When true, this flow's tab is hidden from the auth UI. */
+  'x-scalar-ignore'?: boolean
 }
 
 type PkceOptions = 'SHA-256' | 'plain' | 'no'
@@ -199,6 +207,13 @@ export type AuthenticationConfiguration = {
    * @default false
    */
   createAnySecurityScheme?: boolean
+
+  /**
+   * Restricts visible authentication choices and forms to these scheme names.
+   * Omit to show all schemes; an empty array hides all choices, including generic creation.
+   * This does not change authentication sent with requests or API security requirements.
+   */
+  allowedSecuritySchemes?: string[]
 }
 
 export type SpecificationExtension = {
@@ -781,7 +796,7 @@ type ExtendedConfiguration = {
   hideSearch: boolean
   /** Whether to show the operationId */
   showOperationId: boolean
-  /** Extension keys to display on operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
+  /** Extension keys to display on Paths Objects, Path Items, operations, parameters, response headers, and schema fields. Custom plugin components take precedence. */
   showExtensions?: string[]
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
@@ -804,10 +819,15 @@ type ExtendedConfiguration = {
     | Array<TargetId | ClientId<TargetId> | AvailableClient>
     | true
   /** Determine the HTTP client that is selected by default */
-  defaultHttpClient?: {
-    targetKey: TargetId
-    clientKey: ClientId<TargetId>
-  }
+  defaultHttpClient?:
+    | {
+        targetKey: TargetId
+        clientKey: ClientId<TargetId>
+      }
+    | {
+        targetKey: 'custom'
+        clientKey: string
+      }
   /**
    * Clients shown as tabs in the "Client Libraries" block, in order. The rest stay available in the "More" menu.
    */
@@ -907,6 +927,8 @@ type ExtendedConfiguration = {
 }
 
 export type SourceConfiguration = {
+  /** Authentication overrides merged with the shared configuration. Arrays replace shared arrays. */
+  authentication?: AuthenticationConfiguration
   default?: boolean
   /** URL to an OpenAPI/Swagger document */
   url?: string

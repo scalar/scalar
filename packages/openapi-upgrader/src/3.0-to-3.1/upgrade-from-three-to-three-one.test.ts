@@ -4,6 +4,144 @@ import { describe, expect, it } from 'vitest'
 import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
 
 describe('upgradeFromThreeToThreeOne', () => {
+  it('preserves example data on a reusable parameter named headers', () => {
+    const example = { type: 'string', nullable: true }
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Parameters', version: '1' },
+      paths: {},
+      components: {
+        parameters: { headers: { name: 'filter', in: 'query', schema: { type: 'object' }, example } },
+      },
+    })
+
+    expect(result.components?.parameters?.headers).toStrictEqual({
+      name: 'filter',
+      in: 'query',
+      schema: { type: 'object' },
+      examples: { default: { value: example } },
+    })
+  })
+
+  it('upgrades a reusable request body named x-example', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Bodies', version: '1' },
+      paths: {},
+      components: {
+        requestBodies: {
+          'x-example': { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+        },
+      },
+    })
+
+    expect(result.components?.requestBodies?.['x-example']).toStrictEqual({
+      content: { 'application/json': { schema: { type: ['string', 'null'] } } },
+    })
+  })
+
+  it('upgrades schemas inside a callback named x-example', () => {
+    const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+      openapi: '3.0.4',
+      info: { title: 'Callbacks', version: '1' },
+      paths: {
+        '/subscribe': {
+          post: {
+            responses: { '200': { description: 'OK' } },
+            callbacks: {
+              'x-example': {
+                '{$request.body#/callbackUrl}': {
+                  post: {
+                    requestBody: { content: { 'application/json': { schema: { type: 'string', nullable: true } } } },
+                    responses: { '200': { description: 'OK' } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths?.['/subscribe']?.post?.callbacks).toStrictEqual({
+      'x-example': {
+        '{$request.body#/callbackUrl}': {
+          post: {
+            requestBody: { content: { 'application/json': { schema: { type: ['string', 'null'] } } } },
+            responses: { '200': { description: 'OK' } },
+          },
+        },
+      },
+    })
+  })
+
+  it.each(['x-example', 'default', 'properties', 'headers'])(
+    'upgrades response headers named %s while preserving their data',
+    (name) => {
+      const example = { type: 'string', nullable: true }
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Headers', version: '1' },
+        paths: {
+          '/items': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  headers: {
+                    [name]: { schema: { type: 'object', nullable: true }, example },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          headers: { [name]: { schema: { type: 'object', nullable: true }, example } },
+        },
+      })
+
+      const header = {
+        schema: { type: ['object', 'null'] },
+        examples: { default: { value: example } },
+      }
+      expect(result.paths?.['/items']?.get?.responses?.['200']).toStrictEqual({
+        description: 'OK',
+        headers: { [name]: header },
+      })
+      expect(result.components?.headers?.[name]).toStrictEqual(header)
+    },
+  )
+
+  it.each(['properties', 'patternProperties', '$defs', 'definitions'])(
+    'upgrades schemas named %s while preserving their example and default data',
+    (name) => {
+      const entry = { type: 'string', nullable: true }
+      const result: OpenAPIV3_1.Document = upgradeFromThreeToThreeOne({
+        openapi: '3.0.4',
+        info: { title: 'Examples', version: '1' },
+        paths: {},
+        components: {
+          schemas: {
+            [name]: {
+              type: 'object',
+              example: entry,
+              default: entry,
+              properties: { [name]: { type: 'object', example: entry, default: entry } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.[name]).toStrictEqual({
+        type: 'object',
+        examples: [entry],
+        default: entry,
+        properties: { [name]: { type: 'object', examples: [entry], default: entry } },
+      })
+    },
+  )
+
   it.each([
     ['base64', { contentEncoding: 'base64' }],
     ['byte', { contentEncoding: 'base64' }],

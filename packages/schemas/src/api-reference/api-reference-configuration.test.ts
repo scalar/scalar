@@ -8,6 +8,13 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves a custom default client through normalization', () => {
+    const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
+    expect(coerce(apiReferenceConfigurationSchema, { defaultHttpClient }).defaultHttpClient).toStrictEqual(
+      defaultHttpClient,
+    )
+  })
+
   it.each([undefined, true, false])('preserves urlRouting %s through configuration normalization', (urlRouting) => {
     expect(apiReferenceConfigurationWithSourceSchema({ urlRouting, url: '/openapi.json' }).urlRouting).toBe(urlRouting)
   })

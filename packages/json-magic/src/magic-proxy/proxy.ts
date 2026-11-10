@@ -1,8 +1,6 @@
-import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObject } from '@scalar/helpers/object/is-object'
 
-import { convertToLocalRef } from '@/helpers/convert-to-local-ref'
-import { getId, getSchemas } from '@/helpers/get-schemas'
+import { type DocumentReferences, bundledDocumentUri, documentReferences } from '@/bundle/document-references'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { createPathFromSegments } from '@/helpers/json-path-utils'
 import type { UnknownObject } from '@/types'
@@ -69,27 +67,30 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * It is helpful when dealing with reactive frameworks like Vue,
      */
     proxyCache: WeakMap<object, T>
-    /**
-     * Cache to store resolved JSON references.
-     */
-    cache: Map<string, unknown>
-    /**
-     * Map of all schemas by their $id or $anchor for cross-document reference resolution.
-     */
-    schemas: Map<string, string>
-    /**
-     * The current JSON path context within the root object.
-     *
-     * Used to resolve $anchor references correctly.
-     */
-    currentContext: string
-  } = {
-    root: target,
-    proxyCache: new WeakMap(),
-    cache: new Map(),
-    schemas: getSchemas(target, '', [], new Map(options?.documentUri ? [[options.documentUri, '']] : [])),
-    currentContext: '',
-  },
+    /** Shared resource index for fragment pointers, identifiers, and anchors. */
+    references: DocumentReferences
+    origin: string
+    /** Invalidates resolved paths when proxy mutations can change fallback targets. */
+    revision: { value: number }
+  } = ((): {
+    root: T
+    proxyCache: WeakMap<object, T>
+    references: DocumentReferences
+    origin: string
+    revision: { value: number }
+  } => {
+    const references = documentReferences('x-ext')
+    const origin = options?.documentUri ?? '/'
+    references.register(target, origin)
+    if (isObject(target) && isObject(target['x-ext'])) {
+      for (const [key, document] of Object.entries(target['x-ext'])) {
+        const mappings = target['x-ext-urls']
+        const source = isObject(mappings) && typeof mappings[key] === 'string' ? mappings[key] : undefined
+        references.register(document, bundledDocumentUri(origin, key, source), ['x-ext', key])
+      }
+    }
+    return { root: target, proxyCache: new WeakMap(), references, origin, revision: { value: 0 } }
+  })(),
 ): T => {
   if (!isObject(target) && !Array.isArray(target)) {
     return target
@@ -99,6 +100,9 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
   if (args.proxyCache.has(target)) {
     return args.proxyCache.get(target)
   }
+
+  // Cache the path, never the value: callers can replace targets through the raw document.
+  let cached: { ref: string; origin: string; revision: number; segments: string[] } | undefined
 
   const handler: ProxyHandler<T> = {
     /**
@@ -128,36 +132,23 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
 
       // Get the $ref value of the current target (if any)
       const ref = Reflect.get(target, REF_KEY, receiver)
-      // Get the identifier ($id) of the current target for context tracking
-      const id = getId(target)
 
       // If accessing "$ref-value" and $ref is a local reference, resolve and return the referenced value
       if (prop === REF_VALUE && typeof ref === 'string') {
-        // Check cache first for performance optimization
-        if (args.cache.has(ref)) {
-          return args.cache.get(ref)
+        const origin = args.references.origin(target) ?? args.origin
+        if (cached?.ref !== ref || cached.origin !== origin || cached.revision !== args.revision.value) {
+          const resolved = args.references.resolve(ref, origin, true)
+          if (!resolved) return undefined
+          cached = { ref, origin, revision: args.revision.value, segments: resolved.segments }
         }
-
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
-
-        if (path === undefined) {
-          return undefined
+        const value = getValueByPath(args.root, cached.segments).value
+        if (isMagicProxyObject(value)) {
+          return value
         }
-
-        // Resolve the reference and create a new magic proxy
-        const resolvedValue = getValueByPath(args.root, parseJsonPointerSegments(`/${path}`))
-        // Return early if the value is already a magic proxy
-        if (isMagicProxyObject(resolvedValue.value)) {
-          return resolvedValue.value
-        }
-        const proxiedValue = createMagicProxy(resolvedValue.value, options, {
+        return createMagicProxy(value, options, {
           ...args,
-          currentContext: resolvedValue.context,
+          origin: isObject(value) ? (args.references.origin(value) ?? args.origin) : args.origin,
         })
-
-        // Store in cache for future lookups
-        args.cache.set(ref, proxiedValue)
-        return proxiedValue
       }
 
       // For all other properties, recursively wrap the value in a magic proxy
@@ -168,7 +159,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
         return value
       }
 
-      return createMagicProxy(value as T, options, { ...args, currentContext: id ?? args.currentContext })
+      return createMagicProxy(value as T, options, { ...args, origin: args.references.origin(target) ?? args.origin })
     },
     /**
      * Proxy "set" trap for magic proxy.
@@ -179,6 +170,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * Those will be considered private properties by the proxy
      */
     set(target, prop, newValue, receiver) {
+      args.revision.value++
       const ref = Reflect.get(target, REF_KEY, receiver)
 
       if (typeof prop === 'string' && prop.startsWith('__scalar_') && !options?.showInternal) {
@@ -186,14 +178,11 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
       }
 
       if (prop === REF_VALUE && typeof ref === 'string') {
-        const id = getId(target)
-        const path = convertToLocalRef(ref, id ?? args.currentContext, args.schemas)
+        const segments = args.references.resolve(ref, args.references.origin(target) ?? args.origin, true)?.segments
 
-        if (path === undefined) {
+        if (segments === undefined) {
           return undefined
         }
-
-        const segments = parseJsonPointerSegments(`/${path}`)
 
         if (segments.length === 0) {
           return false // Can not set top level $ref-value
@@ -230,6 +219,7 @@ export const createMagicProxy = <T extends Record<keyof T & symbol, unknown>, S 
      * This will update the underlying target object.
      */
     deleteProperty(target, prop) {
+      args.revision.value++
       return Reflect.deleteProperty(target, prop)
     },
     /**

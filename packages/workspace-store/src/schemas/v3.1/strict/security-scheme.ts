@@ -3,6 +3,10 @@ import { Type } from '@scalar/typebox'
 import { compose } from '@/schemas/compose'
 import { type XScalarIgnore, XScalarIgnoreSchema } from '@/schemas/extensions/document/x-scalar-ignore'
 import { type XDefaultScopes, XDefaultScopesSchema } from '@/schemas/extensions/security/x-default-scopes'
+import {
+  type XScalarCredentialPlaceholders,
+  XScalarCredentialPlaceholdersSchema,
+} from '@/schemas/extensions/security/x-scalar-credential-placeholders'
 import type { OAuthFlowsObject } from '@/schemas/v3.1/strict/oauthflows'
 import { OAuthFlowsObjectRef } from '@/schemas/v3.1/strict/ref-definitions'
 
@@ -14,12 +18,14 @@ const DescriptionSchema = compose(
     description: Type.Optional(Type.String()),
   }),
   XScalarIgnoreSchema,
+  XScalarCredentialPlaceholdersSchema,
 )
 
 type Description = {
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
   description?: string
-} & XScalarIgnore
+} & XScalarIgnore &
+  XScalarCredentialPlaceholders
 
 const ApiKeySchema = compose(
   DescriptionSchema,

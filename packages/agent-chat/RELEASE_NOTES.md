@@ -9,6 +9,33 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.51 (2026-11-10)
+
+### Require approval for all API requests and redact credentials
+
+Agent Chat now requires explicit approval before executing any AI-generated API request, including GET requests. Saved credentials are validated and redacted from response data before being sent to the chat model.
+
+- All API requests now require approval before execution, preventing automatic data access with stored credentials.
+- Request destinations are validated before attaching credentials to prevent sending them to model-supplied URLs.
+- Saved credentials are redacted from response URLs, headers, and bodies before sending results to the chat backend.
+- The approval preview shows the resolved API destination and method before the request is sent.
+- Requests are rejected when no usable server is configured, prompting API authors to add a server to their description.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01251)
+
+## 0.12.50 (2026-11-05)
+
+### Security hardening and agent key document fix
+
+This release fixes a security issue in the CORS proxy and restores full-mode chat functionality while backend support is being finalized.
+
+- The CORS proxy now protects against XSS, open redirect, and origin abuse attacks by rejecting document requests and sandboxing responses.
+- Response headers in post-response scripts, agent logs, and request history now show the values your API sent, not the proxy's security headers.
+- Full-mode Ask AI uses the agent key's registered documents again, fixing questions that require API context.
+- Preview mode continues to upload the selected API description as before.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01250)
+
 ## 0.12.46 (2026-10-23)
 
 ### Polish and bug fixes shipped

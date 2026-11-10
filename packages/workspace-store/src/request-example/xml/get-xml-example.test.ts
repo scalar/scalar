@@ -9,6 +9,19 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it('pads array items through XML serialization', () => {
+    const input: SchemaObject = {
+      type: 'array',
+      items: { type: 'number', xml: { name: 'coordinate' } },
+      minItems: 2,
+      xml: { name: 'coordinates', wrapped: true },
+    }
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual({
+      xml: '<coordinates><coordinate>1</coordinate><coordinate>1</coordinate></coordinates>',
+      diagnostics: [],
+    })
+  })
+
   it.each([
     {
       xml: { nodeType: 'element', name: 'wrapper', namespace: 'relative' },
@@ -286,15 +299,67 @@ describe('get-xml-example', () => {
     const input = schema({
       xml: { name: 'root' },
       properties: {
-        id: { example: 1, readOnly: true, xml: { attribute: true } },
-        secret: { example: 's', writeOnly: true },
+        id: { example: 1, deprecated: true, readOnly: true, xml: { attribute: true } },
+        secret: { example: 's', deprecated: true, writeOnly: true },
         retired: { example: 'old', deprecated: true },
       },
     })
-    expect(getXmlExampleFromSchema(input, { ...compact, mode: 'write' }).xml).toBe('<root><secret>s</secret></root>')
-    expect(serializeXmlExample({ id: 1, secret: 's', retired: 'old' }, input, { ...compact, mode: 'read' }).xml).toBe(
-      '<root id="1"/>',
+    expect(getXmlExampleFromSchema(input, { ...compact, mode: 'write' }).xml).toBe(
+      '<root><secret>s</secret><retired>old</retired></root>',
     )
+    expect(serializeXmlExample({ id: 1, secret: 's', retired: 'old' }, input, { ...compact, mode: 'read' }).xml).toBe(
+      '<root id="1"><retired>old</retired></root>',
+    )
+  })
+
+  it('keeps a deprecated root schema in generated and supplied XML', () => {
+    const input = schema({
+      type: 'object',
+      deprecated: true,
+      xml: { name: 'Pet' },
+      properties: { name: { type: 'string', example: 'Rex' } },
+    })
+    const expected = { xml: '<Pet><name>Rex</name></Pet>', diagnostics: [] }
+
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual(expected)
+    expect(serializeXmlExample({ name: 'Rex' }, input, compact)).toStrictEqual(expected)
+  })
+
+  it('keeps deprecated properties in generated and supplied XML', () => {
+    const input = schema({
+      type: 'object',
+      xml: { name: 'Pet' },
+      properties: {
+        name: { type: 'string', example: 'Rex' },
+        tag: { type: 'string', example: 'old', deprecated: true },
+      },
+    })
+    const expected = { xml: '<Pet><name>Rex</name><tag>old</tag></Pet>', diagnostics: [] }
+
+    expect(getXmlExampleFromSchema(input, compact)).toStrictEqual(expected)
+    expect(serializeXmlExample({ name: 'Rex', tag: 'old' }, input, compact)).toStrictEqual(expected)
+  })
+
+  // OpenAPI 3.2 handles reference sites and targets as separate XML nodes.
+  it.each([
+    { openapiVersion: '3.1.0', element: 'legacy' },
+    { openapiVersion: '3.2.0', element: 'Legacy' },
+  ])('keeps a nested deprecated reference target in OpenAPI $openapiVersion', ({ openapiVersion, element }) => {
+    const input = schema({
+      type: 'object',
+      xml: { name: 'Pet' },
+      properties: {
+        legacy: {
+          '$ref': '#/components/schemas/Legacy',
+          '$ref-value': { type: 'object', deprecated: true, properties: { code: { type: 'string', example: 'L1' } } },
+        },
+      },
+    })
+    const options = { ...compact, openapiVersion }
+    const expected = { xml: `<Pet><${element}><code>L1</code></${element}></Pet>`, diagnostics: [] }
+
+    expect(getXmlExampleFromSchema(input, options)).toStrictEqual(expected)
+    expect(serializeXmlExample({ legacy: { code: 'L1' } }, input, options)).toStrictEqual(expected)
   })
 
   it('represents null elements explicitly and reports omitted null attributes', () => {
@@ -517,5 +582,40 @@ describe('get-xml-example', () => {
     expect(result.diagnostics.filter(({ severity }) => severity === 'error').map(({ code }) => code)).toStrictEqual([
       'unresolved-reference',
     ])
+  })
+
+  it('retains discriminator XML provenance when collecting deep required properties', () => {
+    let input = schema({
+      type: 'object',
+      required: ['kind'],
+      properties: { kind: { type: 'string', xml: { name: 'tag', attribute: true } } },
+      discriminator: { propertyName: 'kind', defaultMapping: 'A' },
+      oneOf: [
+        { $ref: '#/components/schemas/A', '$ref-value': { required: ['a'], properties: { a: { const: 'A' } } } },
+        { $ref: '#/components/schemas/B', '$ref-value': { required: ['b'], properties: { b: { const: 'B' } } } },
+      ],
+    })
+    for (let depth = 0; depth < 11; depth++) {
+      input = schema({ type: 'object', properties: { next: input } })
+    }
+
+    const result = getXmlExampleFromSchema(input, { ...compact, rootName: 'root', emptyString: 'B' })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.xml).toBe(`<root>${'<next>'.repeat(10)}<next tag="B"><b>B</b></next>${'</next>'.repeat(10)}</root>`)
+  })
+
+  it('keeps a bounded XML body for a long chain of required objects', () => {
+    // Required properties are filled past the example depth cap, but only to a fixed depth, so the
+    // serializer's own depth limit is never reached and the body survives.
+    let link: unknown = { type: 'string' }
+    for (let index = 0; index < 52; index++) {
+      link = { type: 'object', required: ['next'], properties: { next: link } }
+    }
+
+    const result = getXmlExampleFromSchema(schema(link), { ...compact, rootName: 'root' })
+
+    expect(result.diagnostics).toStrictEqual([])
+    expect(result.xml).toMatch(/^<root><next>/)
   })
 })
