@@ -14,3 +14,5 @@ Reuse evaluated discriminator values for required-property collection and keep i
 Preserve shared requirements and required primitive values through dynamic references, including requirements declared in dynamically referenced composition members.
 
 Collect requirements separately when composition branches reuse a shared template under different dynamic bindings.
+
+Exclude requirements from composition members omitted by the request or response mode.

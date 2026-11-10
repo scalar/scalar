@@ -3366,6 +3366,19 @@ describe('getExampleFromSchema', () => {
       expect(truncate(leaf, { mode: 'read' })).toStrictEqual({ id: 'kept', old: 'retired' })
     })
 
+    it.each([
+      ['read', 'writeOnly'],
+      ['write', 'readOnly'],
+    ] as const)('ignores requirements within a %s-mode excluded composition member', (mode, flag) => {
+      const leaf = {
+        type: 'object',
+        properties: { id: { const: 'kept' }, direct: { const: 'omitted' }, nested: { const: 'omitted' } },
+        allOf: [{ [flag]: true, required: ['direct'], allOf: [{ required: ['nested'] }] }, { required: ['id'] }],
+      }
+
+      expect(truncate(leaf, { mode })).toStrictEqual({ id: 'kept' })
+    })
+
     it('keeps required properties an object declares through allOf', () => {
       const leaf = {
         type: 'object',

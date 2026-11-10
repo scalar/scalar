@@ -1233,6 +1233,11 @@ const getCompositionRequiredNames = (
       }
     }
 
+    // An omitted member cannot make a sibling's otherwise optional fields required for this example.
+    if (shouldOmitProperty(current.schema, undefined, undefined, { mode: current.options?.mode })) {
+      continue
+    }
+
     if ('required' in current.schema && Array.isArray(current.schema.required)) {
       for (const name of current.schema.required) {
         names.add(name)
