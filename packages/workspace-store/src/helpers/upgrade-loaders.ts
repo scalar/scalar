@@ -16,9 +16,9 @@ import { deepClone } from './deep-clone'
 
 const isThreeZero = (version: unknown): version is string => typeof version === 'string' && version.startsWith('3.0')
 
-/** Upgrade complete documents immediately, and fragments only at their referring OpenAPI location. */
+/** Upgrade versioned documents immediately, and headerless files only at their referring OpenAPI location. */
 export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown, path?: readonly string[]): unknown => {
-  if (!isObject(data) || 'swagger' in data || 'asyncapi' in data) {
+  if (!isObject(data) || typeof data.swagger === 'string' || typeof data.asyncapi === 'string') {
     return data
   }
 
@@ -41,11 +41,8 @@ export const upgradeLoadedDocument = (data: unknown, entryVersion: unknown, path
     return getValueAtPath(upgrade(document, '3.1'), contextPath)
   }
 
-  if ('paths' in data || 'components' in data || 'webhooks' in data) {
-    const { openapi: _openapi, ...body } = upgrade({ openapi: entryVersion, ...data }, '3.1')
-    return body
-  }
-
+  // A shared schema map can contain names such as `components` or `paths`. Without a
+  // version header, wait for a reference to establish the target's OpenAPI object kind.
   return data
 }
 
@@ -161,7 +158,9 @@ export const upgradeLoaders = (
             isThreeZero(entryVersion) &&
             isObject(data) &&
             data === input &&
-            !('openapi' in data || 'swagger' in data || 'asyncapi' in data)
+            typeof data.openapi !== 'string' &&
+            typeof data.swagger !== 'string' &&
+            typeof data.asyncapi !== 'string'
           indexNodes(data, isFragment ? undefined : [])
           return { ...result, data }
         })
@@ -191,8 +190,11 @@ export const upgradeLoaders = (
           return
         }
         const resolveTarget = async (): Promise<unknown> => {
-          if (!file) {
-            return context.resolveReference(reference)?.value
+          // Absolute and relative document URIs can already resolve in the bundler's registry.
+          // Reuse them before invoking a loader, just as we do for fragment-only references.
+          const resolved = context.resolveReference(reference)
+          if (resolved || !file) {
+            return resolved?.value
           }
           const url = resolveReferencePath(context.origin, file)
           const loader = wrapped.find((candidate) => candidate.validate(url))

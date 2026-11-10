@@ -55,6 +55,57 @@ const getNameSchema = async (version: string, ref: string): Promise<Record<strin
 }
 
 describe('client.external-upgrade', () => {
+  it('upgrades a shared schema map whose names resemble document fields', async () => {
+    const store = createWorkspaceStore()
+    const data = {
+      openapi: { type: 'string' },
+      components: { type: 'string' },
+      Item: { type: 'string', nullable: true, example: 'hello' },
+    }
+    await store.addDocument({
+      name: 'default',
+      fetch: (): Promise<Response> => Promise.resolve(new Response(JSON.stringify(data))),
+      document: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        components: { schemas: { Item: { $ref: 'https://example.test/shared.json#/Item' } } },
+      },
+    })
+
+    const document = getActiveOpenApiDocument(store)
+    expect(getResolvedRef(document?.components?.schemas?.Item)).toStrictEqual({
+      type: ['string', 'null'],
+      examples: ['hello'],
+    })
+  })
+
+  it('resolves an absolute reference to the entry document without another fetch', async () => {
+    const store = createWorkspaceStore()
+    const loads: string[] = []
+    await store.addDocument({
+      name: 'default',
+      documentSource: 'https://example.test/openapi.json',
+      fetch: (input): Promise<Response> => {
+        loads.push(String(input))
+        return Promise.reject(new Error('The entry document is already loaded'))
+      },
+      document: {
+        openapi: '3.0.3',
+        info: { title: 't', version: '1' },
+        components: {
+          schemas: {
+            Item: { type: 'string', nullable: true },
+            Alias: { $ref: 'https://example.test/openapi.json#/components/schemas/Item' },
+          },
+        },
+      },
+    })
+
+    const document = getActiveOpenApiDocument(store)
+    expect(getResolvedRef(document?.components?.schemas?.Alias)).toStrictEqual({ type: ['string', 'null'] })
+    expect(loads).toStrictEqual([])
+  })
+
   it.each(['', 'constructor', 'prototype'])('upgrades an external schema for property "%s"', async (name) => {
     const store = createWorkspaceStore()
     await store.addDocument({
