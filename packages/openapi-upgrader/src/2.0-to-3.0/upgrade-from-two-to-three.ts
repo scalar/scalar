@@ -5,6 +5,8 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { isInsideDataValue } from '@/helpers/is-inside-data-value'
 import { traverse } from '@/helpers/traverse'
 
+import { migrateDiscriminatorMappings } from './migrate-discriminator-mappings'
+
 type XExampleExtensions = {
   xExample: unknown
   xExamples: unknown
@@ -234,8 +236,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   // Schemas
   if (document.definitions) {
     for (const schema of Object.values(document.definitions)) {
-      migrateSchemaNullability(schema)
+      migrateSchema(schema)
     }
+    migrateDiscriminatorMappings(document.definitions)
 
     document.components = Object.assign({}, document.components, {
       schemas: document.definitions,
@@ -357,7 +360,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
           // Transform schema to content
           if (responseObj.schema) {
-            migrateSchemaNullability(responseObj.schema)
+            migrateSchema(responseObj.schema)
             if (typeof responseObj.content !== 'object') {
               responseObj.content = {}
             }
@@ -501,7 +504,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                     }, {})
                   }
                   if (responseItem.schema) {
-                    migrateSchemaNullability(responseItem.schema)
+                    migrateSchema(responseItem.schema)
                     const produces = operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE]
 
                     if (typeof responseItem.content !== 'object') {
@@ -657,12 +660,23 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 }
 
 /**
- * Swagger tooling uses x-nullable for the nullability keyword introduced in OpenAPI 3.0.
- * Visit only subschemas so example/default values and custom extensions remain user data.
+ * Converts Swagger discriminator and nullability fields to their OpenAPI 3.0 forms.
+ * Visit only OpenAPI 2.0 subschema keywords so example/default values and custom extensions remain user data.
  */
-const migrateSchemaNullability = (schema: unknown): void => {
+const migrateSchema = (schema: unknown): void => {
   if (!isObjectLike(schema)) {
     return
+  }
+
+  if (typeof schema.discriminator === 'string') {
+    const propertyName = schema.discriminator
+    schema.discriminator = { propertyName }
+    // OpenAPI 2.0 requires the discriminating property, including an empty property name.
+    if (schema.required === undefined) {
+      schema.required = [propertyName]
+    } else if (Array.isArray(schema.required) && !schema.required.includes(propertyName)) {
+      schema.required.push(propertyName)
+    }
   }
 
   if (typeof schema['x-nullable'] === 'boolean') {
@@ -675,16 +689,16 @@ const migrateSchemaNullability = (schema: unknown): void => {
 
   if (isObjectLike(schema.properties)) {
     for (const property of Object.values(schema.properties)) {
-      migrateSchemaNullability(property)
+      migrateSchema(property)
     }
   }
 
-  migrateSchemaNullability(schema.items)
-  migrateSchemaNullability(schema.additionalProperties)
+  migrateSchema(schema.items)
+  migrateSchema(schema.additionalProperties)
 
   if (Array.isArray(schema.allOf)) {
     for (const member of schema.allOf) {
-      migrateSchemaNullability(member)
+      migrateSchema(member)
     }
   }
 }
@@ -719,7 +733,7 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
     return acc
   }, {})
 
-  migrateSchemaNullability(schema)
+  migrateSchema(schema)
   return schema
 }
 
@@ -910,7 +924,7 @@ function migrateBodyParameter(
   delete bodyParameter.in
 
   const { schema, ...requestBody } = bodyParameter
-  migrateSchemaNullability(schema)
+  migrateSchema(schema)
 
   const requestBodyObject: OpenAPIV3.RequestBodyObject = {
     content: {},

@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { traverse } from './traverse'
 
 describe('traverse', () => {
+  it.each(['alias', { value: 'alias' }, ['alias']])('preserves a literal __proto__ key containing %j', (value) => {
+    const input = { ['__proto__']: value }
+    const result = traverse(input, (node) => node)
+    expect(result).toStrictEqual(input)
+    expect(Object.getPrototypeOf(result)).toBe(Object.prototype)
+    expect(Object.hasOwn(result, '__proto__')).toBe(true)
+  })
+
   it('applies transform function to a flat object', () => {
     const definition = { a: 1, b: 2 }
     const transform = (schema: any) => {
