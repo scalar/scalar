@@ -5,6 +5,7 @@ import { unescapeJsonPointer } from '@scalar/helpers/json/unescape-json-pointer'
 import { isObject } from '@scalar/helpers/object/is-object'
 
 import { type DynamicScope, isDynamicRef, pushDynamicScope, resolveDynamicRef } from '@/helpers/dynamic-ref'
+import { getResolvedRef } from '@/helpers/get-resolved-ref'
 import { isFileSchema } from '@/helpers/is-file-schema'
 import { resolveFormSchema } from '@/helpers/resolve-form-schema'
 import { unpackProxyObject } from '@/helpers/unpack-proxy'
@@ -1014,7 +1015,7 @@ const handleArraySchema = (
         },
       )
       if (ex === undefined) {
-        return undefined
+        return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
       }
       const tagged = withDiscriminatorTag(items, selected, ex, options, itemsSchemaPath)
       return completeArrayExample([tagged])
@@ -1024,7 +1025,9 @@ const handleArraySchema = (
   const isObjectItems =
     items && typeof items === 'object' && (('type' in items && items.type === 'object') || 'properties' in items)
   const isArray =
-    items && typeof items === 'object' && (('type' in items && items.type === 'array') || 'items' in items)
+    items &&
+    typeof items === 'object' &&
+    (('type' in items && items.type === 'array') || 'items' in items || 'prefixItems' in items)
 
   const hasDeclaredItem = values.length < minItems && items && getDeclaredValue(items) !== undefined
   if (items && (('type' in items && items.type) || isObjectItems || isArray || hasDeclaredItem)) {
@@ -1036,12 +1039,16 @@ const handleArraySchema = (
     })
     // Propagate an omitted recursive item so optional arrays do not serialize it as null.
     if (ex === undefined) {
-      return undefined
+      return values.length > 0 ? cache(schema, values, cacheKey, skipCache) : undefined
     }
     return completeArrayExample([ex])
   }
 
-  const unrestricted = itemSchema === undefined || itemSchema === true || Object.keys(itemSchema).length === 0
+  const target = getResolvedRef(itemSchema)
+  const unrestricted =
+    itemSchema === undefined ||
+    target === true ||
+    (target !== undefined && items && Object.keys(items).every((key) => key === '$ref'))
   return completeArrayExample([], unrestricted ? null : undefined)
 }
 
