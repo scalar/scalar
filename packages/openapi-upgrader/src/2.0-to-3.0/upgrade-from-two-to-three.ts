@@ -1,3 +1,4 @@
+import { parseJsonPointerSegments } from '@scalar/helpers/json/parse-json-pointer-segments'
 import { isObjectLike } from '@scalar/helpers/object/is-object'
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -267,11 +268,15 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     return schema
   })
 
+  const globalConsumes = (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
+  // Keep the source fields and examples for operation-specific media types and combined forms.
+  const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
+
   if (Object.hasOwn(document, 'parameters')) {
     // update all the $refs before we do any transformations
     document = traverse(document, (schema) => {
       if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/parameters/')) {
-        const schemaName = schema.$ref.split('/')[2]
+        const schemaName = parseJsonPointerSegments(schema.$ref.slice(1))[1]
 
         if (!schemaName) {
           return schema
@@ -304,6 +309,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           const convertedParam = transformParameterObject(param as OpenAPIV2.ReferenceObject)
           params[name] = convertedParam
         } else if ('in' in param) {
+          if (param.in === 'body' || param.in === 'formData') {
+            sharedBodyParameters.set(name, structuredClone(param) as OpenAPIV2.ParameterObject)
+          }
+
           if (param.in === 'body') {
             bodyParams[name] = migrateBodyParameter(
               param as OpenAPIV2.ParameterObject,
@@ -447,32 +456,54 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
       if (Object.hasOwn(document.paths, path)) {
         const pathItem = isObjectLike(document.paths) && path in document.paths ? document.paths[path] : undefined
 
-        if (!pathItem || typeof pathItem !== 'object') {
+        if (!isObjectLike(pathItem)) {
           continue
         }
 
-        let requestBodyObject: OpenAPIV3.RequestBodyObject | undefined
+        // Path parameters apply to every operation, regardless of their position in the document.
+        const pathParameters: SwaggerParameter[] = Array.isArray(pathItem.parameters)
+          ? structuredClone(pathItem.parameters)
+          : []
+        const inheritedBodyParameters = pathParameters.filter((parameter) =>
+          isRequestBodyParameter(resolveBodyParameter(parameter, sharedBodyParameters)),
+        )
+
+        if (Array.isArray(pathItem.parameters)) {
+          pathItem.parameters = pathParameters
+            .filter((parameter) => !isRequestBodyParameter(resolveBodyParameter(parameter, sharedBodyParameters)))
+            .map((parameter) => transformParameterObject(parameter))
+        }
 
         for (const methodOrParameters in pathItem) {
-          if (methodOrParameters === 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
-            const pathItemParameters = migrateParameters(
-              (pathItem as any).parameters,
-              (document.consumes as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
-            )
-
-            ;(pathItem as any).parameters = pathItemParameters.parameters
-            requestBodyObject = pathItemParameters.requestBody
-          } else if (Object.hasOwn(pathItem, methodOrParameters)) {
-            const operationItem = (pathItem as any)[methodOrParameters]
-
-            if (requestBodyObject) {
-              operationItem.requestBody = requestBodyObject
+          if (methodOrParameters !== 'parameters' && Object.hasOwn(pathItem, methodOrParameters)) {
+            if (!isObjectLike(pathItem[methodOrParameters]) || methodOrParameters.startsWith('x-')) {
+              continue
             }
 
-            if (operationItem.parameters) {
+            const operationItem = (pathItem as any)[methodOrParameters]
+
+            const operationParameters: SwaggerParameter[] = Array.isArray(operationItem.parameters)
+              ? operationItem.parameters
+              : []
+            const inheritedParameters = inheritedBodyParameters.filter((parameter) => {
+              const inherited = resolveBodyParameter(parameter, sharedBodyParameters)
+              return !operationParameters.some((candidate) => {
+                const override = resolveBodyParameter(candidate, sharedBodyParameters)
+                return (
+                  'in' in inherited &&
+                  'in' in override &&
+                  inherited.in === override.in &&
+                  inherited.name === override.name
+                )
+              })
+            })
+
+            if (operationParameters.length || inheritedParameters.length) {
               const migrationResult = migrateParameters(
-                operationItem.parameters,
-                operationItem.consumes ?? document.consumes ?? [DEFAULT_MEDIA_TYPE],
+                [...structuredClone(inheritedParameters), ...operationParameters],
+                (operationItem.consumes as string[] | undefined) ?? globalConsumes,
+                sharedBodyParameters,
+                globalConsumes,
               )
 
               operationItem.parameters = migrationResult.parameters
@@ -915,7 +946,7 @@ function getFormDataEncoding(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.En
 
 type ParameterMigrationResult = {
   parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[]
-  requestBody?: OpenAPIV3.RequestBodyObject
+  requestBody?: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject
 }
 
 function migrateBodyParameter(
@@ -1062,42 +1093,73 @@ function migrateFormDataParameter(
   return requestBodyObject
 }
 
-function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: string[]): ParameterMigrationResult {
-  const result: ParameterMigrationResult = {
-    parameters: parameters
-      .filter((parameter) => !(parameter.in === 'body' || parameter.in === 'formData'))
-      .map((parameter) => transformParameterObject(parameter)),
-  }
+type SwaggerParameter = OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject
 
-  const bodyParameter = structuredClone(
-    parameters.find((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'body') ?? {},
+/** Resolve only the shared parameters that were migrated to request body components. */
+const resolveBodyParameter = (
+  parameter: SwaggerParameter,
+  sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
+): SwaggerParameter => {
+  if ('$ref' in parameter && parameter.$ref.startsWith('#/components/requestBodies/')) {
+    const segments = parseJsonPointerSegments(parameter.$ref.slice(1))
+    const name = segments[2]
+    return (segments.length === 3 && name !== undefined ? sharedBodyParameters.get(name) : undefined) ?? parameter
+  }
+  return parameter
+}
+
+const isRequestBodyParameter = (parameter: SwaggerParameter): parameter is OpenAPIV2.ParameterObject =>
+  'in' in parameter && (parameter.in === 'body' || parameter.in === 'formData')
+
+function migrateParameters(
+  parameters: SwaggerParameter[],
+  consumes: string[],
+  sharedBodyParameters: ReadonlyMap<string, OpenAPIV2.ParameterObject>,
+  globalConsumes: string[],
+): ParameterMigrationResult {
+  const resolvedParameters = parameters.map((parameter) => ({
+    original: parameter,
+    resolved: resolveBodyParameter(parameter, sharedBodyParameters),
+  }))
+  const requestBodyParameters = resolvedParameters.filter(
+    (parameter): parameter is { original: SwaggerParameter; resolved: OpenAPIV2.ParameterObject } =>
+      isRequestBodyParameter(parameter.resolved),
   )
-
-  if (bodyParameter && Object.keys(bodyParameter).length) {
-    result.requestBody = migrateBodyParameter(bodyParameter, consumes)
+  const result: ParameterMigrationResult = {
+    parameters: resolvedParameters
+      .filter(({ resolved }) => !isRequestBodyParameter(resolved))
+      .map(({ original }) => transformParameterObject(original)),
   }
 
-  const formDataParameters = parameters.filter((parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData')
+  // A component can be reused only when it represents the entire body with the same media types.
+  const sharedParameter = requestBodyParameters.length === 1 ? requestBodyParameters[0]?.original : undefined
+  if (
+    sharedParameter &&
+    '$ref' in sharedParameter &&
+    consumes.length === globalConsumes.length &&
+    consumes.every((type, index) => type === globalConsumes[index])
+  ) {
+    result.requestBody = { $ref: sharedParameter.$ref }
+    return result
+  }
+
+  const bodyParameter = requestBodyParameters.find(({ resolved }) => resolved.in === 'body')?.resolved
+  if (bodyParameter) {
+    result.requestBody = migrateBodyParameter(structuredClone(bodyParameter), consumes)
+  }
+
+  const formDataParameters = requestBodyParameters
+    .filter(({ resolved }) => resolved.in === 'formData')
+    .map(({ resolved }) => resolved)
 
   if (formDataParameters.length > 0) {
     const requestBodyObject = migrateFormDataParameter(formDataParameters, consumes)
-
-    if (typeof result.requestBody !== 'object') {
-      result.requestBody = requestBodyObject
-    } else {
-      result.requestBody = {
-        ...result.requestBody,
-        content: {
-          ...result.requestBody.content,
-          ...requestBodyObject.content,
-        },
-      }
-    }
-
-    if (typeof result.requestBody !== 'object') {
-      result.requestBody = {
-        content: {},
-      }
+    result.requestBody = {
+      ...result.requestBody,
+      content: {
+        ...result.requestBody?.content,
+        ...requestBodyObject.content,
+      },
     }
   }
 
