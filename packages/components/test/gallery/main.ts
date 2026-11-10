@@ -9,6 +9,7 @@ import '../../.storybook/preview.css'
 import './gallery.css'
 
 import { type ThemeVariantId, applyThemeVariant, defaultThemeVariant } from '@scalar/helpers/storybook/themes'
+import { bundledLanguages, loadLanguages } from '@scalar/highlight/lazy'
 
 /**
  * The component gallery that hosts Playwright's `mount()` fixture.
@@ -69,6 +70,9 @@ const storyModules = import.meta.glob<StoryModule>('../../src/**/*.stories.ts')
 
 /** Matches preview.ts, which sets these once when the Storybook preview boots. */
 document.body.classList.add('scalar-app', 'light-mode', 'sb-show-main')
+
+/** Every bundled grammar, started once when the gallery boots rather than on every mount. */
+const grammarsLoaded = loadLanguages(...bundledLanguages)
 
 /** The story currently rendered into `#root`, kept so the next mount can tear it down. */
 let app: App | null = null
@@ -171,6 +175,11 @@ window.mount = async ({ story: storyId, props }) => {
           return h(meta.component, args)
         },
       }
+
+  // Code blocks download their grammar on demand and render as plain text until it arrives. A
+  // snapshot taken during that window would capture whichever state won the race, so load every
+  // grammar first and the story renders highlighted from its first paint.
+  await grammarsLoaded
 
   app?.unmount()
 
