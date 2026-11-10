@@ -273,9 +273,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   const sharedBodyParameters = new Map<string, OpenAPIV2.ParameterObject>()
 
   if (Object.hasOwn(document, 'parameters')) {
-    // update all the $refs before we do any transformations
-    document = traverse(document, (schema) => {
-      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/parameters/')) {
+    // Update references before transforming their targets, but leave literal payload data untouched.
+    document = traverse(document, (schema, path) => {
+      if (
+        !isInsideDataValue(path, '2.0') &&
+        typeof schema.$ref === 'string' &&
+        schema.$ref.startsWith('#/parameters/')
+      ) {
         const schemaName = parseJsonPointerSegments(schema.$ref.slice(1))[1]
 
         if (!schemaName) {

@@ -1877,6 +1877,34 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it.each(['example', 'default', 'enum'] as const)(
+    'preserves literal parameter references inside schema %s data',
+    (keyword) => {
+      const value = { $ref: '#/parameters/50%', nested: { $ref: '#/parameters/Body' } }
+      const schema = { type: 'object', [keyword]: keyword === 'enum' ? [value] : value }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        parameters: { Body: { name: 'body', in: 'body', schema: { $ref: '#/definitions/Pet' } } },
+        definitions: { Pet: schema },
+        paths: {
+          '/pets': {
+            post: {
+              parameters: [{ $ref: '#/parameters/Body' }],
+              responses: { '200': { description: 'ok' } },
+            },
+          },
+        },
+      })
+
+      expect(result.components?.schemas?.Pet).toStrictEqual(schema)
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        requestBody: { $ref: '#/components/requestBodies/Body' },
+        responses: { '200': { description: 'ok' } },
+      })
+    },
+  )
+
   it('leaves unresolved and external parameter references in parameters', () => {
     const result: OpenAPIV3.Document = upgradeFromTwoToThree({
       swagger: '2.0',
