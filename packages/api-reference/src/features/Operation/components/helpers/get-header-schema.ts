@@ -1,4 +1,4 @@
-import { type RenderedExample, getRenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
+import { type RenderedExample, normalizeRenderedExamples } from '@scalar/blocks/schema/helpers'
 import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { resolve } from '@scalar/workspace-store/resolve'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
@@ -17,10 +17,7 @@ const getExamples = (source: HeaderObject | MediaTypeObject | undefined): Header
   if (source && 'example' in source && source.example !== undefined) {
     return normalizeRenderedExamples([source.example])
   }
-  return Object.entries(source && 'examples' in source ? (source.examples ?? {}) : {}).flatMap(([name, entry]) => {
-    const example = getRenderedExample(entry, name)
-    return example ? [example] : []
-  })
+  return normalizeRenderedExamples(source && 'examples' in source ? source.examples : undefined)
 }
 
 /** Compositions describe the same header value; property and item schemas describe different values. */

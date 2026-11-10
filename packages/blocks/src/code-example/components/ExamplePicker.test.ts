@@ -24,6 +24,25 @@ describe('ExamplePicker', () => {
     },
   }
 
+  it.each([
+    ['Use-specific label', 'Use-specific label'],
+    ['', 'sample-name'],
+  ])('prefers the reference summary override %j', (summary, label) => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        modelValue: 'sample-name',
+        examples: {
+          'sample-name': {
+            $ref: '#/components/examples/Common',
+            summary,
+            '$ref-value': { summary: 'Shared label', value: 'sample' },
+          },
+        },
+      },
+    })
+    expect(wrapper.find('button').text()).toBe(label)
+  })
+
   it('renders with default state', () => {
     const wrapper = mount(ExamplePicker, {
       props: {

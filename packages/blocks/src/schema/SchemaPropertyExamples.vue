@@ -27,11 +27,18 @@ const { translate } = useLocalization()
 // `undefined` as "not provided".
 const hasSingleExample = computed(() => example !== undefined)
 
-const normalizedExamples = computed(() =>
-  normalizeRenderedExamples(examples).map((entry) => ({
-    label: entry.summary || entry.name,
-    value: formatExample(entry.value),
-  })),
+const normalizedExamples = computed<
+  { label: string | undefined; value: string | number; ariaLabel: string }[]
+>(() =>
+  normalizeRenderedExamples(examples).map((entry) => {
+    const label = entry.summary || entry.name
+    const value = formatExample(entry.value)
+    return {
+      label,
+      value,
+      ariaLabel: `${translate('common.copyExample')}: ${label ? `${label}: ` : ''}${value}`,
+    }
+  }),
 )
 
 const hasMultipleExamples = computed(() => normalizedExamples.value.length > 0)
@@ -226,7 +233,7 @@ onKeyStroke('Escape', () => {
         <button
           v-for="(ex, key) in normalizedExamples"
           :key="key"
-          :aria-label="`${translate('common.copyExample')}: ${ex.label ? `${ex.label}: ` : ''}${ex.value}`"
+          :aria-label="ex.ariaLabel"
           class="property-example-value group"
           type="button"
           @click="copyToClipboard(ex.value)">

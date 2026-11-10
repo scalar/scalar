@@ -33,12 +33,9 @@ export const getParameterExamples = ({
     return normalizeRenderedExamples(parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []))
   }
 
-  const recordExamples = Object.entries({
+  const recordExamples = normalizeRenderedExamples({
     ...paramExamples,
     ...(isObjectLike(contentExamples) ? contentExamples : {}),
-  }).flatMap(([name, entry]) => {
-    const example = getRenderedExample(entry, name)
-    return example ? [example] : []
   })
 
   const fallbackExample =

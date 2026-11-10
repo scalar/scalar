@@ -13,6 +13,15 @@ describe('get-rendered-example', () => {
     expect(result?.value).toBe('sample')
   })
 
+  it.each(['Use-specific label', ''])('preserves a reference summary override: %j', (summary) => {
+    expect(
+      getRenderedExample(
+        { $ref: '#/components/examples/Common', summary, '$ref-value': { summary: 'Shared label', value: 'sample' } },
+        'sample-name',
+      )?.summary,
+    ).toBe(summary)
+  })
+
   it('keeps external URLs visible and omits unresolved references', () => {
     const examples = normalizeRenderedExamples({
       remote: { summary: 'Download sample', externalValue: 'https://example.com/sample.txt' },

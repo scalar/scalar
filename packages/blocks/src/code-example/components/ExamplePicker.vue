@@ -22,7 +22,10 @@ defineOptions({ inheritAttrs: false })
 const exampleOptions = computed<ScalarListboxOption[]>(() =>
   Object.entries(examples).map(([key, example]) => ({
     id: key,
-    label: getResolvedRef(example)?.summary || key,
+    label:
+      ((typeof example === 'string' ? undefined : example?.summary) ??
+        getResolvedRef(example)?.summary) ||
+      key,
   })),
 )
 

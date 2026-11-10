@@ -23,12 +23,13 @@ export const getRenderedExample = (entry: unknown, name?: string, preferData = f
     preferData && example.dataValue !== undefined ? { value: example.dataValue } : getExampleValue(example)
   // Display the URL until the bundler has loaded an external example's payload.
   const value = selected ? selected.value : example.externalValue
+  const summary = isObjectLike(entry) && typeof entry.summary === 'string' ? entry.summary : example.summary
   return value === undefined
     ? undefined
     : {
         [renderedExample]: true,
         name,
-        summary: typeof example.summary === 'string' ? example.summary : undefined,
+        summary: typeof summary === 'string' ? summary : undefined,
         value,
       }
 }
