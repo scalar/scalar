@@ -5,9 +5,10 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components/listbox'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { getResolvedRef } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import type { MediaTypeObject } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import { computed } from 'vue'
+
+import { getExampleSummary } from '../../schema/helpers/get-rendered-example'
 
 const { examples = {} } = defineProps<{
   examples?: MediaTypeObject['examples'] | Record<string, string>
@@ -22,10 +23,7 @@ defineOptions({ inheritAttrs: false })
 const exampleOptions = computed<ScalarListboxOption[]>(() =>
   Object.entries(examples).map(([key, example]) => ({
     id: key,
-    label:
-      ((typeof example === 'string' ? undefined : example?.summary) ??
-        getResolvedRef(example)?.summary) ||
-      key,
+    label: getExampleSummary(example) || key,
   })),
 )
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRenderedExample, normalizeRenderedExamples } from './get-rendered-example'
+import { getExampleSummary, getRenderedExample, normalizeRenderedExamples } from './get-rendered-example'
 
 describe('get-rendered-example', () => {
   it('preserves the map name and resolved summary alongside the selected value', () => {
@@ -20,6 +20,17 @@ describe('get-rendered-example', () => {
         'sample-name',
       )?.summary,
     ).toBe(summary)
+  })
+
+  it('inherits summaries through annotated references and stops at cycles', () => {
+    const target = { summary: 'Shared label', value: 'sample' }
+    const intermediate = { $ref: '#/components/examples/B', description: 'Annotation', '$ref-value': target }
+    const entry = { $ref: '#/components/examples/A', '$ref-value': intermediate }
+    expect(getRenderedExample(entry, 'named')).toMatchObject({ summary: 'Shared label', value: 'sample' })
+    expect(getExampleSummary({ ...entry, summary: '' })).toBe('')
+    const cycle: Record<string, unknown> = { $ref: '#/components/examples/Cycle' }
+    cycle['$ref-value'] = cycle
+    expect(getExampleSummary(cycle)).toBeUndefined()
   })
 
   it('keeps external URLs visible and omits unresolved references', () => {

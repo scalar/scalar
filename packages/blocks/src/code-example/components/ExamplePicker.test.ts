@@ -43,6 +43,25 @@ describe('ExamplePicker', () => {
     expect(wrapper.find('button').text()).toBe(label)
   })
 
+  it('inherits a summary through a description-only reference', () => {
+    const wrapper = mount(ExamplePicker, {
+      props: {
+        modelValue: 'named',
+        examples: {
+          named: {
+            $ref: '#/components/examples/A',
+            '$ref-value': {
+              $ref: '#/components/examples/B',
+              description: 'Annotation',
+              '$ref-value': { summary: 'Shared label', value: 'sample' },
+            },
+          },
+        },
+      },
+    })
+    expect(wrapper.find('button').text()).toBe('Shared label')
+  })
+
   it('renders with default state', () => {
     const wrapper = mount(ExamplePicker, {
       props: {

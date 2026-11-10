@@ -13,6 +13,20 @@ export type RenderedExample = {
   value: unknown
 }
 
+/** Find the nearest summary annotation, including overrides on a chain of references. */
+export const getExampleSummary = (entry: unknown): string | undefined => {
+  const seen = new Set<unknown>()
+  let current = entry
+  while (isObjectLike(current) && !seen.has(current)) {
+    if (typeof current.summary === 'string') {
+      return current.summary
+    }
+    seen.add(current)
+    current = getResolvedRef(current)
+  }
+  return undefined
+}
+
 /** Resolve a named Example Object once, preserving its label and the existing value preference. */
 export const getRenderedExample = (entry: unknown, name?: string, preferData = false): RenderedExample | undefined => {
   const example = getResolvedRef(entry)
@@ -23,13 +37,12 @@ export const getRenderedExample = (entry: unknown, name?: string, preferData = f
     preferData && example.dataValue !== undefined ? { value: example.dataValue } : getExampleValue(example)
   // Display the URL until the bundler has loaded an external example's payload.
   const value = selected ? selected.value : example.externalValue
-  const summary = isObjectLike(entry) && typeof entry.summary === 'string' ? entry.summary : example.summary
   return value === undefined
     ? undefined
     : {
         [renderedExample]: true,
         name,
-        summary: typeof summary === 'string' ? summary : undefined,
+        summary: getExampleSummary(entry),
         value,
       }
 }
