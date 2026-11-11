@@ -142,6 +142,18 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
   right: 16px;
 }
 
+/*
+ * Over code the renderer gives the copy button the color of the surface it sits on. An attached
+ * source panel has no surface, so its button keeps the chip it has today.
+ */
+.scalar-component-preview + .t-editor__code-container > .language-button {
+  background-color: var(--scalar-background-2);
+}
+
+.scalar-component-preview + .t-editor__code-container > .language-button:hover {
+  background-color: var(--scalar-background-3);
+}
+
 /* TODO: Remove these styles after cleaning up the docs pages */
 
 /* Make adjacent buttons have secondary styles*/
