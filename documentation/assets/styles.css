@@ -120,6 +120,9 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
 
 .scalar-component-preview + .t-editor__code-group .t-editor__code,
 .scalar-component-preview + .t-editor__code-container .t-editor__code {
+  /* The padding a block has on its own: a code group's panels take less to make room for a shell. */
+  --code-inline-padding: 16px;
+
   margin-top: 0;
   box-shadow: none;
   background: transparent;
@@ -134,7 +137,7 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
 }
 
 .scalar-component-preview + .t-editor__code-group .code-group-nav {
-  margin-bottom: 0;
+  margin: 0;
 }
 
 .scalar-component-preview + .t-editor__code-group .t-editor__code-container > .language-button {
