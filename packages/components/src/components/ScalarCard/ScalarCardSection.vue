@@ -34,18 +34,7 @@ const { cx } = useBindCx()
   background: var(--scalar-card-surface);
   /* The card's corner less its padding, so the two curves stay concentric. */
   border-radius: var(--scalar-radius-xl);
-  box-shadow:
-    0 1px 3px rgb(0 0 0 / 0.08),
-    0 0 0 var(--scalar-border-width) rgb(0 0 0 / 0.04);
-}
-/* On a dark card a drop shadow alone disappears, so a faint light edge carries the lift. */
-.scalar-card-content:where(.dark-mode, .dark-mode *):where(
-    :not(.scalar-card-header, .scalar-card-footer)
-  ) {
-  box-shadow:
-    0 1.5px 2px rgb(0 0 0 / 0.32),
-    0 0 0 var(--scalar-border-width) rgb(255 255 255 / 0.1),
-    0 -1px 0 rgb(255 255 255 / 0.04);
+  box-shadow: var(--scalar-card-surface-shadow);
 }
 /* Two surfaces in a row keep the card's padding between them. */
 .scalar-card-content:where(:not(.scalar-card-header, .scalar-card-footer))
