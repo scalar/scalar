@@ -129,6 +129,27 @@ describe('mergeSearchParams', () => {
 })
 
 describe('mergeUrls', () => {
+  it.each([
+    ['https://api.example.com?token=a?b', '/users', 'token=a%3Fb'],
+    [
+      'https://api.example.com',
+      '/users?redirect=https://example.com/callback?code=abc',
+      'redirect=https%3A%2F%2Fexample.com%2Fcallback%3Fcode%3Dabc',
+    ],
+    ['https://api.example.com?token=a?b?c', '/users?next=x?y?z', 'token=a%3Fb%3Fc&next=x%3Fy%3Fz'],
+    ['https://api.example.com?token=?', '/users?next=??', 'token=%3F&next=%3F%3F'],
+    ['https://api.example.com?token=a%3Fb', '/users?next=x%3Fy', 'token=a%3Fb&next=x%3Fy'],
+  ])('preserves query data when merging %s and %s', (base, path, query) => {
+    expect(mergeUrls(base, path)).toBe(`https://api.example.com/users?${query}`)
+  })
+
+  it('preserves repeated question-mark values and later-source precedence', () => {
+    const params = new URLSearchParams([['token', 'final?value']])
+    expect(
+      mergeUrls('https://api.example.com?token=old?value&tag=a?b', '/users?token=path?value&tag=x?y&tag=z?w', params),
+    ).toBe('https://api.example.com/users?token=final%3Fvalue&tag=x%3Fy&tag=z%3Fw')
+  })
+
   it('combines simple URL and path', () => {
     const result = mergeUrls('https://api.example.com', '/users')
     expect(result).toBe('https://api.example.com/users')
