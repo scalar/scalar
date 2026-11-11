@@ -151,8 +151,6 @@ jobs:
           sdk-version: 11.x.x
           aspnetcore-version: |
             10.x.x
-            9.x.x
-            8.x.x
 
       - name: Restore dependencies
         working-directory: integrations/dotnet

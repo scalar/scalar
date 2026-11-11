@@ -14,9 +14,9 @@
   -->
   <PropertyGroup>
     <!-- All supported .NET versions (packages, and the tests that exercise them) -->
-    <ScalarTargetFrameworks>net8.0;net9.0;net10.0;net11.0</ScalarTargetFrameworks>
+    <ScalarTargetFrameworks>net10.0;net11.0</ScalarTargetFrameworks>
     <!-- Microsoft.AspNetCore.OpenApi only exists from .NET 9 onwards -->
-    <ScalarMicrosoftOpenApiTargetFrameworks>net9.0;net10.0;net11.0</ScalarMicrosoftOpenApiTargetFrameworks>
+    <ScalarMicrosoftOpenApiTargetFrameworks>net10.0;net11.0</ScalarMicrosoftOpenApiTargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="$(CI) == true">
