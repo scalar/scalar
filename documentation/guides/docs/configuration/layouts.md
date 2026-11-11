@@ -43,7 +43,7 @@ Header links use the main text color, and the sidebar marks the current page and
 <scalar-image
   src="/layouts-minimal.png"
   src-dark="/layouts-minimal-dark.png"
-  alt="A documentation site on the minimal layout, with the header, sidebar and content in one centered column"
+  alt="A documentation site on the minimal layout, with the header, sidebar, content and table of contents in one centered column"
   size="full">
 </scalar-image>
 
