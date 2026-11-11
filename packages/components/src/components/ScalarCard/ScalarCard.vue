@@ -50,8 +50,36 @@ const { cx } = useBindCx()
     role="group"
     v-bind="{
       ...labelAttrs,
-      ...cx('scalar-card bg-b-2 flex flex-col divide-y rounded-xl border'),
+      ...cx('scalar-card bg-b-2 flex flex-col rounded-2xl p-1'),
     }">
     <slot />
   </div>
 </template>
+<style>
+/**
+ * A card is a backdrop with its sections lifted off it as surfaces.
+ *
+ * The surface color is worked out from the backdrop instead of being read from another theme
+ * token, so it stays one step lighter than the card whatever a theme does to the card's colors.
+ * That lands on white over the default light backdrop and next to --scalar-background-3 over the
+ * default dark one, and it keeps working for a theme that paints its cards dark in light mode,
+ * where a token picked by color mode would be the wrong way round.
+ *
+ * The variable is resolved here, on the card, so a section that swaps --scalar-background-2 for
+ * its own purposes does not move the surface under the code inside it.
+ *
+ * Every rule below is a single class, so any theme or `customCss` rule that names the same
+ * element still wins.
+ */
+.scalar-card {
+  /* Browsers without relative colors get the light arrangement in both color modes. */
+  --scalar-card-surface: var(--scalar-background-1);
+}
+@supports (color: oklch(from white l c h)) {
+  .scalar-card {
+    --scalar-card-surface: oklch(
+      from var(--scalar-background-2) calc(l + 0.055) c h
+    );
+  }
+}
+</style>

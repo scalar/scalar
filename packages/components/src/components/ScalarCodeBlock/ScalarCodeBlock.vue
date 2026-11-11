@@ -207,6 +207,13 @@ const { cx } = useBindCx()
 .scalar-code-block.bg-b-2 .scalar-code-copy-backdrop {
   @apply bg-b-2;
 }
+/**
+ * A transparent block shows the surface of the card it sits in, so the label takes that color.
+ * Outside a card there is nothing to match, and the label goes without a backdrop.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy-backdrop {
+  background: var(--scalar-card-surface, transparent);
+}
 /** Make the copy button one shade darker than the background */
 .scalar-code-block.bg-b-2 .scalar-code-copy {
   @apply bg-b-3;

@@ -62,7 +62,6 @@ const operationsAndWebhooks = computed(() => {
 }
 .endpoints {
   overflow: auto;
-  background: var(--scalar-background-2);
   padding: 10px 12px;
   width: 100%;
 }

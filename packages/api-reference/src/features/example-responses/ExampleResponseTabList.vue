@@ -37,3 +37,16 @@ const changeTab = (index: number) => {
   padding: 0;
 }
 </style>
+<style>
+/*
+ * The tab strip sits on the card rather than on a surface, so it draws its own rule for the
+ * selected tab's underline to land on and keeps the card's padding below it. Kept out of the
+ * scoped block so the selector stays a single class and a theme or `customCss` rule still wins.
+ */
+.scalar-card-header-tabs {
+  border-radius: 0;
+  box-shadow: inset 0 calc(var(--scalar-border-width) * -1) 0
+    var(--scalar-border-color);
+  margin-bottom: 4px;
+}
+</style>

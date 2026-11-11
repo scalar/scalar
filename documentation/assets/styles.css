@@ -125,6 +125,23 @@ button[data-sidebar-id] > .mr-1:has(> svg.size-full) {
   background: transparent;
 }
 
+/*
+ * The source is attached to the preview above it rather than standing as a block of its own, so a
+ * code group gives up the shell padding it has elsewhere and its copy button returns to the edge.
+ */
+.scalar-component-preview + .t-editor__code-group {
+  padding: 0;
+}
+
+.scalar-component-preview + .t-editor__code-group .code-group-nav {
+  margin-bottom: 0;
+}
+
+.scalar-component-preview + .t-editor__code-group .t-editor__code-container > .language-button {
+  top: -34px;
+  right: 16px;
+}
+
 /* TODO: Remove these styles after cleaning up the docs pages */
 
 /* Make adjacent buttons have secondary styles*/

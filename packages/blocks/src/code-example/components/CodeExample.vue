@@ -597,7 +597,7 @@ const id = useId()
         class="code-snippet group/code-block relative">
         <ScalarCodeBlock
           v-if="!shouldVirtualize"
-          class="bg-b-2 h-full"
+          class="h-full bg-transparent"
           :content="displayCode ?? ''"
           :copyContent="resolvedCredentials ? (generatedCode ?? '') : undefined"
           :hideCredentials="secretCredentials"
@@ -613,7 +613,7 @@ const id = useId()
           <ScalarVirtualText
             :id="`${id}-virtual-code`"
             aria-label="Request code sample"
-            containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"
+            containerClass="custom-scroll scalar-code-block flex flex-1 max-h-screen"
             contentClass="language-plaintext whitespace-pre font-code text-base p-2"
             :lineHeight="20"
             role="region"
@@ -625,7 +625,7 @@ const id = useId()
     <!-- Footer -->
     <ScalarCardFooter
       v-if="showExamplePicker || $slots.footer || $slots['footer-start']"
-      class="request-card-footer bg-b-3"
+      class="request-card-footer"
       :class="{
         'request-card-footer--wraps':
           !showExamplePicker && $slots['footer-start'],
@@ -659,7 +659,8 @@ const id = useId()
   <ScalarCard
     v-else-if="fallback"
     class="request-card dark-mode">
-    <ScalarCardSection class="request-card-simple">
+    <!-- A single row of method, path and actions reads as a header, so it stays on the card -->
+    <ScalarCardSection class="request-card-simple bg-transparent shadow-none">
       <div class="request-header">
         <HttpMethod
           as="span"

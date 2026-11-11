@@ -168,7 +168,8 @@ export const InCard: Story = {
       ],
     },
     lang: 'json',
-    class: 'bg-b-2',
+    // Transparent, so the card section's surface shows through as it does in the API reference
+    class: 'bg-transparent',
   },
   render: (args) => ({
     components: { ScalarCard, ScalarCardHeader, ScalarCardSection, ScalarCodeBlock },
@@ -180,7 +181,7 @@ export const InCard: Story = {
   <ScalarCard class="h-60 w-120">
     <ScalarCardHeader>200</ScalarCardHeader>
     <ScalarCardSection class="grid flex-1">
-      <div class="bg-b-2 flex min-h-0 min-w-0 flex-col">
+      <div class="flex min-h-0 min-w-0 flex-col">
         <ScalarCodeBlock v-bind="args" />
       </div>
     </ScalarCardSection>

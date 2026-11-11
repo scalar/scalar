@@ -31,13 +31,13 @@ const shouldVirtualizeSchema = computed(() => {
   <ScalarCodeBlock
     v-if="!shouldVirtualizeSchema"
     :id="id"
-    class="bg-b-2"
+    class="bg-transparent"
     lang="json"
     :prettyPrintedContent="schemaContent ?? ''" />
   <ScalarVirtualCodeBlock
     v-else
     :id="id"
-    class="bg-b-2"
+    class="bg-transparent"
     :content="schemaContent ?? ''"
     lang="json" />
 </template>
