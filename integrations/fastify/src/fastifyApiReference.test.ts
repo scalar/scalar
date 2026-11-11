@@ -275,6 +275,7 @@ describe('fastifyApiReference', () => {
 
             const response = await fetch(`${address}/reference${endpoints.json}`)
             expect(response.status).toBe(200)
+            expect(response.headers.get('Content-Disposition')).toBe('inline; filename="example-api.json"')
             expect(await response.json()).toEqual(spec)
           })
 
@@ -292,6 +293,7 @@ describe('fastifyApiReference', () => {
 
             const response = await fetch(`${address}/reference${endpoints.yaml}`)
             expect(response.status).toBe(200)
+            expect(response.headers.get('Content-Disposition')).toBe('inline; filename="example-api.yaml"')
             expect(YAML.parse(await response.text())).toEqual(spec)
           })
 
@@ -310,6 +312,8 @@ describe('fastifyApiReference', () => {
     { label: 'missing', title: undefined, filename: 'spec' },
     { label: 'null', title: null, filename: 'spec' },
     { label: 'numeric', title: 123, filename: 'spec' },
+    { label: 'empty', title: '', filename: 'spec' },
+    { label: 'emoji-only', title: '🧪', filename: 'spec' },
     { label: 'string', title: 'Custom Filename', filename: 'custom-filename' },
   ])('uses a safe download filename for a $label title', async ({ title, filename }) => {
     fastify = Fastify({ logger: false })
@@ -317,7 +321,7 @@ describe('fastifyApiReference', () => {
       configuration: {
         content: {
           ...exampleDocument(),
-          specification: { info: { title } },
+          info: { title, version: '1.0.0' },
         },
       },
     })
@@ -325,7 +329,27 @@ describe('fastifyApiReference', () => {
     for (const format of ['json', 'yaml']) {
       const response = await fastify.inject(`/reference/openapi.${format}`)
       expect(response.statusCode).toBe(200)
-      expect(response.headers['content-disposition']).toBe(`filename=${filename}.${format}`)
+      expect(response.headers['content-disposition']).toBe(`inline; filename="${filename}.${format}"`)
+    }
+  })
+
+  it.each([
+    { title: 'Zażółć API', filename: 'zażółć-api' },
+    { title: '日本語 API', filename: '日本語-api' },
+  ])('encodes the download filename for "$title" in HTTP headers', async ({ title, filename }) => {
+    fastify = Fastify({ logger: false })
+    const document = { ...exampleDocument(), info: { title, version: '1.0.0' } }
+    await fastify.register(fastifyApiReference, { configuration: { content: document } })
+    const address = await fastify.listen({ port: 0 })
+
+    for (const format of ['json', 'yaml']) {
+      const response = await fetch(`${address}/reference/openapi.${format}`)
+      expect(response.status).toBe(200)
+      expect(response.headers.get('Content-Disposition')).toBe(
+        `inline; filename="spec.${format}"; filename*=UTF-8''${encodeURIComponent(filename)}.${format}`,
+      )
+      const content = await response.text()
+      expect(format === 'json' ? JSON.parse(content) : YAML.parse(content)).toEqual(document)
     }
   })
 
