@@ -64,7 +64,7 @@ public class ScalarResourceConfiguratorTests
         await ScalarResourceConfigurator.ConfigureScalarResourceAsync(context);
 
         var raw = (string)envVars[EnvironmentVariables.ApiReferenceConfig];
-        return JsonDocument.Parse(raw).RootElement.EnumerateArray().ToArray();
+        return JsonElement.Parse(raw).EnumerateArray().ToArray();
     }
 
     // Creates a default-case annotation (mirrors WithApiReference(resourceBuilder)) suitable for multi-annotation tests.
@@ -384,8 +384,8 @@ public class ScalarResourceConfiguratorTests
         await ScalarResourceConfigurator.ConfigureScalarResourceAsync(
             new EnvironmentCallbackContext(executionContext, scalarResource, envVars));
 
-        var configs = JsonDocument.Parse((string)envVars[EnvironmentVariables.ApiReferenceConfig])
-            .RootElement.EnumerateArray().ToArray();
+        var configs = JsonElement.Parse((string)envVars[EnvironmentVariables.ApiReferenceConfig])
+            .EnumerateArray().ToArray();
 
         configs.Should().HaveCount(2);
         configs[0].GetProperty("sources")[0].GetProperty("url").GetString().Should().Contain("api-one");
@@ -416,7 +416,7 @@ public class ScalarResourceConfiguratorTests
 
         // The value must be valid Base64 that decodes to a JSON array.
         var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(raw));
-        JsonDocument.Parse(decoded).RootElement.ValueKind.Should().Be(JsonValueKind.Array);
+        JsonElement.Parse(decoded).ValueKind.Should().Be(JsonValueKind.Array);
     }
 
     [Fact]

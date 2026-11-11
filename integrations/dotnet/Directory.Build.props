@@ -7,6 +7,18 @@
     <AnalysisLevel>latest-Recommended</AnalysisLevel>
   </PropertyGroup>
 
+  <!--
+    Single source of truth for the target frameworks of all multi-targeted projects.
+    To add or drop a .NET version, change these properties (and the framework-aligned
+    package versions in Directory.Packages.props) instead of editing every .csproj.
+  -->
+  <PropertyGroup>
+    <!-- All supported .NET versions (packages, and the tests that exercise them) -->
+    <ScalarTargetFrameworks>net8.0;net9.0;net10.0;net11.0</ScalarTargetFrameworks>
+    <!-- Microsoft.AspNetCore.OpenApi only exists from .NET 9 onwards -->
+    <ScalarMicrosoftOpenApiTargetFrameworks>net9.0;net10.0;net11.0</ScalarMicrosoftOpenApiTargetFrameworks>
+  </PropertyGroup>
+
   <PropertyGroup Condition="$(CI) == true">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
