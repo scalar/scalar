@@ -49,7 +49,7 @@ The column has no room for a table of contents, so this layout has none: `layout
 
 ### Contained
 
-`"contained"` shows the content in a raised panel that scrolls by itself, while the header and sidebar stay in place on a layer behind it. The tabs run along the top of the panel and stay there as the content scrolls underneath them.
+`"contained"` shows the content in a raised panel that scrolls by itself, while the header and sidebar stay in place on a layer behind it. The tabs run along the top of the panel and stay there as the content scrolls underneath them. Header links mark the current page with a rounded background, like the rows in the sidebar beside them.
 
 <scalar-image
   src="/layouts-contained.png"
