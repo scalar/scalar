@@ -285,7 +285,7 @@ The `layout` property controls global layout options that apply to all pages unl
 | Property      | Type      | Default  | Description                                    |
 | ------------- | --------- | -------- | ---------------------------------------------- |
 | `preset`      | `"default" \| "minimal" \| "contained"` | `"default"` | How the whole page is arranged. Site-wide only. See [Layouts](layouts.md) |
-| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally. Ignored on the [minimal layout](layouts.md#minimal) |
+| `toc`         | `boolean` | `true`   | Whether to show the table of contents globally |
 | `header`      | `boolean` | —        | Whether to show the header globally. Falls back to whether or not [`navigation.header`](navigation.md#header) is declared |
 | `pageTitle`   | `boolean` | `true`   | Whether to show page titles globally           |
 | `pageActions` | `boolean` | `true`   | Whether to show page actions globally          |

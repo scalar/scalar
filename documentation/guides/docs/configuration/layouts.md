@@ -36,9 +36,9 @@ The header and sidebar span the window, with a table of contents beside the cont
 
 ### Minimal
 
-`"minimal"` puts the header, sidebar and content in one centered column, as wide as the sidebar and the reading column with its padding. On a wide screen the page keeps a calm, narrow shape instead of stretching to fill it.
+`"minimal"` puts the header, sidebar, content and table of contents in one centered column of a fixed width. On a wide screen the page keeps a calm shape instead of stretching to fill it. Pages without a table of contents keep the same width, so the header and sidebar stay in place as you move between pages.
 
-The column has no room for a table of contents, so this layout has none: `layout.toc` is ignored, on individual pages too. The sidebar scrolls as one, so the links at its foot follow the last page in it instead of staying pinned to the bottom of the window.
+Header links use the main text color, and the sidebar marks the current page and the row under the pointer by their text alone, with no background. The sidebar scrolls as one, so the links at its foot follow the last page in it instead of staying pinned to the bottom of the window.
 
 <scalar-image
   src="/layouts-minimal.png"
@@ -77,7 +77,7 @@ Layouts apply to screens wider than 1000px. At 1000px and below, the sidebar bec
 
 ## Other layout options
 
-The other [layout options](site-config.md#layout) still apply on top of a preset. You can hide the header, move the search box, or turn off the table of contents on the contained layout, and a page can override those options in its own [layout options](navigation.md#layout-options). The one exception is `toc` on the minimal layout, which has no table of contents to show.
+The other [layout options](site-config.md#layout) still apply on top of a preset. You can hide the header, move the search box, or turn off the table of contents, and a page can override those options in its own [layout options](navigation.md#layout-options).
 
 ## Customizing a layout
 
@@ -85,7 +85,7 @@ You can adjust a layout with these CSS variables in a [custom theme](themes.md):
 
 | Variable                   | Layout      | Default                                                              | Description                                                                 |
 | -------------------------- | ----------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `--scalar-layout-width`    | `minimal`   | The sidebar width plus the reading column and its padding            | The width of the centered column                                            |
+| `--scalar-layout-width`    | `minimal`   | The sidebar, the reading column and the table of contents            | The width of the centered column                                            |
 | `--scalar-layout-backdrop` | `contained` | `--scalar-background-2` in light mode, a near-black in dark mode     | The layer behind the panel. The header and sidebar take this color          |
 | `--scalar-layout-gutter`   | `contained` | `12px`                                                               | The space between the panel and the edges of the window                     |
 
