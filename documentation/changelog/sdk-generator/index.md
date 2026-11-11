@@ -8,6 +8,39 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.41.0 (2026-11-11)
+
+### Native formatters, unified one-arm unions, and smoke tests as framework suites
+
+Generated SDKs now use native formatters when available, handle single-arm unions consistently across languages, and ship smoke tests integrated with each language's test framework rather than standalone scripts.
+
+- Native formatters are now used when the exact pinned version is installed on PATH, falling back to WebAssembly builds otherwise.
+- TypeScript, Python, Go, Rust, C++, PHP, Dart, Kotlin, Java, Swift, and C# all detect version-matched native formatters before loading bundled WebAssembly builds.
+- The `SCALAR_SDK_FORMATTER` environment variable controls formatter selection: `auto` (default), `wasm`, or `native`.
+- One-arm unions now render consistently across all targets, either as the arm type directly or as a named model when configured.
+- Swift, Kotlin, Java, and C++ no longer wrap single-arm unions in enums or sealed classes.
+- Smoke tests now ship as proper test suites: xUnit for C#, CTest for C++, pytest for Python, JUnit for Kotlin and Java, and framework-native suites for Go, Rust, PHP, Ruby, Dart, and Swift.
+- Each smoke suite runs through its language's standard test runner and skips unless `TEST_API_BASE_URL` is set.
+- The `smoke-test` command now accepts `--spec` and `--config` to compile operation facts from an OpenAPI document.
+- Generated CLIs now ship on Bun 1.4.4, with improved cross-platform macOS signing support.
+- Formatters are pinned to Biome 2.6.6, ruff 0.17.4, ktfmt 0.64, google-java-format 1.36.1, swift-format 604.0.0, CSharpier 1.3.0, and rustfmt 1.10.0.
+
+## 0.40.1 (2026-11-10)
+
+### Patch release to complete the previous publish
+
+## 0.40.0 (2026-11-10)
+
+### C# target stable, custom README sections, and signed uploads for more languages
+
+The C# target is now stable and ready for production use. You can now add custom sections to generated READMEs without manual edits between regenerations. Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs.
+
+- The C# target is now marked as stable in the configuration schema and target catalog.
+- Custom README sections can be configured with `readme.sections`, supporting position control and per-target filtering.
+- Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs, with type-safe file handling.
+- Generated CLIs published to npm now check for updates against the npm registry and support upgrade commands.
+- Webhook verification now honors configured signature algorithms and headers across Python, Go, Ruby, Kotlin, Java, Rust, TypeScript, and Dart targets.
+
 ## 0.39.0 (2026-11-06)
 
 ### CLI confirmations, improved pluralization, and form encoding
