@@ -15,7 +15,7 @@ export const loadDocumentFromUrl = async (
     fetch: customFetch,
     proxyUrl: workspaceStore.workspace['x-scalar-active-proxy'] ?? undefined,
   })
-  // TODO: Reuse the discovery response for extensionless document URLs to avoid downloading large descriptions twice.
+  let discoveryResponse: Response | undefined
   const resolved = await resolve(url, {
     fetch: async (input) => {
       const response = await fetch(input)
@@ -23,6 +23,7 @@ export const loadDocumentFromUrl = async (
       if (!response.ok) {
         throw new Error(`Failed to fetch reference: ${response.status}`)
       }
+      discoveryResponse = response.clone()
       return response
     },
   })
@@ -34,6 +35,8 @@ export const loadDocumentFromUrl = async (
   return await workspaceStore.addDocument({
     name,
     url: resolved ?? url,
+    // Only reuse a response when discovery identified the original URL as the document itself.
+    response: resolved === url ? discoveryResponse : undefined,
     fetch: customFetch,
     meta: { 'x-scalar-watch-mode': watchMode },
   })

@@ -110,6 +110,8 @@ type WorkspaceDocumentMetaInput = {
 export type UrlDoc = {
   /** URL to fetch the OpenAPI document from */
   url: string
+  /** Already fetched response for this URL. Its body is consumed instead of fetching the initial document. */
+  response?: Response
 } & WorkspaceDocumentMetaInput
 
 /**
@@ -163,7 +165,10 @@ function loadDocument(
   },
 ): ReturnType<LoaderPlugin['exec']> {
   if ('url' in workspaceDocument) {
-    return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
+    const response = workspaceDocument.response
+    return fetchUrls({
+      fetch: response ? () => Promise.resolve(response) : workspaceDocument.fetch,
+    }).exec(workspaceDocument.url)
   }
 
   if ('path' in workspaceDocument) {
