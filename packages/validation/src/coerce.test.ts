@@ -1594,6 +1594,76 @@ describe('coerce', () => {
     expect(coerce(schema, [])).toBe('fallback')
   })
 
+  it.each([false, true])('preserves matching record values with reversed branches: %s', (reverse) => {
+    const branches = [record(string(), number()), record(string(), string())]
+    const schema = union(reverse ? [...branches].reverse() : branches)
+
+    expect(coerce(schema, { greeting: 'hello' })).toStrictEqual({ greeting: 'hello' })
+    expect(coerce(schema, { count: 42 })).toStrictEqual({ count: 42 })
+    expect(coerce(schema, Object.assign(Object.create(null), { greeting: 'hello' }))).toStrictEqual({
+      greeting: 'hello',
+    })
+  })
+
+  it('chooses the record branch matching more values', () => {
+    const schema = union([record(string(), number()), record(string(), string())])
+
+    expect(coerce(schema, { first: 'hello', second: 'world', count: 42 })).toStrictEqual({
+      first: 'hello',
+      second: 'world',
+      count: '',
+    })
+  })
+
+  it('keeps record scores below matching object shapes', () => {
+    const schema = union([object({ name: string() }), record(string(), string())])
+
+    expect(coerce(schema, { name: 'Ada', extra: 'ignored' })).toStrictEqual({ name: 'Ada' })
+  })
+
+  it('scores nested record values', () => {
+    const schema = union([record(string(), record(string(), number())), record(string(), record(string(), string()))])
+
+    expect(coerce(schema, { messages: { greeting: 'hello' } })).toStrictEqual({
+      messages: { greeting: 'hello' },
+    })
+  })
+
+  it('keeps the first record branch when entry scores tie', () => {
+    const schema = union([record(string(), number({ default: 42 })), record(string(), boolean({ default: true }))])
+
+    expect(coerce(schema, {})).toStrictEqual({})
+    expect(coerce(schema, { entry: null })).toStrictEqual({ entry: 42 })
+  })
+
+  it('terminates when scoring recursive record branches against cyclic values', () => {
+    const schema: Schema = lazy(() => union([record(string(), schema), string()]))
+    const value: Record<string, unknown> = {}
+    value.self = value
+
+    const result = coerce(schema, value)
+
+    expect(result).toStrictEqual(value)
+    expect((result as Record<string, unknown>).self).toBe(result)
+  })
+
+  it('bounds scoring work for deeply nested recursive record unions', () => {
+    let calls = 0
+    const count = (value: unknown): unknown => {
+      if (++calls > 1_000) {
+        throw new Error('Runaway record scoring')
+      }
+      return value
+    }
+    const schema: Schema = lazy(() =>
+      union([record(string(), evaluate(count, schema)), record(string(), evaluate(count, schema)), string()]),
+    )
+    const value = Array.from({ length: 12 }).reduce<unknown>((child) => ({ child }), 'leaf')
+
+    expect(coerce(schema, value)).toStrictEqual(value)
+    expect(calls).toBeLessThan(1_000)
+  })
+
   it('scores literal matches strictly without coercing the discriminator', () => {
     const schema = union([
       object({ tag: literal(false), value: string({ default: 'boolean' }) }),
