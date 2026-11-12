@@ -1,5 +1,9 @@
 # @scalar/sidebar
 
+## 0.12.9
+
+No changes in this release.
+
 ## 0.12.8
 
 ## 0.12.7

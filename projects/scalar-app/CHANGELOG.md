@@ -1,5 +1,12 @@
 # scalar-app
 
+## 1.1.49
+
+### Patch Changes
+
+- [#10988](https://github.com/scalar/scalar/pull/10988): Use the shared theme reset for link text decoration.
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when parsing YAML in the collection editor.
+
 ## 1.1.48
 
 ### Patch Changes

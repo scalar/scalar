@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.78.1 (2026-11-12)
+
+### Large API documents with shared components now parse successfully
+
+This release fixes a parsing error that occurred when rendering API documents that reuse shared schemas or responses across many operations, particularly exports from AWS API Gateway.
+
+- Raised the YAML alias limit from 10,000 to 100,000 to support documents that merge shared anchors into hundreds of operations
+- Fixed "Excessive alias count" errors when rendering large API Gateway exports with shared error responses
+- Applied the unified alias limit across RAML and Avro schema rendering
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1781)
+
 ## 1.78.0 (2026-11-10)
 
 ### Schema rendering, SDK customization, and response header examples

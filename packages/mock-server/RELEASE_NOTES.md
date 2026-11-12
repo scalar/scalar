@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.2 (2026-11-12)
+
+### Mock server now generates valid base64 examples
+
+The mock server previously returned invalid base64 strings for byte format fields, causing strict decoders to reject responses. It now generates valid base64 examples that decode correctly.
+
+- Generated examples for format byte fields are now valid base64 strings instead of the placeholder string.
+- Content encoding base64 and base64url schemas receive proper base64 examples.
+- Custom examples, defaults, and enums still take precedence over generated values.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0212)
+
 ## 0.21.1 (2026-11-10)
 
 ### Decimal validation and deep nesting fixes

@@ -1,5 +1,9 @@
 # @scalar/hono-api-reference
 
+## 0.12.20
+
+No changes in this release.
+
 ## 0.12.19
 
 ## 0.12.18

@@ -1,5 +1,19 @@
 # @scalar/aspire
 
+## 0.15.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.1
+
+### Minor Changes
+
+- [#10974](https://github.com/scalar/scalar/pull/10974): feat: add .NET 11 support (`net11.0` target framework)
+
+### Patch Changes
+
+- [#10973](https://github.com/scalar/scalar/pull/10973): Update Aspire.Hosting to 13.6.5 and MessagePack to 2.5.307 to resolve security advisories and NuGet package downgrade errors. Use Aspire's renamed Services property in resource configuration.
+
 ## 0.14.0
 
 ### Bundled API Reference

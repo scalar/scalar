@@ -1,5 +1,9 @@
 # @scalar/docusaurus
 
+## 0.8.58
+
+No changes in this release.
+
 ## 0.8.57
 
 ### Patch Changes

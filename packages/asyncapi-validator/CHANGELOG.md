@@ -1,5 +1,9 @@
 # @scalar/asyncapi-validator
 
+## 0.1.20
+
+No changes in this release.
+
 ## 0.1.19
 
 ## 0.1.18

@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.52 (2026-11-12)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01252)
+
 ## 0.12.51 (2026-11-10)
 
 ### Require approval for all API requests and redact credentials
