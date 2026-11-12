@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { getVisibleTabCount } from './visible-tab-count'
 
 describe('getVisibleTabCount', () => {
+  it('reserves the dropdown when additional clients stay in More', () => {
+    expect(getVisibleTabCount([100, 100, 100], 320, 60, true)).toBe(2)
+    expect(getVisibleTabCount([100, 100, 100], 360, 60, true)).toBe(3)
+  })
+
   it('shows everything before the width is measured', () => {
     expect(getVisibleTabCount([100, 100, 100], 0, 50)).toBe(3)
   })

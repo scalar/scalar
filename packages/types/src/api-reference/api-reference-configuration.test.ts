@@ -7,6 +7,19 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it('preserves the opt-in combined SDK and built-in client setting', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showDefaultClientsWithSdkInstallation).toBeUndefined()
+    for (const value of [true, false]) {
+      expect(
+        apiReferenceConfigurationSchema.parse({ showDefaultClientsWithSdkInstallation: value })
+          .showDefaultClientsWithSdkInstallation,
+      ).toBe(value)
+    }
+    expect(apiReferenceConfigurationSchema.safeParse({ showDefaultClientsWithSdkInstallation: 'true' }).success).toBe(
+      false,
+    )
+  })
+
   it('preserves a custom default client', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(apiReferenceConfigurationSchema.parse({ defaultHttpClient }).defaultHttpClient).toStrictEqual(
