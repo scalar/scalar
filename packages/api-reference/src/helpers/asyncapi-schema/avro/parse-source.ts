@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { parseDocument } from 'yaml'
 
 const primitiveNames = new Set(['null', 'boolean', 'int', 'long', 'float', 'double', 'bytes', 'string'])
@@ -17,5 +18,5 @@ export const parseSource = (source: unknown, encoding: 'json' | 'yaml'): unknown
   if (document.errors.length || document.warnings.length) {
     throw new Error('Invalid Avro YAML')
   }
-  return document.toJS({ maxAliasCount: 50 })
+  return document.toJS({ maxAliasCount: YAML_MAX_ALIAS_COUNT })
 }

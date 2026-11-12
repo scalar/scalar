@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { parse } from 'yaml'
 
@@ -69,7 +70,7 @@ export async function resolve(
         } catch {
           // Try parsing as YAML
           try {
-            const yamlContent = parse(content)
+            const yamlContent = parse(content, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
             if (yamlContent?.openapi || yamlContent?.swagger) {
               return value
             }
@@ -89,7 +90,7 @@ export async function resolve(
             // No JSON
             try {
               // YAML?
-              const yaml = parse(urlOrPathOrDocument)
+              const yaml = parse(urlOrPathOrDocument, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
 
               if (typeof yaml === 'object') {
                 return yaml
@@ -266,7 +267,7 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
           return JSON.parse(sanitizedContent)
         } catch {
           // YAML
-          return parse(content)
+          return parse(content, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
         }
       }
     }
@@ -335,7 +336,7 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
     if (content) {
       // If content is a string, assume it's YAML
       if (typeof content === 'string') {
-        return parse(content)
+        return parse(content, { maxAliasCount: YAML_MAX_ALIAS_COUNT })
       }
       // If content is an object, return it directly
       return content

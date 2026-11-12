@@ -1,3 +1,4 @@
+import { YAML_MAX_ALIAS_COUNT } from '@scalar/helpers/general/yaml-max-alias-count'
 import { parseMimeType } from '@scalar/helpers/http/mime-type'
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml'
 
@@ -17,7 +18,7 @@ const jsonCodec: StructuredBodyCodec = {
 
 const yamlCodec: StructuredBodyCodec = {
   language: 'yaml',
-  parse: (text) => parseYaml(text),
+  parse: (text) => parseYaml(text, { maxAliasCount: YAML_MAX_ALIAS_COUNT }),
   stringify: (value) => stringifyYaml(value),
 }
 

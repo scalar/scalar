@@ -70,7 +70,8 @@ export const parseText = (text, YAML) => {
         },
       }
     }
-    const value = document.toJS({ maxAliasCount: 1000 })
+    // Match YAML_MAX_ALIAS_COUNT in @scalar/helpers; this unbundled browser module cannot import workspace source.
+    const value = document.toJS({ maxAliasCount: 100_000 })
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       return { ok: false, format: 'yaml', error: { message: 'The document must be a JSON or YAML object.' } }
     }
