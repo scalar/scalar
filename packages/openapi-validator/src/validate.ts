@@ -8,6 +8,7 @@ import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
 import { validateCookieParameters } from '@/validate-cookie-parameters'
 import { validatePathParameters } from '@/validate-path-parameters'
+import { validateServerVariables } from '@/validate-server-variables'
 
 export type ValidateOptions = ThrowOnErrorOption & {
   /**
@@ -41,7 +42,8 @@ const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOp
   transformErrors: explainComponentReferences,
   // Cookie declarations can be checked without resolving references. Path-template
   // checks require a resolved document to avoid reporting referenced parameters as missing.
-  postValidate: (specification, _version, options) => [
+  postValidate: (specification, version, options) => [
+    ...validateServerVariables(specification, version),
     ...(options?.checkPathParameters ? validatePathParameters(specification) : []),
     ...(options?.checkCookieParameters === false ? [] : validateCookieParameters(specification)),
   ],
