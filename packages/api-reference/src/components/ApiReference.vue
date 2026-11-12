@@ -182,7 +182,6 @@ defineSlots<{
   'content-end'?(): { breadcrumb: string }
   'sidebar-start'?(): { breadcrumb: string }
   'sidebar-end'?(): { breadcrumb: string }
-  'editor-placeholder'?(): { breadcrumb: string }
   'footer'?(): { breadcrumb: string }
 }>()
 
@@ -2537,14 +2536,6 @@ const sidebarCta = computed((): SidebarCta => {
             </div>
             <slot
               name="content-start"
-              v-bind="slotProps" />
-          </template>
-          <!-- TODO: Remove this; we no longer directly support an inline editor -->
-          <template
-            v-if="mergedConfig.isEditable"
-            #empty-state>
-            <slot
-              name="editor-placeholder"
               v-bind="slotProps" />
           </template>
           <template #end>
