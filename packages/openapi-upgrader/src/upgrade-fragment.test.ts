@@ -186,16 +186,24 @@ describe('upgrade-fragment', () => {
     })
   })
 
-  it('records reusable and combined form parameter descendants', async () => {
+  it.each([
+    { consumes: ['multipart/form-data'], expected: 'multipart/form-data' },
+    { consumes: undefined, expected: 'multipart/form-data' },
+    {
+      consumes: ['application/json', 'application/x-www-form-urlencoded'],
+      expected: 'application/x-www-form-urlencoded',
+    },
+  ])('records form parameter descendants for $consumes', async ({ consumes, expected }) => {
     const form = { name: 'tags', in: 'formData', type: 'array', items: { type: 'string' } }
-    const options = { from: '2.0', to: '3.1', consumes: ['multipart/form-data'] } as const
+    const options = { from: '2.0', to: '3.1', consumes } as const
     const reusable = await upgradeFragment(form, { ...options, kind: 'request-body' })
     const combined = await upgradeFragment({ parameters: [form] }, { ...options, kind: 'operation' })
-    const property = ['content', 'multipart/form-data', 'schema', 'properties', 'tags', 'items']
-    expect(reusable.locations).toContainEqual({ source: ['items'], output: property })
-    expect(combined.locations).toContainEqual({
-      source: ['parameters', '0', 'items'],
-      output: ['requestBody', ...property],
-    })
+    const property = ['content', expected, 'schema', 'properties', 'tags', 'items']
+    expect(reusable.locations.filter((location) => location.source.join('/') === 'items')).toStrictEqual([
+      { source: ['items'], output: property },
+    ])
+    expect(combined.locations.filter((location) => location.source.join('/') === 'parameters/0/items')).toStrictEqual([
+      { source: ['parameters', '0', 'items'], output: ['requestBody', ...property] },
+    ])
   })
 })
