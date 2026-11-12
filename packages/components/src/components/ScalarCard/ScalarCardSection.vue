@@ -37,7 +37,7 @@ const { cx } = useBindCx()
   box-shadow: var(--scalar-card-surface-shadow);
 }
 /* Two surfaces in a row keep the card's padding between them. */
-.scalar-card-content:where(:not(.scalar-card-header, .scalar-card-footer))
+:where(.scalar-card-content:not(.scalar-card-header, .scalar-card-footer))
   + .scalar-card-content:where(:not(.scalar-card-header, .scalar-card-footer)) {
   margin-top: 4px;
 }
