@@ -2,7 +2,11 @@ import react from '@vitejs/plugin-react'
 import preserveDirective from 'rollup-preserve-directives'
 import { defineConfig } from 'vite'
 
-import { createExternalsFromPackageJson, createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
+import {
+  createExternalsFromPackageJson,
+  createLibEntry,
+  findEntryPoints,
+} from '../../tooling/scripts/vite-lib-config.ts'
 
 const external = createExternalsFromPackageJson()
 const entryPaths = await findEntryPoints()

@@ -11,7 +11,7 @@ import {
   createLibEntry,
   createPreserveModulesOutput,
   findEntryPoints,
-} from '../../tooling/scripts/vite-lib-config'
+} from '../../tooling/scripts/vite-lib-config.ts'
 
 const external = createExternalsFromPackageJson()
 const entryPaths = await findEntryPoints()

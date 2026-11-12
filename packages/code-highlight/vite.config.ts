@@ -2,7 +2,7 @@ import { resolve } from 'node:path'
 
 import { type Plugin, defineConfig } from 'vite'
 
-import { createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config'
+import { createLibEntry, findEntryPoints } from '../../tooling/scripts/vite-lib-config.ts'
 
 const entryPaths = await findEntryPoints()
 const entry = createLibEntry(entryPaths, import.meta.dirname)
