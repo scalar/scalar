@@ -152,4 +152,50 @@ describe('upgrade-fragment', () => {
       headers: { Count: { schema: { type: 'integer', minimum: 0 } } },
     })
   })
+  it('retains distinct inherited parameter refs and their original source paths', async () => {
+    const lookup: Record<string, unknown> = {
+      '#/parameters/Q': { name: 'q', in: 'query', type: 'string' },
+      '#/parameters/H': { name: 'trace', in: 'header', type: 'string' },
+    }
+    const result = await upgradeFragment(
+      {
+        parameters: [{ $ref: '#/parameters/Q' }],
+        get: { parameters: [{ $ref: '#/parameters/H' }], responses: { '200': { description: 'OK' } } },
+      },
+      { from: '2.0', to: '3.1', kind: 'path-item', resolveSource: (ref) => Promise.resolve(lookup[ref]) },
+    )
+    expect(result.value).toStrictEqual({
+      get: {
+        parameters: [{ $ref: '#/parameters/Q' }, { $ref: '#/parameters/H' }],
+        responses: { '200': { description: 'OK' } },
+      },
+    })
+    expect(result.locations).toContainEqual({ source: ['parameters', '0'], output: ['get', 'parameters', '0'] })
+    expect(result.locations).toContainEqual({ source: ['get', 'parameters', '0'], output: ['get', 'parameters', '1'] })
+  })
+
+  it('composes nested nullable schema relocations', async () => {
+    const result = await upgradeFragment(
+      { nullable: true, allOf: [{ nullable: true, allOf: [{ type: 'string' }] }] },
+      { from: '3.0', to: '3.1', kind: 'schema' },
+    )
+    expect(result.value).toStrictEqual({ anyOf: [{ anyOf: [{ type: 'string' }, { type: 'null' }] }, { type: 'null' }] })
+    expect(result.locations).toContainEqual({
+      source: ['allOf', '0', 'allOf', '0'],
+      output: ['anyOf', '0', 'anyOf', '0'],
+    })
+  })
+
+  it('records reusable and combined form parameter descendants', async () => {
+    const form = { name: 'tags', in: 'formData', type: 'array', items: { type: 'string' } }
+    const options = { from: '2.0', to: '3.1', consumes: ['multipart/form-data'] } as const
+    const reusable = await upgradeFragment(form, { ...options, kind: 'request-body' })
+    const combined = await upgradeFragment({ parameters: [form] }, { ...options, kind: 'operation' })
+    const property = ['content', 'multipart/form-data', 'schema', 'properties', 'tags', 'items']
+    expect(reusable.locations).toContainEqual({ source: ['items'], output: property })
+    expect(combined.locations).toContainEqual({
+      source: ['parameters', '0', 'items'],
+      output: ['requestBody', ...property],
+    })
+  })
 })
