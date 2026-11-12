@@ -1401,37 +1401,35 @@ describe('RequestExample', () => {
       expect(codeBlock.props('content')).toBeTruthy()
     })
 
-    // TODO: https://github.com/scalar/scalar/pull/6670
-    it.todo('generates webhook payload for different content types', () => {
+    it.each([
+      { contentType: 'text/plain', payload: 'webhook notification text', language: 'text' },
+      { contentType: 'application/xml', payload: '<notification>received</notification>', language: 'xml' },
+      { contentType: 'application/yaml', payload: 'notification: received', language: 'yaml' },
+    ])('renders the $contentType webhook payload', ({ contentType, payload, language }) => {
       const wrapper = mount(RequestExample, {
         props: {
           ...defaultProps,
           isWebhook: true,
-          selectedContentType: 'text/plain',
+          selectedContentType: contentType,
           operation: {
-            summary: 'Text webhook',
+            summary: 'Webhook notification',
             requestBody: {
               content: {
-                'text/plain': {
+                [contentType]: {
                   examples: {
-                    textExample: {
-                      summary: 'Text webhook payload',
-                      value: 'webhook notification text',
-                    },
+                    notification: { value: payload },
                   },
                 },
               },
             },
           },
-          selectedExample: 'textExample',
+          selectedExample: 'notification',
         },
       })
 
       const codeBlock = wrapper.findComponent({ name: 'ScalarCodeBlock' })
-      expect(codeBlock.exists()).toBe(true)
-      expect(codeBlock.props('lang')).toBe('json')
-      // Should still use operationToHar to generate the payload
-      expect(codeBlock.props('content')).toBeTruthy()
+      expect(codeBlock.props('lang')).toBe(language)
+      expect(codeBlock.props('content')).toBe(payload)
     })
   })
 
