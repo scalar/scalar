@@ -187,6 +187,10 @@ export type ApiClientTranslations = {
   addressBar: {
     path: string
     copyUrl: string
+    openInBrowser: string
+    openInBrowserHint: string
+    browserUrlRequired: string
+    desktopBrowserUrlRequired: string
     send: string
     sendRequest: string
     duplicateRequest: string

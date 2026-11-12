@@ -190,8 +190,12 @@ export const zhCn = {
     'cancel': '取消',
   },
   'addressBar': {
+    desktopBrowserUrlRequired: '桌面应用只能在浏览器中打开 HTTPS URL 或本地 HTTP 服务器。',
     'path': '路径',
     'copyUrl': '复制 URL',
+    'openInBrowser': '在浏览器中打开',
+    'openInBrowserHint': '在新标签页中打开，使用浏览器 Cookie，不包含自定义请求头或请求体。',
+    'browserUrlRequired': '请输入有效的 HTTP 或 HTTPS URL 以在浏览器中打开。',
     'send': '发送',
     'sendRequest': '向 {url} 发送 {method} 请求',
     'duplicateRequest': '此文档中已存在发往 {path} 的 {method} 请求',

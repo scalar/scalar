@@ -191,8 +191,14 @@ export const fr = {
     'cancel': 'Annuler',
   },
   'addressBar': {
+    desktopBrowserUrlRequired:
+      'L’application de bureau peut uniquement ouvrir des URL HTTPS ou des serveurs HTTP locaux dans le navigateur.',
     'path': 'Chemin',
     'copyUrl': 'Copier l’URL',
+    'openInBrowser': 'Ouvrir dans le navigateur',
+    'openInBrowserHint':
+      'Ouvrir dans un nouvel onglet avec les cookies du navigateur, sans en-têtes personnalisés ni corps de requête.',
+    'browserUrlRequired': 'Saisissez une URL HTTP ou HTTPS valide à ouvrir dans le navigateur.',
     'send': 'Envoyer',
     'sendRequest': 'Envoyer une requête {method} à {url}',
     'duplicateRequest': 'Une requête {method} vers {path} existe déjà dans ce document',

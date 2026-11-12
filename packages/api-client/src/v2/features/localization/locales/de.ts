@@ -192,8 +192,13 @@ export const de = {
     'cancel': 'Abbrechen',
   },
   'addressBar': {
+    desktopBrowserUrlRequired: 'Die Desktop-App kann im Browser nur HTTPS-URLs oder lokale HTTP-Server öffnen.',
     'path': 'Pfad',
     'copyUrl': 'URL kopieren',
+    'openInBrowser': 'Im Browser öffnen',
+    'openInBrowserHint':
+      'In einem neuen Tab mit Browser-Cookies öffnen, ohne benutzerdefinierte Header oder Anfrageinhalt.',
+    'browserUrlRequired': 'Gib eine gültige HTTP- oder HTTPS-URL ein, um sie im Browser zu öffnen.',
     'send': 'Senden',
     'sendRequest': '{method}-Anfrage an {url} senden',
     'duplicateRequest': 'Eine {method}-Anfrage an {path} existiert bereits in diesem Dokument',

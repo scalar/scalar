@@ -190,8 +190,12 @@ export const zhTw = {
     'cancel': '取消',
   },
   'addressBar': {
+    desktopBrowserUrlRequired: '桌面應用程式只能在瀏覽器中開啟 HTTPS URL 或本機 HTTP 伺服器。',
     'path': '路徑',
     'copyUrl': '複製 URL',
+    'openInBrowser': '在瀏覽器中開啟',
+    'openInBrowserHint': '在新分頁中開啟，使用瀏覽器 Cookie，不包含自訂請求標頭或請求主體。',
+    'browserUrlRequired': '請輸入有效的 HTTP 或 HTTPS URL 以在瀏覽器中開啟。',
     'send': '傳送',
     'sendRequest': '向 {url} 傳送 {method} 請求',
     'duplicateRequest': '此文件中已存在發往 {path} 的 {method} 請求',

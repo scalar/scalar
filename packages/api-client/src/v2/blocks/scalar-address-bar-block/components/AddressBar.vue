@@ -39,10 +39,15 @@ export type AddressBarProps = {
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components/button'
 import { ScalarIcon } from '@scalar/components/icon'
+import { ScalarTooltip } from '@scalar/components/tooltip'
 import { getSelector } from '@scalar/helpers/dom/get-selector'
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
 import { extractServerFromPath } from '@scalar/helpers/url/extract-server-from-path'
-import { ScalarIconCopy, ScalarIconWarningCircle } from '@scalar/icons'
+import {
+  ScalarIconArrowSquareOut,
+  ScalarIconCopy,
+  ScalarIconWarningCircle,
+} from '@scalar/icons'
 import { EditorView } from '@scalar/use-codemirror'
 import type {
   ApiReferenceEvents,
@@ -87,9 +92,12 @@ const {
   environment,
   serverMeta,
   isWebhook = false,
+  executionDisabled = false,
 } = defineProps<AddressBarProps>()
 
 const emit = defineEmits<{
+  /** Open the GET destination using browser navigation. */
+  (e: 'open:browser'): void
   /** Execute the current operation example */
   (e: 'execute'): void
   /** Select a request history item by index */
@@ -414,6 +422,12 @@ const handleServerVariable = (
   eventBus.emit('server:update:variables', payload)
 }
 
+const requestOpenInBrowser = (): void => {
+  if (executionDisabled || hasConflict.value || method.toLowerCase() !== 'get')
+    return
+  emit('open:browser')
+}
+
 /** Address bar copy is handled in OperationBlock (same URL as Send). */
 const requestCopyUrl = (): void => {
   eventBus.emit('copy-url:address-bar')
@@ -558,6 +572,20 @@ defineExpose({
           translate('apiClient.addressBar.copyUrl')
         }}</span>
       </ScalarButton>
+
+      <ScalarTooltip
+        v-if="method.toLowerCase() === 'get'"
+        :content="translate('apiClient.addressBar.openInBrowserHint')">
+        <ScalarButton
+          :aria-label="translate('apiClient.addressBar.openInBrowser')"
+          class="hover:bg-b-3 mr-1 flex"
+          :disabled="executionDisabled || !!hasConflict"
+          size="xs"
+          variant="ghost"
+          @click="requestOpenInBrowser">
+          <ScalarIconArrowSquareOut />
+        </ScalarButton>
+      </ScalarTooltip>
 
       <AddressBarHistory
         :history="history"
