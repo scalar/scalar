@@ -854,10 +854,10 @@ describe('create-workspace-store', () => {
     const id = getResolvedRef<unknown>(backToUser.properties.id)
     assert(isObject(id))
     expect(id.description).toBe('The user ID')
-    expect(requests.slice().sort()).toStrictEqual([
-      '/default/components/schemas/Rec',
-      '/default/components/schemas/User',
+    expect(requests).toStrictEqual([
       '/default/operations/~1users/get',
+      '/default/components/schemas/User',
+      '/default/components/schemas/Rec',
     ])
 
     await store.resolve(['paths', '/users', 'get'])
