@@ -45,13 +45,13 @@ const language = computed<string>(() =>
     <ScalarCardSection class="flex-col">
       <ScalarVirtualCodeBlock
         v-if="content.length > 20_000"
-        class="bg-b-2"
+        class="bg-transparent"
         :content="content"
         label="Schema source"
         :lang="language" />
       <ScalarCodeBlock
         v-else
-        class="bg-b-2"
+        class="bg-transparent"
         copyLabel="Copy schema source"
         label="Schema source"
         :lang="language"
