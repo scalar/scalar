@@ -40,6 +40,7 @@ import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { codeSampleSources, loadCodeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
+import { upgradeDocuments } from '@/plugins/bundler/upgrade-documents'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -844,13 +845,26 @@ export async function createServerWorkspaceStore(
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
+      if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
+        await bundle(data, {
+          origin,
+          depth: 0,
+          treeShake: false,
+          plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), ...loaders],
+        })
+      }
       if (isThreeTwo) {
         await bundle(data, {
           traversal: 'document',
           origin,
           treeShake: false,
           urlMap: true,
-          plugins: [codeSampleSources(), openApiDocument(), ...loaders],
+          plugins: [
+            upgradeDocuments(loaded.openapi ?? loaded.swagger),
+            codeSampleSources(),
+            openApiDocument(),
+            ...loaders,
+          ],
         })
         await resolveSecurityRequirements(data, { origin, loaders })
       } else if (isAsyncApiDocument(data)) {

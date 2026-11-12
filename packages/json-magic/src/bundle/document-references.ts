@@ -14,6 +14,10 @@ export type DocumentIdentity = {
   baseUri: string
   /** Root properties retained on copies embedded in the bundle; never applied to the source document. */
   metadata?: Record<string, unknown>
+  /** Headerless resources are traversed only through targets whose context is established by a reference. */
+  visitReferencedSubtrees?: boolean
+  /** Translate an authored pointer into this resource's transformed layout. */
+  remapPointer?: (pointer: readonly string[]) => readonly string[]
 }
 
 /** Reads document identity without imposing a document format on the bundler. */
@@ -37,8 +41,12 @@ type Resource = {
   documentPath: string[]
 }
 
+/** A node's location within its own resource, independent of bundle storage. */
+export type DocumentLocation = { document: unknown; path: readonly string[]; uri: string }
+
 /** Resolution metadata survives moving documents into the bundle. */
 export type DocumentReferences = {
+  source: (node: object) => DocumentLocation | undefined
   identity: (document: unknown) => DocumentIdentity | undefined
   register: (document: unknown, retrievalUri: string, path?: string[], retrievalBase?: string) => void
   refresh: (document: unknown, targetPath: string[]) => void
@@ -83,6 +91,7 @@ export const documentReferences = (
 ): DocumentReferences => {
   const identities = new Map<unknown, DocumentIdentity>()
   const resources = new Map<string, Resource>()
+  const sources = new WeakMap<object, DocumentLocation>()
   const origins = new WeakMap<object, string>()
   const retrievalOrigins = new WeakMap<object, string>()
   const bundledResources = new Map<string, Resource>()
@@ -168,6 +177,7 @@ export const documentReferences = (
           : id === undefined
             ? retrievalOrigin
             : resolveReferencePath(retrievalOrigin, id)
+      sources.set(value, { document, path: location.slice(path.length), uri: retrievalBase })
       origins.set(value, current)
       retrievalOrigins.set(value, currentRetrieval)
       // Relative identifiers would acquire a different identity after serialization elsewhere.
@@ -211,7 +221,9 @@ export const documentReferences = (
     let identifier = ''
     let retrievalOrigin = retrievalBase
     for (const key of targetPath) {
-      if (target === null || typeof target !== 'object') return
+      if (target === null || typeof target !== 'object') {
+        return
+      }
       origin = origins.get(target) ?? origin
       retrievalOrigin = retrievalOrigins.get(target) ?? retrievalOrigin
       identifier = identifySchema(target)?.id ?? identifier
@@ -221,6 +233,7 @@ export const documentReferences = (
   }
 
   return {
+    source: (node) => sources.get(node),
     identity: (document) => identities.get(document),
     register,
     refresh: (document, targetPath) => {
@@ -273,7 +286,11 @@ export const documentReferences = (
       if (!resource) {
         return undefined
       }
-      const segments = bundled ? pointer.slice(2) : pointer
+      const segments = bundled
+        ? pointer.slice(2)
+        : [...(!resource.schema ? (identities.get(resource.document)?.remapPointer?.(pointer) ?? pointer) : pointer)]
+      const remapped =
+        segments.length !== pointer.length || segments.some((segment, index) => segment !== pointer[index])
       // Relocated documents can retain explicit pointers to their enclosing bundle.
       const rootResource = rootUri === undefined ? undefined : resources.get(rootUri)
       if (
@@ -298,7 +315,7 @@ export const documentReferences = (
       const isDeclaredRootSchemaReference =
         !resource.embedded && resource.schema && Boolean(prefix) && prefix === resource.identifier
       // Fragment-only document references already address the root without relocation.
-      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix
+      const isLocalRootDocumentReference = !resource.embedded && !resource.schema && !prefix && !remapped
 
       return {
         path: location.map(escapeJsonPointer).join('/'),
