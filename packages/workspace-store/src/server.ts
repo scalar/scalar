@@ -38,6 +38,7 @@ import { resolveSecurityRequirements } from '@/helpers/resolve-security-requirem
 import { createNavigation, traverseAsyncApiDocument } from '@/navigation'
 import type { NavigationOptions } from '@/navigation/get-navigation-options'
 import { openApiDocument, resolveOpenApiDocument } from '@/plugins/bundler/openapi-document'
+import { upgradeDocuments } from '@/plugins/bundler/upgrade-documents'
 import { extensions } from '@/schemas/extensions'
 import { isAsyncApiDocument } from '@/schemas/type-guards'
 import { coerceValue } from '@/schemas/typebox-coerce'
@@ -836,8 +837,22 @@ export async function createServerWorkspaceStore(
         fetchUrls({ blockPrivateNetworks: !options?.allowPrivateNetworks }),
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
+      if (loaded.swagger === '2.0' || (typeof loaded.openapi === 'string' && loaded.openapi.startsWith('3.0.'))) {
+        await bundle(data, {
+          origin,
+          depth: 0,
+          treeShake: false,
+          plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), ...loaders],
+        })
+      }
       if (isThreeTwo) {
-        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await bundle(data, {
+          origin,
+          traversal: 'document',
+          treeShake: false,
+          urlMap: true,
+          plugins: [upgradeDocuments(loaded.openapi ?? loaded.swagger), openApiDocument(), ...loaders],
+        })
         await resolveSecurityRequirements(data, { origin, loaders })
       }
       addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)

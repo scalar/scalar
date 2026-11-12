@@ -355,79 +355,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
           migratedResponses[name] = response as OpenAPIV3.ReferenceObject
         } else {
           // Transform the response object
-          const responseObj = response
-          const produces = (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE]
-
-          // Transform schema to content
-          if (responseObj.schema) {
-            migrateSchema(responseObj.schema)
-            if (typeof responseObj.content !== 'object') {
-              responseObj.content = {}
-            }
-
-            for (const type of produces) {
-              ;(responseObj.content as Record<string, unknown>)[type] = {
-                schema: responseObj.schema,
-              }
-            }
-
-            delete responseObj.schema
-          }
-
-          // Transform examples from Swagger 2.0 to OpenAPI 3.0 format
-          if (responseObj.examples && typeof responseObj.examples === 'object') {
-            if (typeof responseObj.content !== 'object') {
-              responseObj.content = {}
-            }
-
-            const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
-
-            for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
-              // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-              if (isMediaTypeKey(key, produces)) {
-                if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
-                  ;(responseObj.content as Record<string, unknown>)[key] = {}
-                }
-                ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example =
-                  exampleValue
-              } else {
-                if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
-                  ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
-                }
-                const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<
-                  string,
-                  unknown
-                >
-                if (typeof mediaEntry.examples !== 'object') {
-                  mediaEntry.examples = {}
-                }
-                ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] =
-                  wrapAsExampleObject(exampleValue)
-              }
-            }
-
-            delete responseObj.examples
-          }
-
-          // Clean up content entries that only have an empty schema when other entries have examples
-          if (responseObj.content && typeof responseObj.content === 'object') {
-            removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
-          }
-
-          // Transform headers if present
-          if (isObjectLike(responseObj.headers)) {
-            responseObj.headers = Object.entries(responseObj.headers).reduce<
-              Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
-            >((acc, [headerName, header]) => {
-              if (header && typeof header === 'object') {
-                return {
-                  [headerName]: transformResponseHeader(header),
-                  ...acc,
-                }
-              }
-              return acc
-            }, {})
-          }
+          const responseObj = transformResponseObject(
+            response,
+            (document.produces as string[] | undefined) ?? [DEFAULT_MEDIA_TYPE],
+          )
 
           migratedResponses[name] = responseObj as OpenAPIV3.ResponseObject
         }
@@ -488,74 +419,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             if (operationItem.responses) {
               for (const response in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, response)) {
-                  const responseItem = operationItem.responses[response]
-
-                  if (responseItem.headers && typeof responseItem.headers === 'object') {
-                    responseItem.headers = Object.entries(responseItem.headers).reduce<
-                      Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
-                    >((acc, [name, header]) => {
-                      if (header && typeof header === 'object') {
-                        return {
-                          [name]: transformResponseHeader(header),
-                          ...acc,
-                        }
-                      }
-                      return acc
-                    }, {})
-                  }
-                  if (responseItem.schema) {
-                    migrateSchema(responseItem.schema)
-                    const produces = operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE]
-
-                    if (typeof responseItem.content !== 'object') {
-                      responseItem.content = {}
-                    }
-
-                    for (const type of produces) {
-                      responseItem.content[type] = {
-                        schema: responseItem.schema,
-                      }
-                    }
-
-                    delete responseItem.schema
-                  }
-
-                  // Transform response examples from Swagger 2.0 to OpenAPI 3.0 format
-                  // In Swagger 2.0, examples are at response level: examples: { DEFAULT_MEDIA_TYPE: {...} } or named: { 'Example': {...} }
-                  // In OpenAPI 3.0, examples move inside content: content: { DEFAULT_MEDIA_TYPE: { example: {...} } } or examples: { Example: { value: {...} } }
-                  if (responseItem.examples && typeof responseItem.examples === 'object') {
-                    if (typeof responseItem.content !== 'object') {
-                      responseItem.content = {}
-                    }
-
-                    const produces: string[] = operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE]
-                    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
-                    for (const [key, exampleValue] of Object.entries(responseItem.examples)) {
-                      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
-                      if (isMediaTypeKey(key, produces)) {
-                        if (typeof responseItem.content[key] !== 'object') {
-                          responseItem.content[key] = {}
-                        }
-                        responseItem.content[key].example = exampleValue
-                      } else {
-                        if (typeof responseItem.content[defaultMediaType] !== 'object') {
-                          responseItem.content[defaultMediaType] = {}
-                        }
-                        const mediaEntry = responseItem.content[defaultMediaType]
-                        if (typeof mediaEntry.examples !== 'object') {
-                          mediaEntry.examples = {}
-                        }
-                        mediaEntry.examples[key] = wrapAsExampleObject(exampleValue)
-                      }
-                    }
-
-                    delete responseItem.examples
-                  }
-
-                  // Clean up content entries that only have an empty schema when other entries have examples
-                  if (responseItem.content && typeof responseItem.content === 'object') {
-                    removeEmptySchemaOnlyContentEntries(responseItem.content)
-                  }
+                  operationItem.responses[response] = transformResponseObject(
+                    operationItem.responses[response],
+                    operationItem.produces ?? document.produces ?? [DEFAULT_MEDIA_TYPE],
+                  )
                 }
               }
             }
@@ -663,7 +530,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
  * Converts Swagger discriminator and nullability fields to their OpenAPI 3.0 forms.
  * Visit only OpenAPI 2.0 subschema keywords so example/default values and custom extensions remain user data.
  */
-const migrateSchema = (schema: unknown): void => {
+export const migrateSchema = (schema: unknown): void => {
   if (!isObjectLike(schema)) {
     return
   }
@@ -703,28 +570,29 @@ const migrateSchema = (schema: unknown): void => {
   }
 }
 
-function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
-  const schemaProperties = [
-    'type',
-    'format',
-    'default',
-    'items',
-    'maximum',
-    'exclusiveMaximum',
-    'minimum',
-    'exclusiveMinimum',
-    'maxLength',
-    'minLength',
-    'pattern',
-    'maxItems',
-    'minItems',
-    'uniqueItems',
-    'enum',
-    'multipleOf',
-    'x-nullable',
-  ]
+/** Schema-valued fields moved from a 2.0 non-body parameter or header into its schema. */
+export const parameterSchemaFields = [
+  'type',
+  'format',
+  'default',
+  'items',
+  'maximum',
+  'exclusiveMaximum',
+  'minimum',
+  'exclusiveMinimum',
+  'maxLength',
+  'minLength',
+  'pattern',
+  'maxItems',
+  'minItems',
+  'uniqueItems',
+  'enum',
+  'multipleOf',
+  'x-nullable',
+] as const
 
-  const schema = schemaProperties.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
+function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
+  const schema = parameterSchemaFields.reduce<OpenAPIV3.SchemaObject>((acc, property) => {
     if (Object.hasOwn(obj, property)) {
       acc[property] = obj[property]
       delete obj[property]
@@ -747,7 +615,8 @@ function getParameterLocation(location: OpenAPIV2.ParameterLocation): OpenAPIV3.
   return location
 }
 
-function transformParameterObject(
+/** Convert a 2.0 non-body parameter in place, moving validation fields into its schema. */
+export function transformParameterObject(
   parameter: OpenAPIV2.ParameterObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(parameter, '$ref') && typeof parameter.$ref === 'string') {
@@ -810,7 +679,7 @@ function transformParameterObject(
  * Transform OpenAPI 2.0 response header to OpenAPI 3.0 format.
  * Response headers do not have "in", "name", "style", or "explode" properties.
  */
-function transformResponseHeader(
+export function transformResponseHeader(
   header: OpenAPIV2.HeaderObject | OpenAPIV2.ReferenceObject,
 ): OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject {
   if (Object.hasOwn(header, '$ref') && typeof header.$ref === 'string') {
@@ -918,7 +787,8 @@ type ParameterMigrationResult = {
   requestBody?: OpenAPIV3.RequestBodyObject
 }
 
-function migrateBodyParameter(
+/** Convert a 2.0 body parameter in place using the owning operation's effective request media types. */
+export function migrateBodyParameter(
   bodyParameter: OpenAPIV2.ParameterObject,
   consumes: string[],
 ): OpenAPIV3.RequestBodyObject {
@@ -1001,7 +871,8 @@ function migrateBodyParameter(
   return requestBodyObject
 }
 
-function migrateFormDataParameter(
+/** Combine 2.0 form parameters without modifying them, using the effective request media types. */
+export function migrateFormDataParameter(
   parameters: OpenAPIV2.ParameterObject[],
   consumes: string[] | undefined = ['multipart/form-data'],
 ): OpenAPIV3.RequestBodyObject {
@@ -1102,4 +973,79 @@ function migrateParameters(parameters: OpenAPIV2.ParameterObject[], consumes: st
   }
 
   return result
+}
+
+/** Convert a 2.0 response in place using the owning operation's effective response media types. */
+export const transformResponseObject = (responseObj: UnknownObject, produces: string[]): UnknownObject => {
+  if (typeof responseObj.$ref === 'string') {
+    return responseObj
+  }
+
+  // Transform schema to content
+  if (responseObj.schema) {
+    migrateSchema(responseObj.schema)
+    if (typeof responseObj.content !== 'object') {
+      responseObj.content = {}
+    }
+
+    for (const type of produces) {
+      ;(responseObj.content as Record<string, unknown>)[type] = {
+        schema: responseObj.schema,
+      }
+    }
+
+    delete responseObj.schema
+  }
+
+  // Transform examples from Swagger 2.0 to OpenAPI 3.0 format
+  if (responseObj.examples && typeof responseObj.examples === 'object') {
+    if (typeof responseObj.content !== 'object') {
+      responseObj.content = {}
+    }
+
+    const defaultMediaType = produces[0] ?? DEFAULT_MEDIA_TYPE
+
+    for (const [key, exampleValue] of Object.entries(responseObj.examples as Record<string, unknown>)) {
+      // Media-type keys (e.g. application/json) go to content[key]; named example keys go to content[defaultMediaType].examples[key].
+      if (isMediaTypeKey(key, produces)) {
+        if (typeof (responseObj.content as Record<string, unknown>)[key] !== 'object') {
+          ;(responseObj.content as Record<string, unknown>)[key] = {}
+        }
+        ;((responseObj.content as Record<string, unknown>)[key] as Record<string, unknown>).example = exampleValue
+      } else {
+        if (typeof (responseObj.content as Record<string, unknown>)[defaultMediaType] !== 'object') {
+          ;(responseObj.content as Record<string, unknown>)[defaultMediaType] = {}
+        }
+        const mediaEntry = (responseObj.content as Record<string, unknown>)[defaultMediaType] as Record<string, unknown>
+        if (typeof mediaEntry.examples !== 'object') {
+          mediaEntry.examples = {}
+        }
+        ;(mediaEntry.examples as Record<string, OpenAPIV3.ExampleObject>)[key] = wrapAsExampleObject(exampleValue)
+      }
+    }
+
+    delete responseObj.examples
+  }
+
+  // Clean up content entries that only have an empty schema when other entries have examples
+  if (responseObj.content && typeof responseObj.content === 'object') {
+    removeEmptySchemaOnlyContentEntries(responseObj.content as Record<string, unknown>)
+  }
+
+  // Transform headers if present
+  if (isObjectLike(responseObj.headers)) {
+    responseObj.headers = Object.entries(responseObj.headers).reduce<
+      Record<string, OpenAPIV3.HeaderObject | OpenAPIV3.ReferenceObject>
+    >((acc, [headerName, header]) => {
+      if (header && typeof header === 'object') {
+        return {
+          [headerName]: transformResponseHeader(header),
+          ...acc,
+        }
+      }
+      return acc
+    }, {})
+  }
+
+  return responseObj
 }
