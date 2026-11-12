@@ -56,4 +56,10 @@
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.5" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
   </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net11.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="11.0.0" />
+    <!-- Brings Microsoft.OpenApi 3.x transitively (Microsoft.OpenApi above stays on 2.x for Swashbuckle) -->
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="11.0.0" />
+  </ItemGroup>
 </Project>

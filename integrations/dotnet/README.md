@@ -17,6 +17,25 @@ Each project has its own solution file (`.slnx`):
 
 **Use the individual solution files for development**, not the global solution. The global solution is only used for building and testing in CI.
 
+## Target Frameworks
+
+All packages target `net8.0`, `net9.0`, `net10.0` and `net11.0`. `Scalar.AspNetCore.Microsoft` starts at `net9.0`, because `Microsoft.AspNetCore.OpenApi` doesn't exist before .NET 9. Building requires the .NET 11 SDK (see `global.json`).
+
+The target framework lists are defined once in the root `Directory.Build.props`, and every multi-targeted project uses them:
+
+| Property                                 | Value                              | Used by                                          |
+| ---------------------------------------- | ---------------------------------- | ------------------------------------------------ |
+| `ScalarTargetFrameworks`                 | `net8.0;net9.0;net10.0;net11.0`    | All packages and their tests                     |
+| `ScalarMicrosoftOpenApiTargetFrameworks` | `net9.0;net10.0;net11.0`           | `Scalar.AspNetCore.Microsoft` and its tests      |
+
+To add a new .NET version:
+
+1. Add the TFM to both properties in `Directory.Build.props`.
+2. Add a `Condition="'$(TargetFramework)' == 'netX.0'"` group with the framework-aligned packages (`Microsoft.AspNetCore.Mvc.Testing`, `Microsoft.AspNetCore.OpenApi`) to `Directory.Packages.props`.
+3. Bump the SDK in `global.json`, and update `sdk-version` / `aspnetcore-version` in `.github/workflows/integration-builds.yml` and `publish-integrations.yml`. Tests on older TFMs need their ASP.NET Core runtimes installed.
+
+Version-specific code uses `#if NETX_0_OR_GREATER` (not `#if NETX_0`), so new TFMs pick up the newest code path automatically.
+
 ## Shared Code Architecture
 
 The `Scalar.Shared` project is not a standalone package (`IsPackable>false`). Instead, its code is compiled directly into both `Scalar.Aspire` and `Scalar.AspNetCore` assemblies using MSBuild `<Compile Include>` directives:
