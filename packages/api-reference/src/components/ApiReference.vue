@@ -2539,14 +2539,6 @@ const sidebarCta = computed((): SidebarCta => {
               name="content-start"
               v-bind="slotProps" />
           </template>
-          <!-- TODO: Remove this; we no longer directly support an inline editor -->
-          <template
-            v-if="mergedConfig.isEditable"
-            #empty-state>
-            <slot
-              name="editor-placeholder"
-              v-bind="slotProps" />
-          </template>
           <template #end>
             <slot
               name="content-end"
