@@ -1168,6 +1168,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const strictDocument: UnknownObject = createMagicProxy(
       {
         ...inputDocument,
+        // Partial API descriptions still need document traversal rather than standalone schema traversal.
+        openapi: inputDocument.openapi ?? '',
         ...meta,
         'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
@@ -1184,6 +1186,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
+            // Example values and other literal data may contain authored `$ref` keys.
+            traversal: 'document',
             treeShake: false,
             plugins: [
               ...loaders,
@@ -1680,6 +1684,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       return bundle(target, {
         root: activeDocument,
+        traversal: 'document',
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [

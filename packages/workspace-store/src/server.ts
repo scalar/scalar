@@ -837,7 +837,13 @@ export async function createServerWorkspaceStore(
         ...(options?.basePath === undefined ? [] : [readFiles({ basePath: options.basePath })]),
       ]
       if (isThreeTwo) {
-        await bundle(data, { origin, treeShake: false, urlMap: true, plugins: [openApiDocument(), ...loaders] })
+        await bundle(data, {
+          traversal: 'document',
+          origin,
+          treeShake: false,
+          urlMap: true,
+          plugins: [openApiDocument(), ...loaders],
+        })
         await resolveSecurityRequirements(data, { origin, loaders })
       }
       addDocumentSync(data, { name: input.name, ...input.meta }, navigationOptions)
