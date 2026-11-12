@@ -1139,6 +1139,7 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
           'bundle',
           async () =>
             await bundle(getRaw(asyncApiDocument), {
+              traversal: 'document',
               treeShake: false,
               plugins: loaders,
               urlMap: true,
