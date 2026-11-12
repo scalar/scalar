@@ -2516,6 +2516,12 @@
                       ]
                     }
                   },
+                  "tools": {
+                    "title": "MCP Tools",
+                    "type": "page",
+                    "description": "Choose which operations become MCP tools, name them, and set MCP tool annotations with x-scalar-expose.",
+                    "filepath": "documentation/guides/agent/tools.md"
+                  },
                   "configuration": {
                     "title": "MCP Configuration",
                     "type": "page",
