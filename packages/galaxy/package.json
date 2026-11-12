@@ -54,6 +54,7 @@
     "CHANGELOG.md"
   ],
   "devDependencies": {
+    "@scalar/helpers": "workspace:*",
     "vite": "catalog:*",
     "yaml": "catalog:*"
   }
