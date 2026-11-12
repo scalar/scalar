@@ -91,12 +91,22 @@ describe('normalize', () => {
       paths: Record<string, { get: Record<string, unknown> }>
     }
 
-    expect(Object.keys(result.paths)).toHaveLength(200)
-    expect(result.paths['/operation-199']?.get['x-amazon-apigateway-integration']).toMatchObject({
+    const responseParameters = { 'method.response.header.Access-Control-Allow-Origin': "'*'" }
+
+    expect(Object.keys(result.paths).length).toBe(200)
+    expect(result.paths['/operation-199']?.get['x-amazon-apigateway-integration']).toStrictEqual({
       type: 'aws',
       uri: 'operation-199',
       responses: {
-        '404': { statusCode: 404, responseParameters: { 'method.response.header.Access-Control-Allow-Origin': "'*'" } },
+        default: { statusCode: 200, responseParameters },
+        '400': { statusCode: 400, responseParameters },
+        '401': { statusCode: 401, responseParameters },
+        '403': { statusCode: 403, responseParameters },
+        '404': { statusCode: 404, responseParameters },
+        '500': { statusCode: 500, responseParameters },
+        '501': { statusCode: 501, responseParameters },
+        '502': { statusCode: 502, responseParameters },
+        '504': { statusCode: 504, responseParameters },
       },
     })
     expect(result.paths['/operation-0']?.get.responses).toHaveProperty('504.description', 'Error 504')

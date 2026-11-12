@@ -88,7 +88,7 @@ info:
 
     const blobArg = createObjectURLSpy.mock.calls[0]![0] as Blob
     const body = JSON.parse(String(await readBlobBody(blobArg)))
-    expect(body.item999).toMatchObject({ type: 'aws', params: { accept: 'application/json' }, title: 'item999' })
+    expect(body.item999).toStrictEqual({ type: 'aws', params: { accept: 'application/json' }, title: 'item999' })
   })
 
   it('downloads YAML when format is explicitly set to yaml', async () => {
