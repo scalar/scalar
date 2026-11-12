@@ -315,6 +315,28 @@ describe('OperationBlock', () => {
     },
   )
 
+  it('opens a relative modal URL using the current origin without an absolute server', async () => {
+    const open = vi.spyOn(window, 'open').mockReturnValue(null)
+    vi.mocked(requestFactory).mockReturnValue({
+      request: createDefaultRequestFactoryPayload({ baseUrl: '', path: { raw: '/users', variables: {} } }),
+    })
+    const wrapper = mount(OperationBlock, {
+      props: { ...createDefaultProps(), layout: 'modal', server: null, servers: [] },
+    })
+
+    wrapper.findComponent({ name: 'Header' }).vm.$emit('open:browser')
+    await flushPromises()
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(
+      new URL('/users', window.location.origin).href,
+      '_blank',
+      'noopener,noreferrer',
+    )
+    expect(mockToast).not.toHaveBeenCalled()
+    wrapper.unmount()
+    open.mockRestore()
+  })
+
   it.each([{ method: 'post' }, { externalExamplesPending: true }])(
     'does not navigate when browser execution is unavailable: %j',
     async (props) => {

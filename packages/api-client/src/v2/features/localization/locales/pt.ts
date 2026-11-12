@@ -197,7 +197,7 @@ export const pt = {
     'copyUrl': 'Copiar URL',
     'openInBrowser': 'Abrir no navegador',
     'openInBrowserHint':
-      'Abrir em uma nova aba com os cookies do navegador, sem cabeçalhos personalizados ou corpo da requisição.',
+      'Abrir em uma nova aba com os cookies do navegador, sem cabeçalhos personalizados ou corpo da requisição. As credenciais nos parâmetros de consulta podem ser salvas no histórico do navegador.',
     'browserUrlRequired': 'Insira uma URL HTTP ou HTTPS válida para abrir no navegador.',
     'send': 'Enviar',
     'sendRequest': 'Enviar requisição {method} para {url}',

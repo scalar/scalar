@@ -197,7 +197,7 @@ export const fr = {
     'copyUrl': 'Copier l’URL',
     'openInBrowser': 'Ouvrir dans le navigateur',
     'openInBrowserHint':
-      'Ouvrir dans un nouvel onglet avec les cookies du navigateur, sans en-têtes personnalisés ni corps de requête.',
+      'Ouvrir dans un nouvel onglet avec les cookies du navigateur, sans en-têtes personnalisés ni corps de requête. Les identifiants dans les paramètres de requête peuvent être enregistrés dans l’historique du navigateur.',
     'browserUrlRequired': 'Saisissez une URL HTTP ou HTTPS valide à ouvrir dans le navigateur.',
     'send': 'Envoyer',
     'sendRequest': 'Envoyer une requête {method} à {url}',

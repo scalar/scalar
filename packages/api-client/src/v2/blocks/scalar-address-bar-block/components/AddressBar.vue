@@ -428,7 +428,7 @@ const isOpenInBrowserDisabled = computed(
 )
 
 const requestOpenInBrowser = (): void => {
-  if (isOpenInBrowserDisabled.value || !isGetRequest.value) return
+  if (isOpenInBrowserDisabled.value) return
   emit('open:browser')
 }
 

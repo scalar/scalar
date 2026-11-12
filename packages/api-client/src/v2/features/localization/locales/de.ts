@@ -197,7 +197,7 @@ export const de = {
     'copyUrl': 'URL kopieren',
     'openInBrowser': 'Im Browser öffnen',
     'openInBrowserHint':
-      'In einem neuen Tab mit Browser-Cookies öffnen, ohne benutzerdefinierte Header oder Anfrageinhalt.',
+      'In einem neuen Tab mit Browser-Cookies öffnen, ohne benutzerdefinierte Header oder Anfrageinhalt. Zugangsdaten in Abfrageparametern können im Browserverlauf gespeichert werden.',
     'browserUrlRequired': 'Gib eine gültige HTTP- oder HTTPS-URL ein, um sie im Browser zu öffnen.',
     'send': 'Senden',
     'sendRequest': '{method}-Anfrage an {url} senden',

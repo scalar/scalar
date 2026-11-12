@@ -194,7 +194,8 @@ export const zhCn = {
     'path': '路径',
     'copyUrl': '复制 URL',
     'openInBrowser': '在浏览器中打开',
-    'openInBrowserHint': '在新标签页中打开，使用浏览器 Cookie，不包含自定义请求头或请求体。',
+    'openInBrowserHint':
+      '在新标签页中打开，使用浏览器 Cookie，不包含自定义请求头或请求体。 查询参数中的凭据可能会保存在浏览器历史记录中。',
     'browserUrlRequired': '请输入有效的 HTTP 或 HTTPS URL 以在浏览器中打开。',
     'send': '发送',
     'sendRequest': '向 {url} 发送 {method} 请求',
