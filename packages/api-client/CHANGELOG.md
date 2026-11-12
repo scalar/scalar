@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.25.1
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when editing structured YAML request bodies.
+
 ## 3.25.0
 
 ### Minor Changes

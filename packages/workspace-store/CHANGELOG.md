@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.71.1
+
+### Patch Changes
+
+- [#10937](https://github.com/scalar/scalar/pull/10937): fix: generate valid base64 examples for `format: byte` and `contentEncoding: base64`/`base64url` strings
+
 ## 0.71.0
 
 ### Minor Changes

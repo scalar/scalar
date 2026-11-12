@@ -1,5 +1,9 @@
 # @scalar/object-utils
 
+## 1.3.36
+
+No changes in this release.
+
 ## 1.3.35
 
 ## 1.3.34

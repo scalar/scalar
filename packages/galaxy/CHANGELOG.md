@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.7.3
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when generating JSON example documents.
+
 ## 0.7.2
 
 ### Patch Changes

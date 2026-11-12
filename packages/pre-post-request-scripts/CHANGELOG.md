@@ -1,5 +1,9 @@
 # @scalar/scripts
 
+## 0.4.64
+
+No changes in this release.
+
 ## 0.4.63
 
 ## 0.4.62

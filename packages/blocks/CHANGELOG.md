@@ -1,5 +1,11 @@
 # @scalar/blocks
 
+## 0.7.1
+
+### Patch Changes
+
+- [#10990](https://github.com/scalar/scalar/pull/10990): Use the canonical `js` target when generating JavaScript code examples.
+
 ## 0.7.0
 
 ### Minor Changes

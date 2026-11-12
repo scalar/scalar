@@ -1,5 +1,9 @@
 # @scalar/starlight
 
+## 0.2.22
+
+No changes in this release.
+
 ## 0.2.21
 
 ## 0.2.20

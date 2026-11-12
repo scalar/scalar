@@ -1,5 +1,11 @@
 # @scalar/import
 
+## 0.5.37
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when importing API descriptions from URLs and embedded content.
+
 ## 0.5.36
 
 ## 0.5.35

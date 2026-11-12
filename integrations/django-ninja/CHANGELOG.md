@@ -1,5 +1,11 @@
 # scalar-ninja
 
+## 0.3.3
+
+### Patch Changes
+
+- [#10994](https://github.com/scalar/scalar/pull/10994): Publish a new patch release through PyPI trusted publishing to recover from the previous failed uploads.
+
 ## 0.3.2
 
 ### Patch Changes

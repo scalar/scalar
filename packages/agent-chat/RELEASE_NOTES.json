@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.52",
+    "date": "2026-11-12",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01252",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.51",
     "date": "2026-11-10",
     "title": "Require approval for all API requests and redact credentials",

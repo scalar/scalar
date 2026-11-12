@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 0.6.0
+
+### Minor Changes
+
+- [#10974](https://github.com/scalar/scalar/pull/10974): feat: add .NET 11 support (`net11.0` target framework)
+
 ## 0.5.0
 
 ### Minor Changes

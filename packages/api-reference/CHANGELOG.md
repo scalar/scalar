@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.78.1
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when rendering RAML and Avro schemas.
+- [#10967](https://github.com/scalar/scalar/pull/10967): fix: parse YAML documents that merge shared anchors into many operations
+
+  Since yaml 2.9.1, merge keys (`<<: *anchor`) count toward the alias limit, so large API Gateway exports failed with "Excessive alias count indicates a resource exhaustion attack". The limit is now 100,000 and shared through `YAML_MAX_ALIAS_COUNT` from `@scalar/helpers`.
+
 ## 1.78.0
 
 ### Minor Changes

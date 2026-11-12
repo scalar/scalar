@@ -1,5 +1,11 @@
 # @scalar/json-schema-validator
 
+## 0.1.20
+
+### Patch Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): Use the shared YAML alias limit when validating YAML documents.
+
 ## 0.1.19
 
 ### Patch Changes

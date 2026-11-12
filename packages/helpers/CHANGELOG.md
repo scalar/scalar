@@ -1,5 +1,17 @@
 # @scalar/helpers
 
+## 0.18.0
+
+### Minor Changes
+
+- [#10967](https://github.com/scalar/scalar/pull/10967): fix: parse YAML documents that merge shared anchors into many operations
+
+  Since yaml 2.9.1, merge keys (`<<: *anchor`) count toward the alias limit, so large API Gateway exports failed with "Excessive alias count indicates a resource exhaustion attack". The limit is now 100,000 and shared through `YAML_MAX_ALIAS_COUNT` from `@scalar/helpers`.
+
+### Patch Changes
+
+- [#10979](https://github.com/scalar/scalar/pull/10979): Preserve question marks inside query values when merging a URL and path.
+
 ## 0.17.1
 
 ### Patch Changes

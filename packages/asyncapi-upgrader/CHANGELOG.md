@@ -1,5 +1,9 @@
 # @scalar/asyncapi-upgrader
 
+## 0.1.21
+
+No changes in this release.
+
 ## 0.1.20
 
 ## 0.1.19

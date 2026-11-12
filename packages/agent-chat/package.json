@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/agent-chat"
   },
-  "version": "0.12.51",
+  "version": "0.12.52",
   "engines": {
     "node": ">=22"
   },

@@ -9,6 +9,18 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.49 (2026-11-12)
+
+### Improved handling for large API specifications with merge keys
+
+This release fixes an issue where importing large API specifications that use YAML merge keys would fail with a resource exhaustion error. The YAML alias limit has been raised across the application to support documents with hundreds of operations that share common response definitions.
+
+- YAML documents with up to 100,000 merge key expansions now parse successfully
+- Large API Gateway exports that merge shared error responses into every operation no longer fail to import
+- The higher alias limit applies to all YAML parsing in the app, including request body editors and collection imports
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1149)
+
 ## 1.1.48 (2026-11-10)
 
 ### Improved multipart uploads and OpenID Connect configuration

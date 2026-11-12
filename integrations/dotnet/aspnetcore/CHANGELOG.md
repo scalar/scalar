@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.21.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.78.1
+
+### Minor Changes
+
+- [#10974](https://github.com/scalar/scalar/pull/10974): feat: add .NET 11 support (`net11.0` target framework)
+
 ## 2.20.0
 
 ### Bundled API Reference
