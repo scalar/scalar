@@ -74,20 +74,15 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
   // a delete operation with one to many conflicts
   const conflictsMap2 = new Map<number, [Difference<T>[], Difference<T>[]]>()
 
+  // A covering delete may conflict with another change later in the traversal.
+  // Wait until all conflicts are known before discarding the covered delete.
+  const overlappingDeletes: [number, number][] = []
+
   for (const [index, diff] of diff2.entries()) {
     trie.findMatch(diff.path, (value) => {
       if (diff.type === 'delete') {
         if (value.changes.type === 'delete') {
-          // Keep the shallowest delete operation and skip the other, since deleting an
-          // ancestor already removes everything the deeper delete would have removed.
-          // On equal paths the first list keeps the entry and the second one is skipped.
-          // Note the two sets are indexed differently: `value.index` points into `diff1`,
-          // while `index` points into `diff2`.
-          if (value.changes.path.length > diff.path.length) {
-            skipDiff1.add(value.index)
-          } else {
-            skipDiff2.add(index)
-          }
+          overlappingDeletes.push([value.index, index])
         } else {
           // Take care of updates/add on the same path (we are sure they will be on the
           // same path since the change comes from the same document)
@@ -134,7 +129,29 @@ export const merge = <T>(diff1: Difference<T>[], diff2: Difference<T>[]) => {
     })
   }
 
+  for (const [firstIndex, secondIndex] of overlappingDeletes) {
+    const first = diff1[firstIndex]!
+    const second = diff2[secondIndex]!
+    if (first.path.length > second.path.length) {
+      skipDiff1.add(firstIndex)
+      conflictsMap2.get(secondIndex)?.[0].push(first)
+    } else {
+      // Equal paths keep the first delete, matching the non-conflicting merge behavior.
+      skipDiff2.add(secondIndex)
+      conflictsMap1.get(firstIndex)?.[1].push(second)
+    }
+  }
+
   const conflicts: [Difference<T>[], Difference<T>[]][] = [...conflictsMap1.values(), ...conflictsMap2.values()]
+
+  // Restoring a delete must preserve the original order: array deletions use splice,
+  // so applying a lower index first would shift the entries targeted by later changes.
+  const firstPositions = new Map(diff1.map((change, index) => [change, index]))
+  const secondPositions = new Map(diff2.map((change, index) => [change, index]))
+  for (const [first, second] of conflicts) {
+    first.sort((a, b) => firstPositions.get(a)! - firstPositions.get(b)!)
+    second.sort((a, b) => secondPositions.get(a)! - secondPositions.get(b)!)
+  }
 
   // Filter all changes that should be skipped because of conflicts
   // or auto conflict resolution
