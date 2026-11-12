@@ -192,6 +192,9 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           # Preserve the existing Git CLI push behavior.
           push-with-git-cli: true
+          # The create-github-release job owns the dated release and its tag.
+          create-github-releases: false
+          push-git-tags: false
         env:
           # The custom changelog generator also reads the token from the environment.
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
