@@ -718,6 +718,13 @@ const id = useId()
   display: flex;
   flex: 1;
 }
+/*
+ * A long sample is drawn as virtual text with its own copy button rather than a code block, so
+ * that button gets the same raised fill a code block gives its button on a card's surface.
+ */
+.code-snippet > .scalar-code-copy {
+  background: var(--scalar-card-surface-raised, var(--scalar-background-2));
+}
 .request-card-simple {
   display: flex;
   flex-wrap: wrap;

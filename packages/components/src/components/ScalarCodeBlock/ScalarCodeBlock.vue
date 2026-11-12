@@ -218,4 +218,12 @@ const { cx } = useBindCx()
 .scalar-code-block.bg-b-2 .scalar-code-copy {
   @apply bg-b-3;
 }
+/**
+ * On a card's surface the button's own fill is the color of the card behind the surface, which
+ * reads as a hole in a dark card. It takes the card's raised color instead, one step above the
+ * surface. Outside a card the button keeps its own fill.
+ */
+.scalar-code-block.bg-transparent .scalar-code-copy {
+  background: var(--scalar-card-surface-raised, var(--scalar-background-2));
+}
 </style>

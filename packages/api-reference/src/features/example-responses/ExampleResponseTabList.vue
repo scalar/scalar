@@ -34,19 +34,24 @@ const changeTab = (index: number) => {
   overflow: auto;
 }
 .scalar-card-header.scalar-card-header-tabs {
-  padding: 0;
+  /* Makes up for the strip reaching out over the card's padding, so the tabs stay where they were */
+  padding: 0 4px;
 }
 </style>
 <style>
 /*
  * The tab strip sits on the card rather than on a surface, so it draws its own rule for the
- * selected tab's underline to land on and keeps the card's padding below it. Kept out of the
- * scoped block so the selector stays a single class and a theme or `customCss` rule still wins.
+ * selected tab's underline to land on and keeps the card's padding below it. The strip reaches
+ * out over the card's side padding so the rule runs from one edge of the card to the other. Its
+ * top corners stay rounded to keep a theme's header background inside the card's own corners.
+ *
+ * Kept out of the scoped block so the selector stays a single class and a theme or `customCss`
+ * rule still wins.
  */
 .scalar-card-header-tabs {
-  border-radius: 0;
+  border-radius: var(--scalar-radius-xl) var(--scalar-radius-xl) 0 0;
   box-shadow: inset 0 calc(var(--scalar-border-width) * -1) 0
     var(--scalar-border-color);
-  margin-bottom: 4px;
+  margin: 0 -4px 4px;
 }
 </style>
