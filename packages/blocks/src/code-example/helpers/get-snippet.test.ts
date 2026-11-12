@@ -37,8 +37,8 @@ describe('getSnippet', () => {
     `)
   })
 
-  it('generates a basic javascript/jquery example (@scalar/snippetz)', () => {
-    const [error, result] = getSnippet('javascript', 'jquery', makeHarRequest())
+  it('generates a basic js/jquery example (@scalar/snippetz)', () => {
+    const [error, result] = getSnippet('js', 'jquery', makeHarRequest())
 
     expect(error).toBeNull()
     expect(result).toMatchInlineSnapshot(`
@@ -53,18 +53,14 @@ describe('getSnippet', () => {
   })
 
   it('returns an empty string if passed rubbish', () => {
-    const [error, result] = getSnippet('javascript', 'invalid-client' as any, makeHarRequest())
+    const [error, result] = getSnippet('js', 'invalid-client' as any, makeHarRequest())
 
     expect(error).toBeDefined()
     expect(result).toBeNull()
   })
 
   it('shows the original path before variable replacement', () => {
-    const [error, result] = getSnippet(
-      'javascript',
-      'fetch',
-      makeHarRequest({ url: 'https://void.scalar.com/{path}/users' }),
-    )
+    const [error, result] = getSnippet('js', 'fetch', makeHarRequest({ url: 'https://void.scalar.com/{path}/users' }))
 
     expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://void.scalar.com/{path}/users')`)
@@ -72,7 +68,7 @@ describe('getSnippet', () => {
 
   it('should show the accept header if its not */*', () => {
     const [error, result] = getSnippet(
-      'javascript',
+      'js',
       'fetch',
       makeHarRequest({
         headers: [{ name: 'Accept', value: 'application/json' }],
@@ -89,7 +85,7 @@ describe('getSnippet', () => {
 
   it('show should show the cookies', async () => {
     const [error, result] = await getSnippet(
-      'javascript',
+      'js',
       'fetch',
       makeHarRequest({
         headers: [{ name: 'Set-Cookie', value: 'sessionId=abc123' }],
@@ -106,7 +102,7 @@ describe('getSnippet', () => {
 
   it('should show the headers', () => {
     const [error, result] = getSnippet(
-      'javascript',
+      'js',
       'fetch',
       makeHarRequest({
         headers: [{ name: 'X-Scalar-Token', value: 'abc123' }],
@@ -123,7 +119,7 @@ describe('getSnippet', () => {
 
   it('should show the query parameters', () => {
     const [error, result] = getSnippet(
-      'javascript',
+      'js',
       'fetch',
       makeHarRequest({
         queryString: [{ name: 'query-param', value: 'query-value' }],
@@ -136,7 +132,7 @@ describe('getSnippet', () => {
 
   it('should show the security headers, cookies and query', () => {
     const [error, result] = getSnippet(
-      'javascript',
+      'js',
       'fetch',
       makeHarRequest({
         queryString: [{ name: 'query-api-key', value: '33333' }],
