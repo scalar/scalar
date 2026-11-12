@@ -422,9 +422,13 @@ const handleServerVariable = (
   eventBus.emit('server:update:variables', payload)
 }
 
+const isGetRequest = computed(() => method.toLowerCase() === 'get')
+const isOpenInBrowserDisabled = computed(
+  () => executionDisabled || !!hasConflict.value,
+)
+
 const requestOpenInBrowser = (): void => {
-  if (executionDisabled || hasConflict.value || method.toLowerCase() !== 'get')
-    return
+  if (isOpenInBrowserDisabled.value || !isGetRequest.value) return
   emit('open:browser')
 }
 
@@ -574,12 +578,12 @@ defineExpose({
       </ScalarButton>
 
       <ScalarTooltip
-        v-if="method.toLowerCase() === 'get'"
+        v-if="isGetRequest"
         :content="translate('apiClient.addressBar.openInBrowserHint')">
         <ScalarButton
           :aria-label="translate('apiClient.addressBar.openInBrowser')"
           class="hover:bg-b-3 mr-1 flex"
-          :disabled="executionDisabled || !!hasConflict"
+          :disabled="isOpenInBrowserDisabled"
           size="xs"
           variant="ghost"
           @click="requestOpenInBrowser">
