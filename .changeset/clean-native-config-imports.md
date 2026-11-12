@@ -9,7 +9,9 @@
 "@scalar/code-highlight": patch
 "@scalar/components": patch
 "@scalar/draggable": patch
+"@scalar/fastify-api-reference": patch
 "@scalar/icons": patch
+"@scalar/nextjs-api-reference": patch
 "@scalar/openapi-to-markdown": patch
 "@scalar/pre-post-request-scripts": patch
 "@scalar/react-renderer": patch
