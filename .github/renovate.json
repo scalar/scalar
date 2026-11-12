@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["security:only-security-updates", "helpers:pinGitHubActionDigests"],
+  "extends": ["security:only-security-updates"],
   "dependencyDashboard": false,
   "prConcurrentLimit": 5,
   "prHourlyLimit": 0,

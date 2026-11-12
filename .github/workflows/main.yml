@@ -51,11 +51,11 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
       - name: Build
-        uses: ./.github/actions/build
+        uses: $/.github/actions/build
         with:
           packages: './{packages,integrations}/**'
           archive-output: 'true'
@@ -69,23 +69,23 @@ jobs:
       # so PR builds aren't signed with provenance.
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: Attest scalar.js build provenance
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        uses: actions/attest-build-provenance@v4.1.1
         with:
           subject-path: temp-artifacts/scalar.js
       - name: Upload scalar.js artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: scalar-js
           path: temp-artifacts/scalar.js
           retention-days: 3
       - name: Upload mock server docker entrypoint artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: mock-server-docker-entrypoint
           path: packages/mock-server/docker/dist/docker-entrypoint.js
           retention-days: 3
       - name: Upload build-output artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: build-output
           path: build-output.tar.gz
@@ -93,7 +93,7 @@ jobs:
           compression-level: 0
       - if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
         name: Upload webpack stats to RelativeCI
-        uses: relative-ci/agent-action@fcf45416581928e8dd62eded78ce98c78e5149f8 # v3.2.3
+        uses: relative-ci/agent-action@v3.2.3
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -122,11 +122,11 @@ jobs:
       rust_changed: ${{ steps.changes.outputs.rust_changed }}
       docker_changed: ${{ steps.changes.outputs.docker_changed }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
       - id: changes
-        uses: ./.github/actions/check-changes
+        uses: $/.github/actions/check-changes
 
   lint-icons:
     if: needs.check-changes.outputs.icons_changed == 'true'
@@ -136,10 +136,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
+      - uses: actions/checkout@v6.0.3
+      - uses: pnpm/action-setup@v5.0.0
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        uses: actions/setup-node@v6.4.0
         with:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
@@ -155,9 +155,9 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       # `--only` skips the `build` dependencies of types:check: restore-build
       # already put every package dist/ in place, and turbo used to rebuild
       # whatever missed its cache before it could start checking types.
@@ -180,9 +180,9 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Build examples, projects and tooling
         run: >-
           pnpm turbo --only --cache=local:
@@ -214,9 +214,9 @@ jobs:
       HOME: '/root'
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Run tests
         run: pnpm turbo --filter './integrations/**' --only test
       - name: Run e2e tests
@@ -227,9 +227,9 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Setup Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        uses: actions/setup-go@v6.5.0
         with:
           go-version-file: projects/proxy-scalar-com/go.mod
           cache: false
@@ -243,9 +243,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Start SSR playground and verify it responds
         run: |
           pnpm --filter @scalar/server-side-rendering dev &
@@ -270,9 +270,9 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Build storybook (@scalar/blocks)
         run: pnpm --filter blocks build:storybook
       - name: Run storybook snapshot tests (@scalar/blocks)
@@ -294,9 +294,9 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Build storybook (@scalar/api-reference)
         run: pnpm --filter api-reference build:storybook
       - name: Run storybook snapshot tests (@scalar/api-reference)
@@ -320,9 +320,9 @@ jobs:
       contents: read
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Run e2e tests (scalar-app)
         run: pnpm --filter scalar-app test:e2e:ci
 
@@ -445,12 +445,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        uses: actions/setup-python@v6.3.0
         with:
           python-version: '3.11'
 
@@ -465,7 +465,7 @@ jobs:
         run: python -m build
 
       - name: Upload FastAPI distributions
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: fastapi-pypi
           path: integrations/fastapi/dist/
@@ -485,13 +485,13 @@ jobs:
       id-token: write
     steps:
       - name: Download FastAPI distributions
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@v8.0.1
         with:
           name: fastapi-pypi
           path: dist/
 
       - name: Publish FastAPI package to PyPI
-        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           attestations: true
 
@@ -509,12 +509,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
         with:
           persist-credentials: false
 
       - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        uses: actions/setup-python@v6.3.0
         with:
           python-version: '3.11'
 
@@ -529,7 +529,7 @@ jobs:
         run: python -m build
 
       - name: Upload Django Ninja distributions
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: django-ninja-pypi
           path: integrations/django-ninja/dist/
@@ -549,13 +549,13 @@ jobs:
       id-token: write
     steps:
       - name: Download Django Ninja distributions
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        uses: actions/download-artifact@v8.0.1
         with:
           name: django-ninja-pypi
           path: dist/
 
       - name: Publish Django Ninja package to PyPI
-        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           attestations: true
 
@@ -586,9 +586,9 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/checkout@v6.0.3
       - name: Restore pre-built workspace
-        uses: ./.github/actions/restore-build
+        uses: $/.github/actions/restore-build
       - name: Generate DEPLOY_ID
         run: echo "DEPLOY_ID=$(pnpx uuid)" >> "$GITHUB_ENV"
       - name: Build storybook
