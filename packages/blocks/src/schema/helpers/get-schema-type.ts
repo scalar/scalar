@@ -17,7 +17,10 @@ const formatArrayType = (itemType: string): string => {
 /**
  * Handles array type processing for both single array types and union types containing array.
  */
-const processArrayType = (value: Extract<SchemaObject, { type: 'array' }>, isUnionType: boolean = false): string => {
+const processArrayType = (
+  value: Extract<SchemaObject, { type: 'array' | string[] }>,
+  isUnionType: boolean = false,
+): string => {
   if (!value.items) {
     return 'array'
   }
@@ -59,9 +62,8 @@ export const getSchemaType = (valueOrRef: SchemaObject | ReferenceType<SchemaObj
   // Handle union types (array of types)
   if ('type' in value && Array.isArray(value.type)) {
     // Special case: union types containing 'array'
-    // TODO: Correctly type array of types in SchemaObject
-    if (value.type.includes('array') && (value as Extract<SchemaObject, { type: 'array' }>).items) {
-      const arrayType = processArrayType(value as Extract<SchemaObject, { type: 'array' }>, true)
+    if (value.type.includes('array') && 'items' in value && value.items) {
+      const arrayType = processArrayType(value, true)
       const otherTypes = value.type.filter((t) => t !== 'array')
 
       return otherTypes.length > 0 ? `${arrayType} | ${otherTypes.join(' | ')}` : arrayType
