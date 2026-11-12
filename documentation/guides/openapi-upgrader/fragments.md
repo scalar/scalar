@@ -12,7 +12,7 @@ const { value, locations } = await upgradeFragment(
 // value: { type: ['string', 'null'] }
 ```
 
-Kinds include `document`, `schema`, `parameter`, `header`, `response`, `path-item`, `operation`, `request-body`, and `callback`. Pass effective `consumes` and `produces` for OpenAPI 2.0 fragments; both default to `application/json`. A schema with an explicit `$schema` is retained in its declared dialect. Examples, defaults, and extension payloads remain literal data.
+Kinds include `document`, `schema`, `parameter`, `header`, `response`, `path-item`, `operation`, `request-body`, and `callback`. Pass effective `consumes` and `produces` for OpenAPI 2.0 fragments; both default to `application/json`. Form parameters use form-compatible media types and fall back to `multipart/form-data`. A schema with an explicit `$schema` is retained in its declared dialect. Examples, defaults, and extension payloads remain literal data.
 
 For OpenAPI 2.0 operations containing parameter references, supply `resolveSource(ref)`, an asynchronous lookup of the original parameter. Body parameters become the operation's `requestBody`, while form parameters combine into one request body. These parameter objects are inlined; nested schema references remain references. A body or form parameter cannot be upgraded as `kind: 'parameter'`: use the owning operation, or `request-body` when that is explicitly the intended destination.
 

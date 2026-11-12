@@ -374,13 +374,13 @@ export const upgradeFragment = async (
         }
       }
       if (forms.length) {
-        for (const form of forms) {
-          rememberFormFields(form.parameter, form.source, [...output, 'requestBody'], effectiveConsumes)
-        }
         const body = migrateFormDataParameter(
           forms.map((entry) => entry.parameter),
           [...effectiveConsumes],
         )
+        for (const form of forms) {
+          rememberFormFields(form.parameter, form.source, [...output, 'requestBody'], Object.keys(body.content ?? {}))
+        }
         result.requestBody = await visit(body, {
           kind: 'request-body',
           source: [...source, 'parameters'],
@@ -468,8 +468,9 @@ export const upgradeFragment = async (
       }
     }
     if (v2 && kind === 'request-body' && result.in === 'formData') {
-      rememberFormFields(result, source, output, consumes)
-      result = migrateFormDataParameter([result as OpenAPIV2.ParameterObject], [...consumes])
+      const body = migrateFormDataParameter([result as OpenAPIV2.ParameterObject], [...consumes])
+      rememberFormFields(value, source, output, Object.keys(body.content ?? {}))
+      result = body
     }
     if (v2 && kind === 'request-body' && result.in === 'body') {
       result = migrateBodyParameter(result as OpenAPIV2.ParameterObject, [...consumes])
