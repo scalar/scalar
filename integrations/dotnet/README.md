@@ -11,6 +11,7 @@ This folder contains the .NET packages for Scalar API documentation.
 - **`aws-lambda/`** - Contains `Scalar.Aws.Lambda` package for AWS Lambda functions fronted by Amazon API Gateway
 
 Each project has its own solution file (`.slnx`):
+
 - `Scalar.Shared.slnx` - For working with shared code
 - `Scalar.AspNetCore.slnx` - For working with ASP.NET Core package
 - `Scalar.Aspire.slnx` - For working with Aspire package
@@ -23,10 +24,10 @@ All packages target `net10.0` and `net11.0`. Building requires the .NET 11 SDK (
 
 The target framework lists are defined once in the root `Directory.Build.props`, and every multi-targeted project uses them:
 
-| Property                                 | Value                              | Used by                                          |
-| ---------------------------------------- | ---------------------------------- | ------------------------------------------------ |
-| `ScalarTargetFrameworks`                 | `net10.0;net11.0`    | All packages and their tests                     |
-| `ScalarMicrosoftOpenApiTargetFrameworks` | `net10.0;net11.0`           | `Scalar.AspNetCore.Microsoft` and its tests      |
+| Property                                 | Value             | Used by                                     |
+| ---------------------------------------- | ----------------- | ------------------------------------------- |
+| `ScalarTargetFrameworks`                 | `net10.0;net11.0` | All packages and their tests                |
+| `ScalarMicrosoftOpenApiTargetFrameworks` | `net10.0;net11.0` | `Scalar.AspNetCore.Microsoft` and its tests |
 
 To add a new .NET version:
 
