@@ -15,9 +15,10 @@ export const validateOperationIds = (document: Record<string, unknown>, version:
   )
 
   const visitOperation = (operation: unknown, path: string[]): void => {
-    if (!isObject(operation)) {
+    if (!isObject(operation) || ancestors.has(operation)) {
       return
     }
+    ancestors.add(operation)
     if (typeof operation.operationId === 'string') {
       const pointer = `/${[...path, 'operationId'].map(escapeJsonPointer).join('/')}`
       const first = ids.get(operation.operationId)
@@ -45,14 +46,18 @@ export const validateOperationIds = (document: Record<string, unknown>, version:
         ancestors.delete(callback)
       }
     }
+    ancestors.delete(operation)
   }
 
   const visitPathItem = (reference: unknown, path: string[]): void => {
-    const item = resolveLocalReference(document, reference)
-    if (!item || ancestors.has(item)) {
+    if (!isObject(reference) || ancestors.has(reference)) {
       return
     }
-    ancestors.add(item)
+    const item = resolveLocalReference(document, reference, { preserveSiblings: true })
+    if (!item) {
+      return
+    }
+    ancestors.add(reference)
     for (const method of methods) {
       visitOperation(item[method], [...path, method])
     }
@@ -61,7 +66,7 @@ export const validateOperationIds = (document: Record<string, unknown>, version:
         visitOperation(operation, [...path, 'additionalOperations', method])
       }
     }
-    ancestors.delete(item)
+    ancestors.delete(reference)
   }
 
   for (const key of version === '3.1' || version === '3.2' ? ['paths', 'webhooks'] : ['paths']) {

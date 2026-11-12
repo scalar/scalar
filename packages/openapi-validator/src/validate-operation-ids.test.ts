@@ -141,6 +141,44 @@ describe('validate-operation-ids', () => {
     expect(document).toStrictEqual(original)
   })
 
+  it.each(['#/components/pathItems/Shared', 'external.yaml#/item', '#/missing'])(
+    'checks adjacent Path Item operations beside %s',
+    ($ref) => {
+      expect(
+        validateOperationIds(
+          {
+            paths: {
+              '/first': { get: operation('same') },
+              '/second': { $ref, post: operation('same') },
+            },
+            components: { pathItems: { Shared: { get: operation('other') } } },
+          },
+          '3.1',
+        ),
+      ).toStrictEqual([duplicate])
+    },
+  )
+
+  it('preserves adjacent operations throughout a Path Item reference chain', () => {
+    expect(
+      validateOperationIds(
+        {
+          paths: {
+            '/first': { get: operation('same') },
+            '/second': { $ref: '#/components/pathItems/Shared' },
+          },
+          components: {
+            pathItems: {
+              Shared: { $ref: '#/components/pathItems/Empty', post: operation('same') },
+              Empty: {},
+            },
+          },
+        },
+        '3.1',
+      ),
+    ).toStrictEqual([duplicate])
+  })
+
   it('decodes reference fragments once before unescaping pointer segments', () => {
     expect(
       validateOperationIds(
