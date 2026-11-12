@@ -35,10 +35,11 @@ describe('Handles yaml and json parsing', () => {
   })
 
   it('parses yaml whose merges exceed the old alias limit of 10,000', () => {
-    expect(yaml.parse(createMergeHeavyYaml())).toHaveProperty(
-      'item999',
-      expect.objectContaining({ type: 'aws', title: 'item999' }),
-    )
+    expect(yaml.parse(createMergeHeavyYaml()).item999).toStrictEqual({
+      type: 'aws',
+      params: { accept: 'application/json' },
+      title: 'item999',
+    })
   })
 
   it('transforms Yaml to JSON', () => {

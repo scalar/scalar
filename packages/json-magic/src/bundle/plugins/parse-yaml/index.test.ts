@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import { isObject } from '@scalar/helpers/object/is-object'
+import { assert, describe, expect, it } from 'vitest'
 
 import { parseYaml } from '@/bundle/plugins/parse-yaml'
 
@@ -43,10 +44,11 @@ describe('parse-yaml', () => {
   it('parses documents whose merges exceed the old alias limit of 10,000', async () => {
     const result = await parseYaml().exec(createMergeHeavyYaml())
 
-    expect(result.ok).toBe(true)
-    expect(result.ok && result.data).toHaveProperty(
-      'item999',
-      expect.objectContaining({ type: 'aws', title: 'item999' }),
-    )
+    assert(result.ok && isObject(result.data))
+    expect(result.data.item999).toStrictEqual({
+      type: 'aws',
+      params: { accept: 'application/json' },
+      title: 'item999',
+    })
   })
 })
