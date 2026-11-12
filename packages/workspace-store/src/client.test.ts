@@ -3288,6 +3288,42 @@ describe('create-workspace-store', () => {
     })
   })
 
+  it('loads a prefetched URL response and uses the configured transport for relative references', async () => {
+    const url = 'https://example.com/api/document'
+    const document = {
+      openapi: '3.1.0',
+      info: { title: 'Prefetched API', version: '1.0.0' },
+      components: { schemas: { Pet: { $ref: './pet.json' } } },
+    }
+    const fetch = vi.fn<typeof globalThis.fetch>(async () =>
+      Response.json({ type: 'object', properties: { name: { type: 'string' } } }),
+    )
+    const store = createWorkspaceStore({ fetch })
+
+    expect(await store.addDocument({ name: 'api', url, response: Response.json(document) })).toBe(true)
+    expect(store.workspace.documents.api?.info.title).toBe('Prefetched API')
+    expect(store.workspace.documents.api?.['x-scalar-original-source-url']).toBe(url)
+    expect(fetch.mock.calls.map(([input]) => input)).toStrictEqual(['https://example.com/api/pet.json'])
+    expect(getResolvedRef(getOpenApiDocument(store, 'api')?.components?.schemas?.Pet)).toStrictEqual({
+      type: 'object',
+      properties: { name: { type: 'string' } },
+    })
+  })
+
+  it('rejects a failed prefetched response without downloading it again', async () => {
+    const fetch = vi.fn<typeof globalThis.fetch>()
+    const store = createWorkspaceStore({ fetch })
+
+    expect(
+      await store.addDocument({
+        name: 'api',
+        url: 'https://example.com/document',
+        response: new Response(null, { status: 503 }),
+      }),
+    ).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   describe('addDocument error handling', () => {
     beforeEach(() => {
       resetConsoleSpies()
