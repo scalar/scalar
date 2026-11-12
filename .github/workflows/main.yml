@@ -327,7 +327,8 @@ jobs:
         run: pnpm --filter scalar-app test:e2e:ci
 
   # Integration build-tests on main push that touches them — gates the matching
-  # publish job in publish-integrations.yml from running against a broken tree.
+  # publish job in main.yml (Python) or publish-integrations.yml (other registries)
+  # from running against a broken tree.
   integration-builds:
     needs: [check-changes, build]
     uses: ./.github/workflows/integration-builds.yml
@@ -445,6 +446,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -472,7 +475,7 @@ jobs:
   fastapi-publish:
     if: ${{ !cancelled() && needs.fastapi-pack.result == 'success' }}
     needs: fastapi-pack
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
     environment: production-pypi
     timeout-minutes: 10
     concurrency:
@@ -507,6 +510,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
@@ -534,7 +539,7 @@ jobs:
   django-ninja-publish:
     if: ${{ !cancelled() && needs.django-ninja-pack.result == 'success' }}
     needs: django-ninja-pack
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
     environment: production-pypi
     timeout-minutes: 10
     concurrency:

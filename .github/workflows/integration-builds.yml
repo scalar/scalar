@@ -28,8 +28,9 @@ on:
         required: true
     # 'true' only when the matching build-test ran to completion successfully.
     # A skipped (path-gated off) or failed job leaves the output empty, so the
-    # matching publish job in publish-integrations.yml stays gated off — this is
-    # how a publish waits on its build-test across the workflow boundary.
+    # matching publish job in main.yml (Python) or publish-integrations.yml
+    # (other registries) stays gated off — this is how a publish waits on its
+    # build-test across the workflow boundary.
     outputs:
       docker_build_passed:
         value: ${{ jobs.docker-build.outputs.passed }}
