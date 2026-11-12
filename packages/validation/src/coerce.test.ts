@@ -2,7 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { coerce } from '@/coerce'
 import {
+  type LazySchema,
+  type LiteralSchema,
+  type ObjectSchema,
+  type OptionalSchema,
   type Schema,
+  type StringSchema,
   any,
   array,
   boolean,
@@ -1391,10 +1396,28 @@ describe('cyclic structures', () => {
   type NamedNode<Name extends string | number = string | number> = { name: Name; child?: NamedNode<Name> | null }
   type KindA = { kind: 'a'; next?: KindB }
   type KindB = { kind: 'b'; next?: KindA | null }
+  type NamedNodeSchema = LazySchema<
+    () => ObjectSchema<{
+      name: StringSchema
+      child: OptionalSchema<LazySchema<() => NamedNodeSchema>>
+    }>
+  >
+  type KindASchema = LazySchema<
+    () => ObjectSchema<{
+      kind: LiteralSchema<'a'>
+      next: OptionalSchema<LazySchema<() => KindBSchema>>
+    }>
+  >
+  type KindBSchema = LazySchema<
+    () => ObjectSchema<{
+      kind: LiteralSchema<'b'>
+      next: OptionalSchema<LazySchema<() => KindASchema>>
+    }>
+  >
 
   it('terminates on a self-referential value paired with a recursive lazy schema', () => {
     // Cyclic reference to the same schema
-    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
 
     const node: NamedNode = { name: 'root' }
     node.child = node
@@ -1411,7 +1434,7 @@ describe('cyclic structures', () => {
   })
 
   it('coerces properties before returning the original reference on a cycle', () => {
-    const T = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string({ default: 'Marc' }), child: optional(lazy(() => T)) }))
 
     const node: NamedNode = { name: 42 }
     node.child = node
@@ -1426,8 +1449,8 @@ describe('cyclic structures', () => {
   })
 
   it('terminates on mutually-recursive lazy schemas with cyclic data', () => {
-    const SchemaA = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
-    const SchemaB = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
+    const SchemaA: KindASchema = lazy(() => object({ kind: literal('a'), next: optional(lazy(() => SchemaB)) }))
+    const SchemaB: KindBSchema = lazy(() => object({ kind: literal('b'), next: optional(lazy(() => SchemaA)) }))
 
     const a: KindA = { kind: 'a' }
     const b: KindB = { kind: 'b' }
@@ -1497,7 +1520,7 @@ describe('cyclic structures', () => {
   })
 
   it('coerces a recursive schema', () => {
-    const T = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
+    const T: NamedNodeSchema = lazy(() => object({ name: string(), child: optional(lazy(() => T)) }))
     const input: NamedNode & { child: NamedNode & { child: NamedNode } } = {
       name: 1,
       child: { name: 'child', child: { name: 'grandchild' } },

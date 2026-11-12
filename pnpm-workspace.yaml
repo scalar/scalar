@@ -118,7 +118,7 @@ catalogs:
     zod: ^4.6.7
     posthog-js: 1.438.12
     ws: 8.22.0
-    '@microsoft/api-extractor': ^7.59.4
+    '@microsoft/api-extractor': 7.60.1
 # pnpm 12 replaces onlyBuiltDependencies/ignoredBuiltDependencies with a single
 # allowBuilds map: true runs the package's build scripts, false skips them.
 allowBuilds:

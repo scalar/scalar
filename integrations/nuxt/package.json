@@ -74,6 +74,7 @@
     "@types/node": "catalog:*",
     "cross-env": "catalog:*",
     "nuxt": "^4.6.3",
+    "typescript": "5.9.3",
     "vitest": "catalog:*"
   }
 }
