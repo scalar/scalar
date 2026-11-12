@@ -5,7 +5,7 @@ import { type LifecyclePlugin, resolveReferencePath } from '@scalar/json-magic/b
 import { getHash, uniqueValueGeneratorFactory } from '@scalar/json-magic/bundle/value-generator'
 import { type FragmentKind, type FragmentLocation, upgradeFragment } from '@scalar/openapi-upgrader'
 
-import { resolveOpenApiDocument } from './openapi-document'
+import { openApiDocument, resolveOpenApiDocument } from './openapi-document'
 
 const metadataKey = 'x-scalar-upgrade'
 type SourceVersion = '2.0' | '3.0'
@@ -102,6 +102,8 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
   let entryUri: string | undefined
   const resolvers = new Map<string, (ref: string) => Promise<unknown>>()
   const converted = new WeakSet<object>()
+  const transformedReferences = new WeakSet<object>()
+  const originalReferences = openApiDocument({ preserveOriginalRefs: true })
   const markConverted = (value: unknown): void => {
     if (value === null || typeof value !== 'object' || converted.has(value)) {
       return
@@ -111,6 +113,12 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
   }
   return {
     type: 'lifecycle',
+    onBeforeNodeProcess: originalReferences.onBeforeNodeProcess,
+    onAfterNodeProcess: (node, context) => {
+      if (transformedReferences.has(node)) {
+        return originalReferences.onAfterNodeProcess?.(node, context)
+      }
+    },
     onDocumentLoaded: async (document, { uri, loadDocument }) => {
       entryUri ??= uri
       const from = isObject(document) ? sourceVersion(document.swagger ?? document.openapi) : undefined
@@ -216,14 +224,21 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       }
     },
     onBeforeTargetProcess: async (target, context) => {
-      if (!isObject(target) || converted.has(target) || context.path[0] === metadataKey) {
+      if (!isObject(target) || context.path[0] === metadataKey) {
         return undefined
       }
       const source = sources.get(context.uri)
       const document = context.document
       // Complete versioned resources were converted at load time. Saved resources carry
       // the same information so lazy resolution after serialization cannot upgrade twice.
+      const referenceNode = atPath(context.referenceSource.document, context.referenceSource.path)
       if (isObject(document) && (document.openapi || document.swagger || metadata(document))) {
+        if (metadata(document) && document !== context.referencedFrom.rootNode && isObject(referenceNode)) {
+          transformedReferences.add(referenceNode)
+        }
+        return undefined
+      }
+      if (converted.has(target)) {
         return undefined
       }
       const referring = sources.get(context.referenceSource.uri)
@@ -244,6 +259,15 @@ export const upgradeDocuments = (entryVersion?: unknown): LifecyclePlugin => {
       const kind = fragmentKind(path)
       if (!kind || !isObject(document)) {
         return undefined
+      }
+      if (isObject(referenceNode)) {
+        transformedReferences.add(referenceNode)
+      }
+      // Saved API descriptions restore external refs and discard bundled resources. Keep
+      // the original entry dialect so bare targets are interpreted the same way on reload.
+      const entryDialect = entryUri === undefined ? undefined : sources.get(entryUri)?.version
+      if (entryDialect && entryDialect !== 'modern' && !metadata(context.referencedFrom.rootNode)) {
+        context.referencedFrom.rootNode[metadataKey] = { from: entryDialect, locations: [] }
       }
       const originalValue = atPath(source?.document ?? document, context.path) ?? target
       const original =
