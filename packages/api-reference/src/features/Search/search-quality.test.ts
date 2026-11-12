@@ -793,12 +793,11 @@ describe('search-quality', () => {
     expect(result).toHaveLength(0)
   })
 
-  it.todo('handles complex nested schemas', () => {
-    const query = 'address'
-
+  it.each(['address', 'street', 'city'])('finds models by nested property %s', (query) => {
     const document: Partial<OpenApiDocument> = {
       components: {
         schemas: {
+          Unrelated: { type: 'object', properties: { unrelatedField: { type: 'boolean' } } },
           User: {
             type: 'object',
             title: 'User',
@@ -818,8 +817,9 @@ describe('search-quality', () => {
 
     const result = search(query, document)
 
-    expect(result).toHaveLength(1)
-    expect(result[0]?.item?.type).toEqual('model')
+    expect(result.map(({ item }) => ({ type: item.type, title: item.title }))).toStrictEqual([
+      { type: 'model', title: 'User' },
+    ])
   })
 
   it('finds operations with request body parameters', () => {
