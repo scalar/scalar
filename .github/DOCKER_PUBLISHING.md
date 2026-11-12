@@ -19,7 +19,12 @@ of a stored Docker Hub token. Image names, version tags, and platforms are uncha
    - `scalarapi/api-reference`
    - `scalarapi/mock-server`
    - `scalarapi/aspire-api-reference`
-4. In the GitHub `production-dockerhub` environment, add the variable
+4. Enable **Read public repositories** on the same ruleset. The API reference
+   and mock server builds pull `caddy:2` and `node:22-alpine`, and Aspire's QEMU
+   setup pulls `tonistiigi/binfmt:latest` after OIDC login. Pull access to the
+   three Scalar repositories does not cover these public images. Keep Image Push
+   restricted to the three repositories above.
+5. In the GitHub `production-dockerhub` environment, add the variable
    `DOCKERHUB_OIDC_CONNECTIONID` with the connection ID. This is a variable, not a
    secret. Keep the environment's deployment branch policy restricted to `main`:
    the environment-based subject does not itself restrict the branch.
