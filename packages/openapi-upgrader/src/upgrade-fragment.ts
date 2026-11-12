@@ -75,6 +75,7 @@ type FragmentTraversalContext = {
   consumes: readonly string[]
   produces: readonly string[]
   semanticPath: string[]
+  parameterSources?: string[][]
 }
 
 /**
@@ -88,12 +89,40 @@ export const upgradeFragment = async (
   const locations: FragmentLocation[] = []
   const contexts: FragmentUpgradeResult['contexts'] = []
   const v2 = options.from === '2.0'
+  const resolvedParameters = new Map<string, Promise<unknown>>()
+  const resolveParameter = (parameter: unknown): Promise<unknown> => {
+    if (!v2 || !isObject(parameter) || typeof parameter.$ref !== 'string' || !options.resolveSource) {
+      return Promise.resolve(parameter)
+    }
+    const cached = resolvedParameters.get(parameter.$ref)
+    if (cached) {
+      return cached
+    }
+    const resolved = options.resolveSource(parameter.$ref)
+    resolvedParameters.set(parameter.$ref, resolved)
+    return resolved
+  }
   const remember = (source: readonly string[], output: readonly string[]): void => {
     locations.push({ source, output })
   }
+  const rememberFormFields = (
+    parameter: UnknownObject,
+    source: readonly string[],
+    output: readonly string[],
+    mediaTypes: readonly string[],
+  ): void => {
+    for (const media of mediaTypes) {
+      const property = [...output, 'content', media, 'schema', 'properties', String(parameter.name)]
+      for (const key of parameterSchemaFields) {
+        if (Object.hasOwn(parameter, key)) {
+          remember([...source, key], [...property, key])
+        }
+      }
+    }
+  }
   const visit = async (
     value: unknown,
-    { kind, source, output, consumes, produces, semanticPath }: FragmentTraversalContext,
+    { kind, source, output, consumes, produces, semanticPath, parameterSources }: FragmentTraversalContext,
   ): Promise<unknown> => {
     remember(source, output)
     if (!isObject(value)) {
@@ -257,13 +286,37 @@ export const upgradeFragment = async (
         // Path-level parameters participate in each operation's effective parameter list.
         const inherited = v2 && Array.isArray(value.parameters) ? value.parameters : []
         const own = Array.isArray(operation.parameters) ? operation.parameters : []
-        const effective = inherited.filter(
-          (entry) => !own.some((item) => item.name === entry.name && item.in === entry.in),
+        const ownIdentities = await Promise.all(own.map(resolveParameter))
+        const effective = []
+        for (const [index, parameter] of inherited.entries()) {
+          const identity = await resolveParameter(parameter)
+          const overridden = ownIdentities.some(
+            (candidate) =>
+              isObject(identity) &&
+              isObject(candidate) &&
+              typeof identity.name === 'string' &&
+              typeof identity.in === 'string' &&
+              candidate.name === identity.name &&
+              candidate.in === identity.in,
+          )
+          if (!overridden) {
+            effective.push({ parameter, source: [...source, 'parameters', String(index)] })
+          }
+        }
+        effective.push(
+          ...own.map((parameter, index) => ({ parameter, source: [...source, method, 'parameters', String(index)] })),
         )
-        result[method] = await child(
-          inherited.length ? { ...operation, parameters: [...effective, ...own] } : operation,
-          'operation',
-          [method],
+        result[method] = await visit(
+          inherited.length ? { ...operation, parameters: effective.map((entry) => entry.parameter) } : operation,
+          {
+            kind: 'operation',
+            source: [...source, method],
+            output: [...output, method],
+            consumes,
+            produces,
+            semanticPath: [...semanticPath, method],
+            parameterSources: effective.map((entry) => entry.source),
+          },
         )
       }
       if (v2) {
@@ -285,19 +338,17 @@ export const upgradeFragment = async (
         result.callbacks = await map(value.callbacks, 'callback', ['callbacks'])
       }
       const parameters: unknown[] = []
-      const forms: OpenAPIV2.ParameterObject[] = []
+      const forms: { parameter: OpenAPIV2.ParameterObject; source: string[] }[] = []
       if (Array.isArray(value.parameters)) {
         for (const [index, original] of value.parameters.entries()) {
-          const parameter =
-            v2 && isObject(original) && typeof original.$ref === 'string' && options.resolveSource
-              ? await options.resolveSource(original.$ref)
-              : original
+          const parameter = await resolveParameter(original)
+          const parameterSource = parameterSources?.[index] ?? [...source, 'parameters', String(index)]
           if (v2 && isObject(parameter) && parameter.in === 'formData') {
-            forms.push(structuredClone(parameter) as OpenAPIV2.ParameterObject)
+            forms.push({ parameter: structuredClone(parameter) as OpenAPIV2.ParameterObject, source: parameterSource })
           } else if (v2 && isObject(parameter) && parameter.in === 'body') {
             result.requestBody = await visit(parameter, {
               kind: 'request-body',
-              source: [...source, 'parameters', String(index)],
+              source: parameterSource,
               output: [...output, 'requestBody'],
               consumes: effectiveConsumes,
               produces: effectiveProduces,
@@ -307,7 +358,7 @@ export const upgradeFragment = async (
             parameters.push(
               await visit(original, {
                 kind: 'parameter',
-                source: [...source, 'parameters', String(index)],
+                source: parameterSource,
                 output: [...output, 'parameters', String(parameters.length)],
                 consumes: effectiveConsumes,
                 produces: effectiveProduces,
@@ -323,7 +374,13 @@ export const upgradeFragment = async (
         }
       }
       if (forms.length) {
-        const body = migrateFormDataParameter(forms, [...effectiveConsumes])
+        for (const form of forms) {
+          rememberFormFields(form.parameter, form.source, [...output, 'requestBody'], effectiveConsumes)
+        }
+        const body = migrateFormDataParameter(
+          forms.map((entry) => entry.parameter),
+          [...effectiveConsumes],
+        )
         result.requestBody = await visit(body, {
           kind: 'request-body',
           source: [...source, 'parameters'],
@@ -377,9 +434,9 @@ export const upgradeFragment = async (
       const converted = applyChangesToDocument(result, semanticPath)
       if (nullable && Array.isArray(result.allOf) && converted !== result) {
         for (const location of locations) {
-          const prefix = [...source, 'allOf']
-          if (prefix.every((segment, index) => location.source[index] === segment)) {
-            const suffix = location.source.slice(prefix.length)
+          const prefix = [...output, 'allOf']
+          if (prefix.every((segment, index) => location.output[index] === segment)) {
+            const suffix = location.output.slice(prefix.length)
             location.output = [
               ...output,
               'anyOf',
@@ -411,6 +468,7 @@ export const upgradeFragment = async (
       }
     }
     if (v2 && kind === 'request-body' && result.in === 'formData') {
+      rememberFormFields(result, source, output, consumes)
       result = migrateFormDataParameter([result as OpenAPIV2.ParameterObject], [...consumes])
     }
     if (v2 && kind === 'request-body' && result.in === 'body') {
