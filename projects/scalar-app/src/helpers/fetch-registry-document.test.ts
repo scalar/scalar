@@ -59,12 +59,12 @@ describe('fetch-registry-document', () => {
     expect(result).toEqual({ ok: true, data: { document: validDocument, versionSha: 'abc123' } })
   })
 
-  it('passes namespace, slug, and version as positional arguments', async () => {
+  it('passes the version with namespace and slug parameters', async () => {
     mockResponse(JSON.stringify(validDocument), 'abc123')
 
     await fetchRegistryDocument({ namespace: 'ns', slug: 'my-api', version: '2.1.0' })
 
-    expect(retrieveAPIDocumentVersion).toHaveBeenCalledWith('ns', 'my-api', '2.1.0')
+    expect(retrieveAPIDocumentVersion).toHaveBeenCalledWith('2.1.0', { namespace: 'ns', slug: 'my-api' })
   })
 
   it('defaults the version to "latest" when none is provided', async () => {
@@ -72,7 +72,7 @@ describe('fetch-registry-document', () => {
 
     await fetchRegistryDocument({ namespace: 'ns', slug: 'my-api' })
 
-    expect(retrieveAPIDocumentVersion).toHaveBeenCalledWith('ns', 'my-api', 'latest')
+    expect(retrieveAPIDocumentVersion).toHaveBeenCalledWith('latest', { namespace: 'ns', slug: 'my-api' })
   })
 
   it('leaves versionSha undefined when the header is absent', async () => {
