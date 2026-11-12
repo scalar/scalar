@@ -162,6 +162,12 @@ jobs:
         working-directory: integrations/dotnet
         run: dotnet build -c Release --no-restore
 
+      # The playground is outside Scalar.slnx, so build it separately with its own restore.
+      # Compilation catches API drift without starting the AppHost or its services.
+      - name: Build Aspire playground
+        working-directory: integrations/dotnet
+        run: dotnet build aspire/playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj -c Release
+
       - name: Test solution
         working-directory: integrations/dotnet
         run: dotnet test -c Release --no-build

@@ -32,7 +32,7 @@ var scalar = builder
 
 
 scalar
-    .WithApiReference(bookService, options =>
+    .WithApiReference(bookService, configureOptions: options =>
     {
         options
             .WithTheme(ScalarTheme.Saturn)
@@ -44,7 +44,7 @@ scalar
                 flow.WithClientId("admin-cli");
             });
     })
-    .WithApiReference(userService, options =>
+    .WithApiReference(userService, configureOptions: options =>
     {
         options.WithTheme(ScalarTheme.Mars);
         options.WithDefaultHttpClient(ScalarTarget.JavaScript, ScalarClient.Fetch);
