@@ -98,7 +98,6 @@ jobs:
             linux/amd64
             linux/arm64
 
-      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
       - name: Log in to DockerHub with OIDC
         uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
         env:
@@ -159,7 +158,6 @@ jobs:
             linux/amd64
             linux/arm64
 
-      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
       - name: Log in to DockerHub with OIDC
         uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
         env:
@@ -308,7 +306,6 @@ jobs:
           name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
 
-      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
       - name: Log in to DockerHub with OIDC
         uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
         env:
