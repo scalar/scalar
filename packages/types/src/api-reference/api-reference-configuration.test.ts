@@ -14,6 +14,12 @@ describe('api-reference-configuration', () => {
     )
   })
 
+  it('turns sidebar badges off by default and keeps them on when set', () => {
+    expect(apiReferenceConfigurationSchema.parse({}).showBadgesInSidebar).toBe(false)
+    expect(apiReferenceConfigurationSchema.parse({ showBadgesInSidebar: true }).showBadgesInSidebar).toBe(true)
+    expect(apiReferenceConfigurationSchema.parse({ showBadgesInSidebar: 'yes' }).showBadgesInSidebar).toBe(false)
+  })
+
   it('preserves an explicit extension allowlist and disables it by default', () => {
     expect(apiReferenceConfigurationSchema.parse({}).showExtensions).toBeUndefined()
     expect(apiReferenceConfigurationSchema.parse({ showExtensions: ['x-scopes'] }).showExtensions).toStrictEqual([

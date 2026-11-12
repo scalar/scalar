@@ -4,6 +4,7 @@ import { forEachPathItemOperation, getPathItemOperationKey } from '@/helpers/for
 import { getPathEntries } from '@/helpers/get-path-entries'
 import { getResolvedRef, mergeSiblingReferences } from '@/helpers/get-resolved-ref'
 import { isHidden } from '@/helpers/is-hidden'
+import { getXBadges } from '@/navigation/helpers/get-x-badges'
 import { traverseOperationExamples } from '@/navigation/helpers/traverse-examples'
 import type { OperationTitleSource, TagsMap, TraverseSpecOptions } from '@/navigation/types'
 import { XScalarStabilityValues } from '@/schemas/extensions/operation'
@@ -59,6 +60,7 @@ const createOperationEntry = ({
   const title = operationTitleSource !== 'path' && operation.summary?.trim() ? operation.summary : path
 
   const isDeprecated = isDeprecatedOperation(operation)
+  const badges = getXBadges(operation)
 
   const examples: TraversedExample[] = traverseOperationExamples(operation).map((example) => ({
     type: 'example',
@@ -79,6 +81,7 @@ const createOperationEntry = ({
     ref,
     type: 'operation',
     isDeprecated,
+    ...(badges ? { badges } : {}),
     children: examples.length ? examples : undefined,
   } satisfies TraversedOperation
 

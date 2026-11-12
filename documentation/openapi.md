@@ -622,6 +622,35 @@ paths:
 | position | string | The position of the badge in relation to the header. Possible values: `before`, `after`. The default value is `after`.      |
 | color    | string | The color of the badge. It can be defined in various formats such as color keywords, RGB, RGBA, HSL, HSLA, and Hexadecimal. |
 
+### Badges in the sidebar
+
+Set [`showBadgesInSidebar`](configuration.md#showbadgesinsidebar) to also show the badges next to the titles in the sidebar. In the sidebar, `x-badges` work on every level: operations, webhooks, tags (including nested OpenAPI 3.2 tags), `x-tagGroups` entries and schemas in `components.schemas`.
+
+```diff
+openapi: 3.1.0
+info:
+  title: x-badges
+  version: 1.0.0
+x-tagGroups:
+  - name: Core
+    tags: [Users]
++    x-badges:
++      - name: 'Stable'
+tags:
+  - name: Users
++    x-badges:
++      - name: 'Beta'
++        color: '#f59e0b'
+paths:
+  /users:
+    get:
+      summary: Get users
+      tags: [Users]
++      x-badges:
++        - name: 'New'
++          color: '#22c55e'
+```
+
 ## x-enum-descriptions
 
 You can add descriptions to `enum` values with `x-enum-descriptions`:
