@@ -132,23 +132,17 @@ describe('Assign mutation records', () => {
 })
 
 describe('Handles history rolling', () => {
-  function createMicroStore(name: string) {
-    return {
-      name: name,
-      time: Date.now(),
-      id: Math.round(Math.random() * 100),
+  it('Rolls history back to initial then forward to modified state', () => {
+    // Every assignment must change a value so all seven mutations are recorded.
+    const state = {
+      storage: [
+        { name: 'name1', id: 1 },
+        { name: 'name2', id: 2 },
+        { name: 'name3', id: 3 },
+      ],
+      param1: 'Some param',
+      param2: 2000,
     }
-  }
-  const state = {
-    storage: [createMicroStore('name1'), createMicroStore('name2'), createMicroStore('name3')],
-
-    param1: 'Some param',
-    param2: 2000,
-  }
-
-  // TODO: This test fails way too often, there seems to be a race condition.
-  it.skip('Rolls history back to initial then forward to modified state', { retry: 3 }, () => {
-    // Modify n times then insure the state matched after n rollbacks
     const originalState = clone(state)
 
     const mutator = new Mutation(state)
@@ -161,6 +155,7 @@ describe('Handles history rolling', () => {
     mutator.mutate('storage.1.id', 50)
     mutator.mutate('storage.2.id', 70)
 
+    expect(mutator.records.length).toBe(7)
     const finalState = clone(state)
 
     const undoNumber = 10 // Overshoot number of mutation to handle array edges
