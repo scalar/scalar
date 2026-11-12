@@ -214,6 +214,7 @@ function addEntryToIndex(
       parameterDescriptions,
       responseExamples,
       operationId: operationWithPathParams.operationId,
+      tags: operation.tags,
       entry,
     })
 

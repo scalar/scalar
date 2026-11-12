@@ -472,11 +472,12 @@ describe('search-quality', () => {
     expect(result[1]?.item?.path).toContain('/auth')
   })
 
-  it.todo('finds operations by tag', () => {
+  it('finds operations by tag', () => {
     const query = 'Foobar'
 
     const document: Partial<OpenApiDocument> = {
       paths: {
+        '/health': { get: { summary: 'Service health', tags: ['Monitoring'] } },
         '/auth/token': {
           post: {
             tags: ['Foobar'],
@@ -498,9 +499,11 @@ describe('search-quality', () => {
 
     const result = search(query, document)
 
-    expect(result[0]?.item?.type).toEqual('operation')
-    expect(result[1]?.item?.type).toEqual('operation')
-    expect(result).toHaveLength(3)
+    expect(result.map(({ item }) => ({ type: item.type, title: item.title }))).toStrictEqual([
+      { type: 'tag', title: 'Foobar' },
+      { type: 'operation', title: 'Get a token' },
+      { type: 'operation', title: 'Logout user' },
+    ])
   })
 
   it('finds operations by description content', () => {
