@@ -3,10 +3,38 @@
 import { describe, expect, it } from 'vitest'
 
 import { readSchema } from '../read-schema'
+import { readRaml } from './raml'
 
 const raml = 'application/raml+yaml;version=1.0'
 
 describe('raml', () => {
+  it('rejects excessive YAML alias expansion', () => {
+    const source = [
+      'l0: &l0 value',
+      ...Array.from(
+        { length: 5 },
+        (_, index) => `l${index + 1}: &l${index + 1} [${Array(10).fill(`*l${index}`).join(', ')}]`,
+      ),
+    ].join('\n')
+
+    expect(() => readRaml(source)).toThrow('Excessive alias count')
+  })
+
+  it('renders properties sharing a YAML type alias more than 50 times', () => {
+    const source = [
+      'type: object',
+      'properties:',
+      '  first: &shared string',
+      ...Array.from({ length: 200 }, (_, index) => `  field${index}: *shared`),
+    ].join('\n')
+
+    expect(readSchema(raml, source)?.nodes[0]?.children?.at(-1)).toStrictEqual({
+      name: 'field199',
+      type: 'string',
+      required: true,
+    })
+  })
+
   it('preserves RAML required overrides and array/union precedence', () => {
     expect(
       readSchema(
