@@ -336,6 +336,9 @@ describe('fastifyApiReference', () => {
   it.each([
     { title: 'Zażółć API', filename: 'zażółć-api' },
     { title: '日本語 API', filename: '日本語-api' },
+    { title: 'A\ud800B', filename: 'a\ufffdb' },
+    { title: 'A\udc00B', filename: 'a\ufffdb' },
+    { title: '𐐀 API', filename: '𐐨-api' },
   ])('encodes the download filename for "$title" in HTTP headers', async ({ title, filename }) => {
     fastify = Fastify({ logger: false })
     const document = { ...exampleDocument(), info: { title, version: '1.0.0' } }

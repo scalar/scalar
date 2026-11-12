@@ -135,7 +135,9 @@ const fastifyApiReference = fp<
 
       // Slugs retain Unicode, which must be encoded rather than written directly into HTTP headers.
       if (!/^[\x20-\x7E]+$/.test(filename)) {
-        return `inline; filename="spec.${extension}"; filename*=UTF-8''${encodeURIComponent(filename)}`
+        // Replace lone UTF-16 surrogates so URI encoding cannot prevent serving the document.
+        const utf8Filename = Buffer.from(filename, 'utf8').toString('utf8')
+        return `inline; filename="spec.${extension}"; filename*=UTF-8''${encodeURIComponent(utf8Filename)}`
       }
 
       return `inline; filename="${filename}"`
