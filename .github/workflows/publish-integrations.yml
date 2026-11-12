@@ -72,6 +72,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -97,11 +98,13 @@ jobs:
             linux/amd64
             linux/arm64
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
+      - name: Log in to DockerHub with OIDC
+        uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
+        env:
+          DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: scalarapi
 
       - name: Build and Push Docker image
         uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
@@ -134,6 +137,7 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
@@ -155,11 +159,13 @@ jobs:
             linux/amd64
             linux/arm64
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
+      - name: Log in to DockerHub with OIDC
+        uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
+        env:
+          DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: scalarapi
 
       - name: Build and Push Docker image
         uses: useblacksmith/build-push-action@fb9e3e6a9299c78462bfadd0d93352c316adc9b8 # v2
@@ -277,20 +283,19 @@ jobs:
           NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
         run: dotnet nuget push nupkgs/*.nupkg -k "$NUGET_API_KEY" -s https://api.nuget.org/v3/index.json
 
-  aspire-pack:
+  aspire-docker-publish:
     if: inputs.published == 'true' && inputs.aspire_package_changed == 'true' && inputs.dotnet_build_passed == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    environment: production-dockerhub
     timeout-minutes: 10
+    concurrency:
+      group: aspire-docker-publish
+      cancel-in-progress: false
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
-
-      - name: Git Status
-        run: git status
-
-      - name: Stash changes
-        run: git stash
 
       - name: Get version from package.json
         id: package-version
@@ -303,11 +308,13 @@ jobs:
           name: scalar-js
           path: integrations/dotnet/aspire/src/Scalar.Aspire.Service/wwwroot
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+      # See .github/DOCKER_PUBLISHING.md for the required trust configuration.
+      - name: Log in to DockerHub with OIDC
+        uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
+        env:
+          DOCKERHUB_OIDC_CONNECTIONID: ${{ vars.DOCKERHUB_OIDC_CONNECTIONID }}
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: scalarapi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3
@@ -339,6 +346,27 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: scalarapi/aspire-api-reference
           readme-filepath: ./integrations/dotnet/aspire/README.md
+
+  # Pack only after the matching Docker image is published, without OIDC permissions.
+  aspire-pack:
+    needs: aspire-docker-publish
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - name: Get version from package.json
+        id: package-version
+        working-directory: integrations/dotnet/aspire
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Set version in Constants.cs
         working-directory: integrations/dotnet/aspire
