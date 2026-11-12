@@ -30,5 +30,14 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(), dts({ insertTypesEntry: true, bundleTypes: true })],
+  plugins: [
+    react(),
+    dts({
+      insertTypesEntry: true,
+      bundleTypes: true,
+      // Only publish the entry's types, without ambient declarations from tests or build tooling.
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['**/*.test.ts'],
+    }),
+  ],
 })

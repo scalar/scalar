@@ -35,7 +35,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "catalog:*",
     "turbo": "^2.11.8",
-    "typescript": "^5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "typescript-language-server": "^6.0.2",
     "vitest": "catalog:*",
