@@ -35,7 +35,7 @@ public class ScalarResourceConfiguratorTests
             annotation = new ScalarAnnotation(apiResource, async (options, ct) =>
             {
                 if (userCallback is not null) await userCallback(options, ct);
-                endpointExpression.Configure(((ScalarAspireOptions)options).DefaultProxy, options.PreferHttpsEndpoint);
+                endpointExpression.Configure(((ScalarAspireOptions) options).DefaultProxy, options.PreferHttpsEndpoint);
             }, BaseDocumentUrl: endpointUrl);
         }
         else
@@ -54,7 +54,7 @@ public class ScalarResourceConfiguratorTests
         var executionContextOptions = new DistributedApplicationExecutionContextOptions(
             publishMode ? DistributedApplicationOperation.Publish : DistributedApplicationOperation.Run)
         {
-            ServiceProvider = serviceProvider
+            Services = serviceProvider
         };
         var executionContext = new DistributedApplicationExecutionContext(executionContextOptions);
 
@@ -63,7 +63,7 @@ public class ScalarResourceConfiguratorTests
 
         await ScalarResourceConfigurator.ConfigureScalarResourceAsync(context);
 
-        var raw = (string)envVars[EnvironmentVariables.ApiReferenceConfig];
+        var raw = (string) envVars[EnvironmentVariables.ApiReferenceConfig];
         return JsonElement.Parse(raw).EnumerateArray().ToArray();
     }
 
@@ -74,7 +74,7 @@ public class ScalarResourceConfiguratorTests
         var endpointUrl = ReferenceExpression.Create($"{endpointExpression}");
         return new ScalarAnnotation(apiResource, (options, _) =>
         {
-            endpointExpression.Configure(((ScalarAspireOptions)options).DefaultProxy, options.PreferHttpsEndpoint);
+            endpointExpression.Configure(((ScalarAspireOptions) options).DefaultProxy, options.PreferHttpsEndpoint);
             return Task.CompletedTask;
         }, BaseDocumentUrl: endpointUrl);
     }
@@ -148,7 +148,7 @@ public class ScalarResourceConfiguratorTests
     {
         var configs = await GetConfigAsync(
             HttpApiResource(),
-            (options, _) => { ((ScalarAspireOptions)options).DefaultProxy = false; return Task.CompletedTask; });
+            (options, _) => { ((ScalarAspireOptions) options).DefaultProxy = false; return Task.CompletedTask; });
 
         var url = configs[0].GetProperty("sources")[0].GetProperty("url").GetString();
         url.Should().Be("http://localhost:5000/openapi/v1.json");
@@ -164,7 +164,7 @@ public class ScalarResourceConfiguratorTests
         var configs = await GetConfigAsync(resource, (options, _) =>
         {
             options.PreferHttpsEndpoint = true;
-            ((ScalarAspireOptions)options).DefaultProxy = false;
+            ((ScalarAspireOptions) options).DefaultProxy = false;
             return Task.CompletedTask;
         });
 
@@ -377,14 +377,14 @@ public class ScalarResourceConfiguratorTests
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Run)
             {
-                ServiceProvider = serviceProvider
+                Services = serviceProvider
             });
 
         var envVars = new Dictionary<string, object>();
         await ScalarResourceConfigurator.ConfigureScalarResourceAsync(
             new EnvironmentCallbackContext(executionContext, scalarResource, envVars));
 
-        var configs = JsonElement.Parse((string)envVars[EnvironmentVariables.ApiReferenceConfig])
+        var configs = JsonElement.Parse((string) envVars[EnvironmentVariables.ApiReferenceConfig])
             .EnumerateArray().ToArray();
 
         configs.Should().HaveCount(2);
@@ -405,14 +405,14 @@ public class ScalarResourceConfiguratorTests
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Publish)
             {
-                ServiceProvider = serviceProvider
+                Services = serviceProvider
             });
 
         var envVars = new Dictionary<string, object>();
         await ScalarResourceConfigurator.ConfigureScalarResourceAsync(
             new EnvironmentCallbackContext(executionContext, scalarResource, envVars));
 
-        var raw = (string)envVars[EnvironmentVariables.ApiReferenceConfig];
+        var raw = (string) envVars[EnvironmentVariables.ApiReferenceConfig];
 
         // The value must be valid Base64 that decodes to a JSON array.
         var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(raw));
@@ -435,7 +435,7 @@ public class ScalarResourceConfiguratorTests
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Publish)
             {
-                ServiceProvider = serviceProvider
+                Services = serviceProvider
             });
 
         var envVars = new Dictionary<string, object>();
@@ -499,7 +499,7 @@ public class ScalarResourceConfiguratorTests
         var executionContext = new DistributedApplicationExecutionContext(
             new DistributedApplicationExecutionContextOptions(DistributedApplicationOperation.Run)
             {
-                ServiceProvider = new ServiceCollection().BuildServiceProvider()
+                Services = new ServiceCollection().BuildServiceProvider()
             });
 
         var envVars = new Dictionary<string, object>();
