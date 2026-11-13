@@ -18,7 +18,7 @@ Scalar is a Vue 3 + TypeScript monorepo for API documentation and testing.
 ## Prerequisites
 
 - **Node.js**: v24 (see `.nvmrc`)
-- **Package manager**: pnpm (v12.2.1+)
+- **Package manager**: pnpm (use the version pinned in `package.json`, currently 12.14.0)
 
 ## First-Time Setup
 
@@ -44,8 +44,8 @@ pnpm clean:build                # Clean everything, reinstall, rebuild
 | Clean build | `pnpm clean:build` |
 | Run unit tests | `pnpm test` |
 | Run tests (single package, single run) | `pnpm vitest packages/helpers --run` |
-| Run tests (single package, watch mode) | `pnpm vitest packages/api-client` |
-| Run tests filtered by name | `pnpm test your-test-name` |
+| Run tests (single package, watch mode) | `pnpm vitest packages/api-client --watch` |
+| Run tests filtered by name | `pnpm vitest packages/helpers --run -t 'your-test-name'` |
 | Lint check | `pnpm lint:check` |
 | Lint fix | `pnpm lint:fix` |
 | Format | `pnpm format` |
@@ -56,17 +56,21 @@ pnpm clean:build                # Clean everything, reinstall, rebuild
 There is no single root `pnpm dev`. Run per package:
 
 ```bash
-pnpm --filter @scalar/api-client dev
-pnpm --filter @scalar/api-reference dev
+pnpm --filter @scalar/api-client dev --port 5065 --strictPort
+pnpm --filter @scalar/api-reference dev --port 5173 --strictPort
 pnpm --filter @scalar/components dev
 ```
 
 | Package | Purpose |
 |---------|---------|
-| `api-client` | API testing client playground |
+| `api-client` | API testing client modal playground (port 5065) |
 | `api-reference` | Main API reference playground |
 | `components` | Storybook (port 5100) |
 | `void-server` | HTTP mirror server (port 5052) |
+
+Before starting a server, check for one already serving the current worktree and reuse it when possible. For Vite, always choose an explicit port and pass `--strictPort`. If an unrelated process owns that port, choose another port without stopping it.
+
+Track the session or PID, command, working directory, and port of every long-running development or test process you start. Before finishing, stop only the processes you started for this task and their owned children, verify their identity before terminating them, and verify that they have exited and released their ports. Leave user-started processes alone, and keep a preview running only when the user requests it.
 
 ## Test Servers
 
@@ -81,7 +85,7 @@ pnpm script wait -p 5051 5052
 
 ### Workspace Layout
 
-- `packages/` - Core libraries (43 packages). Each is an npm package under `@scalar/`.
+- `packages/` - Core libraries published under `@scalar/`. Consult the package manifests for the current inventory.
 - `integrations/` - Framework-specific wrappers (Express, Fastify, Next.js, Nuxt, etc.)
 - `projects/` - Deployable apps (`scalar-app`, `proxy-scalar-com`, `galaxy-scalar-com`). `scalar-app` builds both the Electron desktop app and client.scalar.com.
 - `examples/` - Usage examples for various frameworks
@@ -109,17 +113,23 @@ Two build strategies use standard tools directly (no custom build CLI):
    - Uses Vite 8 + Rolldown, extracts CSS, preserves modules
    - Shared build helpers live in `tooling/scripts/vite-lib-config.ts`
 
-Both strategies externalize dependencies (nothing is bundled into library output). `api-reference` is special because it has both a default build and a standalone build (`vite.standalone.config.ts`) that bundles everything for CDN usage.
+Library builds generally externalize dependencies; check each package's build configuration for exceptions. `api-reference` also has standalone builds (`vite.standalone.config.ts` and `vite.standalone.esm.config.ts`) that bundle dependencies for CDN usage.
 
-Type checking uses `tsc --noEmit` (pure TS) or `vue-tsc --noEmit` (Vue packages).
+Type checking uses `tsgo --noEmit` in many pure TypeScript packages, `tsc --noEmit` in others, and `vue-tsc --noEmit` in Vue packages. Run the package's `types:check` script rather than choosing a compiler yourself.
 
 ### Key Package Relationships
 
-- `@scalar/core` - Shared rendering logic consumed by `api-reference` and integrations
+- `@scalar/core` - HTML rendering helpers for embedding the API reference, used by integrations and playgrounds
 - `@scalar/themes` - CSS variables and design tokens used across UI packages
 - `@scalar/components` - Vue component library (with Storybook)
 - `@scalar/oas-utils` - OpenAPI utilities shared across `api-reference` and `api-client`
 - `@scalar/types` - Shared TypeScript types; import from specific entry points (`@scalar/types/api-reference`, etc.), not the root
+
+### API Reference configuration parity
+
+When adding, changing, renaming, or removing configuration options for `@scalar/api-reference`, update them across all integrations in the same change. Start with the shared configuration types and schemas in `packages/types/src/api-reference/`, then check every integration under `integrations/` for explicit option lists, defaults, validation, and serialization or mapping code. Integrations that use the shared types still need to be checked for wrapper-specific handling; non-TypeScript integrations may maintain their own configuration models.
+
+Keep integration tests, examples, and configuration documentation in sync, including `documentation/configuration.md`. Regenerate generated files through their source scripts rather than editing them by hand (see [CONTRIBUTING.md](./CONTRIBUTING.md#auto-generated-files)). If an option cannot be supported by an integration, document the limitation explicitly rather than silently omitting it.
 
 ### Dependency Versioning
 
@@ -127,10 +137,10 @@ All workspace packages use `workspace:*` for internal dependencies. Shared third
 
 ### Tooling Split
 
-- **Biome**: Linting and formatting for `.ts` files
+- **Biome**: Linting and formatting for JS/TS, JSON/JSONC, and CSS, subject to `biome.json` exclusions
 - **ESLint**: Linting for `.vue` files
-- **Prettier**: Formatting for `.vue`, `.md`, `.json`, `.css`, `.html`, `.yml` files
-- **Lefthook**: Pre-commit hooks running Prettier + Biome on staged files
+- **Prettier**: Formatting for Vue, HTML, YAML, and `package.json`; `.prettierignore` currently excludes Markdown, other JSON, JS/TS, and CSS
+- **Lefthook**: Pre-commit hooks running Prettier, Biome, and ESLint on matching staged files, plus targeted generation hooks
 
 ## Code Standards
 
@@ -212,7 +222,7 @@ For UI accessibility changes, verify the affected behavior before and after:
 
 - **Unit tests**: Vitest, `*.test.ts` next to source
 - **E2E**: Playwright in `packages/api-reference` and `packages/components`
-- **Integration tests**: `pnpm vitest integrations/*`
+- **JavaScript/TypeScript integration tests**: `pnpm vitest integrations/<integration-name> --run`; use each integration's own tooling for other languages
 
 ### Running Tests
 
@@ -237,12 +247,12 @@ cd packages/<name>
 pnpm test --run   # or: pnpm vitest --run
 ```
 
-**Watch mode (while actively developing)**
+**Watch mode (only when requested)**
 
 ```bash
-pnpm vitest packages/<name>          # from repo root
+pnpm vitest packages/<name> --watch  # from repo root
 # or
-cd packages/<name> && pnpm test      # from package directory
+cd packages/<name> && pnpm vitest --watch
 ```
 
 Only use the root `pnpm test` (no path argument) when you intentionally want to verify the full monorepo — for example, as a final pre-merge sanity check.
@@ -388,8 +398,11 @@ CHANGED=$(git diff --name-only HEAD)
 # Biome: lint + format TypeScript/JS files
 pnpm biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true $CHANGED
 
-# Prettier: format Vue, Markdown, JSON, CSS, YAML, and other non-TS files
+# Prettier: format supported files not excluded by .prettierignore
 pnpm prettier --write $CHANGED
+
+# ESLint: lint changed Vue files (replace with the actual changed paths)
+pnpm eslint --config eslint.config.mjs path/to/changed-component.vue
 ```
 
 **2. Run tests only for the affected package(s):**
@@ -448,11 +461,11 @@ Each playground can be started with `pnpm dev` inside its package directory, or 
 
 | Package | Quick start | Turbo | Details |
 |---------|-------------|-------|---------|
-| `api-reference` | `cd packages/api-reference && pnpm dev` | `pnpm turbo --filter @scalar/api-reference dev` | [`AGENTS.md`](./packages/api-reference/AGENTS.md) |
-| `api-client` | `cd packages/api-client && pnpm dev` | `pnpm turbo --filter @scalar/api-client dev` | [`AGENTS.md`](./packages/api-client/AGENTS.md) |
+| `api-reference` | `cd packages/api-reference && pnpm dev --port 5173 --strictPort` | `pnpm turbo --filter @scalar/api-reference dev -- --port 5173 --strictPort` | [`AGENTS.md`](./packages/api-reference/AGENTS.md) |
+| `api-client` | `cd packages/api-client && pnpm dev --port 5065 --strictPort` | `pnpm turbo --filter @scalar/api-client dev -- --port 5065 --strictPort` | [`AGENTS.md`](./packages/api-client/AGENTS.md) |
 | `components` | `cd packages/components && pnpm dev` | `pnpm turbo --filter @scalar/components dev` | [`AGENTS.md`](./packages/components/AGENTS.md) |
 
-The `api-client` has multiple layouts (web, app, modal) - see its package `AGENTS.md` for details.
+The `api-client` package's `dev` script opens the modal playground. For the full web or desktop app, use `projects/scalar-app` (`dev:web` or `dev:app`); see the [API client guide](./packages/api-client/AGENTS.md).
 
 ### Which playground to use
 
@@ -461,7 +474,7 @@ The `api-client` has multiple layouts (web, app, modal) - see its package `AGENT
 | Base components (buttons, inputs, modals) | `components` Storybook | `api-reference`, `api-client` |
 | Themes, CSS variables, design tokens | `api-reference` | `api-client`, `components` |
 | Sidebar, search, OpenAPI rendering | `api-reference` | `api-client` |
-| Request editor, response viewer, auth | `api-client` (web + app) | `api-reference` (modal via "Test Request") |
+| Request editor, response viewer, auth | `api-client` modal + `projects/scalar-app` | `api-reference` (modal via "Test Request") |
 | Code highlighting, snippets | `api-reference` | `api-client` |
 | Icons | `components` Storybook | `api-reference` |
 
@@ -536,19 +549,19 @@ Use consistent terminology:
 ### Environment
 
 - **Node.js v24** is managed via nvm. The update script handles installation automatically.
-- **pnpm v12.2.1** is activated via corepack. No global install needed.
-- After `pnpm install`, you may see a warning about ignored esbuild build scripts. This is safe to ignore — Vite 8 uses Rolldown and the build succeeds without esbuild's platform binary.
+- Use Corepack with the pnpm version pinned in `package.json`. No global pnpm install is needed.
+- Dependency build approvals are configured in `pnpm-workspace.yaml` under `allowBuilds`. Investigate install failures for unapproved build scripts rather than assuming they are harmless warnings.
 
 ### Running dev servers
 
 - There is no single root `pnpm dev`. Start the specific package you need (see the Key Commands table above).
-- `pnpm --filter @scalar/api-reference dev` starts on **port 5173**.
-- `pnpm --filter @scalar/api-client dev` starts on a Vite-assigned port (check terminal output).
+- `pnpm --filter @scalar/api-reference dev --port 5173 --strictPort` starts on **port 5173**.
+- `pnpm --filter @scalar/api-client dev --port 5065 --strictPort` starts the modal playground on **port 5065**.
 - All packages must be built first (`pnpm build:packages`) before running any dev server.
 
 ### Testing caveats
 
-- Some packages have test failures related to `@/` path alias resolution in Vitest (e.g., `openapi-parser`, `snippetz`). These are pre-existing and not caused by environment issues.
+- If a root Vitest run fails to resolve a package's `@/` aliases, inspect its Vitest configuration and rerun from that package directory before classifying the failure as pre-existing.
 - Tests that require network services need test servers running first: `pnpm script run test-servers` (starts void-server on port 5052 and proxy on port 5051).
 - For a quick validation that the test framework works, run: `pnpm vitest packages/oas-utils --run`
 
