@@ -8,6 +8,68 @@
 
 Curated release notes for the Scalar SDK Generator. Each entry summarizes what shipped across every target language in that release.
 
+## 0.42.0 (2026-11-13)
+
+### Faster code sample generation and improved smoke testing
+
+Code samples are now laid out directly by the builder instead of runtime formatters, reducing generation time and memory usage. Smoke tests handle SDKs with no operations gracefully, and formatting across multiple targets is now parallelized.
+
+- Code samples are now built in their final layout without runtime formatters for C++, C#, Dart, Go, Kotlin, PHP, Python, Ruby, Rust, Swift, and TypeScript.
+- Generated C++, C#, Dart, and Swift SDKs now format files in parallel across worker threads when using bundled formatters.
+- Ruby SDKs are now formatted with rbcop alone, reducing formatting time from minutes to seconds and removing the syntax_tree dependency.
+- The `smoke-test` command now exits successfully when an SDK has no operations to test, instead of failing.
+- Generated SDKs with no operations no longer include smoke test files, dependencies, or configuration.
+- Generated CLI `upgrade` and `uninstall` commands now start from the user's home directory, avoiding conflicts with project-level package manager configurations.
+- Config method objects can now be written with just `endpoint`, or just `verb` and `path`, and will generate correctly.
+- Kotlin code samples now spell empty arrays in free-form JSON as `emptyList<Any?>()` so they compile successfully.
+- Ruby properties named `1` through `9` are now emitted as `_1_` through `_9_` to avoid conflicts with numbered block parameters.
+- Rust crates named after their own root modules now compile examples and tests correctly.
+
+## 0.41.1 (2026-11-12)
+
+### Improved method configuration and User-Agent headers
+
+This release fixes how method configuration works when you write only some of the endpoint fields, and standardizes User-Agent headers across Python, C#, and Ruby SDKs.
+
+- Methods configured with only `endpoint`, or only `verb` and `path`, now generate correctly. The generator fills in missing fields automatically.
+- New warnings help catch mismatched endpoint configurations with `Config/UnresolvedMethodEndpoint` and `Config/MethodEndpointMismatch`.
+- Python SDKs now send `User-Agent: <Name>/Python <version>` for both sync and async clients, matching the format other languages use.
+- C# SDKs now send `User-Agent: <Name>/C# <version>` instead of including the client class name.
+- Ruby SDKs now send `User-Agent: <Module>/Ruby <version>` with valid RFC 9110 token characters, fixing issues with strict API gateways.
+
+## 0.41.0 (2026-11-11)
+
+### Native formatters, unified one-arm unions, and smoke tests as framework suites
+
+Generated SDKs now use native formatters when available, handle single-arm unions consistently across languages, and ship smoke tests integrated with each language's test framework rather than standalone scripts.
+
+- Native formatters are now used when the exact pinned version is installed on PATH, falling back to WebAssembly builds otherwise.
+- TypeScript, Python, Go, Rust, C++, PHP, Dart, Kotlin, Java, Swift, and C# all detect version-matched native formatters before loading bundled WebAssembly builds.
+- The `SCALAR_SDK_FORMATTER` environment variable controls formatter selection: `auto` (default), `wasm`, or `native`.
+- One-arm unions now render consistently across all targets, either as the arm type directly or as a named model when configured.
+- Swift, Kotlin, Java, and C++ no longer wrap single-arm unions in enums or sealed classes.
+- Smoke tests now ship as proper test suites: xUnit for C#, CTest for C++, pytest for Python, JUnit for Kotlin and Java, and framework-native suites for Go, Rust, PHP, Ruby, Dart, and Swift.
+- Each smoke suite runs through its language's standard test runner and skips unless `TEST_API_BASE_URL` is set.
+- The `smoke-test` command now accepts `--spec` and `--config` to compile operation facts from an OpenAPI document.
+- Generated CLIs now ship on Bun 1.4.4, with improved cross-platform macOS signing support.
+- Formatters are pinned to Biome 2.6.6, ruff 0.17.4, ktfmt 0.64, google-java-format 1.36.1, swift-format 604.0.0, CSharpier 1.3.0, and rustfmt 1.10.0.
+
+## 0.40.1 (2026-11-10)
+
+### Patch release to complete the previous publish
+
+## 0.40.0 (2026-11-10)
+
+### C# target stable, custom README sections, and signed uploads for more languages
+
+The C# target is now stable and ready for production use. You can now add custom sections to generated READMEs without manual edits between regenerations. Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs.
+
+- The C# target is now marked as stable in the configuration schema and target catalog.
+- Custom README sections can be configured with `readme.sections`, supporting position control and per-target filtering.
+- Signed upload methods are now generated for C#, C++, Dart, Rust, and Swift SDKs, with type-safe file handling.
+- Generated CLIs published to npm now check for updates against the npm registry and support upgrade commands.
+- Webhook verification now honors configured signature algorithms and headers across Python, Go, Ruby, Kotlin, Java, Rust, TypeScript, and Dart targets.
+
 ## 0.39.0 (2026-11-06)
 
 ### CLI confirmations, improved pluralization, and form encoding

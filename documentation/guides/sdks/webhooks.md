@@ -2,7 +2,7 @@
 
 A webhook helper is the SDK method a receiving server calls when your API delivers an event. It checks the delivery's signature against your signing secret, then decodes the body into a typed event, so the people integrating with your API do not have to rebuild your signature scheme or hand-write a type for every event.
 
-Webhook helpers are declared, not inferred. The OpenAPI document's top-level `webhooks` describe the events, and a `webhookUnwrap` method in your configuration decides where the helper lives, which events it decodes, and how it verifies them. A configuration with no `webhookUnwrap` method generates nothing from the document's webhooks: no helper, no event types, no verifier. The one place the generator writes such a method for you is the starter configuration it creates for a document that has none; see [Starter configuration](#starter-configuration).
+Webhook helpers are declared, not inferred. The OpenAPI document's top-level `webhooks` describe the events, and a `webhookUnwrap` method in your configuration decides where the helper lives, which events it decodes, and how it verifies them. A configuration with no `webhookUnwrap` method generates nothing from the document's webhooks: no helper, no event types, no verifier. The one place the generator writes such a method for you is the starter configuration it creates for a document that has none; see [Starter configuration](#starter-configuration). The [configuration reference](#configuration-reference) at the end lists every key a helper takes.
 
 ## Start here
 
@@ -300,7 +300,7 @@ A helper does not have to sit on a top-level `webhooks` resource. Nest it under 
 }
 ```
 
-That generates `client.notifications.webhooks.parseAlert(...)` in TypeScript, `client.notifications.webhooks.parse_alert(...)` in Python, and `client.Notifications.Webhooks.ParseAlert(...)` in Go. A path segment that names a resource your configuration already generates puts the helper beside that resource's methods; a segment that names none gets a container generated for it. Each scoped helper carries its own event set, signing secret, signature settings and companions. Rust is the exception: it generates one `webhooks` module for the crate, which follows the top-level helper's settings (a scoped one's when there is no top-level helper), and its event enum decodes every top-level webhook the document declares, whatever each helper's `eventTypes` selects.
+That generates `client.notifications.webhooks.parseAlert(...)` in TypeScript, `client.notifications.webhooks.parse_alert(...)` in Python, and `client.Notifications.Webhooks.ParseAlert(...)` in Go. A segment that names no resource your configuration generates gets a container generated for it. In Go, a path that names a resource your configuration already generates puts the helper beside that resource's methods; in TypeScript, and in Python unless the helper's leaf is itself a generated `webhooks` resource, such a helper is generated on `client.webhooks` instead, and the top-level webhooks module verifies it (see [Signature settings](#signature-settings)). Each scoped helper carries its own event set, signing secret, signature settings and companions. Rust is the exception: it generates one `webhooks` module for the crate, whose event enum and companions follow the top-level helper's settings (a scoped one's when there is no top-level helper), and whose event enum decodes every top-level webhook the document declares, whatever each helper's `eventTypes` selects. Signature settings stay per helper: when every helper signs the same way, the module's `verify_signature` checks all of them, and when they differ, `verify_signature` checks only the top-level helper's deliveries and every other helper gets a module of its own, such as `webhooks::parse_alert::verify_signature` (see [Signature settings](#signature-settings)).
 
 ## The signing secret
 
@@ -318,7 +318,7 @@ That generates `client.notifications.webhooks.parseAlert(...)` in TypeScript, `c
 | Dart | `AcmeClient(webhookSecret: ...)` | `ACME_WEBHOOK_SECRET`, when the client is built with `AcmeClient.fromEnvironment()` |
 | C++ | `ClientOptions::webhook_secret` | `ACME_WEBHOOK_SECRET`, when the option is unset |
 
-Ruby resolves the secret each time a verifying method is called: a secret passed to the constructor wins, then the environment variable as it is at call time, then the value the client read when it was built, so a secret rotated in the environment takes effect without a new client. Rust reads no client option at all; its verifying functions take the secret as an argument. C# declares the option as a `WebhookSecret` client setting, but generates no helper that reads it (see [What gets generated](#what-gets-generated)).
+Ruby resolves the secret each time a verifying method is called: a secret passed to the constructor wins, then the environment variable as it is at call time, then the value the client read when it was built, so a secret rotated in the environment takes effect without a new client. Rust reads no client option at all; its verifying functions take the secret as an argument. C# generates no helper that would read it, so it declares no client setting for the option a helper's `webhookKeyOpt` names, unless the config also sends that option with requests or a signed URL signs with it (see [What gets generated](#what-gets-generated)).
 
 Leave `webhookKeyOpt` unset and the helper still verifies. TypeScript, Python, Go, Ruby, PHP, Swift, Dart and C++ add a `webhook_secret` option for it, whose environment variable is derived from the SDK name, and not every target derives it the same way. Java and Kotlin add none, and their helper reads no client option, not even a declared `webhook_secret`, so every call has to pass the secret. Naming a declared option is the way to get one option and one variable everywhere.
 
@@ -375,15 +375,20 @@ Not every target applies these settings yet:
 
 | Target | Header names and window | Algorithms verified |
 | ------ | ----------------------- | ------------------- |
-| TypeScript | As configured | `hmac-sha256`. Any other throws an error naming the algorithm when a delivery is verified. |
-| Rust | As configured | `hmac-sha256`, `hmac-sha512`. With any other, no verifier is generated. |
+| TypeScript | As configured; helpers without a module of their own, such as those on the top-level `webhooks` resource, share one scheme | `hmac-sha256`. With any other, every verifying method throws `WebhookVerificationError` naming the algorithm, so a receiver that catches refused deliveries catches it too, and the message names the decode-only `parseUnsafe` (under its configured name, if renamed) for a delivery you checked yourself. |
+| Rust | As configured, per helper | `hmac-sha256`, `hmac-sha512`. With any other, that helper gets no verifier, and no other helper's verifier checks its deliveries. |
 | Swift | As configured | `hmac-sha256`, `hmac-sha512`. With any other, the parse method always throws `WebhookError` with code `unsupportedSignatureScheme`, the verifying companions are not generated, and `parseUnsafe` decodes a delivery you checked yourself. |
+| Python | As configured; helpers without a module of their own, such as those on the top-level `webhooks` resource or under a real resource, share one scheme | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, the parse method, `verify_signature` and `unwrap` raise `WebhookVerificationError` naming the algorithm for every delivery, and `parse_unsafe` decodes a delivery you checked yourself. |
 | Dart | As configured | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, a parse call with headers throws `WebhookVerificationException`, and `headers: null` decodes a delivery you checked yourself. |
 | C++ | As configured | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, the helper is not generated and the build reports `Unsupported/WebhookSignatureAlgorithm`. |
+| Go | As configured, per helper; helpers without a module of their own, such as those on the top-level `webhooks` resource, share one scheme | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, the methods are still generated, and every verifying one returns an error that matches `ErrNoMatchingSignature`, names the algorithm as unsupported and points at `ParseUnsafe`, which decodes a delivery you checked yourself. |
+| Ruby | As configured | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, the parse method and the verifying companions keep their signatures but always raise `Errors::WebhookVerificationError` naming the algorithm, and `parse_unsafe` decodes a delivery you checked yourself. |
 | PHP | As configured, each helper with its own | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`. With any other, the parse method throws `WebhookException` naming the algorithm whenever headers or a secret are available, `verifySignature` and `unwrap` always throw it, and `parseUnsafe` (or, when it is turned off, a parse call without headers on a client with no webhook secret) decodes a delivery you checked yourself. |
-| Python, Go, Ruby, Java, Kotlin | The Standard Webhooks defaults: `webhook-id`, `webhook-timestamp`, `webhook-signature`, and 300 seconds | HMAC-SHA256, whatever is configured. |
+| Java, Kotlin | As configured, each helper with its own | `hmac-sha1`, `hmac-sha256`, `hmac-sha512`, with the JDK alone. With any other, every method is still generated and no secret is needed: every method that is given a delivery's headers throws the SDK's webhook exception, whose reason (its message in Kotlin, its cause in Java) names the algorithm as unsupported (`verifySignature` and `unwrap` given params without headers throw for the missing headers instead), and `parseUnsafe` (under its configured name, if renamed) decodes a delivery you checked yourself. |
 
-If your API signs with anything other than HMAC-SHA256 under the default headers, check the targets you ship against this table.
+If your API signs with anything other than HMAC-SHA256 under the default headers, check the targets you ship against this table. Generation reports every gap in it for the targets you generate: an algorithm a target cannot verify as `Unsupported/WebhookSignatureAlgorithm`, and header names or a window it ignores as `Unsupported/WebhookSignatureSettings`.
+
+In Rust, helpers that sign differently are verified apart. The free `webhooks::verify_signature` and `verify_signature_at`, and `unwrap` when configured, keep checking the top-level helper's deliveries (none are generated when that helper uses an algorithm Rust cannot verify, or turns verification off while the remaining helpers still sign differently; an opted-out helper is not counted when comparing schemes). Each other helper gets a module named after its method, holding its verifier (named by its `helpers.verifySignature`), `verify_signature_at`, and an `unwrap` when its `helpers.unwrap` asks for one: `parse_alert` generates `webhooks::parse_alert::verify_signature(payload, headers, secret)`. When an earlier helper's module, one of the file's own items (such as `unwrap`) or a reserved name already takes the method name, the module adds the helper's resource path (`notifications_webhooks_parse_alert`). When every helper signs the same way, there are no per-helper modules.
 
 ## Refused deliveries
 
@@ -442,7 +447,7 @@ Dart and C++ generate no companions and ignore `helpers`. C++ instead always pai
 
 A companion is left out when its name repeats the parse method's or another companion's. The starter configuration names its parse method `unwrap`, so an `unwrap` companion there needs a name of its own. `parseUnsafe` may never take a verifying companion's name (`verify_signature`, `unwrap`, or the name you gave either), because a caller trusting that name would accept unsigned deliveries; it is left out and reported as `Config/WebhookHelperNameUnsafe`. A companion that clashes with another method on the same generated class is resolved by each target's own naming rules, which can leave it out or qualify its name.
 
-Rust keeps its `verify_signature` function even with companions off, because it is the crate's only verifier.
+Rust keeps each helper's `verify_signature` function even with companions off, because it is the only verifier that helper has: the top-level helper's in `webhooks`, and, when helpers sign differently, each other helper's in its own module (see [Signature settings](#signature-settings)). A helper signed with an algorithm Rust cannot verify has no verifier at all.
 
 ## Naming
 
@@ -484,26 +489,26 @@ Each event gets its own type, named after the event with `WebhookEvent` appended
 | Target | Parse method | Companions | Verifier |
 | ------ | ------------ | ---------- | -------- |
 | TypeScript | `client.webhooks.parse(body, { headers, key? })` | `verifySignature(body, headers, key?)`, `parseUnsafe(body)`, `unwrap(body, headers, key?)` | Built in, no dependency |
-| Python | `client.webhooks.parse(payload, *, headers, key=None)`, sync and async | `verify_signature(payload, headers, *, key=None)`, `parse_unsafe(payload)`, `unwrap(...)` | Built in, standard library only |
+| Python | `client.webhooks.parse(payload, *, headers, key=None)`, sync and async | `verify_signature(payload, headers, *, key=None)`, `parse_unsafe(payload)`, `unwrap(...)` | Built in, standard library only; each helper checks its own `hmac-sha1`, `hmac-sha256` or `hmac-sha512` scheme |
 | Go | `client.Webhooks.Parse(payload, headers, opts...)` | `VerifySignature(payload, headers, secret, now)`, `ParseUnsafe(payload)`, `Unwrap(payload, headers, opts...)` | Built in, standard library only |
 | Java, Kotlin | `parse(body, headers, secret)`, `parse(UnwrapWebhookParams)`, and `parse(body)`, which only decodes | `verifySignature(...)`, `parseUnsafe(body)`, `unwrap(...)` returning `JsonValue` | Built in, JDK only |
 | Ruby | `client.webhooks.parse(payload, headers:, key: nil)`, where `nil` resolves the client's secret | `verify_signature(payload:, headers:, key: nil)`, `parse_unsafe(payload)`, `unwrap(payload, headers:, key: nil)` | Built in, no gem |
 | PHP | `parse(string $body, ?array $headers = null, ?string $secret = null)`, which verifies whenever headers are passed or a secret is available | `verifySignature($body, $headers, $secret)`, `parseUnsafe($body)`, `unwrap(...)` | Built in, no dependency |
-| Rust | `<Union>::parse(event_type, payload)`, which only decodes | Free functions in the `webhooks` module: `verify_signature(payload, headers, secret)`, `verify_signature_at(...)`, `parse_unsafe(event_type, payload)`, `unwrap(payload, headers, secret)`; the verifying three only for `hmac-sha256` and `hmac-sha512` | `hmac` and `sha2` crates, only when a verifier is generated |
+| Rust | `<Union>::parse(event_type, payload)`, which only decodes | Free functions in the `webhooks` module: `verify_signature(payload, headers, secret)`, `verify_signature_at(...)`, `parse_unsafe(event_type, payload)`, `unwrap(payload, headers, secret)`; the verifying three only for `hmac-sha256` and `hmac-sha512`, and in a module per helper (`webhooks::<helper>::verify_signature`) when helpers sign differently | `hmac` and `sha2` crates, only when a verifier is generated |
 | Swift | `parse(_ payload: Data, headers:, secret:) async throws`, and the same taking a `String` | `verifySignature(...)`, `parseUnsafe(_:)`, `unwrap(...)` returning `JSONValue` | Built in, no dependency |
 | Dart | `parse(String body, {required headers, secret})`; `headers: null` decodes without checking only when no secret is available | Not generated | `package:crypto` |
 | C++ | `parse(body, headers)`, `parse(body, headers, secret)`, and `parse_unverified(body)`, which only decodes | Not generated | Built in |
-| C# | Not generated: the webhook service is an empty accessor | None | None |
+| C# | Not generated: the webhook service is an empty accessor, and the README's "Known gaps" section says so | None | None |
 
-Method names above follow the helper in the Start here example; yours follow your method key. The event types are generated on every target, C# included, so a C# receiver can deserialize a delivery into them after checking its signature itself. A declared secret option still becomes a C# `WebhookSecret` client setting, which nothing in the SDK reads. The CLI target generates no command for a webhook helper.
+Method names above follow the helper in the Start here example; yours follow your method key. The event types are generated on every target, C# included, so a C# receiver can deserialize a delivery into them after checking its signature itself. C# declares no `WebhookSecret` client setting for the signing key, since nothing in the SDK would read it, unless the config also sends that option with requests or a signed URL signs with it. The CLI target generates no command for a webhook helper.
 
 In Rust, the parse method decodes by the event-type string you pass, because the union is told apart from outside the payload: call `verify_signature` first, then `parse`.
 
 ## README
 
-The generated README for TypeScript, Python, Go, Java, Kotlin, Ruby, Swift and C++ includes a `## Webhooks` section when the SDK has a webhook helper the client reaches directly, such as `client.webhooks`. The PHP, Rust, Dart and C# READMEs have none. A helper that only exists under another resource is documented where each target puts it on the client: TypeScript always also generates it at `client.webhooks`; Python does too, unless the SDK already has a `webhooks` resource somewhere else, in which case the helper stays under its parent and the section is left out; Ruby documents it at its own path (`client.notifications.webhooks`); and C++ lists every helper at its own path (`client.notifications().webhooks()`). Go, Java, Kotlin and Swift reach it only through its parent resource, so they leave it to the API reference.
+The generated README for TypeScript, Python, Go, Java, Kotlin, Ruby, Swift and C++ includes a `## Webhooks` section when the SDK has a webhook helper the client reaches directly, such as `client.webhooks`. The PHP, Rust, Dart and C# READMEs have none; the C# README instead lists, under "Known gaps", the type each helper with events decodes into, and for a signed helper tells the reader to verify deliveries before deserializing them. A helper that only exists under another resource is documented where each target puts it on the client: TypeScript always also generates it at `client.webhooks`; Python does too, unless the SDK already has a `webhooks` resource somewhere else, in which case the helper stays under its parent and the section is left out; Ruby documents it at its own path (`client.notifications.webhooks`); and C++ lists every helper at its own path (`client.notifications().webhooks()`). Go, Java, Kotlin and Swift reach it only through its parent resource, so they leave it to the API reference.
 
-Except in C++, the section opens with a short explanation that is the same in every target: pass the raw, unparsed request body together with the request headers, because the signature covers the body as it arrived. Then comes a snippet calling the parse method, where the signing secret comes from (the client option and its environment variable, or, on a Java or Kotlin SDK whose helper reads none, that each call passes it), and a bullet for each companion the helper generates. A helper with `webhookKeyOpt: false` gets an explanation that says it only decodes, and that deliveries must be checked some other way; in Swift, whose parse method still verifies, it says to pass `secret` on every call. The C++ section is one paragraph covering every webhook method (verification, the client's secret and its environment variable, the error thrown, the decode-only twin), a snippet, and the union each method returns.
+Except in C++, the section opens with a short explanation that is the same in every target: pass the raw, unparsed request body together with the request headers, because the signature covers the body as it arrived. Then comes a snippet calling the parse method, where the signing secret comes from (the client option and its environment variable, or, on a Java or Kotlin SDK whose helper reads none, that each call passes it), and a bullet for each companion the helper generates. A helper with `webhookKeyOpt: false` gets an explanation that says it only decodes, and that deliveries must be checked some other way; in Swift, whose parse method still verifies, it says to pass `secret` on every call. In Go, Java, Kotlin, Python, Ruby and Swift, a helper signed with `ed25519` or `rsa-sha256` gets the decode-only explanation too, with a note naming the algorithm the SDK cannot verify and a snippet that decodes with the helper's `parseUnsafe` method when it has one (Swift leaves the section out when the helper has none). TypeScript shows the verifying call, which throws for such a helper. The C++ section is one paragraph covering every webhook method (verification, the client's secret and its environment variable, the error thrown, the decode-only twin), a snippet, and the union each method returns.
 
 ## Starter configuration
 
@@ -531,9 +536,134 @@ A signature block whose algorithm has no Scalar value, such as HMAC-SHA384 or EC
 | `Config/WebhookHelperNameUnsafe` | `warn` | A helper's `helpers.parseUnsafe` takes a verifying companion's name, so the decoder that skips verification is not generated. |
 | `Config/WebhookUnknownEventType` | `warn` | An `eventTypes` key names no webhook event in the document, so it selects nothing. The message lists the document's event names and suggests the one the key most likely meant, such as the `operationId` of the webhook the key names by its `webhooks` key. |
 | `Config/WebhookHelperNoEvents` | `warn` | A helper matches no webhook event, such as an empty `eventTypes` map on a document with no top-level webhooks, so it has nothing to decode. |
-| `Unsupported/WebhookSignatureAlgorithm` | `warn` | The C++ SDK cannot verify a helper's `signatureAlgorithm`, so it generates no method for that helper. |
+| `Unsupported/WebhookSignatureAlgorithm` | `warn` | A target cannot verify a helper's `signatureAlgorithm`. The message says what that SDK does instead, per the table in [Signature settings](#signature-settings): C++ generates no method for the helper, TypeScript, Python, Swift, Ruby, Java and Kotlin throw, Go returns an error from every verifying method, Dart throws when given headers, PHP whenever it has headers or a secret, and Rust generates no verifier for the helper. |
+| `Unsupported/WebhookSignatureSettings` | `warn` | A helper configures signature header names or a `toleranceSeconds` that a target does not apply to it. Every target with a webhook helper reads the configured values, so nothing is reported yet; TypeScript, Python and Go apply one helper's header names to every helper their top-level webhooks module serves, with the narrowest window among them, which is not reported either (see the table above). |
 
 See [Diagnostics](diagnostics.md) for how findings are graded, suppressed, and used to fail a build.
+
+## Configuration reference
+
+Every key the `webhook` block of a `kind: webhookUnwrap` method takes, its default, and each rule the config is checked against. It is generated from the config schema, so it always matches what the generator accepts; the sections above explain what each key does in each target.
+
+<!-- config-reference:start -->
+<!-- Rendered from the config schema up to config-reference:end. Edit the schema descriptions, not this section: every regeneration rewrites it. -->
+
+### webhook.eventTypes
+
+**Type:** `Record<string, string>`
+
+**Required**
+
+Events this helper decodes, keyed by each event's name: the webhook operation's `operationId` when it has one, otherwise the webhook's key under `webhooks`. Only the keys select events; the value is descriptive. An empty map selects every top-level webhook. A key that names no event selects nothing and is reported with a `Config/WebhookUnknownEventType` warning.
+
+### webhook.webhookKeyOpt
+
+**Type:** `string | false`
+
+Client option containing the webhook signing key, or false when verification is disabled.
+
+### webhook.signatureAlgorithm
+
+**Type:** `"hmac-sha1" | "hmac-sha256" | "hmac-sha512" | "ed25519" | "rsa-sha256"`
+
+Signature verification algorithm for generated webhook helpers. Defaults to hmac-sha256 when verification is enabled.
+
+**Default:** `"hmac-sha256"`
+
+### webhook.signatureHeader
+
+**Type:** `string`
+
+Header carrying the webhook signature. Defaults to webhook-signature when verification is enabled.
+
+**Default:** `"webhook-signature"`
+
+### webhook.timestampHeader
+
+**Type:** `string`
+
+Header carrying the webhook timestamp, when replay protection uses one.
+
+### webhook.toleranceSeconds
+
+**Type:** `number`
+
+Allowed timestamp skew in seconds for replay protection.
+
+### webhook.discriminator
+
+**Type:** `string`
+
+Payload property used to discriminate webhook event variants.
+
+### webhook.description
+
+**Type:** `string`
+
+Description surfaced on generated webhook helpers.
+
+### webhook.summary
+
+**Type:** `string`
+
+Summary surfaced on generated webhook helpers.
+
+### webhook.keyParam
+
+**Type:** `string`
+
+Experimental: may change in a later release. Name of the per-call argument that overrides the client's signing key, before target casing, e.g. `secret`. Defaults to `key`. TypeScript, Python and Ruby name that argument of the parse method and its verifying companions with it. The other targets keep their own spelling: Java, Kotlin, PHP, Swift and Dart already call it `secret`, and the rest take the key positionally. It must be a lowercase snake_case identifier, with no leading, trailing or doubled underscore (target casing drops those, so `payload_` would become `payload`), that is not `headers`, `body`, `payload`, a keyword of a generated language, or a name the generated helpers already bind (`wh`, `json`, `cast`, `get_required_header`, …).
+
+**Constraints:** `pattern: ^(?!(?:headers|body|payload|options|opts|self|this|cls|class|def|end|and|or|not|in|is|if|else|elif|elsif|for|while|do|return|function|fun|var|val|let|const|new|delete|default|import|export|from|async|await|yield|lambda|none|true|false|null|nil|super|case|switch|try|catch|finally|throw|raise|with|as|pass|break|continue|global|nonlocal|typeof|instanceof|void|enum|interface|package|private|protected|public|static|module|begin|rescue|ensure|then|unless|until|when|redo|retry|undef|alias|defined|object|type|func|go|select|struct|chan|map|range|defer|fallthrough|goto|next|assert|del|except|extends|implements|debugger|arguments|eval|undefined|nan|infinity|wh|exc|json|cast|dict|isinstance|str|bytes|signed_headers|construct_type|get_required_header|verify_webhook_signature|refuse_unverifiable_algorithm|empty_key|b64decode|parsed)$)[a-z](?:_?[a-z0-9])*$`
+
+### webhook.bytesKey
+
+**Type:** `"raw" | "utf8"`
+
+Experimental: may change in a later release. How the Python parse method reads a per-call key passed as `bytes`; its verifying companions always use `bytes` as the raw HMAC key. `raw` (the default) uses the bytes as the HMAC key itself, as the Standard Webhooks library does. `utf8` decodes them as UTF-8 and reads the text as a `str` key is read: an optional `whsec_` prefix stripped, the rest base64-decoded. Set `utf8` when callers pass the dashboard's secret as bytes (read from a file or `os.environb`). Only Python distinguishes a `bytes` key; the other targets take the key as a string and ignore this.
+
+**Default:** `"raw"`
+
+### webhook.typeName
+
+**Type:** `string`
+
+Experimental: may change in a later release. Name of the event union this helper returns, before target casing, e.g. `ParsedWebhookEvent`. Omit it to keep each target's own default, which for some targets follows the method name (`parse_pet` → `ParsePetWebhookEvent`) and for others is `ParsedWebhookEvent` on the top-level helper whatever the method is called. Set it when renaming the parse method must not rename the type callers already import. It applies to every target that honors it, so a target whose default differs (Rust's `WebhookEvent`) takes the configured name as well. It must end in `Event` (`ParsedWebhookEvent`, `webhook_event`), which keeps it clear of the runtime classes, params and response types, services and language built-ins each target declares on its own. A name a model, a webhook event, another webhook helper's union (its configured name or its default), or a websocket event type (`ReconnectingEvent`, `<Method>ClientEvent`, `<Method>ServerEvent`) already takes (compared ignoring case and separators) is ignored with a `Config/WebhookTypeNameConflict` warning, and a target may still keep its default where the name would clash with a type only it mints. Go always keeps its default envelope names, since every envelope-derived type shares one package with the models and their nested types.
+
+**Constraints:** `pattern: [Ee]vent$`
+
+### webhook.helpers
+
+**Type:** `boolean | object`
+
+Experimental: may change in a later release. Companion methods generated next to this parse method. `true` (the default) adds `verify_signature` (checks the signature only, and only when verification is enabled) and `parse_unsafe` (returns the typed event without verifying). `false` generates the parse method alone. An object turns each companion on or off, or renames it. A companion named like the parse method or another companion is left out, and so is a `parseUnsafe` named like a verifying companion (`verify_signature`, `unwrap`, or the names given to them), with a `Config/WebhookHelperNameUnsafe` warning. Where the name clashes with another member of the generated class — a method of the same resource, a second helper there — the target resolves it as its own naming rules do, leaving the companion out or qualifying its name (see the target's guide). C# generates no companions because it renders no parse method. Dart and C++ ignore this setting: Dart generates the parse method alone, and C++ always adds a decode-only `<method>_unverified` twin beside it and no other companion. Rust keeps each helper's `verify_signature` function even with `false`, since it is that helper's only verifier (the top-level helper's in `webhooks`, and, when helpers sign differently, each other helper's in its own module). Beside a top-level parse method named anything else, Go keeps a `Parsed` alias and Ruby a `parsed(payload, headers:, key:)` alias that forward to it, unless another member of the class (a companion, a second helper, a child resource) takes that name.
+
+**Default:** `true`
+
+#### verifySignature
+
+**Type:** `boolean | string`
+
+Method that verifies a delivery's signature, throwing when it does not verify. It returns nothing, except in Ruby, where it returns the verified payload parsed into a hash with symbol keys. `true` names it `verify_signature`, a string names it, `false` omits it (Rust keeps each helper's `verify_signature` function either way, as that helper's only verifier). Never generated beside a parse method that does not verify.
+
+**Default:** `true`
+
+#### parseUnsafe
+
+**Type:** `boolean | string`
+
+Method that decodes a delivery into the typed event without verifying its signature, for tests or a body verified elsewhere. `true` names it `parse_unsafe`, a string names it, `false` omits it.
+
+**Default:** `true`
+
+#### unwrap
+
+**Type:** `boolean | string`
+
+Method that verifies a delivery's signature and returns the decoded JSON untyped. Off by default; `true` names it `unwrap`, a string names it. Never generated beside a parse method that does not verify.
+
+**Default:** `false`
+<!-- config-reference:end -->
 
 ## Related
 
