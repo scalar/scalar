@@ -48,6 +48,37 @@ describe('create-server-store', () => {
   })
 
   const loadingDocument = { openapi: '3.2.0', info: { title: 'Trusted API', version: '1' }, paths: {} }
+  it('upgrades an external OpenAPI 3.0 schema when bundling an OpenAPI 3.2 document', async () => {
+    const directory = await fs.mkdtemp(join(tmpdir(), 'workspace-external-upgrade-'))
+    try {
+      const external = {
+        ...loadingDocument,
+        openapi: '3.0.3',
+        components: { schemas: { Item: { type: 'string', nullable: true } } },
+      }
+      await fs.writeFile(join(directory, 'external.json'), JSON.stringify(external))
+      await fs.writeFile(
+        join(directory, 'entry.json'),
+        JSON.stringify({
+          ...loadingDocument,
+          components: { schemas: { Item: { $ref: './external.json#/components/schemas/Item' } } },
+        }),
+      )
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documentLoading: { basePath: directory },
+        documents: [{ name: 'default', path: join(directory, 'entry.json') }],
+      })
+
+      const document = store.getResolvedDocument('default')
+      assert(document && !isAsyncApiDocument(document))
+      expect(getResolvedRef(document.components?.schemas?.Item)).toStrictEqual({ type: ['string', 'null'] })
+    } finally {
+      await fs.rm(directory, { recursive: true, force: true })
+    }
+  })
+
   it('blocks private initial URLs, later additions, and external references without contacting them', async () => {
     const requests: string[] = []
     const server = createServer((request, response) => {

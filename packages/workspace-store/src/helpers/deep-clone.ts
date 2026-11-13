@@ -7,6 +7,7 @@
  *
  * @param value - The value to deep clone (object, array, or primitive)
  * @param hash - (internal) WeakMap for tracking circular references
+ * @param getSource - Optional view of an object to copy when it exposes virtual properties.
  * @returns A deep clone of the input value
  *
  * @example
@@ -17,7 +18,7 @@
  * console.log(clone !== obj) // true
  * console.log(clone.self === clone) // true
  */
-export const deepClone = <T>(value: T, hash = new WeakMap()): T => {
+export const deepClone = <T>(value: T, hash = new WeakMap(), getSource?: (value: object) => object): T => {
   if (typeof value !== 'object' || value === null) {
     return value
   }
@@ -29,9 +30,10 @@ export const deepClone = <T>(value: T, hash = new WeakMap()): T => {
   const result = Array.isArray(value) ? [] : {}
   hash.set(value, result)
 
-  Object.keys(value).forEach((key) => {
+  const source = getSource?.(value) ?? value
+  Object.keys(source).forEach((key) => {
     // @ts-expect-error: Index signature for generic object
-    result[key] = deepClone(value[key], hash)
+    result[key] = deepClone(source[key], hash, getSource)
   })
 
   return result as T

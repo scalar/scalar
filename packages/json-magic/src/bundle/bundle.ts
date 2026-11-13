@@ -1,4 +1,3 @@
-import { unescapeJsonPointerSegment } from '@scalar/helpers/json/unescape-json-pointer-segment'
 import { isObject } from '@scalar/helpers/object/is-object'
 import { preventPollution } from '@scalar/helpers/object/prevent-pollution'
 
@@ -7,6 +6,7 @@ import { getId } from '@/helpers/get-schemas'
 import { getValueByPath } from '@/helpers/get-value-by-path'
 import { isFilePath } from '@/helpers/is-file-path'
 import { isHttpUrl } from '@/helpers/is-http-url'
+import { parseJsonPointer } from '@/helpers/parse-json-pointer'
 import { resolveReferencePath } from '@/helpers/resolve-reference-path'
 import { setValueAtPath } from '@/helpers/set-value-at-path'
 import { toRelativePath } from '@/helpers/to-relative-path'
@@ -340,18 +340,15 @@ export type LoaderPlugin = {
 /**
  * Context information for a node during traversal or processing.
  *
- * Note: The `path` parameter represents the path to the current node being processed.
- * If you are performing a partial bundle (i.e., providing a custom root), this path will be relative
- * to the root you provide, not the absolute root of the original document. You may need to prefix
- * it with your own base path if you want to construct a full path from the absolute document root.
- *
- * - `path`: The JSON pointer path (as an array of strings) from the document root to the current node.
  * - `resolutionCache`: A cache for storing promises of resolved references.
  * - `origin`: The origin (URL or file path) of the document this node lives in. Lifecycle plugins can
  *   use it to resolve relative references (for example an example's `externalValue`) into absolute URLs.
  */
 type NodeProcessContext = {
+  /** JSON Pointer segments to this node, relative to the root identified by `pathRelativeToInput`. */
   path: readonly string[]
+  /** True for input-subtree-relative paths and false for document-root-relative paths. */
+  pathRelativeToInput: boolean
   referencedFromPath?: readonly string[]
   resolutionCache: Map<string, Promise<Readonly<ResolveResult>>>
   parentNode: UnknownObject | null
@@ -510,6 +507,8 @@ export type Config = {
      * Can be used for preprocessing, mutation, or custom logic before the node is handled by the bundler.
      */
     onBeforeNodeProcess: (node: UnknownObject, context: NodeProcessContext) => void | Promise<void>
+    /** Return false to leave a literal data subtree untouched by traversal and lifecycle hooks. */
+    shouldProcessNode: (node: object, context: NodeProcessContext) => boolean
     /**
      * Optional hook invoked after processing a node.
      * Useful for postprocessing, cleanup, or custom logic after the node has been handled by the bundler.
@@ -629,6 +628,7 @@ export const bundleDocument = async (
 
   const loaderPlugins = config.plugins.filter((it) => it.type === 'loader')
   const lifecyclePlugin = config.plugins.filter((it) => it.type === 'lifecycle')
+  const nodeGuards = [config.hooks?.shouldProcessNode, ...lifecyclePlugin.map((plugin) => plugin.shouldProcessNode)]
 
   /**
    * Resolves the input value by either returning it directly if it's not a string,
@@ -687,9 +687,8 @@ export const bundleDocument = async (
     return '/'
   }
 
-  // Registry paths are JSON pointers; only authored URI fragments need percent decoding.
-  const parsePath = (pointer: string): string[] => pointer.split('/').slice(1).map(unescapeJsonPointerSegment)
-  const setPath = (target: object, path: string, value: unknown): void => setValueAtPath(target, path, value, parsePath)
+  const setPath = (target: object, path: string, value: unknown): void =>
+    setValueAtPath(target, path, value, parseJsonPointer)
   const traversal = documentTraversal(
     config.traversal === 'document',
     documentRoot['swagger'] === '2.0',
@@ -723,7 +722,7 @@ export const bundleDocument = async (
           const target = references.resolve(ref, references.origin(node) ?? defaultOrigin)
           return target?.value !== undefined ? `#/${target.path}` : ref
         },
-        parsePath,
+        parseJsonPointer,
       )
     if (diagnostics) deferredCopies.push(copy)
     else copy()
@@ -879,6 +878,7 @@ export const bundleDocument = async (
     currentPath: readonly string[] = [],
     parent: UnknownObject = null,
     referencedFromPath?: readonly string[],
+    pathRelativeToInput = depth === 0,
   ) => {
     // If a maximum depth is set in the config, stop bundling when the current depth reaches or exceeds it
     if (config.depth !== undefined && depth > config.depth) {
@@ -910,6 +910,7 @@ export const bundleDocument = async (
 
     const context = {
       path: currentPath,
+      pathRelativeToInput,
       referencedFromPath,
       resolutionCache: cache,
       parentNode: parent,
@@ -924,6 +925,9 @@ export const bundleDocument = async (
       },
     }
 
+    if (nodeGuards.some((guard) => guard?.(root, context) === false)) {
+      return
+    }
     const authoredReference = hasRef(root) ? root.$ref : undefined
     await executeHooks('onBeforeNodeProcess', root as UnknownObject, context)
 
@@ -939,6 +943,7 @@ export const bundleDocument = async (
           [...currentPath, key],
           root as UnknownObject,
           referencedFromPath,
+          pathRelativeToInput,
         )
       }
     }
@@ -1001,12 +1006,13 @@ export const bundleDocument = async (
           traversal.location(local.value)?.context !== location.context
         ) {
           const source = isObject(local.document) ? traversal.location(local.document)?.source : undefined
-          const targetPath = parsePath(`/${localRef}`).slice(local.documentPath.length)
+          const targetPath = parseJsonPointer(`/${localRef}`).slice(local.documentPath.length)
           traversal.register(local.document, source ?? location.source, location.context, targetPath)
           references.refresh(local.document, targetPath)
         }
-        if (isPartialBundling || (diagnostics && config.traversal === 'document')) {
-          const segments = parsePath(`/${localRef}`)
+        const visitTarget = references.identity(local.document)?.visitReferencedSubtrees
+        if (visitTarget || isPartialBundling || (diagnostics && config.traversal === 'document')) {
+          const segments = parseJsonPointer(`/${localRef}`)
           const parent = segments.length > 0 ? getValueByPath(documentRoot, segments.slice(0, -1)).value : undefined
 
           const targetValue = {
@@ -1036,7 +1042,9 @@ export const bundleDocument = async (
         if (local.documentPath.length > 0) {
           const origin =
             isObject(local.document) || Array.isArray(local.document) ? references.origin(local.document) : nodeOrigin
-          await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          if (!visitTarget) {
+            await bundler(local.document, origin, isChunkParent, depth + 1, local.documentPath)
+          }
           if (config.treeShake) {
             const [key, documentKey] = local.documentPath
             copyReferences(
@@ -1105,7 +1113,7 @@ export const bundleDocument = async (
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
-          const fragmentPath = parsePath(decodeUriFragment(path))
+          const fragmentPath = parseJsonPointer(decodeUriFragment(path))
           traversal.register(result.data, resolvedPath, location?.context ?? 'generic', fragmentPath)
           // Index the whole external document before following references within it.
           // Chunks retain the referring context because they are already self-contained.
@@ -1117,16 +1125,18 @@ export const bundleDocument = async (
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(
-            result.data,
-            isChunk ? origin : resolvedPath,
-            isChunk,
-            depth + 1,
-            [config.externalDocumentsKey, compressedPath],
-            null,
-            // Keep the referring document path across external hops, replacing the storage wrapper.
-            referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
-          )
+          if (isChunk || !references.identity(result.data)?.visitReferencedSubtrees) {
+            await bundler(
+              result.data,
+              isChunk ? origin : resolvedPath,
+              isChunk,
+              depth + 1,
+              [config.externalDocumentsKey, compressedPath],
+              null,
+              // Keep the referring document path across external hops, replacing the storage wrapper.
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+          }
 
           // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -1139,7 +1149,21 @@ export const bundleDocument = async (
 
         const targetReferences = getTargetReferences(isChunk, result.data, resolvedPath, compressedPath)
         const finishResolution = async (): Promise<void> => {
-          const target = targetReferences.resolve(ref, retrievalOrigin)
+          let target = targetReferences.resolve(ref, retrievalOrigin)
+          if (target && !isChunk && references.identity(target.document)?.visitReferencedSubtrees) {
+            const relative = target.segments.slice(target.documentPath.length)
+            const parent = relative.length > 0 ? getValueByPath(target.document, relative.slice(0, -1)).value : null
+            await bundler(
+              target.value,
+              resolvedPath,
+              false,
+              depth + 1,
+              target.segments,
+              parent,
+              referencedFromPath ? [...referencedFromPath, ...currentPath.slice(2)] : currentPath,
+            )
+            target = targetReferences.resolve(ref, retrievalOrigin)
+          }
           if (diagnostics && target?.value === undefined) {
             setPath(documentRoot, `/${config.externalDocumentsKey}/${escapeJsonPointer(compressedPath)}`, result.data)
             report('missing-target')
@@ -1228,6 +1252,7 @@ export const bundleDocument = async (
         [...currentPath, key],
         root as UnknownObject,
         referencedFromPath,
+        pathRelativeToInput,
       )
     }
 

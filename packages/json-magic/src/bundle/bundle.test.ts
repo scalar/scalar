@@ -3048,6 +3048,7 @@ describe('bundle', () => {
         },
         {
           path: [],
+          pathRelativeToInput: true,
           resolutionCache: new Map(),
           parentNode: null,
           rootNode: {
@@ -3067,6 +3068,7 @@ describe('bundle', () => {
         },
         {
           path: ['prop'],
+          pathRelativeToInput: true,
           resolutionCache: new Map(),
           parentNode: {
             prop: {
@@ -3092,6 +3094,7 @@ describe('bundle', () => {
         },
         {
           path: ['prop'],
+          pathRelativeToInput: true,
           resolutionCache: new Map(),
           parentNode: {
             prop: {
@@ -3117,6 +3120,7 @@ describe('bundle', () => {
         },
         {
           path: [],
+          pathRelativeToInput: true,
           resolutionCache: new Map(),
           parentNode: null,
           rootNode: {
