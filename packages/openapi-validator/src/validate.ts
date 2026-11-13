@@ -8,6 +8,7 @@ import { OpenApiSpecifications, type OpenApiVersion } from '@/specifications'
 import type { ThrowOnErrorOption, ValidationOutcome } from '@/types'
 import { validateCookieParameters } from '@/validate-cookie-parameters'
 import { validateDuplicateParameters } from '@/validate-duplicate-parameters'
+import { validateOperationIds } from '@/validate-operation-ids'
 import { validatePathParameters } from '@/validate-path-parameters'
 import { validateServerVariables } from '@/validate-server-variables'
 
@@ -46,6 +47,7 @@ const validateDocument = createSpecificationValidator<OpenApiVersion, ValidateOp
   postValidate: (specification, version, options) => [
     ...validateServerVariables(specification, version),
     ...validateDuplicateParameters(specification, version),
+    ...validateOperationIds(specification, version),
     ...(options?.checkPathParameters ? validatePathParameters(specification) : []),
     ...(options?.checkCookieParameters === false ? [] : validateCookieParameters(specification)),
   ],
