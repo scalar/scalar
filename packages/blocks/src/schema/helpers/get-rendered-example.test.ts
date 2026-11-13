@@ -79,6 +79,28 @@ describe('get-rendered-example', () => {
     expect(normalizeRenderedExamples([example])[0]?.value).toBe(value)
   })
 
+  it('preserves raw objects in legacy schema maps only when enabled', () => {
+    const examples = {
+      raw: { id: 1, summary: 'Payload text' },
+      empty: {},
+      wrapped: { summary: 'Friendly label', value: { id: 2 } },
+      pending: { $ref: '#/components/examples/Pending' },
+      missing: { value: undefined },
+    }
+    expect(
+      normalizeRenderedExamples(examples, { allowRawObjects: true }).map(({ name, summary, value }) => ({
+        name,
+        summary,
+        value,
+      })),
+    ).toStrictEqual([
+      { name: 'raw', summary: undefined, value: { id: 1, summary: 'Payload text' } },
+      { name: 'empty', summary: undefined, value: {} },
+      { name: 'wrapped', summary: 'Friendly label', value: { id: 2 } },
+    ])
+    expect(normalizeRenderedExamples(examples).map(({ name }) => name)).toStrictEqual(['wrapped'])
+  })
+
   it('retains numeric names in a named map without naming array positions', () => {
     expect(normalizeRenderedExamples({ '0': { value: 'named' } })[0]?.name).toBe('0')
     expect(normalizeRenderedExamples(['unnamed'])[0]?.name).toBeUndefined()

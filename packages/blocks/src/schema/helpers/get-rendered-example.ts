@@ -47,8 +47,11 @@ export const getRenderedExample = (entry: unknown, name?: string, preferData = f
       }
 }
 
-/** Schema arrays contain raw payloads; named maps contain Example Objects. Never infer metadata from payload keys. */
-export const normalizeRenderedExamples = (examples: unknown): RenderedExample[] => {
+/** Schema arrays contain raw payloads; legacy schema maps may also contain raw objects beside Example Objects. */
+export const normalizeRenderedExamples = (
+  examples: unknown,
+  { allowRawObjects = false }: { allowRawObjects?: boolean } = {},
+): RenderedExample[] => {
   if (Array.isArray(examples)) {
     return examples
       .filter((value) => value !== undefined)
@@ -62,7 +65,18 @@ export const normalizeRenderedExamples = (examples: unknown): RenderedExample[] 
   if (isObjectLike(examples)) {
     return Object.entries(examples).flatMap(([name, entry]) => {
       const example = getRenderedExample(entry, name)
-      return example ? [example] : []
+      if (example) {
+        return [example]
+      }
+      // Keep legacy schema maps readable without turning unresolved references or empty value fields into payloads.
+      if (
+        allowRawObjects &&
+        isObjectLike(entry) &&
+        !['$ref', 'value', 'externalValue', 'dataValue', 'serializedValue'].some((key) => key in entry)
+      ) {
+        return [{ [renderedExample]: true, name, value: entry }]
+      }
+      return []
     })
   }
   return []

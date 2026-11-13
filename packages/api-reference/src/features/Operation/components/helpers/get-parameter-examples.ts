@@ -4,7 +4,7 @@ import type { ParameterObject, ResponseObject } from '@scalar/workspace-store/sc
 
 type GetParameterExamplesArgs = {
   parameter: ParameterObject | ResponseObject
-  schemaExamples?: unknown[]
+  schemaExamples?: unknown
   contentExamples?: unknown
 }
 
@@ -30,7 +30,9 @@ export const getParameterExamples = ({
     if (examples.length) {
       return examples
     }
-    return normalizeRenderedExamples(parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []))
+    return normalizeRenderedExamples(parameter.example !== undefined ? [parameter.example] : (schemaExamples ?? []), {
+      allowRawObjects: true,
+    })
   }
 
   const recordExamples = normalizeRenderedExamples({
@@ -41,7 +43,7 @@ export const getParameterExamples = ({
   const fallbackExample =
     recordExamples.length === 0 && 'example' in parameter && parameter.example !== undefined ? [parameter.example] : []
 
-  const arrayExamples = normalizeRenderedExamples(schemaExamples ?? fallbackExample)
+  const arrayExamples = normalizeRenderedExamples(schemaExamples ?? fallbackExample, { allowRawObjects: true })
 
   return [...recordExamples, ...arrayExamples]
 }

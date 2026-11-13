@@ -114,6 +114,24 @@ describe('SchemaPropertyExamples', () => {
       'Copy example value: remote: https://example.com/sample.json',
     )
   })
+
+  it('renders raw objects from legacy schema example maps alongside Example Objects', () => {
+    const wrapper = mount(SchemaPropertyExamples, {
+      props: {
+        examples: {
+          legacy: { id: 1, summary: 'Payload text' },
+          named: { summary: 'Friendly label', value: { id: 2 } },
+        },
+      },
+    })
+
+    const buttons = wrapper.findAll('button[aria-label]')
+    expect(buttons.map((button) => button.attributes('aria-label'))).toStrictEqual([
+      'Copy example value: legacy: {"id":1,"summary":"Payload text"}',
+      'Copy example value: Friendly label: {"id":2}',
+    ])
+    expect(buttons.map((button) => button.text())).toStrictEqual(['{"id":1,"summary":"Payload text"}', '{"id":2}'])
+  })
   it('distinguishes equal values by summary or name and copies only the value', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')

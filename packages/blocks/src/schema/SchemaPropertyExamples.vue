@@ -30,15 +30,17 @@ const hasSingleExample = computed(() => example !== undefined)
 const normalizedExamples = computed<
   { label: string | undefined; value: string | number; ariaLabel: string }[]
 >(() =>
-  normalizeRenderedExamples(examples).map((entry) => {
-    const label = entry.summary || entry.name
-    const value = formatExample(entry.value)
-    return {
-      label,
-      value,
-      ariaLabel: `${translate('common.copyExample')}: ${label ? `${label}: ` : ''}${value}`,
-    }
-  }),
+  normalizeRenderedExamples(examples, { allowRawObjects: true }).map(
+    (entry) => {
+      const label = entry.summary || entry.name
+      const value = formatExample(entry.value)
+      return {
+        label,
+        value,
+        ariaLabel: `${translate('common.copyExample')}: ${label ? `${label}: ` : ''}${value}`,
+      }
+    },
+  ),
 )
 
 const hasMultipleExamples = computed(() => normalizedExamples.value.length > 0)

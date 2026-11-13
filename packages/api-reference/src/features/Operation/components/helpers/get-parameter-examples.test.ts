@@ -148,4 +148,15 @@ describe('get-parameter-examples', () => {
       { name: undefined, summary: undefined, value: { value: 'raw', summary: 'payload' } },
     ])
   })
+
+  it.each(['query', 'querystring'] as const)('preserves legacy schema maps for %s parameters', (location) => {
+    const examples = getParameterExamples({
+      parameter: { name: 'filter', in: location, content: { 'application/json': {} } },
+      schemaExamples: { legacy: { id: 1, summary: 'Payload text' } },
+    })
+
+    expect(examples.map(({ name, summary, value }) => ({ name, summary, value }))).toStrictEqual([
+      { name: 'legacy', summary: undefined, value: { id: 1, summary: 'Payload text' } },
+    ])
+  })
 })
