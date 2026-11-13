@@ -177,6 +177,7 @@
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",
+    "ajv": "catalog:*",
     "fake-indexeddb": "catalog:*",
     "fastify": "catalog:*",
     "typescript": "7.0.2",

@@ -29,7 +29,13 @@ export const getStreamingResponse = (
       })
     | undefined,
   contentType: string,
-  options: { exampleName?: string; variables?: Record<string, unknown>; body?: unknown } = {},
+  options: {
+    exampleName?: string
+    variables?: Record<string, unknown>
+    body?: unknown
+    openapiVersion?: string
+    jsonSchemaDialect?: string
+  } = {},
 ): StreamingResponse | undefined => {
   if (mediaType?.itemSchema === undefined) {
     return undefined
@@ -56,7 +62,12 @@ export const getStreamingResponse = (
       return Array.from({ length: 3 }, () =>
         itemSchema === true
           ? null
-          : generateResponseExample(coerceValue(SchemaObjectSchema, itemSchema), options.variables),
+          : generateResponseExample(
+              coerceValue(SchemaObjectSchema, itemSchema),
+              options.variables,
+              options.openapiVersion,
+              options.jsonSchemaDialect,
+            ),
       )
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
@@ -66,9 +77,16 @@ export const getStreamingResponse = (
           items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
         }),
         options.variables,
+        options.openapiVersion,
+        options.jsonSchemaDialect,
       )
     }
-    return generateResponseExample(coerceValue(SchemaObjectSchema, completeSchema), options.variables)
+    return generateResponseExample(
+      coerceValue(SchemaObjectSchema, completeSchema),
+      options.variables,
+      options.openapiVersion,
+      options.jsonSchemaDialect,
+    )
   }
   const body = example ? example.value : generateBody()
   const items = Array.isArray(body) ? body : [body]

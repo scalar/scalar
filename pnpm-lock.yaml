@@ -3304,6 +3304,9 @@ importers:
         specifier: catalog:*
         version: 2.9.1
     devDependencies:
+      ajv:
+        specifier: catalog:*
+        version: 8.20.0
       '@google-cloud/storage':
         specifier: catalog:*
         version: 8.4.0(supports-color@10.2.2)
