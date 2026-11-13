@@ -225,32 +225,33 @@ onKeyStroke('Escape', () => {
       </LinkButton>
       <div
         :id="multiplePopupId"
-        class="property-example-value-list"
+        class="property-example-value-list gap-3! p-3!"
         :class="{
           'flex!': isMultipleOpen,
           'property-example-value-list-start': align === 'start',
         }">
-        <button
+        <div
           v-for="(ex, key) in normalizedExamples"
           :key="key"
-          :aria-label="ex.ariaLabel"
-          class="property-example-value group"
-          type="button"
-          @click="copyToClipboard(ex.value)">
-          <span class="min-w-0 text-left">
-            <span
-              v-if="ex.label"
-              class="text-c-2 font-sans font-medium break-words whitespace-normal!">
-              {{ ex.label }}
-            </span>
-            <span>{{ ex.value }}</span>
+          class="flex min-w-0 flex-col gap-1.5">
+          <span
+            v-if="ex.label"
+            class="text-c-2 font-sans text-xs font-normal break-words">
+            {{ ex.label }}
           </span>
-          <ScalarIcon
-            aria-hidden="true"
-            class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
-            icon="Clipboard"
-            size="xs" />
-        </button>
+          <button
+            :aria-label="ex.ariaLabel"
+            class="property-example-value group text-left"
+            type="button"
+            @click="copyToClipboard(ex.value)">
+            <span>{{ ex.value }}</span>
+            <ScalarIcon
+              aria-hidden="true"
+              class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3"
+              icon="Clipboard"
+              size="xs" />
+          </button>
+        </div>
       </div>
     </div>
   </template>
