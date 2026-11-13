@@ -1,6 +1,6 @@
 import '@scalar/themes/style.css'
 import '@scalar/components/style.css'
-import '@scalar/code-highlight/css/code.css'
+import '@scalar/highlight/compat/code.css'
 import './style.css'
 
 import { createApp } from 'vue'

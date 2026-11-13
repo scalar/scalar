@@ -49,9 +49,6 @@
     "swift": 1473,
     "yaml": 836
   },
-  "comparisonSizes": {
-    "@scalar/code-highlight syntaxHighlight": 130644
-  },
   "measuredAt": "2026-10-16T23:07:24.908Z",
   "node": "v22.22.0",
   "throughput": {

@@ -191,7 +191,7 @@ const { cx } = useBindCx()
 </template>
 <style>
 @reference '../../style.css';
-@import '@scalar/code-highlight/css/code.css';
+@import '@scalar/highlight/compat/code.css';
 
 /** Match the pre line-box metrics to the code font so blank and highlighted lines have the same pitch. */
 .scalar-code-block-pre {

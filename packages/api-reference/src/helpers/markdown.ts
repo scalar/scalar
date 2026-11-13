@@ -1,5 +1,5 @@
-import { getHeadings } from '@scalar/code-highlight/markdown'
 import { slugger } from '@scalar/helpers/string/slugger'
+import { getHeadings } from '@scalar/markdown'
 import type { Heading } from '@scalar/types/legacy'
 
 const withSlugs = (headings: Heading[], slug: (v: string) => string): Heading[] =>

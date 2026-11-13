@@ -7,7 +7,7 @@
  * answer the real question: for what share of the characters in a code block
  * does the rendered colour change?
  *
- * Transcribed from `packages/code-highlight/src/css/code.css`. Every rule
+ * Transcribed from `src/compat/code.css`. Every rule
  * there is a single class except the two `.hljs-title` compounds, and no class
  * is styled twice, so a flat map plus a compound check reproduces the cascade.
  */

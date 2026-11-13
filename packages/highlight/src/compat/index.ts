@@ -14,7 +14,8 @@
  * What this layer deliberately does *not* cover is the Markdown half of
  * `@scalar/code-highlight` — `htmlFromMarkdown`, `getHeadings`, `splitContent`,
  * `rehypeAlert`, `rehypeHighlight`. Those are a remark/rehype pipeline that has
- * nothing to do with tokenizing code, and they stay where they are.
+ * nothing to do with tokenizing code, and they moved to `@scalar/markdown`,
+ * which highlights through `toHast` below.
  */
 
 export type { ToHastOptions } from './hast'
