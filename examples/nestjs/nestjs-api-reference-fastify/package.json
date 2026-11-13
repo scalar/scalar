@@ -60,7 +60,7 @@
     "@nestjs/cli": "catalog:*",
     "@nestjs/schematics": "catalog:*",
     "@nestjs/testing": "catalog:*",
-    "@swc/cli": "^0.7.10",
+    "@swc/cli": "^0.8.2",
     "@swc/core": "^1.16.18",
     "@types/jest": "^30.0.0",
     "@types/node": "catalog:*",
