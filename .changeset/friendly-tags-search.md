@@ -2,4 +2,4 @@
 '@scalar/api-reference': patch
 ---
 
-Include operation tags in API reference search results.
+Include operation tag names and their displayed titles (`x-displayName` or `summary`) in API reference search results.

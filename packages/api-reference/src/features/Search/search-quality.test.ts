@@ -506,6 +506,30 @@ describe('search-quality', () => {
     ])
   })
 
+  it.each([
+    { name: 'internal_accounts', 'x-displayName': 'Authentication' },
+    { name: 'internal_accounts', summary: 'Authentication' },
+    { name: 'internal_accounts', 'x-displayName': 'Authentication', summary: 'Legacy group' },
+  ])('finds operations by the displayed tag title: %j', (tag) => {
+    const document: Partial<OpenApiDocument> = {
+      openapi: '3.2.0',
+      tags: [tag],
+      paths: {
+        '/session/start': { post: { tags: ['internal_accounts'], summary: 'Start a session' } },
+        '/health': { get: { summary: 'Service health' } },
+      },
+    }
+
+    expect(
+      search('Authentication', document).map(({ item }) => ({ type: item.type, title: item.title })),
+    ).toStrictEqual([
+      { type: 'tag', title: 'Authentication' },
+      { type: 'operation', title: 'Start a session' },
+    ])
+    expect(search('internal_accounts', document).map(({ item }) => item.title)).toStrictEqual(['Start a session'])
+    expect(search('Legacy group', document)).toStrictEqual([])
+  })
+
   it('finds operations by description content', () => {
     const query = 'boring security'
 
