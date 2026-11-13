@@ -82,7 +82,7 @@ describe('SdkInstallationInstructions', () => {
     const option = (combobox.props('options') as ScalarComboboxOption[]).find(
       (entry) => entry.label === 'Python Requests',
     )
-    expect(option).toBeDefined()
+    expect(option?.label).toBe('Python Requests')
     await combobox.vm.$emit('update:modelValue', option)
     expect(wrapper.get('[role="tabpanel"]').text()).toBe('Python Requests')
     const tabStop = wrapper.get('[role="tab"][tabindex="0"]')
