@@ -25,7 +25,7 @@ catalogs:
     '@google-cloud/storage': 8.4.0
     '@headlessui/tailwindcss': ^0.2.2
     '@headlessui/vue': 1.7.23
-    '@hono/node-server': ^2.1.5
+    '@hono/node-server': ^2.1.6
     '@nestjs/cli': '^11.0.24'
     '@nestjs/common': '^11.2.9'
     '@nestjs/core': '^11.2.9'
@@ -195,5 +195,7 @@ minimumReleaseAgeExclude:
   - pnpm@10.34.5
   # Renovate security update: @sveltejs/kit@3.0.0
   - '@sveltejs/kit@3.0.0'
+  # Renovate security update: @hono/node-server@2.1.6
+  - "@hono/node-server@2.1.6"
 patchedDependencies:
   proto-parser@0.0.9: patches/proto-parser@0.0.9.patch
