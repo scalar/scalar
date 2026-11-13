@@ -20,6 +20,20 @@ describe('seasonal-theme', () => {
       expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
     })
 
+    it.each([
+      ["the start of Valentine's Day", '2026-02-14T00:00:00Z'],
+      ["the end of Valentine's Day", '2026-02-14T23:59:59Z'],
+    ])("uses the Valentine's Day theme at %s", (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('valentinesDay')
+    })
+
+    it.each([
+      ["the day before Valentine's Day", '2026-02-13T23:59:59Z'],
+      ["the day after Valentine's Day", '2026-02-15T00:00:00Z'],
+    ])('falls back to the default theme on %s', (_, isoDate) => {
+      expect(getSeasonalTheme(new Date(isoDate))).toBe('default')
+    })
+
     it('recurs every year', () => {
       expect(getSeasonalTheme(new Date('2031-10-31T12:00:00Z'))).toBe('halloween')
     })
