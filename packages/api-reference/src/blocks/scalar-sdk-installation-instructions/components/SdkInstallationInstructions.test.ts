@@ -66,6 +66,35 @@ describe('SdkInstallationInstructions', () => {
     wrapper.unmount()
   })
 
+  it('keeps SDK tabs keyboard-reachable after selecting a client from More', async () => {
+    const eventBus = createWorkspaceEventBus()
+    const listener = vi.fn()
+    eventBus.on('workspace:update:selected-client', listener)
+    const wrapper = mount(SdkInstallationInstructions, {
+      props: {
+        eventBus,
+        clientOptions: generateClientOptions(),
+        featuredClients: ['shell/curl'],
+        xScalarSdkInstallation: [{ lang: 'php', description: 'Install PHP' }],
+      },
+    })
+    const combobox = wrapper.getComponent({ name: 'ScalarCombobox' })
+    const option = (combobox.props('options') as ScalarComboboxOption[]).find(
+      (entry) => entry.label === 'Python Requests',
+    )
+    expect(option).toBeDefined()
+    await combobox.vm.$emit('update:modelValue', option)
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Python Requests')
+    const tabStop = wrapper.get('[role="tab"][tabindex="0"]')
+    expect(tabStop.text()).toBe('php')
+    expect(tabStop.attributes('aria-selected')).toBe('false')
+    await tabStop.trigger('keydown', { key: 'Home' })
+    expect(wrapper.get('[role="tab"][aria-selected="true"]').text()).toBe('php')
+    expect(wrapper.get('[role="tabpanel"]').text()).toBe('Install PHP')
+    expect(listener.mock.calls).toStrictEqual([['python/requests'], ['custom/php']])
+    wrapper.unmount()
+  })
+
   it('excludes hidden clients and follows selections when featured clients change', async () => {
     const wrapper = mount(SdkInstallationInstructions, {
       props: {
