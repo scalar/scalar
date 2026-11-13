@@ -203,6 +203,7 @@ DocumentDownloadType.NONE    # Hide download button
 - `base_server_url` (default `""`) - If you want to prefix all relative servers with a base URL
 - `servers` (default `[]`) - List of OpenAPI Server Objects. Each item must have a required `url` (string) and may have optional `description` (string) and `variables` (map). Example: `[{"url": "https://api.example.com", "description": "Production"}]`
 - `hidden_clients` (default `[]`)
+- `persist_selected_client` (default `True`) - Set to `False` to disable saving and restoring the selected code sample client in local storage. Client selection still works for the current page; `persist_auth` is independent.
 
 ### Authentication
 

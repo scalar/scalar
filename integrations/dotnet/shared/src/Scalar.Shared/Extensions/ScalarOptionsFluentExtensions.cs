@@ -147,6 +147,16 @@ public static partial class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Disables saving and restoring the selected code sample client in local storage.
+    /// </summary>
+    /// <param name="options">The options to configure.</param>
+    public static TOptions DisableSelectedClientPersistence<TOptions>(this TOptions options) where TOptions : ScalarOptions
+    {
+        options.PersistSelectedClient = false;
+        return options;
+    }
+
+    /// <summary>
     /// Enables persistent authentication in local storage.
     /// </summary>
     /// <param name="options">The options to configure.</param>

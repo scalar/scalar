@@ -591,6 +591,16 @@ app.MapScalarApiReference(options =>
 
 Leave `FeaturedClients` unset to keep the default tabs. Call `WithFeaturedClients()` with no arguments to put all clients under **More**. Clients excluded by `EnabledClients` or `EnabledTargets` are skipped. This controls the tab row; use `WithDefaultHttpClient` separately to choose the initial selection.
 
+### Selected client persistence
+
+The selected code sample client is saved and restored using local storage by default. To keep the selection on the current page only:
+
+```csharp
+app.MapScalarApiReference(options => options.DisableSelectedClientPersistence());
+```
+
+You can also set `options.PersistSelectedClient = false`. The same option and fluent method are available in Aspire, AWS Lambda, and Azure Functions. Authentication persistence is configured separately.
+
 ### Localization
 
 Translate the API Reference interface and embedded API Client:

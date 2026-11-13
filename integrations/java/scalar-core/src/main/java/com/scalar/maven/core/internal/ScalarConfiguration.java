@@ -178,6 +178,9 @@ public class ScalarConfiguration {
     @JsonProperty("baseServerURL")
     private String baseServerUrl;
 
+    @JsonProperty("persistSelectedClient")
+    private Boolean persistSelectedClient;
+
     @JsonProperty("persistAuth")
     private Boolean persistAuth;
 
@@ -451,6 +454,14 @@ public class ScalarConfiguration {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public Boolean getPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(Boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public Boolean getPersistAuth() {

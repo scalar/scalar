@@ -261,6 +261,14 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public bool? PersistentAuthentication { get; set; }
 
     /// <summary>
+    /// Controls whether the selected code sample client is saved and restored in local storage (default: enabled).
+    /// </summary>
+    /// <remarks>
+    /// Set to <c>false</c> to keep client selection on the current page only. Authentication persistence is configured separately.
+    /// </remarks>
+    public bool? PersistSelectedClient { get; set; }
+
+    /// <summary>
     /// Controls whether telemetry is enabled (default: enabled).
     /// </summary>
     /// <remarks>

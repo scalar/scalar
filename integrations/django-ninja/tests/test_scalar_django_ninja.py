@@ -981,3 +981,27 @@ class TestHtmlEscaping:
             assert decoded[js_field][0]["url"] == "/openapi.json"
         else:
             assert decoded[js_field] == value
+
+
+class TestSelectedClientPersistence:
+    @pytest.mark.parametrize("options", [{}, {"persist_selected_client": True}])
+    def test_keeps_frontend_default_when_enabled(self, options):
+        config = ScalarConfig(openapi_url="/openapi.json", **options)
+        assert config.persist_selected_client is True
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient"' not in html
+
+    def test_serializes_disabled_selection_with_auth_enabled(self):
+        config = ScalarConfig(
+            openapi_url="/openapi.json",
+            persist_selected_client=False,
+            persist_auth=True,
+        )
+        html = get_scalar_api_reference(config).content.decode()
+        assert '"persistSelectedClient": false' in html
+        assert '"persistAuth": true' in html
+
+    def test_viewer_kwargs_forward_disabled_selection(self):
+        viewer = ScalarViewer(persist_selected_client=False)
+        html = get_scalar_api_reference(viewer.config).content.decode()
+        assert '"persistSelectedClient": false' in html
