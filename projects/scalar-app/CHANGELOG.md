@@ -1,5 +1,13 @@
 # scalar-app
 
+## 1.1.50
+
+### Patch Changes
+
+- [#10999](https://github.com/scalar/scalar/pull/10999): Upgrade the Scalar SDK to 0.7.0 and adapt registry requests to its updated method parameters.
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#10998](https://github.com/scalar/scalar/pull/10998): Reuse the discovery response when importing extensionless API description URLs, avoiding a duplicate download while preserving URL metadata and subsequent fetches.
+
 ## 1.1.49
 
 ### Patch Changes

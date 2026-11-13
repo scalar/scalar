@@ -1,5 +1,11 @@
 # @scalar/validation
 
+## 0.6.8
+
+### Patch Changes
+
+- [#11003](https://github.com/scalar/scalar/pull/11003): Choose record union branches by matching values to avoid coercing valid entries through an incompatible branch.
+
 ## 0.6.7
 
 ### Patch Changes

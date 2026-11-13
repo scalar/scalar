@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.12.53",
+    "date": "2026-11-13",
+    "title": "Remove transitive Undici dependency",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01253",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.12.52",
     "date": "2026-11-12",
     "title": "Polish and bug fixes",

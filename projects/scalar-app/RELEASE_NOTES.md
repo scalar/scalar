@@ -9,6 +9,19 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 1.1.50 (2026-11-13)
+
+### Open GET requests in browser and security updates
+
+This release adds a convenient way to open GET requests directly in your browser, which is especially useful for sign-in flows that need to redirect. It also includes security updates and performance improvements.
+
+- GET requests now have an Open in browser action that opens the configured URL and parameters in a new tab, making OAuth and sign-in flows easier to test.
+- Updated Undici to address CVE-2026-116592 and allow compatible security updates without requiring new Scalar releases.
+- Importing extensionless API description URLs now reuses the discovery response, avoiding a duplicate download.
+- Upgraded the Scalar SDK to version 0.7.0 with updated registry request parameters.
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/projects/scalar-app/CHANGELOG.md#1150)
+
 ## 1.1.49 (2026-11-12)
 
 ### Improved handling for large API specifications with merge keys

@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.12.53 (2026-11-13)
+
+### Remove transitive Undici dependency
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/agent-chat/CHANGELOG.md#01253)
+
 ## 0.12.52 (2026-11-12)
 
 ### Polish and bug fixes

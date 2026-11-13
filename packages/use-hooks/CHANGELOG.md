@@ -1,5 +1,9 @@
 # @scalar/use-hooks
 
+## 0.4.26
+
+No changes in this release.
+
 ## 0.4.25
 
 No changes in this release.

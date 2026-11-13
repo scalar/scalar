@@ -1,5 +1,11 @@
 # @scalar/mock-server-docker
 
+## 0.2.80
+
+### Patch Changes
+
+- [#11032](https://github.com/scalar/scalar/pull/11032): Update the Hono Node adapter to fix request path handling and WebSocket upgrade vulnerabilities.
+
 ## 0.2.79
 
 No changes in this release.
