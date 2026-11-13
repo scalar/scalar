@@ -5,12 +5,18 @@ import { isObject } from '@scalar/helpers/object/is-object'
 import { replaceEnvVariables } from '@scalar/helpers/regex/replace-variables'
 
 import { getResolvedRef } from '@/helpers/get-resolved-ref'
+import { snapshotSchema } from '@/helpers/snapshot-schema'
 import { serializeFormPropertyWithEncoding } from '@/request-example/builder/body/serialize-form-property'
 import { isParamDisabled } from '@/request-example/builder/header/is-param-disabled'
 import { applyAllowReservedToUrl } from '@/request-example/builder/helpers/apply-allow-reserved-to-url'
 import { getExample } from '@/request-example/builder/helpers/get-example'
 import { getExampleFromSchema } from '@/request-example/builder/helpers/get-example-from-schema'
-import type { EncodingObject, ExampleObject, ParameterObject } from '@/schemas/v3.2/strict/openapi-document'
+import type {
+  EncodingObject,
+  ExampleObject,
+  ParameterObject,
+  SchemaObject,
+} from '@/schemas/v3.2/strict/openapi-document'
 
 /** A whole query string, kept separate from named parameters until URL serialization. */
 export type QuerystringParameter = {
@@ -74,10 +80,12 @@ export const getQuerystringParameter = (
     return undefined
   }
   const value = example?.serializedValue ?? (example?.dataValue !== undefined ? example.dataValue : example?.value)
-  const schema = getResolvedRef(mediaType?.schema)
+  const schema = mediaType?.schema
   let resolvedValue = value
   if (resolvedValue === undefined) {
-    resolvedValue = schema ? getExampleFromSchema(schema, { openapiVersion, jsonSchemaDialect }) : ''
+    resolvedValue = schema
+      ? getExampleFromSchema(snapshotSchema(schema) as SchemaObject, { openapiVersion, jsonSchemaDialect })
+      : ''
   }
   return {
     value: resolvedValue,

@@ -31,6 +31,7 @@ function getExampleFromResponse(
   responses: OpenAPIV3_1.ResponsesObject | undefined,
   exampleName?: string,
   openapiVersion?: string,
+  jsonSchemaDialect?: string,
 ): string | null {
   if (!responses) {
     return null
@@ -67,6 +68,7 @@ function getExampleFromResponse(
     c.header('Content-Type', acceptedContentType)
     const result = getXmlBodyExample(acceptedResponse.schema as SchemaObject | undefined, selectedExample, {
       openapiVersion,
+      jsonSchemaDialect,
       emptyString: 'string',
       variables: pathParameters(c),
       mode: 'read',
@@ -88,7 +90,15 @@ function getExampleFromResponse(
   if (selectedExample) {
     value = normalizeResponseBody(selectedExample.value, responseSchema)
   } else if (responseSchema) {
-    value = normalizeResponseBody(generateResponseExample(responseSchema, pathParameters(c)), responseSchema)
+    value = normalizeResponseBody(
+      generateResponseExample(
+        acceptedResponse.schema as SchemaObject,
+        pathParameters(c),
+        openapiVersion,
+        jsonSchemaDialect,
+      ),
+      responseSchema,
+    )
   }
   // Legacy examples retain the handler fallback's JSON encoding policy.
   return JSON.stringify(value) ?? null
@@ -161,6 +171,7 @@ export async function mockHandlerResponse(
   operation: OpenAPIV3_1.OperationObject,
   pathItemParameters?: OpenAPIV3_1.PathItemObject['parameters'],
   openapiVersion?: string,
+  jsonSchemaDialect?: string,
 ) {
   // Note: the `onRequest` callback runs as middleware (see `create-mock-server`) so it also fires
   // for requests rejected before reaching this handler.
@@ -175,7 +186,13 @@ export async function mockHandlerResponse(
 
   try {
     // Build handler context with tracking
-    const { context, tracking } = await buildHandlerContext(c, operation, pathItemParameters)
+    const { context, tracking } = await buildHandlerContext(
+      c,
+      operation,
+      pathItemParameters,
+      openapiVersion,
+      jsonSchemaDialect,
+    )
 
     // Execute handler
     const { result } = await executeHandler(handlerCode, context)
@@ -194,6 +211,8 @@ export async function mockHandlerResponse(
     const response = getResolvedRef(operation.responses?.[String(statusCode)] ?? operation.responses?.default)
     const contentType = negotiateContentType(c, response?.content)
     const streamingResponse = getStreamingResponse(response?.content?.[contentType], contentType, {
+      openapiVersion,
+      jsonSchemaDialect,
       body: result ?? undefined,
       exampleName: parsePreferHeader(c.req.header('Prefer')).example,
       variables: pathParameters(c),
@@ -216,6 +235,7 @@ export async function mockHandlerResponse(
         operation.responses as OpenAPIV3_1.ResponsesObject | undefined,
         prefer.example,
         openapiVersion,
+        jsonSchemaDialect,
       )
       if (exampleResponse !== null) {
         return c.body(exampleResponse)

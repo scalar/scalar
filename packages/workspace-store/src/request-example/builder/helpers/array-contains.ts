@@ -415,6 +415,60 @@ export const generateContainsArray = (
     add(index)
     add(`string${index}`)
   }
+  // Candidate synthesis may change unauthored fields, but must retain explicit nested values.
+  const preservesAuthored = (
+    source: unknown,
+    sample: unknown,
+    value: unknown,
+    dialect: ArrayDialect,
+    path: string[],
+    depth = 0,
+  ): boolean => {
+    if (equal(sample, value)) return true
+    if (--budget.steps < 0 || depth >= MAX_SCHEMA_DEPTH || sample === undefined) return false
+    for (const layer of arrayLayers(source, dialect, select, path)) {
+      const node = layer.schema
+      if (node.example !== undefined || (Array.isArray(node.examples) && node.examples.length > 0)) return false
+      if (isObject(node.properties) && isObject(sample)) {
+        for (const [key, child] of Object.entries(node.properties)) {
+          if (
+            !preservesAuthored(
+              child,
+              sample[key],
+              isObject(value) ? value[key] : undefined,
+              layer.dialect,
+              [...layer.path, 'properties', key],
+              depth + 1,
+            )
+          )
+            return false
+        }
+      }
+      if (isObject(node.additionalProperties) && isObject(sample) && isObject(value)) {
+        const childPath = [...layer.path, 'additionalProperties']
+        for (const [key, item] of Object.entries(value)) {
+          if (isObject(node.properties) && key in node.properties) continue
+          const expected =
+            key in sample ? sample[key] : generate(node.additionalProperties, childPath, dialectUris[layer.dialect])
+          if (!preservesAuthored(node.additionalProperties, expected, item, layer.dialect, childPath, depth + 1))
+            return false
+        }
+      }
+      if (Array.isArray(sample) && Array.isArray(value)) {
+        for (const [index, item] of value.entries()) {
+          const prefix =
+            layer.dialect === 'modern' && Array.isArray(node.prefixItems) && index < node.prefixItems.length
+          const child = prefix ? (node.prefixItems as unknown[])[index] : (node.items ?? true)
+          const childPath = [...layer.path, ...(prefix ? ['prefixItems', String(index)] : ['items'])]
+          const expected =
+            index < sample.length ? sample[index] : generate(child, childPath, dialectUris[layer.dialect])
+          if (!preservesAuthored(child, expected, item, layer.dialect, childPath, depth + 1)) return false
+        }
+      }
+    }
+    return true
+  }
+
   type Candidate = { value: unknown; matches: boolean[]; size: number }
   const slots = new Map<number, { schema: unknown; candidates: Candidate[] }>()
   const getSlot = (index: number): { schema: unknown; candidates: Candidate[] } => {
@@ -438,6 +492,7 @@ export const generateContainsArray = (
     const itemSchema = itemSchemas.length === 1 ? itemSchemas[0] : { allOf: itemSchemas }
     const local: unknown[] = []
     const authoredSamples: unknown[] = []
+    const probes: { source: unknown; sample: unknown; path: string[]; dialect: ArrayDialect }[] = []
     let omitted = false
     for (const [layerIndex, source] of sources.entries()) {
       const layer = layers[layerIndex]!
@@ -450,6 +505,7 @@ export const generateContainsArray = (
           : ['items']),
       ]
       const sample = generate(source, path, dialectUris[layer.dialect])
+      probes.push({ source, sample, path, dialect: layer.dialect })
       if (sample === undefined) omitted = true
       const authored = arrayLayers(source, layer.dialect, select, path).some(
         ({ schema }) => schema.example !== undefined || (Array.isArray(schema.examples) && schema.examples.length > 0),
@@ -466,6 +522,8 @@ export const generateContainsArray = (
           if (
             sources.some((source, layerIndex) => matches(source, value, layers[layerIndex]!.dialect, budget) !== true)
           )
+            return []
+          if (probes.some((probe) => !preservesAuthored(probe.source, probe.sample, value, probe.dialect, probe.path)))
             return []
           const results = rules.map((rule) => matches(rule.schema, value, rule.dialect, budget))
           return results.some((result) => result === undefined)

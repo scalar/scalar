@@ -1,13 +1,13 @@
 import { getStreamFormat } from '@scalar/helpers/http/is-streaming-content-type'
 import type { OpenAPIV3_2 } from '@scalar/openapi-types'
-import { getResolvedRefDeep } from '@scalar/workspace-store/helpers/get-resolved-ref-deep'
+import { getResolvedRef, mergeSiblingReferences } from '@scalar/workspace-store/helpers/get-resolved-ref'
 import { serializeStreamExample } from '@scalar/workspace-store/helpers/serialize-stream-example'
 import { coerceValue } from '@scalar/workspace-store/schemas/typebox-coerce'
 import { SchemaObjectSchema } from '@scalar/workspace-store/schemas/v3.2/strict/openapi-document'
 import type { Context } from 'hono'
 import { stream } from 'hono/streaming'
 
-import { generateResponseExample } from './generate-response-example'
+import { type ExampleSchema, generateResponseExample } from './generate-response-example'
 import { selectResponseExample } from './select-response-example'
 
 /** A finite mock stream, with its data-model value available to custom handlers. */
@@ -52,18 +52,21 @@ export const getStreamingResponse = (
   }
 
   const itemSchema =
-    typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRefDeep(mediaType.itemSchema)
-  const completeSchema = typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRefDeep(mediaType.schema)
+    typeof mediaType.itemSchema === 'boolean' ? mediaType.itemSchema : getResolvedRef(mediaType.itemSchema)
+  const completeSchema =
+    typeof mediaType.schema === 'boolean' ? mediaType.schema : getResolvedRef(mediaType.schema, mergeSiblingReferences)
   const generateBody = (): unknown => {
     if (itemSchema === false || completeSchema === false) {
       return []
     }
     if (completeSchema === undefined) {
       return Array.from({ length: 3 }, () =>
-        itemSchema === true
+        mediaType.itemSchema === true
           ? null
           : generateResponseExample(
-              coerceValue(SchemaObjectSchema, itemSchema),
+              (typeof mediaType.itemSchema === 'boolean'
+                ? coerceValue(SchemaObjectSchema, mediaType.itemSchema)
+                : mediaType.itemSchema) as ExampleSchema,
               options.variables,
               options.openapiVersion,
               options.jsonSchemaDialect,
@@ -72,17 +75,25 @@ export const getStreamingResponse = (
     }
     if (typeof completeSchema === 'object' && 'type' in completeSchema && completeSchema.type === 'array') {
       return generateResponseExample(
-        coerceValue(SchemaObjectSchema, {
-          ...completeSchema,
-          items: ('items' in completeSchema ? completeSchema.items : undefined) ?? itemSchema,
-        }),
+        ('items' in completeSchema && completeSchema.items !== undefined
+          ? mediaType.schema
+          : {
+              type: 'array',
+              minItems: completeSchema.minItems,
+              maxItems: completeSchema.maxItems,
+              uniqueItems: completeSchema.uniqueItems,
+              allOf: [mediaType.schema],
+              items: mediaType.itemSchema,
+            }) as ExampleSchema,
         options.variables,
         options.openapiVersion,
         options.jsonSchemaDialect,
       )
     }
     return generateResponseExample(
-      coerceValue(SchemaObjectSchema, completeSchema),
+      (typeof mediaType.schema === 'boolean'
+        ? coerceValue(SchemaObjectSchema, mediaType.schema)
+        : mediaType.schema) as ExampleSchema,
       options.variables,
       options.openapiVersion,
       options.jsonSchemaDialect,

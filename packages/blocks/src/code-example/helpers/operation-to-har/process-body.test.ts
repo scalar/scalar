@@ -11,6 +11,24 @@ import { describe, expect, it } from 'vitest'
 import { processBody } from './process-body'
 
 describe('processBody', () => {
+  it('retains reference assertions in generated request bodies', () => {
+    const target = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    const schema = { $ref: '#/array', '$ref-value': target, contains: { const: 3 }, maxContains: 1 }
+    const result = processBody({
+      openapiVersion: '3.1.0',
+      contentType: 'application/json',
+      requestBody: { content: { 'application/json': { schema: schema as unknown as SchemaObject } } },
+    })
+    expect(JSON.parse(result!.text!).sort()).toStrictEqual([2, 3])
+  })
+
   it.each([
     { openapiVersion: '3.0.4', jsonSchemaDialect: undefined, expected: [1, 1, 1] },
     { openapiVersion: '3.1.2', jsonSchemaDialect: undefined, expected: [2, 1, 1] },

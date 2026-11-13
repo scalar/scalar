@@ -1,3 +1,4 @@
+import { snapshotSchema } from '@scalar/workspace-store/helpers/snapshot-schema'
 import { getExampleFromSchema } from '@scalar/workspace-store/request-example'
 
 /** The schema shape `getExampleFromSchema` accepts, so callers do not have to name it themselves. */
@@ -13,7 +14,7 @@ export const generateResponseExample = (
   openapiVersion?: string,
   jsonSchemaDialect?: string,
 ): unknown =>
-  getExampleFromSchema(schema, {
+  getExampleFromSchema(snapshotSchema(schema), {
     openapiVersion,
     jsonSchemaDialect,
     emptyString: 'string',

@@ -327,7 +327,7 @@ export const processBody = ({
 
   // Try to extract examples from the schema
   const mediaType = requestBody.content[_contentType]
-  const contentSchema = getResolvedRef(mediaType?.schema ?? mediaType?.itemSchema)
+  const contentSchema = mediaType?.schema ?? mediaType?.itemSchema
   if (typeof contentSchema !== 'undefined') {
     const exampleSchema = snapshotSchema(contentSchema)
     if (_contentType === 'multipart/form-data' && isObjectSchema(exampleSchema)) {
@@ -386,7 +386,7 @@ export const processBody = ({
             encoding,
             undefined,
             _contentType === 'multipart/form-data',
-            contentSchema,
+            getResolvedRef(contentSchema),
           ),
         }
       }

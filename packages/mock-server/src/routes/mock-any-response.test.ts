@@ -21,6 +21,37 @@ const person = {
 }
 
 describe('mock-any-response', () => {
+  it.each(['application/json', 'application/x-ndjson'])('retains reference assertions for %s', async (contentType) => {
+    const target = {
+      type: 'array',
+      items: { type: 'integer' },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 2 },
+      maxContains: 1,
+    }
+    const schema = { $ref: '#/array', '$ref-value': target, contains: { const: 3 }, maxContains: 1 }
+    const app = new Hono().get('/', (c) =>
+      mockAnyResponse(
+        c,
+        operation(contentType, {
+          schema,
+          ...(contentType === 'application/x-ndjson' ? { itemSchema: { type: 'integer' } } : {}),
+        }),
+        contentType === 'application/x-ndjson' ? '3.2.0' : '3.1.0',
+      ),
+    )
+    const response = await app.request('/')
+    const text = await response.text()
+    const value = contentType === 'application/json' ? JSON.parse(text) : text.trim().split('\n').map(Number)
+    const validate = new Ajv2020({ strict: false }).compile({
+      ...schema,
+      $ref: '#/$defs/array',
+      $defs: { array: target },
+    })
+    expect({ value, errors: validate(value) ? [] : validate.errors }).toStrictEqual({ value, errors: [] })
+  })
+
   it.each([
     { dialect: undefined, expected: '2\n1\n1\n' },
     { dialect: 'https://example.com/unsupported', expected: '1\n1\n1\n' },

@@ -65,6 +65,48 @@ const documentWithBrokenResponseHeader: Record<string, unknown> = {
 }
 
 describe('createMockServer', () => {
+  it.each([undefined, 'return res[200];', 'return undefined;'])(
+    'retains referenced array constraints through document loading and handlers: %s',
+    async (handler) => {
+      const target = {
+        type: 'array',
+        items: { type: 'integer' },
+        minItems: 2,
+        maxItems: 2,
+        contains: { const: 2 },
+        maxContains: 1,
+      }
+      const app = await createMockServer({
+        document: {
+          openapi: '3.1.0',
+          info: { title: 'Contains', version: '1.0' },
+          components: { schemas: { Numbers: target } },
+          paths: {
+            '/numbers': {
+              get: {
+                ...(handler ? { 'x-handler': handler } : {}),
+                responses: {
+                  '200': {
+                    description: 'OK',
+                    content: {
+                      'application/json': {
+                        schema: { $ref: '#/components/schemas/Numbers', contains: { const: 3 }, maxContains: 1 },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        logger: false,
+      })
+      const response = await app.request('/numbers')
+      expect(response.status).toBe(200)
+      expect(((await response.json()) as number[]).sort()).toStrictEqual([2, 3])
+    },
+  )
+
   describe('document sources', () => {
     const document = {
       openapi: '3.1.0',

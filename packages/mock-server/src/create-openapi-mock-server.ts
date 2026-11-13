@@ -311,7 +311,10 @@ export const createOpenApiMockServer = async (
 
       // Route to appropriate handler
       if (hasHandler) {
-        handlers.push(async (c) => await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi))
+        handlers.push(
+          async (c) =>
+            await mockHandlerResponse(c, operation, pathItem?.parameters, schema.openapi, schema.jsonSchemaDialect),
+        )
       } else {
         handlers.push(async (c) => await mockAnyResponse(c, operation, schema.openapi, schema.jsonSchemaDialect))
       }

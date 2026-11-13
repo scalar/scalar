@@ -276,6 +276,68 @@ describe('getExampleFromSchema', () => {
     })
   })
 
+  it.each([
+    { type: 'integer', example: 1 },
+    { $ref: '#/id', '$ref-value': { type: 'integer', example: 1 } },
+  ])('preserves authored property examples while counting matches: %j', (id) => {
+    const schema = {
+      type: 'array',
+      items: { type: 'object', properties: { id }, required: ['id'], additionalProperties: false },
+      minItems: 3,
+      maxItems: 3,
+      contains: { const: { id: 2 } },
+      maxContains: 1,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ id: 1 }, { id: 1 }, { id: 1 }])
+  })
+
+  it('changes unauthored fields without replacing authored properties', () => {
+    const value = validateArray({
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { id: { type: 'integer', example: 1 }, value: { type: 'integer' } },
+        required: ['id', 'value'],
+        additionalProperties: false,
+      },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: { id: 1, value: 2 } },
+      maxContains: 1,
+    })
+    expect(value).toStrictEqual([
+      { id: 1, value: 2 },
+      { id: 1, value: 1 },
+    ])
+  })
+
+  it('preserves authored examples inside nested arrays', () => {
+    const schema = {
+      type: 'array',
+      items: { type: 'array', items: { type: 'integer', example: 1 }, minItems: 2, maxItems: 2 },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: [2, 2] },
+      maxContains: 1,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([
+      [1, 1],
+      [1, 1],
+    ])
+  })
+
+  it('preserves authored examples for additional properties with different names', () => {
+    const schema = {
+      type: 'array',
+      items: { type: 'object', additionalProperties: { type: 'integer', example: 1 } },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: { extra: 2 } },
+      maxContains: 1,
+    } as unknown as SchemaObject
+    expect(getExampleFromSchema(schema)).toStrictEqual([{ additionalProperty: 1 }, { additionalProperty: 1 }])
+  })
+
   it('keeps authored arrays even when they contradict contains', () => {
     const schema = { type: 'array', example: [9], items: { type: 'integer' }, contains: { const: 2 } } as SchemaObject
     expect(getExampleFromSchema(schema)).toStrictEqual([9])
