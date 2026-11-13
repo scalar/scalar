@@ -252,6 +252,12 @@ public class ScalarProperties {
     private boolean persistAuth = false;
 
     /**
+     * Controls whether the selected code sample client is saved and restored in local storage.
+     * Defaults to true. Set to false to keep client selection on the current page only.
+     */
+    private boolean persistSelectedClient = true;
+
+    /**
      * Controls whether telemetry is enabled.
      * Telemetry tracks only whether a request was sent through the API client.
      * We don't track who sent the request, what request was sent, or where it was
@@ -571,6 +577,14 @@ public class ScalarProperties {
 
     public void setBaseServerUrl(String baseServerUrl) {
         this.baseServerUrl = baseServerUrl;
+    }
+
+    public boolean isPersistSelectedClient() {
+        return persistSelectedClient;
+    }
+
+    public void setPersistSelectedClient(boolean persistSelectedClient) {
+        this.persistSelectedClient = persistSelectedClient;
     }
 
     public boolean isPersistAuth() {

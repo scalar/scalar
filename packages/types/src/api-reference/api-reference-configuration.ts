@@ -168,6 +168,11 @@ export const apiReferenceConfigurationSchema = baseConfigurationSchema.extend({
       z.literal(true),
     ])
     .optional(),
+  /**
+   * Whether to save and restore the selected code sample client using local storage.
+   * @default true
+   */
+  persistSelectedClient: z.boolean().optional().default(true).catch(true),
   /** Determine the HTTP client that's selected by default */
   // The custom branch widens the inferred type only; the permissive first branch
   // already accepts custom keys at runtime.

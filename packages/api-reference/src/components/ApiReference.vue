@@ -361,9 +361,16 @@ const withLocalizedConfigurationDefaults = (
 /** Any dev toolbar modifications are merged with the active configuration */
 const mergedConfig = computed<ApiReferenceConfiguration>(() => {
   const activeConfig = configList.value[activeSlug.value]?.config
+  const initialConfig = Array.isArray(props.configuration)
+    ? (props.configuration.find((config) => config.default) ??
+      props.configuration[0])
+    : props.configuration
   const merged = {
     // Provides a default set of values when the lookup fails
-    ...coerce(apiReferenceConfigurationSchema, {}),
+    ...coerce(apiReferenceConfigurationSchema, {
+      // Embeddings may supply their source later; honor their storage preference from the first render.
+      persistSelectedClient: initialConfig?.persistSelectedClient,
+    }),
     // The active configuration based on the slug
     ...activeConfig,
     // Any overrides from the localhost toolbar
@@ -547,6 +554,8 @@ const clientStore = createWorkspaceStore({
   plugins: [
     persistencePlugin({
       persistAuth: () => mergedConfig.value.persistAuth ?? false,
+      persistSelectedClient: () =>
+        mergedConfig.value.persistSelectedClient ?? true,
     }),
   ],
 })
@@ -1446,7 +1455,9 @@ onBeforeMount(async () => {
   }
 
   // We read the client from the client store so we need to set it to the client store
-  loadClientFromStorage(clientStore)
+  if (mergedConfig.value.persistSelectedClient !== false) {
+    loadClientFromStorage(clientStore)
+  }
 
   if (
     urlRouting.value &&
