@@ -147,7 +147,7 @@ paths:
           openWorldHint: false
 ```
 
-Scalar sends annotations exactly as written. A key the MCP specification does not define is still sent, so a hint added by a newer version of the specification reaches clients.
+Scalar sends annotations exactly as written. A key the MCP specification does not define is still sent, so a hint added by a newer version of the specification reaches clients, as long as its value is a number, a boolean, `null`, or text of up to 256 characters. An unknown key with any other value, such as an object, is dropped from the API document and is an error in the MCP Config.
 
 A hint with the wrong type, such as `readOnlyHint: "yes"`, is dropped on its own and the other hints are still sent. Clients that check the tool list strictly would otherwise reject every tool over it. In the [MCP Config](configuration.md) editor, a wrong type is an error, and an annotation the MCP specification does not define is a warning, since it may be a typo.
 
