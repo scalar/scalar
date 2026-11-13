@@ -71,7 +71,8 @@ export function isInsideDataValue(path: string[] | undefined, sourceVersion: '2.
     // Only treat it as data when the keyword is a real keyword. Inside a named-schema map the
     // same word (e.g. a property literally called `default`) is just a member name.
     // Swagger extensions must not classify OpenAPI 3.0 component or callback names as data.
-    const isDataKeyword = DATA_KEYWORDS.has(segment) || (sourceVersion === '2.0' && segment === 'x-example')
+    const isDataKeyword =
+      DATA_KEYWORDS.has(segment) || (sourceVersion === '2.0' && (segment === 'x-example' || segment === 'x-examples'))
     if (isDataKeyword && !isNamedSchemaMap(path.slice(0, index)) && !isDefaultResponse(path, index)) {
       return true
     }
