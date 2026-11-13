@@ -2,7 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
-import { playgroundApi } from './server'
+import { playgroundApi } from './server.ts'
 
 export default defineConfig({
   plugins: [vue(), tailwindcss(), playgroundApi()],
