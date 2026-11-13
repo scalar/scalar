@@ -15,11 +15,18 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type { TeleportProps } from 'vue'
+import {
+  type TeleportProps,
+  getCurrentInstance,
+  inject,
+  onMounted,
+  ref,
+  ssrContextKey,
+} from 'vue'
 
 import { useTeleport } from './useTeleport'
 
-defineProps<{
+const { to } = defineProps<{
   /**
    * Override the default teleport target
    */
@@ -44,11 +51,48 @@ defineSlots<{
 defineOptions({ inheritAttrs: false })
 
 const root = useTeleport()
+
+/**
+ * Server-rendered teleports stay in place until the component is mounted.
+ *
+ * Vue's server renderer does not put teleported content into the page. It
+ * hands the content back separately and expects the host to place it in the
+ * target. A host that embeds the server-rendered markup never receives it, so
+ * during hydration Vue looks for the content in the target and hydrates over
+ * whatever the host page has there.
+ *
+ * Rendering in place asks nothing of the host. The content is part of the
+ * markup where the component is used, it is hydrated there, and it moves to
+ * the target once the component is mounted. A component that is mounted
+ * without server-rendered markup still teleports right away.
+ *
+ * @see https://vuejs.org/guide/scaling-up/ssr.html#teleports
+ */
+const isServerRendering = inject<unknown>(ssrContextKey, null) !== null
+const isHydrating = getCurrentInstance()?.vnode.el != null
+const renderInPlace = ref(isServerRendering || isHydrating)
+
+/**
+ * Vue looks up the target once, while it hydrates the teleport, and keeps
+ * what it found. If the target is not on the page at that moment there is
+ * nowhere to move the content to later, so it stays where it was rendered.
+ */
+const isTargetOnPage = (target: TeleportProps['to']) =>
+  typeof target === 'string'
+    ? document.querySelector(target) !== null
+    : !!target
+const canTeleport = !isHydrating || isTargetOnPage(to || root)
+
+onMounted(() => {
+  if (canTeleport) {
+    renderInPlace.value = false
+  }
+})
 </script>
 <template>
   <Teleport
     :defer="!immediate"
-    :disabled="disabled"
+    :disabled="disabled || renderInPlace"
     :to="to || root">
     <div
       class="scalar-app"
