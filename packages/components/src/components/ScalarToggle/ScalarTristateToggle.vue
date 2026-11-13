@@ -16,12 +16,19 @@ export default {}
 import { computed } from 'vue'
 
 import ScalarToggleSlider from './ScalarToggleSlider.vue'
+import type { ScalarToggleSize } from './types'
 
 const props = defineProps<{
   /** Prevents the toggle from being cycled, and dims it visually. */
   disabled?: boolean
   /** Accessible label announced to assistive technology */
   label?: string
+  /**
+   * Size of the toggle
+   *
+   * @default 'sm'
+   */
+  size?: ScalarToggleSize
 }>()
 
 const model = defineModel<boolean | undefined>()
@@ -61,6 +68,7 @@ function toggle() {
     :disabled
     :label
     role="checkbox"
+    :size
     v-bind="SLIDER_PROPS[state]"
     @click="toggle" />
 </template>

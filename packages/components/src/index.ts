@@ -110,7 +110,7 @@ export {
 export { ScalarTextArea } from './components/ScalarTextArea'
 export { ScalarTextInput, ScalarTextInputCopy } from './components/ScalarTextInput'
 export { ScalarThemeSwatches, useThemeSwatches } from './components/ScalarThemeSwatches'
-export type { ScalarTristateOption } from './components/ScalarToggle'
+export type { ScalarToggleSize, ScalarTristateOption } from './components/ScalarToggle'
 export {
   ScalarToggle,
   ScalarToggleGroup,
