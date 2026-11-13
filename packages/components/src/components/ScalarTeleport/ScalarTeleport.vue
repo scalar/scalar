@@ -77,7 +77,7 @@ const renderInPlace = ref(isServerRendering || isHydrating)
  * what it found. If the target is not on the page at that moment there is
  * nowhere to move the content to later, so it stays where it was rendered.
  */
-const isTargetOnPage = (target: TeleportProps['to']) =>
+const isTargetOnPage = (target: TeleportProps['to']): boolean =>
   typeof target === 'string'
     ? document.querySelector(target) !== null
     : !!target

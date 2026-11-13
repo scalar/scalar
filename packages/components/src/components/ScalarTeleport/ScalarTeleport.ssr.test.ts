@@ -16,21 +16,24 @@ const App = {
 }
 
 /** A host page with content of its own around the server-rendered markup */
-const renderHostPage = (html: string) => {
+const renderHostPage = (html: string): (HTMLElement | null)[] => {
   document.body.innerHTML = `<a id="skip-link">Skip</a><header id="header">Header</header><div id="app">${html}</div><footer id="footer">Footer</footer>`
 
   return ['skip-link', 'header', 'app', 'footer'].map((id) => document.getElementById(id))
 }
 
 /** Renders a component the way the server does */
-const renderOnServer = (component: Component) => renderToString(createSSRApp(component))
+const renderOnServer = (component: Component): Promise<string> => renderToString(createSSRApp(component))
 
 /**
  * Puts server-rendered markup on a host page and hydrates it.
  *
  * This is synchronous on purpose: the content moves in the next tick, and the tests look at the page before that.
  */
-const hydrate = (component: Component, html: string) => {
+const hydrate = (
+  component: Component,
+  html: string,
+): { app: ReturnType<typeof createSSRApp>; hostElements: ReturnType<typeof renderHostPage> } => {
   const hostElements = renderHostPage(html)
   const app = createSSRApp(component)
   app.mount('#app')
