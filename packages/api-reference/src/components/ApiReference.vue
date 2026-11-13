@@ -844,6 +844,25 @@ const sidebarItems = computed<TraversedEntry[]>(() => {
   return docItems
 })
 
+/** The tag that is opened by default when the URL does not point at a specific target */
+const getFirstTag = (): TraversedEntry | undefined =>
+  sidebarItems.value.find((item) => item.type === 'tag')
+
+/**
+ * The server opens the first tag by default, because it cannot see the URL fragment. The first
+ * browser render has to open the same tag, or Vue replaces the server-rendered sidebar and tag
+ * content. A deep link closes it again after hydration, unless it was open for another reason
+ * such as `defaultOpenAllTags`.
+ */
+let hydratedFirstTagId: string | undefined
+if (hydrationState.value && mergedConfig.value.defaultOpenFirstTag) {
+  const firstTag = getFirstTag()
+  if (firstTag && !sidebarState.isExpanded(firstTag.id)) {
+    sidebarState.setExpanded(firstTag.id, true)
+    hydratedFirstTagId = firstTag.id
+  }
+}
+
 /** Find the sidebar entry that represents the introduction section */
 const infoSectionId = computed(
   () =>
@@ -1313,15 +1332,20 @@ const changeSelectedDocument = async (
 
   // When loading to a specified element we need to freeze and scroll
   if (scrollTargetId && scrollTargetId !== slug) {
+    // The target replaces the first tag that was only open to match the server render
+    if (hydratedFirstTagId) {
+      sidebarState.setExpanded(hydratedFirstTagId, false)
+    }
     scrollToLazyElement(scrollTargetId)
   }
   // If there is no child element of the document specified and defaultOpenFirstTag is enabled, we expand the first tag
   else if (config.defaultOpenFirstTag) {
-    const firstTag = sidebarItems.value.find((item) => item.type === 'tag')
+    const firstTag = getFirstTag()
     if (firstTag) {
       sidebarState.setExpanded(firstTag.id, true)
     }
   }
+  hydratedFirstTagId = undefined
 
   // Reflect the freshly selected document in the browser tab title
   updatePageTitle(

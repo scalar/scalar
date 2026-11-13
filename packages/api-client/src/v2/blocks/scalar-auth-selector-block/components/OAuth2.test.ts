@@ -349,12 +349,14 @@ describe('OAuth2', () => {
       wrapper.unmount()
     })
 
-    it('resets a custom redirect URI back to the browser prefill', () => {
+    it('resets a custom redirect URI back to the browser prefill', async () => {
       const wrapper = mountWithProps({
         flows: {
           authorizationCode: authorizationCode({ 'x-scalar-secret-redirect-uri': 'https://custom.example.com/cb' }),
         },
       })
+      // The browser prefill is only known after mount, so server and browser render the same first
+      await nextTick()
       expect(findReset(wrapper, 'Redirect URL')).toBeDefined()
       wrapper.unmount()
     })
