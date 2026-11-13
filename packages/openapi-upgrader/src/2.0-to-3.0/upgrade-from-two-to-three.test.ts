@@ -1846,6 +1846,140 @@ describe('upgradeFromTwoToThree', () => {
     })
   })
 
+  it.each(['50%', '%ZZ', '%E0%A4%A', 'space%20name', 'slash~1tilde~0'])(
+    'migrates shared body references containing %s without throwing',
+    (segment) => {
+      const name = segment === 'space%20name' ? 'space name' : segment === 'slash~1tilde~0' ? 'slash/tilde~' : segment
+      const responses = { '200': { description: 'ok' } }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        parameters: { [name]: { name: 'body', in: 'body', schema: { type: 'string' } } },
+        paths: { '/pets': { post: { parameters: [{ $ref: `#/parameters/${segment}` }], responses } } },
+      })
+
+      expect(result.paths?.['/pets']?.post).toStrictEqual({
+        responses,
+        requestBody: { $ref: `#/components/requestBodies/${segment}` },
+      })
+      expect(result.components?.requestBodies?.[name]).toStrictEqual({
+        content: { 'application/json': { schema: { type: 'string' } } },
+      })
+    },
+  )
+
+  it.each(['body', 'formData'] as const)(
+    'follows shared %s aliases and preserves cyclic or unresolved references',
+    (location) => {
+      const responses = { '200': { description: 'ok' } }
+      const mediaType = location === 'body' ? 'application/json' : 'multipart/form-data'
+      const overrideMediaType = location === 'body' ? 'application/xml' : 'application/x-www-form-urlencoded'
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: [mediaType],
+        parameters: {
+          A: { $ref: '#/parameters/B' },
+          B: { $ref: '#/parameters/50%' },
+          '50%':
+            location === 'body'
+              ? { name: 'body', in: 'body', schema: { type: 'string' } }
+              : { name: 'caption', in: 'formData', type: 'string' },
+          CycleA: { $ref: '#/parameters/CycleB' },
+          CycleB: { $ref: '#/parameters/CycleA' },
+          Missing: { $ref: '#/parameters/Absent' },
+          External: { $ref: 'other.yaml#/parameters/Body' },
+        },
+        paths: {
+          '/pets': {
+            parameters: [{ $ref: '#/parameters/A' }],
+            post: { responses },
+            put: { consumes: [overrideMediaType], responses },
+          },
+        },
+      })
+      const schema =
+        location === 'body'
+          ? { type: 'string' }
+          : { type: 'object', properties: { caption: { type: 'string' } }, required: [] }
+      expect(result.paths?.['/pets']).toStrictEqual({
+        post: { responses, requestBody: { $ref: '#/components/requestBodies/A' } },
+        put: { responses, requestBody: { content: { [overrideMediaType]: { schema } } } },
+      })
+      expect(result.components?.requestBodies).toStrictEqual({
+        A: { $ref: '#/components/requestBodies/B' },
+        B: { $ref: '#/components/requestBodies/50%' },
+        '50%': { content: { [mediaType]: { schema } } },
+      })
+      expect(result.components?.parameters).toStrictEqual({
+        CycleA: { $ref: '#/components/parameters/CycleB' },
+        CycleB: { $ref: '#/components/parameters/CycleA' },
+        Missing: { $ref: '#/components/parameters/Absent' },
+        External: { $ref: 'other.yaml#/parameters/Body' },
+      })
+    },
+  )
+
+  it.each([
+    { inheritedLocation: 'body', operationLocation: 'body' },
+    { inheritedLocation: 'body', operationLocation: 'formData' },
+    { inheritedLocation: 'formData', operationLocation: 'body' },
+  ])(
+    'gives the operation payload precedence over conflicting inheritance: %j',
+    ({ inheritedLocation, operationLocation }) => {
+      const responses = { '200': { description: 'ok' } }
+      const mediaType = operationLocation === 'body' ? 'application/json' : 'multipart/form-data'
+      const inherited =
+        inheritedLocation === 'body'
+          ? { name: 'body', in: 'body', schema: { type: 'string' } }
+          : { name: 'caption', in: 'formData', type: 'string' }
+      const operation =
+        operationLocation === 'body'
+          ? { name: 'payload', in: 'body', schema: { type: 'integer' } }
+          : { name: 'count', in: 'formData', type: 'integer' }
+      const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+        swagger: '2.0',
+        info: { title: 'Pets', version: '1' },
+        consumes: [mediaType],
+        parameters: { Inherited: inherited, Operation: operation },
+        paths: {
+          '/pets': {
+            parameters: [{ $ref: '#/parameters/Inherited' }],
+            post: { parameters: [operation], responses },
+            put: { parameters: [{ $ref: '#/parameters/Operation' }], responses },
+          },
+        },
+      })
+      const schema =
+        operationLocation === 'body'
+          ? { type: 'integer' }
+          : { type: 'object', properties: { count: { type: 'integer' } }, required: [] }
+      expect(result.paths?.['/pets']).toStrictEqual({
+        post: { responses, requestBody: { content: { [mediaType]: { schema } } } },
+        put: { responses, requestBody: { $ref: '#/components/requestBodies/Operation' } },
+      })
+    },
+  )
+
+  it('reuses shared bodies with reordered or repeated operation media types', () => {
+    const result: OpenAPIV3.Document = upgradeFromTwoToThree({
+      swagger: '2.0',
+      info: { title: 'Pets', version: '1' },
+      consumes: ['application/json', 'application/xml'],
+      parameters: { Body: { name: 'body', in: 'body', schema: { type: 'string' } } },
+      paths: {
+        '/pets': {
+          post: {
+            consumes: ['application/xml', 'application/json', 'application/xml'],
+            parameters: [{ $ref: '#/parameters/Body' }],
+            responses: { '200': { description: 'ok' } },
+          },
+        },
+      },
+    })
+    expect(result.paths?.['/pets']?.post?.requestBody).toStrictEqual({ $ref: '#/components/requestBodies/Body' })
+  })
+
   it.each([false, true])('lets an operation override an inherited body, referenced override: %s', (reference) => {
     const responses = { '200': { description: 'ok' } }
     const override = { name: 'body', in: 'body', required: false, schema: { type: 'integer' } }
@@ -2032,7 +2166,6 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.paths?.['/pets']).toStrictEqual({
-      parameters: [],
       post: {
         responses,
         requestBody: {
