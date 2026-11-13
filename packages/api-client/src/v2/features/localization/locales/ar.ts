@@ -190,8 +190,13 @@ export const ar = {
     'cancel': 'إلغاء',
   },
   'addressBar': {
+    desktopBrowserUrlRequired: 'يمكن لتطبيق سطح المكتب فتح عناوين HTTPS أو خوادم HTTP المحلية فقط في المتصفح.',
     'path': 'المسار',
     'copyUrl': 'نسخ الرابط',
+    'openInBrowser': 'فتح في المتصفح',
+    'openInBrowserHint':
+      'فتح في علامة تبويب جديدة باستخدام ملفات تعريف ارتباط المتصفح، دون ترويسات مخصصة أو جسم الطلب. قد تُحفظ بيانات الاعتماد في معلمات الاستعلام في سجل المتصفح.',
+    'browserUrlRequired': 'أدخل عنوان URL صالحًا يبدأ بـ HTTP أو HTTPS لفتحه في المتصفح.',
     'send': 'إرسال',
     'sendRequest': 'إرسال طلب {method} إلى {url}',
     'duplicateRequest': 'يوجد بالفعل طلب {method} إلى {path} في هذا المستند',

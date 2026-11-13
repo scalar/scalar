@@ -191,8 +191,14 @@ export const ru = {
     'cancel': 'Отмена',
   },
   'addressBar': {
+    desktopBrowserUrlRequired:
+      'Настольное приложение может открывать в браузере только URL HTTPS или локальные HTTP-серверы.',
     'path': 'Путь',
     'copyUrl': 'Копировать URL',
+    'openInBrowser': 'Открыть в браузере',
+    'openInBrowserHint':
+      'Открыть в новой вкладке с cookie браузера, без пользовательских заголовков и тела запроса. Учётные данные в параметрах запроса могут сохраняться в истории браузера.',
+    'browserUrlRequired': 'Введите корректный URL HTTP или HTTPS для открытия в браузере.',
     'send': 'Отправить',
     'sendRequest': 'Отправить запрос {method} на {url}',
     'duplicateRequest': 'Запрос {method} к {path} уже существует в этом документе',

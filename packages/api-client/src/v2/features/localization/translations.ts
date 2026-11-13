@@ -192,6 +192,11 @@ export const en = {
   addressBar: {
     path: 'Path',
     copyUrl: 'Copy URL',
+    openInBrowser: 'Open in browser',
+    openInBrowserHint:
+      'Open in a new tab using browser cookies, without custom headers or a request body. Query credentials may be saved in browser history.',
+    browserUrlRequired: 'Enter a valid HTTP or HTTPS URL to open in the browser.',
+    desktopBrowserUrlRequired: 'The desktop app can only open HTTPS URLs or local HTTP servers in the browser.',
     send: 'Send',
     sendRequest: 'Send {method} request to {url}',
     duplicateRequest: 'A {method} request to {path} already exists in this document',
