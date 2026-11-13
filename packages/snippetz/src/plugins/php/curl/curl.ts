@@ -150,8 +150,6 @@ export const phpCurl: Plugin = {
     // Execute and close
     parts.push('')
     parts.push('curl_exec($ch);')
-    parts.push('')
-    parts.push('curl_close($ch);')
 
     return parts.join('\n').replace(/\n\n\n/g, '\n\n')
   },
