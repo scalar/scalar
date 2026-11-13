@@ -6,9 +6,6 @@ pages outside this reference resolve.
 -->
 # C#
 
-> [!NOTE]
-> The C# target is experimental.
-
 Add `csharp` under `targets` to generate a C# SDK package.
 
 ```json
@@ -110,7 +107,7 @@ C# generation options.
 
 **Type:** `object`
 
-Signs the generated assembly with a strong-name key, so the package can be referenced from a strong-named assembly. Consumers on .NET Framework, or building with warnings as errors, cannot load or reference an unsigned assembly from a signed one. Turning signing on or off changes the assembly's identity, so a consumer bound to the old identity has to rebuild: decide it before the first release. The key is yours, and the generator never creates or writes one: commit the `.snk` file to the destination repository yourself. Without the key file the SDK still builds, unsigned, but packing it for release fails; see the C# publishing guide.
+Signs the generated assembly with a strong-name key, so the package can be referenced from a strong-named assembly. Consumers on .NET Framework, or building with warnings as errors, cannot load or reference an unsigned assembly from a signed one. Turning signing on or off changes the assembly's identity, so a consumer bound to the old identity has to rebuild: decide it before the first release. The key is yours, and the generator never creates or writes one: commit the `.snk` file to the destination repository at `keyFile`, or store it base64-encoded in a `STRONG_NAME_KEY` secret, which the release workflows write to `keyFile` before building. Without either the SDK still builds, unsigned, but packing it for release fails; the generated CI fails the release PR first, so a release is not tagged without a key (with `publish.nuget.releaseEnvironment` set it only warns, since a pull request run cannot read environment secrets). See the C# publishing guide.
 
 #### keyFile
 
