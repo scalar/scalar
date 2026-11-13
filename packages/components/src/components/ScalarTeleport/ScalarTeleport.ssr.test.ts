@@ -162,6 +162,26 @@ describe('ScalarTeleport.ssr', () => {
     }
   })
 
+  it.each(['client-only', 'hydrated'])('keeps a bare disabled attribute in place when %s', async (mode) => {
+    const component = {
+      components: { ScalarTeleport },
+      template: '<main><ScalarTeleport disabled><div id="teleported">Content</div></ScalarTeleport></main>',
+    }
+    renderHostPage(mode === 'hydrated' ? await renderOnServer(component) : '')
+    const app = mode === 'hydrated' ? createSSRApp(component) : createApp(component)
+    app.mount('#app')
+
+    try {
+      await nextTick()
+
+      const content = document.querySelector('#app main #teleported')
+      expect(content?.textContent).toBe('Content')
+      expect(document.getElementById('teleported')).toBe(content)
+    } finally {
+      app.unmount()
+    }
+  })
+
   /**
    * Vue only looks for the target while hydrating. Without one, moving the content later would throw, so the
    * content has to stay usable where it is.
