@@ -116,7 +116,9 @@ describe('SchemaPropertyExamples', () => {
   })
   it('distinguishes equal values by summary or name and copies only the value', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
-    vi.stubGlobal('navigator', { clipboard: { writeText } })
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, 'clipboard')
+    // jsdom has no Clipboard API; keep the real navigator and mock only this browser boundary.
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
     const wrapper = mount(SchemaPropertyExamples, {
       props: {
         examples: [
@@ -135,7 +137,11 @@ describe('SchemaPropertyExamples', () => {
       await buttons[1]!.trigger('click')
       expect(writeText.mock.calls).toStrictEqual([['session=abc\ntheme=dark'], ['session=abc\ntheme=dark']])
     } finally {
-      vi.unstubAllGlobals()
+      if (clipboardDescriptor) {
+        Object.defineProperty(navigator, 'clipboard', clipboardDescriptor)
+      } else {
+        Reflect.deleteProperty(navigator, 'clipboard')
+      }
     }
   })
 
