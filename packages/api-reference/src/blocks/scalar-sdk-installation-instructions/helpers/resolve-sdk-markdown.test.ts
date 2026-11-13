@@ -107,6 +107,27 @@ describe('resolve-sdk-markdown', () => {
     expect(html.includes('{{password}}')).toBe(true)
   })
 
+  it('masks credentials equal to their placeholder while preserving the copy value', () => {
+    const { html, blocks } = render('```sh\nconfigure {{token}}\n```', [
+      {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-Key',
+        'x-scalar-secret-token': '{{token}}',
+        'x-scalar-credential-placeholders': { token: { field: 'token' } },
+      },
+    ])
+    expect(blocks).toStrictEqual([
+      {
+        marker: 'test-0',
+        language: 'sh',
+        displayContent: 'configure ••••••••',
+        copyContent: 'configure {{token}}',
+      },
+    ])
+    expect(html.includes('{{token}}')).toBe(false)
+  })
+
   it('leaves missing placeholders and ordinary code blocks unchanged', () => {
     const source = '```sh\necho {{missing}}\n```'
     const { html, blocks } = render(source)
