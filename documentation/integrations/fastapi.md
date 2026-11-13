@@ -162,6 +162,7 @@ When using multiple sources, each `OpenAPISource` can be configured with:
 
 - `layout` (default `Layout.MODERN`)
 - `show_sidebar` (default `True`)
+- `show_default_clients_with_sdk_installation` (default `False`) - Show built-in HTTP clients alongside SDK installation tabs in the introduction. When disabled, installation instructions replace the built-in clients.
 - `hide_models` (default `False`)
 - `hide_search` (default `False`) - Whether to show the sidebar search bar
 - `hide_test_request_button` (default `False`) - Whether to show the "Test Request" button

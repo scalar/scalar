@@ -64,6 +64,7 @@ internal static partial class ScalarOptionsMapper
             FeaturedClients = options.FeaturedClients?
                 .Select(client => $"{client.Key.ToStringFast(true)}/{client.Value.ToStringFast(true)}")
                 .ToArray(),
+            ShowDefaultClientsWithSdkInstallation = options.ShowDefaultClientsWithSdkInstallation,
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
