@@ -203,6 +203,12 @@ public class ScalarProperties {
     private DefaultHttpClient defaultHttpClient;
 
     /**
+     * Shows built-in HTTP clients alongside SDK installation tabs in the introduction.
+     * Defaults to false, which shows only SDK tabs when installation instructions are available.
+     */
+    private boolean showDefaultClientsWithSdkInstallation = false;
+
+    /**
      * Controls the list of servers for the Scalar API Reference.
      * This list will override the servers defined in the OpenAPI document.
      */
@@ -507,6 +513,14 @@ public class ScalarProperties {
 
     public void setAuthentication(ScalarAuthenticationOptions authentication) {
         this.authentication = authentication;
+    }
+
+    public boolean isShowDefaultClientsWithSdkInstallation() {
+        return showDefaultClientsWithSdkInstallation;
+    }
+
+    public void setShowDefaultClientsWithSdkInstallation(boolean showDefaultClientsWithSdkInstallation) {
+        this.showDefaultClientsWithSdkInstallation = showDefaultClientsWithSdkInstallation;
     }
 
     public DefaultHttpClient getDefaultHttpClient() {

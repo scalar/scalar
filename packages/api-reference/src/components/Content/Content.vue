@@ -90,6 +90,7 @@ const {
       | 'documentDownloadType'
       | 'expandAllResponses'
       | 'featuredClients'
+      | 'showDefaultClientsWithSdkInstallation'
       | 'hiddenClients'
       | 'hideTestRequestButton'
       | 'layout'
@@ -346,7 +347,13 @@ provideDocumentOutline('document')
             class="introduction-card-item scalar-reference-intro-clients">
             <SdkInstallationInstructions
               class="introduction-card-item scalar-reference-intro-clients"
+              :clientOptions="
+                options.showDefaultClientsWithSdkInstallation
+                  ? clientOptions
+                  : undefined
+              "
               :eventBus
+              :featuredClients="options.featuredClients"
               :selectedClient="xScalarDefaultClient"
               :xScalarSdkInstallation="sdkInstallation" />
           </IntroductionCardItem>

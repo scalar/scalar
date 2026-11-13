@@ -8,6 +8,17 @@ import {
 } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
+  it.each([undefined, false, true])('preserves combined SDK/client mode %s through normalization', (value) => {
+    expect(
+      coerce(apiReferenceConfigurationSchema, { showDefaultClientsWithSdkInstallation: value })
+        .showDefaultClientsWithSdkInstallation,
+    ).toBe(value)
+    expect(
+      apiReferenceConfigurationWithSourceSchema({ showDefaultClientsWithSdkInstallation: value, url: '/openapi.json' })
+        .showDefaultClientsWithSdkInstallation,
+    ).toBe(value)
+  })
+
   it('preserves a custom default client through normalization', () => {
     const defaultHttpClient = { targetKey: 'custom', clientKey: 'python/1' }
     expect(coerce(apiReferenceConfigurationSchema, { defaultHttpClient }).defaultHttpClient).toStrictEqual(

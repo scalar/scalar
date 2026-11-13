@@ -213,6 +213,12 @@ public partial class ScalarOptions : IScalarAuthenticationOptions
     public KeyValuePair<ScalarTarget, ScalarClient>[]? FeaturedClients { get; set; }
 
     /// <summary>
+    /// Controls whether built-in HTTP clients appear alongside SDK installation tabs in the introduction.
+    /// </summary>
+    /// <remarks>Defaults to <c>false</c>, which shows only SDK tabs when installation instructions are available.</remarks>
+    public bool? ShowDefaultClientsWithSdkInstallation { get; set; }
+
+    /// <summary>
     /// Controls the list of servers for the Scalar API Reference.
     /// </summary>
     /// <remarks>This list will override the servers defined in the OpenAPI document.</remarks>
