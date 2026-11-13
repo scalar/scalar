@@ -13,7 +13,7 @@ packages:
 
 catalogs:
   '*':
-    '@ai-sdk/vue': 4.0.142
+    '@ai-sdk/vue': 4.0.171
     mermaid: 12.2.0
     '@astrojs/starlight': 0.42.6
     '@fastify/basic-auth': ^6.3.1
@@ -57,7 +57,7 @@ catalogs:
     '@vueuse/core': 15.0.0
     '@vueuse/integrations': 15.0.0
     'fastify-plugin': ^6.0.1
-    ai: 7.0.142
+    ai: 7.0.171
     ajv: ^8.20.0
     ajv-draft-04: ^1.0.0
     ajv-formats: ^3.0.1
@@ -174,6 +174,12 @@ overrides:
 minimumReleaseAge: 7200 # 5 days
 
 minimumReleaseAgeExclude:
+  # AI SDK update removes its transitive Undici dependency.
+  - ai@7.0.171
+  - '@ai-sdk/vue@4.0.171'
+  - '@ai-sdk/gateway@4.0.144'
+  - '@ai-sdk/provider@4.0.38'
+  - '@ai-sdk/provider-utils@5.0.80'
   # Reviewed Nest security update to replace vulnerable Fastify and Multer pins.
   - '@nestjs/common@11.2.9'
   - '@nestjs/core@11.2.9'
