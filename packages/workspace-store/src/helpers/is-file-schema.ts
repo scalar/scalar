@@ -11,11 +11,11 @@ import { isArraySchema, isStringSchema } from '@/schemas/v3.2/strict/type-guards
 export const isFileSchema = (schema: SchemaObject, allowUntyped = true, contentType?: string): boolean => {
   const seen = new Set<MaybeRefSchemaObject>()
   const visit = (
-    input: MaybeRefSchemaObject | undefined,
+    input: MaybeRefSchemaObject | boolean | undefined,
     allowAlternatives = true,
     allowRawBinary = false,
   ): boolean => {
-    if (!input || seen.has(input)) {
+    if (!input || typeof input === 'boolean' || seen.has(input)) {
       return false
     }
     seen.add(input)

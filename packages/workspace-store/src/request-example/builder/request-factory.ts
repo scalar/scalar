@@ -224,6 +224,7 @@ export const requestFactory = ({
   isElectron,
   selectedSecuritySchemes,
   openapiVersion,
+  jsonSchemaDialect,
   requestBodyCompositionSelection,
 }: RequestExampleMeta & {
   /** The operation object */
@@ -245,6 +246,8 @@ export const requestFactory = ({
   /** Selected anyOf/oneOf request-body variants keyed by schema path */
   /** Originating OpenAPI version, used for version-specific serialization. */
   openapiVersion?: string
+  /** Document default for schema resources without $schema. */
+  jsonSchemaDialect?: string
   requestBodyCompositionSelection?: Record<string, number>
 }): {
   request: RequestFactory
@@ -266,7 +269,7 @@ export const requestFactory = ({
 
   // If the method can have a body, build the request body, otherwise set it to null
   const body = canMethodHaveBody(method)
-    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion)
+    ? buildRequestBody(requestBody, exampleName, requestBodyCompositionSelection, openapiVersion, jsonSchemaDialect)
     : null
 
   // Delete the Content-Type header so the browser will set it automatically based on the request body

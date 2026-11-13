@@ -9,6 +9,43 @@ const compact = { format: false, xmlDeclaration: false }
 const schema = (value: unknown): SchemaObject => value as SchemaObject
 
 describe('get-xml-example', () => {
+  it.each(['3.1.0', '3.2.0'])('keeps XML metadata on the selected contains item branches in %s', (openapiVersion) => {
+    const schema = {
+      type: 'array',
+      xml: { name: 'values', wrapped: true },
+      items: {
+        anyOf: [
+          { type: 'integer', xml: { name: 'number' } },
+          { type: 'string', const: 'x', xml: { name: 'word' } },
+        ],
+      },
+      minItems: 2,
+      maxItems: 2,
+      contains: { const: 'x' },
+      maxContains: 1,
+    } as unknown as SchemaObject
+    expect(getXmlExampleFromSchema(schema, { ...compact, openapiVersion })).toStrictEqual({
+      xml: '<values><word>x</word><number>1</number></values>',
+      diagnostics: [],
+    })
+  })
+  it('serializes counted matches with item XML metadata', () => {
+    const schema = {
+      type: 'array',
+      xml: { name: 'numbers', wrapped: true },
+      items: { type: 'integer', xml: { name: 'number' } },
+      minItems: 3,
+      maxItems: 3,
+      uniqueItems: true,
+      contains: { const: 2 },
+      minContains: 1,
+      maxContains: 1,
+    } as unknown as SchemaObject
+    expect(getXmlExampleFromSchema(schema, compact)).toStrictEqual({
+      xml: '<numbers><number>2</number><number>1</number><number>3</number></numbers>',
+      diagnostics: [],
+    })
+  })
   it('pads array items through XML serialization', () => {
     const input: SchemaObject = {
       type: 'array',
