@@ -1,5 +1,9 @@
 # @scalar/snippetz
 
+## 0.10.18
+
+No changes in this release.
+
 ## 0.10.17
 
 No changes in this release.

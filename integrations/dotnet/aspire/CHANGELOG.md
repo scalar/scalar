@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 1.0.0
+
+### Bundled API Reference
+
+- @scalar/api-reference@1.79.0
+
+### Major Changes
+
+- [#10975](https://github.com/scalar/scalar/pull/10975): feat!: drop .NET 8 and .NET 9 support (both reached end of support on November 10, 2026); packages now target .NET 10 and later
+
 ## 0.15.0
 
 ### Bundled API Reference

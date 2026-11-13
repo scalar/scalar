@@ -9,6 +9,12 @@
   on every release - edits made directly here will be overwritten.
 -->
 
+## 0.21.3 (2026-11-13)
+
+### Polish and bug fixes
+
+[Read full release notes](https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213)
+
 ## 0.21.2 (2026-11-12)
 
 ### Mock server now generates valid base64 examples

@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.71.2
+
+### Patch Changes
+
+- [#10998](https://github.com/scalar/scalar/pull/10998): Reuse the discovery response when importing extensionless API description URLs, avoiding a duplicate download while preserving URL metadata and subsequent fetches.
+
 ## 0.71.1
 
 ### Patch Changes

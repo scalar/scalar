@@ -1,5 +1,11 @@
 # @scalar/agent-chat
 
+## 0.12.53
+
+### Patch Changes
+
+- [#11035](https://github.com/scalar/scalar/pull/11035): Update the AI SDK dependencies to remove their transitive Undici dependency.
+
 ## 0.12.52
 
 No changes in this release.

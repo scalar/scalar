@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 3.26.0
+
+### Minor Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
 ## 3.25.1
 
 ### Patch Changes

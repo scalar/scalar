@@ -1,5 +1,12 @@
 # @scalar/json-magic
 
+## 0.19.2
+
+### Patch Changes
+
+- [#11015](https://github.com/scalar/scalar/pull/11015): Update Undici to address CVE-2026-116592 and allow compatible Undici 8 updates without requiring a new Scalar release.
+- [#11005](https://github.com/scalar/scalar/pull/11005): Preserve nested deletions and their application order when a covering parent deletion conflicts with another change.
+
 ## 0.19.1
 
 ### Patch Changes

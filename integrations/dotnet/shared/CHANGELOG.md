@@ -1,5 +1,11 @@
 # @scalar/dotnet-shared
 
+## 1.0.0
+
+### Major Changes
+
+- [#10975](https://github.com/scalar/scalar/pull/10975): feat!: drop .NET 8 and .NET 9 support (both reached end of support on November 10, 2026); packages now target .NET 10 and later
+
 ## 0.6.0
 
 ### Minor Changes

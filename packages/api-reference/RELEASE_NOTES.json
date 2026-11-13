@@ -1,5 +1,32 @@
 [
   {
+    "version": "1.79.0",
+    "date": "2026-11-13",
+    "title": "Redesigned code cards with lifted surfaces and improved search",
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Code cards throughout the reference now render as a padded shell with content on a lifted surface, creating a clearer visual hierarchy. Search now finds operations by their tag names and display titles, making endpoints easier to discover."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Code cards redesigned with 12px rounded shells and lifted 8px surfaces for better visual separation",
+          "Search now indexes operation tags by both their raw name and display title, so you can find endpoints by the same labels shown in the sidebar",
+          "Fixed server-side rendering so hydrating the API reference no longer removes elements from the host page or breaks dropdown menus",
+          "Card surface color automatically adapts to custom themes, staying one step lighter than the shell background",
+          "Two plain card sections now render as separate surfaces with a 4px gap instead of a single box with a divider"
+        ],
+        "ordered": false
+      },
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/api-reference/CHANGELOG.md#1790",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "1.78.1",
     "date": "2026-11-12",
     "title": "Large API documents with shared components now parse successfully",

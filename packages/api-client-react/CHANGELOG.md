@@ -1,5 +1,9 @@
 # @scalar/api-client-react
 
+## 2.0.67
+
+No changes in this release.
+
 ## 2.0.66
 
 No changes in this release.

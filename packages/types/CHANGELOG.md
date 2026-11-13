@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.28.2
+
+### Patch Changes
+
+- [#10986](https://github.com/scalar/scalar/pull/10986): Add an Open in browser action for GET requests using the configured URL and parameters.
+
 ## 0.28.1
 
 No changes in this release.

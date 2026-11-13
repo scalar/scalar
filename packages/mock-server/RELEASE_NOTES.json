@@ -1,5 +1,17 @@
 [
   {
+    "version": "0.21.3",
+    "date": "2026-11-13",
+    "title": "Polish and bug fixes",
+    "content": [
+      {
+        "type": "href",
+        "href": "https://github.com/scalar/scalar/blob/main/packages/mock-server/CHANGELOG.md#0213",
+        "label": "Read full release notes"
+      }
+    ]
+  },
+  {
     "version": "0.21.2",
     "date": "2026-11-12",
     "title": "Mock server now generates valid base64 examples",
