@@ -216,12 +216,10 @@ const activeTabId = computed(() =>
 )
 
 /**
- * The visible tab that holds the roving tabindex. When the selection lives in
- * the "More" dropdown, that trigger is the tab stop instead, so no inline tab
- * should be focusable.
+ * Keep the inline tabs keyboard-reachable when the selection lives in "More".
  */
 const tabStopIndex = computed(() =>
-  isMoreActive.value ? -1 : selectedIndex.value,
+  isMoreActive.value ? 0 : selectedIndex.value,
 )
 
 /** Focus a visible tab by index after the DOM has settled */
