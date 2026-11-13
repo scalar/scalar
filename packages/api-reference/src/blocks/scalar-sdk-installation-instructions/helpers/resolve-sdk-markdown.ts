@@ -1,9 +1,5 @@
 import type { Node } from '@scalar/code-highlight'
-import {
-  type SecuritySchemeObjectSecret,
-  maskCredentialPlaceholders,
-  resolveCredentialPlaceholders,
-} from '@scalar/workspace-store/request-example'
+import { type SecuritySchemeObjectSecret, resolveCredentialPlaceholders } from '@scalar/workspace-store/request-example'
 
 /** A credential-bearing code block rendered with a separate display and copy value. */
 export type SdkCredentialCodeBlock = {
@@ -33,10 +29,10 @@ export const resolveSdkMarkdown = (
     }
     if (['text', 'inlineCode', 'code'].includes(node.type) && typeof node.value === 'string') {
       const resolved = resolveCredentialPlaceholders(node.value, securitySchemes)
-      if (!resolved.segments.some((segment) => segment.credential)) {
+      if (resolved.content === node.value && resolved.displayContent === node.value) {
         return node
       }
-      const displayContent = maskCredentialPlaceholders(resolved)
+      const { displayContent } = resolved
       node.value = displayContent
       if (node.type === 'code') {
         const marker = `${markerPrefix}-${blocks.length}`
