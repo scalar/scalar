@@ -51,6 +51,7 @@ import {
   restoreOriginalRefs,
   syncPathParameters,
 } from '@/plugins/bundler'
+import { codeSampleSources } from '@/plugins/bundler/code-sample-sources'
 import { extensions } from '@/schemas/extensions'
 import type { InMemoryWorkspace } from '@/schemas/inmemory-workspace'
 import type { TraversedDocument } from '@/schemas/navigation'
@@ -209,7 +210,11 @@ const getDocumentSource = (input: WorkspaceDocumentInput) => {
   if ('path' in input) {
     return input.path
   }
-  return 'document' in input ? input.documentSource : undefined
+  if ('document' in input) {
+    const originalSource = input.document['x-scalar-original-source-url']
+    return input.documentSource ?? (typeof originalSource === 'string' ? originalSource : undefined)
+  }
+  return undefined
 }
 
 /**
@@ -1173,6 +1178,8 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
     const strictDocument: UnknownObject = createMagicProxy(
       {
         ...inputDocument,
+        // Partial API descriptions still need document traversal rather than standalone schema traversal.
+        openapi: inputDocument.openapi ?? '',
         ...meta,
         'x-original-oas-version': clonedRawInputDocument.openapi ?? clonedRawInputDocument.swagger,
         'x-scalar-original-document-hash': input.documentHash,
@@ -1189,9 +1196,12 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
         'bundle',
         async () =>
           await bundle(getRaw(strictDocument), {
+            // Example values and other literal data may contain authored `$ref` keys.
+            traversal: 'document',
             treeShake: false,
             plugins: [
               ...loaders,
+              codeSampleSources(),
               openApiDocument(),
               normalizeRefs(),
               externalValueResolver({ lazy: true }),
@@ -1685,9 +1695,11 @@ export const createWorkspaceStore = (workspaceProps?: WorkspaceProps): Workspace
 
       return bundle(target, {
         root: activeDocument,
+        traversal: 'document',
         origin: activeDocument?.['x-scalar-original-source-url'],
         treeShake: false,
         plugins: [
+          codeSampleSources(path),
           openApiDocument(),
           fetchUrls({
             fetch: extraDocumentConfigurations[getActiveDocumentName()]?.fetch ?? workspaceProps?.fetch,

@@ -8,6 +8,7 @@ import path, { join, relative } from 'node:path'
 import { cwd } from 'node:process'
 
 import { getRaw } from '@scalar/json-magic/magic-proxy'
+import { literalReferencesDocument } from '@test/literal-references'
 import { type FastifyInstance, fastify } from 'fastify'
 import { assert, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -30,6 +31,29 @@ import {
 } from './server'
 
 describe('create-server-store', () => {
+  it.each(['3.1.0', '3.2.0'])('preserves literal references when loading OpenAPI %s', async (openapi) => {
+    const fetchDocument = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(() => Promise.resolve(new Response('{"type":"object"}')))
+    try {
+      const document = { ...structuredClone(literalReferencesDocument), openapi }
+      const store = await createServerWorkspaceStore({
+        mode: 'ssr',
+        baseUrl: '/docs',
+        documents: [{ name: 'literal', document }],
+        documentLoading: { allowPrivateNetworks: true },
+      })
+      const raw = getRaw(store.getResolvedDocument('literal'))
+      assert(raw && !isAsyncApiDocument(raw))
+      expect(raw.info).toStrictEqual(document.info)
+      expect(raw.components).toStrictEqual(document.components)
+      expect(raw.paths).toStrictEqual(document.paths)
+      expect(fetchDocument).toHaveBeenCalledTimes(0)
+    } finally {
+      fetchDocument.mockRestore()
+    }
+  })
+
   it('preserves Paths Object extensions when externalizing operations', () => {
     const extensions = {
       'x-origins': ['https://example.com'],
