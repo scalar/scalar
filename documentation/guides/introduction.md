@@ -52,9 +52,9 @@ From an agent's first read of your docs to its millionth production call, Scalar
 
 <div class="hl-essay">
 
-## The ultimate interface is a chat box
+## One OpenAPI document in. Docs, MCP, and SDKs out.
 
-For two decades we obsessed over purpose-built interfaces. Every product earned its own: an issue tracker shaped around sprints, an inbox tuned for speed, a calendar laid out by the week, an API reference with every endpoint in its sidebar. Teams argued over layouts, keyboard shortcuts and empty states, because the interface was the product.
+For two decades the interface was the product. Now people ask a chat box, and an agent calls your API for them. Scalar builds what that agent needs.
 
 </div>
 
@@ -67,23 +67,23 @@ For two decades we obsessed over purpose-built interfaces. Every product earned 
 </div>
 </div>
 
-<div class="hl-essay">
+<div class="hl-essay hl-docs">
 
-Now the interface people reach for first is a chat box. There is nothing to learn: ask for the issues still open before Thursday, and the answer comes back in the conversation. The interface that matters is the one an agent can use: your API, and the documentation that explains it.
+## Docs to read
 
-The internet already has a name for this: going headless. Products ship an MCP server beside their app, and product teams have started to ask what their product is when nobody opens it.
+Your guides and API reference on one site, under your own domain and theme, with access groups for partner portals. Every page is also served as Markdown, alongside an `llms.txt` and a Docs MCP endpoint, so agents read what your developers read. The core is open source, with 16k GitHub stars.
+
+<a href="/products/docs" class="t-editor__anchor" aria-label="Learn more about Docs">Learn more →</a>
 
 </div>
 
-<div class="hl-essay hl-tools">
+<div class="hl-essay hl-mcp">
 
-## Scalar gets your product into the chat box
+## An MCP server to call
 
-Scalar gives an agent what it needs from the OpenAPI document you already maintain: documentation it can read, and an MCP server it can call.
+Scalar turns your OpenAPI document into a hosted MCP server, so Claude or ChatGPT can use your API directly. It exposes a small, fixed set of tools and fetches operation details on demand, so any API fits in about 0.2% of context.
 
-First, an agent has to understand your product. It wants Markdown, not a rendered page, so Scalar serves both from one source, along with an `llms.txt`. Under it all is an open source core with 15.7k GitHub stars and eight framework integrations.
-
-Then your users' agents act on it, with no code at all. Someone asks Claude or ChatGPT for something, and the agent calls your API itself. Scalar turns your OpenAPI document into that MCP server, and any API fits in a fixed tool set of about 0.2% of context.
+<a href="/products/agent" class="t-editor__anchor" aria-label="Learn more about MCP servers">Learn more →</a>
 
 </div>
 
@@ -104,15 +104,13 @@ Then your users' agents act on it, with no code at all. Someone asks Claude or C
 
 <div class="hl-essay hl-sdk">
 
-## Then a developer's agent builds on it
+## SDKs to build on
 
-Your customers' coding agents write the integration now. Scalar generates typed SDKs from your OpenAPI document, one pull request per release, so an agent's code compiles the first time.
+Typed SDKs in TypeScript, Python, Go, Java, Kotlin, and Ruby, plus a CLI, generated from your OpenAPI document. Each release is a pull request you control, published to npm, PyPI, Go modules, Maven Central, and RubyGems with a changelog. Coming from Stainless? Upload your `stainless.yml` as it is and existing call sites keep working.
 
-TypeScript, Python, Go, Java, Kotlin, and Ruby are generally available, plus a CLI, published to npm, PyPI, Go modules, Maven Central, and RubyGems with changelogs. Coming from Stainless? Upload your `stainless.yml` as it is and existing call sites keep working.
+<a href="/products/sdk-generator" class="t-editor__anchor" aria-label="Learn more about SDKs">Learn more →</a>
 
-### Customer showcase: Warp
-
-Warp builds AI-native employee management and wants everything in its app reachable by API. Some of its customers already connect Claude to everything, building reports, sending an employee invite, or signing an offer without opening the app. When its SDK vendor discontinued its product, Warp moved its TypeScript, Python, and Go SDKs and its CLI to Scalar: every language at parity, with no breaking changes.
+Warp is an AI-native HR and payroll platform that wants everything in its app to be reachable by API. [Scalar generates its SDKs](/customers/warp) in TypeScript, Python, and Go, plus a CLI, and its CTO says the best part is how little the team has to think about them. Here is Warp's SDK in use:
 
 </div>
 
@@ -186,9 +184,7 @@ func main() {
 
 ## We run the infrastructure. You run your API.
 
-People ask a chat box, developers ask a coding agent or install an SDK, and every path leads back to your API. From the one OpenAPI document you already maintain, Scalar builds docs to read, an MCP server to call, and typed SDKs to build on.
-
-Connecting takes one line, from any remote MCP client to the operations you choose. Behind that line, an MCP server is a production service. It must stay up, authenticate callers, absorb agent traffic, and track a protocol that changes every few months. Scalar runs yours at `mcp.yourcompany.com`, with OAuth, rate limits and nothing to deploy, and goes where MCP goes. You see call counts, errors and latency per tool and client, with arguments never stored. You keep shipping your API.
+An MCP server is a production service. Scalar runs yours at `mcp.yourcompany.com` with OAuth and rate limits, and shows you calls, errors, and latency per tool. You keep shipping your API.
 
 </div>
 
@@ -282,7 +278,7 @@ Connecting takes one line, from any remote MCP client to the operations you choo
 
 <div class="hl-essay hl-close">
 
-The interface is still the product. It has moved to your API, where its newest users are agents working for your customers. The care that once went into screens belongs there now: every button backed by an operation, and every operation described so plainly that nothing is left to guess.
+The interface is still the product. It has moved to your API, where its newest users are agents working for your customers.
 
 </div>
 
@@ -738,6 +734,11 @@ The interface is still the product. It has moved to your API, where its newest u
   .hl-essay > * + * {
     margin-top: 12px;
   }
+  /* the Docs section opens right under the row of windows, so it takes the room a section has under a visual, as
+     the SDKs do under the card and the hosting section does under the car */
+  .hl-row-card + .hl-docs {
+    margin-top: 72px;
+  }
   /* The row in a card, as the MCP & Agent and hosting cards are: as wide as the logo wall, bg-b-1.5, the Scalar
      border, 2xl corners. data-dh-contained has landing.js lay the row out for the card rather than run it out to the
      page's edges, so a window keeps its share of the row. */
@@ -1142,8 +1143,8 @@ The interface is still the product. It has moved to your API, where its newest u
   .hl-essay > .t-editor__heading:first-child {
     margin-top: 0;
   }
-  /* a heading inside a block keeps the theme's room above it, which the block's 12px would take away */
-  .hl-essay > h3.t-editor__heading {
+  /* Warp's sentence introduces the code under it, so it stands a little clear of the SDKs' own link above */
+  .hl-sdk > p:last-child {
     margin-top: 28px;
   }
   /* The card runs past the text column as far as the logo wall does: the home page's 960px column and up to 76px
